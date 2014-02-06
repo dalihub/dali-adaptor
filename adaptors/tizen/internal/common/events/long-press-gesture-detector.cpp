@@ -198,7 +198,12 @@ void LongPressGestureDetector::Update(const Integration::GestureRequest& request
 bool LongPressGestureDetector::TimerCallback()
 {
   EmitGesture(Gesture::Started);
+
   mState = Finished;
+
+  // There is no touch event at this time, so ProcessEvents must be called directly
+  mCoreEventInterface.ProcessCoreEvents();
+
   return false;
 }
 
@@ -228,7 +233,6 @@ void LongPressGestureDetector::EmitGesture(Gesture::State state)
     }
 
     mCoreEventInterface.QueueCoreEvent(longPress);
-    mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
   }
 }
 

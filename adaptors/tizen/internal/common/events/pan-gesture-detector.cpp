@@ -46,7 +46,6 @@ PanGestureDetector::~PanGestureDetector()
 void PanGestureDetector::EmitPan(const Integration::PanGestureEvent event)
 {
   mCoreEventInterface.QueueCoreEvent(event);
-  mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
 }
 
 } // namespace Adaptor

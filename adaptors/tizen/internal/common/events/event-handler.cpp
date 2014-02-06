@@ -1128,10 +1128,12 @@ void EventHandler::SendEvent(TouchPoint& point, unsigned long timeStamp)
   {
     DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.deviceId, point.state, point.local.x, point.local.y);
 
+    // First the touch event & related gesture events are queued
     mCoreEventInterface.QueueCoreEvent( event );
-    mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
-
     mGestureManager.SendEvent(event);
+
+    // Next the events are processed with a single call into Core
+    mCoreEventInterface.ProcessCoreEvents();
   }
 }
 
@@ -1218,10 +1220,12 @@ void EventHandler::Reset()
   TouchPoint point(0, TouchPoint::Interrupted, 0, 0);
   event.AddPoint( point );
 
+  // First the touch event & related gesture events are queued
   mCoreEventInterface.QueueCoreEvent( event );
-  mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
-
   mGestureManager.SendEvent( event );
+
+  // Next the events are processed with a single call into Core
+  mCoreEventInterface.ProcessCoreEvents();
 }
 
 void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )

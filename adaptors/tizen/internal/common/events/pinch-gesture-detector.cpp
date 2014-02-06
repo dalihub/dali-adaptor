@@ -278,7 +278,6 @@ void PinchGestureDetector::SendPinch(Gesture::State state, const Integration::To
   gesture.time = currentEvent.time;
 
   mCoreEventInterface.QueueCoreEvent(gesture);
-  mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
 }
 
 } // namespace Adaptor

@@ -193,12 +193,12 @@ void TapGestureDetector::EmitGesture( Gesture::State state, unsigned int time )
        (state == Gesture::Cancelled) ||
        (mTapsRegistered >= mMinimumTapsRequired && mTapsRegistered <= mMaximumTapsRequired) )
   {
-    Integration::TapGestureEvent tap( state );
-    tap.numberOfTaps = mTapsRegistered;
-    tap.point = mTouchPosition;
-    tap.time = time;
-    mCoreEventInterface.QueueCoreEvent(tap);
-    mCoreEventInterface.ProcessCoreEvents(); // TODO - ProcessEvents should only be called once for each raw input event
+    Integration::TapGestureEvent event( state );
+    event.numberOfTaps = mTapsRegistered;
+    event.point = mTouchPosition;
+    event.time = time;
+
+    mCoreEventInterface.QueueCoreEvent(event);
   }
   mTapsRegistered = 0;
 }
