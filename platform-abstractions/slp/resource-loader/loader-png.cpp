@@ -114,13 +114,30 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
 
 } // namespace - anonymous
 
-bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height)
+bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
 {
   png_structp png = NULL;
   png_infop info = NULL;
   auto_png autoPng(png, info);
 
-  return LoadPngHeader(fp, width, height, png, info);
+  bool success = LoadPngHeader(fp, width, height, png, info);
+
+  if( success )
+  {
+    bool crop = (attributes.GetScalingMode() == Dali::ImageAttributes::ScaleToFill);
+    if(crop)
+    {
+      Size req((float) attributes.GetWidth(), (float) attributes.GetHeight());
+      const Size orig((float)width, (float)height);
+
+      // calculate actual width, height
+      req = FitScaleToFill(req, orig);
+
+      width = (int) req.width;
+      height = (int) req.height;
+    }
+  }
+  return success;
 }
 
 bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
@@ -325,7 +342,6 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
     // modify attributes with result
     attributes.SetSize((int) req.width, (int) req.height);
     attributes.SetPixelFormat(pixelFormat);
-
 
     bufferWidth  = GetTextureDimension(attributes.GetWidth());
     bufferHeight = GetTextureDimension(attributes.GetHeight());

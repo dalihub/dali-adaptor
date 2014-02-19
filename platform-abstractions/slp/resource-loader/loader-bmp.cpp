@@ -1042,7 +1042,7 @@ bool DecodeRLE8(FILE *fp,
 
 } // unnamed namespace
 
-bool LoadBmpHeader(FILE *fp, unsigned int &width, unsigned int &height)
+bool LoadBmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
 {
   BmpFileHeader fileHeader;
   BmpInfoHeader infoHeader;

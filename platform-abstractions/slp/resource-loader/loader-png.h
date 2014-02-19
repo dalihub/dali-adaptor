@@ -53,11 +53,12 @@ bool LoadBitmapFromPng(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.
  * @param[in]   fp      Pointer to the Image file
+ * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @param[out]  width   Is set with the width of the image
  * @param[out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height);
+bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 
 /**
  * A bucket of bytes representing a PNG image.

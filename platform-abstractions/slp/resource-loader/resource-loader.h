@@ -174,9 +174,8 @@ class ResourceLoader
 public:
 
   /**
-   * Create a resource manager.
+   * Create a resource loader.
    * There should exactly one of these objects per Dali Core.
-   * @param[in] platformAbstraction Resource manager will use this for request resources from the native filesystem.
    */
   ResourceLoader();
 
@@ -261,9 +260,18 @@ public:
   void GetResources(Integration::ResourceCache& cache);
 
   /**
-   * @copydoc PlatformAbstraction::LoadImageMetadata()
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  void LoadImageMetadata(const std::string fileName, Vector2 &size);
+  void GetClosestImageSize( const std::string& filename,
+                            const ImageAttributes& attributes,
+                            Vector2& closestSize );
+
+  /**
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
+   */
+  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                            const ImageAttributes& attributes,
+                            Vector2& closestSize );
 
   /**
    * Called by Font objects to synchronously query glyph data.

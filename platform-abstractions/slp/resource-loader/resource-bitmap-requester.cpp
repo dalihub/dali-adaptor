@@ -85,11 +85,19 @@ void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration
   mThreadDistanceField->CancelRequest(id);
 }
 
-void ResourceBitmapRequester::LoadImageMetadata(const std::string fileName, Vector2 &size)
+void ResourceBitmapRequester::GetClosestImageSize( const std::string& filename,
+                                                   const ImageAttributes& attributes,
+                                                   Vector2 &closestSize )
 {
-  mThreadImage->LoadImageMetadata(fileName, size);
+  mThreadImage->GetClosestImageSize(filename, attributes, closestSize );
 }
 
+void ResourceBitmapRequester::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                                   const ImageAttributes& attributes,
+                                                   Vector2 &closestSize )
+{
+  mThreadImage->GetClosestImageSize(resourceBuffer, attributes, closestSize );
+}
 
 } // SlpPlatform
 } // Dali

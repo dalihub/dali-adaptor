@@ -294,13 +294,27 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
-  void LoadImageMetadata( const std::string fileName, Vector2 &size )
+  void GetClosestImageSize( const std::string& filename,
+                            const ImageAttributes& attributes,
+                            Vector2& closestSize )
   {
     ResourceRequesterBase* requester = GetRequester(ResourceBitmap);
     ResourceBitmapRequester* bitmapRequester = dynamic_cast<ResourceBitmapRequester*>(requester);
     if( bitmapRequester != NULL )
     {
-      bitmapRequester->LoadImageMetadata( fileName, size );
+      bitmapRequester->GetClosestImageSize( filename, attributes, closestSize );
+    }
+  }
+
+  void GetClosestImageSize( ResourcePointer resourceBuffer,
+                            const ImageAttributes& attributes,
+                            Vector2& closestSize )
+  {
+    ResourceRequesterBase* requester = GetRequester(ResourceBitmap);
+    ResourceBitmapRequester* bitmapRequester = dynamic_cast<ResourceBitmapRequester*>(requester);
+    if( bitmapRequester != NULL )
+    {
+      bitmapRequester->GetClosestImageSize( resourceBuffer, attributes, closestSize );
     }
   }
 
@@ -463,10 +477,20 @@ bool ResourceLoader::IsLoading()
   return mImpl->IsLoading();
 }
 
-void ResourceLoader::LoadImageMetadata(const std::string fileName, Vector2 &size)
+void ResourceLoader::GetClosestImageSize( const std::string& filename,
+                                          const ImageAttributes& attributes,
+                                          Vector2& closestSize )
 {
-  mImpl->LoadImageMetadata( fileName, size );
+  mImpl->GetClosestImageSize( filename, attributes, closestSize );
 }
+
+void ResourceLoader::GetClosestImageSize( ResourcePointer resourceBuffer,
+                                          const ImageAttributes& attributes,
+                                          Vector2& closestSize )
+{
+  mImpl->GetClosestImageSize( resourceBuffer, attributes, closestSize );
+}
+
 
 std::string ResourceLoader::GetFontFamilyForChars(const TextArray& charsRequested)
 {

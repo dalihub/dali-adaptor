@@ -39,7 +39,7 @@ const unsigned char MAGIC_BYTE_2 = 0x00;
 
 bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
 
-bool LoadIcoHeader(FILE *fp, unsigned int &width, unsigned int &height);
+bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 
 }
 

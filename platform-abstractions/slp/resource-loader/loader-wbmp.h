@@ -33,10 +33,9 @@ namespace SlpPlatform
 
 bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
 
-bool LoadWbmpHeader(FILE *fp, unsigned int &width, unsigned int &height);
+bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 
 }
 
 }
 #endif
-

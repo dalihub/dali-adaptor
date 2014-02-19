@@ -53,12 +53,16 @@ bool LoadBitmapFromJpeg(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.
+ * If the width and height are set on entry, it will set the width and height
+ * to the closest scaled size (exactly as will be loaded by LoadBitmapFromJpeg with the same
+ * attributes)
  * @param[in]   fp      Pointer to the Image file
- * @param[out]  width   Is set with the width of the image
- * @param[out]  height  Is set with the height of the image
+ * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
+ * @param[in/out]  width   Is set with the width of the image
+ * @param[in/out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadJpegHeader(FILE *fp, unsigned int &width, unsigned int &height);
+bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height);
 
 /**
  * Encode raw pixel data to JPEG format.

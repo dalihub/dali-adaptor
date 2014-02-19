@@ -307,7 +307,7 @@ bool LoadIcoHeaderHelper( FILE* fp,
 
 }//unnamed namespace
 
-bool LoadIcoHeader(FILE *fp, unsigned int &width, unsigned int &height)
+bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;

@@ -295,7 +295,7 @@ bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height, K
 } // unnamed namespace
 
 // File loading API entry-point:
-bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height)
+bool LoadKtxHeader(FILE * const fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
 {
   KtxFileHeader fileHeader;
   bool ret = LoadKtxHeader(fp, width, height, fileHeader);

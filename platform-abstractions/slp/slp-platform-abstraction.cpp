@@ -165,13 +165,28 @@ void SlpPlatformAbstraction::GetGlobalMetrics( const std::string& fontFamily, co
   }
 }
 
-void SlpPlatformAbstraction::LoadImageMetadata(const std::string fileName, Vector2 &size)
+void SlpPlatformAbstraction::GetClosestImageSize( const std::string& filename,
+                                                  const ImageAttributes& attributes,
+                                                  Vector2& closestSize )
 {
+  closestSize = Vector2::ZERO;
   if (mResourceLoader)
   {
-    mResourceLoader->LoadImageMetadata(fileName, size);
+    mResourceLoader->GetClosestImageSize(filename, attributes, closestSize );
   }
 }
+
+void SlpPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                                  const ImageAttributes& attributes,
+                                                  Vector2& closestSize )
+{
+  closestSize = Vector2::ZERO;
+  if (mResourceLoader)
+  {
+    mResourceLoader->GetClosestImageSize(resourceBuffer, attributes, closestSize );
+  }
+}
+
 
 void SlpPlatformAbstraction::LoadResource(const Integration::ResourceRequest& request)
 {

@@ -216,7 +216,8 @@ bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
   return true;
 }
 
-bool LoadWbmpHeader(FILE *fp, unsigned int &width, unsigned int &height)
+
+bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
 {
   if(fp == NULL)
   {
@@ -296,9 +297,10 @@ bool LoadWbmpHeader(FILE *fp, unsigned int &width, unsigned int &height)
     return false;
   }
 
+  width = w;
+  height = h;
   return true;
 }
 
 }
 }
-

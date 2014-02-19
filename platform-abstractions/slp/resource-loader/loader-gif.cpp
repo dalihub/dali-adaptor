@@ -263,7 +263,7 @@ bool HandleExtensionRecordType( GifFileType* gifInfo )
 
 } // unnamed namespace
 
-bool LoadGifHeader(FILE *fp, unsigned int &width, unsigned int &height)
+bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
 {
   GifFileType* gifInfo = NULL;
   AutoCleanupGif autoCleanupGif(gifInfo);
@@ -320,4 +320,3 @@ bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
 } // namespace SlpPlatform
 
 } // namespace Dali
-

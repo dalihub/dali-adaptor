@@ -25,6 +25,7 @@
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
 #include <libexif/exif-data.h>
+#include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
 
 namespace Dali
@@ -168,6 +169,10 @@ namespace
 bool JpegRotate90 (unsigned char *buffer, int width, int height, int bpp);
 bool JpegRotate180(unsigned char *buffer, int width, int height, int bpp);
 bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp);
+JPGFORM_CODE ConvertExifOrientation(ExifData* exifData);
+bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transform,
+                    int& preXformImageWidth, int& preXformImageHeight,
+                    int& postXformImageWidth, int& postXformImageHeight );
 
 bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
 {
@@ -261,6 +266,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
+
   JPGFORM_CODE transform = JPGFORM_NONE;
 
   if( attributes.GetOrientationCorrection() )
@@ -268,61 +274,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
     ExifAutoPtr exifData( exif_data_new_from_data(jpegBufferPtr, jpegBufferSize) );
     if( exifData.mData )
     {
-      ExifEntry * const entry = exif_data_get_entry(exifData.mData, EXIF_TAG_ORIENTATION);
-      int orientation = 0;
-      if( entry )
-      {
-        orientation = exif_get_short(entry->data, exif_data_get_byte_order(entry->parent->parent));
-        switch( orientation )
-        {
-          case 1:
-          {
-            transform = JPGFORM_NONE;
-            break;
-          }
-          case 2:
-          {
-            transform = JPGFORM_FLIP_H;
-            break;
-          }
-          case 3:
-          {
-            transform = JPGFORM_FLIP_V;
-            break;
-          }
-          case 4:
-          {
-            transform = JPGFORM_TRANSPOSE;
-            break;
-          }
-          case 5:
-          {
-            transform = JPGFORM_TRANSVERSE;
-            break;
-          }
-          case 6:
-          {
-            transform = JPGFORM_ROT_90;
-            break;
-          }
-          case 7:
-          {
-            transform = JPGFORM_ROT_180;
-            break;
-          }
-          case 8:
-          {
-            transform = JPGFORM_ROT_270;
-            break;
-          }
-          default:
-          {
-            // Try to keep loading the file, but let app developer know there was something fishy:
-            DALI_LOG_WARNING( "Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.", entry );
-            break;
-          }
-        }
-      }
+      transform = ConvertExifOrientation(exifData.mData);
     }
   }
 
@@ -349,69 +301,16 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   // rotating that too, and the final width and height need to be swapped:
   int postXformImageWidth = preXformImageWidth;
   int postXformImageHeight = preXformImageHeight;
-  if( transform == JPGFORM_ROT_90 || transform == JPGFORM_ROT_270 )
-  {
-    std::swap( requiredWidth, requiredHeight );
-    std::swap( postXformImageWidth, postXformImageHeight );
-  }
 
-  // Rescale image during decode using one of the decoder's built-in rescaling
-  // ratios (expected to be powers of 2), keeping the final image at least as
-  // wide and high as was requested:
 
   int scaledPreXformWidth   = preXformImageWidth;
   int scaledPreXformHeight  = preXformImageHeight;
   int scaledPostXformWidth  = postXformImageWidth;
   int scaledPostXformHeight = postXformImageHeight;
 
-  if( requiredWidth != 0 || requiredHeight != 0 )
-  {
-    int numFactors = 0;
-    tjscalingfactor* factors = tjGetScalingFactors( &numFactors );
-    if( factors == NULL )
-    {
-      DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!");
-      goto skip_scaling;
-    }
-    // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
-    tjscalingfactor* scaleFactor = 0;
-    for( int i=0; i<numFactors; ++i )
-    {
-      // if requested width or height set to 0, ignore value
-      // TJSCALED performs an integer-based ceil operation on (dim*factor)
-      if( (requiredWidth  && TJSCALED(postXformImageWidth , (factors[i])) > requiredWidth) ||
-          (requiredHeight && TJSCALED(postXformImageHeight, (factors[i])) > requiredHeight) )
-      {
-        scaleFactor = &factors[i];
-      }
-      else
-      {
-        // This scaling would result in an image that was smaller than requested in both
-        // dimensions, so stop at the previous entry.
-        break;
-      }
-    }
-
-    // Only adjust scaling if a supported scaling factor was actually found:
-    if( scaleFactor != 0 )
-    {
-      // Workaround for libjpeg-turbo problem adding a green line on one edge
-      // when downscaling to 1/8 in each dimension. Never scale to less than
-      // 1/4 in each dimension:
-      tjscalingfactor maxDownscale = { 1, 4 };
-      if( scaleFactor->num * 1.0f / scaleFactor->denom < 1.0f / 4.001f )
-      {
-        scaleFactor = &maxDownscale;
-        DALI_LOG_INFO( gLoaderFilter, Debug::General, "Down-scaling requested for image limited to 1/4.\n" );
-      }
-
-      scaledPreXformWidth   = TJSCALED(preXformImageWidth,   (*scaleFactor));
-      scaledPreXformHeight  = TJSCALED(preXformImageHeight,  (*scaleFactor));
-      scaledPostXformWidth  = TJSCALED(postXformImageWidth,  (*scaleFactor));
-      scaledPostXformHeight = TJSCALED(postXformImageHeight, (*scaleFactor));
-    }
-  }
-skip_scaling:
+  TransformSize( requiredWidth, requiredHeight, transform,
+                 scaledPreXformWidth, scaledPreXformHeight,
+                 scaledPostXformWidth, scaledPostXformHeight );
 
   // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
 
@@ -664,7 +563,214 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, std::vector< unsigned
   return true;
 }
 
+
+JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
+{
+  JPGFORM_CODE transform = JPGFORM_NONE;
+  ExifEntry * const entry = exif_data_get_entry(exifData, EXIF_TAG_ORIENTATION);
+  int orientation = 0;
+  if( entry )
+  {
+    orientation = exif_get_short(entry->data, exif_data_get_byte_order(entry->parent->parent));
+    switch( orientation )
+    {
+      case 1:
+      {
+        transform = JPGFORM_NONE;
+        break;
+      }
+      case 2:
+      {
+        transform = JPGFORM_FLIP_H;
+        break;
+      }
+      case 3:
+      {
+        transform = JPGFORM_FLIP_V;
+        break;
+      }
+      case 4:
+      {
+        transform = JPGFORM_TRANSPOSE;
+        break;
+      }
+      case 5:
+      {
+        transform = JPGFORM_TRANSVERSE;
+        break;
+      }
+      case 6:
+      {
+        transform = JPGFORM_ROT_90;
+        break;
+      }
+      case 7:
+      {
+        transform = JPGFORM_ROT_180;
+        break;
+      }
+      case 8:
+      {
+        transform = JPGFORM_ROT_270;
+        break;
+      }
+      default:
+      {
+        // Try to keep loading the file, but let app developer know there was something fishy:
+        DALI_LOG_WARNING( "Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.", entry );
+        break;
+      }
+    }
+  }
+  return transform;
+}
+
+bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transform,
+                    int& preXformImageWidth, int& preXformImageHeight,
+                    int& postXformImageWidth, int& postXformImageHeight )
+{
+  bool success = true;
+
+  if( transform == JPGFORM_ROT_90 || transform == JPGFORM_ROT_270 )
+  {
+    std::swap( requiredWidth, requiredHeight );
+    std::swap( postXformImageWidth, postXformImageHeight );
+  }
+
+  // Rescale image during decode using one of the decoder's built-in rescaling
+  // ratios (expected to be powers of 2), keeping the final image at least as
+  // wide and high as was requested:
+
+  int numFactors = 0;
+  tjscalingfactor* factors = tjGetScalingFactors( &numFactors );
+  if( factors == NULL )
+  {
+    DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!");
+    success = false;
+  }
+  else
+  {
+    // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
+    tjscalingfactor* scaleFactor = 0;
+    for( int i=0; i<numFactors; ++i )
+    {
+      // if requested width or height set to 0, ignore value
+      // TJSCALED performs an integer-based ceil operation on (dim*factor)
+      if( (requiredWidth  && TJSCALED(postXformImageWidth , (factors[i])) > requiredWidth) ||
+          (requiredHeight && TJSCALED(postXformImageHeight, (factors[i])) > requiredHeight) )
+      {
+        scaleFactor = &factors[i];
+      }
+      else
+      {
+        // This scaling would result in an image that was smaller than requested in both
+        // dimensions, so stop at the previous entry.
+        break;
+      }
+    }
+
+    // Only adjust scaling if a supported scaling factor was actually found:
+    if( scaleFactor != 0 )
+    {
+      // Workaround for libjpeg-turbo problem adding a green line on one edge
+      // when downscaling to 1/8 in each dimension. Never scale to less than
+      // 1/4 in each dimension:
+      tjscalingfactor maxDownscale = { 1, 4 };
+      if( scaleFactor->num * 1.0f / scaleFactor->denom < 1.0f / 4.001f )
+      {
+        scaleFactor = &maxDownscale;
+        DALI_LOG_INFO( gLoaderFilter, Debug::General, "Down-scaling requested for image limited to 1/4.\n" );
+      }
+
+      preXformImageWidth   = TJSCALED(preXformImageWidth,   (*scaleFactor));
+      preXformImageHeight  = TJSCALED(preXformImageHeight,  (*scaleFactor));
+      postXformImageWidth  = TJSCALED(postXformImageWidth,  (*scaleFactor));
+      postXformImageHeight = TJSCALED(postXformImageHeight, (*scaleFactor));
+    }
+  }
+  return success;
+}
+
+
+ExifData* LoadExifData( FILE* fp )
+{
+  ExifData*     exifData=NULL;
+  ExifLoader*   exifLoader;
+  unsigned char dataBuffer[1024];
+
+  if( fseek( fp, 0, SEEK_SET ) )
+  {
+    DALI_LOG_ERROR("Error seeking to start of file\n");
+  }
+  else
+  {
+    exifLoader = exif_loader_new ();
+
+    while( !feof(fp) )
+    {
+      int size = fread( dataBuffer, 1, sizeof( dataBuffer ), fp );
+      if( size <= 0 )
+      {
+        break;
+      }
+      if( ! exif_loader_write( exifLoader, dataBuffer, size ) )
+      {
+        break;
+      }
+    }
+
+    exifData = exif_loader_get_data( exifLoader );
+    exif_loader_unref( exifLoader );
+  }
+
+  return exifData;
+}
+
+bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
+{
+  unsigned int requiredWidth  = attributes.GetWidth();
+  unsigned int requiredHeight = attributes.GetHeight();
+
+  bool success = false;
+  if( requiredWidth == 0 && requiredHeight == 0 )
+  {
+    success = LoadJpegHeader( fp, width, height );
+  }
+  else
+  {
+    // Double check we get the same width/height from the header
+    unsigned int headerWidth;
+    unsigned int headerHeight;
+    LoadJpegHeader( fp, headerWidth, headerHeight );
+
+    JPGFORM_CODE transform = JPGFORM_NONE;
+
+    if( attributes.GetOrientationCorrection() )
+    {
+      ExifAutoPtr exifData( LoadExifData( fp ) );
+      if( exifData.mData )
+      {
+        transform = ConvertExifOrientation(exifData.mData);
+      }
+
+      int preXformImageWidth = headerWidth;
+      int preXformImageHeight = headerHeight;
+      int postXformImageWidth = headerWidth;
+      int postXformImageHeight = headerHeight;
+
+      success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+      if(success)
+      {
+        width = postXformImageWidth;
+        height = postXformImageHeight;
+      }
+      success = true;
+    }
+  }
+  return success;
+}
+
+
 } // namespace SlpPlatform
 
 } // namespace Dali
-

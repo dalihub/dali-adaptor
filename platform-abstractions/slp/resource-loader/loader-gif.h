@@ -52,11 +52,12 @@ bool LoadBitmapFromGif(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.
  * @param[in]   fp      Pointer to the Image file
- * @param[out]  width   Is set with the width of the image
- * @param[out]  height  Is set with the height of the image
+ * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
+ * @param[in/out]  width   Is set with the width of the image
+ * @param[in/out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadGifHeader(FILE *fp, unsigned int &width, unsigned int &height);
+bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 
 } // namespace SlpPlatform
 

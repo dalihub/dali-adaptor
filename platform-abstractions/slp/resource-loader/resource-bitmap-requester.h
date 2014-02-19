@@ -74,9 +74,19 @@ public:
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
 
   /**
-   * @copydoc PlatformAbstraction::LoadImageMetadata()
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  void LoadImageMetadata( const std::string fileName, Vector2 &size );
+  void GetClosestImageSize( const std::string& filename,
+                            const ImageAttributes& attributes,
+                            Vector2 &closestSize );
+
+  /**
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
+   */
+  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                            const ImageAttributes& attributes,
+                            Vector2 &closestSize );
+
 
 protected:
   ResourceThreadImage*          mThreadImage;           ///< Image loader thread object

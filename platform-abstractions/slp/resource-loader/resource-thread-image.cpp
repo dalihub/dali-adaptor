@@ -18,6 +18,7 @@
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/resource-cache.h>
 
 #include "loader-bmp.h"
 #include "loader-gif.h"
@@ -42,7 +43,7 @@ namespace
 {
 
 typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&);
-typedef bool (*LoadBitmapHeaderFunction)(FILE*, unsigned int&, unsigned int&);
+typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
 /**
  * Stores the magic bytes, and the loader and header functions used for each image loader.
@@ -168,6 +169,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
 
   bool loaderFound = false;
   const BitmapLoader *lookupPtr = BITMAP_LOADER_LOOKUP_TABLE;
+  ImageAttributes attrs;
 
   // try hinted format first
   if ( format != FORMAT_UNKNOWN )
@@ -178,7 +180,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
     {
       unsigned int width = 0;
       unsigned int height = 0;
-      loaderFound = lookupPtr->header(fp, width, height);
+      loaderFound = lookupPtr->header(fp, attrs, width, height );
     }
   }
 
@@ -194,7 +196,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
         // to seperate ico file format and wbmp file format
         unsigned int width = 0;
         unsigned int height = 0;
-        loaderFound = lookupPtr->header(fp, width, height);
+        loaderFound = lookupPtr->header(fp, attrs, width, height);
       }
       if (loaderFound)
       {
@@ -213,7 +215,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
       // to seperate ico file format and wbmp file format
       unsigned int width = 0;
       unsigned int height = 0;
-      loaderFound = lookupPtr->header(fp, width, height);
+      loaderFound = lookupPtr->header(fp, attrs, width, height);
       if (loaderFound)
       {
         break;
@@ -249,52 +251,100 @@ ResourceThreadImage::~ResourceThreadImage()
 {
 }
 
-void ResourceThreadImage::LoadImageMetadata(const std::string fileName, Vector2 &size)
+void ResourceThreadImage::GetClosestImageSize( const std::string& filename,
+                                               const ImageAttributes& attributes,
+                                               Vector2 &closestSize )
 {
-  FILE *fp = fopen(fileName.c_str(), "rb");
+  FILE *fp = fopen(filename.c_str(), "rb");
   if (fp != NULL)
   {
-    unsigned int width, height;
-    width = height = 0;
-
     LoadBitmapFunction loaderFunction;
     LoadBitmapHeaderFunction headerFunction;
     Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
-                                   GetFormatHint(fileName),
+                                   GetFormatHint(filename),
                                    loaderFunction,
                                    headerFunction,
                                    profile ) )
     {
-      const bool read_res = headerFunction(fp, width, height);
-      if(!read_res){
-        DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", fileName.c_str());
+      unsigned int width;
+      unsigned int height;
+
+      const bool read_res = headerFunction(fp, attributes, width, height);
+      if(!read_res)
+      {
+        DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", filename.c_str());
       }
 
-      size.x = (float)width;
-      size.y = (float)height;
+      closestSize.width = (float)width;
+      closestSize.height = (float)height;
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", fileName.c_str());
+      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", filename.c_str());
     }
     fclose(fp);
   }
 }
 
-//----------------- Called from separate thread (mThread) -----------------
 
-void ResourceThreadImage::FailedLoadOrDecode( const bool foundFile, const ResourceRequest& request )
+void ResourceThreadImage::GetClosestImageSize( ResourcePointer resourceBuffer,
+                                               const ImageAttributes& attributes,
+                                               Vector2 &closestSize )
 {
-    FailedResource resource(request.GetId(), !foundFile ? FailureFileNotFound : FailureUnknown);
-    mResourceLoader.AddFailedLoad(resource);
+  BitmapPtr bitmap = 0;
+
+  // Get the blob of binary data that we need to decode:
+  DALI_ASSERT_DEBUG( resourceBuffer );
+  Dali::RefCountedVector<uint8_t>* const encodedBlob = reinterpret_cast<Dali::RefCountedVector<uint8_t>*>( resourceBuffer.Get() );
+
+  if( encodedBlob != 0 )
+  {
+    const size_t blobSize     = encodedBlob->GetVector().Size();
+    uint8_t * const blobBytes = &(encodedBlob->GetVector()[0]);
+    DALI_ASSERT_DEBUG( blobSize > 0U );
+    DALI_ASSERT_DEBUG( blobBytes != 0U );
+
+    if( blobBytes != 0 && blobSize > 0U )
+    {
+      // Open a file handle on the memory buffer:
+      FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
+      if ( fp != NULL )
+      {
+        LoadBitmapFunction loaderFunction;
+        LoadBitmapHeaderFunction headerFunction;
+        Bitmap::Profile profile;
+
+        if ( GetBitmapLoaderFunctions( fp,
+                                       FORMAT_UNKNOWN,
+                                       loaderFunction,
+                                       headerFunction,
+                                       profile ) )
+        {
+          unsigned int width;
+          unsigned int height;
+          const bool read_res = headerFunction(fp, attributes, width, height);
+          if(!read_res)
+          {
+            DALI_LOG_WARNING("Image Decoder failed to read header for resourceBuffer\n");
+          }
+
+          closestSize.width = (float) width;
+          closestSize.height = (float) height;
+        }
+        fclose(fp);
+      }
+    }
+  }
 }
+
+
+//----------------- Called from separate thread (mThread) -----------------
 
 void ResourceThreadImage::Load(const ResourceRequest& request)
 {
   DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType() && ResourceBitmap == request.GetType()->id );
   DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str() );
 
   bool file_not_found = false;
@@ -303,7 +353,7 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   FILE * const fp = fopen( request.GetPath().c_str(), "rb" );
   if( fp != NULL )
   {
-    bitmap = LoadAndDecodeCommon( request, fp );
+    bitmap = ConvertStreamToBitmap( request, fp );
     if( !bitmap )
     {
       DALI_LOG_WARNING( "Unable to decode %s\n", request.GetPath().c_str() );
@@ -328,19 +378,29 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   }
   else
   {
-    FailedLoadOrDecode( !file_not_found, request );
+    if( file_not_found )
+    {
+      FailedResource resource(request.GetId(), FailureFileNotFound  );
+      mResourceLoader.AddFailedLoad(resource);
+    }
+    else
+    {
+      FailedResource resource(request.GetId(), FailureUnknown);
+      mResourceLoader.AddFailedLoad(resource);
+    }
   }
 }
 
-void ResourceThreadImage::Decode(const Integration::ResourceRequest& request)
+void ResourceThreadImage::Decode(const ResourceRequest& request)
 {
   DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType() && ResourceBitmap == request.GetType()->id );
   DALI_LOG_INFO(mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str());
 
   BitmapPtr bitmap = 0;
 
   // Get the blob of binary data that we need to decode:
+  DALI_ASSERT_DEBUG( request.GetResource() );
+
   DALI_ASSERT_DEBUG( 0 != dynamic_cast<Dali::RefCountedVector<uint8_t>*>( request.GetResource().Get() ) && "Only blobs of binary data can be decoded." );
   Dali::RefCountedVector<uint8_t>* const encodedBlob = reinterpret_cast<Dali::RefCountedVector<uint8_t>*>( request.GetResource().Get() );
 
@@ -357,7 +417,7 @@ void ResourceThreadImage::Decode(const Integration::ResourceRequest& request)
       FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
       if ( fp != NULL )
       {
-        bitmap = LoadAndDecodeCommon(request, fp);
+        bitmap = ConvertStreamToBitmap(request, fp);
       }
       if ( !bitmap )
       {
@@ -379,19 +439,27 @@ void ResourceThreadImage::Decode(const Integration::ResourceRequest& request)
   }
   else
   {
-    FailedLoadOrDecode( true, request );
+    FailedResource resource(request.GetId(), FailureUnknown);
+    mResourceLoader.AddFailedLoad(resource);
   }
 }
 
-BitmapPtr ResourceThreadImage::LoadAndDecodeCommon(const ResourceRequest& request,
-    /** File to read resource from. It will be closed before the function returns. */
-    FILE * const fp)
+void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
+{
+  DALI_LOG_TRACE_METHOD( mLogFilter );
+  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceBitmap );
+  DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
+}
+
+
+BitmapPtr ResourceThreadImage::ConvertStreamToBitmap(const ResourceRequest& request, FILE * const fp)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
   DALI_ASSERT_DEBUG( request.GetType() && ResourceBitmap == request.GetType()->id );
 
   bool result = false;
   BitmapPtr bitmap = 0;
+  std::string path = request.GetPath();
 
   if (fp != NULL)
   {
@@ -416,13 +484,13 @@ BitmapPtr ResourceThreadImage::LoadAndDecodeCommon(const ResourceRequest& reques
 
       if (!result)
       {
-        DALI_LOG_WARNING("Unable to decode %s\n", request.GetPath().c_str());
+        DALI_LOG_WARNING("Unable to decode %s\n", path.c_str());
         bitmap = 0;
       }
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", request.GetPath().c_str());
+      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
     }
     fclose(fp); ///! Not exception safe, but an exception on a resource thread will bring the process down anyway.
   }
@@ -435,13 +503,6 @@ BitmapPtr ResourceThreadImage::LoadAndDecodeCommon(const ResourceRequest& reques
     mResourceLoader.AddLoadedResource( resource );
   }
   return bitmap;
-}
-
-void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
-{
-  DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceBitmap );
-  DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
 }
 
 

@@ -41,7 +41,7 @@ namespace
 {
 
 typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&);
-typedef bool (*LoadBitmapHeaderFunction)(FILE*, unsigned int&, unsigned int&);
+typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes&, unsigned int&, unsigned int&);
 
 /*
  * Extract the luminance channel L from a RGBF image.

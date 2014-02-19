@@ -74,9 +74,18 @@ public: // PlatformAbstraction overrides
   virtual void Resume();
 
   /**
-   * @copydoc PlatformAbstraction::LoadImageMetadata()
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  virtual void LoadImageMetadata(const std::string fileName, Vector2 &size);
+  virtual void GetClosestImageSize( const std::string& filename,
+                                    const ImageAttributes& attributes,
+                                    Vector2& closestSize );
+
+  /**
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
+   */
+  virtual void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                    const ImageAttributes& attributes,
+                                    Vector2& closestSize );
 
   /**
    * @copydoc PlatformAbstraction::LoadResource()

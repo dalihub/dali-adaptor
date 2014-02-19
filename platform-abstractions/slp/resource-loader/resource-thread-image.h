@@ -50,10 +50,20 @@ public:
   virtual ~ResourceThreadImage();
 
   /**
-   * @copydoc ResourceLoader::LoadImageMetadata()
+   * @copydoc ResourceLoader::GetClosestImageSize()
    * Note, this is not threaded, but is called synchronously.
    */
-  void LoadImageMetadata(const std::string fileName, Vector2 &size);
+  void GetClosestImageSize( const std::string& filename,
+                            const ImageAttributes& attributes,
+                            Vector2 &closestSize );
+
+  /**
+   * @copydoc ResourceLoader::GetClosestImageSize()
+   * Note, this is not threaded, but is called synchronously.
+   */
+  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                            const ImageAttributes& attributes,
+                            Vector2 &closestSize );
 
 private:
   /**
@@ -72,14 +82,13 @@ private:
   virtual void Save(const Integration::ResourceRequest& request);
 
 private:
-  /** Common code for decoding and loading.
+  /**
+   * Convert the file stream into a bitmap.
+   * @param[in] request
+   * @param[in] fp File Pointer. Closed on exit.
    * @return Null on failure or a valid BitmapPtr on success. */
-  Integration::BitmapPtr LoadAndDecodeCommon(const Integration::ResourceRequest& request,
-    /** File to read resource from. It will be closed on exit if not null. */
-    FILE * const fp);
-
-  /** Common code for load and decode failure. */
-  void FailedLoadOrDecode( const bool foundFile, const Integration::ResourceRequest& request );
+  Integration::BitmapPtr ConvertStreamToBitmap( const Integration::ResourceRequest& request,
+                                                FILE * const fp );
 
 }; // class ResourceThreadImage
 
