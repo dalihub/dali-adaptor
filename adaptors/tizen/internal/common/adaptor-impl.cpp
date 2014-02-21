@@ -120,7 +120,7 @@ void Adaptor::Initialize()
 
   if( mLogOptions.GetPerformanceLoggingLevel() > 0 )
   {
-    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *mPlatformAbstraction, mLogOptions );
+    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, mLogOptions );
   }
 
   mCallbackManager = CallbackManager::New();
@@ -560,6 +560,11 @@ RenderSurface* Adaptor::GetRenderSurfaceInterface()
 VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
 {
   return mVSyncMonitor;
+}
+
+KernelTraceInterface& Adaptor::GetKernelTraceInterface()
+{
+  return mKernelTracer;
 }
 
 PerformanceInterface* Adaptor::GetPerformanceInterface()

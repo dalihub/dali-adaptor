@@ -18,10 +18,9 @@
 //
 
 // INTERNAL INCLUDES
-#include <base/interfaces/performance-interface.h>
 #include <base/performance-logging/frame-time-stats.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/integration-api/platform-abstraction.h>
+#include <base/interfaces/adaptor-internal-services.h>
 
 // EXTERNAL INCLUDES
 #include <boost/thread/mutex.hpp>
@@ -48,10 +47,10 @@ public:
 
   /**
    * Constructor
-   * @param platformAbstraction platform abstraction
+   * @param adaptorServices adaptor internal services
    * @param logOptions log options
    */
-  PerformanceServer( Integration::PlatformAbstraction& platformAbstraction,
+  PerformanceServer( AdaptorInternalServices& adaptorServices,
                      const LogOptions& logOptions );
 
   /**
@@ -105,6 +104,7 @@ private:
   MarkerVector mMarkers;              ///< vector of markers
   boost::mutex mDataMutex;            ///< mutex
   const LogOptions& mLogOptions;      ///< log options
+  KernelTraceInterface& mKernelTrace; ///< kernel trace interface
 
 };
 

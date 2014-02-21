@@ -42,6 +42,7 @@
 #include <internal/common/drag-and-drop-detector-impl.h>
 #include <internal/common/damage-observer.h>
 #include <internal/common/window-visibility-observer.h>
+#include <internal/common/kernel-trace.h>
 
 namespace Dali
 {
@@ -294,42 +295,47 @@ public:
    */
   void NotifyLanguageChanged();
 
-public:  //BaseAdaptorInterfaces
+public:  //AdaptorInternalServices
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetPlatformAbstractionInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetGlesInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGlesInterface()
    */
   virtual Dali::Integration::GlAbstraction& GetGlesInterface();
 
   /**
-  * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetEGLFactoryInterface()
+  * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetEGLFactoryInterface()
   */
   virtual EglFactoryInterface& GetEGLFactoryInterface() const;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetTriggerEventInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
    */
   virtual TriggerEventInterface& GetTriggerEventInterface();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetRenderSurfaceInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
   virtual RenderSurface* GetRenderSurfaceInterface();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetVSyncMonitorInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
    */
   virtual VSyncMonitorInterface* GetVSyncMonitorInterface();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::BaseAdaptorInterface::GetPerformanceInterface()
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
    */
   virtual PerformanceInterface* GetPerformanceInterface();
+
+  /**
+   * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
+   */
+  virtual KernelTraceInterface& GetKernelTraceInterface();
 
 public: // Signals
 
@@ -481,6 +487,7 @@ private: // Data
   DeviceLayout                          mBaseLayout;                  ///< The base layout of the application
   LogOptions                            mLogOptions;                  ///< log options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
+  KernelTrace                           mKernelTracer;
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

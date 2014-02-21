@@ -1,3 +1,6 @@
+#ifndef __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__
+#define __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__
+
 //
 // Copyright (c) 2014 Samsung Electronics Co., Ltd.
 //
@@ -14,9 +17,7 @@
 // limitations under the License.
 //
 
-// CLASS HEADER
-#include "performance-interface-factory.h"
-#include "performance-server.h"
+#include <base/interfaces/kernel-trace-interface.h>
 
 namespace Dali
 {
@@ -27,17 +28,41 @@ namespace Internal
 namespace Adaptor
 {
 
-PerformanceInterface* PerformanceInterfaceFactory::CreateInterface(
-                                 AdaptorInternalServices& adaptorServices,
-                                 const LogOptions& logOptions  )
+/**
+ * Concrete Kernel Tracing Interface.
+ * Used to log trace messages to the kernel using ftrace.
+ *
+ */
+class KernelTrace : public KernelTraceInterface
 {
-  return new PerformanceServer( adaptorServices, logOptions );
-}
+public:
 
+  /**
+   * Constructor
+   */
+  KernelTrace();
 
+  /**
+   * Destructor
+   */
+  virtual ~KernelTrace();
 
-} // namespace Adaptor
+  /**
+   * @copydoc KernelTracerInterface::KernelTrace()
+   */
+  virtual void Trace( const std::string& traceMessage );
+
+private:
+
+  int mFileDescriptor;
+  bool mLoggedError:1;
+
+};
 
 } // namespace Internal
 
+} // namespace Adaptor
+
 } // namespace Dali
+
+#endif // __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__

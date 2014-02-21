@@ -25,6 +25,7 @@
 #include <base/interfaces/trigger-event-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
+#include <base/interfaces/kernel-trace-interface.h>
 #include <internal/common/render-surface-impl.h> // @todo move to base/interfaces
 
 
@@ -88,6 +89,10 @@ public:
    */
   virtual PerformanceInterface* GetPerformanceInterface()  = 0;
 
+  /**
+   * @return kernel trace interface
+   */
+  virtual KernelTraceInterface& GetKernelTraceInterface()  = 0;
 
 protected:
 

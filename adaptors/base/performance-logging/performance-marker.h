@@ -37,11 +37,13 @@ class PerformanceMarker
 public:
 
   /**
-   * enum for difference performance markers
+   * enum for difference performance markers.
+   * Please modify the name lookup table in performance-marker.cpp
+   * file if adding new markers.
    */
   enum MarkerType
   {
-      V_SYNC       ,        ///< V-Sync
+      V_SYNC    = 0,        ///< V-Sync
       UPDATE_START ,        ///< Update start
       UPDATE_END   ,        ///< Update end
       RENDER_START ,        ///< Render start
@@ -82,6 +84,11 @@ public:
   {
     return mType;
   }
+
+  /**
+   * @return the name of the marker
+   */
+  const char* GetName() const;
 
   /**
    * @param start the start marker

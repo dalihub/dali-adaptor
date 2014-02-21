@@ -44,9 +44,10 @@ public:
    */
   enum LogLevel
   {
-    DISABLED          = 0,
-    LOG_UPDATE_RENDER = 1 << 0, ///< Bit 0, log update and render times
-    LOG_EVENT_PROCESS = 1 << 1, ///< Bit 1, log event process times
+    DISABLED             = 0,
+    LOG_UPDATE_RENDER    = 1 << 0, ///< Bit 0, log update and render times
+    LOG_EVENT_PROCESS    = 1 << 1, ///< Bit 1, log event process times
+    LOG_EVENTS_TO_KERNEL = 1 << 2, ///< Bit 2, log all events to kernel trace
   };
 
   /**

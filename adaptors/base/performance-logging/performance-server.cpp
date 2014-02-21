@@ -41,13 +41,14 @@ const unsigned int MICROSECONDS_PER_SECOND = 1000000; ///< 1000000 microseconds 
 }
 
 
-PerformanceServer::PerformanceServer( Integration::PlatformAbstraction& platformAbstraction,
+PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
                                       const LogOptions& logOptions)
 :mLoggingEnabled( false),
  mLogFunctionInstalled( false ),
  mLogFrequencyMicroseconds( 0),
- mPlatformAbstraction( platformAbstraction ),
- mLogOptions(logOptions)
+ mPlatformAbstraction( adaptorServices.GetPlatformAbstractionInterface() ),
+ mLogOptions(logOptions),
+ mKernelTrace( adaptorServices.GetKernelTraceInterface() )
 {
   SetLogging( mLogOptions.GetPerformanceLoggingLevel(), mLogOptions.GetFrameRateLoggingFrequency());
 }
@@ -104,6 +105,11 @@ void PerformanceServer::AddMarkerToLog( PerformanceMarker marker )
 
   // store the marker
   mMarkers.PushBack( marker );
+
+  if( mLogLevel & LOG_EVENTS_TO_KERNEL )
+  {
+    mKernelTrace.Trace(marker.GetName());
+  }
 
   // only log on the v-sync thread, so we have less impact on update/render
   if( marker.GetType() != PerformanceMarker::V_SYNC )

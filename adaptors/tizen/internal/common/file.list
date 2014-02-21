@@ -13,6 +13,7 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/imf-manager-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/indicator-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/indicator-buffer.cpp  \
+  $(tizen_adaptor_internal_src_dir)/kernel-trace.cpp  \
   $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/locale-utils.cpp  \
   $(tizen_adaptor_internal_src_dir)/native-bitmap-buffer-impl.cpp \

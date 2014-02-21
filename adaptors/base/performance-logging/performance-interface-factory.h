@@ -18,8 +18,7 @@
 //
 
 // INTERNAL INCLUDES
-#include <base/interfaces/performance-interface.h>
-#include <dali/integration-api/platform-abstraction.h>
+#include <base/interfaces/adaptor-internal-services.h>
 #include <dali/integration-api/debug.h>
 #include <base/log-options.h>
 
@@ -42,11 +41,11 @@ public:
 
   /**
    * Create a new concrete implementation of the performance interface.
-   * @param platformAbstraction platform abstraction
+   * @param adaptorServices adaptor internal services
    * @param logOptions log options
    * @return pointer to a new performance interface
    */
-  static PerformanceInterface* CreateInterface( Integration::PlatformAbstraction& platformAbstraction,
+  static PerformanceInterface* CreateInterface( AdaptorInternalServices& adaptorServices,
                                                 const LogOptions& logOptions );
 
 };
