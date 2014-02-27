@@ -300,8 +300,6 @@ static void _evas_object_key_down_cb(void *data, Evas *e, Evas_Object *obj, void
       std::string keyString( "" );
       int keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
       int modifier( EvasModifierToEcoreModifier ( keyEvent->modifiers ) );
-      int cursorOffset( 0 );
-      int numberOfChars( 0 );
       unsigned long time( keyEvent->timestamp );
 
       // Ensure key event string is not NULL as keys like SHIFT have a null string.
@@ -310,7 +308,7 @@ static void _evas_object_key_down_cb(void *data, Evas *e, Evas_Object *obj, void
         keyString = keyEvent->string;
       }
 
-      KeyEvent daliKeyEvent(keyName, keyString, keyCode, modifier, cursorOffset, numberOfChars, time, KeyEvent::Down);
+      KeyEvent daliKeyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Down);
       ep->OnKeyEvent( daliKeyEvent );
     }
   }
@@ -351,8 +349,6 @@ static void _evas_object_key_up_cb(void *data, Evas *e, Evas_Object *obj, void *
       std::string keyString( "" );
       int keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
       int modifier( EvasModifierToEcoreModifier ( keyEvent->modifiers ) );
-      int cursorOffset( 0 );
-      int numberOfChars( 0 );
       unsigned long time( keyEvent->timestamp );
 
       // Ensure key event string is not NULL as keys like SHIFT have a null string.
@@ -361,7 +357,7 @@ static void _evas_object_key_up_cb(void *data, Evas *e, Evas_Object *obj, void *
         keyString = keyEvent->string;
       }
 
-      KeyEvent daliKeyEvent(keyName, keyString, keyCode, modifier, cursorOffset, numberOfChars, time, KeyEvent::Up);
+      KeyEvent daliKeyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Up);
       ep->OnKeyEvent( daliKeyEvent );
     }
   }
@@ -396,7 +392,7 @@ static void _elm_focus_object_focus_in_cb(void *data, Evas_Object *obj, void *ev
       if(elm_win_focus_highlight_enabled_get(win) == EINA_TRUE)
       {
         // To allow that KeyboardFocusManager can handle the keyboard focus
-        KeyEvent fakeKeyEvent("", "", 0, 0, 0, 0, 100 /* fake timestamp */, KeyEvent::Down);
+        KeyEvent fakeKeyEvent("", "", 0, 0, 100 /* fake timestamp */, KeyEvent::Down);
         ep->OnKeyEvent( fakeKeyEvent );
       }
     }

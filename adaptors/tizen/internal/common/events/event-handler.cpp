@@ -418,8 +418,6 @@ struct EventHandler::Impl
         std::string keyString( "" );
         int keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
         int modifier( keyEvent->modifiers );
-        int cursorOffset( 0 );
-        int numberOfChars( 0 );
         unsigned long time = keyEvent->timestamp;
 
         // Ensure key event string is not NULL as keys like SHIFT have a null string.
@@ -428,7 +426,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, cursorOffset, numberOfChars, time, KeyEvent::Down);
+        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Down);
         handler->SendEvent( keyEvent );
       }
     }
@@ -481,8 +479,6 @@ struct EventHandler::Impl
         std::string keyString( "" );
         int keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
         int modifier( keyEvent->modifiers );
-        int cursorOffset( 0 );
-        int numberOfChars( 0 );
         unsigned long time( keyEvent->timestamp );
 
         // Ensure key event string is not NULL as keys like SHIFT have a null string.
@@ -491,7 +487,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, cursorOffset, numberOfChars, time, KeyEvent::Up);
+        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Up);
         handler->SendEvent( keyEvent );
 
       }
@@ -1152,7 +1148,7 @@ void EventHandler::SendEvent(KeyEvent& keyEvent)
 
   // Create KeyEvent and send to Core.
   Integration::KeyEvent event(keyEvent.keyPressedName, keyEvent.keyPressed, keyEvent.keyCode,
-      keyEvent.keyModifier, keyEvent.cursorOffset, keyEvent.numberOfChars, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
+  keyEvent.keyModifier, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
   mCoreEventInterface.QueueCoreEvent( event );
   mCoreEventInterface.ProcessCoreEvents();
 }
