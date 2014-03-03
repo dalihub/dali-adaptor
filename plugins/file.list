@@ -1,0 +1,13 @@
+# Add local source files here
+
+plugin_src_files = \
+   $(plugin_src_dir)/dali-feedback.cpp
+   
+bullet_plugin_src_files = \
+   $(plugin_src_dir)/dynamics/bullet/bullet-dynamics-body.cpp \
+   $(plugin_src_dir)/dynamics/bullet/bullet-dynamics-debug.cpp \
+   $(plugin_src_dir)/dynamics/bullet/bullet-dynamics-joint.cpp \
+   $(plugin_src_dir)/dynamics/bullet/bullet-dynamics-shape.cpp \
+   $(plugin_src_dir)/dynamics/bullet/bullet-dynamics-world.cpp \
+   $(plugin_src_dir)/dynamics/bullet/bullet-plugin.cpp
+

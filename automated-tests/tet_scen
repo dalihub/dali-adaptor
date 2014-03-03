@@ -1,0 +1,43 @@
+all
+    "Starting Full Test Suite"
+        ^TEST
+    "Completed Full Test Suite"
+
+##### All PUBLIC and INTERNAL Tests #####
+
+# Test scenario
+TEST
+    :include:/dali-test-suite/tilt-sensor/tslist
+    :include:/dali-test-suite/timer/tslist
+    :include:/dali-test-suite/key/tslist
+    :include:/dali-internal-test-suite/image-loaders/tslist
+
+
+##### PUBLIC Tests #####
+
+PUBLIC
+    :include:/dali-test-suite/timer/tslist
+    :include:/dali-test-suite/tilt-sensor/tslist
+    :include:/dali-test-suite/key/tslist
+
+timer
+    :include:/dali-test-suite/timer/tslist
+
+tilt-sensor
+    :include:/dali-test-suite/tilt-sensor/tslist
+
+key
+    :include:/dali-test-suite/key/tslist
+
+
+##### INTERNAL Tests #####
+
+INTERNAL
+    :include:/dali-internal-test-suite/image-loaders/tslist
+
+image-loaders
+    :include:/dali-internal-test-suite/image-loaders/tslist
+
+##### DEBUG #####
+
+# EOF

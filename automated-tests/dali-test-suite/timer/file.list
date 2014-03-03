@@ -1,0 +1,2 @@
+TARGETS += \
+	Dali/utc-Dali-Timer \

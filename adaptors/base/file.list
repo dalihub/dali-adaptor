@@ -1,0 +1,14 @@
+# Add local source files here
+
+base_adaptor_src_files = \
+  $(base_adaptor_src_dir)/render-thread.cpp \
+  $(base_adaptor_src_dir)/update-thread.cpp \
+  $(base_adaptor_src_dir)/update-render-synchronization.cpp \
+  $(base_adaptor_src_dir)/update-render-controller.cpp \
+  $(base_adaptor_src_dir)/vsync-notifier.cpp \
+  $(base_adaptor_src_dir)/performance-logging/frame-time-stamp.cpp \
+  $(base_adaptor_src_dir)/log-options.cpp \
+  $(base_adaptor_src_dir)/performance-logging/frame-time-stats.cpp \
+  $(base_adaptor_src_dir)/performance-logging/performance-marker.cpp \
+  $(base_adaptor_src_dir)/performance-logging/performance-server.cpp \
+  $(base_adaptor_src_dir)/performance-logging/performance-interface-factory.cpp

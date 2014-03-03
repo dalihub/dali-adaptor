@@ -1,0 +1,94 @@
+#ifndef __DALI_HAPTIC_PLAYER_H__
+#define __DALI_HAPTIC_PLAYER_H__
+
+//
+// Copyright (c) 2014 Samsung Electronics Co., Ltd.
+//
+// Licensed under the Flora License, Version 1.0 (the License);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://floralicense.org/license/
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an AS IS BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+/**
+ * @addtogroup CAPI_DALI_FRAMEWORK
+ * @{
+ */
+
+// EXTERNAL INCLUDES
+#include <dali/public-api/object/base-handle.h>
+
+namespace Dali DALI_IMPORT_API
+{
+
+namespace Internal DALI_INTERNAL
+{
+namespace Adaptor
+{
+class HapticPlayer;
+}
+}
+
+/**
+ * Plays haptic effects.
+ */
+class HapticPlayer : public BaseHandle
+{
+public:
+
+  /**
+   * Create an uninitialized handle.
+   * This can be initialized by calling HapticPlayer::Get().
+   */
+  HapticPlayer();
+
+  /**
+   * Create an initialized handle to the HapticPlayer.
+   * @return A handle to a newly allocated Dali resource.
+   */
+  static HapticPlayer Get();
+
+  /**
+   * Destructor
+   */
+  ~HapticPlayer();
+
+  /**
+   * Plays a monotone vibration.
+   * @param[in]  duration  The duration of the vibration.
+   */
+  void PlayMonotone(unsigned int duration);
+
+  /**
+   * Plays vibration in predefined patterns.
+   * @param[in] filePath Path to the file containing the effect.
+   */
+  void PlayFile(const std::string filePath);
+
+  /**
+   * Stops the currently playing vibration effects.
+   */
+  void Stop();
+
+public: // Not intended for application developers
+
+  /**
+   * This constructor is used by HapticPlayer::Get().
+   * @param[in] hapticPlayer A pointer to the haptic player.
+   */
+  HapticPlayer( Internal::Adaptor::HapticPlayer* hapticPlayer );
+};
+
+} // namespace Dali
+
+/**
+ * @}
+ */
+#endif // __DALI_HAPTIC_PLAYER_H__

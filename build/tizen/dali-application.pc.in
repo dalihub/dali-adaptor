@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+apiversion=@DALI_ADAPTOR_VERSION@
+libdir=${exec_prefix}/lib
+includedir=@devincludepath@
+
+Name: Samsung OpenGLES Toolkit Adaptor
+Description: 3D Canvas Toolkit using OpenGLES (with the adaptor)
+Version: ${apiversion}
+Requires: freetype2,fontconfig,libpng,opengl-es-20,x11,dali-core,elementary,libxml-2.0
+Libs: -L${libdir} -ldali-adaptor -ldali-adaptor-common
+Cflags: -I${includedir}/dali -DDALI_APPLICATION
