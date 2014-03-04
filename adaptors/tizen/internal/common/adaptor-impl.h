@@ -377,7 +377,7 @@ private: // From Dali::Integration::RenderController
   /**
    * Call by the Dali core when it requires an notification event being sent on idle
    */
-  virtual void RequestNotificationEventOnIdle();
+  virtual void RequestProcessEventsOnIdle();
 
 private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
@@ -425,7 +425,7 @@ private:
   /**
    * Sends an notification message from main loop idle handler
    */
-  void SendNotificationEventFromIdle();
+  void ProcessCoreEventsFromIdle();
 
 private:
 

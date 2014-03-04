@@ -23,7 +23,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
-#include <dali/integration-api/events/notification-event.h>
 
 // INTERNAL INCLUDES
 #include <base/update-render-controller.h>
@@ -137,7 +136,7 @@ void Adaptor::Initialize()
 
   mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager );
 
-  mNotificationTrigger = new TriggerEvent( boost::bind(&Adaptor::SendNotificationEvent, this) );
+  mNotificationTrigger = new TriggerEvent( boost::bind(&Adaptor::ProcessCoreEvents, this) );
 
   mVSyncMonitor = new VSyncMonitor;
 
@@ -283,7 +282,7 @@ void Adaptor::Start()
 
   mState = RUNNING;
 
-  SendNotificationEvent(); // Ensure any startup messages are processed.
+  ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   if ( !mFeedbackController )
   {
@@ -343,7 +342,7 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    SendNotificationEvent(); // Ensure any outstanding messages are processed
+    ProcessCoreEvents(); // Ensure any outstanding messages are processed
   }
 }
 
@@ -442,7 +441,7 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
 
   // flush the event queue to give update and render threads chance
   // to start processing messages for new camera setup etc as soon as possible
-  SendNotificationEvent();
+  ProcessCoreEvents();
 
   // this method is synchronous
   mUpdateRenderController->ReplaceSurface(internalSurface);
@@ -667,7 +666,7 @@ void Adaptor::RequestUpdate()
   }
 }
 
-void Adaptor::RequestNotificationEventOnIdle()
+void Adaptor::RequestProcessEventsOnIdle()
 {
   // Only request a notification if the Adaptor is actually running
   if ( RUNNING == mState )
@@ -679,7 +678,7 @@ void Adaptor::RequestNotificationEventOnIdle()
     {
       return;
     }
-    mNotificationOnIdleInstalled = AddIdle( boost::bind( &Adaptor::SendNotificationEventFromIdle, this ) );
+    mNotificationOnIdleInstalled = AddIdle( boost::bind( &Adaptor::ProcessCoreEventsFromIdle, this ) );
   }
 }
 
@@ -728,14 +727,6 @@ void Adaptor::NotifyLanguageChanged()
   mLanguageChangedSignalV2.Emit( mAdaptor );
 }
 
-void Adaptor::SendNotificationEvent()
-{
-  // Notification events are sent in order to process messages queued (internally) during rendering.
-  Integration::NotificationEvent event;
-  QueueCoreEvent(event);
-  ProcessCoreEvents();
-}
-
 void Adaptor::RequestUpdateOnce()
 {
   if( PAUSED_WHILE_HIDDEN != mState )
@@ -747,9 +738,9 @@ void Adaptor::RequestUpdateOnce()
   }
 }
 
-void Adaptor::SendNotificationEventFromIdle()
+void Adaptor::ProcessCoreEventsFromIdle()
 {
-  SendNotificationEvent();
+  ProcessCoreEvents();
 
   // the idle handle automatically un-installs itself
   mNotificationOnIdleInstalled = false;
