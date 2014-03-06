@@ -95,7 +95,7 @@ void Adaptor::ParseLogOptions()
   unsigned int logOpts = Integration::Log::ParseLogOptions(resourceLogOption);
 
   // get logging options
-  unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 ); ;
+  unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
   unsigned int logupdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
   unsigned int logPerformanceLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE, 0 );
 
