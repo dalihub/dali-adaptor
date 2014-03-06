@@ -303,17 +303,21 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
   if ( Dali::Adaptor::IsAvailable() )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
 
-    if ( imfContext )
+    if ( imfManager )
     {
-      char* locale( NULL );
-      ecore_imf_context_input_panel_language_locale_get( imfContext, &locale );
+      Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
 
-      if ( locale )
+      if ( imfContext )
       {
-        direction = Locale::GetTextDirection( std::string( locale ) );
-        free( locale );
+        char* locale( NULL );
+        ecore_imf_context_input_panel_language_locale_get( imfContext, &locale );
+
+        if ( locale )
+        {
+          direction = Locale::GetTextDirection( std::string( locale ) );
+          free( locale );
+        }
       }
     }
   }
