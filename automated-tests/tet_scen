@@ -7,18 +7,16 @@ all
 
 # Test scenario
 TEST
-    :include:/dali-test-suite/tilt-sensor/tslist
-    :include:/dali-test-suite/timer/tslist
-    :include:/dali-test-suite/key/tslist
-    :include:/dali-internal-test-suite/image-loaders/tslist
+    ^PUBLIC
+    ^INTERNAL
 
 
 ##### PUBLIC Tests #####
 
 PUBLIC
-    :include:/dali-test-suite/timer/tslist
-    :include:/dali-test-suite/tilt-sensor/tslist
-    :include:/dali-test-suite/key/tslist
+    ^timer
+    ^tilt-sensor
+    ^key
 
 timer
     :include:/dali-test-suite/timer/tslist
@@ -33,10 +31,14 @@ key
 ##### INTERNAL Tests #####
 
 INTERNAL
-    :include:/dali-internal-test-suite/image-loaders/tslist
+    ^image-loaders
+    ^command-line-options
 
 image-loaders
     :include:/dali-internal-test-suite/image-loaders/tslist
+
+command-line-options
+    :include:/dali-internal-test-suite/command-line-options/tslist
 
 ##### DEBUG #####
 

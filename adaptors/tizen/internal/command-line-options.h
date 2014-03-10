@@ -32,6 +32,18 @@ namespace Adaptor
 /**
  * Parses the passed command line arguments and sets the values stored within this
  * class appropriately.
+ *
+ * The following options are supported:
+ *
+ * @code
+ *     --no-vsync       Disable VSync on Render
+ *  -w|--width          Stage Width
+ *  -h|--height         Stage Height
+ *  -d|--dpi            Emulated DPI
+ *     --help           Help
+ * @endcode
+ *
+ * When the above options are found, they are stripped from argv, and argc is updated appropriately.
  */
 struct CommandLineOptions
 {
@@ -39,10 +51,11 @@ public:
 
   /**
    * Constructor
-   * @param[in]  argc  The number of arguments
-   * @param[in]  argv  The argument list
+   * @param[in,out]  argc  The number of arguments
+   * @param[in,out]  argv  The argument list
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
-  CommandLineOptions(int argc, char *argv[]);
+  CommandLineOptions(int *argc, char **argv[]);
 
   /**
    * Destructor

@@ -87,7 +87,7 @@ Application::Application(
   // reset is used to store a new value associated with this thread
   gThreadLocalApplication.reset(this);
 
-  mCommandLineOptions = new CommandLineOptions(*argc, *argv);
+  mCommandLineOptions = new CommandLineOptions(argc, argv);
 
   mFramework = new Framework(*this, argc, argv, name);
 }

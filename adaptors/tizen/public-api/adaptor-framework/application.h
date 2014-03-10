@@ -47,7 +47,7 @@ class Application;
  * function and instead should connect to the Init signal of the
  * Application and create the Dali objects in the connected callback.
  *
- * Linux Applications should follow the example below:
+ * Applications should follow the example below:
  *
  * @code
  * void CreateProgram(Application app)
@@ -70,6 +70,18 @@ class Application;
  * MyApplication app;
  * app.ResumeSignal().Connect(&app, &MyApplication::Resume);
  * @endcode
+ *
+ * This class accepts command line arguments as well. The following options are supported:
+ *
+ * @code
+ *     --no-vsync       Disable VSync on Render
+ *  -w|--width          Stage Width
+ *  -h|--height         Stage Height
+ *  -d|--dpi            Emulated DPI
+ *     --help           Help
+ * @endcode
+ *
+ * When the above options are found, they are stripped from argv, and argc is updated appropriately.
  */
 class Application : public BaseHandle
 {
@@ -80,36 +92,48 @@ public:
 public:
 
   /**
-   * This is the constructor for Linux & SLP applications.
-   * @param  argc        A pointer to the number of arguments
-   * @param  argv        A pointer the the argument list
+   * This is the constructor for applications.
+   *
+   * @param[in,out]  argc        A pointer to the number of arguments
+   * @param[in,out]  argv        A pointer the the argument list
+   *
    * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[] );
 
   /**
-   * This is the constructor for Linux & SLP applications with a name
-   * @param  argc  A pointer to the number of arguments
-   * @param  argv  A pointer the the argument list
-   * @param  name  A name of application
+   * This is the constructor for applications with a name
+   *
+   * @param[in,out]  argc  A pointer to the number of arguments
+   * @param[in,out]  argv  A pointer the the argument list
+   * @param[in]  name  A name of application
+   *
    * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[], const std::string& name );
 
   /**
-   * This is the constructor for Linux & SLP applications when a layout for the application is specified.
-   * @param  argc        A pointer to the number of arguments
-   * @param  argv        A pointer the the argument list
-   * @param  baseLayout  The base layout that the application has been written for
+   * This is the constructor for applications when a layout for the application is specified.
+   *
+   * @param[in,out]  argc        A pointer to the number of arguments
+   * @param[in,out]  argv        A pointer the the argument list
+   * @param[in]  baseLayout  The base layout that the application has been written for
+   *
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[], const DeviceLayout& baseLayout );
 
   /**
-   * This is the constructor for Linux & SLP applications with a name and when a layout for the application is specified.
-   * @param  argc  A pointer to the number of arguments
-   * @param  argv  A pointer the the argument list
-   * @param  name  A name of application
-   * @param  baseLayout  The base layout that the application has been written for
+   * This is the constructor for applications with a name and when a layout for the application is specified.
+   *
+   * @param[in,out]  argc  A pointer to the number of arguments
+   * @param[in,out]  argv  A pointer the the argument list
+   * @param[in]  name  A name of application
+   * @param[in]  baseLayout  The base layout that the application has been written for
+   *
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout );
 

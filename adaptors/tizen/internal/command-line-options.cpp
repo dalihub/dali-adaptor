@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <vector>
 
 namespace Dali
 {
@@ -34,98 +35,168 @@ namespace Adaptor
 
 namespace
 {
-  const char * RENDER_NO_VSYNC_OPTION = "no-vsync";
-  const char * RENDER_NO_VSYNC_DETAIL = "Disable VSync on Render";
+struct Argument
+{
+  const char * const opt;
+  const char * const optDescription;
 
-  const char * RENDER_WIDTH_OPTION = "width";
-  const char * RENDER_WIDTH_DETAIL = "Stage Width";
-
-  const char * RENDER_HEIGHT_OPTION = "height";
-  const char * RENDER_HEIGHT_DETAIL = "Stage Height";
-
-  const char * RENDER_DPI_OPTION = "dpi";
-  const char * RENDER_DPI_DETAIL = "Emulated DPI";
-
-  const char * USAGE = "help";
-
-  struct Arguments
+  void Print()
   {
-    const char * opt;
-    const char * optDescription;
+    std::cout << std::left << "  --";
+    std::cout.width( 15 );
+    std::cout << opt;
+    std::cout << optDescription;
+    std::cout << std::endl;
+  }
+};
 
-    void Print()
-    {
-      std::cout << "--" << opt << " " << optDescription;
-    }
-  };
+Argument EXPECTED_ARGS[] =
+{
+  { "no-vsync", "Disable VSync on Render" },
+  { "width",    "Stage Width"             },
+  { "height",   "Stage Height"            },
+  { "dpi",      "Emulated DPI"            },
+  { "help",     "Help"                    },
 
-  Arguments arguments[] =
-  {
-    { RENDER_NO_VSYNC_OPTION, RENDER_NO_VSYNC_DETAIL },
-    { RENDER_WIDTH_OPTION,    RENDER_WIDTH_DETAIL    },
-    { RENDER_HEIGHT_OPTION,   RENDER_HEIGHT_DETAIL   },
-    { RENDER_DPI_OPTION,      RENDER_DPI_DETAIL      },
-    { NULL, NULL }
-  };
+  { NULL,       NULL                      }
+};
+
+enum Option
+{
+  OPTION_NO_VSYNC = 0,
+  OPTION_STAGE_WIDTH,
+  OPTION_STAGE_HEIGHT,
+  OPTION_DPI,
+  OPTION_HELP
+};
+
+typedef std::vector< int > UnhandledContainer;
 
 } // unnamed namespace
 
-
-CommandLineOptions::CommandLineOptions(int argc, char *argv[])
+CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
 : noVSyncOnRender(0),
   stageWidth(0), stageHeight(0)
 {
-  const struct option options[]=
+  if ( *argc > 1 )
   {
-    { arguments[0].opt, no_argument, &noVSyncOnRender, 1 },  // "--no-vsync"
-    { arguments[1].opt, required_argument, NULL,     'w' },  // "--width"
-    { arguments[2].opt, required_argument, NULL,     'h' },  // "--height"
-    { arguments[3].opt, required_argument, NULL,     'd' },  // "--dpi"
-    { USAGE, no_argument, NULL, 'u'},
-    { 0, 0, 0, 0 } // end of options
-  };
+    // We do not want to print out errors.
+    int origOptErrValue( opterr );
+    opterr = 0;
 
+    int help( 0 );
 
-  int opt(0);
-  int optIndex(0);
-
-  const char* optString = "w:h:d:?";
-
-  do
-  {
-    opt = getopt_long(argc, argv, optString, options, &optIndex);
-
-    switch (opt)
+    const struct option options[]=
     {
-      case 0:
-        // if setting vsync getopt set flag already
-        break;
-      case 'w':
-        stageWidth = atoi(optarg);
-        break;
-      case 'h':
-        stageHeight = atoi(optarg);
-        break;
-      case 'd':
-        stageDPI.assign(optarg);
-        break;
-      case 'u':
-        // show usage
-        std::cout << "Available options:" << std::endl;
-        for ( int i = 0; arguments[i].opt != NULL; ++i)
-        {
-          arguments[i].Print();
-          std::cout << std::endl;
-        }
-        break;
-      default:
-        // -1 will exit here (no more options to parse)
-        break;
-    }
-  }
-  while (opt != -1);
+      { EXPECTED_ARGS[OPTION_NO_VSYNC].opt,     no_argument,       &noVSyncOnRender, 1   },  // "--no-vsync"
+      { EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt,  required_argument, NULL,             'w' },  // "--width"
+      { EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL,             'h' },  // "--height"
+      { EXPECTED_ARGS[OPTION_DPI].opt,          required_argument, NULL,             'd' },  // "--dpi"
+      { EXPECTED_ARGS[OPTION_HELP].opt,         no_argument,       &help,            1   },  // "--help"
+      { 0, 0, 0, 0 } // end of options
+    };
 
-  // Ignores any unknown options
+    int shortOption( 0 );
+    int optionIndex( 0 );
+
+    const char* optString = "-w:h:d:"; // The '-' ensures that argv is NOT permuted
+    bool optionProcessed( false );
+
+    UnhandledContainer unhandledOptions; // We store indices of options we do not handle here
+
+    do
+    {
+      shortOption = getopt_long( *argc, *argv, optString, options, &optionIndex );
+
+      switch ( shortOption )
+      {
+        case 0:
+        {
+          // Check if we want help
+          if ( help )
+          {
+            std::cout << "Available options:" << std::endl;
+            Argument* arg = EXPECTED_ARGS;
+            while ( arg->opt )
+            {
+              arg->Print();
+              ++arg;
+            }
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case 'w':
+        {
+          if ( optarg )
+          {
+            stageWidth = atoi( optarg );
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case 'h':
+        {
+          if ( optarg )
+          {
+            stageHeight = atoi( optarg );
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case 'd':
+        {
+          if ( optarg )
+          {
+            stageDPI.assign( optarg );
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case -1:
+        {
+          // All command-line options have been parsed.
+          break;
+        }
+
+        default:
+        {
+          unhandledOptions.push_back( optind - 1 );
+          break;
+        }
+      }
+    } while ( shortOption != -1 );
+
+    // Take out the options we have processed
+    if ( optionProcessed )
+    {
+      if ( !unhandledOptions.empty() )
+      {
+        int index( 1 );
+
+        // Overwrite the argv with the values from the unhandled indices
+        const UnhandledContainer::const_iterator endIter = unhandledOptions.end();
+        for ( UnhandledContainer::iterator iter = unhandledOptions.begin(); iter != endIter; ++iter )
+        {
+          (*argv)[ index++ ] = (*argv)[ *iter ];
+        }
+        *argc = unhandledOptions.size() + 1; // +1 for the program name
+      }
+      else
+      {
+        // There are no unhandled options, so we should just have the program name
+        *argc = 1;
+      }
+
+      optind = 1; // Reset to start
+    }
+
+    opterr = origOptErrValue; // Reset opterr value.
+  }
 }
 
 CommandLineOptions::~CommandLineOptions()

@@ -23,7 +23,7 @@ PKGS = dali dali-test-suite-utils
 include ../../rules.mk
 include ../../coverage.mk
 
-CXXFLAGS += -I../../..
+CXXFLAGS += -I../../.. -I../../../adaptors/tizen
 
 all: $(TARGETS)
 
