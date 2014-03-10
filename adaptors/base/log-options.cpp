@@ -24,9 +24,8 @@ namespace Internal
 namespace Adaptor
 {
 
-LogOptions::LogOptions(  )
-: mLogOpts(0),
-  mFpsFrequency(0),
+LogOptions::LogOptions()
+: mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mPerformanceLoggingLevel(0),
   mLogFunction( NULL )
@@ -39,13 +38,11 @@ LogOptions::~LogOptions()
 }
 
 void LogOptions::SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
-                             unsigned int logFilterOptions,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
                              unsigned int logPerformanceLevel )
 {
   mLogFunction = logFunction;
-  mLogOpts = logFilterOptions;
   mFpsFrequency = logFrameRateFrequency;
   mUpdateStatusFrequency = logupdateStatusFrequency;
   mPerformanceLoggingLevel = logPerformanceLevel;
@@ -53,17 +50,12 @@ void LogOptions::SetOptions( const Dali::Integration::Log::LogFunction& logFunct
 
 void LogOptions::InstallLogFunction() const
 {
-  Dali::Integration::Log::InstallLogFunction( mLogFunction, mLogOpts );
+  Dali::Integration::Log::InstallLogFunction( mLogFunction );
 }
 
 void LogOptions::UnInstallLogFunction() const
 {
   Dali::Integration::Log::UninstallLogFunction();
-}
-
-bool LogOptions::IsFilterEnabled( Dali::Integration::Log::LoggingOptions filter ) const
-{
-  return (mLogOpts & filter);
 }
 
 unsigned int LogOptions::GetFrameRateLoggingFrequency() const

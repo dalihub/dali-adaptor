@@ -40,9 +40,6 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
     case Dali::Integration::Log::DebugError:
       LOG(LOG_ERROR, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::DebugResources:
-      LOG(LOG_INFO, DALI_TAG, "%s", message.c_str());
-      break;
     default:
       LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
       break;

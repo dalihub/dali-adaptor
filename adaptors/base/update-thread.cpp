@@ -99,12 +99,8 @@ bool UpdateThread::Run()
 {
   Integration::UpdateStatus status;
 
-  if ( mLogOptions.IsFilterEnabled( Debug::LogUpdateThread) ||
-       mStatusLogInterval )
-  {
-    // install a function for logging
-    mLogOptions.InstallLogFunction();
-  }
+  // install a function for logging
+  mLogOptions.InstallLogFunction();
 
   bool running( true );
 
@@ -157,12 +153,8 @@ bool UpdateThread::Run()
     }
   }
 
-  if ( mLogOptions.IsFilterEnabled( Debug::LogUpdateThread) ||
-       mStatusLogInterval )
-  {
-    // uninstall a function for logging
-    mLogOptions.UnInstallLogFunction();
-  }
+  // uninstall a function for logging
+  mLogOptions.UnInstallLogFunction();
 
   return true;
 }

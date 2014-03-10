@@ -91,8 +91,6 @@ Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLay
 
 void Adaptor::ParseLogOptions()
 {
-  const char* resourceLogOption = std::getenv(DALI_ENV_ENABLE_LOG);
-  unsigned int logOpts = Integration::Log::ParseLogOptions(resourceLogOption);
 
   // get logging options
   unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
@@ -101,14 +99,13 @@ void Adaptor::ParseLogOptions()
 
   Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
 
-  mLogOptions.SetOptions( logFunction, logOpts, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel );
+  mLogOptions.SetOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel );
 
   // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
   // Dali::Integration::Log::LogFunction logFunction(Dali::SlpPlatform::LogMessage);
-  if( mLogOptions.IsFilterEnabled(  Debug::LogEventThread ))
-  {
-    mLogOptions.InstallLogFunction();
-  }
+
+  mLogOptions.InstallLogFunction();
+
 
 }
 void Adaptor::Initialize()
@@ -143,7 +140,6 @@ void Adaptor::Initialize()
   mUpdateRenderController = new UpdateRenderController( *this, mLogOptions );
 
   mDaliFeedbackPlugin = new FeedbackPluginProxy( FeedbackPluginProxy::DEFAULT_OBJECT_NAME );
-  DALI_LOG_RESOURCE("[INIT] Resource log start\n");
 }
 
 Adaptor::~Adaptor()
@@ -231,8 +227,6 @@ Adaptor::~Adaptor()
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
-
-  DALI_LOG_RESOURCE("[FIN] Resource log end\n");
 }
 
 void Adaptor::Start()

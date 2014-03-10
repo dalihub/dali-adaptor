@@ -188,11 +188,8 @@ void RenderThread::RenderSync()
 
 bool RenderThread::Run()
 {
-  if( mLogOptions.IsFilterEnabled(Debug::LogRenderThread) )
-  {
-    // install a function for logging
-    mLogOptions.InstallLogFunction();
-  }
+  // install a function for logging
+  mLogOptions.InstallLogFunction();
 
   InitializeEgl();
 
@@ -245,12 +242,8 @@ bool RenderThread::Run()
   // shut down egl
   ShutdownEgl();
 
-  if( mLogOptions.IsFilterEnabled(Debug::LogRenderThread) )
-  {
-    // install a function for logging
-    mLogOptions.UnInstallLogFunction();
-  }
-
+  // install a function for logging
+  mLogOptions.UnInstallLogFunction();
 
   return true;
 }

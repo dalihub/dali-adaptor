@@ -365,18 +365,7 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
     file_not_found = true;
   }
 
-  // Log the load if it worked:
-  if ( bitmap )
-  {
-    const unsigned int width  = bitmap->GetImageWidth();
-    const unsigned int height = bitmap->GetImageHeight();
-    const unsigned int bufSize   = bitmap->GetBufferSize();
-    Pixel::Format pixelFormat = bitmap->GetPixelFormat();
-    const int formatVal = pixelFormat;
-
-    DALI_LOG_RESOURCE("[LOAD] Resource id: %d - image loaded from file %s to Bitmap %p - size %u bytes (logical width x logical height = %ux%u, and pixel format = %d)\n", request.GetId(), request.GetPath().c_str(), bitmap.Get(), bufSize, width, height, formatVal);
-  }
-  else
+  if ( !bitmap )
   {
     if( file_not_found )
     {
@@ -426,18 +415,7 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
     }
   }
 
-  // Log the decode if it worked:
-  if (bitmap)
-  {
-    const unsigned int width  = bitmap->GetImageWidth();
-    const unsigned int height = bitmap->GetImageHeight();
-    const unsigned int bufSize   = bitmap->GetBufferSize();
-    Pixel::Format pixelFormat = bitmap->GetPixelFormat();
-    const int formatVal = pixelFormat;
-
-    DALI_LOG_RESOURCE("[DECODE] Resource id: %d - image loadedto Bitmap %p - size %u bytes (logical width x logical height = %ux%u, and pixel format = %d)\n", request.GetId(), bitmap.Get(), bufSize, width, height, formatVal);
-  }
-  else
+  if (!bitmap)
   {
     FailedResource resource(request.GetId(), FailureUnknown);
     mResourceLoader.AddFailedLoad(resource);

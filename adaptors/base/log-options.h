@@ -52,7 +52,6 @@ public:
    * @param logPerformanceLevel performance logging, 0 = disabled,  1+ =  enabled
    */
   void SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
-                   unsigned int logFilterOptions,
                    unsigned int logFrameRateFrequency,
                    unsigned int logupdateStatusFrequency,
                    unsigned int logPerformanceLevel );
@@ -66,11 +65,6 @@ public:
    * Un-install the log function for the current thread.
    */
   void UnInstallLogFunction() const;
-
-  /**
-   * @return true if a log option is enabled
-   */
-  bool IsFilterEnabled( Dali::Integration::Log::LoggingOptions filter ) const;
 
   /**
    * @return frequency of how often FPS is logged out (e.g. 0 = off, 2 = every 2 seconds).
@@ -89,7 +83,6 @@ public:
 
 private:
 
-  unsigned int mLogOpts;                          ///< log option bitmask
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceLoggingLevel;          ///< performance log level

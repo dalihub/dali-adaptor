@@ -205,15 +205,8 @@ void ResourceThreadBase::ProcessNextRequest()
 
 void ResourceThreadBase::InstallLogging()
 {
-  const char* resourceLogOption = std::getenv(DALI_ENV_ENABLE_LOG);
-
-  unsigned int logOpts = Integration::Log::ParseLogOptions(resourceLogOption);
-
-  if (logOpts & Debug::LogResourceThreads)
-  {
-    // resource loading thread will send its logs to SLP Platform's LogMessage handler.
-    Dali::Integration::Log::InstallLogFunction(Dali::SlpPlatform::LogMessage, logOpts);
-  }
+  // resource loading thread will send its logs to SLP Platform's LogMessage handler.
+  Dali::Integration::Log::InstallLogFunction(Dali::SlpPlatform::LogMessage);
 }
 
 void ResourceThreadBase::UninstallLogging()

@@ -106,11 +106,8 @@ void VSyncNotifier::Stop()
 
 void VSyncNotifier::Run()
 {
-  if( mLogOptions.IsFilterEnabled( Debug::LogRenderThread ))
-  {
-    // install a function for logging
-    mLogOptions.InstallLogFunction();
-  }
+  // install a function for logging
+  mLogOptions.InstallLogFunction();
 
   unsigned int frameNumber( 0u );             // frameCount, updated when the thread is paused
   unsigned int currentSequenceNumber( 0u );   // platform specific vsync sequence number (increments with each vsync)
@@ -167,11 +164,8 @@ void VSyncNotifier::Run()
     running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( frameNumber, currentSeconds, currentMicroseconds );
   }
 
-  if( mLogOptions.IsFilterEnabled( Debug::LogRenderThread ))
-  {
-    // uninstall a function for logging
-    mLogOptions.UnInstallLogFunction();
-  }
+  // uninstall a function for logging
+  mLogOptions.UnInstallLogFunction();
 
 }
 
