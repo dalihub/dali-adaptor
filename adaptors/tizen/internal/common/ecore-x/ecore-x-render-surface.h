@@ -19,7 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-
+#include <boost/thread.hpp>
 #include <Ecore_X.h>
 #include <dali/public-api/common/dali-common.h>
 
@@ -177,6 +177,11 @@ public:  // from Internal::Adaptor::RenderSurface
   virtual void ConsumeEvents();
 
   /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::RenderSync()
+   */
+  virtual void RenderSync();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction ) = 0;
@@ -184,12 +189,17 @@ public:  // from Internal::Adaptor::RenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual bool PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta ) = 0;
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode ) = 0;
 
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
    */
-  virtual void StopRender() { mIsStopped = true;};
+  virtual void StopRender();
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::SetSyncMode()
+   */
+  virtual void SetSyncMode( SyncMode syncMode ) { mSyncMode = syncMode; }
 
 private:
 
@@ -222,9 +232,9 @@ protected:
   /**
    * Perform render sync
    * @param[in] currentTime Current time in microseconds
-   * @return true if the calling thread should wait for a RenderSync from Adaptor
+   * @param[in] syncMode Wait for RenderSync (from Adaptor) flag. A member of SyncMode
    */
-  bool RenderSync( unsigned int timeDelta );
+  void DoRenderSync( unsigned int timeDelta, SyncMode syncMode );
 
 protected: // Data
 
@@ -232,14 +242,17 @@ protected: // Data
   Ecore_X_Window              mRootWindow;         ///< X-Root window
   SurfaceType                 mType;               ///< type of renderable
   PositionSize                mPosition;           ///< Position
-  bool                        mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
-  bool                        mOwnDisplay;         ///< Whether we own the display (responsible for deleting it)
   std::string                 mTitle;              ///< Title of window which shows from "xinfo -topvwins" command
   ColorDepth                  mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   RenderMode                  mRenderMode;         ///< Render mode for pixmap surface type
   TriggerEvent*               mRenderNotification; ///< Render notificatin trigger
+  boost::mutex                mSyncMutex;          ///< mutex to lock during waiting sync
+  boost::condition_variable   mSyncNotify;         ///< condition to notify main thread that pixmap was flushed to onscreen
+  SyncMode                    mSyncMode;
+  bool                        mSyncReceived;       ///< true, when a pixmap sync has occurred, (cleared after reading)
+  bool                        mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
+  bool                        mOwnDisplay;         ///< Whether we own the display (responsible for deleting it)
   bool                        mIsStopped;          ///< Render should be stopped
-
 };
 
 } // namespace ECoreX

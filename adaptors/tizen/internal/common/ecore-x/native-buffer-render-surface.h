@@ -99,7 +99,7 @@ public: // from Internal::Adaptor::RenderSurface
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
 
   /// @copydoc Dali::RenderSurface::PostRender
-  virtual bool PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode );
 
 protected:
 

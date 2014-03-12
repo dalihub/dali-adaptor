@@ -67,12 +67,13 @@ RenderSurface::RenderSurface( SurfaceType type,
 : mMainDisplay(NULL),
   mType(type),
   mPosition(positionSize),
-  mOwnSurface(false),
-  mOwnDisplay(false),
   mTitle(name),
   mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
   mRenderMode((type == PIXMAP) ? RENDER_SYNC : RENDER_DEFAULT),
   mRenderNotification( NULL ),
+  mSyncReceived( false ),
+  mOwnSurface(false),
+  mOwnDisplay(false),
   mIsStopped( false )
 {
   // see if there is a display in boost::any display
@@ -239,6 +240,16 @@ void RenderSurface::ConsumeEvents()
   }
 }
 
+void RenderSurface::StopRender()
+{
+  // Stop blocking waiting for sync
+  SetSyncMode( RenderSurface::SYNC_MODE_NONE );
+  // Simulate a RenderSync in case render-thread is currently blocked
+  RenderSync();
+
+  mIsStopped = true;
+}
+
 void RenderSurface::SetDisplay( boost::any display )
 {
   // the render surface can be passed either EFL e-core types, or x11 types
@@ -296,9 +307,29 @@ unsigned int RenderSurface::GetSurfaceId( boost::any surface ) const
   return surfaceId;
 }
 
-bool RenderSurface::RenderSync( unsigned int timeDelta )
+void RenderSurface::RenderSync()
 {
-  if( mRenderMode > Dali::RenderSurface::RENDER_SYNC )
+  // nothing to do
+}
+
+void RenderSurface::DoRenderSync( unsigned int timeDelta, SyncMode syncMode )
+{
+  // Should block waiting for RenderSync?
+  if( mRenderMode == Dali::RenderSurface::RENDER_SYNC )
+  {
+    boost::unique_lock< boost::mutex > lock( mSyncMutex );
+
+    // wait for sync
+    if( syncMode != SYNC_MODE_NONE &&
+        mSyncMode != SYNC_MODE_NONE &&
+        !mSyncReceived )
+    {
+      mSyncNotify.wait( lock );
+    }
+    mSyncReceived = false;
+  }
+  // Software sync based on a timed delay?
+  else if( mRenderMode > Dali::RenderSurface::RENDER_SYNC )
   {
     unsigned int syncPeriod( MICROSECONDS_PER_SECOND / static_cast< unsigned int >( mRenderMode ) - MILLISECONDS_PER_SECOND );
     if( timeDelta < syncPeriod )
@@ -306,8 +337,6 @@ bool RenderSurface::RenderSync( unsigned int timeDelta )
       usleep( syncPeriod - timeDelta );
     }
   }
-
-  return mRenderMode == Dali::RenderSurface::RENDER_SYNC;
 }
 
 } // namespace ECoreX

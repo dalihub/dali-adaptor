@@ -228,13 +228,6 @@ private: // Data
     volatile int* mFlag;
   };
 
-  // sync for waiting offscreen flushed to onscreen
-  boost::mutex              mPixmapSyncMutex;      ///< mutex to lock during waiting sync
-  boost::condition_variable mPixmapSyncNotify;     ///< condition to notify main thread that pixmap was flushed to onscreen
-  bool                      mPixmapSyncReceived;   ///< true, when a pixmap sync has occurred, (cleared after reading)
-  bool                      mPixmapSyncRunning;    ///< true, while render thread is running and needs to wait for pixmap syncs
-  unsigned long             mCurrentMicroSec;
-
   // sync for waiting for surface change
   boost::mutex              mSurfaceChangedMutex;  ///< mutex to lock during surface replacing
   boost::condition_variable mSurfaceChangedNotify; ///< condition to notify main thread that surface has been changed

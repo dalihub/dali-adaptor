@@ -50,24 +50,13 @@ RenderThread::RenderThread( UpdateRenderSynchronization& sync,
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
   mThread( NULL ),
-  mUsingPixmap( false ),
   mSurfaceReplacing( false ),
   mNewDataAvailable( false ),
-  mPixmapSyncReceived( false ),
-  mPixmapSyncRunning( false ),
-  mCurrentMicroSec(0),
   mSurfaceReplaceCompleted( false ),
   mLogOptions( logOptions )
 {
   // set the initial values before render thread starts
   mCurrent.surface = adaptorInterfaces.GetRenderSurfaceInterface();
-
-  // set the pixmap flag, if we're using one
-  if( (mCurrent.surface->GetType() == Dali::RenderSurface::PIXMAP ) ||
-      (mCurrent.surface->GetType() == Dali::RenderSurface::NATIVE_BUFFER ) )
-  {
-    mUsingPixmap = true;
-  }
 }
 
 RenderThread::~RenderThread()
@@ -87,12 +76,8 @@ void RenderThread::Start()
   // create the render thread, initially we are rendering
   mThread = new boost::thread(boost::bind(&RenderThread::Run, this));
 
-  // Inform render thread to block waiting for PixmapSync
-  if( mUsingPixmap )
-  {
-    boost::unique_lock< boost::mutex > lock( mPixmapSyncMutex );
-    mPixmapSyncRunning = true;
-  }
+  // Inform surface to block waiting for RenderSync
+  mCurrent.surface->SetSyncMode( RenderSurface::SYNC_MODE_WAIT );
  }
 
 void RenderThread::Stop()
@@ -100,17 +85,8 @@ void RenderThread::Stop()
   // shutdown the render thread and destroy the opengl context
   if( mThread )
   {
-    // Inform render thread not to block waiting for PixmapSync
-    if( mUsingPixmap )
-    {
-      boost::unique_lock< boost::mutex > lock( mPixmapSyncMutex );
-      mPixmapSyncRunning = false;
-    }
-
+    // Tell surface we have stopped rendering
     mCurrent.surface->StopRender();
-
-    // need to simulate a RenderSync to get render-thread to finish
-    RenderSync();
 
     // wait for the thread to finish
     mThread->join();
@@ -167,17 +143,7 @@ void RenderThread::SetVSyncMode( EglInterface::SyncMode syncMode )
 
 void RenderThread::RenderSync()
 {
-  if( !mUsingPixmap )
-  {
-    return;
-  }
-  {
-    boost::unique_lock< boost::mutex > lock( mPixmapSyncMutex );
-    mPixmapSyncReceived = true;
-  }
-
-  // awake render thread if it was waiting for the notify
-  mPixmapSyncNotify.notify_all();
+  mCurrent.surface->RenderSync();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,11 +235,8 @@ void RenderThread::InitializeEgl()
   // Make it current
   mEGL->MakeContextCurrent();
 
-  if( !mUsingPixmap )
-  {
-    // set the initial sync mode
-    mEGL->SetRefreshSync( mCurrent.syncMode );
-  }
+  // set the initial sync mode
+  mEGL->SetRefreshSync( mCurrent.syncMode );
 
   // tell core it has a context
   mCore.ContextCreated();
@@ -378,21 +341,8 @@ bool RenderThread::PreRender()
 
 void RenderThread::PostRender( unsigned int timeDelta )
 {
-  const bool waitForSync = mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta );
-
-  if( waitForSync )
-  {
-    boost::unique_lock< boost::mutex > lock( mPixmapSyncMutex );
-
-    // wait until synced,
-    // this blocks the thread here and releases the mPixmapSyncMutex (so the main thread can use it)
-    // if surface is replacing, forcely update without pixmap sync
-    if( mPixmapSyncRunning && !mPixmapSyncReceived && !mSurfaceReplacing )
-    {
-      mPixmapSyncNotify.wait( lock );
-    }
-    mPixmapSyncReceived = false;
-  }
+  mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta,
+                                mSurfaceReplacing ? RenderSurface::SYNC_MODE_NONE : RenderSurface::SYNC_MODE_WAIT );
 }
 
 } // namespace Adaptor

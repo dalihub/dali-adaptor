@@ -129,7 +129,7 @@ public:  // from Internal::Adaptor::RenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual bool PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode );
 
 protected:
 

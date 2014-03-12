@@ -178,7 +178,7 @@ bool NativeBufferRenderSurface::PreRender( EglInterface& egl, Integration::GlAbs
   return !mIsStopped; // fail if it is stopped
 }
 
-bool NativeBufferRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta )
+void NativeBufferRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode )
 {
   glAbstraction.Flush();
 
@@ -197,7 +197,7 @@ bool NativeBufferRenderSurface::PostRender( EglInterface& egl, Integration::GlAb
   }
 
   // Do render synchronisation
-  return RenderSync( timeDelta );
+  DoRenderSync( timeDelta, syncMode );
 }
 
 void NativeBufferRenderSurface::CreateXRenderable()

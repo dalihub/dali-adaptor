@@ -193,7 +193,7 @@ bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& 
   return true;
 }
 
-bool WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta )
+void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int, SyncMode )
 {
   EglImplementation& eglImpl = static_cast<EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -215,9 +215,6 @@ bool WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
 
     mNeedToApproveDeiconify = false;
   }
-
-  // Does not need render thread to wait for sync
-  return false;
 }
 
 void WindowRenderSurface::CreateXRenderable()
