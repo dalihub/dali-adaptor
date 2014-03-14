@@ -31,7 +31,7 @@ namespace SlpPlatform
 inline bool SupportsNonPowerOfTwoTextures()
 {
 #ifdef NON_POWER_OF_TWO_TEXTURES
-  return true; // Redwood 8974 and desktop builds have NPOT
+  return true; // All current devices and desktop builds have NPOT
 #else
 #error "NPOT are standard in GLES 2.0 if mipmaps are not used, they are standard with mipmaps and no restrictions in GLES 3.0, requiring them simplifies image handling code."
   return false;
