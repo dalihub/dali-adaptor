@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -40,7 +40,7 @@ class ClipboardEventNotifier;
 }
 
 /**
- * The ClipboardEventNotifier provides signals when clipboard events are received from the device.
+ * @brief The ClipboardEventNotifier provides signals when clipboard events are received from the device.
  */
 class ClipboardEventNotifier : public BaseHandle
 {
@@ -48,55 +48,60 @@ public:
 
   // Typedefs
 
-  // Clipboard event
+  /**
+   * @brief Clipboard event
+   */
   typedef SignalV2< void ( ClipboardEventNotifier& ) > ClipboardEventSignalV2;
 
   // Signal Names
-  static const char* const SIGNAL_CONTENT_SELECTED;
+  static const char* const SIGNAL_CONTENT_SELECTED; ///< name "content-selected"
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by getting the notifier from Dali::Adaptor.
    */
   ClipboardEventNotifier();
 
   /**
-   * Retrieve a handle to the ClipboardEventNotifier instance.
+   * @brief Retrieve a handle to the ClipboardEventNotifier instance.
+   *
    * @return A handle to the ClipboardEventNotifier
    */
   static ClipboardEventNotifier Get();
 
   /**
-   * Virtual Destructor.
+   * @brief Virtual Destructor.
    */
   virtual ~ClipboardEventNotifier();
 
   /**
-   * Returns the selected content.
+   * @brief Returns the selected content.
    * @return A reference to the string representing the selected content.
    */
   const std::string& GetContent() const;
 
   /**
-   * Sets the selected content.
+   * @brief Sets the selected content.
    * @param[in] content  A string that represents the content that has been selected.
    */
   void SetContent( const std::string& content );
 
   /**
-   * Clears the stored content.
+   * @brief Clears the stored content.
    */
   void ClearContent();
 
   /**
-   * Called when content is selected in the clipboard.
+   * @brief Called when content is selected in the clipboard.
    */
   void EmitContentSelectedSignal();
 
 public:  // Signals
 
   /**
-   * This is emitted when content is selected from the clipboard
+   * @brief This is emitted when content is selected from the clipboard.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallback( ClipboardEventNotifier& notifier );
@@ -108,7 +113,8 @@ public:  // Signals
 public: // Not intended for application developers
 
   /**
-   * This constructor is used by ClipboardEventNotifier::Get().
+   * @brief This constructor is used by ClipboardEventNotifier::Get().
+   *
    * @param[in] notifier A pointer to the drag and drop notifier.
    */
   ClipboardEventNotifier( Internal::Adaptor::ClipboardEventNotifier* notifier );

@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -44,7 +44,9 @@ class DragAndDropDetector;
 class Orientation;
 
 /**
- * The window class is used internally for drawing. It has an orientation
+ * @brief The window class is used internally for drawing.
+ *
+ * It has an orientation
  * and indicator properties.
  */
 class Window : public BaseHandle
@@ -53,6 +55,9 @@ public:
 
   // Enumerations
 
+  /**
+   * @brief Orientation of the window.
+   */
   enum WindowOrientation
   {
     PORTRAIT = 0,
@@ -61,6 +66,9 @@ public:
     LANDSCAPE_INVERSE = 270
   };
 
+  /**
+   * @brief Opacity of the indicator.
+   */
   enum IndicatorBgOpacity
   {
     OPAQUE = 100, // Fully opaque indicator Bg
@@ -71,21 +79,24 @@ public:
   // Methods
 
   /**
-   * Create an initialized handle to a new Window.
+   * @brief Create an initialized handle to a new Window.
    * @param[in] windowPosition The position and size of the window
    * @param[in] name The window title
    * @param[in] isTransparent Whether window is transparent
+   * @return a new window
    */
   static Window New(PositionSize windowPosition, std::string name, bool isTransparent = false);
 
   /**
-   * Create an uninitalized handle. This can be initialized using
-   * Dali::Application::GetWindow() or Dali::Window::New()
+   * @brief Create an uninitalized handle.
+   *
+   * This can be initialized using Dali::Application::GetWindow() or
+   * Dali::Window::New()
    */
   Window();
 
   /**
-   * Destructor
+   * @brief Destructor
    */
   virtual ~Window();
 
@@ -95,94 +106,99 @@ public:
   using BaseHandle::operator=;
 
   /**
-   * This sets whether the indicator bar should be shown or not
+   * @brief This sets whether the indicator bar should be shown or not.
    * @param[in] show - true if the indicator bar should be shown
    */
   void ShowIndicator( bool show );
 
   /**
-   * This sets the opacity mode of indicator bar
+   * @brief This sets the opacity mode of indicator bar.
    * @param[in] opacity - The opacity mode
    */
   void SetIndicatorBgOpacity( IndicatorBgOpacity opacity );
 
   /**
-   * This sets the orientation of indicator bar. It does not
-   * implicitly show the indicator if it is currently hidden.
+   * @brief This sets the orientation of indicator bar.
+   *
+   * It does not implicitly show the indicator if it is currently
+   * hidden.
    * @param[in] orientation The orientation
    */
   void RotateIndicator(WindowOrientation orientation);
 
   /**
-   * Set the window name and class string
+   * @brief Set the window name and class string.
+   * @param[in] name The name of the window
+   * @param[in] klass The class of the window
    */
   void SetClass(std::string name, std::string klass);
 
   /**
-   * Raise window to top of window stack
+   * @brief Raise window to top of window stack.
    */
   void Raise();
 
   /**
-   * Lower window to bottom of window stack
+   * @brief Lower window to bottom of window stack.
    */
   void Lower();
 
   /**
-   * Activate window to top of window stack even it is iconified
+   * @brief Activate window to top of window stack even it is iconified.
    */
   void Activate();
 
   /**
-   * Get the orientation class ( to allow signal connection )
+   * @brief Get the orientation class ( to allow signal connection ).
    */
   Orientation GetOrientation();
 
   /**
-   * Add an orientation to the list of available orientations
+   * @brief Add an orientation to the list of available orientations.
    */
   void AddAvailableOrientation( WindowOrientation orientation );
 
   /**
-   * Remove an orientation from the list of available orientations
+   * @brief Remove an orientation from the list of available orientations.
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
 
   /**
-   * Set the orientations that this window can rotate to. By default, the window
-   * does not change orientation.
+   * @brief Set the orientations that this window can rotate to.
+   *
+   * By default, the window does not change orientation.
    * @param[in] orientations The list of orientations
    */
   void SetAvailableOrientations( const std::vector<WindowOrientation>& orientations );
 
   /**
-   * Get the list of orientations this window can rotate to.
+   * @brief Get the list of orientations this window can rotate to.
    * @return the list of orientations
    */
   const std::vector<WindowOrientation>& GetAvailableOrientations();
 
   /**
-   * Set a preferred orientation.
+   * @brief Set a preferred orientation.
    * @pre orientation is in the list of available orientations
    * @param[in] orientation The preferred orientation
    */
   void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
-   * Get the preferred orientation
+   * @brief Get the preferred orientation.
    * @return The preferred orientation if previously set, or none.
    */
   WindowOrientation GetPreferredOrientation();
 
   /**
-   * Returns the Drag & drop detector which can be used to receive drag & drop events.
+   * @brief Returns the Drag & drop detector which can be used to receive drag & drop events.
    * @return A handle to the DragAndDropDetector.
    */
   DragAndDropDetector GetDragAndDropDetector() const;
 
 public: // Not intended for application developers
   /**
-   * This constructor is used by Dali::Application::GetWindow().
+   * @brief This constructor is used by Dali::Application::GetWindow().
    * @param[in] window A pointer to the window.
    */
   explicit Window( Internal::Adaptor::Window* window );

@@ -19,7 +19,7 @@
 
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -45,7 +45,7 @@ class AccessibilityGestureHandler;
 class TouchPoint;
 
 /**
- * The AccessibilityManager provides signals when accessibility & screen reader feature turned on in device.
+ * @brief The AccessibilityManager provides signals when accessibility & screen reader feature turned on in device.
  */
 class AccessibilityManager : public BaseHandle
 {
@@ -54,92 +54,102 @@ public:
   // Typedefs
 
   /**
-   * Accessibility Action Signal
+   * @brief Accessibility Action Signal.
+   *
    * Signal connected callback should return the result
    */
-  typedef SignalV2< bool ( AccessibilityManager& ) > AccessibilityActionSignalV2;
+  typedef SignalV2< bool ( AccessibilityManager& ) > AccessibilityActionSignalV2; ///< Generic signal type
 
   // Signal Names
-  static const char* const SIGNAL_STATUS_CHANGED;
-  static const char* const SIGNAL_ACTION_NEXT;
-  static const char* const SIGNAL_ACTION_PREVIOUS;
-  static const char* const SIGNAL_ACTION_ACTIVATE;
-  static const char* const SIGNAL_ACTION_OVER;
-  static const char* const SIGNAL_ACTION_READ;
-  static const char* const SIGNAL_ACTION_READ_NEXT;
-  static const char* const SIGNAL_ACTION_READ_PREVIOUS;
-  static const char* const SIGNAL_ACTION_UP;
-  static const char* const SIGNAL_ACTION_DOWN;
-  static const char* const SIGNAL_ACTION_CLEAR_FOCUS;
-  static const char* const SIGNAL_ACTION_BACK;
+  static const char* const SIGNAL_STATUS_CHANGED;       ///< name "accessibility-status-changed"
+  static const char* const SIGNAL_ACTION_NEXT;          ///< name "accessibility-action-next"
+  static const char* const SIGNAL_ACTION_PREVIOUS;      ///< name "accessibility-action-previous"
+  static const char* const SIGNAL_ACTION_ACTIVATE;      ///< name "accessibility-action-activatae"
+  static const char* const SIGNAL_ACTION_OVER;          ///< name "accessibility-action-over"
+  static const char* const SIGNAL_ACTION_READ;          ///< name "accessibility-action-read"
+  static const char* const SIGNAL_ACTION_READ_NEXT;     ///< name "accessibility-action-read-next"
+  static const char* const SIGNAL_ACTION_READ_PREVIOUS; ///< name "accessibility-action-read-prev"
+  static const char* const SIGNAL_ACTION_UP;            ///< name "accessibility-action-up"
+  static const char* const SIGNAL_ACTION_DOWN;          ///< name "accessibility-action-down"
+  static const char* const SIGNAL_ACTION_CLEAR_FOCUS;   ///< name "accessibility-action-clear-focus"
+  static const char* const SIGNAL_ACTION_BACK;          ///< name "accessibility-action-back"
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by calling getting the manager from Dali::Adaptor.
    */
   AccessibilityManager();
 
   /**
-   * Retrieve a handle to the AccessibilityManager.
+   * @brief Retrieve a handle to the AccessibilityManager.
+   *
    * @return A handle to the AccessibilityManager.
    */
   static AccessibilityManager Get();
 
   /**
-   * Virtual Destructor.
+   * @brief Virtual Destructor.
    */
   virtual ~AccessibilityManager();
 
   /**
-   * Returns the current position of the read action.
+   * @brief Returns the current position of the read action.
    * @return The current event position.
    */
   Vector2 GetReadPosition() const;
 
   /**
-   * Query whether the accessibility(screen-reader) is enabled.
+   * @brief Query whether the accessibility(screen-reader) is enabled.
+   *
    * The accessibility will be enabled by system setting.
    * @return True if the accessibility(screen-reader) is enabled.
    */
   bool IsEnabled() const;
 
   /**
-   * Set the handler to handle accessibility actions.
+   * @brief Set the handler to handle accessibility actions.
+   *
    * @param[in] handler The Accessibility action handler.
    * @note Handlers should remove themselves when they are destroyed.
    */
   void SetActionHandler(AccessibilityActionHandler& handler);
 
   /**
-   * Set the handler to handle accessibility gestures.
+   * @brief Set the handler to handle accessibility gestures.
+   *
    * @param[in] handler The Accessibility gesture handler.
    * @note Handlers should remove themselves when they are destroyed.
    */
   void SetGestureHandler(AccessibilityGestureHandler& handler);
 
   /**
-   * Handle the accessibility action to move focus to the next focusable actor
+   * @brief Handle the accessibility action to move focus to the next focusable actor
    * (by one finger flick down).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionNextEvent();
 
   /**
-   * Handle the accessibility action to move focus to the previous focusable actor
+   * @brief Handle the accessibility action to move focus to the previous focusable actor
    * (by one finger flick up).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionPreviousEvent();
 
   /**
-   * Handle the accessibility action to activate the current focused actor (by one
+   * @brief Handle the accessibility action to activate the current focused actor (by one
    * finger double tap)
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionActivateEvent();
 
   /**
-   * Handle the accessibility action to focus and read the actor (by one finger tap or move).
+   * @brief Handle the accessibility action to focus and read the actor (by one finger tap or move).
+   *
    * @param x x position of event
    * @param y y position of event
    * @param allowReadAgain true if the action read again the same object (i.e. read action)
@@ -149,43 +159,49 @@ public:
   bool HandleActionReadEvent(unsigned int x, unsigned int y, bool allowReadAgain);
 
   /**
-   * Handle the accessibility action to move focus to the next focusable actor
+   * @brief Handle the accessibility action to move focus to the next focusable actor
    * (by one finger flick right).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionReadNextEvent();
 
   /**
-   * Handle the accessibility action to move focus to the previous focusable actor
+   * @brief Handle the accessibility action to move focus to the previous focusable actor
    * (by one finger flick up).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionReadPreviousEvent();
 
   /**
-   * Handle the accessibility action to change the value when the current focused
+   * @brief Handle the accessibility action to change the value when the current focused
    * actor is a slider (by double finger down and move up and right).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionUpEvent();
 
   /**
-   * Handle the accessibility action to change the value when the current focused
+   * @brief Handle the accessibility action to change the value when the current focused
    * actor is a slider (by double finger down and move down and left).
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionDownEvent();
 
   /**
-   * Handle the accessibility action to clear the focus from the current focused
+   * @brief Handle the accessibility action to clear the focus from the current focused
    * actor if any, so that no actor is focused in the focus chain.
+   *
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionClearFocusEvent();
 
   /**
-   * Handle the accessibility action to scroll when the current focused actor is
+   * @brief Handle the accessibility action to scroll when the current focused actor is
    * a scrollable control or its child (by 2 finger touch & move, 2 finger flick).
+   *
    * @param[in]  point      The touch point information.
    * @param[in]  timeStamp  The time the touch occurred.
    * @return Whether the action is performed successfully or not.
@@ -193,25 +209,26 @@ public:
   bool HandleActionScrollEvent(TouchPoint& point, unsigned long timeStamp);
 
   /**
-   * Handle the accessibility action to navigate back (by two fingers circle draw).
+   * @brief Handle the accessibility action to navigate back (by two fingers circle draw).
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionBackEvent();
 
   /**
-   * Handle the accessibility action to enable the feature
+   * @brief Handle the accessibility action to enable the feature.
    */
   void HandleActionEnableEvent();
 
   /**
-   * Handle the accessibility action to disable the feature
+   * @brief Handle the accessibility action to disable the feature.
    */
   void HandleActionDisableEvent();
 
 public:  // Signals
 
   /**
-   * This is emitted when accessibility(screen-reader) feature turned on or off
+   * @brief This is emitted when accessibility(screen-reader) feature turned on or off.
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -221,8 +238,9 @@ public:  // Signals
   AccessibilityActionSignalV2& StatusChangedSignal();
 
   /**
-   * This is emitted when accessibility action is received to move focus to the next
+   * @brief This is emitted when accessibility action is received to move focus to the next
    * focusable actor (by one finger flick down).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -232,8 +250,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionNextSignal();
 
   /**
-   * This is emitted when accessibility action is received to move focus to the previous
+   * @brief This is emitted when accessibility action is received to move focus to the previous
    * focusable actor (by one finger flick up).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -243,8 +262,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionPreviousSignal();
 
   /**
-   * This is emitted when accessibility action is received to activate the current focused
-   * actor (by one finger double tap)
+   * @brief This is emitted when accessibility action is received to activate the current focused
+   * actor (by one finger double tap).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -254,8 +274,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionActivateSignal();
 
   /**
-   * This is emitted when accessibility action is received to focus and read the actor
+   * @brief This is emitted when accessibility action is received to focus and read the actor
    * (by one finger tap).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -265,8 +286,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionReadSignal();
 
   /**
-   * This is emitted when accessibility action is received to focus and read the actor
+   * @brief This is emitted when accessibility action is received to focus and read the actor
    * (by one finger move).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -276,8 +298,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionOverSignal();
 
   /**
-   * This is emitted when accessibility action is received to move focus to the next
+   * @brief This is emitted when accessibility action is received to move focus to the next
    * focusable actor (by one finger flick right).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -287,8 +310,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionReadNextSignal();
 
   /**
-   * This is emitted when accessibility action is received to move focus to the previous
+   * @brief This is emitted when accessibility action is received to move focus to the previous
    * focusable actor (by one finger flick left).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -298,8 +322,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionReadPreviousSignal();
 
   /**
-   * This is emitted when accessibility action is received to change the value when the
+   * @brief This is emitted when accessibility action is received to change the value when the
    * current focused actor is a slider (by double finger down and move up and right).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -309,8 +334,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionUpSignal();
 
   /**
-   * This is emitted when accessibility action is received to change the value when the
+   * @brief This is emitted when accessibility action is received to change the value when the
    * current focused actor is a slider (by double finger down and move down and left).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -320,8 +346,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionDownSignal();
 
   /**
-   * This is emitted when accessibility action is received to clear the focus from the
+   * @brief This is emitted when accessibility action is received to clear the focus from the
    * current focused actor if any, so that no actor is focused in the focus chain.
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -331,8 +358,9 @@ public:  // Signals
   AccessibilityActionSignalV2& ActionClearFocusSignal();
 
   /**
-   * This is emitted when accessibility action is received to navigate back (by two
+   * @brief This is emitted when accessibility action is received to navigate back (by two
    * fingers circle draw).
+   *
    * A callback of the following type may be connected:
    * @code
    *   bool YourCallback( AccessibilityManager& manager );
@@ -344,13 +372,15 @@ public:  // Signals
 public: // Not intended for application developers
 
   /**
-   * Creates a handle using the Adaptor::Internal implementation.
+   * @brief Creates a handle using the Adaptor::Internal implementation.
+   *
    * @param[in] manager The AccessibilityManager implementation.
    */
   AccessibilityManager( Internal::Adaptor::AccessibilityManager& manager );
 
   /**
-   * This constructor is used by AccessibilityManager::Get().
+   * @brief This constructor is used by AccessibilityManager::Get().
+   *
    * @param[in] manager A pointer to the accessibility manager.
    */
   AccessibilityManager( Internal::Adaptor::AccessibilityManager* manager );

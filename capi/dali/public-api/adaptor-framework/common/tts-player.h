@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -37,14 +37,14 @@ class TtsPlayer;
 }
 
 /**
- * Text-to-speech Player
+ * @brief The Text-to-speech Player.
  */
 class TtsPlayer : public BaseHandle
 {
 public: // ENUMs
 
   /**
-   * Enumerations of TTS mode
+   * @brief Enumeration of TTS mode.
    */
   enum Mode
   {
@@ -57,13 +57,15 @@ public: // ENUMs
 public: // API
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by calling TtsPlayer::Get().
    */
   TtsPlayer();
 
   /**
-   * Gets the singleton of the TtsPlayer for each mode.
+   * @brief Gets the singleton of the TtsPlayer for each mode.
+   *
    * Internally, each tts player handles (singleton instance) are managed for each mode.
    * @param mode the mode of tts-player
    * @return A handle of the Ttsplayer for given mode.
@@ -71,31 +73,32 @@ public: // API
   static TtsPlayer Get(Dali::TtsPlayer::Mode mode = Dali::TtsPlayer::DEFAULT);
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   ~TtsPlayer();
 
   /**
-   * Start playing the audio data synthesized from the specified text.
+   * @brief Start playing the audio data synthesized from the specified text.
+   *
    * @pre The TtsPlayer needs to be initialized.
    * @param[in] text to play.
    */
   void Play(const std::string& text);
 
   /**
-   * Stops playing the utterance.
+   * @brief Stops playing the utterance.
    * @pre The TtsPlayer needs to be initialized.
    */
   void Stop();
 
   /**
-   * Pauses the currently playing utterance.
+   * @brief Pauses the currently playing utterance.
    * @pre The TtsPlayer needs to be initialized.
    */
   void Pause();
 
   /**
-   * Resumes the previously paused utterance.
+   * @brief Resumes the previously paused utterance.
    * @pre The TtsPlayer needs to be initialized.
    */
   void Resume();
@@ -103,7 +106,7 @@ public: // API
 public: // Not intended for application developers
 
   /**
-   * This constructor is used by TtsPlayer::Get().
+   * @brief This constructor is used by TtsPlayer::Get().
    * @param[in] ttsPlayer A pointer to the TTS player.
    */
   TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );

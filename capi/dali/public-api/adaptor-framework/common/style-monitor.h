@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -44,6 +44,8 @@ class StyleMonitor;
 }
 
 /**
+ * @brief Monitors the platform for style changes.
+ *
  * This is a handle to the adaptor's style monitor which holds the platform's style information.
  * It provides a signal when any aspect of the default style changes on the device.
  * @see Adaptor::GetStyleMonitor
@@ -52,40 +54,44 @@ class StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 
-  // StyleChange Signal
-  typedef SignalV2< void (StyleMonitor, StyleChange) > StyleChangeSignalV2;
+  typedef SignalV2< void (StyleMonitor, StyleChange) > StyleChangeSignalV2;   ///< StyleChange Signal type
 
 public: // Creation & Destruction
 
   /**
-   * Create an uninitialized StyleMonitor handle; this can be set by
-   * retrieving the style monitor from the Adaptor or the Application
-   * classes.  Calling member functions when uninitialized is not
-   * allowed.
+   * @brief Create an uninitialized StyleMonitor handle.
+   *
+   * Tthis can be set by retrieving the style monitor from the Adaptor
+   * or the Application classes.  Calling member functions when
+   * uninitialized is not allowed.
    */
   StyleMonitor();
 
   /**
-   * Creates a copy of the handle.  The copy will point to the same implementation as the original.
+   * @brief Creates a copy of the handle.
+   *
+   * The copy will point to the same implementation as the original.
    * @param[in]  monitor  The Style Monitor to copy from.
    */
   StyleMonitor(const StyleMonitor& monitor);
 
   /**
-   * Retrieve the initialized instance of the StyleMonitor.
+   * @brief Retrieve the initialized instance of the StyleMonitor.
    * @return Handle to StyleMonitor.
    */
   static StyleMonitor Get();
 
   /**
-   * Destructor.
+   * @brief Destructor.
    */
   virtual ~StyleMonitor();
 
   /**
-   * Downcast an Object handle to StyleMonitor handle. If handle
-   * points to a StyleMonitor object the downcast produces a valid
-   * handle. If not the returned handle is left uninitialized.
+   * @brief Downcast an Object handle to StyleMonitor handle.
+   *
+   * If handle points to a StyleMonitor object the downcast produces a
+   * valid handle. If not the returned handle is left uninitialized.
+   *
    * @param[in] handle to An object @return handle to a Timer object
    * or an uninitialized handle
    */
@@ -99,32 +105,34 @@ public: // Creation & Destruction
 public: // Style Information
 
   /**
-   * Retrieves the default font family.
+   * @brief Retrieves the default font family.
    * @return The default font family.
    */
   std::string GetDefaultFontFamily() const;
 
   /**
-   * Retrieves the default font size
+   * @brief Retrieves the default font size
    * @return The default font size.
    */
   float GetDefaultFontSize() const;
 
   /**
-   * Retrieves the user defined Theme.
+   * @brief Retrieves the user defined Theme.
    * @return The user defined Theme.
    */
   const std::string& GetTheme() const;
 
   /**
-   * Sets an user defined Theme.
+   * @brief Sets an user defined Theme.
+   * @param[in] themeFilePath Path of the user defined theme
    */
   void SetTheme(const std::string& themeFilePath);
 
 public: // Signals
 
   /**
-   * This signal is emitted whenever the style changes on the device.
+   * @brief This signal is emitted whenever the style changes on the device.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallbackName(StyleMonitor styleMonitor, StyleChange change);
@@ -136,16 +144,18 @@ public: // Signals
 public: // Operators
 
   /**
-   * Assignment operator.
+   * @brief Assignment operator.
+   *
    * The handle points to the same implementation as the one being copied from.
    * @param[in]  monitor  The Style Monitor to copy from.
+   * @return reference to this object
    */
   StyleMonitor& operator=(const StyleMonitor& monitor);
 
 
 public: // Not intended for application developers
   /**
-   * This constructor is used internally to create a handle from an object pointer.
+   * @brief This constructor is used internally to create a handle from an object pointer.
    * @param [in] styleMonitor A pointer the internal style monitor.
    */
   explicit DALI_INTERNAL StyleMonitor(Internal::Adaptor::StyleMonitor* styleMonitor);

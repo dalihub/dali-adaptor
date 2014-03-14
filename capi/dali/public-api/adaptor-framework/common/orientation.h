@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -40,7 +40,8 @@ class Orientation;
 }
 
 /**
- * Orientation allows the user to determine the orientation of the device.
+ * @brief Orientation allows the user to determine the orientation of the device.
+ *
  * A signal is emitted whenever the orientation changes.
  * Dali applications have full control over visual layout when the device is rotated
  * i.e. the application developer decides which UI controls to rotate, if any.
@@ -49,16 +50,17 @@ class Orientation : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (Orientation) > OrientationSignalV2;
+  typedef SignalV2< void (Orientation) > OrientationSignalV2; ///< Orientation changed signal type
 
   /**
-   * Create an unintialized handle. This can be initialized by calling
-   * Dali::Application::GetOrientation()
+   * @brief Create an unintialized handle.
+   *
+   * This can be initialized by calling Dali::Application::GetOrientation()
    */
   Orientation();
 
   /**
-   * Virtual Destructor
+   * @brief Virtual Destructor
    */
   virtual ~Orientation();
 
@@ -69,7 +71,8 @@ public:
 
 
   /**
-   * Returns the orientation of the device in degrees.
+   * @brief Returns the orientation of the device in degrees.
+   *
    * This is one of four discrete values, in degrees clockwise: 0, 90, 180, & 270
    * For a device with a portrait form-factor:
    *   0 indicates that the device is in the "normal" portrait orientation.
@@ -79,7 +82,8 @@ public:
   int GetDegrees() const;
 
   /**
-   * Returns the orientation of the device in radians.
+   * @brief Returns the orientation of the device in radians.
+   *
    * This is one of four discrete values, in radians clockwise: 0, PI/2, PI, & 3xPI/2
    * For a device with a portrait form-factor:
    *   0 indicates that the device is in the "normal" portrait orientation.
@@ -89,15 +93,17 @@ public:
   float GetRadians() const;
 
   /**
-   * The user should connect to this signal so that they can be notified whenever
+   * @brief The user should connect to this signal so that they can be notified whenever
    * the orientation of the device changes.
+   *
    * @return The orientation change signal.
    */
   OrientationSignalV2& ChangedSignal();
 
 public: // Not intended for application developers
   /**
-   * This constructor is used by Dali::Application::GetOrientation().
+   * @brief This constructor is used by Dali::Application::GetOrientation().
+   *
    * @param[in] orientation A pointer to the orientation object
    */
   explicit DALI_INTERNAL Orientation( Internal::Adaptor::Orientation* orientation );

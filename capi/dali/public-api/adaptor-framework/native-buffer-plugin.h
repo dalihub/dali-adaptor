@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -49,7 +49,9 @@ class NativeBufferPlugin;
 } // namespace Internal
 
 /**
- * An NativeBufferPlugin class object should be created by Tizen application
+ * @brief Used by Tizen applications that wish to capture Dali output in a buffer.
+ *
+ * A NativeBufferPlugin class object should be created by Tizen application
  * that wish to use Dali, capturing it's output using the Native Buffer Provider API.
  * It provides a means for initialising the resources required by the Dali::Core.
  *
@@ -100,12 +102,12 @@ class NativeBufferPlugin
 {
 public:
 
-  typedef SignalV2< void (NativeBufferPlugin&) > NativeBufferPluginSignalV2;
+  typedef SignalV2< void (NativeBufferPlugin&) > NativeBufferPluginSignalV2; ///< Generic native buffer signal type
 
 public:
 
   /**
-   * This is the constructor for Tizen applications
+   * @brief This is the constructor for Tizen applications.
    * @param[in] initialWidth   The initial width of Dali view port
    * @param[in] initialHeight  The initial height of Dali view port
    * @param[in] isTransparent Whether the surface will be transparent or not
@@ -116,40 +118,41 @@ public:
   NativeBufferPlugin( unsigned int initialWidth, unsigned int initialHeight, bool isTransparent = false, unsigned int maxBufferCount = 2, RenderSurface::RenderMode mode = RenderSurface::RENDER_60FPS, const DeviceLayout& baseLayout = DeviceLayout::DEFAULT_BASE_LAYOUT);
 
   /**
-   * Virtual destructor
+   * @brief Virtual destructor.
    */
   virtual ~NativeBufferPlugin();
 
 public:
 
   /**
-   * Run the NativeBufferPlugin
+   * @brief Run the NativeBufferPlugin.
    */
   void Run();
 
   /**
-   * Pause the NativeBufferPlugin
+   * @brief Pause the NativeBufferPlugin.
    */
   void Pause();
 
   /**
-   * Resume the NativeBufferPlugin
+   * @brief Resume the NativeBufferPlugin.
    */
   void Resume();
 
   /**
-   * Stop the NativeBufferPlugin
+   * @brief Stop the NativeBufferPlugin.
    */
   void Stop();
 
   /**
-   * Get the internal Adaptor instance.
+   * @brief Get the internal Adaptor instance.
    * @return A pointer to the internal adaptor instance.
    */
    Dali::Adaptor* GetAdaptor();
 
    /**
-    * Get the native buffer object which contain rendered result.
+    * @brief Get the native buffer object which contain rendered result.
+    *
     * Application should return back the buffer object to plugin by using AddNativeBufferToInput().
     * @return A pointer to the native buffer object.
     * @note do not destroy the native-buffer returned from this plugin.
@@ -157,7 +160,8 @@ public:
    native_buffer* GetNativeBufferFromOutput();
 
    /**
-    * Add the native buffer object which was consumed in application.
+    * @brief Add the native buffer object which was consumed in application.
+    *
     * The added buffer will be re-used with render target
     * @param nativeBuffer A pointer to the native buffer object.
     * @return True if the operation is successful
@@ -166,13 +170,14 @@ public:
     bool AddNativeBufferToInput(native_buffer* nativeBuffer);
 
     /**
-     * Get number of native buffers in pool
+     * @brief Get number of native buffers in pool.
      * @return vector2 which has input buffer count and output buffer count
      */
     Vector2 GetBufferCount();
 
     /**
-     * Change surface size
+     * @brief Change surface size.
+     *
      * NOT YET SUPPORTED
      * @param width The width of target size
      * @param height The height of target size
@@ -182,37 +187,47 @@ public:
 public:  // Signals
 
   /**
-   * The user should connect to this signal to determine when they should initialise
-   * their application
+   * @brief Signal to notify the client when the application is ready to be initialized.
+   * @return The signal
    */
   NativeBufferPluginSignalV2& InitSignal();
 
   /**
-   * The user should connect to this signal to determine when they should terminate
-   * their application
+   * @brief Signal to notify the user when the application is about to be terminated.
+   * @return The signal
    */
   NativeBufferPluginSignalV2& TerminateSignal();
 
   /**
+   * @brief Signal to notify the client when the adaptor is about to be paused.
+   *
    * The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
+   * @return The signal
    */
   NativeBufferPluginSignalV2& PauseSignal();
 
   /**
+   * @brief Signal to notify the client when the adpator has resumed.
+   *
    * The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
+   * @return The signal
    */
   NativeBufferPluginSignalV2& ResumeSignal();
 
   /**
-   * The user should connect to this signal to be notified when DALi has started rendering
-   * and at least one frame has been rendered.
+   * @brief Signal to notify the client when Dali has rendered at least one frame.
+   *
+   * The user should connect to this signal to be notified when Dali has started rendering
+   * and atleast one frame has been rendered.
+   * @return The signal
    */
   NativeBufferPluginSignalV2& FirstRenderCompletedSignal();
 
   /**
-   * The user should connect to this signal to be notified when DALi has rendered one frame
+   * @brief Signal to notify the client when Dali has rendered one frame
+   * @return The signal
    */
   NativeBufferPluginSignalV2& RenderSignal();
 
@@ -226,7 +241,7 @@ private:
 
 private:
 
-  Internal::Adaptor::NativeBufferPlugin *mImpl;
+  Internal::Adaptor::NativeBufferPlugin *mImpl; ///< Pointer to implementation
   friend class Internal::Adaptor::NativeBufferPlugin;
 
 }; // class NativeBufferPlugin
