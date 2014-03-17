@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -39,6 +39,8 @@ class Timer;
 }
 
 /**
+ * @brief Mechanism to issue simple periodic or one-shot events.
+ *
  * Timer is provided for application developers to be able to issue
  * simple periodic or one-shot events.  Please note that timer
  * callback functions should return as soon as possible, because they
@@ -52,30 +54,35 @@ class Timer : public BaseHandle
 {
 public: // Signal typedefs
 
-  typedef SignalV2< bool () > TimerSignalV2;
+  typedef SignalV2< bool () > TimerSignalV2; ///< Timer finished signal callback type
 
 public: // API
 
   /**
-   * Constructor, creates an uninitialized timer.
+   * @brief Constructor, creates an uninitialized timer.
+   *
    * Call New to fully construct a timer.
    */
   Timer();
 
   /**
-   * Create an tick Timer that emits periodic signal
+   * @brief Create an tick Timer that emits periodic signal.
+   *
    * @param[in] milliSec Interval in milliseconds.
+   * @return a new timer
    */
   static Timer New( unsigned int milliSec );
 
   /**
-   * Copy constructor
+   * @brief Copy constructor.
+   *
    * @param[in] timer The handle to copy. The copied handle will point at the same implementation
    */
   Timer( const Timer& timer );
 
   /**
-   * Assignment operator
+   * @brief Assignment operator.
+   *
    * @param[in] timer The handle to copy. This handle will point at the same implementation
    * as the copied handle.
    * @return Reference to this timer handle
@@ -83,13 +90,16 @@ public: // API
   Timer& operator=( const Timer& timer );
 
   /**
-   * Destructor.
+   * @brief Destructor.
    */
   virtual ~Timer();
 
   /**
-   * Downcast an Object handle to Timer handle. If handle points to a Timer object the
-   * downcast produces a valid handle. If not the returned handle is left uninitialized.
+   * @brief Downcast an Object handle to Timer handle.
+   *
+   * If handle points to a Timer object the downcast produces a valid
+   * handle. If not the returned handle is left uninitialized.
+   *
    * @param[in] handle to An object
    * @return handle to a Timer object or an uninitialized handle
    */
@@ -101,31 +111,33 @@ public: // API
   using BaseHandle::operator=;
 
   /**
-   * Start timer.
+   * @brief Start timer.
+   *
    * In case a Timer is already running it's time is reset and timer is restarted.
    */
   void Start();
 
   /**
-   * Stop timer.
+   * @brief Stop timer.
    */
   void Stop();
 
   /**
-   * Sets a new interval on the timer and starts the timer.
+   * @brief Sets a new interval on the timer and starts the timer.
+   *
    * Cancels the previous timer.
    * @param  milliSec Interval in milliseconds.
    */
   void SetInterval( unsigned int milliSec );
 
   /**
-   * Get interval of timer.
+   * @brief Get the interval of timer.
    * @returns  Interval in milliseconds.
    */
   unsigned int GetInterval() const;
 
   /**
-   * Tells whether timer is running.
+   * @brief  Tells whether timer is running.
    * @return Whether Timer is started or not.
    */
   bool IsRunning() const;
@@ -133,7 +145,8 @@ public: // API
 public: // Signals
 
   /**
-   * Signal emitted after specified time interval.
+   * @brief Signal emitted after specified time interval.
+   *
    * The return of the callback decides whether signal emission stops or continues.
    * If the callback function returns false emission will stop, if true it will continue
    * This return value is ignored for one-shot events, which will always stop after the first execution.

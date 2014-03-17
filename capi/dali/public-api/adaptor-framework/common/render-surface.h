@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -30,14 +30,17 @@
 namespace Dali DALI_IMPORT_API
 {
 
+/**
+ * @brief The position and size of the render surface.
+ */
 typedef Dali::Rect<int> PositionSize;
 
 /**
+ * @brief Interface for a render surface onto which Dali draws.
+ *
  * Dali::Adaptor requires a render surface to draw on to. This is
  * usually a window in the native windowing system, or some other
  * mapped pixel buffer.
- *
- * Dali::Application will automatically create a render surface using a window.
  *
  * The implementation of the factory method below should choose an appropriate
  * implementation of RenderSurface for the given platform
@@ -46,7 +49,7 @@ class RenderSurface
 {
 public:
   /**
-   * enumeration of surface types
+   * @brief enumeration of surface types
    */
   enum SurfaceType
   {
@@ -57,7 +60,8 @@ public:
   };
 
   /**
-   * When application uses pixmap surface, it can select rendering mode
+   * @brief When application uses pixmap surface, it can select rendering mode.
+   *
    * RENDER_SYNC : application should call RenderSync() after posting the offscreen to onscreen
    * RENDER_#FPS : the maximum performance will be limited designated number of frame
    */
@@ -71,66 +75,76 @@ public:
   };
 
   /**
-   * Constructor
+   * @brief Constructor
+   *
    * Application or Adaptor needs to create the appropriate concrete RenderSurface type.
    * @see CreateDefaultSurface
    */
   RenderSurface();
 
   /**
-   * Virtual Destructor
+   * @brief Virtual Destructor.
   */
   virtual ~RenderSurface();
 
   /**
-   * @returns the surface type
+   * @brief returns the surface type.
+   * @return the surface type
    */
   virtual SurfaceType GetType() = 0;
 
   /**
-   * Returns the window or pixmap surface
+   * @brief Returns the window or pixmap surface.
    * @return surface
    */
   virtual boost::any GetSurface() = 0;
 
   /**
-   * Returns the display
+   * @brief Returns the display.
    * @return display
    */
   virtual boost::any GetDisplay() = 0;
 
   /**
-   * Return the size and position of the surface
+   * @brief Return the size and position of the surface.
+   * @return The position and size
    */
   virtual PositionSize GetPositionSize() const = 0;
 
   /**
-   * Set frame update rate for pixmap surface type
+   * @brief Set frame update rate for pixmap surface type
    */
   virtual void SetRenderMode(RenderMode mode) = 0;
 
   /**
-   * Get current fps for pixmap surface type
+   * @brief Get current fps for pixmap surface type
+   * @return The render mode
    */
   virtual RenderMode GetRenderMode() const = 0;
 
 private:
 
   /**
-   * Undefined copy constructor and assignment operator. RenderSurface cannot be copied
+   * @brief Undefined copy constructor. RenderSurface cannot be copied
    */
   RenderSurface( const RenderSurface& rhs );
+
+  /**
+   * @brief Undefined assignment operator. RenderSurface cannot be copied
+   */
   RenderSurface& operator=( const RenderSurface& rhs );
 
 };
 
 /**
- * Default surface factory function.
+ * @brief Default surface factory function.
+ *
  * A surface is created with the given type.
  *
  * @param [in] type the type of surface to create
  * @param [in] positionSize the position and size of the surface to create
  * @param [in] name optional name of surface passed in
+ * @return The render surface
  */
 RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSize positionSize, const std::string& name = "" );
 

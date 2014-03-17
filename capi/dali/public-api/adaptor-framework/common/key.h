@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -30,7 +30,8 @@ namespace Dali DALI_IMPORT_API
 {
 
 /**
- * Mapping of keyboard and mouse button event keycodes to platform specific codes.
+ * @brief Mapping of keyboard and mouse button event keycodes to platform specific codes.
+ *
  * For tizen the X Server Keycode is used as reference, unless it's over ridden
  * in utilX.h in which case the values are based on utilX.h
  */
@@ -77,7 +78,8 @@ extern const KEY DALI_KEY_VOLUME_UP;
 extern const KEY DALI_KEY_VOLUME_DOWN;
 
 /**
- * Check if a key event is for a specific DALI KEY.
+ * @brief Check if a key event is for a specific DALI KEY.
+ *
  * @param keyEvent reference to a keyEvent structure
  * @param daliKey dali key enum
  * @return true if the key is matched, false if not

@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -26,6 +26,8 @@ namespace Dali DALI_IMPORT_API
 {
 
 /**
+ * @brief Used to describe what style information has changed.
+ *
  * This structure is used when any style changes occur and contains information about what exactly
  * has changed.
  */
@@ -41,7 +43,7 @@ struct StyleChange
   // Construction
 
   /**
-   * Default Constructor.
+   * @brief Default Constructor.
    */
   StyleChange()
   : defaultFontChange(false),

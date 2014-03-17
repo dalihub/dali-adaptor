@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -40,10 +40,14 @@ class PixmapImage;
 }
 
 class PixmapImage;
+/**
+ * @brief Pointer to Dali::PixmapImage.
+ */
 typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
 
 /**
- * Used for displaying native Pixmap images.
+ * @brief Used for displaying native Pixmap images.
+ *
  * The native pixmap can be created internally or
  * externally by X11 or ECORE-X11.
  *
@@ -53,7 +57,7 @@ class PixmapImage : public NativeImage
 public:
 
    /**
-    * PixmapImage can use pixmaps created by X11 or ECORE X11
+    * @brief PixmapImage can use pixmaps created by X11 or ECORE X11.
     */
    enum PixmapAPI
    {
@@ -62,7 +66,7 @@ public:
    };
 
    /**
-    * When creating a pixmap the color depth has to be specified
+    * @brief When creating a pixmap the color depth has to be specified.
     */
    enum ColorDepth
    {
@@ -74,7 +78,8 @@ public:
    };
 
   /**
-   * Create a new PixmapImage.
+   * @brief Create a new PixmapImage.
+   *
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
@@ -85,7 +90,8 @@ public:
   static PixmapImagePtr New( unsigned int width, unsigned int height, ColorDepth depth,  Adaptor& adaptor );
 
   /**
-   * Create a new PixmapImage from an existing pixmap.
+   * @brief Create a new PixmapImage from an existing pixmap.
+   *
    * @param[in] pixmap must be a X11 pixmap or a Ecore_X_Pixmap
    * @param[in] adaptor reference to dali adaptor
    * @return A smart-pointer to a newly allocated image.
@@ -93,14 +99,16 @@ public:
   static PixmapImagePtr New( boost::any pixmap, Adaptor& adaptor );
 
   /**
-   * Retrieve the internal pixmap
+   * @brief Retrieve the internal pixmap
+   *
    * @param api whether to return a pixmap that can be used with X11 or EFL
    * @return pixmap boost any object containing a pixmap of the type specified PixmapAPI
    */
   boost::any GetPixmap( PixmapAPI api );
 
   /**
-   * Retrieve the display used to create the pixmap.
+   * @brief Retrieve the display used to create the pixmap.
+   *
    * If the pixmap was created outside of Dali, then this display
    * is the one Dali uses internally.
    * @return boost any object containing the display
@@ -108,7 +116,8 @@ public:
   boost::any GetDisplay();
 
   /**
-   * Get a copy of the pixels used by PixmapImage.
+   * @brief Get a copy of the pixels used by PixmapImage.
+   *
    * This is only supported for 24 bit RGB and 32 bit RGBA internal formats
    * (COLOR_DEPTH_24 and COLOR_DEPTH_32).
    * @param[out] pixbuf a vector to store the pixels in
@@ -120,8 +129,9 @@ public:
   bool GetPixels( std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat ) const;
 
   /**
-   * Convert the current pixel contents to either a JPEG or PNG format
+   * @brief Convert the current pixel contents to either a JPEG or PNG format
    * and write that to the filesytem.
+   *
    * @param[in] filename Identify the filesytem location at which to write the
    *                     encoded image. The extension determines the encoding used.
    *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
@@ -169,7 +179,7 @@ private:   // native image
 private:
 
   /**
-   * Private constructor
+   * @brief Private constructor
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the pixmap
@@ -179,22 +189,22 @@ private:
   PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, boost::any pixmap);
 
   /**
-   * A reference counted object may only be deleted by calling Unreference().
+   * @brief A reference counted object may only be deleted by calling Unreference().
+   *
    * The implementation should destroy the NativeImage resources.
    */
   virtual ~PixmapImage();
 
   /**
-   * Undefined assignment operator.
+   * @brief Undefined assignment operator.
+   *
    * This avoids accidental calls to a default assignment operator.
-   * @param[in] rhs A reference to the object to copy.
    */
   PixmapImage& operator=(const PixmapImage& rhs);
 
 private:
 
-  Internal::Adaptor::PixmapImage* mImpl;
-
+  Internal::Adaptor::PixmapImage* mImpl; ///< Implementation pointer
 };
 
 } // namespace Dali

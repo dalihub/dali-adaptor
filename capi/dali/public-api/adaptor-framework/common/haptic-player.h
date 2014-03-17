@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -37,50 +37,52 @@ class HapticPlayer;
 }
 
 /**
- * Plays haptic effects.
+ * @brief Plays haptic effects.
  */
 class HapticPlayer : public BaseHandle
 {
 public:
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by calling HapticPlayer::Get().
    */
   HapticPlayer();
 
   /**
-   * Create an initialized handle to the HapticPlayer.
+   * @brief Create an initialized handle to the HapticPlayer.
+   *
    * @return A handle to a newly allocated Dali resource.
    */
   static HapticPlayer Get();
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   ~HapticPlayer();
 
   /**
-   * Plays a monotone vibration.
+   * @brief Plays a monotone vibration.
    * @param[in]  duration  The duration of the vibration.
    */
   void PlayMonotone(unsigned int duration);
 
   /**
-   * Plays vibration in predefined patterns.
+   * @brief Plays vibration in predefined patterns.
    * @param[in] filePath Path to the file containing the effect.
    */
   void PlayFile(const std::string filePath);
 
   /**
-   * Stops the currently playing vibration effects.
+   * @brief Stops the currently playing vibration effects.
    */
   void Stop();
 
 public: // Not intended for application developers
 
   /**
-   * This constructor is used by HapticPlayer::Get().
+   * @brief This constructor is used by HapticPlayer::Get().
    * @param[in] hapticPlayer A pointer to the haptic player.
    */
   HapticPlayer( Internal::Adaptor::HapticPlayer* hapticPlayer );

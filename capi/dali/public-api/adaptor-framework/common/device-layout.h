@@ -19,7 +19,7 @@
 
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -30,7 +30,8 @@ namespace Dali DALI_IMPORT_API
 {
 
 /**
- * The attributes of the screen on the device.
+ * @brief The attributes of the screen on the device.
+ *
  * An application can specify the base layout that they used by inputting the values in this
  * structure and passing it to the Application or Adaptor class.
  * @see Dali::Application::Application(* argc, char **argv[], DeviceLayout baseLayout)
@@ -41,12 +42,12 @@ struct DeviceLayout
 public: // Construction & Destruction
 
   /**
-   * Default Constructor
+   * @brief Default Constructor.
    */
   DeviceLayout();
 
   /**
-   * Create a DeviceLayout with specific parameters.
+   * @brief Create a DeviceLayout with specific parameters.
    * @param[in]  resolution       The resolution of the screen the application is based upon.
    * @param[in]  screenSize       The size of the screen the application is based upon.
    * @param[in]  dpi              The DPI of the screen the application is based upon.
@@ -55,7 +56,7 @@ public: // Construction & Destruction
   DeviceLayout(Vector2 resolution, float screenSize, Vector2 dpi, float viewingDistance);
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   ~DeviceLayout();
 
@@ -69,8 +70,9 @@ public: // Data
 public: // Defaults Layouts
 
   /**
-   * This is the default base layout that Dali will assume if no layout is passed in from the
+   * @brief This is the default base layout that Dali will assume if no layout is passed in from the
    * application.
+   *
    * Resolution:        720.0f x 1280.0f
    * Screen Size:       4.65f
    * DPI:               316.0f x 316.0f

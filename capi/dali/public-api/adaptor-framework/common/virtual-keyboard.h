@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -30,8 +30,9 @@ namespace Dali DALI_IMPORT_API
 {
 
 /**
- * This namespace is provided for application developers to be able to show and hide the on-screen
- * keyboard. Key events are sent to the actor in focus. Focus is set through the actor Public API.
+ * @brief This namespace is provided for application developers to be able to show and hide the on-screen keyboard.
+ *
+ * Key events are sent to the actor in focus. Focus is set through the actor Public API.
  */
 namespace VirtualKeyboard
 {
@@ -43,12 +44,18 @@ typedef SignalV2< void (bool) > StatusSignalV2;
 
 // Enumerations
 
+/**
+ * @brief The direction of text.
+ */
 enum TextDirection
 {
   LeftToRight,
   RightToLeft,
 };
 
+/**
+ * @brief The meaning of the return key.
+ */
 enum ReturnKeyType
 {
   DEFAULT,
@@ -64,35 +71,36 @@ enum ReturnKeyType
 
 // Functions
 /**
- * Show the virtual keyboard.
+ * @brief Show the virtual keyboard.
  */
 void Show();
 
 /**
- * Hide the virtual keyboard.
+ * @brief Hide the virtual keyboard.
  */
 void Hide();
 
 /**
- * Returns whether the virtual keyboard is visible or not.
+ * @brief Returns whether the virtual keyboard is visible or not.
  * @return true if visible, false otherwise.
  */
 bool IsVisible();
 
 /**
- * Set the specific return key into the virtual keyboard.
+ * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
 void SetReturnKeyType( ReturnKeyType type );
 
 /**
- * Retrieve the current return key type.
+ * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
 ReturnKeyType GetReturnKeyType();
 
 /**
- * Enable/disable prediction (predictive text)
+ * @brief Enable/disable prediction (predictive text).
+ *
  * By default prediction text is enabled.
  * @param[in] enable true or false to enable or disable
  * Prediction can not be changed while the keyboard is visible. It must be set in advance of showing keyboard.
@@ -100,13 +108,15 @@ ReturnKeyType GetReturnKeyType();
 void EnablePrediction(const bool enable);
 
 /**
- * Returns whether prediction is enabled in the virtual keyboard
+ * @brief Returns whether prediction is enabled in the virtual keyboard
  * @return true if predictive text enabled, false otherwise.
  */
 bool IsPredictionEnabled();
 
-/*
- * Provides size and position of keyboard, position is relative to whether keyboard is visible or not.
+/**
+ * @brief Provides size and position of keyboard.
+ *
+ * Position is relative to whether keyboard is visible or not.
  * If keyboard is not visible then position will be off the screen.
  * If keyboard is not being shown when this method is called the keyboard is partially setup (IMFContext) to get
  * the values then taken down.  So ideally GetSizeAndPosition() should be called after Show().
@@ -115,19 +125,23 @@ bool IsPredictionEnabled();
 Dali::Rect<int> GetSizeAndPosition();
 
 /**
- * Rotates the keyboards orientation to the given angle
- * @param angle the angle is degrees the keyboard should be at 0 would be portrait then 90, 180, 270
+ * @brief Rotates the keyboard orientation to the given angle.
+ *
+ * A value of 0 indicates the portrait orientation.
+ * Other valid values are 90, 180, 270.
+ * @param angle the angle is in degrees.
  */
 void RotateTo(int angle);
 
 /**
- * Returns text direction of the keyboard's current input language.
+ * @brief Returns text direction of the keyboard's current input language.
  * @return The direction of the text.
  */
 TextDirection GetTextDirection();
 
 /**
- * Connect to this signal to be notified when the virtual keyboard is shown or hidden.
+ * @brief Connect to this signal to be notified when the virtual keyboard is shown or hidden.
+ *
  * A callback of the following type may be connected:
  * @code
  *   void YourCallbackName(bool keyboardShown);
@@ -139,7 +153,8 @@ TextDirection GetTextDirection();
 StatusSignalV2& StatusChangedSignal();
 
 /**
- * Connect to this signal to be notified when the virtual keyboard is reszied.
+ * @brief Connect to this signal to be notified when the virtual keyboard is resized.
+ *
  * A callback of the following type may be connected:
  * @code
  *   void YourCallbackName();
@@ -150,7 +165,8 @@ StatusSignalV2& StatusChangedSignal();
 VoidSignalV2& ResizedSignal();
 
 /**
- * Connect to this signal to be notified when the virtual keyboard's language is changed.
+ * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
+ *
  * A callback of the following type may be connected:
  * @code
  *   void YourCallbackName();

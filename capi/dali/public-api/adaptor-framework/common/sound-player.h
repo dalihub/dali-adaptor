@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -38,38 +38,41 @@ class SoundPlayer;
 }
 
 /**
- * Plays sound effects.
+ * @brief Plays sound effects.
  */
 class SoundPlayer : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (SoundPlayer&) > SoundPlayFinishedSignalV2;
+  typedef SignalV2< void (SoundPlayer&) > SoundPlayFinishedSignalV2; ///< Sound play finished signal
 
   // Signal Names
-  static const char* const SIGNAL_SOUND_PLAY_FINISHED;
+  static const char* const SIGNAL_SOUND_PLAY_FINISHED; ///< name "sound-play-finished"
 
 public:
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by calling SoundPlayer::Get().
    */
   SoundPlayer();
 
   /**
-   * Create an initialized handle to the SoundPlayer.
+   * @brief Create an initialized handle to the SoundPlayer.
+   *
    * @return A handle to a newly allocated Dali resource.
    */
   static SoundPlayer Get();
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   ~SoundPlayer();
 
   /**
-   * Plays a sound file.
+   * @brief Plays a sound file.
+   *
    * @pre The SoundPlayer needs to be initialized.
    * @param[in]  fileName Path to the sound file to play.
    * @return a handle to the currently playing sound file which can be used to stop.
@@ -77,13 +80,16 @@ public:
   int PlaySound(const std::string fileName);
 
   /**
-   * Stops the currently playing sound.
+   * @brief Stops the currently playing sound.
+   *
    * @pre The SoundPlayer needs to be initialized.
+   * @param[in] handle
    */
   void Stop(int handle);
 
   /**
-   * This signal will be emitted after a given sound file is completely played.
+   * @brief This signal will be emitted after a given sound file is completely played.
+   *
    * @pre The SoundPlayer needs to be initialized.
    * @return The signal to connect to.
    */
@@ -92,7 +98,8 @@ public:
 public: // Not intended for application developers
 
   /**
-   * This constructor is used by SoundPlayer::Get().
+   * @brief This constructor is used by SoundPlayer::Get().
+   *
    * @param[in] soundPlayer A pointer to the sound player.
    */
   SoundPlayer( Internal::Adaptor::SoundPlayer* soundPlayer );

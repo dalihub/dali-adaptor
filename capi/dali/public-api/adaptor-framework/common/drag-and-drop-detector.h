@@ -19,7 +19,7 @@
 
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -41,7 +41,7 @@ class DragAndDropDetector;
 }
 
 /**
- * The DragAndDropDetectors provides signals when draggable objects are dragged into our window.
+ * @brief The DragAndDropDetector%s provides signals when draggable objects are dragged into our window.
  * It provides signals for when the draggable object enters our window, moves around in our window,
  * leaves our window and when it is finally dropped into our window.
  * The basic usage is shown below:
@@ -95,35 +95,40 @@ public:
 
   // Typedefs
 
-  // Drag & Drop
+  /**
+   * @brief Drag & Drop signal.
+   */
   typedef SignalV2< void ( DragAndDropDetector ) > DragAndDropSignalV2;
 
   // Signal Names
-  static const char* const SIGNAL_ENTERED;
-  static const char* const SIGNAL_EXITED;
-  static const char* const SIGNAL_MOVED;
-  static const char* const SIGNAL_DROPPED;
+  static const char* const SIGNAL_ENTERED;///< name "drag-and-drop-entered"
+  static const char* const SIGNAL_EXITED; ///< name "drag-and-drop-exited"
+  static const char* const SIGNAL_MOVED;  ///< name "drag-and-drop-moved"
+  static const char* const SIGNAL_DROPPED;///< name "drag-and-drop-dropped"
 
   /**
-   * Create an uninitialized handle.
+   * @brief Create an uninitialized handle.
+   *
    * This can be initialized by calling getting the detector from Dali::Window.
    */
   DragAndDropDetector();
 
   /**
-   * Virtual Destructor.
+   * @brief Virtual Destructor.
    */
   virtual ~DragAndDropDetector();
 
   /**
-   * Returns the dropped content.
+   * @brief Returns the dropped content.
+   *
    * @return A reference to the string representing the dropped content.
    */
   const std::string& GetContent() const;
 
   /**
-   * Returns the current position of the dragged object.  This is the dropped position when an object
-   * is dropped.
+   * @brief Returns the current position of the dragged object.
+   *
+   * This is the dropped position when an object is dropped.
    * @return The current screen position.
    */
   Vector2 GetCurrentScreenPosition() const;
@@ -131,7 +136,8 @@ public:
 public:  // Signals
 
   /**
-   * This is emitted when a dragged object enters a DALi window.
+   * @brief This is emitted when a dragged object enters a DALi window.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallback( DragAndDropDetector detector );
@@ -141,7 +147,8 @@ public:  // Signals
   DragAndDropSignalV2& EnteredSignal();
 
   /**
-   * This is emitted when a dragged object leaves a DALi window.
+   * @brief This is emitted when a dragged object leaves a DALi window.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallback( DragAndDropDetector detector );
@@ -151,7 +158,8 @@ public:  // Signals
   DragAndDropSignalV2& ExitedSignal();
 
   /**
-   * This is emitted when a dragged object is moved within the DALi window.
+   * @brief This is emitted when a dragged object is moved within the DALi window.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallback( DragAndDropDetector detector );
@@ -162,7 +170,8 @@ public:  // Signals
   DragAndDropSignalV2& MovedSignal();
 
   /**
-   * This is emitted when a dragged object is dropped within a DALi window.
+   * @brief This is emitted when a dragged object is dropped within a DALi window.
+   *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallback( DragAndDropDetector detector );
@@ -174,7 +183,8 @@ public:  // Signals
 public: // Not intended for application developers
 
   /**
-   * This constructor is used by DragAndDropDetector::Get().
+   * @brief This constructor is used by DragAndDropDetector::Get().
+   *
    * @param[in] detector A pointer to the drag and drop detector.
    */
   DragAndDropDetector( Internal::Adaptor::DragAndDropDetector* detector );

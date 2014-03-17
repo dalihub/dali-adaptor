@@ -19,7 +19,7 @@
 
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -41,7 +41,8 @@ class Clipboard;
 }
 
 /**
- * The Clipboard can operate using various funtion.
+ * @brief Interface to the device's clipboard.
+ *
  * Clipboard can manage it's item and set show / hide status.
  */
 
@@ -49,55 +50,61 @@ class Clipboard : public BaseHandle
 {
 public:
   /**
-   * Create an uninitialized Clipboard;
-   *  this can be initialized with one of the derived Clipboard' New() methods
+   * @brief Create an uninitialized Clipboard.
+   *
+   * this can be initialized with one of the derived Clipboard' New() methods
    */
   Clipboard();
 
   /**
-   * Virtual destructor.
+   * @brief Virtual destructor.
    */
   virtual ~Clipboard();
 
   /**
-   * This constructor is used by Adaptor::GetClipboard().
+   * @brief This constructor is used by Adaptor::GetClipboard().
+   *
    * @param[in] clipboard A pointer to the clipboard.
    */
   Clipboard( Internal::Adaptor::Clipboard* clipboard );
 
   /**
-   * Retrieve a handle to the ClipboardEventNotifier instance
+   * @brief Retrieve a handle to the ClipboardEventNotifier instance.
+   *
    * @return A handle to the Clipboard
    */
   static Clipboard Get();
 
   /**
-   * Send the given string to the clipboard
+   * @brief Send the given string to the clipboard.
+   *
    * @param[in] itemData string to send to clip board
    * @return bool true if the internal clip board sending was successful.
    */
   bool SetItem( const std::string& itemData );
 
   /**
-   * Retreive the string at the given index in the clip board.
+   * @brief Retreive the string at the given index in the clipboard.
+   *
    * @param[in] index item in clipboard list to retrieve
    * @return string the text item at the current index.
    */
   std::string GetItem( unsigned int index );
 
   /**
-   * Returns the number of item currently in the clipboard
+   * @brief Returns the number of item currently in the clipboard.
+   *
    * @return unsigned int number of clipboard items
    */
   unsigned int NumberOfItems();
 
   /**
-   * Show the clipboard window
+   * @brief Show the clipboard window.
    */
   void ShowClipboard();
 
   /**
-   * Hide the clipboard window
+   * @brief Hide the clipboard window.
    */
   void HideClipboard();
 

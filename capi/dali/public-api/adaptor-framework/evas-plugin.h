@@ -18,7 +18,7 @@
 //
 
 /**
- * @addtogroup CAPI_DALI_FRAMEWORK
+ * @addtogroup CAPI_DALI_ADAPTOR_MODULE
  * @{
  */
 
@@ -33,7 +33,7 @@
 extern "C"
 {
   struct _Evas_Object;
-  typedef struct _Evas_Object Evas_Object;
+  typedef struct _Evas_Object Evas_Object; ///< Forward declaration of Evas_Object
 }
 
 
@@ -50,6 +50,8 @@ class EvasPlugin;
 }
 
 /**
+ * @brief Application class used by EFL applications that wish to use Dali.
+ *
  * An EvasPlugin class object should be created by EFL application
  * that wishes to use Dali.  It provides a means for initialising the
  * resources required by the Dali::Core.
@@ -105,12 +107,12 @@ class EvasPlugin : public ConnectionTrackerInterface
 {
 public:
 
-  typedef SignalV2< void (EvasPlugin&) > EvasPluginSignalV2;
+  typedef SignalV2< void (EvasPlugin&) > EvasPluginSignalV2; ///< Generic evas plugin signal type
 
 public:
 
   /**
-   * This is the constructor for SLP EFL applications
+   * @brief This is the constructor for SLP EFL applications
    * @param[in]  parent  A parent of new evas object
    * @param[in]  isTransparent Whether the object is transparent or not
    * @param[in]  initialWidth The initial width of Dali view port
@@ -119,40 +121,41 @@ public:
   EvasPlugin(Evas_Object* parent, bool isTransparent = false, unsigned int initialWidth = 1, unsigned int initialHeight = 1);
 
   /**
-   * Virtual destructor
+   * @brief Virtual destructor.
    */
   virtual ~EvasPlugin();
 
 public:
 
   /**
-   * Run Evas Plugin
+   * @brief Run Evas Plugin.
    */
   void Run();
 
   /**
-   * Pause Evas Plugin
+   * @brief Pause Evas Plugin.
    */
   void Pause();
 
   /**
-   * Resume Evas Plugin
+   * @brief Resume Evas Plugin.
    */
   void Resume();
 
   /**
-   * Stop Evas Plugin
+   * @brief Stop Evas Plugin.
    */
   void Stop();
 
   /**
-   * This returns Evas_Object* which created internally.
+   * @brief This returns Evas_Object* which is created internally.
    * @return Evas_Object* evas image object which is drawen by dali.
    */
   Evas_Object* GetEvasImageObject();
 
   /**
-   * This returns Evas_Object* which created internally.
+   * @brief This returns Evas_Object* which is created internally.
+   *
    * Application should append this access object to custom focus chain for accessibility
    *
    * e.g. elm_object_focus_custom_chain_append(layout, dali_access_object, NULL);
@@ -162,7 +165,8 @@ public:
   Evas_Object* GetElmAccessObject();
 
   /**
-   * This returns Evas_Object* which created internally.
+   * @brief This returns Evas_Object* which is created internally.
+   *
    * If application want to handle the keyboard focus among the efl and dali view part,
    * application should set this object to efl layout instead of the evas image object from GetEvasImageObject()
    * @return Evas_Object* evas object which can handle the focus internally. It is contained the image object.
@@ -170,7 +174,7 @@ public:
   Evas_Object* GetElmFocusObject();
 
   /**
-   * This returns internal Adaptor instance.
+   * @brief This returns the internal Adaptor instance.
    *
    * @return Adaptor* adaptor instance.
    */
@@ -179,47 +183,60 @@ public:
 public:  // Signals
 
   /**
-   * The user should connect to this signal to determine when they should initialise
-   * their application
+   * @brief Signal to notify the client when the application is ready to be initialized.
+   * @return The signal
    */
   EvasPluginSignalV2& InitSignal();
 
   /**
+   * @brief Signal to notify client when Dali has rendered at least one frame.
+   *
    * The user should connect to this signal to be notified when Dali has started rendering
    * and atleast one frame has been rendered.
+   * @return The signal
    */
   EvasPluginSignalV2& FirstRenderCompletedSignal();
 
   /**
-   * The user should connect to this signal to determine when they should terminate
-   * their application
+   * @brief Signal to notify the user when the application is about to be terminated.
+   *
+   * @return The signal
    */
   EvasPluginSignalV2& TerminateSignal();
 
   /**
+   * @brief Signal to notify the client when the adaptor is about to be paused.
+   *
    * The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
+   * @return The signal
    */
   EvasPluginSignalV2& PauseSignal();
 
   /**
+   * @brief Signal to notify the client when the adpator has resumed.
+   *
    * The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
+   * @return The signal
    */
   EvasPluginSignalV2& ResumeSignal();
 
   /**
-   * This signal is emitted when the evas object is resized.
+   * @brief Signal to notify the client when the evas object is resized.
+   * @return The signal
    */
   EvasPluginSignalV2& ResizeSignal();
 
   /**
-   * This signal is emitted when the evas object get the keyboard focus.
+   * @brief Signal to notify the client when the evas object get the keyboard focus.
+   * @return The signal
    */
   EvasPluginSignalV2& FocusedSignal();
 
   /**
-   * This signal is emitted when the evas object lost the keyboard focus.
+   * @brief Signal to notify the client when the evas object lost the keyboard focus.
+   * @return The signal
    */
   EvasPluginSignalV2& UnFocusedSignal();
 
@@ -247,7 +264,7 @@ private:
 
 private:
 
-  Internal::Adaptor::EvasPlugin *mImpl;
+  Internal::Adaptor::EvasPlugin *mImpl; ///< Pointer to Implementation
   friend class Internal::Adaptor::EvasPlugin;
 };
 
