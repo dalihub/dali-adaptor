@@ -205,6 +205,9 @@ bool RenderThread::Run()
   // render loop, we stay inside here when rendering
   while( running )
   {
+    // Consume any pending events
+    ConsumeEvents();
+
     // Check if we've got updates from the main thread
     CheckForUpdates();
 
@@ -280,6 +283,12 @@ void RenderThread::InitializeEgl()
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VERSION : %s ***\n", mGLES.GetString(GL_VERSION));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", mGLES.GetString(GL_SHADING_LANGUAGE_VERSION));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", mGLES.GetString(GL_EXTENSIONS));
+}
+
+void RenderThread::ConsumeEvents()
+{
+  // tell surface to consume any events to avoid memory leaks
+  mCurrent.surface->ConsumeEvents();
 }
 
 void RenderThread::CheckForUpdates()

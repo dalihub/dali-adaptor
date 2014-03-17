@@ -214,6 +214,31 @@ void RenderSurface::TransferDisplayOwner( Internal::Adaptor::RenderSurface& newS
   }
 }
 
+void RenderSurface::ConsumeEvents()
+{
+  // if the render surface has own display, check events so that we can flush the queue and avoid
+  // any potential memory leaks in X
+  if( mOwnDisplay )
+  {
+    // looping if events remain
+    int events( 0 );
+    do
+    {
+      // Check if there are any events in the queue
+      events = XEventsQueued( mMainDisplay, QueuedAfterFlush );
+
+      if ( events > 0 )
+      {
+        // Just flush event to prevent memory leak from event queue as the events get built up in
+        // memory but are only deleted when we retrieve them
+        XEvent ev;
+        XNextEvent( mMainDisplay, &ev );
+      }
+    }
+    while( events > 0 );
+  }
+}
+
 void RenderSurface::SetDisplay( boost::any display )
 {
   // the render surface can be passed either EFL e-core types, or x11 types

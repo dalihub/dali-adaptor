@@ -108,6 +108,11 @@ public: // API
   virtual void TransferDisplayOwner( Internal::Adaptor::RenderSurface& newSurface ) = 0;
 
   /**
+   *  Consumes any possible events on the queue so that there is no leaking between frames
+   */
+  virtual void ConsumeEvents() = 0;
+
+  /**
    * Invoked by render thread before Core::Render
    * @param[in] egl The Egl interface
    * @param[in] glAbstraction OpenGLES abstraction interface

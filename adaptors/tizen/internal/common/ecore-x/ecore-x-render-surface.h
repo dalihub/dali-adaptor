@@ -172,6 +172,11 @@ public:  // from Internal::Adaptor::RenderSurface
   virtual void TransferDisplayOwner( Internal::Adaptor::RenderSurface& newSurface );
 
   /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::ConsumeEvents()
+   */
+  virtual void ConsumeEvents();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction ) = 0;

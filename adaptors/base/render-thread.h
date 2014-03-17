@@ -119,6 +119,12 @@ private: // Render thread side helpers
   void InitializeEgl();
 
   /**
+   * Check if display has events
+   * Called from render thread
+   */
+  void ConsumeEvents();
+
+  /**
    * Check if main thread posted updates
    * Called from render thread
    */
