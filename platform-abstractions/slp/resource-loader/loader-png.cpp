@@ -19,7 +19,7 @@
 #include <png.h>
 #include <stdlib.h>
 
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/image.h>
 #include <dali/public-api/images/image-attributes.h>
@@ -30,8 +30,9 @@
 namespace Dali
 {
 
-using Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
+using Integration::ImageData;
+using Integration::ImageDataPtr;
+using Integration::PixelBuffer;
 
 namespace SlpPlatform
 {
@@ -140,7 +141,7 @@ bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return success;
 }
 
-bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromPng(FILE *fp, ImageAttributes& attributes, ImageDataPtr& bitmap)
 {
   png_structp png = NULL;
   png_infop info = NULL;
@@ -296,14 +297,14 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
 
   unsigned int rowBytes = png_get_rowbytes(png, info);
 
-  unsigned int bufferWidth   = GetTextureDimension(width);
-  unsigned int bufferHeight  = GetTextureDimension(height);
+  unsigned int bufferWidth   = width;
+  unsigned int bufferHeight  = height;
   unsigned int stride        = bufferWidth*bpp;
 
   // not sure if this ever happens
   if( rowBytes > stride )
   {
-    stride = GetTextureDimension(rowBytes);
+    stride = rowBytes;
     bufferWidth = stride / bpp;
   }
 
@@ -317,7 +318,8 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
   else
   {
     // decode the whole image into bitmap buffer
-    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
+    bitmap = Dali::Integration::NewBitmapImageData( width, height, pixelFormat );
+    pixels = bitmap->GetBuffer();
   }
 
   DALI_ASSERT_DEBUG(pixels);
@@ -343,8 +345,8 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
     attributes.SetSize((int) req.width, (int) req.height);
     attributes.SetPixelFormat(pixelFormat);
 
-    bufferWidth  = GetTextureDimension(attributes.GetWidth());
-    bufferHeight = GetTextureDimension(attributes.GetHeight());
+    bufferWidth  = attributes.GetWidth();
+    bufferHeight = attributes.GetHeight();
 
     // cropped buffer's stride
     int lstride = bufferWidth*bpp;
@@ -354,7 +356,8 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
     int y_offset = ((height - attributes.GetHeight()) / 2) * stride;
 
     // allocate bitmap buffer using requested size
-    unsigned char *bitmapBuffer = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, attributes.GetWidth(), attributes.GetHeight(), bufferWidth, bufferHeight);
+    bitmap = Dali::Integration::NewBitmapImageData( attributes.GetWidth(), attributes.GetHeight(), pixelFormat );
+    unsigned char * const bitmapBuffer = bitmap->GetBuffer();
 
     // copy memory area from y and x to bitmap buffer line-by-line
     unsigned char *bufptr = bitmapBuffer;
@@ -371,11 +374,9 @@ bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
   else
   {
     // set the attributes
-     attributes.SetSize(width, height);
-     attributes.SetPixelFormat(pixelFormat);
+    attributes.SetSize(width, height);
+    attributes.SetPixelFormat(pixelFormat);
   }
-
-  bitmap.GetPackedPixelsProfile()->TestForTransparency();
 
   free(rows);
 

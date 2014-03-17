@@ -19,7 +19,6 @@
 
 #include "resource-thread-model.h"
 
-#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/dali-core.h>
 #include <dali/public-api/object/ref-object.h>

@@ -24,14 +24,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dlog.h>
 
 namespace Dali
 {
-using Integration::Bitmap;
+using Integration::ImageDataPtr;
 using Dali::Integration::PixelBuffer;
 namespace SlpPlatform
 {
@@ -93,7 +93,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromWbmp(FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap)
 {
 
   if(fp == NULL)
@@ -180,8 +180,8 @@ bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
     return false;
   }
 
-  surface.Resize(w* h );//(w * h * 4);
-  memset(&surface[0], 0, w * h ); // w * h * 4
+  surface.Resize( w* h );
+  memset(&surface[0], 0, w * h );
 
   line_length = (w + 7) >> 3;
   for (y = 0; y < (int)h; y ++)
@@ -196,22 +196,24 @@ bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
     {
       int idx = x >> 3;
       int offset = 1 << (0x07 - (x & 0x07));
+      // Pixel is white if the bit is set, else black:
       if (line[idx] & offset)
       {
-        surface[cur] = 0xff;//0xffffffff;
+        surface[cur] = 0xff;
       }
       else
       {
-        surface[cur] = 0x00;//0xff000000;
+        surface[cur] = 0x00;
       }
       cur++;
     }
   }
-  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::L8, w, h);//Pixel::RGBA8888
+  bitmap = Integration::NewBitmapImageData( w, h, Pixel::L8 );
+  pixels = bitmap->GetBuffer();
 
-  memcpy(pixels, (unsigned char*)&surface[0], w * h );//w * h * 4
+  memcpy(pixels, (unsigned char*)&surface[0], w * h );
   attributes.SetSize(w, h);
-  attributes.SetPixelFormat(Pixel::L8);//Pixel::RGBA8888
+  attributes.SetPixelFormat(Pixel::L8);
 
   return true;
 }
@@ -259,7 +261,7 @@ bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &w
   }
 
   // type(1 byte) + fixedheader(1 byte) + width(uint) + height(uint)
-  unsigned int headerSize = 1 + 1 + 4 + 4;// 8 + 8 + 32 + 32;
+  unsigned int headerSize = 1 + 1 + 4 + 4;
   headerSize = std::min(headerSize, fsize);
 
   map.Resize(headerSize);

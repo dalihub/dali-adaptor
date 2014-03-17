@@ -20,13 +20,14 @@
 #include <cstdlib>
 
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
-using Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
+using Integration::ImageData;
+using Integration::ImageDataPtr;
+using Integration::PixelBuffer;
 
 namespace SlpPlatform
 {
@@ -173,7 +174,7 @@ GifColorType* GetImageColors( SavedImage* image, GifFileType* gifInfo )
 }
 
 /// Called when we want to handle IMAGE_DESC_RECORD_TYPE
-bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attributes, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
+bool HandleImageDescriptionRecordType( ImageDataPtr& bitmap, ImageAttributes& attributes, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
 {
   if ( DGifGetImageDesc( gifInfo ) == GIF_ERROR )
   {
@@ -213,9 +214,9 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attribut
   // If it's an animated GIF, we still only read the first image
 
   // Create and populate pixel buffer.
-
-  Pixel::Format pixelFormat( Pixel::RGB888 );
-  PixelBuffer *pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, actualWidth, actualHeight );
+  const Pixel::Format pixelFormat( Pixel::RGB888 );
+  bitmap = Dali::Integration::NewBitmapImageData( actualWidth, actualHeight, pixelFormat );
+  PixelBuffer* pixels = bitmap->GetBuffer();
 
   for (unsigned int row = 0; row < actualHeight; ++row)
   {
@@ -271,7 +272,7 @@ bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return LoadGifHeader(fp, width, height, &gifInfo);
 }
 
-bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromGif(FILE *fp, ImageAttributes& attributes, ImageDataPtr& bitmap)
 {
   // Load the GIF Header file.
 

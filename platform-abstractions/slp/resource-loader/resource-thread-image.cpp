@@ -16,10 +16,9 @@
 
 #include "resource-thread-image.h"
 #include <dali/public-api/common/ref-counted-dali-vector.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
-#include <dali/integration-api/resource-types.h>
 
 #include "loader-bmp.h"
 #include "loader-gif.h"
@@ -43,7 +42,7 @@ namespace SlpPlatform
 namespace
 {
 
-typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&);
+typedef bool (*LoadBitmapFunction)(FILE*, ImageAttributes&, ImageDataPtr&);
 typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
 /**
@@ -55,8 +54,6 @@ struct BitmapLoader
   unsigned char magicByte2;        ///< The second byte in the file should be this
   LoadBitmapFunction loader;       ///< The function which decodes the file
   LoadBitmapHeaderFunction header; ///< The function which decodes the header of the file
-  Bitmap::Profile profile;         ///< The kind of bitmap to be created
-                                   ///  (addressable packed pixels or an opaque compressed blob).
 };
 
 /**
@@ -87,13 +84,13 @@ enum FileFormats
  */
 const BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
 {
-  { Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  LoadPngHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
-  { Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS },
-  { Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
-  { Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
-  { Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED       },
-  { Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
-  { 0x0,                0x0,                LoadBitmapFromWbmp, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS },
+  { Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  LoadPngHeader  },
+  { Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadJpegHeader },
+  { Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  LoadBmpHeader  },
+  { Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  LoadGifHeader  },
+  { Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  LoadKtxHeader  },
+  { Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  LoadIcoHeader  },
+  { 0x0,                0x0,                LoadBitmapFromWbmp, LoadWbmpHeader },
 };
 
 const unsigned int MAGIC_LENGTH = 2;
@@ -145,14 +142,12 @@ FileFormats GetFormatHint( const std::string& filename )
  * @param[in]   format  Hint about what format to try first
  * @param[out]  loader  Set with the function to use to decode the image
  * @param[out]  header  Set with the function to use to decode the header
- * @param[out]  profile The kind of bitmap to hold the bits loaded for the bitmap.
  * @return true, if we can decode the image, false otherwise
  */
 bool GetBitmapLoaderFunctions( FILE *fp,
                                FileFormats format,
                                LoadBitmapFunction& loader,
-                               LoadBitmapHeaderFunction& header,
-                               Bitmap::Profile& profile )
+                               LoadBitmapHeaderFunction& header )
 {
   unsigned char magic[MAGIC_LENGTH];
   size_t read = fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
@@ -177,7 +172,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
   {
     lookupPtr = BITMAP_LOADER_LOOKUP_TABLE + format;
     if ( format >= FORMAT_MAGIC_BYTE_COUNT ||
-         ( lookupPtr->magicByte1 == magic[0] && lookupPtr->magicByte2 == magic[1] ) )
+       ( lookupPtr->magicByte1 == magic[0] && lookupPtr->magicByte2 == magic[1] ) )
     {
       unsigned int width = 0;
       unsigned int height = 0;
@@ -229,7 +224,6 @@ bool GetBitmapLoaderFunctions( FILE *fp,
   {
     loader  = lookupPtr->loader;
     header  = lookupPtr->header;
-    profile = lookupPtr->profile;
   }
 
   // Reset to the start of the file.
@@ -255,7 +249,7 @@ ResourceThreadImage::~ResourceThreadImage()
 ResourcePointer ResourceThreadImage::LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
 {
   ResourcePointer resource;
-  BitmapPtr bitmap = 0;
+  ImageDataPtr bitmap = 0;
 
   FILE * const fp = fopen( resourcePath.c_str(), "rb" );
   if( fp != NULL )
@@ -279,13 +273,11 @@ void ResourceThreadImage::GetClosestImageSize( const std::string& filename,
   {
     LoadBitmapFunction loaderFunction;
     LoadBitmapHeaderFunction headerFunction;
-    Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
                                    GetFormatHint(filename),
                                    loaderFunction,
-                                   headerFunction,
-                                   profile ) )
+                                   headerFunction ) )
     {
       unsigned int width;
       unsigned int height;
@@ -312,8 +304,6 @@ void ResourceThreadImage::GetClosestImageSize( ResourcePointer resourceBuffer,
                                                const ImageAttributes& attributes,
                                                Vector2 &closestSize )
 {
-  BitmapPtr bitmap = 0;
-
   // Get the blob of binary data that we need to decode:
   DALI_ASSERT_DEBUG( resourceBuffer );
   Dali::RefCountedVector<uint8_t>* const encodedBlob = reinterpret_cast<Dali::RefCountedVector<uint8_t>*>( resourceBuffer.Get() );
@@ -333,13 +323,11 @@ void ResourceThreadImage::GetClosestImageSize( ResourcePointer resourceBuffer,
       {
         LoadBitmapFunction loaderFunction;
         LoadBitmapHeaderFunction headerFunction;
-        Bitmap::Profile profile;
 
         if ( GetBitmapLoaderFunctions( fp,
                                        FORMAT_UNKNOWN,
                                        loaderFunction,
-                                       headerFunction,
-                                       profile ) )
+                                       headerFunction ) )
         {
           unsigned int width;
           unsigned int height;
@@ -367,24 +355,14 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str() );
 
   bool file_not_found = false;
-  BitmapPtr bitmap = 0;
+  ImageDataPtr bitmap;
   bool result = false;
 
   FILE * const fp = fopen( request.GetPath().c_str(), "rb" );
   if( fp != NULL )
   {
     result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
-    if( result && bitmap )
-    {
-      // Construct LoadedResource and ResourcePointer for image data
-      LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer( bitmap.Get() ) );
-      // Queue the loaded resource
-      mResourceLoader.AddLoadedResource( resource );
-    }
-    else
-    {
-      DALI_LOG_WARNING( "Unable to decode %s\n", request.GetPath().c_str() );
-    }
+    HandleConversionResult( request, result, bitmap,  request.GetPath().c_str() );
   }
   else
   {
@@ -412,7 +390,7 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
   DALI_LOG_TRACE_METHOD( mLogFilter );
   DALI_LOG_INFO(mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str());
 
-  BitmapPtr bitmap = 0;
+  ImageDataPtr bitmap = 0;
 
   // Get the blob of binary data that we need to decode:
   DALI_ASSERT_DEBUG( request.GetResource() );
@@ -434,18 +412,7 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
       if ( fp != NULL )
       {
         bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
-
-        if ( result && bitmap )
-        {
-          // Construct LoadedResource and ResourcePointer for image data
-          LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer( bitmap.Get() ) );
-          // Queue the loaded resource
-          mResourceLoader.AddLoadedResource( resource );
-        }
-        else
-        {
-          DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
-        }
+        HandleConversionResult( request, result, bitmap, "(image data supplied as in-memory encoded buffer)" );
       }
     }
   }
@@ -460,38 +427,34 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
 void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
 {
   DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceBitmap );
+  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceImageData );
   DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
 }
 
 
-bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, BitmapPtr& ptr)
+bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, ImageDataPtr& ptr)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
-  DALI_ASSERT_DEBUG( ResourceBitmap == resourceType.id );
+  DALI_ASSERT_DEBUG( ResourceImageData == resourceType.id );
 
   bool result = false;
-  BitmapPtr bitmap = 0;
+  ImageDataPtr bitmap = 0;
 
   if (fp != NULL)
   {
     LoadBitmapFunction function;
     LoadBitmapHeaderFunction header;
-    Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
                                    GetFormatHint( path ),
                                    function,
-                                   header,
-                                   profile ) )
+                                   header ) )
     {
-      bitmap = Bitmap::New(profile, true);
-
-      DALI_LOG_SET_OBJECT_STRING(bitmap, path);
-      const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
+      const ImageResourceType& resType = static_cast<const ImageResourceType&>(resourceType);
       ImageAttributes attributes  = resType.imageAttributes;
 
-      result = function(fp, *bitmap, attributes);
+      result = function(fp, attributes, bitmap);
+      DALI_LOG_SET_OBJECT_STRING(bitmap, path);
 
       if (!result)
       {
@@ -510,6 +473,66 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
   return result;
 }
 
+namespace
+{
+bool IsAlphaChannelUsed(const uint8_t * const pixelBuffer, const unsigned width, const unsigned height, const Pixel::Format pixelFormat)
+{
+  bool alphaChannelUsed = false;
+
+  if(pixelBuffer != NULL)
+  {
+    const uint8_t* row = pixelBuffer;
+
+    int byte; int bits;
+    Pixel::GetAlphaOffsetAndMask(pixelFormat, byte, bits);
+    const unsigned bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+    const unsigned stride       = width * bytesPerPixel;
+
+    for(size_t j=0; j < height; j++)
+    {
+      const uint8_t* pixels = row;
+      for(unsigned i=0; i < width; ++i)
+      {
+        if((pixels[byte] & bits) != bits)
+        {
+          alphaChannelUsed = true;
+          j = height; // break out of outer loop
+          break;
+        }
+        pixels += bytesPerPixel;
+      }
+      row += stride;
+    }
+  }
+  return alphaChannelUsed;
+}
+}
+
+void ResourceThreadImage::HandleConversionResult( const Integration::ResourceRequest& request, bool result, Integration::ImageDataPtr imageData, const char * const msg )
+{
+  if( result && imageData )
+  {
+    // Scan the pixels of the ImageData to see if its alpha channel is used:
+    if( Pixel::HasAlpha( imageData->pixelFormat ) )
+    {
+      const uint8_t* const pixelBuffer = imageData->GetBuffer();
+      if( pixelBuffer )
+      {
+        const bool alphaUsed = IsAlphaChannelUsed( pixelBuffer, imageData->imageWidth, imageData->imageHeight, imageData->pixelFormat );
+        imageData->SetAlphaUsed( alphaUsed );
+      }
+    }
+
+    // Construct LoadedResource and ResourcePointer for image data
+    LoadedResource resource( request.GetId(), request.GetType()->id, Integration::ResourcePointer( imageData.Get() ) );
+    // Queue the loaded resource
+    mResourceLoader.AddLoadedResource( resource );
+  }
+  else
+  {
+    DALI_LOG_WARNING( "Unable to decode: %s\n",  msg);
+  }
+}
 
 } // namespace SlpPlatform
 

@@ -245,7 +245,7 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::GetGlyphImage()
    */
-  virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
+  virtual Integration::ImageDataPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
 
 private:
   ResourceLoader* mResourceLoader;

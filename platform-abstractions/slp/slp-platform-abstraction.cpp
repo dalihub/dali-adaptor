@@ -20,7 +20,6 @@
 #include <dirent.h>
 
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 
 #include "resource-loader/resource-loader.h"
@@ -421,9 +420,9 @@ void SlpPlatformAbstraction::GetFileNamesFromDirectory( const std::string& direc
   }
 }
 
-Integration::BitmapPtr SlpPlatformAbstraction::GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character ) const
+Integration::ImageDataPtr SlpPlatformAbstraction::GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character ) const
 {
-  Integration::BitmapPtr glyphImage;
+  Integration::ImageDataPtr glyphImage;
 
   if( mResourceLoader )
   {

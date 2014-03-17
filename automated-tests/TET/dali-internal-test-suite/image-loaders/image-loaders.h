@@ -19,7 +19,7 @@
 
 #include <tet_api.h>
 #include <dali/dali.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
@@ -126,8 +126,8 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapHeaderFunction)(FILE*, unsigned int&, unsigned int&);
-  typedef bool (*LoadBitmapFunction)(FILE*, Dali::Integration::Bitmap&, Dali::ImageAttributes&);
+  typedef bool (*LoadBitmapHeaderFunction)(FILE*, const Dali::ImageAttributes& attributes, unsigned int&, unsigned int&);
+  typedef bool (*LoadBitmapFunction)(FILE *fp, Dali::ImageAttributes& attributes, Dali::Integration::ImageDataPtr& bitmap);
 
   LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader )
   : header( _header ),
@@ -156,7 +156,8 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   // Check the header file.
 
   unsigned int width(0), height(0);
-  DALI_TEST_CHECK( functions.header( fp, width, height ) );
+  Dali::ImageAttributes testAttributes;
+  DALI_TEST_CHECK( functions.header( fp, testAttributes, width, height ) );
 
   Dali::DALI_TEST_EQUALS( width,  image.reportedWidth,  TEST_LOCATION );
   Dali::DALI_TEST_EQUALS( height, image.reportedHeight, TEST_LOCATION );
@@ -164,19 +165,16 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   // Loading the header moves the pointer within the file so reset to start of file.
   fseek( fp, 0, 0 );
 
-  // Create a bitmap object and store a pointer to that object so it is destroyed at the end.
-  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  false  );
-  Dali::Integration::BitmapPtr bitmapPtr( bitmap );
-
+  Dali::Integration::ImageDataPtr imageData;
   Dali::ImageAttributes attributes;
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, attributes, imageData ) );
   Dali::DALI_TEST_EQUALS( image.width,  attributes.GetWidth(),  TEST_LOCATION );
   Dali::DALI_TEST_EQUALS( image.height, attributes.GetHeight(), TEST_LOCATION );
 
   // Compare buffer generated with reference buffer.
-  Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
+  Dali::PixelBuffer* bufferPtr( imageData->GetBuffer() );
   Dali::PixelBuffer* refBufferPtr( image.refBuffer );
   for ( unsigned int i = 0; i < image.refBufferSize; ++i, ++bufferPtr, ++refBufferPtr )
   {
@@ -203,13 +201,12 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   FILE* fp = fopen( filename.c_str() , "rb" );
   AutoCloseFile autoClose( fp );
 
-  Dali::Integration::Bitmap* bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  false );
-  Dali::Integration::BitmapPtr bitmapPtr( bitmap );
+  Dali::Integration::ImageDataPtr imageData;
   Dali::ImageAttributes attributes;
 
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, attributes, imageData ) );
 
-  Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
+  Dali::PixelBuffer* bufferPtr( imageData->GetBuffer() );
 
   FILE* writeFp = fopen( targetFilename.c_str(), "wb" );
   AutoCloseFile autoCloseWrite( writeFp );

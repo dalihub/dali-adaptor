@@ -20,7 +20,7 @@
 #include <cstring>
 
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
@@ -31,7 +31,9 @@
 
 namespace Dali
 {
-using Integration::Bitmap;
+using Integration::ImageData;
+using Integration::ImageDataPtr;
+using Integration::PixelBuffer;
 
 namespace SlpPlatform
 {
@@ -234,7 +236,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
+bool LoadBitmapFromJpeg( FILE *fp, ImageAttributes& attributes, ImageDataPtr& bitmap )
 {
   int flags=(FORCEMMX ?  TJ_FORCEMMX : 0) |
             (FORCESSE ?  TJ_FORCESSE : 0) |
@@ -345,7 +347,8 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
 
   // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
 
-  unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
+  bitmap = Integration::NewBitmapImageData( scaledPostXformWidth, scaledPostXformHeight, Pixel::RGB888 );
+  unsigned char * const bitmapPixelBuffer = bitmap->GetBuffer();
 
   const int pitch = scaledPreXformWidth * DECODED_PIXEL_SIZE;
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, pitch, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )

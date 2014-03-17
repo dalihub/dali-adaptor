@@ -23,13 +23,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/image-data.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dlog.h>
 
 namespace Dali
 {
-using Integration::Bitmap;
+using Integration::ImageDataPtr;
 using Dali::Integration::PixelBuffer;
 
 namespace SlpPlatform
@@ -324,7 +324,7 @@ bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return true;
 }
 
-bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromIco( FILE *fp, ImageAttributes& attributes, ImageDataPtr& bitmap )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;
@@ -697,8 +697,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
       }
     }
   }
-  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, w, h);
-  memset(pixels, 0, w * h * 4);
+  bitmap = Dali::Integration::NewBitmapImageData( w, h, Pixel::RGBA8888 );
+  pixels = bitmap->GetBuffer();
   memcpy(pixels, (unsigned char*)&surface[0], w * h * 4);
 
   attributes.SetSize(w, h);

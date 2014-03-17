@@ -148,16 +148,12 @@ void ResourceThreadText::LoadCharactersFromCache(
       glyphMetrics.yPosition = requestedCharacters[n].yPosition;
 
       // create a new bitmap, and copy in the data
-      BitmapPtr bitmapData ( Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true) );
       DALI_ASSERT_ALWAYS( data.length == DISTANCE_FIELD_SIZE );
-
-      // assign the data
-      bitmapData->GetPackedPixelsProfile()->AssignBuffer( Pixel::A8, data.data, DISTANCE_FIELD_SIZE, DISTANCE_FIELD_WIDTH, DISTANCE_FIELD_HEIGHT );
-
+      ImageDataPtr imageData = Integration::ImageData::New( data.data, Integration::BufferSize( DISTANCE_FIELD_SIZE ), DISTANCE_FIELD_WIDTH, DISTANCE_FIELD_HEIGHT, Pixel::A8 );
       data.data = NULL;
 
       // add to the glyphset
-      glyphSet.AddCharacter( bitmapData, glyphMetrics );
+      glyphSet.AddCharacter( imageData, glyphMetrics );
     }
   }
 }
@@ -174,7 +170,7 @@ void ResourceThreadText::SaveCharacters( Platform::DataCache& dataCache, const G
 
   for( GlyphSet::CharacterList::const_iterator it = chars.begin(), endIt = chars.end(); it != endIt; ++it )
   {
-    const BitmapPtr& bitmap( it->first );
+    const ImageDataPtr& bitmap( it->first );
     if ( bitmap )
     {
       const GlyphMetrics& metrics( it->second );

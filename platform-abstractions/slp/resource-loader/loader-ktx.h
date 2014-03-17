@@ -17,6 +17,10 @@
 // limitations under the License.
 //
 
+// INTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
+
+// EXTERNAL INCLUDES
 #include <cstdio>
 
 namespace Dali
@@ -24,7 +28,8 @@ namespace Dali
 
 namespace Integration
 {
-  class Bitmap;
+  class ImageData;
+  typedef IntrusivePtr<ImageData> ImageDataPtr;
 }
 
 struct ImageAttributes;
@@ -43,11 +48,11 @@ const unsigned char MAGIC_BYTE_2 = 0x4B;
  * This function checks the header first
  * and if it is not a KTX file, then it returns straight away.
  * @param[in]  fp      Pointer to the Image file
- * @param[in]  bitmap  The bitmap class where the decoded image will be stored
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
+ * @param[out] bitmap  A pointer to assign to a newly allocated ImageData object containing the result of the load.
  * @return  true if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromKtx(FILE * const fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromKtx(FILE * const fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap);
 
 /**
  * Loads the header of a KTX file and fills in the width and height appropriately.

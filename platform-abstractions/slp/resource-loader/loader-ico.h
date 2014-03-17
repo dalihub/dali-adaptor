@@ -17,6 +17,10 @@
 // limitations under the License.
 //
 
+// INTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
+
+// EXTERNAL INCLUDES
 #include <cstdio>
 
 namespace Dali
@@ -24,7 +28,8 @@ namespace Dali
 
 namespace Integration
 {
-  class Bitmap;
+  class ImageData;
+  typedef IntrusivePtr<ImageData> ImageDataPtr;
 }
 struct ImageAttributes;
 
@@ -37,9 +42,9 @@ const unsigned char MAGIC_BYTE_1 = 0x00;
 const unsigned char MAGIC_BYTE_2 = 0x00;
 }
 
-bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromIco( FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap );
 
-bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
+bool LoadIcoHeader( FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 
 }
 

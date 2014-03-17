@@ -19,7 +19,6 @@
 
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
-#include <dali/integration-api/bitmap.h>
 #include "resource-thread-base.h"
 
 namespace Dali
@@ -88,20 +87,27 @@ private:
    */
   virtual void Save(const Integration::ResourceRequest& request);
 
-private:
   /**
-   * Convert the file stream into a bitmap.
+   * Convert the file stream into in-memory image pixel data and metadata.
    * @param[in] resourceType The type of resource to convert.
    * @param[in] path The path to the resource.
    * @param[in] fp File Pointer. Closed on exit.
-   * @param[out] bitmap Pointer to write bitmap to
+   * @param[out] ptr Pointer to write image data to
    * @return true on success, false on failure
    */
   bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType,
                               std::string path,
                               FILE * const fp,
-                              Integration::BitmapPtr& ptr );
-
+                              Integration::ImageDataPtr& ptr );
+  /**
+   * @brief Common code after a load or decode.
+   *
+   * @param[in] request   The request being attempted.
+   * @param[in] result    Whether the conversion succeeded.
+   * @param[in] imageData The pointer to receive the created image object.
+   * @param[in] msg       Warning message to show on failure.
+   */
+  void HandleConversionResult( const Integration::ResourceRequest& request, bool result, Integration::ImageDataPtr imageData, const char * const msg );
 
 }; // class ResourceThreadImage
 
