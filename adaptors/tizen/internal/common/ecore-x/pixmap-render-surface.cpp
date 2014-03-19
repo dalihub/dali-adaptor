@@ -49,8 +49,8 @@ namespace ECoreX
 {
 
 PixmapRenderSurface::PixmapRenderSurface( Dali::PositionSize positionSize,
-                              boost::any surface,
-                              boost::any display,
+                              Any surface,
+                              Any display,
                               const std::string& name,
                               bool isTransparent)
 : RenderSurface( Dali::RenderSurface::PIXMAP, positionSize, surface, display, name, isTransparent )
@@ -79,9 +79,9 @@ Dali::RenderSurface::SurfaceType PixmapRenderSurface::GetType()
   return Dali::RenderSurface::PIXMAP;
 }
 
-boost::any PixmapRenderSurface::GetSurface()
+Any PixmapRenderSurface::GetSurface()
 {
-  return boost::any( mX11Pixmap );
+  return Any( mX11Pixmap );
 }
 
 void PixmapRenderSurface::InitializeEgl( EglInterface& eglIf )

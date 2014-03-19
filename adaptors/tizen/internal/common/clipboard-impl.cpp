@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/common/adaptor.h>
+#include <dali/public-api/object/any.h>
 #include <internal/common/adaptor-impl.h>
 #include <internal/common/ecore-x/ecore-x-window-interface.h>
 
@@ -68,7 +69,7 @@ BaseHandle Create()
     Dali::RenderSurface& surface( adaptorImpl.GetSurface() );
     if( surface.GetType() == Dali::RenderSurface::WINDOW )
     {
-      ecoreXwin = boost::any_cast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
+      ecoreXwin = AnyCast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
     }
 
     // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.

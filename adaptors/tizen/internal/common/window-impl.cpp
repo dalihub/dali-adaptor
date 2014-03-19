@@ -322,8 +322,8 @@ Window::~Window()
 void Window::Initialize(const PositionSize& windowPosition, const std::string& name)
 {
   // create an X11 window by default
-  boost::any surface;
-  boost::any display;
+  Any surface;
+  Any display;
   mSurface = new ECoreX::WindowRenderSurface( windowPosition, surface, display, name, mIsTransparent );
   mOrientation = Orientation::New(this);
 

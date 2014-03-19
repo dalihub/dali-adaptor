@@ -46,8 +46,8 @@ NativeBufferRenderSurface::NativeBufferRenderSurface( native_buffer_provider* pr
                                                       native_buffer_pool* pool,
                                                       unsigned int maxBufferCount,
                                                       Dali::PositionSize positionSize,
-                                                      boost::any surface,
-                                                      boost::any display,
+                                                      Any surface,
+                                                      Any display,
                                                       const std::string& name,
                                                       bool isTransparent )
 : RenderSurface( Dali::RenderSurface::NATIVE_BUFFER, positionSize, surface, display, "native_buffer", isTransparent ),
@@ -84,10 +84,10 @@ Dali::RenderSurface::SurfaceType NativeBufferRenderSurface::GetType()
   return Dali::RenderSurface::NATIVE_BUFFER;
 }
 
-boost::any NativeBufferRenderSurface::GetSurface()
+Any NativeBufferRenderSurface::GetSurface()
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
-  return boost::any();
+  return Any();
 }
 
 void NativeBufferRenderSurface::InitializeEgl( EglInterface& egl )

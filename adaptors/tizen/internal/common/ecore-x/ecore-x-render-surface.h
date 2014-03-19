@@ -60,8 +60,8 @@ public:
     */
   RenderSurface( SurfaceType type,
                  Dali::PositionSize positionSize,
-                 boost::any surface,
-                 boost::any display,
+                 Any surface,
+                 Any display,
                  const std::string& name,
                  bool isTransparent = false);
 
@@ -77,7 +77,7 @@ protected:
    * Second stage construction
    * Creates the surface (window, pixmap or native buffer)
    */
-  void Init( boost::any surface );
+  void Init( Any surface );
 
 public: // API
 
@@ -112,12 +112,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::GetSurface()
    */
-  virtual boost::any GetSurface() = 0;
+  virtual Any GetSurface() = 0;
 
   /**
    * @copydoc Dali::RenderSurface::GetDisplay()
    */
-  virtual boost::any GetDisplay();
+  virtual Any GetDisplay();
 
   /**
    * @copydoc Dali::RenderSurface::GetPositionSize()
@@ -207,14 +207,14 @@ private:
    * Sets the display, if display parameter is empty it opens a new display
    * @param display
    */
-  void SetDisplay( boost::any display );
+  void SetDisplay( Any display );
 
   /**
    * Get the surface id if the surface parameter is not empty
-   * @param surface boost::any containing a surface id, or can be empty
+   * @param surface Any containing a surface id, or can be empty
    * @return surface id, or zero if surface is empty
    */
-  unsigned int GetSurfaceId( boost::any surface ) const;
+  unsigned int GetSurfaceId( Any surface ) const;
 
 protected:
 

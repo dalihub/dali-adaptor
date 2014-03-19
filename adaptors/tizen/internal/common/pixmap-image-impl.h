@@ -55,17 +55,17 @@ public:
                           unsigned int height,
                           Dali::PixmapImage::ColorDepth depth,
                           Dali::Adaptor& adaptor,
-                          boost::any pixmap);
+                          Any pixmap);
 
    /**
     * @copydoc Dali::PixmapImage::GetPixmap()
     */
-  boost::any GetPixmap(Dali::PixmapImage::PixmapAPI api) const;
+  Any GetPixmap(Dali::PixmapImage::PixmapAPI api) const;
 
   /**
    * @copydoc Dali::PixmapImage::GetDisplay()
    */
-  boost::any GetDisplay() const;
+  Any GetDisplay() const;
 
   /**
    * @copydoc Dali::PixmapImage::GetPixels()
@@ -135,7 +135,7 @@ private:
               unsigned  int height,
               Dali::PixmapImage::ColorDepth depth,
               Dali::Adaptor &adaptor,
-              boost::any pixmap);
+              Any pixmap);
 
   /**
    * 2nd phase construction.
@@ -156,11 +156,11 @@ private:
   void SetPixelFormat(int depth);
 
   /**
-   * Gets the pixmap from the boost::any parameter
+   * Gets the pixmap from the Any parameter
    * @param pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return pixmap x11 pixmap
    */
-  Ecore_X_Pixmap GetPixmapFromBoostAny(boost::any pixmap) const;
+  Ecore_X_Pixmap GetPixmapFromAny(Any pixmap) const;
 
   /**
    * Given an existing pixmap, the function uses X to find out

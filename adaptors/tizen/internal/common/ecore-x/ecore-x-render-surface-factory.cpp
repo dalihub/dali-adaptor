@@ -29,8 +29,8 @@ namespace ECoreX
 
 DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
   PositionSize       positionSize,
-  boost::any         surface,
-  boost::any         display,
+  Any                surface,
+  Any                display,
   const std::string& name,
   bool               isTransparent )
 {
@@ -42,8 +42,8 @@ DALI_EXPORT_API RenderSurface* CreateNativeBufferSurface(
   native_buffer_pool*     pool,
   unsigned int            maxBufferCount,
   PositionSize            positionSize,
-  boost::any              surface,
-  boost::any              display,
+  Any                     surface,
+  Any                     display,
   const std::string&      name,
   bool                    isTransparent )
 {

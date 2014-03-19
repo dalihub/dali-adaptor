@@ -48,7 +48,7 @@ public:
 int
 main(int argc, char **argv)
 {
-  boost::any nullPtr;
+  Any nullPtr;
 
   NativeBufferPlugin* plugin = new NativeBufferPlugin(400, 400, false, 2, RenderSurface::RENDER_30FPS);
 

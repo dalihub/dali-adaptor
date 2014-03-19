@@ -52,8 +52,8 @@ public:
                              native_buffer_pool* pool,
                              unsigned int maxBufferCount,
                              Dali::PositionSize positionSize,
-                             boost::any surface,
-                             boost::any display,
+                             Any surface,
+                             Any display,
                              const std::string& name,
                              bool isTransparent );
 
@@ -79,7 +79,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::GetSurface()
    */
-  virtual boost::any GetSurface();
+  virtual Any GetSurface();
 
 public: // from Internal::Adaptor::RenderSurface
 

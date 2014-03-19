@@ -36,8 +36,8 @@ RenderSurface::~RenderSurface()
 RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSize positionSize, const std::string& name )
 {
   // create a Ecore X11 window by default
-  boost::any surface;
-  boost::any display;
+  Any surface;
+  Any display;
 
   Internal::Adaptor::ECoreX::RenderSurface* renderSurface(NULL);
   if( RenderSurface::WINDOW == type )

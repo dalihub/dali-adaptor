@@ -129,7 +129,7 @@ BaseHandle Create()
     Dali::RenderSurface& surface( adaptorImpl.GetSurface() );
     if( surface.GetType() == Dali::RenderSurface::WINDOW )
     {
-      ecoreXwin = boost::any_cast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
+      ecoreXwin = AnyCast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
     }
 
     // If we fail to get Ecore_X_Window, we can't use the ImfManager correctly.

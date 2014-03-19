@@ -49,8 +49,8 @@ public:
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
   PixmapRenderSurface( Dali::PositionSize positionSize,
-                       boost::any surface,
-                       boost::any display,
+                       Any surface,
+                       Any display,
                        const std::string& name,
                        bool isTransparent = false);
 
@@ -76,7 +76,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::GetSurface()
    */
-  virtual boost::any GetSurface();
+  virtual Any GetSurface();
 
 public: // from Internal::Adaptor::RenderSurface
 

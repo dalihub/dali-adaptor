@@ -24,8 +24,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
-#include <boost/any.hpp>
 #include <dali/public-api/images/native-image.h>
+#include <dali/public-api/object/any.h>
 
 namespace Dali DALI_IMPORT_API
 {
@@ -96,24 +96,24 @@ public:
    * @param[in] adaptor reference to dali adaptor
    * @return A smart-pointer to a newly allocated image.
    */
-  static PixmapImagePtr New( boost::any pixmap, Adaptor& adaptor );
+  static PixmapImagePtr New( Any pixmap, Adaptor& adaptor );
 
   /**
    * @brief Retrieve the internal pixmap
    *
    * @param api whether to return a pixmap that can be used with X11 or EFL
-   * @return pixmap boost any object containing a pixmap of the type specified PixmapAPI
+   * @return pixmap any object containing a pixmap of the type specified PixmapAPI
    */
-  boost::any GetPixmap( PixmapAPI api );
+  Any GetPixmap( PixmapAPI api );
 
   /**
    * @brief Retrieve the display used to create the pixmap.
    *
    * If the pixmap was created outside of Dali, then this display
    * is the one Dali uses internally.
-   * @return boost any object containing the display
+   * @return Any object containing the display
    */
-  boost::any GetDisplay();
+  Any GetDisplay();
 
   /**
    * @brief Get a copy of the pixels used by PixmapImage.
@@ -186,7 +186,7 @@ private:
    * @param[in] adaptor a reference to Dali adaptor
    * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, boost::any pixmap);
+  PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
@@ -199,6 +199,7 @@ private:
    * @brief Undefined assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.
+   * @param[in] rhs A reference to the object to copy.
    */
   PixmapImage& operator=(const PixmapImage& rhs);
 

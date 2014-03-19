@@ -23,9 +23,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/any.hpp>
 #include <string>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/object/any.h>
 
 namespace Dali DALI_IMPORT_API
 {
@@ -41,6 +41,8 @@ typedef Dali::Rect<int> PositionSize;
  * Dali::Adaptor requires a render surface to draw on to. This is
  * usually a window in the native windowing system, or some other
  * mapped pixel buffer.
+ *
+ * Dali::Application will automatically create a render surface using a window.
  *
  * The implementation of the factory method below should choose an appropriate
  * implementation of RenderSurface for the given platform
@@ -97,13 +99,13 @@ public:
    * @brief Returns the window or pixmap surface.
    * @return surface
    */
-  virtual boost::any GetSurface() = 0;
+  virtual Any GetSurface() = 0;
 
   /**
    * @brief Returns the display.
    * @return display
    */
-  virtual boost::any GetDisplay() = 0;
+  virtual Any GetDisplay() = 0;
 
   /**
    * @brief Return the size and position of the surface.

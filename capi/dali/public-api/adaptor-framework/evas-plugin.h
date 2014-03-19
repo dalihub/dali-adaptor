@@ -23,7 +23,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/any.hpp>
 #include <boost/function.hpp>
 
 #include <dali/public-api/signals/dali-signal-v2.h>

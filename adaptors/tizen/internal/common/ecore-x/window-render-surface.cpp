@@ -56,8 +56,8 @@ const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be co
 } // unnamed namespace
 
 WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
-                                          boost::any surface,
-                                          boost::any display,
+                                          Any surface,
+                                          Any display,
                                           const std::string& name,
                                           bool isTransparent)
 : RenderSurface( Dali::RenderSurface::WINDOW, positionSize, surface, display, name, isTransparent ),
@@ -86,10 +86,10 @@ Dali::RenderSurface::SurfaceType WindowRenderSurface::GetType()
   return Dali::RenderSurface::WINDOW;
 }
 
-boost::any WindowRenderSurface::GetSurface()
+Any WindowRenderSurface::GetSurface()
 {
   // already an e-core type
-  return boost::any( mX11Window );
+  return Any( mX11Window );
 }
 
 Ecore_X_Window WindowRenderSurface::GetXWindow()

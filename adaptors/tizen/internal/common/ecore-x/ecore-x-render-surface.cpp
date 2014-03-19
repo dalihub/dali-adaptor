@@ -60,8 +60,8 @@ const unsigned int MILLISECONDS_PER_SECOND = 1000;
 
 RenderSurface::RenderSurface( SurfaceType type,
                               Dali::PositionSize positionSize,
-                              boost::any surface,
-                              boost::any display,
+                              Any surface,
+                              Any display,
                               const std::string& name,
                               bool isTransparent)
 : mMainDisplay(NULL),
@@ -76,13 +76,13 @@ RenderSurface::RenderSurface( SurfaceType type,
   mOwnDisplay(false),
   mIsStopped( false )
 {
-  // see if there is a display in boost::any display
+  // see if there is a display in Any display
   SetDisplay( display );
 }
 
-void RenderSurface::Init( boost::any surface )
+void RenderSurface::Init( Any surface )
 {
-  // see if there is a surface in boost::any surface
+  // see if there is a surface in Any surface
   unsigned int surfaceId  = GetSurfaceId( surface );
 
   // if the surface is empty, create a new one.
@@ -151,10 +151,10 @@ Ecore_X_Drawable RenderSurface::GetDrawable()
   return 0;
 }
 
-boost::any RenderSurface::GetDisplay()
+Any RenderSurface::GetDisplay()
 {
   // this getter is used by main thread so we need to return the main thread version of the display
-  return boost::any( ecore_x_display_get() );
+  return Any( ecore_x_display_get() );
 }
 
 PositionSize RenderSurface::GetPositionSize() const
@@ -250,29 +250,29 @@ void RenderSurface::StopRender()
   mIsStopped = true;
 }
 
-void RenderSurface::SetDisplay( boost::any display )
+void RenderSurface::SetDisplay( Any display )
 {
   // the render surface can be passed either EFL e-core types, or x11 types
   // we use boost any to determine at run time which type
 
-  if ( display.empty() == false )
+  if ( display.Empty() == false )
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( ( display.type() == typeid (Ecore_X_Display *)) ||
-                          ( display.type() == typeid (XDisplay *) ) )
+    DALI_ASSERT_ALWAYS( ( ( display.GetType() == typeid (Ecore_X_Display *)) ||
+                          ( display.GetType() == typeid (XDisplay *) ) )
                         &&
                         "Display type is invalid" );
 
     mOwnDisplay = false;
 
     // display may point to EcoreXDisplay so may need to cast
-    if( display.type() == typeid (Ecore_X_Display*) )
+    if( display.GetType() == typeid (Ecore_X_Display*) )
     {
-      mMainDisplay = static_cast< XDisplay* >( boost::any_cast< Ecore_X_Display* >( display ) );
+      mMainDisplay = static_cast< XDisplay* >( AnyCast< Ecore_X_Display* >( display ) );
     }
     else
     {
-      mMainDisplay = boost::any_cast< XDisplay* >( display );
+      mMainDisplay = AnyCast< XDisplay* >( display );
     }
   }
   else
@@ -284,24 +284,24 @@ void RenderSurface::SetDisplay( boost::any display )
   }
 }
 
-unsigned int RenderSurface::GetSurfaceId( boost::any surface ) const
+unsigned int RenderSurface::GetSurfaceId( Any surface ) const
 {
   unsigned int surfaceId = 0;
 
-  if ( surface.empty() == false )
+  if ( surface.Empty() == false )
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( (surface.type() == typeid (XWindow) ) ||
-                          (surface.type() == typeid (Ecore_X_Window) ) )
+    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (XWindow) ) ||
+                          (surface.GetType() == typeid (Ecore_X_Window) ) )
                         && "Surface type is invalid" );
 
-    if ( surface.type() == typeid (Ecore_X_Window) )
+    if ( surface.GetType() == typeid (Ecore_X_Window) )
     {
-      surfaceId = boost::any_cast<Ecore_X_Window>( surface );
+      surfaceId = AnyCast<Ecore_X_Window>( surface );
     }
     else
     {
-      surfaceId = boost::any_cast<XWindow>( surface );
+      surfaceId = AnyCast<XWindow>( surface );
     }
   }
   return surfaceId;

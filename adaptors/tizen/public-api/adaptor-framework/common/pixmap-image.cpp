@@ -20,28 +20,31 @@
 // INTERNAL INCLUDES
 #include <internal/common/pixmap-image-impl.h>
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/object/any.h>
+
 namespace Dali
 {
 
 PixmapImagePtr PixmapImage::New(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor)
 {
-  boost::any empty;
+  Any empty;
   PixmapImagePtr image = new PixmapImage(width, height, depth, adaptor, empty);
   return image;
 }
 
-PixmapImagePtr PixmapImage::New(boost::any pixmap, Adaptor& adaptor)
+PixmapImagePtr PixmapImage::New(Any pixmap, Adaptor& adaptor)
 {
   PixmapImagePtr image = new PixmapImage(0, 0, COLOR_DEPTH_DEFAULT, adaptor, pixmap);
   return image;
 }
 
-boost::any PixmapImage::GetPixmap(PixmapAPI api)
+Any PixmapImage::GetPixmap(PixmapAPI api)
 {
   return mImpl->GetPixmap(api);
 }
 
-boost::any PixmapImage::GetDisplay()
+Any PixmapImage::GetDisplay()
 {
   return mImpl->GetDisplay();
 }
@@ -91,7 +94,7 @@ Pixel::Format PixmapImage::GetPixelFormat() const
   return mImpl->GetPixelFormat();
 }
 
-PixmapImage::PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, boost::any pixmap)
+PixmapImage::PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap)
 {
    mImpl = Internal::Adaptor::PixmapImage::New( width, height, depth, adaptor, pixmap);
 }

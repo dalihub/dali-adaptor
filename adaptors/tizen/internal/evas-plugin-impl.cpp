@@ -765,7 +765,7 @@ EvasPlugin::EvasPlugin(Dali::EvasPlugin& evasPlugin, Evas_Object* parent, bool i
   mEvasDirtyIdler(NULL)
 {
   DALI_ASSERT_ALWAYS( parent && "No parent object for plugin" );
-  mEvas = boost::any_cast<Evas*>(evas_object_evas_get(parent));
+  mEvas = AnyCast<Evas*>(evas_object_evas_get(parent));
 
   /* create evas object image */
   CreateEvasImageObject(mEvas, initialWidth, initialHeight, isTransparent);
@@ -985,9 +985,9 @@ void EvasPlugin::CreateAdaptor(unsigned int initialWidth, unsigned int initialHe
 
   mAdaptor = Internal::Adaptor::Adaptor::New( mSurface, DeviceLayout::DEFAULT_BASE_LAYOUT );
 
-  boost::any surface = mSurface->GetSurface();
+  Any surface = mSurface->GetSurface();
 
-  Ecore_X_Pixmap pixmap = boost::any_cast<Ecore_X_Pixmap>(surface);
+  Ecore_X_Pixmap pixmap = AnyCast<Ecore_X_Pixmap>(surface);
 
   /* set native pixmap surface */
   Evas_Native_Surface ns;
@@ -1002,8 +1002,8 @@ void EvasPlugin::CreateAdaptor(unsigned int initialWidth, unsigned int initialHe
 ECoreX::RenderSurface* EvasPlugin::CreateSurface( int width, int height )
 {
   PositionSize pixmapSize( 0, 0, width, height );
-  boost::any surface;
-  boost::any display;
+  Any surface;
+  Any display;
   // if we already have surface, reuse its display
   if( mSurface )
   {
@@ -1029,8 +1029,8 @@ void EvasPlugin::ResizeSurface()
 
   // update the pixmap for evas
   {
-    boost::any surface = mSurface->GetSurface();
-    Ecore_X_Pixmap pixmap = boost::any_cast<Ecore_X_Pixmap>( surface );
+    Any surface = mSurface->GetSurface();
+    Ecore_X_Pixmap pixmap = AnyCast<Ecore_X_Pixmap>( surface );
 
     Evas_Native_Surface ns;
     ns.type = EVAS_NATIVE_SURFACE_X11;

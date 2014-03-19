@@ -162,7 +162,7 @@ namespace
   }
 }
 
-PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor,  boost::any pixmap )
+PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor,  Any pixmap )
 {
   PixmapImage* image = new PixmapImage( width, height, depth, adaptor, pixmap );
   DALI_ASSERT_DEBUG( image && "PixmapImage allocation failed." );
@@ -176,7 +176,7 @@ PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::Pix
   return image;
 }
 
-PixmapImage::PixmapImage(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor, boost::any pixmap)
+PixmapImage::PixmapImage(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor, Any pixmap)
 : mWidth(width),
   mHeight(height),
   mOwnPixmap(true),
@@ -188,7 +188,7 @@ PixmapImage::PixmapImage(unsigned int width, unsigned int height, Dali::PixmapIm
   mEglImageKHR(NULL)
 {
   // assign the pixmap
-  mPixmap = GetPixmapFromBoostAny(pixmap);
+  mPixmap = GetPixmapFromAny(pixmap);
 }
 
 void PixmapImage::Initialize()
@@ -199,10 +199,10 @@ void PixmapImage::Initialize()
   // get the X11 display pointer and store it
   // it is used by eglCreateImageKHR, and XFreePixmap
   // Any other display (x-connection) will fail in eglCreateImageKHR
-  boost::any display = surface.GetDisplay();
+  Any display = surface.GetDisplay();
 
   // the dali display pointer is needed
-  mDisplay = boost::any_cast<Ecore_X_Display*>(display);
+  mDisplay = AnyCast<Ecore_X_Display*>(display);
 
   // if pixmap has been created outside of X11 Image we can return
   if (mPixmap)
@@ -222,11 +222,11 @@ void PixmapImage::Initialize()
   SetPixelFormat(depth);
 
   // Get the X-Renderable for which the pixmap is created on
-  boost::any renderableSurface =  surface.GetSurface();
+  Any renderableSurface =  surface.GetSurface();
 
   // if Dali is using a Pixmap or Window to render to it doesn't matter because they have the same
   // underlying type of unsigned long
-  Ecore_X_Window daliWindow = boost::any_cast< Ecore_X_Window >(renderableSurface);
+  Ecore_X_Window daliWindow = AnyCast< Ecore_X_Window >(renderableSurface);
 
   mPixmap = ecore_x_pixmap_new(daliWindow, mWidth, mHeight, depth);
   ecore_x_sync();
@@ -249,26 +249,26 @@ PixmapImage::~PixmapImage()
   }
 }
 
-boost::any PixmapImage::GetPixmap(Dali::PixmapImage::PixmapAPI api) const
+Any PixmapImage::GetPixmap(Dali::PixmapImage::PixmapAPI api) const
 {
 
   if (api == Dali::PixmapImage::ECORE_X11)
   {
     // return ecore x11 type
-    return boost::any(mPixmap);
+    return Any(mPixmap);
   }
   else
   {
     // return x11 type after casting it
     Pixmap pixmap=  static_cast<Pixmap>(mPixmap);
-    return boost::any(pixmap);
+    return Any(pixmap);
   }
 }
 
-boost::any PixmapImage::GetDisplay() const
+Any PixmapImage::GetDisplay() const
 {
   // return ecore x11 type
-  return boost::any(mDisplay);
+  return Any(mDisplay);
 }
 
 bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
@@ -490,25 +490,25 @@ void PixmapImage::SetPixelFormat(int depth)
   }
 }
 
-Ecore_X_Pixmap PixmapImage::GetPixmapFromBoostAny(boost::any pixmap) const
+Ecore_X_Pixmap PixmapImage::GetPixmapFromAny(Any pixmap) const
 {
-  if (pixmap.empty())
+  if (pixmap.Empty())
   {
     return 0;
   }
 
   // see if it is of type x11 pixmap
-  if (pixmap.type() == typeid (Pixmap))
+  if (pixmap.GetType() == typeid (Pixmap))
   {
     // get the x pixmap type
-    Pixmap xpixmap = boost::any_cast<Pixmap>(pixmap);
+    Pixmap xpixmap = AnyCast<Pixmap>(pixmap);
 
     // cast it to a ecore pixmap type
     return static_cast<Ecore_X_Pixmap>(xpixmap);
   }
   else
   {
-    return boost::any_cast<Ecore_X_Pixmap>(pixmap);
+    return AnyCast<Ecore_X_Pixmap>(pixmap);
   }
 }
 

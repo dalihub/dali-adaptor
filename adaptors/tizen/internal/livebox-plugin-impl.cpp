@@ -247,9 +247,9 @@ static Eina_Bool LiveboxDamageCallback(void *data, int type, void *event)
   Ecore_X_Event_Damage *ev = (Ecore_X_Event_Damage *)event;
 
   // get the EFL type for the surface
-  boost::any surface = liveboxPlugin->mSurface->GetSurface();
+  Any surface = liveboxPlugin->mSurface->GetSurface();
 
-  Ecore_X_Pixmap pixmap = boost::any_cast<Ecore_X_Pixmap>(surface);
+  Ecore_X_Pixmap pixmap = AnyCast<Ecore_X_Pixmap>(surface);
 
   if (!ev || !liveboxPlugin->mDamage)
   {
@@ -356,7 +356,7 @@ void LiveboxPlugin::OnInit()
 
 void LiveboxPlugin::CreateSurface(Ecore_X_Pixmap pixmap)
 {
-  boost::any display;
+  Any display;
 
   if(mSurface)
   {

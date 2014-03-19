@@ -120,8 +120,8 @@ ECoreX::RenderSurface* NativeBufferPlugin::CreateSurface( int width, int height,
   DALI_LOG_TRACE_METHOD( gLogFilter );
 
   PositionSize positionSize( 0, 0, width, height );
-  boost::any surface;
-  boost::any display;
+  Any surface;
+  Any display;
 
   // if we already have surface, reuse its display
   if( mSurface )
