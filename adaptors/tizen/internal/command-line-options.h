@@ -64,9 +64,11 @@ public:
 
 public: // Command line parsed values
 
-  int noVSyncOnRender; ///< If 1, then the user does not want VSync on Render
-  int stageWidth; ///< The width of the stage required.  0 if not set.
-  int stageHeight; ///< The height of the stage required.   0 if not set.
+  int noVSyncOnRender;  ///< If 1, then the user does not want VSync on Render
+  int stageWidth;       ///< The width of the stage required.  0 if not set.
+  int stageHeight;      ///< The height of the stage required.   0 if not set.
+  int viewMode;         ///< Stereocopic 3D view mode (0=MONO, 1=STEREO_HORZ, 2=STEREO_VERT, 3=STEREO_INTERLACED)
+  int stereoBase;       ///< The distance in millimeters between left/right cameras
   std::string stageDPI; ///< DPI stored as hxv, where h is horizontal DPI and v is vertical DPI
 };
 

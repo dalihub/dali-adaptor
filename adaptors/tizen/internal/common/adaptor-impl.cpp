@@ -797,6 +797,28 @@ Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLay
   gThreadLocalAdaptor.reset(this);
 }
 
+// Stereoscopy
+
+void Adaptor::SetViewMode( ViewMode viewMode )
+{
+  mCore->SetViewMode( viewMode );
+}
+
+ViewMode Adaptor::GetViewMode() const
+{
+  return mCore->GetViewMode();
+}
+
+void Adaptor::SetStereoBase( float stereoBase )
+{
+  mCore->SetStereoBase( stereoBase );
+}
+
+float Adaptor::GetStereoBase() const
+{
+  return mCore->GetStereoBase();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

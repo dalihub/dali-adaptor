@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/integration-api/render-controller.h>
 
@@ -33,7 +34,6 @@
 #include <dali/public-api/adaptor-framework/common/imf-manager.h>
 #include <dali/public-api/adaptor-framework/common/device-layout.h>
 #include <dali/public-api/adaptor-framework/common/clipboard.h>
-
 
 #include <slp-platform-abstraction.h>
 #include <base/interfaces/adaptor-internal-services.h>
@@ -336,6 +336,28 @@ public:  //AdaptorInternalServices
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
    */
   virtual KernelTraceInterface& GetKernelTraceInterface();
+
+public: // Stereoscopy
+
+  /**
+   * @copydoc Dali::Integration::Core::SetViewMode()
+   */
+  DALI_IMPORT_API void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Integration::Core::GetViewMode()
+   */
+  DALI_IMPORT_API ViewMode GetViewMode() const;
+
+  /**
+   * @copydoc Dali::Integration::Core::SetStereoBase()
+   */
+  DALI_IMPORT_API void SetStereoBase( float stereoBase );
+
+  /**
+   * @copydoc Dali::Integration::Core::GetStereoBase()
+   */
+  DALI_IMPORT_API float GetStereoBase() const;
 
 public: // Signals
 

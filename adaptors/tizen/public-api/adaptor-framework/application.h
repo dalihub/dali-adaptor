@@ -21,6 +21,7 @@
 #include <boost/function.hpp>
 #include <string>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/common/view-mode.h>
 
 #include <dali/public-api/adaptor-framework/common/style-monitor.h>
 #include <dali/public-api/adaptor-framework/common/device-layout.h>
@@ -209,6 +210,32 @@ public:
    * @note This is only valid in the main thread.
    */
   static Application Get();
+
+public: // Stereoscopy
+
+  /**
+   * Set the stereoscopic 3D viewing mode for the application
+   * @param[in] viewMode The new viewing mode
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * Get the current stereoscopic 3D viewing mode.
+   * @return The current stereoscopic 3D viewing mode.
+   */
+  ViewMode GetViewMode() const;
+
+  /**
+   * Set the stereo base (eye seperation) for stereoscopic 3D
+   * @param[in] stereoBase The stereo base (eye seperation) for stereoscopic 3D
+   */
+  void SetStereoBase( float stereoBase );
+
+  /**
+   * Get the stereo base (eye seperation) for stereoscopic 3D
+   * @return The stereo base (eye seperation) for stereoscopic 3D
+   */
+  float GetStereoBase() const;
 
 public:  // Signals
 

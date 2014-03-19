@@ -43,7 +43,7 @@ struct Argument
   void Print()
   {
     std::cout << std::left << "  --";
-    std::cout.width( 15 );
+    std::cout.width( 18 );
     std::cout << opt;
     std::cout << optDescription;
     std::cout << std::endl;
@@ -52,13 +52,14 @@ struct Argument
 
 Argument EXPECTED_ARGS[] =
 {
-  { "no-vsync", "Disable VSync on Render" },
-  { "width",    "Stage Width"             },
-  { "height",   "Stage Height"            },
-  { "dpi",      "Emulated DPI"            },
-  { "help",     "Help"                    },
-
-  { NULL,       NULL                      }
+  { "no-vsync",    "Disable VSync on Render" },
+  { "width",       "Stage Width"             },
+  { "height",      "Stage Height"            },
+  { "dpi",         "Emulated DPI"            },
+  { "view",        "Stereocopic 3D view mode ([0]=MONO, 1=STEREO_HORZ, 2=STEREO_VERT, 3=STEREO_INTERLACED)" },
+  { "stereo-base", "Distance in millimeters between left/right cameras [65.0]" },
+  { "help",        "Help"                    },
+  { NULL,          NULL                      }
 };
 
 enum Option
@@ -67,16 +68,31 @@ enum Option
   OPTION_STAGE_WIDTH,
   OPTION_STAGE_HEIGHT,
   OPTION_DPI,
+  OPTION_STEREO_MODE,
+  OPTION_STEREO_BASE,
   OPTION_HELP
 };
 
 typedef std::vector< int > UnhandledContainer;
 
+void ShowHelp()
+{
+  std::cout << "Available options:" << std::endl;
+  Argument* arg = EXPECTED_ARGS;
+  while ( arg->opt )
+  {
+    arg->Print();
+    ++arg;
+  }
+}
+
 } // unnamed namespace
 
 CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
 : noVSyncOnRender(0),
-  stageWidth(0), stageHeight(0)
+  stageWidth(0), stageHeight(0),
+  viewMode(0),
+  stereoBase(65)
 {
   if ( *argc > 1 )
   {
@@ -92,14 +108,16 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
       { EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt,  required_argument, NULL,             'w' },  // "--width"
       { EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL,             'h' },  // "--height"
       { EXPECTED_ARGS[OPTION_DPI].opt,          required_argument, NULL,             'd' },  // "--dpi"
-      { EXPECTED_ARGS[OPTION_HELP].opt,         no_argument,       &help,            1   },  // "--help"
+      { EXPECTED_ARGS[OPTION_STEREO_MODE].opt,  required_argument, NULL,             'v' },  // "--view"
+      { EXPECTED_ARGS[OPTION_STEREO_BASE].opt,  required_argument, NULL,             's' },  // "--stereo-base"
+      { EXPECTED_ARGS[OPTION_HELP].opt,         no_argument,       &help,            '?' },  // "--help"
       { 0, 0, 0, 0 } // end of options
     };
 
     int shortOption( 0 );
     int optionIndex( 0 );
 
-    const char* optString = "-w:h:d:"; // The '-' ensures that argv is NOT permuted
+    const char* optString = "-w:h:d:v:s:?"; // The '-' ensures that argv is NOT permuted
     bool optionProcessed( false );
 
     UnhandledContainer unhandledOptions; // We store indices of options we do not handle here
@@ -115,13 +133,7 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
           // Check if we want help
           if ( help )
           {
-            std::cout << "Available options:" << std::endl;
-            Argument* arg = EXPECTED_ARGS;
-            while ( arg->opt )
-            {
-              arg->Print();
-              ++arg;
-            }
+            ShowHelp();
             optionProcessed = true;
           }
           break;
@@ -157,6 +169,32 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
           break;
         }
 
+        case 'v':
+        {
+          if ( optarg )
+          {
+            viewMode = atoi(optarg);
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case 's':
+        {
+          if ( optarg )
+          {
+            stereoBase = atoi(optarg);
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case '?':
+        {
+           ShowHelp();
+           optionProcessed = true;
+           break;
+        }
         case -1:
         {
           // All command-line options have been parsed.

@@ -183,6 +183,17 @@ void Application::OnInit()
     Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).DisableVSync();
   }
 
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetStereoBase( mCommandLineOptions->stereoBase );
+  if( mCommandLineOptions->viewMode != 0 )
+  {
+    ViewMode viewMode = MONO;
+    if( mCommandLineOptions->viewMode <= STEREO_INTERLACED )
+    {
+      viewMode = static_cast<ViewMode>( mCommandLineOptions->viewMode );
+    }
+    Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetViewMode( viewMode );
+  }
+
   mInitialized = true;
 
   Dali::Application application(this);
@@ -267,6 +278,28 @@ const std::string& Application::GetTheme()
 void Application::SetTheme(const std::string& themeFilePath)
 {
   return Dali::StyleMonitor::Get().SetTheme(themeFilePath);
+}
+
+// Stereoscopy
+
+void Application::SetViewMode( ViewMode viewMode )
+{
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetViewMode( viewMode );
+}
+
+ViewMode Application::GetViewMode() const
+{
+  return Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).GetViewMode();
+}
+
+void Application::SetStereoBase( float stereoBase )
+{
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetStereoBase( stereoBase );
+}
+
+float Application::GetStereoBase() const
+{
+  return Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).GetStereoBase();
 }
 
 } // namespace Adaptor

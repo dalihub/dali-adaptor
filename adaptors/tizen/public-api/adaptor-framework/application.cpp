@@ -110,6 +110,26 @@ Application Application::Get()
   return Internal::Adaptor::Application::Get();
 }
 
+void Application::SetViewMode( ViewMode viewMode )
+{
+  Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
+}
+
+ViewMode Application::GetViewMode() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetViewMode();
+}
+
+void Application::SetStereoBase( float stereoBase )
+{
+  Internal::Adaptor::GetImplementation(*this).SetStereoBase( stereoBase );
+}
+
+float Application::GetStereoBase() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetStereoBase();
+}
+
 Application::AppSignalV2& Application::InitSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).InitSignal();

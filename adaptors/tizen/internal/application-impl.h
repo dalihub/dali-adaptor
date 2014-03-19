@@ -122,6 +122,28 @@ public:
    */
   void SetTheme(const std::string& themeFilePath);
 
+public: // Stereoscopy
+
+  /**
+   * @copydoc Dali::Application::SetViewMode()
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Application::GetViewMode()
+   */
+  ViewMode GetViewMode() const;
+
+  /**
+   * @copydoc Dali::Application::SetStereoBase()
+   */
+  void SetStereoBase( float stereoBase );
+
+  /**
+   * @copydoc Dali::Application::GetStereoBase()
+   */
+  float GetStereoBase() const;
+
 public: // From Framework::Observer
 
   /**
