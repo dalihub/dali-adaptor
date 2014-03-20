@@ -18,7 +18,7 @@
 //
 
 // EXTERNAL INCLUDES
-#include <haptic.h>
+#include <dd-haptic.h>
 
 // INTERNAL INCLUDES
 #include <public-api/adaptor-framework/common/feedback-plugin.h>

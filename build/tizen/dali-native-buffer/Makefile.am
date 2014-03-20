@@ -76,7 +76,7 @@ libdali_native_buffer_plugin_la_CXXFLAGS = \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(HAPTIC_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
                       $(TTS_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
                       $(NATIVE_BUFFER_POOL_CFLAGS)

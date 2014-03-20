@@ -64,9 +64,9 @@ Development components for the DALi Tizen Adaptor
 %package dali-feedback-plugin
 Summary:    Feedback plugin to play haptic and audio feedback for Dali
 Group:      Development/Libs
-Requires:       libhaptic
+Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
-BuildRequires:  libhaptic-devel
+BuildRequires:  pkgconfig(deviced)
 BuildRequires:  libfeedback-devel
 
 %description dali-feedback-plugin

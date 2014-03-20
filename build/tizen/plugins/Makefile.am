@@ -43,7 +43,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(DLOG_CFLAGS) \
                       $(DALICORE_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(HAPTIC_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
                       $(FEEDBACK_CFLAGS) \
                       -I../../../adaptors/tizen \
                       -Werror -Wall
@@ -51,7 +51,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
 libdali_feedback_plugin_la_LIBADD = \
                       $(DLOG_LIBS) \
                       $(MMFSOUND_LIBS) \
-                      $(HAPTIC_LIBS) \
+                      $(DEVICED_LIBS) \
                       $(FEEDBACK_LIBS)
 
 libdali_feedback_plugin_la_LDFLAGS = \

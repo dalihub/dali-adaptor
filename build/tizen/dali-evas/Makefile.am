@@ -76,7 +76,7 @@ libdali_evas_plugin_la_CXXFLAGS = \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(HAPTIC_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
                       $(TTS_CFLAGS)
 
 libdali_evas_plugin_la_LIBADD = \

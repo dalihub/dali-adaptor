@@ -105,7 +105,7 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(HAPTIC_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
                       $(TTS_CFLAGS) \
                       $(SENSOR_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \

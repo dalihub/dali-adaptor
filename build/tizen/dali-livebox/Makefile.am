@@ -75,7 +75,7 @@ libdali_livebox_plugin_la_CXXFLAGS = \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(HAPTIC_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
                       $(TTS_CFLAGS) \
                       $(LIVEBOX_CLIENT_CFLAGS) \
                       $(LIVEBOX_SERVICE_CFLAGS)
