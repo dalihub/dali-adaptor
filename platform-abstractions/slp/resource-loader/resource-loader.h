@@ -364,6 +364,19 @@ public:
    */
   void SetDefaultFontFamily( const std::string& fontFamily, const std::string& fontStyle );
 
+  /**
+   * Retrieves the glyp's image representing the given character.
+   *
+   * @param[in] freeType Handle to the FreeType library.
+   * @param[in] fontFamily The font's family name.
+   * @param[in] fontStyle The font's style.
+   * @param[in] fontSize The font's size.
+   * @param[in] character The given character.
+   *
+   * @return The bitmap image.
+   */
+  Integration::BitmapPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character );
+
 private:
 
   /**

@@ -17,6 +17,7 @@
 #include "slp-platform-abstraction.h"
 
 #include <vconf.h>
+#include <dirent.h>
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
@@ -118,7 +119,7 @@ const float SlpPlatformAbstraction::GetDefaultFontSize() const
   return mDefaultFontSize;
 }
 
-const PixelSize SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const
+const PixelSize SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const
 {
   PixelSize result(0);
 
@@ -390,6 +391,46 @@ void SlpPlatformAbstraction::WriteMetricsToCache( const std::string& fontFamily,
                                                   const Integration::GlyphSet& glyphSet )
 {
   MetricsCache::Write( fontFamily, fontStyle, glyphSet );
+}
+
+void SlpPlatformAbstraction::GetFileNamesFromDirectory( const std::string& directoryName,
+                                                        std::vector<std::string>& fileNames )
+{
+  dirent* de = NULL;
+  DIR* dp;
+  dp = opendir( directoryName.c_str() );
+  if( dp )
+  {
+    const std::string dot( "." );
+    const std::string dotDot( ".." );
+    while( true )
+    {
+      de = readdir( dp );
+      if( de == NULL )
+      {
+        break;
+      }
+      const std::string fileName( de->d_name );
+      if( ( fileName != dot ) &&
+          ( fileName != dotDot ) )
+      {
+        fileNames.push_back( fileName );
+      }
+    }
+    closedir( dp );
+  }
+}
+
+Integration::BitmapPtr SlpPlatformAbstraction::GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character ) const
+{
+  Integration::BitmapPtr glyphImage;
+
+  if( mResourceLoader )
+  {
+    glyphImage = mResourceLoader->GetGlyphImage( mFreeTypeHandle, fontFamily, fontStyle, fontSize, character );
+  }
+
+  return glyphImage;
 }
 
 }  // namespace SlpPlatform

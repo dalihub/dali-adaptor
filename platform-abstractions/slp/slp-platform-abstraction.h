@@ -136,7 +136,7 @@ public: // PlatformAbstraction overrides
   /**
    *@copydoc PlatformAbstraction::GetFontLineHeightFromCapsHeight()
    */
-  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const;
+  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const;
 
   /**
    * @copydoc PlatformAbstraction::GetGlyphData()
@@ -235,6 +235,17 @@ public: // PlatformAbstraction overrides
   virtual void WriteMetricsToCache( const std::string& fontFamily,
                                     const std::string& fontStyle,
                                     const Integration::GlyphSet& glyphSet );
+
+  /**
+   * @copydoc PlatformAbstraction::GetFileNamesFromDirectory()
+   */
+  virtual void GetFileNamesFromDirectory( const std::string& directoryName,
+                                          std::vector<std::string>& fileNames );
+
+  /**
+   * @copydoc PlatformAbstraction::GetGlyphImage()
+   */
+  virtual Integration::BitmapPtr GetGlyphImage( const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character ) const;
 
 private:
   ResourceLoader* mResourceLoader;

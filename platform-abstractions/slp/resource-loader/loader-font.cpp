@@ -313,6 +313,50 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
   return new GlyphSet::Character(bitmapData, glyphMetrics);
 }
 
+Integration::BitmapPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode )
+{
+  Integration::BitmapPtr image;
+
+  FT_Glyph ftGlyph = GetGlyph( face, charCode, FT_LOAD_RENDER );
+  if( NULL != ftGlyph )
+  {
+    FT_Error ftError = FT_Err_Ok;
+
+    // convert glyph to bitmap
+    if( ftGlyph->format != FT_GLYPH_FORMAT_BITMAP )
+    {
+      ftError = FT_Glyph_To_Bitmap( &ftGlyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+
+      if( ftError != FT_Err_Ok)
+      {
+        DALI_LOG_WARNING( "FT_Glyph_To_Bitmap failed %d\n", ftError );
+        FT_Done_Glyph( ftGlyph );
+        return image;
+      }
+    }
+
+    // cast the FT_Glyph to a FT_BitmapGlyph
+    FT_BitmapGlyph ftBitmapGlyph = (FT_BitmapGlyph)ftGlyph;
+
+    // access the underlying bitmap data
+    FT_Bitmap ftBitmap = ftBitmapGlyph->bitmap;
+
+    const std::size_t size = ftBitmap.width * ftBitmap.rows;
+    if( 0 < size )
+    {
+      image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+      image->GetPackedPixelsProfile()->ReserveBuffer( Pixel::A8, ftBitmap.width, ftBitmap.rows );
+
+      memcpy( static_cast<unsigned char*>( image->GetBuffer() ), ftBitmap.buffer, size );
+    }
+
+    // finished with glyph, so, release it
+    FT_Done_Glyph( ftGlyph );
+  }
+
+  return image;
+}
+
 } // namespace SlpPlatform
 
 } // namespace Dali

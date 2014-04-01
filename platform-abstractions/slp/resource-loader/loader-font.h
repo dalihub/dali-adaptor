@@ -109,6 +109,16 @@ Integration::GlyphSet::Character* GetCharacter(FT_Face face, const FT_ULong char
                                                const Vector2& maxGlyphCell,
                                                const bool renderBitmap, const bool highQuality );
 
+/**
+ * Retrieves a glyph's image from the given Freetype face object.
+ *
+ * @param[in] face Freetype face object.
+ * @param[in] charCode UCS4 character code (UTF32).
+ *
+ * @return The glyph's image for the given character.
+ */
+Integration::BitmapPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode );
+
 } // namespace SlpPlatform
 
 } // namespace Dali

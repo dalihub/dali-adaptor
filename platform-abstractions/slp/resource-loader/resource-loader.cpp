@@ -892,6 +892,21 @@ bool ResourceLoader::SaveFile(const std::string& filename, std::vector< unsigned
   return result;
 }
 
+Integration::BitmapPtr ResourceLoader::GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character )
+{
+  Integration::BitmapPtr image;
+
+  const std::string fontFileName = GetFontPath( fontFamily, fontStyle );
+  SlpFace* slpFace = LoadFontFace( fontFileName, PixelSize( Font::PointsToPixels( fontSize ) ), freeType );
+
+  if( NULL != slpFace )
+  {
+    image = GetGlyphBitmap( slpFace->face, character );
+  }
+
+  return image;
+}
+
 void ResourceLoader::SetDefaultFontFamily( const std::string& fontFamily, const std::string& fontStyle )
 {
   mImpl->mFontController->SetDefaultFontFamily( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ) );
