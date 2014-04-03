@@ -46,7 +46,5 @@
 #include <dali/public-api/adaptor-framework/common/tts-player.h>
 #include <dali/public-api/adaptor-framework/common/virtual-keyboard.h>
 #include <dali/public-api/adaptor-framework/common/window.h>
-#include <dali/public-api/adaptor-framework/evas-plugin.h>
-#include <dali/public-api/adaptor-framework/native-buffer-plugin.h>
 
 #endif //__DALI_ADAPTOR_CAPI_INTERNAL_H__
