@@ -60,6 +60,11 @@ public:
   virtual void LoadResource( Integration::ResourceRequest& request );
 
   /**
+   * @copydoc ResourceRequester::LoadResourceSynchronously()
+   */
+  virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path );
+
+  /**
    * @copydoc ResourceRequester::LoadFurtherResources()
    */
   virtual Integration::LoadStatus LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource );

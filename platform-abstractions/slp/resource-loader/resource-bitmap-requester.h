@@ -74,6 +74,11 @@ public:
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
 
   /**
+   * @copydoc ResourceLoader::LoadResourceSynchronously()
+   */
+  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
+
+  /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
   void GetClosestImageSize( const std::string& filename,

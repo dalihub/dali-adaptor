@@ -240,6 +240,11 @@ public:
   void LoadResource(const Integration::ResourceRequest& request);
 
   /**
+   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
+   */
+  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath);
+
+  /**
    * @copydoc PlatformAbstraction::SaveResource()
    */
   void SaveResource(const Integration::ResourceRequest& request);

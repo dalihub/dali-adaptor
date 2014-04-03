@@ -194,6 +194,17 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
+  ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
+  {
+    ResourcePointer ptr;
+    ResourceRequesterBase* requester = GetRequester(resourceType.id);
+    if( requester )
+    {
+      ptr = requester->LoadResourceSynchronously( resourceType, resourcePath );
+    }
+    return ptr;
+  }
+
   void SaveResource(const ResourceRequest& request)
   {
     ResourceRequesterBase* requester = GetRequester( request.GetType()->id );
@@ -460,6 +471,11 @@ void ResourceLoader::AddFailedSave(FailedResource& resource)
 void ResourceLoader::LoadResource(const ResourceRequest& request)
 {
   mImpl->LoadResource(request);
+}
+
+ResourcePointer ResourceLoader::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
+{
+  return mImpl->LoadResourceSynchronously( resourceType, resourcePath );
 }
 
 void ResourceLoader::SaveResource(const ResourceRequest& request)

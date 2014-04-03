@@ -18,6 +18,7 @@
 //
 
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
 
 #include <ft2build.h>
@@ -91,6 +92,11 @@ public: // PlatformAbstraction overrides
    * @copydoc PlatformAbstraction::LoadResource()
    */
   virtual void LoadResource(const Integration::ResourceRequest& request);
+
+  /**
+   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
+   */
+  virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
 
   /**
    * @copydoc PlatformAbstraction::SaveResource()

@@ -19,6 +19,7 @@
 
 #include <platform-abstractions/slp/resource-loader/resource-loader.h>
 #include <dali/integration-api/resource-request.h>
+#include <dali/integration-api/resource-cache.h>
 
 namespace Dali
 {
@@ -62,6 +63,14 @@ public:
    * @param[in] request The resource request
    */
   virtual void LoadResource( Integration::ResourceRequest& request ) = 0;
+
+  /**
+   * Load a resource synchronously.
+   * @param[in] type The type of resource
+   * @param[in] path The path to the resource
+   * @return A pointer to the resource
+   */
+  virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path ) = 0;
 
   /**
    * Load more resources (for partial loading)

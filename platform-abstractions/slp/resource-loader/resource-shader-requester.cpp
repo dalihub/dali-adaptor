@@ -49,6 +49,12 @@ void ResourceShaderRequester::LoadResource( Integration::ResourceRequest& reques
   mThreadShader->AddRequest(request, ResourceThreadBase::RequestLoad);
 }
 
+ResourcePointer ResourceShaderRequester::LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path )
+{
+  DALI_ASSERT_ALWAYS( 0 && "Cannot load shaders synchronously" );
+  return NULL;
+}
+
 Integration::LoadStatus ResourceShaderRequester::LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource )
 {
   // Nothing to do

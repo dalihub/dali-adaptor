@@ -19,6 +19,7 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
+#include <dali/integration-api/resource-types.h>
 
 #include "loader-bmp.h"
 #include "loader-gif.h"
@@ -251,6 +252,24 @@ ResourceThreadImage::~ResourceThreadImage()
 {
 }
 
+ResourcePointer ResourceThreadImage::LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
+{
+  ResourcePointer resource;
+  BitmapPtr bitmap = 0;
+
+  FILE * const fp = fopen( resourcePath.c_str(), "rb" );
+  if( fp != NULL )
+  {
+    bool result = ConvertStreamToBitmap( resourceType, resourcePath, fp, bitmap );
+    if( result && bitmap )
+    {
+      resource.Reset(bitmap.Get());
+    }
+  }
+  return resource;
+}
+
+
 void ResourceThreadImage::GetClosestImageSize( const std::string& filename,
                                                const ImageAttributes& attributes,
                                                Vector2 &closestSize )
@@ -349,12 +368,20 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
 
   bool file_not_found = false;
   BitmapPtr bitmap = 0;
+  bool result = false;
 
   FILE * const fp = fopen( request.GetPath().c_str(), "rb" );
   if( fp != NULL )
   {
-    bitmap = ConvertStreamToBitmap( request, fp );
-    if( !bitmap )
+    result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+    if( result && bitmap )
+    {
+      // Construct LoadedResource and ResourcePointer for image data
+      LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer( bitmap.Get() ) );
+      // Queue the loaded resource
+      mResourceLoader.AddLoadedResource( resource );
+    }
+    else
     {
       DALI_LOG_WARNING( "Unable to decode %s\n", request.GetPath().c_str() );
     }
@@ -406,11 +433,19 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
       FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
       if ( fp != NULL )
       {
-        bitmap = ConvertStreamToBitmap(request, fp);
-      }
-      if ( !bitmap )
-      {
-        DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+        bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+
+        if ( result && bitmap )
+        {
+          // Construct LoadedResource and ResourcePointer for image data
+          LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer( bitmap.Get() ) );
+          // Queue the loaded resource
+          mResourceLoader.AddLoadedResource( resource );
+        }
+        else
+        {
+          DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+        }
       }
     }
   }
@@ -430,39 +465,37 @@ void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
 }
 
 
-BitmapPtr ResourceThreadImage::ConvertStreamToBitmap(const ResourceRequest& request, FILE * const fp)
+bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, BitmapPtr& ptr)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
-  DALI_ASSERT_DEBUG( request.GetType() && ResourceBitmap == request.GetType()->id );
+  DALI_ASSERT_DEBUG( ResourceBitmap == resourceType.id );
 
   bool result = false;
   BitmapPtr bitmap = 0;
-  std::string path = request.GetPath();
 
   if (fp != NULL)
   {
-    // Only png, jpg, bmp, gif, and compressed-data-containing ktx files are supported.
     LoadBitmapFunction function;
     LoadBitmapHeaderFunction header;
     Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
-                                   GetFormatHint( request.GetPath() ),
+                                   GetFormatHint( path ),
                                    function,
                                    header,
                                    profile ) )
     {
       bitmap = Bitmap::New(profile, true);
 
-      DALI_LOG_SET_OBJECT_STRING(bitmap, request.GetPath());
-      BitmapResourceType& resType = static_cast<BitmapResourceType&>(*(request.GetType()));
-      ImageAttributes& attributes  = resType.imageAttributes;
+      DALI_LOG_SET_OBJECT_STRING(bitmap, path);
+      const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
+      ImageAttributes attributes  = resType.imageAttributes;
 
       result = function(fp, *bitmap, attributes);
 
       if (!result)
       {
-        DALI_LOG_WARNING("Unable to decode %s\n", path.c_str());
+        DALI_LOG_WARNING("Unable to convert %s\n", path.c_str());
         bitmap = 0;
       }
     }
@@ -473,14 +506,8 @@ BitmapPtr ResourceThreadImage::ConvertStreamToBitmap(const ResourceRequest& requ
     fclose(fp); ///! Not exception safe, but an exception on a resource thread will bring the process down anyway.
   }
 
-  if ( result )
-  {
-    // Construct LoadedResource and ResourcePointer for image data
-    LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer( bitmap.Get() ) );
-    // Queue the loaded resource
-    mResourceLoader.AddLoadedResource( resource );
-  }
-  return bitmap;
+  ptr.Reset( bitmap.Get() );
+  return result;
 }
 
 

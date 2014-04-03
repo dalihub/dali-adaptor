@@ -20,6 +20,7 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/resource-types.h>
 
 #include "resource-loader/resource-loader.h"
 #include "resource-loader/loader-jpeg.h"
@@ -195,6 +196,18 @@ void SlpPlatformAbstraction::LoadResource(const Integration::ResourceRequest& re
     mResourceLoader->LoadResource(request);
   }
 }
+
+Integration::ResourcePointer SlpPlatformAbstraction::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
+{
+  Integration::ResourcePointer resource;
+
+  if (mResourceLoader)
+  {
+    resource = mResourceLoader->LoadResourceSynchronously( resourceType, resourcePath );
+  }
+  return resource;
+}
+
 
 void SlpPlatformAbstraction::SaveResource(const Integration::ResourceRequest& request)
 {

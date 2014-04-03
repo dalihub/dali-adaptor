@@ -18,7 +18,8 @@
 //
 
 #include <dali/integration-api/resource-cache.h>
-
+#include <dali/integration-api/resource-types.h>
+#include <dali/integration-api/bitmap.h>
 #include "resource-thread-base.h"
 
 namespace Dali
@@ -48,6 +49,12 @@ public:
    * Destructor
    */
   virtual ~ResourceThreadImage();
+
+  /**
+   * @copydoc ResourceLoader::LoadResourceSynchronously()
+   * Note, this is not threaded, but is called synchronously.
+   */
+  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
 
   /**
    * @copydoc ResourceLoader::GetClosestImageSize()
@@ -84,11 +91,17 @@ private:
 private:
   /**
    * Convert the file stream into a bitmap.
-   * @param[in] request
+   * @param[in] resourceType The type of resource to convert.
+   * @param[in] path The path to the resource.
    * @param[in] fp File Pointer. Closed on exit.
-   * @return Null on failure or a valid BitmapPtr on success. */
-  Integration::BitmapPtr ConvertStreamToBitmap( const Integration::ResourceRequest& request,
-                                                FILE * const fp );
+   * @param[out] bitmap Pointer to write bitmap to
+   * @return true on success, false on failure
+   */
+  bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType,
+                              std::string path,
+                              FILE * const fp,
+                              Integration::BitmapPtr& ptr );
+
 
 }; // class ResourceThreadImage
 

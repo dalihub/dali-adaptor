@@ -60,6 +60,12 @@ void ResourceModelRequester::LoadResource( Integration::ResourceRequest& request
   mThreadModel->AddRequest(request, ResourceThreadBase::RequestLoad);
 }
 
+ResourcePointer ResourceModelRequester::LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path )
+{
+  DALI_ASSERT_ALWAYS( 0 && "Cannot load models synchronously" );
+  return NULL;
+}
+
 LoadStatus ResourceModelRequester::LoadFurtherResources( ResourceRequest& request, LoadedResource partialResource )
 {
   // Nothing to do
