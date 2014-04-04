@@ -50,11 +50,13 @@ public:
    * @param logFrameRateFrequency frequency of how often FPS is logged out (e.g. 0 = off, 2 = every 2 seconds).
    * @param logupdateStatusFrequency frequency of how often the update status is logged in number of frames
    * @param logPerformanceLevel performance logging, 0 = disabled,  1+ =  enabled
+   * @param logPanGestureLevel pan-gesture logging, 0 = disabled,  1 = enabled
    */
   void SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
                    unsigned int logFrameRateFrequency,
                    unsigned int logupdateStatusFrequency,
-                   unsigned int logPerformanceLevel );
+                   unsigned int logPerformanceLevel,
+                   unsigned int logPanGestureLevel );
 
   /**
    * Install the log function for the current thread.
@@ -81,11 +83,17 @@ public:
    */
   unsigned int GetPerformanceLoggingLevel() const;
 
+  /**
+   * @return pan-gesture logging level ( 0 == off )
+   */
+  unsigned int GetPanGestureLoggingLevel() const;
+
 private:
 
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
+  unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

@@ -22,6 +22,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
+#include <dali/integration-api/profiling.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
@@ -91,23 +92,22 @@ Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLay
 
 void Adaptor::ParseLogOptions()
 {
-
   // get logging options
   unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
   unsigned int logupdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
   unsigned int logPerformanceLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE, 0 );
+  unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
   Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
 
-  mLogOptions.SetOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel );
+  mLogOptions.SetOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel, logPanGesture );
 
   // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
   // Dali::Integration::Log::LogFunction logFunction(Dali::SlpPlatform::LogMessage);
 
   mLogOptions.InstallLogFunction();
-
-
 }
+
 void Adaptor::Initialize()
 {
   ParseLogOptions();
@@ -140,6 +140,12 @@ void Adaptor::Initialize()
   mUpdateRenderController = new UpdateRenderController( *this, mLogOptions );
 
   mDaliFeedbackPlugin = new FeedbackPluginProxy( FeedbackPluginProxy::DEFAULT_OBJECT_NAME );
+
+  // Should be called after Core creation
+  if( mLogOptions.GetPanGestureLoggingLevel() )
+  {
+    Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
+  }
 }
 
 Adaptor::~Adaptor()

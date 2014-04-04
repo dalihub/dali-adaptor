@@ -28,6 +28,8 @@ namespace Adaptor
 
 #define DALI_ENV_LOG_PERFORMANCE "DALI_LOG_PERFORMANCE"
 
+#define DALI_ENV_LOG_PAN_GESTURE "DALI_LOG_PAN_GESTURE"
+
 } // namespace Adaptor
 
 } // namespace Internal

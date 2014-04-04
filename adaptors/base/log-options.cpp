@@ -19,8 +19,10 @@
 
 namespace Dali
 {
+
 namespace Internal
 {
+
 namespace Adaptor
 {
 
@@ -28,24 +30,26 @@ LogOptions::LogOptions()
 : mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mPerformanceLoggingLevel(0),
+  mPanGestureLoggingLevel(0),
   mLogFunction( NULL )
 {
 }
 
 LogOptions::~LogOptions()
 {
-
 }
 
 void LogOptions::SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
-                             unsigned int logPerformanceLevel )
+                             unsigned int logPerformanceLevel,
+                             unsigned int logPanGestureLevel )
 {
   mLogFunction = logFunction;
   mFpsFrequency = logFrameRateFrequency;
   mUpdateStatusFrequency = logupdateStatusFrequency;
   mPerformanceLoggingLevel = logPerformanceLevel;
+  mPanGestureLoggingLevel = logPanGestureLevel;
 }
 
 void LogOptions::InstallLogFunction() const
@@ -73,7 +77,13 @@ unsigned int LogOptions::GetPerformanceLoggingLevel() const
   return mPerformanceLoggingLevel;
 }
 
+unsigned int LogOptions::GetPanGestureLoggingLevel() const
+{
+  return mPanGestureLoggingLevel;
+}
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
