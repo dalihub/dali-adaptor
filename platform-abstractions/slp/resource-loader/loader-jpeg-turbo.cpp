@@ -27,6 +27,7 @@
 #include <libexif/exif-data.h>
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
+#include <setjmp.h>
 
 namespace Dali
 {
@@ -89,10 +90,27 @@ namespace
     char gray;
   };
 
-  void JpegFatalErrorHandler( j_common_ptr cinfo )
+  /**
+   * @brief Error handling bookeeping for the JPEG Turbo library's
+   * setjmp/longjmp simulated exceptions.
+   */
+  struct JpegErrorState {
+    struct jpeg_error_mgr errorManager;
+    jmp_buf jumpBuffer;
+  };
+
+  /**
+   * @brief Called by the JPEG library when it hits an error.
+   * We jump out of the library so our loader code can return an error.
+   */
+  void  JpegErrorHandler ( j_common_ptr cinfo )
   {
-    // LibJpeg causes an assert if this happens but we do not want that.
-    DALI_LOG_ERROR( "libjpeg-turbo fatal error in JPEG decoding.\n");
+    DALI_LOG_ERROR( "JpegErrorHandler(): libjpeg-turbo fatal error in JPEG decoding.\n" );
+    /* cinfo->err really points to a JpegErrorState struct, so coerce pointer */
+    JpegErrorState * myerr = reinterpret_cast<JpegErrorState *>( cinfo->err );
+
+    /* Return control to the setjmp point */
+    longjmp( myerr->jumpBuffer, 1 );
   }
 
   void JpegOutputMessageHandler( j_common_ptr cinfo )
@@ -178,11 +196,19 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
 {
   // using libjpeg API to avoid having to read the whole file in a buffer
   struct jpeg_decompress_struct cinfo;
-  struct jpeg_error_mgr jerr;
-  cinfo.err = jpeg_std_error( &jerr );
+  struct JpegErrorState jerr;
+  cinfo.err = jpeg_std_error( &jerr.errorManager );
 
-  jerr.output_message = JpegOutputMessageHandler;
-  jerr.error_exit = JpegFatalErrorHandler;
+  jerr.errorManager.output_message = JpegOutputMessageHandler;
+  jerr.errorManager.error_exit = JpegErrorHandler;
+
+  // On error exit from the JPEG lib, control will pass via JpegErrorHandler
+  // into this branch body for cleanup and error return:
+  if(setjmp(jerr.jumpBuffer))
+  {
+    jpeg_destroy_decompress(&cinfo);
+    return false;
+  }
 
   jpeg_create_decompress( &cinfo );
 
