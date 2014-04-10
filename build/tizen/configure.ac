@@ -174,7 +174,6 @@ AC_CONFIG_FILES([
  dali-native-buffer/Makefile
  dali-native-buffer.pc
  plugins/Makefile
- ../../automated-tests/rules.mk
 ])
 
 AC_OUTPUT

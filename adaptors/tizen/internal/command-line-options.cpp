@@ -117,7 +117,7 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
     int shortOption( 0 );
     int optionIndex( 0 );
 
-    const char* optString = "-w:h:d:v:s:?"; // The '-' ensures that argv is NOT permuted
+    const char* optString = "-w:h:d:v:s:"; // The '-' ensures that argv is NOT permuted
     bool optionProcessed( false );
 
     UnhandledContainer unhandledOptions; // We store indices of options we do not handle here
@@ -189,12 +189,6 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
           break;
         }
 
-        case '?':
-        {
-           ShowHelp();
-           optionProcessed = true;
-           break;
-        }
         case -1:
         {
           // All command-line options have been parsed.

@@ -1,7 +1,3 @@
-!Makefile
-tet_captured
-results-desktop
-results-target
-results
-rules.mk
-dali.info
+*.xml
+build
+build.log
