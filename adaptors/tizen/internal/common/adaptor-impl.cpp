@@ -90,7 +90,7 @@ Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLay
   return adaptor;
 }
 
-void Adaptor::ParseLogOptions()
+void Adaptor::ParseEnvironmentOptions()
 {
   // get logging options
   unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
@@ -98,25 +98,24 @@ void Adaptor::ParseLogOptions()
   unsigned int logPerformanceLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE, 0 );
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
+  // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
 
-  mLogOptions.SetOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel, logPanGesture );
+  mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel, logPanGesture );
+  mEnvironmentOptions.SetPanGesturePredictionMode(GetIntegerEnvironmentVariable( DALI_ENV_PAN_PREDICTION_MODE, 1));
 
-  // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
-  // Dali::Integration::Log::LogFunction logFunction(Dali::SlpPlatform::LogMessage);
-
-  mLogOptions.InstallLogFunction();
+  mEnvironmentOptions.InstallLogFunction();
 }
 
 void Adaptor::Initialize()
 {
-  ParseLogOptions();
+  ParseEnvironmentOptions();
 
   mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
 
-  if( mLogOptions.GetPerformanceLoggingLevel() > 0 )
+  if( mEnvironmentOptions.GetPerformanceLoggingLevel() > 0 )
   {
-    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, mLogOptions );
+    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, mEnvironmentOptions );
   }
 
   mCallbackManager = CallbackManager::New();
@@ -137,15 +136,16 @@ void Adaptor::Initialize()
 
   mVSyncMonitor = new VSyncMonitor;
 
-  mUpdateRenderController = new UpdateRenderController( *this, mLogOptions );
+  mUpdateRenderController = new UpdateRenderController( *this, mEnvironmentOptions );
 
   mDaliFeedbackPlugin = new FeedbackPluginProxy( FeedbackPluginProxy::DEFAULT_OBJECT_NAME );
 
   // Should be called after Core creation
-  if( mLogOptions.GetPanGestureLoggingLevel() )
+  if( mEnvironmentOptions.GetPanGestureLoggingLevel() )
   {
     Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
   }
+  Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
 }
 
 Adaptor::~Adaptor()
@@ -794,7 +794,7 @@ Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLay
   mDragAndDropDetector(),
   mDeferredRotationObserver(NULL),
   mBaseLayout(baseLayout),
-  mLogOptions(),
+  mEnvironmentOptions(),
   mPerformanceInterface(NULL)
 {
   DALI_ASSERT_ALWAYS( gThreadLocalAdaptor.get() == NULL && "Cannot create more than one Adaptor per thread" );

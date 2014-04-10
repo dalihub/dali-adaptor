@@ -43,7 +43,7 @@ namespace Adaptor
 
 class VSyncMonitorInterface;
 class UpdateRenderSynchronization;
-class LogOptions;
+class EnvironmentOptions;
 class AdaptorInternalServices;
 
 /**
@@ -59,11 +59,11 @@ public:
    * send notifications until Start() is called.
    * @param[in] sync         An object used to synchronize update, render and vsync threads.
    * @param[in] adaptorInterfaces base adaptor interface
-   * @param[in] logOption    Log options
+   * @param[in] environmentOptions environment options
    */
   VSyncNotifier( UpdateRenderSynchronization& sync,
                  AdaptorInternalServices& adaptorInterfaces,
-                 const LogOptions& logOptions);
+                 const EnvironmentOptions& environmentOptions);
 
   /**
    * Non-virtual destructor; VSyncNotifier is not suitable as a base class.
@@ -95,7 +95,7 @@ private:
   Integration::PlatformAbstraction&   mPlatformAbstraction; ///< The platform abstraction for retrieving the current time etc.
   VSyncMonitorInterface*              mVSyncMonitor;        ///< VSyncMonitor interface
   boost::thread*                      mThread;              ///< The actual thread.
-  const LogOptions&                   mLogOptions;          ///< Log options
+  const EnvironmentOptions&           mEnvironmentOptions;  ///< Environment options
 
 }; // class VSyncNotifier
 

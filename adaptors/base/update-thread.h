@@ -44,7 +44,7 @@ namespace Adaptor
 class UpdateRenderSynchronization;
 class AdaptorInternalServices;
 class TriggerEventInterface;
-class LogOptions;
+class EnvironmentOptions;
 
 /**
  * The update-thread is responsible for calling Core::Update(), and
@@ -58,11 +58,11 @@ public:
    * Create the update-thread; this will not do anything until Start() is called.
    * @param[in] sync An object used to synchronize update & render threads.
    * @param[in] adaptorInterfaces base adaptor interface
-   * @param[in] LogOptions log functions
+   * @param[in] environmentOptions environment options
    */
   UpdateThread(UpdateRenderSynchronization& sync,
                AdaptorInternalServices& adaptorInterfaces,
-               const LogOptions& logOptions );
+               const EnvironmentOptions& environmentOptions );
 
   /**
    * Non-virtual destructor; UpdateThread is not suitable as a base class.
@@ -123,7 +123,7 @@ private: // Data
   TriggerEventInterface&              mNotificationTrigger; ///< Reference to notification event trigger
 
   boost::thread*                      mThread;              ///< The actual update-thread.
-  const LogOptions&                   mLogOptions;          ///< Log options
+  const EnvironmentOptions&           mEnvironmentOptions;  ///< environment options
 }; // class UpdateThread
 
 } // namespace Adaptor

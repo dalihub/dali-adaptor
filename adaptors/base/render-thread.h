@@ -43,7 +43,7 @@ class AdaptorInternalServices;
 class RenderSurface;
 class UpdateRenderSynchronization;
 class EglFactoryInterface;
-class LogOptions;
+class EnvironmentOptions;
 
 /**
  * The render-thread is responsible for calling Core::Render() after each update.
@@ -55,12 +55,12 @@ public:
    * Create the render-thread; this will not do anything until Start() is called.
    * @param[in] sync update-render synchronization object
    * @param[in] adaptorInterfaces base adaptor interface
-   * @param[in] logOptions log options
+   * @param[in] environmentOptions environment options
 
    */
   RenderThread( UpdateRenderSynchronization& sync,
                 AdaptorInternalServices& adaptorInterfaces,
-                const LogOptions& logOptions );
+                const EnvironmentOptions& environmentOptions );
 
   /**
    * Virtual Destructor
@@ -232,7 +232,7 @@ private: // Data
   boost::mutex              mSurfaceChangedMutex;  ///< mutex to lock during surface replacing
   boost::condition_variable mSurfaceChangedNotify; ///< condition to notify main thread that surface has been changed
   bool                      mSurfaceReplaceCompleted;///< true, while render thread is running and needs to wait for pixmap syncs
-  const LogOptions&         mLogOptions;           ///< Log options
+  const EnvironmentOptions& mEnvironmentOptions;     ///< Environment options
 
 };
 

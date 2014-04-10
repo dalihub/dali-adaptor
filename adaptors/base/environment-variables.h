@@ -30,6 +30,8 @@ namespace Adaptor
 
 #define DALI_ENV_LOG_PAN_GESTURE "DALI_LOG_PAN_GESTURE"
 
+#define DALI_ENV_PAN_PREDICTION_MODE "DALI_PAN_PREDICTION_MODE"
+
 } // namespace Adaptor
 
 } // namespace Internal

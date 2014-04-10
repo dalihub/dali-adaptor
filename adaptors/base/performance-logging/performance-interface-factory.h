@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
 #include <dali/integration-api/debug.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 namespace Dali
 {
@@ -42,11 +42,11 @@ public:
   /**
    * Create a new concrete implementation of the performance interface.
    * @param adaptorServices adaptor internal services
-   * @param logOptions log options
+   * @param environmentOptions environment options
    * @return pointer to a new performance interface
    */
   static PerformanceInterface* CreateInterface( AdaptorInternalServices& adaptorServices,
-                                                const LogOptions& logOptions );
+                                                const EnvironmentOptions& environmentOptions );
 
 };
 

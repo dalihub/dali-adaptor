@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 
 namespace Dali
@@ -43,7 +43,7 @@ const unsigned int TIME_PER_FRAME_IN_MICROSECONDS = 16667;
 
 RenderThread::RenderThread( UpdateRenderSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
-                            const LogOptions& logOptions )
+                            const EnvironmentOptions& environmentOptions )
 : mUpdateRenderSync( sync ),
   mCore( adaptorInterfaces.GetCore() ),
   mGLES( adaptorInterfaces.GetGlesInterface() ),
@@ -53,7 +53,7 @@ RenderThread::RenderThread( UpdateRenderSynchronization& sync,
   mSurfaceReplacing( false ),
   mNewDataAvailable( false ),
   mSurfaceReplaceCompleted( false ),
-  mLogOptions( logOptions )
+  mEnvironmentOptions( environmentOptions )
 {
   // set the initial values before render thread starts
   mCurrent.surface = adaptorInterfaces.GetRenderSurfaceInterface();
@@ -155,7 +155,7 @@ void RenderThread::RenderSync()
 bool RenderThread::Run()
 {
   // install a function for logging
-  mLogOptions.InstallLogFunction();
+  mEnvironmentOptions.InstallLogFunction();
 
   InitializeEgl();
 
@@ -212,7 +212,7 @@ bool RenderThread::Run()
   ShutdownEgl();
 
   // install a function for logging
-  mLogOptions.UnInstallLogFunction();
+  mEnvironmentOptions.UnInstallLogFunction();
 
   return true;
 }

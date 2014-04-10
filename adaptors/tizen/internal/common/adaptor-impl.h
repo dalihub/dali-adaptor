@@ -37,7 +37,7 @@
 
 #include <slp-platform-abstraction.h>
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 #include <base/core-event-interface.h>
 #include <internal/common/drag-and-drop-detector-impl.h>
 #include <internal/common/damage-observer.h>
@@ -437,7 +437,7 @@ private:
   /**
    * Helper to parse log options
    */
-  void ParseLogOptions();
+  void ParseEnvironmentOptions();
 
   /**
    * Informs core the surface size has changed
@@ -513,7 +513,7 @@ private: // Data
   DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
   RotationObserver*                     mDeferredRotationObserver;    ///< deferred Rotation observer needs event handler
   DeviceLayout                          mBaseLayout;                  ///< The base layout of the application
-  LogOptions                            mLogOptions;                  ///< log options
+  EnvironmentOptions                    mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory

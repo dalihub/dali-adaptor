@@ -28,7 +28,7 @@
 #include "vsync-notifier.h"
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 namespace Dali
 {
@@ -53,13 +53,13 @@ Integration::Log::Filter* gLogFilter = Integration::Log::Filter::New(Debug::Conc
 
 VSyncNotifier::VSyncNotifier( UpdateRenderSynchronization& sync,
                               AdaptorInternalServices& adaptorInterfaces,
-                              const LogOptions& logOptions )
+                              const EnvironmentOptions& environmentOptions )
 : mUpdateRenderSync( sync ),
   mCore( adaptorInterfaces.GetCore() ),
   mPlatformAbstraction( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mVSyncMonitor( adaptorInterfaces.GetVSyncMonitorInterface() ),
   mThread( NULL ),
-  mLogOptions( logOptions )
+  mEnvironmentOptions( environmentOptions )
 {
 }
 
@@ -107,7 +107,7 @@ void VSyncNotifier::Stop()
 void VSyncNotifier::Run()
 {
   // install a function for logging
-  mLogOptions.InstallLogFunction();
+  mEnvironmentOptions.InstallLogFunction();
 
   unsigned int frameNumber( 0u );             // frameCount, updated when the thread is paused
   unsigned int currentSequenceNumber( 0u );   // platform specific vsync sequence number (increments with each vsync)
@@ -162,7 +162,7 @@ void VSyncNotifier::Run()
   }
 
   // uninstall a function for logging
-  mLogOptions.UnInstallLogFunction();
+  mEnvironmentOptions.UnInstallLogFunction();
 
 }
 

@@ -29,9 +29,9 @@ namespace Adaptor
 
 PerformanceInterface* PerformanceInterfaceFactory::CreateInterface(
                                  AdaptorInternalServices& adaptorServices,
-                                 const LogOptions& logOptions  )
+                                 const EnvironmentOptions& environmentOptions  )
 {
-  return new PerformanceServer( adaptorServices, logOptions );
+  return new PerformanceServer( adaptorServices, environmentOptions );
 }
 
 

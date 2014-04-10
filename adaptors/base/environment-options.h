@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_LOG_OPTIONS_H__
-#define __DALI_INTERNAL_ADAPTOR_LOG_OPTIONS_H__
+#ifndef __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
+#define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
 
 //
 // Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -27,9 +27,9 @@ namespace Adaptor
 {
 
 /**
- * Contains log settings and the ability to install a log function.
+ * Contains environment options which define settings and the ability to install a log function.
  */
-class LogOptions
+class EnvironmentOptions
 {
 
 public:
@@ -37,12 +37,12 @@ public:
   /**
    * Constructor
    */
-  LogOptions();
+  EnvironmentOptions();
 
   /**
    * non-virtual destructor, not intended as a base class
    */
-  ~LogOptions();
+  ~EnvironmentOptions();
 
   /**
    * @param logFunction logging function
@@ -52,11 +52,11 @@ public:
    * @param logPerformanceLevel performance logging, 0 = disabled,  1+ =  enabled
    * @param logPanGestureLevel pan-gesture logging, 0 = disabled,  1 = enabled
    */
-  void SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
-                   unsigned int logFrameRateFrequency,
-                   unsigned int logupdateStatusFrequency,
-                   unsigned int logPerformanceLevel,
-                   unsigned int logPanGestureLevel );
+  void SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
+                       unsigned int logFrameRateFrequency,
+                       unsigned int logupdateStatusFrequency,
+                       unsigned int logPerformanceLevel,
+                       unsigned int logPanGestureLevel );
 
   /**
    * Install the log function for the current thread.
@@ -88,20 +88,33 @@ public:
    */
   unsigned int GetPanGestureLoggingLevel() const;
 
+  /**
+   * @return pan-gesture smoothing mode ( 0 == no smoothing )
+   */
+  unsigned int GetPanGestureSmoothingMode() const;
+
+  /**
+   * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
+   *
+   * @param[in] mode The smoothing mode to use
+   */
+  void SetPanGesturePredictionMode(unsigned int mode) { mPanGesturePredictionMode = mode; }
+
 private:
 
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
+  unsigned int mPanGesturePredictionMode;         ///< prediction mode for pan gestures
 
   Dali::Integration::Log::LogFunction mLogFunction;
 
   // Undefined copy constructor.
-  LogOptions( const LogOptions& );
+  EnvironmentOptions( const EnvironmentOptions& );
 
   // Undefined assignment operator.
-  LogOptions& operator=( const LogOptions& );
+  EnvironmentOptions& operator=( const EnvironmentOptions& );
 
 };
 
@@ -109,4 +122,4 @@ private:
 } // Internal
 } // Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_LOG_OPTIONS_H__
+#endif // __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__

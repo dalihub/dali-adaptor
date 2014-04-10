@@ -18,7 +18,7 @@
 #include "performance-server.h"
 
 // INTERNAL INCLUDES
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 namespace Dali
 {
@@ -42,22 +42,22 @@ const unsigned int MICROSECONDS_PER_SECOND = 1000000; ///< 1000000 microseconds 
 
 
 PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
-                                      const LogOptions& logOptions)
+                                      const EnvironmentOptions& environmentOptions)
 :mLoggingEnabled( false),
  mLogFunctionInstalled( false ),
  mLogFrequencyMicroseconds( 0),
  mPlatformAbstraction( adaptorServices.GetPlatformAbstractionInterface() ),
- mLogOptions(logOptions),
+ mEnvironmentOptions(environmentOptions),
  mKernelTrace( adaptorServices.GetKernelTraceInterface() )
 {
-  SetLogging( mLogOptions.GetPerformanceLoggingLevel(), mLogOptions.GetFrameRateLoggingFrequency());
+  SetLogging( mEnvironmentOptions.GetPerformanceLoggingLevel(), mEnvironmentOptions.GetFrameRateLoggingFrequency());
 }
 
 PerformanceServer::~PerformanceServer()
 {
   if( mLogFunctionInstalled )
   {
-    mLogOptions.UnInstallLogFunction();
+    mEnvironmentOptions.UnInstallLogFunction();
   }
 }
 void PerformanceServer::SetLogging( unsigned int level, unsigned int interval)
@@ -139,7 +139,7 @@ void PerformanceServer::LogMarker(const char* name, const FrameTimeStats& frameS
   // if the v-sync thread has already installed one, it won't make any difference.
   if(! mLogFunctionInstalled )
   {
-    mLogOptions.InstallLogFunction();
+    mEnvironmentOptions.InstallLogFunction();
     mLogFunctionInstalled = true;
   }
 

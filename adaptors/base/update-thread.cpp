@@ -27,7 +27,7 @@
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 namespace Dali
 {
@@ -47,17 +47,17 @@ const unsigned int MICROSECONDS_PER_MILLISECOND( 1000 );
 
 UpdateThread::UpdateThread( UpdateRenderSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
-                            const LogOptions& logOptions )
+                            const EnvironmentOptions& environmentOptions )
 : mUpdateRenderSync( sync ),
   mCore( adaptorInterfaces.GetCore()),
-  mFpsTrackingSeconds( logOptions.GetFrameRateLoggingFrequency() ),
+  mFpsTrackingSeconds( environmentOptions.GetFrameRateLoggingFrequency() ),
   mElapsedTime( 0.0f ),
   mElapsedSeconds( 0u ),
-  mStatusLogInterval( logOptions.GetUpdateStatusLoggingFrequency() ),
+  mStatusLogInterval( environmentOptions.GetUpdateStatusLoggingFrequency() ),
   mStatusLogCount( 0u ),
   mNotificationTrigger( adaptorInterfaces.GetTriggerEventInterface() ),
   mThread( NULL ),
-  mLogOptions( logOptions )
+  mEnvironmentOptions( environmentOptions )
 {
   if( mFpsTrackingSeconds > 0 )
   {
@@ -100,7 +100,7 @@ bool UpdateThread::Run()
   Integration::UpdateStatus status;
 
   // install a function for logging
-  mLogOptions.InstallLogFunction();
+  mEnvironmentOptions.InstallLogFunction();
 
   bool running( true );
 
@@ -154,7 +154,7 @@ bool UpdateThread::Run()
   }
 
   // uninstall a function for logging
-  mLogOptions.UnInstallLogFunction();
+  mEnvironmentOptions.UnInstallLogFunction();
 
   return true;
 }

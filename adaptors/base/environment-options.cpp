@@ -15,7 +15,7 @@
 //
 
 // CLASS HEADER
-#include "log-options.h"
+#include "environment-options.h"
 
 namespace Dali
 {
@@ -26,7 +26,7 @@ namespace Internal
 namespace Adaptor
 {
 
-LogOptions::LogOptions()
+EnvironmentOptions::EnvironmentOptions()
 : mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mPerformanceLoggingLevel(0),
@@ -35,11 +35,11 @@ LogOptions::LogOptions()
 {
 }
 
-LogOptions::~LogOptions()
+EnvironmentOptions::~EnvironmentOptions()
 {
 }
 
-void LogOptions::SetOptions( const Dali::Integration::Log::LogFunction& logFunction,
+void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
                              unsigned int logPerformanceLevel,
@@ -52,34 +52,39 @@ void LogOptions::SetOptions( const Dali::Integration::Log::LogFunction& logFunct
   mPanGestureLoggingLevel = logPanGestureLevel;
 }
 
-void LogOptions::InstallLogFunction() const
+void EnvironmentOptions::InstallLogFunction() const
 {
   Dali::Integration::Log::InstallLogFunction( mLogFunction );
 }
 
-void LogOptions::UnInstallLogFunction() const
+void EnvironmentOptions::UnInstallLogFunction() const
 {
   Dali::Integration::Log::UninstallLogFunction();
 }
 
-unsigned int LogOptions::GetFrameRateLoggingFrequency() const
+unsigned int EnvironmentOptions::GetFrameRateLoggingFrequency() const
 {
   return mFpsFrequency;
 }
 
-unsigned int LogOptions::GetUpdateStatusLoggingFrequency() const
+unsigned int EnvironmentOptions::GetUpdateStatusLoggingFrequency() const
 {
   return mUpdateStatusFrequency;
 }
 
-unsigned int LogOptions::GetPerformanceLoggingLevel() const
+unsigned int EnvironmentOptions::GetPerformanceLoggingLevel() const
 {
   return mPerformanceLoggingLevel;
 }
 
-unsigned int LogOptions::GetPanGestureLoggingLevel() const
+unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
 {
   return mPanGestureLoggingLevel;
+}
+
+unsigned int EnvironmentOptions::GetPanGestureSmoothingMode() const
+{
+  return mPanGesturePredictionMode;
 }
 
 } // Adaptor

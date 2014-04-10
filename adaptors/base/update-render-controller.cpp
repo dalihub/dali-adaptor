@@ -23,7 +23,7 @@
 #include <base/update-render-synchronization.h>
 #include <base/vsync-notifier.h>
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/log-options.h>
+#include <base/environment-options.h>
 
 
 namespace Dali
@@ -36,7 +36,7 @@ namespace Adaptor
 {
 
 UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                                const LogOptions& logOptions ): mUpdateThread( NULL ),
+                                                const EnvironmentOptions& environmentOptions ): mUpdateThread( NULL ),
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
   mUpdateRenderSync( NULL )
@@ -44,11 +44,11 @@ UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptor
 
   mUpdateRenderSync = new UpdateRenderSynchronization( adaptorInterfaces );
 
-  mUpdateThread = new UpdateThread( *mUpdateRenderSync, adaptorInterfaces, logOptions );
+  mUpdateThread = new UpdateThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
 
-  mRenderThread = new RenderThread( *mUpdateRenderSync, adaptorInterfaces, logOptions );
+  mRenderThread = new RenderThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
 
-  mVSyncNotifier = new VSyncNotifier( *mUpdateRenderSync, adaptorInterfaces, logOptions );
+  mVSyncNotifier = new VSyncNotifier( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
 }
 
 UpdateRenderController::~UpdateRenderController()

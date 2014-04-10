@@ -34,7 +34,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class LogOptions;
+class EnvironmentOptions;
 /**
  * Concrete implementation of performance interface.
  * Adaptor classes should never include this file, they
@@ -48,10 +48,10 @@ public:
   /**
    * Constructor
    * @param adaptorServices adaptor internal services
-   * @param logOptions log options
+   * @param environmentOptions environment options
    */
   PerformanceServer( AdaptorInternalServices& adaptorServices,
-                     const LogOptions& logOptions );
+                     const EnvironmentOptions& environmentOptions );
 
   /**
    * Destructor
@@ -103,7 +103,7 @@ private:
   typedef Dali::Vector<PerformanceMarker > MarkerVector;
   MarkerVector mMarkers;              ///< vector of markers
   boost::mutex mDataMutex;            ///< mutex
-  const LogOptions& mLogOptions;      ///< log options
+  const EnvironmentOptions& mEnvironmentOptions;      ///< environment options
   KernelTraceInterface& mKernelTrace; ///< kernel trace interface
 
 };

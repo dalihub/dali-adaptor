@@ -32,7 +32,7 @@ class VSyncNotifier;
 class UpdateRenderSynchronization;
 class RenderSurface;
 class AdaptorInternalServices;
-class LogOptions;
+class EnvironmentOptions;
 
 /**
  * Class to control the update and render threads.
@@ -44,7 +44,7 @@ public:
   /**
    * Constructor
    */
-  UpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const LogOptions& logOptions );
+  UpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.
