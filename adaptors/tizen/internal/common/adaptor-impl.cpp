@@ -761,6 +761,7 @@ Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLay
 
 void Adaptor::SetViewMode( ViewMode viewMode )
 {
+  mSurface->SetViewMode( viewMode );
   mCore->SetViewMode( viewMode );
 }
 

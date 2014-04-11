@@ -217,6 +217,17 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
 }
 
+void WindowRenderSurface::SetViewMode( ViewMode viewMode )
+{
+  Ecore_X_Atom viewModeAtom( ecore_x_atom_get( "_E_COMP_3D_APP_WIN" ) );
+
+  if( viewModeAtom != None )
+  {
+    unsigned int value( static_cast<unsigned int>( viewMode ) );
+    ecore_x_window_prop_card32_set( mX11Window, viewModeAtom, &value, 1 );
+  }
+}
+
 void WindowRenderSurface::CreateXRenderable()
 {
    // if width or height are zero, go full screen.

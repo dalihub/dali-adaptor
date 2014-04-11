@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/common/render-surface.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/view-mode.h>
 
 namespace Dali
 {
@@ -119,6 +120,12 @@ public: // API
    *  Consumes any possible events on the queue so that there is no leaking between frames
    */
   virtual void ConsumeEvents() = 0;
+
+  /**
+   * Set the stereoscopic 3D view mode
+   * @param[in] viewMode The new view mode
+   */
+  virtual void SetViewMode( ViewMode viewMode ) = 0;
 
   /**
    * Called after offscreen is posted to onscreen

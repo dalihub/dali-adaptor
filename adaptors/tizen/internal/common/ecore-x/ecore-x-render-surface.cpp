@@ -250,6 +250,10 @@ void RenderSurface::StopRender()
   mIsStopped = true;
 }
 
+void RenderSurface::SetViewMode( ViewMode )
+{
+}
+
 void RenderSurface::SetDisplay( Any display )
 {
   // the render surface can be passed either EFL e-core types, or x11 types

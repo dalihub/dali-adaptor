@@ -182,6 +182,11 @@ public:  // from Internal::Adaptor::RenderSurface
   virtual void RenderSync();
 
   /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::SetViewMode()
+   */
+  void SetViewMode( ViewMode );
+
+  /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction ) = 0;
