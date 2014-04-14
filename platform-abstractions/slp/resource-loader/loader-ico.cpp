@@ -345,7 +345,6 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
   unsigned short word;
 
   int diff_size = 0;
-  int right_way_up = 0;
   unsigned int* pix;
   PixelBuffer* pixels = NULL;
 
@@ -459,26 +458,6 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
   {
     return false;
   }
-  if (bitcount <= 8)
-  {
-    int cols2 = 1 << bitcount;
-    if (cols == 0)
-    {
-      cols = cols2;
-    }
-    if (cols > cols2)
-    {
-      cols = cols2;
-    }
-  }
-  else
-  {
-    cols = 0;
-  }
-  if (bitcount > 8)
-  {
-    cols = 0;
-  }
   int stride = ((w + 31) / 32);
 
   maskbuf.Resize(stride * h);
@@ -490,11 +469,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
     int pstride = stride * 4;
     for (int i = 0; i < h; i++)
     {
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
       {
         return false;
@@ -552,11 +528,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
     int pstride = ((w + 7) / 8) * 4;
     for (int i = 0; i < h; i++)
     {
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
       {
         return false;
@@ -590,11 +563,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
     int pstride = ((w + 3) / 4) * 4;
     for (int i = 0; i < h; i++)
     {
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
       {
         return false;
@@ -621,11 +591,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
     int pstride = w * 3;
     for (int i = 0; i < h; i++)
     {
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
       {
         return false;
@@ -658,11 +625,8 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
     int pstride = w * 4;
     for (int i = 0; i < h; i++)
     {
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
       {
         return false;
@@ -700,16 +664,12 @@ bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& a
       return false;
     }
     // apply mask
-    pix = &surface[0];
     for (int i = 0; i < h; i++)
     {
       unsigned char *m;
 
-      pix = &surface[0] + (i * w);
-      if (!right_way_up)
-      {
-        pix = &surface[0] + ((h - 1 - i) * w);
-      }
+      pix = &surface[0] + ((h - 1 - i) * w);
+
       m = &maskbuf[0] + (stride * i * 4);
       if (i >= (int)h)
       {

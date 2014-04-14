@@ -438,31 +438,33 @@ void FeedbackController::AddSignalInfo( FeedbackStyleInfo& styleInfo, SignalFeed
 string FeedbackController::GetSoundPath( const string& key ) const
 {
   std::map<const string, const string>::const_iterator iter( mSoundFilesLut.find( key ) );
+  string path;
   if( iter != mSoundFilesLut.end() )
   {
-    return iter->second;
+    path = iter->second;
   }
   else
   {
     DALI_LOG_WARNING( "Request for sound file '%s' failed\n", key.c_str() );
     DALI_ASSERT_ALWAYS( !"Sound file does not exist" );
-    return NULL;
   }
+  return path;
 }
 
 string FeedbackController::GetHapticPath( const string& key ) const
 {
   std::map<const string, const string>::const_iterator iter( mHapticFilesLut.find( key ) );
+  string path;
   if( iter != mHapticFilesLut.end() )
   {
-    return iter->second;
+    path = iter->second;
   }
   else
   {
     DALI_LOG_WARNING( "Request for haptic file '%s' failed\n", key.c_str() );
     DALI_ASSERT_ALWAYS( !"Haptic file does not exist" );
-    return NULL;
   }
+  return path;
 }
 
 void FeedbackController::PlayFeedback(const string& type, const string& signalName)

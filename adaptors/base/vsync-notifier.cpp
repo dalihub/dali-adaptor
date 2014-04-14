@@ -116,11 +116,10 @@ void VSyncNotifier::Run()
   unsigned int seconds( 0u );
   unsigned int microseconds( 0u );
 
-  bool validSync( false );
   bool running( true );
   while( running )
   {
-    validSync = false;
+    bool validSync( true );
 
     // Hardware VSyncs available?
     if( mVSyncMonitor->UseHardware() )
@@ -151,8 +150,6 @@ void VSyncNotifier::Run()
       {
         usleep( TIME_PER_FRAME_IN_MICROSECONDS );
       }
-
-      validSync = true;
     }
 
     if( validSync )

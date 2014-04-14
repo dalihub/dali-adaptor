@@ -16,6 +16,9 @@
 
 // CLASS HEADER
 #include "font-controller-impl.h"
+
+// INTERNAL HEADERS
+#include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/debug.h>
 
 // EXTERNAL HEADERS
@@ -409,7 +412,7 @@ FontList FontController::GetCachedFontList(  FontListMode fontListMode  ) const
   {
     case LIST_SYSTEM_FONTS:
     {
-        return mFontSystemList;
+      return mFontSystemList;
     }
     case LIST_APPLICATION_FONTS:
     {
@@ -422,8 +425,8 @@ FontList FontController::GetCachedFontList(  FontListMode fontListMode  ) const
       list.insert( list.end(), mFontApplicationList.begin(), mFontApplicationList.end() );
       return list;
     }
-    default: DALI_ASSERT_ALWAYS( 0 && "unknown font list mode");
   }
+  DALI_ASSERT_ALWAYS(!"GetCachedFontList called with invalid value.");
 }
 std::string FontController::GetCachedFontPath( const StyledFontFamily& styledFontFamily ) const
 {

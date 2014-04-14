@@ -136,8 +136,6 @@ bool DecodeRGB24V5(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB24V5 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-
   if ( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB24V5 data\n");
@@ -146,6 +144,7 @@ bool DecodeRGB24V5(FILE *fp,
 
   for(unsigned int yPos = 0; yPos < height; yPos ++)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if(topDown)
     {
       pixelsPtr = pixels + ( yPos * rowStride);
@@ -204,8 +203,6 @@ bool DecodeBF32V4(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_BITFIELDS32V4 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32V4 data\n");
@@ -214,6 +211,7 @@ bool DecodeBF32V4(FILE *fp,
 
   for(unsigned int yPos = 0; yPos < height; yPos ++)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if(topDown)
     {
       pixelsPtr = pixels + ( yPos * rowStride);
@@ -272,8 +270,6 @@ bool DecodeBF32(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_BITFIELDS32 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32 data\n");
@@ -282,6 +278,7 @@ bool DecodeBF32(FILE *fp,
 
   for (unsigned int yPos = 0; yPos < height; yPos++)
   {
+    PixelBuffer *pixelsPtr = pixels;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -339,18 +336,18 @@ bool DecodeBF565(FILE *fp,
     DALI_LOG_ERROR("Error decoding RGB565 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  unsigned int rowStride = width * 2;
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking RGB565 data\n");
     return false;
   }
 
+  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  unsigned int rowStride = width * 2;
+
   for(unsigned int i = 0; i < height; i++)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -392,14 +389,6 @@ bool DecodeBF555(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_BITFIELDS555 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-
-  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-
-  std::vector<char> raw(width * height * 2);
-  char *rawPtr = &raw[0];
-  unsigned int rawStride = width * 2;
-  unsigned int rowStride = width * 3;
 
   if( fseek(fp, offset, SEEK_SET) )
   {
@@ -407,6 +396,13 @@ bool DecodeBF555(FILE *fp,
     return false;
   }
 
+  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+
+  std::vector<char> raw(width * height * 2);
+  unsigned int rawStride = width * 2;
+  unsigned int rowStride = width * 3;
+
+  char *rawPtr = NULL;
   for(unsigned int j = 0; j <  height; j ++)
   {
     rawPtr = &raw[0] + ( j * rawStride);
@@ -418,6 +414,7 @@ bool DecodeBF555(FILE *fp,
 
   for (unsigned int yPos = 0; yPos < height; yPos++)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -436,7 +433,6 @@ bool DecodeBF555(FILE *fp,
       pixelsPtr[3 * k + 1] = (((raw[index + 1] & 0x03) << 3) | (raw[ index] >> 5))  * 0xFF/ 0x1F;
       pixelsPtr[3 * k + 2] = (raw[ index] & 0x1F) * 0xFF / 0x1F;
     }
-
   }
   return true;
 }
@@ -463,19 +459,18 @@ bool DecodeRGB555(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB555 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  std::vector<char> raw(width * height * 2);
-  char *rawPtr = &raw[0];
-  unsigned int rawStride = width * 2;
-  unsigned int rowStride = width * 3;
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB555 data\n");
     return false;
   }
 
+  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  std::vector<char> raw(width * height * 2);
+  unsigned int rawStride = width * 2;
+  unsigned int rowStride = width * 3;
+
+  char *rawPtr = NULL;
   for(unsigned int j = 0; j <  height; j ++)
   {
     rawPtr = &raw[0] + ( j * rawStride);
@@ -486,6 +481,7 @@ bool DecodeRGB555(FILE *fp,
   }
   for(unsigned int i = 0; i < height; i++)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -530,18 +526,18 @@ bool DecodeRGB1(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB1 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
+  if( fseek(fp, offset, SEEK_SET) )
+  {
+    DALI_LOG_ERROR("Error seeking BMP_RGB1 data\n");
+    return false;
+  }
+
   unsigned char colorTable[8] = {0};
   char cmd;
   unsigned int fillw = ((width & 63) != 0) ? width + 64 - (width & 63) : width;
   std::vector<char> colorIndex(fillw * height);
   unsigned int rowStride = fillw * 3; // RGB
 
-  if( fseek(fp, offset, SEEK_SET) )
-  {
-    DALI_LOG_ERROR("Error seeking BMP_RGB1 data\n");
-    return false;
-  }
 
   if(fread(colorTable, 1, 8, fp) != 8)
   {
@@ -567,6 +563,7 @@ bool DecodeRGB1(FILE *fp,
 
   for(unsigned int index = 0; index < height; index = index + 1)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -622,18 +619,17 @@ bool DecodeRGB4(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB4 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-  char colorTable[64];
-  char cmd;
-  unsigned int fillw = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  std::vector<char> colorIndex(fillw * height);
-  unsigned int rowStride = fillw  * 3;
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB4 data\n");
     return false;
   }
+
+  char colorTable[64];
+  char cmd;
+  unsigned int fillw = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  std::vector<char> colorIndex(fillw * height);
+  unsigned int rowStride = fillw  * 3;
 
   if(fread(colorTable, 1, 64, fp) != 64)
   {
@@ -654,6 +650,7 @@ bool DecodeRGB4(FILE *fp,
 
   for(unsigned int index = 0; index < height; index = index + 1)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -698,18 +695,17 @@ bool DecodeRGB8(FILE *fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB8 format\n");
     return false;
   }
-  PixelBuffer *pixelsPtr = pixels;
-  std::vector<char> colorTable(1024);
-  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  char cmd;
-  std::vector<char> colorIndex(width * height);
-  unsigned int rowStride = width * 3;//RGB8->RGB24
-
   if( fseek(fp, offset, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB8 data\n");
     return false;
   }
+
+  std::vector<char> colorTable(1024);
+  width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  char cmd;
+  std::vector<char> colorIndex(width * height);
+  unsigned int rowStride = width * 3;//RGB8->RGB24
 
   if(fread(&colorTable[0], 1, 1024, fp) != 1024)
   {
@@ -727,6 +723,7 @@ bool DecodeRGB8(FILE *fp,
   int ctIndex = 0;
   for(unsigned int index = 0; index < height; index = index + 1)
   {
+    PixelBuffer *pixelsPtr = NULL;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down
