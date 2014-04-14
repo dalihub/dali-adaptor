@@ -36,10 +36,11 @@ namespace Internal
 namespace Adaptor
 {
 
-TriggerEvent::TriggerEvent( boost::function<void()> functor )
+TriggerEvent::TriggerEvent( boost::function<void()> functor, TriggerEventInterface::Options options )
 : mFileDescriptorMonitor(NULL),
   mFunctor(functor),
-  mFileDescriptor(-1)
+  mFileDescriptor(-1),
+  mOptions( options )
 {
   // Create accompanying file descriptor.
   mFileDescriptor = eventfd(0, EFD_NONBLOCK);
@@ -104,6 +105,12 @@ void TriggerEvent::Triggered()
 
   // Call the connected boost function.
   mFunctor();
+
+  //check if we should delete ourselves after the trigger
+  if( mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER )
+  {
+    delete this;
+  }
 }
 
 } // namespace Adaptor

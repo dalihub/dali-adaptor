@@ -43,6 +43,7 @@
 #include <internal/common/damage-observer.h>
 #include <internal/common/window-visibility-observer.h>
 #include <internal/common/kernel-trace.h>
+#include <internal/common/trigger-event-factory.h>
 
 namespace Dali
 {
@@ -318,6 +319,11 @@ public:  //AdaptorInternalServices
   virtual TriggerEventInterface& GetTriggerEventInterface();
 
   /**
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventFactoryInterface()
+   */
+  virtual TriggerEventFactoryInterface& GetTriggerEventFactoryInterface();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
   virtual RenderSurface* GetRenderSurfaceInterface();
@@ -509,7 +515,8 @@ private: // Data
   DeviceLayout                          mBaseLayout;                  ///< The base layout of the application
   LogOptions                            mLogOptions;                  ///< log options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
-  KernelTrace                           mKernelTracer;
+  KernelTrace                           mKernelTracer;                ///< Kernel tracer
+  TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

@@ -28,6 +28,7 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/tilt-sensor-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/timer-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/trigger-event.cpp \
+  $(tizen_adaptor_internal_src_dir)/trigger-event-factory.cpp \
   $(tizen_adaptor_internal_src_dir)/tts-player-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/virtual-keyboard-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/vsync-monitor.cpp \

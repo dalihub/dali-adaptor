@@ -55,8 +55,9 @@ public:
    * descriptor when there is data.
    *
    * @param[in]  functor to call
+   * @param[in] options, trigger event options.
    */
-  TriggerEvent( boost::function<void()> functor );
+  TriggerEvent( boost::function<void()> functor, TriggerEventInterface::Options options = TriggerEventInterface::NONE );
 
   /**
    * Destructor
@@ -88,6 +89,7 @@ private:
   FileDescriptorMonitor* mFileDescriptorMonitor;
   boost::function<void()> mFunctor; ///< Function object to call
   int mFileDescriptor;
+  TriggerEventInterface::Options mOptions;
 };
 
 } // namespace Adaptor
