@@ -43,6 +43,8 @@ namespace Adaptor
 {
 class Adaptor;
 
+typedef unsigned int PixmapId;
+
 /**
  * The Indicator class connects to the indicator server, and gets and draws the indicator
  * for the given orientation.
@@ -297,6 +299,12 @@ private:
   void LoadSharedImage(Ecore_Ipc_Event_Server_Data *epcEvent);
 
   /**
+   * Load the pixmap indicator image
+   * @param[in] epcEvent The event containing the image data
+   */
+  void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
+
+  /**
    * Inform dali that the indicator data has been updated.
    */
   void UpdateImageData();
@@ -317,6 +325,11 @@ private:
    * Create a new image for the indicator, and set up signal handling for it.
    */
   void CreateNewImage();
+
+  /**
+   * Create a new pixmap image for the indicator, and set up signal handling for it.
+   */
+  void CreateNewPixmapImage();
 
   /**
    * Indicator type has changed.
@@ -351,6 +364,7 @@ private:
 private:
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
+  PixmapId                         mPixmap;              ///< Pixmap including indicator content
   Dali::Image                      mImage;               ///< Image created from mIndicatorBuffer
   Dali::ImageActor                 mIndicatorImageActor; ///< Actor created from mImage
 

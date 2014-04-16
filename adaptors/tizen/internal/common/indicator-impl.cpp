@@ -28,6 +28,7 @@
 #include <errno.h>
 
 #include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/adaptor-framework/common/pixmap-image.h>
 #include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
@@ -134,7 +135,8 @@ enum // opcodes
   OP_EV_KEY_DOWN,
   OP_EV_HOLD,
   OP_MSG_PARENT,
-  OP_MSG
+  OP_MSG,
+  OP_PIXMAP_REF
 };
 
 // Copied from elm_conform.c
@@ -354,7 +356,8 @@ bool Indicator::ScopedLock::IsLocked()
 }
 
 Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Observer* observer )
-: mConnection( this ),
+: mPixmap( 0 ),
+  mConnection( this ),
   mOpacityMode( Dali::Window::OPAQUE ),
   mState( DISCONNECTED ),
   mAdaptor(adaptor),
@@ -743,6 +746,45 @@ void Indicator::Resize( int width, int height )
   }
 }
 
+void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
+{
+  DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
+
+  // epcEvent->ref == w
+  // epcEvent->ref_to == h
+  // epcEvent->response == alpha
+  // epcEvent->data = pixmap id
+  if( ( epcEvent->data ) &&
+      (epcEvent->size >= (int)sizeof(PixmapId)) )
+  {
+    if( mSharedFile != NULL )
+    {
+      delete mSharedFile;
+      mSharedFile = NULL;
+    }
+
+    if( (epcEvent->ref > 0) && (epcEvent->ref_to > 0) )
+    {
+      mImageWidth  = epcEvent->ref;
+      mImageHeight = epcEvent->ref_to;
+
+      mPixmap = *(static_cast<PixmapId*>(epcEvent->data));
+      CreateNewPixmapImage();
+
+      if( CheckVisibleState() )
+      {
+        // set default indicator type (enable the quick panel)
+        OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
+      }
+      else
+      {
+        // set default indicator type (disable the quick panel)
+        OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
+      }
+    }
+  }
+}
+
 void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
@@ -792,7 +834,14 @@ void Indicator::UpdateImageData()
 
   if( mState == CONNECTED && mVisible )
   {
-    CopyToBuffer();
+    if(mPixmap == 0)
+    {
+      CopyToBuffer();
+    }
+    else
+    {
+      mAdaptor->RequestUpdateOnce();
+    }
   }
 }
 
@@ -852,6 +901,36 @@ void Indicator::SetBackground()
   }
 }
 
+void Indicator::CreateNewPixmapImage()
+{
+  DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d\n", mImageWidth, mImageHeight );
+  Dali::PixmapImagePtr pixmapImage = Dali::PixmapImage::New(mPixmap, Dali::Adaptor::Get());
+
+  if( pixmapImage )
+  {
+    mIndicatorImageActor.SetImage( Dali::Image::New(*pixmapImage) );
+    mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
+    mIndicatorActor.SetSize( mImageWidth, mImageHeight );
+
+    SetBackground();
+    if( mBackgroundActor )
+    {
+      mBackgroundActor.SetSize( mImageWidth, mImageHeight );
+    }
+  }
+  else
+  {
+    DALI_LOG_WARNING("### Cannot create indicator image - disconnecting ###\n");
+    Disconnect();
+    if( mObserver != NULL )
+    {
+      mObserver->IndicatorClosed( this );
+    }
+    // Don't do connection in this callback - strange things happen!
+    StartReconnectionTimer();
+  }
+}
+
 void Indicator::CreateNewImage()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d\n", mImageWidth, mImageHeight );
@@ -899,26 +978,31 @@ void Indicator::DataReceived( void* event )
   switch( epcEvent->minor )
   {
     case OP_UPDATE:
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
+      DALI_LOG_ERROR( "Indicator client received: OP_UPDATE\n" );
       break;
 
     case OP_UPDATE_DONE:
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE_DONE\n" );
+      DALI_LOG_ERROR( "Indicator client received: OP_UPDATE_DONE\n" );
       UpdateImageData();
       break;
 
     case OP_LOCK_FILE:
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_LOCK_FILE\n" );
+      DALI_LOG_ERROR( "Indicator client received: OP_LOCK_FILE\n" );
       NewLockFile( epcEvent );
       break;
 
     case OP_SHM_REF:
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_SHM_REF\n" );
+      DALI_LOG_ERROR( "Indicator client received: OP_SHM_REF\n" );
       LoadSharedImage( epcEvent );
       break;
 
+    case OP_PIXMAP_REF:
+      DALI_LOG_ERROR( "Indicator client received: OP_PIXMAP_REF\n" );
+      LoadPixmapImage( epcEvent );
+      break;
+
     case OP_RESIZE:
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_RESIZE\n" );
+      DALI_LOG_ERROR( "Indicator client received: OP_RESIZE\n" );
 
       if( (epcEvent->data) && (epcEvent->size >= (int)sizeof(IpcDataResize)) )
       {
