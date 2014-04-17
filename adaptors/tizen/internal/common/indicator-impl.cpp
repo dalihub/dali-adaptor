@@ -470,7 +470,16 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode, bool noti
 
 void Indicator::SetVisible( bool visibility )
 {
-  mVisible = visibility;
+  if ( visibility != mVisible )
+  {
+    mVisible = visibility;
+
+    // If we were previously hidden, then we should update the image data before we display the indicator
+    if ( mVisible )
+    {
+      UpdateImageData();
+    }
+  }
 }
 
 bool Indicator::IsConnected()
