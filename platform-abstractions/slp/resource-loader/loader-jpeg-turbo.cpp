@@ -182,6 +182,11 @@ namespace
 
     unsigned char * const mTjMem;
   };
+
+  // Workaround to avoid exceeding the maximum texture size
+  const int MAX_TEXTURE_WIDTH  = 4096;
+  const int MAX_TEXTURE_HEIGHT = 4096;
+
 } // namespace
 
 bool JpegRotate90 (unsigned char *buffer, int width, int height, int bpp);
@@ -677,15 +682,15 @@ bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transfor
   else
   {
     // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
-    tjscalingfactor* scaleFactor = 0;
-    for( int i=0; i<numFactors; ++i )
+    int scaleFactorIndex( 0 );
+    for( int i = 1; i < numFactors; ++i )
     {
       // if requested width or height set to 0, ignore value
       // TJSCALED performs an integer-based ceil operation on (dim*factor)
       if( (requiredWidth  && TJSCALED(postXformImageWidth , (factors[i])) > requiredWidth) ||
           (requiredHeight && TJSCALED(postXformImageHeight, (factors[i])) > requiredHeight) )
       {
-        scaleFactor = &factors[i];
+        scaleFactorIndex = i;
       }
       else
       {
@@ -695,28 +700,41 @@ bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transfor
       }
     }
 
-    // Only adjust scaling if a supported scaling factor was actually found:
-    if( scaleFactor != 0 )
+    // Workaround for libjpeg-turbo problem adding a green line on one edge
+    // when downscaling to 1/8 in each dimension. Prefer not to scale to less than
+    // 1/4 in each dimension:
+    if( 2 < scaleFactorIndex )
     {
-      // Workaround for libjpeg-turbo problem adding a green line on one edge
-      // when downscaling to 1/8 in each dimension. Never scale to less than
-      // 1/4 in each dimension:
-      tjscalingfactor maxDownscale = { 1, 4 };
-      if( scaleFactor->num * 1.0f / scaleFactor->denom < 1.0f / 4.001f )
-      {
-        scaleFactor = &maxDownscale;
-        DALI_LOG_INFO( gLoaderFilter, Debug::General, "Down-scaling requested for image limited to 1/4.\n" );
-      }
+      scaleFactorIndex = 2;
+      DALI_LOG_INFO( gLoaderFilter, Debug::General, "Down-scaling requested for image limited to 1/4.\n" );
+    }
 
-      preXformImageWidth   = TJSCALED(preXformImageWidth,   (*scaleFactor));
-      preXformImageHeight  = TJSCALED(preXformImageHeight,  (*scaleFactor));
-      postXformImageWidth  = TJSCALED(postXformImageWidth,  (*scaleFactor));
-      postXformImageHeight = TJSCALED(postXformImageHeight, (*scaleFactor));
+    // Regardless of requested size, downscale to avoid exceeding the maximum texture size
+    for( int i = scaleFactorIndex; i < numFactors; ++i )
+    {
+      // Continue downscaling to below maximum texture size (if possible)
+      scaleFactorIndex = i;
+
+      if( TJSCALED(postXformImageWidth,  (factors[i])) < MAX_TEXTURE_WIDTH &&
+          TJSCALED(postXformImageHeight, (factors[i])) < MAX_TEXTURE_HEIGHT )
+      {
+        // Current scale-factor downscales to below maximum texture size
+        break;
+      }
+    }
+
+    // We have finally chosen the scale-factor, return width/height values
+    if( scaleFactorIndex > 0 )
+    {
+      preXformImageWidth   = TJSCALED(preXformImageWidth,   (factors[scaleFactorIndex]));
+      preXformImageHeight  = TJSCALED(preXformImageHeight,  (factors[scaleFactorIndex]));
+      postXformImageWidth  = TJSCALED(postXformImageWidth,  (factors[scaleFactorIndex]));
+      postXformImageHeight = TJSCALED(postXformImageHeight, (factors[scaleFactorIndex]));
     }
   }
+
   return success;
 }
-
 
 ExifData* LoadExifData( FILE* fp )
 {
