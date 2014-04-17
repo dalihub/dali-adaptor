@@ -90,6 +90,15 @@ public:
 
   typedef SignalV2< void (Application&) > AppSignalV2;
 
+  /**
+   * Decides whether a Dali application window is opaque or transparent.
+   */
+  enum WINDOW_MODE
+  {
+    OPAQUE = 0,       ///< The window will be opaque
+    TRANSPARENT = 1   ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor()
+  };
+
 public:
 
   /**
@@ -114,6 +123,20 @@ public:
    * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[], const std::string& name );
+
+  /**
+   * This is the constructor for applications with a name, and also require a
+   * transparent top-level window
+   *
+   * @param[in,out]  argc  A pointer to the number of arguments
+   * @param[in,out]  argv  A pointer the the argument list
+   * @param[in]  name  A name of application
+   * @param[in]  windowMode A member of WINDOW_MODE
+   *
+   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
+   * @note Supported options are stripped from argv, and argc is updated appropriately.
+   */
+  static Application New( int* argc, char **argv[], const std::string& name, WINDOW_MODE windowMode );
 
   /**
    * This is the constructor for applications when a layout for the application is specified.

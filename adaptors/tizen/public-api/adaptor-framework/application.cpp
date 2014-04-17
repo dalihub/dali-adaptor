@@ -30,25 +30,31 @@ namespace Dali
 
 Application Application::New( int* argc, char **argv[] )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", DeviceLayout::DEFAULT_BASE_LAYOUT );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", DeviceLayout::DEFAULT_BASE_LAYOUT, OPAQUE );
   return Application(internal.Get());
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& name )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, DeviceLayout::DEFAULT_BASE_LAYOUT );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, DeviceLayout::DEFAULT_BASE_LAYOUT, OPAQUE );
+  return Application(internal.Get());
+}
+
+Application Application::New( int* argc, char **argv[], const std::string& name, WINDOW_MODE windowMode )
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, DeviceLayout::DEFAULT_BASE_LAYOUT, windowMode );
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char **argv[], const DeviceLayout& baseLayout)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", baseLayout );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", baseLayout, OPAQUE );
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, baseLayout );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, baseLayout, OPAQUE );
   return Application(internal.Get());
 }
 

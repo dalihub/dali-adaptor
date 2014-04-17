@@ -65,10 +65,13 @@ public:
    * @param[in]  argv        A pointer to the argument list
    * @param[in]  name        A name of application
    * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
    */
-  static ApplicationPtr New(int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout);
+  static ApplicationPtr New(int* argc, char **argv[], const std::string& name,
+                            const DeviceLayout& baseLayout,
+                            Dali::Application::WINDOW_MODE windowMode);
 
-  Application(int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout);
+  Application(int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout, Dali::Application::WINDOW_MODE windowMode );
 
   /**
    * Destructor
@@ -260,6 +263,7 @@ private:
 
   Dali::Adaptor*                        mAdaptor;
   Dali::Window                          mWindow;
+  Dali::Application::WINDOW_MODE        mWindowMode;
   std::string                           mName;
 
   bool                                  mInitialized;

@@ -61,9 +61,10 @@ ApplicationPtr Application::New(
   int* argc,
   char **argv[],
   const std::string& name,
-  const DeviceLayout& baseLayout )
+  const DeviceLayout& baseLayout,
+  Dali::Application::WINDOW_MODE windowMode)
 {
-  ApplicationPtr application ( new Application (argc, argv, name, baseLayout ) );
+  ApplicationPtr application ( new Application (argc, argv, name, baseLayout, windowMode ) );
   return application;
 }
 
@@ -71,11 +72,13 @@ Application::Application(
   int* argc,
   char** argv[],
   const std::string& name,
-  const DeviceLayout& baseLayout )
+  const DeviceLayout& baseLayout,
+  Dali::Application::WINDOW_MODE windowMode)
 : mFramework(NULL),
   mCommandLineOptions(NULL),
   mAdaptor(NULL),
   mWindow(),
+  mWindowMode( windowMode ),
   mName(name),
   mInitialized(false),
   mBaseLayout(baseLayout),
@@ -114,7 +117,7 @@ void Application::CreateWindow()
     windowPosition = PositionSize(0,0,mCommandLineOptions->stageWidth,mCommandLineOptions->stageHeight);
   }
 
-  mWindow = Dali::Window::New( windowPosition, mName );
+  mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );
 }
 
 void Application::CreateAdaptor()
