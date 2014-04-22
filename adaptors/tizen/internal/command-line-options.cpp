@@ -24,6 +24,8 @@
 #include <iostream>
 #include <vector>
 
+using namespace std;
+
 namespace Dali
 {
 
@@ -42,11 +44,13 @@ struct Argument
 
   void Print()
   {
-    std::cout << std::left << "  --";
-    std::cout.width( 18 );
-    std::cout << opt;
-    std::cout << optDescription;
-    std::cout << std::endl;
+    const ios_base::fmtflags flags = cout.flags();
+    cout << left << "  --";
+    cout.width( 18 );
+    cout << opt;
+    cout << optDescription;
+    cout << endl;
+    cout.flags( flags );
   }
 };
 
@@ -73,11 +77,11 @@ enum Option
   OPTION_HELP
 };
 
-typedef std::vector< int > UnhandledContainer;
+typedef vector< int > UnhandledContainer;
 
 void ShowHelp()
 {
-  std::cout << "Available options:" << std::endl;
+  cout << "Available options:" << endl;
   Argument* arg = EXPECTED_ARGS;
   while ( arg->opt )
   {
