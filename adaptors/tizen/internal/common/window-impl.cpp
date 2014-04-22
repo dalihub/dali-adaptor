@@ -26,6 +26,7 @@
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/public-api/adaptor-framework/common/orientation.h>
+#include <dali/public-api/animation/animation.h>
 
 // INTERNAL HEADERS
 #include <internal/common/ecore-x/window-render-surface.h>
@@ -34,6 +35,12 @@
 #include <internal/common/window-visibility-observer.h>
 #include <internal/common/orientation-impl.h>
 
+namespace
+{
+const float INDICATOR_ANIMATION_DURATION( 0.18f ); // 180 milli seconds
+const float INDICATOR_SHOW_Y_POSITION( 0.0f );
+const float INDICATOR_HIDE_Y_POSITION( -52.0f );
+}
 
 namespace Dali
 {
@@ -361,12 +368,18 @@ void Window::DoShowIndicator( bool show, Dali::Window::WindowOrientation lastOri
       }
       else
       {
-        actor.SetVisible( true );
+        // show animation
+        Dali::Animation anim = Dali::Animation::New(INDICATOR_ANIMATION_DURATION);
+        anim.MoveTo(actor, 0, INDICATOR_SHOW_Y_POSITION, 0);
+        anim.Play();
       }
     }
     else
     {
-      actor.SetVisible( false );
+      // hide animation
+      Dali::Animation anim = Dali::Animation::New(INDICATOR_ANIMATION_DURATION);
+      anim.MoveTo(actor, 0, INDICATOR_HIDE_Y_POSITION, 0);
+      anim.Play();
     }
   }
 
