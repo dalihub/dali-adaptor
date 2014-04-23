@@ -32,6 +32,7 @@ EnvironmentOptions::EnvironmentOptions()
   mUpdateStatusFrequency(0),
   mPerformanceLoggingLevel(0),
   mPanGestureLoggingLevel(0),
+  mPanGesturePredictionMode(-1),
   mLogFunction( NULL )
 {
 }

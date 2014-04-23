@@ -76,6 +76,41 @@ unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int d
   unsigned int intValue = variableParameter ? atoi(variableParameter) : defaultValue;
   return intValue;
 }
+
+bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  if( !variableParameter )
+  {
+    return false;
+  }
+  // if the parameter exists convert it to an integer, else return the default value
+  intValue = atoi(variableParameter);
+  return true;
+}
+
+bool GetBooleanEnvironmentVariable( const char* variable, bool& boolValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  boolValue = variableParameter ? true : false;
+  return boolValue;
+}
+
+bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  if( !variableParameter )
+  {
+    return false;
+  }
+  // if the parameter exists convert it to an integer, else return the default value
+  floatValue = atof(variableParameter);
+  return true;
+}
+
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLayout )
@@ -103,7 +138,12 @@ void Adaptor::ParseEnvironmentOptions()
   Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
 
   mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel, logPanGesture );
-  mEnvironmentOptions.SetPanGesturePredictionMode(GetIntegerEnvironmentVariable( DALI_ENV_PAN_PREDICTION_MODE, 1));
+
+  int predictionMode;
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
+  {
+    mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
+  }
 
   mEnvironmentOptions.InstallLogFunction();
 }
@@ -148,7 +188,10 @@ void Adaptor::Initialize()
   {
     Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
   }
-  Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+  if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
+  {
+    Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+  }
 }
 
 Adaptor::~Adaptor()

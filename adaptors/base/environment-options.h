@@ -107,7 +107,7 @@ private:
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
-  unsigned int mPanGesturePredictionMode;         ///< prediction mode for pan gestures
+  int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
 
   Dali::Integration::Log::LogFunction mLogFunction;
 
