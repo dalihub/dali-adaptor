@@ -372,16 +372,14 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( EGL_BLUE_SIZE );
   configAttribs.PushBack( 8 );
 
-  if(depth == COLOR_DEPTH_32)
-  {
-    configAttribs.PushBack( EGL_ALPHA_SIZE );
-    configAttribs.PushBack( 8 );
-  }
-  else
-  {
-    configAttribs.PushBack( EGL_ALPHA_SIZE );
-    configAttribs.PushBack( 0 );
-  }
+  configAttribs.PushBack( EGL_ALPHA_SIZE );
+#ifdef _ARCH_ARM_
+  configAttribs.PushBack( (depth == COLOR_DEPTH_32) ? 8 : 0 );
+#else
+  // There is a bug in the desktop emulator
+  // setting EGL_ALPHA_SIZE to 8 results in eglChooseConfig failing
+  configAttribs.PushBack( 0 );
+#endif // _ARCH_ARM_
 
   configAttribs.PushBack( EGL_DEPTH_SIZE );
   configAttribs.PushBack( 24 );
