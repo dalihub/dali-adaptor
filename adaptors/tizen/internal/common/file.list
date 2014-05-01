@@ -17,6 +17,7 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/locale-utils.cpp  \
   $(tizen_adaptor_internal_src_dir)/native-bitmap-buffer-impl.cpp \
+  $(tizen_adaptor_internal_src_dir)/object-profiler.cpp \
   $(tizen_adaptor_internal_src_dir)/orientation-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/physical-keyboard-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/pixmap-image-impl.cpp \

@@ -74,6 +74,7 @@ class RotationObserver;
 class VSyncMonitor;
 class PerformanceInterface;
 class LifeCycleObserver;
+class ObjectProfiler;
 
 /**
  * Implementation of the Adaptor class.
@@ -517,6 +518,7 @@ private: // Data
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
+  ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

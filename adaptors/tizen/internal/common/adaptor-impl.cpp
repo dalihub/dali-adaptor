@@ -48,6 +48,7 @@
 #include <internal/common/imf-manager-impl.h>
 #include <internal/common/clipboard-impl.h>
 #include <internal/common/vsync-monitor.h>
+#include <internal/common/object-profiler.h>
 
 #include <slp-logging.h>
 
@@ -73,7 +74,6 @@ unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int d
   // if the parameter exists convert it to an integer, else return the default value
   unsigned int intValue = variableParameter ? atoi(variableParameter) : defaultValue;
   return intValue;
-
 }
 } // unnamed namespace
 
@@ -132,6 +132,8 @@ void Adaptor::Initialize()
 
   mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager );
 
+  mObjectProfiler = new ObjectProfiler();
+
   mNotificationTrigger = new TriggerEvent( boost::bind(&Adaptor::ProcessCoreEvents, this) );
 
   mVSyncMonitor = new VSyncMonitor;
@@ -164,6 +166,8 @@ Adaptor::~Adaptor()
   delete mUpdateRenderController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
   delete mVSyncMonitor;
   delete mEventHandler;
+  delete mObjectProfiler;
+
   delete mCore;
   delete mEglFactory;
   // Delete feedback controller before feedback plugin & style monitor dependencies
@@ -599,7 +603,6 @@ void Adaptor::ProcessCoreEvents()
     {
       mPerformanceInterface->AddMarker( PerformanceMarker::PROCESS_EVENTS_END );
     }
-
   }
 }
 
@@ -739,7 +742,8 @@ Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLay
   mDeferredRotationObserver(NULL),
   mBaseLayout(baseLayout),
   mEnvironmentOptions(),
-  mPerformanceInterface(NULL)
+  mPerformanceInterface(NULL),
+  mObjectProfiler(NULL)
 {
   DALI_ASSERT_ALWAYS( gThreadLocalAdaptor.get() == NULL && "Cannot create more than one Adaptor per thread" );
   gThreadLocalAdaptor.reset(this);
