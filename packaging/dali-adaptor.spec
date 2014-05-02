@@ -43,6 +43,7 @@ BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  sec-product-features
+ExclusiveArch:  armv7l
 
 %description
 The DALi Tizen Adaptor
