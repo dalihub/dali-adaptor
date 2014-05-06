@@ -161,75 +161,19 @@ Adaptor::~Adaptor()
     (*iter)->OnDestroy();
   }
 
-  if (mUpdateRenderController)
-  {
-    delete mUpdateRenderController;
-    mUpdateRenderController = NULL;
-  }
-
-  if( mVSyncMonitor )
-  {
-    delete mVSyncMonitor;
-    mVSyncMonitor = NULL;
-  }
-
-  if (mEventHandler)
-  {
-    delete mEventHandler;
-    mEventHandler = NULL;
-  }
-
-  if (mCore)
-  {
-    delete mCore;
-    mCore = NULL;
-  }
-
-  // Delete EGL factory after Core, otherwise we may have a crash from GL resource destructors
-  if ( mEglFactory )
-  {
-    delete mEglFactory;
-    mEglFactory = NULL;
-  }
-
+  delete mUpdateRenderController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
+  delete mVSyncMonitor;
+  delete mEventHandler;
+  delete mCore;
+  delete mEglFactory;
   // Delete feedback controller before feedback plugin & style monitor dependencies
   delete mFeedbackController;
-
-  if (mDaliFeedbackPlugin)
-  {
-    delete mDaliFeedbackPlugin;
-    mDaliFeedbackPlugin = NULL;
-  }
-
-  if (mGLES)
-  {
-    delete mGLES;
-    mGLES = NULL;
-  }
-
-  if (mGestureManager)
-  {
-    delete mGestureManager;
-    mGestureManager = NULL;
-  }
-
-  if (mPlatformAbstraction)
-  {
-    delete mPlatformAbstraction;
-    mPlatformAbstraction = NULL;
-  }
-
-  if (mCallbackManager)
-  {
-    delete mCallbackManager;
-    mCallbackManager = NULL;
-  }
-
-  if( mPerformanceInterface )
-  {
-    delete mPerformanceInterface;
-    mPerformanceInterface = NULL;
-  }
+  delete mDaliFeedbackPlugin;
+  delete mGLES;
+  delete mGestureManager;
+  delete mPlatformAbstraction;
+  delete mCallbackManager;
+  delete mPerformanceInterface;
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
