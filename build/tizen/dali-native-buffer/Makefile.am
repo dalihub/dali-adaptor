@@ -16,11 +16,11 @@
 
 # Build the Dali Adaptor + Native Buffer Plugin library
 
-tizen_application_internal_src_dir = ../../../adaptors/tizen/internal
-include ../../../adaptors/tizen/internal/application-file.list
+tizen_native_buffer_plugin_internal_src_dir = ../../../adaptors/tizen/internal/mobile
+include ../../../adaptors/tizen/internal/mobile/application-file.list
 
 tizen_native_buffer_plugin_public_api_src_dir = ../../../adaptors/tizen/public-api
-include ../../../adaptors/tizen/public-api/adaptor-framework/application-file.list
+include ../../../adaptors/tizen/public-api/adaptor-framework/mobile/application-file.list
 
 capi_public_api_src_dir = ../../../capi/dali/public-api
 include ../../../capi/dali/public-api/file.list

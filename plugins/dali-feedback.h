@@ -18,7 +18,11 @@
 //
 
 // EXTERNAL INCLUDES
+#if defined(DALI_PROFILE_MOBILE)
 #include <dd-haptic.h>
+#else
+#include <haptic.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <public-api/adaptor-framework/common/feedback-plugin.h>

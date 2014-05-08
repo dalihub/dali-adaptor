@@ -5,18 +5,3 @@ tizen_application_internal_src_files = \
   $(tizen_application_internal_src_dir)/framework.cpp \
   $(tizen_application_internal_src_dir)/command-line-options.cpp \
   $(tizen_application_internal_src_dir)/abort-handler.cpp
-
-tizen_evas_plugin_internal_src_files = \
-  $(tizen_application_internal_src_dir)/evas-plugin-impl.cpp
-
-tizen_native_buffer_plugin_internal_src_files = \
-  $(tizen_application_internal_src_dir)/native-buffer-plugin-impl.cpp
-
-# Temporary default
-tizen_adaptor_internal_src_files = \
-  $(tizen_adaptor_internal_src_dir)/application-impl.cpp \
-  $(tizen_adaptor_internal_src_dir)/evas-plugin-impl.cpp \
-  $(tizen_adaptor_internal_src_dir)/framework.cpp \
-  $(tizen_adaptor_internal_src_dir)/command-line-options.cpp \
-  $(tizen_adaptor_internal_src_dir)/native-buffer-plugin-impl.cpp \
-  $(tizen_adaptor_internal_src_dir)/abort-handler.cpp

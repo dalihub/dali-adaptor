@@ -1,0 +1,5 @@
+# tv profile internal files
+tizen_adaptor_internal_common_src_files += \
+  $(tizen_adaptor_internal_src_dir)/../tv/tv-key-impl.cpp  \
+  $(tizen_adaptor_internal_src_dir)/../tv/tv-render-surface-factory.cpp \
+  $(tizen_adaptor_internal_src_dir)/../tv/tv-system-settings.cpp

@@ -23,7 +23,7 @@
 // EXTERNAL HEADERS
 #include <fcntl.h>
 #include <stdio.h>
-
+#include <unistd.h>
 
 namespace Dali
 {

@@ -43,19 +43,45 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(DLOG_CFLAGS) \
                       $(DALICORE_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(DEVICED_CFLAGS) \
                       $(FEEDBACK_CFLAGS) \
+                      $(DALI_PROFILE_CFLAGS) \
                       -I../../../adaptors/tizen \
                       -Werror -Wall
 
 libdali_feedback_plugin_la_LIBADD = \
                       $(DLOG_LIBS) \
-                      $(MMFSOUND_LIBS) \
-                      $(DEVICED_LIBS) \
-                      $(FEEDBACK_LIBS)
+                      $(MMFSOUND_LIBS)
 
 libdali_feedback_plugin_la_LDFLAGS = \
                       -rdynamic
+
+if MOBILE_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(DEVICED_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(DEVICED_LIBS)
+endif
+
+if TV_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(HAPTIC_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(HAPTIC_LIBS)
+endif
+
+if COMMON_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(HAPTIC_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(HAPTIC_LIBS)
+endif
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(FEEDBACK_LIBS)
+
 
 # Bullet Physics
 libdali_bullet_plugin_la_SOURCES = \

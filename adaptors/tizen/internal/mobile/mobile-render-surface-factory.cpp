@@ -14,7 +14,8 @@
 // limitations under the License.
 //
 
-#include "pixmap-render-surface.h"
+#include <internal/common/ecore-x/pixmap-render-surface.h>
+#include "mobile-native-buffer-render-surface.h"
 
 namespace Dali
 {
@@ -36,6 +37,20 @@ DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
   bool               isTransparent )
 {
   return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
+}
+
+DALI_EXPORT_API RenderSurface* CreateNativeBufferSurface(
+  native_buffer_provider* provider,
+  native_buffer_pool*     pool,
+  unsigned int            maxBufferCount,
+  PositionSize            positionSize,
+  Any                     surface,
+  Any                     display,
+  const std::string&      name,
+  bool                    isTransparent )
+{
+  return new NativeBufferRenderSurface( provider, pool, maxBufferCount, positionSize,
+                                        surface, display, name, isTransparent);
 }
 
 } // namespace ECoreX

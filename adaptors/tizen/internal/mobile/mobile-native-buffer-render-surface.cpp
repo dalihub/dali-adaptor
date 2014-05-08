@@ -15,7 +15,7 @@
 //
 
 // CLASS HEADER
-#include "native-buffer-render-surface.h"
+#include "mobile-native-buffer-render-surface.h"
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

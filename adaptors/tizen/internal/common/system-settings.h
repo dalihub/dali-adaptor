@@ -1,3 +1,6 @@
+#ifndef __DALI_INTERNAL_SYSTEM_SETTINGS_H___
+#define __DALI_INTERNAL_SYSTEM_SETTINGS_H___
+
 //
 // Copyright (c) 2014 Samsung Electronics Co., Ltd.
 //
@@ -14,8 +17,6 @@
 // limitations under the License.
 //
 
-#include "pixmap-render-surface.h"
-
 namespace Dali
 {
 
@@ -25,20 +26,11 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECoreX
-{
+// Get SYSTEM_SETTINGS_KEY_TAP_AND_HOLD_DELAY from system setting if available
+int GetLongPressTime( int defaultTime );
 
-DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  Any                display,
-  const std::string& name,
-  bool               isTransparent )
-{
-  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
-}
-
-} // namespace ECoreX
+// Get ELM_ACCESS_ACTION_OVER from Elementary if available
+int GetElmAccessActionOver();
 
 } // namespace Adaptor
 
@@ -46,5 +38,4 @@ DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
 
 } // namespace Dali
 
-
-
+#endif // __DALI_INTERNAL_SYSTEM_SETTINGS_H___

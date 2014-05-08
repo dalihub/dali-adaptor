@@ -22,7 +22,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 
 // INTERNAL INCLUDES
-#include "ecore-x-render-surface.h"
+#include <internal/common/ecore-x/ecore-x-render-surface.h>
 
 using namespace std;
 

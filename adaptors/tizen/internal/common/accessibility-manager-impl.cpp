@@ -26,6 +26,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/gesture-requests.h>
+#include "system-settings.h"
 
 namespace Dali
 {
@@ -284,7 +285,7 @@ bool AccessibilityManager::HandleActionReadEvent(unsigned int x, unsigned int y,
       }
       else
       {
-        actionInfo.action_type = ELM_ACCESS_ACTION_OVER;
+        actionInfo.action_type = static_cast<Elm_Access_Action_Type>( GetElmAccessActionOver() );
       }
 
       ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));

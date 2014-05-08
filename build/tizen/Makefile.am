@@ -14,13 +14,20 @@
 # limitations under the License.
 #
 
-SUBDIRS = common dali-adaptor dali-application dali-evas dali-native-buffer plugins
+SUBDIRS = common dali-adaptor dali-application plugins
+
+if MOBILE_PROFILE
+SUBDIRS += dali-evas dali-native-buffer
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = dali.pc \
-                 dali-application.pc \
-                 dali-evas.pc \
-                 dali-native-buffer.pc
+                 dali-application.pc
+
+if MOBILE_PROFILE
+pkgconfig_DATA += dali-evas.pc \
+                  dali-native-buffer.pc
+endif
 
 MAINTAINERCLEANFILES = \
     aclocal.m4 \

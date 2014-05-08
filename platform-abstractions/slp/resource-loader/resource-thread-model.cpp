@@ -25,8 +25,13 @@
 #include <dali/public-api/object/base-object.h>
 
 #include "binary-model-builder.h"
+
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
 #include "assimp-model-builder.h"
 #include "assimp-proxy.h"
+#else
+#include "assimp-stubs.h"
+#endif
 
 using namespace std;
 using namespace Dali::Integration;
@@ -63,11 +68,16 @@ void ResourceThreadModel::Load(const ResourceRequest& request)
 
   DALI_LOG_INFO(mLogFilter, Debug::Verbose, "%s(%s)\n", __PRETTY_FUNCTION__, request.GetPath().c_str());
 
+  bool success(false);
+  ModelData modelData;
+
   scoped_ptr<ModelBuilder> modelBuilder( CreateModelBuilder(request.GetPath()) );
 
-  ModelData modelData = ModelData::New(modelBuilder->GetModelName());
-
-  const bool success =  modelBuilder->Build(modelData);
+  if( modelBuilder )
+  {
+    modelData = ModelData::New(modelBuilder->GetModelName());
+    success = modelBuilder->Build(modelData);
+  }
 
   if( success )
   {
@@ -142,6 +152,7 @@ ModelBuilder* ResourceThreadModel::CreateModelBuilder(const std::string& modelFi
   {
     modelBuilder = new BinaryModelBuilder(modelFileName);
   }
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
   else
   {
     if(!mModelImporter)
@@ -151,7 +162,7 @@ ModelBuilder* ResourceThreadModel::CreateModelBuilder(const std::string& modelFi
     }
     modelBuilder = new AssimpModelBuilder(mModelImporter, modelFileName);
   }
-
+#endif
   return modelBuilder;
 }
 

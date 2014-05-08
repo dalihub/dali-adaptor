@@ -16,20 +16,40 @@
 
 # Builds the Dali Adaptor + all applications library
 
-tizen_adaptor_internal_src_dir = ../../../adaptors/tizen/internal
+tizen_application_internal_src_dir = ../../../adaptors/tizen/internal
 include ../../../adaptors/tizen/internal/application-file.list
 
-tizen_adaptor_public_api_src_dir = ../../../adaptors/tizen/public-api
+tizen_application_public_api_src_dir = ../../../adaptors/tizen/public-api
 include ../../../adaptors/tizen/public-api/adaptor-framework/application-file.list
+
+if MOBILE_PROFILE
+tizen_evas_plugin_internal_src_dir = ../../../adaptors/tizen/internal/mobile
+tizen_native_buffer_plugin_internal_src_dir = ../../../adaptors/tizen/internal/mobile
+include ../../../adaptors/tizen/internal/mobile/application-file.list
+
+tizen_evas_plugin_public_api_src_dir = ../../../adaptors/tizen/public-api
+tizen_native_buffer_plugin_public_api_src_dir = ../../../adaptors/tizen/public-api
+include ../../../adaptors/tizen/public-api/adaptor-framework/mobile/application-file.list
+endif
 
 capi_public_api_src_dir = ../../../capi/dali/public-api
 include ../../../capi/dali/public-api/file.list
 
 lib_LTLIBRARIES = libdali-adaptor.la
 
-libdali_adaptor_la_SOURCES = \
-                     $(tizen_adaptor_public_api_src_files) \
-                     $(tizen_adaptor_internal_src_files)
+libdali_adaptor_la_SOURCES = $(tizen_application_public_api_src_files)
+
+if MOBILE_PROFILE
+libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_public_api_src_files) \
+															$(tizen_native_buffer_plugin_public_api_src_files)
+endif
+
+libdali_adaptor_la_SOURCES += $(tizen_application_internal_src_files)
+
+if MOBILE_PROFILE
+libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_internal_src_files) \
+															$(tizen_native_buffer_plugin_internal_src_files)
+endif
 
 libdali_adaptor_la_DEPENDENCIES =
 
@@ -64,7 +84,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
                       $(CAPI_APPFW_APPLICATION_CFLAGS) \
                       $(ELEMENTARY_CFLAGS) \
                       $(DLOG_CFLAGS) \
@@ -73,16 +92,22 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(EXIF_CFLAGS) \
                       $(TTS_CFLAGS) \
                       $(LIVEBOX_CLIENT_CFLAGS) \
-                      $(LIVEBOX_SERVICE_CFLAGS) \
-                      $(NATIVE_BUFFER_CFLAGS) \
-                      $(NATIVE_BUFFER_POOL_CFLAGS)
+                      $(LIVEBOX_SERVICE_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       $(LIVEBOX_CLIENT_LIBS) \
-                      $(LIVEBOX_SERVICE_LIBS) \
+                      $(LIVEBOX_SERVICE_LIBS)
+
+if MOBILE_PROFILE
+libdali_adaptor_la_CXXFLAGS += \
+                      $(NATIVE_BUFFER_CFLAGS) \
+                      $(NATIVE_BUFFER_POOL_CFLAGS)
+
+libdali_adaptor_la_LIBADD += \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
+endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir}
@@ -93,8 +118,7 @@ bin_SCRIPTS = ../../../adaptors/tizen/scripts/dalireslog.sh
 # Install headers
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api/adaptor-framework
-tizenadaptorpublicapi_HEADERS = $(tizen_adaptor_public_api_header_files)
-
+tizenadaptorpublicapi_HEADERS = $(tizen_application_public_api_header_files)
 
 # linking test
 

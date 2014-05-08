@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-#include "pixmap-render-surface.h"
+#include <internal/common/ecore-x/pixmap-render-surface.h>
 
 namespace Dali
 {

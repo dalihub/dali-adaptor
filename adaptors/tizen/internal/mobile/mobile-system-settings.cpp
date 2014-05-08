@@ -14,7 +14,12 @@
 // limitations under the License.
 //
 
-#include "pixmap-render-surface.h"
+// EXTERNAL INCLUDES
+#include <system_settings.h>
+#include <Elementary.h>
+
+// INTERNAL INCLUDES
+#include <internal/common/system-settings.h>
 
 namespace Dali
 {
@@ -25,26 +30,27 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECoreX
+int GetLongPressTime( int defaultTime )
 {
+  int delay( 0 );
 
-DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  Any                display,
-  const std::string& name,
-  bool               isTransparent )
-{
-  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
+  // read system setting
+  if( SYSTEM_SETTINGS_ERROR_NONE != system_settings_get_value_int(SYSTEM_SETTINGS_KEY_TAP_AND_HOLD_DELAY, &delay ) )
+  {
+    // on error, return default
+    delay = defaultTime;
+  }
+
+  return delay;
 }
 
-} // namespace ECoreX
+int GetElmAccessActionOver()
+{
+  return ELM_ACCESS_ACTION_OVER;
+}
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-
-

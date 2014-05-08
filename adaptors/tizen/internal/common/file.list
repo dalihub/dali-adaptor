@@ -14,7 +14,6 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/indicator-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/indicator-buffer.cpp  \
   $(tizen_adaptor_internal_src_dir)/kernel-trace.cpp  \
-  $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/locale-utils.cpp  \
   $(tizen_adaptor_internal_src_dir)/native-bitmap-buffer-impl.cpp \
   $(tizen_adaptor_internal_src_dir)/object-profiler.cpp \
@@ -52,9 +51,14 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/gl/egl-sync-implementation.cpp \
   $(tizen_adaptor_internal_src_dir)/gl/gl-extensions.cpp \
   \
-  $(tizen_adaptor_internal_src_dir)/ecore-x/native-buffer-render-surface.cpp \
   $(tizen_adaptor_internal_src_dir)/ecore-x/pixmap-render-surface.cpp \
-  $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-render-surface-factory.cpp \
   $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-render-surface.cpp \
   $(tizen_adaptor_internal_src_dir)/ecore-x/window-render-surface.cpp \
   $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-window-interface.cpp
+
+tizen_adaptor_internal_common_profile_src_files = \
+  $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
+  $(tizen_adaptor_internal_src_dir)/system-settings.cpp \
+  \
+  $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-render-surface-factory.cpp
+  

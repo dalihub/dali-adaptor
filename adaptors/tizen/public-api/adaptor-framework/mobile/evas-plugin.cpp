@@ -22,7 +22,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-#include <internal/evas-plugin-impl.h>
+#include <internal/mobile/evas-plugin-impl.h>
 
 namespace Dali
 {

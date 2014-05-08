@@ -871,6 +871,7 @@ struct EventHandler::Impl
             accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true);
           }
         }
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_OVER)
         {
             // one finger move
@@ -880,6 +881,7 @@ struct EventHandler::Impl
             accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], false );
           }
         }
+#endif
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_READ_NEXT)
         {
           // one finger flick right

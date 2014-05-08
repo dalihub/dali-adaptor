@@ -2,30 +2,7 @@
 tizen_application_public_api_src_files = \
   $(tizen_application_public_api_src_dir)/adaptor-framework/application.cpp
 
-tizen_evas_plugin_public_api_src_files = \
-  $(tizen_evas_plugin_public_api_src_dir)/adaptor-framework/evas-plugin.cpp
-
-tizen_native_buffer_plugin_public_api_src_files = \
-  $(tizen_native_buffer_plugin_public_api_src_dir)/adaptor-framework/native-buffer-plugin.cpp
-
-# Temporary default
-tizen_adaptor_public_api_src_files = \
-  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/application.cpp \
-  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/evas-plugin.cpp \
-  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/native-buffer-plugin.cpp
-
 # Exported header files
 tizen_application_public_api_header_files = \
   $(tizen_application_public_api_src_dir)/adaptor-framework/application.h
 
-#tizen_evas_plugin_public_api_header_files =
-#  EXPORTED IN CAPI
-#  $(tizen_evas_plugin_public_api_src_dir)/adaptor-framework/evas-plugin.h
-
-#tizen_native_buffer_plugin_public_api_header_files =
-#  EXPORTED IN CAPI
-#  $(tizen_native_buffer_plugin_public_api_src_dir)/adaptor-framework/native-buffer-plugin.h
-
-# Temporary default
-tizen_adaptor_public_api_header_files = \
-  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/application.h

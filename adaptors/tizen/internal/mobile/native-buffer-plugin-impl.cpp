@@ -26,7 +26,7 @@
 // INTERNAL HEADERS
 #include <internal/common/accessibility-manager-impl.h>
 #include <internal/common/adaptor-impl.h>
-#include <internal/common/ecore-x/ecore-x-render-surface-factory.h>
+#include "mobile-render-surface-factory.h"
 #include <internal/common/ecore-x/ecore-x-render-surface.h>
 #include <internal/common/trigger-event.h>
 

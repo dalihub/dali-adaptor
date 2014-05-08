@@ -20,7 +20,7 @@
 #include <dlog.h>
 // TODO: Change this to use #pragma GCC diagnostic push / pop when the compiler is updated to 4.6.0+
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-#include <bullet/btBulletDynamicsCommon.h>
+#include <btBulletDynamicsCommon.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #pragma GCC diagnostic error "-Wfloat-equal"
@@ -231,8 +231,8 @@ void BulletDynamicsWorld::CheckForCollisions( Integration::CollisionDataContaine
   for( int manifold = 0; manifold < numManifolds; ++manifold )
   {
     btPersistentManifold* contactManifold = mDynamicsWorld->getDispatcher()->getManifoldByIndexInternal( manifold );
-    btCollisionObject* objectA = static_cast< btCollisionObject* >(contactManifold->getBody0());
-    btCollisionObject* objectB = static_cast< btCollisionObject* >(contactManifold->getBody1());
+    btCollisionObject* objectA = (btCollisionObject*)(contactManifold->getBody0());
+    btCollisionObject* objectB = (btCollisionObject*)(contactManifold->getBody1());
 
     /* Check all contacts points */
     int numContacts = contactManifold->getNumContacts();

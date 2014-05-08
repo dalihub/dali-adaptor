@@ -29,7 +29,7 @@
 #include <dali/public-api/adaptor-framework/common/imf-manager.h>
 
 #include <internal/common/adaptor-impl.h>
-#include <internal/common/ecore-x/ecore-x-render-surface-factory.h>
+#include "mobile-render-surface-factory.h"
 #include <internal/common/ecore-x/pixmap-render-surface.h>
 #include <internal/common/trigger-event.h>
 

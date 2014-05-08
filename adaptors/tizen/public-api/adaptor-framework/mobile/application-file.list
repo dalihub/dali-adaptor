@@ -1,0 +1,15 @@
+# Public source files
+tizen_evas_plugin_public_api_src_files = \
+  $(tizen_evas_plugin_public_api_src_dir)/adaptor-framework/mobile/evas-plugin.cpp
+
+tizen_native_buffer_plugin_public_api_src_files = \
+  $(tizen_native_buffer_plugin_public_api_src_dir)/adaptor-framework/mobile/native-buffer-plugin.cpp
+
+#tizen_evas_plugin_public_api_header_files =
+#  EXPORTED IN CAPI
+#  $(tizen_evas_plugin_public_api_src_dir)/adaptor-framework/evas-plugin.h
+
+#tizen_native_buffer_plugin_public_api_header_files =
+#  EXPORTED IN CAPI
+#  $(tizen_native_buffer_plugin_public_api_src_dir)/adaptor-framework/native-buffer-plugin.h
+

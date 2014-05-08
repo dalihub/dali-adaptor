@@ -28,6 +28,21 @@ include ../../../platform-abstractions/slp/file.list
 tizen_adaptor_internal_src_dir = ../../../adaptors/tizen/internal/common
 include ../../../adaptors/tizen/internal/common/file.list
 
+if COMMON_PROFILE
+tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+endif
+
+if MOBILE_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+include ../../../adaptors/tizen/internal/mobile/file.list
+endif
+
+if TV_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+include ../../../adaptors/tizen/internal/tv/file.list
+endif
+
 # Public API
 tizen_adaptor_public_api_src_dir = ../../../adaptors/tizen/public-api
 include ../../../adaptors/tizen/public-api/file.list
@@ -94,7 +109,6 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
                       $(CAPI_APPFW_APPLICATION_CFLAGS) \
                       $(ELEMENTARY_CFLAGS) \
                       $(EVAS_CFLAGS) \
@@ -105,11 +119,8 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
-                      $(DEVICED_CFLAGS) \
                       $(TTS_CFLAGS) \
                       $(SENSOR_CFLAGS) \
-                      $(NATIVE_BUFFER_CFLAGS) \
-                      $(NATIVE_BUFFER_POOL_CFLAGS) \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
@@ -130,13 +141,33 @@ libdali_adaptor_common_la_LIBADD = \
                       $(EXIF_LIBS) \
                       $(TTS_LIBS) \
                       $(SENSOR_LIBS) \
-                      $(NATIVE_BUFFER_LIBS) \
-                      $(NATIVE_BUFFER_POOL_LIBS) \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       -lgif \
                       -lboost_thread
+
+if MOBILE_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
+                      $(DEVICED_CFLAGS) \
+                      $(NATIVE_BUFFER_CFLAGS) \
+                      $(NATIVE_BUFFER_POOL_CFLAGS)
+
+libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS) \
+                      $(NATIVE_BUFFER_LIBS) \
+                      $(NATIVE_BUFFER_POOL_LIBS)
+endif
+
+if TV_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
+                                      $(HAPTIC_CFLAGS)
+
+libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS)
+endif
+
+if COMMON_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+endif
 
 if TURBO_JPEG_IS_ON
 libdali_adaptor_common_la_LIBADD += -lturbojpeg

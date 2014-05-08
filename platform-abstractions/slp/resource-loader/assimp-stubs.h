@@ -1,3 +1,6 @@
+#ifndef __DALI_SLP_PLATFORM_ASSIMP_STUBS_H__
+#define __DALI_SLP_PLATFORM_ASSIMP_STUBS_H__
+
 //
 // Copyright (c) 2014 Samsung Electronics Co., Ltd.
 //
@@ -14,37 +17,51 @@
 // limitations under the License.
 //
 
-#include "pixmap-render-surface.h"
-
 namespace Dali
 {
 
-namespace Internal
+namespace SlpPlatform
 {
 
-namespace Adaptor
+// Stubbed out assimp classes
+
+class AssimpProxy
 {
+public:
+  AssimpProxy()
+  {
+  }
 
-namespace ECoreX
+  ~AssimpProxy()
+  {
+  }
+};
+
+class AssimpModelBuilder : public ModelBuilder
 {
+public:
+  AssimpModelBuilder(AssimpProxy* importer, const std::string& name)
+  {
+  }
 
-DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  Any                display,
-  const std::string& name,
-  bool               isTransparent )
-{
-  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
-}
+  virtual ~AssimpModelBuilder()
+  {
+  }
 
-} // namespace ECoreX
+  virtual bool Build(ModelData model)
+  {
+    return false;
+  }
 
-} // namespace Adaptor
+  virtual const std::string& GetModelName()
+  {
+    static std::string s;
+    return s;
+  }
+};
 
-} // namespace Internal
+} // namespace SlpPlatform
 
 } // namespace Dali
 
-
-
+#endif // __DALI_SLP_PLATFORM_ASSIMP_STUBS_H__

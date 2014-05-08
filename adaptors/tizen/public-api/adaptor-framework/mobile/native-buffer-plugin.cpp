@@ -20,7 +20,7 @@
 // EXTERNAL INCLUDES
 
 // INTERNAL INCLUDES
-#include <internal/native-buffer-plugin-impl.h>
+#include <internal/mobile/native-buffer-plugin-impl.h>
 
 namespace Dali
 {

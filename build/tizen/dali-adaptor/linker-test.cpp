@@ -29,34 +29,15 @@ using namespace Dali;
  * Test to see if the dali-adaptor is linking correctly.
  */
 
-class LinkerApp : public ConnectionTracker
-{
-public:
-  LinkerApp(Application &app)
-  {
-    app.InitSignal().Connect(this, &LinkerApp::Create);
-  }
-
-public:
-
-  void Create(Application& app)
-  {
-  }
-};
-
-/*****************************************************************************/
-
 int
 main(int argc, char **argv)
 {
-  Application app = Application::New(&argc, &argv);
-  LinkerApp linkerApp (app);
+  // Use full screen
+  Dali::PositionSize positionSize(0, 0, 0, 0);
+  Dali::Window window = Dali::Window::New( positionSize, "The Application" );
+  Dali::Adaptor& adaptor = Dali::Adaptor::New( window );
 
-  Adaptor& adaptor = Dali::Adaptor::Get();
-  if(adaptor.IsAvailable())
-  {
-    app.MainLoop();
-  }
+  adaptor.Start();
 
   return 0;
 }

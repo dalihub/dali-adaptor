@@ -16,7 +16,7 @@
 
 m4_define([dali_version],[0.1.0])
 AC_INIT([dali], [dali_version])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 AC_PROG_CXX
 AC_PROG_LIBTOOL
@@ -32,23 +32,17 @@ AC_SUBST(DALI_ADAPTOR_VERSION)
 FREETYPE_REQUIRED=9.16.3
 
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
-PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(ELEMENTARY, elementary)
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_X, ecore-x)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
-PKG_CHECK_MODULES(EVAS, evas)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
 PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
-PKG_CHECK_MODULES(DEVICED, deviced)
 PKG_CHECK_MODULES(MMFSOUND, mm-sound)
-PKG_CHECK_MODULES(NATIVE_BUFFER, native-buffer)
-PKG_CHECK_MODULES(NATIVE_BUFFER_POOL, native-buffer-pool)
-PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
 PKG_CHECK_MODULES(PNG, libpng)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
@@ -74,7 +68,6 @@ PKG_CHECK_EXISTS(bullet, [
 AC_SUBST(BULLET_CFLAGS)
 AC_SUBST(BULLET_LIBS)
 AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes])
-
 
 DALI_ADAPTOR_CFLAGS=-DPLATFORM_SLP
 
@@ -113,6 +106,46 @@ AC_ARG_WITH([jpeg-turbo],
             [with_jpeg_turbo=yes])
 
 AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
+
+# Tizen Profile options
+AC_ARG_ENABLE([profile],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,TV],
+                            [Select the variant of tizen])],
+              [dali_profile=$enableval],
+              [dali_profile=COMMON])
+
+if test "x$enable_profile" = "xyes"; then
+  dali_profile=COMMON
+fi
+if test "x$enable_profile" = "x"; then
+  dali_profile=COMMON
+fi
+
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${dali_profile}"
+DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${dali_profile}"
+AM_CONDITIONAL([COMMON_PROFILE], [test x$dali_profile = xCOMMON])
+AM_CONDITIONAL([MOBILE_PROFILE], [test x$dali_profile = xMOBILE])
+AM_CONDITIONAL([TV_PROFILE], [test x$dali_profile = xTV])
+
+if test "x$enable_profile" = "xMOBILE"; then
+PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
+PKG_CHECK_MODULES(ASSIMP, assimp)
+PKG_CHECK_MODULES(DEVICED, deviced)
+PKG_CHECK_MODULES(EVAS, evas)
+PKG_CHECK_MODULES(NATIVE_BUFFER, native-buffer)
+PKG_CHECK_MODULES(NATIVE_BUFFER_POOL, native-buffer-pool)
+fi
+
+if test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+PKG_CHECK_MODULES(ASSIMP, assimp)
+PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
+
+if test "x$enable_profile" = "xCOMMON"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
@@ -155,6 +188,7 @@ AC_SUBST(fontDownloadedPath)
 AC_SUBST(fontApplicationPath)
 AC_SUBST(fontConfigurationFilePath)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
+AC_SUBST(DALI_PROFILE_CFLAGS)
 
 # Specify the include directory for development headers
 #devincludepath=${includedir}/dali/internal
@@ -185,6 +219,7 @@ Configuration
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
   Using JPEG Turbo Library:         $with_jpeg_turbo
+  Profile:                          $dali_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
   Font Path (Preloaded):            $fontPreloadedPath

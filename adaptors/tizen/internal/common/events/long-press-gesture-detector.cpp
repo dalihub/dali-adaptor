@@ -27,7 +27,7 @@
 #include <dali/integration-api/events/long-press-gesture-event.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 
-#include <system_settings.h>
+#include <internal/common/system-settings.h>
 
 // INTERNAL INCLUDES
 #include <base/core-event-interface.h>
@@ -238,18 +238,7 @@ void LongPressGestureDetector::EmitGesture(Gesture::State state)
 
 int LongPressGestureDetector::GetSystemValue()
 {
-  int ret = 0;
-  int delay = 0;
-
-  // get current setting
-  ret = system_settings_get_value_int(SYSTEM_SETTINGS_KEY_TAP_AND_HOLD_DELAY, &delay);
-
-  if(ret != SYSTEM_SETTINGS_ERROR_NONE)
-  {
-    delay = LONG_PRESS_TIME;
-  }
-
-  return delay;
+  return GetLongPressTime( LONG_PRESS_TIME );
 }
 
 } // namespace Adaptor

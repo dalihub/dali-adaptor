@@ -20,7 +20,7 @@
 #include <dlog.h>
 // TODO: Change this to use #pragma GCC diagnostic push / pop when the compiler is updated to 4.6.0+
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-# include <bullet/btBulletDynamicsCommon.h>
+# include <btBulletDynamicsCommon.h>
 #pragma GCC diagnostic error "-Wfloat-equal"
 
 #include <dali/public-api/dynamics/dynamics-shape.h>
