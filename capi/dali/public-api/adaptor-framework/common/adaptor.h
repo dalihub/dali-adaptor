@@ -223,6 +223,14 @@ public:
    */
   void NotifyLanguageChanged();
 
+  /**
+   * @brief Sets minimum distance in pixels that the fingers must move towards/away from each other in order to
+   * trigger a pinch gesture
+   *
+   * @param[in] distance The minimum pinch distance in pixels
+   */
+  void SetMinimumPinchDistance(float distance);
+
 public:  // Signals
 
   /**

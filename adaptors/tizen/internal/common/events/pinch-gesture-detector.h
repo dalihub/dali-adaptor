@@ -51,12 +51,20 @@ public:
    * @param[in] coreEventInterface Used to send events to Core.
    * @param[in] screenSize The size of the screen.
    */
-  PinchGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize);
+  PinchGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, float minimumPinchDistance);
 
   /**
    * Virtual destructor.
    */
   virtual ~PinchGestureDetector();
+
+  /**
+   * @brief Sets minimum distance in pixels that the fingers must move towards/away from each other in order to
+   * trigger a pinch gesture
+   *
+   * @param[in] distance The minimum pinch distance in pixels
+   */
+  void SetMinimumPinchDistance(float distance);
 
 public:
 

@@ -93,12 +93,14 @@ const char * GetGestureTypeString( Gesture::Type type )
 };
 #endif // DEBUG_ENABLED
 
+const float MINIMUM_DISTANCE_DELTA_DIVISOR = 85.0f;
 } // unnamed namespace
 
 GestureManager::GestureManager(CoreEventInterface& coreEventInterface, Vector2 screenSize,CallbackManager* callbackManager)
 : mCoreEventInterface( coreEventInterface ),
   mScreenSize( screenSize ),
   mCallbackManager( callbackManager ),
+  mMinimumDistanceDelta(-1.0f),
   mRunning( false )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "Creating GestureManager\n" );
@@ -150,6 +152,21 @@ void GestureManager::Stop()
   }
 }
 
+void GestureManager::SetMinimumPinchDistance(float distance)
+{
+  mMinimumDistanceDelta = distance;
+  for( GestureDetectorContainer::iterator iter = mGestureDetectors.begin(), endIter = mGestureDetectors.end(); iter != endIter; ++iter )
+  {
+    if ( ( *iter )->GetType() == Gesture::Pinch )
+    {
+      DALI_LOG_INFO( gLogFilter, Debug::General, "Set Minimum Pinch Distance: %f\n", distance );
+      PinchGestureDetector* gestureDetector = static_cast<PinchGestureDetector*>(iter->Get());
+      gestureDetector->SetMinimumPinchDistance(distance);
+      break;
+    }
+  }
+}
+
 void GestureManager::Register(const Integration::GestureRequest& request)
 {
   if (mRunning)
@@ -174,7 +191,8 @@ void GestureManager::Register(const Integration::GestureRequest& request)
 
       case Gesture::Pinch:
       {
-        GestureDetectorPtr gesture = new PinchGestureDetector(mCoreEventInterface, mScreenSize);
+        float minPinchDistance = mMinimumDistanceDelta >= 0.0f ? mMinimumDistanceDelta : (mScreenSize.height / MINIMUM_DISTANCE_DELTA_DIVISOR);
+        GestureDetectorPtr gesture = new PinchGestureDetector(mCoreEventInterface, mScreenSize, minPinchDistance);
         mGestureDetectors.push_back(gesture);
         break;
       }

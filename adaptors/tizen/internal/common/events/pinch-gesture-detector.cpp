@@ -42,7 +42,6 @@ namespace
 {
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED = 4;
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED_AFTER_START = 4;
-const float MINIMUM_DISTANCE_DELTA_DIVISOR = 85.0f;
 
 const float MAXIMUM_GRADIENT_CHANGE_ALLOWED = 2.0f;
 const float MAXIMUM_X_DIFF_CALCULATION_FOR_UNDEFINED_GRADIENT = 100.0f;
@@ -67,18 +66,23 @@ inline Vector2 GetCenterPoint(const TouchPoint& point1, const TouchPoint& point2
 
 } // unnamed namespace
 
-PinchGestureDetector::PinchGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize)
+PinchGestureDetector::PinchGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, float minimumPinchDistance)
 : GestureDetector(screenSize, Gesture::Pinch),
   mCoreEventInterface(coreEventInterface),
   mState(Clear),
   mTouchEvents(),
-  mMinimumDistanceDelta(screenSize.height / MINIMUM_DISTANCE_DELTA_DIVISOR),
+  mMinimumDistanceDelta(minimumPinchDistance),
   mStartingDistance(0.0f)
 {
 }
 
 PinchGestureDetector::~PinchGestureDetector()
 {
+}
+
+void PinchGestureDetector::SetMinimumPinchDistance(float distance)
+{
+  mMinimumDistanceDelta = distance;
 }
 
 void PinchGestureDetector::SendEvent(const Integration::TouchEvent& event)

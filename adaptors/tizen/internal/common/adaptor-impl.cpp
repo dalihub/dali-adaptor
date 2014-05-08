@@ -560,6 +560,14 @@ void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
   }
 }
 
+void Adaptor::SetMinimumPinchDistance(float distance)
+{
+  if( mGestureManager )
+  {
+    mGestureManager->SetMinimumPinchDistance(distance);
+  }
+}
+
 void Adaptor::AddObserver( LifeCycleObserver& observer )
 {
   ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );

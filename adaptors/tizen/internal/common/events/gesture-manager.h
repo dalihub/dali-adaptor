@@ -84,6 +84,14 @@ public:
    */
   void Stop();
 
+  /**
+   * @brief Sets minimum distance in pixels that the fingers must move towards/away from each other in order to
+   * trigger a pinch gesture
+   *
+   * @param[in] distance The minimum pinch distance in pixels
+   */
+  void SetMinimumPinchDistance(float distance);
+
 public: // GestureManager overrides
 
   /**
@@ -116,6 +124,7 @@ private:
   GestureDetectorContainer mGestureDetectors;
   Vector2 mScreenSize;
   CallbackManager* mCallbackManager;
+  float mMinimumDistanceDelta; ///< The minimum distance before a pinch is applicable. (-1.0f means pinch detector uses default value)
   bool mRunning; ///< States whether the GestureManager is running or not.
 };
 

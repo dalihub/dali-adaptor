@@ -115,6 +115,11 @@ void Adaptor::NotifyLanguageChanged()
   mImpl->NotifyLanguageChanged();
 }
 
+void Adaptor::SetMinimumPinchDistance(float distance)
+{
+  mImpl->SetMinimumPinchDistance(distance);
+}
+
 Adaptor::Adaptor()
 : mImpl( NULL )
 {
