@@ -17,7 +17,6 @@ BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  boost-devel
-BuildRequires:  pkgconfig(assimp)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(fontconfig)
@@ -36,13 +35,10 @@ BuildRequires:  libxml2-devel
 BuildRequires:  vconf-devel
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  pkgconfig(native-buffer)
-BuildRequires:  pkgconfig(native-buffer-pool)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
-BuildRequires:  sec-product-features
 ExclusiveArch:  armv7l
 
 %description
@@ -67,7 +63,7 @@ Summary:    Feedback plugin to play haptic and audio feedback for Dali
 Group:      Development/Libs
 Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
-BuildRequires:  pkgconfig(deviced)
+BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
 
 %description dali-feedback-plugin
@@ -79,7 +75,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %package dali-bullet-plugin
 Summary:    Dynamics plugin to wrap libBulletDynamics libraries
 Group:      Development/Libs
-BuildRequires:  libbullet-devel
+BuildRequires:  bullet-devel
 
 %description dali-bullet-plugin
 Dynamics plugin to wrap libBulletDynamics libraries
@@ -125,9 +121,9 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
 %if 0%{?sec_product_feature_graphics_adreno}
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=30 --enable-profile=MOBILE
+cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=30 --enable-profile=COMMON
 %else
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=MOBILE
+cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON
 %endif
 
 make %{?jobs:-j%jobs}
@@ -192,8 +188,6 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adap*.so*
 %{_libdir}/libdali-appl*.so*
-%{_libdir}/libdali-evas*.so*
-%{_libdir}/libdali-nati*.so*
 %defattr(-,app,app,-)
 %dir %{user_font_cache_dir}
 %dir %{user_shader_cache_dir}
