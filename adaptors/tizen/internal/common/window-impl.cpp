@@ -26,7 +26,6 @@
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/public-api/adaptor-framework/common/orientation.h>
-#include <dali/public-api/animation/animation.h>
 
 // INTERNAL HEADERS
 #include <internal/common/ecore-x/window-render-surface.h>
@@ -239,11 +238,54 @@ RenderSurface* Window::GetSurface()
 void Window::ShowIndicator( bool show )
 {
   DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "%s\n", show?"SHOW":"HIDE" );
-
   DALI_ASSERT_DEBUG(mOverlay);
 
-  mShowIndicator = show;
-  DoShowIndicator( mShowIndicator, mIndicatorOrientation );
+  if(show)
+  {
+    mIndicatorVisible = Dali::Window::VISIBLE;
+  }
+  else
+  {
+    mIndicatorVisible = Dali::Window::INVISIBLE;
+  }
+
+  DoShowIndicator( mIndicatorOrientation );
+}
+
+void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
+{
+  DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "visible : %d\n", visibleMode );
+  DALI_ASSERT_DEBUG(mOverlay);
+
+  ECoreX::WindowRenderSurface* x11Window = dynamic_cast< ECoreX::WindowRenderSurface * >( mSurface );
+  DALI_ASSERT_DEBUG(x11Window);
+  Ecore_X_Window xWinId = x11Window->GetXWindow();
+
+  mIndicatorVisible = visibleMode;
+
+  if ( mIndicatorVisible == Dali::Window::VISIBLE )
+  {
+    // when the indicator is visible, set proper mode for indicator server according to bg mode
+    if ( mIndicatorOpacityMode == Dali::Window::OPAQUE )
+    {
+      ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_OPAQUE);
+    }
+    else if ( mIndicatorOpacityMode == Dali::Window::TRANSLUCENT )
+    {
+      ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_TRANSLUCENT);
+    }
+    else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
+    {
+      ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_BG_TRANSPARENT);
+    }
+  }
+  else
+  {
+    // when the indicator is not visible, set TRANSPARENT mode for indicator server
+    ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_TRANSPARENT); // it means hidden indicator
+  }
+
+  DoShowIndicator( mIndicatorOrientation );
 }
 
 void Window::RotateIndicator(Dali::Window::WindowOrientation orientation)
@@ -260,25 +302,6 @@ void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode
   if( mIndicator != NULL )
   {
     mIndicator->SetOpacityMode( opacityMode );
-
-    ECoreX::WindowRenderSurface* x11Window = dynamic_cast< ECoreX::WindowRenderSurface * >( mSurface );
-    if( x11Window )
-    {
-      Ecore_X_Window win = x11Window->GetXWindow();
-
-      if (opacityMode == Dali::Window::OPAQUE)
-      {
-        ecore_x_e_illume_indicator_opacity_set(win, ECORE_X_ILLUME_INDICATOR_OPAQUE);
-      }
-      else if (opacityMode == Dali::Window::TRANSLUCENT)
-      {
-        ecore_x_e_illume_indicator_opacity_set(win, ECORE_X_ILLUME_INDICATOR_TRANSLUCENT);
-      }
-      else if (opacityMode == Dali::Window::TRANSPARENT)
-      {
-        ecore_x_e_illume_indicator_opacity_set(win, ECORE_X_ILLUME_INDICATOR_TRANSPARENT);
-      }
-    }
   }
 }
 
@@ -297,7 +320,7 @@ void Window::SetClass(std::string name, std::string klass)
 
 Window::Window()
 : mSurface(NULL),
-  mShowIndicator(false),
+  mIndicatorVisible(Dali::Window::VISIBLE),
   mIndicatorIsShown(false),
   mShowRotatedIndicatorOnClose(false),
   mStarted(false),
@@ -338,14 +361,14 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
   mEventHandler = new EventHandler( this );
 }
 
-void Window::DoShowIndicator( bool show, Dali::Window::WindowOrientation lastOrientation )
+void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
 {
   if( mIndicator == NULL )
   {
-    if( show )
+    if( mIndicatorVisible != Dali::Window::INVISIBLE )
     {
       mIndicator = new Indicator( mAdaptor, mIndicatorOrientation, this );
-      mIndicator->SetOpacityMode( mIndicatorOpacityMode, true );
+      mIndicator->SetOpacityMode( mIndicatorOpacityMode );
       Dali::Actor actor = mIndicator->GetActor();
       SetIndicatorActorRotation();
       mOverlay->Add(actor);
@@ -354,9 +377,7 @@ void Window::DoShowIndicator( bool show, Dali::Window::WindowOrientation lastOri
   }
   else // Already have indicator
   {
-    Dali::Actor actor = mIndicator->GetActor();
-
-    if( show == true )
+    if( mIndicatorVisible == Dali::Window::VISIBLE )
     {
       // If we are resuming, and rotation has changed,
       if( mIndicatorIsShown == false && mIndicatorOrientation != mNextIndicatorOrientation )
@@ -366,27 +387,16 @@ void Window::DoShowIndicator( bool show, Dali::Window::WindowOrientation lastOri
         mIndicator->Close(); // May synchronously call IndicatorClosed() callback & 1 level of recursion
         // Don't show actor - will contain indicator for old orientation.
       }
-      else
-      {
-        // show animation
-        Dali::Animation anim = Dali::Animation::New(INDICATOR_ANIMATION_DURATION);
-        anim.MoveTo(actor, 0, INDICATOR_SHOW_Y_POSITION, 0);
-        anim.Play();
-      }
-    }
-    else
-    {
-      // hide animation
-      Dali::Animation anim = Dali::Animation::New(INDICATOR_ANIMATION_DURATION);
-      anim.MoveTo(actor, 0, INDICATOR_HIDE_Y_POSITION, 0);
-      anim.Play();
     }
   }
 
+  // set indicator visible mode
   if( mIndicator != NULL )
   {
-    mIndicator->SetVisible( show );
+    mIndicator->SetVisible( mIndicatorVisible );
   }
+
+  bool show = (mIndicatorVisible != Dali::Window::INVISIBLE );
   SetIndicatorProperties( show, lastOrientation );
   mIndicatorIsShown = show;
 }
@@ -463,7 +473,7 @@ void Window::IndicatorClosed( Indicator* indicator )
     mIndicator->Open(mNextIndicatorOrientation);
     mIndicatorOrientation = mNextIndicatorOrientation;
     SetIndicatorActorRotation();
-    DoShowIndicator(mShowIndicator, currentOrientation);
+    DoShowIndicator(currentOrientation);
   }
 }
 
@@ -535,7 +545,7 @@ Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
 
 void Window::OnStart()
 {
-  DoShowIndicator( mShowIndicator, mIndicatorOrientation );
+  DoShowIndicator( mIndicatorOrientation );
 }
 
 void Window::OnPause()
@@ -549,7 +559,7 @@ void Window::OnResume()
   {
     // Restore own indicator opacity
     // Send opacity mode to indicator service when app resumed
-    mIndicator->SetOpacityMode( mIndicatorOpacityMode, true );
+    mIndicator->SetOpacityMode( mIndicatorOpacityMode );
   }
 }
 

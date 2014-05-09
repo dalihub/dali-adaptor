@@ -85,6 +85,11 @@ public:
   void ShowIndicator( bool show );
 
   /**
+   * @copydoc Dali::Window::ShowIndicator()
+   */
+  void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode );
+
+  /**
    * @copydoc Dali::Window::SetIndicatorBgOpacity()
    */
   void SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacity );
@@ -181,7 +186,7 @@ private:
    * Shows / hides the indicator bar.
    * Handles close/open if rotation changes whilst hidden
    */
-  void DoShowIndicator( bool show, Dali::Window::WindowOrientation lastOrientation );
+  void DoShowIndicator( Dali::Window::WindowOrientation lastOrientation );
 
   /**
    * Close current indicator and open a connection onto the new indicator service.
@@ -243,7 +248,7 @@ private:
   typedef std::vector<Indicator*> DiscardedIndicators;
 
   RenderSurface*                   mSurface;
-  bool                             mShowIndicator:1;    ///< public state
+  Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
   bool                             mIndicatorIsShown:1; ///< private state
   bool                             mShowRotatedIndicatorOnClose:1;
   bool                             mStarted:1;
