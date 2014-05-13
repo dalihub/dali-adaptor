@@ -4,13 +4,13 @@ Version:    0.9.15
 Release:    1
 Group:      System/Libraries
 License:    Flora
-URL:        TO_BE_FILLED
+URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       boost-thread
-Requires:       giflib
+#Requires:       giflib
 BuildRequires:  gettext
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
@@ -42,26 +42,27 @@ BuildRequires:  pkgconfig(gles20)
 ExclusiveArch:  armv7l
 
 %description
-The DALi Tizen Adaptor
+The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
+platform abstraction and application shell
 
 ##############################
 # devel
 ##############################
 %package devel
 Summary:    Development components for the DALi Tizen Adaptor
-Group:      Development/Libs
+Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
-Development components for the DALi Tizen Adaptor
+Development components for the DALi Tizen Adaptor - public headers and package configs
 
 ##############################
 # Dali Feedback Plugin
 ##############################
 %package dali-feedback-plugin
-Summary:    Feedback plugin to play haptic and audio feedback for Dali
-Group:      Development/Libs
-Requires:       libdeviced
+Summary:    Plugin to play haptic and audio feedback for Dali
+Group:      System/Libraries
+#Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
@@ -73,12 +74,12 @@ Feedback plugin to play haptic and audio feedback for Dali
 # Dali Dynamics/Bullet Plugin
 ##############################
 %package dali-bullet-plugin
-Summary:    Dynamics plugin to wrap libBulletDynamics libraries
-Group:      Development/Libs
+Summary:    Plugin to provide physics
+Group:      System/Libraries
 BuildRequires:  bullet-devel
 
 %description dali-bullet-plugin
-Dynamics plugin to wrap libBulletDynamics libraries
+Dynamics plugin to wrap the libBulletDynamics libraries
 
 ##############################
 # Preparation
@@ -96,8 +97,6 @@ Dynamics plugin to wrap libBulletDynamics libraries
 %define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
 %define dali_plugin_theme_files  %{dali_data_ro_dir}/themes/feedback-themes/
 
-# Switch over when CAPI finalized
-#%define dev_include_path %{_includedir}/dali/internal
 %define dev_include_path %{_includedir}
 
 ##############################
@@ -120,11 +119,8 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
-%if 0%{?sec_product_feature_graphics_adreno}
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=30 --enable-profile=COMMON
-%else
 cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON
-%endif
+
 
 make %{?jobs:-j%jobs}
 
@@ -164,6 +160,14 @@ chown 5000:5000 %{user_font_cache_dir}
 chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
+%post dali-feedback-plugin
+/sbin/ldconfig
+exit 0
+
+%post dali-bullet-plugin
+/sbin/ldconfig
+exit 0
+
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -178,6 +182,15 @@ exit 0
 %postun
 /sbin/ldconfig
 exit 0
+
+%postun dali-feedback-plugin
+/sbin/ldconfig
+exit 0
+
+%postun dali-bullet-plugin
+/sbin/ldconfig
+exit 0
+
 
 ##############################
 # Files in Binary Packages
