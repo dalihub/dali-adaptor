@@ -18,7 +18,7 @@
 #define __DALI_ADAPTOR_TET_IMAGE_LOADERS_H_
 
 #include <dali/dali.h>
-#include <dali/integration-api/image-data.h>
+#include <dali/integration-api/bitmap.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
@@ -80,7 +80,7 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapFunction)(FILE*, Dali::ImageAttributes&, Dali::Integration::ImageDataPtr&);
+  typedef bool (*LoadBitmapFunction)(FILE*, Dali::Integration::Bitmap&, Dali::ImageAttributes&);
   typedef bool (*LoadBitmapHeaderFunction)(FILE*, const Dali::ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
   LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader );

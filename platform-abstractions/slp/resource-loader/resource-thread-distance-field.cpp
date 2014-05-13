@@ -17,7 +17,7 @@
 #include "resource-thread-distance-field.h"
 #include "dali/public-api/images/distance-field.h"
 
-#include <dali/integration-api/image-data.h>
+#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <stdint.h>
 
@@ -40,8 +40,8 @@ namespace SlpPlatform
 namespace
 {
 
-typedef bool (*LoadBitmapFunction)( FILE*, ImageAttributes&, ImageDataPtr& );
-typedef bool (*LoadBitmapHeaderFunction)( FILE*, const ImageAttributes&, unsigned int&, unsigned int& );
+typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&);
+typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes&, unsigned int&, unsigned int&);
 
 /*
  * Extract the luminance channel L from a RGBF image.
@@ -55,38 +55,6 @@ typedef bool (*LoadBitmapHeaderFunction)( FILE*, const ImageAttributes&, unsigne
 
 #define LUMA_REC709(r, g, b) (0.2126f * r + 0.7152f * g + 0.0722f * b)
 #define GREY8(r, g, b) (uint8_t)LUMA_REC709(r, g, b)
-
-namespace
-{
-
-/** Convert an array of RGB pixels to grayscale. */
-__attribute__ ((noinline))
-void RgbToGrey( const uint8_t * const srcPixels, const size_t srcBufferNumBytes, uint8_t * const destPixels )
-{
-  for( size_t i = 0, dest = 0; i < srcBufferNumBytes; i+=3, ++dest )
-  {
-    destPixels[dest] = GREY8( srcPixels[i], srcPixels[i+1], srcPixels[i+2]);
-  }
-}
-
-/** Convert an array of RGBA pixels to grayscale where alpha != zero. */
-__attribute__ ((noinline))
-void RgbaToGrey( const uint8_t * const srcPixels, const size_t srcBufferNumBytes, uint8_t * const destPixels )
-{
-  for( size_t i = 0, dest = 0; i < srcBufferNumBytes; i+=4, ++dest )
-  {
-    // Default to zero values:
-    destPixels[dest] = 0;
-    // Set a grey value for pixels with non-zero alpha:
-    const uint8_t pixelAlpha = srcPixels[i+3];
-    if (pixelAlpha > 0x0)
-    {
-      destPixels[dest] = GREY8( srcPixels[i], srcPixels[i+1], srcPixels[i+2]);
-    }
-  }
-}
-
-}
 
 /**
  * Stores the magic bytes, and the loader and header functions used for each image loader.
@@ -170,8 +138,8 @@ ResourceThreadDistanceField::~ResourceThreadDistanceField()
 
 void ResourceThreadDistanceField::Load(const ResourceRequest& request)
 {
-  DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceImageData );
+  DALI_LOG_TRACE_METHOD(mLogFilter);
+  DALI_ASSERT_DEBUG(request.GetType()->id == ResourceBitmap);
 
   // TODO - down-scaling to requested size
 
@@ -180,9 +148,10 @@ void ResourceThreadDistanceField::Load(const ResourceRequest& request)
   bool result = false;
   bool file_not_found = false;
 
-  ImageDataPtr bitmap;
+  BitmapPtr bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
 
-  ImageResourceType& resType = static_cast<ImageResourceType&>(*(request.GetType()));
+  DALI_LOG_SET_OBJECT_STRING(bitmap, request.GetPath());
+  BitmapResourceType& resType = static_cast<BitmapResourceType&>(*(request.GetType()));
   ImageAttributes& attributes  = resType.imageAttributes;
 
   FILE *fp = fopen(request.GetPath().c_str(), "rb");
@@ -194,32 +163,56 @@ void ResourceThreadDistanceField::Load(const ResourceRequest& request)
 
     if (GetBitmapLoaderFunctions(fp, function, header))
     {
-      result = function(fp, attributes, bitmap);
-      DALI_LOG_SET_OBJECT_STRING(bitmap, request.GetPath());
+      result = function(fp, *bitmap, attributes);
 
       if (result)
       {
-        if ((bitmap->pixelFormat == Pixel::RGBA8888) || (bitmap->pixelFormat == Pixel::RGB888))
+        if ((bitmap->GetPixelFormat() == Pixel::RGBA8888) || (bitmap->GetPixelFormat() == Pixel::RGB888))
         {
           // create a bitmap, so we can get its buffersize - to avoid a slow copy.
-          ImageDataPtr destBitmap = NewBitmapImageData( attributes.GetWidth(), attributes.GetHeight(), Pixel::A8 );
+          BitmapPtr destBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+          destBitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, attributes.GetWidth(), attributes.GetHeight());
 
-          // Convert the loaded RGB(A) image to 8-bit greyscale in a stack-local array:
-          const uint8_t * const srcPixels = bitmap->GetBuffer();
-          uint8_t destPixels[destBitmap->dataSize]; ///@note Portability: runtime sized arrays are C99 and C++ 14. Correctness: Will blow our stack if the image is large enough. Security ?
+          uint8_t* srcPixels = bitmap->GetBuffer();
+          uint32_t dest = 0;
+          uint8_t destPixels[destBitmap->GetBufferSize()];
+          memset(destPixels, 0, destBitmap->GetBufferSize());
 
-          if( bitmap->pixelFormat == Pixel::RGB888 )
+          switch(bitmap->GetPixelFormat())
           {
-            RgbToGrey( srcPixels, bitmap->dataSize, destPixels );
-          }
-          else
-          {
-            DALI_ASSERT_DEBUG( bitmap->pixelFormat == Pixel::RGBA8888 );
-            RgbaToGrey( srcPixels, bitmap->dataSize, destPixels );
+            case Pixel::RGB888:
+            {
+              for(std::size_t i = 0; i < bitmap->GetBufferSize(); i+=3)
+              {
+                destPixels[dest++] = GREY8( srcPixels[i], srcPixels[i+1], srcPixels[i+2]);
+              }
+
+              break;
+            }
+
+            case Pixel::RGBA8888:
+            {
+              for(std::size_t i = 0; i < bitmap->GetBufferSize(); i+=4)
+              {
+                uint8_t a = srcPixels[i+3];
+                // transparent pixels must have an alpha value of 0
+                if (a > 0x0)
+                {
+                  destPixels[dest]= GREY8( srcPixels[i], srcPixels[i+1], srcPixels[i+2]);
+                }
+
+                ++dest;
+              }
+
+              break;
+            }
+
+            default:
+              break;
           }
 
           // now we have an 8 bit luminance map in workbuffer, time to convert it to distance map.
-          Size imageSize( destBitmap->imageWidth, destBitmap->imageHeight );
+          Size imageSize(destBitmap->GetPackedPixelsProfile()->GetBufferWidth(), destBitmap->GetPackedPixelsProfile()->GetBufferHeight());
           GenerateDistanceFieldMap( destPixels,
                                     imageSize,
                                     destBitmap->GetBuffer(),
@@ -266,8 +259,8 @@ void ResourceThreadDistanceField::Load(const ResourceRequest& request)
 
 void ResourceThreadDistanceField::Save(const Integration::ResourceRequest& request)
 {
-  DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceImageData );
+  DALI_LOG_TRACE_METHOD(mLogFilter);
+  DALI_ASSERT_DEBUG(request.GetType()->id == ResourceBitmap);
 }
 
 

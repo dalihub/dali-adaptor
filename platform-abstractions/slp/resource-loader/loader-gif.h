@@ -17,10 +17,6 @@
 // limitations under the License.
 //
 
-// INTERNAL INCLUDES
-#include <dali/public-api/common/intrusive-ptr.h>
-
-// EXTERNAL INCLUDES
 #include <cstdio>
 
 namespace Dali
@@ -28,8 +24,7 @@ namespace Dali
 
 namespace Integration
 {
-  class ImageData;
-  typedef IntrusivePtr<ImageData> ImageDataPtr;
+  class Bitmap;
 }
 
 struct ImageAttributes;
@@ -48,11 +43,11 @@ const unsigned char MAGIC_BYTE_2 = 0x49;
  * and if it is not a GIF file, then it returns straight away.
  * @note For animated GIFs, only the first image is displayed
  * @param[in]  fp      Pointer to the Image file
+ * @param[in]  bitmap  The bitmap class where the decoded image will be stored
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
- * @param[out]  bitmap  The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromGif(FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap);
+bool LoadBitmapFromGif(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
 
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.

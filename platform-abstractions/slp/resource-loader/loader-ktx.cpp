@@ -23,13 +23,13 @@
 #include <dali/public-api/math/compile-time-assert.h>
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/image-data.h>
+#include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
-using Integration::ImageDataPtr;
+using Integration::Bitmap;
 using Dali::Integration::PixelBuffer;
 
 namespace SlpPlatform
@@ -303,7 +303,7 @@ bool LoadKtxHeader(FILE * const fp, const ImageAttributes& attributes, unsigned 
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx(FILE * const fp, ImageAttributes& attributes, ImageDataPtr& bitmap )
+bool LoadBitmapFromKtx(FILE * const fp, Bitmap& bitmap, ImageAttributes& attributes)
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);
@@ -355,8 +355,7 @@ bool LoadBitmapFromKtx(FILE * const fp, ImageAttributes& attributes, ImageDataPt
   }
 
   // Load up the image bytes:
-  bitmap = Integration::ImageData::New( Integration::BufferSize(imageByteCount), width, height, pixelFormat );
-  PixelBuffer * const pixels = bitmap->GetBuffer();
+  PixelBuffer * const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, (size_t) imageByteCount );
   if(!pixels)
   {
     DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );

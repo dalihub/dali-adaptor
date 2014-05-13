@@ -117,7 +117,7 @@ Integration::GlyphSet::Character* GetCharacter(FT_Face face, const FT_ULong char
  *
  * @return The glyph's image for the given character.
  */
-Integration::ImageDataPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode );
+Integration::BitmapPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode );
 
 } // namespace SlpPlatform
 

@@ -17,22 +17,17 @@
 // limitations under the License.
 //
 
-// INTERNAL INCLUDES
-#include <dali/public-api/common/intrusive-ptr.h>
+#include <stdio.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/pixel.h>
 #include "image-encoder.h"
-
-// EXTERNAL INCLUDES
-#include <stdio.h>
 
 namespace Dali
 {
 
 namespace Integration
 {
-  class ImageData;
-  typedef IntrusivePtr<ImageData> ImageDataPtr;
+  class Bitmap;
 }
 
 struct ImageAttributes;
@@ -50,11 +45,11 @@ const unsigned char MAGIC_BYTE_2 = 0xD8;
  * Loads the bitmap from an JPEG file.  This function checks the header first
  * and if it is not a JPEG file, then it returns straight away.
  * @param[in]  fp      Pointer to the Image file
+ * @param[in]  bitmap  The bitmap class where the decoded image will be stored
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
- * @param[out]  bitmap  The image data object where the loaded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromJpeg(FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap);
+bool LoadBitmapFromJpeg(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.

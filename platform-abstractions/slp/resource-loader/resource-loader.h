@@ -375,7 +375,7 @@ public:
    *
    * @return The bitmap image.
    */
-  Integration::ImageDataPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character );
+  Integration::BitmapPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character );
 
 private:
 

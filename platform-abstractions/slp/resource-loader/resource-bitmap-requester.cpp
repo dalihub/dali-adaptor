@@ -51,8 +51,8 @@ void ResourceBitmapRequester::Resume()
 
 void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& request )
 {
-  DALI_ASSERT_DEBUG( (0 != dynamic_cast<ImageResourceType*>(request.GetType())) && "Only requsts for bitmap resources can ever be routed to ResourceBitmapRequester.\n");
-  ImageResourceType* resType = static_cast<ImageResourceType*>(request.GetType());
+  DALI_ASSERT_DEBUG( (0 != dynamic_cast<BitmapResourceType*>(request.GetType())) && "Only requsts for bitmap resources can ever be routed to ResourceBitmapRequester.\n");
+  BitmapResourceType* resType = static_cast<BitmapResourceType*>(request.GetType());
   if( resType )
   {
     // Work out if the resource is in memory or a file:

@@ -17,10 +17,6 @@
 // limitations under the License.
 //
 
-// INTERNAL INCLUDES
-#include <dali/public-api/common/intrusive-ptr.h>
-
-// EXTERNAL INCLUDES
 #include <cstdio>
 
 namespace Dali
@@ -28,15 +24,14 @@ namespace Dali
 
 namespace Integration
 {
-  class ImageData;
-  typedef IntrusivePtr<ImageData> ImageDataPtr;
+  class Bitmap;
 }
 struct ImageAttributes;
 
 namespace SlpPlatform
 {
 
-bool LoadBitmapFromWbmp(FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap);
+bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
 
 bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 

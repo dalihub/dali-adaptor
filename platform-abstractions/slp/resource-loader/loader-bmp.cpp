@@ -18,13 +18,13 @@
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/image-data.h>
+#include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
-using Integration::ImageData;
-
+using Integration::Bitmap;
+using Dali::Integration::PixelBuffer;
 namespace SlpPlatform
 {
 
@@ -33,8 +33,6 @@ namespace
 const unsigned int FileHeaderOffsetOfBF32V4 = 0x7A;
 const unsigned int MaskForBFRGB565 = 0x80;
 const unsigned int FileHeaderOffsetOfRGB24V5 = 0x8A;
-
-typedef uint8_t PixelBuffer;
 
 enum BmpFormat
 {
@@ -162,7 +160,7 @@ bool DecodeRGB24V5(FILE *fp,
     }
     for(unsigned int i = 0; i < rowStride; i += 3)
     {
-      const uint8_t temp = pixelsPtr[i];
+      unsigned char temp = pixelsPtr[i];
       pixelsPtr[i] = pixelsPtr[i + 2];
       pixelsPtr[i + 2] = temp;
     }
@@ -1051,8 +1049,9 @@ bool LoadBmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return ret;
 }
 
-bool LoadBitmapFromBmp( FILE *fp, ImageAttributes& attributes, Integration::ImageDataPtr& bitmap )
+bool LoadBitmapFromBmp(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
 {
+  DALI_ASSERT_DEBUG(bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into.");
   if(fp == NULL)
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
@@ -1195,71 +1194,55 @@ bool LoadBitmapFromBmp( FILE *fp, ImageAttributes& attributes, Integration::Imag
   PixelBuffer *pixels =  NULL;
   int imageW = infoHeader.width;
   int pixelBufferW = 0;
-
-  // Work out the right image width, height, and pixel format to use:
-  unsigned imageWidth = infoHeader.width;
-  unsigned imageHeight = infoHeader.height;
-  Pixel::Format imagePixelFormat = Pixel::RGB888;
   switch(customizedFormat)
   {
-    case BMP_RLE8:
-    case BMP_RGB8:
-    case BMP_RGB4:
-    case BMP_RLE4:
-    case BMP_RGB555:
-    case BMP_BITFIELDS555:
+  case BMP_RLE8:
+  case BMP_RGB8:
+  case BMP_RGB4:
+  case BMP_RLE4:
+  case BMP_RGB555:
+  case BMP_BITFIELDS555:
+  {
+    pixelBufferW = ((imageW & 3) != 0) ? imageW + 4 - (imageW & 3) : imageW;
+    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, pixelBufferW, abs(infoHeader.height));
+    break;
+  }
+  case BMP_RGB1:
+  {
+    pixelBufferW = ((imageW & 63) != 0) ? imageW + 64 - (imageW & 63) : imageW;
+    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, pixelBufferW, abs(infoHeader.height));
+    break;
+  }
+  case BMP_BITFIELDS32:
+  case BMP_BITFIELDS32V4:
+  {
+    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB8888, infoHeader.width, abs(infoHeader.height));
+    break;
+  }
+  case BMP_RGB24V5:
+  {
+    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, infoHeader.width, infoHeader.height);
+    break;
+  }
+  default:
+    if(pixelFormat == Pixel::RGB565 )
     {
       pixelBufferW = ((imageW & 3) != 0) ? imageW + 4 - (imageW & 3) : imageW;
-      imageWidth = pixelBufferW;
-      imageHeight = abs( infoHeader.height );
-      break;
+      pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB565, pixelBufferW, abs(infoHeader.height));
     }
-    case BMP_RGB1:
+    else
     {
-      pixelBufferW = ((imageW & 63) != 0) ? imageW + 64 - (imageW & 63) : imageW;
-      imageWidth = pixelBufferW;
-      imageHeight = abs( infoHeader.height );
-      break;
+      pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, infoHeader.width, infoHeader.height);
     }
-    case BMP_BITFIELDS32:
-    case BMP_BITFIELDS32V4:
-    {
-      imagePixelFormat = Pixel::RGB8888;
-      imageHeight = abs( infoHeader.height );
-      break;
-    }
-    case BMP_RGB24V5:
-    {
-      //! The default width, height and pixel format are suitable.
-      break;
-    }
-    default:
-    {
-      if( pixelFormat == Pixel::RGB565 )
-      {
-        pixelBufferW = ((imageW & 3) != 0) ? imageW + 4 - (imageW & 3) : imageW;
-        imagePixelFormat = Pixel::RGB565;
-        imageWidth = pixelBufferW;
-        imageHeight = abs( infoHeader.height );
-      }
-      else
-      {
-        imagePixelFormat = pixelFormat;
-      }
-      break;
-    }
+    break;
   }
-
-  // Actually allocate the buffer of image data:
-  bitmap = Dali::Integration::NewBitmapImageData( imageWidth, imageHeight, imagePixelFormat );
-  pixels = bitmap->GetBuffer();
 
   // TODO: Add scaling support
 
   // Read the raw bitmap data
   PixelBuffer *pixelsPtr;
   bool decodeResult(false);
-  switch( customizedFormat )
+  switch(customizedFormat)
   {
     case BMP_RGB1:
     {

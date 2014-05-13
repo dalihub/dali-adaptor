@@ -18,8 +18,6 @@
 
 #include "loader-font.h"
 #include <dali/public-api/images/distance-field.h>
-#include <dali/integration-api/image-data.h>
-
 
 namespace Dali
 {
@@ -236,7 +234,7 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
 
   // TODO: Look at generating the distance field directly from the glyph vector outline
   //       instead of FreeType's scaled bitmap
-  ImageDataPtr bitmapData = NULL;
+  BitmapPtr bitmapData = NULL;
   // bitmap required?
   if (renderBitmap)
   {
@@ -264,10 +262,7 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
                   xScale * bitmapGlyph->left, yScale * bitmapGlyph->top, xScale * bitmap.width, yScale * bitmap.rows,
                   glyph->advance.x / 65536.0f * xScale, face->ascender / 64.0f);
 
-    // Create a new bitmap for the glyph:
-    bitmapData = Dali::Integration::NewBitmapImageData( fieldSize, fieldSize, Pixel::A8 );
-
-    // Fill the new bitmap appropriately:
+    // create a new bitmap for the glyph
     if(charcode == UNDERLINE_CHARACTER)
     {
       float underlineBitmapWidth( glyphMetrics.width / xScale );
@@ -277,6 +272,8 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
       std::vector<unsigned char> underlineAlphaMap(underlineBitmapSize);
       std::fill(underlineAlphaMap.begin(), underlineAlphaMap.end(), 0xff);
 
+      bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+      bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
       GenerateDistanceFieldMap( &(*underlineAlphaMap.begin()), Vector2(underlineBitmapWidth, underlineBitmapHeight),
                                bitmapData->GetBuffer(), Vector2(fieldSize, fieldSize),
                                fieldPadding, Vector2( maxGlyphCell.width / xScale, maxGlyphCell.height / yScale ),
@@ -286,6 +283,9 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
     {
       if (0 != (bitmap.width * bitmap.rows))
       {
+        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+        bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
+
         GenerateDistanceFieldMap(bitmap.buffer, Vector2(bitmap.width, bitmap.rows),
             bitmapData->GetBuffer(), Vector2(fieldSize, fieldSize),
             fieldPadding, Vector2( maxGlyphCell.width / xScale, maxGlyphCell.height / yScale ),
@@ -299,7 +299,9 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
         // However we will still need this code for characters like OGHAM SPACE MARK
         // which will be blank with some fonts, and visible with others.
         // Create a dummy bitmap of size 64,64
-        uint8_t* const pixelBuffer = bitmapData->GetBuffer();
+        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+        bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
+        PixelBuffer* pixelBuffer = bitmapData->GetBuffer();
         memset( pixelBuffer, 0x0, fieldSize * fieldSize );
       }
     }
@@ -311,9 +313,9 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
   return new GlyphSet::Character(bitmapData, glyphMetrics);
 }
 
-Integration::ImageDataPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode )
+Integration::BitmapPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode )
 {
-  Integration::ImageDataPtr image;
+  Integration::BitmapPtr image;
 
   FT_Glyph ftGlyph = GetGlyph( face, charCode, FT_LOAD_RENDER );
   if( NULL != ftGlyph )
@@ -342,7 +344,8 @@ Integration::ImageDataPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode )
     const std::size_t size = ftBitmap.width * ftBitmap.rows;
     if( 0 < size )
     {
-      image = Integration::NewBitmapImageData( ftBitmap.width, ftBitmap.rows, Pixel::A8 );
+      image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+      image->GetPackedPixelsProfile()->ReserveBuffer( Pixel::A8, ftBitmap.width, ftBitmap.rows );
 
       memcpy( static_cast<unsigned char*>( image->GetBuffer() ), ftBitmap.buffer, size );
     }
