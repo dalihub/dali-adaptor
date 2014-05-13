@@ -978,31 +978,31 @@ void Indicator::DataReceived( void* event )
   switch( epcEvent->minor )
   {
     case OP_UPDATE:
-      DALI_LOG_ERROR( "Indicator client received: OP_UPDATE\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
       break;
 
     case OP_UPDATE_DONE:
-      DALI_LOG_ERROR( "Indicator client received: OP_UPDATE_DONE\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE_DONE\n" );
       UpdateImageData();
       break;
 
     case OP_LOCK_FILE:
-      DALI_LOG_ERROR( "Indicator client received: OP_LOCK_FILE\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_LOCK_FILE\n" );
       NewLockFile( epcEvent );
       break;
 
     case OP_SHM_REF:
-      DALI_LOG_ERROR( "Indicator client received: OP_SHM_REF\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_SHM_REF\n" );
       LoadSharedImage( epcEvent );
       break;
 
     case OP_PIXMAP_REF:
-      DALI_LOG_ERROR( "Indicator client received: OP_PIXMAP_REF\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_PIXMAP_REF\n" );
       LoadPixmapImage( epcEvent );
       break;
 
     case OP_RESIZE:
-      DALI_LOG_ERROR( "Indicator client received: OP_RESIZE\n" );
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_RESIZE\n" );
 
       if( (epcEvent->data) && (epcEvent->size >= (int)sizeof(IpcDataResize)) )
       {
