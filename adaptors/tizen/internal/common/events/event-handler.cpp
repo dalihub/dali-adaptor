@@ -864,21 +864,24 @@ struct EventHandler::Impl
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_READ)
         {
-            // one finger tap
-            // focus & read an actor at ( e->data.l[2], e->data.l[3] ) position according to finger
+          // one finger tap
+          // focus & read an actor at ( e->data.l[2], e->data.l[3] ) position according to finger
           if(accessibilityManager)
           {
-            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true);
+            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true /* allow read again*/);
           }
         }
 #if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_OVER)
         {
-            // one finger move
-            // focus & read an actor at ( e->data.l[2], e->data.l[3] ) position according to finger
+          // one finger tap & move
+          // mouse state : e->data.l[2] (0: mouse down, 1: mouse move, 2: mouse up)
+          // x : e->data.l[3]
+          // y : e->data.l[4]
+          // focus & read an actor at (x, y) position according to finger
           if(accessibilityManager)
           {
-            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], false );
+            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4], false /* not allow read again*/);
           }
         }
 #endif
