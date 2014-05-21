@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    0.9.16
+Version:    0.9.17
 Release:    1
 Group:      System/Libraries
 License:    Flora
