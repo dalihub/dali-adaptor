@@ -3,7 +3,7 @@ Summary:    The DALi Tizen Adaptor
 Version:    0.9.15
 Release:    1
 Group:      System/Libraries
-License:    Flora
+License:    Apache 2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
