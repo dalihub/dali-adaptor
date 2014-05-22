@@ -1035,6 +1035,10 @@ void Indicator::DataReceived( void* event )
   {
     case OP_UPDATE:
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
+      if(mPixmap != 0)
+      {
+        mAdaptor->RequestUpdateOnce();
+      }
       break;
 
     case OP_UPDATE_DONE:
