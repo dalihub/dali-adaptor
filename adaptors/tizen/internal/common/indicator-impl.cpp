@@ -53,7 +53,7 @@ namespace
 
 const float SLIDING_ANIMATION_DURATION( 0.2f ); // 200 milli seconds
 const float AUTO_INDICATOR_STAY_DURATION(3.0f); // 3 seconds
-const float SHOWING_DISTANCE_HEIGHT_RATE(0.33f);
+const float SHOWING_DISTANCE_HEIGHT_RATE(0.17f); // 10 pixels
 
 enum
 {
@@ -606,7 +606,8 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         case Dali::TouchPoint::Down:
         {
           mTouchedDown = true;
-          mTouchedYPosition = touchPoint.local.y;
+          mTouchDownPosition = touchPoint.local;
+
         }
         break;
 
@@ -616,7 +617,11 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         {
           if( mTouchedDown )
           {
-            if( touchPoint.local.y > mTouchedYPosition + mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE )
+            float moveDistance = sqrt( (mTouchDownPosition.x - touchPoint.local.x) * (mTouchDownPosition.x - touchPoint.local.x)
+                               + (mTouchDownPosition.y - touchPoint.local.y)*(mTouchDownPosition.y - touchPoint.local.y) );
+
+            if( moveDistance > 2 * (mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE) /*threshold for distance*/
+              && touchPoint.local.y - mTouchDownPosition.y > mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE /*threshold for y*/ )
             {
               ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
               mTouchedDown = false;

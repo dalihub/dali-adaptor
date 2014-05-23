@@ -417,7 +417,7 @@ private:
 
   bool                             mIsAnimationPlaying;  ///< Whether the animation is playing
   bool                             mTouchedDown;         ///< Whether the indicator area touched down
-  int                              mTouchedYPosition;    ///< Indicator area touched position
+  Dali::Vector2                    mTouchDownPosition;   ///< Indicator area touched down position
 
 };
 
