@@ -713,6 +713,10 @@ bool Indicator::Connect( const char *serviceName )
   {
     StartReconnectionTimer();
   }
+  else
+  {
+    mState = CONNECTED;
+  }
 
   return connected;
 }
