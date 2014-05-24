@@ -189,7 +189,7 @@ public:
    * @param[in] type mouse event type, it could be unnecessary
    * @return True if the event was handled
    */
-  bool OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, int x = -1, int y = -1, int type = -1);
+  bool OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, Elm_Access_Action_Info* actionInfo, int x = -1, int y = -1);
 
   /**
    * Called when evqas object gain focus.

@@ -70,14 +70,14 @@ void AccessibilityManager::SetGestureHandler(AccessibilityGestureHandler& handle
   Internal::Adaptor::AccessibilityManager::GetImplementation(*this).SetGestureHandler(handler);
 }
 
-bool AccessibilityManager::HandleActionNextEvent()
+bool AccessibilityManager::HandleActionNextEvent(bool allowEndFeedback)
 {
-  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionNextEvent();
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionNextEvent(allowEndFeedback);
 }
 
-bool AccessibilityManager::HandleActionPreviousEvent()
+bool AccessibilityManager::HandleActionPreviousEvent(bool allowEndFeedback)
 {
-  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionPreviousEvent();
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionPreviousEvent(allowEndFeedback);
 }
 
 bool AccessibilityManager::HandleActionActivateEvent()
@@ -90,14 +90,14 @@ bool AccessibilityManager::HandleActionReadEvent(unsigned int x, unsigned int y,
   return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionReadEvent(x, y, allowReadAgain);
 }
 
-bool AccessibilityManager::HandleActionReadNextEvent()
+bool AccessibilityManager::HandleActionReadNextEvent(bool allowEndFeedback)
 {
-  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionReadNextEvent();
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionReadNextEvent(allowEndFeedback);
 }
 
-bool AccessibilityManager::HandleActionReadPreviousEvent()
+bool AccessibilityManager::HandleActionReadPreviousEvent(bool allowEndFeedback)
 {
-  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionReadPreviousEvent();
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionReadPreviousEvent(allowEndFeedback);
 }
 
 bool AccessibilityManager::HandleActionUpEvent()
@@ -115,9 +115,14 @@ bool AccessibilityManager::HandleActionClearFocusEvent()
   return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionClearFocusEvent();
 }
 
-bool AccessibilityManager::HandleActionScrollEvent(TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp)
 {
   return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionScrollEvent(point, timeStamp);
+}
+
+bool AccessibilityManager::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
+{
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).HandleActionTouchEvent(point, timeStamp);
 }
 
 bool AccessibilityManager::HandleActionBackEvent()

@@ -45,27 +45,31 @@ public:
 
   /**
    * Perform the accessibility action to move focus to the previous focusable actor (by one finger flick up).
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionPrevious() = 0;
+  virtual bool AccessibilityActionPrevious(bool allowEndFeedback) = 0;
 
   /**
    * Perform the accessibility action to move focus to the next focusable actor (by one finger flick down).
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionNext() = 0;
+  virtual bool AccessibilityActionNext(bool allowEndFeedback) = 0;
 
   /**
    * Perform the accessibility action to move focus to the previous focusable actor (by one finger flick left).
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionReadPrevious() = 0;
+  virtual bool AccessibilityActionReadPrevious(bool allowEndFeedback) = 0;
 
   /**
    * Perform the accessibility action to move focus to the next focusable actor (by one finger flick right).
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionReadNext() = 0;
+  virtual bool AccessibilityActionReadNext(bool allowEndFeedback) = 0;
 
   /**
    * Perform the accessibility action to focus and read the actor (by one finger tap or move).
@@ -100,6 +104,13 @@ public:
    * @return whether the accessibility action is performed or not.
    */
   virtual bool AccessibilityActionBack() = 0;
+
+  /**
+   * Perform the accessibility action to mouse move (by one finger tap & hold and move).
+   * @param touchEvent touch event structure
+   * @return whether the accessibility action is performed or not.
+   */
+  virtual bool AccessibilityActionTouch(const Dali::TouchEvent& touchEvent) = 0;
 
 }; // class AccessibilityActionHandler
 

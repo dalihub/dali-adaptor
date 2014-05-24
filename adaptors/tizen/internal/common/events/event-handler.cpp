@@ -827,9 +827,11 @@ struct EventHandler::Impl
             (unsigned int)clientMessageEvent->data.l[2],
             (unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4]);
 
-          // Send touch event to core.
+          // Send touch event to accessibility manager.
           TouchPoint point( 0, state, (float)clientMessageEvent->data.l[3], (float)clientMessageEvent->data.l[4] );
-          handler->SendEvent( point, 0 );
+
+          // In accessibility mode, scroll action should be handled when the currently focused actor is contained in scrollable control
+          accessibilityManager->HandleActionTouchEvent( point, GetCurrentMilliSeconds() );
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_BACK)
         {

@@ -106,12 +106,12 @@ public:
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionNextEvent()
    */
-  bool HandleActionNextEvent();
+  bool HandleActionNextEvent(bool allowEndFeedback = true);
 
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionPreviousEvent()
    */
-  bool HandleActionPreviousEvent();
+  bool HandleActionPreviousEvent(bool allowEndFeedback = true);
 
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionActivateEvent()
@@ -126,12 +126,12 @@ public:
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionReadNextEvent()
    */
-  bool HandleActionReadNextEvent();
+  bool HandleActionReadNextEvent(bool allowEndFeedback = true);
 
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionReadPreviousEvent()
    */
-  bool HandleActionReadPreviousEvent();
+  bool HandleActionReadPreviousEvent(bool allowEndFeedback = true);
 
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionUpEvent()
@@ -151,7 +151,12 @@ public:
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionScrollEvent()
    */
-  bool HandleActionScrollEvent(TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp);
+
+  /**
+   * @copydoc Dali::AccessibilityManager::HandleActionTouchEvent()
+   */
+  bool HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp);
 
   /**
    * @copydoc Dali::AccessibilityManager::HandleActionBackEvent()

@@ -116,7 +116,7 @@ void AccessibilityManager::SetGestureHandler(AccessibilityGestureHandler& handle
   }
 }
 
-bool AccessibilityManager::HandleActionNextEvent()
+bool AccessibilityManager::HandleActionNextEvent(bool allowEndFeedback)
 {
   bool ret = false;
   Dali::AccessibilityManager handle( this );
@@ -142,7 +142,7 @@ bool AccessibilityManager::HandleActionNextEvent()
   }
   else if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionNext();
+    ret = mActionHandler->AccessibilityActionNext(allowEndFeedback);
   }
 
   DALI_LOG_INFO(gAccessibilityManagerLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
@@ -150,7 +150,7 @@ bool AccessibilityManager::HandleActionNextEvent()
   return ret;
 }
 
-bool AccessibilityManager::HandleActionPreviousEvent()
+bool AccessibilityManager::HandleActionPreviousEvent(bool allowEndFeedback)
 {
   bool ret = false;
 
@@ -177,7 +177,7 @@ bool AccessibilityManager::HandleActionPreviousEvent()
   }
   else if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionPrevious();
+    ret = mActionHandler->AccessibilityActionPrevious(allowEndFeedback);
   }
 
   DALI_LOG_INFO(gAccessibilityManagerLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
@@ -335,7 +335,7 @@ bool AccessibilityManager::HandleActionReadEvent(unsigned int x, unsigned int y,
   return ret;
 }
 
-bool AccessibilityManager::HandleActionReadNextEvent()
+bool AccessibilityManager::HandleActionReadNextEvent(bool allowEndFeedback)
 {
   bool ret = false;
 
@@ -362,7 +362,7 @@ bool AccessibilityManager::HandleActionReadNextEvent()
   }
   else if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionReadNext();
+    ret = mActionHandler->AccessibilityActionReadNext(allowEndFeedback);
   }
 
   DALI_LOG_INFO(gAccessibilityManagerLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
@@ -370,7 +370,7 @@ bool AccessibilityManager::HandleActionReadNextEvent()
   return ret;
 }
 
-bool AccessibilityManager::HandleActionReadPreviousEvent()
+bool AccessibilityManager::HandleActionReadPreviousEvent(bool allowEndFeedback)
 {
   bool ret = false;
 
@@ -397,7 +397,7 @@ bool AccessibilityManager::HandleActionReadPreviousEvent()
   }
   else if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionReadPrevious();
+    ret = mActionHandler->AccessibilityActionReadPrevious(allowEndFeedback);
   }
 
   DALI_LOG_INFO(gAccessibilityManagerLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
@@ -503,7 +503,7 @@ bool AccessibilityManager::HandleActionClearFocusEvent()
   return ret;
 }
 
-bool AccessibilityManager::HandleActionScrollEvent(TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp)
 {
   bool ret = false;
 
@@ -518,6 +518,20 @@ bool AccessibilityManager::HandleActionScrollEvent(TouchPoint& point, unsigned l
     }
   }
 
+  return ret;
+}
+
+bool AccessibilityManager::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
+{
+  bool ret = false;
+
+  Dali::TouchEvent touchEvent(timeStamp);
+  touchEvent.points.push_back(point);
+
+  if( mActionHandler )
+  {
+    ret = mActionHandler->AccessibilityActionTouch(touchEvent);
+  }
   return ret;
 }
 

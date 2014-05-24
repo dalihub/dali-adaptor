@@ -502,12 +502,12 @@ static Eina_Bool _elm_access_highlight_cb(void *data, Evas_Object *obj, Elm_Acce
     // action_by has NEXT or PREV
     if (actionInfo->action_by == ELM_ACCESS_ACTION_HIGHLIGHT_NEXT)
     {
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_NEXT);
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_NEXT, actionInfo);
       DALI_LOG_INFO(gEvasPluginLogFilter, Debug::General, "[%s:%d] Next returns %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
     }
     else if (actionInfo->action_by == ELM_ACCESS_ACTION_HIGHLIGHT_PREV)
     {
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_PREV);
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_PREV, actionInfo);
       DALI_LOG_INFO(gEvasPluginLogFilter, Debug::General, "[%s:%d] Prev returns %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
     }
     else
@@ -543,7 +543,7 @@ static Eina_Bool _elm_access_read_cb(void *data, Evas_Object *obj, Elm_Access_Ac
 
     if(actionInfo)
     {
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_READ, (actionInfo->x - geometry.x), (actionInfo->y - geometry.y));
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_READ, actionInfo, (actionInfo->x - geometry.x), (actionInfo->y - geometry.y));
       DALI_LOG_INFO(gEvasPluginLogFilter, Debug::General, "[%s:%d] returns %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
     }
     else
@@ -566,7 +566,7 @@ static Eina_Bool _elm_access_over_cb(void *data, Evas_Object *obj, Elm_Access_Ac
 
     if(actionInfo)
     {
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_OVER, (actionInfo->x - geometry.x), (actionInfo->y - geometry.y));
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_OVER, actionInfo, (actionInfo->x - geometry.x), (actionInfo->y - geometry.y));
       DALI_LOG_INFO(gEvasPluginLogFilter, Debug::General, "[%s:%d] returns %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
     }
     else
@@ -581,43 +581,43 @@ static Eina_Bool _elm_access_over_cb(void *data, Evas_Object *obj, Elm_Access_Ac
 static Eina_Bool _elm_access_highlight_next_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_NEXT);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_NEXT, actionInfo);
 }
 
 static Eina_Bool _elm_access_highlight_prev_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_PREV);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_HIGHLIGHT_PREV, actionInfo);
 }
 
 static Eina_Bool _elm_access_activate_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_ACTIVATE);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_ACTIVATE, actionInfo);
 }
 
 static Eina_Bool _elm_access_unhighlight_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_UNHIGHLIGHT);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_UNHIGHLIGHT, actionInfo);
 }
 
 static Eina_Bool _elm_access_back_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_BACK);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_BACK, actionInfo);
 }
 
 static Eina_Bool _elm_access_value_up_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_UP);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_UP, actionInfo);
 }
 
 static Eina_Bool _elm_access_value_down_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
 {
   EvasPlugin* ep = (EvasPlugin*)data;
-  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_DOWN);
+  return ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_DOWN, actionInfo);
 }
 
 static Eina_Bool _elm_access_scroll_cb(void *data, Evas_Object *obj, Elm_Access_Action_Info *actionInfo)
@@ -638,7 +638,7 @@ static Eina_Bool _elm_access_scroll_cb(void *data, Evas_Object *obj, Elm_Access_
       rel_x = actionInfo->x - obj_x;
       rel_y = actionInfo->y - obj_y;
 
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_SCROLL, rel_x, rel_y, actionInfo->mouse_type);
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_SCROLL, actionInfo, rel_x, rel_y);
     }
   }
   else
@@ -667,7 +667,7 @@ static Eina_Bool _elm_access_mouse_cb(void *data, Evas_Object *obj, Elm_Access_A
       rel_x = actionInfo->x - obj_x;
       rel_y = actionInfo->y - obj_y;
 
-      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_MOUSE, rel_x, rel_y, actionInfo->mouse_type);
+      ret = ep->OnAccessibilityActionEvent(ELM_ACCESS_ACTION_MOUSE, actionInfo, rel_x, rel_y);
     }
   }
   else
@@ -1279,11 +1279,11 @@ void EvasPlugin::RenderSync()
   }
 }
 
-bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, int x, int y, int type)
+bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, Elm_Access_Action_Info* actionInfo, int x, int y)
 {
   bool ret = false;
 
-  if( NULL == mAdaptor )
+  if( NULL == mAdaptor || NULL == actionInfo )
   {
     return ret;
   }
@@ -1291,6 +1291,10 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
   Dali::AccessibilityManager accessibilityManager = Dali::AccessibilityManager::Get();
   if( accessibilityManager )
   {
+    int touchType = actionInfo->mouse_type;
+    int touchX = x >= 0 ? x : actionInfo->x;
+    int touchY = y >= 0 ? y : actionInfo->y;
+
     switch(actionType)
     {
       case ELM_ACCESS_ACTION_HIGHLIGHT:
@@ -1308,7 +1312,8 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
 
       case ELM_ACCESS_ACTION_HIGHLIGHT_PREV:
       {
-        ret = accessibilityManager.HandleActionPreviousEvent();
+        // if actionInfo->highlight_end is true, need to handle end_of_list sound feedback
+        ret = accessibilityManager.HandleActionPreviousEvent(actionInfo->highlight_end);
         if(!ret)
         {
           // when focus moving was failed, clear the focus
@@ -1319,7 +1324,8 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
 
       case ELM_ACCESS_ACTION_HIGHLIGHT_NEXT:
       {
-        ret = accessibilityManager.HandleActionNextEvent();
+        // if actionInfo->highlight_end is true, need to handle end_of_list sound feedback
+        ret = accessibilityManager.HandleActionNextEvent(actionInfo->highlight_end);
         if(!ret)
         {
           // when focus moving was failed, clear the focus
@@ -1344,15 +1350,15 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
       {
         TouchPoint::State state(TouchPoint::Down);
 
-        if (type == 0)
+        if (touchType == 0)
         {
           state = TouchPoint::Down; // mouse down
         }
-        else if (type == 1)
+        else if (touchType == 1)
         {
           state = TouchPoint::Motion; // mouse move
         }
-        else if (type == 2)
+        else if (touchType == 2)
         {
           state = TouchPoint::Up; // mouse up
         }
@@ -1361,8 +1367,8 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
           state = TouchPoint::Interrupted; // error
         }
 
-        // Send touch event to core.
-        TouchPoint point( 0, state, (float)x, (float)y );
+        // Send touch event to accessibility manager.
+        TouchPoint point( 0, state, (float)touchX, (float)touchY );
         ret = accessibilityManager.HandleActionScrollEvent(point, GetCurrentMilliSeconds());
       }
       break;
@@ -1384,15 +1390,15 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
         // generate normal mouse event
         TouchPoint::State state(TouchPoint::Down);
 
-        if (type == 0)
+        if (touchType == 0)
         {
           state = TouchPoint::Down; // mouse down
         }
-        else if (type == 1)
+        else if (touchType == 1)
         {
           state = TouchPoint::Motion; // mouse move
         }
-        else if (type == 2)
+        else if (touchType == 2)
         {
           state = TouchPoint::Up; // mouse up
         }
@@ -1401,11 +1407,9 @@ bool EvasPlugin::OnAccessibilityActionEvent(Elm_Access_Action_Type actionType, i
           state = TouchPoint::Interrupted; // error
         }
 
-        // Send touch event to core.
-        TouchPoint point( 0, state, (float)x, (float)y );
-        OnTouchEvent(point, 0);
-
-        DALI_LOG_INFO(gEvasPluginLogFilter, Debug::General, "[%s:%d] (%d, %d)\n", __FUNCTION__, __LINE__, x, y);
+        // Send touch event to accessibility manager.
+        TouchPoint point( 0, state, (float)touchX, (float)touchY );
+        ret = accessibilityManager.HandleActionTouchEvent(point, GetCurrentMilliSeconds());
       }
       break;
 

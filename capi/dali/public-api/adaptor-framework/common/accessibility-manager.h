@@ -128,17 +128,19 @@ public:
    * @brief Handle the accessibility action to move focus to the next focusable actor
    * (by one finger flick down).
    *
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return Whether the action is performed successfully or not.
    */
-  bool HandleActionNextEvent();
+  bool HandleActionNextEvent(bool allowEndFeedback = true);
 
   /**
    * @brief Handle the accessibility action to move focus to the previous focusable actor
    * (by one finger flick up).
    *
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return Whether the action is performed successfully or not.
    */
-  bool HandleActionPreviousEvent();
+  bool HandleActionPreviousEvent(bool allowEndFeedback = true);
 
   /**
    * @brief Handle the accessibility action to activate the current focused actor (by one
@@ -163,17 +165,19 @@ public:
    * @brief Handle the accessibility action to move focus to the next focusable actor
    * (by one finger flick right).
    *
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the end
    * @return Whether the action is performed successfully or not.
    */
-  bool HandleActionReadNextEvent();
+  bool HandleActionReadNextEvent(bool allowEndFeedback = true);
 
   /**
    * @brief Handle the accessibility action to move focus to the previous focusable actor
    * (by one finger flick up).
    *
+   * @param allowEndFeedback true if end of list feedback should be played when the focus is alread reached to the front
    * @return Whether the action is performed successfully or not.
    */
-  bool HandleActionReadPreviousEvent();
+  bool HandleActionReadPreviousEvent(bool allowEndFeedback = true);
 
   /**
    * @brief Handle the accessibility action to change the value when the current focused
@@ -200,14 +204,24 @@ public:
   bool HandleActionClearFocusEvent();
 
   /**
-   * @brief Handle the accessibility action to scroll when the current focused actor is
-   * a scrollable control or its child (by 2 finger touch & move, 2 finger flick).
+   * @brief Handle the accessibility action to scroll when there is a scroller on the touched position
+   * (by 2 finger touch & move, 2 finger flick).
    *
    * @param[in]  point      The touch point information.
    * @param[in]  timeStamp  The time the touch occurred.
    * @return Whether the action is performed successfully or not.
    */
-  bool HandleActionScrollEvent(TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp);
+
+  /**
+   * @brief Handle the accessibility action to move for the current focused actor
+   * (by 1 finger tap & hold and move).
+   *
+   * @param[in]  point      The touch point information.
+   * @param[in]  timeStamp  The time the touch occurred.
+   * @return Whether the action is performed successfully or not.
+   */
+  bool HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp);
 
   /**
    * @brief Handle the accessibility action to navigate back (by two fingers circle draw).
