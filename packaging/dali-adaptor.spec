@@ -1,17 +1,16 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    0.9.18
+Version:    0.9.15
 Release:    1
 Group:      System/Libraries
-License:    Apache 2.0
+License:    Flora
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       boost-thread
-#Requires:       giflib
-BuildRequires:  gettext
+Requires:       giflib
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
@@ -21,9 +20,7 @@ BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(elementary)
-BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-appfw-application)
-BuildRequires:  pkgconfig(isf)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(xfixes)
@@ -39,6 +36,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(libpng)
 ExclusiveArch:  armv7l
 
 %description
@@ -50,7 +48,7 @@ platform abstraction and application shell
 ##############################
 %package devel
 Summary:    Development components for the DALi Tizen Adaptor
-Group:      Development/Building
+Group:      Development/Libs
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
@@ -61,8 +59,8 @@ Development components for the DALi Tizen Adaptor - public headers and package c
 ##############################
 %package dali-feedback-plugin
 Summary:    Plugin to play haptic and audio feedback for Dali
-Group:      System/Libraries
-#Requires:       libdeviced
+Group:      Development/Building
+Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
@@ -75,7 +73,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 ##############################
 %package dali-bullet-plugin
 Summary:    Plugin to provide physics
-Group:      System/Libraries
+Group:      Development/Building
 BuildRequires:  bullet-devel
 
 %description dali-bullet-plugin
@@ -160,14 +158,6 @@ chown 5000:5000 %{user_font_cache_dir}
 chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
-%post dali-feedback-plugin
-/sbin/ldconfig
-exit 0
-
-%post dali-bullet-plugin
-/sbin/ldconfig
-exit 0
-
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -182,15 +172,6 @@ exit 0
 %postun
 /sbin/ldconfig
 exit 0
-
-%postun dali-feedback-plugin
-/sbin/ldconfig
-exit 0
-
-%postun dali-bullet-plugin
-/sbin/ldconfig
-exit 0
-
 
 ##############################
 # Files in Binary Packages

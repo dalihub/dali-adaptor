@@ -11,7 +11,6 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       boost-thread
 Requires:       giflib
-BuildRequires:  gettext
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
@@ -21,9 +20,7 @@ BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(elementary)
-BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-appfw-application)
-BuildRequires:  pkgconfig(isf)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(xfixes)
@@ -39,6 +36,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(libpng)
 ExclusiveArch:  armv7l
 
 %description
@@ -97,8 +95,6 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
 %define dali_plugin_theme_files  %{dali_data_ro_dir}/themes/feedback-themes/
 
-# Switch over when CAPI finalized
-#%define dev_include_path %{_includedir}/dali/internal
 %define dev_include_path %{_includedir}
 
 ##############################
