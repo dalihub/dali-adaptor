@@ -487,9 +487,9 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
   SetBackground();
 }
 
-void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode )
+void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
 {
-  if ( visibleMode != mVisible )
+  if ( visibleMode != mVisible || forceUpdate )
   {
     // If we were previously hidden, then we should update the image data before we display the indicator
     if ( mVisible == Dali::Window::INVISIBLE )
@@ -600,7 +600,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
       }
     }
     // show indicator when it is invisible
-    else if( !mIsShowing && ( CheckVisibleState() == false || mVisible == Dali::Window::AUTO ) )
+    else if( !mIsShowing && ( CheckVisibleState() == false && mVisible == Dali::Window::AUTO ) )
     {
       switch( touchPoint.state )
       {
@@ -843,6 +843,8 @@ void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
         // set default indicator type (disable the quick panel)
         OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
       }
+
+      SetVisible(mVisible, true);
     }
   }
 }
@@ -887,6 +889,8 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
           // set default indicator type (disable the quick panel)
           OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
         }
+
+        SetVisible(mVisible, true);
       }
     }
   }
@@ -924,6 +928,7 @@ bool Indicator::CopyToBuffer()
     {
       unsigned char *src = mSharedFile->GetAddress();
       size_t size = mImageWidth * mImageHeight * 4;
+
       if( mIndicatorBuffer->UpdatePixels( src, size ) )
       {
         mAdaptor->RequestUpdateOnce();

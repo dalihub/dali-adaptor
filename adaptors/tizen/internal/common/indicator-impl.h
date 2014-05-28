@@ -203,8 +203,9 @@ public:
   /**
    * Set whether the indicator is visible or not.
    * @param[in] visibleMode visible mode for indicator bar.
+   * @param[in] forceUpdate true if want to change visible mode forcely
    */
-  void SetVisible( Dali::Window::IndicatorVisibleMode visibleMode );
+  void SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate = false );
 
   /**
    * Check whether the indicator is connected to the indicator service.
