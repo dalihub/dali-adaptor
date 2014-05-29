@@ -19,8 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <vector>
-
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/integration-api/events/pan-gesture-event.h>
 

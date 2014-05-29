@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <vector>
+#include <dali/public-api/common/vector-wrapper.h>
 
 // INTERNAL INCLUDES
 #include <internal/common/events/gesture-detector.h>

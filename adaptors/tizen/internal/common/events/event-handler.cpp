@@ -22,7 +22,6 @@
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_X.h>
-#include <vector>
 #include <cstring>
 
 #include <sys/time.h>
@@ -30,6 +29,7 @@
 #include <vconf.h>
 #include <vconf-keys.h>
 
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/mouse-wheel-event.h>

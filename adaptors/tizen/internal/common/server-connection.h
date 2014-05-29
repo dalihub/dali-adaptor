@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <vector>
 #include <Ecore.h>
 #include <Ecore_Ipc.h>
+
+#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {

@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include <vector>
+
+#include <dali/public-api/common/vector-wrapper.h>
 
 using namespace std;
 

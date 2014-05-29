@@ -21,11 +21,11 @@
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
 #include <Ecore_X.h>
-#include <vector>
 #include <algorithm>
 
-#include <dali/integration-api/debug.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/common/adaptor.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <internal/common/locale-utils.h>

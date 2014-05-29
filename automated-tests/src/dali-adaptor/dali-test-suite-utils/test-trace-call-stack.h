@@ -19,7 +19,7 @@
  */
 
 #include <string>
-#include <vector>
+#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {

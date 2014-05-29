@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <vector>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/common/timer.h>
 
 // INTERNAL INCLUDES
