@@ -786,30 +786,36 @@ bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &w
     // Double check we get the same width/height from the header
     unsigned int headerWidth;
     unsigned int headerHeight;
-    LoadJpegHeader( fp, headerWidth, headerHeight );
-
-    JPGFORM_CODE transform = JPGFORM_NONE;
-
-    if( attributes.GetOrientationCorrection() )
+    if( LoadJpegHeader( fp, headerWidth, headerHeight ) )
     {
-      ExifAutoPtr exifData( LoadExifData( fp ) );
-      if( exifData.mData )
-      {
-        transform = ConvertExifOrientation(exifData.mData);
-      }
+      JPGFORM_CODE transform = JPGFORM_NONE;
 
-      int preXformImageWidth = headerWidth;
-      int preXformImageHeight = headerHeight;
-      int postXformImageWidth = headerWidth;
-      int postXformImageHeight = headerHeight;
-
-      success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
-      if(success)
+      if( attributes.GetOrientationCorrection() )
       {
-        width = postXformImageWidth;
-        height = postXformImageHeight;
+        ExifAutoPtr exifData( LoadExifData( fp ) );
+        if( exifData.mData )
+        {
+          transform = ConvertExifOrientation(exifData.mData);
+        }
+
+        int preXformImageWidth = headerWidth;
+        int preXformImageHeight = headerHeight;
+        int postXformImageWidth = headerWidth;
+        int postXformImageHeight = headerHeight;
+
+        success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+        if(success)
+        {
+          width = postXformImageWidth;
+          height = postXformImageHeight;
+        }
       }
-      success = true;
+      else
+      {
+        success = true;
+        width = headerWidth;
+        height = headerHeight;
+      }
     }
   }
   return success;
