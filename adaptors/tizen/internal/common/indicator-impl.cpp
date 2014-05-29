@@ -79,6 +79,8 @@ const float TRANSPARENT_THRESHOLD(0.05f);
 // Indicator orientation
 const char* ELM_INDICATOR_PORTRAIT("elm_indicator_portrait");
 const char* ELM_INDICATOR_LANDSCAPE("elm_indicator_landscape");
+const char* ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE("elm_indicator_portrait_fixed");
+const char* ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE("elm_indicator_landscape_fixed");
 
 const char* MESH_VERTEX_SHADER =
 "attribute lowp vec3     aColor;\n"
@@ -362,9 +364,10 @@ bool Indicator::ScopedLock::IsLocked()
   return mLocked;
 }
 
-Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Observer* observer )
+Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Dali::Window::IndicatorStyle style, Observer* observer )
 : mPixmap( 0 ),
   mConnection( this ),
+  mStyle( style ),
   mOpacityMode( Dali::Window::OPAQUE ),
   mState( DISCONNECTED ),
   mAdaptor(adaptor),
@@ -677,16 +680,44 @@ bool Indicator::Connect( Dali::Window::WindowOrientation orientation )
   switch( orientation )
   {
     case Dali::Window::PORTRAIT:
-      connected = Connect( ELM_INDICATOR_PORTRAIT );
+      if(mStyle == Dali::Window::FIXED_COLOR)
+      {
+        connected = Connect( ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE );
+      }
+      else
+      {
+        connected = Connect( ELM_INDICATOR_PORTRAIT );
+      }
       break;
     case Dali::Window::PORTRAIT_INVERSE:
-      connected = Connect( ELM_INDICATOR_PORTRAIT );
+      if(mStyle == Dali::Window::FIXED_COLOR)
+      {
+        connected = Connect( ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE );
+      }
+      else
+      {
+        connected = Connect( ELM_INDICATOR_PORTRAIT );
+      }
       break;
     case Dali::Window::LANDSCAPE:
-      connected = Connect( ELM_INDICATOR_LANDSCAPE );
+      if(mStyle == Dali::Window::FIXED_COLOR)
+      {
+        connected = Connect( ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE );
+      }
+      else
+      {
+        connected = Connect( ELM_INDICATOR_LANDSCAPE );
+      }
       break;
     case Dali::Window::LANDSCAPE_INVERSE:
-      connected = Connect( ELM_INDICATOR_LANDSCAPE );
+      if(mStyle == Dali::Window::FIXED_COLOR)
+      {
+        connected = Connect( ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE );
+      }
+      else
+      {
+        connected = Connect( ELM_INDICATOR_LANDSCAPE );
+      }
       break;
   }
 

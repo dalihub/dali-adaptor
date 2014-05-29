@@ -81,6 +81,11 @@ public:
   RenderSurface* GetSurface();
 
   /**
+   * @copydoc Dali::Window::SetIndicatorStyle()
+   */
+  void SetIndicatorStyle( Dali::Window::IndicatorStyle style );
+
+  /**
    * @copydoc Dali::Window::ShowIndicator()
    */
   void ShowIndicator( bool show );
@@ -249,6 +254,7 @@ private:
   typedef std::vector<Indicator*> DiscardedIndicators;
 
   RenderSurface*                   mSurface;
+  Dali::Window::IndicatorStyle     mIndicatorStyle;     ///< indicator style
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
   bool                             mIndicatorIsShown:1; ///< private state
   bool                             mShowRotatedIndicatorOnClose:1;

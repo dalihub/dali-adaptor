@@ -163,6 +163,7 @@ public:
    */
   Indicator( Adaptor* adaptor,
              Dali::Window::WindowOrientation orientation,
+             Dali::Window::IndicatorStyle style,
              Observer* observer );
 
   /**
@@ -398,6 +399,7 @@ private:
   Dali::Timer                      mReconnectTimer;      ///< Reconnection timer
   SlotDelegate< Indicator >        mConnection;
 
+  Dali::Window::IndicatorStyle     mStyle;               ///< Style of the indicator
   Dali::Window::IndicatorBgOpacity mOpacityMode;         ///< Opacity enum for background
   Indicator::State                 mState;               ///< The connection state
 
