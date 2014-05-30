@@ -33,6 +33,8 @@ namespace Adaptor
 
 #define DALI_ENV_PAN_PREDICTION_MODE "DALI_PAN_PREDICTION_MODE"
 
+#define DALI_ENV_PAN_PREDICTION_AMOUNT "DALI_PAN_PREDICTION_AMOUNT"
+
 } // namespace Adaptor
 
 } // namespace Internal

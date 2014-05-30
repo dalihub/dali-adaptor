@@ -33,6 +33,7 @@ EnvironmentOptions::EnvironmentOptions()
   mPerformanceLoggingLevel(0),
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
+  mPanGesturePredictionAmount(-1.0f), ///< only sets value in pan gesture if greater than 0
   mLogFunction( NULL )
 {
 }
@@ -87,6 +88,21 @@ unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
 unsigned int EnvironmentOptions::GetPanGestureSmoothingMode() const
 {
   return mPanGesturePredictionMode;
+}
+
+float EnvironmentOptions::GetPanGesturePredictionAmount() const
+{
+  return mPanGesturePredictionAmount;
+}
+
+void EnvironmentOptions::SetPanGesturePredictionMode(unsigned int mode)
+{
+  mPanGesturePredictionMode = mode;
+}
+
+void EnvironmentOptions::SetPanGesturePredictionAmount(float amount)
+{
+  mPanGesturePredictionAmount = amount;
 }
 
 } // Adaptor

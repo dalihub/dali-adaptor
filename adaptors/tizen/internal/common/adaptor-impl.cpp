@@ -144,6 +144,11 @@ void Adaptor::ParseEnvironmentOptions()
   {
     mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
   }
+  float predictionAmount = -1.0f;
+  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
+  {
+    mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
+  }
 
   mEnvironmentOptions.InstallLogFunction();
 }
@@ -191,6 +196,10 @@ void Adaptor::Initialize()
   if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
   {
     Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+  }
+  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0.0f )
+  {
+    Integration::SetPanGesturePredictionAmount(mEnvironmentOptions.GetPanGesturePredictionAmount());
   }
 }
 

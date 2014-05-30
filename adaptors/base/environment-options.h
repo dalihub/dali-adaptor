@@ -95,11 +95,23 @@ public:
   unsigned int GetPanGestureSmoothingMode() const;
 
   /**
+   * @return pan-gesture prediction amount
+   */
+  float GetPanGesturePredictionAmount() const;
+
+  /**
    * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
    *
    * @param[in] mode The smoothing mode to use
    */
-  void SetPanGesturePredictionMode(unsigned int mode) { mPanGesturePredictionMode = mode; }
+  void SetPanGesturePredictionMode(unsigned int mode);
+
+  /**
+   * @brief Sets the prediction amount of the pan gesture
+   *
+   * @param[in] amount The prediction amount, 0.0f being next vsync and each 1.0f on top is another vsync ahead, can be divisions of (0.5f)
+   */
+  void SetPanGesturePredictionAmount(float amount);
 
 private:
 
@@ -108,6 +120,7 @@ private:
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
+  float mPanGesturePredictionAmount;              ///< prediction amount for pan gestures
 
   Dali::Integration::Log::LogFunction mLogFunction;
 
