@@ -7,6 +7,6 @@ includedir=@devincludepath@
 Name: Samsung OpenGLES Toolkit Adaptor
 Description: 3D Canvas Toolkit using OpenGLES (with the Native Buffer adaptor)
 Version: ${apiversion}
-Requires: freetype2,fontconfig,libpng,gles20,x11,dali-core,elementary,libxml-2.0,native-buffer,native-buffer-pool
+Requires: dali-core,native-buffer,native-buffer-pool
 Libs: -L${libdir} -ldali-native-buffer-plugin -ldali-adaptor-common
 Cflags: -I${includedir}/dali -DDALI_NATIVE_BUFFER_PLUGIN

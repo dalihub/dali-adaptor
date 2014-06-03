@@ -1,14 +1,14 @@
 #
 # Copyright (c) 2014 Samsung Electronics Co., Ltd.
 #
-# Licensed under the Flora License, Version 1.0 (the License);
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://floralicense.org/license/
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an AS IS BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -41,14 +41,14 @@ libdali_adaptor_la_SOURCES = $(tizen_application_public_api_src_files)
 
 if MOBILE_PROFILE
 libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_public_api_src_files) \
-															$(tizen_native_buffer_plugin_public_api_src_files)
+                              $(tizen_native_buffer_plugin_public_api_src_files)
 endif
 
 libdali_adaptor_la_SOURCES += $(tizen_application_internal_src_files)
 
 if MOBILE_PROFILE
 libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_internal_src_files) \
-															$(tizen_native_buffer_plugin_internal_src_files)
+                              $(tizen_native_buffer_plugin_internal_src_files)
 endif
 
 libdali_adaptor_la_DEPENDENCIES =
@@ -108,6 +108,8 @@ libdali_adaptor_la_LIBADD += \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif
+
+
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir}
