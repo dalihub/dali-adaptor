@@ -202,7 +202,6 @@ private:
 
   Dali::Integration::Core&            mCore;                ///< Dali core reference
   PerformanceInterface*               mPerformanceInterface;///< The performance logging interface
-  bool mSkipNextVSync; ///< Is set on resumption so that we start an update straight away rather than wait for the Vsync
 
 }; // class UpdateRenderSynchronization
 

@@ -52,8 +52,7 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
   mVSyncSeconds( 0u ),
   mVSyncMicroseconds( 0u ),
   mCore( adaptorInterfaces.GetCore() ),
-  mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
-  mSkipNextVSync( false )
+  mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() )
 {
 }
 
@@ -146,13 +145,11 @@ void UpdateRenderSynchronization::UpdateReadyToRun()
     }
   }
 
-  if ( !wokenFromPause && !mSkipNextVSync)
+  if ( !wokenFromPause )
   {
     // Wait for the next VSync
     WaitVSync();
   }
-
-  mSkipNextVSync = false;
 
   AddPerformanceMarker( PerformanceMarker::UPDATE_START );
 }
@@ -234,9 +231,6 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
     // 2. wake VSync thread.
     mVSyncSleep = false;
     mVSyncSleepCondition.notify_one();
-
-    // 3. Update shouldn't wait for next VSync
-    mSkipNextVSync = true;
   }
 
   mUpdateRequested = false;
