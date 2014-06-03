@@ -40,7 +40,7 @@ namespace Adaptor
 namespace
 {
 // TODO: Used DPD Value.
-const float MINIMUM_MOTION_BEFORE_PAN_SQUARED( 10.0f * 10.0f );
+const float MINIMUM_MOTION_BEFORE_PAN_SQUARED( 8.0f * 8.0f );
 const unsigned long MAXIMUM_TIME_DIFF_ALLOWED( 500 );
 } // unnamed namespace
 
