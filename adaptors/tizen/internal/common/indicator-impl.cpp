@@ -54,7 +54,7 @@ namespace
 
 const float SLIDING_ANIMATION_DURATION( 0.2f ); // 200 milli seconds
 const float AUTO_INDICATOR_STAY_DURATION(3.0f); // 3 seconds
-const float SHOWING_DISTANCE_HEIGHT_RATE(0.17f); // 10 pixels
+const float SHOWING_DISTANCE_HEIGHT_RATE(0.34f); // 20 pixels
 
 enum
 {
@@ -366,6 +366,7 @@ bool Indicator::ScopedLock::IsLocked()
 
 Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Dali::Window::IndicatorStyle style, Observer* observer )
 : mPixmap( 0 ),
+  mGestureDetected( false ),
   mConnection( this ),
   mStyle( style ),
   mOpacityMode( Dali::Window::OPAQUE ),
@@ -381,8 +382,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mImageHeight( 0 ),
   mVisible( Dali::Window::VISIBLE ),
   mIsShowing( true ),
-  mIsAnimationPlaying( false ),
-  mTouchedDown( false )
+  mIsAnimationPlaying( false )
 {
   mIndicatorImageActor = Dali::ImageActor::New();
   mIndicatorImageActor.SetBlendFunc( Dali::BlendingFactor::ONE, Dali::BlendingFactor::ONE_MINUS_SRC_ALPHA,
@@ -391,10 +391,14 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mIndicatorImageActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
   mIndicatorImageActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
 
+  // Indicator image handles the touch event including "leave"
+  mIndicatorImageActor.SetLeaveRequired( true );
+  mIndicatorImageActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
+
   SetBackground();
   mBackgroundActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
   mBackgroundActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
-  mBackgroundActor.SetZ(-0.01f);
+  mBackgroundActor.SetZ( -0.02f );
 
   // add background to image actor to move it with indicator image
   mIndicatorImageActor.Add( mBackgroundActor );
@@ -407,14 +411,19 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
     mBackgroundActor.SetVisible( false );
   }
 
-  // event handler
+  // Event handler to find out flick down gesture
   mEventActor = Dali::Actor::New();
   mEventActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
   mEventActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
-  mEventActor.SetPosition(0.0f, 0.0f, 1.0f);
-  mEventActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
-  mEventActor.SetLeaveRequired( true );
+  mEventActor.SetZ( -0.01f );
   mIndicatorActor.Add( mEventActor );
+
+  // Attach pan gesture to find flick down during hiding.
+  // It can prevent the problem that scrollview gets pan gesture even indicator area is touched,
+  // since it consumes the pan gesture in advance.
+  mPanDetector = Dali::PanGestureDetector::New();
+  mPanDetector.DetectedSignal().Connect( this, &Indicator::OnPan );
+  mPanDetector.Attach( mEventActor );
 
   Open( orientation );
 
@@ -542,7 +551,7 @@ bool Indicator::SendMessage( int messageDomain, int messageId, const void *data,
 
 bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEvent)
 {
-  if(mServerConnection)
+  if( mServerConnection )
   {
     const TouchPoint& touchPoint = touchEvent.GetPoint( 0 );
 
@@ -562,7 +571,6 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
           {
             // Stop hiding indicator
             ShowIndicator( KEEP_SHOWING );
-            mEventActor.SetSize( Dali::Stage::GetCurrent().GetSize() );
           }
         }
         break;
@@ -583,8 +591,6 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
           {
             // Hide indicator
             ShowIndicator( 0.5f /* hide after 0.5 sec */ );
-            // TODO: not necessary if dali supports the event for both indicator and behind button
-            mEventActor.SetSize( mImageWidth, mImageHeight / 2 );
           }
         }
         break;
@@ -601,46 +607,12 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         default:
           break;
       }
-    }
-    // show indicator when it is invisible
-    else if( !mIsShowing && ( CheckVisibleState() == false && mVisible == Dali::Window::AUTO ) )
-    {
-      switch( touchPoint.state )
-      {
-        case Dali::TouchPoint::Down:
-        {
-          mTouchedDown = true;
-          mTouchDownPosition = touchPoint.local;
 
-        }
-        break;
-
-        case Dali::TouchPoint::Motion:
-        case Dali::TouchPoint::Up:
-        case Dali::TouchPoint::Leave:
-        {
-          if( mTouchedDown )
-          {
-            float moveDistance = sqrt( (mTouchDownPosition.x - touchPoint.local.x) * (mTouchDownPosition.x - touchPoint.local.x)
-                               + (mTouchDownPosition.y - touchPoint.local.y)*(mTouchDownPosition.y - touchPoint.local.y) );
-
-            if( moveDistance > 2 * (mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE) /*threshold for distance*/
-              && touchPoint.local.y - mTouchDownPosition.y > mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE /*threshold for y*/ )
-            {
-              ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
-              mTouchedDown = false;
-            }
-          }
-        }
-        break;
-
-        default:
-          break;
-      }
+      return true;
     }
   }
 
-  return true;
+  return false;
 }
 
 /**
@@ -1228,6 +1200,15 @@ void Indicator::ConstructBackgroundMesh()
   mBackgroundActor.SetShaderEffect(shaderEffect);
 }
 
+/**
+ * duration can be this
+ *
+ * enum
+ * {
+ *  KEEP_SHOWING = -1,
+ *  HIDE_NOW = 0
+ * };
+ */
 void Indicator::ShowIndicator(float duration)
 {
   if( !mIndicatorAnimation )
@@ -1238,11 +1219,12 @@ void Indicator::ShowIndicator(float duration)
 
   if(mIsShowing && duration != 0)
   {
-    // do not need to show it again
+    // If need to show during showing, do nothing.
+    // In 2nd phase (below) will update timer
   }
   else if(!mIsShowing && mIsAnimationPlaying && duration == 0)
   {
-    // do not need to hide it again
+    // If need to hide during hiding or hidden already, do nothing
   }
   else
   {
@@ -1309,15 +1291,59 @@ bool Indicator::OnShowTimer()
 void Indicator::OnAnimationFinished(Dali::Animation& animation)
 {
   mIsAnimationPlaying = false;
+}
 
-  if( mIsShowing == false )
+void Indicator::OnPan( Dali::Actor actor, Dali::PanGesture gesture )
+{
+  if( mServerConnection )
   {
-    // TODO: not necessary if dali supports the event for both indicator and behind button
-    mEventActor.SetSize(mImageWidth, mImageHeight /2);
-  }
-  else
-  {
-    mEventActor.SetSize(mImageWidth, mImageHeight);
+    switch( gesture.state )
+    {
+      case Gesture::Started:
+      {
+        mGestureDetected = false;
+
+        // The gesture position is the current position after it has moved by the displacement.
+        // We want to reference the original position.
+        mGestureDeltaY = gesture.position.y - gesture.displacement.y;
+      }
+
+      // No break, Fall through
+      case Gesture::Continuing:
+      {
+        if( mVisible == Dali::Window::AUTO && !mIsShowing )
+        {
+          // Only take one touch point
+          if( gesture.numberOfTouches == 1 && mGestureDetected == false )
+          {
+            mGestureDeltaY += gesture.displacement.y;
+
+            if( mGestureDeltaY >= mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE )
+            {
+              ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
+              mGestureDetected = true;
+            }
+          }
+        }
+
+        break;
+      }
+
+      case Gesture::Finished:
+      case Gesture::Cancelled:
+      {
+        // if indicator is showing, hide again when touching is finished (Since touch leave is activated, checking it in gesture::finish instead of touch::up)
+        if( mVisible == Dali::Window::AUTO && mIsShowing )
+        {
+          ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
+        }
+        break;
+      }
+
+
+      default:
+        break;
+    }
   }
 }
 

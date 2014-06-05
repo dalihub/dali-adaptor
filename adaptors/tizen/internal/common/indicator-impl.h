@@ -26,6 +26,8 @@
 #include <dali/public-api/adaptor-framework/common/window.h>
 #include <dali/public-api/adaptor-framework/common/timer.h>
 #include <dali/public-api/animation/animation.h>
+#include <dali/public-api/events/pan-gesture.h>
+#include <dali/public-api/events/pan-gesture-detector.h>
 
 // INTERNAL INCLUDES
 #include <internal/common/indicator-buffer.h>
@@ -237,19 +239,33 @@ private:
 
   /**
    * Touch event callback.
+   * It should pass the valid touch event to indicator server
+   *
    * @param[in] indicator  The indicator actor that was touched
    * @param[in] touchEvent The touch event
    */
   bool OnTouched(Dali::Actor indicator, const TouchEvent& touchEvent);
 
   /**
+   * Pan gesture callback.
+   * It finds flick down gesture to show hidden indicator image
+   *
+   * @param[in] actor  The actor for gesture
+   * @param[in] gesture The gesture event
+   */
+  void OnPan( Dali::Actor actor, Dali::PanGesture gesture );
+
+  /**
    * Touch event callback on stage.
+   * If stage is touched, hide showing indicator image
+   *
    * @param[in] touchEvent The touch event
    */
   void OnStageTouched(const Dali::TouchEvent& touchEvent);
 
   /**
    * Return the given orientation in degrees
+   *
    * @param[in] orientation The given indicator orientation
    * @return value of 0, 90, 180 or 270
    */
@@ -395,6 +411,9 @@ private:
   Dali::MeshActor                  mBackgroundActor;     ///< Actor for background
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
   Dali::Actor                      mEventActor;          ///< Handle to event
+  Dali::PanGestureDetector         mPanDetector;         ///< Pan detector to find flick gesture for hidden indicator
+  float                            mGestureDeltaY;       ///< Checking how much panning moved
+  bool                             mGestureDetected;     ///< Whether find the flick gesture
 
   Dali::Timer                      mReconnectTimer;      ///< Reconnection timer
   SlotDelegate< Indicator >        mConnection;
@@ -420,9 +439,6 @@ private:
   Dali::Animation                  mIndicatorAnimation;  ///< Animation to show/hide indicator image
 
   bool                             mIsAnimationPlaying;  ///< Whether the animation is playing
-  bool                             mTouchedDown;         ///< Whether the indicator area touched down
-  Dali::Vector2                    mTouchDownPosition;   ///< Indicator area touched down position
-
 };
 
 } // Adaptor
