@@ -144,9 +144,14 @@ void Adaptor::ParseEnvironmentOptions()
   {
     mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
   }
-  float predictionAmount = -1.0f;
-  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
+  int predictionAmount = -1;
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
   {
+    if( predictionAmount < 0 )
+    {
+      // do not support times in the past
+      predictionAmount = 0;
+    }
     mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
   }
 

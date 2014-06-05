@@ -100,7 +100,7 @@ void EnvironmentOptions::SetPanGesturePredictionMode(unsigned int mode)
   mPanGesturePredictionMode = mode;
 }
 
-void EnvironmentOptions::SetPanGesturePredictionAmount(float amount)
+void EnvironmentOptions::SetPanGesturePredictionAmount(unsigned int amount)
 {
   mPanGesturePredictionAmount = amount;
 }
