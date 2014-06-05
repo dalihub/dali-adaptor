@@ -38,6 +38,7 @@ libdali_evas_plugin_includes = \
                       -I../../../platform-abstractions/ \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
+                      -I../../../platform-abstractions/portable \
                       -I../../../adaptors/ \
                       -I../../../adaptors/tizen \
                       -I../../../capi/

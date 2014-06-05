@@ -140,7 +140,8 @@ protected:
   boost::condition_variable mCondition;         ///< condition variable
   boost::mutex mMutex;                          ///< used to protect mQueue
   RequestQueue mQueue;                          ///< Request queue
-  bool mPaused;                                 ///< Whether to process work in mQueue
+  Integration::ResourceId mCurrentRequestId;    ///< Request being processed on thread
+  bool mPaused;                                ///< Whether to process work in mQueue
 
 #if defined(DEBUG_ENABLED)
 public:

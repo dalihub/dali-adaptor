@@ -74,13 +74,15 @@ libdali_adaptor_common_la_SOURCES = \
 
 libdali_adaptor_common_la_DEPENDENCIES =
 
+# List include directories with more platform-specific (slp) before portable root:
 libdali_adaptor_common_la_includes = \
                       -I../../.. \
-                      -I../../../platform-abstractions/ \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
-                      -I../../../adaptors/ \
+                      -I../../../platform-abstractions/portable \
+                      -I../../../platform-abstractions/ \
                       -I../../../adaptors/tizen \
+                      -I../../../adaptors/ \
                       -I../../../capi/
 
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/

@@ -29,6 +29,7 @@
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
 #include <setjmp.h>
+#include <boost/thread.hpp>
 
 namespace Dali
 {
@@ -279,14 +280,6 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   }
   unsigned char * const jpegBufferPtr = &jpegBuffer[0];
 
-  AutoJpg autoJpg(tjInitDecompress());
-
-  if(autoJpg.GetHandle() == NULL)
-  {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
-    return false;
-  }
-
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if( fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
   {
@@ -297,6 +290,17 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   if( fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+  }
+
+  // Allow early cancellation between the load and the decompress:
+  boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+
+  AutoJpg autoJpg(tjInitDecompress());
+
+  if(autoJpg.GetHandle() == NULL)
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    return false;
   }
 
   JPGFORM_CODE transform = JPGFORM_NONE;
@@ -348,6 +352,9 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
 
   unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
 
+  // Allow early cancellation before decoding:
+  boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+
   const int pitch = scaledPreXformWidth * DECODED_PIXEL_SIZE;
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, pitch, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
@@ -360,6 +367,12 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );
+
+  if( transform != JPGFORM_NONE )
+  {
+    // Allow early cancellation before shuffling pixels around on the CPU:
+    boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+  }
 
   bool result = false;
   switch(transform)

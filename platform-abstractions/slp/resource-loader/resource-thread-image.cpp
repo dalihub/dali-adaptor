@@ -30,6 +30,8 @@
 #include "loader-ktx.h"
 #include "loader-wbmp.h"
 
+#include "file-closer.h"
+
 using namespace std;
 using namespace Dali::Integration;
 using boost::mutex;
@@ -367,14 +369,19 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   DALI_LOG_TRACE_METHOD( mLogFilter );
   DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str() );
 
-  bool file_not_found = false;
+  bool fileNotFound = false;
   BitmapPtr bitmap = 0;
   bool result = false;
 
-  FILE * const fp = fopen( request.GetPath().c_str(), "rb" );
+  Dali::Internal::Platform::FileCloser fileCloser( request.GetPath().c_str(), "rb" );
+  FILE * const fp = fileCloser.GetFile();
+
   if( fp != NULL )
   {
     result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+    // Last chance to interrupt a cancelled load before it is reported back to clients
+    // which have already stopped tracking it:
+    boost::this_thread::interruption_point(); ///@warning This can throw an exception.
     if( result && bitmap )
     {
       // Construct LoadedResource and ResourcePointer for image data
@@ -390,12 +397,12 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   else
   {
     DALI_LOG_WARNING( "Failed to open file to load \"%s\"\n", request.GetPath().c_str() );
-    file_not_found = true;
+    fileNotFound = true;
   }
 
   if ( !bitmap )
   {
-    if( file_not_found )
+    if( fileNotFound )
     {
       FailedResource resource(request.GetId(), FailureFileNotFound  );
       mResourceLoader.AddFailedLoad(resource);
@@ -431,7 +438,8 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
     if( blobBytes != 0 && blobSize > 0U )
     {
       // Open a file handle on the memory buffer:
-      FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
+      Dali::Internal::Platform::FileCloser fileCloser( blobBytes, blobSize, "rb" );
+      FILE * const fp = fileCloser.GetFile();
       if ( fp != NULL )
       {
         bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
@@ -492,6 +500,9 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
       const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
       ImageAttributes attributes  = resType.imageAttributes;
 
+      // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
+      boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+
       result = function(fp, *bitmap, attributes);
 
       if (!result)
@@ -504,7 +515,6 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
     {
       DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
     }
-    fclose(fp); ///! Not exception safe, but an exception on a resource thread will bring the process down anyway.
   }
 
   ptr.Reset( bitmap.Get() );

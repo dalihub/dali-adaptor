@@ -28,11 +28,13 @@ using boost::scoped_ptr;
 namespace Dali
 {
 
+const Integration::ResourceId NO_REQUEST = Integration::ResourceId(0) - 1;
+
 namespace SlpPlatform
 {
 
 ResourceThreadBase::ResourceThreadBase(ResourceLoader& resourceLoader)
-: mResourceLoader(resourceLoader), mPaused(false)
+: mResourceLoader( resourceLoader ), mCurrentRequestId( NO_REQUEST ), mPaused( false )
 {
 #if defined(DEBUG_ENABLED)
   mLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_RESOURCE_THREAD_BASE");
@@ -93,14 +95,23 @@ void ResourceThreadBase::CancelRequest( Integration::ResourceId resourceId )
     // Lock while searching and removing from the request queue:
     unique_lock<mutex> lock( mMutex );
 
-    for( RequestQueueIter iterator = mQueue.begin();
-         iterator != mQueue.end();
-         ++iterator )
+    // See if the request is already launched as the current job on the thread:
+    if( mCurrentRequestId == resourceId )
     {
-      if( ((*iterator).first).GetId() == resourceId )
+      mThread->interrupt();
+    }
+    // Check the pending requests to be cancelled:
+    else
+    {
+      for( RequestQueueIter iterator = mQueue.begin();
+           iterator != mQueue.end();
+           ++iterator )
       {
-        iterator = mQueue.erase( iterator );
-        break;
+        if( ((*iterator).first).GetId() == resourceId )
+        {
+          iterator = mQueue.erase( iterator );
+          break;
+        }
       }
     }
   }
@@ -138,18 +149,48 @@ void ResourceThreadBase::ThreadLoop()
 
   while( !mResourceLoader.IsTerminating() )
   {
-    WaitForRequests();
-
-    if ( !mResourceLoader.IsTerminating() )
+    try
     {
-      ProcessNextRequest();
+      WaitForRequests();
+
+      if ( !mResourceLoader.IsTerminating() )
+      {
+        ProcessNextRequest();
+      }
+    }
+
+    catch( boost::thread_interrupted& ex )
+    {
+      // No problem, thread was just interrupted from the outside to cancel an in-flight request.
+      boost::thread_interrupted* disableUnusedVarWarning = &ex;
+      ex = *disableUnusedVarWarning;
+    }
+
+    // Since we have an exception handler here anyway, lets catch everything to avoid killing the process:
+    catch( std::exception& ex )
+    {
+      const char * const what = ex.what();
+      DALI_LOG_ERROR( "std::exception caught in resource thread. Aborting request with id %u because of std::exception with reason, \"%s\".\n", unsigned(mCurrentRequestId), what ? what : "null" );
+
+    }
+    catch( Dali::DaliException& ex )
+    {
+      // Probably a failed assert-always:
+      DALI_LOG_ERROR( "DaliException caught in resource thread. Aborting request with id %u. Location: \"%s\". Condition: \"%s\".\n", unsigned(mCurrentRequestId), ex.mLocation.c_str(), ex.mCondition.c_str() );
+    }
+    catch( ... )
+    {
+      DALI_LOG_ERROR( "Unknown exception caught in resource thread. Aborting request with id %u.\n", unsigned(mCurrentRequestId) );
     }
   }
 }
 
 void ResourceThreadBase::WaitForRequests()
 {
-  unique_lock<mutex> lock(mMutex);
+  unique_lock<mutex> lock( mMutex );
+
+  // Clear the previously current request:
+  mCurrentRequestId = NO_REQUEST;
 
   if( mQueue.empty() || mPaused == true )
   {
@@ -173,6 +214,7 @@ void ResourceThreadBase::ProcessNextRequest()
       const RequestInfo & front = mQueue.front();
       request = new ResourceRequest( front.first );
       type = front.second;
+      mCurrentRequestId = front.first.GetId();
       mQueue.pop_front();
     }
   } // unlock the queue
@@ -201,6 +243,13 @@ void ResourceThreadBase::ProcessNextRequest()
       }
       break;
     }
+
+    // Clear the interruption status for derived classes that don't implement on-the-fly cancellation yet:
+    boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+    // To support cancellation of an in-flight resource, place the above line at key points in derived
+    // resource thread classes and the loading / decoding / saving code that they call.
+    // See resource-thread-image.cpp and loader-jpeg-turbo.cpp for a conservative example of its use.
+    ///@note: The above line will throw an exception so only place it in exception-safe locations.
   }
 }
 

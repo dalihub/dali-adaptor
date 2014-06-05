@@ -53,11 +53,14 @@ endif
 
 libdali_adaptor_la_DEPENDENCIES =
 
+# List include directories with more platform-specific (slp) before portable
+# so platform-specific files can override portable versions:
 libdali_adaptor_includes = \
                       -I../../.. \
                       -I../../../platform-abstractions/ \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
+                      -I../../../platform-abstractions/portable \
                       -I../../../adaptors/ \
                       -I../../../adaptors/tizen \
                       -I../../../capi
