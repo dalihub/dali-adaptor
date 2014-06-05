@@ -882,7 +882,7 @@ struct EventHandler::Impl
           // x : e->data.l[3]
           // y : e->data.l[4]
           // focus & read an actor at (x, y) position according to finger
-          if(accessibilityManager)
+          if(accessibilityManager && (unsigned int)clientMessageEvent->data.l[2] == 1 /*only work for move event*/)
           {
             accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4], false /* not allow read again*/);
           }
