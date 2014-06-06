@@ -37,15 +37,6 @@ namespace Adaptor
 namespace
 {
 
-void DefaultFontSizeChangeNotification(keynode_t* node, void* data)
-{
-  StyleMonitor* styleMonitor = static_cast<StyleMonitor*>(data);
-
-  StyleChange styleChange;
-  styleChange.defaultFontSizeChange = true;
-  styleMonitor->StyleChanged(styleChange);
-}
-
 BaseHandle Create()
 {
   BaseHandle handle( StyleMonitor::Get() );
@@ -85,12 +76,10 @@ Dali::StyleMonitor StyleMonitor::Get()
 StyleMonitor::StyleMonitor(Integration::PlatformAbstraction& platformAbstraction)
 : mPlatformAbstraction(platformAbstraction)
 {
-  vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, DefaultFontSizeChangeNotification, this );
 }
 
 StyleMonitor::~StyleMonitor()
 {
-  vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, DefaultFontSizeChangeNotification );
 }
 
 void StyleMonitor::StyleChanged(StyleChange styleChange)

@@ -22,6 +22,7 @@
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_X.h>
+
 #include <cstring>
 
 #include <sys/time.h>
@@ -72,6 +73,8 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 
 namespace
 {
+const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
+
 // Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
 size_t Utf8SequenceLength(const unsigned char leadByte)
 {
@@ -199,8 +202,6 @@ static unsigned int GetCurrentMilliSeconds(void)
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
-const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessibility/font_name";  // It will be update at vconf-key.h and replaced.
-
 } // unnamed namespace
 
 // Impl to hide EFL implementation.
@@ -255,9 +256,10 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_CLEAR, EcoreEventSelectionClear, handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_NOTIFY, EcoreEventSelectionNotify, handler ) );
 
-      // Register Vconf notify - font name and size
-      vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontNameChanged, handler );
+      // Register Vconf notify - font name, font size and style
+      vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, handler );
       vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, handler );
+      vconf_notify_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged, handler );
     }
   }
 
@@ -266,8 +268,9 @@ struct EventHandler::Impl
    */
   ~Impl()
   {
+    vconf_ignore_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged );
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged );
-    vconf_ignore_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontNameChanged );
+    vconf_ignore_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged );
 
     for( std::vector<Ecore_Event_Handler*>::iterator iter = mEcoreEventHandler.begin(), endIter = mEcoreEventHandler.end(); iter != endIter; ++iter )
     {
@@ -1074,6 +1077,19 @@ struct EventHandler::Impl
     fontChange.defaultFontSizeChange = true;
 
     handler->SendEvent( fontChange );
+  }
+
+  /**
+   * Called when style is changed
+   */
+  static void VconfNotifyThemeChanged( keynode_t* node, void* data )
+  {
+    EventHandler* handler( static_cast<EventHandler*>(data) );
+
+    StyleChange themeChange;
+    themeChange.themeChange = true;
+
+    handler->SendEvent( themeChange );
   }
 
   // Data

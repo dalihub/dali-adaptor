@@ -36,6 +36,7 @@
 #include <dali/public-api/adaptor-framework/common/accessibility-action-handler.h>
 #include <dali/public-api/adaptor-framework/common/accessibility-gesture-handler.h>
 #include <dali/public-api/adaptor-framework/common/event-feeder.h>
+#include <dali/public-api/adaptor-framework/common/color-controller.h>
 #include <dali/public-api/adaptor-framework/common/feedback-plugin.h>
 #include <dali/public-api/adaptor-framework/common/physical-keyboard.h>
 #include <dali/public-api/adaptor-framework/common/tilt-sensor.h>

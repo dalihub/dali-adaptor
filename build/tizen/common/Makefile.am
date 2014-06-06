@@ -152,10 +152,12 @@ libdali_adaptor_common_la_LIBADD = \
 if MOBILE_PROFILE
 libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
                       $(DEVICED_CFLAGS) \
+                      $(EFL_ASSIST_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
                       $(NATIVE_BUFFER_POOL_CFLAGS)
 
 libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS) \
+                      $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif

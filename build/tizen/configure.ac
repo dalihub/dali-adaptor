@@ -52,6 +52,7 @@ PKG_CHECK_MODULES(XML, libxml-2.0)
 PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
 
 # Check for availability of BulletPhysics
 PKG_CHECK_EXISTS(bullet, [

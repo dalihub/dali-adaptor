@@ -5,6 +5,7 @@ tizen_adaptor_public_api_src_files = \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/adaptor.cpp \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/clipboard.cpp \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/clipboard-event-notifier.cpp \
+  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/color-controller.cpp \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/device-layout.cpp \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/drag-and-drop-detector.cpp \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/event-feeder.cpp \
@@ -26,6 +27,7 @@ tizen_adaptor_public_api_src_files = \
 tizen_adaptor_public_api_common_header_files = \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/accessibility-action-handler.h \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/accessibility-gesture-handler.h \
+  $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/color-controller.h \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/event-feeder.h \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/feedback-plugin.h \
   $(tizen_adaptor_public_api_src_dir)/adaptor-framework/common/physical-keyboard.h \

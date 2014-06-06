@@ -59,6 +59,7 @@ tizen_adaptor_internal_common_src_files = \
 tizen_adaptor_internal_common_profile_src_files = \
   $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/system-settings.cpp \
+  $(tizen_adaptor_internal_src_dir)/color-controller-impl.cpp \
   \
   $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-render-surface-factory.cpp
   

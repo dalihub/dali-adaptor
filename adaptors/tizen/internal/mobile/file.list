@@ -3,4 +3,5 @@ tizen_adaptor_internal_common_src_files += \
   $(tizen_adaptor_internal_src_dir)/key-impl.cpp  \
   $(tizen_adaptor_internal_src_dir)/../mobile/mobile-render-surface-factory.cpp \
   $(tizen_adaptor_internal_src_dir)/../mobile/mobile-native-buffer-render-surface.cpp \
-  $(tizen_adaptor_internal_src_dir)/../mobile/mobile-system-settings.cpp
+  $(tizen_adaptor_internal_src_dir)/../mobile/mobile-system-settings.cpp \
+  $(tizen_adaptor_internal_src_dir)/../mobile/mobile-color-controller-impl.cpp
