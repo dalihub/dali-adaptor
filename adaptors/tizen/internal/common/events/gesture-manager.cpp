@@ -102,7 +102,7 @@ GestureManager::GestureManager(CoreEventInterface& coreEventInterface, Vector2 s
   mScreenSize( screenSize ),
   mCallbackManager( callbackManager ),
   mMinimumDistanceDelta(-1.0f),
-  mRunning( false )
+  mRunning( true ) // This allows gestures to be created before Adaptor::Start() is called e.g. by Indicator
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "Creating GestureManager\n" );
 }
@@ -129,16 +129,6 @@ void GestureManager::SendEvent(const Integration::TouchEvent& event)
       (*iter)->SendEvent(event);
     }
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "SendEvent: END\n" );
-  }
-}
-
-void GestureManager::Start()
-{
-  if (!mRunning)
-  {
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "Start\n" );
-
-    mRunning = true;
   }
 }
 

@@ -1110,8 +1110,6 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   }
 
   mImpl = new Impl(this, window);
-
-  mGestureManager.Start();
 }
 
 EventHandler::~EventHandler()

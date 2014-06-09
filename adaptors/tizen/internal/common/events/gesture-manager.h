@@ -75,11 +75,6 @@ public:
   void SendEvent(const Integration::TouchEvent& event);
 
   /**
-   * Used by the event handler to starts the GestureManager detection.
-   */
-  void Start();
-
-  /**
    * Used by the event handler to stop the GestureManager detection.
    */
   void Stop();
