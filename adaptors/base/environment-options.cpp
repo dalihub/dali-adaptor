@@ -85,7 +85,7 @@ unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
   return mPanGestureLoggingLevel;
 }
 
-unsigned int EnvironmentOptions::GetPanGestureSmoothingMode() const
+int EnvironmentOptions::GetPanGestureSmoothingMode() const
 {
   return mPanGesturePredictionMode;
 }

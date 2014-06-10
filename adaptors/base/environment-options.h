@@ -90,9 +90,9 @@ public:
   unsigned int GetPanGestureLoggingLevel() const;
 
   /**
-   * @return pan-gesture smoothing mode ( 0 == no smoothing )
+   * @return pan-gesture smoothing mode ( -1 means not set so no smoothing, 0 = no smoothing )
    */
-  unsigned int GetPanGestureSmoothingMode() const;
+  int GetPanGestureSmoothingMode() const;
 
   /**
    * @return pan-gesture prediction amount
