@@ -527,7 +527,6 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
         }
         else if( loadedWidth != desiredWidth || loadedHeight != desiredHeight )
         {
-          const Vector2 loadedDims( loadedWidth, loadedHeight );
           const Vector2 desiredDims( desiredWidth, desiredHeight );
 
           // Scale the desired rectangle back to fit inside the rectangle of the loaded bitmap:
@@ -536,15 +535,16 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
           const Vector2 scaledByWidth = desiredDims * widthsRatio;
           const float heightsRatio = loadedHeight / float(desiredHeight);
           const Vector2 scaledByHeight = desiredDims * heightsRatio;
-          const bool trimTopAndBottom = scaledByWidth.LengthSquared() < scaledByHeight.LengthSquared();
+          // Trim top and bottom if the area of the horizontally-fitted candidate is less, else trim the sides:
+          const bool trimTopAndBottom = scaledByWidth.width * scaledByWidth.height < scaledByHeight.width * scaledByHeight.height;
           const Vector2 scaledDims = trimTopAndBottom ? scaledByWidth : scaledByHeight;
 
           // Work out how many pixels to trim from top and bottom, and left and right:
           // (We only ever do one dimension)
-          const unsigned scanlinesToTrim = trimTopAndBottom ? fabs( (scaledDims.y - loadedDims.y) * 0.5f ) : 0;
-          const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabs( (scaledDims.x - loadedDims.x) * 0.5f );
+          const unsigned scanlinesToTrim = trimTopAndBottom ? fabsf( (scaledDims.y - loadedHeight) * 0.5f ) : 0;
+          const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabsf( (scaledDims.x - loadedWidth) * 0.5f );
 
-          DALI_LOG_INFO( mLogFilter, Debug::Concise, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%f,%f), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedDims.x, loadedDims.y, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
+          DALI_LOG_INFO( mLogFilter, Debug::Concise, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedWidth, loadedHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
 
           // Make a new bitmap with the central part of the loaded one if required:
           if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).
