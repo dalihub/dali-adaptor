@@ -18,12 +18,15 @@
 #include "object-profiler.h"
 #include <stdlib.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/profiling.h>
+#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/type-registry.h>
 
 using std::string;
+using namespace Dali::Integration::Profiling;
 
 namespace Dali
 {
@@ -67,9 +70,41 @@ void ObjectProfiler::DisplayInstanceCounts()
 
   for( ; iter != end; iter++ )
   {
-    LogMessage(Debug::DebugInfo, "%-30s: %d\n", iter->first.c_str(), iter->second);
+    int memorySize = GetMemorySize(iter->first, iter->second);
+    if( memorySize > 0 )
+    {
+      LogMessage( Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n",
+                  iter->first.c_str(), iter->second, memorySize / 1024.0f );
+    }
+    else
+    {
+      LogMessage( Debug::DebugInfo, "%-30s: % 4d\n",
+                  iter->first.c_str(), iter->second );
+    }
   }
   LogMessage(Debug::DebugInfo, "\n");
+
+  int quadCount = 0;
+
+  // Count number of quads:
+
+  for( InstanceTypes::iterator iter = mInstanceTypes.begin(), end = mInstanceTypes.end(); iter != end; ++iter )
+  {
+    if( iter->second.compare("ImageActor") == 0 )
+    {
+      BaseHandle handle(iter->first);
+      Dali::ImageActor imageActor = Dali::ImageActor::DownCast(handle);
+      if( imageActor )
+      {
+        if( imageActor.GetStyle() == Dali::ImageActor::STYLE_QUAD )
+        {
+          quadCount++;
+        }
+      }
+    }
+  }
+
+  LogMessage(Debug::DebugInfo, "Number of image actors using Quad style: %d\n", quadCount);
 }
 
 bool ObjectProfiler::OnTimeout()
@@ -125,6 +160,37 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
   }
 }
 
+int ObjectProfiler::GetMemorySize(const std::string& name, int count)
+{
+  struct MemoryMemorySize
+  {
+    std::string name;
+    int memorySize;
+  };
+  MemoryMemorySize memoryMemorySizes[] =
+    {
+      { "Animation", ANIMATION_MEMORY_SIZE },
+      { "Constraint", CONSTRAINT_MEMORY_SIZE },
+      { "Actor", ACTOR_MEMORY_SIZE },
+      { "Layer", LAYER_MEMORY_SIZE },
+      { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
+      { "ImageActor", IMAGE_ACTOR_MEMORY_SIZE },
+      { "TextActor", TEXT_ACTOR_MEMORY_SIZE },
+      { "MeshActor", MESH_ACTOR_MEMORY_SIZE },
+      { "Image", IMAGE_MEMORY_SIZE },
+      { "Mesh", MESH_MEMORY_SIZE },
+      { "Material", MATERIAL_MEMORY_SIZE },
+    };
+
+  for( size_t i=0; i<sizeof(memoryMemorySizes)/sizeof(MemoryMemorySize); i++ )
+  {
+    if( memoryMemorySizes[i].name.compare(name) == 0 )
+    {
+      return count * memoryMemorySizes[i].memorySize;
+    }
+  }
+  return 0;
+}
 
 } // Adaptor
 } // Internal

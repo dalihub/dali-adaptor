@@ -70,6 +70,11 @@ private:
    */
   void OnObjectDestroyed(const Dali::RefObject* object);
 
+  /**
+   * Get the memory size of the given object
+   */
+  int GetMemorySize(const std::string& name, int count);
+
 private:
   typedef std::map<std::string, int> InstanceCountMap;
   typedef std::pair<const std::string, int> InstanceCountPair;

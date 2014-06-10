@@ -51,6 +51,17 @@ using Dali::Vector4;
 
 namespace
 {
+
+const float SLIDING_ANIMATION_DURATION( 0.2f ); // 200 milli seconds
+const float AUTO_INDICATOR_STAY_DURATION(3.0f); // 3 seconds
+const float SHOWING_DISTANCE_HEIGHT_RATE(0.17f); // 10 pixels
+
+enum
+{
+  KEEP_SHOWING = -1,
+  HIDE_NOW = 0
+};
+
 const int NUM_GRADIENT_INTERVALS(5); // Number of gradient intervals
 const Dali::Vector4 GRADIENT_COLORS[NUM_GRADIENT_INTERVALS+1] =
 {
@@ -86,17 +97,6 @@ const char* MESH_FRAGMENT_SHADER =
 "}\n";
 
 // Copied from elm_win.h
-
-/**
- * Defines the opacity modes of indicator that can be shown
- */
-typedef enum
-{
-   ELM_WIN_INDICATOR_OPACITY_UNKNOWN, /**< Unknown indicator opacity mode */
-   ELM_WIN_INDICATOR_OPAQUE,          /**< Opacifies the indicator */
-   ELM_WIN_INDICATOR_TRANSLUCENT,     /**< Be translucent the indicator */
-   ELM_WIN_INDICATOR_TRANSPARENT      /**< Transparentizes the indicator */
-} Elm_Win_Indicator_Opacity_Mode;
 
 /**
  * Defines the type modes of indicator that can be shown
@@ -147,7 +147,7 @@ const int MSG_ID_INDICATOR_REPEAT_EVENT(0x10002);
 const int MSG_ID_INDICATOR_ROTATION(0x10003);
 const int MSG_ID_INDICATOR_OPACITY(0X1004);
 const int MSG_ID_INDICATOR_TYPE(0X1005);
-
+const int MSG_ID_INDICATOR_START_ANIMATION(0X10006);
 
 struct IpcDataUpdate
 {
@@ -157,6 +157,12 @@ struct IpcDataUpdate
 struct IpcDataResize
 {
   int w, h;
+};
+
+struct IpcIndicatorDataAnimation
+{
+  unsigned int xwin;
+  double       duration;
 };
 
 struct IpcDataEvMouseUp
@@ -370,43 +376,58 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mRotation( 0 ),
   mImageWidth( 0 ),
   mImageHeight( 0 ),
-  mVisible( false )
+  mVisible( Dali::Window::VISIBLE ),
+  mIsShowing( true ),
+  mIsAnimationPlaying( false ),
+  mTouchedDown( false )
 {
   mIndicatorImageActor = Dali::ImageActor::New();
-  mIndicatorImageActor.SetLeaveRequired(true);
-  mIndicatorImageActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
-  mIndicatorImageActor.SetBlendFunc(Dali::BlendingFactor::ONE, Dali::BlendingFactor::ONE_MINUS_SRC_ALPHA,
+  mIndicatorImageActor.SetBlendFunc( Dali::BlendingFactor::ONE, Dali::BlendingFactor::ONE_MINUS_SRC_ALPHA,
                                     Dali::BlendingFactor::ONE, Dali::BlendingFactor::ONE );
-  mIndicatorImageActor.SetPositionInheritanceMode(USE_PARENT_POSITION);
+
+  mIndicatorImageActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+  mIndicatorImageActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
 
   SetBackground();
-  mBackgroundActor.SetPositionInheritanceMode(USE_PARENT_POSITION);
+  mBackgroundActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+  mBackgroundActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
+  mBackgroundActor.SetZ(-0.01f);
+
+  // add background to image actor to move it with indicator image
+  mIndicatorImageActor.Add( mBackgroundActor );
 
   mIndicatorActor = Dali::Actor::New();
-  mIndicatorActor.SetParentOrigin( ParentOrigin::CENTER );
-  mIndicatorActor.SetAnchorPoint(  AnchorPoint::CENTER );
-  mIndicatorActor.Add(mBackgroundActor);
-  mIndicatorActor.Add(mIndicatorImageActor);
+  mIndicatorActor.Add( mIndicatorImageActor );
 
-  if(mOrientation == Dali::Window::LANDSCAPE || mOrientation == Dali::Window::LANDSCAPE_INVERSE)
+  if( mOrientation == Dali::Window::LANDSCAPE || mOrientation == Dali::Window::LANDSCAPE_INVERSE )
   {
-    mBackgroundActor.SetVisible(false);
+    mBackgroundActor.SetVisible( false );
   }
+
+  // event handler
+  mEventActor = Dali::Actor::New();
+  mEventActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+  mEventActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
+  mEventActor.SetPosition(0.0f, 0.0f, 1.0f);
+  mEventActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
+  mEventActor.SetLeaveRequired( true );
+  mIndicatorActor.Add( mEventActor );
 
   Open( orientation );
 
+  // register indicator to accessibility manager
   Dali::AccessibilityManager accessibilityManager = AccessibilityManager::Get();
   if(accessibilityManager)
   {
-    AccessibilityManager::GetImplementation( accessibilityManager ).SetIndicator(this);
+    AccessibilityManager::GetImplementation( accessibilityManager ).SetIndicator( this );
   }
 }
 
 Indicator::~Indicator()
 {
-  if(mIndicatorImageActor)
+  if(mEventActor)
   {
-    mIndicatorImageActor.TouchedSignal().Disconnect( this, &Indicator::OnTouched );
+    mEventActor.TouchedSignal().Disconnect( this, &Indicator::OnTouched );
   }
   Disconnect();
 }
@@ -460,28 +481,41 @@ void Indicator::Close()
   mIndicatorImageActor.SetImage(emptyImage);
 }
 
-void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode, bool notifyService )
+void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
 {
-  if( mOpacityMode != mode || notifyService )
-  {
-    // notify opacity mode to indicator service
-    SendOpacityMode(mode);
-  }
-
   mOpacityMode = mode;
   SetBackground();
 }
 
-void Indicator::SetVisible( bool visibility )
+void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode )
 {
-  if ( visibility != mVisible )
+  if ( visibleMode != mVisible )
   {
-    mVisible = visibility;
-
     // If we were previously hidden, then we should update the image data before we display the indicator
-    if ( mVisible )
+    if ( mVisible == Dali::Window::INVISIBLE )
     {
       UpdateImageData();
+    }
+
+    mVisible = visibleMode;
+
+    if( mIndicatorImageActor.GetImage() )
+    {
+      if( CheckVisibleState() && mVisible == Dali::Window::AUTO )
+      {
+        // hide indicator
+        ShowIndicator( AUTO_INDICATOR_STAY_DURATION /* stay n sec */ );
+      }
+      else if( CheckVisibleState() && mVisible == Dali::Window::VISIBLE )
+      {
+        // show indicator
+        ShowIndicator( KEEP_SHOWING );
+      }
+      else
+      {
+        // hide indicator
+        ShowIndicator( HIDE_NOW );
+      }
     }
   }
 }
@@ -509,44 +543,100 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
   {
     const TouchPoint& touchPoint = touchEvent.GetPoint( 0 );
 
-    switch( touchPoint.state )
+    // Send touch event to indicator server when indicator is showing
+    if( CheckVisibleState() || mIsShowing )
     {
-      case Dali::TouchPoint::Down:
+      switch( touchPoint.state )
       {
-        IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
-        IpcDataEvMouseDown ipcDown( touchEvent.time );
-        mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
-        mServerConnection->SendEvent( OP_EV_MOUSE_DOWN, &ipcDown, sizeof(ipcDown) );
-      }
-      break;
+        case Dali::TouchPoint::Down:
+        {
+          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
+          IpcDataEvMouseDown ipcDown( touchEvent.time );
+          mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
+          mServerConnection->SendEvent( OP_EV_MOUSE_DOWN, &ipcDown, sizeof(ipcDown) );
 
-      case Dali::TouchPoint::Motion:
-      {
-        IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
-        mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
-      }
-      break;
-
-      case Dali::TouchPoint::Up:
-      {
-        IpcDataEvMouseUp ipcUp( touchEvent.time );
-        mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
-      }
-      break;
-
-      case Dali::TouchPoint::Leave:
-      {
-        IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
-        mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
-        IpcDataEvMouseUp ipcOut( touchEvent.time );
-        mServerConnection->SendEvent( OP_EV_MOUSE_OUT, &ipcOut, sizeof(ipcOut) );
-      }
-      break;
-
-      default:
+          if( mVisible == Dali::Window::AUTO )
+          {
+            // Stop hiding indicator
+            ShowIndicator( KEEP_SHOWING );
+            mEventActor.SetSize( Dali::Stage::GetCurrent().GetSize() );
+          }
+        }
         break;
+
+        case Dali::TouchPoint::Motion:
+        {
+          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
+          mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
+        }
+        break;
+
+        case Dali::TouchPoint::Up:
+        {
+          IpcDataEvMouseUp ipcUp( touchEvent.time );
+          mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
+
+          if( mVisible == Dali::Window::AUTO )
+          {
+            // Hide indicator
+            ShowIndicator( 0.5f /* hide after 0.5 sec */ );
+            // TODO: not necessary if dali supports the event for both indicator and behind button
+            mEventActor.SetSize( mImageWidth, mImageHeight / 2 );
+          }
+        }
+        break;
+
+        case Dali::TouchPoint::Leave:
+        {
+          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
+          mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
+          IpcDataEvMouseUp ipcOut( touchEvent.time );
+          mServerConnection->SendEvent( OP_EV_MOUSE_OUT, &ipcOut, sizeof(ipcOut) );
+        }
+        break;
+
+        default:
+          break;
+      }
+    }
+    // show indicator when it is invisible
+    else if( !mIsShowing && ( CheckVisibleState() == false || mVisible == Dali::Window::AUTO ) )
+    {
+      switch( touchPoint.state )
+      {
+        case Dali::TouchPoint::Down:
+        {
+          mTouchedDown = true;
+          mTouchDownPosition = touchPoint.local;
+
+        }
+        break;
+
+        case Dali::TouchPoint::Motion:
+        case Dali::TouchPoint::Up:
+        case Dali::TouchPoint::Leave:
+        {
+          if( mTouchedDown )
+          {
+            float moveDistance = sqrt( (mTouchDownPosition.x - touchPoint.local.x) * (mTouchDownPosition.x - touchPoint.local.x)
+                               + (mTouchDownPosition.y - touchPoint.local.y)*(mTouchDownPosition.y - touchPoint.local.y) );
+
+            if( moveDistance > 2 * (mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE) /*threshold for distance*/
+              && touchPoint.local.y - mTouchDownPosition.y > mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE /*threshold for y*/ )
+            {
+              ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
+              mTouchedDown = false;
+            }
+          }
+        }
+        break;
+
+        default:
+          break;
+      }
     }
   }
+
   return true;
 }
 
@@ -575,32 +665,6 @@ int Indicator::OrientationToDegrees( Dali::Window::WindowOrientation orientation
   }
   return degree;
 }
-
-void Indicator::SendOpacityMode( Dali::Window::IndicatorBgOpacity mode )
-{
-  Elm_Win_Indicator_Opacity_Mode windowIndicatorMode;
-  switch(mode)
-  {
-    case Dali::Window::OPAQUE:
-      windowIndicatorMode = ELM_WIN_INDICATOR_OPAQUE;
-      break;
-    case Dali::Window::TRANSPARENT:
-      windowIndicatorMode = ELM_WIN_INDICATOR_TRANSPARENT;
-      break;
-    case Dali::Window::TRANSLUCENT:
-      windowIndicatorMode = ELM_WIN_INDICATOR_TRANSLUCENT;
-      break;
-  }
-
-  if( mServerConnection )
-  {
-    mServerConnection->SendEvent( OP_MSG,
-                                  MSG_DOMAIN_CONTROL_INDICATOR,
-                                  MSG_ID_INDICATOR_OPACITY,
-                                  &windowIndicatorMode, sizeof( Elm_Win_Indicator_Opacity_Mode ) );
-  }
-}
-
 
 bool Indicator::Connect( Dali::Window::WindowOrientation orientation )
 {
@@ -646,16 +710,13 @@ bool Indicator::Connect( const char *serviceName )
     }
   }
 
-  if( connected )
+  if( !connected )
   {
-    mState = CONNECTED;
-    int domain = MSG_DOMAIN_CONTROL_INDICATOR;
-    int refTo = MSG_ID_INDICATOR_ROTATION;
-    mServerConnection->SendEvent( OP_MSG, domain, refTo, &mRotation, sizeof(int) );
+    StartReconnectionTimer();
   }
   else
   {
-    StartReconnectionTimer();
+    mState = CONNECTED;
   }
 
   return connected;
@@ -814,6 +875,8 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
       if( mSharedFile != NULL )
       {
         CreateNewImage();
+        mEventActor.SetSize(mImageWidth, mImageHeight);
+
         if( CheckVisibleState() )
         {
           // set default indicator type (enable the quick panel)
@@ -912,6 +975,7 @@ void Indicator::CreateNewPixmapImage()
     mIndicatorImageActor.SetImage( Dali::Image::New(*pixmapImage) );
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
+    mEventActor.SetSize(mImageWidth, mImageHeight);
 
     SetBackground();
     if( mBackgroundActor )
@@ -943,6 +1007,7 @@ void Indicator::CreateNewImage()
     mIndicatorImageActor.SetImage( image );
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
+    mEventActor.SetSize(mImageWidth, mImageHeight);
 
     SetBackground();
     if( mBackgroundActor )
@@ -980,6 +1045,10 @@ void Indicator::DataReceived( void* event )
   {
     case OP_UPDATE:
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
+      if(mPixmap != 0)
+      {
+        mAdaptor->RequestUpdateOnce();
+      }
       break;
 
     case OP_UPDATE_DONE:
@@ -1016,6 +1085,12 @@ void Indicator::DataReceived( void* event )
     {
       int msgDomain = epcEvent->ref;
       int msgId = epcEvent->ref_to;
+
+      void *msgData = NULL;
+      int msgDataSize = 0;
+      msgData = epcEvent->data;
+      msgDataSize = epcEvent->size;
+
       if( msgDomain == MSG_DOMAIN_CONTROL_INDICATOR )
       {
         switch( msgId )
@@ -1027,6 +1102,24 @@ void Indicator::DataReceived( void* event )
             OnIndicatorTypeChanged( *indicatorType );
             break;
           }
+
+          case MSG_ID_INDICATOR_START_ANIMATION:
+          {
+            if (msgDataSize != (int)sizeof(IpcIndicatorDataAnimation))
+            {
+              DALI_LOG_ERROR("Message data is incorrect");
+              break;
+            }
+
+            IpcIndicatorDataAnimation *animData = static_cast<IpcIndicatorDataAnimation*>(msgData);
+
+            if(!CheckVisibleState())
+            {
+              ShowIndicator( animData->duration /* n sec */ );
+            }
+            break;
+          }
+
         }
       }
       break;
@@ -1051,8 +1144,7 @@ bool Indicator::CheckVisibleState()
 {
   if( mOrientation == Dali::Window::LANDSCAPE
     || mOrientation == Dali::Window::LANDSCAPE_INVERSE
-    || mOpacityMode == Dali::Window::TRANSPARENT
-    || mVisible == false )
+    || (mVisible != Dali::Window::VISIBLE) )
   {
     return false;
   }
@@ -1100,6 +1192,119 @@ void Indicator::ConstructBackgroundMesh()
   mBackgroundActor.SetShaderEffect(shaderEffect);
 }
 
+void Indicator::ShowIndicator(float duration)
+{
+  if( !mIndicatorAnimation )
+  {
+    mIndicatorAnimation = Dali::Animation::New(SLIDING_ANIMATION_DURATION);
+    mIndicatorAnimation.FinishedSignal().Connect(this, &Indicator::OnAnimationFinished);
+  }
+
+  if(mIsShowing && duration != 0)
+  {
+    // do not need to show it again
+  }
+  else if(!mIsShowing && mIsAnimationPlaying && duration == 0)
+  {
+    // do not need to hide it again
+  }
+  else
+  {
+    if(duration == 0)
+    {
+      mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, -mImageHeight, 0), Dali::AlphaFunctions::EaseOut);
+
+      mIsShowing = false;
+
+      OnIndicatorTypeChanged( INDICATOR_TYPE_2 ); // un-toucable
+    }
+    else
+    {
+      mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, 0, 0), Dali::AlphaFunctions::EaseOut);
+
+      mIsShowing = true;
+
+      OnIndicatorTypeChanged( INDICATOR_TYPE_1 ); // touchable
+    }
+
+    mIndicatorAnimation.Play();
+    mIsAnimationPlaying = true;
+  }
+
+  if(duration > 0)
+  {
+    if(!mShowTimer)
+    {
+      mShowTimer = Dali::Timer::New(1000 * duration);
+      mShowTimer.TickSignal().Connect(this, &Indicator::OnShowTimer);
+    }
+    mShowTimer.SetInterval(1000* duration);
+    mShowTimer.Start();
+
+    if( mVisible == Dali::Window::AUTO )
+    {
+        // check the stage touch
+        Dali::Stage::GetCurrent().TouchedSignal().Connect( this, &Indicator::OnStageTouched );
+    }
+  }
+  else
+  {
+    if(mShowTimer && mShowTimer.IsRunning())
+    {
+      mShowTimer.Stop();
+    }
+
+    if( mVisible == Dali::Window::AUTO )
+    {
+        // check the stage touch
+        Dali::Stage::GetCurrent().TouchedSignal().Disconnect( this, &Indicator::OnStageTouched );
+    }
+  }
+}
+
+bool Indicator::OnShowTimer()
+{
+  // after time up, hide indicator
+  ShowIndicator( HIDE_NOW );
+
+  return false;
+}
+
+void Indicator::OnAnimationFinished(Dali::Animation& animation)
+{
+  mIsAnimationPlaying = false;
+
+  if( mIsShowing == false )
+  {
+    // TODO: not necessary if dali supports the event for both indicator and behind button
+    mEventActor.SetSize(mImageWidth, mImageHeight /2);
+  }
+  else
+  {
+    mEventActor.SetSize(mImageWidth, mImageHeight);
+  }
+}
+
+void Indicator::OnStageTouched(const Dali::TouchEvent& touchEvent)
+{
+  const TouchPoint& touchPoint = touchEvent.GetPoint( 0 );
+
+  // when stage is touched while indicator is showing temporary, hide it
+  if( mIsShowing && ( CheckVisibleState() == false || mVisible == Dali::Window::AUTO ) )
+  {
+    switch( touchPoint.state )
+    {
+      case Dali::TouchPoint::Down:
+      {
+        ShowIndicator( HIDE_NOW );
+        break;
+      }
+
+      default:
+      break;
+    }
+  }
+}
 
 } // Adaptor
 } // Internal

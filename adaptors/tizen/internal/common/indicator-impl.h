@@ -25,6 +25,7 @@
 #include <dali/public-api/geometry/animatable-mesh.h>
 #include <dali/public-api/adaptor-framework/common/window.h>
 #include <dali/public-api/adaptor-framework/common/timer.h>
+#include <dali/public-api/animation/animation.h>
 
 // INTERNAL INCLUDES
 #include <internal/common/indicator-buffer.h>
@@ -196,15 +197,14 @@ public:
   /**
    * Set the opacity mode of the indicator background.
    * @param[in] mode opacity mode
-   * @param[in] notifyService True if need to notify the opacity mode to indicator service
    */
-  void SetOpacityMode( Dali::Window::IndicatorBgOpacity mode, bool notifyService = false );
+  void SetOpacityMode( Dali::Window::IndicatorBgOpacity mode );
 
   /**
    * Set whether the indicator is visible or not.
-   * @param[in] visibility TRUE if visible.
+   * @param[in] visibleMode visible mode for indicator bar.
    */
-  void SetVisible( bool visibility );
+  void SetVisible( Dali::Window::IndicatorVisibleMode visibleMode );
 
   /**
    * Check whether the indicator is connected to the indicator service.
@@ -241,16 +241,17 @@ private:
   bool OnTouched(Dali::Actor indicator, const TouchEvent& touchEvent);
 
   /**
+   * Touch event callback on stage.
+   * @param[in] touchEvent The touch event
+   */
+  void OnStageTouched(const Dali::TouchEvent& touchEvent);
+
+  /**
    * Return the given orientation in degrees
    * @param[in] orientation The given indicator orientation
    * @return value of 0, 90, 180 or 270
    */
   int OrientationToDegrees( Dali::Window::WindowOrientation orientation );
-
-  /**
-   * Send opacity mode to indicator service
-   */
-  void SendOpacityMode( Dali::Window::IndicatorBgOpacity mode );
 
   /**
    * Connect to the indicator service matching the orientation
@@ -345,6 +346,25 @@ private:
    */
   bool CheckVisibleState();
 
+  /**
+   * Show/Hide indicator actor with effect
+   * @param[in] duration how long need to show the indicator,
+   *                     if it equal to 0, hide the indicator
+   *                     if it less than 0, show always
+   */
+  void ShowIndicator(float duration);
+
+  /**
+   * Showing timer callback
+   */
+  bool OnShowTimer();
+
+  /**
+   * Showing animation finished callback
+   * @param[in] animation
+   */
+  void OnAnimationFinished(Dali::Animation& animation);
+
 private: // Implementation of ServerConnection::Observer
   /**
    * @copydoc Dali::Internal::Adaptor::ServerConnection::Observer::DataReceived()
@@ -372,6 +392,7 @@ private:
   Dali::AnimatableMesh             mBackgroundMesh;
   Dali::MeshActor                  mBackgroundActor;     ///< Actor for background
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
+  Dali::Actor                      mEventActor;          ///< Handle to event
 
   Dali::Timer                      mReconnectTimer;      ///< Reconnection timer
   SlotDelegate< Indicator >        mConnection;
@@ -389,7 +410,16 @@ private:
   int                              mRotation;            ///< Orientation in degrees
   int                              mImageWidth;
   int                              mImageHeight;
-  bool                             mVisible;             ///< Whether the indicator is visible
+  Dali::Window::IndicatorVisibleMode mVisible;           ///< Whether the indicator is visible
+
+  Dali::Timer                      mShowTimer;           ///< Timer to show indicator
+  bool                             mIsShowing;           ///< Whether the indicator is showing on the screen
+  Dali::Animation                  mIndicatorAnimation;  ///< Animation to show/hide indicator image
+
+  bool                             mIsAnimationPlaying;  ///< Whether the animation is playing
+  bool                             mTouchedDown;         ///< Whether the indicator area touched down
+  Dali::Vector2                    mTouchDownPosition;   ///< Indicator area touched down position
+
 };
 
 } // Adaptor

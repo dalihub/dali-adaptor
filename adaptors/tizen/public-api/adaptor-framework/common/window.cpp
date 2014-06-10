@@ -44,6 +44,11 @@ void Window::ShowIndicator( bool show )
   GetImplementation(*this).ShowIndicator( show );
 }
 
+void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
+{
+  GetImplementation(*this).ShowIndicator( visibleMode );
+}
+
 void Window::SetIndicatorBgOpacity( IndicatorBgOpacity opacity )
 {
   GetImplementation(*this).SetIndicatorBgOpacity( opacity );
