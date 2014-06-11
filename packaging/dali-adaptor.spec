@@ -3,7 +3,7 @@ Summary:    The DALi Tizen Adaptor
 Version:    0.9.15
 Release:    1
 Group:      System/Libraries
-License:    Flora
+License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
@@ -37,7 +37,6 @@ BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(libpng)
-ExclusiveArch:  armv7l
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -48,7 +47,7 @@ platform abstraction and application shell
 ##############################
 %package devel
 Summary:    Development components for the DALi Tizen Adaptor
-Group:      Development/Libs
+Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
@@ -59,8 +58,8 @@ Development components for the DALi Tizen Adaptor - public headers and package c
 ##############################
 %package dali-feedback-plugin
 Summary:    Plugin to play haptic and audio feedback for Dali
-Group:      Development/Building
-Requires:       libdeviced
+Group:      System/Libraries
+#Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
@@ -73,8 +72,8 @@ Feedback plugin to play haptic and audio feedback for Dali
 ##############################
 %package dali-bullet-plugin
 Summary:    Plugin to provide physics
-Group:      Development/Building
-BuildRequires:  bullet-devel
+Group:      System/Libraries
+BuildRequires:  pkgconfig(bullet)
 
 %description dali-bullet-plugin
 Dynamics plugin to wrap the libBulletDynamics libraries
@@ -158,6 +157,14 @@ chown 5000:5000 %{user_font_cache_dir}
 chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
+%post dali-feedback-plugin
+/sbin/ldconfig
+exit 0
+
+%post dali-bullet-plugin
+/sbin/ldconfig
+exit 0
+
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -172,6 +179,15 @@ exit 0
 %postun
 /sbin/ldconfig
 exit 0
+
+%postun dali-feedback-plugin
+/sbin/ldconfig
+exit 0
+
+%postun dali-bullet-plugin
+/sbin/ldconfig
+exit 0
+
 
 ##############################
 # Files in Binary Packages
