@@ -268,6 +268,7 @@ ResourcePointer ResourceThreadImage::LoadResourceSynchronously( const Integratio
     {
       resource.Reset(bitmap.Get());
     }
+    fclose(fp);
   }
   return resource;
 }
