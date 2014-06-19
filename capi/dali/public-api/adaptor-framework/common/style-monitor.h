@@ -83,9 +83,11 @@ public: // Creation & Destruction
   static StyleMonitor Get();
 
   /**
-   * @brief Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~StyleMonitor();
+  ~StyleMonitor();
 
   /**
    * @brief Downcast an Object handle to StyleMonitor handle.

@@ -66,9 +66,11 @@ public:
   static ColorController Get();
 
   /**
-   * @brief Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~ColorController();
+  ~ColorController();
 
   /**
    * @brief Retrieve the RGB value by given the color code.

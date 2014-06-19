@@ -117,8 +117,10 @@ public:
 
   /**
    * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~Window();
+  ~Window();
 
   /**
    * @copydoc Dali::BaseHandle::operator=

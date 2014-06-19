@@ -61,9 +61,11 @@ public:
   Orientation();
 
   /**
-   * @brief Virtual Destructor
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~Orientation();
+  ~Orientation();
 
   /**
    * @copydoc Dali::BaseHandle::operator=

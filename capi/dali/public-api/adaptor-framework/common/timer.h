@@ -91,9 +91,11 @@ public: // API
   Timer& operator=( const Timer& timer );
 
   /**
-   * @brief Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~Timer();
+  ~Timer();
 
   /**
    * @brief Downcast an Object handle to Timer handle.

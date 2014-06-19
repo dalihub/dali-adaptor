@@ -101,9 +101,11 @@ public:
   static TiltSensor Get();
 
   /**
-   * Virtual Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~TiltSensor();
+  ~TiltSensor();
 
   /**
    * Attempt to enable the tilt-sensor. This will fail if the underlying sensor hardware is powered-down,

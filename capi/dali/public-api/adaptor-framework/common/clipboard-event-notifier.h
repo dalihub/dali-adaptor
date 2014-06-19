@@ -72,9 +72,11 @@ public:
   static ClipboardEventNotifier Get();
 
   /**
-   * @brief Virtual Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~ClipboardEventNotifier();
+  ~ClipboardEventNotifier();
 
   /**
    * @brief Returns the selected content.

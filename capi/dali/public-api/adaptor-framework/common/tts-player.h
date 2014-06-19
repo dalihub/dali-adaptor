@@ -74,7 +74,9 @@ public: // API
   static TtsPlayer Get(Dali::TtsPlayer::Mode mode = Dali::TtsPlayer::DEFAULT);
 
   /**
-   * @brief Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
   ~TtsPlayer();
 

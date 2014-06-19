@@ -115,9 +115,11 @@ public:
   DragAndDropDetector();
 
   /**
-   * @brief Virtual Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~DragAndDropDetector();
+  ~DragAndDropDetector();
 
   /**
    * @brief Returns the dropped content.

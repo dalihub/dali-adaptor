@@ -90,9 +90,11 @@ public:
   static AccessibilityManager Get();
 
   /**
-   * @brief Virtual Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~AccessibilityManager();
+  ~AccessibilityManager();
 
   /**
    * @brief Returns the current position of the read action.

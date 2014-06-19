@@ -59,7 +59,9 @@ public:
   static HapticPlayer Get();
 
   /**
-   * @brief Destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
   ~HapticPlayer();
 

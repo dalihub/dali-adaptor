@@ -243,9 +243,11 @@ public:
   ImfManager();
 
   /**
-   * @brief Virtual destructor.
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  virtual ~ImfManager();
+  ~ImfManager();
 
   /**
    * @brief This constructor is used by ImfManager::Get().
