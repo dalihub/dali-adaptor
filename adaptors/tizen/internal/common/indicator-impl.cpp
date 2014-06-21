@@ -907,11 +907,15 @@ void Indicator::UpdateImageData()
   {
     if(mPixmap == 0)
     {
+      // in case of shm indicator (not pixmap), not sure we can skip it when mIsShowing is false
       CopyToBuffer();
     }
     else
     {
-      mAdaptor->RequestUpdateOnce();
+      if(mIsShowing)
+      {
+        mAdaptor->RequestUpdateOnce();
+      }
     }
   }
 }
@@ -1053,7 +1057,7 @@ void Indicator::DataReceived( void* event )
   {
     case OP_UPDATE:
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
-      if(mPixmap != 0)
+      if(mPixmap != 0 && mIsShowing)
       {
         mAdaptor->RequestUpdateOnce();
       }
