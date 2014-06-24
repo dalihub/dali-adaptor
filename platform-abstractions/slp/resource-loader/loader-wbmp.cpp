@@ -94,7 +94,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromWbmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
 
   if(fp == NULL)

@@ -35,6 +35,8 @@ struct ImageAttributes;
 namespace SlpPlatform
 {
 
+class ResourceLoadingClient;
+
 namespace Png
 {
 const unsigned char MAGIC_BYTE_1 = 0x89;
@@ -49,7 +51,7 @@ const unsigned char MAGIC_BYTE_2 = 0x50;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromPng(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromPng( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.

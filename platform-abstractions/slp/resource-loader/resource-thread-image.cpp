@@ -46,7 +46,7 @@ namespace SlpPlatform
 namespace
 {
 
-typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&); ///@ToDo: Make attributes a const reference?
+typedef bool (*LoadBitmapFunction)( FILE*, Bitmap&, ImageAttributes&, const ResourceLoadingClient& ); ///@ToDo: Make attributes a const reference?
 typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
 /**
@@ -382,7 +382,7 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
     result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
     // Last chance to interrupt a cancelled load before it is reported back to clients
     // which have already stopped tracking it:
-    boost::this_thread::interruption_point(); // Note: This can throw an exception.
+    InterruptionPoint(); // Note: This can throw an exception.
     if( result && bitmap )
     {
       // Construct LoadedResource and ResourcePointer for image data
@@ -501,9 +501,9 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
       ImageAttributes attributes  = resType.imageAttributes;
 
       // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
-      boost::this_thread::interruption_point(); // Note: This can throw an exception.
+      InterruptionPoint(); // Note: This can throw an exception.
 
-      result = function( fp, *bitmap, attributes );
+      result = function( fp, *bitmap, attributes, *this );
 
       if (!result)
       {
@@ -550,7 +550,7 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
           // Make a new bitmap with the central part of the loaded one if required:
           if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).
           {
-            boost::this_thread::interruption_point(); //< Check for cancellation before doing the heavy lifting (Note: This can throw an exception.)
+            InterruptionPoint(); // Note: This can throw an exception.
 
             const unsigned newWidth = loadedWidth - 2 * columnsToTrim;
             const unsigned newHeight = loadedHeight - 2 * scanlinesToTrim;
@@ -594,7 +594,6 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
   ptr.Reset( bitmap.Get() );
   return result;
 }
-
 
 } // namespace SlpPlatform
 

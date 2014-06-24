@@ -25,13 +25,15 @@ namespace Dali
 
 namespace Integration
 {
-  class Bitmap;
+class Bitmap;
 }
 
 struct ImageAttributes;
 
 namespace SlpPlatform
 {
+
+class ResourceLoadingClient;
 
 namespace Bmp
 {
@@ -47,7 +49,7 @@ const unsigned char MAGIC_BYTE_2 = 0x4D;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromBmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromBmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 /**
  * Loads the header of a BMP file and fills in the width and height appropriately.

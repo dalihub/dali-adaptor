@@ -33,6 +33,8 @@ struct ImageAttributes;
 namespace SlpPlatform
 {
 
+class ResourceLoadingClient;
+
 namespace Gif
 {
 const unsigned char MAGIC_BYTE_1 = 0x47;
@@ -48,7 +50,7 @@ const unsigned char MAGIC_BYTE_2 = 0x49;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromGif(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromGif( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.

@@ -325,7 +325,7 @@ bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return true;
 }
 
-bool LoadBitmapFromIco(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromIco( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;

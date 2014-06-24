@@ -61,8 +61,6 @@ private:
    */
   virtual void Save(const Integration::ResourceRequest& request);
 
-private:
-
 }; // class ResourceThreadImage
 
 } // namespace SlpPlatform

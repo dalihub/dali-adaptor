@@ -32,7 +32,9 @@ struct ImageAttributes;
 namespace SlpPlatform
 {
 
-bool LoadBitmapFromWbmp(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+class ResourceLoadingClient;
+
+bool LoadBitmapFromWbmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
 

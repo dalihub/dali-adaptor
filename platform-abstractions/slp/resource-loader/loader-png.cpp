@@ -141,7 +141,7 @@ bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return success;
 }
 
-bool LoadBitmapFromPng(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   png_structp png = NULL;
   png_infop info = NULL;

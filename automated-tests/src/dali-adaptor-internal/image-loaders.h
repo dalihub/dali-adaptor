@@ -20,6 +20,7 @@
 
 #include <dali/dali.h>
 #include <dali/integration-api/bitmap.h>
+#include "platform-abstractions/slp/resource-loader/resource-loading-client.h"
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
@@ -81,7 +82,7 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapFunction)(FILE*, Dali::Integration::Bitmap&, Dali::ImageAttributes&);
+  typedef bool (*LoadBitmapFunction)(FILE*, Dali::Integration::Bitmap&, Dali::ImageAttributes&, const Dali::SlpPlatform::ResourceLoadingClient& client);
   typedef bool (*LoadBitmapHeaderFunction)(FILE*, const Dali::ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
   LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader );

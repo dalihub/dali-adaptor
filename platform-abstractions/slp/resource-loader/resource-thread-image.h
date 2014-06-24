@@ -103,7 +103,6 @@ private:
                               FILE * const fp,
                               Integration::BitmapPtr& ptr );
 
-
 }; // class ResourceThreadImage
 
 } // namespace SlpPlatform

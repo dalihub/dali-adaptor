@@ -18,6 +18,7 @@
 #include <dali/integration-api/debug.h>
 #include "resource-thread-base.h"
 #include "slp-logging.h"
+#include "atomics.h"
 
 using namespace std;
 using namespace Dali::Integration;
@@ -38,8 +39,14 @@ namespace
 const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY"; ///@Todo Move this to somewhere that other environment variables are declared and document it there.
 } // unnamed namespace
 
-ResourceThreadBase::ResourceThreadBase(ResourceLoader& resourceLoader)
-: mResourceLoader( resourceLoader ), mCurrentRequestId( NO_REQUEST ), mPaused( false )
+/** Thrown by InterruptionPoint() to abort a request early. */
+class CancelRequestException {};
+
+ResourceThreadBase::ResourceThreadBase( ResourceLoader& resourceLoader ) :
+  mResourceLoader( resourceLoader ),
+  mCurrentRequestId( NO_REQUEST ),
+  mCancelRequestId( NO_REQUEST ),
+  mPaused( false )
 {
 #if defined(DEBUG_ENABLED)
   mLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_RESOURCE_THREAD_BASE");
@@ -94,31 +101,49 @@ void ResourceThreadBase::AddRequest(const ResourceRequest& request, const Reques
   }
 }
 
-void ResourceThreadBase::CancelRequest( Integration::ResourceId resourceId )
+// Called from outer thread.
+void ResourceThreadBase::CancelRequest( const Integration::ResourceId resourceId )
 {
+  bool found = false;
+  DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s: %u.\n", __FUNCTION__, unsigned(resourceId) );
+
+  // Eliminate the cancelled request from the request queue if it is in there:
   {
     // Lock while searching and removing from the request queue:
     unique_lock<mutex> lock( mMutex );
 
-    // See if the request is already launched as the current job on the thread:
-    //if( mCurrentRequestId == resourceId )
-    //{
-    //  mThread->interrupt();
-    //}
-    // Check the pending requests to be cancelled:
-    //else
+    for( RequestQueueIter iterator = mQueue.begin();
+         iterator != mQueue.end();
+         ++iterator )
     {
-      for( RequestQueueIter iterator = mQueue.begin();
-           iterator != mQueue.end();
-           ++iterator )
+      if( ((*iterator).first).GetId() == resourceId )
       {
-        if( ((*iterator).first).GetId() == resourceId )
-        {
-          iterator = mQueue.erase( iterator );
-          break;
-        }
+        iterator = mQueue.erase( iterator );
+        found = true;
+        break;
       }
     }
+  }
+
+  // Remember the cancelled id for the worker thread to poll at one of its points
+  // of interruption:
+  if( !found )
+  {
+    Dali::Internal::AtomicWriteToCacheableAlignedAddress( &mCancelRequestId, resourceId );
+    DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Cancelling in-flight resource (%u).\n", __FUNCTION__, unsigned(resourceId) );
+  }
+}
+
+// Called from worker thread.
+void ResourceThreadBase::InterruptionPoint() const
+{
+  const Integration::ResourceId cancelled = Dali::Internal::AtomicReadFromCacheableAlignedAddress( &mCancelRequestId );
+  const Integration::ResourceId current = mCurrentRequestId;
+
+  if( current == cancelled )
+  {
+    DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Cancelled in-flight resource (%u).\n", __FUNCTION__, unsigned(cancelled) );
+    throw CancelRequestException();
   }
 }
 
@@ -175,21 +200,20 @@ void ResourceThreadBase::ThreadLoop()
       }
     }
 
-    catch( boost::thread_interrupted& ex )
+    catch( CancelRequestException& ex )
     {
-      // No problem, thread was just interrupted from the outside to cancel an in-flight request.
-      boost::thread_interrupted* disableUnusedVarWarning = &ex;
+      // No problem: a derived class deliberately threw to abort an in-flight request
+      // that was cancelled.
+      DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Caught cancellation exception for resource (%u).\n", __FUNCTION__, unsigned(mCurrentRequestId) );
+      CancelRequestException* disableUnusedVarWarning = &ex;
       ex = *disableUnusedVarWarning;
-      // Temporary logging of an unexpected boost::thread_interrupted exception:
-      DALI_LOG_ERROR( "boost::thread_interrupted caught in resource thread in build with late cancellation disabled (should not happen). Aborting request with id %u.\n", unsigned(mCurrentRequestId) );
     }
 
-    // Since we have an exception handler here anyway, lets catch everything to avoid killing the process:
+    // Catch all exceptions to avoid killing the process, and log the error:
     catch( std::exception& ex )
     {
       const char * const what = ex.what();
       DALI_LOG_ERROR( "std::exception caught in resource thread. Aborting request with id %u because of std::exception with reason, \"%s\".\n", unsigned(mCurrentRequestId), what ? what : "null" );
-
     }
     catch( Dali::DaliException& ex )
     {
@@ -206,9 +230,6 @@ void ResourceThreadBase::ThreadLoop()
 void ResourceThreadBase::WaitForRequests()
 {
   unique_lock<mutex> lock( mMutex );
-
-  // Clear the previously current request:
-  mCurrentRequestId = NO_REQUEST;
 
   if( mQueue.empty() || mPaused == true )
   {
@@ -261,13 +282,6 @@ void ResourceThreadBase::ProcessNextRequest()
       }
       break;
     }
-
-    // Clear the interruption status for derived classes that don't implement on-the-fly cancellation yet:
-    boost::this_thread::interruption_point(); ///@warning This can throw an exception.
-    // To support cancellation of an in-flight resource, place the above line at key points in derived
-    // resource thread classes and the loading / decoding / saving code that they call.
-    // See resource-thread-image.cpp and loader-jpeg-turbo.cpp for a conservative example of its use.
-    ///@note: The above line will throw an exception so only place it in exception-safe locations.
   }
 }
 

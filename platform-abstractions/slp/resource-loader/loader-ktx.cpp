@@ -304,7 +304,7 @@ bool LoadKtxHeader(FILE * const fp, const ImageAttributes& attributes, unsigned 
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx(FILE * const fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromKtx( FILE * const fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);

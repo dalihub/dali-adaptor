@@ -18,6 +18,16 @@
 #include "image-loaders.h"
 #include <dali-test-suite-utils.h>
 
+
+class StubImageLoaderClient : public Dali::SlpPlatform::ResourceLoadingClient
+{
+public:
+  StubImageLoaderClient() {}
+  ~StubImageLoaderClient() {}
+
+  virtual void InterruptionPoint() const {}
+};
+
 AutoCloseFile::AutoCloseFile( FILE *fp )
 : filePtr( fp )
 {
@@ -106,7 +116,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
 
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
   DALI_TEST_EQUALS( image.width,  attributes.GetWidth(),  TEST_LOCATION );
   DALI_TEST_EQUALS( image.height, attributes.GetHeight(), TEST_LOCATION );
 
@@ -133,7 +143,7 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
   Dali::ImageAttributes attributes;
 
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
 
   Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
 

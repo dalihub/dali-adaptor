@@ -33,6 +33,8 @@ struct ImageAttributes;
 namespace SlpPlatform
 {
 
+class ResourceLoadingClient;
+
 namespace Ktx
 {
 const unsigned char MAGIC_BYTE_1 = 0xAB;
@@ -48,7 +50,7 @@ const unsigned char MAGIC_BYTE_2 = 0x4B;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromKtx(FILE * const fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromKtx( FILE * const fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 /**
  * Loads the header of a KTX file and fills in the width and height appropriately.

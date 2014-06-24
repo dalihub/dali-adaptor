@@ -1050,7 +1050,7 @@ bool LoadBmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return ret;
 }
 
-bool LoadBitmapFromBmp(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromBmp( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   DALI_ASSERT_DEBUG(bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into.");
   if(fp == NULL)

@@ -15,21 +15,23 @@
  *
  */
 
+// INTERNAL HEADERS
 #include "loader-jpeg.h"
-#include <turbojpeg.h>
-#include <jpeglib.h>
-#include <cstring>
-
-#include <dali/integration-api/debug.h>
+#include "resource-loading-client.h"
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
+
+// EXTERNAL HEADERS
 #include <libexif/exif-data.h>
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
+#include <turbojpeg.h>
+#include <jpeglib.h>
+#include <cstring>
 #include <setjmp.h>
-#include <boost/thread.hpp>
+
 
 namespace Dali
 {
@@ -236,7 +238,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
+bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   int flags=(FORCEMMX ?  TJ_FORCEMMX : 0) |
             (FORCESSE ?  TJ_FORCESSE : 0) |
@@ -293,7 +295,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   }
 
   // Allow early cancellation between the load and the decompress:
-  boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+  client.InterruptionPoint();
 
   AutoJpg autoJpg(tjInitDecompress());
 
@@ -353,7 +355,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
 
   // Allow early cancellation before decoding:
-  boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+  client.InterruptionPoint();
 
   const int pitch = scaledPreXformWidth * DECODED_PIXEL_SIZE;
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, pitch, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
@@ -371,7 +373,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   if( transform != JPGFORM_NONE )
   {
     // Allow early cancellation before shuffling pixels around on the CPU:
-    boost::this_thread::interruption_point(); ///@warning This can throw an exception.
+    client.InterruptionPoint();
   }
 
   bool result = false;

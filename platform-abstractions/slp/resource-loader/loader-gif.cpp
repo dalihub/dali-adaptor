@@ -272,7 +272,7 @@ bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return LoadGifHeader(fp, width, height, &gifInfo);
 }
 
-bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes)
+bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   // Load the GIF Header file.
 
