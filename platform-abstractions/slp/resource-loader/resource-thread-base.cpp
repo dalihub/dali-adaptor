@@ -96,12 +96,12 @@ void ResourceThreadBase::CancelRequest( Integration::ResourceId resourceId )
     unique_lock<mutex> lock( mMutex );
 
     // See if the request is already launched as the current job on the thread:
-    if( mCurrentRequestId == resourceId )
-    {
-      mThread->interrupt();
-    }
+    //if( mCurrentRequestId == resourceId )
+    //{
+    //  mThread->interrupt();
+    //}
     // Check the pending requests to be cancelled:
-    else
+    //else
     {
       for( RequestQueueIter iterator = mQueue.begin();
            iterator != mQueue.end();
@@ -164,6 +164,8 @@ void ResourceThreadBase::ThreadLoop()
       // No problem, thread was just interrupted from the outside to cancel an in-flight request.
       boost::thread_interrupted* disableUnusedVarWarning = &ex;
       ex = *disableUnusedVarWarning;
+      // Temporary logging of an unexpected boost::thread_interrupted exception:
+      DALI_LOG_ERROR( "boost::thread_interrupted caught in resource thread in build with late cancellation disabled (should not happen). Aborting request with id %u.\n", unsigned(mCurrentRequestId) );
     }
 
     // Since we have an exception handler here anyway, lets catch everything to avoid killing the process:
