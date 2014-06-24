@@ -101,6 +101,12 @@ void VSyncMonitor::Initialize()
   mVBlankInfo.request.type = DRM_VBLANK_NEXTONMISS;
   mVBlankInfo.request.sequence = 0;
   mVBlankInfo.request.signal = 0;
+
+  // setup vblank reply - block and wait for next vblank
+  mVBlankInfo.reply.type = DRM_VBLANK_NEXTONMISS;
+  mVBlankInfo.reply.sequence = 0;
+  mVBlankInfo.reply.tval_sec = 0;
+  mVBlankInfo.reply.tval_usec = 0;
 }
 
 void VSyncMonitor::Terminate()
