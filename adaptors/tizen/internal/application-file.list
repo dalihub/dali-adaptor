@@ -1,7 +1,0 @@
-# Application
-
-tizen_application_internal_src_files = \
-  $(tizen_application_internal_src_dir)/application-impl.cpp \
-  $(tizen_application_internal_src_dir)/framework.cpp \
-  $(tizen_application_internal_src_dir)/command-line-options.cpp \
-  $(tizen_application_internal_src_dir)/abort-handler.cpp

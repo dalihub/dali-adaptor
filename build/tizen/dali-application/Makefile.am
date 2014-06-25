@@ -16,20 +16,33 @@
 
 # Build the Dali Adaptor + Application library
 
-tizen_application_internal_src_dir = ../../../adaptors/tizen/internal
-include ../../../adaptors/tizen/internal/application-file.list
+# Common
+adaptor_common_dir = ../../../adaptors/common
+include ../../../adaptors/common/file.list
 
-tizen_application_public_api_src_dir = ../../../adaptors/tizen/public-api
-include ../../../adaptors/tizen/public-api/adaptor-framework/application-file.list
+# Public API
+adaptor_public_api_dir = ../../../adaptors/public-api
+include ../../../adaptors/public-api/file.list
 
-capi_public_api_src_dir = ../../../capi/dali/public-api
-include ../../../capi/dali/public-api/file.list
+if WAYLAND
+adaptor_wayland_dir = ../../../adaptors/wayland
+include ../../../adaptors/wayland/file.list
+else
+adaptor_x11_dir = ../../../adaptors/x11
+include ../../../adaptors/x11/file.list
+endif
 
 lib_LTLIBRARIES = libdali-application.la
 
 libdali_application_la_SOURCES = \
-                     $(tizen_application_public_api_src_files) \
-                     $(tizen_application_internal_src_files)
+                     $(adaptor_application_src_files) \
+                     $(adaptor_application_internal_src_files)
+
+if WAYLAND
+libdali_application_la_SOURCES += $(adaptor_wayland_application_src_files)
+else
+libdali_application_la_SOURCES += $(adaptor_x11_application_src_files)
+endif
 
 libdali_application_la_DEPENDENCIES =
 
@@ -39,9 +52,17 @@ libdali_application_includes = \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
                       -I../../../platform-abstractions/portable \
-                      -I../../../adaptors/ \
-                      -I../../../adaptors/tizen \
-                      -I../../../capi
+                      -I../../../adaptors/public-api \
+                      -I../../../adaptors/common \
+                      -I../../../adaptors/
+
+if WAYLAND
+libdali_application_includes += \
+                      -I../../../adaptors/wayland
+else
+libdali_application_includes += \
+                      -I../../../adaptors/x11
+endif
 
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
@@ -69,6 +90,7 @@ libdali_application_la_CXXFLAGS = \
                       $(ASSIMP_CFLAGS) \
                       $(CAPI_APPFW_APPLICATION_CFLAGS) \
                       $(ELEMENTARY_CFLAGS) \
+                      $(ECORE_IPC_CFLAGS) \
                       $(DLOG_CFLAGS) \
                       $(XML_CFLAGS) \
                       $(VCONF_CFLAGS) \
@@ -82,12 +104,12 @@ install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}
 
 # Install resource log analyzer script
-bin_SCRIPTS = ../../../adaptors/tizen/scripts/dalireslog.sh
+bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
 
 # Install headers
 
-tizenadaptorpublicapidir = $(devincludepath)/dali/public-api/adaptor-framework
-tizenadaptorpublicapi_HEADERS = $(tizen_application_public_api_header_files)
+tizenadaptorpublicapidir = $(devincludepath)/dali/public-api/
+tizenadaptorpublicapi_HEADERS = $(public_api_application_header_files)
 
 
 # linking test
@@ -97,8 +119,8 @@ noinst_PROGRAMS = linker.test
 linker_test_SOURCES = linker-test.cpp
 
 linker_test_CXXFLAGS = \
-  -I../../../adaptors/tizen \
-  -I../../../capi \
+  -I../../../adaptors/common \
+  -I../../../adaptors/public-api \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
   $(DALIX11_CFLAGS) \

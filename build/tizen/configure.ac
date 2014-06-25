@@ -36,7 +36,6 @@ PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(ELEMENTARY, elementary)
 PKG_CHECK_MODULES(ECORE, ecore)
-PKG_CHECK_MODULES(ECORE_X, ecore-x)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
@@ -47,7 +46,6 @@ PKG_CHECK_MODULES(PNG, libpng)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
-PKG_CHECK_MODULES(X11, x11)
 PKG_CHECK_MODULES(XML, libxml-2.0)
 PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
@@ -112,26 +110,29 @@ AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 AC_ARG_ENABLE([profile],
               [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV],
                             [Select the variant of tizen])],
-              [dali_profile=$enableval],
-              [dali_profile=COMMON])
+              [enable_profile=$enableval],
+              [enable_profile=COMMON])
 
-if test "x$enable_profile" = "xyes"; then
-  dali_profile=COMMON
-fi
-if test "x$enable_profile" = "x"; then
-  dali_profile=COMMON
-fi
+AC_ARG_ENABLE(wayland,
+              [  --enable-wayland       Build on Wayland],
+              enable_wayland=yes,
+              enable_wayland=no)
 
-DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${dali_profile}"
-DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${dali_profile}"
-AM_CONDITIONAL([COMMON_PROFILE], [test x$dali_profile = xCOMMON])
-AM_CONDITIONAL([MOBILE_PROFILE], [test x$dali_profile = xMOBILE])
-AM_CONDITIONAL([LITE_PROFILE], [test x$dali_profile = xLITE])
-AM_CONDITIONAL([WEARABLE_PROFILE], [test x$dali_profile = xWEARABLE])
-AM_CONDITIONAL([TV_PROFILE], [test x$dali_profile = xTV])
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
+DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
+AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
+AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
+AM_CONDITIONAL([LITE_PROFILE], [test x$enable_profile = xLITE])
+AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
+AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
+AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 if test "x$enable_profile" = "xCOMMON"; then
+if test "x$enable_wayland" = "xyes"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
+else
 PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
 PKG_CHECK_MODULES(HAPTIC, haptic)
 fi
 
@@ -156,6 +157,19 @@ if test "x$enable_profile" = "xTV"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
 PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
+
+if test "x$enable_wayland" = "xyes"; then
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
+                  [DALI_HAS_ECOREWL=yes],
+                  [DALI_HAS_ECOREWL=no])
+else
+PKG_CHECK_MODULES(ECORE_X, [ecore-x],
+                  [DALI_HAS_ECOREX=yes],
+                  [DALI_HAS_ECOREX=no])
+PKG_CHECK_MODULES(X11, [x11],
+                  [DALI_HAS_X11=yes],
+                  [DALI_HAS_X11=no])
 fi
 
 if test x$DALI_DATA_RW_DIR != x; then
@@ -235,7 +249,7 @@ Configuration
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
   Using JPEG Turbo Library:         $with_jpeg_turbo
-  Profile:                          $dali_profile
+  Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
   Font Path (Preloaded):            $fontPreloadedPath

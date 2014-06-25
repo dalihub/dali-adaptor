@@ -1,9 +1,5 @@
 <manifest>
-	<assign>
-		<filesystem path="/usr/lib/*" label="_" />
-		<filesystem path="/opt/usr/share/dali/glyphcache" label="dali" type="transmutable" />
-	</assign>
 	<request>
-		<domain name="dali"/>
+		<domain name="_"/>
 	</request>
 </manifest>

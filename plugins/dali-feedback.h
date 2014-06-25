@@ -26,7 +26,7 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <public-api/adaptor-framework/common/feedback-plugin.h>
+#include <feedback-plugin.h>
 
 namespace Dali
 {

@@ -27,7 +27,7 @@
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
 #include <base/interfaces/kernel-trace-interface.h>
-#include <internal/common/render-surface-impl.h> // @todo move to base/interfaces
+#include <render-surface-impl.h> // @todo move to base/interfaces
 
 
 namespace Dali

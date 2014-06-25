@@ -16,14 +16,13 @@
 
 # Build the Dali Adaptor + Evas Plugin library
 
-tizen_evas_plugin_internal_src_dir = ../../../adaptors/tizen/internal/mobile
-include ../../../adaptors/tizen/internal/mobile/application-file.list
+tizen_evas_plugin_internal_src_dir = ../../../adaptors/mobile
+tizen_evas_plugin_public_api_src_dir = ../../../adaptors/mobile
+include ../../../adaptors/mobile/application-file.list
 
-tizen_evas_plugin_public_api_src_dir = ../../../adaptors/tizen/public-api
-include ../../../adaptors/tizen/public-api/adaptor-framework/mobile/application-file.list
-
-capi_public_api_src_dir = ../../../capi/dali/public-api
-include ../../../capi/dali/public-api/file.list
+# Public API
+adaptor_public_api_dir = ../../../adaptors/public-api
+include ../../../adaptors/public-api/file.list
 
 lib_LTLIBRARIES = libdali-evas-plugin.la
 
@@ -39,9 +38,17 @@ libdali_evas_plugin_includes = \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
                       -I../../../platform-abstractions/portable \
-                      -I../../../adaptors/ \
-                      -I../../../adaptors/tizen \
-                      -I../../../capi/
+                      -I../../../adaptors/public-api \
+                      -I../../../adaptors/common \
+                      -I../../../adaptors/ 
+
+if WAYLAND
+libdali_evas_plugin_includes += \
+                      -I../../../adaptors/wayland
+else
+libdali_evas_plugin_includes += \
+                      -I../../../adaptors/x11
+endif
 
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
@@ -84,9 +91,9 @@ libdali_evas_plugin_la_LIBADD = \
                       $(ELEMENTARY_LIBS) \
                       $(EVAS_LIBS)
 
-tizenadaptordaliheaderdir = $(devincludepath)/dali/public-api/adaptor-framework
+tizenadaptordaliheaderdir = $(devincludepath)/dali/public-api/
 tizenadaptordaliheader_HEADERS = $(tizen_evas_plugin_public_api_header_files) \
-                                 $(capi_evas_plugin_public_api_header_files)
+                                 $(evas_plugin_public_api_header_files)
 
 # linking test
 
@@ -95,8 +102,8 @@ noinst_PROGRAMS = linker.test
 linker_test_SOURCES = linker-test.cpp
 
 linker_test_CXXFLAGS = \
-  -I../../../adaptors/tizen \
-  -I../../../capi \
+  -I../../../adaptors/common \
+  -I../../../adaptors/public-api \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
   $(DALIX11_CFLAGS) \

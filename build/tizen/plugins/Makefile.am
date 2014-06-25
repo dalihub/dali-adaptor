@@ -45,7 +45,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(MMFSOUND_CFLAGS) \
                       $(FEEDBACK_CFLAGS) \
                       $(DALI_PROFILE_CFLAGS) \
-                      -I../../../adaptors/tizen \
+                      -I../../../adaptors/public-api \
                       -Werror -Wall
 
 libdali_feedback_plugin_la_LIBADD = \

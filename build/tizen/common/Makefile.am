@@ -25,45 +25,67 @@ slp_platform_abstraction_src_dir = ../../../platform-abstractions/slp
 include ../../../platform-abstractions/slp/file.list
 
 # Internal Common
-tizen_adaptor_internal_src_dir = ../../../adaptors/tizen/internal/common
-include ../../../adaptors/tizen/internal/common/file.list
+adaptor_common_dir = ../../../adaptors/common
+include ../../../adaptors/common/file.list
+
+if WAYLAND
+adaptor_wayland_dir = ../../../adaptors/wayland
+include ../../../adaptors/wayland/file.list
+else
+adaptor_x11_dir = ../../../adaptors/x11
+include ../../../adaptors/x11/file.list
+endif
 
 if COMMON_PROFILE
-tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
 slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+if ! WAYLAND
+adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
+endif
+endif
+
+if WAYLAND
+adaptor_common_internal_src_files += $(adaptor_wayland_internal_src_files)
+adaptor_common_internal_profile_src_files += $(adaptor_wayland_profile_src_files)
+else
+adaptor_common_internal_src_files += $(adaptor_x11_internal_src_files)
+adaptor_common_internal_profile_src_files += $(adaptor_x11_profile_src_files)
 endif
 
 if MOBILE_PROFILE
+adaptor_common_internal_src_files += $(adaptor_x11_profile_src_files)
 slp_platform_abstraction_src_files += $(slp_assimp_src_files)
-include ../../../adaptors/tizen/internal/mobile/file.list
+include ../../../adaptors/mobile/file.list
 endif
 
 if LITE_PROFILE
-tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
 slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+if ! WAYLAND
+adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
+endif
 endif
 
 if WEARABLE_PROFILE
-tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
 slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+if ! WAYLAND
+adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
+endif
 endif
 
 if TV_PROFILE
 slp_platform_abstraction_src_files += $(slp_assimp_src_files)
-include ../../../adaptors/tizen/internal/tv/file.list
+include ../../../adaptors/tv/file.list
 endif
 
 # Public API
-tizen_adaptor_public_api_src_dir = ../../../adaptors/tizen/public-api
-include ../../../adaptors/tizen/public-api/file.list
-
-# CAPI API
-capi_src_dir = ../../../capi/dali/public-api
-include ../../../capi/dali/public-api/file.list
+adaptor_public_api_dir = ../../../adaptors/public-api
+include ../../../adaptors/public-api/file.list
 
 # Feedback Plugin
 if ! LITE_PROFILE
-plugin_themes_dir = ../../../adaptors/tizen/internal/common/feedback
+plugin_themes_dir = ../../../adaptors/common/feedback
 dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
 
 dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
@@ -81,8 +103,8 @@ lib_LTLIBRARIES = libdali-adaptor-common.la
 libdali_adaptor_common_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(slp_platform_abstraction_src_files) \
-                     $(tizen_adaptor_public_api_src_files) \
-                     $(tizen_adaptor_internal_common_src_files)
+                     $(adaptor_common_src_files) \
+                     $(adaptor_common_internal_src_files)
 
 libdali_adaptor_common_la_DEPENDENCIES =
 
@@ -93,9 +115,16 @@ libdali_adaptor_common_la_includes = \
                       -I../../../platform-abstractions/slp/resource-loader \
                       -I../../../platform-abstractions/portable \
                       -I../../../platform-abstractions/ \
-                      -I../../../adaptors/tizen \
-                      -I../../../adaptors/ \
-                      -I../../../capi/
+                      -I../../../adaptors/public-api \
+                      -I../../../adaptors/common \
+                      -I../../../adaptors/ 
+if WAYLAND
+libdali_adaptor_common_la_includes += \
+                      -I../../../adaptors/wayland
+else
+libdali_adaptor_common_la_includes += \
+                      -I../../../adaptors/x11
+endif
 
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
@@ -119,7 +148,6 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       $(DALI_ADAPTOR_CFLAGS) \
                       $(DALICORE_CFLAGS) \
                       $(OPENGLES20_CFLAGS) \
-                      $(X11_CFLAGS) \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
@@ -141,13 +169,11 @@ libdali_adaptor_common_la_CXXFLAGS = \
 
 libdali_adaptor_common_la_LIBADD = \
                       $(DALICORE_LIBS) \
-                      $(X11_LIBS) \
                       $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
                       $(FONTCONFIG_LIBS) \
                       $(PNG_LIBS) \
                       $(ELEMENTARY_LIBS) \
-                      $(ECORE_X_LIBS) \
                       $(ECORE_IPC_LIBS) \
                       $(DLOG_LIBS) \
                       $(XML_LIBS) \
@@ -160,6 +186,15 @@ libdali_adaptor_common_la_LIBADD = \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       -lgif \
                       -lboost_thread
+
+if WAYLAND
+libdali_adaptor_common_la_CXXFLAGS += $(WAYLAND_CFLAGS)
+libdali_adaptor_common_la_LIBADD += $(WAYLAND_LIBS)
+else
+libdali_adaptor_common_la_CXXFLAGS += $(X11_CFLAGS)
+libdali_adaptor_common_la_LIBADD += $(X11_LIBS)
+libdali_adaptor_common_la_LIBADD += $(ECORE_X_LIBS)
+endif
 
 if COMMON_PROFILE
 libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
@@ -200,14 +235,14 @@ else
 libdali_adaptor_common_la_LIBADD += -ljpeg
 endif
 
-tizenadaptorcommonpublicapidir = $(devincludepath)/dali/public-api/adaptor-framework/common
-tizenadaptorcommonpublicapi_HEADERS = $(tizen_adaptor_public_api_common_header_files)
+tizenadaptorcommonpublicapidir = $(devincludepath)/dali/public-api/
+tizenadaptorcommonpublicapi_HEADERS = $(public_api_header_files)
 
 tizenadaptordaliheaderdir = $(devincludepath)/dali
-tizenadaptordaliheader_HEADERS = $(tizen_adaptor_dali_header_file)
+tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
-capicommonpublicapidir = $(devincludepath)/dali/public-api/adaptor-framework/common
-capicommonpublicapi_HEADERS = $(capi_adaptor_framework_common_header_files)
+capicommonpublicapidir = $(devincludepath)/dali/public-api/
+capicommonpublicapi_HEADERS = $(public_api_header_files)
 
 capiheaderdir = $(devincludepath)/dali/public-api/
-capiheader_HEADERS = $(capi_header_file)
+capiheader_HEADERS = $(adaptor_dali_header_file)

@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/egl-interface.h>
-#include <internal/common/render-surface-impl.h> // needed for Dali::Internal::Adaptor::RenderSurface
+#include <render-surface-impl.h> // needed for Dali::Internal::Adaptor::RenderSurface
 
 
 namespace Dali

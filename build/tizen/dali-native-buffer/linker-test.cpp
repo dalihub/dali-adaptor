@@ -17,11 +17,11 @@
 
 #include <dali/public-api/dali-core.h>
 
-#include <dali/public-api/adaptor-framework/native-buffer-plugin.h>
-#include <dali/public-api/adaptor-framework/common/adaptor.h>
-#include <dali/public-api/adaptor-framework/common/render-surface.h>
-#include <dali/public-api/adaptor-framework/common/orientation.h>
-#include <dali/public-api/adaptor-framework/common/timer.h>
+#include <native-buffer-plugin.h>
+#include <adaptor.h>
+#include <render-surface.h>
+#include <orientation.h>
+#include <timer.h>
 
 using namespace Dali;
 
