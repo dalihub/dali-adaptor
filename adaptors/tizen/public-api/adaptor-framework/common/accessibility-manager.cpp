@@ -36,6 +36,7 @@ const char* const AccessibilityManager::SIGNAL_ACTION_UP( "accessibility-action-
 const char* const AccessibilityManager::SIGNAL_ACTION_DOWN( "accessibility-action-down" );
 const char* const AccessibilityManager::SIGNAL_ACTION_CLEAR_FOCUS( "accessibility-action-clear-focus" );
 const char* const AccessibilityManager::SIGNAL_ACTION_BACK( "accessibility-action-back" );
+const char* const AccessibilityManager::SIGNAL_ACTION_SCROLL( "accessibility-action-scroll" );
 
 AccessibilityManager::AccessibilityManager()
 {
@@ -198,6 +199,11 @@ AccessibilityManager::AccessibilityActionSignalV2& AccessibilityManager::ActionC
 AccessibilityManager::AccessibilityActionSignalV2& AccessibilityManager::ActionBackSignal()
 {
   return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).ActionBackSignal();
+}
+
+AccessibilityManager::AccessibilityActionScrollSignalV2& AccessibilityManager::ActionScrollSignal()
+{
+  return Internal::Adaptor::AccessibilityManager::GetImplementation(*this).ActionScrollSignal();
 }
 
 AccessibilityManager::AccessibilityManager( Internal::Adaptor::AccessibilityManager& manager )

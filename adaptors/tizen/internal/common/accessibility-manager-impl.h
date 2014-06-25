@@ -50,6 +50,7 @@ class AccessibilityManager : public Dali::BaseObject
 public:
 
   typedef Dali::AccessibilityManager::AccessibilityActionSignalV2 AccessibilityActionSignalV2;
+  typedef Dali::AccessibilityManager::AccessibilityActionScrollSignalV2 AccessibilityActionScrollSignalV2;
 
   // Creation
 
@@ -271,6 +272,14 @@ public: // Signals
     return mActionBackSignalV2;
   }
 
+  /**
+   * @copydoc Dali::AccessibilityManager::ActionScrollSignal
+   */
+  AccessibilityActionScrollSignalV2& ActionScrollSignal()
+  {
+    return mActionScrollSignalV2;
+  }
+
 private:
 
   // Destruction
@@ -310,6 +319,7 @@ private:
   AccessibilityActionSignalV2 mActionDownSignalV2;
   AccessibilityActionSignalV2 mActionClearFocusSignalV2;
   AccessibilityActionSignalV2 mActionBackSignalV2;
+  AccessibilityActionScrollSignalV2 mActionScrollSignalV2;
 
 public:
 

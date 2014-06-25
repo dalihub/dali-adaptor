@@ -29,6 +29,7 @@
 
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/events/touch-event.h>
 
 namespace Dali DALI_IMPORT_API
 {
@@ -60,6 +61,7 @@ public:
    * Signal connected callback should return the result
    */
   typedef SignalV2< bool ( AccessibilityManager& ) > AccessibilityActionSignalV2; ///< Generic signal type
+  typedef SignalV2< bool (AccessibilityManager&, const Dali::TouchEvent&)> AccessibilityActionScrollSignalV2; ///< Scroll signal type
 
   // Signal Names
   static const char* const SIGNAL_STATUS_CHANGED;       ///< name "accessibility-status-changed"
@@ -74,6 +76,7 @@ public:
   static const char* const SIGNAL_ACTION_DOWN;          ///< name "accessibility-action-down"
   static const char* const SIGNAL_ACTION_CLEAR_FOCUS;   ///< name "accessibility-action-clear-focus"
   static const char* const SIGNAL_ACTION_BACK;          ///< name "accessibility-action-back"
+  static const char* const SIGNAL_ACTION_SCROLL;        ///< name "accessibility-action-scroll"
 
   /**
    * @brief Create an uninitialized handle.
@@ -385,6 +388,18 @@ public:  // Signals
    * @return The signal to connect to.
    */
   AccessibilityActionSignalV2& ActionBackSignal();
+
+  /**
+   * @brief This is emitted when accessibility action is received to handle scroll event (by two
+   * fingers drag).
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallback( AccessibilityManager& manager, const TouchEvent& event );
+   * @endcode
+   * @return The signal to connect to.
+   */
+  AccessibilityActionScrollSignalV2& ActionScrollSignal();
 
 public: // Not intended for application developers
 

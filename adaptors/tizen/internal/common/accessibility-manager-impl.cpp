@@ -507,6 +507,23 @@ bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsi
 {
   bool ret = false;
 
+  Dali::AccessibilityManager handle( this );
+
+  Dali::TouchEvent touchEvent(timeStamp);
+  touchEvent.points.push_back(point);
+
+  /*
+   * In order to application decide touch action first,
+   * emit ActionScroll signal in first, AccessibilityActionScroll  for handler in next
+   */
+  if ( !mIndicatorFocused )
+  {
+    if( !mActionScrollSignalV2.Empty() )
+    {
+      mActionScrollSignalV2.Emit( handle, touchEvent );
+    }
+  }
+
   Integration::TouchEvent event;
   if (mCombiner.GetNextTouchEvent(point, timeStamp, event))
   {
