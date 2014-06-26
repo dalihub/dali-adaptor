@@ -34,7 +34,7 @@ namespace Adaptor
 {
 
 AccessibilityGestureDetector::AccessibilityGestureDetector()
-: PanGestureDetectorBase(Vector2::ZERO, Integration::PanGestureRequest()),
+: PanGestureDetectorBase(Vector2::ZERO, Integration::PanGestureRequest(), NULL),
   mGestureHandler(NULL),
   mPanning(false)
 {

@@ -42,6 +42,8 @@ namespace Internal
 namespace Adaptor
 {
 
+class EnvironmentOptions;
+
 /**
  * When given a set of touch events, this detector attempts to determine if a pan gesture has taken place.
  */
@@ -73,7 +75,7 @@ protected:
    * @param[in]  screenSize  The size of the screen.
    * @param[in]  request     The details of the request.
    */
-  PanGestureDetectorBase(Vector2 screenSize, const Integration::PanGestureRequest& request);
+  PanGestureDetectorBase(Vector2 screenSize, const Integration::PanGestureRequest& request, EnvironmentOptions* environmentOptions);
 
 private:
 
@@ -111,6 +113,10 @@ private:
   unsigned long mPrimaryTouchDownTime;  ///< The initial touch down time.
   unsigned int mMinimumTouchesRequired; ///< The minimum touches required before a pan should be emitted.
   unsigned int mMaximumTouchesRequired; ///< The maximum touches after which a pan should not be emitted.
+
+  unsigned int mMinimumDistanceSquared; ///< The minimum distance squared before pan should start.
+  unsigned int mMinimumMotionEvents;    ///< The minimum motion events before pan should start.
+  unsigned int mMotionEvents;           ///< The motion events received so far (before pan is emitted).
 };
 
 } // namespace Adaptor

@@ -42,6 +42,7 @@ namespace Adaptor
 
 class CallbackManager;
 class CoreEventInterface;
+class EnvironmentOptions;
 
 /**
  * Implementation of the Integration::GestureManager.
@@ -58,8 +59,9 @@ public:
    * @param[in] coreEventInterface Used to send events to Core.
    * @param[in] screenSize The size of the screen.
    * @param[in] callbackManager used to install callbacks
+   * @param[in] environmentOptions Environment Options
    */
-  GestureManager(CoreEventInterface& coreEventInterface, Vector2 screenSize, CallbackManager* callbackManager);
+  GestureManager(CoreEventInterface& coreEventInterface, Vector2 screenSize, CallbackManager* callbackManager, EnvironmentOptions& environmentOptions);
 
   /**
    * The destructor
@@ -119,6 +121,7 @@ private:
   GestureDetectorContainer mGestureDetectors;
   Vector2 mScreenSize;
   CallbackManager* mCallbackManager;
+  EnvironmentOptions& mEnvironmentOptions;
   float mMinimumDistanceDelta; ///< The minimum distance before a pinch is applicable. (-1.0f means pinch detector uses default value)
   bool mRunning; ///< States whether the GestureManager is running or not.
 };

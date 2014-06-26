@@ -97,10 +97,11 @@ const char * GetGestureTypeString( Gesture::Type type )
 const float MINIMUM_DISTANCE_DELTA_DIVISOR = 85.0f;
 } // unnamed namespace
 
-GestureManager::GestureManager(CoreEventInterface& coreEventInterface, Vector2 screenSize,CallbackManager* callbackManager)
+GestureManager::GestureManager(CoreEventInterface& coreEventInterface, Vector2 screenSize,CallbackManager* callbackManager, EnvironmentOptions& environmentOptions)
 : mCoreEventInterface( coreEventInterface ),
   mScreenSize( screenSize ),
   mCallbackManager( callbackManager ),
+  mEnvironmentOptions( environmentOptions ),
   mMinimumDistanceDelta(-1.0f),
   mRunning( true ) // This allows gestures to be created before Adaptor::Start() is called e.g. by Indicator
 {
@@ -175,7 +176,7 @@ void GestureManager::Register(const Integration::GestureRequest& request)
 
       case Gesture::Pan:
       {
-        GestureDetectorPtr gesture = new PanGestureDetector(mCoreEventInterface, mScreenSize, static_cast<const Integration::PanGestureRequest&>(request));
+        GestureDetectorPtr gesture = new PanGestureDetector(mCoreEventInterface, mScreenSize, static_cast<const Integration::PanGestureRequest&>(request), mEnvironmentOptions);
         mGestureDetectors.push_back(gesture);
         break;
       }

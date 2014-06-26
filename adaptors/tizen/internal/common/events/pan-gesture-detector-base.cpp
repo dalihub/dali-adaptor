@@ -27,6 +27,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
+#include <base/environment-options.h>
 
 namespace Dali
 {
@@ -42,15 +43,33 @@ namespace
 // TODO: Used DPD Value.
 const float MINIMUM_MOTION_BEFORE_PAN_SQUARED( 15.0f * 15.0f );
 const unsigned long MAXIMUM_TIME_DIFF_ALLOWED( 500 );
+const unsigned int MINIMUM_MOTION_EVENTS_BEFORE_PAN(2);
 } // unnamed namespace
 
-PanGestureDetectorBase::PanGestureDetectorBase(Vector2 screenSize, const Integration::PanGestureRequest& request)
+PanGestureDetectorBase::PanGestureDetectorBase(Vector2 screenSize, const Integration::PanGestureRequest& request, EnvironmentOptions* environmentOptions)
 : GestureDetector(screenSize, Gesture::Pan),
   mState(Clear),
   mPrimaryTouchDownTime(0),
   mMinimumTouchesRequired(request.minTouches),
-  mMaximumTouchesRequired(request.maxTouches)
+  mMaximumTouchesRequired(request.maxTouches),
+  mMinimumDistanceSquared( MINIMUM_MOTION_BEFORE_PAN_SQUARED ),
+  mMinimumMotionEvents( MINIMUM_MOTION_EVENTS_BEFORE_PAN ),
+  mMotionEvents(0)
 {
+  if ( environmentOptions )
+  {
+    int minimumDistance = environmentOptions->GetMinimumPanDistance();
+    if ( minimumDistance >= 0 )
+    {
+      mMinimumDistanceSquared = minimumDistance * minimumDistance;
+    }
+
+    int minimumEvents = environmentOptions->GetMinimumPanEvents();
+    if ( minimumEvents >= 1 )
+    {
+      mMinimumMotionEvents = minimumEvents - 1; // Down is the first event
+    }
+  }
 }
 
 PanGestureDetectorBase::~PanGestureDetectorBase()
@@ -82,6 +101,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
         {
           mPrimaryTouchDownLocation = event.points[0].screen;
           mPrimaryTouchDownTime = event.time;
+          mMotionEvents = 0;
           if (event.GetPointCount() == mMinimumTouchesRequired)
           {
             // We have satisfied the minimum touches required for a pan, tell core that a gesture may be possible and change our state accordingly.
@@ -102,10 +122,12 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
           if (primaryPointState == TouchPoint::Motion)
           {
             mTouchEvents.push_back(event);
+            mMotionEvents++;
 
             Vector2 delta(event.points[0].screen - mPrimaryTouchDownLocation);
 
-            if (delta.LengthSquared() >= MINIMUM_MOTION_BEFORE_PAN_SQUARED)
+            if ( ( mMotionEvents >= mMinimumMotionEvents ) &&
+                 ( delta.LengthSquared() >= mMinimumDistanceSquared ) )
             {
               // If the touch point(s) have moved enough distance to be considered a pan, then tell Core that the pan gesture has started and change our state accordingly.
               mState = Started;
@@ -115,7 +137,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
           else if (primaryPointState == TouchPoint::Up)
           {
             Vector2 delta(event.points[0].screen - mPrimaryTouchDownLocation);
-            if(delta.LengthSquared() >= MINIMUM_MOTION_BEFORE_PAN_SQUARED)
+            if(delta.LengthSquared() >= mMinimumDistanceSquared)
             {
               SendPan(Gesture::Started, event);
               mTouchEvents.push_back(event);

@@ -100,6 +100,16 @@ public:
   float GetPanGesturePredictionAmount() const;
 
   /**
+   * @return The minimum distance before a pan can be started (-1 means it's not set)
+   */
+  int GetMinimumPanDistance() const;
+
+  /**
+   * @return The minimum events before a pan can be started (-1 means it's not set)
+   */
+  int GetMinimumPanEvents() const;
+
+  /**
    * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
    *
    * @param[in] mode The smoothing mode to use
@@ -113,6 +123,20 @@ public:
    */
   void SetPanGesturePredictionAmount(unsigned int amount);
 
+  /**
+   * @brief Sets the minimum distance required before a pan starts
+   *
+   * @param[in] distance The minimum distance before a pan starts
+   */
+  void SetMinimumPanDistance( int distance );
+
+  /**
+   * @brief Sets the minimum number of events required before a pan starts
+   *
+   * @param[in] events The minimum events before a pan starts
+   */
+  void SetMinimumPanEvents( int events );
+
 private:
 
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
@@ -121,6 +145,8 @@ private:
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
   float mPanGesturePredictionAmount;              ///< prediction amount for pan gestures
+  int mPanMinimumDistance;                        ///< minimum distance required before pan starts
+  int mPanMinimumEvents;                          ///< minimum events required before pan starts
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

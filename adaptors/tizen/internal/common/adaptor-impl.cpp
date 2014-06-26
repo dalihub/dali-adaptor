@@ -155,6 +155,18 @@ void Adaptor::ParseEnvironmentOptions()
     mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
   }
 
+  int minimumDistance(-1);
+  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
+  {
+    mEnvironmentOptions.SetMinimumPanDistance( minimumDistance );
+  }
+
+  int minimumEvents(-1);
+  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
+  {
+    mEnvironmentOptions.SetMinimumPanEvents( minimumEvents );
+  }
+
   mEnvironmentOptions.InstallLogFunction();
 }
 
@@ -173,7 +185,7 @@ void Adaptor::Initialize()
 
   PositionSize size = mSurface->GetPositionSize();
 
-  mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager);
+  mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, mEnvironmentOptions);
 
   mGLES = new GlImplementation;
 

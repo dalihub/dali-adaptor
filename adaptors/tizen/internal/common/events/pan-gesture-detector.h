@@ -55,8 +55,9 @@ public:
    * @param[in] coreEventInterface Used to send events to Core.
    * @param[in]  screenSize  The size of the screen.
    * @param[in]  request     The details of the request.
+   * @param[in] environmentOptions The environmentOptions.
    */
-  PanGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, const Integration::PanGestureRequest& request);
+  PanGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, const Integration::PanGestureRequest& request, EnvironmentOptions& environmentOptions);
 
   /**
    * Virtual destructor.

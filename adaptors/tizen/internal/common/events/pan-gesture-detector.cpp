@@ -34,8 +34,8 @@ namespace Internal
 namespace Adaptor
 {
 
-PanGestureDetector::PanGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, const Integration::PanGestureRequest& request)
-: PanGestureDetectorBase(screenSize, request),
+PanGestureDetector::PanGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, const Integration::PanGestureRequest& request, EnvironmentOptions& environmentOptions)
+: PanGestureDetectorBase(screenSize, request, &environmentOptions),
   mCoreEventInterface(coreEventInterface)
 {
 }
