@@ -1,5 +1,5 @@
-%define MODULE_NAME dali-adaptor
-%define MODULE_LIBNAME dali-adaptor
+%define MODULE_NAME dali-platform-abstraction
+%define MODULE_LIBNAME dali-platform-abstraction
 Name:       core-%{MODULE_NAME}-tests
 Summary:    Core API unit TC (%{name})
 Version:    0.1
@@ -15,8 +15,7 @@ BuildRequires:  pkgconfig(dali)
 BuildRequires:  boost-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  cmake
-BuildRequires:  pkgconfig(utilX)
-BuildRequires:  pkgconfig(ecore)
+
 
 %description
 Core API unit TC (%{name})

@@ -35,7 +35,7 @@ namespace SlpPlatform
 
 namespace
 {
-const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY";
+const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY"; ///@Todo Move this to somewhere that other environment variables are declared and document it there.
 } // unnamed namespace
 
 ResourceThreadBase::ResourceThreadBase(ResourceLoader& resourceLoader)
@@ -158,6 +158,7 @@ void ResourceThreadBase::ThreadLoop()
     struct sched_param sp;
     sp.sched_priority = 0;
     sched_setscheduler(0, SCHED_IDLE, &sp);
+    ///@ToDo: change to the corresponding Pthreads call, not this POSIX.1-2001 one with a Linux-specific argument (SCHED_IDLE): int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param);, as specified in the docs for sched_setscheduler(): http://man7.org/linux/man-pages/man2/sched_setscheduler.2.html
   }
 
   InstallLogging();
