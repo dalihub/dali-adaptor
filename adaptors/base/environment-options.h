@@ -90,14 +90,24 @@ public:
   unsigned int GetPanGestureLoggingLevel() const;
 
   /**
-   * @return pan-gesture smoothing mode ( -1 means not set so no smoothing, 0 = no smoothing )
+   * @return pan-gesture prediction mode ( -1 means not set so no prediction, 0 = no prediction )
    */
-  int GetPanGestureSmoothingMode() const;
+  int GetPanGesturePredictionMode() const;
 
   /**
    * @return pan-gesture prediction amount
    */
   float GetPanGesturePredictionAmount() const;
+
+  /**
+   * @return pan-gesture smoothing mode ( -1 means not set so no smoothing, 0 = no smoothing )
+   */
+  int GetPanGestureSmoothingMode() const;
+
+  /**
+   * @return pan-gesture smoothing amount
+   */
+  float GetPanGestureSmoothingAmount() const;
 
   /**
    * @return The minimum distance before a pan can be started (-1 means it's not set)
@@ -114,14 +124,28 @@ public:
    *
    * @param[in] mode The smoothing mode to use
    */
-  void SetPanGesturePredictionMode(unsigned int mode);
+  void SetPanGesturePredictionMode( unsigned int mode );
 
   /**
    * @brief Sets the prediction amount of the pan gesture
    *
    * @param[in] amount The prediction amount in milliseconds
    */
-  void SetPanGesturePredictionAmount(unsigned int amount);
+  void SetPanGesturePredictionAmount( unsigned int amount );
+
+  /**
+   * @brief Called to set how pan gestures smooth input
+   *
+   * @param[in] mode The smoothing mode to use
+   */
+  void SetPanGestureSmoothingMode( unsigned int mode );
+
+  /**
+   * @brief Sets the prediction amount of the pan gesture
+   *
+   * @param[in] amount The smoothing amount [0.0f,1.0f] - 0.0f would be no smoothing, 1.0f maximum smoothing
+   */
+  void SetPanGestureSmoothingAmount( float amount );
 
   /**
    * @brief Sets the minimum distance required before a pan starts
@@ -145,6 +169,8 @@ private:
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
   float mPanGesturePredictionAmount;              ///< prediction amount for pan gestures
+  int mPanGestureSmoothingMode;                  ///< prediction mode for pan gestures
+  float mPanGestureSmoothingAmount;              ///< prediction amount for pan gestures
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
 

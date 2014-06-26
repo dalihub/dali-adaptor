@@ -154,6 +154,17 @@ void Adaptor::ParseEnvironmentOptions()
     }
     mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
   }
+  int smoothingMode;
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
+  {
+    mEnvironmentOptions.SetPanGestureSmoothingMode(smoothingMode);
+  }
+  float smoothingAmount = 1.0f;
+  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_AMOUNT, smoothingAmount) )
+  {
+    smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
+    mEnvironmentOptions.SetPanGestureSmoothingAmount(smoothingAmount);
+  }
 
   int minimumDistance(-1);
   if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
@@ -210,13 +221,21 @@ void Adaptor::Initialize()
   {
     Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
   }
-  if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
+  if( mEnvironmentOptions.GetPanGesturePredictionMode() >= 0 )
   {
-    Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+    Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGesturePredictionMode());
   }
   if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0.0f )
   {
     Integration::SetPanGesturePredictionAmount(mEnvironmentOptions.GetPanGesturePredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
+  {
+    Integration::SetPanGestureSmoothingMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+  }
+  if( mEnvironmentOptions.GetPanGestureSmoothingAmount() >= 0.0f )
+  {
+    Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions.GetPanGestureSmoothingAmount());
   }
 }
 

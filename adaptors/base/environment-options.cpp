@@ -34,6 +34,8 @@ EnvironmentOptions::EnvironmentOptions()
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
   mPanGesturePredictionAmount(-1.0f), ///< only sets value in pan gesture if greater than 0
+  mPanGestureSmoothingMode(-1),
+  mPanGestureSmoothingAmount(-1.0f),
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
   mLogFunction( NULL )
@@ -87,7 +89,7 @@ unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
   return mPanGestureLoggingLevel;
 }
 
-int EnvironmentOptions::GetPanGestureSmoothingMode() const
+int EnvironmentOptions::GetPanGesturePredictionMode() const
 {
   return mPanGesturePredictionMode;
 }
@@ -95,6 +97,16 @@ int EnvironmentOptions::GetPanGestureSmoothingMode() const
 float EnvironmentOptions::GetPanGesturePredictionAmount() const
 {
   return mPanGesturePredictionAmount;
+}
+
+int EnvironmentOptions::GetPanGestureSmoothingMode() const
+{
+  return mPanGestureSmoothingMode;
+}
+
+float EnvironmentOptions::GetPanGestureSmoothingAmount() const
+{
+  return mPanGestureSmoothingAmount;
 }
 
 int EnvironmentOptions::GetMinimumPanDistance() const
@@ -107,14 +119,24 @@ int EnvironmentOptions::GetMinimumPanEvents() const
   return mPanMinimumEvents;
 }
 
-void EnvironmentOptions::SetPanGesturePredictionMode(unsigned int mode)
+void EnvironmentOptions::SetPanGesturePredictionMode( unsigned int mode )
 {
   mPanGesturePredictionMode = mode;
 }
 
-void EnvironmentOptions::SetPanGesturePredictionAmount(unsigned int amount)
+void EnvironmentOptions::SetPanGesturePredictionAmount( unsigned int amount )
 {
   mPanGesturePredictionAmount = amount;
+}
+
+void EnvironmentOptions::SetPanGestureSmoothingMode( unsigned int mode )
+{
+  mPanGestureSmoothingMode = mode;
+}
+
+void EnvironmentOptions::SetPanGestureSmoothingAmount( float amount )
+{
+  mPanGestureSmoothingAmount = amount;
 }
 
 void EnvironmentOptions::SetMinimumPanDistance( int distance )
