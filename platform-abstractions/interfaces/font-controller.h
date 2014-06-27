@@ -76,24 +76,28 @@ public:
    * @param[in] styledFontFamily The name of the font's family and the font's style.
    * @return font file name.
    */
-  virtual std::string GetFontPath( const StyledFontFamily& styledFontFamily ) = 0;
+  virtual const std::string& GetFontPath( const StyledFontFamily& styledFontFamily ) = 0;
 
   /**
    * Gets a list of fonts installed on the system.
-   * @param fontListMode which fonts to include in the list
-   * @return a list of styled font family names.
+   * @param[in] fontListMode which fonts to include in the list.
+   * @param[out] fontList The list of font family names.
    */
-  virtual FontList GetFontList( FontListMode fontListMode ) = 0;
+  virtual void GetFontList( FontListMode fontListMode, FontList& fontList ) = 0;
 
   /**
    * Checks whether fontName is a valid font family name.
    * closestMatch is always set to the best matching font or the system default font if no near match is detected.
    * @param[in]  styledFontFamily The name of the font's family and the font's style.
-   * @param[out] isDefaultSystemFont Whether this font has been created with a default system font.
+   * @param[out] isDefaultSystemFontFamily Whether this font has been created with a default system font family.
+   * @param[out] isDefaultSystemFontStyle Whether this font has been created with a default system font style.
    * @param[out] closestStyledFontFamilyMatch The name of the font's family and the font's style found based on the given input.
    * @return     true if styledFontFamily is valid, false otherwise.
    */
-  virtual bool ValidateFontFamilyName(const StyledFontFamily& styledFontFamily, bool& isDefaultSystemFont, StyledFontFamily& closestStyledFontFamilyMatch) = 0;
+  virtual bool ValidateFontFamilyName( const StyledFontFamily& styledFontFamily,
+                                       bool& isDefaultSystemFontFamily,
+                                       bool& isDefaultSystemFontStyle,
+                                       StyledFontFamily& closestStyledFontFamilyMatch ) = 0;
 
   /**
    * Returns font family name for displayed text.
@@ -101,14 +105,14 @@ public:
    * Otherwise returns closest match.
    * @param[in] charsRequested displayed text.
    */
-  virtual StyledFontFamily GetFontFamilyForChars(const TextArray& charsRequested) = 0;
+  virtual const StyledFontFamily& GetFontFamilyForChars( const TextArray& charsRequested ) = 0;
 
   /**
    * Checks whether all characters of text could be displayed with specified font family.
    * @param[in] styledFontFamily The name of the font's family and the font's style.
    * @param[in] text displayed text.
    */
-  virtual bool AllGlyphsSupported(const StyledFontFamily& styledFontFamily, const TextArray& text) = 0;
+  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const TextArray& text ) = 0;
 
   /**
    * Set the default font family and its style that should be used by the font controller.

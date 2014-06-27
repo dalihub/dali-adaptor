@@ -35,7 +35,7 @@ namespace MetricsCache
  * @param[out] globalMetrics The data store to write into
  * @return true if the operation succeeded
  */
-bool ReadGlobal( std::string fontFamily, std::string fontStyle, Integration::GlobalMetrics& globalMetrics);
+bool ReadGlobal( const std::string& fontFamily, const std::string& fontStyle, Integration::GlobalMetrics& globalMetrics);
 
 /**
  * Write the global metrics parameter to the metrics file
@@ -43,7 +43,7 @@ bool ReadGlobal( std::string fontFamily, std::string fontStyle, Integration::Glo
  * @param[in] fontStyle The name of the font style
  * @param[out] globalMetrics The data store to write
  */
-void WriteGlobal( std::string fontFamily, std::string fontStyle, const Integration::GlobalMetrics& globalMetrics);
+void WriteGlobal( const std::string& fontFamily, const std::string& fontStyle, const Integration::GlobalMetrics& globalMetrics);
 
 /**
  * Read the metrics from the given file into the supplied vector
@@ -52,7 +52,7 @@ void WriteGlobal( std::string fontFamily, std::string fontStyle, const Integrati
  * @param[out] glyphMetricsContainer The vector of metrics to write
  * @return true if the operation succeeded
  */
-bool Read( std::string fontFamily, std::string fontStyle, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer );
+bool Read( const std::string& fontFamily, const std::string& fontStyle, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer );
 
 /**
  * Write the metrics into the given file
@@ -60,7 +60,7 @@ bool Read( std::string fontFamily, std::string fontStyle, std::vector<Integratio
  * @param[in] fontStyle The name of the font style
  * @param[in] glyphSet The set of metrics to write
  */
-void Write( std::string fontFamily, std::string fontStyle, const Integration::GlyphSet& glyphSet );
+void Write( const std::string& fontFamily, const std::string& fontStyle, const Integration::GlyphSet& glyphSet );
 
 } // MetricsCache
 } // SlpPlatform

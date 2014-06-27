@@ -24,10 +24,10 @@
 #include "../data-cache-io.h"
 #include "../data-compression.h"
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/set-wrapper.h>
 
 // EXTERNAL INCLUDES
 #include <boost/thread.hpp>
-#include <set>
 
 namespace Dali
 {

@@ -127,17 +127,17 @@ public: // PlatformAbstraction overrides
   /**
    *@copydoc PlatformAbstraction::GetDefaultFontFamily()
    */
-  virtual std::string GetDefaultFontFamily() const;
+  virtual const std::string& GetDefaultFontFamily() const;
 
   /**
    *@copydoc PlatformAbstraction::GetDefaultFontSize()
    */
-  virtual const float GetDefaultFontSize() const;
+  virtual float GetDefaultFontSize() const;
 
   /**
    *@copydoc PlatformAbstraction::GetFontLineHeightFromCapsHeight()
    */
-  virtual const PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const;
+  virtual PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight) const;
 
   /**
    * @copydoc PlatformAbstraction::GetGlyphData()
@@ -167,7 +167,7 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::GetFontFamilyForChars()
    */
-  std::string GetFontFamilyForChars(const TextArray& charsRequested) const;
+  const std::string& GetFontFamilyForChars(const TextArray& charsRequested) const;
 
   /**
    * @copydoc PlatformAbstraction::AllGlyphsSupported()
@@ -177,12 +177,12 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::ValidateFontFamilyName()
    */
-  virtual bool ValidateFontFamilyName(const std::string& fontFamily, const std::string& fontStyle, bool& isDefaultSystemFont, std::string& closestMatch, std::string& closestStyleMatch) const;
+  virtual bool ValidateFontFamilyName( const std::string& fontFamily, const std::string& fontStyle, bool& isDefaultSystemFont, std::string& closestMatch, std::string& closestStyleMatch) const;
 
   /**
    * @copydoc PlatformAbstraction::GetFontList()
    */
-  virtual std::vector<std::string> GetFontList ( Dali::Integration::PlatformAbstraction::FontListMode mode ) const;
+  virtual void GetFontList ( Dali::Integration::PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadFile()

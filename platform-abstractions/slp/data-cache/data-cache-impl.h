@@ -18,11 +18,9 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <map>
-
 // INTERNAL INCLUDES
 #include "../../interfaces/data-cache.h"
+#include <dali/public-api/common/map-wrapper.h>
 
 namespace Dali
 {
