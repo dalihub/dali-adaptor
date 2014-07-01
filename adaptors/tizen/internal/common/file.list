@@ -49,6 +49,7 @@ tizen_adaptor_internal_common_src_files = \
   $(tizen_adaptor_internal_src_dir)/gl/egl-image-extensions.cpp \
   $(tizen_adaptor_internal_src_dir)/gl/egl-implementation.cpp \
   $(tizen_adaptor_internal_src_dir)/gl/egl-sync-implementation.cpp \
+  $(tizen_adaptor_internal_src_dir)/gl/gl-proxy-implementation.cpp \
   $(tizen_adaptor_internal_src_dir)/gl/gl-extensions.cpp \
   \
   $(tizen_adaptor_internal_src_dir)/ecore-x/pixmap-render-surface.cpp \
@@ -62,4 +63,3 @@ tizen_adaptor_internal_common_profile_src_files = \
   $(tizen_adaptor_internal_src_dir)/color-controller-impl.cpp \
   \
   $(tizen_adaptor_internal_src_dir)/ecore-x/ecore-x-render-surface-factory.cpp
-  

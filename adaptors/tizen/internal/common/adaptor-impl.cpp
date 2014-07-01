@@ -44,6 +44,7 @@
 #include <internal/common/feedback/feedback-controller.h>
 #include <internal/common/feedback/feedback-plugin-proxy.h>
 #include <internal/common/gl/gl-implementation.h>
+#include <internal/common/gl/gl-proxy-implementation.h>
 #include <internal/common/gl/egl-sync-implementation.h>
 #include <internal/common/gl/egl-image-extensions.h>
 #include <internal/common/gl/egl-factory.h>
@@ -179,6 +180,12 @@ void Adaptor::ParseEnvironmentOptions()
     mEnvironmentOptions.SetMinimumPanEvents( minimumEvents );
   }
 
+  int glesCallTime(0);
+  if ( GetIntegerEnvironmentVariable(DALI_GLES_CALL_TIME, glesCallTime ))
+  {
+    mEnvironmentOptions.SetGlesCallTime( glesCallTime );
+  }
+
   mEnvironmentOptions.InstallLogFunction();
 }
 
@@ -199,7 +206,14 @@ void Adaptor::Initialize()
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, mEnvironmentOptions);
 
-  mGLES = new GlImplementation;
+  if( mEnvironmentOptions.GetGlesCallTime() > 0 )
+  {
+    mGLES = new GlProxyImplementation( mEnvironmentOptions );
+  }
+  else
+  {
+    mGLES = new GlImplementation();
+  }
 
   mEglFactory = new EglFactory();
 

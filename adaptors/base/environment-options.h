@@ -161,6 +161,19 @@ public:
    */
   void SetMinimumPanEvents( int events );
 
+  /**
+   * @brief Sets how often the gles call logging occurs
+   *
+   * @param[in] time the number of seconds between logging output
+   */
+  void SetGlesCallTime( int time );
+
+  /**
+   * @brief Get the graphics status time
+   */
+  int GetGlesCallTime();
+
+
 private:
 
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
@@ -173,6 +186,7 @@ private:
   float mPanGestureSmoothingAmount;              ///< prediction amount for pan gestures
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
+  int mGlesCallTime;                              ///< time in seconds between status updates
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

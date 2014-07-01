@@ -50,6 +50,8 @@ public:
   TestGlAbstraction();
   ~TestGlAbstraction();
   void Initialize();
+  void PreRender();
+  void PostRender(unsigned int timeDelta);
 
   /* OpenGL ES 2.0 */
 

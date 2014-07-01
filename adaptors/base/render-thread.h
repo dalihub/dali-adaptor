@@ -168,7 +168,7 @@ private: // Data
 
   UpdateRenderSynchronization&        mUpdateRenderSync; ///< Used to synchronize the update & render threads
   Dali::Integration::Core&            mCore;             ///< Dali core reference
-  Integration::GlAbstraction&         mGLES;             ///< GL abstraction rerefence
+  Integration::GlAbstraction&         mGLES;             ///< GL abstraction reference
   EglFactoryInterface*                mEglFactory;       ///< Factory class to create EGL implementation
   EglInterface*                       mEGL;              ///< Interface to EGL implementation
 
@@ -178,7 +178,7 @@ private: // Data
 
   /**
    * Structure to hold values that are set by main thread and read in render thread
-   * There is two copies of this data to avoid locking and prevent concurrent access
+   * There are two copies of this data to avoid locking and prevent concurrent access
    */
   struct RenderData
   {
@@ -244,4 +244,3 @@ private: // Data
 } // namespace Dali
 
 #endif // __DALI_INTERNAL_RENDER_THREAD_H__
-

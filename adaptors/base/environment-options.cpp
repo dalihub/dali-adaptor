@@ -38,6 +38,7 @@ EnvironmentOptions::EnvironmentOptions()
   mPanGestureSmoothingAmount(-1.0f),
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
+  mGlesCallTime(0),
   mLogFunction( NULL )
 {
 }
@@ -147,6 +148,16 @@ void EnvironmentOptions::SetMinimumPanDistance( int distance )
 void EnvironmentOptions::SetMinimumPanEvents( int events )
 {
   mPanMinimumEvents = events;
+}
+
+void EnvironmentOptions::SetGlesCallTime( int time )
+{
+  mGlesCallTime = time;
+}
+
+int EnvironmentOptions::GetGlesCallTime()
+{
+  return mGlesCallTime;
 }
 
 } // Adaptor

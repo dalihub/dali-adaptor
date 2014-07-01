@@ -43,6 +43,8 @@ namespace Adaptor
 
 #define DALI_ENV_PAN_MINIMUM_EVENTS "DALI_PAN_MINIMUM_EVENTS"
 
+#define DALI_GLES_CALL_TIME "DALI_GLES_CALL_TIME"
+
 } // namespace Adaptor
 
 } // namespace Internal

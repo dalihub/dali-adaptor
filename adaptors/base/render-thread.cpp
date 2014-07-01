@@ -337,11 +337,20 @@ void RenderThread::ShutdownEgl()
 
 bool RenderThread::PreRender()
 {
-  return mCurrent.surface->PreRender( *mEGL, mGLES );
+  bool success = mCurrent.surface->PreRender( *mEGL, mGLES );
+  if( success )
+  {
+    mGLES.PreRender();
+  }
+  return success;
 }
 
 void RenderThread::PostRender( unsigned int timeDelta )
 {
+  // Inform the gl implementation that rendering has finished before informing the surface
+  mGLES.PostRender(timeDelta);
+
+  // Inform the surface that rendering this frame has finished.
   mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta,
                                 mSurfaceReplacing ? RenderSurface::SYNC_MODE_NONE : RenderSurface::SYNC_MODE_WAIT );
 }
