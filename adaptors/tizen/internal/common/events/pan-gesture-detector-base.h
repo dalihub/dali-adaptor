@@ -110,6 +110,12 @@ private:
   std::vector<Integration::TouchEvent> mTouchEvents;     ///< A container of all touch events after an initial down event.
 
   Vector2 mPrimaryTouchDownLocation;    ///< The initial touch down point.
+  Vector2 mThresholdAdjustmentPerFrame; ///< The adjustment per frame at the start of a slow pan.
+  Vector2 mPreviousPosition;            ///< The previous position.
+
+  unsigned int mThresholdAdjustmentsRemaining; ///< No. of threshold adjustments still to apply (for a slow-pan).
+  unsigned int mThresholdTotalAdjustments;     ///< The total number of adjustments required.
+
   unsigned long mPrimaryTouchDownTime;  ///< The initial touch down time.
   unsigned int mMinimumTouchesRequired; ///< The minimum touches required before a pan should be emitted.
   unsigned int mMaximumTouchesRequired; ///< The maximum touches after which a pan should not be emitted.

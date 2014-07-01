@@ -40,21 +40,25 @@ namespace Adaptor
 
 namespace
 {
-// TODO: Used DPD Value.
-const float MINIMUM_MOTION_BEFORE_PAN_SQUARED( 15.0f * 15.0f );
+const float MINIMUM_MOTION_DISTANCE_BEFORE_PAN( 15.0f );
+const float MINIMUM_MOTION_DISTANCE_BEFORE_PAN_SQUARED( MINIMUM_MOTION_DISTANCE_BEFORE_PAN * MINIMUM_MOTION_DISTANCE_BEFORE_PAN );
+const float MINIMUM_MOTION_DISTANCE_TO_THRESHOLD_ADJUSTMENTS_RATIO( 2.0f / 3.0f );
 const unsigned long MAXIMUM_TIME_DIFF_ALLOWED( 500 );
+const unsigned long MINIMUM_TIME_BEFORE_THRESHOLD_ADJUSTMENTS( 100 );
 const unsigned int MINIMUM_MOTION_EVENTS_BEFORE_PAN(2);
 } // unnamed namespace
 
 PanGestureDetectorBase::PanGestureDetectorBase(Vector2 screenSize, const Integration::PanGestureRequest& request, EnvironmentOptions* environmentOptions)
-: GestureDetector(screenSize, Gesture::Pan),
-  mState(Clear),
-  mPrimaryTouchDownTime(0),
-  mMinimumTouchesRequired(request.minTouches),
-  mMaximumTouchesRequired(request.maxTouches),
-  mMinimumDistanceSquared( MINIMUM_MOTION_BEFORE_PAN_SQUARED ),
+: GestureDetector( screenSize, Gesture::Pan ),
+  mState( Clear ),
+  mThresholdAdjustmentsRemaining( 0 ),
+  mThresholdTotalAdjustments( MINIMUM_MOTION_DISTANCE_BEFORE_PAN * MINIMUM_MOTION_DISTANCE_TO_THRESHOLD_ADJUSTMENTS_RATIO ),
+  mPrimaryTouchDownTime( 0 ),
+  mMinimumTouchesRequired( request.minTouches ),
+  mMaximumTouchesRequired( request.maxTouches ),
+  mMinimumDistanceSquared( MINIMUM_MOTION_DISTANCE_BEFORE_PAN_SQUARED ),
   mMinimumMotionEvents( MINIMUM_MOTION_EVENTS_BEFORE_PAN ),
-  mMotionEvents(0)
+  mMotionEvents( 0 )
 {
   if ( environmentOptions )
   {
@@ -62,6 +66,10 @@ PanGestureDetectorBase::PanGestureDetectorBase(Vector2 screenSize, const Integra
     if ( minimumDistance >= 0 )
     {
       mMinimumDistanceSquared = minimumDistance * minimumDistance;
+
+      // Usually, we do not want to apply the threshold straight away, but phased over the first few pans
+      // Set our distance to threshold adjustments ratio here.
+      mThresholdTotalAdjustments = minimumDistance * MINIMUM_MOTION_DISTANCE_TO_THRESHOLD_ADJUSTMENTS_RATIO;
     }
 
     int minimumEvents = environmentOptions->GetMinimumPanEvents();
@@ -268,7 +276,7 @@ void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::To
     // Get the second last event in the queue, the last one is the current event
     const Integration::TouchEvent& previousEvent( *( mTouchEvents.rbegin() + 1 ) );
 
-    Vector2 previousPosition( previousEvent.points[0].screen );
+    Vector2 previousPosition( mPreviousPosition );
     unsigned long previousTime( previousEvent.time );
 
     // If we've just started then we want to remove the threshold from Core calculations.
@@ -276,10 +284,32 @@ void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::To
     {
       previousPosition = mPrimaryTouchDownLocation;
       previousTime = mPrimaryTouchDownTime;
+
+      // If it's a slow pan, we do not want to phase in the threshold over the first few pan-events
+      // A slow pan is defined as one that starts the specified number of milliseconds after the down-event
+      if ( ( currentEvent.time - previousTime ) > MINIMUM_TIME_BEFORE_THRESHOLD_ADJUSTMENTS )
+      {
+        mThresholdAdjustmentsRemaining = mThresholdTotalAdjustments;
+        mThresholdAdjustmentPerFrame = ( gesture.currentPosition - previousPosition ) / mThresholdTotalAdjustments;
+      }
+      else
+      {
+        mThresholdAdjustmentsRemaining = 0;
+        mThresholdAdjustmentPerFrame = Vector2::ZERO;
+      }
     }
 
     gesture.previousPosition = previousPosition;
     gesture.timeDelta = currentEvent.time - previousTime;
+
+    // Apply the threshold with a phased approach
+    if ( mThresholdAdjustmentsRemaining > 0 )
+    {
+      --mThresholdAdjustmentsRemaining;
+      gesture.currentPosition -= mThresholdAdjustmentPerFrame * mThresholdAdjustmentsRemaining;
+    }
+
+    mPreviousPosition = gesture.currentPosition;
   }
   else
   {
