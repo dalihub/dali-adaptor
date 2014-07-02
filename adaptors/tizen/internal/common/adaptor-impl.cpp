@@ -24,6 +24,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
