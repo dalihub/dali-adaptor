@@ -41,12 +41,12 @@ ColorController::~ColorController()
 {
 }
 
-bool RetrieveColor( const std::string& colorCode, Vector4& colorValue )
+bool ColorController::RetrieveColor( const std::string& colorCode, Vector4& colorValue )
 {
   return false;
 }
 
-bool RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
+bool ColorController::RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
 {
   return false;
 }
