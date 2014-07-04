@@ -30,24 +30,68 @@ namespace Adaptor
 {
 class EnvironmentOptions;
 
-
+/**
+ * Helper class to calculate the statistics for Open GLES calls
+ */
 class Sampler
 {
 public:
-  Sampler();
-  void  Reset();
-  void  Accumulate(float value);
-  float GetMeanValue();
-  float GetStandardDeviation();
-  float GetMin();
-  float GetMax();
 
-private:
+  /**
+   * Constructor
+   * @param description to write to the log
+   */
+  Sampler( const char* description );
+
+  /**
+   * Increment the counter for this frame
+   */
+  void  Increment();
+
+  /**
+   * Reset the counter
+   */
+  void  Reset();
+
+  /**
+   * Accumulate the count onto statistics
+   */
+  void  Accumulate();
+
+  /**
+   * @return the description of the sampler
+   */
+  const char* GetDescription() const;
+
+  /**
+   * @return the mean value
+   */
+  float GetMeanValue() const;
+
+  /**
+   * @return the standard deviation
+   */
+  float GetStandardDeviation() const;
+
+  /**
+   * @return the minimum value
+   */
+  float GetMin() const;
+
+  /**
+   * @return the maximum value
+   */
+  float GetMax() const;
+
+private: // Data
+
+  const char* mDescription;
   float mAccumulated;
   float mAccumulatedSquare;
   float mMin;
   float mMax;
-  int   mNumSamples;
+  unsigned int mNumSamples;
+  unsigned int mCurrentFrameCount;
 };
 
 /**
@@ -57,23 +101,79 @@ private:
 class GlProxyImplementation : public GlImplementation
 {
 public:
+
+  /**
+   * Constructor
+   * @param environmentOptions to check how often to log results
+   */
   GlProxyImplementation(EnvironmentOptions& environmentOptions);
 
+  /**
+   * Virtual destructor
+   */
   virtual ~GlProxyImplementation();
 
+  /**
+   * @copydoc GlAbstraction::PreRender();
+   */
   virtual void PreRender();
 
+  /**
+   * @copydoc GlAbstraction::PostRender();
+   */
   virtual void PostRender( unsigned int timeDelta );
 
-  virtual void DrawArrays (GLenum mode, GLint first, GLsizei count);
+  /* OpenGL ES 2.0 API */
+  virtual void Clear( GLbitfield mask );
 
-  virtual void DrawElements (GLenum mode, GLsizei count, GLenum type, const void* indices);
+  virtual void BindBuffer( GLenum target, GLuint buffer );
+  virtual void BindTexture( GLenum target, GLuint texture );
 
-private:
+  virtual void DrawArrays( GLenum mode, GLint first, GLsizei count );
+  virtual void DrawElements( GLenum mode, GLsizei count, GLenum type, const void* indices );
+
+  virtual void Uniform1f ( GLint location, GLfloat x );
+  virtual void Uniform1fv( GLint location, GLsizei count, const GLfloat* v );
+  virtual void Uniform1i ( GLint location, GLint x );
+  virtual void Uniform1iv( GLint location, GLsizei count, const GLint* v );
+  virtual void Uniform2f ( GLint location, GLfloat x, GLfloat y );
+  virtual void Uniform2fv( GLint location, GLsizei count, const GLfloat* v );
+  virtual void Uniform2i ( GLint location, GLint x, GLint y );
+  virtual void Uniform2iv( GLint location, GLsizei count, const GLint* v );
+  virtual void Uniform3f ( GLint location, GLfloat x, GLfloat y, GLfloat z );
+  virtual void Uniform3fv( GLint location, GLsizei count, const GLfloat* v );
+  virtual void Uniform3i ( GLint location, GLint x, GLint y, GLint z );
+  virtual void Uniform3iv( GLint location, GLsizei count, const GLint* v );
+  virtual void Uniform4f ( GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w );
+  virtual void Uniform4fv( GLint location, GLsizei count, const GLfloat* v );
+  virtual void Uniform4i ( GLint location, GLint x, GLint y, GLint z, GLint w );
+  virtual void Uniform4iv( GLint location, GLsizei count, const GLint* v );
+  virtual void UniformMatrix2fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
+  virtual void UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
+  virtual void UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
+
+  virtual void UseProgram( GLuint program );
+
+private: // Helpers
+
+  void AccumulateSamples();
+  void LogResults();
+  void LogCalls( const Sampler& sampler );
+  void ResetSamplers();
+
+private: // Data
+
   EnvironmentOptions& mEnvironmentOptions;
+  Sampler mClearSampler;
+  Sampler mBindBufferSampler;
+  Sampler mBindTextureSampler;
   Sampler mDrawSampler;
+  Sampler mUniformSampler;
+  Sampler mUseProgramSampler;
   int mDrawCount;
+  int mUniformCount;
   int mFrameCount;
+
 };
 
 } // namespace Adaptor
