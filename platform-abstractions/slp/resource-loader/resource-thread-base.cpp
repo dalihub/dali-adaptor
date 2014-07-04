@@ -33,6 +33,11 @@ const Integration::ResourceId NO_REQUEST = Integration::ResourceId(0) - 1;
 namespace SlpPlatform
 {
 
+namespace
+{
+const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY";
+} // unnamed namespace
+
 ResourceThreadBase::ResourceThreadBase(ResourceLoader& resourceLoader)
 : mResourceLoader( resourceLoader ), mCurrentRequestId( NO_REQUEST ), mPaused( false )
 {
@@ -145,6 +150,16 @@ void ResourceThreadBase::Resume()
 
 void ResourceThreadBase::ThreadLoop()
 {
+  // TODO: Use Environment Options
+  const char* threadPriorityIdleRequired = std::getenv( IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME );
+  if( threadPriorityIdleRequired )
+  {
+    // if the parameter exists then set up an idle priority for this thread
+    struct sched_param sp;
+    sp.sched_priority = 0;
+    sched_setscheduler(0, SCHED_IDLE, &sp);
+  }
+
   InstallLogging();
 
   while( !mResourceLoader.IsTerminating() )
