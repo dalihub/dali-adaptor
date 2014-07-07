@@ -44,9 +44,6 @@ namespace
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED = 4;
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED_AFTER_START = 4;
 
-const float MAXIMUM_GRADIENT_CHANGE_ALLOWED = 2.0f;
-const float MAXIMUM_X_DIFF_CALCULATION_FOR_UNDEFINED_GRADIENT = 100.0f;
-
 inline float GetDistance(const TouchPoint& point1, const TouchPoint& point2)
 {
   Vector2 vector(point1.screen - point2.screen);
@@ -139,46 +136,20 @@ void PinchGestureDetector::SendEvent(const Integration::TouchEvent& event)
             // Check if distance has changed enough
             if (fabsf(distanceChanged) > mMinimumDistanceDelta)
             {
-              // Ensure the gradient between the two points is similar
-              float firstGradient = GetGradient(firstPoint1, firstPoint2);
-              float currentGradient = GetGradient(currentPoint1, currentPoint2);
+              // Remove the first few events from the vector otherwise values are exaggerated
+              mTouchEvents.erase(mTouchEvents.begin(), mTouchEvents.end() - MINIMUM_TOUCH_EVENTS_REQUIRED_AFTER_START);
 
-              float gradientDelta = firstGradient - currentGradient;
-
-              // Need to deal with undefined gradient so ensure X difference between points is sufficiently large
-              float point1XDiff = firstPoint1.screen.x - currentPoint1.screen.x;
-              float point2XDiff = firstPoint2.screen.x - currentPoint2.screen.x;
-
-              if (fabsf(gradientDelta) <= MAXIMUM_GRADIENT_CHANGE_ALLOWED ||
-                  (fabsf(point1XDiff) <= MAXIMUM_X_DIFF_CALCULATION_FOR_UNDEFINED_GRADIENT &&
-                   fabsf(point2XDiff) <= MAXIMUM_X_DIFF_CALCULATION_FOR_UNDEFINED_GRADIENT))
+              if ( !mTouchEvents.empty() )
               {
-                if ((point1XDiff >= 0.0f && point2XDiff <= 0.0f) ||
-                    (point1XDiff <= 0.0f && point2XDiff >= 0.0f))
-                {
-                  float point1YDiff = firstPoint1.screen.y - currentPoint1.screen.y;
-                  float point2YDiff = firstPoint2.screen.y - currentPoint2.screen.y;
+                mStartingDistance = GetDistance(mTouchEvents.begin()->points[0], mTouchEvents.begin()->points[1]);
 
-                  if ((point1YDiff >= 0.0f && point2YDiff <= 0.0f) ||
-                      (point1YDiff <= 0.0f && point2YDiff >= 0.0f))
-                  {
-                    // Remove the first few events from the vector otherwise values are exaggerated
-                    mTouchEvents.erase(mTouchEvents.begin(), mTouchEvents.end() - MINIMUM_TOUCH_EVENTS_REQUIRED_AFTER_START);
+                // Send pinch started
+                SendPinch(Gesture::Started, event);
 
-                    if ( !mTouchEvents.empty() )
-                    {
-                      mStartingDistance = GetDistance(mTouchEvents.begin()->points[0], mTouchEvents.begin()->points[1]);
-
-                      // Send pinch started
-                      SendPinch(Gesture::Started, event);
-
-                      mState = Started;
-                    }
-
-                    mTouchEvents.clear();
-                  }
-                }
+                mState = Started;
               }
+
+              mTouchEvents.clear();
             }
 
             if (mState == Possible)
