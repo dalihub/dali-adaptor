@@ -26,6 +26,7 @@
 #if DALI_GLES_VERSION >= 30
 #include <GLES3/gl3.h>
 #else
+#include <cstdlib>
 #include <GLES2/gl2.h>
 #endif
 
