@@ -38,6 +38,16 @@ slp_platform_abstraction_src_files += $(slp_assimp_src_files)
 include ../../../adaptors/tizen/internal/mobile/file.list
 endif
 
+if LITE_PROFILE
+tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+endif
+
+if WEARABLE_PROFILE
+tizen_adaptor_internal_common_src_files += $(tizen_adaptor_internal_common_profile_src_files)
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+endif
+
 if TV_PROFILE
 slp_platform_abstraction_src_files += $(slp_assimp_src_files)
 include ../../../adaptors/tizen/internal/tv/file.list
@@ -51,12 +61,14 @@ include ../../../adaptors/tizen/public-api/file.list
 capi_src_dir = ../../../capi/dali/public-api
 include ../../../capi/dali/public-api/file.list
 
-# Plugins
+# Feedback Plugin
+if ! LITE_PROFILE
 plugin_themes_dir = ../../../adaptors/tizen/internal/common/feedback
 dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
 
 dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
 dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
+endif
 
 if TURBO_JPEG_IS_ON
   slp_platform_abstraction_src_files += $(slp_platform_abstraction_src_dir)/resource-loader/loader-jpeg-turbo.cpp
@@ -149,6 +161,10 @@ libdali_adaptor_common_la_LIBADD = \
                       -lgif \
                       -lboost_thread
 
+if COMMON_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+endif
+
 if MOBILE_PROFILE
 libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
                       $(DEVICED_CFLAGS) \
@@ -162,15 +178,19 @@ libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif
 
+if LITE_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+endif
+
+if WEARABLE_PROFILE
+libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+endif
+
 if TV_PROFILE
 libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
                                       $(HAPTIC_CFLAGS)
 
 libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS)
-endif
-
-if COMMON_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if TURBO_JPEG_IS_ON

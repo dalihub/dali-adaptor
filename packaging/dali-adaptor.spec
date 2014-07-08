@@ -36,6 +36,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  pkgconfig(libpng)
 
 %description

@@ -14,7 +14,11 @@
 # limitations under the License.
 #
 
-SUBDIRS = common dali-adaptor dali-application plugins
+SUBDIRS = common dali-adaptor dali-application
+
+if ! LITE_PROFILE
+SUBDIRS += plugins
+endif
 
 if MOBILE_PROFILE
 SUBDIRS += dali-evas dali-native-buffer
