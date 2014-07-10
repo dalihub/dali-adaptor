@@ -20,3 +20,5 @@ done
     cd .. ;
     genhtml -o build/tizen/doc/coverage `find . -name dali.info`
 )
+
+echo "Coverage output: ../build/tizen/doc/coverage/index.html"
