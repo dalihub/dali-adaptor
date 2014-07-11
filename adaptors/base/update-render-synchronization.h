@@ -22,6 +22,7 @@
 #include <base/interfaces/performance-interface.h>
 
 // EXTERNAL INCLUDES
+#include <stdint.h>
 #include <boost/thread.hpp>
 #include <boost/thread/condition_variable.hpp>
 
