@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <dali/dali.h>
-#include <internal/command-line-options.h>
+#include <command-line-options.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;

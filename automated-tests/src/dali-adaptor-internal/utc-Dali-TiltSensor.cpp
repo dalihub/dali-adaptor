@@ -21,7 +21,7 @@
 #include <Ecore.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
-#include <internal/common/tilt-sensor-impl.h>
+#include <tilt-sensor-impl.h>
 
 using namespace Dali;
 
