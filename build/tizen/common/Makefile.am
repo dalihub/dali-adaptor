@@ -85,11 +85,13 @@ include ../../../adaptors/public-api/file.list
 
 # Feedback Plugin
 if ! LITE_PROFILE
+if ! WEARABLE_PROFILE
 plugin_themes_dir = ../../../adaptors/common/feedback
 dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
 
 dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
 dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
+endif
 endif
 
 if TURBO_JPEG_IS_ON

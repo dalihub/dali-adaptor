@@ -259,7 +259,7 @@ struct EventHandler::Impl
       // Register Vconf notify - font name, font size and style
       vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, handler );
       vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, handler );
-#if defined(DALI_PROFILE_MOBILE)
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_LITE)
       vconf_notify_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged, handler );
 #endif
     }
@@ -270,7 +270,7 @@ struct EventHandler::Impl
    */
   ~Impl()
   {
-#if defined(DALI_PROFILE_MOBILE)
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_LITE)
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged );
 #endif
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged );

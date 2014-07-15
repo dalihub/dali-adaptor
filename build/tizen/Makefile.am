@@ -17,7 +17,9 @@
 SUBDIRS = common dali-adaptor dali-application
 
 if ! LITE_PROFILE
+if ! WEARABLE_PROFILE
 SUBDIRS += plugins
+endif
 endif
 
 if MOBILE_PROFILE
