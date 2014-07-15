@@ -56,6 +56,11 @@ Timer::~Timer()
 {
 }
 
+Timer Timer::DownCast( BaseHandle handle )
+{
+  return Timer( dynamic_cast<Internal::Adaptor::Timer*>( handle.GetObjectPtr() ) );
+}
+
 void Timer::Start()
 {
   Internal::Adaptor::GetImplementation(*this).Start();
