@@ -51,6 +51,8 @@ INCLUDE_DIRECTORIES(
     ../../../adaptors/common
     ../../../adaptors/base
     ../../../adaptors/public-api
+    ../../../adaptors/tizen
+    ../../../adaptors/ubuntu
     ../../../
 )
 

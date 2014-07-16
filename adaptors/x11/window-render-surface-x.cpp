@@ -205,12 +205,14 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
     glAbstraction.Finish();
 
+#ifndef DALI_PROFILE_UBUNTU
     /* client sends immediately reply message using value 1 */
     ecore_x_client_message32_send(mX11Window,
                         ECORE_X_ATOM_E_DEICONIFY_APPROVE,
                         ECORE_X_EVENT_MASK_WINDOW_CONFIGURE,
                         mX11Window, 1,
                         0, 0, 0);
+#endif // DALI_PROFILE_UBUNTU
 
     ecore_x_sync();
 

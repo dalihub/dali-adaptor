@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include "style-monitor-impl.h"
 
-// EXTERNAL INCLUDES
-#include <vconf.h>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <adaptor-impl.h>

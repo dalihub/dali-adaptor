@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <ecore-x-render-surface.h>
+#include <gl/gl-implementation.h>
 
 namespace Dali
 {
@@ -121,6 +122,12 @@ bool EglImplementation::CreateContext()
   TEST_EGL_ERROR("eglCreateContext render thread");
 
   DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != mEglContext && "EGL context not created" );
+
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", glGetString(GL_VENDOR));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", glGetString(GL_RENDERER));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VERSION : %s ***\n", glGetString(GL_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
 
   return true;
 }
@@ -356,6 +363,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
 #else // DALI_GLES_VERSION >= 30
 
+  DALI_LOG_WARNING( "Using OpenGL ES 2 \n" );
   configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
 
 #endif //DALI_GLES_VERSION >= 30
@@ -386,10 +394,12 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( 24 );
   configAttribs.PushBack( EGL_STENCIL_SIZE );
   configAttribs.PushBack( 8 );
+#ifndef DALI_PROFILE_UBUNTU
   configAttribs.PushBack( EGL_SAMPLES );
   configAttribs.PushBack( 4 );
   configAttribs.PushBack( EGL_SAMPLE_BUFFERS );
   configAttribs.PushBack( 1 );
+#endif // DALI_PROFILE_UBUNTU
   configAttribs.PushBack( EGL_NONE );
 
   if ( eglChooseConfig( mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs ) != EGL_TRUE )
@@ -399,27 +409,27 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR("Display is not an EGL display connection");
+        DALI_LOG_ERROR("Display is not an EGL display connection\n");
         break;
       }
       case EGL_BAD_ATTRIBUTE:
       {
-        DALI_LOG_ERROR("The parameter confirAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range");
+        DALI_LOG_ERROR("The parameter configAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range\n");
         break;
       }
       case EGL_NOT_INITIALIZED:
       {
-        DALI_LOG_ERROR("Display has not been initialized");
+        DALI_LOG_ERROR("Display has not been initialized\n");
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR("The parameter numConfig is NULL");
+        DALI_LOG_ERROR("The parameter numConfig is NULL\n");
         break;
       }
       default:
       {
-        DALI_LOG_ERROR("Unknown error");
+        DALI_LOG_ERROR("Unknown error.\n");
       }
     }
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
@@ -427,7 +437,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if ( numConfigs != 1 )
   {
-    DALI_LOG_ERROR("No configurations found.");
+    DALI_LOG_ERROR("No configurations found.\n");
 
     TEST_EGL_ERROR("eglChooseConfig");
   }

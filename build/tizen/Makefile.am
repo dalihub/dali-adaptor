@@ -18,7 +18,9 @@ SUBDIRS = common dali-application
 
 if ! LITE_PROFILE
 if ! WEARABLE_PROFILE
+if ! UBUNTU_PROFILE
 SUBDIRS += plugins
+endif
 endif
 endif
 

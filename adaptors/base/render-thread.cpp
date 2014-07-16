@@ -242,11 +242,6 @@ void RenderThread::InitializeEgl()
   // tell core it has a context
   mCore.ContextCreated();
 
-  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", mGLES.GetString(GL_VENDOR));
-  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", mGLES.GetString(GL_RENDERER));
-  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VERSION : %s ***\n", mGLES.GetString(GL_VERSION));
-  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", mGLES.GetString(GL_SHADING_LANGUAGE_VERSION));
-  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", mGLES.GetString(GL_EXTENSIONS));
 }
 
 void RenderThread::ConsumeEvents()
