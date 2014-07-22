@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <cmath>
-#ifdef DALI_PROFILE_MOBILE
+#ifdef DALI_PROFILE_LITE
 #include <sensor_internal.h>
 #else
 #include <sensor.h>
