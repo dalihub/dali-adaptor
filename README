@@ -10,3 +10,8 @@ MOBILE Profile
 --------------
 
 gbs build -A [TARGET_ARCH] --spec dali-adaptor-mobile.spec
+
+WEARABLE Profile
+----------------
+
+gbs build -A [TARGET_ARCH] --spec dali-adaptor-wearable.spec

@@ -7,11 +7,8 @@ License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
-%define dali_profile MOBILE
-%define dali_mobile_profile 1
-%define dali_feedback_plugin 1
-%define dali_bullet_plugin 1
-%define dali_assimp_plugin 1
+%define dali_profile WEARABLE
+%define dali_wearable_profile 1
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -44,7 +41,6 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(efl-assist)
-BuildRequires:  pkgconfig(assimp)
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -74,17 +70,6 @@ BuildRequires:  libfeedback-devel
 
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
-
-##############################
-# Dali Dynamics/Bullet Plugin
-##############################
-%package dali-bullet-plugin
-Summary:    Plugin to provide physics
-Group:      System/Libraries
-BuildRequires:  libbullet-devel
-
-%description dali-bullet-plugin
-Dynamics plugin to wrap the libBulletDynamics libraries
 
 ##############################
 # Preparation
@@ -178,12 +163,6 @@ exit 0
 exit 0
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%post dali-bullet-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -201,12 +180,6 @@ exit 0
 
 %if 0%{?dali_feedback_plugin}
 %postun dali-feedback-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
-%if 0%{?dali_bullet_plugin}
-%postun dali-bullet-plugin
 /sbin/ldconfig
 exit 0
 %endif
@@ -239,8 +212,3 @@ exit 0
 %{dali_plugin_theme_files}/*
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%files dali-bullet-plugin
-%defattr(-,root,root,-)
-%{_libdir}/libdali-bullet-plugin.so*
-%endif
