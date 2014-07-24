@@ -1,8 +1,0 @@
-# Public source files
-tizen_application_public_api_src_files = \
-  $(tizen_application_public_api_src_dir)/adaptor-framework/application.cpp
-
-# Exported header files
-tizen_application_public_api_header_files = \
-  $(tizen_application_public_api_src_dir)/adaptor-framework/application.h
-

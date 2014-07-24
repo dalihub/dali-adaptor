@@ -1,22 +1,24 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include <dali/integration-api/debug.h>
 #include "resource-thread-base.h"
 #include "slp-logging.h"
+#include "atomics.h"
 
 using namespace std;
 using namespace Dali::Integration;
@@ -27,11 +29,24 @@ using boost::scoped_ptr;
 namespace Dali
 {
 
+const Integration::ResourceId NO_REQUEST = Integration::ResourceId(0) - 1;
+
 namespace SlpPlatform
 {
 
-ResourceThreadBase::ResourceThreadBase(ResourceLoader& resourceLoader)
-: mResourceLoader(resourceLoader), mPaused(false)
+namespace
+{
+const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY"; ///@Todo Move this to somewhere that other environment variables are declared and document it there.
+} // unnamed namespace
+
+/** Thrown by InterruptionPoint() to abort a request early. */
+class CancelRequestException {};
+
+ResourceThreadBase::ResourceThreadBase( ResourceLoader& resourceLoader ) :
+  mResourceLoader( resourceLoader ),
+  mCurrentRequestId( NO_REQUEST ),
+  mCancelRequestId( NO_REQUEST ),
+  mPaused( false )
 {
 #if defined(DEBUG_ENABLED)
   mLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_RESOURCE_THREAD_BASE");
@@ -86,8 +101,13 @@ void ResourceThreadBase::AddRequest(const ResourceRequest& request, const Reques
   }
 }
 
-void ResourceThreadBase::CancelRequest( Integration::ResourceId resourceId )
+// Called from outer thread.
+void ResourceThreadBase::CancelRequest( const Integration::ResourceId resourceId )
 {
+  bool found = false;
+  DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s: %u.\n", __FUNCTION__, unsigned(resourceId) );
+
+  // Eliminate the cancelled request from the request queue if it is in there:
   {
     // Lock while searching and removing from the request queue:
     unique_lock<mutex> lock( mMutex );
@@ -99,9 +119,31 @@ void ResourceThreadBase::CancelRequest( Integration::ResourceId resourceId )
       if( ((*iterator).first).GetId() == resourceId )
       {
         iterator = mQueue.erase( iterator );
+        found = true;
         break;
       }
     }
+  }
+
+  // Remember the cancelled id for the worker thread to poll at one of its points
+  // of interruption:
+  if( !found )
+  {
+    Dali::Internal::AtomicWriteToCacheableAlignedAddress( &mCancelRequestId, resourceId );
+    DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Cancelling in-flight resource (%u).\n", __FUNCTION__, unsigned(resourceId) );
+  }
+}
+
+// Called from worker thread.
+void ResourceThreadBase::InterruptionPoint() const
+{
+  const Integration::ResourceId cancelled = Dali::Internal::AtomicReadFromCacheableAlignedAddress( &mCancelRequestId );
+  const Integration::ResourceId current = mCurrentRequestId;
+
+  if( current == cancelled )
+  {
+    DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Cancelled in-flight resource (%u).\n", __FUNCTION__, unsigned(cancelled) );
+    throw CancelRequestException();
   }
 }
 
@@ -133,22 +175,61 @@ void ResourceThreadBase::Resume()
 
 void ResourceThreadBase::ThreadLoop()
 {
+  // TODO: Use Environment Options
+  const char* threadPriorityIdleRequired = std::getenv( IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME );
+  if( threadPriorityIdleRequired )
+  {
+    // if the parameter exists then set up an idle priority for this thread
+    struct sched_param sp;
+    sp.sched_priority = 0;
+    sched_setscheduler(0, SCHED_IDLE, &sp);
+    ///@ToDo: change to the corresponding Pthreads call, not this POSIX.1-2001 one with a Linux-specific argument (SCHED_IDLE): int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param);, as specified in the docs for sched_setscheduler(): http://man7.org/linux/man-pages/man2/sched_setscheduler.2.html
+  }
+
   InstallLogging();
 
   while( !mResourceLoader.IsTerminating() )
   {
-    WaitForRequests();
-
-    if ( !mResourceLoader.IsTerminating() )
+    try
     {
-      ProcessNextRequest();
+      WaitForRequests();
+
+      if ( !mResourceLoader.IsTerminating() )
+      {
+        ProcessNextRequest();
+      }
+    }
+
+    catch( CancelRequestException& ex )
+    {
+      // No problem: a derived class deliberately threw to abort an in-flight request
+      // that was cancelled.
+      DALI_LOG_INFO( mLogFilter, Debug::Concise, "%s: Caught cancellation exception for resource (%u).\n", __FUNCTION__, unsigned(mCurrentRequestId) );
+      CancelRequestException* disableUnusedVarWarning = &ex;
+      ex = *disableUnusedVarWarning;
+    }
+
+    // Catch all exceptions to avoid killing the process, and log the error:
+    catch( std::exception& ex )
+    {
+      const char * const what = ex.what();
+      DALI_LOG_ERROR( "std::exception caught in resource thread. Aborting request with id %u because of std::exception with reason, \"%s\".\n", unsigned(mCurrentRequestId), what ? what : "null" );
+    }
+    catch( Dali::DaliException& ex )
+    {
+      // Probably a failed assert-always:
+      DALI_LOG_ERROR( "DaliException caught in resource thread. Aborting request with id %u. Location: \"%s\". Condition: \"%s\".\n", unsigned(mCurrentRequestId), ex.mLocation.c_str(), ex.mCondition.c_str() );
+    }
+    catch( ... )
+    {
+      DALI_LOG_ERROR( "Unknown exception caught in resource thread. Aborting request with id %u.\n", unsigned(mCurrentRequestId) );
     }
   }
 }
 
 void ResourceThreadBase::WaitForRequests()
 {
-  unique_lock<mutex> lock(mMutex);
+  unique_lock<mutex> lock( mMutex );
 
   if( mQueue.empty() || mPaused == true )
   {
@@ -172,6 +253,7 @@ void ResourceThreadBase::ProcessNextRequest()
       const RequestInfo & front = mQueue.front();
       request = new ResourceRequest( front.first );
       type = front.second;
+      mCurrentRequestId = front.first.GetId();
       mQueue.pop_front();
     }
   } // unlock the queue

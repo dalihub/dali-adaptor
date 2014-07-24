@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 // CLASS HEADER
 #include "font-controller-impl.h"
@@ -46,43 +47,79 @@ const std::string SETTING_FONT_APP_FONT_PATH( FONT_APPLICATION_PATH );
 
 const uint32_t UNICODE_CR_LF = 0x85;
 const uint32_t UNICODE_CHAR_START = 0x20;       // start range of unicode characters (below are control chars)
+const std::string FONT_FORMAT( "TrueType" );
+const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
+const std::string DEFAULT_FONT_STYLE( "Regular" );
+
+const std::string NULL_FONT_FAMILY_NAME( "" );
+const FontController::StyledFontFamily NULL_STYLED_FONT_FAMILY( std::make_pair( NULL_FONT_FAMILY_NAME, std::string( "" ) ) );
 
 /**
  * @param[in] pattern pointer to a font config pattern
- * @return font style name or an empty string if the font has no style
+ * @param[out] familyName font family name or an empty string if the font is not found.
+ * @return Whether a font is found.
  */
-std::string GetFontStyle( const FcPattern *pattern )
+bool GetFontFamily( const FcPattern* pattern, std::string& familyName )
 {
-  std::string styleName;
-  FcChar8 *style(NULL);
-  FcResult retVal =  FcPatternGetString( pattern, FC_STYLE, 0, &style );
+  FcChar8* family = NULL;
+  const FcResult retVal = FcPatternGetString( pattern, FC_FAMILY, 0u, &family );
 
-  if( FcResultMatch == retVal)
+  if( FcResultMatch != retVal )
   {
-    styleName =  reinterpret_cast<const char*>(style);
+    familyName.clear();
+    return false;
   }
-  else
-  {
-    styleName = "";
-  }
-  return styleName;
+
+  // Have to use reinterpret_cast because FcChar8 is unsigned char*, not a const char*.
+  familyName.assign( reinterpret_cast<const char*>( family ) );
+
+  return true;
 }
 
-std::string GetFontFamily( const FcPattern *pattern )
+/**
+ * @param[in] pattern pointer to a font config pattern
+ * @param[out] fontStyle font style name or an empty string if the font has no style.
+ * @return Whether a font style is found.
+ */
+bool GetFontStyle( const FcPattern* pattern, std::string& fontStyle )
 {
-  std::string familyName;
-  FcChar8 *family(NULL);
-  FcResult retVal =  FcPatternGetString( pattern, FC_FAMILY, 0, &family );
+  FcChar8* style = NULL;
+  const FcResult retVal = FcPatternGetString( pattern, FC_STYLE, 0u, &style );
 
-  if( FcResultMatch == retVal)
+  if( FcResultMatch != retVal)
   {
-    familyName =  reinterpret_cast<const char*>(family);
+    // Has no style.
+    fontStyle.clear();
+    return false;
   }
-  else
+
+  // Have to use reinterpret_cast because FcChar8 is unsigned char*, not a const char*.
+  fontStyle.assign( reinterpret_cast<const char*>( style ) );
+
+  return true;
+}
+
+/**
+ * @param[in] pattern pointer to a font config pattern
+ * @param[out] fileName font file name or an empty string if the font is not found.
+ * @return Whether a font is found.
+ */
+bool GetFileName( const FcPattern* pattern, std::string& fileName )
+{
+  FcChar8* file = NULL;
+  const FcResult retVal = FcPatternGetString( pattern, FC_FILE, 0u, &file );
+
+  if( FcResultMatch != retVal )
   {
-    familyName = "";
+    // Has no file name.
+    fileName.clear();
+    return false;
   }
-  return familyName;
+
+  // Have to use reinterpret_cast because FcChar8 is unsigned char*, not a const char*.
+  fileName.assign( reinterpret_cast<const char*>( file ) );
+
+  return true;
 }
 
 bool CheckFontInstallPath( FontController::FontListMode listMode, const std::string& fileName )
@@ -96,8 +133,8 @@ bool CheckFontInstallPath( FontController::FontListMode listMode, const std::str
       const std::size_t preloadLength = preloadPath.length();
       const std::size_t downloadLength = downloadPath.length();
 
-      if( 0 == preloadPath.compare(0, preloadLength, fileName, 0, preloadLength) ||
-           0 == downloadPath.compare(0, downloadLength, fileName, 0, downloadLength))
+      if( ( 0u == preloadPath.compare( 0u, preloadLength, fileName, 0u, preloadLength ) ) ||
+          ( 0u == downloadPath.compare( 0u, downloadLength, fileName, 0u, downloadLength ) ) )
       {
         return true;
       }
@@ -108,7 +145,7 @@ bool CheckFontInstallPath( FontController::FontListMode listMode, const std::str
       const std::string& appPath( SETTING_FONT_APP_FONT_PATH );
       const std::size_t appLength = appPath.length();
 
-      if( 0 == appPath.compare(0, appLength, fileName, 0, appLength) )
+      if( 0u == appPath.compare( 0u, appLength, fileName, 0u, appLength ) )
       {
         return true;
       }
@@ -116,7 +153,7 @@ bool CheckFontInstallPath( FontController::FontListMode listMode, const std::str
     }
     default:
     {
-      DALI_ASSERT_DEBUG(0 && "unhandled FontListMode");
+      DALI_ASSERT_DEBUG( false && "unhandled FontListMode" );
       return false;
     }
   }
@@ -130,65 +167,38 @@ FontController::FontController()
   FcConfigEnableHome(true);
 }
 
-void FontController::CreatePreferedFontList( )
-{
-  StyledFontFamily tizenFont;
-  tizenFont.first = "Tizen";
-  tizenFont.second = "Regular";
-
-  // clear the current list
-  mPreferredFonts.clear();
-
-  _FcPattern* searchPattern = CreateFontFamilyPattern( tizenFont );
-
-  FcResult result(FcResultMatch);
-
-  // Match the pattern.
-  std::string previousFont;
-
-  FcFontSet* fontSet = FcFontSort( NULL /* use default configure */, searchPattern, false /* don't trim */, NULL, &result );
-
-  for( int i=0; i < fontSet->nfont; ++i)
-  {
-      // we have already filled in the first entry with the default font
-    _FcPattern* pattern = fontSet->fonts[i];
-
-    StyledFontFamily styledFont;
-
-    styledFont.first = GetFontFamily( pattern );
-    styledFont.second = GetFontStyle( pattern );
-
-    if( styledFont.first != previousFont )
-    {
-      mPreferredFonts.push_back( styledFont );
-    }
-    if( i == 0 )
-    {
-      mDefaultStyledFont = styledFont;
-    }
-    previousFont = styledFont.first;
-  }
-  FcPatternDestroy( searchPattern );
-  FcFontSetDestroy( fontSet );
-
-}
-
 FontController::~FontController()
 {
   // clear the font family cache
   ClearFontFamilyCache();
+
+  // Clear the preferred font list.
+  ClearPreferredFontList();
 }
 
-std::string FontController::GetFontPath( const StyledFontFamily& styledFontFamily )
+const std::string& FontController::GetFontPath( const StyledFontFamily& styledFontFamily )
 {
-  StyledFontFamily closestMachedStyledFontFamily;
-  bool isDefault( false );
+  DALI_ASSERT_DEBUG( !styledFontFamily.first.empty() && !styledFontFamily.second.empty() && "FontController::GetFontPath(): The font name or the font style is empty. Probably they have not been validated." );
 
-  // if the font was not found, the path will be an empty string
-  return GetFontFamilyPath( styledFontFamily, isDefault, closestMachedStyledFontFamily );
+  // lock the mFontFamilyCacheMutex and don't release it until the function finishes.
+  // If we release it then another thread may try to create the same duplicate data.
+  boost::mutex::scoped_lock lock( mFontFamilyCacheMutex );
+
+  StyledFontFamily closestStyledFontFamilyMatch;
+
+  // first check to see if the font has been matched before.
+  closestStyledFontFamilyMatch = GetMatchedFont( styledFontFamily );
+
+  if( closestStyledFontFamilyMatch.first.empty() )
+  {
+    // The font is not in the matches font cache. Use the given one.
+    closestStyledFontFamilyMatch = styledFontFamily;
+  }
+
+  return GetCachedFontPath( closestStyledFontFamilyMatch );
 }
 
-FontList FontController::GetFontList( FontListMode fontListMode )
+void FontController::GetFontList( FontListMode fontListMode, FontList& fontList )
 {
   // protect the mFontList from access by multiple threads
   // this is locked for the entire function, because we don't want two functions
@@ -198,7 +208,9 @@ FontList FontController::GetFontList( FontListMode fontListMode )
   // if we have already scanned for fonts, return the cached values
   if ( !mFontSystemList.empty() )
   {
-    return GetCachedFontList( fontListMode );
+    GetCachedFontList( fontListMode, fontList );
+
+    return;
   }
 
   // font list needs to be cached
@@ -207,191 +219,251 @@ FontList FontController::GetFontList( FontListMode fontListMode )
   boost::mutex::scoped_lock lock( mFontConfigMutex );
 
   // use font config to get the font set which contains a list of fonts
-  FcFontSet* fontset = GetFontSet();
+  FcFontSet* fontSet = GetFontSet();
 
-  DALI_LOG_INFO (gLogFilter, Debug::Verbose, "number of fonts found: %d\n", fontset->nfont);
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "number of fonts found: %d\n", fontSet->nfont );
 
-  if( fontset )
+  if( fontSet )
   {
     std::string preload_path(SETTING_FONT_PRELOAD_FONT_PATH);
     std::string download_path(SETTING_FONT_DOWNLOADED_FONT_PATH);
     std::string application_path(SETTING_FONT_APP_FONT_PATH);
-    FcChar8 *file(NULL);
-    FcChar8 *family(NULL);
-    FcResult retVal;
 
-    for( int i = 0; i < fontset->nfont; ++i)
+    for( int i = 0u; i < fontSet->nfont; ++i )
     {
-      retVal = FcPatternGetString(fontset->fonts[i], FC_FILE, 0, &file);
-      if( FcResultMatch != retVal)
-      {
-        continue;  // has no file name
-      }
+      FcPattern* fontPattern = fontSet->fonts[i];
+      std::string fileName;
 
-      retVal = FcPatternGetString(fontset->fonts[i], FC_FAMILY, 0, &family);
-      if( FcResultMatch != retVal)
+      if( !GetFileName( fontPattern, fileName ) )
       {
-        continue;  // has no font name
+        continue;  // Has no file name. Jump to the next iteration.
       }
-
-      std::string fileName(reinterpret_cast<const char*>(file));
 
       // this is checking to make sure the font is in either the normal font path, or download path
-      if( 0 == preload_path.compare(0, preload_path.length(), fileName, 0, preload_path.length()) ||
-          0 == download_path.compare(0, download_path.length(), fileName, 0, download_path.length()) ||
-          0 == application_path.compare(0, application_path.length(), fileName, 0, application_path.length()) )
+      if( 0u == preload_path.compare( 0u, preload_path.length(), fileName, 0u, preload_path.length() ) ||
+          0u == download_path.compare( 0u, download_path.length(), fileName, 0u, download_path.length() ) ||
+          0u == application_path.compare( 0u, application_path.length(), fileName, 0u, application_path.length() ) )
       {
-        const std::string fontFamily( reinterpret_cast<const char*>(family));
-        const std::string fontStyle = GetFontStyle( fontset->fonts[i]);
+        StyledFontFamily styledFontFamily;
+
+        if( !GetFontFamily( fontPattern, styledFontFamily.first ) )
+        {
+          continue;  // Has no font name. Jump to the next iteration.
+        }
+
+        GetFontStyle( fontPattern, styledFontFamily.second );
 
         // Add the font to the either the system or application font list
-        AddToFontList( fileName, std::make_pair( fontFamily, fontStyle ) );
+        AddToFontList( fileName, styledFontFamily );
       }
     }
      // delete the font set
-    FcFontSetDestroy(fontset);
+    FcFontSetDestroy( fontSet );
   }
   else
   {
-     DALI_ASSERT_ALWAYS( 0 && "No valid fonts found on system." );
+     DALI_ASSERT_ALWAYS( false && "No valid fonts found on system." );
   }
+
   // return the font list for the specified mode
-  return GetCachedFontList( fontListMode );
+  GetCachedFontList( fontListMode, fontList );
 }
 
-bool FontController::ValidateFontFamilyName( const StyledFontFamily& styledFontFamily, bool& isDefaultSystemFont, StyledFontFamily& closestStyledFontFamilyMatch )
+bool FontController::ValidateFontFamilyName( const StyledFontFamily& styledFontFamily,
+                                             bool& isDefaultSystemFontFamily,
+                                             bool& isDefaultSystemFontStyle,
+                                             StyledFontFamily& closestStyledFontFamilyMatch )
 {
-  // get font family path also finds the closest match
-  std::string path = GetFontFamilyPath( styledFontFamily, isDefaultSystemFont, closestStyledFontFamilyMatch );
+  // Initialize the defaults to false as the validation process supposes the given font is correct.
+  isDefaultSystemFontFamily = false;
+  isDefaultSystemFontStyle = false;
 
-  // it should always find a closest match
-  DALI_ASSERT_ALWAYS( !closestStyledFontFamilyMatch.first.empty()  && "Cannot find closest match for font family" );
+  // default the closest Match to empty
+  closestStyledFontFamilyMatch.first.clear();
+  closestStyledFontFamilyMatch.second.clear();
 
-  if( path.empty() )
+  // lock the mFontFamilyCacheMutex and don't release it until the function finishes.
+  // If we release it then another thread may try to create the same duplicate data.
+  boost::mutex::scoped_lock lock( mFontFamilyCacheMutex );
+
+  StyledFontFamily styledFontFamilyToCheck = styledFontFamily;
+
+  // if the font is blank, then use the default font if it has been cached
+  if( styledFontFamilyToCheck.first.empty() && ( !mDefaultStyledFont.first.empty() ) )
   {
-    return false;
+    styledFontFamilyToCheck.first = mDefaultStyledFont.first;
+
+    // No font family is given, default system font is used.
+    isDefaultSystemFontFamily = true;
   }
-  else
+
+  if( styledFontFamilyToCheck.second.empty() &&  ( !mDefaultStyledFont.second.empty() ) )
   {
+    styledFontFamilyToCheck.second = mDefaultStyledFont.second;
+
+    // No font style is given, default system font is used.
+    isDefaultSystemFontStyle = true;
+  }
+
+  // first check to see if the font has been matched before.
+  closestStyledFontFamilyMatch = GetMatchedFont( styledFontFamilyToCheck );
+
+  if( !closestStyledFontFamilyMatch.first.empty() )
+  {
+    // The font has been cached before.
     return true;
   }
+
+  // check the cache
+  const std::string& fontFileName = GetCachedFontPath( styledFontFamilyToCheck );
+
+  if( !fontFileName.empty() )
+  {
+    // The font has been cached before.
+
+    closestStyledFontFamilyMatch = styledFontFamilyToCheck;
+
+    return true;
+  }
+
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose,"Failed to find %s %s in cache, querying FontConfig for a match\n", styledFontFamily.first.c_str(), styledFontFamily.second.c_str() );
+
+  // it's not in the cache, find a match using font config and add it to the cache
+  boost::mutex::scoped_lock fcLock( mFontConfigMutex );
+
+  // create the pattern
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( styledFontFamilyToCheck );
+
+  FcResult result(FcResultMatch);
+
+  // match the pattern
+  FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
+
+  bool validFont = false;
+
+  if( match )
+  {
+    validFont = true;
+
+    CacheFontInfo( match, styledFontFamilyToCheck, closestStyledFontFamilyMatch );
+
+    // destroyed the matched pattern
+    FcPatternDestroy( match );
+  }
+  else
+  {
+    DALI_LOG_ERROR( "FcFontMatch failed for font %s %s\n", styledFontFamilyToCheck.first.c_str(), styledFontFamilyToCheck.second.c_str() );
+  }
+
+  // destroy the pattern
+  FcPatternDestroy( fontFamilyPattern );
+
+  return validFont;
 }
 
-FontController::StyledFontFamily FontController::GetFontFamilyForChars(const TextArray& charsRequested)
+const FontController::StyledFontFamily& FontController::GetFontFamilyForChars( const TextArray& charsRequested )
 {
-  if( mPreferredFonts.empty() )
+  if( 0u == mPreferredFonts.Count() )
   {
     CreatePreferedFontList();
   }
 
   // Cycle through the preferred list of fonts on the system for 'Tizen'.
-  for( std::size_t n = 0; n < mPreferredFonts.size() ; n++ )
+  for( std::size_t n = 0u; n < mPreferredFonts.Count(); ++n )
   {
-    StyledFontFamily font = mPreferredFonts[n];
+    const StyledFontFamily& font = *mPreferredFonts[n];
 
-    // First make sure it is cached so we can access it's character set object
-    std::string filePath = GetFontPath( font );
-    if( filePath.empty())
+    if( !mPreferredFontsValidated[n] )
     {
-      filePath = GetFontPath( font );
+      // First make sure it is validated and cached so we can access it's character set object
+      bool isDefaultSystemFontFamily = false;
+      bool isDefaultSystemFontStyle = false;
+      StyledFontFamily closestStyledFontFamilyMatch;
+      ValidateFontFamilyName( font,
+                              isDefaultSystemFontFamily,
+                              isDefaultSystemFontStyle,
+                              closestStyledFontFamilyMatch );
+
+      mPreferredFontsValidated[n] = true;
     }
 
-    if( filePath.empty())
+    const std::string& filePath = GetFontPath( font );
+
+    if( filePath.empty() )
     {
       continue;
     }
-    bool matched = FontFamilySupportsText( font, charsRequested);
+
+    const bool matched = FontFamilySupportsText( font, charsRequested );
     if( matched )
     {
       return font;
     }
   }
+
   // return empty string
-  return StyledFontFamily();
+  return NULL_STYLED_FONT_FAMILY;
 }
 
-void FontController::CacheFontInfo(FcPattern* pattern, const StyledFontFamily& inputStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch )
+void FontController::CacheFontInfo( FcPattern* pattern, const StyledFontFamily& inputStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch )
 {
-  FcChar8 *family, *file;
-  FcCharSet *matchedCharSet;
-  FcResult retVal;
-
   // Check we can get the following data from the pattern
 
-  retVal = FcPatternGetString( pattern, FC_FAMILY, 0, &family );
+  if( !GetFontFamily( pattern, closestStyledFontFamilyMatch.first ) )
+  {
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "CacheFontInfo failed to get family information from pattern %s %s\n", inputStyledFontFamily.first.c_str(), inputStyledFontFamily.second.c_str() );
+    return;
+  }
+
+  std::string fileName;
+  if( !GetFileName( pattern, fileName ) )
+  {
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "CacheFontInfo failed to get file information from pattern %s %s\n", inputStyledFontFamily.first.c_str(), inputStyledFontFamily.second.c_str() );
+    return;
+  }
+
+  FcCharSet* matchedCharSet = NULL;
+  const FcResult retVal = FcPatternGetCharSet( pattern, FC_CHARSET, 0u, &matchedCharSet );
   if( retVal != FcResultMatch )
   {
-    DALI_LOG_INFO (gLogFilter, Debug::Verbose,"CacheFontInfo failed to get family information from pattern %s %s\n",inputStyledFontFamily.first.c_str(),inputStyledFontFamily.second.c_str());
-    return;
-  }
-  retVal = FcPatternGetString( pattern, FC_FILE, 0, &file);
-  if( retVal!= FcResultMatch)
-  {
-    DALI_LOG_INFO (gLogFilter, Debug::Verbose,"CacheFontInfo failed to get file information from pattern %s %s\n",inputStyledFontFamily.first.c_str(),inputStyledFontFamily.second.c_str());
-    return;
-  }
-  retVal = FcPatternGetCharSet( pattern, FC_CHARSET, 0, &matchedCharSet);
-  if( retVal!= FcResultMatch)
-  {
-    DALI_LOG_INFO (gLogFilter, Debug::Verbose,"CacheFontInfo failed to get character set from pattern %s %s\n",inputStyledFontFamily.first.c_str(),inputStyledFontFamily.second.c_str());
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "CacheFontInfo failed to get character set from pattern %s %s\n", inputStyledFontFamily.first.c_str(), inputStyledFontFamily.second.c_str() );
     return;
   }
 
-  // have to use reinterpret_cast because FcChar8 is unsigned char *, not a char *
-  std::string familyName = reinterpret_cast<const char*>(family);
-  std::string fileName = reinterpret_cast<const char*>(file);
-  std::string fontStyle = GetFontStyle( pattern );
-
-  closestStyledFontFamilyMatch = std::make_pair( familyName, fontStyle );
+  GetFontStyle( pattern, closestStyledFontFamilyMatch.second );
 
   // Add the match to the font cache
   AddCachedFont( closestStyledFontFamilyMatch, fileName, matchedCharSet );
 
-
   if( ( !inputStyledFontFamily.first.empty() &&
-        inputStyledFontFamily.first != familyName ) ||
-      ( inputStyledFontFamily.second != fontStyle  ))
+        ( inputStyledFontFamily.first != closestStyledFontFamilyMatch.first ) ) &&
+      ( !inputStyledFontFamily.second.empty() &&
+        ( inputStyledFontFamily.second != closestStyledFontFamilyMatch.second ) ) )
   {
     // if the font family used to create the pattern was not found in the match then
     // store it in the MissingFont container
-    AddFontNotFound( inputStyledFontFamily, closestStyledFontFamilyMatch );
+    AddMatchedFont( inputStyledFontFamily, closestStyledFontFamilyMatch );
   }
 }
 
-bool FontController::AllGlyphsSupported(const StyledFontFamily& styledFontFamily, const TextArray& text)
+bool FontController::AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const TextArray& text )
 {
-  StyledFontFamily closestStyledFontFamilyMatch;
-  bool isDefault( false );
+  // The font has already been validated by the font implementation.
 
-  // make sure the font is cached first.
-  std::string path = GetFontFamilyPath( styledFontFamily, isDefault, closestStyledFontFamilyMatch );
-
-  if( path.empty() )
-  {
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "font family not found  \n");
-    return false;
-  }
-
-  return FontFamilySupportsText( styledFontFamily, text);
-
+  return FontFamilySupportsText( styledFontFamily, text );
 }
 
 void FontController::SetDefaultFontFamily( const StyledFontFamily& styledFontFamily )
 {
   // reload font configuration files
-  bool ok =  FcInitReinitialize();
+  const bool ok =  FcInitReinitialize();
   DALI_ASSERT_ALWAYS( ok && "FcInitReinitialize failed");
 
   CreatePreferedFontList();
 }
 
-void FontController::AddCachedFont(const StyledFontFamily& styledFontFamily, const std::string& fontPath, _FcCharSet *characterSet)
+void FontController::AddCachedFont( const StyledFontFamily& styledFontFamily, const std::string& fontPath, _FcCharSet *characterSet )
 {
-  if( styledFontFamily.first.empty() )
-  {
-    return;
-  }
-
   FontFamilyLookup::const_iterator iter = mFontFamilyCache.find( styledFontFamily );
   if( iter == mFontFamilyCache.end() )
   {
@@ -401,34 +473,37 @@ void FontController::AddCachedFont(const StyledFontFamily& styledFontFamily, con
     item.FcCharSet = FcCharSetCopy( characterSet );  // increase the ref count on the char set
     mFontFamilyCache[ styledFontFamily ] = item;
 
-    DALI_LOG_INFO (gLogFilter, Debug::Verbose,"Caching font %s %s\n",styledFontFamily.first.c_str(), styledFontFamily.second.c_str());
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "Caching font %s %s\n", styledFontFamily.first.c_str(), styledFontFamily.second.c_str() );
   }
 }
 
-FontList FontController::GetCachedFontList(  FontListMode fontListMode  ) const
+void FontController::GetCachedFontList( FontListMode fontListMode, FontList& fontList ) const
 {
   // return a list of fonts, for the FontListMode
   switch( fontListMode )
   {
     case LIST_SYSTEM_FONTS:
     {
-      return mFontSystemList;
+      fontList.insert( fontList.end(), mFontSystemList.begin(), mFontSystemList.end() );
+      return;
     }
     case LIST_APPLICATION_FONTS:
     {
-      return mFontApplicationList;
+      fontList.insert( fontList.end(), mFontApplicationList.begin(), mFontApplicationList.end() );
+      return;
     }
     case LIST_ALL_FONTS:
     {
       // add both system and application fonts together
-      FontList list( mFontSystemList );
-      list.insert( list.end(), mFontApplicationList.begin(), mFontApplicationList.end() );
-      return list;
+      fontList.insert( fontList.end(), mFontSystemList.begin(), mFontSystemList.end() );
+      fontList.insert( fontList.end(), mFontApplicationList.begin(), mFontApplicationList.end() );
+      return;
     }
   }
-  DALI_ASSERT_ALWAYS(!"GetCachedFontList called with invalid value.");
+  DALI_ASSERT_ALWAYS( false && "GetCachedFontList called with invalid value." );
 }
-std::string FontController::GetCachedFontPath( const StyledFontFamily& styledFontFamily ) const
+
+const std::string& FontController::GetCachedFontPath( const StyledFontFamily& styledFontFamily ) const
 {
   if( !mFontFamilyCache.empty() )
   {
@@ -438,7 +513,8 @@ std::string FontController::GetCachedFontPath( const StyledFontFamily& styledFon
       return (*iter).second.FontFileName;
     }
   }
-  return "";
+
+  return NULL_FONT_FAMILY_NAME;
 }
 
 FcCharSet* FontController::GetCachedFontCharacterSet( const StyledFontFamily& styledFontFamily ) const
@@ -454,107 +530,20 @@ FcCharSet* FontController::GetCachedFontCharacterSet( const StyledFontFamily& st
   return NULL;
 }
 
-std::string FontController::GetFontFamilyPath( const StyledFontFamily& styledFontFamily, bool& isDefaultSystemFont, StyledFontFamily& closestStyledFontFamilyMatch )
-{
-  // Lets suppose the given font family is ok.
-  isDefaultSystemFont = false;
-
-  // default the closest Match to empty
-  closestStyledFontFamilyMatch = std::make_pair("","");
-
-  std::string font( styledFontFamily.first );
-  std::string style( styledFontFamily.second );
-
-  // lock the mFontFamilyCacheMutex and don't release it until the function finishes.
-  // If we release it then another thread may try to create the same duplicate data.
-  boost::mutex::scoped_lock lock( mFontFamilyCacheMutex );
-
-  // if the font is blank, then use the default font if it has been cached
-  if( font.empty() &&  ( !mDefaultStyledFont.first.empty() ) )
-  {
-    font = mDefaultStyledFont.first;
-    style = mDefaultStyledFont.second;
-
-    // No font family is given, default system font is used.
-    isDefaultSystemFont = true;
-  }
-
-  StyledFontFamily styledFontFamilyToCheck = std::make_pair( font, style );
-
-  // first check to see if the font has been marked as not found
-  closestStyledFontFamilyMatch = GetFontNotFound( styledFontFamilyToCheck );
-
-  if( !closestStyledFontFamilyMatch.first.empty() )
-  {
-    // the font wasn't found, so return an empty path
-    return "";
-  }
-
-  // check the cache
-  std::string fontFileName = GetCachedFontPath( styledFontFamilyToCheck );
-
-  if( !fontFileName.empty() )
-  {
-    closestStyledFontFamilyMatch = std::make_pair( font, style );
-
-    return fontFileName;
-  }
-
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose,"Failed to find %s %s in cache, querying FontConfig for a match\n", styledFontFamily.first.c_str(), styledFontFamily.second.c_str());
-
-  // it's not in the cache, find a match using font config and add it to the cache
-  boost::mutex::scoped_lock fcLock( mFontConfigMutex );
-
-  // create the pattern
-  _FcPattern *fontFamilyPattern = CreateFontFamilyPattern( std::make_pair( font, style ) );
-
-  FcResult result(FcResultMatch);
-
-  // match the pattern
-  _FcPattern *match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
-
-  if( match )
-  {
-    CacheFontInfo(match, std::make_pair( font, style ), closestStyledFontFamilyMatch);
-
-    fontFileName = GetCachedFontPath(closestStyledFontFamilyMatch);
-
-    // destroyed the matched pattern
-    FcPatternDestroy( match );
-  }
-  else
-  {
-    DALI_LOG_ERROR("FcFontMatch failed for font %s %s\n",font.c_str(),style.c_str());
-  }
-
-  // destroy the pattern
-  FcPatternDestroy( fontFamilyPattern );
-
-  if( closestStyledFontFamilyMatch != styledFontFamily  )
-  {
-    // the font wasn't font, so return an empty path
-    return "";
-  }
-  else
-  {
-    return fontFileName;
-  }
-}
-
-_FcPattern* FontController::CreateFontFamilyPattern(const StyledFontFamily& styledFontFamily)
+_FcPattern* FontController::CreateFontFamilyPattern( const StyledFontFamily& styledFontFamily )
 {
   // create the cached font family lookup pattern
   // a pattern holds a set of names, each name refers to a property of the font
-  _FcPattern *fontFamilyPattern = FcPatternCreate();
+  FcPattern* fontFamilyPattern = FcPatternCreate();
 
   // add a property to the pattern for the font family
-  FcPatternAddString( fontFamilyPattern, FC_FAMILY, (FcChar8 *)(styledFontFamily.first.c_str()));
+  FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( styledFontFamily.first.c_str() ) );
 
   // add a property to the pattern for the font family
-  FcPatternAddString( fontFamilyPattern, FC_STYLE, (FcChar8 *)(styledFontFamily.second.c_str()));
+  FcPatternAddString( fontFamilyPattern, FC_STYLE, reinterpret_cast<const FcChar8*>( styledFontFamily.second.c_str() ) );
 
   // Add a property of the pattern, to say we want to match TrueType fonts
-  FcPatternAddString( fontFamilyPattern , FC_FONTFORMAT, (FcChar8 *)"TrueType");
+  FcPatternAddString( fontFamilyPattern , FC_FONTFORMAT, reinterpret_cast<const FcChar8*>( FONT_FORMAT.c_str() ) );
 
   // modify the config, with the mFontFamilyPatterm
   FcConfigSubstitute( NULL /* use default configure */, fontFamilyPattern, FcMatchPattern );
@@ -566,34 +555,27 @@ _FcPattern* FontController::CreateFontFamilyPattern(const StyledFontFamily& styl
   return fontFamilyPattern;
 }
 
-bool FontController::IsAControlCharacter(uint32_t character) const
+bool FontController::IsAControlCharacter( uint32_t character ) const
 {
   // UNICODE_CHAR_START is the space character
   // below it are the control characters that we want to ignore.
 
-  if( character < UNICODE_CHAR_START  ||
-      character == UNICODE_CR_LF )
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return( ( character < UNICODE_CHAR_START ) ||
+          ( character == UNICODE_CR_LF ) );
 }
 
-bool FontController::FontFamilySupportsText(const StyledFontFamily& styledFontFamily, const TextArray& text )
+bool FontController::FontFamilySupportsText( const StyledFontFamily& styledFontFamily, const TextArray& text )
 {
-  _FcCharSet* charSet = GetCachedFontCharacterSet( styledFontFamily );
+  FcCharSet* charSet = GetCachedFontCharacterSet( styledFontFamily );
 
   DALI_ASSERT_ALWAYS( charSet && "No cached character set for font family" );
 
-  size_t textLength = text.size();
+  const size_t textLength = text.size();
 
   // quick early exit before accessing font config for text arrays which are just a single control character
-  if( textLength == 1 )
+  if( textLength == 1u )
   {
-    if( IsAControlCharacter( text[0] ) )
+    if( IsAControlCharacter( *text.begin() ) )
     {
       return true;
     }
@@ -602,19 +584,18 @@ bool FontController::FontFamilySupportsText(const StyledFontFamily& styledFontFa
   // protect font config
   boost::mutex::scoped_lock fcLock( mFontConfigMutex );
 
-  for( TextArray::const_iterator iter = text.begin(), endIter = text.end(); iter != endIter; ++iter)
+  for( TextArray::const_iterator iter = text.begin(), endIter = text.end(); iter != endIter; ++iter )
   {
     const uint32_t character = (*iter);
 
     // if it's a control character then don't test it
-    if( IsAControlCharacter( character) )
+    if( IsAControlCharacter( character ) )
     {
       continue;
     }
 
     // test to see if the character set supports the character
-    FcBool hasChar = FcCharSetHasChar(charSet, character );
-    if( !hasChar )
+    if( !FcCharSetHasChar( charSet, character ) )
     {
       return false;
     }
@@ -626,7 +607,7 @@ void FontController::ClearFontFamilyCache()
 {
   // should be called by the destructor only
 
-  for( FontFamilyLookup::iterator iter = mFontFamilyCache.begin(), enditer = mFontFamilyCache.end(); iter != enditer; ++iter)
+  for( FontFamilyLookup::iterator iter = mFontFamilyCache.begin(), enditer = mFontFamilyCache.end(); iter != enditer; ++iter )
   {
     FontCacheItem& cacheItem = (*iter).second;
 
@@ -637,9 +618,9 @@ void FontController::ClearFontFamilyCache()
   mFontFamilyCache.clear();
 }
 
-void FontController::AddToFontList(const std::string& fileName, const StyledFontFamily& styledFontFamily)
+void FontController::AddToFontList( const std::string& fileName, const StyledFontFamily& styledFontFamily )
 {
-  bool systemFont = CheckFontInstallPath(LIST_SYSTEM_FONTS, fileName);
+  const bool systemFont = CheckFontInstallPath( LIST_SYSTEM_FONTS, fileName );
 
   FontList* fontList(NULL);
 
@@ -663,19 +644,19 @@ _FcFontSet* FontController::GetFontSet() const
 {
   // create a new pattern.
   // a pattern holds a set of names, each name refers to a property of the font
-  FcPattern *pattern = FcPatternCreate();
+  FcPattern* pattern = FcPatternCreate();
 
   // create an object set used to define which properties are to be returned in the patterns from FcFontList.
-  FcObjectSet *objectSet = FcObjectSetCreate();
+  FcObjectSet* objectSet = FcObjectSetCreate();
 
   // build an object set from a list of property names
-  FcObjectSetAdd( objectSet, FC_FAMILY);
-  FcObjectSetAdd( objectSet, FC_STYLE);
-  FcObjectSetAdd( objectSet, FC_FILE);
+  FcObjectSetAdd( objectSet, FC_FAMILY );
+  FcObjectSetAdd( objectSet, FC_STYLE );
+  FcObjectSetAdd( objectSet, FC_FILE );
 
   // get a list of fonts
   // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
-  FcFontSet *fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet);
+  FcFontSet* fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
 
   // clear up the object set
   if( objectSet )
@@ -687,10 +668,11 @@ _FcFontSet* FontController::GetFontSet() const
   {
     FcPatternDestroy( pattern );
   }
+
   return fontset;
 }
 
-_FcCharSet* FontController::CreateCharacterSet(const TextArray& charsRequested)
+_FcCharSet* FontController::CreateCharacterSet( const TextArray& charsRequested )
 {
   // create the character set object
   FcCharSet* charSet = FcCharSetCreate();
@@ -698,14 +680,14 @@ _FcCharSet* FontController::CreateCharacterSet(const TextArray& charsRequested)
   bool validCharAdded(false);
 
   // add valid characters to the character set.
-  for (TextArray::const_iterator iter = charsRequested.begin(), endIter = charsRequested.end(); iter != endIter; ++iter)
+  for( TextArray::const_iterator iter = charsRequested.begin(), endIter = charsRequested.end(); iter != endIter; ++iter )
   {
     const uint32_t character = (*iter);
 
     // if it's not a control character then add it
     if( !IsAControlCharacter( character ) )
     {
-      FcBool ok = FcCharSetAddChar(charSet, character );
+      FcBool ok = FcCharSetAddChar( charSet, character );
       if( ok )
       {
         validCharAdded = true;
@@ -721,26 +703,81 @@ _FcCharSet* FontController::CreateCharacterSet(const TextArray& charsRequested)
   return charSet;
 }
 
-void FontController::AddFontNotFound( const StyledFontFamily& missingStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch )
+void FontController::AddMatchedFont( const StyledFontFamily& missingStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch )
 {
-
   // we store the missing font, and the name of the font that font config found as the closet match
-  mFontsNotFound[ missingStyledFontFamily ] = closestStyledFontFamilyMatch;
+  mMatchedFontsFound[ missingStyledFontFamily ] = closestStyledFontFamilyMatch;
 }
 
-FontController::StyledFontFamily FontController::GetFontNotFound(const StyledFontFamily& styledFontFamily) const
+const FontController::StyledFontFamily& FontController::GetMatchedFont( const StyledFontFamily& styledFontFamily ) const
 {
-  if( mFontsNotFound.empty() )
+  if( mMatchedFontsFound.empty() )
   {
-    return std::make_pair("","");
+    return NULL_STYLED_FONT_FAMILY;
   }
 
-  FontsNotFound::const_iterator iter = mFontsNotFound.find( styledFontFamily );
-  if( iter != mFontsNotFound.end() )
+  MatchedFontLookup::const_iterator iter = mMatchedFontsFound.find( styledFontFamily );
+  if( iter != mMatchedFontsFound.end() )
   {
-    return (*iter).second;
+    return iter->second;
   }
-  return std::make_pair("","");
+
+  return NULL_STYLED_FONT_FAMILY;
+}
+
+void FontController::CreatePreferedFontList( )
+{
+  StyledFontFamily tizenFont;
+  tizenFont.first = DEFAULT_FONT_FAMILY_NAME;
+  tizenFont.second = DEFAULT_FONT_STYLE;
+
+  // clear the current list
+  ClearPreferredFontList();
+
+  FcPattern* searchPattern = CreateFontFamilyPattern( tizenFont );
+
+  FcResult result(FcResultMatch);
+
+  // Match the pattern.
+  StyledFontFamily previousFont;
+
+  FcFontSet* fontSet = FcFontSort( NULL /* use default configure */, searchPattern, false /* don't trim */, NULL, &result );
+
+  for( int i = 0u; i < fontSet->nfont; ++i )
+  {
+      // we have already filled in the first entry with the default font
+    FcPattern* pattern = fontSet->fonts[i];
+
+    StyledFontFamily* styledFont = new StyledFontFamily();
+
+    GetFontFamily( pattern, styledFont->first );
+    GetFontStyle( pattern, styledFont->second );
+
+    if( *styledFont != previousFont )
+    {
+      mPreferredFonts.PushBack( styledFont );
+    }
+    if( i == 0u )
+    {
+      mDefaultStyledFont = *styledFont;
+    }
+    previousFont = *styledFont;
+  }
+
+  // Set all fonts to non validated.
+  mPreferredFontsValidated.Resize( fontSet->nfont, false );
+
+  FcPatternDestroy( searchPattern );
+  FcFontSetDestroy( fontSet );
+}
+
+void FontController::ClearPreferredFontList()
+{
+  for( Vector<StyledFontFamily*>::Iterator it = mPreferredFonts.Begin(), endIt = mPreferredFonts.End(); it != endIt; ++it )
+  {
+    delete *it;
+  }
+  mPreferredFonts.Clear();
 }
 
 } // namespace SlpPlatform

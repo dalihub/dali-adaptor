@@ -1,0 +1,5 @@
+# mobile profile internal files
+adaptor_common_internal_src_files += \
+  $(adaptor_common_dir)/../mobile/mobile-render-surface-factory.cpp \
+  $(adaptor_common_dir)/../mobile/mobile-system-settings.cpp \
+  $(adaptor_common_dir)/../mobile/mobile-color-controller-impl.cpp

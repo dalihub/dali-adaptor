@@ -1,21 +1,22 @@
 #ifndef __DALI_SLP_PLATFORM_LOADER_PNG_H__
 #define __DALI_SLP_PLATFORM_LOADER_PNG_H__
 
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include <cstdio>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -34,6 +35,8 @@ struct ImageAttributes;
 namespace SlpPlatform
 {
 
+class ResourceLoadingClient;
+
 namespace Png
 {
 const unsigned char MAGIC_BYTE_1 = 0x89;
@@ -48,7 +51,7 @@ const unsigned char MAGIC_BYTE_2 = 0x50;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromPng(FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes);
+bool LoadBitmapFromPng( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
 
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.

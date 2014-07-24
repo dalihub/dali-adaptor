@@ -1,28 +1,32 @@
 #ifndef __DALI_SLP_PLATFORM_RESOURCE_THREAD_BASE_H__
 #define __DALI_SLP_PLATFORM_RESOURCE_THREAD_BASE_H__
 
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
+// INTERNAL INCLUDES
 #include "resource-loader.h"
-#include <deque>
-#include <boost/thread.hpp>
-
+#include "resource-loading-client.h"
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/integration-api/resource-cache.h>
+
+// EXTERNAL INCLUDES
+#include <deque>
+#include <boost/thread.hpp>
 
 namespace Dali
 {
@@ -33,7 +37,7 @@ namespace SlpPlatform
 /**
  * Resource loader worker thread
  */
-class ResourceThreadBase
+class ResourceThreadBase : public ResourceLoadingClient
 {
 public:
   // typedefs and enums
@@ -133,13 +137,23 @@ protected:
    */
   virtual void Save(const Integration::ResourceRequest& request) = 0;
 
+  /**
+   * @brief Cancels current resource request if it matches the one latched to be cancelled.
+   *
+   * @copydoc ResourceLoadingClient::InterruptionPoint
+   */
+  virtual void InterruptionPoint() const;
+
 protected:
   ResourceLoader& mResourceLoader;
   boost::thread* mThread;                       ///< thread instance
   boost::condition_variable mCondition;         ///< condition variable
   boost::mutex mMutex;                          ///< used to protect mQueue
   RequestQueue mQueue;                          ///< Request queue
-  bool mPaused;                                 ///< Whether to process work in mQueue
+private:
+  Integration::ResourceId mCurrentRequestId;    ///< Current request, set by worker thread
+  volatile Integration::ResourceId mCancelRequestId; ///< Request to be cancelled on thread: written by external thread and read by worker.
+  bool mPaused;                                ///< Whether to process work in mQueue
 
 #if defined(DEBUG_ENABLED)
 public:

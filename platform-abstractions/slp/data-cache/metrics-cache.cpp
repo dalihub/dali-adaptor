@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 // CLASS HEADER
 #include "metrics-cache.h"
@@ -46,7 +47,7 @@ const std::string DALI_DEFAULT_FONT_CACHE_PATH( DALI_USER_FONT_CACHE_DIR );
 const std::string METRICS_EXTENSION( ".metrics" );
 
 
-std::string CreateFileName(std::string fontFamily, std::string fontStyle)
+std::string CreateFileName(const std::string& fontFamily, const std::string& fontStyle)
 {
   std::string cacheFileName(DALI_DEFAULT_FONT_CACHE_PATH + fontFamily + "-" + fontStyle + METRICS_EXTENSION);
 
@@ -174,7 +175,7 @@ namespace SlpPlatform
 namespace MetricsCache
 {
 
-bool ReadGlobal( std::string fontFamily, std::string fontStyle, Integration::GlobalMetrics& globalMetrics)
+bool ReadGlobal( const std::string& fontFamily, const std::string& fontStyle, Integration::GlobalMetrics& globalMetrics)
 {
   bool success = false;
 
@@ -202,7 +203,7 @@ bool ReadGlobal( std::string fontFamily, std::string fontStyle, Integration::Glo
   return success;
 }
 
-void WriteGlobal( std::string fontFamily, std::string fontStyle, const Integration::GlobalMetrics& globalMetrics)
+void WriteGlobal( const std::string& fontFamily, const std::string& fontStyle, const Integration::GlobalMetrics& globalMetrics)
 {
   std::string fileName = CreateFileName( fontFamily, fontStyle );
   std::ios_base::openmode mode = ( std::ios::out | std::ios::binary | std::ios::trunc );
@@ -217,7 +218,7 @@ void WriteGlobal( std::string fontFamily, std::string fontStyle, const Integrati
   }
 }
 
-bool Read( std::string fontFamily, std::string fontStyle, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer )
+bool Read( const std::string& fontFamily, const std::string& fontStyle, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer )
 {
   std::string fileName = CreateFileName( fontFamily, fontStyle );
   bool success( false );
@@ -265,7 +266,7 @@ bool Read( std::string fontFamily, std::string fontStyle, std::vector<Integratio
   return success;
 }
 
-void Write( std::string fontFamily, std::string fontStyle, const Integration::GlyphSet& glyphSet )
+void Write( const std::string& fontFamily, const std::string& fontStyle, const Integration::GlyphSet& glyphSet )
 {
   // append the file.
   std::string fileName = CreateFileName( fontFamily, fontStyle );

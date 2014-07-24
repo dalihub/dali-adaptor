@@ -1,28 +1,30 @@
 #ifndef __DALI_SLP_PLATFORM_FONT_CONTROLLER_H__
 #define __DALI_SLP_PLATFORM_FONT_CONTROLLER_H__
 
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 // INTERNAL INCLUDES
 #include "../../interfaces/font-controller.h"
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/map-wrapper.h>
 
 // EXTERNAL INCLUDES
 #include <boost/thread.hpp>
-#include <map>
 
 
 // forward declarations of font config types
@@ -74,28 +76,31 @@ public:
    * Internally caches the font file name for every font family passed in
    * @copydoc Dali::Platform::FontController::GetFontPath()
    */
-  virtual std::string GetFontPath( const StyledFontFamily& styledFontFamily );
+  virtual const std::string& GetFontPath( const StyledFontFamily& styledFontFamily );
 
   /**
    * Internally caches the font list the first time it is called.
    * @copydoc Dali::Platform::FontController::GetFontList()
    */
-  virtual FontList GetFontList( FontListMode fontListMode );
+  virtual void GetFontList( FontListMode fontListMode, FontList& fontList );
 
   /**
    * @copydoc Dali::Platform::FontController::ValidateFontFamilyName()
    */
-  virtual bool ValidateFontFamilyName(const StyledFontFamily& styledFontFamily, bool& isDefaultSystemFont, StyledFontFamily& closestStyledFontFamilyMatch);
+  virtual bool ValidateFontFamilyName( const StyledFontFamily& styledFontFamily,
+                                       bool& isDefaultSystemFontFamily,
+                                       bool& isDefaultSystemFontStyle,
+                                       StyledFontFamily& closestStyledFontFamilyMatch );
 
   /**
    * @copydoc Dali::Platform::FontController::GetFontFamilyForChars()
    */
-  virtual StyledFontFamily GetFontFamilyForChars( const TextArray& charsRequested);
+  virtual const StyledFontFamily& GetFontFamilyForChars( const TextArray& charsRequested);
 
   /**
    * @copydoc Dali::Platform::FontController::AllGlyphsSupported()
    */
-  virtual bool AllGlyphsSupported(const StyledFontFamily& styledFontFamily, const TextArray& text);
+  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const TextArray& text );
 
   /**
    * @copydoc Dali::Platform::FontController::SetDefaultFontFamily()
@@ -109,14 +114,14 @@ private:
    * @param[in] fontListMode the font list mode
    * @return font list
    */
-  FontList GetCachedFontList(  FontListMode fontListMode  ) const;
+  void GetCachedFontList( FontListMode fontListMode, FontList& fontList ) const;
 
   /**
    * returns the font path given a font family.
    * @param[in] styledFontFamily The name of the font's family and the font's style.
-   * @return font path.
+   * @return The font's file name path.
    */
-  std::string GetCachedFontPath( const StyledFontFamily& styledFontFamily ) const;
+  const std::string& GetCachedFontPath( const StyledFontFamily& styledFontFamily ) const;
 
   /**
    * returns the cached character set for a font family.
@@ -132,26 +137,14 @@ private:
    * @param[in] fontPath font path.
    * @param[in] characterSet font config character set object (not const because it's ref count is increased).
    */
-  void AddCachedFont( const StyledFontFamily& styledFontFamily, const std::string& fontPath,_FcCharSet *characterSet);
-
-  /**
-   * Given a font family and its style, it will return the path for that font family.
-   * If the font family is not found, then the closestMatchFamily is set
-   * to the closes matching font family.
-   * @param[in]  styledFontFamily The name of the font's family and the font's style.
-   * @param[out] isDefaultSystemFont Whether this font has been created with a default system font.
-   * @param[out] closestStyledFontFamilyMatch name found based on the user input family name and style.
-   * @return path of the font family
-   */
-  std::string GetFontFamilyPath( const StyledFontFamily& styledFontFamily, bool& isDefaultSystemFont, StyledFontFamily& closestStyledFontFamilyMatch );
-
+  void AddCachedFont( const StyledFontFamily& styledFontFamily, const std::string& fontPath, _FcCharSet *characterSet );
 
   /**
    * Store information held in a fontconfig pattern, into the font cache.
    * Stores font name, filename and character set.
    * @param[in] pattern pointer to a font config pattern.
    * @param[in] inputStyledFontFamily font family name with its style used to perform the pattern match.
-   * @param[out] closestStyledFontFamilyMatch mached family name and style.
+   * @param[out] closestStyledFontFamilyMatch matched family name and style.
    */
   void CacheFontInfo( _FcPattern* pattern, const StyledFontFamily& inputStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch );
 
@@ -164,7 +157,7 @@ private:
   /**
    * Checks whether a character is a control character.
    */
-  bool IsAControlCharacter(uint32_t character) const;
+  bool IsAControlCharacter( uint32_t character ) const;
 
   /**
    * Checks cached fonts to see if they support the text.
@@ -172,7 +165,7 @@ private:
    * @param text text array.
    * @return true if the font family supports the text false if not.
    */
-  bool FontFamilySupportsText(const StyledFontFamily& styledFontFamily, const TextArray& text );
+  bool FontFamilySupportsText( const StyledFontFamily& styledFontFamily, const TextArray& text );
 
   /**
    * Clear the font family cache.
@@ -186,7 +179,7 @@ private:
    * @param fileName the font full filename with path
    * @param styledFontFamily The name of the font's family and the font's style.
    */
-  void AddToFontList( const std::string& fileName, const StyledFontFamily& styledFontFamily);
+  void AddToFontList( const std::string& fileName, const StyledFontFamily& styledFontFamily );
 
   /**
    * Returns a FontConfig font set, which has a list of fonts.
@@ -199,26 +192,31 @@ private:
    * @param charsRequested array of characters.
    * @return a pointer to _FcCharSet object on success, NULL on failure.
    */
-  _FcCharSet* CreateCharacterSet(const TextArray& charsRequested);
+  _FcCharSet* CreateCharacterSet( const TextArray& charsRequested );
 
   /**
-   * Add a font that has not been found on the system.
+   * Add a font that has not been found on the system but a match has been found.
    * @param[in] missingStyledFontFamily the missing font and its style to add.
    * @param[in] closestStyledFontFamilyMatch it's nearest font and its style match.
    */
-  void AddFontNotFound( const StyledFontFamily& missingStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch );
+  void AddMatchedFont( const StyledFontFamily& missingStyledFontFamily, StyledFontFamily& closestStyledFontFamilyMatch );
 
   /**
    * Check the cache to see if a font and its style has been added to the missing fonts list.
    * @param styledFontFamily the font and its style to check.
    * @return the closest styled font that the missing styled font has been matched with by font-config.
    */
-   StyledFontFamily GetFontNotFound(const StyledFontFamily& styledFontFamily) const;
+   const StyledFontFamily& GetMatchedFont( const StyledFontFamily& styledFontFamily ) const;
 
    /**
     * Create a preferred list of fonts to use for when GetFontFamilyForChars() is called.
     */
   void CreatePreferedFontList();
+
+  /**
+   * Deletes all preferred fonts.
+   */
+  void ClearPreferredFontList();
 
   /**
    * Font cache item.
@@ -229,9 +227,9 @@ private:
     _FcCharSet* FcCharSet;        ///< font config character set, used to test if a character is supported
   };
 
-  typedef std::map<StyledFontFamily, FontCacheItem> FontFamilyLookup; ///<  lookup for font names and font cache itmes
+  typedef std::map<StyledFontFamily, FontCacheItem> FontFamilyLookup;     ///<  lookup for font names and font cache itmes
 
-  typedef std::map<StyledFontFamily, StyledFontFamily> FontsNotFound; ///< lookup for fonts that don't exist, and their nearest match return by FontConfig
+  typedef std::map<StyledFontFamily, StyledFontFamily> MatchedFontLookup; ///< lookup for fonts that don't exist, and their nearest match return by FontConfig
 
   boost::mutex      mFontConfigMutex;       ///< FontConfig needs serializing because it isn't thread safe
   boost::mutex      mFontFamilyCacheMutex;  ///< to protect the FontFamilyCache data
@@ -243,8 +241,9 @@ private:
   FontList          mFontApplicationList;   ///< cached list of application fonts
 
   FontFamilyLookup  mFontFamilyCache;       ///< cache of font names and corresponding font cache items
-  FontsNotFound     mFontsNotFound;         ///< lookup for fonts that haven't been found on the sytem, and the nearest matching font.
-  std::vector< StyledFontFamily > mPreferredFonts; ///< Ordered list of preferred fonts.
+  MatchedFontLookup mMatchedFontsFound;     ///< lookup for fonts that haven't been found on the sytem, and the nearest matching font.
+  Vector<StyledFontFamily*> mPreferredFonts;          ///< Ordered list of preferred fonts.
+  Vector<bool>              mPreferredFontsValidated; ///< Stores which of the prefered fonts have been validated.
 
 };
 

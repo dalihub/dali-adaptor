@@ -1,34 +1,29 @@
+%bcond_with wayland
+
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    0.9.18
+Version:    1.0.1
 Release:    1
 Group:      System/Libraries
-License:    Flora
+License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       boost-thread
-#Requires:       giflib
-BuildRequires:  gettext
+Requires:       giflib
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  boost-devel
 BuildRequires:  giflib-devel
-BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(elementary)
-BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-appfw-application)
-BuildRequires:  pkgconfig(isf)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(evas)
-BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(xdamage)
-BuildRequires:  pkgconfig(utilX)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
 BuildRequires:  libxml2-devel
@@ -38,8 +33,21 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
+BuildRequires:  pkgconfig(efl-assist)
+BuildRequires:  pkgconfig(libpng)
+%if %{with wayland}
+BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(egl)
+BuildRequires:  pkgconfig(ecore-wayland)
+BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(wayland-client)
+%else
+BuildRequires:  pkgconfig(xi)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(gles20)
-ExclusiveArch:  armv7l
+%endif
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -76,7 +84,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %package dali-bullet-plugin
 Summary:    Plugin to provide physics
 Group:      System/Libraries
-BuildRequires:  bullet-devel
+BuildRequires:  pkgconfig(bullet)
 
 %description dali-bullet-plugin
 Dynamics plugin to wrap the libBulletDynamics libraries
@@ -117,10 +125,18 @@ export FFLAGS="$FFLAGS -DTIZEN_DEBUG_ENABLE"
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
 
+%if %{with wayland}
+CFLAGS+=" -DWAYLAND"
+CXXFLAGS+=" -DWAYLAND"
+%endif
+
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
+%if %{with wayland}
+cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON --enable-wayland
+%else
 cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON
-
+%endif
 
 make %{?jobs:-j%jobs}
 

@@ -1,21 +1,22 @@
 #ifndef __DALI_SLP_PLATFORM_RESOURCE_LOADER_H__
 #define __DALI_SLP_PLATFORM_RESOURCE_LOADER_H__
 
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/integration-api/glyph-set.h>
@@ -320,27 +321,32 @@ public:
   /**
    * @copydoc PlatformAbstraction::GetFontFamilyForChars()
    */
-  std::string GetFontFamilyForChars(const TextArray& charsRequested);
+  const std::string& GetFontFamilyForChars(const TextArray& charsRequested);
 
   /**
    * @copydoc PlatformAbstraction::AllGlyphsSupported()
    */
-  bool AllGlyphsSupported(const std::string &fontFamily, const std::string &fontStyle, const TextArray& charsRequested);
+  bool AllGlyphsSupported(const std::string& fontFamily, const std::string& fontStyle, const TextArray& charsRequested);
 
   /**
    * @copydoc PlatformAbstraction::ValidateFontFamilyName()
    */
-  bool ValidateFontFamilyName(const std::string& fontFamily, const std::string &fontStyle, bool& isDefaultSystemFont, std::string& closestFontFamilyMatch, std::string& closestFontStyleMatch);
+  bool ValidateFontFamilyName( const std::string& fontFamily,
+                               const std::string& fontStyle,
+                               bool& isDefaultSystemFontFamily,
+                               bool& isDefaultSystemFontStyle,
+                               std::string& closestFontFamilyMatch,
+                               std::string& closestFontStyleMatch );
 
   /**
    * @copydoc SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight
    */
-  const PixelSize GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string &fontStyle, const CapsHeight& capsHeight, FT_Library freeType);
+  PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight, FT_Library freeType);
 
   /**
    * @copydoc SlpPlatformAbstraction::GetFontList
    */
-  std::vector<std::string> GetFontList( Dali::Integration::PlatformAbstraction::FontListMode mode );
+  void GetFontList( Dali::Integration::PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList );
 
   /**
    * @copydoc SlpPlatformAbstraction::LoadFile()
@@ -375,7 +381,7 @@ public:
    *
    * @return The bitmap image.
    */
-  Integration::BitmapPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character );
+  Integration::BitmapPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character );
 
 private:
 
@@ -388,7 +394,7 @@ private:
    * @param[in] fontStyle The font's style.
    * @return The path to a font resource; the closest available match for the family parameter.
    */
-  std::string GetFontPath(const std::string& fontFamily, const std::string& fontStyle);  // not const because of mutex
+  const std::string& GetFontPath(const std::string& fontFamily, const std::string& fontStyle); // not const because of mutex
 
 private:
   struct ResourceLoaderImpl;

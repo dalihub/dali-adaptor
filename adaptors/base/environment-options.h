@@ -1,21 +1,22 @@
 #ifndef __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
 #define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
 
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include <dali/integration-api/debug.h>
 
@@ -89,16 +90,89 @@ public:
   unsigned int GetPanGestureLoggingLevel() const;
 
   /**
-   * @return pan-gesture smoothing mode ( 0 == no smoothing )
+   * @return pan-gesture prediction mode ( -1 means not set so no prediction, 0 = no prediction )
    */
-  unsigned int GetPanGestureSmoothingMode() const;
+  int GetPanGesturePredictionMode() const;
+
+  /**
+   * @return pan-gesture prediction amount
+   */
+  float GetPanGesturePredictionAmount() const;
+
+  /**
+   * @return pan-gesture smoothing mode ( -1 means not set so no smoothing, 0 = no smoothing )
+   */
+  int GetPanGestureSmoothingMode() const;
+
+  /**
+   * @return pan-gesture smoothing amount
+   */
+  float GetPanGestureSmoothingAmount() const;
+
+  /**
+   * @return The minimum distance before a pan can be started (-1 means it's not set)
+   */
+  int GetMinimumPanDistance() const;
+
+  /**
+   * @return The minimum events before a pan can be started (-1 means it's not set)
+   */
+  int GetMinimumPanEvents() const;
 
   /**
    * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
    *
    * @param[in] mode The smoothing mode to use
    */
-  void SetPanGesturePredictionMode(unsigned int mode) { mPanGesturePredictionMode = mode; }
+  void SetPanGesturePredictionMode( unsigned int mode );
+
+  /**
+   * @brief Sets the prediction amount of the pan gesture
+   *
+   * @param[in] amount The prediction amount in milliseconds
+   */
+  void SetPanGesturePredictionAmount( unsigned int amount );
+
+  /**
+   * @brief Called to set how pan gestures smooth input
+   *
+   * @param[in] mode The smoothing mode to use
+   */
+  void SetPanGestureSmoothingMode( unsigned int mode );
+
+  /**
+   * @brief Sets the prediction amount of the pan gesture
+   *
+   * @param[in] amount The smoothing amount [0.0f,1.0f] - 0.0f would be no smoothing, 1.0f maximum smoothing
+   */
+  void SetPanGestureSmoothingAmount( float amount );
+
+  /**
+   * @brief Sets the minimum distance required before a pan starts
+   *
+   * @param[in] distance The minimum distance before a pan starts
+   */
+  void SetMinimumPanDistance( int distance );
+
+  /**
+   * @brief Sets the minimum number of events required before a pan starts
+   *
+   * @param[in] events The minimum events before a pan starts
+   */
+  void SetMinimumPanEvents( int events );
+
+  /**
+   * @brief Sets how often the gles call logging occurs
+   *
+   * @param[in] time the number of seconds between logging output
+   */
+  void SetGlesCallTime( int time );
+
+  /**
+   * @brief Get the graphics status time
+   */
+  int GetGlesCallTime();
+
 
 private:
 
@@ -106,7 +180,13 @@ private:
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
-  unsigned int mPanGesturePredictionMode;         ///< prediction mode for pan gestures
+  int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
+  float mPanGesturePredictionAmount;              ///< prediction amount for pan gestures
+  int mPanGestureSmoothingMode;                  ///< prediction mode for pan gestures
+  float mPanGestureSmoothingAmount;              ///< prediction amount for pan gestures
+  int mPanMinimumDistance;                        ///< minimum distance required before pan starts
+  int mPanMinimumEvents;                          ///< minimum events required before pan starts
+  int mGlesCallTime;                              ///< time in seconds between status updates
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

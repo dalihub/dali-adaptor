@@ -1,14 +1,14 @@
 #
 # Copyright (c) 2014 Samsung Electronics Co., Ltd.
 #
-# Licensed under the Flora License, Version 1.0 (the License);
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://floralicense.org/license/
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an AS IS BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -36,7 +36,6 @@ PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(ELEMENTARY, elementary)
 PKG_CHECK_MODULES(ECORE, ecore)
-PKG_CHECK_MODULES(ECORE_X, ecore-x)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
@@ -47,11 +46,11 @@ PKG_CHECK_MODULES(PNG, libpng)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
-PKG_CHECK_MODULES(X11, x11)
 PKG_CHECK_MODULES(XML, libxml-2.0)
 PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
 
 # Check for availability of BulletPhysics
 PKG_CHECK_EXISTS(bullet, [
@@ -109,31 +108,46 @@ AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,TV],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV],
                             [Select the variant of tizen])],
-              [dali_profile=$enableval],
-              [dali_profile=COMMON])
+              [enable_profile=$enableval],
+              [enable_profile=COMMON])
 
-if test "x$enable_profile" = "xyes"; then
-  dali_profile=COMMON
-fi
-if test "x$enable_profile" = "x"; then
-  dali_profile=COMMON
-fi
+AC_ARG_ENABLE(wayland,
+              [  --enable-wayland       Build on Wayland],
+              enable_wayland=yes,
+              enable_wayland=no)
 
-DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${dali_profile}"
-DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${dali_profile}"
-AM_CONDITIONAL([COMMON_PROFILE], [test x$dali_profile = xCOMMON])
-AM_CONDITIONAL([MOBILE_PROFILE], [test x$dali_profile = xMOBILE])
-AM_CONDITIONAL([TV_PROFILE], [test x$dali_profile = xTV])
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
+DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
+AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
+AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
+AM_CONDITIONAL([LITE_PROFILE], [test x$enable_profile = xLITE])
+AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
+AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
+AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
+
+if test "x$enable_profile" = "xCOMMON"; then
+if test "x$enable_wayland" = "xyes"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
+else
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
+PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
 
 if test "x$enable_profile" = "xMOBILE"; then
 PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
 PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(DEVICED, deviced)
-PKG_CHECK_MODULES(EVAS, evas)
-PKG_CHECK_MODULES(NATIVE_BUFFER, native-buffer)
-PKG_CHECK_MODULES(NATIVE_BUFFER_POOL, native-buffer-pool)
+fi
+
+if test "x$enable_profile" = "xLITE"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
+
+if test "x$enable_profile" = "xWEARABLE"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
 if test "x$enable_profile" = "xTV"; then
@@ -142,9 +156,17 @@ PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(HAPTIC, haptic)
 fi
 
-if test "x$enable_profile" = "xCOMMON"; then
-PKG_CHECK_MODULES(OPENGLES20, gles20)
-PKG_CHECK_MODULES(HAPTIC, haptic)
+if test "x$enable_wayland" = "xyes"; then
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
+                  [DALI_HAS_ECOREWL=yes],
+                  [DALI_HAS_ECOREWL=no])
+else
+PKG_CHECK_MODULES(ECORE_X, [ecore-x],
+                  [DALI_HAS_ECOREX=yes],
+                  [DALI_HAS_ECOREX=no])
+PKG_CHECK_MODULES(X11, [x11],
+                  [DALI_HAS_X11=yes],
+                  [DALI_HAS_X11=no])
 fi
 
 if test x$DALI_DATA_RW_DIR != x; then
@@ -195,7 +217,6 @@ AC_SUBST(DALI_PROFILE_CFLAGS)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
-
 AC_CONFIG_FILES([
  Makefile
  common/Makefile
@@ -203,14 +224,16 @@ AC_CONFIG_FILES([
  dali.pc
  dali-application/Makefile
  dali-application.pc
- dali-evas/Makefile
- dali-evas.pc
- dali-native-buffer/Makefile
- dali-native-buffer.pc
- plugins/Makefile
 ])
 
+if test "x$enable_profile" != "xLITE"; then
+AC_CONFIG_FILES([
+ plugins/Makefile
+])
+fi
+
 AC_OUTPUT
+
 
 echo "
 Configuration
@@ -219,7 +242,7 @@ Configuration
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
   Using JPEG Turbo Library:         $with_jpeg_turbo
-  Profile:                          $dali_profile
+  Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
   Font Path (Preloaded):            $fontPreloadedPath

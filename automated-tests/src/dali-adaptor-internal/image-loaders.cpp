@@ -1,21 +1,32 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include "image-loaders.h"
 #include <dali-test-suite-utils.h>
+
+
+class StubImageLoaderClient : public Dali::SlpPlatform::ResourceLoadingClient
+{
+public:
+  StubImageLoaderClient() {}
+  ~StubImageLoaderClient() {}
+
+  virtual void InterruptionPoint() const {}
+};
 
 AutoCloseFile::AutoCloseFile( FILE *fp )
 : filePtr( fp )
@@ -105,7 +116,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
 
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
   DALI_TEST_EQUALS( image.width,  attributes.GetWidth(),  TEST_LOCATION );
   DALI_TEST_EQUALS( image.height, attributes.GetHeight(), TEST_LOCATION );
 
@@ -132,7 +143,7 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
   Dali::ImageAttributes attributes;
 
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes ) );
+  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
 
   Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
 

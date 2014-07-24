@@ -27,6 +27,7 @@ LIST(APPEND TC_SOURCES
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-core
     dali
+    ecore
 )
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type" )
@@ -41,10 +42,15 @@ FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
     SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L${directory}")
 ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
+# Adaptor directories are included in order of most-specific to least specific:
 INCLUDE_DIRECTORIES(
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
-    ../../../adaptors/tizen
+    ../../../adaptors/mobile
+    ../../../adaptors/x11
+    ../../../adaptors/common
+    ../../../adaptors/base
+    ../../../adaptors/public-api
     ../../../
 )
 

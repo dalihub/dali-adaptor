@@ -1,7 +1,0 @@
-# Application
-
-tizen_evas_plugin_internal_src_files = \
-  $(tizen_evas_plugin_internal_src_dir)/evas-plugin-impl.cpp
-
-tizen_native_buffer_plugin_internal_src_files = \
-  $(tizen_native_buffer_plugin_internal_src_dir)/native-buffer-plugin-impl.cpp

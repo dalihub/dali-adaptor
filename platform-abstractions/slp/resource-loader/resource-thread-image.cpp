@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include "resource-thread-image.h"
 #include <dali/public-api/common/ref-counted-dali-vector.h>
@@ -29,6 +30,8 @@
 #include "loader-ktx.h"
 #include "loader-wbmp.h"
 
+#include "file-closer.h"
+
 using namespace std;
 using namespace Dali::Integration;
 using boost::mutex;
@@ -43,7 +46,7 @@ namespace SlpPlatform
 namespace
 {
 
-typedef bool (*LoadBitmapFunction)(FILE*, Bitmap&, ImageAttributes&);
+typedef bool (*LoadBitmapFunction)( FILE*, Bitmap&, ImageAttributes&, const ResourceLoadingClient& ); ///@ToDo: Make attributes a const reference?
 typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes& attrs, unsigned int& width, unsigned int& height );
 
 /**
@@ -241,7 +244,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
   return loaderFound;
 }
 
-}
+} // namespace - empty
 
 ResourceThreadImage::ResourceThreadImage(ResourceLoader& resourceLoader)
 : ResourceThreadBase(resourceLoader)
@@ -265,6 +268,7 @@ ResourcePointer ResourceThreadImage::LoadResourceSynchronously( const Integratio
     {
       resource.Reset(bitmap.Get());
     }
+    fclose(fp);
   }
   return resource;
 }
@@ -366,14 +370,19 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   DALI_LOG_TRACE_METHOD( mLogFilter );
   DALI_LOG_INFO( mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str() );
 
-  bool file_not_found = false;
+  bool fileNotFound = false;
   BitmapPtr bitmap = 0;
   bool result = false;
 
-  FILE * const fp = fopen( request.GetPath().c_str(), "rb" );
+  Dali::Internal::Platform::FileCloser fileCloser( request.GetPath().c_str(), "rb" );
+  FILE * const fp = fileCloser.GetFile();
+
   if( fp != NULL )
   {
     result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+    // Last chance to interrupt a cancelled load before it is reported back to clients
+    // which have already stopped tracking it:
+    InterruptionPoint(); // Note: This can throw an exception.
     if( result && bitmap )
     {
       // Construct LoadedResource and ResourcePointer for image data
@@ -389,12 +398,12 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
   else
   {
     DALI_LOG_WARNING( "Failed to open file to load \"%s\"\n", request.GetPath().c_str() );
-    file_not_found = true;
+    fileNotFound = true;
   }
 
   if ( !bitmap )
   {
-    if( file_not_found )
+    if( fileNotFound )
     {
       FailedResource resource(request.GetId(), FailureFileNotFound  );
       mResourceLoader.AddFailedLoad(resource);
@@ -430,7 +439,8 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
     if( blobBytes != 0 && blobSize > 0U )
     {
       // Open a file handle on the memory buffer:
-      FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
+      Dali::Internal::Platform::FileCloser fileCloser( blobBytes, blobSize, "rb" );
+      FILE * const fp = fileCloser.GetFile();
       if ( fp != NULL )
       {
         bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
@@ -464,7 +474,6 @@ void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
   DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
 }
 
-
 bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, BitmapPtr& ptr)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
@@ -491,25 +500,100 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
       const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
       ImageAttributes attributes  = resType.imageAttributes;
 
-      result = function(fp, *bitmap, attributes);
+      // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
+      InterruptionPoint(); // Note: This can throw an exception.
+
+      result = function( fp, *bitmap, attributes, *this );
 
       if (!result)
       {
         DALI_LOG_WARNING("Unable to convert %s\n", path.c_str());
         bitmap = 0;
       }
+
+      // Apply the requested image attributes in best-effort fashion:
+      const ImageAttributes& requestedAttributes = resType.imageAttributes;
+      // Cut the bitmap according to the desired width and height so that the
+      // resulting bitmap has the same aspect ratio as the desired dimensions:
+      if( bitmap && bitmap->GetPackedPixelsProfile() && requestedAttributes.GetScalingMode() == ImageAttributes::ScaleToFill )
+      {
+        const unsigned loadedWidth = bitmap->GetImageWidth();
+        const unsigned loadedHeight = bitmap->GetImageHeight();
+        const unsigned desiredWidth = requestedAttributes.GetWidth();
+        const unsigned desiredHeight = requestedAttributes.GetHeight();
+
+        if( desiredWidth < 1U || desiredHeight < 1U )
+        {
+          DALI_LOG_WARNING( "Image scaling aborted for image %s as desired dimensions too small (%u, %u)\n.", path.c_str(), desiredWidth, desiredHeight );
+        }
+        else if( loadedWidth != desiredWidth || loadedHeight != desiredHeight )
+        {
+          const Vector2 desiredDims( desiredWidth, desiredHeight );
+
+          // Scale the desired rectangle back to fit inside the rectangle of the loaded bitmap:
+          // There are two candidates (scaled by x, and scaled by y) and we choose the smallest area one.
+          const float widthsRatio = loadedWidth / float(desiredWidth);
+          const Vector2 scaledByWidth = desiredDims * widthsRatio;
+          const float heightsRatio = loadedHeight / float(desiredHeight);
+          const Vector2 scaledByHeight = desiredDims * heightsRatio;
+          // Trim top and bottom if the area of the horizontally-fitted candidate is less, else trim the sides:
+          const bool trimTopAndBottom = scaledByWidth.width * scaledByWidth.height < scaledByHeight.width * scaledByHeight.height;
+          const Vector2 scaledDims = trimTopAndBottom ? scaledByWidth : scaledByHeight;
+
+          // Work out how many pixels to trim from top and bottom, and left and right:
+          // (We only ever do one dimension)
+          const unsigned scanlinesToTrim = trimTopAndBottom ? fabsf( (scaledDims.y - loadedHeight) * 0.5f ) : 0;
+          const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabsf( (scaledDims.x - loadedWidth) * 0.5f );
+
+          DALI_LOG_INFO( mLogFilter, Debug::Concise, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedWidth, loadedHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
+
+          // Make a new bitmap with the central part of the loaded one if required:
+          if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).
+          {
+            InterruptionPoint(); // Note: This can throw an exception.
+
+            const unsigned newWidth = loadedWidth - 2 * columnsToTrim;
+            const unsigned newHeight = loadedHeight - 2 * scanlinesToTrim;
+            BitmapPtr croppedBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+            Bitmap::PackedPixelsProfile * packedView = croppedBitmap->GetPackedPixelsProfile();
+            DALI_ASSERT_DEBUG( packedView );
+            const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
+            packedView->ReserveBuffer( pixelFormat, newWidth, newHeight, newWidth, newHeight );
+
+            const unsigned bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+
+            const PixelBuffer * const srcPixels = bitmap->GetBuffer() + scanlinesToTrim * loadedWidth * bytesPerPixel;
+            PixelBuffer * const destPixels = croppedBitmap->GetBuffer();
+            DALI_ASSERT_DEBUG( srcPixels && destPixels );
+
+            // Optimize to a single memcpy if the left and right edges don't need a crop, else copy a scanline at a time:
+            if( trimTopAndBottom )
+            {
+              memcpy( destPixels, srcPixels, newHeight * newWidth * bytesPerPixel );
+            }
+            else
+            {
+              for( unsigned y = 0; y < newHeight; ++y )
+              {
+                memcpy( &destPixels[y * newWidth * bytesPerPixel], &srcPixels[y * loadedWidth * bytesPerPixel + columnsToTrim * bytesPerPixel], newWidth * bytesPerPixel );
+              }
+            }
+
+            // Overwrite the loaded bitmap with the cropped version:
+            bitmap = croppedBitmap;
+          }
+        }
+      }
     }
     else
     {
       DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
     }
-    fclose(fp); ///! Not exception safe, but an exception on a resource thread will bring the process down anyway.
   }
 
   ptr.Reset( bitmap.Get() );
   return result;
 }
-
 
 } // namespace SlpPlatform
 

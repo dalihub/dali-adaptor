@@ -1,33 +1,37 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
+// INTERNAL HEADERS
 #include "loader-jpeg.h"
-#include <turbojpeg.h>
-#include <jpeglib.h>
-#include <cstring>
-
-#include <dali/integration-api/debug.h>
+#include "resource-loading-client.h"
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
+
+// EXTERNAL HEADERS
 #include <libexif/exif-data.h>
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
+#include <turbojpeg.h>
+#include <jpeglib.h>
+#include <cstring>
 #include <setjmp.h>
+
 
 namespace Dali
 {
@@ -234,7 +238,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
+bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
   int flags=(FORCEMMX ?  TJ_FORCEMMX : 0) |
             (FORCESSE ?  TJ_FORCESSE : 0) |
@@ -278,14 +282,6 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   }
   unsigned char * const jpegBufferPtr = &jpegBuffer[0];
 
-  AutoJpg autoJpg(tjInitDecompress());
-
-  if(autoJpg.GetHandle() == NULL)
-  {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
-    return false;
-  }
-
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if( fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
   {
@@ -296,6 +292,17 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
   if( fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+  }
+
+  // Allow early cancellation between the load and the decompress:
+  client.InterruptionPoint();
+
+  AutoJpg autoJpg(tjInitDecompress());
+
+  if(autoJpg.GetHandle() == NULL)
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    return false;
   }
 
   JPGFORM_CODE transform = JPGFORM_NONE;
@@ -347,6 +354,9 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
 
   unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
 
+  // Allow early cancellation before decoding:
+  client.InterruptionPoint();
+
   const int pitch = scaledPreXformWidth * DECODED_PIXEL_SIZE;
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, pitch, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
@@ -359,6 +369,12 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes )
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );
+
+  if( transform != JPGFORM_NONE )
+  {
+    // Allow early cancellation before shuffling pixels around on the CPU:
+    client.InterruptionPoint();
+  }
 
   bool result = false;
   switch(transform)
@@ -785,30 +801,36 @@ bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &w
     // Double check we get the same width/height from the header
     unsigned int headerWidth;
     unsigned int headerHeight;
-    LoadJpegHeader( fp, headerWidth, headerHeight );
-
-    JPGFORM_CODE transform = JPGFORM_NONE;
-
-    if( attributes.GetOrientationCorrection() )
+    if( LoadJpegHeader( fp, headerWidth, headerHeight ) )
     {
-      ExifAutoPtr exifData( LoadExifData( fp ) );
-      if( exifData.mData )
-      {
-        transform = ConvertExifOrientation(exifData.mData);
-      }
+      JPGFORM_CODE transform = JPGFORM_NONE;
 
-      int preXformImageWidth = headerWidth;
-      int preXformImageHeight = headerHeight;
-      int postXformImageWidth = headerWidth;
-      int postXformImageHeight = headerHeight;
-
-      success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
-      if(success)
+      if( attributes.GetOrientationCorrection() )
       {
-        width = postXformImageWidth;
-        height = postXformImageHeight;
+        ExifAutoPtr exifData( LoadExifData( fp ) );
+        if( exifData.mData )
+        {
+          transform = ConvertExifOrientation(exifData.mData);
+        }
+
+        int preXformImageWidth = headerWidth;
+        int preXformImageHeight = headerHeight;
+        int postXformImageWidth = headerWidth;
+        int postXformImageHeight = headerHeight;
+
+        success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+        if(success)
+        {
+          width = postXformImageWidth;
+          height = postXformImageHeight;
+        }
       }
-      success = true;
+      else
+      {
+        success = true;
+        width = headerWidth;
+        height = headerHeight;
+      }
     }
   }
   return success;

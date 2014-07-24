@@ -1,0 +1,32 @@
+# x11
+
+adaptor_x11_internal_header_files = \
+  $(adaptor_x11_dir)/clipboard-impl.h \
+  $(adaptor_x11_dir)/imf-manager-impl.h \
+  $(adaptor_x11_dir)/pixmap-image-impl.h \
+  $(adaptor_x11_dir)/pixmap-render-surface.h 
+
+adaptor_x11_application_src_files = \
+  $(adaptor_x11_dir)/framework-x.cpp
+
+adaptor_x11_internal_src_files = \
+  $(adaptor_x11_dir)/accessibility-manager-impl-x.cpp \
+  $(adaptor_x11_dir)/clipboard-impl-x.cpp \
+  $(adaptor_x11_dir)/imf-manager-impl-x.cpp \
+  $(adaptor_x11_dir)/pixmap-image-impl-x.cpp \
+  $(adaptor_x11_dir)/server-connection-x.cpp \
+  $(adaptor_x11_dir)/virtual-keyboard-impl-x.cpp \
+  $(adaptor_x11_dir)/window-impl-x.cpp \
+  $(adaptor_x11_dir)/event-handler-x.cpp \
+  $(adaptor_x11_dir)/egl-implementation-x.cpp \
+  $(adaptor_x11_dir)/pixmap-render-surface-x.cpp \
+  $(adaptor_x11_dir)/ecore-x-render-surface.cpp \
+  $(adaptor_x11_dir)/window-render-surface-x.cpp \
+  $(adaptor_x11_dir)/ecore-x-window-interface.cpp
+
+adaptor_x11_profile_src_files = \
+  $(adaptor_x11_dir)/key-impl-x.cpp
+  
+adaptor_x11_common_internal_profile_src_files = \
+  $(adaptor_x11_dir)/ecore-x-render-surface-factory.cpp \
+  $(adaptor_x11_dir)/system-settings-x.cpp

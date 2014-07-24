@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 // CLASS HEADER
 #include "resource-loader.h"
@@ -21,7 +22,6 @@
 #include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
-#include <set>
 #include <queue>
 
 // INTERNAL HEADERS
@@ -29,6 +29,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
 #include "resource-requester-base.h"
 #include "resource-bitmap-requester.h"
@@ -508,22 +509,31 @@ void ResourceLoader::GetClosestImageSize( ResourcePointer resourceBuffer,
 }
 
 
-std::string ResourceLoader::GetFontFamilyForChars(const TextArray& charsRequested)
+const std::string& ResourceLoader::GetFontFamilyForChars( const TextArray& charsRequested )
 {
   return mImpl->mFontController->GetFontFamilyForChars( charsRequested ).first;
 }
 
-bool ResourceLoader::AllGlyphsSupported(const std::string &fontFamily, const std::string &fontStyle, const TextArray& charsRequested)
+bool ResourceLoader::AllGlyphsSupported( const std::string& fontFamily, const std::string& fontStyle, const TextArray& charsRequested )
 {
-  return mImpl->mFontController->AllGlyphsSupported( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ), charsRequested);
+  // At this point fontFamily and fontStyle must have been validated.
 
+  return mImpl->mFontController->AllGlyphsSupported( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ), charsRequested );
 }
 
-bool ResourceLoader::ValidateFontFamilyName(const std::string& fontFamily, const std::string& fontStyle, bool& isDefaultSystemFont, std::string& closestFontFamilyMatch, std::string& closestFontStyleMatch)
+bool ResourceLoader::ValidateFontFamilyName( const std::string& fontFamily,
+                                             const std::string& fontStyle,
+                                             bool& isDefaultSystemFontFamily,
+                                             bool& isDefaultSystemFontStyle,
+                                             std::string& closestFontFamilyMatch,
+                                             std::string& closestFontStyleMatch )
 {
   Platform::FontController::StyledFontFamily closestMatch;
 
-  bool result = mImpl->mFontController->ValidateFontFamilyName( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ), isDefaultSystemFont, closestMatch);
+  bool result = mImpl->mFontController->ValidateFontFamilyName( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ),
+                                                                isDefaultSystemFontFamily,
+                                                                isDefaultSystemFontStyle,
+                                                                closestMatch );
 
   closestFontFamilyMatch = closestMatch.first;
   closestFontStyleMatch = closestMatch.second;
@@ -531,13 +541,15 @@ bool ResourceLoader::ValidateFontFamilyName(const std::string& fontFamily, const
   return result;
 }
 
-const PixelSize ResourceLoader::GetFontLineHeightFromCapsHeight(const std::string fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight, FT_Library freeType)
+PixelSize ResourceLoader::GetFontLineHeightFromCapsHeight( const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight, FT_Library freeType )
 {
+  // At this point fontFamily and fontStyle must have been validated.
+
   PixelSize result(0);
 
   if (!fontFamily.empty())
   {
-    std::string fontFileName = GetFontPath( fontFamily, fontStyle );
+    const std::string& fontFileName = GetFontPath( fontFamily, fontStyle );
     SlpFace* slpFace = LoadFontFace(fontFileName, PixelSize(capsHeight), freeType);
 
     if (slpFace)
@@ -554,15 +566,11 @@ const PixelSize ResourceLoader::GetFontLineHeightFromCapsHeight(const std::strin
   return result;
 }
 
-std::vector<std::string> ResourceLoader::GetFontList( Dali::Integration::PlatformAbstraction::FontListMode mode )
+void ResourceLoader::GetFontList( Dali::Integration::PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList )
 {
-  std::vector<std::string> result;
-  std::set<std::string> uniqueFontNames;
-
   // VCC TODO: A GetStyles() method which returns a list of styles for a given font family is needed.
 
-  Platform::FontController::FontList fontList;
-  Platform::FontController::FontListMode listMode;
+  Platform::FontController::FontListMode listMode = Platform::FontController::LIST_SYSTEM_FONTS;
 
   switch( mode )
   {
@@ -583,22 +591,21 @@ std::vector<std::string> ResourceLoader::GetFontList( Dali::Integration::Platfor
     }
     default:
     {
-      DALI_ASSERT_DEBUG(0 && "invalid mode");
-      return result;
+      DALI_ASSERT_DEBUG( false && "invalid mode" );
     }
   }
 
-  fontList = mImpl->mFontController->GetFontList( listMode );
+  Platform::FontController::FontList styledFontList;
+  mImpl->mFontController->GetFontList( listMode, styledFontList );
 
-  for( Platform::FontController::FontList::const_iterator it = fontList.begin(), endIt = fontList.end(); it != endIt; ++it )
+  std::set<std::string> uniqueFontNames;
+  for( Platform::FontController::FontList::const_iterator it = styledFontList.begin(), endIt = styledFontList.end(); it != endIt; ++it )
   {
-    uniqueFontNames.insert(it->first);
+    uniqueFontNames.insert( it->first );
   }
 
   // copy into a vector
-  std::copy(uniqueFontNames.begin(), uniqueFontNames.end(), std::back_inserter(result));
-
-  return result;
+  std::copy( uniqueFontNames.begin(), uniqueFontNames.end(), std::back_inserter( fontList ) );
 }
 
 
@@ -610,6 +617,8 @@ GlyphSet* ResourceLoader::GetGlyphData (const TextResourceType& textRequest,
                                         const std::string& fontFamily,
                                         bool getBitmap)
 {
+  // At this point fontFamily and the font style stored in the textRequest must have been validated.
+
   GlyphSet* glyphSet = NULL;
 
   size_t fontHash = textRequest.mFontHash;
@@ -619,7 +628,7 @@ GlyphSet* ResourceLoader::GetGlyphData (const TextResourceType& textRequest,
   // path holds the font name
   if( !fontFamily.empty() )
   {
-    std::string fontFileName = GetFontPath( fontFamily, textRequest.mStyle );
+    const std::string& fontFileName = GetFontPath( fontFamily, textRequest.mStyle );
 
     const bool highQuality(textRequest.mQuality == TextResourceType::TextQualityHigh);
     const unsigned int glyphQuality( highQuality ? GlyphMetrics::HIGH_QUALITY : GlyphMetrics::LOW_QUALITY );
@@ -747,10 +756,11 @@ void ResourceLoader::GetGlobalMetrics( FT_Library freeType,
                                        const std::string& fontStyle,
                                        GlobalMetrics& globalMetrics )
 {
-  // path holds the font name
+  // At this point fontFamily and fontStyle must have been validated.
+
   if( !fontFamily.empty() )
   {
-    std::string fontFileName = GetFontPath( fontFamily, fontStyle );
+    const std::string& fontFileName = GetFontPath( fontFamily, fontStyle );
 
     SlpFace* slpFace = LoadFontFace( fontFileName, PixelSize( HIGH_QUALITY_PIXEL_SIZE), freeType );
     if( slpFace )
@@ -892,11 +902,13 @@ bool ResourceLoader::SaveFile(const std::string& filename, std::vector< unsigned
   return result;
 }
 
-Integration::BitmapPtr ResourceLoader::GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, const float fontSize, const uint32_t character )
+Integration::BitmapPtr ResourceLoader::GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character )
 {
+  // At this point fontFamily and fontStyle must have been validated.
+
   Integration::BitmapPtr image;
 
-  const std::string fontFileName = GetFontPath( fontFamily, fontStyle );
+  const std::string& fontFileName = GetFontPath( fontFamily, fontStyle );
   SlpFace* slpFace = LoadFontFace( fontFileName, PixelSize( Font::PointsToPixels( fontSize ) ), freeType );
 
   if( NULL != slpFace )
@@ -912,8 +924,9 @@ void ResourceLoader::SetDefaultFontFamily( const std::string& fontFamily, const 
   mImpl->mFontController->SetDefaultFontFamily( Platform::FontController::StyledFontFamily( fontFamily, fontStyle ) );
 }
 
-std::string ResourceLoader::GetFontPath(const std::string& fontFamily, const std::string& fontStyle)
+const std::string& ResourceLoader::GetFontPath(const std::string& fontFamily, const std::string& fontStyle)
 {
+  // At this point fontFamily and fontStyle must have been validated.
   return mImpl->mFontController->GetFontPath(std::make_pair(fontFamily,fontStyle));
 }
 

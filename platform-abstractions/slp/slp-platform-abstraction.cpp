@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 #include "slp-platform-abstraction.h"
 
@@ -49,6 +50,7 @@ namespace
 const std::string FONT_CONFIGURATION_FILE( FONT_CONFIGURATION_FILE_PATH ); ///< Default font configuration file
 const std::string DEFAULT_FONT_FAMILY( "HelveticaNeue" );                  ///< Default font family when unable to retrieve from font configuration file
 const std::string DEFAULT_FONT_STYLE( "Book" );                            ///< Default font style when unable to retrieve from font configuration file
+const std::string NULL_FONT_FAMILY_NAME( "" );
 const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 1000 nanoseconds = 1 microsecond
 
 /// Settings to float point conversion table
@@ -108,18 +110,18 @@ void SlpPlatformAbstraction::Resume()
   }
 }
 
-std::string SlpPlatformAbstraction::GetDefaultFontFamily() const
+const std::string& SlpPlatformAbstraction::GetDefaultFontFamily() const
 {
   // VCC TODO: return default font style as well.
   return mDefaultFontFamily;
 }
 
-const float SlpPlatformAbstraction::GetDefaultFontSize() const
+float SlpPlatformAbstraction::GetDefaultFontSize() const
 {
   return mDefaultFontSize;
 }
 
-const PixelSize SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, const CapsHeight& capsHeight) const
+PixelSize SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight) const
 {
   PixelSize result(0);
 
@@ -252,14 +254,14 @@ void SlpPlatformAbstraction::SetDpi(unsigned int dpiHor, unsigned int dpiVer)
   }
 }
 
-std::string SlpPlatformAbstraction::GetFontFamilyForChars(const TextArray& charsRequested) const
+const std::string& SlpPlatformAbstraction::GetFontFamilyForChars(const TextArray& charsRequested) const
 {
-  std::string ret;
-  if (mResourceLoader)
+  if( mResourceLoader )
   {
-    ret = mResourceLoader->GetFontFamilyForChars(charsRequested);
+    return mResourceLoader->GetFontFamilyForChars(charsRequested);
   }
-  return ret;
+
+  return NULL_FONT_FAMILY_NAME;
 }
 
 bool SlpPlatformAbstraction::AllGlyphsSupported(const std::string &fontFamily, const std::string& fontStyle, const TextArray& charsRequested) const
@@ -275,21 +277,23 @@ bool SlpPlatformAbstraction::AllGlyphsSupported(const std::string &fontFamily, c
 bool SlpPlatformAbstraction::ValidateFontFamilyName(const std::string& fontFamily, const std::string& fontStyle, bool& isDefaultSystemFont, std::string& closestMatch, std::string& closestStyleMatch) const
 {
   bool ret = false;
-  if (mResourceLoader)
+  if( mResourceLoader )
   {
-    ret = mResourceLoader->ValidateFontFamilyName(fontFamily, fontStyle, isDefaultSystemFont, closestMatch, closestStyleMatch);
+    // TODO: Consider retrieve both isDefaultSystemFontFamily and isDefaultSystemFontStyle.
+    bool isDefaultFamily = false;
+    bool isDefaultStyle = false;
+    ret = mResourceLoader->ValidateFontFamilyName( fontFamily, fontStyle, isDefaultFamily, isDefaultStyle, closestMatch, closestStyleMatch );
+    isDefaultSystemFont = isDefaultFamily && isDefaultStyle;
   }
   return ret;
 }
 
-std::vector<std::string> SlpPlatformAbstraction::GetFontList (  Dali::Integration::PlatformAbstraction::FontListMode mode ) const
+void SlpPlatformAbstraction::GetFontList(  Dali::Integration::PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList ) const
 {
-  std::vector<std::string> ret;
-  if (mResourceLoader)
+  if( mResourceLoader )
   {
-    ret = mResourceLoader->GetFontList( mode );
+    mResourceLoader->GetFontList( mode, fontList );
   }
-  return ret;
 }
 
 bool SlpPlatformAbstraction::LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const

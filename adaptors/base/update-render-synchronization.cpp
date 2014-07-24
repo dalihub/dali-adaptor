@@ -1,18 +1,19 @@
-//
-// Copyright (c) 2014 Samsung Electronics Co., Ltd.
-//
-// Licensed under the Flora License, Version 1.0 (the License);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://floralicense.org/license/
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an AS IS BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+/*
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 // CLASS HEADER
 #include "update-render-synchronization.h"
@@ -51,8 +52,7 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
   mVSyncSeconds( 0u ),
   mVSyncMicroseconds( 0u ),
   mCore( adaptorInterfaces.GetCore() ),
-  mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
-  mSkipNextVSync( false )
+  mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() )
 {
 }
 
@@ -145,13 +145,11 @@ void UpdateRenderSynchronization::UpdateReadyToRun()
     }
   }
 
-  if ( !wokenFromPause && !mSkipNextVSync)
+  if ( !wokenFromPause )
   {
     // Wait for the next VSync
     WaitVSync();
   }
-
-  mSkipNextVSync = false;
 
   AddPerformanceMarker( PerformanceMarker::UPDATE_START );
 }
@@ -233,9 +231,6 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
     // 2. wake VSync thread.
     mVSyncSleep = false;
     mVSyncSleepCondition.notify_one();
-
-    // 3. Update shouldn't wait for next VSync
-    mSkipNextVSync = true;
   }
 
   mUpdateRequested = false;
