@@ -32,22 +32,9 @@ adaptor_x11_dir = ../../../adaptors/x11
 include ../../../adaptors/x11/file.list
 endif
 
-if MOBILE_PROFILE
-tizen_evas_plugin_internal_src_dir = ../../../adaptors/mobile
-tizen_native_buffer_plugin_internal_src_dir = ../../../adaptors/mobile
-tizen_evas_plugin_public_api_src_dir = ../../../adaptors/mobile
-tizen_native_buffer_plugin_public_api_src_dir = ../../../adaptors/mobile
-include ../../../adaptors/mobile/application-file.list
-endif
-
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = $(adaptor_application_src_files)
-
-if MOBILE_PROFILE
-libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_public_api_src_files) \
-                              $(tizen_native_buffer_plugin_public_api_src_files)
-endif
 
 libdali_adaptor_la_SOURCES += $(adaptor_application_internal_src_files)
 
@@ -55,11 +42,6 @@ if WAYLAND
 libdali_adaptor_la_SOURCES += $(adaptor_wayland_application_src_files)
 else
 libdali_adaptor_la_SOURCES += $(adaptor_x11_application_src_files)
-endif
-
-if MOBILE_PROFILE
-libdali_adaptor_la_SOURCES += $(tizen_evas_plugin_internal_src_files) \
-                              $(tizen_native_buffer_plugin_internal_src_files)
 endif
 
 libdali_adaptor_la_DEPENDENCIES =
@@ -113,26 +95,10 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(XML_CFLAGS) \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
-                      $(TTS_CFLAGS) \
-                      $(LIVEBOX_CLIENT_CFLAGS) \
-                      $(LIVEBOX_SERVICE_CFLAGS)
+                      $(TTS_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \
-                      $(CAPI_APPFW_APPLICATION_LIBS) \
-                      $(LIVEBOX_CLIENT_LIBS) \
-                      $(LIVEBOX_SERVICE_LIBS)
-
-if MOBILE_PROFILE
-libdali_adaptor_la_CXXFLAGS += \
-                      $(NATIVE_BUFFER_CFLAGS) \
-                      $(NATIVE_BUFFER_POOL_CFLAGS)
-
-libdali_adaptor_la_LIBADD += \
-                      $(NATIVE_BUFFER_LIBS) \
-                      $(NATIVE_BUFFER_POOL_LIBS)
-endif
-
-
+                      $(CAPI_APPFW_APPLICATION_LIBS)
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir}

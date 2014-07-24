@@ -140,9 +140,6 @@ if test "x$enable_profile" = "xMOBILE"; then
 PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
 PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(DEVICED, deviced)
-PKG_CHECK_MODULES(EVAS, evas)
-PKG_CHECK_MODULES(NATIVE_BUFFER, native-buffer)
-PKG_CHECK_MODULES(NATIVE_BUFFER_POOL, native-buffer-pool)
 fi
 
 if test "x$enable_profile" = "xLITE"; then
@@ -231,10 +228,6 @@ AC_CONFIG_FILES([
 
 if test "x$enable_profile" != "xLITE"; then
 AC_CONFIG_FILES([
- dali-evas/Makefile
- dali-evas.pc
- dali-native-buffer/Makefile
- dali-native-buffer.pc
  plugins/Makefile
 ])
 fi

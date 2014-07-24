@@ -1,12 +1,3 @@
-evas_plugin_public_api_header_files = \
-  $(adaptor_public_api_dir)/evas-plugin.h
-
-native_buffer_plugin_public_api_header_files = \
-  $(adaptor_public_api_dir)/native-buffer-plugin.h
-
-livebox_plugin_public_api_header_files = \
-  $(adaptor_public_api_dir)/livebox-plugin.h
-
 public_api_header_files = \
   $(adaptor_public_api_dir)/accessibility-manager.h \
   $(adaptor_public_api_dir)/adaptor.h \

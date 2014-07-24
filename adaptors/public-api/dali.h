@@ -24,18 +24,6 @@
 
 // These defines come from running pkg-config --cflags with the correct package config file
 
-#if defined(DALI_LIVEBOX_PLUGIN)
-#include <dali/public-api/livebox-plugin.h>
-#endif
-
-#if defined(DALI_EVAS_PLUGIN)
-#include <dali/public-api/evas-plugin.h>
-#endif
-
-#if defined(DALI_NATIVE_BUFFER_PLUGIN)
-#include <dali/public-api/native-buffer-plugin.h>
-#endif
-
 #if defined(DALI_APPLICATION)
 #include <dali/public-api/application.h>
 #endif

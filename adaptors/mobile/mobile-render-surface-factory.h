@@ -59,29 +59,6 @@ DALI_IMPORT_API RenderSurface* CreatePixmapSurface(
   const std::string& name,
   bool               isTransparent );
 
-/**
- * Surface factory function for Native buffer
- * A native buffer surface is created.
- * @param [in] provider The provider
- * @param [in] pool The native buffer pool
- * @param [in] maxBufferCount The maximum number of buffers to create
- * @param [in] type the type of surface to create
- * @param [in] positionSize the position and size of the surface to create
- * @param [in] display X Pixmap to use, or null for default.
- * @param [in] display X Display to use, or null for default.
- * @param [in] name Name of surface passed in
- * @param [in] isTransparent Whether the surface has an alpha channel
- */
-DALI_IMPORT_API RenderSurface* CreateNativeBufferSurface(
-  native_buffer_provider* provider,
-  native_buffer_pool*     pool,
-  unsigned int            maxBufferCount,
-  PositionSize            positionSize,
-  Any              surface,
-  Any              display,
-  const std::string&      name,
-  bool                    isTransparent );
-
 } // namespace ECoreX
 
 } // namespace Adaptor
