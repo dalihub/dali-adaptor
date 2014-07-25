@@ -128,6 +128,7 @@ bool ReadGlyphGlobalMetrics( std::ifstream& file, Integration::GlobalMetrics& gl
   file.read( version_string, VERSION_SIZE );
   if( strncmp( version_string, FILE_VERSION, VERSION_SIZE ) != 0 )
   {
+    DALI_LOG_WARNING( "Glyph metrics file version mismatch\n" );
     return false;
   }
 
@@ -195,6 +196,7 @@ bool ReadGlobal( const std::string& fontFamily, const std::string& fontStyle, In
     {
       // file.eof is true only after an invalid read
       success = false;
+      DALI_LOG_WARNING("Metrics file invalid read\n" );
     }
 
     file.close();
