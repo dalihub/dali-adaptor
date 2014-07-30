@@ -30,4 +30,5 @@ public_api_application_header_files = \
   $(adaptor_public_api_dir)/application.h 
 
 adaptor_dali_header_file = \
-  $(adaptor_public_api_dir)/dali.h
+  $(adaptor_public_api_dir)/dali.h \
+  $(adaptor_public_api_dir)/dali-adaptor-version.h

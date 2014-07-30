@@ -56,4 +56,6 @@
 #include <dali/public-api/physical-keyboard.h>
 #include <dali/public-api/tilt-sensor.h>
 
+#include <dali/public-api/dali-adaptor-version.h>
+
 #endif //__DALI_H__

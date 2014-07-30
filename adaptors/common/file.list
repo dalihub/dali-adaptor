@@ -6,6 +6,7 @@ adaptor_common_src_files = \
   $(adaptor_common_dir)/color-controller.cpp \
   $(adaptor_common_dir)/clipboard.cpp \
   $(adaptor_common_dir)/clipboard-event-notifier.cpp \
+  $(adaptor_common_dir)/dali-adaptor-version.cpp \
   $(adaptor_common_dir)/device-layout.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector.cpp \
   $(adaptor_common_dir)/event-feeder.cpp \
