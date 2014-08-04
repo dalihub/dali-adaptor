@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-SUBDIRS = common dali-adaptor dali-application
+SUBDIRS = common dali-application
 
 if ! LITE_PROFILE
 if ! WEARABLE_PROFILE
@@ -48,9 +48,6 @@ COVERAGE_OUTPUT_DIR=doc/coverage
 cov_data:
 	@test -z $(COVERAGE_DIR) || mkdir -p $(COVERAGE_DIR)
 	@rm -f $(COVERAGE_DIR)/*
-	@-cp dali-adaptor/.libs/*.gcda dali-adaptor/.libs/*.gcno  $(COVERAGE_DIR)
-	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_la-*.gcda" -o -name "libdali_adaptor_la-*.gcno"` ;\
-		do mv $$i `echo $$i | sed s/libdali_adaptor_la-//` ; echo $$i ; done
 	@-cp common/.libs/*.gcda common/.libs/*.gcno  $(COVERAGE_DIR)
 	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_common_la-*.gcda" -o -name "libdali_adaptor_common_la-*.gcno"` ;\
 		do mv $$i `echo $$i | sed s/libdali_adaptor_common_la-//` ; echo $$i ; done

@@ -220,7 +220,6 @@ AC_SUBST(devincludepath)
 AC_CONFIG_FILES([
  Makefile
  common/Makefile
- dali-adaptor/Makefile
  dali.pc
  dali-application/Makefile
  dali-application.pc
