@@ -29,7 +29,11 @@ using boost::scoped_ptr;
 namespace Dali
 {
 
-const Integration::ResourceId NO_REQUEST = Integration::ResourceId(0) - 1;
+// Initial values for the members tracking which resources have been cancelled.
+// They start out with different values so that if the first load executed is
+// synchronous, it won't be erroneously cancelled.
+const Integration::ResourceId NO_REQUEST_IN_FLIGHT = Integration::ResourceId(0) - 1;
+const Integration::ResourceId NO_REQUEST_CANCELLED = Integration::ResourceId(0) - 2;
 
 namespace SlpPlatform
 {
@@ -44,8 +48,8 @@ class CancelRequestException {};
 
 ResourceThreadBase::ResourceThreadBase( ResourceLoader& resourceLoader ) :
   mResourceLoader( resourceLoader ),
-  mCurrentRequestId( NO_REQUEST ),
-  mCancelRequestId( NO_REQUEST ),
+  mCurrentRequestId( NO_REQUEST_IN_FLIGHT ),
+  mCancelRequestId( NO_REQUEST_CANCELLED ),
   mPaused( false )
 {
 #if defined(DEBUG_ENABLED)
