@@ -29,8 +29,7 @@ namespace Adaptor
 
 Dali::ColorController ColorController::Get()
 {
-  Dali::ColorController colorController;
-  return colorController;
+  return Dali::ColorController( new ColorController() );
 }
 
 ColorController::ColorController()
