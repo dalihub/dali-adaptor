@@ -106,6 +106,11 @@ AC_ARG_ENABLE([profile],
               [enable_profile=$enableval],
               [enable_profile=COMMON])
 
+# Ensure valid profile selected
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xLITE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+  AC_MSG_ERROR([$enable_profile is an invalid profile])
+fi
+
 AC_ARG_ENABLE(wayland,
               [  --enable-wayland       Build on Wayland],
               enable_wayland=yes,
