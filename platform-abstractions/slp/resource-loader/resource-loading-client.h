@@ -54,6 +54,30 @@ private:
   ResourceLoadingClient& operator =( ResourceLoadingClient& rhs );
 };
 
+/**
+ * @brief Default implementation of a caller of a low-level resource loading
+ * function which does nothing.
+ */
+class StubbedResourceLoadingClient : public ResourceLoadingClient
+{
+public:
+  /**
+   * @brief Check whether the current request has been cancelled.
+   *
+   * This does nothing and so can never throw an exception.
+   **/
+  virtual void InterruptionPoint() const {}
+
+  /** Construction is a NOP. */
+  StubbedResourceLoadingClient() {}
+  /** Destruction has no work to do. */
+  ~StubbedResourceLoadingClient() {}
+
+private:
+  StubbedResourceLoadingClient( const StubbedResourceLoadingClient& rhs );
+  StubbedResourceLoadingClient& operator =( StubbedResourceLoadingClient& rhs );
+};
+
 } /* namespace SlpPlatform */
 } /* namespace Dali */
 
