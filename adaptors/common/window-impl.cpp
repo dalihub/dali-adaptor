@@ -265,23 +265,6 @@ void Window::SetIndicatorStyle( Dali::Window::IndicatorStyle style )
   mIndicatorStyle = style;
 }
 
-void Window::ShowIndicator( bool show )
-{
-  DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "%s\n", show?"SHOW":"HIDE" );
-  DALI_ASSERT_DEBUG(mOverlay);
-
-  if(show)
-  {
-    mIndicatorVisible = Dali::Window::VISIBLE;
-  }
-  else
-  {
-    mIndicatorVisible = Dali::Window::INVISIBLE;
-  }
-
-  DoShowIndicator( mIndicatorOrientation );
-}
-
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
   DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "visible : %d\n", visibleMode );

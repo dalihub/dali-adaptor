@@ -105,7 +105,6 @@ struct SignalFeedbackInfo
 {
   /**
    * Default constructor.
-   * @deprecated - moved into dali-adaptor FeedbackController.
    */
   SignalFeedbackInfo()
   :mHasHapticFeedbackInfo(false),
@@ -129,7 +128,6 @@ struct FeedbackStyleInfo
 {
   /**
    * Default constructor.
-   * @deprecated - moved into dali-adaptor FeedbackController.
    */
   FeedbackStyleInfo()
   {

@@ -88,11 +88,6 @@ public:
   /**
    * @copydoc Dali::Window::ShowIndicator()
    */
-  void ShowIndicator( bool show );
-
-  /**
-   * @copydoc Dali::Window::ShowIndicator()
-   */
   void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode );
 
   /**
