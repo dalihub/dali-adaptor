@@ -137,13 +137,6 @@ public:
 
   /**
    * @brief This sets whether the indicator bar should be shown or not.
-   * @param[in] show - true if the indicator bar should be shown
-   * @deprecated use "void ShowIndicator( IndicatorVisibleMode visibleMode )"
-   */
-  void ShowIndicator( bool show );
-
-  /**
-   * @brief This sets whether the indicator bar should be shown or not.
    * @param[in] visibleMode visible mode for indicator bar, VISIBLE in default
    */
   void ShowIndicator( IndicatorVisibleMode visibleMode );

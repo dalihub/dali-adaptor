@@ -44,11 +44,6 @@ void Window::SetIndicatorStyle( IndicatorStyle style )
   GetImplementation(*this).SetIndicatorStyle( style );
 }
 
-void Window::ShowIndicator( bool show )
-{
-  GetImplementation(*this).ShowIndicator( show );
-}
-
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
 {
   GetImplementation(*this).ShowIndicator( visibleMode );
