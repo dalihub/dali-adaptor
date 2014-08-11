@@ -453,7 +453,6 @@ namespace
   }
 }
 
-
 /**
  * Potential improvements:
  * 1. Detect <= 256 colours and write in palette mode.

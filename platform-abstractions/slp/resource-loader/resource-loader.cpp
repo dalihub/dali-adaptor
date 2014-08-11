@@ -195,17 +195,6 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
-  ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
-  {
-    ResourcePointer ptr;
-    ResourceRequesterBase* requester = GetRequester(resourceType.id);
-    if( requester )
-    {
-      ptr = requester->LoadResourceSynchronously( resourceType, resourcePath );
-    }
-    return ptr;
-  }
-
   void SaveResource(const ResourceRequest& request)
   {
     ResourceRequesterBase* requester = GetRequester( request.GetType()->id );
@@ -303,30 +292,6 @@ struct ResourceLoader::ResourceLoaderImpl
       FailedResource failed(mFailedSaves.front());
       mFailedSaves.pop();
       cache.SaveFailed(failed.id, failed.failureType);
-    }
-  }
-
-  void GetClosestImageSize( const std::string& filename,
-                            const ImageAttributes& attributes,
-                            Vector2& closestSize )
-  {
-    ResourceRequesterBase* requester = GetRequester(ResourceBitmap);
-    ResourceBitmapRequester* bitmapRequester = dynamic_cast<ResourceBitmapRequester*>(requester);
-    if( bitmapRequester != NULL )
-    {
-      bitmapRequester->GetClosestImageSize( filename, attributes, closestSize );
-    }
-  }
-
-  void GetClosestImageSize( ResourcePointer resourceBuffer,
-                            const ImageAttributes& attributes,
-                            Vector2& closestSize )
-  {
-    ResourceRequesterBase* requester = GetRequester(ResourceBitmap);
-    ResourceBitmapRequester* bitmapRequester = dynamic_cast<ResourceBitmapRequester*>(requester);
-    if( bitmapRequester != NULL )
-    {
-      bitmapRequester->GetClosestImageSize( resourceBuffer, attributes, closestSize );
     }
   }
 
@@ -474,11 +439,6 @@ void ResourceLoader::LoadResource(const ResourceRequest& request)
   mImpl->LoadResource(request);
 }
 
-ResourcePointer ResourceLoader::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
-{
-  return mImpl->LoadResourceSynchronously( resourceType, resourcePath );
-}
-
 void ResourceLoader::SaveResource(const ResourceRequest& request)
 {
   mImpl->SaveResource(request);
@@ -493,21 +453,6 @@ bool ResourceLoader::IsLoading()
 {
   return mImpl->IsLoading();
 }
-
-void ResourceLoader::GetClosestImageSize( const std::string& filename,
-                                          const ImageAttributes& attributes,
-                                          Vector2& closestSize )
-{
-  mImpl->GetClosestImageSize( filename, attributes, closestSize );
-}
-
-void ResourceLoader::GetClosestImageSize( ResourcePointer resourceBuffer,
-                                          const ImageAttributes& attributes,
-                                          Vector2& closestSize )
-{
-  mImpl->GetClosestImageSize( resourceBuffer, attributes, closestSize );
-}
-
 
 const std::string& ResourceLoader::GetFontFamilyForChars( const TextArray& charsRequested )
 {

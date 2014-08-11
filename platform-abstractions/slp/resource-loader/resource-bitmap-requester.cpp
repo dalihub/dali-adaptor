@@ -86,27 +86,5 @@ void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration
   mThreadDistanceField->CancelRequest(id);
 }
 
-Integration::ResourcePointer ResourceBitmapRequester::LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
-{
-  // TODO - Refactor common code out of thread
-  return mThreadImage->LoadResourceSynchronously( resourceType, resourcePath );
-}
-
-void ResourceBitmapRequester::GetClosestImageSize( const std::string& filename,
-                                                   const ImageAttributes& attributes,
-                                                   Vector2 &closestSize )
-{
-  // TODO - Refactor common code out of thread
-  mThreadImage->GetClosestImageSize(filename, attributes, closestSize );
-}
-
-void ResourceBitmapRequester::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                                   const ImageAttributes& attributes,
-                                                   Vector2 &closestSize )
-{
-  // TODO - Refactor common code out of thread
-  mThreadImage->GetClosestImageSize(resourceBuffer, attributes, closestSize );
-}
-
 } // SlpPlatform
 } // Dali

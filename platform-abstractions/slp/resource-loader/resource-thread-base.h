@@ -59,8 +59,10 @@ public:
   typedef RequestQueue::iterator                                RequestQueueIter;
 
 public:
-  // C'tors and D'tors
+  // Constructor
   ResourceThreadBase(ResourceLoader& resourceLoader);
+
+  // Destructor
   virtual ~ResourceThreadBase();
 
 protected:

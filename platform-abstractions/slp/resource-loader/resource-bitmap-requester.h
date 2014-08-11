@@ -74,26 +74,6 @@ public:
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
 
-  /**
-   * @copydoc ResourceLoader::LoadResourceSynchronously()
-   */
-  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  void GetClosestImageSize( const std::string& filename,
-                            const ImageAttributes& attributes,
-                            Vector2 &closestSize );
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                            const ImageAttributes& attributes,
-                            Vector2 &closestSize );
-
-
 protected:
   ResourceThreadImage*          mThreadImage;           ///< Image loader thread object
   ResourceThreadDistanceField*  mThreadDistanceField;   ///< Distance field generator thread.

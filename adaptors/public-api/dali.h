@@ -30,6 +30,8 @@
 
 #include <dali/public-api/accessibility-manager.h>
 #include <dali/public-api/adaptor.h>
+#include <dali/public-api/bitmap-loader.h>
+#include <dali/public-api/bitmap-saver.h>
 #include <dali/public-api/clipboard.h>
 #include <dali/public-api/clipboard-event-notifier.h>
 #include <dali/public-api/color-controller.h>

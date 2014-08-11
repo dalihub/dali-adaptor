@@ -27,13 +27,11 @@
 #include <dali/integration-api/resource-types.h>
 
 #include "resource-loader/resource-loader.h"
-#include "resource-loader/loader-jpeg.h"
-#include "resource-loader/loader-png.h"
-
 #include "dynamics/dynamics-factory.h"
 
 #include "slp-font-configuration-parser.h"
 #include "data-cache/metrics-cache.h"
+#include "image-loaders/image-loader.h"
 
 namespace Dali
 {
@@ -176,10 +174,7 @@ void SlpPlatformAbstraction::GetClosestImageSize( const std::string& filename,
                                                   Vector2& closestSize )
 {
   closestSize = Vector2::ZERO;
-  if (mResourceLoader)
-  {
-    mResourceLoader->GetClosestImageSize(filename, attributes, closestSize );
-  }
+  ImageLoader::GetClosestImageSize(filename, attributes, closestSize );
 }
 
 void SlpPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
@@ -187,10 +182,7 @@ void SlpPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer r
                                                   Vector2& closestSize )
 {
   closestSize = Vector2::ZERO;
-  if (mResourceLoader)
-  {
-    mResourceLoader->GetClosestImageSize(resourceBuffer, attributes, closestSize );
-  }
+  ImageLoader::GetClosestImageSize(resourceBuffer, attributes, closestSize );
 }
 
 
@@ -204,13 +196,7 @@ void SlpPlatformAbstraction::LoadResource(const Integration::ResourceRequest& re
 
 Integration::ResourcePointer SlpPlatformAbstraction::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
 {
-  Integration::ResourcePointer resource;
-
-  if (mResourceLoader)
-  {
-    resource = mResourceLoader->LoadResourceSynchronously( resourceType, resourcePath );
-  }
-  return resource;
+  return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
 }
 
 

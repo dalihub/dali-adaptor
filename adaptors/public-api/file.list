@@ -1,6 +1,8 @@
 public_api_header_files = \
   $(adaptor_public_api_dir)/accessibility-manager.h \
   $(adaptor_public_api_dir)/adaptor.h \
+  $(adaptor_public_api_dir)/bitmap-loader.h \
+  $(adaptor_public_api_dir)/bitmap-saver.h \
   $(adaptor_public_api_dir)/clipboard-event-notifier.h \
   $(adaptor_public_api_dir)/clipboard.h \
   $(adaptor_public_api_dir)/color-controller.h \

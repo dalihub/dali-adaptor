@@ -20,19 +20,10 @@
 
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
-#include <dali/integration-api/bitmap.h>
 #include "resource-thread-base.h"
 
 namespace Dali
 {
-
-namespace Integration
-{
-namespace Log
-{
-class Filter;
-}
-}
 
 namespace SlpPlatform
 {
@@ -51,27 +42,6 @@ public:
    */
   virtual ~ResourceThreadImage();
 
-  /**
-   * @copydoc ResourceLoader::LoadResourceSynchronously()
-   * Note, this is not threaded, but is called synchronously.
-   */
-  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
-
-  /**
-   * @copydoc ResourceLoader::GetClosestImageSize()
-   * Note, this is not threaded, but is called synchronously.
-   */
-  void GetClosestImageSize( const std::string& filename,
-                            const ImageAttributes& attributes,
-                            Vector2 &closestSize );
-
-  /**
-   * @copydoc ResourceLoader::GetClosestImageSize()
-   * Note, this is not threaded, but is called synchronously.
-   */
-  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                            const ImageAttributes& attributes,
-                            Vector2 &closestSize );
 
 private:
   /**
@@ -88,22 +58,6 @@ private:
    *@copydoc ResourceThreadBase::Save
    */
   virtual void Save(const Integration::ResourceRequest& request);
-
-private:
-  /**
-   * Convert the file stream into a bitmap.
-   * @param[in] resourceType The type of resource to convert.
-   * @param[in] path The path to the resource.
-   * @param[in] fp File Pointer. Closed on exit.
-   * @param[in] client The component that is initiating the conversion.
-   * @param[out] bitmap Pointer to write bitmap to
-   * @return true on success, false on failure
-   */
-  bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType,
-                              std::string path,
-                              FILE * const fp,
-                              const ResourceLoadingClient& client,
-                              Integration::BitmapPtr& ptr );
 
 }; // class ResourceThreadImage
 

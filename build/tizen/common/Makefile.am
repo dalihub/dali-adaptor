@@ -157,9 +157,9 @@ endif
 endif
 
 if TURBO_JPEG_IS_ON
-  slp_platform_abstraction_src_files += $(slp_platform_abstraction_src_dir)/resource-loader/loader-jpeg-turbo.cpp
+  slp_platform_abstraction_src_files += $(slp_turbo_jpeg_loader)
 else
-  slp_platform_abstraction_src_files += $(slp_platform_abstraction_src_dir)/resource-loader/loader-jpeg.cpp
+  slp_platform_abstraction_src_files += $(slp_jpeg_loader)
 endif
 
 lib_LTLIBRARIES = libdali-adaptor-common.la
