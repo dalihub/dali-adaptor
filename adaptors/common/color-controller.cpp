@@ -33,6 +33,19 @@ ColorController::ColorController(const ColorController& controller)
 {
 }
 
+ColorController& ColorController::operator=(const ColorController& rhs)
+{
+  BaseHandle::operator=(rhs);
+  return *this;
+}
+
+ColorController& ColorController::operator=(BaseHandle::NullType* rhs)
+{
+  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
+  Reset();
+  return *this;
+}
+
 ColorController ColorController::Get()
 {
   return Internal::Adaptor::ColorController::Get();
