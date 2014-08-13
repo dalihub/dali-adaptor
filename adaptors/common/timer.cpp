@@ -52,6 +52,13 @@ Timer& Timer::operator=( const Timer& timer )
   return *this;
 }
 
+Timer& Timer::operator=(BaseHandle::NullType* rhs)
+{
+  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
+  Reset();
+  return *this;
+}
+
 Timer::~Timer()
 {
 }

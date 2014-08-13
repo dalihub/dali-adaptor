@@ -91,6 +91,16 @@ public: // API
   Timer& operator=( const Timer& timer );
 
   /**
+   * @brief This method is defined to allow assignment of the NULL value,
+   * and will throw an exception if passed any other value.
+   *
+   * Assigning to NULL is an alias for Reset().
+   * @param [in] rhs  A NULL pointer
+   * @return A reference to this handle
+   */
+  Timer& operator=(BaseHandle::NullType* rhs);
+
+  /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
@@ -107,11 +117,6 @@ public: // API
    * @return handle to a Timer object or an uninitialized handle
    */
   static Timer DownCast( BaseHandle handle );
-
-  /**
-   * @copydoc Dali::BaseHandle::operator=
-   */
-  using BaseHandle::operator=;
 
   /**
    * @brief Start timer.

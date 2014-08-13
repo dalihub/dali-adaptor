@@ -39,6 +39,24 @@ Window::~Window()
 {
 }
 
+Window::Window(const Window& handle)
+: BaseHandle(handle)
+{
+}
+
+Window& Window::operator=(const Window& rhs)
+{
+  BaseHandle::operator=(rhs);
+  return *this;
+}
+
+Window& Window::operator=(BaseHandle::NullType* rhs)
+{
+  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
+  Reset();
+  return *this;
+}
+
 void Window::SetIndicatorStyle( IndicatorStyle style )
 {
   GetImplementation(*this).SetIndicatorStyle( style );

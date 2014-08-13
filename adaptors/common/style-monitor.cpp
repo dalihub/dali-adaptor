@@ -81,6 +81,13 @@ StyleMonitor& StyleMonitor::operator=(const StyleMonitor& monitor)
   return *this;
 }
 
+StyleMonitor& StyleMonitor::operator=(BaseHandle::NullType* rhs)
+{
+  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
+  Reset();
+  return *this;
+}
+
 StyleMonitor::StyleMonitor(Internal::Adaptor::StyleMonitor* internal)
 : BaseHandle(internal)
 {

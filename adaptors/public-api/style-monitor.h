@@ -100,11 +100,6 @@ public: // Creation & Destruction
    */
   static StyleMonitor DownCast( BaseHandle handle );
 
-  /**
-   * @copydoc Dali::BaseHandle::operator=
-   */
-  using BaseHandle::operator=;
-
 public: // Style Information
 
   /**
@@ -155,6 +150,15 @@ public: // Operators
    */
   StyleMonitor& operator=(const StyleMonitor& monitor);
 
+  /**
+   * @brief This method is defined to allow assignment of the NULL value,
+   * and will throw an exception if passed any other value.
+   *
+   * Assigning to NULL is an alias for Reset().
+   * @param [in] rhs  A NULL pointer
+   * @return A reference to this handle
+   */
+  StyleMonitor& operator=(BaseHandle::NullType* rhs);
 
 public: // Not intended for application developers
   /**
