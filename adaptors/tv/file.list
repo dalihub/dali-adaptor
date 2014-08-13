@@ -1,6 +1,6 @@
 # tv profile internal files
-adaptor_common_internal_src_files += \
-  $(adaptor_common_dir)/../tv/tv-key-impl.cpp  \
-  $(adaptor_common_dir)/../tv/tv-render-surface-factory.cpp \
-  $(adaptor_common_dir)/../tv/tv-system-settings.cpp \
-  $(adaptor_common_dir)/../tv/tv-color-controller-impl.cpp
+adaptor_common_internal_tv_profile_src_files = \
+  $(adaptor_tv_dir)/tv-key-impl.cpp  \
+  $(adaptor_tv_dir)/tv-render-surface-factory.cpp \
+  $(adaptor_tv_dir)/tv-system-settings.cpp \
+  $(adaptor_tv_dir)/tv-color-controller-impl.cpp

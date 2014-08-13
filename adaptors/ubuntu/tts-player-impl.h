@@ -1,4 +1,4 @@
-﻿#ifndef __DALI_INTERNAL_TTS_PLAYER_H__
+#ifndef __DALI_INTERNAL_TTS_PLAYER_H__
 #define __DALI_INTERNAL_TTS_PLAYER_H__
 
 /*
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <tts.h>
+
 #include <string>
 
 #include <dali/integration-api/debug.h>
@@ -86,38 +86,9 @@ private:
    */
   virtual ~TtsPlayer();
 
-  /**
-   * Initializes the player.
-   */
-  void Initialize();
-
-  /**
-   * Logs the error code.
-   * @param[in] reason The error code
-   */
-  void LogErrorCode(tts_error_e reason);
-
-  /**
-   * Called when the state of TTS is changed.
-   *
-   * @param[in] tts The handle for TTS
-   * @param[in] previous A previous state
-   * @param[in] current A current state
-   * @param[in] userData The user data passed from the callback registration function.
-   */
-  static void StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData);
-
-  // Undefined
-  TtsPlayer(const TtsPlayer&);
-
-  // Undefined
-  TtsPlayer& operator=(TtsPlayer&);
-
 private:
 
-  bool mInitialized; ///< Whether the TTS player is initialised successfully or not
   std::string mUnplayedString; ///< The text that can not be played because tts engine is not yet initialized
-  tts_h mTtsHandle;  ///< The handle of TTS
   int mUtteranceId;  ///< The utterance ID
 
   Dali::TtsPlayer::Mode mTtsMode; ///< The current mode of tts engine

@@ -25,18 +25,8 @@ adaptor_common_src_files = \
   $(adaptor_common_dir)/virtual-keyboard.cpp \
   $(adaptor_common_dir)/window.cpp
 
-adaptor_application_src_files = \
-  $(adaptor_common_dir)/application.cpp
-
-adaptor_application_internal_src_files = \
-  $(adaptor_common_dir)/application-impl.cpp \
-  $(adaptor_common_dir)/framework.cpp \
-  $(adaptor_common_dir)/command-line-options.cpp \
-  $(adaptor_common_dir)/abort-handler.cpp
-
 adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/accessibility-gesture-detector.cpp \
-  $(adaptor_common_dir)/accessibility-manager-impl.cpp \
   $(adaptor_common_dir)/adaptor-impl.cpp \
   $(adaptor_common_dir)/clipboard-event-notifier-impl.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector-impl.cpp \
@@ -56,13 +46,10 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/shared-file.cpp \
   $(adaptor_common_dir)/sound-player-impl.cpp \
   $(adaptor_common_dir)/style-monitor-impl.cpp \
-  $(adaptor_common_dir)/tilt-sensor-impl.cpp  \
   $(adaptor_common_dir)/timer-impl.cpp \
   $(adaptor_common_dir)/trigger-event.cpp \
   $(adaptor_common_dir)/trigger-event-factory.cpp \
-  $(adaptor_common_dir)/tts-player-impl.cpp \
   $(adaptor_common_dir)/virtual-keyboard-impl.cpp \
-  $(adaptor_common_dir)/vsync-monitor.cpp \
   \
   $(adaptor_common_dir)/events/gesture-manager.cpp \
   $(adaptor_common_dir)/events/long-press-gesture-detector.cpp \
@@ -80,7 +67,15 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/gl/gl-proxy-implementation.cpp \
   $(adaptor_common_dir)/gl/gl-extensions.cpp
 
-adaptor_common_internal_profile_src_files = \
+adaptor_common_internal_default_profile_src_files = \
   $(adaptor_common_dir)/color-controller-impl.cpp \
   $(adaptor_common_dir)/system-settings.cpp
+
+adaptor_common_application_src_files = \
+  $(adaptor_common_dir)/application.cpp
+
+adaptor_common_application_internal_src_files = \
+  $(adaptor_common_dir)/application-impl.cpp \
+  $(adaptor_common_dir)/command-line-options.cpp \
+  $(adaptor_common_dir)/abort-handler.cpp
 

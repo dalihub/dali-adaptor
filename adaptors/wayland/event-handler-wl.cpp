@@ -26,8 +26,10 @@
 
 #include <sys/time.h>
 
+#ifndef DALI_PROFILE_UBUNTU
 #include <vconf.h>
 #include <vconf-keys.h>
+#endif // DALI_PROFILE_UBUNTU
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
@@ -181,7 +183,9 @@ static unsigned int GetCurrentMilliSeconds(void)
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
+#ifndef DALI_PROFILE_UBUNTU
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessibility/font_name";  // It will be update at vconf-key.h and replaced.
+#endif // DALI_PROFILE_UBUNTU
 
 } // unnamed namespace
 
@@ -214,9 +218,11 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,           EcoreEventKeyDown,         handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_KEY_UP,             EcoreEventKeyUp,           handler ) );
 
+#ifndef DALI_PROFILE_UBUNTU
       // Register Vconf notify - font name and size
       vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontNameChanged, handler );
       vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, handler );
+#endif // DALI_PROFILE_UBUNTU
     }
   }
 
@@ -225,8 +231,10 @@ struct EventHandler::Impl
    */
   ~Impl()
   {
+#ifndef DALI_PROFILE_UBUNTU
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged );
     vconf_ignore_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontNameChanged );
+#endif // DALI_PROFILE_UBUNTU
 
     for( std::vector<Ecore_Event_Handler*>::iterator iter = mEcoreEventHandler.begin(), endIter = mEcoreEventHandler.end(); iter != endIter; ++iter )
     {

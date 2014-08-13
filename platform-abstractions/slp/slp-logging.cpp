@@ -19,7 +19,9 @@
 #include "slp-logging.h"
 
 // EXTERNAL INCLUDES
+#ifndef DALI_PROFILE_UBUNTU
 #include <dlog.h>
+#endif // DALI_PROFILE_UBUNTU
 
 namespace Dali
 {
@@ -30,6 +32,8 @@ namespace SlpPlatform
 void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
 {
   const char* DALI_TAG = "DALI";
+
+#ifndef DALI_PROFILE_UBUNTU
   switch(level)
   {
     case Dali::Integration::Log::DebugInfo:
@@ -45,6 +49,25 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
       LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
       break;
   }
+#else // DALI_PROFILE_UBUNTU
+  const char *format = NULL;
+  switch(level)
+  {
+    case Dali::Integration::Log::DebugInfo:
+      format = "\e[1;34mINFO:\e[21m %s: %s\e[0m";
+      break;
+    case Dali::Integration::Log::DebugWarning:
+      format = "\e[1;33mWARN:\e[21m %s: %s\e[0m";
+      break;
+    case Dali::Integration::Log::DebugError:
+      format = "\e[1;91mERROR:\e[21m %s: %s\e[0m";
+      break;
+    default:
+      format = ":\e[21m %s: %s\e[0m";
+      break;
+  }
+  printf(format, DALI_TAG, message.c_str());
+#endif // DALI_PROFILE_UBUNTU
 }
 
 } // namespace SlpPlatform

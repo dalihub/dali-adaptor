@@ -263,7 +263,7 @@ ResourcePointer ResourceThreadImage::LoadResourceSynchronously( const Integratio
   FILE * const fp = fopen( resourcePath.c_str(), "rb" );
   if( fp != NULL )
   {
-    bool result = ConvertStreamToBitmap( resourceType, resourcePath, fp, bitmap );
+    bool result = ConvertStreamToBitmap( resourceType, resourcePath, fp, StubbedResourceLoadingClient(), bitmap );
     if( result && bitmap )
     {
       resource.Reset(bitmap.Get());
@@ -379,7 +379,7 @@ void ResourceThreadImage::Load(const ResourceRequest& request)
 
   if( fp != NULL )
   {
-    result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+    result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, *this, bitmap );
     // Last chance to interrupt a cancelled load before it is reported back to clients
     // which have already stopped tracking it:
     InterruptionPoint(); // Note: This can throw an exception.
@@ -443,7 +443,7 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
       FILE * const fp = fileCloser.GetFile();
       if ( fp != NULL )
       {
-        bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, bitmap );
+        bool result = ConvertStreamToBitmap( *request.GetType(), request.GetPath(), fp, StubbedResourceLoadingClient(), bitmap );
 
         if ( result && bitmap )
         {
@@ -474,7 +474,7 @@ void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
   DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
 }
 
-bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, BitmapPtr& ptr)
+bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, const ResourceLoadingClient& client, BitmapPtr& ptr)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
   DALI_ASSERT_DEBUG( ResourceBitmap == resourceType.id );
@@ -501,9 +501,9 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
       ImageAttributes attributes  = resType.imageAttributes;
 
       // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
-      InterruptionPoint(); // Note: This can throw an exception.
+      client.InterruptionPoint(); // Note: This can throw an exception.
 
-      result = function( fp, *bitmap, attributes, *this );
+      result = function( fp, *bitmap, attributes, client );
 
       if (!result)
       {
@@ -550,7 +550,7 @@ bool ResourceThreadImage::ConvertStreamToBitmap(const ResourceType& resourceType
           // Make a new bitmap with the central part of the loaded one if required:
           if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).
           {
-            InterruptionPoint(); // Note: This can throw an exception.
+            client.InterruptionPoint(); // Note: This can throw an exception.
 
             const unsigned newWidth = loadedWidth - 2 * columnsToTrim;
             const unsigned newHeight = loadedHeight - 2 * scanlinesToTrim;

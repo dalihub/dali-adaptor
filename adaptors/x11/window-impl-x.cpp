@@ -75,11 +75,13 @@ struct Window::EventHandler
     }
     DALI_ASSERT_ALWAYS( mEcoreWindow != 0 && "There is no ecore x window");
 
+#ifndef DALI_PROFILE_UBUNTU
     // set property on window to get deiconify approve client message
     unsigned int tmp = 1;
     ecore_x_window_prop_card32_set(mEcoreWindow,
                              ECORE_X_ATOM_E_DEICONIFY_APPROVE,
                              &tmp, 1);
+#endif // DALI_PROFILE_UBUNTU
   }
 
   /**
@@ -156,6 +158,7 @@ struct Window::EventHandler
   static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
   {
     Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Event_Client_Message* clientMessageEvent( (Ecore_X_Event_Client_Message*)event );
     EventHandler* handler( (EventHandler*)data );
 
@@ -180,6 +183,7 @@ struct Window::EventHandler
         }
       }
     }
+#endif // DALI_PROFILE_UBUNTU
 
     return handled;
   }
@@ -239,23 +243,6 @@ RenderSurface* Window::GetSurface()
 void Window::SetIndicatorStyle( Dali::Window::IndicatorStyle style )
 {
   mIndicatorStyle = style;
-}
-
-void Window::ShowIndicator( bool show )
-{
-  DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "%s\n", show?"SHOW":"HIDE" );
-  DALI_ASSERT_DEBUG(mOverlay);
-
-  if(show)
-  {
-    mIndicatorVisible = Dali::Window::VISIBLE;
-  }
-  else
-  {
-    mIndicatorVisible = Dali::Window::INVISIBLE;
-  }
-
-  DoShowIndicator( mIndicatorOrientation );
 }
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
@@ -454,6 +441,7 @@ void Window::IndicatorTypeChanged(Indicator::Type type)
   ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
   if( x11Window )
   {
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Window win = x11Window->GetXWindow();
     switch(type)
     {
@@ -469,6 +457,7 @@ void Window::IndicatorTypeChanged(Indicator::Type type)
       default:
         break;
     }
+#endif // DALI_PROFILE_UBUNTU
   }
 }
 
@@ -635,6 +624,7 @@ void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrie
   ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
   if( x11Window )
   {
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Window ecoreWindow = x11Window->GetXWindow();
     if( ! mWMRotationAppSet )
     {
@@ -648,7 +638,7 @@ void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrie
       rotations[i] = static_cast<int>(mAvailableOrientations[i]);
     }
     ecore_x_e_window_rotation_available_rotations_set(ecoreWindow, rotations, mAvailableOrientations.size() );
-
+#endif // DALI_PROFILE_UBUNTU
   }
 }
 
@@ -664,6 +654,7 @@ void Window::SetPreferredOrientation(Dali::Window::WindowOrientation orientation
   ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
   if( x11Window )
   {
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Window ecoreWindow = x11Window->GetXWindow();
 
     if( ! mWMRotationAppSet )
@@ -673,6 +664,7 @@ void Window::SetPreferredOrientation(Dali::Window::WindowOrientation orientation
     }
 
     ecore_x_e_window_rotation_preferred_rotation_set(ecoreWindow, orientation);
+#endif // DALI_PROFILE_UBUNTU
   }
 }
 
@@ -687,6 +679,7 @@ void Window::RotationDone( int orientation, int width, int height )
   ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
   if( x11Window )
   {
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Window ecoreWindow = x11Window->GetXWindow();
     Ecore_X_Window root = ecore_x_window_root_get(ecoreWindow);
 
@@ -704,6 +697,7 @@ void Window::RotationDone( int orientation, int width, int height )
     ecore_x_window_prop_property_set( ecoreWindow,
                                      ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
                                      ECORE_X_ATOM_CARDINAL, 32, &angles, 2 );
+#endif // DALI_PROFILE_UBUNTU
   }
 }
 

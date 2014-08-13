@@ -340,7 +340,11 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  (Ecore_IMF_Preedit_Attr*)eina_list_data_get(l) ); l; l = eina_list_next(l), ( attr = (Ecore_IMF_Preedit_Attr*)eina_list_data_get(l) ))
     {
+#ifdef DALI_PROFILE_UBUNTU
+      if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
+#else // DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB4 ) // (Ecore_IMF)
+#endif // DALI_PROFILE_UBUNTU
       {
         // check first byte so know how many bytes a character is represented by as keyboard returns cursor position in bytes. Which is different for some languages.
 

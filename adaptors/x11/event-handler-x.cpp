@@ -27,8 +27,10 @@
 
 #include <sys/time.h>
 
+#ifndef DALI_PROFILE_UBUNTU
 #include <vconf.h>
 #include <vconf-keys.h>
+#endif // DALI_PROFILE_UBUNTU
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
@@ -73,7 +75,9 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 
 namespace
 {
+#ifndef DALI_PROFILE_UBUNTU
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
+#endif // DALI_PROFILE_UBUNTU
 
 // Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
 size_t Utf8SequenceLength(const unsigned char leadByte)
@@ -106,8 +110,10 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 
 const unsigned int PRIMARY_TOUCH_BUTTON_ID( 1 );
 
+#ifndef DALI_PROFILE_UBUNTU
 const char * CLIPBOARD_ATOM                = "CBHM_MSG";
 const char * CLIPBOARD_SET_OWNER_MESSAGE   = "SET_OWNER";
+#endif // DALI_PROFILE_UBUNTU
 
 /// The atoms required by Ecore for Drag & Drop behaviour.
 Ecore_X_Atom DRAG_AND_DROP_ATOMS[] =
@@ -256,12 +262,14 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_CLEAR, EcoreEventSelectionClear, handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_NOTIFY, EcoreEventSelectionNotify, handler ) );
 
+#ifndef DALI_PROFILE_UBUNTU
       // Register Vconf notify - font name, font size and style
       vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, handler );
       vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, handler );
 #if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_LITE)
       vconf_notify_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged, handler );
 #endif
+#endif // DALI_PROFILE_UBUNTU
     }
   }
 
@@ -270,11 +278,13 @@ struct EventHandler::Impl
    */
   ~Impl()
   {
+#ifndef DALI_PROFILE_UBUNTU
 #if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_LITE)
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_CHANGE_UI_THEME_INT, VconfNotifyThemeChanged );
 #endif
     vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged );
     vconf_ignore_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged );
+#endif // DALI_PROFILE_UBUNTU
 
     for( std::vector<Ecore_Event_Handler*>::iterator iter = mEcoreEventHandler.begin(), endIter = mEcoreEventHandler.end(); iter != endIter; ++iter )
     {
@@ -759,6 +769,7 @@ struct EventHandler::Impl
    */
   static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
   {
+#ifndef DALI_PROFILE_UBUNTU
     Ecore_X_Event_Client_Message* clientMessageEvent( (Ecore_X_Event_Client_Message*)event );
     EventHandler* handler( (EventHandler*)data );
 
@@ -977,6 +988,7 @@ struct EventHandler::Impl
       handler->SendRotationRequestEvent();
     }
 
+#endif // DALI_PROFILE_UBUNTU
     return ECORE_CALLBACK_PASS_ON;
   }
 
@@ -1056,6 +1068,8 @@ struct EventHandler::Impl
     return ECORE_CALLBACK_PASS_ON;
   }
 
+
+#ifndef DALI_PROFILE_UBUNTU
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Font Callbacks
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1097,6 +1111,7 @@ struct EventHandler::Impl
 
     handler->SendEvent( themeChange );
   }
+#endif // DALI_PROFILE_UBUNTU
 
   // Data
   EventHandler* mHandler;

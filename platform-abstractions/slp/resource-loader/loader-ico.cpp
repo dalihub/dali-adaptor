@@ -26,7 +26,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
-#include <dlog.h>
 
 namespace Dali
 {

@@ -17,7 +17,9 @@
 
 #include "slp-platform-abstraction.h"
 
+#ifndef DALI_PROFILE_UBUNTU
 #include <vconf.h>
+#endif // DALI_PROFILE_UBUNTU
 #include <dirent.h>
 
 #include <dali/integration-api/debug.h>
@@ -355,7 +357,9 @@ void SlpPlatformAbstraction::UpdateDefaultsFromDevice()
   }
 
   int fontSize(0);
+#ifndef DALI_PROFILE_UBUNTU
   vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
+#endif // DALI_PROFILE_UBUNTU
   mDefaultFontSize = FONT_SIZE_TABLE[fontSize];
 }
 

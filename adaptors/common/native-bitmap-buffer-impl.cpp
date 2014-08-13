@@ -23,6 +23,7 @@
 #include <dali/integration-api/bitmap.h>
 
 // INTERNAL HEADERS
+#include <common/gl/gl-implementation.h>
 
 namespace Dali
 {

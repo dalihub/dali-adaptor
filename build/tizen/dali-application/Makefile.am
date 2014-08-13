@@ -32,17 +32,32 @@ adaptor_x11_dir = ../../../adaptors/x11
 include ../../../adaptors/x11/file.list
 endif
 
+if UBUNTU_PROFILE
+adaptor_ubuntu_dir = ../../../adaptors/ubuntu
+include ../../../adaptors/ubuntu/file.list
+else
+adaptor_tizen_dir = ../../../adaptors/tizen
+include ../../../adaptors/tizen/file.list
+endif
+
 lib_LTLIBRARIES = libdali-application.la
 
-libdali_application_la_SOURCES = \
-                     $(adaptor_application_src_files) \
-                     $(adaptor_application_internal_src_files)
+libdali_application_la_SOURCES = $(adaptor_common_application_src_files)
+
+libdali_application_la_SOURCES += $(adaptor_common_application_internal_src_files)
+
+if UBUNTU_PROFILE
+libdali_application_la_SOURCES += $(adaptor_ubuntu_application_src_files)
+else
+libdali_application_la_SOURCES += $(adaptor_tizen_application_src_files)
 
 if WAYLAND
-libdali_application_la_SOURCES += $(adaptor_wayland_application_src_files)
+libdali_application_la_SOURCES += $(adaptor_wayland_tizen_application_src_files)
 else
-libdali_application_la_SOURCES += $(adaptor_x11_application_src_files)
-endif
+libdali_application_la_SOURCES += $(adaptor_x11_tizen_application_src_files)
+endif # WAYLAND
+
+endif # UBUNTU_PROFILE
 
 libdali_application_la_DEPENDENCIES =
 
@@ -55,6 +70,11 @@ libdali_application_includes = \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/common \
                       -I../../../adaptors/
+
+if UBUNTU_PROFILE
+libdali_application_includes += \
+                      -I../../../adaptors/ubuntu
+endif
 
 if WAYLAND
 libdali_application_includes += \
@@ -98,7 +118,8 @@ libdali_application_la_CXXFLAGS = \
                       $(TTS_CFLAGS)
 
 libdali_application_la_LIBADD = \
-                      $(CAPI_APPFW_APPLICATION_LIBS)
+                      $(CAPI_APPFW_APPLICATION_LIBS) \
+                      $(ELEMENTARY_LIBS)
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}

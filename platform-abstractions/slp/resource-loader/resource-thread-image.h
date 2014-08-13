@@ -95,12 +95,14 @@ private:
    * @param[in] resourceType The type of resource to convert.
    * @param[in] path The path to the resource.
    * @param[in] fp File Pointer. Closed on exit.
+   * @param[in] client The component that is initiating the conversion.
    * @param[out] bitmap Pointer to write bitmap to
    * @return true on success, false on failure
    */
   bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType,
                               std::string path,
                               FILE * const fp,
+                              const ResourceLoadingClient& client,
                               Integration::BitmapPtr& ptr );
 
 }; // class ResourceThreadImage

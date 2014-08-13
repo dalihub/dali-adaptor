@@ -28,7 +28,6 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dlog.h>
 
 namespace Dali
 {

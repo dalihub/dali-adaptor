@@ -16,6 +16,9 @@
 
 # Build the Dali Adaptor common intermediate library
 
+
+############# INCLUDE FILE LISTS #############
+
 # Base Adaptor
 base_adaptor_src_dir = ../../../adaptors/base
 include ../../../adaptors/base/file.list
@@ -28,54 +31,33 @@ include ../../../platform-abstractions/slp/file.list
 adaptor_common_dir = ../../../adaptors/common
 include ../../../adaptors/common/file.list
 
+# Wayland
 if WAYLAND
 adaptor_wayland_dir = ../../../adaptors/wayland
 include ../../../adaptors/wayland/file.list
 else
+# X11
 adaptor_x11_dir = ../../../adaptors/x11
 include ../../../adaptors/x11/file.list
 endif
 
-if COMMON_PROFILE
-adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
-if ! WAYLAND
-adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
-endif
-endif
-
-if WAYLAND
-adaptor_common_internal_src_files += $(adaptor_wayland_internal_src_files)
-adaptor_common_internal_profile_src_files += $(adaptor_wayland_profile_src_files)
+# Ubuntu
+if UBUNTU_PROFILE
+adaptor_ubuntu_dir = ../../../adaptors/ubuntu
+include ../../../adaptors/ubuntu/file.list
 else
-adaptor_common_internal_src_files += $(adaptor_x11_internal_src_files)
-adaptor_common_internal_profile_src_files += $(adaptor_x11_profile_src_files)
+# Tizen
+adaptor_tizen_dir = ../../../adaptors/tizen
+include ../../../adaptors/tizen/file.list
 endif
 
-if MOBILE_PROFILE
-adaptor_common_internal_src_files += $(adaptor_x11_profile_src_files)
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+# Mobile
+adaptor_mobile_dir = ../../../adaptors/mobile
 include ../../../adaptors/mobile/file.list
-endif
 
-if LITE_PROFILE
-adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
-if ! WAYLAND
-adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
-endif
-endif
-
-if WEARABLE_PROFILE
-adaptor_common_internal_src_files += $(adaptor_common_internal_profile_src_files)
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
-if ! WAYLAND
-adaptor_common_internal_src_files += $(adaptor_x11_common_internal_profile_src_files)
-endif
-endif
-
+# TV
 if TV_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+adaptor_tv_dir = ../../../adaptors/tv
 include ../../../adaptors/tv/file.list
 endif
 
@@ -83,12 +65,92 @@ endif
 adaptor_public_api_dir = ../../../adaptors/public-api
 include ../../../adaptors/public-api/file.list
 
+
+
+############# source files #############
+
+adaptor_src_files = $(adaptor_common_src_files)
+
+# COMMON
+if COMMON_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_default_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files)
+
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files) \
+                              $(adaptor_wayland_internal_default_profile_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
+                              $(adaptor_x11_internal_default_profile_src_files)
+endif # WAYLAND
+endif # COMMON_PROFILE
+
+
+# UBUNTU
+if UBUNTU_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_default_profile_src_files) \
+                             $(adaptor_ubuntu_internal_src_files) \
+                             $(adaptor_x11_ubuntu_internal_src_files) \
+                             $(adaptor_x11_internal_default_profile_src_files)
+
+endif # UBUNTU_PROFILE
+
+
+# MOBILE
+if MOBILE_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_x11_tizen_internal_src_files)
+
+endif
+
+
+# LITE
+if LITE_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_x11_tizen_internal_src_files)
+endif
+
+
+# WEARABLE
+if WEARABLE_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_x11_tizen_internal_src_files)
+endif
+
+
+# TV
+if TV_PROFILE
+slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+
+adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_tv_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_x11_tv_internal_src_files)
+endif
+
 # Feedback Plugin
 if ! LITE_PROFILE
 if ! WEARABLE_PROFILE
 plugin_themes_dir = ../../../adaptors/common/feedback
 dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
-
 dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
 dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
 endif
@@ -105,8 +167,8 @@ lib_LTLIBRARIES = libdali-adaptor-common.la
 libdali_adaptor_common_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(slp_platform_abstraction_src_files) \
-                     $(adaptor_common_src_files) \
-                     $(adaptor_common_internal_src_files)
+                     $(adaptor_src_files) \
+                     $(adaptor_internal_src_files)
 
 libdali_adaptor_common_la_DEPENDENCIES =
 
@@ -119,13 +181,21 @@ libdali_adaptor_common_la_includes = \
                       -I../../../platform-abstractions/ \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/common \
-                      -I../../../adaptors/ 
+                      -I../../../adaptors/
 if WAYLAND
 libdali_adaptor_common_la_includes += \
                       -I../../../adaptors/wayland
 else
 libdali_adaptor_common_la_includes += \
                       -I../../../adaptors/x11
+endif
+
+if UBUNTU_PROFILE
+libdali_adaptor_common_la_includes += \
+                      -I../../../adaptors/ubuntu
+else
+libdali_adaptor_common_la_includes += \
+                      -I../../../adaptors/tizen
 endif
 
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
@@ -233,6 +303,10 @@ endif
 if TURBO_JPEG_IS_ON
 libdali_adaptor_common_la_LIBADD += -lturbojpeg
 CFLAGS += -D_TURBO_JPEG_LOADER
+if UBUNTU_PROFILE
+libdali_adaptor_common_la_LIBADD += -ljpeg
+CFLAGS += -fPIC
+endif
 else
 libdali_adaptor_common_la_LIBADD += -ljpeg
 endif

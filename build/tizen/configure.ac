@@ -18,6 +18,8 @@ m4_define([dali_version],[0.1.0])
 AC_INIT([dali], [dali_version])
 AM_INIT_AUTOMAKE([-Wall foreign])
 
+AC_CONFIG_MACRO_DIR([m4])
+
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 AC_PROG_MKDIR_P
@@ -31,26 +33,17 @@ AC_SUBST(DALI_ADAPTOR_VERSION)
 
 FREETYPE_REQUIRED=9.16.3
 
-PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 PKG_CHECK_MODULES(DALICORE, dali-core)
-PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(ELEMENTARY, elementary)
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
-PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
-PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 PKG_CHECK_MODULES(PNG, libpng)
-PKG_CHECK_MODULES(SENSOR, sensor)
-PKG_CHECK_MODULES(TTS, tts)
-PKG_CHECK_MODULES(VCONF, vconf)
 PKG_CHECK_MODULES(XML, libxml-2.0)
-PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
-PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
-PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
+PKG_CHECK_MODULES(LIBDRM, libdrm)
 
 # Check for availability of BulletPhysics
 PKG_CHECK_EXISTS(bullet, [
@@ -108,10 +101,15 @@ AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
               [enable_profile=COMMON])
+
+# Ensure valid profile selected
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xLITE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+  AC_MSG_ERROR([$enable_profile is an invalid profile])
+fi
 
 AC_ARG_ENABLE(wayland,
               [  --enable-wayland       Build on Wayland],
@@ -125,6 +123,7 @@ AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
 AM_CONDITIONAL([LITE_PROFILE], [test x$enable_profile = xLITE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
+AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 if test "x$enable_profile" = "xCOMMON"; then
@@ -154,6 +153,20 @@ if test "x$enable_profile" = "xTV"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
 PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
+
+if test "x$enable_profile" = "xUBUNTU"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
+else
+PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
+PKG_CHECK_MODULES(DLOG, dlog)
+PKG_CHECK_MODULES(FEEDBACK, feedback)
+PKG_CHECK_MODULES(MMFSOUND, mm-sound)
+PKG_CHECK_MODULES(SENSOR, sensor)
+PKG_CHECK_MODULES(TTS, tts)
+PKG_CHECK_MODULES(VCONF, vconf)
+PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
 fi
 
 if test "x$enable_wayland" = "xyes"; then
@@ -220,7 +233,6 @@ AC_SUBST(devincludepath)
 AC_CONFIG_FILES([
  Makefile
  common/Makefile
- dali-adaptor/Makefile
  dali.pc
  dali-application/Makefile
  dali-application.pc
