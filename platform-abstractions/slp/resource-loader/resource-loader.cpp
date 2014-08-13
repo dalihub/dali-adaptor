@@ -454,12 +454,12 @@ bool ResourceLoader::IsLoading()
   return mImpl->IsLoading();
 }
 
-const std::string& ResourceLoader::GetFontFamilyForChars( const TextArray& charsRequested )
+const std::string& ResourceLoader::GetFontFamilyForChars( const Integration::TextArray& charsRequested )
 {
   return mImpl->mFontController->GetFontFamilyForChars( charsRequested ).first;
 }
 
-bool ResourceLoader::AllGlyphsSupported( const std::string& fontFamily, const std::string& fontStyle, const TextArray& charsRequested )
+bool ResourceLoader::AllGlyphsSupported( const std::string& fontFamily, const std::string& fontStyle, const Integration::TextArray& charsRequested )
 {
   // At this point fontFamily and fontStyle must have been validated.
 

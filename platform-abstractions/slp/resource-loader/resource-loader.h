@@ -302,12 +302,12 @@ public:
   /**
    * @copydoc PlatformAbstraction::GetFontFamilyForChars()
    */
-  const std::string& GetFontFamilyForChars(const TextArray& charsRequested);
+  const std::string& GetFontFamilyForChars(const Integration::TextArray& charsRequested);
 
   /**
    * @copydoc PlatformAbstraction::AllGlyphsSupported()
    */
-  bool AllGlyphsSupported(const std::string& fontFamily, const std::string& fontStyle, const TextArray& charsRequested);
+  bool AllGlyphsSupported(const std::string& fontFamily, const std::string& fontStyle, const Integration::TextArray& charsRequested);
 
   /**
    * @copydoc PlatformAbstraction::ValidateFontFamilyName()
