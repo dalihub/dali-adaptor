@@ -41,6 +41,8 @@ namespace Adaptor
  *  -w|--width          Stage Width
  *  -h|--height         Stage Height
  *  -d|--dpi            Emulated DPI
+ *  -v|--view           Viewing mode
+ *  -s|--stereo-base    Eye separation for stereoscopic rendering (in mm)
  *     --help           Help
  * @endcode
  *

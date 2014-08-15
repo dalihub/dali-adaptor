@@ -240,14 +240,14 @@ public:
 public: // Stereoscopy
 
   /**
-   * Set the stereoscopic 3D viewing mode for the application
-   * @param[in] viewMode The new viewing mode
+   * Set the viewing mode for the application.
+   * @param[in] viewMode The new viewing mode.
    */
   void SetViewMode( ViewMode viewMode );
 
   /**
-   * Get the current stereoscopic 3D viewing mode.
-   * @return The current stereoscopic 3D viewing mode.
+   * Get the current viewing mode.
+   * @return The current viewing mode.
    */
   ViewMode GetViewMode() const;
 
