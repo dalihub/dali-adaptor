@@ -8,8 +8,6 @@ T.O.C.
  2.   Building for Ubuntu desktop
  2.1. Minimum Requirements
  2.2. Building the Repository
- 3.   Troubleshooting
- 3.1. JPEG Library Linking Errors
 
 
 
@@ -54,20 +52,4 @@ Then run the following commands:
  autoreconf --install
  ./configure --prefix=$DESKTOP_PREFIX --enable-profile=UBUNTU --enable-gles=20
  make install -j8
-
-
-
-3. Troubleshooting
-==================
-
-3.1. JPEG Library Linking Errors
---------------------------------
-
-If you have linking problems with libjpeg, then you may have to create a symbolic link to the library:
-
- - Navigate to where the library is (for example /usr/lib/x86_64-linux-gnu).
- - Create a symbolic link:
-    sudo ln -s libjpeg.so.8 libjpeg.so
-    sudo chmod 777 libjpeg.so
-   (Change the version number of your libjpeg library accordingly)
 
