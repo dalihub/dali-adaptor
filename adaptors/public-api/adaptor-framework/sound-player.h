@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
@@ -110,7 +105,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_SOUND_PLAYER_H__

@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 #include <string>
@@ -170,7 +165,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_STYLE_MONITOR_H__

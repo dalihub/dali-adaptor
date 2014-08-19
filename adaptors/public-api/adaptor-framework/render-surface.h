@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/math/rect.h>
@@ -153,7 +148,4 @@ RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSi
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_RENDER_SURFACE_H__

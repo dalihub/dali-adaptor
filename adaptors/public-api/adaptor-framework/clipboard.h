@@ -19,11 +19,6 @@
  */
 
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
@@ -114,7 +109,4 @@ public:
 };
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_CLIPBOARD_H__

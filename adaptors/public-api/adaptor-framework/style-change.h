@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 namespace Dali DALI_IMPORT_API
 {
 
@@ -56,7 +51,4 @@ struct StyleChange
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_STYLE_CHANGE_H__

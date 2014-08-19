@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/native-image.h>
@@ -211,7 +206,4 @@ private:
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_PIXMAP_IMAGE_H__

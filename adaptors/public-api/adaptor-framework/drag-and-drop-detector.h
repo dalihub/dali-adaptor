@@ -19,11 +19,6 @@
  */
 
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 
@@ -195,7 +190,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_DRAG_AND_DROP_DETECTOR_H__

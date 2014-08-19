@@ -25,38 +25,37 @@
 // These defines come from running pkg-config --cflags with the correct package config file
 
 #if defined(DALI_APPLICATION)
-#include <dali/public-api/application.h>
+#include <dali/public-api/adaptor-framework/application.h>
 #endif
 
-#include <dali/public-api/accessibility-manager.h>
-#include <dali/public-api/adaptor.h>
-#include <dali/public-api/bitmap-loader.h>
-#include <dali/public-api/bitmap-saver.h>
-#include <dali/public-api/clipboard.h>
-#include <dali/public-api/clipboard-event-notifier.h>
-#include <dali/public-api/color-controller.h>
-#include <dali/public-api/device-layout.h>
-#include <dali/public-api/drag-and-drop-detector.h>
-#include <dali/public-api/haptic-player.h>
-#include <dali/public-api/imf-manager.h>
-#include <dali/public-api/key.h>
-#include <dali/public-api/orientation.h>
-#include <dali/public-api/pixmap-image.h>
-#include <dali/public-api/render-surface.h>
-#include <dali/public-api/sound-player.h>
-#include <dali/public-api/style-change.h>
-#include <dali/public-api/style-monitor.h>
-#include <dali/public-api/timer.h>
-#include <dali/public-api/tts-player.h>
-#include <dali/public-api/virtual-keyboard.h>
-#include <dali/public-api/window.h>
-
-#include <dali/public-api/accessibility-action-handler.h>
-#include <dali/public-api/accessibility-gesture-handler.h>
-#include <dali/public-api/event-feeder.h>
-#include <dali/public-api/feedback-plugin.h>
-#include <dali/public-api/physical-keyboard.h>
-#include <dali/public-api/tilt-sensor.h>
+#include <dali/public-api/adaptor-framework/accessibility-action-handler.h>
+#include <dali/public-api/adaptor-framework/accessibility-gesture-handler.h>
+#include <dali/public-api/adaptor-framework/accessibility-manager.h>
+#include <dali/public-api/adaptor-framework/adaptor.h>
+#include <dali/public-api/adaptor-framework/bitmap-loader.h>
+#include <dali/public-api/adaptor-framework/bitmap-saver.h>
+#include <dali/public-api/adaptor-framework/clipboard.h>
+#include <dali/public-api/adaptor-framework/clipboard-event-notifier.h>
+#include <dali/public-api/adaptor-framework/color-controller.h>
+#include <dali/public-api/adaptor-framework/device-layout.h>
+#include <dali/public-api/adaptor-framework/drag-and-drop-detector.h>
+#include <dali/public-api/adaptor-framework/event-feeder.h>
+#include <dali/public-api/adaptor-framework/feedback-plugin.h>
+#include <dali/public-api/adaptor-framework/haptic-player.h>
+#include <dali/public-api/adaptor-framework/imf-manager.h>
+#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/public-api/adaptor-framework/orientation.h>
+#include <dali/public-api/adaptor-framework/physical-keyboard.h>
+#include <dali/public-api/adaptor-framework/pixmap-image.h>
+#include <dali/public-api/adaptor-framework/render-surface.h>
+#include <dali/public-api/adaptor-framework/sound-player.h>
+#include <dali/public-api/adaptor-framework/style-change.h>
+#include <dali/public-api/adaptor-framework/style-monitor.h>
+#include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/adaptor-framework/tilt-sensor.h>
+#include <dali/public-api/adaptor-framework/tts-player.h>
+#include <dali/public-api/adaptor-framework/virtual-keyboard.h>
+#include <dali/public-api/adaptor-framework/window.h>
 
 #include <dali/public-api/dali-adaptor-version.h>
 

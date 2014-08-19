@@ -18,12 +18,6 @@
  *
  */
 
-
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/vector2.h>
 
@@ -84,7 +78,4 @@ public: // Defaults Layouts
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_DEVICE_LAYOUT_H__

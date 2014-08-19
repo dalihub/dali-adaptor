@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/math/rect.h>
@@ -256,8 +251,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-
-/**
- * @}
- */
 #endif // __DALI_WINDOW_H__

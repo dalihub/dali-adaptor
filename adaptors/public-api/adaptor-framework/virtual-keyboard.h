@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal-v2.h>
 #include <dali/public-api/math/rect.h>
@@ -181,7 +176,4 @@ VoidSignalV2& LanguageChangedSignal();
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_VIRTUAL_KEYBOARD_H__

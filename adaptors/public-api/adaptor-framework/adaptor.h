@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 #include "window.h"
@@ -268,7 +263,4 @@ private:
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_ADAPTOR_H__

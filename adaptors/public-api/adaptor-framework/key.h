@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 
 #include <dali/public-api/events/key-event.h>
@@ -89,7 +84,4 @@ bool IsKey( const KeyEvent& keyEvent, KEY daliKey);
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_KEY_H__

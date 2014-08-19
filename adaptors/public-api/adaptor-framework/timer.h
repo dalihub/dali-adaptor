@@ -18,11 +18,6 @@
  *
  */
 
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
- */
-
 // EXTERNAL INCLUDES
 
 #include <dali/public-api/object/base-handle.h>
@@ -168,7 +163,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-/**
- * @}
- */
 #endif // __DALI_TIMER_H__

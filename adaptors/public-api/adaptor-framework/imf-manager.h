@@ -1,5 +1,5 @@
-#ifndef IMFMANAGER_H
-#define IMFMANAGER_H
+#ifndef __DALI_IMF_MANAGER_H__
+#define __DALI_IMF_MANAGER_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -16,11 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
-
-/**
- * @addtogroup CAPI_DALI_ADAPTOR_MODULE
- * @{
  */
 
 // EXTERNAL INCLUDES
@@ -259,7 +254,4 @@ public:
 
 } // namespace Dali
 
-/**
- * @}
- */
-#endif // IMFMANAGER_H
+#endif // __DALI_IMF_MANAGER_H__
