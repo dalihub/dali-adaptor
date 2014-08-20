@@ -241,11 +241,6 @@ public:
   void LoadResource(const Integration::ResourceRequest& request);
 
   /**
-   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
-   */
-  Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath);
-
-  /**
    * @copydoc PlatformAbstraction::SaveResource()
    */
   void SaveResource(const Integration::ResourceRequest& request);
@@ -264,20 +259,6 @@ public:
    * @copydoc PlatformAbstraction::GetResources()
    */
   void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  void GetClosestImageSize( const std::string& filename,
-                            const ImageAttributes& attributes,
-                            Vector2& closestSize );
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                            const ImageAttributes& attributes,
-                            Vector2& closestSize );
 
   /**
    * Called by Font objects to synchronously query glyph data.

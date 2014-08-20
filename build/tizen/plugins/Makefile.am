@@ -46,6 +46,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(FEEDBACK_CFLAGS) \
                       $(DALI_PROFILE_CFLAGS) \
                       -I../../../adaptors/public-api \
+                      -I../../../adaptors/public-api/adaptor-framework \
                       -Werror -Wall
 
 libdali_feedback_plugin_la_LIBADD = \

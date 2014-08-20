@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <dali-test-suite-utils.h>
 
-#include "platform-abstractions/slp/resource-loader/loader-gif.h"
+#include "platform-abstractions/slp/image-loaders/loader-gif.h"
 #include "image-loaders.h"
 
 using namespace Dali;

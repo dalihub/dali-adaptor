@@ -42,7 +42,7 @@ endif
 
 lib_LTLIBRARIES = libdali-application.la
 
-libdali_application_la_SOURCES = $(adaptor_common_application_src_files)
+libdali_application_la_SOURCES = $(public_api_application_src_files)
 
 libdali_application_la_SOURCES += $(adaptor_common_application_internal_src_files)
 
@@ -68,6 +68,7 @@ libdali_application_includes = \
                       -I../../../platform-abstractions/slp/resource-loader \
                       -I../../../platform-abstractions/portable \
                       -I../../../adaptors/public-api \
+                      -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
                       -I../../../adaptors/
 
@@ -129,7 +130,7 @@ bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
 
 # Install headers
 
-tizenadaptorpublicapidir = $(devincludepath)/dali/public-api/
+tizenadaptorpublicapidir = $(devincludepath)/dali/public-api/adaptor-framework
 tizenadaptorpublicapi_HEADERS = $(public_api_application_header_files)
 
 
@@ -142,6 +143,7 @@ linker_test_SOURCES = linker-test.cpp
 linker_test_CXXFLAGS = \
   -I../../../adaptors/common \
   -I../../../adaptors/public-api \
+  -I../../../adaptors/public-api/adaptor-framework \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
   $(DALIX11_CFLAGS) \

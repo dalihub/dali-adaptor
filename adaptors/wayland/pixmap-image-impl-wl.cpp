@@ -31,8 +31,7 @@
 
 // Allow this to be encoded and saved:
 #include <platform-abstractions/slp/resource-loader/resource-loader.h>
-#include <platform-abstractions/slp/resource-loader/loader-jpeg.h>
-#include <platform-abstractions/slp/resource-loader/loader-png.h>
+#include <bitmap-saver.h>
 
 namespace Dali
 {
@@ -43,99 +42,6 @@ namespace Internal
 namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
-
-// Pieces needed to save compressed images (temporary location while plumbing):
-namespace
-{
-
-  /**
-   * Simple function to tell intended image file format from filename
-   */
-  FileFormat GetFormatFromFileName( const std::string& filename )
-  {
-    if (filename.length() < 5)
-    {
-      DALI_LOG_WARNING("Invalid (short) filename.");
-    }
-    FileFormat format(INVALID_FORMAT);
-
-    const std::size_t filenameSize = filename.length();
-
-    if(filenameSize >= 4){ // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
-      if( !filename.compare( filenameSize - 4, 4, ".jpg" )
-       || !filename.compare( filenameSize - 4, 4, ".JPG" ) )
-      {
-        format = JPG_FORMAT;
-      }
-      else if( !filename.compare( filenameSize - 4, 4, ".png" )
-            || !filename.compare( filenameSize - 4, 4, ".PNG" ) )
-      {
-        format = PNG_FORMAT;
-      }
-      else if( !filename.compare( filenameSize - 4, 4, ".bmp" )
-            || !filename.compare( filenameSize - 4, 4, ".BMP" ) )
-      {
-        format = BMP_FORMAT;
-      }
-      else if( !filename.compare( filenameSize - 4, 4, ".gif" )
-            || !filename.compare( filenameSize - 4, 4, ".GIF" ) )
-      {
-        format = GIF_FORMAT;
-      }
-      else if( !filename.compare( filenameSize - 4, 4, ".ico" )
-            || !filename.compare( filenameSize - 4, 4, ".ICO" ) )
-      {
-        format = ICO_FORMAT;
-      }
-      else if(filenameSize >= 5){
-        if( !filename.compare( filenameSize - 5, 5, ".jpeg" )
-         || !filename.compare( filenameSize - 5, 5, ".JPEG" ) )
-        {
-          format = JPG_FORMAT;
-        }
-      }
-    }
-
-    return format;
-  }
-
-  bool EncodeToFormat( const PixelBuffer* pixelBuffer, std::vector< unsigned char >& encodedPixels, FileFormat formatEncoding, std::size_t width, std::size_t height, Pixel::Format pixelFormat )
-  {
-    switch( formatEncoding )
-    {
-      case JPG_FORMAT:
-      {
-        return SlpPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat );
-        break;
-      }
-      case PNG_FORMAT:
-      {
-        return SlpPlatform::EncodeToPng( pixelBuffer, encodedPixels, width, height, pixelFormat );
-        break;
-      }
-      default:
-      {
-        DALI_LOG_ERROR("Format not supported for image encoding (supported formats are PNG and JPEG)");
-        break;
-      }
-    }
-    return false;
-  }
-
-  bool EncodeToFile(const PixelBuffer * const pixelBuffer, const std::string& filename, const Pixel::Format pixelFormat, const std::size_t width, const std::size_t height)
-  {
-    DALI_ASSERT_DEBUG(pixelBuffer != 0 && filename.size() > 4 && width > 0 && height > 0);
-    std::vector< unsigned char > pixbufEncoded;
-    const FileFormat format = GetFormatFromFileName( filename );
-    const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat );
-    if(!encodeResult)
-    {
-      DALI_LOG_ERROR("Encoding pixels failed");
-      return false;
-    }
-    return SlpPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded );
-  }
-}
 
 PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor,  Any pixmap )
 {
@@ -201,7 +107,7 @@ bool PixmapImage::EncodeToFile(const std::string& filename) const
 
   if(GetPixels(pixbuf, width, height, pixelFormat))
   {
-    return Dali::Internal::Adaptor::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height);
+    return Dali::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height);
   }
   return false;
 }

@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.4
+Version:    1.0.5
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -95,7 +95,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %build
 PREFIX+="/usr"
 CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections "
-LDFLAGS+=" -Wl,--rpath=$PREFIX/lib -Wl,--as-needed -Wl,--gc-sections "
+LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections "
 
 %if 0%{?sec_build_binary_debug_enable}
 export CFLAGS="$CFLAGS -DTIZEN_DEBUG_ENABLE"
@@ -117,7 +117,7 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}" ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-%configure --with-jpeg-turbo --enable-gles=30 --enable-profile=%{dali_profile}
+%configure --with-jpeg-turbo --enable-gles=30 --enable-profile=%{dali_profile} --libdir=%{_libdir}
 
 make %{?jobs:-j%jobs}
 

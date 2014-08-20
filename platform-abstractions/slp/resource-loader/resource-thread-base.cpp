@@ -311,4 +311,3 @@ void ResourceThreadBase::Decode(const Integration::ResourceRequest& request)
 } // namespace SlpPlatform
 
 } // namespace Dali
-

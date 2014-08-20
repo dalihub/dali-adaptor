@@ -1,34 +1,68 @@
+public_api_src_files = \
+  $(adaptor_public_api_dir)/adaptor-framework/accessibility-manager.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/adaptor.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/color-controller.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/clipboard.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/device-layout.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/event-feeder.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/haptic-player.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/imf-manager.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/key.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/orientation.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/render-surface.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/sound-player.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/style-monitor.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/tilt-sensor.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/timer.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/tts-player.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/virtual-keyboard.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/window.cpp \
+  $(adaptor_public_api_dir)/dali-adaptor-version.cpp
+
+public_api_application_src_files = \
+  $(adaptor_public_api_dir)/adaptor-framework/application.cpp
+
 public_api_header_files = \
-  $(adaptor_public_api_dir)/accessibility-manager.h \
-  $(adaptor_public_api_dir)/adaptor.h \
-  $(adaptor_public_api_dir)/clipboard-event-notifier.h \
-  $(adaptor_public_api_dir)/clipboard.h \
-  $(adaptor_public_api_dir)/color-controller.h \
-  $(adaptor_public_api_dir)/device-layout.h \
-  $(adaptor_public_api_dir)/drag-and-drop-detector.h \
-  $(adaptor_public_api_dir)/haptic-player.h \
-  $(adaptor_public_api_dir)/imf-manager.h \
-  $(adaptor_public_api_dir)/key.h \
-  $(adaptor_public_api_dir)/orientation.h \
-  $(adaptor_public_api_dir)/pixmap-image.h \
-  $(adaptor_public_api_dir)/render-surface.h \
-  $(adaptor_public_api_dir)/sound-player.h \
-  $(adaptor_public_api_dir)/style-change.h \
-  $(adaptor_public_api_dir)/style-monitor.h \
-  $(adaptor_public_api_dir)/timer.h \
-  $(adaptor_public_api_dir)/tts-player.h \
-  $(adaptor_public_api_dir)/virtual-keyboard.h \
-  $(adaptor_public_api_dir)/window.h \
-  $(adaptor_public_api_dir)/accessibility-action-handler.h \
-  $(adaptor_public_api_dir)/accessibility-gesture-handler.h \
-  $(adaptor_public_api_dir)/event-feeder.h \
-  $(adaptor_public_api_dir)/feedback-plugin.h \
-  $(adaptor_public_api_dir)/physical-keyboard.h \
-  $(adaptor_public_api_dir)/tilt-sensor.h
+  $(adaptor_public_api_dir)/dali-adaptor-version.h
+
+public_api_adaptor_framework_header_files = \
+  $(adaptor_public_api_dir)/adaptor-framework/accessibility-action-handler.h \
+  $(adaptor_public_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
+  $(adaptor_public_api_dir)/adaptor-framework/accessibility-manager.h \
+  $(adaptor_public_api_dir)/adaptor-framework/adaptor.h \
+  $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.h \
+  $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.h \
+  $(adaptor_public_api_dir)/adaptor-framework/clipboard-event-notifier.h \
+  $(adaptor_public_api_dir)/adaptor-framework/clipboard.h \
+  $(adaptor_public_api_dir)/adaptor-framework/color-controller.h \
+  $(adaptor_public_api_dir)/adaptor-framework/device-layout.h \
+  $(adaptor_public_api_dir)/adaptor-framework/drag-and-drop-detector.h \
+  $(adaptor_public_api_dir)/adaptor-framework/event-feeder.h \
+  $(adaptor_public_api_dir)/adaptor-framework/feedback-plugin.h \
+  $(adaptor_public_api_dir)/adaptor-framework/haptic-player.h \
+  $(adaptor_public_api_dir)/adaptor-framework/imf-manager.h \
+  $(adaptor_public_api_dir)/adaptor-framework/key.h \
+  $(adaptor_public_api_dir)/adaptor-framework/orientation.h \
+  $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.h \
+  $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.h \
+  $(adaptor_public_api_dir)/adaptor-framework/render-surface.h \
+  $(adaptor_public_api_dir)/adaptor-framework/sound-player.h \
+  $(adaptor_public_api_dir)/adaptor-framework/style-change.h \
+  $(adaptor_public_api_dir)/adaptor-framework/style-monitor.h \
+  $(adaptor_public_api_dir)/adaptor-framework/timer.h \
+  $(adaptor_public_api_dir)/adaptor-framework/tilt-sensor.h \
+  $(adaptor_public_api_dir)/adaptor-framework/tts-player.h \
+  $(adaptor_public_api_dir)/adaptor-framework/virtual-keyboard.h \
+  $(adaptor_public_api_dir)/adaptor-framework/window.h
 
 public_api_application_header_files = \
-  $(adaptor_public_api_dir)/application.h
+  $(adaptor_public_api_dir)/adaptor-framework/application.h
 
 adaptor_dali_header_file = \
-  $(adaptor_public_api_dir)/dali.h \
-  $(adaptor_public_api_dir)/dali-adaptor-version.h
+  $(adaptor_public_api_dir)/dali.h

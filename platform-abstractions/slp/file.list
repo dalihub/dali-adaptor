@@ -11,15 +11,9 @@ slp_platform_abstraction_src_files = \
   $(slp_platform_abstraction_src_dir)/data-cache/data-compression.cpp \
   $(slp_platform_abstraction_src_dir)/data-cache/metrics-cache.cpp \
   $(slp_platform_abstraction_src_dir)/dynamics/dynamics-factory.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-font.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-bmp.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-gif.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-png.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-ico.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-ktx.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-wbmp.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   \
+  $(slp_platform_abstraction_src_dir)/resource-loader/loader-font.cpp \
+  $(slp_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-requester-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-bitmap-requester.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-model-requester.cpp \
@@ -35,7 +29,21 @@ slp_platform_abstraction_src_files = \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/binary-model-builder.cpp \
   \
-  $(slp_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp
+  $(slp_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \
+  \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-bmp.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-gif.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-png.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-ktx.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-wbmp.cpp \
+  $(slp_platform_abstraction_src_dir)/image-loaders/image-loader.cpp
+
+slp_turbo_jpeg_loader = \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-jpeg-turbo.cpp
+
+slp_jpeg_loader = \
+  $(slp_platform_abstraction_src_dir)/image-loaders/loader-jpeg.cpp
 
 slp_assimp_src_files = \
   $(slp_platform_abstraction_src_dir)/resource-loader/assimp-proxy.cpp \

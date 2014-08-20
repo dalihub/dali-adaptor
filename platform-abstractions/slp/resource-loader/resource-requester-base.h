@@ -66,14 +66,6 @@ public:
   virtual void LoadResource( Integration::ResourceRequest& request ) = 0;
 
   /**
-   * Load a resource synchronously.
-   * @param[in] type The type of resource
-   * @param[in] path The path to the resource
-   * @return A pointer to the resource
-   */
-  virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path ) = 0;
-
-  /**
    * Load more resources (for partial loading)
    * @param[in] request The initial load request
    * @param[in] partialResource The resources loaded by the last request

@@ -22,15 +22,13 @@
 #include <dali/integration-api/debug.h>
 #include <stdint.h>
 
-#include "loader-bmp.h"
-#include "loader-gif.h"
-#include "loader-jpeg.h"
-#include "loader-png.h"
+#include "image-loaders/loader-bmp.h"
+#include "image-loaders/loader-gif.h"
+#include "image-loaders/loader-jpeg.h"
+#include "image-loaders/loader-png.h"
 
 using namespace std;
 using namespace Dali::Integration;
-using boost::mutex;
-using boost::unique_lock;
 
 namespace Dali
 {

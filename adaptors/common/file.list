@@ -1,33 +1,9 @@
 # Common
 
-adaptor_common_src_files = \
-  $(adaptor_common_dir)/accessibility-manager.cpp \
-  $(adaptor_common_dir)/adaptor.cpp \
-  $(adaptor_common_dir)/color-controller.cpp \
-  $(adaptor_common_dir)/clipboard.cpp \
-  $(adaptor_common_dir)/clipboard-event-notifier.cpp \
-  $(adaptor_common_dir)/dali-adaptor-version.cpp \
-  $(adaptor_common_dir)/device-layout.cpp \
-  $(adaptor_common_dir)/drag-and-drop-detector.cpp \
-  $(adaptor_common_dir)/event-feeder.cpp \
-  $(adaptor_common_dir)/haptic-player.cpp \
-  $(adaptor_common_dir)/imf-manager.cpp \
-  $(adaptor_common_dir)/key.cpp \
-  $(adaptor_common_dir)/orientation.cpp \
-  $(adaptor_common_dir)/physical-keyboard.cpp \
-  $(adaptor_common_dir)/pixmap-image.cpp \
-  $(adaptor_common_dir)/render-surface.cpp \
-  $(adaptor_common_dir)/sound-player.cpp \
-  $(adaptor_common_dir)/style-monitor.cpp \
-  $(adaptor_common_dir)/tilt-sensor.cpp \
-  $(adaptor_common_dir)/timer.cpp \
-  $(adaptor_common_dir)/tts-player.cpp \
-  $(adaptor_common_dir)/virtual-keyboard.cpp \
-  $(adaptor_common_dir)/window.cpp
-
 adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/accessibility-gesture-detector.cpp \
   $(adaptor_common_dir)/adaptor-impl.cpp \
+  $(adaptor_common_dir)/bitmap-loader-impl.cpp \
   $(adaptor_common_dir)/clipboard-event-notifier-impl.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector-impl.cpp \
   $(adaptor_common_dir)/ecore-callback-manager.cpp \
@@ -71,11 +47,7 @@ adaptor_common_internal_default_profile_src_files = \
   $(adaptor_common_dir)/color-controller-impl.cpp \
   $(adaptor_common_dir)/system-settings.cpp
 
-adaptor_common_application_src_files = \
-  $(adaptor_common_dir)/application.cpp
-
 adaptor_common_application_internal_src_files = \
   $(adaptor_common_dir)/application-impl.cpp \
   $(adaptor_common_dir)/command-line-options.cpp \
   $(adaptor_common_dir)/abort-handler.cpp
-

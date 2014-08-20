@@ -69,8 +69,6 @@ include ../../../adaptors/public-api/file.list
 
 ############# source files #############
 
-adaptor_src_files = $(adaptor_common_src_files)
-
 # COMMON
 if COMMON_PROFILE
 slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
@@ -157,9 +155,9 @@ endif
 endif
 
 if TURBO_JPEG_IS_ON
-  slp_platform_abstraction_src_files += $(slp_platform_abstraction_src_dir)/resource-loader/loader-jpeg-turbo.cpp
+  slp_platform_abstraction_src_files += $(slp_turbo_jpeg_loader)
 else
-  slp_platform_abstraction_src_files += $(slp_platform_abstraction_src_dir)/resource-loader/loader-jpeg.cpp
+  slp_platform_abstraction_src_files += $(slp_jpeg_loader)
 endif
 
 lib_LTLIBRARIES = libdali-adaptor-common.la
@@ -167,7 +165,7 @@ lib_LTLIBRARIES = libdali-adaptor-common.la
 libdali_adaptor_common_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(slp_platform_abstraction_src_files) \
-                     $(adaptor_src_files) \
+                     $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
 libdali_adaptor_common_la_DEPENDENCIES =
@@ -180,6 +178,7 @@ libdali_adaptor_common_la_includes = \
                       -I../../../platform-abstractions/portable \
                       -I../../../platform-abstractions/ \
                       -I../../../adaptors/public-api \
+                      -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
                       -I../../../adaptors/
 if WAYLAND
@@ -311,14 +310,11 @@ else
 libdali_adaptor_common_la_LIBADD += -ljpeg
 endif
 
-tizenadaptorcommonpublicapidir = $(devincludepath)/dali/public-api/
-tizenadaptorcommonpublicapi_HEADERS = $(public_api_header_files)
+tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
+tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
+
+tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
+tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)
 
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
-
-capicommonpublicapidir = $(devincludepath)/dali/public-api/
-capicommonpublicapi_HEADERS = $(public_api_header_files)
-
-capiheaderdir = $(devincludepath)/dali/public-api/
-capiheader_HEADERS = $(adaptor_dali_header_file)
