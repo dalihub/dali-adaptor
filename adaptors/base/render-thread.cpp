@@ -71,15 +71,15 @@ void RenderThread::Start()
   // initialise GL and kick off render thread
   DALI_ASSERT_ALWAYS( !mEGL && "Egl already initialized" );
 
-  // Tell core what the minimum frame interval is
-  mCore.SetMinimumFrameTimeInterval( mCurrent.syncMode * TIME_PER_FRAME_IN_MICROSECONDS );
+  // Tell frame timer what the minimum frame interval is
+  mUpdateRenderSync.SetMinimumFrameTimeInterval( mCurrent.syncMode * TIME_PER_FRAME_IN_MICROSECONDS );
 
   // create the render thread, initially we are rendering
   mThread = new boost::thread(boost::bind(&RenderThread::Run, this));
 
   // Inform surface to block waiting for RenderSync
   mCurrent.surface->SetSyncMode( RenderSurface::SYNC_MODE_WAIT );
- }
+}
 
 void RenderThread::Stop()
 {
@@ -237,6 +237,8 @@ void RenderThread::InitializeEgl()
   mEGL->MakeContextCurrent();
 
   // set the initial sync mode
+
+  //@todo This needs to call the render surface instead
   mEGL->SetRefreshSync( mCurrent.syncMode );
 
   // tell core it has a context
@@ -265,6 +267,8 @@ void RenderThread::CheckForUpdates()
       if( mCurrent.syncMode != mNewValues.syncMode )
       {
         mCurrent.syncMode = mNewValues.syncMode;
+
+        //@todo This needs to call the render surface instead
         mEGL->SetRefreshSync( mCurrent.syncMode );
       }
 

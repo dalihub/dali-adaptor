@@ -73,6 +73,12 @@ public:
   void Stop();
 
   /**
+   * Ensure the frame time values are reset before the next call to Core::Update()
+   * following a Resume application state change.
+   */
+  void ResumeFrameTime();
+
+  /**
    * Called by the adaptor when core requires another update
    */
   void RequestUpdate();

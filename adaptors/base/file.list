@@ -1,6 +1,7 @@
 # Add local source files here
 
 base_adaptor_src_files = \
+  $(base_adaptor_src_dir)/frame-time.cpp \
   $(base_adaptor_src_dir)/render-thread.cpp \
   $(base_adaptor_src_dir)/update-thread.cpp \
   $(base_adaptor_src_dir)/update-render-synchronization.cpp \

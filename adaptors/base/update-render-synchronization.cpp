@@ -51,7 +51,7 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
   mVSyncFrameNumber( 0u ),
   mVSyncSeconds( 0u ),
   mVSyncMicroseconds( 0u ),
-  mCore( adaptorInterfaces.GetCore() ),
+  mFrameTime( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() )
 {
 }
@@ -81,6 +81,8 @@ void UpdateRenderSynchronization::Stop()
   mRenderFinishedCondition.notify_one();
   mVSyncSleepCondition.notify_one();
   mVSyncReceivedCondition.notify_one();
+
+  mFrameTime.Suspend();
 }
 
 void UpdateRenderSynchronization::Pause()
@@ -88,7 +90,12 @@ void UpdateRenderSynchronization::Pause()
   mPaused = true;
 
   AddPerformanceMarker( PerformanceMarker::PAUSED );
+  mFrameTime.Suspend();
+}
 
+void UpdateRenderSynchronization::ResumeFrameTime()
+{
+  mFrameTime.Resume();
 }
 
 void UpdateRenderSynchronization::Resume()
@@ -215,8 +222,8 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
     // 1. put VSync thread to sleep.
     mVSyncSleep = true;
 
-    // 2. inform Core
-    mCore.Sleep();
+    // 2. inform frame time
+    mFrameTime.Sleep();
 
     // 3. block thread and wait for wakeup event
     mUpdateSleepCondition.wait( lock );
@@ -225,8 +232,8 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
     // Woken up
     //
 
-    // 1. inform Core
-    mCore.WakeUp();
+    // 1. inform frame timer
+    mFrameTime.WakeUp();
 
     // 2. wake VSync thread.
     mVSyncSleep = false;
@@ -299,8 +306,13 @@ void UpdateRenderSynchronization::WaitVSync()
   mAllowUpdateWhilePaused = false;
 }
 
-bool UpdateRenderSynchronization::VSyncNotifierSyncWithUpdateAndRender( unsigned int frameNumber, unsigned int seconds, unsigned int microseconds )
+bool UpdateRenderSynchronization::VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds )
 {
+  if( validSync )
+  {
+    mFrameTime.SetVSyncTime( frameNumber );
+  }
+
   boost::unique_lock< boost::mutex > lock( mMutex );
 
   mVSyncFrameNumber = frameNumber;
@@ -349,6 +361,19 @@ inline void UpdateRenderSynchronization::AddPerformanceMarker( PerformanceMarker
   {
     mPerformanceInterface->AddMarker( type );
   }
+}
+
+void UpdateRenderSynchronization::SetMinimumFrameTimeInterval( unsigned int timeInterval )
+{
+  mFrameTime.SetMinimumFrameTimeInterval( timeInterval );
+}
+
+void UpdateRenderSynchronization::PredictNextVSyncTime(
+  float& lastFrameDeltaSeconds,
+  unsigned int& lastVSyncTimeMilliseconds,
+  unsigned int& nextVSyncTimeMilliseconds )
+{
+  mFrameTime.PredictNextVSyncTime( lastFrameDeltaSeconds, lastVSyncTimeMilliseconds, nextVSyncTimeMilliseconds );
 }
 
 } // namespace Adaptor

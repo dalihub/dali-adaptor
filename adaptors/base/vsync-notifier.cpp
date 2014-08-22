@@ -153,13 +153,7 @@ void VSyncNotifier::Run()
       }
     }
 
-    if( validSync )
-    {
-      // call Core::VSync with frame number and time stamp
-      mCore.VSync( ++frameNumber, currentSeconds, currentMicroseconds );
-    }
-
-    running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( frameNumber, currentSeconds, currentMicroseconds );
+    running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( validSync, ++frameNumber, currentSeconds, currentMicroseconds );
   }
 
   // uninstall a function for logging

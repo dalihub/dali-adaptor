@@ -378,8 +378,18 @@ void Adaptor::Resume()
   // Only resume the adaptor if we are in the suspended state.
   if( PAUSED == mState )
   {
+    // We put ResumeFrameTime first, as this was originally called at the start of mCore->Resume()
+    // If there were events pending, mCore->Resume() will call
+    //   RenderController->RequestUpdate()
+    //     UpdateRenderController->RequestUpdate()
+    //       UpdateRenderSynchronization->RequestUpdate()
+    // and we should have reset the frame timers before allowing Core->Update() to be called.
+    //@todo Should we call UpdateRenderController->Resume before mCore->Resume()?
+
+    mUpdateRenderController->ResumeFrameTime();
     mCore->Resume();
     mUpdateRenderController->Resume();
+
     mState = RUNNING;
 
     // Reset the event handler when adaptor resumed
