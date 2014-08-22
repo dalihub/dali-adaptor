@@ -51,6 +51,7 @@ class AdaptorInternalServices;
  * The Core::GetMaximumUpdateCount() method determines how many frames may be prepared, ahead of the rendering.
  * For example if the maximum update count is 2, then Core::Update() for frame N+1 may be processed whilst frame N is being rendered.
  * However the Core::Update() for frame N+2 may not be called, until the Core::Render() method for frame N has returned.
+ *
  */
 class UpdateRenderSynchronization
 {
@@ -59,11 +60,12 @@ public:
   /**
    * Create an update/render synchronization object.
    * @param[in] adaptorInterfaces base adaptor interface
+   * @param[in] numberOfVSyncsPerRender The number of frames per render
   */
-  UpdateRenderSynchronization( AdaptorInternalServices& adaptorInterfaces );
+  UpdateRenderSynchronization( AdaptorInternalServices& adaptorInterfaces, unsigned int numberOfVSyncsPerRender );
 
   /**
-   * Non virtual destructor. Not inteded as base class.
+   * Non virtual destructor. Not intended as base class.
    */
   ~UpdateRenderSynchronization();
 
@@ -148,9 +150,9 @@ public:
   bool RenderSyncWithUpdate();
 
   /**
-   * Called by the render/update threads to wait for a VSync.
+   * Called by the render/update threads to wait for a Synchronization
    */
-  void WaitVSync();
+  void WaitSync();
 
   /**
    * Called by the VSync notifier thread so it can sleep if Update/Render threads are sleeping/paused
@@ -158,9 +160,10 @@ public:
    * @param[in] frameNumber The current frame number
    * @param[in] seconds The current time
    * @param[in] microseconds The current time
+   * @param[out] numberOfVSyncsPerRender The number of frames per render.
    * @return true if VSync monitoring/notifications should continue.
    */
-  bool VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds );
+  bool VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds, unsigned int& numberOfVSyncsPerRender );
 
   /**
    * Sets the expected minimum frame time interval.
@@ -172,18 +175,21 @@ public:
    * Predicts when the next render time will occur.
    *
    * @param[out]  lastFrameDeltaSeconds      The delta, in seconds (with float precision), between the last two renders.
-   * @param[out]  lastVSyncTimeMilliseconds  The time, in milliseconds, of the last VSync.
-   * @param[out]  nextVSyncTimeMilliseconds  The estimated time, in milliseconds, at the next VSync.
+   * @param[out]  lastSyncTimeMilliseconds  The time, in milliseconds, of the last Sync.
+   * @param[out]  nextSyncTimeMilliseconds  The estimated time, in milliseconds, at the next Sync.
    *
    * @note Should only be called once per tick, from the update thread.
    */
-  void PredictNextVSyncTime( float& lastFrameDeltaSeconds,
-                             unsigned int& lastVSyncTimeMilliseconds,
-                             unsigned int& nextVSyncTimeMilliseconds );
+  void PredictNextSyncTime( float& lastFrameDeltaSeconds,
+                            unsigned int& lastSyncTimeMilliseconds,
+                            unsigned int& nextSyncTimeMilliseconds );
 
   /**
-   * Retrieves the last VSync frame number
-   * @return The VSync frame number.
+   * Retrieves the last sync frame number.
+   * This is a count of the number of synchronised update/render
+   * frames, not a count of hardware VSync frames.
+   *
+   * @return The sync frame number.
    */
   unsigned int GetFrameNumber() const;
 
@@ -192,6 +198,12 @@ public:
    * @return The VSync timestamp in microseconds.
    */
   uint64_t GetTimeMicroseconds();
+
+  /**
+   * Set the refresh rate for rendering
+   * @param[in] numberOfVSyncsPerRender The number of vsync frames per render
+   */
+  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
 
 private:
 
@@ -210,6 +222,9 @@ private:
 private:
 
   const unsigned int mMaximumUpdateCount;             ///< How many frames may be prepared, ahead of the rendering.
+
+  unsigned int mNumberOfVSyncsPerRender;              ///< How many frames for each update/render cycle.
+
   volatile unsigned int mUpdateReadyCount;            ///< Incremented after each update, decremented after each render (protected by mMutex)
   // ARM CPUs perform aligned 32 bit read/writes atomically, so the following variables do not require mutex protection on modification
   volatile int mRunning;                              ///< Used during UpdateThread::Stop() to exit the update & render loops
@@ -218,9 +233,9 @@ private:
   volatile int mUpdateRequested;                      ///< An update has been requested
   volatile int mAllowUpdateWhilePaused;               ///< whether to allow (one) update while paused
   volatile int mVSyncSleep;                           ///< Set true when the VSync thread should sleep
-  volatile unsigned int mVSyncFrameNumber;            ///< Frame number of latest VSync
-  volatile unsigned int mVSyncSeconds;                ///< Timestamp (seconds) of latest VSync
-  volatile unsigned int mVSyncMicroseconds;           ///< Timestamp (microseconds) of latest VSync
+  volatile unsigned int mSyncFrameNumber;            ///< Frame number of latest Sync
+  volatile unsigned int mSyncSeconds;                ///< Timestamp (seconds) of latest Sync
+  volatile unsigned int mSyncMicroseconds;           ///< Timestamp (microseconds) of latest Sync
 
   boost::mutex mMutex;                                ///< This mutex must be locked before reading/writing mUpdateReadyCount
   boost::condition_variable mUpdateFinishedCondition; ///< The render thread waits for this condition

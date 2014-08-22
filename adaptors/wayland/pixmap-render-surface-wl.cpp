@@ -114,13 +114,17 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& eglIf )
   return false;
 }
 
+void PixmapRenderSurface::StartRender()
+{
+}
+
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
@@ -140,7 +144,11 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
 
   // Do render synchronisation
-  DoRenderSync( timeDelta, syncMode );
+  // AcquireLock( replacingSurface ? SYNC_MODE_NONE : SYNC_MODE_WAIT );
+}
+
+void PixmapRenderSurface::StopRender()
+{
 }
 
 void PixmapRenderSurface::CreateWlRenderable()
@@ -155,15 +163,16 @@ void PixmapRenderSurface::UseExistingRenderable( unsigned int surfaceId )
 {
 }
 
-void PixmapRenderSurface::RenderSync()
+void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
 {
-  {
-    boost::unique_lock< boost::mutex > lock( mSyncMutex );
-    mSyncReceived = true;
-  }
+}
 
-  // wake render thread if it was waiting for the notify
-  mSyncNotify.notify_all();
+void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
+{
+}
+
+void PixmapRenderSurface::ReleaseLock()
+{
 }
 
 } // namespace ECore

@@ -91,6 +91,21 @@ RenderSurface& Adaptor::GetSurface()
   return mImpl->GetSurface();
 }
 
+void Adaptor::ReleaseSurfaceLock()
+{
+  mImpl->ReleaseSurfaceLock();
+}
+
+void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
+{
+  mImpl->SetRenderRefreshRate( numberOfVSyncsPerRender );
+}
+
+void Adaptor::SetUseHardwareVSync(bool useHardware)
+{
+  mImpl->SetUseHardwareVSync( useHardware );
+}
+
 Adaptor& Adaptor::Get()
 {
   return Internal::Adaptor::Adaptor::Get();

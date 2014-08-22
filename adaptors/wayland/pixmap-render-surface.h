@@ -97,9 +97,9 @@ public: // from Internal::Adaptor::RenderSurface
   virtual bool ReplaceEGLSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::Internal::Adaptor::RenderSurface::RenderSync()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StartRender()
    */
-  virtual void RenderSync();
+  virtual void StartRender();
 
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
@@ -109,9 +109,34 @@ public: // from Internal::Adaptor::RenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface );
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
+   */
+  virtual void StopRender();
 
 private:
+  enum SyncMode
+  {
+    SYNC_MODE_NONE,
+    SYNC_MODE_WAIT
+  };
+
+  void SetSyncMode( SyncMode syncMode );
+
+  /**
+   * If sync mode is WAIT, then acquire a lock. This prevents render thread from
+   * continuing until the pixmap has been drawn by the compositor.
+   * It must be released for rendering to continue.
+   * @param[in] syncMode The current sync mode
+   */
+  void AcquireLock( SyncMode syncMode );
+
+  /**
+   * Release any locks.
+   */
+  void ReleaseLock();
 
   /**
    * Create XPixmap

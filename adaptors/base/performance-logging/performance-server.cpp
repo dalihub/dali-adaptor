@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <base/environment-options.h>
+#include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {
