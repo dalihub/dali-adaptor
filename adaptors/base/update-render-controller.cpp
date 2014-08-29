@@ -37,12 +37,12 @@ namespace Adaptor
 {
 
 UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                                const EnvironmentOptions& environmentOptions ): mUpdateThread( NULL ),
+                                                const EnvironmentOptions& environmentOptions )
+: mUpdateThread( NULL ),
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
   mUpdateRenderSync( NULL )
 {
-
   mUpdateRenderSync = new UpdateRenderSynchronization( adaptorInterfaces );
 
   mUpdateThread = new UpdateThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
@@ -73,8 +73,14 @@ void UpdateRenderController::Start()
 void UpdateRenderController::Pause()
 {
   mUpdateRenderSync->Pause();
+
   // if update thread is napping, wake it up to get it to pause in correct place
   mUpdateRenderSync->UpdateRequested();
+}
+
+void UpdateRenderController::ResumeFrameTime()
+{
+  mUpdateRenderSync->ResumeFrameTime();
 }
 
 void UpdateRenderController::Resume()
