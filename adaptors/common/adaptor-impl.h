@@ -90,10 +90,6 @@ public:
 
   typedef Dali::Adaptor::AdaptorSignalV2 AdaptorSignalV2;
 
-  typedef std::pair<std::string, BaseHandle> SingletonPair;
-  typedef std::map<std::string, BaseHandle>  SingletonContainer;
-  typedef SingletonContainer::const_iterator SingletonConstIter;
-
   /**
    * Creates a New Adaptor
    * @param[in]  surface     A render surface can be one of the following
@@ -200,16 +196,6 @@ public: // AdaptorInternalServices implementation
    * @copydoc Internal::Framework::CallFromMainLoop()
    */
   virtual bool CallFromMainLoop(boost::function<void(void)> callBack);
-
-  /**
-   * @copydoc Dali::Adaptor::RegisterSingleton()
-   */
-  virtual void RegisterSingleton(const std::type_info& info, BaseHandle singleton);
-
-  /**
-   * @copydoc Dali::Adaptor::GetSingleton()
-   */
-  virtual BaseHandle GetSingleton(const std::type_info& info) const;
 
 public:
 
@@ -517,7 +503,6 @@ private: // Data
   size_t                                mVDpi;                        ///< Override vertical DPI
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
-  SingletonContainer                    mSingletonContainer;          ///< The container to look up singleton by its type name
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
   DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector

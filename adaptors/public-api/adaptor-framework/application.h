@@ -229,14 +229,6 @@ public:
    */
   Window GetWindow();
 
-  /**
-   * Returns the local thread's instance of the Application class.
-   * @return A reference to the local thread's Application class instance.
-   * @pre The Application class has been initialised.
-   * @note This is only valid in the main thread.
-   */
-  static Application Get();
-
 public: // Stereoscopy
 
   /**

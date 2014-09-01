@@ -21,7 +21,7 @@
 #include <physical-keyboard-impl.h>
 
 // INTERNAL INCLUDES
-#include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -36,11 +36,11 @@ Dali::PhysicalKeyboard PhysicalKeyboard::New()
 {
   Dali::PhysicalKeyboard keyboardHandle;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
-    Dali::Adaptor& adaptor = Adaptor::Get();
     keyboardHandle = Dali::PhysicalKeyboard( new PhysicalKeyboard() );
-    adaptor.RegisterSingleton( typeid( keyboardHandle ), keyboardHandle );
+    service.Register( typeid( keyboardHandle ), keyboardHandle );
   }
 
   return keyboardHandle;
@@ -50,12 +50,10 @@ Dali::PhysicalKeyboard PhysicalKeyboard::Get()
 {
   Dali::PhysicalKeyboard keyboardHandle;
 
-  // Ensure the adaptor has been created
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service = SingletonService::Get();
+  if ( service )
   {
-    Dali::Adaptor& adaptor = Adaptor::Get();
-
-    BaseHandle handle = adaptor.GetSingleton( typeid( Dali::PhysicalKeyboard ) );
+    BaseHandle handle = service.GetSingleton( typeid( Dali::PhysicalKeyboard ) );
     if( handle )
     {
       // If so, downcast the handle of singleton to focus manager

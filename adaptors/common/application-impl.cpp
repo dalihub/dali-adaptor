@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <command-line-options.h>
 #include <common/adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -52,8 +53,6 @@ const unsigned int DEFAULT_WINDOW_WIDTH   = 480;
 const unsigned int DEFAULT_WINDOW_HEIGHT  = 800;
 const float        DEFAULT_HORIZONTAL_DPI = 220;
 const float        DEFAULT_VERTICAL_DPI   = 217;
-
-boost::thread_specific_ptr<Application> gThreadLocalApplication;
 }
 
 ApplicationPtr Application::New(
@@ -67,28 +66,26 @@ ApplicationPtr Application::New(
   return application;
 }
 
-Application::Application(
-  int* argc,
-  char** argv[],
-  const std::string& name,
-  const DeviceLayout& baseLayout,
-  Dali::Application::WINDOW_MODE windowMode)
-: mFramework(NULL),
-  mCommandLineOptions(NULL),
-  mAdaptor(NULL),
+Application::Application( int* argc, char** argv[], const std::string& name, const DeviceLayout& baseLayout, Dali::Application::WINDOW_MODE windowMode)
+: mInitSignalV2(),
+  mTerminateSignalV2(),
+  mPauseSignalV2(),
+  mResumeSignalV2(),
+  mResetSignalV2(),
+  mResizeSignalV2(),
+  mLanguageChangedSignalV2(),
+  mEventLoop( NULL ),
+  mFramework( NULL ),
+  mCommandLineOptions( NULL ),
+  mSingletonService( SingletonService::New() ),
+  mAdaptor( NULL ),
   mWindow(),
   mWindowMode( windowMode ),
-  mName(name),
-  mInitialized(false),
-  mBaseLayout(baseLayout),
+  mName( name ),
+  mInitialized( false ),
+  mBaseLayout( baseLayout ),
   mSlotDelegate( this )
 {
-  // make sure we don't create the local thread application instance twice
-  DALI_ASSERT_ALWAYS(gThreadLocalApplication.get() == NULL && "Cannot create more than one Application per thread" );
-
-  // reset is used to store a new value associated with this thread
-  gThreadLocalApplication.reset(this);
-
   mCommandLineOptions = new CommandLineOptions(argc, argv);
 
   mFramework = new Framework(*this, argc, argv, name);
@@ -100,7 +97,6 @@ Application::~Application()
   delete mCommandLineOptions;
   delete mAdaptor;
   mWindow.Reset();
-  gThreadLocalApplication.release();
 }
 
 void Application::CreateWindow()
@@ -264,15 +260,6 @@ Dali::Adaptor& Application::GetAdaptor()
 Dali::Window Application::GetWindow()
 {
   return mWindow;
-}
-
-Dali::Application Application::Get()
-{
-  DALI_ASSERT_ALWAYS( gThreadLocalApplication.get() != NULL && "Application not instantiated" );
-
-  Dali::Application application(gThreadLocalApplication.get());
-
-  return application;
 }
 
 const std::string& Application::GetTheme()

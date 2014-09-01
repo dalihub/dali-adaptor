@@ -16,6 +16,7 @@ public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/render-surface.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/singleton-service.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/sound-player.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/style-monitor.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/tilt-sensor.cpp \
@@ -52,6 +53,7 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.h \
   $(adaptor_public_api_dir)/adaptor-framework/render-surface.h \
+  $(adaptor_public_api_dir)/adaptor-framework/singleton-service.h \
   $(adaptor_public_api_dir)/adaptor-framework/sound-player.h \
   $(adaptor_public_api_dir)/adaptor-framework/style-change.h \
   $(adaptor_public_api_dir)/adaptor-framework/style-monitor.h \

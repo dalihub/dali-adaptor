@@ -28,6 +28,7 @@
 // INTERNAL INCLUDES
 #include <window-render-surface.h>
 #include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
 
 namespace Dali
@@ -131,10 +132,11 @@ Dali::ImfManager ImfManager::Get()
 {
   Dali::ImfManager manager;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Dali::Adaptor::Get().GetSingleton( typeid( Dali::ImfManager ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::ImfManager ) );
     if(handle)
     {
       // If so, downcast the handle

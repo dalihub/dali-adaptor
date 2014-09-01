@@ -819,27 +819,6 @@ void Adaptor::ProcessCoreEventsFromIdle()
   mNotificationOnIdleInstalled = false;
 }
 
-void Adaptor::RegisterSingleton(const std::type_info& info, BaseHandle singleton)
-{
-  if(singleton)
-  {
-    mSingletonContainer.insert(SingletonPair(info.name(), singleton));
-  }
-}
-
-BaseHandle Adaptor::GetSingleton(const std::type_info& info) const
-{
-  BaseHandle object = Dali::BaseHandle();
-
-  SingletonConstIter iter = mSingletonContainer.find(info.name());
-  if(iter != mSingletonContainer.end())
-  {
-    object = (*iter).second;
-  }
-
-  return object;
-}
-
 Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
 : mAdaptor(adaptor),
   mState(READY),

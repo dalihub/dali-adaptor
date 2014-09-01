@@ -101,16 +101,6 @@ bool Adaptor::IsAvailable()
   return Internal::Adaptor::Adaptor::IsAvailable();
 }
 
-void Adaptor::RegisterSingleton(const std::type_info& info, BaseHandle singleton)
-{
-  mImpl->RegisterSingleton(info, singleton);
-}
-
-BaseHandle Adaptor::GetSingleton(const std::type_info& info) const
-{
-  return mImpl->GetSingleton(info);
-}
-
 void Adaptor::NotifyLanguageChanged()
 {
   mImpl->NotifyLanguageChanged();

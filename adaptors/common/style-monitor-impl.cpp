@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 #include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -40,10 +41,14 @@ BaseHandle Create()
 
   if ( !handle && Adaptor::IsAvailable() )
   {
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-    Dali::StyleMonitor styleMonitor = Dali::StyleMonitor( new StyleMonitor( adaptorImpl.GetPlatformAbstraction() ) );
-    adaptorImpl.RegisterSingleton( typeid( styleMonitor ), styleMonitor );
-    handle = styleMonitor;
+    Dali::SingletonService service( SingletonService::Get() );
+    if ( service )
+    {
+      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
+      Dali::StyleMonitor styleMonitor = Dali::StyleMonitor( new StyleMonitor( adaptorImpl.GetPlatformAbstraction() ) );
+      service.Register( typeid( styleMonitor ), styleMonitor );
+      handle = styleMonitor;
+    }
   }
 
   return handle;
@@ -56,10 +61,11 @@ Dali::StyleMonitor StyleMonitor::Get()
 {
   Dali::StyleMonitor styleMonitor;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Dali::Adaptor::Get().GetSingleton( typeid( Dali::StyleMonitor ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::StyleMonitor ) );
     if(handle)
     {
       // If so, downcast the handle

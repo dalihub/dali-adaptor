@@ -20,6 +20,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/render-surface-impl.cpp \
   $(adaptor_common_dir)/server-connection.cpp \
   $(adaptor_common_dir)/shared-file.cpp \
+  $(adaptor_common_dir)/singleton-service-impl.cpp \
   $(adaptor_common_dir)/sound-player-impl.cpp \
   $(adaptor_common_dir)/style-monitor-impl.cpp \
   $(adaptor_common_dir)/timer-impl.cpp \

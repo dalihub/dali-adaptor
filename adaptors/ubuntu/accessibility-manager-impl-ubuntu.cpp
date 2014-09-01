@@ -24,6 +24,9 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/gesture-requests.h>
+
+// INTERNAL INCLUDES
+#include <singleton-service-impl.h>
 #include "system-settings.h"
 
 namespace Dali
@@ -45,12 +48,15 @@ BaseHandle Create()
 {
   BaseHandle handle( AccessibilityManager::Get() );
 
-  if ( !handle && Adaptor::IsAvailable() )
+  if ( !handle )
   {
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-    Dali::AccessibilityManager manager = Dali::AccessibilityManager( new AccessibilityManager() );
-    adaptorImpl.RegisterSingleton( typeid( manager ), manager );
-    handle = manager;
+    Dali::SingletonService service( SingletonService::Get() );
+    if ( service )
+    {
+      Dali::AccessibilityManager manager = Dali::AccessibilityManager( new AccessibilityManager() );
+      service.Register( typeid( manager ), manager );
+      handle = manager;
+    }
   }
 
   return handle;
@@ -63,10 +69,11 @@ Dali::AccessibilityManager AccessibilityManager::Get()
 {
   Dali::AccessibilityManager manager;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Dali::Adaptor::Get().GetSingleton( typeid( Dali::AccessibilityManager ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::AccessibilityManager ) );
     if(handle)
     {
       // If so, downcast the handle
@@ -243,8 +250,11 @@ void AccessibilityManager::DisableAccessibility()
     mStatusChangedSignalV2.Emit( handle );
 
     // Destroy the TtsPlayer if exists.
-    Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-    Adaptor::GetImplementation(adaptor).DestroyTtsPlayer(Dali::TtsPlayer::SCREEN_READER);
+    if ( Adaptor::IsAvailable() )
+    {
+      Dali::Adaptor& adaptor = Dali::Adaptor::Get();
+      Adaptor::GetImplementation( adaptor ).DestroyTtsPlayer( Dali::TtsPlayer::SCREEN_READER );
+    }
   }
 }
 

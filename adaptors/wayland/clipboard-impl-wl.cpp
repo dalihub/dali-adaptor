@@ -25,9 +25,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <adaptor.h>
 #include <dali/public-api/object/any.h>
-#include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace //unnamed namespace
 {
@@ -74,10 +73,11 @@ Dali::Clipboard Clipboard::Get()
 {
   Dali::Clipboard clipboard;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Adaptor::Get().GetSingleton( typeid( Dali::Clipboard ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::Clipboard ) );
     if(handle)
     {
       // If so, downcast the handle

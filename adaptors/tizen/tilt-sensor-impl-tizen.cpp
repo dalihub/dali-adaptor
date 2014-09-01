@@ -30,7 +30,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 #ifdef __arm__
 #define SENSOR_ENABLED
@@ -75,10 +75,11 @@ Dali::TiltSensor TiltSensor::Get()
 {
   Dali::TiltSensor sensor;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the keyboard focus manager is already created
-    Dali::BaseHandle handle = Dali::Adaptor::Get().GetSingleton( typeid( Dali::TiltSensor ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::TiltSensor ) );
     if(handle)
     {
       // If so, downcast the handle of singleton to keyboard focus manager
@@ -87,9 +88,8 @@ Dali::TiltSensor TiltSensor::Get()
     else
     {
       // Create a singleton instance
-      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       sensor = TiltSensor::New();
-      adaptorImpl.RegisterSingleton( typeid( sensor ), sensor );
+      service.Register( typeid( sensor ), sensor );
       handle = sensor;
     }
   }

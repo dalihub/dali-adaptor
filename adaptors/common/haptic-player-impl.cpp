@@ -22,7 +22,7 @@
 #include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
-#include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -56,10 +56,11 @@ Dali::HapticPlayer HapticPlayer::Get()
 {
   Dali::HapticPlayer player;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Adaptor::Get().GetSingleton( typeid( Dali::HapticPlayer ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::HapticPlayer ) );
     if ( handle )
     {
       // If so, downcast the handle
@@ -67,9 +68,8 @@ Dali::HapticPlayer HapticPlayer::Get()
     }
     else
     {
-      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       player = Dali::HapticPlayer( New() );
-      adaptorImpl.RegisterSingleton( typeid( player ), player );
+      service.Register( typeid( player ), player );
     }
   }
 

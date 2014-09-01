@@ -112,11 +112,6 @@ Window Application::GetWindow()
   return Internal::Adaptor::GetImplementation(*this).GetWindow();
 }
 
-Application Application::Get()
-{
-  return Internal::Adaptor::Application::Get();
-}
-
 void Application::SetViewMode( ViewMode viewMode )
 {
   Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
