@@ -103,6 +103,13 @@ public:
 public:
 
   /**
+   * This is the constructor for applications without an argument list.
+   *
+   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
+   */
+  static Application New();
+
+  /**
    * This is the constructor for applications.
    *
    * @param[in,out]  argc        A pointer to the number of arguments

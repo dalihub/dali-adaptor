@@ -29,6 +29,11 @@
 namespace Dali
 {
 
+Application Application::New()
+{
+  return New( NULL, NULL );
+}
+
 Application Application::New( int* argc, char **argv[] )
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", DeviceLayout::DEFAULT_BASE_LAYOUT, OPAQUE );
@@ -60,6 +65,10 @@ Application Application::New(int* argc, char **argv[], const std::string& name, 
 }
 
 Application::~Application()
+{
+}
+
+Application::Application()
 {
 }
 
