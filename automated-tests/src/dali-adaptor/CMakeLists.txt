@@ -6,6 +6,7 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
     utc-Dali-Key.cpp
+    utc-Dali-SingletonService.cpp
     utc-Dali-Timer.cpp
 )
 
@@ -29,6 +30,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 )
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${${CAPI_LIB}_CFLAGS_OTHER}")
 
 FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
     SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L${directory}")
