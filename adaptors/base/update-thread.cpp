@@ -111,8 +111,13 @@ bool UpdateThread::Run()
     // Inform synchronization object update is ready to run, this will pause update thread if required.
     mUpdateRenderSync.UpdateReadyToRun();
 
-    // Do the update
-    mCore.Update( status );
+    // get the last delta and the predict when this update will be rendered
+    float lastFrameDelta( 0.0f );
+    unsigned int lastVSyncTime( 0 );
+    unsigned int nextVSyncTime( 0 );
+    mUpdateRenderSync.PredictNextVSyncTime( lastFrameDelta, lastVSyncTime, nextVSyncTime );
+
+    mCore.Update( lastFrameDelta, lastVSyncTime, nextVSyncTime, status );
 
     if( mFpsTrackingSeconds > 0 )
     {

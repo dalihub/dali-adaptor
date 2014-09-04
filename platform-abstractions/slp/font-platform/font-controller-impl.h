@@ -95,12 +95,12 @@ public:
   /**
    * @copydoc Dali::Platform::FontController::GetFontFamilyForChars()
    */
-  virtual const StyledFontFamily& GetFontFamilyForChars( const TextArray& charsRequested);
+  virtual const StyledFontFamily& GetFontFamilyForChars( const Integration::TextArray& charsRequested);
 
   /**
    * @copydoc Dali::Platform::FontController::AllGlyphsSupported()
    */
-  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const TextArray& text );
+  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const Integration::TextArray& text );
 
   /**
    * @copydoc Dali::Platform::FontController::SetDefaultFontFamily()
@@ -165,7 +165,7 @@ private:
    * @param text text array.
    * @return true if the font family supports the text false if not.
    */
-  bool FontFamilySupportsText( const StyledFontFamily& styledFontFamily, const TextArray& text );
+  bool FontFamilySupportsText( const StyledFontFamily& styledFontFamily, const Integration::TextArray& text );
 
   /**
    * Clear the font family cache.
@@ -192,7 +192,7 @@ private:
    * @param charsRequested array of characters.
    * @return a pointer to _FcCharSet object on success, NULL on failure.
    */
-  _FcCharSet* CreateCharacterSet( const TextArray& charsRequested );
+  _FcCharSet* CreateCharacterSet( const Integration::TextArray& charsRequested );
 
   /**
    * Add a font that has not been found on the system but a match has been found.

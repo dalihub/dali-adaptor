@@ -105,14 +105,14 @@ public:
    * Otherwise returns closest match.
    * @param[in] charsRequested displayed text.
    */
-  virtual const StyledFontFamily& GetFontFamilyForChars( const TextArray& charsRequested ) = 0;
+  virtual const StyledFontFamily& GetFontFamilyForChars( const Integration::TextArray& charsRequested ) = 0;
 
   /**
    * Checks whether all characters of text could be displayed with specified font family.
    * @param[in] styledFontFamily The name of the font's family and the font's style.
    * @param[in] text displayed text.
    */
-  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const TextArray& text ) = 0;
+  virtual bool AllGlyphsSupported( const StyledFontFamily& styledFontFamily, const Integration::TextArray& text ) = 0;
 
   /**
    * Set the default font family and its style that should be used by the font controller.

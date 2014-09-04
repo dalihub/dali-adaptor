@@ -167,12 +167,12 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::GetFontFamilyForChars()
    */
-  const std::string& GetFontFamilyForChars(const TextArray& charsRequested) const;
+  const std::string& GetFontFamilyForChars(const Integration::TextArray& charsRequested) const;
 
   /**
    * @copydoc PlatformAbstraction::AllGlyphsSupported()
    */
-  bool AllGlyphsSupported(const std::string &fontFamily, const std::string& fontStyle, const TextArray& charsRequested) const;
+  bool AllGlyphsSupported(const std::string &fontFamily, const std::string& fontStyle, const Integration::TextArray& charsRequested) const;
 
   /**
    * @copydoc PlatformAbstraction::ValidateFontFamilyName()

@@ -338,6 +338,7 @@ void RenderSurface::DoRenderSync( unsigned int timeDelta, SyncMode syncMode )
   else if( mRenderMode > Dali::RenderSurface::RENDER_SYNC )
   {
     unsigned int syncPeriod( MICROSECONDS_PER_SECOND / static_cast< unsigned int >( mRenderMode ) - MILLISECONDS_PER_SECOND );
+
     if( timeDelta < syncPeriod )
     {
       usleep( syncPeriod - timeDelta );

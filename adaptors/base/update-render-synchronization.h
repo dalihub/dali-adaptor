@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/performance-interface.h>
+#include <base/frame-time.h>
 
 // EXTERNAL INCLUDES
 #include <stdint.h>
@@ -87,6 +88,11 @@ public:
   void Resume();
 
   /**
+   * Resume the frame time predictor
+   */
+  void ResumeFrameTime();
+
+  /**
    * Wake update thread if sleeping. If the update thread is not sleeping
    * this becomes a noop.
    * Called when an update is requested by Core.
@@ -148,9 +154,32 @@ public:
 
   /**
    * Called by the VSync notifier thread so it can sleep if Update/Render threads are sleeping/paused
+   * @param[in] validSync True if the sync was valid (@see VSyncMonitor::DoSync)
+   * @param[in] frameNumber The current frame number
+   * @param[in] seconds The current time
+   * @param[in] microseconds The current time
    * @return true if VSync monitoring/notifications should continue.
    */
-  bool VSyncNotifierSyncWithUpdateAndRender( unsigned int frameNumber, unsigned int seconds, unsigned int microseconds );
+  bool VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds );
+
+  /**
+   * Sets the expected minimum frame time interval.
+   * @param[in]  interval  The interval in microseconds.
+   */
+  void SetMinimumFrameTimeInterval( unsigned int timeInterval );
+
+  /**
+   * Predicts when the next render time will occur.
+   *
+   * @param[out]  lastFrameDeltaSeconds      The delta, in seconds (with float precision), between the last two renders.
+   * @param[out]  lastVSyncTimeMilliseconds  The time, in milliseconds, of the last VSync.
+   * @param[out]  nextVSyncTimeMilliseconds  The estimated time, in milliseconds, at the next VSync.
+   *
+   * @note Should only be called once per tick, from the update thread.
+   */
+  void PredictNextVSyncTime( float& lastFrameDeltaSeconds,
+                             unsigned int& lastVSyncTimeMilliseconds,
+                             unsigned int& nextVSyncTimeMilliseconds );
 
   /**
    * Retrieves the last VSync frame number
@@ -201,8 +230,8 @@ private:
   boost::condition_variable mVSyncSleepCondition;     ///< The vsync thread waits for this condition
   boost::condition_variable mPausedCondition;         ///< The controller waits for this condition while paused
 
-  Dali::Integration::Core&            mCore;                ///< Dali core reference
-  PerformanceInterface*               mPerformanceInterface;///< The performance logging interface
+  FrameTime mFrameTime;                               ///< Frame timer predicts next vsync time
+  PerformanceInterface* mPerformanceInterface;        ///< The performance logging interface
 
 }; // class UpdateRenderSynchronization
 
