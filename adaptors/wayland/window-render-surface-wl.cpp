@@ -178,13 +178,17 @@ void WindowRenderSurface::Map()
   ecore_wl_window_show(mWlWindow);
 }
 
+void WindowRenderSurface::StartRender()
+{
+}
+
 bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
   // nothing to do for windows
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int, SyncMode )
+void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int, bool )
 {
   EglImplementation& eglImpl = static_cast<EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -197,6 +201,10 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
 
     mNeedToApproveDeiconify = false;
   }
+}
+
+void WindowRenderSurface::StopRender()
+{
 }
 
 void WindowRenderSurface::SetViewMode( ViewMode viewMode )
@@ -226,6 +234,11 @@ void WindowRenderSurface::CreateWlRenderable()
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
 {
   mWlWindow = AnyCast< Ecore_Wl_Window* >( surfaceId );
+}
+
+void WindowRenderSurface::ReleaseLock()
+{
+  // Nothing to do.
 }
 
 } // namespace ECore

@@ -105,12 +105,6 @@ public:
   bool IsGlesInitialized() const;
 
   /**
-   * Sets the refresh sync mode.
-   * @see SyncMode
-   */
-  virtual bool SetRefreshSync( SyncMode mode );
-
-  /**
    * Performs an OpenGL swap buffers command
    */
   virtual void SwapBuffers();
@@ -193,7 +187,6 @@ private:
 
   bool                 mGlesInitialized;
   bool                 mIsOwnSurface;
-  SyncMode             mSyncMode;
   bool                 mContextCurrent;
   bool                 mIsWindow;
   ColorDepth           mColorDepth;

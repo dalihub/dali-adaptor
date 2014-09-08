@@ -41,9 +41,10 @@ UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptor
 : mUpdateThread( NULL ),
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
-  mUpdateRenderSync( NULL )
+  mUpdateRenderSync( NULL ),
+  mNumberOfVSyncsPerRender( 1 )
 {
-  mUpdateRenderSync = new UpdateRenderSynchronization( adaptorInterfaces );
+  mUpdateRenderSync = new UpdateRenderSynchronization( adaptorInterfaces, mNumberOfVSyncsPerRender );
 
   mUpdateThread = new UpdateThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
 
@@ -125,15 +126,12 @@ void UpdateRenderController::ReplaceSurface( RenderSurface* surface )
   mRenderThread->WaitForSurfaceReplaceComplete();
 }
 
-void UpdateRenderController::RenderSync()
+void UpdateRenderController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
-  mRenderThread->RenderSync();
+  mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
+  mUpdateRenderSync->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
-void UpdateRenderController::DisableVSync()
-{
-  mRenderThread->SetVSyncMode( EglInterface::NO_SYNC );
-}
 
 } // namespace Adaptor
 

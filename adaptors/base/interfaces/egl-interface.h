@@ -31,14 +31,6 @@ namespace Adaptor
 class EglInterface
 {
 public:
-  enum  SyncMode
-  {
-    NO_SYNC      = 0,  ///< not synchronised to display (driver might over-ride?)
-    FULL_SYNC    = 1,  ///< redraw at display refresh rate
-    HALF_SYNC    = 2,  ///< redraw at half display refresh rate
-    QUARTER_SYNC = 4   ///< redraw at quarter display refresh rate
-  };
-
   /**
     * Create the OpenGL context.
     * @return true if successful
@@ -54,12 +46,6 @@ public:
    * Terminate GL
    */
   virtual void TerminateGles() = 0;
-
-  /**
-   * Sets the refresh sync mode.
-   * @see SyncMode
-   */
-  virtual bool SetRefreshSync( SyncMode mode ) = 0;
 
   /**
    * Performs an OpenGL swap buffers command
@@ -90,4 +76,3 @@ protected:
 } // namespace Dali
 
 #endif // __DALI_INTERNAL_ADAPTOR_BASE_EGL_INTERFACE_H__
-

@@ -94,12 +94,6 @@ public:
   void WaitForSurfaceReplaceComplete();
 
   /**
-   * Sets the EGL VSync mode synchronisation with the display.
-   * @param syncMode to use
-   */
-  void SetVSyncMode( EglInterface::SyncMode syncMode );
-
-  /**
    * Offscreen was posted to onscreen
    */
   void RenderSync();
@@ -187,13 +181,11 @@ private: // Data
      */
     RenderData()
     : replaceSurface( false ),
-      syncMode( EglInterface::FULL_SYNC ),
       surface( NULL )
     {
     }
 
     volatile int                replaceSurface; ///< whether the surface needs replacing
-    EglInterface::SyncMode      syncMode;       ///< sync mode for EGL
     RenderSurface*              surface;        ///< Current surface
   };
 

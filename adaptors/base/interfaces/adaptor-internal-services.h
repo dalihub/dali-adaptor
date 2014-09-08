@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <slp-platform-abstraction.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <base/interfaces/egl-factory-interface.h>

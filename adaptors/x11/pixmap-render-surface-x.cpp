@@ -54,7 +54,9 @@ PixmapRenderSurface::PixmapRenderSurface( Dali::PositionSize positionSize,
                               Any display,
                               const std::string& name,
                               bool isTransparent)
-: RenderSurface( Dali::RenderSurface::PIXMAP, positionSize, surface, display, name, isTransparent )
+: RenderSurface( Dali::RenderSurface::PIXMAP, positionSize, surface, display, name, isTransparent ),
+  mSyncMode(SYNC_MODE_NONE),
+  mSyncReceived(false)
 {
   Init( surface );
 }
@@ -129,13 +131,18 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& eglIf )
                                        reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
 }
 
+void PixmapRenderSurface::StartRender()
+{
+  mSyncMode = SYNC_MODE_WAIT;
+}
+
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
@@ -173,8 +180,13 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     }
   }
 
-  // Do render synchronisation
-  DoRenderSync( timeDelta, syncMode );
+  AcquireLock( replacingSurface ? SYNC_MODE_NONE : SYNC_MODE_WAIT );
+}
+
+void PixmapRenderSurface::StopRender()
+{
+  SetSyncMode(SYNC_MODE_NONE);
+  ReleaseLock();
 }
 
 void PixmapRenderSurface::CreateXRenderable()
@@ -207,7 +219,26 @@ void PixmapRenderSurface::UseExistingRenderable( unsigned int surfaceId )
   mX11Pixmap = static_cast< Ecore_X_Pixmap >( surfaceId );
 }
 
-void PixmapRenderSurface::RenderSync()
+void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
+{
+  mSyncMode = syncMode;
+}
+
+void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
+{
+  boost::unique_lock< boost::mutex > lock( mSyncMutex );
+
+  // wait for sync
+  if( syncMode != SYNC_MODE_NONE &&
+      mSyncMode != SYNC_MODE_NONE &&
+      !mSyncReceived )
+  {
+    mSyncNotify.wait( lock );
+  }
+  mSyncReceived = false;
+}
+
+void PixmapRenderSurface::ReleaseLock()
 {
   {
     boost::unique_lock< boost::mutex > lock( mSyncMutex );
@@ -217,6 +248,7 @@ void PixmapRenderSurface::RenderSync()
   // wake render thread if it was waiting for the notify
   mSyncNotify.notify_all();
 }
+
 
 } // namespace ECore
 

@@ -55,7 +55,13 @@ public:
    * Set the use hardware flag
    * @param[in] useHardware The new state for the use hardware flag.
    */
-  void SetUseHardware( bool useHardware );
+  void SetUseHardwareVSync( bool useHardware );
+
+  /**
+   * Set whether the vsync hardware is available.
+   * (This is public to allow callback method to work...)
+   */
+  void SetHardwareVSyncAvailable(bool available);
 
 private: // From Dali::Internal::Adaptor::VSyncMonitorInterface
 
@@ -83,8 +89,8 @@ private:
 
   int       mFileDescriptor;  ///< DRM dev node file descriptor
   drmVBlank mVBlankInfo;
-  bool      mUseHardware;     ///< Hardware VSyncs available flag
-
+  bool      mUseHardwareVSync; ///< Whether to use hardware vsync
+  bool      mHardwareVSyncAvailable; ///< Whether hardware vsync is available
 };
 
 } // namespace Adaptor

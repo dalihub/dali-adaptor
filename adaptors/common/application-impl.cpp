@@ -178,7 +178,7 @@ void Application::OnInit()
   // Check if user requires no vsyncing and set on X11 Adaptor
   if (mCommandLineOptions->noVSyncOnRender)
   {
-    Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).DisableVSync();
+    mAdaptor->SetUseHardwareVSync(false);
   }
 
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetStereoBase( mCommandLineOptions->stereoBase );

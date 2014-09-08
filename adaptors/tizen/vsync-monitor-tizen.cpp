@@ -61,7 +61,7 @@ void ScreenStatusChanged(keynode_t* node, void* data)
   //  - VCONFKEY_PM_STATE_SLEEP : turn vsync off
   const bool screenOn( VCONFKEY_PM_STATE_NORMAL == status );
 
-  vsyncMonitor->SetUseHardware( screenOn );
+  vsyncMonitor->SetHardwareVSyncAvailable( screenOn );
 
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "%s, Screen %s.\n", __PRETTY_FUNCTION__, screenOn ? "On" : "Off" );
 }
@@ -70,7 +70,8 @@ void ScreenStatusChanged(keynode_t* node, void* data)
 
 VSyncMonitor::VSyncMonitor()
 : mFileDescriptor( FD_NONE ),
-  mUseHardware( true )
+  mUseHardwareVSync( true ),
+  mHardwareVSyncAvailable( false )
 {
   vconf_notify_key_changed( VCONFKEY_PM_STATE, ScreenStatusChanged, this );
 }
@@ -82,9 +83,14 @@ VSyncMonitor::~VSyncMonitor()
   vconf_ignore_key_changed( VCONFKEY_PM_STATE, ScreenStatusChanged );
 }
 
-void VSyncMonitor::SetUseHardware( bool useHardware )
+void VSyncMonitor::SetUseHardwareVSync( bool useHardware )
 {
-  mUseHardware = useHardware;
+  mUseHardwareVSync = useHardware;
+}
+
+void VSyncMonitor::SetHardwareVSyncAvailable( bool hardwareVSyncAvailable )
+{
+  mHardwareVSyncAvailable = hardwareVSyncAvailable;
 }
 
 void VSyncMonitor::Initialize()
@@ -120,9 +126,8 @@ void VSyncMonitor::Terminate()
 
 bool VSyncMonitor::UseHardware()
 {
-  return mUseHardware && (FD_NONE != mFileDescriptor );
+  return mUseHardwareVSync && mHardwareVSyncAvailable && (FD_NONE != mFileDescriptor );
 }
-
 
 bool VSyncMonitor::DoSync( unsigned int& frameNumber, unsigned int& seconds, unsigned int& microseconds )
 {

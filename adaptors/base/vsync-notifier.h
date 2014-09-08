@@ -48,8 +48,8 @@ class EnvironmentOptions;
 class AdaptorInternalServices;
 
 /**
- * Implements a simple class that monitors vertical blanks from libdrm
- * and sends a notification to Core.
+ * Implements a simple class that either monitors vertical blanks from libdrm, or manages
+ * a software timer to handle syncing.
  */
 class VSyncNotifier
 {
@@ -97,6 +97,7 @@ private:
   VSyncMonitorInterface*              mVSyncMonitor;        ///< VSyncMonitor interface
   boost::thread*                      mThread;              ///< The actual thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< Environment options
+  unsigned int                        mNumberOfVSyncsPerRender;///< How many frames for each update/render cycle.
 
 }; // class VSyncNotifier
 

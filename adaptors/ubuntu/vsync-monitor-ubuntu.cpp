@@ -48,7 +48,8 @@ const int FD_NONE( -1 );
 
 VSyncMonitor::VSyncMonitor()
 : mFileDescriptor( FD_NONE ),
-  mUseHardware( false )
+  mUseHardwareVSync( false ),
+  mHardwareVsyncAvailable( false )
 {
 }
 
@@ -57,9 +58,14 @@ VSyncMonitor::~VSyncMonitor()
   Terminate();
 }
 
-void VSyncMonitor::SetUseHardware( bool useHardware )
+void VSyncMonitor::SetUseHardwareVsync( bool useHardware )
 {
-  mUseHardware = useHardware;
+  mUseHardwareVSync = useHardware;
+}
+
+void VSyncMonitor::SetHardwareVSyncAvailable( bool hardwareVSyncAvailable )
+{
+  mHardwareVsyncAvailable = hardwareVSyncAvailable;
 }
 
 void VSyncMonitor::Initialize()
@@ -80,11 +86,6 @@ void VSyncMonitor::Initialize()
 
 void VSyncMonitor::Terminate()
 {
-  if( mFileDescriptor != FD_NONE )
-  {
-    close( mFileDescriptor );
-    mFileDescriptor = FD_NONE;
-  }
 }
 
 bool VSyncMonitor::UseHardware()

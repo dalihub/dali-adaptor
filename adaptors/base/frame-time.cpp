@@ -52,14 +52,14 @@ const unsigned int HISTORY_SIZE(3);
 FrameTime::FrameTime( PlatformAbstraction& platform )
 : mPlatform( platform ),
   mMinimumFrameTimeInterval( DEFAULT_MINIMUM_FRAME_TIME_INTERVAL ),
-  mLastVSyncTime( 0u ),
-  mLastVSyncTimeAtUpdate( 0u ),
-  mLastVSyncFrameNumber( 0u ),
+  mLastSyncTime( 0u ),
+  mLastSyncTimeAtUpdate( 0u ),
+  mLastSyncFrameNumber( 0u ),
   mLastUpdateFrameNumber( 0u ),
   mRunning( true ),
   mFirstFrame( true ),
   writePos( 0u ),
-  mExtraUpdatesSinceVSync( 0u )
+  mExtraUpdatesSinceSync( 0u )
 {
   // Clear buffer
   for ( unsigned int i = 0; i < HISTORY_SIZE; ++i )
@@ -67,8 +67,8 @@ FrameTime::FrameTime( PlatformAbstraction& platform )
     mPreviousUpdateFrames[i] = 0;
   }
 
-  SetLastVSyncTime();
-  mLastVSyncTimeAtUpdate = mLastVSyncTime;
+  SetLastSyncTime();
+  mLastSyncTimeAtUpdate = mLastSyncTime;
 
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "FrameTime Initialized\n" );
 }
@@ -82,16 +82,16 @@ void FrameTime::SetMinimumFrameTimeInterval( unsigned int interval )
   mMinimumFrameTimeInterval = interval;
 }
 
-void FrameTime::SetVSyncTime( unsigned int frameNumber )
+void FrameTime::SetSyncTime( unsigned int frameNumber )
 {
   // Only set the render time if we are running
   if ( mRunning )
   {
-    SetLastVSyncTime();
+    SetLastSyncTime();
 
-    mLastVSyncFrameNumber = frameNumber;
+    mLastSyncFrameNumber = frameNumber;
 
-    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: Frame: %u: Time: %u\n", mLastVSyncFrameNumber, (unsigned int) ( mLastVSyncTime / MICROSECONDS_PER_MILLISECOND ) );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: SetSyncTime(): Frame: %u: Time: %u\n", mLastSyncFrameNumber, (unsigned int) ( mLastSyncTime / MICROSECONDS_PER_MILLISECOND ) );
   }
 }
 
@@ -100,10 +100,10 @@ void FrameTime::Suspend()
   mRunning = false;
 
   // Reset members
-  mLastVSyncFrameNumber = 0;
+  mLastSyncFrameNumber = 0;
   mLastUpdateFrameNumber = 0;
   writePos = 0;
-  mExtraUpdatesSinceVSync = 0;
+  mExtraUpdatesSinceSync = 0;
 
   // Clear buffer
   for ( unsigned int i = 0; i < HISTORY_SIZE; ++i )
@@ -118,7 +118,7 @@ void FrameTime::Resume()
 {
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "FrameTime: Resuming\n" );
 
-  SetLastVSyncTime();   // Should only update the last VSync time so the elapsed time during suspension is taken into consideration when we next update.
+  SetLastSyncTime();   // Should only update the last Sync time so the elapsed time during suspension is taken into consideration when we next update.
   mFirstFrame = true;
 
   mRunning = true;
@@ -136,47 +136,48 @@ void FrameTime::WakeUp()
 {
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "FrameTime: Waking Up\n" );
 
-  SetLastVSyncTime();
-  mLastVSyncTimeAtUpdate = mLastVSyncTime; // We do not want any animations to progress as we have just been woken up.
+  SetLastSyncTime();
+  mLastSyncTimeAtUpdate = mLastSyncTime; // We do not want any animations to progress as we have just been woken up.
   mFirstFrame = true;
-
   mRunning = true;
 }
 
-void FrameTime::PredictNextVSyncTime( float& lastFrameDeltaSeconds, unsigned int& lastVSyncTimeMilliseconds, unsigned int& nextVSyncTimeMilliseconds )
+void FrameTime::PredictNextSyncTime( float& lastFrameDeltaSeconds, unsigned int& lastSyncTimeMilliseconds, unsigned int& nextSyncTimeMilliseconds )
 {
   if ( mRunning )
   {
     const unsigned int minimumFrameTimeInterval( mMinimumFrameTimeInterval );
-    const uint64_t lastVSyncTime( mLastVSyncTime );
-    const unsigned int lastVSyncFrameNumber( mLastVSyncFrameNumber );
+    const uint64_t lastSyncTime( mLastSyncTime );
+    const unsigned int lastSyncFrameNumber( mLastSyncFrameNumber );
 
     float lastFrameDelta( 0.0f ); // Assume the last update frame delta is 0.
-    unsigned int framesTillNextVSync( 1 ); // Assume next render will be in one VSync frame time.
+    unsigned int framesTillNextSync( 1 ); // Assume next render will be in one Sync frame time.
 
-    unsigned int framesInLastUpdate( lastVSyncFrameNumber - mLastUpdateFrameNumber );
-    lastFrameDelta = lastVSyncTime - mLastVSyncTimeAtUpdate;
+    unsigned int framesInLastUpdate( lastSyncFrameNumber - mLastUpdateFrameNumber );
+    lastFrameDelta = lastSyncTime - mLastSyncTimeAtUpdate;
 
     // We should only evaluate the previous frame values if this is not the first frame.
     if ( !mFirstFrame )
     {
-      // Check whether we have had any VSyncs since we last did an Update.
+      // Check whether we have had any Syncs since we last did an Update.
       if ( framesInLastUpdate == 0 )
       {
-        // We have had another update before a VSync, increment counter.
-        ++mExtraUpdatesSinceVSync;
+        // We have had another update before a Sync, increment counter.
+        ++mExtraUpdatesSinceSync;
 
-        // This update frame will be rendered mUpdatesSinceVSync later.
-        framesTillNextVSync += mExtraUpdatesSinceVSync;
+        // This update frame will be rendered mUpdatesSinceSync later.
+        framesTillNextSync += mExtraUpdatesSinceSync;
+        DALI_LOG_INFO(gLogFilter, Debug::Concise, "PredictNextSyncTime UpdateBeforeSync\n");
       }
       else
       {
-        mExtraUpdatesSinceVSync = 0;
+        mExtraUpdatesSinceSync = 0;
       }
 
       // If more than one frame elapsed since last Update, then check if this is a recurring theme so we can accurately predict when this Update is rendered.
       if ( framesInLastUpdate > 1 )
       {
+        DALI_LOG_INFO(gLogFilter, Debug::Concise, "PredictNextSyncTime framesInLastUpdate:%u\n", framesInLastUpdate);
         unsigned int average(0);
         for ( unsigned int i = 0; i < HISTORY_SIZE; ++i )
         {
@@ -187,7 +188,7 @@ void FrameTime::PredictNextVSyncTime( float& lastFrameDeltaSeconds, unsigned int
         if ( average > 1 )
         {
           // Our average shows a recurring theme, we are missing frames when rendering so calculate number of frames this will take.
-          framesTillNextVSync = average;
+          framesTillNextSync = average;
         }
       }
 
@@ -196,32 +197,31 @@ void FrameTime::PredictNextVSyncTime( float& lastFrameDeltaSeconds, unsigned int
       writePos = ( writePos + 1 ) % HISTORY_SIZE;
     }
 
-    mLastUpdateFrameNumber = lastVSyncFrameNumber;
-    mLastVSyncTimeAtUpdate = lastVSyncTime;
+    mLastUpdateFrameNumber = lastSyncFrameNumber;
+    mLastSyncTimeAtUpdate = lastSyncTime;
     mFirstFrame = false;
 
     // Calculate the time till the next render
-    unsigned int timeTillNextRender( minimumFrameTimeInterval * framesTillNextVSync );
+    unsigned int timeTillNextRender( minimumFrameTimeInterval * framesTillNextSync );
 
     // Set the input variables
     lastFrameDeltaSeconds = lastFrameDelta * MICROSECONDS_TO_SECONDS;
-    lastVSyncTimeMilliseconds = lastVSyncTime / MICROSECONDS_PER_MILLISECOND;
-    nextVSyncTimeMilliseconds = ( lastVSyncTime + timeTillNextRender ) / MICROSECONDS_PER_MILLISECOND;
+    lastSyncTimeMilliseconds = lastSyncTime / MICROSECONDS_PER_MILLISECOND;
+    nextSyncTimeMilliseconds = ( lastSyncTime + timeTillNextRender ) / MICROSECONDS_PER_MILLISECOND;
 
-    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: Frame: %u, Time: %u, NextTime: %u, LastDelta: %f\n", mLastUpdateFrameNumber, lastVSyncTimeMilliseconds, nextVSyncTimeMilliseconds, lastFrameDeltaSeconds );
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                      FramesInLastUpdate: %u, FramesTillNextVSync: %u\n", framesInLastUpdate, framesTillNextVSync );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: Frame: %u, Time: %u, NextTime: %u, LastDelta: %f\n", mLastUpdateFrameNumber, lastSyncTimeMilliseconds, nextSyncTimeMilliseconds, lastFrameDeltaSeconds );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                      FramesInLastUpdate: %u, FramesTillNextSync: %u\n", framesInLastUpdate, framesTillNextSync );
   }
 }
 
-inline void FrameTime::SetLastVSyncTime()
+inline void FrameTime::SetLastSyncTime()
 {
   unsigned int seconds( 0u );
   unsigned int microseconds( 0u );
 
   mPlatform.GetTimeMicroseconds( seconds, microseconds );
 
-  mLastVSyncTime = seconds;
-  mLastVSyncTime = ( mLastVSyncTime * MICROSECONDS_PER_SECOND ) + microseconds;
+  mLastSyncTime = ( seconds * MICROSECONDS_PER_SECOND ) + microseconds;
 }
 
 } // namespace Adaptor

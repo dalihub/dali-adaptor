@@ -171,14 +171,14 @@ public: // AdaptorInternalServices implementation
   virtual void ReplaceSurface( Dali::RenderSurface& surface );
 
   /**
-   * @copydoc AdaptorInterface::RenderSync()
-   */
-  virtual void RenderSync();
-
-  /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
   virtual Dali::RenderSurface& GetSurface() const;
+
+  /**
+   * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
+   */
+  virtual void ReleaseSurfaceLock();
 
   /**
    * Retrieve the TtsPlayer.
@@ -205,9 +205,14 @@ public:
   virtual Dali::Integration::Core& GetCore();
 
   /**
-   * Disables GL draw synchronisation with the display.
+   * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
-  DALI_IMPORT_API void DisableVSync();
+  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+
+  /**
+   * @copydoc Dali::Adaptor::SetUseHardwareVSync()
+   */
+  void SetUseHardwareVSync(bool useHardware);
 
   /**
    * Overrides DPI.
