@@ -108,6 +108,8 @@ private:
   // Undefined assignment operator.
   UpdateRenderController& operator=( const UpdateRenderController& );
 
+  AdaptorInternalServices&     mAdaptorInterfaces;
+
   UpdateThread*                mUpdateThread;     ///< The update-thread owned by UpdateRenderController
   RenderThread*                mRenderThread;     ///< The render-thread owned by UpdateRenderController
   VSyncNotifier*               mVSyncNotifier;    ///< The vsync-thread owned by UpdateRenderController

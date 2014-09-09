@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <base/interfaces/performance-interface.h>
 #include <base/frame-time.h>
+#include <base/render-thread.h>
 
 // EXTERNAL INCLUDES
 #include <stdint.h>
@@ -45,6 +46,7 @@ namespace Adaptor
 {
 
 class AdaptorInternalServices;
+class RenderSurface;
 
 /**
  * This object is used to synchronize the update, render and vsync threads.
@@ -108,6 +110,12 @@ public:
   void UpdateWhilePaused();
 
   /**
+   * Inform the render thread that there is a new surface.
+   * @param[in] newSurface The new surface for rendering.
+   */
+  bool ReplaceSurface( RenderSurface* newSurface );
+
+  /**
    * Called by Update thread before it runs the update. This is the point where we can pause
    */
   void UpdateReadyToRun();
@@ -135,19 +143,21 @@ public:
   bool UpdateTryToSleep();
 
   /**
+   * Called by the render-thread to wait for a buffer to read from and then render.
+   * @pre Called by render thread only.
+   * @param[in] request Pointer to set if there are any requests
+   * @return True if rendering should continue, false if the render-thread should quit.
+   */
+  bool RenderSyncWithUpdate( RenderRequest*& request);
+
+  /**
    * Called by the render thread after it renders a frame.
    * Used to notify the update-thread that a frame has been rendered.
    * @pre Called by render thread only.
-   * @param updateRequired Whether a further update is required.
+   * @param[in] updateRequired Whether a further update is required.
+   * @param[in] requestProcessed True if a render request was processed this frame
    */
-  void RenderFinished( bool updateRequired );
-
-  /**
-   * Called by the render-thread to wait for a buffer to read from and then render.
-   * @pre Called by render thread only.
-   * @return True if rendering should continue, false if the render-thread should quit.
-   */
-  bool RenderSyncWithUpdate();
+  void RenderFinished( bool updateRequired, bool requestProcessed );
 
   /**
    * Called by the render/update threads to wait for a Synchronization
@@ -244,9 +254,13 @@ private:
   boost::condition_variable mVSyncReceivedCondition;  ///< The render thread waits on this condition
   boost::condition_variable mVSyncSleepCondition;     ///< The vsync thread waits for this condition
   boost::condition_variable mPausedCondition;         ///< The controller waits for this condition while paused
+  boost::condition_variable mRequestFinishedCondition;///< The controller waits for this condition
 
   FrameTime mFrameTime;                               ///< Frame timer predicts next vsync time
   PerformanceInterface* mPerformanceInterface;        ///< The performance logging interface
+
+  ReplaceSurfaceRequest mReplaceSurfaceRequest; ///< Holder for a replace surface request
+  bool mReplaceSurfaceRequested; ///< True if there is a new replace surface request
 
 }; // class UpdateRenderSynchronization
 
