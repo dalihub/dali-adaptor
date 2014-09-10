@@ -22,16 +22,11 @@
 
 // Application / UI Framework adaption
 
-// These defines come from running pkg-config --cflags with the correct package config file
-
-#if defined(DALI_APPLICATION)
-#include <dali/public-api/adaptor-framework/application.h>
-#endif
-
 #include <dali/public-api/adaptor-framework/accessibility-action-handler.h>
 #include <dali/public-api/adaptor-framework/accessibility-gesture-handler.h>
 #include <dali/public-api/adaptor-framework/accessibility-manager.h>
 #include <dali/public-api/adaptor-framework/adaptor.h>
+#include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/bitmap-loader.h>
 #include <dali/public-api/adaptor-framework/bitmap-saver.h>
 #include <dali/public-api/adaptor-framework/clipboard.h>

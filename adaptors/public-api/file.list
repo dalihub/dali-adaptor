@@ -1,6 +1,7 @@
 public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/accessibility-manager.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/adaptor.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/application.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/color-controller.cpp \
@@ -26,9 +27,6 @@ public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/window.cpp \
   $(adaptor_public_api_dir)/dali-adaptor-version.cpp
 
-public_api_application_src_files = \
-  $(adaptor_public_api_dir)/adaptor-framework/application.cpp
-
 public_api_header_files = \
   $(adaptor_public_api_dir)/dali-adaptor-version.h
 
@@ -37,6 +35,7 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
   $(adaptor_public_api_dir)/adaptor-framework/accessibility-manager.h \
   $(adaptor_public_api_dir)/adaptor-framework/adaptor.h \
+  $(adaptor_public_api_dir)/adaptor-framework/application.h \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.h \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.h \
   $(adaptor_public_api_dir)/adaptor-framework/clipboard-event-notifier.h \
@@ -62,9 +61,6 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/tts-player.h \
   $(adaptor_public_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_public_api_dir)/adaptor-framework/window.h
-
-public_api_application_header_files = \
-  $(adaptor_public_api_dir)/adaptor-framework/application.h
 
 adaptor_dali_header_file = \
   $(adaptor_public_api_dir)/dali.h

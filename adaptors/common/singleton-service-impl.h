@@ -43,7 +43,7 @@ public:
    * This should only be called once by the Application class.
    * @return A newly created SingletonService.
    */
-  static Dali::SingletonService New() DALI_IMPORT_API;
+  static Dali::SingletonService New();
 
   /**
    * @copydoc Dali::SingletonService::Get()

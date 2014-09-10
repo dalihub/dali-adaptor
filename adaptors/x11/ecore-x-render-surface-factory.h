@@ -52,7 +52,7 @@ class RenderSurface;
  * @param [in] name Name of surface passed in
  * @param [in] isTransparent Whether the surface has an alpha channel
  */
-DALI_IMPORT_API RenderSurface* CreatePixmapSurface(
+RenderSurface* CreatePixmapSurface(
   PositionSize       positionSize,
   Any         surface,
   Any         display,

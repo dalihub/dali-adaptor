@@ -97,7 +97,7 @@ public:
    *                         - Window, adaptor will use existing Window to draw on to
    * @param[in]  baseLayout  The base layout that the application has been written for
    */
-  DALI_IMPORT_API static Dali::Adaptor* New( RenderSurface* surface, const DeviceLayout& baseLayout );
+  static Dali::Adaptor* New( RenderSurface* surface, const DeviceLayout& baseLayout );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
@@ -220,7 +220,7 @@ public:
    * @param[in] hDpi The Horizontal DPI
    * @param[in] vDpi The Vertical DPI
    */
-  DALI_IMPORT_API void SetDpi(size_t hDpi, size_t vDpi);
+  void SetDpi(size_t hDpi, size_t vDpi);
 
   /**
    * @return reference to EglFactory class
@@ -349,22 +349,22 @@ public: // Stereoscopy
   /**
    * @copydoc Dali::Integration::Core::SetViewMode()
    */
-  DALI_IMPORT_API void SetViewMode( ViewMode viewMode );
+  void SetViewMode( ViewMode viewMode );
 
   /**
    * @copydoc Dali::Integration::Core::GetViewMode()
    */
-  DALI_IMPORT_API ViewMode GetViewMode() const;
+  ViewMode GetViewMode() const;
 
   /**
    * @copydoc Dali::Integration::Core::SetStereoBase()
    */
-  DALI_IMPORT_API void SetStereoBase( float stereoBase );
+  void SetStereoBase( float stereoBase );
 
   /**
    * @copydoc Dali::Integration::Core::GetStereoBase()
    */
-  DALI_IMPORT_API float GetStereoBase() const;
+  float GetStereoBase() const;
 
 public: // Signals
 

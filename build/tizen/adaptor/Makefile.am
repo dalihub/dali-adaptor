@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# Build the Dali Adaptor common intermediate library
+# Build the Dali Adaptor library
 
 
 ############# INCLUDE FILE LISTS #############
@@ -160,18 +160,18 @@ else
   slp_platform_abstraction_src_files += $(slp_jpeg_loader)
 endif
 
-lib_LTLIBRARIES = libdali-adaptor-common.la
+lib_LTLIBRARIES = libdali-adaptor.la
 
-libdali_adaptor_common_la_SOURCES = \
+libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(slp_platform_abstraction_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
-libdali_adaptor_common_la_DEPENDENCIES =
+libdali_adaptor_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (slp) before portable root:
-libdali_adaptor_common_la_includes = \
+libdali_adaptor_la_includes = \
                       -I../../.. \
                       -I../../../platform-abstractions/slp \
                       -I../../../platform-abstractions/slp/resource-loader \
@@ -182,26 +182,27 @@ libdali_adaptor_common_la_includes = \
                       -I../../../adaptors/common \
                       -I../../../adaptors/
 if WAYLAND
-libdali_adaptor_common_la_includes += \
+libdali_adaptor_la_includes += \
                       -I../../../adaptors/wayland
 else
-libdali_adaptor_common_la_includes += \
+libdali_adaptor_la_includes += \
                       -I../../../adaptors/x11
 endif
 
 if UBUNTU_PROFILE
-libdali_adaptor_common_la_includes += \
+libdali_adaptor_la_includes += \
                       -I../../../adaptors/ubuntu
 else
-libdali_adaptor_common_la_includes += \
+libdali_adaptor_la_includes += \
                       -I../../../adaptors/tizen
 endif
 
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
+daliUserShaderCacheDir = ${dataReadWriteDir}/core/shaderbin/
 
-libdali_adaptor_common_la_CXXFLAGS = \
+libdali_adaptor_la_CXXFLAGS = \
                       -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                       -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                       -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\"" \
@@ -215,7 +216,7 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \
-                      $(libdali_adaptor_common_la_includes) \
+                      $(libdali_adaptor_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
                       $(DALICORE_CFLAGS) \
                       $(OPENGLES20_CFLAGS) \
@@ -238,7 +239,7 @@ libdali_adaptor_common_la_CXXFLAGS = \
                       $(LIBEXIF_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
 
-libdali_adaptor_common_la_LIBADD = \
+libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
                       $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
@@ -255,59 +256,60 @@ libdali_adaptor_common_la_LIBADD = \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
+                      $(CAPI_APPFW_APPLICATION_LIBS) \
                       -lgif \
                       -lboost_thread
 
 if WAYLAND
-libdali_adaptor_common_la_CXXFLAGS += $(WAYLAND_CFLAGS)
-libdali_adaptor_common_la_LIBADD += $(WAYLAND_LIBS)
+libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
+libdali_adaptor_la_LIBADD += $(WAYLAND_LIBS)
 else
-libdali_adaptor_common_la_CXXFLAGS += $(X11_CFLAGS)
-libdali_adaptor_common_la_LIBADD += $(X11_LIBS)
-libdali_adaptor_common_la_LIBADD += $(ECORE_X_LIBS)
+libdali_adaptor_la_CXXFLAGS += $(X11_CFLAGS)
+libdali_adaptor_la_LIBADD += $(X11_LIBS)
+libdali_adaptor_la_LIBADD += $(ECORE_X_LIBS)
 endif
 
 if COMMON_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if MOBILE_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
                       $(DEVICED_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
                       $(NATIVE_BUFFER_POOL_CFLAGS)
 
-libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS) \
+libdali_adaptor_la_LIBADD += $(ASSIMP_LIBS) \
                       $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif
 
 if LITE_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if WEARABLE_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if TV_PROFILE
-libdali_adaptor_common_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
                                       $(HAPTIC_CFLAGS)
 
-libdali_adaptor_common_la_LIBADD += $(ASSIMP_LIBS)
+libdali_adaptor_la_LIBADD += $(ASSIMP_LIBS)
 endif
 
 if TURBO_JPEG_IS_ON
-libdali_adaptor_common_la_LIBADD += -lturbojpeg
+libdali_adaptor_la_LIBADD += -lturbojpeg
 CFLAGS += -D_TURBO_JPEG_LOADER
 if UBUNTU_PROFILE
-libdali_adaptor_common_la_LIBADD += -ljpeg
+libdali_adaptor_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
 endif
 else
-libdali_adaptor_common_la_LIBADD += -ljpeg
+libdali_adaptor_la_LIBADD += -ljpeg
 endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
@@ -318,3 +320,30 @@ tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_f
 
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
+
+install-data-local:
+	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}
+
+# Install resource log analyzer script
+bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
+
+# linking test
+
+noinst_PROGRAMS = linker.test
+
+linker_test_SOURCES = linker-test.cpp
+
+linker_test_CXXFLAGS = \
+  -I../../../adaptors/common \
+  -I../../../adaptors/public-api \
+  -I../../../adaptors/public-api/adaptor-framework \
+  $(DALI_ADAPTOR_CFLAGS) \
+  $(DALICORE_CFLAGS) \
+  $(DALIX11_CFLAGS) \
+  -Werror -Wall
+
+linker_test_DEPENDENCIES = libdali-adaptor.la
+linker_test_LDADD = \
+  $(DALICORE_LIBS) \
+  libdali-adaptor.la \
+  -L${prefix}/lib

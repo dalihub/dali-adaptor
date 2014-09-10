@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-SUBDIRS = common dali-application
+SUBDIRS = adaptor
 
 if ! LITE_PROFILE
 if ! WEARABLE_PROFILE
@@ -25,8 +25,7 @@ endif
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = dali.pc \
-                 dali-application.pc
+pkgconfig_DATA = dali.pc
 
 MAINTAINERCLEANFILES = \
     aclocal.m4 \
@@ -50,9 +49,9 @@ COVERAGE_OUTPUT_DIR=doc/coverage
 cov_data:
 	@test -z $(COVERAGE_DIR) || mkdir -p $(COVERAGE_DIR)
 	@rm -f $(COVERAGE_DIR)/*
-	@-cp common/.libs/*.gcda common/.libs/*.gcno  $(COVERAGE_DIR)
-	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_common_la-*.gcda" -o -name "libdali_adaptor_common_la-*.gcno"` ;\
-		do mv $$i `echo $$i | sed s/libdali_adaptor_common_la-//` ; echo $$i ; done
+	@-cp adaptor/.libs/*.gcda adaptor/.libs/*.gcno  $(COVERAGE_DIR)
+	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_la-*.gcda" -o -name "libdali_adaptor_la-*.gcno"` ;\
+		do mv $$i `echo $$i | sed s/libdali_adaptor_la-//` ; echo $$i ; done
 	@cd $(COVERAGE_DIR) ; lcov --base-directory . --directory . -c -o dali.info
 	@cd $(COVERAGE_DIR) ; lcov --remove dali.info "*boost*" "dali-env/*" "/usr/include/*" -o dali.info
 	@test -z $(COVERAGE_OUTPUT_DIR) || mkdir -p $(COVERAGE_OUTPUT_DIR)

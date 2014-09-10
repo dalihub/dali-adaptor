@@ -232,10 +232,8 @@ AC_SUBST(devincludepath)
 
 AC_CONFIG_FILES([
  Makefile
- common/Makefile
+ adaptor/Makefile
  dali.pc
- dali-application/Makefile
- dali-application.pc
 ])
 
 if test "x$enable_profile" != "xLITE"; then

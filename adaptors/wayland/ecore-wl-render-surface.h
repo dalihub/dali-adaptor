@@ -48,7 +48,7 @@ namespace ECore
  * @todo change namespace to ECore_Wayland as the class
  * is no longer pure Wayland.
  */
-class DALI_IMPORT_API RenderSurface : public Internal::Adaptor::RenderSurface
+class RenderSurface : public Internal::Adaptor::RenderSurface
 {
 public:
   /**

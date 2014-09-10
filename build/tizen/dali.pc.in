@@ -8,5 +8,5 @@ Name: Samsung OpenGLES Toolkit Adaptor
 Description: 3D Canvas Toolkit using OpenGLES (with the adaptor)
 Version: ${apiversion}
 Requires: dali-core
-Libs: -L${libdir} -ldali-application -ldali-adaptor-common
-Cflags: -I${includedir}/dali -DDALI_APPLICATION
+Libs: -L${libdir} -ldali-adaptor
+Cflags: -I${includedir}/dali

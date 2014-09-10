@@ -1,10 +1,13 @@
 # Common
 
 adaptor_common_internal_src_files = \
+  $(adaptor_common_dir)/abort-handler.cpp \
   $(adaptor_common_dir)/accessibility-gesture-detector.cpp \
   $(adaptor_common_dir)/adaptor-impl.cpp \
+  $(adaptor_common_dir)/application-impl.cpp \
   $(adaptor_common_dir)/bitmap-loader-impl.cpp \
   $(adaptor_common_dir)/clipboard-event-notifier-impl.cpp \
+  $(adaptor_common_dir)/command-line-options.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector-impl.cpp \
   $(adaptor_common_dir)/ecore-callback-manager.cpp \
   $(adaptor_common_dir)/file-descriptor-monitor.cpp \
@@ -47,8 +50,3 @@ adaptor_common_internal_src_files = \
 adaptor_common_internal_default_profile_src_files = \
   $(adaptor_common_dir)/color-controller-impl.cpp \
   $(adaptor_common_dir)/system-settings.cpp
-
-adaptor_common_application_internal_src_files = \
-  $(adaptor_common_dir)/application-impl.cpp \
-  $(adaptor_common_dir)/command-line-options.cpp \
-  $(adaptor_common_dir)/abort-handler.cpp

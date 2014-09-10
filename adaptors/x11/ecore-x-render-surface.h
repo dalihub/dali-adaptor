@@ -47,7 +47,7 @@ namespace ECore
  * @todo change namespace to ECore_X11 as the class
  * is no longer pure X11.
  */
-class DALI_IMPORT_API RenderSurface : public Internal::Adaptor::RenderSurface
+class RenderSurface : public Internal::Adaptor::RenderSurface
 {
 public:
   /**
