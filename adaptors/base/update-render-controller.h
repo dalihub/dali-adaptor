@@ -96,14 +96,9 @@ public:
   void ReplaceSurface( RenderSurface* surface );
 
   /**
-   * @copydoc Dali::Adaptor::RenderSync()
+   * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
-  void RenderSync();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::RenderSync()
-   */
-  void DisableVSync();
+  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
 
 private:
 
@@ -117,6 +112,7 @@ private:
   RenderThread*                mRenderThread;     ///< The render-thread owned by UpdateRenderController
   VSyncNotifier*               mVSyncNotifier;    ///< The vsync-thread owned by UpdateRenderController
   UpdateRenderSynchronization* mUpdateRenderSync; ///< Used to synchronize the update & render threads; also owned by UpdateRenderController
+  unsigned int                 mNumberOfVSyncsPerRender; ///< Frame skipping count
 };
 
 } // namespace Adaptor

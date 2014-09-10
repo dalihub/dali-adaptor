@@ -49,8 +49,8 @@ public:
   virtual void Terminate() = 0;
 
   /**
-   * Checks if hardware syncs are available
-   * @return true if hardware syncs are available
+   * Checks if hardware sync is available and enabled
+   * @return true if hardware sync is available and enabled
    */
   virtual bool UseHardware() = 0;
 

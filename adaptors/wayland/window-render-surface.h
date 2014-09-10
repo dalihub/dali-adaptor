@@ -124,6 +124,11 @@ public:  // from Internal::Adaptor::RenderSurface
   virtual void Map();
 
   /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StartRender()
+   */
+  virtual void StartRender();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
@@ -131,12 +136,22 @@ public:  // from Internal::Adaptor::RenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface );
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
+   */
+  virtual void StopRender();
 
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::SetViewMode()
    */
   void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::ReleaseLock()
+   */
+  virtual void ReleaseLock();
 
 protected:
 

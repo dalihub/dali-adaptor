@@ -24,10 +24,10 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <adaptor.h>
 #include <dali/public-api/object/any.h>
 #include <adaptor-impl.h>
 #include <ecore-x-window-interface.h>
+#include <singleton-service-impl.h>
 
 namespace //unnamed namespace
 {
@@ -62,23 +62,27 @@ BaseHandle Create()
 
   if ( !handle && Adaptor::IsAvailable() )
   {
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-
-    // The Ecore_X_Window needs to use the Clipboard.
-    // Only when the render surface is window, we can get the Ecore_X_Window.
-    Ecore_X_Window ecoreXwin( 0 );
-    Dali::RenderSurface& surface( adaptorImpl.GetSurface() );
-    if( surface.GetType() == Dali::RenderSurface::WINDOW )
+    Dali::SingletonService service( SingletonService::Get() );
+    if ( service )
     {
-      ecoreXwin = AnyCast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
-    }
+      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
 
-    // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
-    // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-    // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-    Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( ecoreXwin ) );
-    adaptorImpl.RegisterSingleton( typeid( clipboard ), clipboard );
-    handle = clipboard;
+      // The Ecore_X_Window needs to use the Clipboard.
+      // Only when the render surface is window, we can get the Ecore_X_Window.
+      Ecore_X_Window ecoreXwin( 0 );
+      Dali::RenderSurface& surface( adaptorImpl.GetSurface() );
+      if( surface.GetType() == Dali::RenderSurface::WINDOW )
+      {
+        ecoreXwin = AnyCast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
+      }
+
+      // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
+      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
+      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
+      Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( ecoreXwin ) );
+      service.Register( typeid( clipboard ), clipboard );
+      handle = clipboard;
+    }
   }
 
   return handle;
@@ -100,10 +104,11 @@ Dali::Clipboard Clipboard::Get()
 {
   Dali::Clipboard clipboard;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Adaptor::Get().GetSingleton( typeid( Dali::Clipboard ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::Clipboard ) );
     if(handle)
     {
       // If so, downcast the handle

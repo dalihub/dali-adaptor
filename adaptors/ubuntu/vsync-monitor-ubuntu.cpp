@@ -38,17 +38,14 @@ namespace Adaptor
 namespace
 {
 
-#if defined(DEBUG_ENABLED)
-Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VSYNC_MONITOR");
-#endif
-
 const int FD_NONE( -1 );
 
 } // unnamed namespace
 
 VSyncMonitor::VSyncMonitor()
 : mFileDescriptor( FD_NONE ),
-  mUseHardware( false )
+  mUseHardwareVSync( false ),
+  mHardwareVSyncAvailable( false )
 {
 }
 
@@ -57,9 +54,14 @@ VSyncMonitor::~VSyncMonitor()
   Terminate();
 }
 
-void VSyncMonitor::SetUseHardware( bool useHardware )
+void VSyncMonitor::SetUseHardwareVSync( bool useHardware )
 {
-  mUseHardware = useHardware;
+  mUseHardwareVSync = useHardware;
+}
+
+void VSyncMonitor::SetHardwareVSyncAvailable( bool hardwareVSyncAvailable )
+{
+  mHardwareVSyncAvailable = hardwareVSyncAvailable;
 }
 
 void VSyncMonitor::Initialize()
@@ -80,16 +82,11 @@ void VSyncMonitor::Initialize()
 
 void VSyncMonitor::Terminate()
 {
-  if( mFileDescriptor != FD_NONE )
-  {
-    close( mFileDescriptor );
-    mFileDescriptor = FD_NONE;
-  }
 }
 
 bool VSyncMonitor::UseHardware()
 {
-  return mUseHardware && (FD_NONE != mFileDescriptor );
+  return mUseHardwareVSync && mHardwareVSyncAvailable && (FD_NONE != mFileDescriptor );
 }
 
 

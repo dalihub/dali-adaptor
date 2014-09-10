@@ -41,9 +41,11 @@ namespace Adaptor
 
 namespace
 {
-
 const unsigned int MICROSECONDS_PER_MILLISECOND( 1000 );
 
+#if defined(DEBUG_ENABLED)
+Integration::Log::Filter* gUpdateLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_UPDATE_THREAD");
+#endif
 } // unnamed namespace
 
 UpdateThread::UpdateThread( UpdateRenderSynchronization& sync,
@@ -77,6 +79,7 @@ UpdateThread::~UpdateThread()
 
 void UpdateThread::Start()
 {
+  DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Start()\n");
   if ( !mThread )
   {
     // Create and run the update-thread
@@ -86,6 +89,7 @@ void UpdateThread::Start()
 
 void UpdateThread::Stop()
 {
+  DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Stop()\n");
   if( mThread )
   {
     // wait for the thread to finish
@@ -98,6 +102,7 @@ void UpdateThread::Stop()
 
 bool UpdateThread::Run()
 {
+  DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run()\n");
   Integration::UpdateStatus status;
 
   // install a function for logging
@@ -108,16 +113,21 @@ bool UpdateThread::Run()
   // Update loop, we stay inside here while the update-thread is running
   while ( running )
   {
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 1 - Sync()\n");
+
     // Inform synchronization object update is ready to run, this will pause update thread if required.
     mUpdateRenderSync.UpdateReadyToRun();
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 2 - Ready()\n");
 
     // get the last delta and the predict when this update will be rendered
     float lastFrameDelta( 0.0f );
-    unsigned int lastVSyncTime( 0 );
-    unsigned int nextVSyncTime( 0 );
-    mUpdateRenderSync.PredictNextVSyncTime( lastFrameDelta, lastVSyncTime, nextVSyncTime );
+    unsigned int lastSyncTime( 0 );
+    unsigned int nextSyncTime( 0 );
+    mUpdateRenderSync.PredictNextSyncTime( lastFrameDelta, lastSyncTime, nextSyncTime );
 
-    mCore.Update( lastFrameDelta, lastVSyncTime, nextVSyncTime, status );
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 3 - Update(delta:%f, lastSync:%u, nextSync:%u)\n", lastFrameDelta, lastSyncTime, nextSyncTime);
+
+    mCore.Update( lastFrameDelta, lastSyncTime, nextSyncTime, status );
 
     if( mFpsTrackingSeconds > 0 )
     {
@@ -136,6 +146,7 @@ bool UpdateThread::Run()
     // tell the synchronisation class that a buffer has been written to,
     // and to wait until there is a free buffer to write to
     running = mUpdateRenderSync.UpdateSyncWithRender( renderNeedsUpdate );
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 4 - UpdateSyncWithRender complete\n");
 
     if( running )
     {
@@ -154,6 +165,8 @@ bool UpdateThread::Run()
 
       if( !runUpdate )
       {
+        DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 5 - Nothing to update, trying to sleep\n");
+
         running = mUpdateRenderSync.UpdateTryToSleep();
       }
     }

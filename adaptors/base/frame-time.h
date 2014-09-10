@@ -86,30 +86,30 @@ public:
    * Predicts when the next render time will occur.
    *
    * @param[out]  lastFrameDeltaSeconds      The delta, in seconds (with float precision), between the last two renders.
-   * @param[out]  lastVSyncTimeMilliseconds  The time, in milliseconds, of the last VSync.
-   * @param[out]  nextVSyncTimeMilliseconds  The estimated time, in milliseconds, at the next VSync.
+   * @param[out]  lastSyncTimeMilliseconds  The time, in milliseconds, of the last Sync.
+   * @param[out]  nextSyncTimeMilliseconds  The estimated time, in milliseconds, at the next Sync.
    *
    * @note Should only be called once per tick, from the update thread.
    */
-  void PredictNextVSyncTime( float& lastFrameDeltaSeconds, unsigned int& lastVSyncTimeMilliseconds, unsigned int& nextVSyncTimeMilliseconds );
+  void PredictNextSyncTime( float& lastFrameDeltaSeconds, unsigned int& lastVSyncTimeMilliseconds, unsigned int& nextVSyncTimeMilliseconds );
 
   // Called from VSync thread
 
   /**
-   * Tells the FrameTime object that a VSync has occurred.
+   * Tells the FrameTime object that a Sync has occurred.
    *
-   * @param[in]  frameNumber  The frame number of the current VSync.
+   * @param[in]  frameNumber  The frame number of the current Sync.
    *
    * @note Should only be called from the VSync thread.
    */
-  void SetVSyncTime( unsigned int frameNumber );
+  void SetSyncTime( unsigned int frameNumber );
 
 private:
 
   /**
    * Sets the current time to be the last Vsync time.
    */
-  inline void SetLastVSyncTime();
+  inline void SetLastSyncTime();
 
 private:
 
@@ -117,11 +117,11 @@ private:
 
   unsigned int mMinimumFrameTimeInterval;   ///< The minimum frame time interval, set by Adaptor.
 
-  uint64_t mLastVSyncTime;                  ///< The last VSync time (in microseconds).
-  uint64_t mLastVSyncTimeAtUpdate;          ///< The last VSync time at Update (in microseconds).
+  uint64_t mLastSyncTime;                  ///< The last Sync time (in microseconds).
+  uint64_t mLastSyncTimeAtUpdate;          ///< The last Sync time at Update (in microseconds).
 
-  unsigned int mLastVSyncFrameNumber;       ///< The last VSync frame number
-  unsigned int mLastUpdateFrameNumber;      ///< The last VSync frame number handled in Update.
+  unsigned int mLastSyncFrameNumber;       ///< The last Sync frame number
+  unsigned int mLastUpdateFrameNumber;      ///< The last Sync frame number handled in Update.
 
   bool         mRunning:1;                  ///< The state of the FrameTime object.
   bool         mFirstFrame:1;               ///< Whether the current update is the first frame (after initialisation, resume or wake up).
@@ -129,7 +129,7 @@ private:
   unsigned int mPreviousUpdateFrames[3];    ///< Array holding the number of frames Update took in the last three iterations.
   unsigned int writePos;                    ///< The current write position in the array.
 
-  unsigned int mExtraUpdatesSinceVSync;     ///< The number of extra updates since the last VSync.
+  unsigned int mExtraUpdatesSinceSync;     ///< The number of extra updates since the last Sync.
 };
 
 } // namespace Adaptor

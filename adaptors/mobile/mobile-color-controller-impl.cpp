@@ -24,7 +24,7 @@
 #include <efl_assist_theme.h>
 
 // INTERNAL INCLUDES
-#include <common/adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -50,10 +50,11 @@ Dali::ColorController ColorController::Get()
 {
   Dali::ColorController colorController;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Dali::Adaptor::Get().GetSingleton( typeid( Dali::ColorController ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::ColorController ) );
     if(handle)
     {
       // If so, downcast the handle
@@ -61,9 +62,8 @@ Dali::ColorController ColorController::Get()
     }
     else
     {
-      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       colorController = Dali::ColorController( new ColorController( ) );
-      adaptorImpl.RegisterSingleton( typeid( colorController ), colorController );
+      service.Register( typeid( colorController ), colorController );
     }
   }
 

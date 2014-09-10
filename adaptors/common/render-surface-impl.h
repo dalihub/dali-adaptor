@@ -22,6 +22,7 @@
 #include <render-surface.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/view-mode.h>
+#include <base/interfaces/egl-interface.h>
 
 namespace Dali
 {
@@ -46,14 +47,6 @@ class EglInterface;
  */
 class DALI_IMPORT_API RenderSurface : public Dali::RenderSurface
 {
-public:
-
-  enum SyncMode
-  {
-    SYNC_MODE_NONE,               ///< Do not wait for RenderSync
-    SYNC_MODE_WAIT                ///< Wait for RenderSync
-  };
-
 public:
 
   /**
@@ -81,7 +74,7 @@ public: // API
   virtual void CreateEglSurface( EglInterface& egl ) = 0;
 
   /**
-   * Destroyes EGL Surface
+   * Destroys EGL Surface
    * @param egl implementation to use for the destruction
    */
   virtual void DestroyEglSurface( EglInterface& egl ) = 0;
@@ -129,9 +122,9 @@ public: // API
   virtual void SetViewMode( ViewMode viewMode ) = 0;
 
   /**
-   * Called after offscreen is posted to onscreen
+   * Called when Render thread has started
    */
-  virtual void RenderSync() = 0;
+  virtual void StartRender() = 0;
 
   /**
    * Invoked by render thread before Core::Render
@@ -146,10 +139,9 @@ public: // API
    * @param[in] egl The Egl interface
    * @param[in] glAbstraction OpenGLES abstraction interface
    * @param[in] deltaTime Time (in microseconds) since PostRender was last called.
-   * @param[in] syncMode Wait for render sync flag.
-   *                     RenderSync will be skipped if this or SetSyncMode() is set to SYNC_MODE_NONE.
+   * @param[in] replacingSurface True if the surface is being replaced.
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int deltaTime, SyncMode syncMode ) = 0;
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int deltaTime, bool replacingSurface ) = 0;
 
   /**
    * Invoked by render thread when the thread should be stop
@@ -157,10 +149,9 @@ public: // API
   virtual void StopRender() = 0;
 
   /**
-   * Set whether the surface should wait for RenderSync notifications
-   * @param[in] syncMode Wait for render sync flag. A member of SyncMode
+   * Invoked by Event Thread when the compositor lock should be released and rendering should resume.
    */
-  virtual void SetSyncMode( SyncMode syncMode ) = 0;
+  virtual void ReleaseLock() = 0;
 };
 
 } // namespace Adaptor

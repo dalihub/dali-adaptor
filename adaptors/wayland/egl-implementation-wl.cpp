@@ -56,7 +56,6 @@ EglImplementation::EglImplementation()
     mEglSurface(0),
     mGlesInitialized(false),
     mIsOwnSurface(true),
-    mSyncMode(FULL_SYNC),
     mContextCurrent(false),
     mIsWindow(true),
     mColorDepth(COLOR_DEPTH_24)
@@ -232,10 +231,6 @@ void EglImplementation::MakeContextCurrent()
       eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
       eglQueryString(mEglDisplay, EGL_EXTENSIONS));
 
-  if ( mIsWindow )
-  {
-    SetRefreshSync( mSyncMode );
-  }
 }
 
 void EglImplementation::MakeContextNull()
@@ -274,32 +269,6 @@ void EglImplementation::TerminateGles()
 bool EglImplementation::IsGlesInitialized() const
 {
   return mGlesInitialized;
-}
-
-bool EglImplementation::SetRefreshSync( SyncMode mode )
-{
-  if ( mIsWindow == false )
-  {
-    return false;
-  }
-  mSyncMode = mode;
-
-  // eglSwapInterval specifies the minimum number of video frame periods
-  // per buffer swap for the window associated with the current context.
-
-  if ( !mContextCurrent )
-  {
-    return true;
-  }
-
-  EGLBoolean ok = eglSwapInterval( mEglDisplay, mode );
-  if ( !ok )
-  {
-    TEST_EGL_ERROR("eglSwapInterval");
-    return false;
-  }
-
-  return true;
 }
 
 void EglImplementation::SwapBuffers()
@@ -576,4 +545,3 @@ EGLDisplay EglImplementation::GetContext() const
 } // namespace Internal
 
 } // namespace Dali
-

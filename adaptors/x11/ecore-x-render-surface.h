@@ -125,16 +125,6 @@ public: // from Dali::RenderSurface
    */
   virtual PositionSize GetPositionSize() const;
 
-  /**
-   * @copydoc Dali::RenderSurface::SetRenderMode()
-   */
-  virtual void SetRenderMode(RenderMode mode);
-
-  /**
-   * @copydoc Dali::RenderSurface::GetRenderMode()
-   */
-  virtual RenderMode GetRenderMode() const;
-
 public:  // from Internal::Adaptor::RenderSurface
 
   /**
@@ -178,11 +168,6 @@ public:  // from Internal::Adaptor::RenderSurface
   virtual void ConsumeEvents();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::RenderSurface::RenderSync()
-   */
-  virtual void RenderSync();
-
-  /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::SetViewMode()
    */
   void SetViewMode( ViewMode );
@@ -195,17 +180,7 @@ public:  // from Internal::Adaptor::RenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, SyncMode syncMode ) = 0;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
-   */
-  virtual void StopRender();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::RenderSurface::SetSyncMode()
-   */
-  virtual void SetSyncMode( SyncMode syncMode ) { mSyncMode = syncMode; }
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface ) = 0;
 
 private:
 
@@ -235,13 +210,6 @@ protected:
    */
   virtual void UseExistingRenderable( unsigned int surfaceId ) = 0;
 
-  /**
-   * Perform render sync
-   * @param[in] currentTime Current time in microseconds
-   * @param[in] syncMode Wait for RenderSync (from Adaptor) flag. A member of SyncMode
-   */
-  void DoRenderSync( unsigned int timeDelta, SyncMode syncMode );
-
 protected: // Data
 
   XDisplay*                   mMainDisplay;        ///< X-connection for rendering
@@ -250,15 +218,10 @@ protected: // Data
   PositionSize                mPosition;           ///< Position
   std::string                 mTitle;              ///< Title of window which shows from "xinfo -topvwins" command
   ColorDepth                  mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
-  RenderMode                  mRenderMode;         ///< Render mode for pixmap surface type
-  TriggerEvent*               mRenderNotification; ///< Render notificatin trigger
-  boost::mutex                mSyncMutex;          ///< mutex to lock during waiting sync
-  boost::condition_variable   mSyncNotify;         ///< condition to notify main thread that pixmap was flushed to onscreen
-  SyncMode                    mSyncMode;
-  bool                        mSyncReceived;       ///< true, when a pixmap sync has occurred, (cleared after reading)
+  TriggerEvent*               mRenderNotification; ///< Render notification trigger
+
   bool                        mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
   bool                        mOwnDisplay;         ///< Whether we own the display (responsible for deleting it)
-  bool                        mIsStopped;          ///< Render should be stopped
 };
 
 } // namespace ECore

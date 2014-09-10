@@ -91,6 +91,21 @@ RenderSurface& Adaptor::GetSurface()
   return mImpl->GetSurface();
 }
 
+void Adaptor::ReleaseSurfaceLock()
+{
+  mImpl->ReleaseSurfaceLock();
+}
+
+void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
+{
+  mImpl->SetRenderRefreshRate( numberOfVSyncsPerRender );
+}
+
+void Adaptor::SetUseHardwareVSync(bool useHardware)
+{
+  mImpl->SetUseHardwareVSync( useHardware );
+}
+
 Adaptor& Adaptor::Get()
 {
   return Internal::Adaptor::Adaptor::Get();
@@ -99,16 +114,6 @@ Adaptor& Adaptor::Get()
 bool Adaptor::IsAvailable()
 {
   return Internal::Adaptor::Adaptor::IsAvailable();
-}
-
-void Adaptor::RegisterSingleton(const std::type_info& info, BaseHandle singleton)
-{
-  mImpl->RegisterSingleton(info, singleton);
-}
-
-BaseHandle Adaptor::GetSingleton(const std::type_info& info) const
-{
-  return mImpl->GetSingleton(info);
 }
 
 void Adaptor::NotifyLanguageChanged()

@@ -509,14 +509,14 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
   mUpdateRenderController->ReplaceSurface(internalSurface);
 }
 
-void Adaptor::RenderSync()
-{
-  mUpdateRenderController->RenderSync();
-}
-
 Dali::RenderSurface& Adaptor::GetSurface() const
 {
   return *mSurface;
+}
+
+void Adaptor::ReleaseSurfaceLock()
+{
+  mSurface->ReleaseLock();
 }
 
 Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
@@ -572,9 +572,14 @@ Dali::Integration::Core& Adaptor::GetCore()
   return *mCore;
 }
 
-void Adaptor::DisableVSync()
+void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 {
-  mUpdateRenderController->DisableVSync();
+  mUpdateRenderController->SetRenderRefreshRate( numberOfVSyncsPerRender );
+}
+
+void Adaptor::SetUseHardwareVSync( bool useHardware )
+{
+  mVSyncMonitor->SetUseHardwareVSync( useHardware );
 }
 
 void Adaptor::SetDpi(size_t hDpi, size_t vDpi)
@@ -817,27 +822,6 @@ void Adaptor::ProcessCoreEventsFromIdle()
 
   // the idle handle automatically un-installs itself
   mNotificationOnIdleInstalled = false;
-}
-
-void Adaptor::RegisterSingleton(const std::type_info& info, BaseHandle singleton)
-{
-  if(singleton)
-  {
-    mSingletonContainer.insert(SingletonPair(info.name(), singleton));
-  }
-}
-
-BaseHandle Adaptor::GetSingleton(const std::type_info& info) const
-{
-  BaseHandle object = Dali::BaseHandle();
-
-  SingletonConstIter iter = mSingletonContainer.find(info.name());
-  if(iter != mSingletonContainer.end())
-  {
-    object = (*iter).second;
-  }
-
-  return object;
 }
 
 Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)

@@ -100,6 +100,12 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
   viewMode(0),
   stereoBase(65)
 {
+  // Exit gracefully if no arguments provided
+  if ( !argc || !argv )
+  {
+    return;
+  }
+
   if ( *argc > 1 )
   {
     // We do not want to print out errors.

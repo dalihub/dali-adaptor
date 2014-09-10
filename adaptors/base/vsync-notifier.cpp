@@ -16,10 +16,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <xf86drm.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <boost/thread.hpp>
 
 #include <dali/integration-api/core.h>
@@ -43,11 +39,11 @@ namespace Adaptor
 namespace
 {
 
-const unsigned int MICROSECONDS_PER_SECOND( 100000u );
+const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
 const unsigned int TIME_PER_FRAME_IN_MICROSECONDS( 16667u );
 
 #if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gLogFilter = Integration::Log::Filter::New(Debug::Concise, false, "LOG_VSYNC_NOTIFIER");
+Integration::Log::Filter* gSyncLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_VSYNC_NOTIFIER");
 #endif
 
 } // unnamed namespace
@@ -60,20 +56,21 @@ VSyncNotifier::VSyncNotifier( UpdateRenderSynchronization& sync,
   mPlatformAbstraction( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mVSyncMonitor( adaptorInterfaces.GetVSyncMonitorInterface() ),
   mThread( NULL ),
-  mEnvironmentOptions( environmentOptions )
+  mEnvironmentOptions( environmentOptions ),
+  mNumberOfVSyncsPerRender(1)
 {
 }
 
 VSyncNotifier::~VSyncNotifier()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "%s\n", __func__ );
+  DALI_LOG_INFO( gSyncLogFilter, Debug::General, "%s\n", __func__ );
 
   Stop();
 }
 
 void VSyncNotifier::Start()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "%s\n", __func__ );
+  DALI_LOG_INFO( gSyncLogFilter, Debug::General, "%s\n", __func__ );
 
   if ( !mThread )
   {
@@ -85,7 +82,7 @@ void VSyncNotifier::Start()
 
 void VSyncNotifier::Stop()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "%s\n", __func__ );
+  DALI_LOG_INFO( gSyncLogFilter, Debug::General, "%s\n", __func__ );
 
   if( mThread )
   {
@@ -112,21 +109,28 @@ void VSyncNotifier::Run()
 
   unsigned int frameNumber( 0u );             // frameCount, updated when the thread is paused
   unsigned int currentSequenceNumber( 0u );   // platform specific vsync sequence number (increments with each vsync)
-  unsigned int currentSeconds( 0u );          // timestamp at latest vsync
-  unsigned int currentMicroseconds( 0u );     // timestamp at latest vsync
+  unsigned int currentSeconds( 0u );          // timestamp at latest sync
+  unsigned int currentMicroseconds( 0u );     // timestamp at latest sync
   unsigned int seconds( 0u );
   unsigned int microseconds( 0u );
 
   bool running( true );
   while( running )
   {
+    DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 1 Start loop \n");
+
     bool validSync( true );
 
     // Hardware VSyncs available?
     if( mVSyncMonitor->UseHardware() )
     {
-      // Yes..wait for hardware VSync
-      validSync = mVSyncMonitor->DoSync( currentSequenceNumber, currentSeconds, currentMicroseconds );
+      DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 2 Start hardware sync (%d frames) \n", mNumberOfVSyncsPerRender);
+
+      for( unsigned int i=0; i<mNumberOfVSyncsPerRender; ++i )
+      {
+        // Yes..wait for N hardware VSync ticks
+        validSync = mVSyncMonitor->DoSync( currentSequenceNumber, currentSeconds, currentMicroseconds );
+      }
     }
     else
     {
@@ -143,17 +147,25 @@ void VSyncNotifier::Run()
         timeDelta += microseconds - currentMicroseconds;
       }
 
+      currentSeconds = seconds;
+      currentMicroseconds = microseconds;
+
+      unsigned int sleepTimeInMicroseconds = 0;
+
       if( timeDelta < TIME_PER_FRAME_IN_MICROSECONDS )
       {
-          usleep( TIME_PER_FRAME_IN_MICROSECONDS - timeDelta );
+        sleepTimeInMicroseconds = TIME_PER_FRAME_IN_MICROSECONDS - timeDelta;
       }
-      else
-      {
-        usleep( TIME_PER_FRAME_IN_MICROSECONDS );
-      }
+      sleepTimeInMicroseconds += mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS;
+
+      DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 2 Start software sync (%d frames, %u microseconds) \n", mNumberOfVSyncsPerRender, sleepTimeInMicroseconds);
+      usleep( sleepTimeInMicroseconds );
     }
 
-    running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( validSync, ++frameNumber, currentSeconds, currentMicroseconds );
+    DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 3 SyncWithUpdateAndRender(frame#:%d, current Sec:%u current uSec:%u)\n", frameNumber+1, currentSeconds, currentMicroseconds);
+
+    running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( validSync, ++frameNumber, currentSeconds, currentMicroseconds, mNumberOfVSyncsPerRender );
+    // The number of vsyncs per render may have been modified by this call.
   }
 
   // uninstall a function for logging

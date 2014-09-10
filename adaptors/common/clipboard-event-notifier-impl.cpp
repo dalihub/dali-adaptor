@@ -22,7 +22,7 @@
 #include <dali/public-api/dali-core.h>
 
 // INTERNAL INCLUDES
-#include <adaptor-impl.h>
+#include <singleton-service-impl.h>
 
 namespace Dali
 {
@@ -39,12 +39,15 @@ BaseHandle Create()
 {
   BaseHandle handle( ClipboardEventNotifier::Get() );
 
-  if ( !handle && Adaptor::IsAvailable() )
+  if ( !handle )
   {
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-    Dali::ClipboardEventNotifier notifier( ClipboardEventNotifier::New() );
-    adaptorImpl.RegisterSingleton( typeid( notifier ), notifier );
-    handle = notifier;
+    Dali::SingletonService service( SingletonService::Get() );
+    if ( service )
+    {
+      Dali::ClipboardEventNotifier notifier( ClipboardEventNotifier::New() );
+      service.Register( typeid( notifier ), notifier );
+      handle = notifier;
+    }
   }
 
   return handle;
@@ -64,10 +67,11 @@ Dali::ClipboardEventNotifier ClipboardEventNotifier::Get()
 {
   Dali::ClipboardEventNotifier notifier;
 
-  if ( Adaptor::IsAvailable() )
+  Dali::SingletonService service( SingletonService::Get() );
+  if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = Adaptor::Get().GetSingleton( typeid( Dali::ClipboardEventNotifier ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::ClipboardEventNotifier ) );
     if(handle)
     {
       // If so, downcast the handle

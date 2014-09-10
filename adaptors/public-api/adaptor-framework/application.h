@@ -103,6 +103,13 @@ public:
 public:
 
   /**
+   * This is the constructor for applications without an argument list.
+   *
+   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
+   */
+  static Application New();
+
+  /**
    * This is the constructor for applications.
    *
    * @param[in,out]  argc        A pointer to the number of arguments
@@ -228,14 +235,6 @@ public:
    * @return A handle to the window
    */
   Window GetWindow();
-
-  /**
-   * Returns the local thread's instance of the Application class.
-   * @return A reference to the local thread's Application class instance.
-   * @pre The Application class has been initialised.
-   * @note This is only valid in the main thread.
-   */
-  static Application Get();
 
 public: // Stereoscopy
 

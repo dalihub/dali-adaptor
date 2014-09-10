@@ -37,10 +37,10 @@ namespace Adaptor
 
 namespace
 {
-
-const unsigned int TIME_PER_FRAME_IN_MICROSECONDS = 16667;
-
-} // unnamed namespace
+#if defined(DEBUG_ENABLED)
+Integration::Log::Filter* gRenderLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_RENDER_THREAD");
+#endif
+}
 
 RenderThread::RenderThread( UpdateRenderSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
@@ -68,21 +68,21 @@ RenderThread::~RenderThread()
 
 void RenderThread::Start()
 {
+  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Start()\n");
+
   // initialise GL and kick off render thread
   DALI_ASSERT_ALWAYS( !mEGL && "Egl already initialized" );
-
-  // Tell frame timer what the minimum frame interval is
-  mUpdateRenderSync.SetMinimumFrameTimeInterval( mCurrent.syncMode * TIME_PER_FRAME_IN_MICROSECONDS );
 
   // create the render thread, initially we are rendering
   mThread = new boost::thread(boost::bind(&RenderThread::Run, this));
 
-  // Inform surface to block waiting for RenderSync
-  mCurrent.surface->SetSyncMode( RenderSurface::SYNC_MODE_WAIT );
+  mCurrent.surface->StartRender();
 }
 
 void RenderThread::Stop()
 {
+  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Stop()\n");
+
   // shutdown the render thread and destroy the opengl context
   if( mThread )
   {
@@ -99,6 +99,8 @@ void RenderThread::Stop()
 
 void RenderThread::ReplaceSurface( RenderSurface* surface )
 {
+  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::ReplaceSurface()\n");
+
   // Make sure it's a new surface. Note! we are reading the current value of render thread here, but reading is ok
   DALI_ASSERT_ALWAYS( surface != mCurrent.surface && "Trying to replace surface with itself" );
 
@@ -116,15 +118,14 @@ void RenderThread::ReplaceSurface( RenderSurface* surface )
     mNewValues.surface = surface;
   }
 
-  /*
-   * Reset the mPixmapFlushed condition if surface was changed.
-   * : in this case, client can not handle the previous damage because surface was changed.
-   */
-  RenderSync();
+  // Ensure the current surface releases any locks.
+  mCurrent.surface->StopRender();
 }
 
 void RenderThread::WaitForSurfaceReplaceComplete()
 {
+  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::WaitForSurfaceReplaceComplete()\n");
+
   boost::unique_lock<boost::mutex> lock( mSurfaceChangedMutex );
 
   // if already completed no need to wait
@@ -132,19 +133,6 @@ void RenderThread::WaitForSurfaceReplaceComplete()
   {
     mSurfaceChangedNotify.wait( lock ); // Block the main thread here and releases mSurfaceChangedMutex so the render-thread can notify us
   }
-}
-
-void RenderThread::SetVSyncMode( EglInterface::SyncMode syncMode )
-{
-  // lock cache and set update flag at the end of function
-  SendMessageGuard msg( *this );
-  // set new values to cache
-  mNewValues.syncMode = syncMode;
-}
-
-void RenderThread::RenderSync()
-{
-  mCurrent.surface->RenderSync();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +160,8 @@ bool RenderThread::Run()
   // render loop, we stay inside here when rendering
   while( running )
   {
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - Begin loop\n");
+
     // Consume any pending events
     ConsumeEvents();
 
@@ -179,12 +169,15 @@ bool RenderThread::Run()
     CheckForUpdates();
 
     // perform any pre-render operations
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - PreRender\n");
     if(PreRender() == true)
     {
        // Render
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - Core.Render()\n");
       mCore.Render( renderStatus );
 
       // Notify the update-thread that a render has completed
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - Sync.RenderFinished()\n");
       mUpdateRenderSync.RenderFinished( renderStatus.NeedsUpdate() );
 
       uint64_t newTime( mUpdateRenderSync.GetTimeMicroseconds() );
@@ -192,6 +185,7 @@ bool RenderThread::Run()
       // perform any post-render operations
       if ( renderStatus.HasRendered() )
       {
+        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 5 - PostRender()\n");
         PostRender( static_cast< unsigned int >(newTime - currentTime) );
       }
 
@@ -204,6 +198,8 @@ bool RenderThread::Run()
 
       currentTime = newTime;
     }
+
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 6 - RenderSyncWithUpdate()\n");
 
     // Wait until another frame has been updated
     running = mUpdateRenderSync.RenderSyncWithUpdate();
@@ -238,8 +234,6 @@ void RenderThread::InitializeEgl()
 
   // set the initial sync mode
 
-  //@todo This needs to call the render surface instead
-  mEGL->SetRefreshSync( mCurrent.syncMode );
 
   // tell core it has a context
   mCore.ContextCreated();
@@ -262,15 +256,6 @@ void RenderThread::CheckForUpdates()
     {
       // need to lock to access new values
       boost::unique_lock< boost::mutex > lock( mThreadDataLock );
-
-      // did the sync mode change
-      if( mCurrent.syncMode != mNewValues.syncMode )
-      {
-        mCurrent.syncMode = mNewValues.syncMode;
-
-        //@todo This needs to call the render surface instead
-        mEGL->SetRefreshSync( mCurrent.syncMode );
-      }
 
       // check if the surface needs replacing
       if( mNewValues.replaceSurface )
@@ -350,8 +335,7 @@ void RenderThread::PostRender( unsigned int timeDelta )
   mGLES.PostRender(timeDelta);
 
   // Inform the surface that rendering this frame has finished.
-  mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta,
-                                mSurfaceReplacing ? RenderSurface::SYNC_MODE_NONE : RenderSurface::SYNC_MODE_WAIT );
+  mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta, mSurfaceReplacing );
 }
 
 } // namespace Adaptor

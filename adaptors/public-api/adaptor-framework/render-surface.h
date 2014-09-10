@@ -58,21 +58,6 @@ public:
   };
 
   /**
-   * @brief When application uses pixmap surface, it can select rendering mode.
-   *
-   * RENDER_SYNC : application should call RenderSync() after posting the offscreen to onscreen
-   * RENDER_#FPS : the maximum performance will be limited designated number of frame
-   */
-  enum RenderMode
-  {
-    RENDER_DEFAULT = -1,
-    RENDER_SYNC = 0,
-    RENDER_24FPS = 24,
-    RENDER_30FPS = 30,
-    RENDER_60FPS = 60
-  };
-
-  /**
    * @brief Constructor
    *
    * Application or Adaptor needs to create the appropriate concrete RenderSurface type.
@@ -108,17 +93,6 @@ public:
    * @return The position and size
    */
   virtual PositionSize GetPositionSize() const = 0;
-
-  /**
-   * @brief Set frame update rate for pixmap surface type
-   */
-  virtual void SetRenderMode(RenderMode mode) = 0;
-
-  /**
-   * @brief Get current fps for pixmap surface type
-   * @return The render mode
-   */
-  virtual RenderMode GetRenderMode() const = 0;
 
 private:
 
