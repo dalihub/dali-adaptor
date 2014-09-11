@@ -270,7 +270,7 @@ void RenderThread::ReplaceSurface( RenderSurface* newSurface )
   if( contextLost )
   {
     DALI_LOG_WARNING("Context lost\n");
-    mCore.ContextToBeDestroyed();
+    mCore.ContextDestroyed();
     mCore.ContextCreated();
   }
 
@@ -287,8 +287,8 @@ void RenderThread::ReplaceSurface( RenderSurface* newSurface )
 
 void RenderThread::ShutdownEgl()
 {
-  // inform core the context is about to be destroyed,
-  mCore.ContextToBeDestroyed();
+  // inform core of context destruction
+  mCore.ContextDestroyed();
 
   // give a chance to destroy the OpenGL surface that created externally
   mSurface->DestroyEglSurface( *mEGL );

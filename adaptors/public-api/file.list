@@ -34,6 +34,7 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
   $(adaptor_public_api_dir)/adaptor-framework/accessibility-manager.h \
   $(adaptor_public_api_dir)/adaptor-framework/application.h \
+  $(adaptor_public_api_dir)/adaptor-framework/application-configuration.h \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.h \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.h \
   $(adaptor_public_api_dir)/adaptor-framework/clipboard-event-notifier.h \

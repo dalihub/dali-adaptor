@@ -450,29 +450,24 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLNat
 {
   bool contextLost = false;
 
-  //  the surface is bound to the context, so set the context to null
-  MakeContextNull();
-
-  // destroy the surface
-  DestroySurface();
-
-  // If the display has not changed, then we can just create a new surface
+  // If the display connection has not changed, then we can just create a new surface
   if ( display == mEglNativeDisplay )
   {
+    //  the surface is bound to the context, so set the context to null
+    MakeContextNull();
+
+    // destroy the surface
+    DestroySurface();
+
     // create the EGL surface
     CreateSurfaceWindow( window, mColorDepth );
 
     // set the context to be current with the new surface
     MakeContextCurrent();
   }
-  else  // the display has changed, we need to start egl with a new x-connection
+  else  // the display connection has changed, we need to start egl with a new x-connection
   {
-    // Note! this code path is untested
-
-    // this will release all EGL specific resources
-    eglTerminate( mEglDisplay );
-
-    mGlesInitialized = false;
+    TerminateGles();
 
     // let the adaptor know that all resources have been lost
     contextLost = true;
@@ -483,7 +478,7 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLNat
     // create the EGL surface
     CreateSurfaceWindow( window, mColorDepth );
 
-    // create the OpenGL context
+     // create the OpenGL context
     CreateContext();
 
     // Make it current

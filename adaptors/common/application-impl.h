@@ -85,7 +85,7 @@ public:
   /**
    * @copydoc Dali::Application::MainLoop()
    */
-  void MainLoop();
+  void MainLoop(Dali::Configuration::ContextLoss configuration);
 
   /**
    * @copydoc Dali::Application::Lower()
@@ -121,6 +121,11 @@ public:
    * @copydoc Dali::Application::SetTheme();
    */
   void SetTheme(const std::string& themeFilePath);
+
+  /**
+   * @copydoc Dali::Application::ReplaceWindow();
+   */
+  void ReplaceWindow(PositionSize windowPosition, const std::string& name);
 
 public: // Stereoscopy
 
@@ -256,6 +261,7 @@ private:
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;
 
+  Dali::Configuration::ContextLoss      mContextLossConfiguration;
   CommandLineOptions*                   mCommandLineOptions;
 
   Dali::SingletonService                mSingletonService;

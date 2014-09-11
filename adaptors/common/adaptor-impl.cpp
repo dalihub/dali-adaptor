@@ -23,6 +23,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
+#include <dali/integration-api/context-notifier.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
@@ -35,6 +36,7 @@
 
 #include <callback-manager.h>
 #include <trigger-event.h>
+#include <window-render-surface.h>
 #include <render-surface-impl.h>
 #include <tts-player-impl.h>
 #include <accessibility-manager-impl.h>
@@ -107,7 +109,8 @@ bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
 
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLayout )
+Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLayout,
+                             Dali::Configuration::ContextLoss configuration )
 {
   DALI_ASSERT_ALWAYS( surface->GetType() != Dali::RenderSurface::NO_SURFACE && "No surface for adaptor" );
 
@@ -115,7 +118,7 @@ Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLay
   Adaptor* impl = new Adaptor( *adaptor, surface, baseLayout );
   adaptor->mImpl = impl;
 
-  impl->Initialize();
+  impl->Initialize(configuration);
 
   return adaptor;
 }
@@ -181,11 +184,19 @@ void Adaptor::ParseEnvironmentOptions()
   mEnvironmentOptions.InstallLogFunction();
 }
 
-void Adaptor::Initialize()
+void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 {
   ParseEnvironmentOptions();
 
   mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
+
+  ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
+  if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
+  {
+    dataRetentionPolicy = ResourcePolicy::DALI_RETAINS_MESH_DATA;
+  }
+  // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
+  // files automatically.
 
   if( mEnvironmentOptions.GetPerformanceLoggingLevel() > 0 )
   {
@@ -211,7 +222,7 @@ void Adaptor::Initialize()
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager );
+  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
 
   mObjectProfiler = new ObjectProfiler();
 
@@ -489,6 +500,13 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
   RenderSurface* internalSurface = dynamic_cast<Internal::Adaptor::RenderSurface*>( &surface );
   DALI_ASSERT_ALWAYS( internalSurface && "Incorrect surface" );
 
+  ECore::WindowRenderSurface* windowSurface = dynamic_cast<Internal::Adaptor::ECore::WindowRenderSurface*>( &surface);
+  if( windowSurface != NULL )
+  {
+    windowSurface->Map();
+    // @todo Restart event handler with new surface
+  }
+
   mSurface = internalSurface;
 
   SurfaceSizeChanged( internalSurface->GetPositionSize() );
@@ -497,8 +515,15 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  // this method is synchronous
+  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
+
+  // this method blocks until the render thread has completed the replace.
   mUpdateRenderController->ReplaceSurface(internalSurface);
+
+  // Inform core, so that texture resources can be reloaded
+  mCore->RecoverFromContextLoss();
+
+  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
 Dali::RenderSurface& Adaptor::GetSurface() const
@@ -679,6 +704,7 @@ void Adaptor::SetMinimumPinchDistance(float distance)
   }
 }
 
+
 void Adaptor::AddObserver( LifeCycleObserver& observer )
 {
   ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
@@ -811,7 +837,9 @@ void Adaptor::ProcessCoreEventsFromIdle()
 }
 
 Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
-: mAdaptor(adaptor),
+: mResizedSignalV2(),
+  mLanguageChangedSignalV2(),
+  mAdaptor(adaptor),
   mState(READY),
   mCore(NULL),
   mUpdateRenderController(NULL),

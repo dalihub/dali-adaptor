@@ -149,7 +149,7 @@ void ResourceThreadText::LoadCharactersFromCache(
       glyphMetrics.yPosition = requestedCharacters[n].yPosition;
 
       // create a new bitmap, and copy in the data
-      BitmapPtr bitmapData ( Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true) );
+      BitmapPtr bitmapData ( Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD) );
       DALI_ASSERT_ALWAYS( data.length == DISTANCE_FIELD_SIZE );
 
       // assign the data

@@ -204,6 +204,12 @@ Window::~Window()
 {
   delete mEventHandler;
 
+  if( mIndicator )
+  {
+    mIndicator->Close();
+    delete mIndicator;
+  }
+
   if ( mAdaptor )
   {
     mAdaptor->RemoveObserver( *this );

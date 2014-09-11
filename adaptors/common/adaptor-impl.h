@@ -96,13 +96,16 @@ public:
    *                         - Pixmap, adaptor will use existing Pixmap to draw on to
    *                         - Window, adaptor will use existing Window to draw on to
    * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
    */
-  static Dali::Adaptor* New( RenderSurface* surface, const DeviceLayout& baseLayout );
+  static Dali::Adaptor* New( RenderSurface* surface,
+                             const DeviceLayout& baseLayout,
+                             Dali::Configuration::ContextLoss configuration );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
    */
-  void Initialize();
+  void Initialize(Dali::Configuration::ContextLoss configuration);
 
   /**
    * Virtual destructor.
