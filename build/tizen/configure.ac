@@ -127,11 +127,7 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 if test "x$enable_profile" = "xCOMMON"; then
-if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(OPENGLES20, glesv2)
-else
-PKG_CHECK_MODULES(OPENGLES20, gles20)
-fi
+PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 PKG_CHECK_MODULES(HAPTIC, haptic)
 fi
 

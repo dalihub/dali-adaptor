@@ -94,7 +94,7 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 ##############################
 %prep
 %setup -q
-%define dali_data_rw_dir         /opt/usr/share/dali/
+%define dali_data_rw_dir         /usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
 %define user_font_cache_dir      %{dali_data_rw_dir}/glyphcache/
 %define user_shader_cache_dir    %{dali_data_rw_dir}/core/shaderbin/
@@ -128,15 +128,12 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %if %{with wayland}
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
+configure_flags="--enable-wayland"
 %endif
 
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
-%if %{with wayland}
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON --enable-wayland --libdir=%{_libdir}
-%else
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" ./configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON --libdir=%{_libdir}
-%endif
+cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON $configure_flags --libdir=%{_libdir}
 
 make %{?jobs:-j%jobs}
 
