@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <stdint.h>
 #include <dali/dali.h>
 #include <Ecore.h>
 #include <dali-test-suite-utils.h>
@@ -39,7 +40,7 @@ bool ecore_timer_running = false;
 Ecore_Task_Cb timer_callback_func=NULL;
 const void* timer_callback_data=NULL;
 bool main_loop_can_run = false;
-int timerId = 0;
+intptr_t timerId = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
 }// anon namespace
 
 extern "C"
