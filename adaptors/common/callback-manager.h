@@ -1,5 +1,5 @@
-#ifndef __DALI_CALLBACK_MANAGER_H__
-#define __DALI_CALLBACK_MANAGER_H__
+#ifndef __DALI_INTERNAL_CALLBACK_MANAGER_H__
+#define __DALI_INTERNAL_CALLBACK_MANAGER_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -34,7 +34,7 @@ namespace Adaptor
 /**
  * Abstract interface to install call backs in to an applications main loop.
  */
-class DALI_IMPORT_API CallbackManager
+class CallbackManager
 {
 
 public:
@@ -123,4 +123,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_CALLBACK_MANAGER_H__
+#endif // __DALI_INTERNAL_CALLBACK_MANAGER_H__

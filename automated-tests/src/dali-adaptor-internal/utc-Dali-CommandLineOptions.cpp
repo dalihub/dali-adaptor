@@ -40,12 +40,6 @@ void command_line_options_cleanup(void)
   test_return_value = TET_PASS;
 }
 
-namespace
-{
-int gOriginalOptIndValue(0);
-}
-
-
 int UtcDaliCommandLineOptionsNoArgs(void)
 {
   optind=1;
@@ -186,7 +180,7 @@ int UtcDaliCommandLineOptionsMixture(void)
 {
   optind = 1; // Reset opt for test
 
-  char* argList[] =
+  const char* argList[] =
   {
     "program",
     "--width=800",
@@ -196,7 +190,7 @@ int UtcDaliCommandLineOptionsMixture(void)
     "-r",
   };
   int argc( sizeof( argList ) / sizeof( argList[0] ) );
-  char** argv = argList;
+  char** argv = const_cast<char**>( argList );
 
   CommandLineOptions options( &argc, &argv );
 
@@ -217,7 +211,7 @@ int UtcDaliCommandLineOptionsMixtureDaliOpsAtStart(void)
 {
   optind=1;
 
-  char* argList[] =
+  const char* argList[] =
   {
       "program",
       "--width=800",
@@ -227,7 +221,7 @@ int UtcDaliCommandLineOptionsMixtureDaliOpsAtStart(void)
       "-y", "600",
   };
   int argc( sizeof( argList ) / sizeof( argList[0] ) );
-  char** argv = argList;
+  char** argv = const_cast<char**>( argList );
 
   CommandLineOptions options( &argc, &argv );
 
@@ -248,7 +242,7 @@ int UtcDaliCommandLineOptionsMixtureDaliOpsAtEnd(void)
 {
   optind=1;
 
-  char* argList[] =
+  const char* argList[] =
   {
       "program",
       "hello-world",
@@ -258,7 +252,7 @@ int UtcDaliCommandLineOptionsMixtureDaliOpsAtEnd(void)
       "--height", "1000",
   };
   int argc( sizeof( argList ) / sizeof( argList[0] ) );
-  char** argv = argList;
+  char** argv = const_cast<char**>( argList );
 
   CommandLineOptions options( &argc, &argv );
 

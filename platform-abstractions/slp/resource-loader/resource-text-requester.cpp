@@ -51,20 +51,6 @@ void RemoveInvisibleCharacters( Integration::TextResourceType::CharacterList& te
   text = temp;
 }
 
-// helper to remove a single character
-void RemoveCharacter( TextResourceType::CharacterList& text, uint32_t code)
-{
-  // the string doesn't have duplicates so we can early exit
-  for(std::size_t i=0, length= text.size(); i< length; i++)
-  {
-    if(text[i].character == code )
-    {
-      text.erase(text.begin() + i);
-      return;
-    }
-  }
-}
-
 } // Anonymous namespace
 
 ResourceTextRequester::ResourceTextRequester( ResourceLoader& resourceLoader )

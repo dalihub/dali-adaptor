@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.8
+Version:    1.0.9
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -192,7 +192,6 @@ exit 0
 %manifest dali-adaptor.manifest-mobile
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adap*.so*
-%{_libdir}/libdali-appl*.so*
 %defattr(-,app,app,-)
 %dir %{user_font_cache_dir}
 %dir %{user_shader_cache_dir}

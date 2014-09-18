@@ -45,7 +45,7 @@ class EglInterface;
 /**
  * This is the internal RenderSurface API
  */
-class DALI_IMPORT_API RenderSurface : public Dali::RenderSurface
+class RenderSurface : public Dali::RenderSurface
 {
 public:
 

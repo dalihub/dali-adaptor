@@ -321,7 +321,7 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
           const unsigned scanlinesToTrim = trimTopAndBottom ? fabsf( (scaledDims.y - loadedHeight) * 0.5f ) : 0;
           const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabsf( (scaledDims.x - loadedWidth) * 0.5f );
 
-          DALI_LOG_INFO( gLogFilter, Debug::Concise, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedWidth, loadedHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
+          DALI_LOG_INFO( gLogFilter, Debug::General, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedWidth, loadedHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
 
           // Make a new bitmap with the central part of the loaded one if required:
           if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).

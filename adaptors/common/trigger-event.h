@@ -46,7 +46,7 @@ class FileDescriptorMonitor;
  *
  * The implementation of TriggerEvent uses an event file descriptor.
  */
-class DALI_IMPORT_API TriggerEvent : public TriggerEventInterface
+class TriggerEvent : public TriggerEventInterface
 {
 public:
 

@@ -21,16 +21,14 @@ adaptor_x11_ubuntu_internal_src_files = \
 adaptor_x11_tizen_internal_src_files = \
   $(_adaptor_x11_internal_src_files) \
   $(adaptor_x11_dir)/accessibility-manager-impl-x.cpp \
+  $(adaptor_x11_dir)/framework-x.cpp \
   $(adaptor_x11_dir)/key-impl-x.cpp
 
 adaptor_x11_tv_internal_src_files = \
   $(_adaptor_x11_internal_src_files) \
-  $(adaptor_x11_dir)/accessibility-manager-impl-x.cpp
+  $(adaptor_x11_dir)/accessibility-manager-impl-x.cpp \
+  $(adaptor_x11_dir)/framework-x.cpp
 
 adaptor_x11_internal_default_profile_src_files = \
   $(adaptor_x11_dir)/ecore-x-render-surface-factory.cpp \
   $(adaptor_x11_dir)/system-settings-x.cpp
-
-adaptor_x11_tizen_application_src_files = \
-  $(adaptor_x11_dir)/framework-x.cpp
-
