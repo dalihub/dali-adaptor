@@ -24,8 +24,7 @@
 #include <map>
 
 // INTERNAL INCLUDES
-#include <dali/dali.h>
-
+#include <dali/public-api/dali-core.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
@@ -730,6 +729,10 @@ public:
 
   inline void Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
   {
+    mScissorParams.x = x;
+    mScissorParams.y = y;
+    mScissorParams.width = width;
+    mScissorParams.height = height;
   }
 
   inline void ShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length)
@@ -1644,6 +1647,18 @@ public: // TEST FUNCTIONS
     ATTRIB_TYPE_LAST
   };
 
+  struct ScissorParams
+  {
+    GLint x;
+    GLint y;
+    GLsizei width;
+    GLsizei height;
+
+    ScissorParams() : x( 0 ), y( 0 ), width( 0 ), height( 0 ) { }
+  };
+
+  // Methods to check scissor tests
+  inline const ScissorParams& GetScissorParams() const { return mScissorParams; }
 
 private:
   GLuint     mCurrentProgram;
@@ -1821,6 +1836,8 @@ private:
     mVertexAttribArrayState[ index ] = state;
     mVertexAttribArrayChanged = true;
   }
+
+  ScissorParams mScissorParams;
 };
 
 template <>
