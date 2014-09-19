@@ -23,6 +23,7 @@
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
@@ -136,8 +137,8 @@ bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsi
 
   Dali::AccessibilityManager handle( this );
 
-  Dali::TouchEvent touchEvent(timeStamp);
-  touchEvent.points.push_back(point);
+  Dali::TouchEvent event(timeStamp);
+  event.points.push_back(point);
 
   /*
    * In order to application decide touch action first,
@@ -147,17 +148,19 @@ bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsi
   {
     if( !mActionScrollSignalV2.Empty() )
     {
-      mActionScrollSignalV2.Emit( handle, touchEvent );
+      mActionScrollSignalV2.Emit( handle, event );
     }
   }
 
-  Integration::TouchEvent event;
-  if (mCombiner.GetNextTouchEvent(point, timeStamp, event))
+  Integration::TouchEvent touchEvent;
+  Integration::HoverEvent hoverEvent;
+  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
+  if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth) // hover event is ignored
   {
     // Process the touch event in accessibility gesture detector
     if( mAccessibilityGestureDetector )
     {
-      mAccessibilityGestureDetector->SendEvent(event);
+      mAccessibilityGestureDetector->SendEvent(touchEvent);
       ret = true;
     }
   }
