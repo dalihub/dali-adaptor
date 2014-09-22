@@ -38,7 +38,7 @@ int GetLongPressTime( int defaultTime )
 
 int GetElmAccessActionOver()
 {
-  return ELM_ACCESS_ACTION_OVER;
+  return 0;
 }
 
 
