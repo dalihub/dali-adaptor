@@ -74,35 +74,6 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 
 namespace
 {
-// Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
-size_t Utf8SequenceLength(const unsigned char leadByte)
-{
-  size_t length = 0;
-
-  if ((leadByte & 0x80) == 0 )          //ASCII character (lead bit zero)
-  {
-    length = 1;
-  }
-  else if (( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
-  {
-    length = 2;
-  }
-  else if (( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
-  {
-    length = 3;
-  }
-  else if (( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
-  {
-    length = 4;
-  }
-  else
-  {
-    DALI_LOG_WARNING("Unrecognized lead byte  %c\n", leadByte);
-  }
-
-  return length;
-}
-
 const unsigned int PRIMARY_TOUCH_BUTTON_ID( 1 );
 
 const unsigned int BYTES_PER_CHARACTER_FOR_ATTRIBUTES = 3;

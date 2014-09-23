@@ -92,14 +92,6 @@ bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
   return true;
 }
 
-bool GetBooleanEnvironmentVariable( const char* variable, bool& boolValue )
-{
-  const char* variableParameter = std::getenv(variable);
-
-  boolValue = variableParameter ? true : false;
-  return boolValue;
-}
-
 bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
 {
   const char* variableParameter = std::getenv(variable);
