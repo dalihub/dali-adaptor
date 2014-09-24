@@ -25,7 +25,6 @@
 #include <dali/public-api/adaptor-framework/accessibility-action-handler.h>
 #include <dali/public-api/adaptor-framework/accessibility-gesture-handler.h>
 #include <dali/public-api/adaptor-framework/accessibility-manager.h>
-#include <dali/public-api/adaptor-framework/adaptor.h>
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/bitmap-loader.h>
 #include <dali/public-api/adaptor-framework/bitmap-saver.h>

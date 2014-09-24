@@ -26,7 +26,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali DALI_INTERNAL
 {
 
 struct DeviceLayout;
@@ -264,7 +264,7 @@ private:
   /**
    * @brief Create an uninitialized Adaptor.
    */
-  DALI_INTERNAL Adaptor();
+  Adaptor();
 
   Internal::Adaptor::Adaptor* mImpl; ///< Implementation object
   friend class Internal::Adaptor::Adaptor;
