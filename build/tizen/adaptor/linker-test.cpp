@@ -51,12 +51,7 @@ main(int argc, char **argv)
 {
   Application app = Application::New(&argc, &argv);
   LinkerApp linkerApp (app);
-
-  Adaptor& adaptor = Dali::Adaptor::Get();
-  if(adaptor.IsAvailable())
-  {
-    app.MainLoop();
-  }
+  app.MainLoop();
 
   return 0;
 }

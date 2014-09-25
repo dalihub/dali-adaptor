@@ -79,7 +79,7 @@ public:
 private:
   void DoUpdate( unsigned int intervalMilliseconds );
 
-  protected:
+protected:
   TestPlatformAbstraction   mPlatformAbstraction;
   TestRenderController      mRenderController;
   TestGlAbstraction         mGlAbstraction;

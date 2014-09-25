@@ -79,35 +79,6 @@ namespace
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
 
-// Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
-size_t Utf8SequenceLength(const unsigned char leadByte)
-{
-  size_t length = 0;
-
-  if ((leadByte & 0x80) == 0 )          //ASCII character (lead bit zero)
-  {
-    length = 1;
-  }
-  else if (( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
-  {
-    length = 2;
-  }
-  else if (( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
-  {
-    length = 3;
-  }
-  else if (( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
-  {
-    length = 4;
-  }
-  else
-  {
-    DALI_LOG_WARNING("Unrecognized lead byte  %c\n", leadByte);
-  }
-
-  return length;
-}
-
 const unsigned int PRIMARY_TOUCH_BUTTON_ID( 1 );
 
 #ifndef DALI_PROFILE_UBUNTU
@@ -894,7 +865,7 @@ struct EventHandler::Impl
             accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true /* allow read again*/);
           }
         }
-#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
+#if defined(DALI_PROFILE_MOBILE)
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_OVER)
         {
           // one finger tap & move
