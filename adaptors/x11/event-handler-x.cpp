@@ -364,37 +364,41 @@ struct EventHandler::Impl
     Ecore_Event_Key *keyEvent( (Ecore_Event_Key*)event );
     bool eventHandled( false );
 
-    Ecore_IMF_Context* imfContext = NULL;
-    if ( Dali::Adaptor::IsAvailable() && handler->mImfManager )
-    {
-      imfContext = reinterpret_cast<Ecore_IMF_Context*>( handler->mImfManager.GetContext() );
-    }
-
     // If a device key then skip ecore_imf_context_filter_event.
-    if ( imfContext && !( KeyLookup::IsDeviceButton( keyEvent->keyname ) ) )
+    if ( ! KeyLookup::IsDeviceButton( keyEvent->keyname ) )
     {
-      // We're consuming key down event so we have to pass to IMF so that it can parse it as well.
-      Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
-      ecoreKeyDownEvent.keyname   = keyEvent->keyname;
-      ecoreKeyDownEvent.key       = keyEvent->key;
-      ecoreKeyDownEvent.string    = keyEvent->string;
-      ecoreKeyDownEvent.compose   = keyEvent->compose;
-      ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
-      ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-      ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-
-      eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                     ECORE_IMF_EVENT_KEY_DOWN,
-                                                     (Ecore_IMF_Event *) &ecoreKeyDownEvent );
-
-      // If the event has not been handled by IMF then check if we should reset our IMF context
-      if( !eventHandled )
+      Ecore_IMF_Context* imfContext = NULL;
+      Dali::ImfManager imfManager( ImfManager::Get() );
+      if ( imfManager )
       {
-        if ( !strcmp( keyEvent->keyname, "Escape"   ) ||
-             !strcmp( keyEvent->keyname, "Return"   ) ||
-             !strcmp( keyEvent->keyname, "KP_Enter" ) )
+        imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+      }
+
+      if ( imfContext )
+      {
+        // We're consuming key down event so we have to pass to IMF so that it can parse it as well.
+        Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
+        ecoreKeyDownEvent.keyname   = keyEvent->keyname;
+        ecoreKeyDownEvent.key       = keyEvent->key;
+        ecoreKeyDownEvent.string    = keyEvent->string;
+        ecoreKeyDownEvent.compose   = keyEvent->compose;
+        ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
+        ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
+        ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+
+        eventHandled = ecore_imf_context_filter_event( imfContext,
+                                                       ECORE_IMF_EVENT_KEY_DOWN,
+                                                       (Ecore_IMF_Event *) &ecoreKeyDownEvent );
+
+        // If the event has not been handled by IMF then check if we should reset our IMF context
+        if( !eventHandled )
         {
-          ecore_imf_context_reset( imfContext );
+          if ( !strcmp( keyEvent->keyname, "Escape"   ) ||
+               !strcmp( keyEvent->keyname, "Return"   ) ||
+               !strcmp( keyEvent->keyname, "KP_Enter" ) )
+          {
+            ecore_imf_context_reset( imfContext );
+          }
         }
       }
     }
@@ -435,29 +439,34 @@ struct EventHandler::Impl
     Ecore_Event_Key *keyEvent( (Ecore_Event_Key*)event );
     bool eventHandled( false );
 
-    Ecore_IMF_Context* imfContext = NULL;
-    if ( Dali::Adaptor::IsAvailable() && handler->mImfManager )
-    {
-      imfContext = reinterpret_cast<Ecore_IMF_Context*>( handler->mImfManager.GetContext() );
-    }
-
     // XF86Stop and XF86Send must skip ecore_imf_context_filter_event.
-    if ( imfContext && strcmp( keyEvent->keyname, "XF86Send" ) && strcmp( keyEvent->keyname, "XF86Phone" ) && strcmp( keyEvent->keyname, "XF86Stop" ) )
-
+    if ( strcmp( keyEvent->keyname, "XF86Send"  ) &&
+         strcmp( keyEvent->keyname, "XF86Phone" ) &&
+         strcmp( keyEvent->keyname, "XF86Stop"  ) )
     {
-      // We're consuming key up event so we have to pass to IMF so that it can parse it as well.
-      Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
-      ecoreKeyUpEvent.keyname   = keyEvent->keyname;
-      ecoreKeyUpEvent.key       = keyEvent->key;
-      ecoreKeyUpEvent.string    = keyEvent->string;
-      ecoreKeyUpEvent.compose   = keyEvent->compose;
-      ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
-      ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-      ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+      Ecore_IMF_Context* imfContext = NULL;
+      Dali::ImfManager imfManager( ImfManager::Get() );
+      if ( imfManager )
+      {
+        imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+      }
 
-      eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                     ECORE_IMF_EVENT_KEY_UP,
-                                                     (Ecore_IMF_Event *) &ecoreKeyUpEvent );
+      if ( imfContext )
+      {
+        // We're consuming key up event so we have to pass to IMF so that it can parse it as well.
+        Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
+        ecoreKeyUpEvent.keyname   = keyEvent->keyname;
+        ecoreKeyUpEvent.key       = keyEvent->key;
+        ecoreKeyUpEvent.string    = keyEvent->string;
+        ecoreKeyUpEvent.compose   = keyEvent->compose;
+        ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
+        ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
+        ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+
+        eventHandled = ecore_imf_context_filter_event( imfContext,
+                                                       ECORE_IMF_EVENT_KEY_UP,
+                                                       (Ecore_IMF_Event *) &ecoreKeyUpEvent );
+      }
     }
 
     // If the event wasn't handled then we should send a key event.
@@ -505,12 +514,16 @@ struct EventHandler::Impl
     {
       DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventWindowFocusIn - >>WindowFocusGained \n" );
 
-      if ( handler->mImfManager )
+      if ( ImfManager::IsAvailable() /* Only get the ImfManager if it's available as we do not want to create it */ )
       {
-        ImfManager& imfManager( ImfManager::GetImplementation( handler->mImfManager ) );
-        if( imfManager.RestoreAfterFocusLost() )
+        Dali::ImfManager imfManager( ImfManager::Get() );
+        if ( imfManager )
         {
-          imfManager.Activate();
+          ImfManager& imfManagerImpl( ImfManager::GetImplementation( imfManager ) );
+          if( imfManagerImpl.RestoreAfterFocusLost() )
+          {
+            imfManagerImpl.Activate();
+          }
         }
       }
       // No need to connect callbacks as KeyboardStatusChanged will be called.
@@ -532,12 +545,16 @@ struct EventHandler::Impl
     // If the window loses focus then hide the keyboard.
     if ( focusOutEvent->win == handler->mImpl->mWindow )
     {
-      if ( handler->mImfManager )
+      if ( ImfManager::IsAvailable() /* Only get the ImfManager if it's available as we do not want to create it */ )
       {
-        ImfManager& imfManager( ImfManager::GetImplementation( handler->mImfManager ) );
-        if( imfManager.RestoreAfterFocusLost() )
+        Dali::ImfManager imfManager( ImfManager::Get() );
+        if ( imfManager )
         {
-          imfManager.Deactivate();
+          ImfManager& imfManagerImpl( ImfManager::GetImplementation( imfManager ) );
+          if( imfManagerImpl.RestoreAfterFocusLost() )
+          {
+            imfManagerImpl.Deactivate();
+          }
         }
       }
 
@@ -1101,7 +1118,6 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mAccessibilityManager( AccessibilityManager::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard(Clipboard::Get()),
-  mImfManager( ImfManager::Get() ),
   mImpl( NULL )
 {
   Ecore_X_Window window = 0;
