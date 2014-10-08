@@ -39,6 +39,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/mouse-wheel-event-integ.h>
 
 // INTERNAL INCLUDES
@@ -1137,14 +1138,24 @@ void EventHandler::SendEvent(TouchPoint& point, unsigned long timeStamp)
     timeStamp = GetCurrentMilliSeconds();
   }
 
-  Integration::TouchEvent event;
-  if (mCombiner.GetNextTouchEvent(point, timeStamp, event))
+  Integration::TouchEvent touchEvent;
+  Integration::HoverEvent hoverEvent;
+  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
+  if(type != Integration::TouchEventCombiner::DispatchNone )
   {
     DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.deviceId, point.state, point.local.x, point.local.y);
 
-    // First the touch event & related gesture events are queued
-    mCoreEventInterface.QueueCoreEvent( event );
-    mGestureManager.SendEvent(event);
+    // First the touch and/or hover event & related gesture events are queued
+    if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth)
+    {
+      mCoreEventInterface.QueueCoreEvent( touchEvent );
+      mGestureManager.SendEvent(touchEvent);
+    }
+
+    if(type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth)
+    {
+      mCoreEventInterface.QueueCoreEvent( hoverEvent );
+    }
 
     // Next the events are processed with a single call into Core
     mCoreEventInterface.ProcessCoreEvents();

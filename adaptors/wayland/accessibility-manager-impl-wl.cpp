@@ -26,7 +26,6 @@
 
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/gesture-requests.h>
 #include "system-settings.h"
 
