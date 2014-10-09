@@ -134,21 +134,18 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
 
 void Show()
 {
-  if( Dali::Adaptor::IsAvailable() )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) to show the keyboard
+  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
 
-    if( imfContext )
-    {
-      ecore_imf_context_input_panel_show( imfContext );
-    }
+  if( imfContext )
+  {
+    ecore_imf_context_input_panel_show( imfContext );
   }
 }
 
 void Hide()
 {
-  if( Dali::Adaptor::IsAvailable() )
+  if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance*/ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
     Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
@@ -162,7 +159,7 @@ void Hide()
 
 bool IsVisible()
 {
-  if( Dali::Adaptor::IsAvailable() )
+  if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance */ )
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "IsVisible\n" );
 
@@ -184,18 +181,15 @@ bool IsVisible()
 
 void SetReturnKeyType( Dali::VirtualKeyboard::ReturnKeyType type )
 {
-  if ( Dali::Adaptor::IsAvailable() )
+  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when setting values
+  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+
+  if( imfContext )
   {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "VKB Retrun key type is changed[%d]\n", type );
 
-    if( imfContext )
-    {
-      DALI_LOG_INFO( gLogFilter, Debug::General, "VKB Retrun key type is changed[%d]\n", type );
-
-      gReturnKeyType = type;
-      ecore_imf_context_input_panel_return_key_type_set( imfContext, static_cast<Ecore_IMF_Input_Panel_Return_Key_Type>( type ) );
-    }
+    gReturnKeyType = type;
+    ecore_imf_context_input_panel_return_key_type_set( imfContext, static_cast<Ecore_IMF_Input_Panel_Return_Key_Type>( type ) );
   }
 }
 
@@ -206,21 +200,18 @@ Dali::VirtualKeyboard::ReturnKeyType GetReturnKeyType()
 
 void EnablePrediction(const bool enable)
 {
-  if ( Dali::Adaptor::IsAvailable() )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when enabling prediction
+  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
 
-    if ( imfContext )
-    {
-      ecore_imf_context_prediction_allow_set( imfContext, (enable)? EINA_TRUE : EINA_FALSE);
-    }
+  if ( imfContext )
+  {
+    ecore_imf_context_prediction_allow_set( imfContext, (enable)? EINA_TRUE : EINA_FALSE);
   }
 }
 
 bool IsPredictionEnabled()
 {
-  if ( Dali::Adaptor::IsAvailable() )
+  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManger */ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
     Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
@@ -243,20 +234,17 @@ Rect<int> GetSizeAndPosition()
   int xPos, yPos, width, height;
 
   width = height = xPos = yPos = 0;
-  if ( Dali::Adaptor::IsAvailable() )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) as we may need to do some size related setup in the application
+  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
 
-    if( imfContext )
-    {
-      ecore_imf_context_input_panel_geometry_get(imfContext, &xPos, &yPos, &width, &height);
-    }
-    else
-    {
-      DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
-      // return 0 as real size unknown.
-    }
+  if( imfContext )
+  {
+    ecore_imf_context_input_panel_geometry_get(imfContext, &xPos, &yPos, &width, &height);
+  }
+  else
+  {
+    DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
+    // return 0 as real size unknown.
   }
 
   return Rect<int>(xPos,yPos,width,height);
@@ -281,7 +269,7 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 {
   Dali::VirtualKeyboard::TextDirection direction ( Dali::VirtualKeyboard::LeftToRight );
 
-  if ( Dali::Adaptor::IsAvailable() )
+  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManager */ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
 

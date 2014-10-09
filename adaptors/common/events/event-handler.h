@@ -169,7 +169,6 @@ private:
   Dali::AccessibilityManager mAccessibilityManager; ///< Pointer to the accessibility manager
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard
-  Dali::ImfManager mImfManager;  ///< Pointer to the IMF manager.
 
   struct Impl; ///< Contains Ecore specific information
   Impl* mImpl; ///< Created on construction and destroyed on destruction.
