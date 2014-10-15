@@ -162,10 +162,11 @@ PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
-fi
 
 if test "x$enable_profile" != "xTV"; then
 PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
+fi
+
 fi
 
 if test "x$enable_wayland" = "xyes"; then

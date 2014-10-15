@@ -50,7 +50,16 @@ public:
 public:
 
   /**
-   * Create the IMF manager.
+   * Check whether the ImfManager is available.
+   * @return true if available, false otherwise
+   */
+  static bool IsAvailable();
+
+  /**
+   * Get the IMF manager instance, it creates the instance if it has not already been created.
+   * Internally, a check should be made using IsAvailable() before this is called as we do not want
+   * to create an instance if not needed by applications.
+   * @see IsAvailable()
    */
   static Dali::ImfManager Get();
 
