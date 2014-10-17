@@ -19,6 +19,8 @@
 #include <dali/dali.h>
 #include <dali/integration-api/resource-cache.h>
 
+#include <map>
+
 namespace Dali
 {
 namespace Internal
