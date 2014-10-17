@@ -39,6 +39,9 @@ namespace Adaptor
 
 namespace
 {
+// constants to keep code readability with unsigned int has to be used as boolean (due to multithreading)
+const unsigned int TRUE = 1u;
+const unsigned int FALSE = 0u;
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VSYNC_MONITOR");
@@ -59,7 +62,7 @@ void ScreenStatusChanged(keynode_t* node, void* data)
   //  - VCONFKEY_PM_STATE_LCDDIM : turn vsync off
   //  - VCONFKEY_PM_STATE_LCDOFF : turn vsync off
   //  - VCONFKEY_PM_STATE_SLEEP : turn vsync off
-  const bool screenOn( VCONFKEY_PM_STATE_NORMAL == status );
+  const unsigned int screenOn( VCONFKEY_PM_STATE_NORMAL == status );
 
   vsyncMonitor->SetHardwareVSyncAvailable( screenOn );
 
@@ -70,8 +73,8 @@ void ScreenStatusChanged(keynode_t* node, void* data)
 
 VSyncMonitor::VSyncMonitor()
 : mFileDescriptor( FD_NONE ),
-  mUseHardwareVSync( true ),
-  mHardwareVSyncAvailable( false )
+  mUseHardwareVSync( TRUE ),
+  mHardwareVSyncAvailable( FALSE )
 {
   vconf_notify_key_changed( VCONFKEY_PM_STATE, ScreenStatusChanged, this );
 }

@@ -89,8 +89,9 @@ private:
 
   int       mFileDescriptor;  ///< DRM dev node file descriptor
   drmVBlank mVBlankInfo;
-  bool      mUseHardwareVSync; ///< Whether to use hardware vsync
-  bool      mHardwareVSyncAvailable; ///< Whether hardware vsync is available
+  // NOTE cannot use booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
+  unsigned int mUseHardwareVSync; ///< Whether to use hardware vsync
+  unsigned int mHardwareVSyncAvailable; ///< Whether hardware vsync is available
 };
 
 } // namespace Adaptor
