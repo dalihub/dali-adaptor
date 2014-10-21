@@ -131,7 +131,6 @@ private:
 private: // Attributes
   const std::string mFilename;
   std::string       mModelName;
-  char*             mTmpFilename;
   AssimpProxy*      mModelImporter;
 };
 

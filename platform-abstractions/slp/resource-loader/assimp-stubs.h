@@ -18,12 +18,12 @@
  *
  */
 
+#if !defined(ASSIMP_ENABLED)
 namespace Dali
 {
 
 namespace SlpPlatform
 {
-
 // Stubbed out assimp classes
 
 class AssimpProxy
@@ -65,4 +65,5 @@ public:
 
 } // namespace Dali
 
+#endif // ! defined(ASSIMP_ENABLED)
 #endif // __DALI_SLP_PLATFORM_ASSIMP_STUBS_H__

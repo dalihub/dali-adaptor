@@ -61,7 +61,7 @@ typedef std::vector<std::vector<BoneWeight> > VertexWeights;
  *
  */
 AssimpModelBuilder::AssimpModelBuilder(AssimpProxy* importer, const std::string& name)
-  : mFilename(name), mModelName(), mTmpFilename(NULL), mModelImporter(importer)
+  : mFilename(name), mModelName(), mModelImporter(importer)
 {
 }
 
@@ -70,24 +70,19 @@ AssimpModelBuilder::AssimpModelBuilder(AssimpProxy* importer, const std::string&
  */
 AssimpModelBuilder::~AssimpModelBuilder()
 {
-  if(mTmpFilename != NULL)
-  {
-    free(mTmpFilename);
-  }
 }
-
 
 /********************************************************************************
  * Return the base name of the model filename
  */
 const std::string& AssimpModelBuilder::GetModelName()
 {
-  // TODO - check for Unix path handling in STL/Boost
-
-  const char* filename = mFilename.c_str();
-  mTmpFilename = (char*) malloc(strlen(filename)+1);
-  strcpy(mTmpFilename, filename);
-  mModelName = basename(mTmpFilename); // Note, this modifies mFilename
+  char* filename;
+  if( 0 != asprintf(&filename, "%s", mFilename.c_str()) )
+  {
+    mModelName = basename( filename );
+    free( filename );
+  }
   return mModelName;
 }
 

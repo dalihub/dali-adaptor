@@ -269,4 +269,3 @@ const aiScene* AssimpScene::GetScene()
 
 }
 }
-

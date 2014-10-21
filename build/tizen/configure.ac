@@ -83,6 +83,12 @@ if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -fvisibility=hidden -DHIDE_DALI_INTERNALS"
 fi
 
+AC_ARG_ENABLE([assimp],
+              [AC_HELP_STRING([--enable-assimp],
+                              [Enable assimp plugin, overriding platform defaults])],
+              [enable_assimp=yes],
+              [enable_assimp=no])
+
 AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
@@ -126,6 +132,10 @@ AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
+# Platforms should either enable features or remove them, they
+# should not disable features. This allows the developer to override
+# features through the command line.
+
 if test "x$enable_profile" = "xCOMMON"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 PKG_CHECK_MODULES(HAPTIC, haptic)
@@ -133,8 +143,8 @@ fi
 
 if test "x$enable_profile" = "xMOBILE"; then
 PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
-PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(DEVICED, deviced)
+enable_assimp=yes
 fi
 
 if test "x$enable_profile" = "xLITE"; then
@@ -147,8 +157,8 @@ fi
 
 if test "x$enable_profile" = "xTV"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
-PKG_CHECK_MODULES(ASSIMP, assimp)
 PKG_CHECK_MODULES(HAPTIC, haptic)
+enable_assimp=yes
 fi
 
 if test "x$enable_profile" = "xUBUNTU"; then
@@ -181,6 +191,15 @@ PKG_CHECK_MODULES(X11, [x11],
                   [DALI_HAS_X11=yes],
                   [DALI_HAS_X11=no])
 fi
+
+if test "x$enable_assimp" = "xyes" ; then
+  PKG_CHECK_MODULES(ASSIMP, assimp)
+  ASSIMP_CFLAGS+=-DASSIMP_ENABLED
+fi
+
+# Don't move this - it depends on the platform defaults above
+AM_CONDITIONAL([ASSIMP_ENABLED], [test x$enable_assimp = xyes])
+
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
@@ -251,6 +270,7 @@ Configuration
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
+  Using Assimp Library:             $enable_assimp
   Using JPEG Turbo Library:         $with_jpeg_turbo
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir

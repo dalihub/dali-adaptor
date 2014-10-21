@@ -28,7 +28,7 @@
 
 #include "binary-model-builder.h"
 
-#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
+#if defined(ASSIMP_ENABLED)
 #include "assimp-model-builder.h"
 #include "assimp-proxy.h"
 #else
@@ -136,14 +136,16 @@ void ResourceThreadModel::Save(const ResourceRequest& request)
 ModelBuilder* ResourceThreadModel::CreateModelBuilder(const std::string& modelFileName)
 {
   ModelBuilder* modelBuilder = NULL;
-  char fileMagic[4];
+  char fileMagic[4]={0,};
 
   // read first 4 bytes of file
   {
     std::filebuf buf;
-    buf.open(modelFileName.c_str(), std::ios::in | std::ios::binary);
-    std::iostream stream(&buf);
-    stream.read(fileMagic, 4);
+    if( &buf == buf.open(modelFileName.c_str(), std::ios::in | std::ios::binary) )
+    {
+      std::iostream stream(&buf);
+      stream.read(fileMagic, 4);
+    }
   }
 
   // if file starts with a 'DALI' tag/marker create a binary builder
@@ -154,8 +156,11 @@ ModelBuilder* ResourceThreadModel::CreateModelBuilder(const std::string& modelFi
   {
     modelBuilder = new BinaryModelBuilder(modelFileName);
   }
-#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV)
-  else
+#if defined(ASSIMP_ENABLED)
+  else if( fileMagic[0] != '\0' &&
+           fileMagic[1] != '\0' &&
+           fileMagic[2] != '\0' &&
+           fileMagic[3] != '\0' )
   {
     if(!mModelImporter)
     {
