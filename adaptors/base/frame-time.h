@@ -113,23 +113,24 @@ private:
 
 private:
 
-  Integration::PlatformAbstraction& mPlatform;    ///< The platform abstraction.
+  Integration::PlatformAbstraction& mPlatform; ///< The platform abstraction.
 
-  unsigned int mMinimumFrameTimeInterval;   ///< The minimum frame time interval, set by Adaptor.
+  unsigned int mMinimumFrameTimeInterval; ///< The minimum frame time interval, set by Adaptor.
 
-  uint64_t mLastSyncTime;                  ///< The last Sync time (in microseconds).
-  uint64_t mLastSyncTimeAtUpdate;          ///< The last Sync time at Update (in microseconds).
+  uint64_t mLastSyncTime;                ///< The last Sync time (in microseconds).
+  uint64_t mLastSyncTimeAtUpdate;        ///< The last Sync time at Update (in microseconds).
 
-  unsigned int mLastSyncFrameNumber;       ///< The last Sync frame number
-  unsigned int mLastUpdateFrameNumber;      ///< The last Sync frame number handled in Update.
+  unsigned int mLastSyncFrameNumber;     ///< The last Sync frame number
+  unsigned int mLastUpdateFrameNumber;   ///< The last Sync frame number handled in Update.
 
-  bool         mRunning:1;                  ///< The state of the FrameTime object.
-  bool         mFirstFrame:1;               ///< Whether the current update is the first frame (after initialisation, resume or wake up).
+  // NOTE cannot use bitfields or booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
+  unsigned int mRunning;                 ///< The state of the FrameTime object.
+  unsigned int mFirstFrame;              ///< Whether the current update is the first frame (after initialisation, resume or wake up).
 
-  unsigned int mPreviousUpdateFrames[3];    ///< Array holding the number of frames Update took in the last three iterations.
-  unsigned int writePos;                    ///< The current write position in the array.
+  unsigned int mPreviousUpdateFrames[3]; ///< Array holding the number of frames Update took in the last three iterations.
+  unsigned int writePos;                 ///< The current write position in the array.
 
-  unsigned int mExtraUpdatesSinceSync;     ///< The number of extra updates since the last Sync.
+  unsigned int mExtraUpdatesSinceSync;   ///< The number of extra updates since the last Sync.
 };
 
 } // namespace Adaptor
