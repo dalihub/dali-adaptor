@@ -19,9 +19,6 @@
 #include "update-thread.h"
 
 // EXTERNAL INCLUDES
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
 #include <boost/thread.hpp>
 
 // INTERNAL INCLUDES
@@ -41,6 +38,7 @@ namespace Adaptor
 
 namespace
 {
+const char* DALI_TEMP_UPDATE_FPS_FILE( "/tmp/dalifps.txt" );
 const unsigned int MICROSECONDS_PER_MILLISECOND( 1000 );
 
 #if defined(DEBUG_ENABLED)
@@ -218,78 +216,90 @@ void UpdateThread::OutputFPSRecord()
   {
     DALI_LOG_FPS("fps( %d ):%f\n",i ,mFpsRecord[i]);
   }
-  std::ofstream outFile("/tmp/dalifps.txt");
-  if(outFile.is_open())
+
+  // Dumps out the DALI_FPS_TRACKING worth of frame rates.
+  // E.g. if we run:   DALI_FPS_TRACKING=30  dali-demo
+  // it will dump out the first 30 seconds of FPS information to a temp file
+  FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w");
+  if( outfile )
   {
     for(unsigned int i = 0; i < mElapsedSeconds; i++)
     {
-      outFile << mFpsRecord[i]<<std::endl;
+      char fpsString[10];
+      snprintf(fpsString,sizeof(fpsString),"%.2f \n",mFpsRecord[i]);
+      int ret = fputs( fpsString, outfile );
+      if( ret < 0)
+      {
+        break;
+      }
     }
-    outFile.close();
+
   }
+  fclose( outfile );
+
 }
 
 void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate )
 {
   DALI_ASSERT_ALWAYS( mStatusLogInterval );
 
-  std::ostringstream oss;
+  std::string oss;
 
   if ( !(++mStatusLogCount % mStatusLogInterval) )
   {
-    oss << "UpdateStatusLogging keepUpdating: " << keepUpdatingStatus << " ";
+    oss = "UpdateStatusLogging keepUpdating: " + keepUpdatingStatus ? "true":"false";
 
     if ( keepUpdatingStatus )
     {
-      oss << "because: ";
+      oss += " because: ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::STAGE_KEEP_RENDERING )
     {
-      oss << "<Stage::KeepRendering() used> ";
+      oss += "<Stage::KeepRendering() used> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::INCOMING_MESSAGES )
     {
-      oss << "<Messages sent to Update> ";
+      oss  +=  "<Messages sent to Update> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING )
     {
-      oss << "<Animations running> ";
+      oss  +=  "<Animations running> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::DYNAMICS_CHANGED )
     {
-      oss << "<Dynamics running> ";
+      oss  +=  "<Dynamics running> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::LOADING_RESOURCES )
     {
-      oss << "<Resources loading> ";
+      oss  +=  "<Resources loading> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::NOTIFICATIONS_PENDING )
     {
-      oss << "<Notifications pending> ";
+      oss  +=  "<Notifications pending> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
     {
-      oss << "<Monitoring performance> ";
+      oss += "<Monitoring performance> ";
     }
 
     if ( keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC )
     {
-      oss << "<Render task waiting for completion> ";
+      oss += "<Render task waiting for completion> ";
     }
 
     if ( renderNeedsUpdate )
     {
-      oss << "<Render needs Update> ";
+      oss  +=  "<Render needs Update> ";
     }
 
-    DALI_LOG_UPDATE_STATUS( "%s\n", oss.str().c_str() );
+    DALI_LOG_UPDATE_STATUS( "%s\n", oss.c_str());
   }
 }
 
