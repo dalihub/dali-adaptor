@@ -29,6 +29,12 @@ namespace Adaptor
 
 #define DALI_ENV_LOG_PERFORMANCE "DALI_LOG_PERFORMANCE"
 
+// environment variable for enabling/disabling fps tracking
+#define DALI_ENV_FPS_TRACKING "DALI_FPS_TRACKING"
+
+// environment variable for enabling/disabling fps tracking
+#define DALI_ENV_UPDATE_STATUS_INTERVAL "DALI_UPDATE_STATUS_INTERVAL"
+
 #define DALI_ENV_LOG_PAN_GESTURE "DALI_LOG_PAN_GESTURE"
 
 #define DALI_ENV_PAN_PREDICTION_MODE "DALI_PAN_PREDICTION_MODE"
