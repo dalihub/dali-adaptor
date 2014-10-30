@@ -1481,6 +1481,8 @@ public:
     // if OpenGL ES 2.0 compatibility is need this can be implemented with
     // glGetProgramBinaryOES
     glGetProgramBinary(program,bufSize,length,binaryFormat,binary);
+#else
+    mGlExtensions.GetProgramBinaryOES(program, bufSize, length, binaryFormat, binary);
 #endif // DALI_GLES_VERSION >= 30
   }
 
@@ -1490,6 +1492,8 @@ public:
     // if OpenGL ES 2.0 compatibility is need this can be implemented with
     // glProgramBinaryOES
     glProgramBinary(program,binaryFormat,binary,length);
+#else
+    mGlExtensions.ProgramBinaryOES(program, binaryFormat, binary, length);
 #endif // DALI_GLES_VERSION >= 30
   }
 

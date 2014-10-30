@@ -237,7 +237,7 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
 
   if ( !(++mStatusLogCount % mStatusLogInterval) )
   {
-    oss << "UpdateStatusLogging keepUpdating: " << (bool)keepUpdatingStatus << " ";
+    oss << "UpdateStatusLogging keepUpdating: " << keepUpdatingStatus << " ";
 
     if ( keepUpdatingStatus )
     {
@@ -272,6 +272,16 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
     if ( keepUpdatingStatus & Integration::KeepUpdating::NOTIFICATIONS_PENDING )
     {
       oss << "<Notifications pending> ";
+    }
+
+    if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
+    {
+      oss << "<Monitoring performance> ";
+    }
+
+    if ( keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC )
+    {
+      oss << "<Render task waiting for completion> ";
     }
 
     if ( renderNeedsUpdate )

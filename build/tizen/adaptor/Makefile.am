@@ -66,12 +66,16 @@ adaptor_public_api_dir = ../../../adaptors/public-api
 include ../../../adaptors/public-api/file.list
 
 
-
 ############# source files #############
+
+if ASSIMP_ENABLED
+slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+else
+slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+endif # ASSIMP_ENABLED
 
 # COMMON
 if COMMON_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
@@ -89,7 +93,6 @@ endif # COMMON_PROFILE
 
 # UBUNTU
 if UBUNTU_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
@@ -102,7 +105,6 @@ endif # UBUNTU_PROFILE
 
 # MOBILE
 if MOBILE_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
@@ -114,7 +116,6 @@ endif
 
 # LITE
 if LITE_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
@@ -125,7 +126,6 @@ endif
 
 # WEARABLE
 if WEARABLE_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
@@ -136,7 +136,6 @@ endif
 
 # TV
 if TV_PROFILE
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
@@ -237,6 +236,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(SENSOR_CFLAGS) \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
+                      $(ASSIMP_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \
@@ -255,6 +255,7 @@ libdali_adaptor_la_LIBADD = \
                       $(SENSOR_LIBS) \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
+                      $(ASSIMP_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       -lgif \
@@ -274,13 +275,13 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if MOBILE_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += \
                       $(DEVICED_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
                       $(NATIVE_BUFFER_POOL_CFLAGS)
 
-libdali_adaptor_la_LIBADD += $(ASSIMP_LIBS) \
+libdali_adaptor_la_LIBADD += \
                       $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
@@ -295,10 +296,8 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if TV_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(ASSIMP_CFLAGS) \
-                                      $(HAPTIC_CFLAGS)
-
-libdali_adaptor_la_LIBADD += $(ASSIMP_LIBS)
+libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_la_LIBADD +=
 endif
 
 if TURBO_JPEG_IS_ON
@@ -339,11 +338,13 @@ linker_test_CXXFLAGS = \
   -I../../../adaptors/public-api/adaptor-framework \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
+  $(VCONF_CFLAGS) \
   $(DALIX11_CFLAGS) \
   -Werror -Wall
 
 linker_test_DEPENDENCIES = libdali-adaptor.la
 linker_test_LDADD = \
   $(DALICORE_LIBS) \
+  $(VCONF_LIBS) \
   libdali-adaptor.la \
   -L${prefix}/lib
