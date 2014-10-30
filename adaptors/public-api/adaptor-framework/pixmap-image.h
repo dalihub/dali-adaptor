@@ -23,7 +23,7 @@
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 class Adaptor;
 
@@ -48,7 +48,7 @@ typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
  * externally by X11 or ECORE-X11.
  *
  */
-class PixmapImage : public NativeImage
+class DALI_IMPORT_API PixmapImage : public NativeImage
 {
 public:
 
@@ -182,14 +182,14 @@ private:
    * @param[in] adaptor a reference to Dali adaptor
    * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap);
+  DALI_INTERNAL PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
    *
    * The implementation should destroy the NativeImage resources.
    */
-  virtual ~PixmapImage();
+  DALI_INTERNAL virtual ~PixmapImage();
 
   /**
    * @brief Undefined assignment operator.
@@ -197,7 +197,7 @@ private:
    * This avoids accidental calls to a default assignment operator.
    * @param[in] rhs A reference to the object to copy.
    */
-  PixmapImage& operator=(const PixmapImage& rhs);
+  DALI_INTERNAL PixmapImage& operator=(const PixmapImage& rhs);
 
 private:
 

@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include "style-change.h"
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -46,7 +46,7 @@ class StyleMonitor;
  * It provides a signal when any aspect of the default style changes on the device.
  * @see Adaptor::GetStyleMonitor
  */
-class StyleMonitor : public BaseHandle
+class DALI_IMPORT_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 

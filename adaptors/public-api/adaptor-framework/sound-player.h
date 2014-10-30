@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -36,7 +36,7 @@ class SoundPlayer;
 /**
  * @brief Plays sound effects.
  */
-class SoundPlayer : public BaseHandle
+class DALI_IMPORT_API SoundPlayer : public BaseHandle
 {
 public:
 
@@ -100,7 +100,7 @@ public: // Not intended for application developers
    *
    * @param[in] soundPlayer A pointer to the sound player.
    */
-  SoundPlayer( Internal::Adaptor::SoundPlayer* soundPlayer );
+  explicit DALI_INTERNAL SoundPlayer( Internal::Adaptor::SoundPlayer* soundPlayer );
 };
 
 } // namespace Dali

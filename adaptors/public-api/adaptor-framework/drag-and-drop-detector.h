@@ -25,7 +25,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -85,7 +85,7 @@ class DragAndDropDetector;
  *
  * @endcode
  */
-class DragAndDropDetector : public BaseHandle
+class DALI_IMPORT_API DragAndDropDetector : public BaseHandle
 {
 public:
 
@@ -185,7 +185,7 @@ public: // Not intended for application developers
    *
    * @param[in] detector A pointer to the drag and drop detector.
    */
-  DragAndDropDetector( Internal::Adaptor::DragAndDropDetector* detector );
+  explicit DALI_INTERNAL DragAndDropDetector( Internal::Adaptor::DragAndDropDetector* detector );
 };
 
 } // namespace Dali

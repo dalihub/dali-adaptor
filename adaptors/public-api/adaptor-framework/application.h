@@ -28,7 +28,7 @@
 #include "device-layout.h"
 #include "window.h"
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -85,7 +85,7 @@ class Application;
  *
  * When the above options are found, they are stripped from argv, and argc is updated appropriately.
  */
-class Application : public BaseHandle
+class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 

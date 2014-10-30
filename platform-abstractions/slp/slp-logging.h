@@ -30,7 +30,7 @@ namespace SlpPlatform
 /**
  * @copydoc Dali::Integration::Log:LogMessage
  */
-DALI_IMPORT_API void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
+void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
 
 } // namespace SlpPlatform
 

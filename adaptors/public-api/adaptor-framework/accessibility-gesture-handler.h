@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/events/pan-gesture-event.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 /**

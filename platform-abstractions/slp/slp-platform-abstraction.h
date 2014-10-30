@@ -32,7 +32,7 @@ namespace Dali
 /**
  * Construct a platform abstraction and return it.
  */
-DALI_IMPORT_API Integration::PlatformAbstraction* CreatePlatformAbstraction();
+Integration::PlatformAbstraction* CreatePlatformAbstraction();
 
 namespace SlpPlatform
 {

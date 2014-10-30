@@ -36,7 +36,7 @@
 namespace Dali
 {
 
-DALI_IMPORT_API Integration::PlatformAbstraction* CreatePlatformAbstraction()
+Integration::PlatformAbstraction* CreatePlatformAbstraction()
 {
   return new SlpPlatform::SlpPlatformAbstraction();
 }

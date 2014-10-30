@@ -30,7 +30,7 @@ namespace Internal
 class BitmapLoader;
 }
 
-class BitmapLoader : public BaseHandle
+class DALI_IMPORT_API BitmapLoader : public BaseHandle
 {
 public:
   /**

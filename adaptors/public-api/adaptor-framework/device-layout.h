@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/vector2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 /**
@@ -32,7 +32,7 @@ namespace Dali DALI_IMPORT_API
  * @see Dali::Application::Application(* argc, char **argv[], DeviceLayout baseLayout)
  * @see Dali::Adaptor::Adaptor(RenderSurface& surface, DeviceLayout baseLayout)
  */
-struct DeviceLayout
+struct DALI_IMPORT_API DeviceLayout
 {
 public: // Construction & Destruction
 

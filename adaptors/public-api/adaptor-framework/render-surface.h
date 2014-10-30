@@ -23,7 +23,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 /**
@@ -118,7 +118,7 @@ private:
  * @param [in] name optional name of surface passed in
  * @return The render surface
  */
-RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSize positionSize, const std::string& name = "" );
+DALI_IMPORT_API RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSize positionSize, const std::string& name = "" );
 
 } // namespace Dali
 

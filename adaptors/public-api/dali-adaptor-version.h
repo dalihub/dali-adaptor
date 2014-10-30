@@ -18,12 +18,15 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 namespace Dali
 {
-extern const unsigned int ADAPTOR_MAJOR_VERSION; ///< The major version number of the Adaptor.
-extern const unsigned int ADAPTOR_MINOR_VERSION; ///< The minor version number of the Adaptor.
-extern const unsigned int ADAPTOR_MICRO_VERSION; ///< The micro version number of the Adaptor.
-extern const char * const ADAPTOR_BUILD_DATE;    ///< The date/time the Adaptor library was built.
+DALI_IMPORT_API extern const unsigned int ADAPTOR_MAJOR_VERSION; ///< The major version number of the Adaptor.
+DALI_IMPORT_API extern const unsigned int ADAPTOR_MINOR_VERSION; ///< The minor version number of the Adaptor.
+DALI_IMPORT_API extern const unsigned int ADAPTOR_MICRO_VERSION; ///< The micro version number of the Adaptor.
+DALI_IMPORT_API extern const char * const ADAPTOR_BUILD_DATE;    ///< The date/time the Adaptor library was built.
 } // namespace Dali
 
 #endif // __DALI_ADAPTOR_VERSION_H__

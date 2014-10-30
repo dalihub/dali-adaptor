@@ -20,7 +20,7 @@
 
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -36,7 +36,7 @@ class ColorController;
  *
  * It provides the functionality of retrieving a RGBA color by passing in the color code string.
  */
-class ColorController : public BaseHandle
+class DALI_IMPORT_API ColorController : public BaseHandle
 {
 public:
 

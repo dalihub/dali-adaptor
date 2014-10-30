@@ -36,12 +36,11 @@ namespace Dali
  *
  * @return true if the file was saved
  */
-bool EncodeToFile(const unsigned char* const pixelBuffer,
-                  const std::string& filename,
-                  const Pixel::Format pixelFormat,
-                  const std::size_t width,
-                  const std::size_t height);
-
+DALI_IMPORT_API bool EncodeToFile(const unsigned char* const pixelBuffer,
+                                  const std::string& filename,
+                                  const Pixel::Format pixelFormat,
+                                  const std::size_t width,
+                                  const std::size_t height);
 
 } // namespace Dali
 

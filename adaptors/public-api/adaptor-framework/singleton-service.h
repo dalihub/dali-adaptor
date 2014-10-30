@@ -22,7 +22,7 @@
 #include <typeinfo>
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -40,7 +40,7 @@ class SingletonService;
  *
  * @see Application
  */
-class SingletonService : public BaseHandle
+class DALI_IMPORT_API SingletonService : public BaseHandle
 {
 public:
 
@@ -92,7 +92,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by SingletonService::Get().
    * @param[in] singletonService A pointer to the internal singleton-service object.
    */
-  SingletonService( Internal::Adaptor::SingletonService* singletonService );
+  explicit DALI_INTERNAL SingletonService( Internal::Adaptor::SingletonService* singletonService );
 };
 
 } // namespace Dali

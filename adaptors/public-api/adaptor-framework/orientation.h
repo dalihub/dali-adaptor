@@ -24,7 +24,7 @@
 #include <dali/public-api/signals/dali-signal-v2.h>
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -42,7 +42,7 @@ class Orientation;
  * Dali applications have full control over visual layout when the device is rotated
  * i.e. the application developer decides which UI controls to rotate, if any.
  */
-class Orientation : public BaseHandle
+class DALI_IMPORT_API Orientation : public BaseHandle
 {
 public:
 
