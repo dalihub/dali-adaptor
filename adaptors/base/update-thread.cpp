@@ -279,11 +279,6 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
       oss  +=  "<Resources loading> ";
     }
 
-    if ( keepUpdatingStatus & Integration::KeepUpdating::NOTIFICATIONS_PENDING )
-    {
-      oss  +=  "<Notifications pending> ";
-    }
-
     if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
     {
       oss += "<Monitoring performance> ";
