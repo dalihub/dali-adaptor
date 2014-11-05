@@ -43,13 +43,6 @@ Orientation& Orientation::operator=(const Orientation& rhs)
   return *this;
 }
 
-Orientation& Orientation::operator=(BaseHandle::NullType* rhs)
-{
-  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
-  Reset();
-  return *this;
-}
-
 int Orientation::GetDegrees() const
 {
   return Internal::Adaptor::GetImplementation(*this).GetDegrees();
