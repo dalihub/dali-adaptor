@@ -37,6 +37,9 @@ namespace Adaptor
 
 namespace
 {
+// constants to keep code readability with unsigned int has to be used as boolean (due to multithreading)
+const unsigned int TRUE = 1u;
+const unsigned int FALSE = 0u;
 
 const int FD_NONE( -1 );
 
@@ -44,8 +47,8 @@ const int FD_NONE( -1 );
 
 VSyncMonitor::VSyncMonitor()
 : mFileDescriptor( FD_NONE ),
-  mUseHardwareVSync( false ),
-  mHardwareVSyncAvailable( false )
+  mUseHardwareVSync( FALSE ),
+  mHardwareVSyncAvailable( FALSE )
 {
 }
 
