@@ -275,7 +275,8 @@ void AccessibilityManager::DisableAccessibility()
     if ( Adaptor::IsAvailable() )
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-      Adaptor::GetImplementation( adaptor ).DestroyTtsPlayer( Dali::TtsPlayer::SCREEN_READER );
+      Adaptor& adaptorIpml = Adaptor::GetImplementation( adaptor );
+      adaptorIpml.DestroyTtsPlayer( Dali::TtsPlayer::SCREEN_READER );
     }
   }
 }

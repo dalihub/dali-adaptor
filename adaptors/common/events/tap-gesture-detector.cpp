@@ -54,6 +54,7 @@ TapGestureDetector::TapGestureDetector(CoreEventInterface& coreEventInterface, V
   mMinimumTapsRequired(request.minTaps),
   mMaximumTapsRequired(request.maxTaps),
   mTapsRegistered(0),
+  mTouchTime(0),
   mTimerSlot( this )
 {
   mTimer = Dali::Timer::New(MAXIMUM_TIME_ALLOWED);

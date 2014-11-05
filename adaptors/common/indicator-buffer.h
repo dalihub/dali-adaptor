@@ -82,10 +82,6 @@ private:
   int           mImageWidth;
   int           mImageHeight;
   Pixel::Format mPixelFormat;
-
-  // Only used with fallback bitmap buffer implementation
-  bool  mUpdatingBitmap:1;      ///< Whether BitmapImage is being uploaded to graphics memory
-  bool  mUpdateBitmapAgain:1;   ///< Whether to update BitmapImage again after upload complete
 };
 
 } // Adaptor

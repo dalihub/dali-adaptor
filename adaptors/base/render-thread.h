@@ -210,7 +210,6 @@ private: // Data
   EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation
   EglInterface*                 mEGL;                    ///< Interface to EGL implementation
   boost::thread*                mThread;                 ///< render thread
-  bool                          mUsingPixmap;            ///< whether we're using a pixmap or a window
   RenderSurface*                mSurface;                ///< Current surface
   const EnvironmentOptions&     mEnvironmentOptions;     ///< Environment options
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialzed.

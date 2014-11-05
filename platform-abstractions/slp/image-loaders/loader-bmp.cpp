@@ -279,7 +279,7 @@ bool DecodeBF32(FILE *fp,
 
   for (unsigned int yPos = 0; yPos < height; yPos++)
   {
-    PixelBuffer *pixelsPtr = pixels;
+    PixelBuffer *pixelsPtr;
     if (topDown)
     {
       // the data in the file is top down, and we store the data top down

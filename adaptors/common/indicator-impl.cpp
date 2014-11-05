@@ -1221,18 +1221,18 @@ void Indicator::ShowIndicator(float duration)
     mIndicatorAnimation.FinishedSignal().Connect(this, &Indicator::OnAnimationFinished);
   }
 
-  if(mIsShowing && duration != 0)
+  if(mIsShowing && !EqualsZero(duration))
   {
     // If need to show during showing, do nothing.
     // In 2nd phase (below) will update timer
   }
-  else if(!mIsShowing && mIsAnimationPlaying && duration == 0)
+  else if(!mIsShowing && mIsAnimationPlaying && EqualsZero(duration))
   {
     // If need to hide during hiding or hidden already, do nothing
   }
   else
   {
-    if(duration == 0)
+    if( EqualsZero(duration) )
     {
       mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, -mImageHeight, 0), Dali::AlphaFunctions::EaseOut);
 

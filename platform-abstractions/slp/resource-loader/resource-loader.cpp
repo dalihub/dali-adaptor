@@ -677,7 +677,6 @@ GlyphSet* ResourceLoader::GetCachedGlyphData(const TextResourceType& textRequest
 
       // create a new bitmap, and copy in the data
       BitmapPtr bitmapData ( Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD) );
-      DALI_ASSERT_ALWAYS( data.length == DISTANCE_FIELD_SIZE * DISTANCE_FIELD_SIZE );
 
       // assign the data
       bitmapData->GetPackedPixelsProfile()->AssignBuffer( Pixel::A8, data.data, DISTANCE_FIELD_SIZE * DISTANCE_FIELD_SIZE, DISTANCE_FIELD_SIZE, DISTANCE_FIELD_SIZE );
@@ -859,6 +858,7 @@ Integration::BitmapPtr ResourceLoader::GetGlyphImage( FT_Library freeType, const
   if( NULL != slpFace )
   {
     image = GetGlyphBitmap( slpFace->face, character );
+    delete slpFace;
   }
 
   return image;

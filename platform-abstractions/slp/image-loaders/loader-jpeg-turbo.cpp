@@ -45,15 +45,6 @@ namespace
   const unsigned DECODED_PIXEL_SIZE = 3;
   const TJPF DECODED_PIXEL_LIBJPEG_TYPE = TJPF_RGB;
 
-  // Configuration options for JPEG decoder:
-
-  const bool FORCEMMX  = false; ///< On Intel, use MMX-optimised codepaths.
-  const bool FORCESSE  = false; ///< On Intel, use SSE1-optimised codepaths.
-  const bool FORCESSE2 = false; ///< On Intel, use SSE2-optimised codepaths.
-  const bool FORCESSE3 = false; ///< On Intel, use SSE3-optimised codepaths.
-  /** Use the fastest chrominance upsampling algorithm available in the underlying codec. */
-  const bool FASTUPSAMPLE = false;
-
   /** Transformations that can be applied to decoded pixels to respect exif orientation
    *  codes in image headers */
   enum JPGFORM_CODE
@@ -240,11 +231,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
 
 bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
 {
-  int flags=(FORCEMMX ?  TJ_FORCEMMX : 0) |
-            (FORCESSE ?  TJ_FORCESSE : 0) |
-            (FORCESSE2 ? TJ_FORCESSE2 : 0) |
-            (FORCESSE3 ? TJ_FORCESSE3 : 0) |
-            (FASTUPSAMPLE ? TJ_FASTUPSAMPLE : 0);
+  const int flags= 0;
 
   if( fseek(fp,0,SEEK_END) )
   {

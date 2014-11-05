@@ -191,7 +191,9 @@ bool EglSyncObject::IsSynced()
 }
 
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation( NULL )
+: mEglImplementation( NULL ),
+  mSyncInitialized( false ),
+  mSyncInitializeFailed( false )
 {
 }
 

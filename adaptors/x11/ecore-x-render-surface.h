@@ -213,7 +213,6 @@ protected:
 protected: // Data
 
   XDisplay*                   mMainDisplay;        ///< X-connection for rendering
-  Ecore_X_Window              mRootWindow;         ///< X-Root window
   SurfaceType                 mType;               ///< type of renderable
   PositionSize                mPosition;           ///< Position
   std::string                 mTitle;              ///< Title of window which shows from "xinfo -topvwins" command
