@@ -326,7 +326,6 @@ public: // TEST FUNCTIONS
 
   void SetReadMetricsResult( bool success, std::vector<Integration::GlyphMetrics>& glyphMetricsContainer );
 
-
 private:
   mutable TraceCallStack        mTrace;
   size_t                        mSeconds;

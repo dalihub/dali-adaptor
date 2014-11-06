@@ -24,7 +24,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -38,7 +38,7 @@ class ClipboardEventNotifier;
 /**
  * @brief The ClipboardEventNotifier provides signals when clipboard events are received from the device.
  */
-class ClipboardEventNotifier : public BaseHandle
+class DALI_IMPORT_API ClipboardEventNotifier : public BaseHandle
 {
 public:
 
@@ -115,7 +115,7 @@ public: // Not intended for application developers
    *
    * @param[in] notifier A pointer to the drag and drop notifier.
    */
-  ClipboardEventNotifier( Internal::Adaptor::ClipboardEventNotifier* notifier );
+  explicit DALI_INTERNAL ClipboardEventNotifier( Internal::Adaptor::ClipboardEventNotifier* notifier );
 };
 
 } // namespace Dali

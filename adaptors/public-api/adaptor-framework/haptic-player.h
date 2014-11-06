@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -35,7 +35,7 @@ class HapticPlayer;
 /**
  * @brief Plays haptic effects.
  */
-class HapticPlayer : public BaseHandle
+class DALI_IMPORT_API HapticPlayer : public BaseHandle
 {
 public:
 
@@ -83,7 +83,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by HapticPlayer::Get().
    * @param[in] hapticPlayer A pointer to the haptic player.
    */
-  HapticPlayer( Internal::Adaptor::HapticPlayer* hapticPlayer );
+  explicit DALI_INTERNAL HapticPlayer( Internal::Adaptor::HapticPlayer* hapticPlayer );
 };
 
 } // namespace Dali

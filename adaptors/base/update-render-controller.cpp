@@ -38,7 +38,8 @@ namespace Adaptor
 
 UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
                                                 const EnvironmentOptions& environmentOptions )
-: mUpdateThread( NULL ),
+: mAdaptorInterfaces( adaptorInterfaces ),
+  mUpdateThread( NULL ),
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
   mUpdateRenderSync( NULL ),
@@ -112,18 +113,16 @@ void UpdateRenderController::RequestUpdateOnce()
   mUpdateRenderSync->UpdateWhilePaused();
 }
 
-void UpdateRenderController::ReplaceSurface( RenderSurface* surface )
+void UpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
 {
-  // tell render thread to start the replace
-  mRenderThread->ReplaceSurface(surface);
+  // tell render thread to start the replace. This call will block until the replace
+  // has completed.
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
 
-  // Ensure that a frame gets processed and render thread runs at least once
-  // Note: ReplaceSurface may be called while threads are paused so call
-  //       RequestUpdateOnce to ensure we do an update/render pass even if paused
-  RequestUpdateOnce();
+  // Ensure the current surface releases any locks to prevent deadlock.
+  currentSurface->StopRender();
 
-  // block here until replace complete
-  mRenderThread->WaitForSurfaceReplaceComplete();
+  mUpdateRenderSync->ReplaceSurface( newSurface );
 }
 
 void UpdateRenderController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )

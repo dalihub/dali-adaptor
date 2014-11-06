@@ -269,7 +269,7 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
                                    header,
                                    profile ) )
     {
-      bitmap = Bitmap::New(profile, true);
+      bitmap = Bitmap::New(profile, ResourcePolicy::DISCARD );
 
       DALI_LOG_SET_OBJECT_STRING(bitmap, path);
       const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
@@ -331,7 +331,7 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
 
             const unsigned newWidth = loadedWidth - 2 * columnsToTrim;
             const unsigned newHeight = loadedHeight - 2 * scanlinesToTrim;
-            BitmapPtr croppedBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+            BitmapPtr croppedBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
             Bitmap::PackedPixelsProfile * packedView = croppedBitmap->GetPackedPixelsProfile();
             DALI_ASSERT_DEBUG( packedView );
             const Pixel::Format pixelFormat = bitmap->GetPixelFormat();

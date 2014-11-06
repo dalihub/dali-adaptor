@@ -96,13 +96,16 @@ public:
    *                         - Pixmap, adaptor will use existing Pixmap to draw on to
    *                         - Window, adaptor will use existing Window to draw on to
    * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
    */
-  static Dali::Adaptor* New( RenderSurface* surface, const DeviceLayout& baseLayout );
+  static Dali::Adaptor* New( RenderSurface* surface,
+                             const DeviceLayout& baseLayout,
+                             Dali::Configuration::ContextLoss configuration );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
    */
-  void Initialize();
+  void Initialize(Dali::Configuration::ContextLoss configuration);
 
   /**
    * Virtual destructor.
@@ -404,7 +407,8 @@ private: // From Dali::Integration::RenderController
   virtual void RequestUpdate();
 
   /**
-   * Call by the Dali core when it requires an notification event being sent on idle
+   * Called by Dali core when it requires an notification event being sent on idle.
+   * Multi-threading note: this method must be called from the main thread only.
    */
   virtual void RequestProcessEventsOnIdle();
 
@@ -503,7 +507,6 @@ private: // Data
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEvent*                         mNotificationTrigger;         ///< Notification event trigger
   GestureManager*                       mGestureManager;              ///< Gesture manager
-  boost::mutex                          mIdleInstaller;               ///< mutex to ensure two threads don't try to install idle handler at the same time
   size_t                                mHDpi;                        ///< Override horizontal DPI
   size_t                                mVDpi;                        ///< Override vertical DPI
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support

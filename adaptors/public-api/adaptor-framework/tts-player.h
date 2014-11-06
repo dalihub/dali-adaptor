@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -35,7 +35,7 @@ class TtsPlayer;
 /**
  * @brief The Text-to-speech Player.
  */
-class TtsPlayer : public BaseHandle
+class DALI_IMPORT_API TtsPlayer : public BaseHandle
 {
 public: // ENUMs
 
@@ -107,7 +107,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by TtsPlayer::Get().
    * @param[in] ttsPlayer A pointer to the TTS player.
    */
-  TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );
+  explicit DALI_INTERNAL TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );
 };
 
 } // namespace Dali

@@ -24,11 +24,12 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/common/view-mode.h>
 
+#include "application-configuration.h"
 #include "style-monitor.h"
 #include "device-layout.h"
 #include "window.h"
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -85,7 +86,7 @@ class Application;
  *
  * When the above options are found, they are stripped from argv, and argc is updated appropriately.
  */
-class Application : public BaseHandle
+class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 
@@ -193,9 +194,20 @@ public:
 
 public:
   /**
-   * This starts the application.
+   * This starts the application. Choosing this form of main loop indicates that the default
+   * application configuration of APPLICATION_HANDLES_CONTEXT_LOSS is used. On platforms where
+   * context loss can occur, the application is responsible for tearing down and re-loading UI.
+   * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
    */
   void MainLoop();
+
+  /**
+   * This starts the application, and allows the app to choose a different configuration.
+   * If the application plans on using the ReplaceSurface or ReplaceWindow API, then this will
+   * trigger context loss & regain.
+   * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
+   */
+  void MainLoop(Configuration::ContextLoss configuration);
 
   /**
    * This lowers the application to bottom without actually quitting it
@@ -236,6 +248,16 @@ public:
    */
   Window GetWindow();
 
+  /**
+   * Replace the current window.
+   * This will force context loss.
+   * If you plan on using this API in your application, then you should configure
+   * it to prevent discard behaviour when handling the Init signal.
+   * @param[in] windowPosition The position and size parameters of the new window
+   * @param[in] name The name of the new window
+   */
+  void ReplaceWindow(PositionSize windowPosition, const std::string& name);
+
 public: // Stereoscopy
 
   /**
@@ -266,7 +288,7 @@ public:  // Signals
 
   /**
    * The user should connect to this signal to determine when they should initialise
-   * their application
+   * their application.
    */
   AppSignalV2& InitSignal();
 

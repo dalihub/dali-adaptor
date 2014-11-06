@@ -88,7 +88,12 @@ Application& Application::operator=(const Application& application)
 
 void Application::MainLoop()
 {
-  Internal::Adaptor::GetImplementation(*this).MainLoop();
+  Internal::Adaptor::GetImplementation(*this).MainLoop(Configuration::APPLICATION_HANDLES_CONTEXT_LOSS);
+}
+
+void Application::MainLoop(Configuration::ContextLoss configuration)
+{
+  Internal::Adaptor::GetImplementation(*this).MainLoop(configuration);
 }
 
 void Application::Lower()
@@ -119,6 +124,11 @@ bool Application::AddIdle(boost::function<void(void)> callBack)
 Window Application::GetWindow()
 {
   return Internal::Adaptor::GetImplementation(*this).GetWindow();
+}
+
+void Application::ReplaceWindow(PositionSize windowPosition, const std::string& name)
+{
+  Internal::Adaptor::GetImplementation(*this).ReplaceWindow(windowPosition, name);
 }
 
 void Application::SetViewMode( ViewMode viewMode )

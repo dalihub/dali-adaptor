@@ -24,7 +24,7 @@
 #include <dali/public-api/object/base-handle.h>
 
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -42,7 +42,7 @@ class Clipboard;
  * Clipboard can manage it's item and set show / hide status.
  */
 
-class Clipboard : public BaseHandle
+class DALI_IMPORT_API Clipboard : public BaseHandle
 {
 public:
   /**
@@ -64,7 +64,7 @@ public:
    *
    * @param[in] clipboard A pointer to the clipboard.
    */
-  Clipboard( Internal::Adaptor::Clipboard* clipboard );
+  explicit DALI_INTERNAL Clipboard( Internal::Adaptor::Clipboard* clipboard );
 
   /**
    * @brief Retrieve a handle to the ClipboardEventNotifier instance.

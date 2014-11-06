@@ -335,7 +335,17 @@ Window::~Window()
 {
   delete mEventHandler;
 
-  if ( mAdaptor )
+  if( mIndicator )
+  {
+    mOverlay->Remove( mIndicator->GetActor() );
+    Dali::RenderTaskList taskList = mOverlay->GetOverlayRenderTasks();
+    Dali::RenderTask indicatorTask = taskList.GetTask(0);
+    mOverlay->GetOverlayRenderTasks().RemoveTask(indicatorTask);
+    mIndicator->Close();
+    delete mIndicator;
+  }
+
+  if( mAdaptor )
   {
     mAdaptor->RemoveObserver( *this );
     mAdaptor->SetDragAndDropDetector( NULL );

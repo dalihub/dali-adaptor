@@ -273,7 +273,7 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
       std::vector<unsigned char> underlineAlphaMap(underlineBitmapSize);
       std::fill(underlineAlphaMap.begin(), underlineAlphaMap.end(), 0xff);
 
-      bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+      bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD);
       bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
       GenerateDistanceFieldMap( &(*underlineAlphaMap.begin()), Vector2(underlineBitmapWidth, underlineBitmapHeight),
                                bitmapData->GetBuffer(), Vector2(fieldSize, fieldSize),
@@ -284,7 +284,7 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
     {
       if (0 != (bitmap.width * bitmap.rows))
       {
-        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD);
         bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
 
         GenerateDistanceFieldMap(bitmap.buffer, Vector2(bitmap.width, bitmap.rows),
@@ -300,7 +300,7 @@ GlyphSet::Character* GetCharacter(FT_Face face, FT_ULong charcode,
         // However we will still need this code for characters like OGHAM SPACE MARK
         // which will be blank with some fonts, and visible with others.
         // Create a dummy bitmap of size 64,64
-        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, true);
+        bitmapData = Integration::Bitmap::New(Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD);
         bitmapData->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, fieldSize, fieldSize);
         PixelBuffer* pixelBuffer = bitmapData->GetBuffer();
         memset( pixelBuffer, 0x0, fieldSize * fieldSize );
@@ -345,7 +345,7 @@ Integration::BitmapPtr GetGlyphBitmap( FT_Face face, FT_ULong charCode )
     const std::size_t size = ftBitmap.width * ftBitmap.rows;
     if( 0 < size )
     {
-      image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+      image = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
       image->GetPackedPixelsProfile()->ReserveBuffer( Pixel::A8, ftBitmap.width, ftBitmap.rows );
 
       memcpy( static_cast<unsigned char*>( image->GetBuffer() ), ftBitmap.buffer, size );

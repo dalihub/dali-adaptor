@@ -147,7 +147,7 @@ void ResourceThreadDistanceField::Load(const ResourceRequest& request)
   bool result = false;
   bool file_not_found = false;
 
-  BitmapPtr bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+  BitmapPtr bitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
 
   DALI_LOG_SET_OBJECT_STRING(bitmap, request.GetPath());
   BitmapResourceType& resType = static_cast<BitmapResourceType&>(*(request.GetType()));
@@ -169,7 +169,7 @@ void ResourceThreadDistanceField::Load(const ResourceRequest& request)
         if ((bitmap->GetPixelFormat() == Pixel::RGBA8888) || (bitmap->GetPixelFormat() == Pixel::RGB888))
         {
           // create a bitmap, so we can get its buffersize - to avoid a slow copy.
-          BitmapPtr destBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, true );
+          BitmapPtr destBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
           destBitmap->GetPackedPixelsProfile()->ReserveBuffer(Pixel::A8, attributes.GetWidth(), attributes.GetHeight());
 
           uint8_t* srcPixels = bitmap->GetBuffer();

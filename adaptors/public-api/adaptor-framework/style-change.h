@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 /**
@@ -30,7 +30,7 @@ namespace Dali DALI_IMPORT_API
  * This structure is used when any style changes occur and contains information about what exactly
  * has changed.
  */
-struct StyleChange
+struct DALI_IMPORT_API StyleChange
 {
   // Data
 

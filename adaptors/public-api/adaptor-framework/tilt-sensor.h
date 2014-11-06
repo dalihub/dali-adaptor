@@ -24,7 +24,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -77,7 +77,7 @@ class TiltSensor;
  *
  * @endcode
  */
-class TiltSensor : public BaseHandle
+class DALI_IMPORT_API TiltSensor : public BaseHandle
 {
 public:
 
@@ -195,7 +195,7 @@ public: // Not intended for application developers
    * This constructor is used by TiltSensor::Get().
    * @param[in] sensor A pointer to the tilt sensor.
    */
-  TiltSensor( Internal::Adaptor::TiltSensor* sensor );
+  explicit DALI_INTERNAL TiltSensor( Internal::Adaptor::TiltSensor* sensor );
 };
 
 } // namespace Dali

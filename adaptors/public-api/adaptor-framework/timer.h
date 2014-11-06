@@ -23,7 +23,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -46,7 +46,7 @@ class Timer;
  * This class is a handle class so it can be stack allocated and used
  * as a member.
  */
-class Timer : public BaseHandle
+class DALI_IMPORT_API Timer : public BaseHandle
 {
 public: // Signal typedefs
 

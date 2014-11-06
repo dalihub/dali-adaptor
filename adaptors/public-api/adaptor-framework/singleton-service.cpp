@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 SingletonService::SingletonService()

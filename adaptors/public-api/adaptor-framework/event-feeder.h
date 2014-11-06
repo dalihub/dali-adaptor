@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 struct KeyEvent;
@@ -39,7 +39,7 @@ namespace EventFeeder
  *
  * @note For testing/automation purposes only.
  */
-void FeedTouchPoint( TouchPoint& point, int timeStamp );
+DALI_IMPORT_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
 /**
  * Feed a mouse wheel event to the adaptor.
@@ -48,7 +48,7 @@ void FeedTouchPoint( TouchPoint& point, int timeStamp );
  *
  * @note For testing/automation purposes only.
  */
-void FeedWheelEvent( MouseWheelEvent& wheelEvent );
+DALI_IMPORT_API void FeedWheelEvent( MouseWheelEvent& wheelEvent );
 
 /**
  * Feed a key event to the adaptor.
@@ -57,7 +57,7 @@ void FeedWheelEvent( MouseWheelEvent& wheelEvent );
  *
  * @note For testing/automation purposes only.
  */
-void FeedKeyEvent( KeyEvent& keyEvent );
+DALI_IMPORT_API void FeedKeyEvent( KeyEvent& keyEvent );
 
 } // namespace EventFeeder
 

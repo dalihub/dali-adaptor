@@ -1,5 +1,5 @@
-#ifndef __DALI_ADAPTOR_VERSION_H__
-#define __DALI_ADAPTOR_VERSION_H__
+#ifndef __DALI_APPLICATION_CONFIGURATION_H__
+#define __DALI_APPLICATION_CONFIGURATION_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -15,18 +15,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
 
 namespace Dali
 {
-DALI_IMPORT_API extern const unsigned int ADAPTOR_MAJOR_VERSION; ///< The major version number of the Adaptor.
-DALI_IMPORT_API extern const unsigned int ADAPTOR_MINOR_VERSION; ///< The minor version number of the Adaptor.
-DALI_IMPORT_API extern const unsigned int ADAPTOR_MICRO_VERSION; ///< The micro version number of the Adaptor.
-DALI_IMPORT_API extern const char * const ADAPTOR_BUILD_DATE;    ///< The date/time the Adaptor library was built.
+namespace Configuration
+{
+enum ContextLoss
+{
+  APPLICATION_HANDLES_CONTEXT_LOSS,  ///< Application will tear down and recreate UI on context loss and context regained signals. Dali doesn't need to retain data.
+  APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS, ///< Application expects Dali to retain data ( increased memory footprint )
+};
+
+} // Configuration
 } // namespace Dali
 
-#endif // __DALI_ADAPTOR_VERSION_H__
+#endif

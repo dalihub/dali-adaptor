@@ -26,7 +26,7 @@
 #include <dali/public-api/signals/dali-signal-v2.h>
 #include <dali/public-api/events/touch-event.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -44,7 +44,7 @@ class TouchPoint;
 /**
  * @brief The AccessibilityManager provides signals when accessibility & screen reader feature turned on in device.
  */
-class AccessibilityManager : public BaseHandle
+class DALI_IMPORT_API AccessibilityManager : public BaseHandle
 {
 public:
 
@@ -403,14 +403,14 @@ public: // Not intended for application developers
    *
    * @param[in] manager The AccessibilityManager implementation.
    */
-  AccessibilityManager( Internal::Adaptor::AccessibilityManager& manager );
+  DALI_INTERNAL AccessibilityManager( Internal::Adaptor::AccessibilityManager& manager );
 
   /**
    * @brief This constructor is used by AccessibilityManager::Get().
    *
    * @param[in] manager A pointer to the accessibility manager.
    */
-  AccessibilityManager( Internal::Adaptor::AccessibilityManager* manager );
+  explicit DALI_INTERNAL AccessibilityManager( Internal::Adaptor::AccessibilityManager* manager );
 };
 
 } // namespace Dali

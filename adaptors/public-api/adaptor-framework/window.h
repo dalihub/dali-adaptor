@@ -25,7 +25,7 @@
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 typedef Dali::Rect<int> PositionSize;
 
@@ -46,7 +46,7 @@ class Orientation;
  * It has an orientation
  * and indicator properties.
  */
-class Window : public BaseHandle
+class DALI_IMPORT_API Window : public BaseHandle
 {
 public:
 
@@ -247,7 +247,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by Dali::Application::GetWindow().
    * @param[in] window A pointer to the window.
    */
-  explicit Window( Internal::Adaptor::Window* window );
+  explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
 };
 
 } // namespace Dali

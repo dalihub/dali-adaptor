@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -36,7 +36,7 @@ class PhysicalKeyboard;
 /**
  * This is a handle to a physical keyboard connected to the device.
  */
-class PhysicalKeyboard : public BaseHandle
+class DALI_IMPORT_API PhysicalKeyboard : public BaseHandle
 {
 public:
 

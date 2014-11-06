@@ -22,7 +22,7 @@
 #include <dali/public-api/signals/dali-signal-v2.h>
 #include <dali/public-api/math/rect.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 /**
@@ -69,30 +69,30 @@ enum ReturnKeyType
 /**
  * @brief Show the virtual keyboard.
  */
-void Show();
+DALI_IMPORT_API void Show();
 
 /**
  * @brief Hide the virtual keyboard.
  */
-void Hide();
+DALI_IMPORT_API void Hide();
 
 /**
  * @brief Returns whether the virtual keyboard is visible or not.
  * @return true if visible, false otherwise.
  */
-bool IsVisible();
+DALI_IMPORT_API bool IsVisible();
 
 /**
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-void SetReturnKeyType( ReturnKeyType type );
+DALI_IMPORT_API void SetReturnKeyType( ReturnKeyType type );
 
 /**
  * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
-ReturnKeyType GetReturnKeyType();
+DALI_IMPORT_API ReturnKeyType GetReturnKeyType();
 
 /**
  * @brief Enable/disable prediction (predictive text).
@@ -101,13 +101,13 @@ ReturnKeyType GetReturnKeyType();
  * @param[in] enable true or false to enable or disable
  * Prediction can not be changed while the keyboard is visible. It must be set in advance of showing keyboard.
  */
-void EnablePrediction(const bool enable);
+DALI_IMPORT_API void EnablePrediction(const bool enable);
 
 /**
  * @brief Returns whether prediction is enabled in the virtual keyboard
  * @return true if predictive text enabled, false otherwise.
  */
-bool IsPredictionEnabled();
+DALI_IMPORT_API bool IsPredictionEnabled();
 
 /**
  * @brief Provides size and position of keyboard.
@@ -118,7 +118,7 @@ bool IsPredictionEnabled();
  * the values then taken down.  So ideally GetSizeAndPosition() should be called after Show().
  * @return rect which is keyboard panel x, y, width, height
  */
-Dali::Rect<int> GetSizeAndPosition();
+DALI_IMPORT_API Dali::Rect<int> GetSizeAndPosition();
 
 /**
  * @brief Rotates the keyboard orientation to the given angle.
@@ -127,13 +127,13 @@ Dali::Rect<int> GetSizeAndPosition();
  * Other valid values are 90, 180, 270.
  * @param angle the angle is in degrees.
  */
-void RotateTo(int angle);
+DALI_IMPORT_API void RotateTo(int angle);
 
 /**
  * @brief Returns text direction of the keyboard's current input language.
  * @return The direction of the text.
  */
-TextDirection GetTextDirection();
+DALI_IMPORT_API TextDirection GetTextDirection();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard is shown or hidden.
@@ -146,7 +146,7 @@ TextDirection GetTextDirection();
  * has just been hidden.
  * @return The signal to connect to.
  */
-StatusSignalV2& StatusChangedSignal();
+DALI_IMPORT_API StatusSignalV2& StatusChangedSignal();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard is resized.
@@ -158,7 +158,7 @@ StatusSignalV2& StatusChangedSignal();
  * User can get changed size by using GetSizeAndPosition() in the callback
  * @return The signal to connect to.
  */
-VoidSignalV2& ResizedSignal();
+DALI_IMPORT_API VoidSignalV2& ResizedSignal();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
@@ -170,7 +170,7 @@ VoidSignalV2& ResizedSignal();
  * User can get the text direction of the language by calling GetTextDirection() in the callback.
  * @return The signal to connect to.
  */
-VoidSignalV2& LanguageChangedSignal();
+DALI_IMPORT_API VoidSignalV2& LanguageChangedSignal();
 
 } // namespace VirtualKeyboard
 

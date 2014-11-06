@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal-v2.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
 
 namespace Internal DALI_INTERNAL
@@ -41,7 +41,7 @@ typedef void* ImfContext;
  *
  * Specifically manages the ecore input method framework which enables the virtual or hardware keyboards.
  */
-class ImfManager : public BaseHandle
+class DALI_IMPORT_API ImfManager : public BaseHandle
 {
 public:
 
@@ -249,7 +249,7 @@ public:
    *
    * @param[in] imfManager A pointer to the imf Manager.
    */
-  ImfManager( Internal::Adaptor::ImfManager* imfManager );
+  explicit DALI_INTERNAL ImfManager( Internal::Adaptor::ImfManager* imfManager );
 };
 
 } // namespace Dali

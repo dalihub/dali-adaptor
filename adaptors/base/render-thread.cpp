@@ -42,6 +42,45 @@ Integration::Log::Filter* gRenderLogFilter = Integration::Log::Filter::New(Debug
 #endif
 }
 
+
+RenderRequest::RenderRequest(RenderRequest::Request type)
+: mRequestType(type)
+{
+}
+
+RenderRequest::Request RenderRequest::GetType()
+{
+  return mRequestType;
+}
+
+ReplaceSurfaceRequest::ReplaceSurfaceRequest()
+: RenderRequest(RenderRequest::REPLACE_SURFACE),
+  mNewSurface( NULL ),
+  mReplaceCompleted(false)
+{
+}
+
+void ReplaceSurfaceRequest::SetSurface(RenderSurface* newSurface)
+{
+  mNewSurface = newSurface;
+}
+
+RenderSurface* ReplaceSurfaceRequest::GetSurface()
+{
+  return mNewSurface;
+}
+
+void ReplaceSurfaceRequest::ReplaceCompleted()
+{
+  mReplaceCompleted = true;
+}
+
+bool ReplaceSurfaceRequest::GetReplaceCompleted()
+{
+  return mReplaceCompleted != 0u;
+}
+
+
 RenderThread::RenderThread( UpdateRenderSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
                             const EnvironmentOptions& environmentOptions )
@@ -51,13 +90,11 @@ RenderThread::RenderThread( UpdateRenderSynchronization& sync,
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
   mThread( NULL ),
-  mSurfaceReplacing( false ),
-  mNewDataAvailable( false ),
-  mSurfaceReplaceCompleted( false ),
-  mEnvironmentOptions( environmentOptions )
+  mEnvironmentOptions( environmentOptions ),
+  mSurfaceReplaced(false)
 {
   // set the initial values before render thread starts
-  mCurrent.surface = adaptorInterfaces.GetRenderSurfaceInterface();
+  mSurface = adaptorInterfaces.GetRenderSurfaceInterface();
 }
 
 RenderThread::~RenderThread()
@@ -76,7 +113,7 @@ void RenderThread::Start()
   // create the render thread, initially we are rendering
   mThread = new boost::thread(boost::bind(&RenderThread::Run, this));
 
-  mCurrent.surface->StartRender();
+  mSurface->StartRender();
 }
 
 void RenderThread::Stop()
@@ -87,51 +124,13 @@ void RenderThread::Stop()
   if( mThread )
   {
     // Tell surface we have stopped rendering
-    mCurrent.surface->StopRender();
+    mSurface->StopRender();
 
     // wait for the thread to finish
     mThread->join();
 
     delete mThread;
     mThread = NULL;
-  }
-}
-
-void RenderThread::ReplaceSurface( RenderSurface* surface )
-{
-  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::ReplaceSurface()\n");
-
-  // Make sure it's a new surface. Note! we are reading the current value of render thread here, but reading is ok
-  DALI_ASSERT_ALWAYS( surface != mCurrent.surface && "Trying to replace surface with itself" );
-
-  // lock and set to false
-  {
-    boost::unique_lock<boost::mutex> lock( mSurfaceChangedMutex );
-    mSurfaceReplaceCompleted = false;
-  }
-
-  // lock cache and set update flag at the end of function
-  {
-    SendMessageGuard msg( *this );
-    // set new values to cache
-    mNewValues.replaceSurface = true;
-    mNewValues.surface = surface;
-  }
-
-  // Ensure the current surface releases any locks.
-  mCurrent.surface->StopRender();
-}
-
-void RenderThread::WaitForSurfaceReplaceComplete()
-{
-  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::WaitForSurfaceReplaceComplete()\n");
-
-  boost::unique_lock<boost::mutex> lock( mSurfaceChangedMutex );
-
-  // if already completed no need to wait
-  while( !mSurfaceReplaceCompleted )
-  {
-    mSurfaceChangedNotify.wait( lock ); // Block the main thread here and releases mSurfaceChangedMutex so the render-thread can notify us
   }
 }
 
@@ -150,9 +149,6 @@ bool RenderThread::Run()
 
   bool running( true );
 
-  // Wait for first update
-  mUpdateRenderSync.RenderSyncWithUpdate();
-
   Dali::Integration::RenderStatus renderStatus;
 
   uint64_t currentTime( 0 );
@@ -160,49 +156,42 @@ bool RenderThread::Run()
   // render loop, we stay inside here when rendering
   while( running )
   {
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - Begin loop\n");
+    // Sync with update thread and get any outstanding requests from UpdateRenderSynchronization
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - RenderSyncWithUpdate()\n");
+    RenderRequest* request = NULL;
+    running = mUpdateRenderSync.RenderSyncWithUpdate( request );
+
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - Process requests\n");
 
     // Consume any pending events
     ConsumeEvents();
 
-    // Check if we've got updates from the main thread
-    CheckForUpdates();
+    // Check if we've got any requests from the main thread (e.g. replace surface)
+    bool requestProcessed = ProcessRequest( request );
 
     // perform any pre-render operations
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - PreRender\n");
-    if(PreRender() == true)
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - PreRender\n");
+    if( running && PreRender() == true)
     {
        // Render
-      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - Core.Render()\n");
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - Core.Render()\n");
       mCore.Render( renderStatus );
 
       // Notify the update-thread that a render has completed
-      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - Sync.RenderFinished()\n");
-      mUpdateRenderSync.RenderFinished( renderStatus.NeedsUpdate() );
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 5 - Sync.RenderFinished()\n");
+      mUpdateRenderSync.RenderFinished( renderStatus.NeedsUpdate(), requestProcessed );
 
       uint64_t newTime( mUpdateRenderSync.GetTimeMicroseconds() );
 
       // perform any post-render operations
       if ( renderStatus.HasRendered() )
       {
-        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 5 - PostRender()\n");
+        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 6 - PostRender()\n");
         PostRender( static_cast< unsigned int >(newTime - currentTime) );
-      }
-
-      if(mSurfaceReplacing)
-      {
-        // Notify main thread that surface was changed so it can release the old one
-        NotifySurfaceChangeCompleted();
-        mSurfaceReplacing = false;
       }
 
       currentTime = newTime;
     }
-
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 6 - RenderSyncWithUpdate()\n");
-
-    // Wait until another frame has been updated
-    running = mUpdateRenderSync.RenderSyncWithUpdate();
   }
 
   // shut down egl
@@ -218,16 +207,16 @@ void RenderThread::InitializeEgl()
 {
   mEGL = mEglFactory->Create();
 
-  DALI_ASSERT_ALWAYS( mCurrent.surface && "NULL surface" );
+  DALI_ASSERT_ALWAYS( mSurface && "NULL surface" );
 
   // initialize egl & OpenGL
-  mCurrent.surface->InitializeEgl( *mEGL );
+  mSurface->InitializeEgl( *mEGL );
 
   // create the OpenGL context
   mEGL->CreateContext();
 
   // create the OpenGL surface
-  mCurrent.surface->CreateEglSurface( *mEGL );
+  mSurface->CreateEglSurface( *mEGL );
 
   // Make it current
   mEGL->MakeContextCurrent();
@@ -243,77 +232,66 @@ void RenderThread::InitializeEgl()
 void RenderThread::ConsumeEvents()
 {
   // tell surface to consume any events to avoid memory leaks
-  mCurrent.surface->ConsumeEvents();
+  mSurface->ConsumeEvents();
 }
 
-void RenderThread::CheckForUpdates()
+bool RenderThread::ProcessRequest( RenderRequest* request )
 {
-  // atomic check to see if we've got updates, resets the flag int
-  if( __sync_fetch_and_and( &mNewDataAvailable, 0 ) )
-  {
-    // scope for lock
-    // NOTE! This block is the only place in render side where mNewValues can be used inside render thread !!!
-    {
-      // need to lock to access new values
-      boost::unique_lock< boost::mutex > lock( mThreadDataLock );
+  bool processedRequest = false;
 
-      // check if the surface needs replacing
-      if( mNewValues.replaceSurface )
+  if( request != NULL )
+  {
+    switch(request->GetType())
+    {
+      case RenderRequest::REPLACE_SURFACE:
       {
-        mNewValues.replaceSurface = false; // reset the flag
         // change the surface
-        ChangeSurface( mNewValues.surface );
-        mNewValues.surface = NULL;
+        ReplaceSurfaceRequest* replaceSurfaceRequest = static_cast<ReplaceSurfaceRequest*>(request);
+        ReplaceSurface( replaceSurfaceRequest->GetSurface() );
+        replaceSurfaceRequest->ReplaceCompleted();
+        processedRequest = true;
+        break;
       }
     }
   }
+  return processedRequest;
 }
 
-void RenderThread::ChangeSurface( RenderSurface* newSurface )
+void RenderThread::ReplaceSurface( RenderSurface* newSurface )
 {
   // This is designed for replacing pixmap surfaces, but should work for window as well
   // we need to delete the egl surface and renderable (pixmap / window)
   // Then create a new pixmap/window and new egl surface
   // If the new surface has a different display connection, then the context will be lost
-  DALI_ASSERT_ALWAYS( newSurface && "NULL surface" )
+  DALI_ASSERT_ALWAYS( newSurface && "NULL surface" );
+
   bool contextLost = newSurface->ReplaceEGLSurface( *mEGL );
 
   if( contextLost )
   {
     DALI_LOG_WARNING("Context lost\n");
-    mCore.ContextToBeDestroyed();
+    mCore.ContextDestroyed();
     mCore.ContextCreated();
   }
 
   // if both new and old surface are using the same display, and the display
   // connection was created by Dali, then transfer
   // display owner ship to the new surface.
-  mCurrent.surface->TransferDisplayOwner( *newSurface );
+  mSurface->TransferDisplayOwner( *newSurface );
 
   // use the new surface from now on
-  mCurrent.surface = newSurface;
-
-  // after rendering, NotifySurfaceChangeCompleted will be called
-  mSurfaceReplacing = true;
+  mSurface = newSurface;
+  mSurfaceReplaced = true;
 }
 
-void RenderThread::NotifySurfaceChangeCompleted()
-{
-  {
-    boost::unique_lock< boost::mutex > lock( mSurfaceChangedMutex );
-    mSurfaceReplaceCompleted = true;
-  }
-  // notify main thread
-  mSurfaceChangedNotify.notify_all();
-}
 
 void RenderThread::ShutdownEgl()
 {
-  // inform core the context is about to be destroyed,
-  mCore.ContextToBeDestroyed();
+  // inform core of context destruction
+  mCore.ContextDestroyed();
 
   // give a chance to destroy the OpenGL surface that created externally
-  mCurrent.surface->DestroyEglSurface( *mEGL );
+  mSurface->DestroyEglSurface( *mEGL );
 
   // delete the GL context / egl surface
   mEGL->TerminateGles();
@@ -321,7 +299,7 @@ void RenderThread::ShutdownEgl()
 
 bool RenderThread::PreRender()
 {
-  bool success = mCurrent.surface->PreRender( *mEGL, mGLES );
+  bool success = mSurface->PreRender( *mEGL, mGLES );
   if( success )
   {
     mGLES.PreRender();
@@ -335,8 +313,10 @@ void RenderThread::PostRender( unsigned int timeDelta )
   mGLES.PostRender(timeDelta);
 
   // Inform the surface that rendering this frame has finished.
-  mCurrent.surface->PostRender( *mEGL, mGLES, timeDelta, mSurfaceReplacing );
+  mSurface->PostRender( *mEGL, mGLES, timeDelta, mSurfaceReplaced );
+  mSurfaceReplaced = false;
 }
+
 
 } // namespace Adaptor
 
