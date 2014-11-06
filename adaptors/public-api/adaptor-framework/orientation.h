@@ -78,16 +78,6 @@ public:
   Orientation& operator=(const Orientation& rhs);
 
   /**
-   * @brief This method is defined to allow assignment of the NULL value,
-   * and will throw an exception if passed any other value.
-   *
-   * Assigning to NULL is an alias for Reset().
-   * @param [in] rhs  A NULL pointer
-   * @return A reference to this handle
-   */
-  Orientation& operator=(BaseHandle::NullType* rhs);
-
-  /**
    * @brief Returns the orientation of the device in degrees.
    *
    * This is one of four discrete values, in degrees clockwise: 0, 90, 180, & 270

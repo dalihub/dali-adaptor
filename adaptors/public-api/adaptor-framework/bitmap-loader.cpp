@@ -58,13 +58,6 @@ BitmapLoader& BitmapLoader::operator=(const BitmapLoader& rhs)
   return *this;
 }
 
-BitmapLoader& BitmapLoader::operator=(BaseHandle::NullType* rhs)
-{
-  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
-  Reset();
-  return *this;
-}
-
 unsigned char* BitmapLoader::GetPixelData() const
 {
   return GetImplementation(*this).GetPixelData();

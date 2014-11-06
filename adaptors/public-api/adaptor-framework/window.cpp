@@ -50,13 +50,6 @@ Window& Window::operator=(const Window& rhs)
   return *this;
 }
 
-Window& Window::operator=(BaseHandle::NullType* rhs)
-{
-  DALI_ASSERT_ALWAYS( (rhs == NULL) && "Can only assign NULL pointer to handle");
-  Reset();
-  return *this;
-}
-
 void Window::SetIndicatorStyle( IndicatorStyle style )
 {
   GetImplementation(*this).SetIndicatorStyle( style );
