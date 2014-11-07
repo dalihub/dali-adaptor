@@ -24,9 +24,7 @@
 #include <string.h>
 #include <iostream>
 
-#include <dali/public-api/common/vector-wrapper.h>
-
-using namespace std;
+#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
@@ -46,13 +44,13 @@ struct Argument
 
   void Print()
   {
-    const ios_base::fmtflags flags = cout.flags();
-    cout << left << "  --";
-    cout.width( 18 );
-    cout << opt;
-    cout << optDescription;
-    cout << endl;
-    cout.flags( flags );
+    const std::ios_base::fmtflags flags = std::cout.flags();
+    std::cout << std::left << "  --";
+    std::cout.width( 18 );
+    std::cout << opt;
+    std::cout << optDescription;
+    std::cout << std::endl;
+    std::cout.flags( flags );
   }
 };
 
@@ -79,11 +77,11 @@ enum Option
   OPTION_HELP
 };
 
-typedef vector< int > UnhandledContainer;
+typedef Dali::Vector< int > UnhandledContainer;
 
 void ShowHelp()
 {
-  cout << "Available options:" << endl;
+  std::cout << "Available options:" << std::endl;
   Argument* arg = EXPECTED_ARGS;
   while ( arg->opt )
   {
@@ -209,7 +207,7 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
 
         default:
         {
-          unhandledOptions.push_back( optind - 1 );
+          unhandledOptions.PushBack( optind - 1 );
           break;
         }
       }
@@ -218,17 +216,17 @@ CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
     // Take out the options we have processed
     if ( optionProcessed )
     {
-      if ( !unhandledOptions.empty() )
+      if ( unhandledOptions.Count() > 0 )
       {
         int index( 1 );
 
         // Overwrite the argv with the values from the unhandled indices
-        const UnhandledContainer::const_iterator endIter = unhandledOptions.end();
-        for ( UnhandledContainer::iterator iter = unhandledOptions.begin(); iter != endIter; ++iter )
+        const UnhandledContainer::ConstIterator endIter = unhandledOptions.End();
+        for ( UnhandledContainer::Iterator iter = unhandledOptions.Begin(); iter != endIter; ++iter )
         {
           (*argv)[ index++ ] = (*argv)[ *iter ];
         }
-        *argc = unhandledOptions.size() + 1; // +1 for the program name
+        *argc = unhandledOptions.Count() + 1; // +1 for the program name
       }
       else
       {

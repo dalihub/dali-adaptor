@@ -31,7 +31,6 @@
 
 #include <cstring>
 
-using namespace std;
 using namespace Dali::Integration;
 
 namespace Dali

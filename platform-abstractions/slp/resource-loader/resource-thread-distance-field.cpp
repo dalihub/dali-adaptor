@@ -27,7 +27,6 @@
 #include "image-loaders/loader-jpeg.h"
 #include "image-loaders/loader-png.h"
 
-using namespace std;
 using namespace Dali::Integration;
 
 namespace Dali
