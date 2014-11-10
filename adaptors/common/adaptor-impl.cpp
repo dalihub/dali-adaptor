@@ -739,14 +739,14 @@ void Adaptor::ProcessCoreEvents()
   {
     if( mPerformanceInterface )
     {
-      mPerformanceInterface->AddMarker( PerformanceMarker::PROCESS_EVENTS_START );
+      mPerformanceInterface->AddMarker( PerformanceInterface::PROCESS_EVENTS_START );
     }
 
     mCore->ProcessEvents();
 
     if( mPerformanceInterface )
     {
-      mPerformanceInterface->AddMarker( PerformanceMarker::PROCESS_EVENTS_END );
+      mPerformanceInterface->AddMarker( PerformanceInterface::PROCESS_EVENTS_END );
     }
   }
 }

@@ -94,7 +94,7 @@ void UpdateRenderSynchronization::Pause()
 {
   mPaused = true;
 
-  AddPerformanceMarker( PerformanceMarker::PAUSED );
+  AddPerformanceMarker( PerformanceInterface::PAUSED );
   mFrameTime.Suspend();
 }
 
@@ -111,7 +111,7 @@ void UpdateRenderSynchronization::Resume()
   mPausedCondition.notify_one();
   mVSyncSleepCondition.notify_one();
 
-  AddPerformanceMarker( PerformanceMarker::RESUME);
+  AddPerformanceMarker( PerformanceInterface::RESUME);
 }
 
 void UpdateRenderSynchronization::UpdateRequested()
@@ -184,13 +184,13 @@ void UpdateRenderSynchronization::UpdateReadyToRun()
     WaitSync();
   }
 
-  AddPerformanceMarker( PerformanceMarker::UPDATE_START );
+  AddPerformanceMarker( PerformanceInterface::UPDATE_START );
 }
 
 bool UpdateRenderSynchronization::UpdateSyncWithRender( bool& renderNeedsUpdate )
 {
 
-  AddPerformanceMarker( PerformanceMarker::UPDATE_END );
+  AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
   boost::unique_lock< boost::mutex > lock( mMutex );
 
@@ -285,7 +285,7 @@ bool UpdateRenderSynchronization::RenderSyncWithUpdate(RenderRequest*& requestPt
 
   if( mRunning )
   {
-    AddPerformanceMarker( PerformanceMarker::RENDER_START );
+    AddPerformanceMarker( PerformanceInterface::RENDER_START );
   }
 
   // write any new requests
@@ -321,7 +321,7 @@ void UpdateRenderSynchronization::RenderFinished( bool updateRequired, bool requ
     mRequestFinishedCondition.notify_one();
   }
 
-  AddPerformanceMarker( PerformanceMarker::RENDER_END );
+  AddPerformanceMarker( PerformanceInterface::RENDER_END );
 }
 
 void UpdateRenderSynchronization::WaitSync()
@@ -367,7 +367,7 @@ bool UpdateRenderSynchronization::VSyncNotifierSyncWithUpdateAndRender( bool val
 
   mVSyncReceivedCondition.notify_all();
 
-  AddPerformanceMarker( PerformanceMarker::V_SYNC );
+  AddPerformanceMarker( PerformanceInterface::VSYNC );
 
   while( mRunning && // sleep on condition variable WHILE still running
          !mAllowUpdateWhilePaused &&             // AND NOT allowing updates while paused
@@ -406,7 +406,7 @@ void UpdateRenderSynchronization::SetRenderRefreshRate( unsigned int numberOfVSy
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
 }
 
-inline void UpdateRenderSynchronization::AddPerformanceMarker( PerformanceMarker::MarkerType type )
+inline void UpdateRenderSynchronization::AddPerformanceMarker( PerformanceInterface::MarkerType type )
 {
   if( mPerformanceInterface )
   {
