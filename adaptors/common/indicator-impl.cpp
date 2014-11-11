@@ -1297,7 +1297,7 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
   mIsAnimationPlaying = false;
 }
 
-void Indicator::OnPan( Dali::Actor actor, Dali::PanGesture gesture )
+void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
 {
   if( mServerConnection )
   {

@@ -253,7 +253,7 @@ private:
    * @param[in] actor  The actor for gesture
    * @param[in] gesture The gesture event
    */
-  void OnPan( Dali::Actor actor, Dali::PanGesture gesture );
+  void OnPan( Dali::Actor actor, const Dali::PanGesture& gesture );
 
   /**
    * Touch event callback on stage.
