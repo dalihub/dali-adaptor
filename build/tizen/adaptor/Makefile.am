@@ -255,7 +255,6 @@ libdali_adaptor_la_LIBADD = \
                       $(SENSOR_LIBS) \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
-                      $(ASSIMP_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       -lgif \
