@@ -105,8 +105,7 @@ void ResourceTextRequester::LoadResource( Integration::ResourceRequest& request 
 
 ResourcePointer ResourceTextRequester::LoadResourceSynchronously( const Integration::ResourceType& type, const std::string& path )
 {
-  DALI_ASSERT_ALWAYS( 0 && "Cannot load text synchronously" );
-  return NULL;
+  DALI_ASSERT_ALWAYS( false && "Cannot load text synchronously" );
 }
 
 LoadStatus ResourceTextRequester::LoadFurtherResources( ResourceRequest& request, LoadedResource partialResource )

@@ -35,7 +35,6 @@
 #include "assimp-stubs.h"
 #endif
 
-using namespace std;
 using namespace Dali::Integration;
 using boost::mutex;
 using boost::unique_lock;

@@ -22,7 +22,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/shader-data.h>
 
-using namespace std;
 using namespace Dali::Integration;
 using boost::mutex;
 using boost::unique_lock;

@@ -54,6 +54,8 @@ TapGestureDetector::TapGestureDetector(CoreEventInterface& coreEventInterface, V
   mMinimumTapsRequired(request.minTaps),
   mMaximumTapsRequired(request.maxTaps),
   mTapsRegistered(0),
+  mTouchPosition(),
+  mTouchTime(0u),
   mTimerSlot( this )
 {
   mTimer = Dali::Timer::New(MAXIMUM_TIME_ALLOWED);
@@ -185,6 +187,10 @@ bool TapGestureDetector::TimerCallback()
 {
   EmitGesture( ( mTapsRegistered >= mMinimumTapsRequired ? Gesture::Started : Gesture::Cancelled ), mTouchTime + MAXIMUM_TIME_ALLOWED);
   mState = Clear;
+
+  // There is no touch event at this time, so ProcessEvents must be called directly
+  mCoreEventInterface.ProcessCoreEvents();
+
   return false;
 }
 

@@ -753,15 +753,22 @@ void FontController::CreatePreferedFontList( )
     GetFontFamily( pattern, styledFont->first );
     GetFontStyle( pattern, styledFont->second );
 
+    bool releaseMemory = true;
     if( *styledFont != previousFont )
     {
       mPreferredFonts.PushBack( styledFont );
+      releaseMemory = false;
     }
     if( i == 0u )
     {
       mDefaultStyledFont = *styledFont;
     }
     previousFont = *styledFont;
+
+    if( releaseMemory )
+    {
+       delete styledFont;
+    }
   }
 
   // Set all fonts to non validated.

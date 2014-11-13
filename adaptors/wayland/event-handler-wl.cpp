@@ -50,8 +50,6 @@
 #include <style-monitor-impl.h>
 #include <base/core-event-interface.h>
 
-using namespace std;
-
 namespace Dali
 {
 

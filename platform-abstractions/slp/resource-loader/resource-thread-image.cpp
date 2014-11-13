@@ -24,7 +24,6 @@
 #include "portable/file-closer.h"
 #include "image-loaders/image-loader.h"
 
-using namespace std;
 using namespace Dali::Integration;
 
 namespace Dali

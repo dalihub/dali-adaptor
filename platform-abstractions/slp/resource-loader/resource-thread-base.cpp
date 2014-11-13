@@ -20,7 +20,6 @@
 #include "slp-logging.h"
 #include "atomics.h"
 
-using namespace std;
 using namespace Dali::Integration;
 using boost::mutex;
 using boost::unique_lock;
@@ -95,7 +94,7 @@ void ResourceThreadBase::AddRequest(const ResourceRequest& request, const Reques
     wasEmpty = mQueue.empty();
     wasPaused = mPaused;
 
-    mQueue.push_back( make_pair(request, type) );
+    mQueue.push_back( std::make_pair(request, type) );
   }
 
   if( wasEmpty && !wasPaused )

@@ -1199,7 +1199,7 @@ void Indicator::ConstructBackgroundMesh()
   mBackgroundActor = Dali::MeshActor::New(mBackgroundMesh);
   mBackgroundActor.SetAffectedByLighting(false);
   Dali::ShaderEffect shaderEffect = Dali::ShaderEffect::New( MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER,
-                                                             GEOMETRY_TYPE_MESH, // Using vertex color
+                                                             GEOMETRY_TYPE_UNTEXTURED_MESH, // Using vertex color
                                                              Dali::ShaderEffect::HINT_BLENDING );
   mBackgroundActor.SetShaderEffect(shaderEffect);
 }
@@ -1221,18 +1221,18 @@ void Indicator::ShowIndicator(float duration)
     mIndicatorAnimation.FinishedSignal().Connect(this, &Indicator::OnAnimationFinished);
   }
 
-  if(mIsShowing && duration != 0)
+  if(mIsShowing && !EqualsZero(duration))
   {
     // If need to show during showing, do nothing.
     // In 2nd phase (below) will update timer
   }
-  else if(!mIsShowing && mIsAnimationPlaying && duration == 0)
+  else if(!mIsShowing && mIsAnimationPlaying && EqualsZero(duration))
   {
     // If need to hide during hiding or hidden already, do nothing
   }
   else
   {
-    if(duration == 0)
+    if( EqualsZero(duration) )
     {
       mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, -mImageHeight, 0), Dali::AlphaFunctions::EaseOut);
 
@@ -1297,7 +1297,7 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
   mIsAnimationPlaying = false;
 }
 
-void Indicator::OnPan( Dali::Actor actor, Dali::PanGesture gesture )
+void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
 {
   if( mServerConnection )
   {

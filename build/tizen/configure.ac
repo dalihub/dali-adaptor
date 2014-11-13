@@ -158,7 +158,6 @@ fi
 if test "x$enable_profile" = "xTV"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
 PKG_CHECK_MODULES(HAPTIC, haptic)
-enable_assimp=yes
 fi
 
 if test "x$enable_profile" = "xUBUNTU"; then
