@@ -380,7 +380,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mRotation( 0 ),
   mImageWidth( 0 ),
   mImageHeight( 0 ),
-  mVisible( Dali::Window::VISIBLE ),
+  mVisible( Dali::Window::INVISIBLE ),
   mIsShowing( true ),
   mIsAnimationPlaying( false )
 {
@@ -433,6 +433,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   {
     AccessibilityManager::GetImplementation( accessibilityManager ).SetIndicator( this );
   }
+  // hide the indicator by default
+  mIndicatorActor.SetVisible( false );
 }
 
 Indicator::~Indicator()
@@ -507,6 +509,10 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
     if ( mVisible == Dali::Window::INVISIBLE )
     {
       UpdateImageData();
+    }
+    if ( visibleMode != Dali::Window::INVISIBLE )
+    {
+      mIndicatorActor.SetVisible( true );
     }
 
     mVisible = visibleMode;
@@ -1265,8 +1271,8 @@ void Indicator::ShowIndicator(float duration)
 
     if( mVisible == Dali::Window::AUTO )
     {
-        // check the stage touch
-        Dali::Stage::GetCurrent().TouchedSignal().Connect( this, &Indicator::OnStageTouched );
+      // check the stage touch
+      Dali::Stage::GetCurrent().TouchedSignal().Connect( this, &Indicator::OnStageTouched );
     }
   }
   else
@@ -1278,8 +1284,8 @@ void Indicator::ShowIndicator(float duration)
 
     if( mVisible == Dali::Window::AUTO )
     {
-        // check the stage touch
-        Dali::Stage::GetCurrent().TouchedSignal().Disconnect( this, &Indicator::OnStageTouched );
+      // check the stage touch
+      Dali::Stage::GetCurrent().TouchedSignal().Disconnect( this, &Indicator::OnStageTouched );
     }
   }
 }
@@ -1295,6 +1301,11 @@ bool Indicator::OnShowTimer()
 void Indicator::OnAnimationFinished(Dali::Animation& animation)
 {
   mIsAnimationPlaying = false;
+  // once animation is finished and indicator is hidden, take it off stage
+  if( !mIsShowing )
+  {
+    mIndicatorActor.SetVisible( false );
+  }
 }
 
 void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
