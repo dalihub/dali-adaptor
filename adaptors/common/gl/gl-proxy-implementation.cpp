@@ -125,6 +125,7 @@ float Sampler::GetMax() const
 
 GlProxyImplementation::GlProxyImplementation(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions),
+  mActiveTextureSampler( "ActiveTexture calls"),
   mClearSampler("Clear calls"),
   mBindBufferSampler( "Bind buffers"),
   mBindTextureSampler( "Bind textures"),
@@ -157,6 +158,12 @@ void GlProxyImplementation::PostRender( unsigned int timeDelta )
     LogResults();
     ResetSamplers();
   }
+}
+
+void GlProxyImplementation::ActiveTexture( GLenum texture )
+{
+  mActiveTextureSampler.Increment();
+  GlImplementation::ActiveTexture(texture);
 }
 
 void GlProxyImplementation::Clear( GLbitfield mask )
@@ -312,6 +319,7 @@ void GlProxyImplementation::UseProgram( GLuint program )
 void GlProxyImplementation::AccumulateSamples()
 {
   // Accumulate counts in each sampler
+  mActiveTextureSampler.Accumulate();
   mClearSampler.Accumulate();
   mBindBufferSampler.Accumulate();
   mBindTextureSampler.Accumulate();
@@ -323,6 +331,7 @@ void GlProxyImplementation::AccumulateSamples()
 void GlProxyImplementation::LogResults()
 {
   Debug::LogMessage( Debug::DebugInfo, "OpenGL ES statistics sampled over %d frames) operations per frame:\n", mFrameCount );
+  LogCalls( mActiveTextureSampler );
   LogCalls( mClearSampler );
   LogCalls( mBindBufferSampler );
   LogCalls( mBindTextureSampler );
@@ -341,6 +350,7 @@ void GlProxyImplementation::LogCalls( const Sampler& sampler )
 
 void GlProxyImplementation::ResetSamplers()
 {
+  mActiveTextureSampler.Reset();
   mClearSampler.Reset();
   mBindBufferSampler.Reset();
   mBindTextureSampler.Reset();
