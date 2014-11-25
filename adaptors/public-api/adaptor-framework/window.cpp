@@ -131,6 +131,11 @@ DragAndDropDetector Window::GetDragAndDropDetector() const
   return GetImplementation(*this).GetDragAndDropDetector();
 }
 
+Any Window::GetNativeHandle() const
+{
+  return GetImplementation(*this).GetNativeHandle();
+}
+
 Window::Window( Internal::Adaptor::Window* window )
 : BaseHandle( window )
 {

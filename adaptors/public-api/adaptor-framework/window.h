@@ -24,6 +24,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/object/any.h>
 
 namespace Dali
 {
@@ -231,6 +232,13 @@ public:
    * @return A handle to the DragAndDropDetector.
    */
   DragAndDropDetector GetDragAndDropDetector() const;
+
+  /**
+   * @brief Get the native handle of the window.
+   * @return The native handle of the window or an empty handle.
+   */
+
+  Any GetNativeHandle() const;
 
 public: // Not intended for application developers
   /**
