@@ -553,6 +553,18 @@ Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
   return mDragAndDropDetector;
 }
 
+Dali::Any Window::GetNativeHandle() const
+{
+  if(mEventHandler)
+  {
+    return mEventHandler->mEcoreWindow;
+  }
+  else
+  {
+    return Dali::Any();
+  }
+}
+
 void Window::OnStart()
 {
   DoShowIndicator( mIndicatorOrientation );
