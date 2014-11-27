@@ -44,57 +44,9 @@ ResourceThreadShader::~ResourceThreadShader()
 
 void ResourceThreadShader::Load(const ResourceRequest& request)
 {
-  DALI_ASSERT_DEBUG(request.GetType()->id == ResourceShader);
-
-  DALI_LOG_INFO(mLogFilter, Debug::Verbose, "ResourceThreadShader::Load(%s)\n", request.GetPath().c_str());
-
-  const ShaderResourceType& shaderRequest = dynamic_cast<const ShaderResourceType&>(*request.GetType());
-  ShaderDataPtr shaderData( new ShaderData( shaderRequest.vertexShader, shaderRequest.fragmentShader) );
-
-  FILE* fp = fopen(request.GetPath().c_str(), "rb");
-
-  if( fp != NULL )
-  {
-    if( fseek(fp, 0, SEEK_END) )
-    {
-      DALI_LOG_ERROR("Error seeking to end of file\n");
-    }
-
-    long positionIndicator = ftell(fp);
-    unsigned int binaryLength( 0u );
-    if( positionIndicator > -1L )
-    {
-      binaryLength = static_cast<unsigned int>(positionIndicator);
-    }
-
-    if( binaryLength > 0u )
-    {
-      if( fseek(fp, 0, SEEK_SET) )
-      {
-        DALI_LOG_ERROR("Error seeking to start of file\n");
-      }
-
-      shaderData->AllocateBuffer(binaryLength);
-
-      unsigned int length = fread(shaderData->buffer.data(), 1, binaryLength, fp);
-
-      DALI_LOG_INFO(mLogFilter, Debug::Verbose, "ResourceThreadShader::Load() - loaded %d from '%s'\n", length, request.GetPath().c_str());
-
-      DALI_ASSERT_ALWAYS( length == binaryLength && "Shader data read from file does not match file size" );
-    }
-
-    fclose(fp);
-  }
-  else
-  {
-    DALI_LOG_WARNING("ResourceThreadShader::Load() - failed to load '%s'\n", request.GetPath().c_str());
-  }
-
-  // Always returning successful load, The shader will compile the vertex/fragment sources
-  // in ShaderData if the binaryBuffer is zero length
-
-  // Construct LoadedResource and ResourcePointer for image data
-  LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer(shaderData.Get()) );
+  // fake successfull load as this is dead code
+  // Construct LoadedResource and ResourcePointer for shader data
+  LoadedResource resource( request.GetId(), request.GetType()->id, ResourcePointer() );
 
   // Queue the loaded resource
   mResourceLoader.AddLoadedResource(resource);
@@ -113,14 +65,14 @@ void ResourceThreadShader::Save(const ResourceRequest& request)
   FILE *fp = fopen(request.GetPath().c_str(), "wb");
   if (fp != NULL)
   {
-    fwrite( shaderData->buffer.data(), shaderData->buffer.size(), 1, fp );
+    fwrite( shaderData->GetBufferData(), shaderData->GetBufferSize(), 1, fp );
 
     fclose(fp);
 
     result = true;
 
     DALI_LOG_INFO(mLogFilter, Debug::Verbose, "ResourceThreadShader::Save(%s) - succeeded, wrote %d bytes\n",
-                  request.GetPath().c_str(), shaderData->buffer.size());
+                  request.GetPath().c_str(), shaderData->GetBufferSize());
   }
   else
   {

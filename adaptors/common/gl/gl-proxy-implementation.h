@@ -124,6 +124,8 @@ public:
   virtual void PostRender( unsigned int timeDelta );
 
   /* OpenGL ES 2.0 API */
+  virtual void ActiveTexture(GLenum texture);
+
   virtual void Clear( GLbitfield mask );
 
   virtual void BindBuffer( GLenum target, GLuint buffer );
@@ -164,6 +166,7 @@ private: // Helpers
 private: // Data
 
   EnvironmentOptions& mEnvironmentOptions;
+  Sampler mActiveTextureSampler;
   Sampler mClearSampler;
   Sampler mBindBufferSampler;
   Sampler mBindTextureSampler;
