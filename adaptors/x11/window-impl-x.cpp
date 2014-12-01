@@ -316,7 +316,7 @@ void Window::SetClass(std::string name, std::string klass)
 Window::Window()
 : mSurface(NULL),
   mIndicatorStyle(Dali::Window::CHANGEABLE_COLOR),
-  mIndicatorVisible(Dali::Window::VISIBLE),
+  mIndicatorVisible(Dali::Window::INVISIBLE),
   mIndicatorIsShown(false),
   mShowRotatedIndicatorOnClose(false),
   mStarted(false),
@@ -567,7 +567,7 @@ Dali::Any Window::GetNativeHandle() const
 
 void Window::OnStart()
 {
-  DoShowIndicator( mIndicatorOrientation );
+  ShowIndicator( mIndicatorVisible );
 }
 
 void Window::OnPause()
