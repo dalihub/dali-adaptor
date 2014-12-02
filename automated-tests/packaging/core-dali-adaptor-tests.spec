@@ -15,7 +15,6 @@ BuildRequires:  pkgconfig(dali)
 BuildRequires:  boost-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  cmake
-BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(ecore)
 
 %description
