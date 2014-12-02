@@ -6,13 +6,16 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-platform-abstraction")
 
 SET(TC_SOURCES
-    utc-image-loading.cpp
+    utc-image-loading-load-completion.cpp
+    utc-image-loading-cancel-all-loads.cpp
+    utc-image-loading-cancel-some-loads.cpp
 )
 
 LIST(APPEND TC_SOURCES
     resource-collector.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
     tct-dali-platform-abstraction-core.cpp
+    utc-image-loading-common.cpp
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED

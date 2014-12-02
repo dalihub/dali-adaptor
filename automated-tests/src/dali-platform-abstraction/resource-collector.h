@@ -23,6 +23,12 @@
 
 namespace Dali
 {
+
+namespace Integration
+{
+class PlatformAbstraction;
+}
+
 namespace Internal
 {
 namespace Platform
@@ -73,8 +79,16 @@ public:
   ResourceSequence mCompletionSequence;
   /** Count of all successes and failures.*/
   unsigned mGrandTotalCompletions;
+  /** Count of all successes, failures, loading notifications and partially loaded notifications.*/
+  unsigned mGrandTotalNotifications;
 
 };
+
+/**
+ * Helper to poll the abstraction for notifications assuming loads have been
+ * issued to it previously and are in-flight.
+ */
+void PollForNotification( ResourceCollector& collector, Integration::PlatformAbstraction&  abstraction, const unsigned maxPolls = 100 );
 
 } /* namespace Platform */
 } /* namespace Internal */

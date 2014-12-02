@@ -78,7 +78,7 @@ int RunAllInParallel(const char* processName, bool reRunFailed)
   {
     if( nextTestCase < numTestCases )
     {
-      while( numRunningChildren < MAX_NUM_CHILDREN )
+      while( numRunningChildren < MAX_NUM_CHILDREN && nextTestCase < numTestCases )
       {
         int pid = fork();
         if( pid == 0 ) // Child process
