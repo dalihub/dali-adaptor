@@ -39,6 +39,7 @@
 #include <dali/public-api/adaptor-framework/haptic-player.h>
 #include <dali/public-api/adaptor-framework/imf-manager.h>
 #include <dali/public-api/adaptor-framework/key.h>
+#include <dali/public-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/public-api/adaptor-framework/orientation.h>
 #include <dali/public-api/adaptor-framework/physical-keyboard.h>
 #include <dali/public-api/adaptor-framework/pixmap-image.h>

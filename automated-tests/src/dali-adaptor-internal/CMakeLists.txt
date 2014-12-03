@@ -9,6 +9,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoader.cpp
     utc-Dali-TiltSensor.cpp
     utc-Dali-CommandLineOptions.cpp
+    utc-Dali-Lifecycle-Controller.cpp
 )
 
 LIST(APPEND TC_SOURCES
