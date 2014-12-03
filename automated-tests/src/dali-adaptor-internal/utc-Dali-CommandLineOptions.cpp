@@ -31,7 +31,7 @@ using namespace Dali::Internal::Adaptor;
 void command_line_options_startup(void)
 {
   test_return_value = TET_UNDEF;
-  optind = 1; // Reset opt for test
+  optind = 0; // Reset opt for test
 }
 
 // Called only once after last test is run
@@ -42,7 +42,7 @@ void command_line_options_cleanup(void)
 
 int UtcDaliCommandLineOptionsNoArgs(void)
 {
-  optind=1;
+  optind=0;
 
   int argc( 1 );
   const char* argList[1] = { "program" };
@@ -63,7 +63,7 @@ int UtcDaliCommandLineOptionsNoArgs(void)
 
 int UtcDaliCommandLineOptionsDaliShortArgs(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
@@ -91,7 +91,7 @@ int UtcDaliCommandLineOptionsDaliShortArgs(void)
 
 int UtcDaliCommandLineOptionsDaliLongArgsEqualsSign(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
@@ -121,7 +121,7 @@ int UtcDaliCommandLineOptionsDaliLongArgsEqualsSign(void)
 
 int UtcDaliCommandLineOptionsDaliLongArgsSpaces(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
@@ -151,7 +151,7 @@ int UtcDaliCommandLineOptionsDaliLongArgsSpaces(void)
 
 int UtcDaliCommandLineOptionsNonDaliArgs(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
@@ -178,7 +178,7 @@ int UtcDaliCommandLineOptionsNonDaliArgs(void)
 
 int UtcDaliCommandLineOptionsMixture(void)
 {
-  optind = 1; // Reset opt for test
+  optind = 0; // Reset opt for test
 
   const char* argList[] =
   {
@@ -209,7 +209,7 @@ int UtcDaliCommandLineOptionsMixture(void)
 
 int UtcDaliCommandLineOptionsMixtureDaliOpsAtStart(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
@@ -240,7 +240,7 @@ int UtcDaliCommandLineOptionsMixtureDaliOpsAtStart(void)
 
 int UtcDaliCommandLineOptionsMixtureDaliOpsAtEnd(void)
 {
-  optind=1;
+  optind=0;
 
   const char* argList[] =
   {
