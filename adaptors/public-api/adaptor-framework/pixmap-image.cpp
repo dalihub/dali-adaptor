@@ -27,30 +27,20 @@
 namespace Dali
 {
 
-PixmapImagePtr PixmapImage::New(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor)
+PixmapImagePtr PixmapImage::New( unsigned int width, unsigned int height, ColorDepth depth )
 {
   Any empty;
-  PixmapImagePtr image = new PixmapImage(width, height, depth, adaptor, empty);
+  PixmapImagePtr image = new PixmapImage( width, height, depth, empty );
   return image;
 }
 
-PixmapImagePtr PixmapImage::New(Any pixmap, Adaptor& adaptor)
+PixmapImagePtr PixmapImage::New( Any pixmap )
 {
-  PixmapImagePtr image = new PixmapImage(0, 0, COLOR_DEPTH_DEFAULT, adaptor, pixmap);
+  PixmapImagePtr image = new PixmapImage(0, 0, COLOR_DEPTH_DEFAULT, pixmap);
   return image;
 }
 
-Any PixmapImage::GetPixmap(PixmapAPI api)
-{
-  return mImpl->GetPixmap(api);
-}
-
-Any PixmapImage::GetDisplay()
-{
-  return mImpl->GetDisplay();
-}
-
-bool PixmapImage::GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const
+bool PixmapImage::GetPixels( std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const
 {
   return mImpl->GetPixels( pixbuf, width, height, pixelFormat );
 }
@@ -95,9 +85,9 @@ Pixel::Format PixmapImage::GetPixelFormat() const
   return mImpl->GetPixelFormat();
 }
 
-PixmapImage::PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap)
+PixmapImage::PixmapImage( unsigned int width, unsigned int height, ColorDepth depth, Any pixmap )
 {
-   mImpl = Internal::Adaptor::PixmapImage::New( width, height, depth, adaptor, pixmap);
+   mImpl = Internal::Adaptor::PixmapImage::New( width, height, depth, pixmap );
 }
 
 PixmapImage::~PixmapImage()
