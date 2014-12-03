@@ -196,9 +196,6 @@ void Application::OnInit()
 
   mInitialized = true;
 
-  // in default, auto hide indicator mode
-  mWindow.ShowIndicator(Dali::Window::AUTO);
-
   Dali::Application application(this);
   mInitSignalV2.Emit( application );
 }

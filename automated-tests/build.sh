@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 TEMP=`getopt -o rn --long rebuild,no-gen \
      -n 'genmake' -- "$@"`
 
@@ -15,8 +16,8 @@ while true ; do
     case "$1" in
         -r|--rebuild) opt_rebuild=true ; shift ;;
         -n|--no-gen)  opt_generate=false ; shift ;;
-        --) shift ; break ;;
-        *) shift ;;   # Ignore
+	--) shift ; break ;;
+	*) shift ;;   # Ignore
     esac
 done
 
@@ -43,6 +44,7 @@ else
     if [ $mod != 'common' ] && [ $mod != 'manual' ]; then
         echo BUILDING $mod
         build $mod
+        if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
     fi
   done
 fi
