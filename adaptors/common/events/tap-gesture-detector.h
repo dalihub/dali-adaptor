@@ -19,8 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/events/tap-gesture-event.h>
 #include <dali/public-api/common/vector-wrapper.h>
-#include <timer.h>
+#include <dali/public-api/events/touch-point.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-detector.h>
@@ -77,15 +78,43 @@ public:
 private:
 
   /**
-   * Timer Callback
-   * @return will return false; one-shot timer.
-   */
-  bool TimerCallback();
-
-  /**
    * Checks if registered taps are within required bounds and emits tap gesture if they are.
+   *
+   * @param[in] state current state of incomplete gesture
+   * @param[in] time time of this latest touch event
    */
   void EmitGesture( Gesture::State state, unsigned int time );
+
+  /**
+   * Initialises tap gesture detector for next tap sequence
+   *
+   * @param[in] event registered touch event
+   * @param[in] point position touch event occurred
+   */
+  void SetupForTouchDown( const Integration::TouchEvent& event, const TouchPoint& point );
+
+  /**
+   * Emit a touch down event for hit testing
+   *
+   * @param[in] event registered touch event
+   */
+  void EmitPossibleState( const Integration::TouchEvent& event );
+
+  /**
+   * Force a touch event sequence to be treated as a single tap
+   *
+   * @param[in] time time of this latest touch event
+   * @param[in] point position touch event occurred
+    */
+  void EmitSingleTap( unsigned int time, const TouchPoint& point );
+
+  /**
+   * Emit a tap event
+   *
+   * @param[in] time time of this latest touch event
+   * @param[in] event registered touch event
+   */
+  void EmitTap( unsigned int time, Integration::TapGestureEvent& event );
 
 private:
 
@@ -109,9 +138,8 @@ private:
 
   Vector2 mTouchPosition;   ///< The initial touch down position.
   unsigned long mTouchTime; ///< The initial touch down time.
+  unsigned long mLastTapTime; ///< Time last tap gesture was registered
 
-  Dali::Timer mTimer;       ///< The timer to start when we have registered the tap. We have to register all taps within a certain time frame.
-  SlotDelegate< TapGestureDetector > mTimerSlot;
 };
 
 } // namespace Adaptor
