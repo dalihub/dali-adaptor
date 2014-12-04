@@ -13,6 +13,7 @@ SET(TC_SOURCES
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
     ../dali-adaptor/dali-test-suite-utils/test-application.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gesture-manager.cpp

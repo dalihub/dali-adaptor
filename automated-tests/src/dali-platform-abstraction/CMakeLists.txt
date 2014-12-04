@@ -13,6 +13,7 @@ SET(TC_SOURCES
 
 LIST(APPEND TC_SOURCES
     resource-collector.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
     tct-dali-platform-abstraction-core.cpp
     utc-image-loading-common.cpp
