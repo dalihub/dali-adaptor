@@ -323,7 +323,7 @@ bool ImfManager::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void ImfManager::SetRestoreAferFocusLost( bool toggle )
+void ImfManager::SetRestoreAfterFocusLost( bool toggle )
 {
   mRestoreAfterFocusLost = toggle;
 }

@@ -170,7 +170,7 @@ public:
    *
    * @param[in] toggle True means that keyboard should be restored after focus lost and regained.
    */
-  void SetRestoreAferFocusLost( bool toggle );
+  void SetRestoreAfterFocusLost( bool toggle );
 
   /**
    * @brief Send message reset the pred-edit state / imf module.
