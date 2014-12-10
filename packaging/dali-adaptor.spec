@@ -27,7 +27,7 @@ BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  vconf-devel
+BuildRequires:  pkgconfig(vconf)
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
