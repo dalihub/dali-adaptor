@@ -986,7 +986,7 @@ void Indicator::SetBackground()
 void Indicator::CreateNewPixmapImage()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d\n", mImageWidth, mImageHeight );
-  Dali::PixmapImagePtr pixmapImage = Dali::PixmapImage::New(mPixmap, Dali::Adaptor::Get());
+  Dali::PixmapImagePtr pixmapImage = Dali::PixmapImage::New( mPixmap );
 
   if( pixmapImage )
   {

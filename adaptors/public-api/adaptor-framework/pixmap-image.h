@@ -25,7 +25,6 @@
 
 namespace Dali
 {
-class Adaptor;
 
 namespace Internal DALI_INTERNAL
 {
@@ -53,15 +52,6 @@ class DALI_IMPORT_API PixmapImage : public NativeImage
 public:
 
    /**
-    * @brief PixmapImage can use pixmaps created by X11 or ECORE X11.
-    */
-   enum PixmapAPI
-   {
-     X11,        ///< X types
-     ECORE_X11,  ///< EFL e-core x11 types
-   };
-
-   /**
     * @brief When creating a pixmap the color depth has to be specified.
     */
    enum ColorDepth
@@ -80,36 +70,17 @@ public:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the pixmap
-   * @param[in] adaptor reference to dali adaptor
    * @return A smart-pointer to a newly allocated image.
    */
-  static PixmapImagePtr New( unsigned int width, unsigned int height, ColorDepth depth,  Adaptor& adaptor );
+  static PixmapImagePtr New( unsigned int width, unsigned int height, ColorDepth depth );
 
   /**
    * @brief Create a new PixmapImage from an existing pixmap.
    *
    * @param[in] pixmap must be a X11 pixmap or a Ecore_X_Pixmap
-   * @param[in] adaptor reference to dali adaptor
    * @return A smart-pointer to a newly allocated image.
    */
-  static PixmapImagePtr New( Any pixmap, Adaptor& adaptor );
-
-  /**
-   * @brief Retrieve the internal pixmap
-   *
-   * @param api whether to return a pixmap that can be used with X11 or EFL
-   * @return pixmap any object containing a pixmap of the type specified PixmapAPI
-   */
-  Any GetPixmap( PixmapAPI api );
-
-  /**
-   * @brief Retrieve the display used to create the pixmap.
-   *
-   * If the pixmap was created outside of Dali, then this display
-   * is the one Dali uses internally.
-   * @return Any object containing the display
-   */
-  Any GetDisplay();
+  static PixmapImagePtr New( Any pixmap );
 
   /**
    * @brief Get a copy of the pixels used by PixmapImage.
@@ -179,10 +150,9 @@ private:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the pixmap
-   * @param[in] adaptor a reference to Dali adaptor
    * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  DALI_INTERNAL PixmapImage(unsigned int width, unsigned int height, ColorDepth depth, Adaptor& adaptor, Any pixmap);
+  DALI_INTERNAL PixmapImage( unsigned int width, unsigned int height, ColorDepth depth, Any pixmap );
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().

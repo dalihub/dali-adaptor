@@ -19,8 +19,6 @@
 #include "pixmap-image-impl.h"
 
 // EXTERNAL INCLUDES
-#include <Ecore.h>
-#include <Ecore_Wayland.h>
 #include <dali/integration-api/debug.h>
 #include <render-surface.h>
 
@@ -43,9 +41,9 @@ namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
 
-PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor,  Any pixmap )
+PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
 {
-  PixmapImage* image = new PixmapImage( width, height, depth, adaptor, pixmap );
+  PixmapImage* image = new PixmapImage( width, height, depth, pixmap );
   DALI_ASSERT_DEBUG( image && "PixmapImage allocation failed." );
 
   // 2nd phase construction
@@ -57,15 +55,19 @@ PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::Pix
   return image;
 }
 
-PixmapImage::PixmapImage(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Dali::Adaptor& adaptor, Any pixmap)
-: mWidth(width),
-  mHeight(height),
-  mOwnPixmap(true),
-  mPixelFormat(Pixel::RGB888),
-  mColorDepth(depth),
-  mAdaptor(Internal::Adaptor::Adaptor::GetImplementation(adaptor)),
-  mEglImageKHR(NULL)
+PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
+: mWidth( width ),
+  mHeight( height ),
+  mOwnPixmap( true ),
+  mPixelFormat( Pixel::RGB888 ),
+  mColorDepth( depth ),
+  mEglImageKHR( NULL ),
+  mEglImageExtensions( NULL )
 {
+  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
+  mEglImageExtensions = eglFactory.GetImageExtensions();
+  DALI_ASSERT_DEBUG( mEglImageExtensions );
 }
 
 void PixmapImage::Initialize()
@@ -74,24 +76,6 @@ void PixmapImage::Initialize()
 
 PixmapImage::~PixmapImage()
 {
-  // Lost the opportunity to call GlExtensionDestroy() if Adaptor is destroyed first
-  if( Adaptor::IsAvailable() )
-  {
-    // GlExtensionDestroy() called from GLCleanup on the render thread. Checking this is done here.
-    // (mEglImageKHR is now read/written from different threads although ref counted destruction
-    //  should mean this isnt concurrent)
-    DALI_ASSERT_ALWAYS( NULL == mEglImageKHR && "NativeImage GL resources have not been properly cleaned up" );
-  }
-}
-
-Any PixmapImage::GetPixmap(Dali::PixmapImage::PixmapAPI api) const
-{
-    return NULL;
-}
-
-Any PixmapImage::GetDisplay() const
-{
-    return NULL;
 }
 
 bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
@@ -119,18 +103,14 @@ bool PixmapImage::GlExtensionCreate()
 
 void PixmapImage::GlExtensionDestroy()
 {
-  EglImageExtensions* eglImageExtensions = GetEglImageExtensions();
-
-  eglImageExtensions->DestroyImageKHR(mEglImageKHR);
+  mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
 }
 
 unsigned int PixmapImage::TargetTexture()
 {
-  EglImageExtensions* eglImageExtensions = GetEglImageExtensions();
-
-  eglImageExtensions->TargetTextureKHR(mEglImageKHR);
+  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
@@ -194,14 +174,6 @@ void PixmapImage::SetPixelFormat(int depth)
 
 void PixmapImage::GetPixmapDetails()
 {
-}
-
-EglImageExtensions* PixmapImage::GetEglImageExtensions() const
-{
-  EglFactory& factory = mAdaptor.GetEGLFactory();
-  EglImageExtensions* egl = factory.GetImageExtensions();
-  DALI_ASSERT_DEBUG( egl && "EGL Image Extensions not initialized" );
-  return egl;
 }
 
 } // namespace Adaptor

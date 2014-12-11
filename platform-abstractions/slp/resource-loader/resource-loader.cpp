@@ -242,6 +242,7 @@ struct ResourceLoader::ResourceLoaderImpl
   bool IsLoading()
   {
     // TODO - not used - remove?
+    DALI_ASSERT_DEBUG( 0 == "IsLoading() Is not implemented so don't call it." );
     return true;
   }
 

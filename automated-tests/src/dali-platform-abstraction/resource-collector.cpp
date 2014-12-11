@@ -16,6 +16,7 @@
  */
 
 #include "resource-collector.h"
+#include "slp-platform-abstraction.h"
 #include <dali/integration-api/debug.h>
 
 namespace Dali
@@ -27,7 +28,8 @@ namespace Platform
 using namespace Dali::Integration;
 
 ResourceCollector::ResourceCollector() :
-  mGrandTotalCompletions(0)
+  mGrandTotalCompletions(0),
+  mGrandTotalNotifications(0)
 {
 }
 
@@ -35,6 +37,7 @@ ResourceCollector::~ResourceCollector() {}
 
 void ResourceCollector::LoadResponse( Dali::Integration::ResourceId id, Dali::Integration::ResourceTypeId type, Dali::Integration::ResourcePointer resource, Dali::Integration::LoadStatus status )
 {
+  ++mGrandTotalNotifications;
   if( status == RESOURCE_COMPLETELY_LOADED )
   {
     DALI_ASSERT_DEBUG( mCompletionCounts.find(id) == mCompletionCounts.end() && "A resource can only complete once." );
@@ -52,8 +55,23 @@ void ResourceCollector::LoadFailed( Dali::Integration::ResourceId id, Dali::Inte
   ++mFailureCounts[id];
   mCompletionSequence.push_back( id );
   ++mGrandTotalCompletions;
+  ++mGrandTotalNotifications;
 }
 
+void PollForNotification( ResourceCollector& collector, Integration::PlatformAbstraction&  abstraction, const unsigned maxPolls )
+{
+  // Poll for at least one completed or partially completed load:
+  const unsigned outstandingNotifications = collector.mGrandTotalNotifications;
+  for( unsigned poll = 0; poll < maxPolls; ++poll )
+  {
+    abstraction.GetResources( collector );
+    if( collector.mGrandTotalNotifications > outstandingNotifications )
+    {
+      break;
+    }
+    usleep( 3 ); //< Wait 3 microseconds each time around.
+  }
+}
 
 } /* namespace Platform */
 } /* namespace Internal */
