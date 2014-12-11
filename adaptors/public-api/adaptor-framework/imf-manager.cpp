@@ -58,9 +58,9 @@ bool ImfManager::RestoreAfterFocusLost() const
   return Internal::Adaptor::ImfManager::GetImplementation(*this).RestoreAfterFocusLost();
 }
 
-void ImfManager::SetRestoreAferFocusLost( bool toggle )
+void ImfManager::SetRestoreAfterFocusLost( bool toggle )
 {
-  Internal::Adaptor::ImfManager::GetImplementation(*this).SetRestoreAferFocusLost( toggle );
+  Internal::Adaptor::ImfManager::GetImplementation(*this).SetRestoreAfterFocusLost( toggle );
 }
 
 void ImfManager::Reset()
