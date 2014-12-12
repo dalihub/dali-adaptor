@@ -23,7 +23,6 @@
 using namespace Dali::Integration;
 using boost::mutex;
 using boost::unique_lock;
-using boost::scoped_ptr;
 
 namespace Dali
 {

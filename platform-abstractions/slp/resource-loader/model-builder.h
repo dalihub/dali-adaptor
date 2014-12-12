@@ -26,20 +26,26 @@ namespace SlpPlatform
 {
 
 /**
- * Provides a means of creating a Model object from a file, resource or data stream
- * passed in it's ctor.
+ * @brief Provides a means of creating a Model object.
+ *
+ * @sa ResourceThreadModel::CreateModelBuilder
  */
 class ModelBuilder
 {
 public:
   /**
-   * Build the given model
-   * @param[in] model - the model to build
+   * @brief Allow implementing classes to be deleted through a pointer to this interface.
    */
-  virtual bool Build(ModelData model) = 0;
+  virtual ~ModelBuilder() {}
 
   /**
-   * Return the model name (usually the basename of the file resource)
+   * @brief Build the given model
+   * @param[in] model - the model to build
+   */
+  virtual bool Build( ModelData model ) = 0;
+
+  /**
+   * @brief Get the model name (usually the basename of the file resource)
    */
   virtual const std::string& GetModelName() = 0;
 };

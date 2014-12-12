@@ -31,6 +31,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/common/scoped-pointer.h>
 #include "resource-requester-base.h"
 #include "resource-bitmap-requester.h"
 #include "resource-model-requester.h"
@@ -55,7 +56,6 @@
 using namespace Dali::Integration;
 using boost::mutex;
 using boost::unique_lock;
-using boost::scoped_ptr;
 
 namespace Dali
 {
@@ -600,7 +600,7 @@ GlyphSet* ResourceLoader::GetGlyphData (const TextResourceType& textRequest,
             then = GetTimeMicroseconds();
           }
 #endif
-          scoped_ptr< GlyphSet::Character > character( GetCharacter(slpFace->face, charCode,
+          ScopedPointer< GlyphSet::Character > character( GetCharacter(slpFace->face, charCode,
                                                                     DISTANCE_FIELD_SIZE, DISTANCE_FIELD_PADDING, textRequest.mMaxGlyphSize,
                                                                     getBitmap, highQuality ) );
 
@@ -613,9 +613,9 @@ GlyphSet* ResourceLoader::GetGlyphData (const TextResourceType& textRequest,
             DALI_LOG_INFO( gLoaderFilter, Log::Verbose, "Generating (%c) in %s quality took %.3f ms\n", charCode, highQuality ? "high" : "low",  1e-3 * ( now - then ) );
           }
 #endif
-          if (character)
+          if (character.Get() != 0 )
           {
-            GlyphSet::Character& glyphCharacter( *character.get() );
+            GlyphSet::Character& glyphCharacter( *character );
 
             glyphCharacter.second.quality = glyphQuality;
             glyphCharacter.second.xPosition = it->xPosition;
