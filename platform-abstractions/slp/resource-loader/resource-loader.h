@@ -23,6 +23,8 @@
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-vector.h>
 
+#include <boost/scoped_ptr.hpp>
+
 #include <string>
 #include <ft2build.h>
 #include FT_FREETYPE_H
