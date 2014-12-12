@@ -16,6 +16,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/indicator-impl.cpp  \
   $(adaptor_common_dir)/indicator-buffer.cpp  \
   $(adaptor_common_dir)/kernel-trace.cpp  \
+  $(adaptor_common_dir)/lifecycle-controller-impl.cpp \
   $(adaptor_common_dir)/locale-utils.cpp  \
   $(adaptor_common_dir)/native-bitmap-buffer-impl.cpp \
   $(adaptor_common_dir)/object-profiler.cpp \

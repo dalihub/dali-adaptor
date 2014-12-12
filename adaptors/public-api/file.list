@@ -12,6 +12,7 @@ public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/haptic-player.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/imf-manager.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/key.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/lifecycle-controller.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.cpp \
@@ -47,6 +48,7 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/haptic-player.h \
   $(adaptor_public_api_dir)/adaptor-framework/imf-manager.h \
   $(adaptor_public_api_dir)/adaptor-framework/key.h \
+  $(adaptor_public_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_public_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_public_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.h \
