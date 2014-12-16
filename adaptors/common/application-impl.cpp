@@ -210,6 +210,8 @@ void Application::OnInit()
 
   Dali::Application application(this);
   mInitSignalV2.Emit( application );
+
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).GetCore().SceneCreated();
 }
 
 void Application::OnTerminate()
