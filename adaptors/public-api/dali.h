@@ -42,6 +42,7 @@
 #include <dali/public-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/public-api/adaptor-framework/orientation.h>
 #include <dali/public-api/adaptor-framework/physical-keyboard.h>
+#include <dali/public-api/adaptor-framework/performance-logger.h>
 #include <dali/public-api/adaptor-framework/pixmap-image.h>
 #include <dali/public-api/adaptor-framework/render-surface.h>
 #include <dali/public-api/adaptor-framework/singleton-service.h>

@@ -19,7 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include "frame-time-stamp.h"
+#include <base/interfaces/performance-interface.h>
+#include <base/performance-logging/frame-time-stamp.h>
 
 namespace Dali
 {
@@ -38,37 +39,17 @@ class PerformanceMarker
 public:
 
   /**
-   * enum for difference performance markers.
-   * Please modify the name lookup table in performance-marker.cpp
-   * file if adding new markers.
-   */
-  enum MarkerType
-  {
-      V_SYNC    = 0,        ///< V-Sync
-      UPDATE_START ,        ///< Update start
-      UPDATE_END   ,        ///< Update end
-      RENDER_START ,        ///< Render start
-      RENDER_END   ,        ///< Render end
-      SWAP_START   ,        ///< SwapBuffers Start
-      SWAP_END     ,        ///< SwapBuffers End
-      PROCESS_EVENTS_START, ///< Process events start (e.g. touch event)
-      PROCESS_EVENTS_END,   ///< Process events end
-      PAUSED       ,        ///< Pause start
-      RESUME                ///< Resume start
-  };
-
-  /**
    * Constructor
    * @param type marker type
    */
-  PerformanceMarker( MarkerType type);
+  PerformanceMarker( PerformanceInterface::MarkerType type );
 
   /**
    * Constructor
    * @param type marker type
    * @param time time stamp
    */
-  PerformanceMarker(MarkerType type,  FrameTimeStamp time);
+  PerformanceMarker( PerformanceInterface::MarkerType type,  FrameTimeStamp time );
 
   /**
    * @return the time stamp
@@ -81,15 +62,10 @@ public:
   /**
    * @return the type of marker
    */
-  MarkerType GetType() const
+  PerformanceInterface::MarkerType GetType() const
   {
     return mType;
   }
-
-  /**
-   * @return the name of the marker
-   */
-  const char* GetName() const;
 
   /**
    * @param start the start marker
@@ -100,8 +76,8 @@ public:
 
 private:
 
-  MarkerType           mType;         ///< marker type
-  FrameTimeStamp       mTimeStamp;    ///< frame time stamp
+  PerformanceInterface::MarkerType mType;         ///< marker type
+  FrameTimeStamp mTimeStamp;                      ///< frame time stamp
 
 };
 
