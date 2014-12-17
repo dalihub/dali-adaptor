@@ -41,6 +41,8 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(efl-assist)
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core

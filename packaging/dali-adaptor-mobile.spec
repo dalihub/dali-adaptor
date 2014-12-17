@@ -45,6 +45,8 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(opengl-es-20)
 BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  pkgconfig(assimp)
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
