@@ -252,6 +252,7 @@ public:
 
   /**
    * @copydoc PlatformAbstraction::IsLoading()
+   * @deprecated This is not implemented: always returns true.
    */
   bool IsLoading();
 
