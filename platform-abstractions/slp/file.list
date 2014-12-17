@@ -4,28 +4,23 @@ slp_platform_abstraction_src_files = \
   $(slp_platform_abstraction_src_dir)/slp-platform-abstraction.cpp \
   $(slp_platform_abstraction_src_dir)/slp-logging.cpp \
   $(slp_platform_abstraction_src_dir)/slp-font-configuration-parser.cpp \
-  $(slp_platform_abstraction_src_dir)/font-platform/font-controller-impl.cpp \
   $(slp_platform_abstraction_src_dir)/data-cache/data-cache-io.cpp \
   $(slp_platform_abstraction_src_dir)/data-cache/data-cache-impl.cpp \
   $(slp_platform_abstraction_src_dir)/data-cache/tests/data-cache-debug.cpp \
   $(slp_platform_abstraction_src_dir)/data-cache/data-compression.cpp \
-  $(slp_platform_abstraction_src_dir)/data-cache/metrics-cache.cpp \
   $(slp_platform_abstraction_src_dir)/dynamics/dynamics-factory.cpp \
   \
-  $(slp_platform_abstraction_src_dir)/resource-loader/loader-font.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-requester-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-bitmap-requester.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-model-requester.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-shader-requester.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-text-requester.cpp \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-image.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-distance-field.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-model.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-shader.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-text.cpp \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/binary-model-builder.cpp \
   \

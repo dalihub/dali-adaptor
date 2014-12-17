@@ -19,14 +19,10 @@
  */
 
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/glyph-set.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-vector.h>
 
 #include <string>
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
 
 namespace Dali
 {
@@ -37,11 +33,6 @@ namespace Log
 {
 class Filter;
 }
-}
-
-namespace Platform
-{
-class FontController;
 }
 
 namespace SlpPlatform
@@ -262,73 +253,9 @@ public:
   void GetResources(Integration::ResourceCache& cache);
 
   /**
-   * Called by Font objects to synchronously query glyph data.
-   * @param[in] textRequest     resource request
-   * @param[in] freeType        handle to the FreeType library
-   * @param[in] fontFamily      name of the font's family
-   * @param[in] getBitmap       whether to load bitmaps for the symbols as well
-   * @return A GlyphSet pointer with a list of the requested glyph metrics.
-   */
-  Integration::GlyphSet* GetGlyphData ( const Integration::TextResourceType& textRequest,
-                                        FT_Library freeType,
-                                        const std::string& fontFamily,
-                                        bool getBitmap);
-
-  /**
-   * Called by Font objects to synchronously load glyph data.
-   * @param[in] textRequest     resource request
-   * @param[in] fontFamily      name of the font's family
-   * @return A GlyphSet pointer containing the requested glyph bitmaps.
-   */
-  Integration::GlyphSet* GetCachedGlyphData( const Integration::TextResourceType& textRequest,
-                                             const std::string& fontFamily );
-
-  /**
-   * Called by Font objects to synchronously query global font metrics.
-   * @param[in] freeType       handle to the FreeType library
-   * @param[in] fontFamily     name of the font's family
-   * @param[in] fontStyle      name of the font's style
-   * @param[out] globalMetrics font requested global metrics.
-   */
-  void GetGlobalMetrics( FT_Library freeType,
-                         const std::string& fontFamily,
-                         const std::string& fontStyle,
-                         Integration::GlobalMetrics& globalMetrics );
-
-  /**
    * @copydoc PlatformAbstraction::SetDpi()
    */
   void SetDpi(unsigned int dpiHor, unsigned int dpiVer);
-
-  /**
-   * @copydoc PlatformAbstraction::GetFontFamilyForChars()
-   */
-  const std::string& GetFontFamilyForChars(const Integration::TextArray& charsRequested);
-
-  /**
-   * @copydoc PlatformAbstraction::AllGlyphsSupported()
-   */
-  bool AllGlyphsSupported(const std::string& fontFamily, const std::string& fontStyle, const Integration::TextArray& charsRequested);
-
-  /**
-   * @copydoc PlatformAbstraction::ValidateFontFamilyName()
-   */
-  bool ValidateFontFamilyName( const std::string& fontFamily,
-                               const std::string& fontStyle,
-                               bool& isDefaultSystemFontFamily,
-                               bool& isDefaultSystemFontStyle,
-                               std::string& closestFontFamilyMatch,
-                               std::string& closestFontStyleMatch );
-
-  /**
-   * @copydoc SlpPlatformAbstraction::GetFontLineHeightFromCapsHeight
-   */
-  PixelSize GetFontLineHeightFromCapsHeight(const std::string& fontFamily, const std::string& fontStyle, CapsHeight capsHeight, FT_Library freeType);
-
-  /**
-   * @copydoc SlpPlatformAbstraction::GetFontList
-   */
-  void GetFontList( Dali::Integration::PlatformAbstraction::FontListMode mode, std::vector<std::string>& fontList );
 
   /**
    * @copydoc SlpPlatformAbstraction::LoadFile()
@@ -344,39 +271,6 @@ public:
    * @copydoc SlpPlatformAbstraction::SaveFile()
    */
   static bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer);
-
-  /**
-   * Sets the default font family that should be used by the font resources.
-   * @param[in] fontFamily The default font family.
-   * @param[in] fontStyle The default font style.
-   */
-  void SetDefaultFontFamily( const std::string& fontFamily, const std::string& fontStyle );
-
-  /**
-   * Retrieves the glyp's image representing the given character.
-   *
-   * @param[in] freeType Handle to the FreeType library.
-   * @param[in] fontFamily The font's family name.
-   * @param[in] fontStyle The font's style.
-   * @param[in] fontSize The font's size.
-   * @param[in] character The given character.
-   *
-   * @return The bitmap image.
-   */
-  Integration::BitmapPtr GetGlyphImage( FT_Library freeType, const std::string& fontFamily, const std::string& fontStyle, float fontSize, uint32_t character );
-
-private:
-
-  /**
-   * Find the path of a platform-specific font resource.
-   * Multi-threading note: this method will be called from the main thread only i.e. not
-   * from within the Core::Render() method.
-   * @note   Italics and boldness are applied by transforming the outline.
-   * @param[in] fontFamily The font family e.g. Arial, Courier.
-   * @param[in] fontStyle The font's style.
-   * @return The path to a font resource; the closest available match for the family parameter.
-   */
-  const std::string& GetFontPath(const std::string& fontFamily, const std::string& fontStyle); // not const because of mutex
 
 private:
   struct ResourceLoaderImpl;

@@ -32,9 +32,6 @@ namespace SlpPlatform
 
 extern Debug::Filter* gLoaderFilter;
 
-std::string DebugRequestList(Integration::TextResourceType::CharacterList& chars);
-std::string DebugResourceList(LoadedResource& partialResource);
-
 } // SlpPlatform
 } // Dali
 

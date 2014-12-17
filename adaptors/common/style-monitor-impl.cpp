@@ -89,7 +89,7 @@ void StyleMonitor::StyleChanged(StyleChange styleChange)
 {
   if (styleChange.defaultFontChange || styleChange.defaultFontSizeChange)
   {
-    mPlatformAbstraction.UpdateDefaultsFromDevice();
+    //mPlatformAbstraction.UpdateDefaultsFromDevice();
   }
 
   EmitStyleChangeSignal(styleChange);
@@ -97,12 +97,14 @@ void StyleMonitor::StyleChanged(StyleChange styleChange)
 
 std::string StyleMonitor::GetDefaultFontFamily() const
 {
-  return mPlatformAbstraction.GetDefaultFontFamily();
+  //return mPlatformAbstraction.GetDefaultFontFamily();
+  return std::string();
 }
 
 float StyleMonitor::GetDefaultFontSize() const
 {
-  return mPlatformAbstraction.GetDefaultFontSize();
+  //return mPlatformAbstraction.GetDefaultFontSize();
+  return float();
 }
 
 const std::string& StyleMonitor::GetTheme() const
