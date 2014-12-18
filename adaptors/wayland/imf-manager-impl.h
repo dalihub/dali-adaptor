@@ -101,9 +101,9 @@ public:
   bool RestoreAfterFocusLost() const;
 
   /**
-   * @copydoc Dali::ImfManager::SetRestoreAferFocusLost()
+   * @copydoc Dali::ImfManager::SetRestoreAfterFocusLost()
    */
-  void SetRestoreAferFocusLost( bool toggle );
+  void SetRestoreAfterFocusLost( bool toggle );
 
   /**
    * @copydoc Dali::ImfManager::PreEditChanged()

@@ -26,6 +26,7 @@
 #include <command-line-options.h>
 #include <common/adaptor-impl.h>
 #include <singleton-service-impl.h>
+#include <lifecycle-controller-impl.h>
 
 namespace Dali
 {
@@ -195,6 +196,17 @@ void Application::OnInit()
   }
 
   mInitialized = true;
+
+  // Wire up the LifecycleController
+  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
+
+  InitSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnInit );
+  TerminateSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnTerminate );
+  PauseSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnPause );
+  ResumeSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnResume );
+  ResetSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnReset );
+  ResizeSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnResize );
+  LanguageChangedSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnLanguageChanged );
 
   Dali::Application application(this);
   mInitSignalV2.Emit( application );

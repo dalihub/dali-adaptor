@@ -18,6 +18,8 @@
 // STRUCT HEADER
 #include "frame-time-stats.h"
 
+#include <cmath>
+
 namespace Dali
 {
 
@@ -36,6 +38,8 @@ const float ONE_OVER_MICROSECONDS_TO_SECONDS = 1.f / 1000000.f; ///< microsecond
 FrameTimeStats::FrameTimeStats()
 : mTotal( 0.f)
 {
+  mSamples.Reserve( 16 );   // Fill out a little to avoid early reallocations
+
   Reset();
 }
 
@@ -69,12 +73,13 @@ void FrameTimeStats::EndTime( const FrameTimeStamp& timeStamp )
   // frame time in seconds
   unsigned int elapsedTime = FrameTimeStamp::MicrosecondDiff( mStart, timeStamp);
 
+  mSamples.PushBack( elapsedTime );
+
   // if the min and max times haven't been set, do that now.
   if( !mMinMaxTimeSet )
   {
     mMin = elapsedTime;
     mMax = elapsedTime;
-    mAvg = elapsedTime;
     mMinMaxTimeSet = true;
   }
   else
@@ -90,10 +95,6 @@ void FrameTimeStats::EndTime( const FrameTimeStamp& timeStamp )
   }
 
   mTotal += elapsedTime;
-
-  // calculate a rolling average
-  mAvg = (elapsedTime * (1.0f - EPSILON)) + (mAvg * EPSILON);
-
 }
 
 void FrameTimeStats::Reset()
@@ -102,13 +103,8 @@ void FrameTimeStats::Reset()
   mMinMaxTimeSet = false;
   mMin = 0.f;
   mMax = 0.f;
-  mAvg = 0.f;
   mRunCount = 0;
-}
-
-float FrameTimeStats::GetRollingAverageTime() const
-{
-  return mAvg * ONE_OVER_MICROSECONDS_TO_SECONDS;
+  mSamples.Clear();
 }
 
 float FrameTimeStats::GetMaxTime() const
@@ -129,6 +125,47 @@ float FrameTimeStats::GetTotalTime() const
 unsigned int FrameTimeStats::GetRunCount() const
 {
   return mRunCount;
+}
+
+void FrameTimeStats::CalculateMean( float& meanOut, float& standardDeviationOut ) const
+{
+  if( mSamples.Size() > 0 )
+  {
+    // Mean
+    unsigned int sum = 0;
+    for( Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it )
+    {
+      unsigned int value = *it;
+
+      sum += value;
+    }
+
+    meanOut = static_cast<float>(sum) / mSamples.Size();
+
+    // Variance
+    float variance = 0.0f;
+    for( Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it )
+    {
+      unsigned int value = *it;
+
+      float difference = static_cast<float>(value) - meanOut;
+
+      variance += difference * difference;
+    }
+
+    variance /= mSamples.Size();
+
+    // Standard deviation
+    standardDeviationOut = sqrtf( variance );
+
+    meanOut *= ONE_OVER_MICROSECONDS_TO_SECONDS;
+    standardDeviationOut *= ONE_OVER_MICROSECONDS_TO_SECONDS;
+  }
+  else
+  {
+    meanOut = 0.0f;
+    standardDeviationOut = 0.0f;
+  }
 }
 
 

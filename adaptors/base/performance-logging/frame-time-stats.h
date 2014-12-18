@@ -19,8 +19,9 @@
  */
 
 // INTERNAL INCLUDES
+#include <base/performance-logging/frame-time-stamp.h>
+#include <dali/public-api/common/dali-vector.h>
 
-#include "frame-time-stamp.h"
 
 namespace Dali
 {
@@ -66,11 +67,6 @@ struct FrameTimeStats
    void Reset();
 
    /**
-    * @return rolling average time in seconds
-    */
-   float GetRollingAverageTime() const;
-
-   /**
     * @return maximum time in seconds
     */
    float GetMaxTime() const;
@@ -90,6 +86,14 @@ struct FrameTimeStats
     */
    unsigned int GetRunCount() const;
 
+   /**
+    * Calculate the mean and standard deviation
+    *
+    * @param[out] mean The return mean value
+    * @param[out] standardDeviation The return standard deviation value
+    */
+   void CalculateMean( float& meanOut, float& standardDeviationOut ) const;
+
 private:
 
    /**
@@ -101,9 +105,11 @@ private:
      WAITING_FOR_END_TIME       ///< waiting for end time marker
    };
 
+   typedef Dali::Vector< unsigned int > Samples;
+   Samples mSamples;
+
    unsigned int mMin;                  ///< current minimum value in microseconds
    unsigned int mMax;                  ///< current maximum value in microseconds
-   unsigned int mAvg;                  ///< current average in microseconds
    unsigned int mTotal;                ///< current total in in microseconds
    unsigned int mRunCount;      ///< how many times the timer has been start / stopped
    FrameTimeStamp mStart;       ///< start time stamp, to calculate the diff
