@@ -128,9 +128,11 @@ public: // API
 
   /**
    * Invoked by render thread before Core::Render
+   * If the operation fails, then Core::Render should not be called until there is
+   * a surface to render onto.
    * @param[in] egl The Egl interface
    * @param[in] glAbstraction OpenGLES abstraction interface
-   * @return True if the operation is successful
+   * @return True if the operation is successful, False if the operation failed
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction ) = 0;
 

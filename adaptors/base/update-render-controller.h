@@ -96,6 +96,13 @@ public:
   void ReplaceSurface( RenderSurface* surface );
 
   /**
+   * Provides a new surface. Should be used if the old surface has been lost
+   * for any reason.
+   * @param surface new surface
+   */
+  void NewSurface( RenderSurface* surface );
+
+  /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
