@@ -54,6 +54,10 @@ public:
                           unsigned int height,
                           Dali::PixmapImage::ColorDepth depth,
                           Any pixmap);
+  /**
+   * @copydoc Dali::PixmapImage::GetPixmap()
+   */
+  Any GetPixmap() const;
 
   /**
    * @copydoc Dali::PixmapImage::GetPixels()
