@@ -59,6 +59,8 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 class Window : public Dali::BaseObject, public Indicator::Observer, public LifeCycleObserver
 {
 public:
+  typedef Dali::Window::IndicatorSignalV2 IndicatorSignalV2;
+
   /**
    * Create a new Window. This should only be called once by the Application class
    * @param[in] windowPosition The position and size of the window
@@ -222,6 +224,11 @@ private: // Indicator::Observer interface
    */
   virtual void IndicatorClosed(Indicator* indicator);
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::Indicator::Observer::IndicatorVisibilityChanged()
+   */
+  virtual void IndicatorVisibilityChanged( bool isVisible );
+
 private: // Adaptor::Observer interface
 
   /**
@@ -249,6 +256,12 @@ private: // Adaptor::Observer interface
    */
   virtual void OnDestroy();
 
+public: // Signals
+  /**
+   * The user should connect to this signal to get a timing when indicator was shown / hidden.
+   */
+  IndicatorSignalV2& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignalV2; }
+
 private:
 
   typedef std::vector<Indicator*> DiscardedIndicators;
@@ -275,6 +288,9 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
+
+  // Signals
+  IndicatorSignalV2 mIndicatorVisibilityChangedSignalV2;
 };
 
 } // namespace Adaptor

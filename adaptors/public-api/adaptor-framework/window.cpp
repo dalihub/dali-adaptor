@@ -60,6 +60,11 @@ void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
   GetImplementation(*this).ShowIndicator( visibleMode );
 }
 
+Window::IndicatorSignalV2& Window::IndicatorVisibilityChangedSignal()
+{
+  return GetImplementation(*this).IndicatorVisibilityChangedSignal();
+}
+
 void Window::SetIndicatorBgOpacity( IndicatorBgOpacity opacity )
 {
   GetImplementation(*this).SetIndicatorBgOpacity( opacity );
