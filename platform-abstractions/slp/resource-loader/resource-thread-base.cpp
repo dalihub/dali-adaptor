@@ -220,7 +220,7 @@ void ResourceThreadBase::ThreadLoop()
     catch( Dali::DaliException& ex )
     {
       // Probably a failed assert-always:
-      DALI_LOG_ERROR( "DaliException caught in resource thread. Aborting request with id %u. Location: \"%s\". Condition: \"%s\".\n", unsigned(mCurrentRequestId), ex.mLocation.c_str(), ex.mCondition.c_str() );
+      DALI_LOG_ERROR( "DaliException caught in resource thread. Aborting request with id %u. Location: \"%s\". Condition: \"%s\".\n", unsigned(mCurrentRequestId), ex.location, ex.condition );
     }
     catch( ... )
     {
