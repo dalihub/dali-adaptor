@@ -487,6 +487,11 @@ void Window::IndicatorClosed( Indicator* indicator )
   }
 }
 
+void Window::IndicatorVisibilityChanged(bool isVisible)
+{
+  mIndicatorVisibilityChangedSignalV2.Emit(isVisible);
+}
+
 void Window::SetIndicatorActorRotation()
 {
   DALI_LOG_TRACE_METHOD( gWindowLogFilter );

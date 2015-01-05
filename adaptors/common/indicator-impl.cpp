@@ -1305,6 +1305,11 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
   if( !mIsShowing )
   {
     mIndicatorActor.SetVisible( false );
+
+    if( mObserver != NULL )
+    {
+      mObserver->IndicatorVisibilityChanged( mIsShowing ); // is showing?
+    }
   }
 }
 

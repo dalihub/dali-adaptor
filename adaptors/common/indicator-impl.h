@@ -84,6 +84,12 @@ public:
      * @param[in] indicator The indicator that has finished uploading.
      */
     virtual void IndicatorClosed(Indicator* indicator) = 0;
+
+    /**
+     * Notify the observer when the indicator visible status is changed.
+     * @param[in] isShowing Whether the indicator is visible.
+     */
+    virtual void IndicatorVisibilityChanged( bool isVisible ) = 0;
   };
 
 protected:
