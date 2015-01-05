@@ -85,13 +85,6 @@ public:
   static PixmapImagePtr New( Any pixmap );
 
   /**
-   * @brief Retrieve the internal pixmap
-   *
-   * @return pixmap any object containing the internal pixmap
-   */
-  Any GetPixmap();
-
-  /**
    * @brief Get a copy of the pixels used by PixmapImage.
    *
    * This is only supported for 24 bit RGB and 32 bit RGBA internal formats
