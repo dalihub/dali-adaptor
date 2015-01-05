@@ -34,6 +34,11 @@ PixmapImagePtr PixmapImage::New( unsigned int width, unsigned int height, ColorD
   return image;
 }
 
+Any PixmapImage::GetPixmap()
+{
+  return mImpl->GetPixmap();
+}
+
 PixmapImagePtr PixmapImage::New( Any pixmap )
 {
   PixmapImagePtr image = new PixmapImage(0, 0, COLOR_DEPTH_DEFAULT, pixmap);
