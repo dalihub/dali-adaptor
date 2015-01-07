@@ -124,12 +124,7 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}" ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-
-%if "%{?sec_product_feature_graphics_gpu_info}" == "adreno330"
-%configure --with-jpeg-turbo --enable-gles=30 --enable-profile=TV --libdir=%{_libdir}
-%else
 %configure --with-jpeg-turbo --enable-gles=20 --enable-profile=TV --libdir=%{_libdir}
-%endif
 
 make %{?jobs:-j%jobs}
 
