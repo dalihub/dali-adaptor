@@ -19,6 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <string>
+
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/object/any.h>

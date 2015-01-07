@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <string>
 #include <dali/public-api/common/dali-common.h>
 
 namespace Dali

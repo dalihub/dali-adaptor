@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <string>
 #include <dali/public-api/common/dali-common.h>
 
 namespace Dali
@@ -32,13 +33,6 @@ namespace Dali
  */
 struct DALI_IMPORT_API StyleChange
 {
-  // Data
-
-  bool defaultFontChange:1;     ///< Denotes that the default font has changed.
-  bool defaultFontSizeChange:1; ///< Denotes that the default font size has changed.
-  bool themeChange:1;           ///< Denotes that the theme has changed.
-  std::string themeFilePath;    ///< Contains the path to the new theme file.
-
   // Construction
 
   /**
@@ -50,6 +44,13 @@ struct DALI_IMPORT_API StyleChange
     themeChange(false)
   {
   }
+
+  // Data
+
+  bool defaultFontChange:1;     ///< Denotes that the default font has changed.
+  bool defaultFontSizeChange:1; ///< Denotes that the default font size has changed.
+  bool themeChange:1;           ///< Denotes that the theme has changed.
+  std::string themeFilePath;    ///< Contains the path to the new theme file.
 };
 
 } // namespace Dali

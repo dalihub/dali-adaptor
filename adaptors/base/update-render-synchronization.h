@@ -227,7 +227,7 @@ private:
    * Helper to add a performance marker to the performance server (if its active)
    * @param type performance marker type
    */
-  void AddPerformanceMarker( PerformanceMarker::MarkerType type );
+  void AddPerformanceMarker( PerformanceInterface::MarkerType type );
 
 private:
 

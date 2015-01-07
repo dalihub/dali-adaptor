@@ -156,10 +156,10 @@ void DALI_TEST_EQUALS( const Matrix& matrix1, const Matrix& matrix2, const char*
   if (!identical)
   {
     fprintf(stderr, "%s, checking\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n"
                "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n", location,
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n", location,
                m1[0],  m1[1],  m1[2],  m1[3],   m2[0],  m2[1],  m2[2],  m2[3],
                m1[4],  m1[5],  m1[6],  m1[7],   m2[4],  m2[5],  m2[6],  m2[7],
                m1[8],  m1[9], m1[10], m1[11],   m2[8],  m2[9], m2[10], m2[11],
@@ -187,10 +187,10 @@ void DALI_TEST_EQUALS( const Matrix& matrix1, const Matrix& matrix2, float epsil
   if (!equivalent)
   {
     fprintf(stderr, "%s, checking\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n"
                "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n"
-               "(%f, %f, %f, %f)    (%f, %f, %f, %f)\n", location,
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n"
+               "(%f, %f, %f, %f) == (%f, %f, %f, %f)\n", location,
                m1[0],  m1[1],  m1[2],  m1[3],   m2[0],  m2[1],  m2[2],  m2[3],
                m1[4],  m1[5],  m1[6],  m1[7],   m2[4],  m2[5],  m2[6],  m2[7],
                m1[8],  m1[9], m1[10], m1[11],   m2[8],  m2[9], m2[10], m2[11],
@@ -268,39 +268,17 @@ void DALI_TEST_GREATER( float value1, float value2, const char* location)
   }
 }
 
-/**
- * Test whether the assertion condition that failed and thus triggered the
- * exception \b e contained a given substring at the start of its literal text.
- * @param[in] e The exception that we expect was fired by a runtime assertion
- *              failure.
- * @param[in] conditionSubString The text that we expect to be present in an
- *                               assertion which triggered the exception.
- * @param[in] location The TEST_LOCATION macro should be used here.
- *
- * @remark **Side-effects:** The result of the tet test is set to TET_PASS if
- *         the substring is at the start of the exception's condition and
- *         TET_FAIL if it isn't. Note, if the result of a test is set multiple
- *         times, a TET_FAIL will override any number of TET_PASSes.
- */
 void DALI_TEST_ASSERT( DaliException& e, std::string conditionSubString, const char* location )
 {
-  if( 0u != e.mCondition.find( conditionSubString ))
+  if( NULL == strstr( e.condition, conditionSubString.c_str() ) )
   {
-    fprintf(stderr, "Assertion %s failed at %s\n", conditionSubString.c_str(), location);
+    fprintf(stderr, "Expected substring '%s' : actual exception string '%s' : location %s\n", conditionSubString.c_str(), e.condition, location );
     tet_result(TET_FAIL);
   }
   else
   {
     tet_result(TET_PASS);
   }
-}
-
-/** Self-documenting wrapper for DALI_TEST_ASSERT.
- * @copydoc DALI_TEST_ASSERT()
- */
-void DALI_TEST_ASSERT_CONDITION_STARTS_WITH_SUBSTRING( DaliException& exceptionFromAssertion, std::string conditionSubString, const char* location )
-{
-  DALI_TEST_ASSERT(exceptionFromAssertion, conditionSubString, location);
 }
 
 // Functor to test whether an Applied signal is emitted

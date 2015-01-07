@@ -25,6 +25,7 @@
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/signals/dali-signal-v2.h>
 
 namespace Dali
 {
@@ -49,6 +50,9 @@ class Orientation;
  */
 class DALI_IMPORT_API Window : public BaseHandle
 {
+public:
+  typedef SignalV2< void (bool) > IndicatorSignalV2;
+
 public:
 
   // Enumerations
@@ -239,6 +243,12 @@ public:
    */
 
   Any GetNativeHandle() const;
+
+public: // Signals
+  /**
+   * The user should connect to this signal to get a timing when indicator was shown / hidden.
+   */
+  IndicatorSignalV2& IndicatorVisibilityChangedSignal();
 
 public: // Not intended for application developers
   /**

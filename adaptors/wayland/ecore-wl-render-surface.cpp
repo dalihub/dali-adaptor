@@ -210,22 +210,13 @@ void RenderSurface::SetDisplay( Any display )
   if ( display.Empty() == false )
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( ( display.GetType() == typeid (Ecore_Wl_Display *)) ||
-                          ( display.GetType() == typeid (WlDisplay *) ) )
+    DALI_ASSERT_ALWAYS( ( display.GetType() == typeid (WlDisplay *) )
                         &&
                         "Display type is invalid" );
 
     mOwnDisplay = false;
 
-    // display may point to EcoreXDisplay so may need to cast
-    if( display.GetType() == typeid (Ecore_Wl_Display*) )
-    {
-      mMainDisplay = static_cast< WlDisplay* >( ecore_wl_display_get() );
-    }
-    else
-    {
-      mMainDisplay = AnyCast< WlDisplay* >( display );
-    }
+    mMainDisplay = AnyCast< WlDisplay* >( display );
   }
 }
 
