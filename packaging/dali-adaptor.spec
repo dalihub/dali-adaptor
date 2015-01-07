@@ -131,11 +131,6 @@ CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
 %endif
 
-%if 0%{?under_tizen_2_3_capi_enable}
-CFLAGS+=" -DUNDER_TIZEN_2_3_CAPI"
-CXXFLAGS+=" -DUNDER_TIZEN_2_3_CAPI"
-%endif
-
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
 cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}" %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON $configure_flags --libdir=%{_libdir}

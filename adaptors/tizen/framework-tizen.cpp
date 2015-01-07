@@ -67,13 +67,7 @@ struct Framework::Impl
     mEventCallback.terminate = AppTerminate;
     mEventCallback.pause = AppPause;
     mEventCallback.resume = AppResume;
-
-#ifdef UNDER_TIZEN_2_3_CAPI
     mEventCallback.service = AppService;
-#else
-    mEventCallback.app_control = AppControl;
-#endif
-
     mEventCallback.low_memory = NULL;
     mEventCallback.low_battery = NULL;
     mEventCallback.device_orientation = DeviceRotated;
@@ -134,23 +128,14 @@ struct Framework::Impl
    * Called by AppCore when the application is launched from another module (e.g. homescreen).
    * @param[in] b the bundle data which the launcher module sent
    */
-#ifdef UNDER_TIZEN_2_3_CAPI
   static void AppService(service_h service, void *data)
-#else
-  static void AppControl(app_control_h app_control, void *data)
-#endif
   {
     Framework* framework = static_cast<Framework*>(data);
 
     if(framework)
     {
       bundle *bundleData = NULL;
-
-#ifdef UNDER_TIZEN_2_3_CAPI
       service_to_bundle(service, &bundleData);
-#else
-      app_control_to_bundle(app_control, &bundleData);
-#endif
 
       if(bundleData)
       {
