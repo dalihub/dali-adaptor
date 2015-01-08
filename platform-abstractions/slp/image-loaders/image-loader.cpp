@@ -28,8 +28,7 @@
 #include "loader-ico.h"
 #include "loader-ktx.h"
 #include "loader-wbmp.h"
-
-#include <cstring>
+#include "image-operations.h"
 
 using namespace Dali::Integration;
 
@@ -272,94 +271,26 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
 
       DALI_LOG_SET_OBJECT_STRING(bitmap, path);
       const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
-      ImageAttributes attributes  = resType.imageAttributes;
+      const ImageAttributes& requestedAttributes = resType.imageAttributes; //< Original attributes.
+      ImageAttributes attributes  = resType.imageAttributes; //< r/w copy of the attributes.
 
       // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
       // This won't do anything from synchronous API, it's only useful when called from another thread.
-      client.InterruptionPoint(); // Note: This can throw an exception.
+      client.InterruptionPoint(); // Note: By design, this can throw an exception
 
+      // Run the image type decoder:
+      // Note, this can overwrite the attributes parameter.
       result = function( fp, *bitmap, attributes, client );
 
       if (!result)
       {
-        DALI_LOG_WARNING("Unable to convert %s\n", path.c_str());
+        DALI_LOG_WARNING( "Unable to convert %s\n", path.c_str() );
         bitmap = 0;
       }
 
       // Apply the requested image attributes in best-effort fashion:
-      const ImageAttributes& requestedAttributes = resType.imageAttributes;
-      // Cut the bitmap according to the desired width and height so that the
-      // resulting bitmap has the same aspect ratio as the desired dimensions:
-      if( bitmap && bitmap->GetPackedPixelsProfile() && requestedAttributes.GetScalingMode() == ImageAttributes::ScaleToFill )
-      {
-        const unsigned loadedWidth = bitmap->GetImageWidth();
-        const unsigned loadedHeight = bitmap->GetImageHeight();
-        const unsigned desiredWidth = requestedAttributes.GetWidth();
-        const unsigned desiredHeight = requestedAttributes.GetHeight();
-
-        if( desiredWidth < 1U || desiredHeight < 1U )
-        {
-          DALI_LOG_WARNING( "Image scaling aborted for image %s as desired dimensions too small (%u, %u)\n.", path.c_str(), desiredWidth, desiredHeight );
-        }
-        else if( loadedWidth != desiredWidth || loadedHeight != desiredHeight )
-        {
-          const Vector2 desiredDims( desiredWidth, desiredHeight );
-
-          // Scale the desired rectangle back to fit inside the rectangle of the loaded bitmap:
-          // There are two candidates (scaled by x, and scaled by y) and we choose the smallest area one.
-          const float widthsRatio = loadedWidth / float(desiredWidth);
-          const Vector2 scaledByWidth = desiredDims * widthsRatio;
-          const float heightsRatio = loadedHeight / float(desiredHeight);
-          const Vector2 scaledByHeight = desiredDims * heightsRatio;
-          // Trim top and bottom if the area of the horizontally-fitted candidate is less, else trim the sides:
-          const bool trimTopAndBottom = scaledByWidth.width * scaledByWidth.height < scaledByHeight.width * scaledByHeight.height;
-          const Vector2 scaledDims = trimTopAndBottom ? scaledByWidth : scaledByHeight;
-
-          // Work out how many pixels to trim from top and bottom, and left and right:
-          // (We only ever do one dimension)
-          const unsigned scanlinesToTrim = trimTopAndBottom ? fabsf( (scaledDims.y - loadedHeight) * 0.5f ) : 0;
-          const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabsf( (scaledDims.x - loadedWidth) * 0.5f );
-
-          DALI_LOG_INFO( gLogFilter, Debug::General, "ImageAttributes::ScaleToFill - Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, loadedWidth, loadedHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
-
-          // Make a new bitmap with the central part of the loaded one if required:
-          if( scanlinesToTrim > 0 || columnsToTrim > 0 ) ///@ToDo: Make this test a bit fuzzy (allow say a 5% difference).
-          {
-            // This won't do anything from synchronous API, it's only useful when called from another thread.
-            client.InterruptionPoint(); // Note: This can throw an exception.
-
-            const unsigned newWidth = loadedWidth - 2 * columnsToTrim;
-            const unsigned newHeight = loadedHeight - 2 * scanlinesToTrim;
-            BitmapPtr croppedBitmap = Bitmap::New( Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
-            Bitmap::PackedPixelsProfile * packedView = croppedBitmap->GetPackedPixelsProfile();
-            DALI_ASSERT_DEBUG( packedView );
-            const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
-            packedView->ReserveBuffer( pixelFormat, newWidth, newHeight, newWidth, newHeight );
-
-            const unsigned bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
-
-            const PixelBuffer * const srcPixels = bitmap->GetBuffer() + scanlinesToTrim * loadedWidth * bytesPerPixel;
-            PixelBuffer * const destPixels = croppedBitmap->GetBuffer();
-            DALI_ASSERT_DEBUG( srcPixels && destPixels );
-
-            // Optimize to a single memcpy if the left and right edges don't need a crop, else copy a scanline at a time:
-            if( trimTopAndBottom )
-            {
-              memcpy( destPixels, srcPixels, newHeight * newWidth * bytesPerPixel );
-            }
-            else
-            {
-              for( unsigned y = 0; y < newHeight; ++y )
-              {
-                memcpy( &destPixels[y * newWidth * bytesPerPixel], &srcPixels[y * loadedWidth * bytesPerPixel + columnsToTrim * bytesPerPixel], newWidth * bytesPerPixel );
-              }
-            }
-
-            // Overwrite the loaded bitmap with the cropped version:
-            bitmap = croppedBitmap;
-          }
-        }
-      }
+      client.InterruptionPoint(); // Note: By design, this can throw an exception
+      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, requestedAttributes );
     }
     else
     {
@@ -370,7 +301,6 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
   ptr.Reset( bitmap.Get() );
   return result;
 }
-
 
 ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
 {

@@ -37,7 +37,8 @@ slp_platform_abstraction_src_files = \
   $(slp_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
   $(slp_platform_abstraction_src_dir)/image-loaders/loader-ktx.cpp \
   $(slp_platform_abstraction_src_dir)/image-loaders/loader-wbmp.cpp \
-  $(slp_platform_abstraction_src_dir)/image-loaders/image-loader.cpp
+  $(slp_platform_abstraction_src_dir)/image-loaders/image-loader.cpp \
+  $(portable_platform_abstraction_src_dir)/image-operations.cpp
 
 slp_turbo_jpeg_loader = \
   $(slp_platform_abstraction_src_dir)/image-loaders/loader-jpeg-turbo.cpp
