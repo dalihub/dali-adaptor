@@ -20,6 +20,7 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <zlib.h>
 #include <png.h>
 
 #include <dali/integration-api/bitmap.h>
