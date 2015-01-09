@@ -229,6 +229,7 @@ namespace
 BoxDimensionTest DimensionTestForScalingMode( ImageAttributes::ScalingMode scalingMode )
 {
   BoxDimensionTest dimensionTest;
+  dimensionTest = BoxDimensionTestEither;
 
   switch( scalingMode )
   {
