@@ -18,8 +18,9 @@
 #include "loader-png.h"
 
 #include <cstring>
+#include <cstdlib>
+
 #include <png.h>
-#include <stdlib.h>
 
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
