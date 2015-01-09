@@ -17,6 +17,7 @@
 
 #include "loader-png.h"
 
+#include <cstring>
 #include <png.h>
 #include <stdlib.h>
 
