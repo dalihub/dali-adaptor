@@ -55,6 +55,11 @@ public:
                           Any pixmap);
 
   /**
+   * @copydoc Dali::PixmapImage::GetPixmap()
+   */
+  Any GetPixmap() const;
+
+  /**
    * @copydoc Dali::PixmapImage::GetPixels()
    */
   bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const;
