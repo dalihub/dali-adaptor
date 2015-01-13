@@ -215,54 +215,51 @@ void AverageScanlinesRGB565(
 /**
  * @brief Inline functions exposed in header to allow unit testing.
  */
-namespace
+/**
+ * @brief Average two integer arguments.
+ * @return The average of two uint arguments.
+ * @param[in] a First component to average.
+ * @param[in] b Second component to average.
+ **/
+inline unsigned int AverageComponent( unsigned int a, unsigned int b )
 {
-  /**
-   * @brief Average two integer arguments.
-   * @return The average of two uint arguments.
-   * @param[in] a First component to average.
-   * @param[in] b Second component to average.
-   **/
-  inline unsigned int AverageComponent( unsigned int a, unsigned int b )
-  {
-    unsigned int avg = (a + b) >> 1u;
-    return avg;
-  }
+  unsigned int avg = (a + b) >> 1u;
+  return avg;
+}
 
-  /**
-   * @brief Average a pair of RGB565 pixels.
-   * @return The average of two RGBA8888 pixels.
-   * @param[in] a First pixel to average.
-   * @param[in] b Second pixel to average
-   **/
-  inline uint32_t AveragePixelRGBA8888( uint32_t a, uint32_t b )
-  {
-    const unsigned int avg =
-      ((AverageComponent( (a & 0xff000000) >> 1u, (b & 0xff000000) >> 1u ) << 1u) & 0xff000000 ) +
-      (AverageComponent( a & 0x00ff0000, b & 0x00ff0000 ) & 0x00ff0000 ) +
-      (AverageComponent( a & 0x0000ff00, b & 0x0000ff00 ) & 0x0000ff00 ) +
-      (AverageComponent( a & 0x000000ff, b & 0x000000ff ) );
-    return avg;
-    ///@ToDo: Optimise by trying return (((a ^ b) & 0xfefefefeUL) >> 1) + (a & b);
-    ///@ToDo: Optimise for ARM using the single ARMV6 instruction: UHADD8  R4, R0, R5. This is not neon. It runs in the normal integer pipeline so there is no downside like a stall moving between integer and copro.
-  }
+/**
+ * @brief Average a pair of RGB565 pixels.
+ * @return The average of two RGBA8888 pixels.
+ * @param[in] a First pixel to average.
+ * @param[in] b Second pixel to average
+ **/
+inline uint32_t AveragePixelRGBA8888( uint32_t a, uint32_t b )
+{
+  const unsigned int avg =
+    ((AverageComponent( (a & 0xff000000) >> 1u, (b & 0xff000000) >> 1u ) << 1u) & 0xff000000 ) +
+    (AverageComponent( a & 0x00ff0000, b & 0x00ff0000 ) & 0x00ff0000 ) +
+    (AverageComponent( a & 0x0000ff00, b & 0x0000ff00 ) & 0x0000ff00 ) +
+    (AverageComponent( a & 0x000000ff, b & 0x000000ff ) );
+  return avg;
+  ///@ToDo: Optimise by trying return (((a ^ b) & 0xfefefefeUL) >> 1) + (a & b);
+  ///@ToDo: Optimise for ARM using the single ARMV6 instruction: UHADD8  R4, R0, R5. This is not Neon. It runs in the normal integer pipeline so there is no downside like a stall moving between integer and copro.
+}
 
-  /**
-   * @brief Average a pair of RGB565 pixels.
-   * @param a[in] Low 16 bits hold a color value as RGB565 to average with parameter b.
-   * @param b[in] Low 16 bits hold a color value as RGB565 to average with parameter a.
-   * @return The average color of the two RGB565 pixels passed in, in the low 16 bits of the returned value.
-   **/
-  inline uint32_t AveragePixelRGB565( uint32_t a, uint32_t b )
-  {
-    const unsigned int avg =
-      (AverageComponent( a & 0xf800, b & 0xf800 ) & 0xf800 ) +
-      (AverageComponent( a & 0x7e0,  b & 0x7e0 )  & 0x7e0 ) +
-      (AverageComponent( a & 0x1f,   b & 0x1f ) );
-    return avg;
-  }
+/**
+ * @brief Average a pair of RGB565 pixels.
+ * @param a[in] Low 16 bits hold a color value as RGB565 to average with parameter b.
+ * @param b[in] Low 16 bits hold a color value as RGB565 to average with parameter a.
+ * @return The average color of the two RGB565 pixels passed in, in the low 16 bits of the returned value.
+ **/
+inline uint32_t AveragePixelRGB565( uint32_t a, uint32_t b )
+{
+  const unsigned int avg =
+    (AverageComponent( a & 0xf800, b & 0xf800 ) & 0xf800 ) +
+    (AverageComponent( a & 0x7e0,  b & 0x7e0 )  & 0x7e0 ) +
+    (AverageComponent( a & 0x1f,   b & 0x1f ) );
+  return avg;
+}
 
-} // namespace - unnamed
 } /* namespace Platform */
 } /* namespace Internal */
 } /* namespace Dali */
