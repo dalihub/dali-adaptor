@@ -25,6 +25,7 @@ include ../../../adaptors/base/file.list
 
 # Platform Abstraction
 slp_platform_abstraction_src_dir = ../../../platform-abstractions/slp
+portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
 include ../../../platform-abstractions/slp/file.list
 
 # Internal Common

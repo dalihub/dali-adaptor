@@ -94,6 +94,8 @@ Application::Application( int* argc, char** argv[], const std::string& name, con
 
 Application::~Application()
 {
+  mSingletonService.UnregisterAll();
+
   delete mFramework;
   delete mCommandLineOptions;
   delete mAdaptor;
