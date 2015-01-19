@@ -37,11 +37,6 @@ class BidirectionalSupport;
 
 } // Internal
 
-} // TextAbstraction
-
-namespace TextAbstraction
-{
-
 /**
  * BidirectionalSupport API
  *
