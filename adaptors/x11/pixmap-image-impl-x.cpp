@@ -136,6 +136,12 @@ PixmapImage::~PixmapImage()
   }
 }
 
+Any PixmapImage::GetPixmap() const
+{
+  // return ecore x11 type
+  return Any(mPixmap);
+}
+
 bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);

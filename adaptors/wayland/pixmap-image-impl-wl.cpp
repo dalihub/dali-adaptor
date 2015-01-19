@@ -78,6 +78,12 @@ PixmapImage::~PixmapImage()
 {
 }
 
+Any PixmapImage::GetPixmap() const
+{
+  DALI_ASSERT_ALWAYS( false && "PixmapImage::GetPixmap() is not supported for Wayland." );
+  return Any();
+}
+
 bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
     return false;
