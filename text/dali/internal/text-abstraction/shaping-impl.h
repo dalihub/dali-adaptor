@@ -22,6 +22,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/text-abstraction/shaping.h>
 
 namespace Dali
@@ -71,13 +72,21 @@ public:
 
 private:
 
+  /**
+   * Helper for lazy initialization.
+   */
+  void CreatePlugin();
+
+private:
+
   // Undefined copy constructor.
   Shaping( const Shaping& );
 
   // Undefined assignment constructor.
   Shaping& operator=( Shaping& );
 
-  void*   mPlugin;  ///< TODO replace this with shaping plugin
+  struct Plugin;
+  Plugin* mPlugin;
 
 }; // class Shaping
 
