@@ -27,6 +27,10 @@ include ../../../adaptors/base/file.list
 slp_platform_abstraction_src_dir = ../../../platform-abstractions/slp
 include ../../../platform-abstractions/slp/file.list
 
+# Text Abstraction
+text_abstraction_src_dir = ../../../text-abstraction
+include ../../../text-abstraction/file.list
+
 # Internal Common
 adaptor_common_dir = ../../../adaptors/common
 include ../../../adaptors/common/file.list
@@ -164,6 +168,7 @@ lib_LTLIBRARIES = libdali-adaptor.la
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(slp_platform_abstraction_src_files) \
+                     $(text_abstraction_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
@@ -179,6 +184,7 @@ libdali_adaptor_la_includes = \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
+                      -I../../../text-abstraction \
                       -I../../../adaptors/
 if WAYLAND
 libdali_adaptor_la_includes += \

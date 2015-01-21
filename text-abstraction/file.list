@@ -1,0 +1,12 @@
+# Add local source files here
+
+text_abstraction_src_files = \
+   $(text_abstraction_src_dir)/public-api/shaping.cpp \
+   $(text_abstraction_src_dir)/public-api/segmentation.cpp \
+   $(text_abstraction_src_dir)/public-api/reordering.cpp \
+   $(text_abstraction_src_dir)/public-api/font-client.cpp \
+   $(text_abstraction_src_dir)/internal/shaping-impl.cpp \
+   $(text_abstraction_src_dir)/internal/segmentation-impl.cpp \
+   $(text_abstraction_src_dir)/internal/reordering-impl.cpp \
+   $(text_abstraction_src_dir)/internal/font-client-impl.cpp
+
