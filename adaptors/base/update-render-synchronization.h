@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/performance-interface.h>
+#include <base/interfaces/trigger-event-interface.h>
 #include <base/frame-time.h>
 #include <base/render-thread.h>
 
@@ -124,10 +125,11 @@ public:
    * Called after an update has completed, to inform render-thread a buffer is ready to render.
    * The function also waits for a free buffer to become available before returning.
    * @pre Called by update thread only.
+   * @param[in] notifyEvent Whether the event thread should be woken up.
    * @param[out] renderNeedsUpdate Whether the render task requires another update.
    * @return True if updating should continue, false if the update-thread should quit.
    */
-  bool UpdateSyncWithRender( bool& renderNeedsUpdate );
+  bool UpdateSyncWithRender( bool notifyEvent, bool& renderNeedsUpdate );
 
   /**
    * Called by update thread to wait for all rendering to finish.
@@ -257,6 +259,7 @@ private:
   boost::condition_variable mRequestFinishedCondition;///< The controller waits for this condition
 
   FrameTime mFrameTime;                               ///< Frame timer predicts next vsync time
+  TriggerEventInterface& mNotificationTrigger;        ///< Reference to notification event trigger
   PerformanceInterface* mPerformanceInterface;        ///< The performance logging interface
 
   ReplaceSurfaceRequest mReplaceSurfaceRequest; ///< Holder for a replace surface request

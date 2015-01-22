@@ -54,6 +54,7 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
   mSyncSeconds( 0u ),
   mSyncMicroseconds( 0u ),
   mFrameTime( adaptorInterfaces.GetPlatformAbstractionInterface() ),
+  mNotificationTrigger( adaptorInterfaces.GetTriggerEventInterface() ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mReplaceSurfaceRequest(),
   mReplaceSurfaceRequested( false )
@@ -187,10 +188,16 @@ void UpdateRenderSynchronization::UpdateReadyToRun()
   AddPerformanceMarker( PerformanceInterface::UPDATE_START );
 }
 
-bool UpdateRenderSynchronization::UpdateSyncWithRender( bool& renderNeedsUpdate )
+bool UpdateRenderSynchronization::UpdateSyncWithRender( bool notifyEvent, bool& renderNeedsUpdate )
 {
-
   AddPerformanceMarker( PerformanceInterface::UPDATE_END );
+
+  // Do the notifications first so the event thread can start processing them
+  if( notifyEvent && mRunning )
+  {
+    // Tell the event-thread to wake up (if asleep) and send a notification event to Core
+    mNotificationTrigger.Trigger();
+  }
 
   boost::unique_lock< boost::mutex > lock( mMutex );
 
