@@ -59,8 +59,12 @@ namespace
  *
  * We do not expect this to be called as we only release the pointer, and not reset.
  */
-void DummyCleanup( SingletonService* )
+void DummyCleanup( SingletonService* service )
 {
+  if ( service )
+  {
+    service->UnregisterAll();
+  }
 }
 
 boost::thread_specific_ptr< SingletonService > gSingletonService( &DummyCleanup );
@@ -89,6 +93,11 @@ void SingletonService::Register( const std::type_info& info, BaseHandle singleto
     DALI_LOG_SINGLETON_SERVICE( Debug::General, "Singleton Added: %s\n", info.name() );
     mSingletonContainer.insert( SingletonPair( info.name(), singleton ) );
   }
+}
+
+void SingletonService::UnregisterAll( )
+{
+  mSingletonContainer.clear();
 }
 
 BaseHandle SingletonService::GetSingleton( const std::type_info& info ) const

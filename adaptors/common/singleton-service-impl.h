@@ -56,6 +56,11 @@ public:
   void Register( const std::type_info& info, BaseHandle singleton );
 
   /**
+   * @copydoc Dali::SingletonService::UnregisterAll()
+   */
+  void UnregisterAll();
+
+  /**
    * @copydoc Dali::SingletonService::GetSingleton()
    */
   BaseHandle GetSingleton( const std::type_info& info ) const;

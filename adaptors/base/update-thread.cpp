@@ -56,7 +56,6 @@ UpdateThread::UpdateThread( UpdateRenderSynchronization& sync,
   mElapsedSeconds( 0u ),
   mStatusLogInterval( environmentOptions.GetUpdateStatusLoggingFrequency() ),
   mStatusLogCount( 0u ),
-  mNotificationTrigger( adaptorInterfaces.GetTriggerEventInterface() ),
   mThread( NULL ),
   mEnvironmentOptions( environmentOptions )
 {
@@ -132,18 +131,11 @@ bool UpdateThread::Run()
       FPSTracking(status.SecondsFromLastFrame());
     }
 
-    // Do the notifications first so the actor-thread can start processing them
-    if( status.NeedsNotification() )
-    {
-      // Tell the event-thread to wake up (if asleep) and send a notification event to Core
-      mNotificationTrigger.Trigger();
-    }
-
     bool renderNeedsUpdate;
 
     // tell the synchronisation class that a buffer has been written to,
     // and to wait until there is a free buffer to write to
-    running = mUpdateRenderSync.UpdateSyncWithRender( renderNeedsUpdate );
+    running = mUpdateRenderSync.UpdateSyncWithRender( status.NeedsNotification(), renderNeedsUpdate );
     DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 4 - UpdateSyncWithRender complete\n");
 
     if( running )
