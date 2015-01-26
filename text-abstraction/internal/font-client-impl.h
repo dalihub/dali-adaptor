@@ -22,22 +22,19 @@
 #include <public-api/font-client.h>
 #include <dali/public-api/object/base-object.h>
 
-
-
 namespace Dali
-{
-
-namespace Internal
 {
 
 namespace TextAbstraction
 {
 
+namespace Internal
+{
+
 /**
  * Implementation of the FontClient
  */
-
-class FontClient :  public Dali::BaseObject
+class FontClient : public Dali::BaseObject
 {
 public:
 
@@ -56,7 +53,52 @@ public:
    */
   static Dali::TextAbstraction::FontClient Get();
 
+  /**
+   * @copydoc Dali::FontClient::SetDpi()
+   */
+  void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
+
+  /**
+   * @copydoc Dali::FontClient::GetSystemFonts()
+   */
+  void GetSystemFonts( FontList& systemFonts );
+
+  /**
+   * @copydoc Dali::FontClient::FindSystemFont()
+   */
+  bool FindSystemFont( Character charcode, FontDescription& systemFont );
+
+  /**
+   * @copydoc Dali::FontClient::GetFontId()
+   */
+  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
+
+  /**
+   * @copydoc Dali::FontClient::FindDefaultFont()
+   */
+  FontId FindDefaultFont( Character charcode );
+
+  /**
+   * @copydoc Dali::FontClient::GetGlyphIndex()
+   */
+  GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
+
+  /**
+   * @copydoc Dali::FontClient::CreateMetrics()
+   */
+  bool CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal );
+
+  /**
+   * @copydoc Dali::FontClient::CreateBitmap()
+   */
+  BitmapImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
 private:
+
+  /**
+   * Helper for lazy initialization.
+   */
+  void CreatePlugin();
 
   // Undefined copy constructor.
   FontClient( const FontClient& );
@@ -64,28 +106,34 @@ private:
   // Undefined assignment constructor.
   FontClient& operator=( FontClient& );
 
-  void* mPlugin; ///< TODO replace this with font client
+private:
+
+  struct Plugin;
+  Plugin* mPlugin;
+
+  // Allows DPI to be set without loading plugin
+  unsigned int mDpiHorizontal;
+  unsigned int mDpiVertical;
 
 }; // class FontClient
 
-
-} // namespace TextAbstraction
-
 } // namespace Internal
 
-inline static Internal::TextAbstraction::FontClient& GetImplementation(Dali::TextAbstraction::FontClient& reordering)
+inline static Internal::FontClient& GetImplementation(FontClient& fontClient)
 {
-  DALI_ASSERT_ALWAYS( reordering && "reordering handle is empty" );
-  BaseObject& handle = reordering.GetBaseObject();
-  return static_cast<Internal::TextAbstraction::FontClient&>(handle);
+  DALI_ASSERT_ALWAYS( fontClient && "fontClient handle is empty" );
+  BaseObject& handle = fontClient.GetBaseObject();
+  return static_cast<Internal::FontClient&>(handle);
 }
 
-inline static const  Internal::TextAbstraction::FontClient& GetImplementation(const Dali::TextAbstraction::FontClient& reordering)
+inline static const Internal::FontClient& GetImplementation(const FontClient& fontClient)
 {
-  DALI_ASSERT_ALWAYS( reordering && "reordering handle is empty" );
-  const BaseObject& handle = reordering.GetBaseObject();
-  return static_cast<const Internal::TextAbstraction::FontClient&>(handle);
+  DALI_ASSERT_ALWAYS( fontClient && "fontClient handle is empty" );
+  const BaseObject& handle = fontClient.GetBaseObject();
+  return static_cast<const Internal::FontClient&>(handle);
 }
+
+} // namespace TextAbstraction
 
 } // namespace Dali
 

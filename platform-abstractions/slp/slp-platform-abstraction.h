@@ -22,8 +22,6 @@
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <string>
 
 namespace Dali

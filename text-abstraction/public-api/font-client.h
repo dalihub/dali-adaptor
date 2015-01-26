@@ -17,60 +17,151 @@
  * limitations under the License.
  *
  */
+
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/common/dali-vector.h>
+#include "text-type-definitions.h"
+#include "glyph-metrics.h"
+#include "font-list.h"
 
 namespace Dali
 {
 
+namespace TextAbstraction
+{
+
 namespace Internal DALI_INTERNAL
 {
-
-namespace TextAbstraction
-{
 class FontClient;
-} // TextAbstraction
-} // Internal
-
-namespace TextAbstraction
-{
-
+}
 
 /**
- *   FontClient API
+ * @brief FontClient provides access to font information and resources.
  *
+ * <h3>Querying the System Fonts</h3>
+ *
+ * A "system font" is described by a "path" to a font file on the native filesystem, along with a "family" and "style".
+ * For example on the Ubuntu system a "Regular" style font from the "Ubuntu Mono" family can be accessed from "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf".
+ *
+ * <h3>Accessing Fonts</h3>
+ *
+ * A "font" is created from the system for a specific point size. A "FontId" is used to identify each font.
+ * For example two different fonts with point sizes 10 & 12 can be created from the "Ubuntu Mono" family:
+ * @code
+ * FontClient fontClient   = FontClient::Get();
+ * FontId ubuntuMonoTen    = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 10 );
+ * FontId ubuntuMonoTwelve = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 12 );
+ * @endcode
+ * Glyph metrics and bitmap resources can then be retrieved using the FontId.
  */
 class DALI_IMPORT_API FontClient : public BaseHandle
 {
-
 public:
 
-    /**
-     * @brief Create an uninitialized TextAbstraction handle.
-     *
-     */
-    FontClient();
+  /**
+   * @brief Create an uninitialized TextAbstraction handle.
+   */
+  FontClient();
 
-    /**
-     * @brief Destructor
-     *
-     * This is non-virtual since derived Handle types must not contain data or virtual methods.
-     */
-    ~FontClient();
+  /**
+   * @brief Destructor
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   */
+  ~FontClient();
 
-    /**
-     * @brief This constructor is used by FontClient::Get().
-     *
-     * @param[in] fontClient  A pointer to the internal fontClient object.
-     */
-    explicit DALI_INTERNAL FontClient( Dali::Internal::TextAbstraction::FontClient* fontClient);
+  /**
+   * @brief Retrieve a handle to the FontClient instance.
+   *
+   * @return A handle to the FontClient
+   */
+  static FontClient Get();
 
-    /**
-     * @brief Retrieve a handle to the FontClient instance.
-     *
-     * @return A handle to the FontClient
-     */
-    static FontClient Get();
+  /**
+   * @brief Set the DPI of the target window.
+   *
+   * @note Multiple windows are not currently supported.
+   * @param[in] horizontalDpi The horizontal resolution in DPI.
+   * @param[in] verticalDpi The vertical resolution in DPI.
+   */
+  void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
 
+  /**
+   * @brief Retrieve the list of fonts supported by the system.
+   *
+   * @param[out] systemFonts A list of font paths, family & style strings.
+   */
+  void GetSystemFonts( FontList& systemFonts );
+
+  /**
+   * @brief Find an appropriate system-font for displaying a UTF-32 character.
+   *
+   * This is useful when localised strings are provided for multiple languages
+   * i.e. when a single default font does not work for all languages.
+   * @param[in] charcode The character for which a font is needed.
+   * @param[out] systemFont The path, family & style describing the font.
+   * @return True if an appropriate system font was found.
+   */
+  bool FindSystemFont( Character charcode, FontDescription& systemFont );
+
+  /**
+   * @brief Retrieve the unique identifier for a font.
+   *
+   * @param[in] path The path to a font file.
+   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12.
+   * @param[in] face The index of the font face (optional).
+   * @return A valid font ID, or zero if the font does not exist.
+   */
+  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = 12*64, FaceIndex faceIndex = 0 );
+
+  /**
+   * @brief Retrieve the ID of the default font for displaying a UTF-32 character.
+   *
+   * This is useful when localised strings are provided for multiple languages
+   * i.e. when a single default font does not work for all languages.
+   * @param[in] charcode The character for which a font is needed.
+   * @return A valid font ID, or zero if no appropriate font was found.
+   */
+  FontId FindDefaultFont( Character charcode );
+
+  /**
+   * @brief Retrieve the glyph index for a UTF-32 character code.
+   *
+   * @param[in] fontId The ID of the font for the required glyph.
+   * @param[in] charcode The UTF-32 character code.
+   * @return The glyph index, or zero if the character code is undefined.
+   */
+  GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
+
+  /**
+   * @brief Retrieve the metrics for a series of glyphs.
+   *
+   * @param[in] fontId The ID of the font for these glyphs.
+   * @param[in,out] metrics An array of metrics with initialized glyph IDs.
+   * On return, the remaining values will be initialized e.g. glyph size & bearing values.
+   * @param[in] size The size of the array.
+   * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
+   * @return True if metrics were found.
+   */
+  bool CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal = true );
+
+  /**
+   * @brief Render a bitmap representation of a glyph.
+   *
+   * @param[in] fontId The ID of the font.
+   * @param[in] glyphIndex The index of a glyph within the specified font.
+   * @return A valid BitmapImage, or an empty handle if the glyph could not be rendered.
+   */
+  BitmapImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+public: // Not intended for application developers
+  /**
+   * @brief This constructor is used by FontClient::Get().
+   *
+   * @param[in] fontClient  A pointer to the internal fontClient object.
+   */
+  explicit DALI_INTERNAL FontClient( Internal::FontClient* fontClient );
 };
 
 } // namespace TextAbstraction

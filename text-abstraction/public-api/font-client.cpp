@@ -30,19 +30,60 @@ namespace TextAbstraction
 FontClient::FontClient()
 {
 }
+
 FontClient::~FontClient()
 {
 }
-FontClient::FontClient(Dali::Internal::TextAbstraction::FontClient *impl)
-  : BaseHandle(impl)
+
+FontClient::FontClient( Internal::FontClient* internal )
+: BaseHandle( internal )
 {
 }
 
 FontClient FontClient::Get()
 {
-  return Dali::Internal::TextAbstraction::FontClient::Get();
+  return Internal::FontClient::Get();
 }
 
+void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
+{
+  GetImplementation(*this).SetDpi( horizontalDpi, verticalDpi );
+}
+
+void FontClient::GetSystemFonts( FontList& systemFonts )
+{
+  GetImplementation(*this).GetSystemFonts( systemFonts );
+}
+
+bool FontClient::FindSystemFont( Character charcode, FontDescription& systemFont )
+{
+  return GetImplementation(*this).FindSystemFont( charcode, systemFont );
+}
+
+FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+{
+  return GetImplementation(*this).GetFontId( path, pointSize, faceIndex );
+}
+
+FontId FontClient::FindDefaultFont( Character charcode )
+{
+  return GetImplementation(*this).FindDefaultFont( charcode );
+}
+
+GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
+{
+  return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
+}
+
+bool FontClient::CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal )
+{
+  return GetImplementation(*this).CreateMetrics( fontId, array, size, horizontal );
+}
+
+BitmapImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+{
+  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
+}
 
 } // namespace TextAbstraction
 

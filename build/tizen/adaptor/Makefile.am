@@ -323,6 +323,9 @@ tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
 tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
 tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)
 
+tizentextabstractionpublicapidir = $(tizenadaptorpublicapidir)/text-abstraction
+tizentextabstractionpublicapi_HEADERS = $(text_abstraction_header_files)
+
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
