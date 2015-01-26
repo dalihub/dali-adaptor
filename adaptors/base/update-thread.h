@@ -44,7 +44,6 @@ namespace Adaptor
 
 class UpdateRenderSynchronization;
 class AdaptorInternalServices;
-class TriggerEventInterface;
 class EnvironmentOptions;
 
 /**
@@ -120,8 +119,6 @@ private: // Data
 
   unsigned int                        mStatusLogInterval;   ///< Interval in frames between status debug prints
   unsigned int                        mStatusLogCount;      ///< Used to count frames between status debug prints
-
-  TriggerEventInterface&              mNotificationTrigger; ///< Reference to notification event trigger
 
   boost::thread*                      mThread;              ///< The actual update-thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< environment options

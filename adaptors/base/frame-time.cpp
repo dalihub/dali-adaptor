@@ -225,7 +225,8 @@ inline void FrameTime::SetLastSyncTime()
 
   mPlatform.GetTimeMicroseconds( seconds, microseconds );
 
-  mLastSyncTime = ( seconds * MICROSECONDS_PER_SECOND ) + microseconds;
+  mLastSyncTime = seconds; // Promote from 32 bit to 64 bit value
+  mLastSyncTime = ( mLastSyncTime * MICROSECONDS_PER_SECOND ) + microseconds;
 }
 
 } // namespace Adaptor

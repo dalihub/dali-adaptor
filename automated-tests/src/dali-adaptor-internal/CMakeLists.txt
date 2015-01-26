@@ -10,6 +10,7 @@ SET(TC_SOURCES
     utc-Dali-TiltSensor.cpp
     utc-Dali-CommandLineOptions.cpp
     utc-Dali-Lifecycle-Controller.cpp
+    utc-Dali-ImageOperations.cpp
 )
 
 LIST(APPEND TC_SOURCES

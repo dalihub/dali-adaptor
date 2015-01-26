@@ -42,6 +42,11 @@ void SingletonService::Register( const std::type_info& info, BaseHandle singleto
   GetImplementation( *this ).Register( info, singleton );
 }
 
+void SingletonService::UnregisterAll()
+{
+  GetImplementation( *this ).UnregisterAll();
+}
+
 BaseHandle SingletonService::GetSingleton( const std::type_info& info ) const
 {
   return GetImplementation( *this ).GetSingleton( info );

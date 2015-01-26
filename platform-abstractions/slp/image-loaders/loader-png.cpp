@@ -17,8 +17,11 @@
 
 #include "loader-png.h"
 
+#include <cstring>
+#include <cstdlib>
+
+#include <zlib.h>
 #include <png.h>
-#include <stdlib.h>
 
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
@@ -123,21 +126,6 @@ bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
 
   bool success = LoadPngHeader(fp, width, height, png, info);
 
-  if( success )
-  {
-    bool crop = (attributes.GetScalingMode() == Dali::ImageAttributes::ScaleToFill);
-    if(crop)
-    {
-      Size req((float) attributes.GetWidth(), (float) attributes.GetHeight());
-      const Size orig((float)width, (float)height);
-
-      // calculate actual width, height
-      req = FitScaleToFill(req, orig);
-
-      width = (int) req.width;
-      height = (int) req.height;
-    }
-  }
   return success;
 }
 
@@ -308,18 +296,8 @@ bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
     bufferWidth = stride / bpp;
   }
 
-  /// @todo support more scaling types
-  bool crop = (attributes.GetScalingMode() == Dali::ImageAttributes::ScaleToFill);
-
-  if(crop)
-  {
-    pixels = new unsigned char[stride*bufferHeight];
-  }
-  else
-  {
-    // decode the whole image into bitmap buffer
-    pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
-  }
+  // decode the whole image into bitmap buffer
+  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
 
   DALI_ASSERT_DEBUG(pixels);
   rows = (png_bytep*) malloc(sizeof(png_bytep) * height);
@@ -331,52 +309,9 @@ bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
   // decode image
   png_read_image(png, rows);
 
-  // copy part of the buffer to bitmap
-  if(crop)
-  {
-    Size req((float) attributes.GetWidth(), (float) attributes.GetHeight());
-    const Size orig((float)width, (float)height);
-
-    // calculate actual width, height
-    req = FitScaleToFill(req, orig);
-
-    // modify attributes with result
-    attributes.SetSize((int) req.width, (int) req.height);
-    attributes.SetPixelFormat(pixelFormat);
-
-    bufferWidth  = GetTextureDimension(attributes.GetWidth());
-    bufferHeight = GetTextureDimension(attributes.GetHeight());
-
-    // cropped buffer's stride
-    int lstride = bufferWidth*bpp;
-
-    // calculate offsets
-    int x_offset = ((width  - attributes.GetWidth())  / 2) * bpp;
-    int y_offset = ((height - attributes.GetHeight()) / 2) * stride;
-
-    // allocate bitmap buffer using requested size
-    unsigned char *bitmapBuffer = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, attributes.GetWidth(), attributes.GetHeight(), bufferWidth, bufferHeight);
-
-    // copy memory area from y and x to bitmap buffer line-by-line
-    unsigned char *bufptr = bitmapBuffer;
-    unsigned char *lptr = pixels+y_offset+x_offset;
-    for(unsigned int i = 0; i < attributes.GetHeight(); ++i)
-    {
-      memcpy(bufptr, lptr, attributes.GetWidth()*bpp);
-      bufptr += lstride;
-      lptr += stride;
-    }
-
-    delete[] pixels;
-  }
-  else
-  {
-    // set the attributes
-     attributes.SetSize(width, height);
-     attributes.SetPixelFormat(pixelFormat);
-  }
-
-  bitmap.GetPackedPixelsProfile()->TestForTransparency();
+  // set the attributes
+  attributes.SetSize( width, height );
+  attributes.SetPixelFormat( pixelFormat );
 
   free(rows);
 
