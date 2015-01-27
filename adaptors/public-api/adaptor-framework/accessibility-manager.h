@@ -58,21 +58,6 @@ public:
   typedef SignalV2< bool ( AccessibilityManager& ) > AccessibilityActionSignalV2; ///< Generic signal type
   typedef SignalV2< bool (AccessibilityManager&, const Dali::TouchEvent&)> AccessibilityActionScrollSignalV2; ///< Scroll signal type
 
-  // Signal Names
-  static const char* const SIGNAL_STATUS_CHANGED;       ///< name "accessibility-status-changed"
-  static const char* const SIGNAL_ACTION_NEXT;          ///< name "accessibility-action-next"
-  static const char* const SIGNAL_ACTION_PREVIOUS;      ///< name "accessibility-action-previous"
-  static const char* const SIGNAL_ACTION_ACTIVATE;      ///< name "accessibility-action-activatae"
-  static const char* const SIGNAL_ACTION_OVER;          ///< name "accessibility-action-over"
-  static const char* const SIGNAL_ACTION_READ;          ///< name "accessibility-action-read"
-  static const char* const SIGNAL_ACTION_READ_NEXT;     ///< name "accessibility-action-read-next"
-  static const char* const SIGNAL_ACTION_READ_PREVIOUS; ///< name "accessibility-action-read-prev"
-  static const char* const SIGNAL_ACTION_UP;            ///< name "accessibility-action-up"
-  static const char* const SIGNAL_ACTION_DOWN;          ///< name "accessibility-action-down"
-  static const char* const SIGNAL_ACTION_CLEAR_FOCUS;   ///< name "accessibility-action-clear-focus"
-  static const char* const SIGNAL_ACTION_BACK;          ///< name "accessibility-action-back"
-  static const char* const SIGNAL_ACTION_SCROLL;        ///< name "accessibility-action-scroll"
-
   /**
    * @brief Create an uninitialized handle.
    *

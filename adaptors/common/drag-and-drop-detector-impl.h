@@ -45,7 +45,7 @@ class DragAndDropDetector : public Dali::BaseObject
 {
 public:
 
-  typedef Dali::DragAndDropDetector::DragAndDropSignalV2 DragAndDropSignalV2;
+  typedef Dali::DragAndDropDetector::DragAndDropSignal DragAndDropSignal;
 
   // Creation
 
@@ -117,33 +117,33 @@ public: // Signals
   /**
    * @copydoc Dali::DragAndDropDetector::EnteredSignal
    */
-  DragAndDropSignalV2& EnteredSignal()
+  DragAndDropSignal& EnteredSignal()
   {
-    return mEnteredSignalV2;
+    return mEnteredSignal;
   }
 
   /**
    * @copydoc Dali::DragAndDropDetector::ExitedSignal
    */
-  DragAndDropSignalV2& ExitedSignal()
+  DragAndDropSignal& ExitedSignal()
   {
-    return mExitedSignalV2;
+    return mExitedSignal;
   }
 
   /**
    * @copydoc Dali::DragAndDropDetector::MovedSignal
    */
-  DragAndDropSignalV2& MovedSignal()
+  DragAndDropSignal& MovedSignal()
   {
-    return mMovedSignalV2;
+    return mMovedSignal;
   }
 
   /**
    * @copydoc Dali::DragAndDropDetector::DroppedSignal
    */
-  DragAndDropSignalV2& DroppedSignal()
+  DragAndDropSignal& DroppedSignal()
   {
-    return mDroppedSignalV2;
+    return mDroppedSignal;
   }
 
 private:
@@ -169,10 +169,10 @@ private:
   std::string mContent;    ///< The current Drag & drop content.
   Vector2 mScreenPosition; ///< The screen position of the drop location.
 
-  DragAndDropSignalV2 mEnteredSignalV2;
-  DragAndDropSignalV2 mExitedSignalV2;
-  DragAndDropSignalV2 mMovedSignalV2;
-  DragAndDropSignalV2 mDroppedSignalV2;
+  DragAndDropSignal mEnteredSignal;
+  DragAndDropSignal mExitedSignal;
+  DragAndDropSignal mMovedSignal;
+  DragAndDropSignal mDroppedSignal;
 };
 
 } // namespace Adaptor

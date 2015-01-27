@@ -83,9 +83,6 @@ public:
 
   typedef SignalV2< void (const TiltSensor&) > TiltedSignalV2;
 
-  // Signal Names
-  static const char* const SIGNAL_TILTED;
-
   static const float DEFAULT_UPDATE_FREQUENCY; // 60 hertz
 
   /**
@@ -159,6 +156,8 @@ public:
    * This signal will be emitted when the device is tilted, if the tilt-sensor is enabled.
    * The frequency of the signals can be controlled using SetUpdateFrequency().
    * @return The signal to connect to.
+   *
+   * @note The signal name is "tilted" if using BaseHandle::ConnectSignal()
    */
   TiltedSignalV2& TiltedSignal();
 

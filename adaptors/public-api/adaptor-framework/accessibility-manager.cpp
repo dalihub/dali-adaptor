@@ -24,20 +24,6 @@
 namespace Dali
 {
 
-const char* const AccessibilityManager::SIGNAL_STATUS_CHANGED( "accessibility-status-changed" );
-const char* const AccessibilityManager::SIGNAL_ACTION_NEXT( "accessibility-action-next" );
-const char* const AccessibilityManager::SIGNAL_ACTION_PREVIOUS( "accessibility-action-previous" );
-const char* const AccessibilityManager::SIGNAL_ACTION_ACTIVATE( "accessibility-action-activate" );
-const char* const AccessibilityManager::SIGNAL_ACTION_OVER( "accessibility-action-over" );
-const char* const AccessibilityManager::SIGNAL_ACTION_READ( "accessibility-action-read" );
-const char* const AccessibilityManager::SIGNAL_ACTION_READ_NEXT( "accessibility-action-read-next" );
-const char* const AccessibilityManager::SIGNAL_ACTION_READ_PREVIOUS( "accessibility-action-read-previous" );
-const char* const AccessibilityManager::SIGNAL_ACTION_UP( "accessibility-action-up" );
-const char* const AccessibilityManager::SIGNAL_ACTION_DOWN( "accessibility-action-down" );
-const char* const AccessibilityManager::SIGNAL_ACTION_CLEAR_FOCUS( "accessibility-action-clear-focus" );
-const char* const AccessibilityManager::SIGNAL_ACTION_BACK( "accessibility-action-back" );
-const char* const AccessibilityManager::SIGNAL_ACTION_SCROLL( "accessibility-action-scroll" );
-
 AccessibilityManager::AccessibilityManager()
 {
 }

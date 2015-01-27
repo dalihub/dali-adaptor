@@ -24,11 +24,6 @@
 namespace Dali
 {
 
-const char* const DragAndDropDetector::SIGNAL_ENTERED( "drag-and-drop-entered" );
-const char* const DragAndDropDetector::SIGNAL_EXITED( "drag-and-drop-exited" );
-const char* const DragAndDropDetector::SIGNAL_MOVED( "drag-and-drop-moved" );
-const char* const DragAndDropDetector::SIGNAL_DROPPED( "drag-and-drop-dropped" );
-
 DragAndDropDetector::DragAndDropDetector()
 {
 }
@@ -47,22 +42,22 @@ Vector2 DragAndDropDetector::GetCurrentScreenPosition() const
   return GetImplementation(*this).GetCurrentScreenPosition();
 }
 
-DragAndDropDetector::DragAndDropSignalV2& DragAndDropDetector::EnteredSignal()
+DragAndDropDetector::DragAndDropSignal& DragAndDropDetector::EnteredSignal()
 {
   return GetImplementation(*this).EnteredSignal();
 }
 
-DragAndDropDetector::DragAndDropSignalV2& DragAndDropDetector::ExitedSignal()
+DragAndDropDetector::DragAndDropSignal& DragAndDropDetector::ExitedSignal()
 {
   return GetImplementation(*this).ExitedSignal();
 }
 
-DragAndDropDetector::DragAndDropSignalV2& DragAndDropDetector::MovedSignal()
+DragAndDropDetector::DragAndDropSignal& DragAndDropDetector::MovedSignal()
 {
   return GetImplementation(*this).MovedSignal();
 }
 
-DragAndDropDetector::DragAndDropSignalV2& DragAndDropDetector::DroppedSignal()
+DragAndDropDetector::DragAndDropSignal& DragAndDropDetector::DroppedSignal()
 {
   return GetImplementation(*this).DroppedSignal();
 }

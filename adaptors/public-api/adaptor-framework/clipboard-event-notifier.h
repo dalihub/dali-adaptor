@@ -49,9 +49,6 @@ public:
    */
   typedef SignalV2< void ( ClipboardEventNotifier& ) > ClipboardEventSignalV2;
 
-  // Signal Names
-  static const char* const SIGNAL_CONTENT_SELECTED; ///< name "content-selected"
-
   /**
    * @brief Create an uninitialized handle.
    *
