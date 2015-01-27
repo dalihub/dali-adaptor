@@ -141,7 +141,7 @@ void Adaptor::ParseEnvironmentOptions()
   {
     mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
   }
-  int predictionAmount = -1;
+  int predictionAmount(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
   {
     if( predictionAmount < 0 )
@@ -150,6 +150,36 @@ void Adaptor::ParseEnvironmentOptions()
       predictionAmount = 0;
     }
     mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
+  }
+  int minPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
+  {
+    if( minPredictionAmount < 0 )
+    {
+      // do not support times in the past
+      minPredictionAmount = 0;
+    }
+    mEnvironmentOptions.SetPanGestureMinimumPredictionAmount(minPredictionAmount);
+  }
+  int maxPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
+  {
+    if( minPredictionAmount > -1 && maxPredictionAmount < minPredictionAmount )
+    {
+      // maximum amount should not be smaller than minimum amount
+      maxPredictionAmount = minPredictionAmount;
+    }
+    mEnvironmentOptions.SetPanGestureMaximumPredictionAmount(maxPredictionAmount);
+  }
+  int predictionAmountAdjustment(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
+  {
+    if( predictionAmountAdjustment < 0 )
+    {
+      // negative amount doesn't make sense
+      predictionAmountAdjustment = 0;
+    }
+    mEnvironmentOptions.SetPanGesturePredictionAmountAdjustment(predictionAmountAdjustment);
   }
   int smoothingMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
@@ -243,9 +273,21 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   {
     Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGesturePredictionMode());
   }
-  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0.0f )
+  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0 )
   {
     Integration::SetPanGesturePredictionAmount(mEnvironmentOptions.GetPanGesturePredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGestureMaximumPredictionAmount() >= 0 )
+  {
+    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions.GetPanGestureMaximumPredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGestureMinimumPredictionAmount() >= 0 )
+  {
+    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions.GetPanGestureMinimumPredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment() >= 0 )
+  {
+    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment());
   }
   if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
   {

@@ -97,7 +97,22 @@ public:
   /**
    * @return pan-gesture prediction amount
    */
-  float GetPanGesturePredictionAmount() const;
+  int GetPanGesturePredictionAmount() const;
+
+  /**
+   * @return maximum pan-gesture prediction amount
+   */
+  int GetPanGestureMaximumPredictionAmount() const;
+
+  /**
+   * @return minimum pan-gesture prediction amount
+   */
+  int GetPanGestureMinimumPredictionAmount() const;
+
+  /**
+   * @return pan-gesture prediction amount adjustment
+   */
+  int GetPanGesturePredictionAmountAdjustment() const;
 
   /**
    * @return pan-gesture smoothing mode ( -1 means not set so no smoothing, 0 = no smoothing )
@@ -120,9 +135,9 @@ public:
   int GetMinimumPanEvents() const;
 
   /**
-   * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
+   * @brief Sets the mode used to predict pan gesture movement
    *
-   * @param[in] mode The smoothing mode to use
+   * @param[in] mode The prediction mode to use
    */
   void SetPanGesturePredictionMode( unsigned int mode );
 
@@ -134,6 +149,31 @@ public:
   void SetPanGesturePredictionAmount( unsigned int amount );
 
   /**
+   * @brief Sets the upper bound of the prediction amount for clamping
+   *
+   * @param[in] amount The prediction amount in milliseconds
+   */
+  void SetPanGestureMaximumPredictionAmount( unsigned int amount );
+
+  /**
+   * @brief Sets the lower bound of the prediction amount for clamping
+   *
+   * @param[in] amount The prediction amount in milliseconds
+   */
+  void SetPanGestureMinimumPredictionAmount( unsigned int amount );
+
+  /**
+   * @brief Sets the prediction amount to adjust when the pan velocity is changed.
+   * If the pan velocity is accelerating, the prediction amount will be increased
+   * by the specified amount until it reaches the upper bound. If the pan velocity
+   * is decelerating, the prediction amount will be decreased by the specified
+   * amount until it reaches the lower bound.
+   *
+   * @param[in] amount The prediction amount in milliseconds
+   */
+  void SetPanGesturePredictionAmountAdjustment( unsigned int amount );
+
+  /**
    * @brief Called to set how pan gestures smooth input
    *
    * @param[in] mode The smoothing mode to use
@@ -141,7 +181,7 @@ public:
   void SetPanGestureSmoothingMode( unsigned int mode );
 
   /**
-   * @brief Sets the prediction amount of the pan gesture
+   * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
    *
    * @param[in] amount The smoothing amount [0.0f,1.0f] - 0.0f would be no smoothing, 1.0f maximum smoothing
    */
@@ -181,7 +221,10 @@ private:
   unsigned int mPerformanceLoggingLevel;          ///< performance log level
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
-  float mPanGesturePredictionAmount;              ///< prediction amount for pan gestures
+  int mPanGesturePredictionAmount;                ///< prediction amount for pan gestures
+  int mPanGestureMaxPredictionAmount;             ///< maximum prediction amount for pan gestures
+  int mPanGestureMinPredictionAmount;             ///< minimum prediction amount for pan gestures
+  int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
   int mPanGestureSmoothingMode;                  ///< prediction mode for pan gestures
   float mPanGestureSmoothingAmount;              ///< prediction amount for pan gestures
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
