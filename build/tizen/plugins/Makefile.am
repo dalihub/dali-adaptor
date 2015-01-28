@@ -50,6 +50,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(MMFSOUND_CFLAGS) \
                       $(FEEDBACK_CFLAGS) \
                       $(DALI_PROFILE_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -Werror -Wall
@@ -100,6 +101,7 @@ libdali_bullet_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(DALICORE_CFLAGS) \
                       $(DLOG_CFLAGS) \
                       $(BULLET_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
                       -I../../.. \
                       -Werror -Wall
 

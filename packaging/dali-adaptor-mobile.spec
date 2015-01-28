@@ -9,9 +9,9 @@ Source0:    %{name}-%{version}.tar.gz
 
 %define dali_profile MOBILE
 %define dali_mobile_profile 1
-%define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
+%define dali_feedback_plugin 1
+%define dali_bullet_plugin 1
+%define dali_assimp_plugin 1
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
