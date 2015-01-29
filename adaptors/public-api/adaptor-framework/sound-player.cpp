@@ -24,8 +24,6 @@
 namespace Dali
 {
 
-const char* const SoundPlayer::SIGNAL_SOUND_PLAY_FINISHED = "sound-play-finished";
-
 SoundPlayer::SoundPlayer()
 {
 }

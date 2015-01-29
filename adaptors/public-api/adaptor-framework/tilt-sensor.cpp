@@ -25,8 +25,6 @@
 namespace Dali
 {
 
-const char* const TiltSensor::SIGNAL_TILTED = "tilted";
-
 const float TiltSensor::DEFAULT_UPDATE_FREQUENCY = 60.0f;
 
 TiltSensor::TiltSensor()

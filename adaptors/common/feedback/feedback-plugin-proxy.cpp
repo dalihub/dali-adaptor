@@ -50,8 +50,7 @@ FeedbackPluginProxy::~FeedbackPluginProxy()
     delete mFeedbackPlugin;
     mFeedbackPlugin = NULL;
 
-    DALI_ASSERT_ALWAYS( mLibHandle );
-    if( dlclose( mLibHandle ) )
+    if( mLibHandle && dlclose( mLibHandle ) )
     {
       DALI_LOG_ERROR( "Error closing dali feedback plugin library: %s\n", dlerror() );
     }

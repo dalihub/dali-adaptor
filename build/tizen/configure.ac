@@ -59,7 +59,22 @@ PKG_CHECK_EXISTS(bullet, [
 
 AC_SUBST(BULLET_CFLAGS)
 AC_SUBST(BULLET_LIBS)
-AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes])
+
+AC_ARG_ENABLE([bullet],
+              [AC_HELP_STRING([ --enable-bullet],
+                              [Enable bullet plugin])],
+              [enable_bullet=yes],
+              [enable_bullet=no])
+
+
+AC_ARG_ENABLE([feedback],
+              [AC_HELP_STRING([ --enable-feedback],
+                              [Enable feedback plugin])],
+              [enable_feedback=yes],
+              [enable_feedback=no])
+
+AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
+AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
 DALI_ADAPTOR_CFLAGS=-DPLATFORM_SLP
 
@@ -138,13 +153,10 @@ AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 if test "x$enable_profile" = "xCOMMON"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
-PKG_CHECK_MODULES(HAPTIC, haptic)
 fi
 
 if test "x$enable_profile" = "xMOBILE"; then
 PKG_CHECK_MODULES(OPENGLES20, opengl-es-20)
-PKG_CHECK_MODULES(DEVICED, deviced)
-enable_assimp=yes
 fi
 
 if test "x$enable_profile" = "xLITE"; then
@@ -157,7 +169,6 @@ fi
 
 if test "x$enable_profile" = "xTV"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
-PKG_CHECK_MODULES(HAPTIC, haptic)
 fi
 
 if test "x$enable_profile" = "xUBUNTU"; then
@@ -165,17 +176,14 @@ PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 else
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 PKG_CHECK_MODULES(DLOG, dlog)
-PKG_CHECK_MODULES(FEEDBACK, feedback)
-PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
-
-if test "x$enable_profile" != "xTV"; then
-PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
 fi
 
+if test "x$enable_profile" != "xTV" && test "x$enable_profile" != "xUBUNTU"; then
+PKG_CHECK_MODULES(EFL_ASSIST, efl-assist)
 fi
 
 if test "x$enable_wayland" = "xyes"; then
@@ -191,6 +199,20 @@ PKG_CHECK_MODULES(X11, [x11],
                   [DALI_HAS_X11=no])
 fi
 
+if test "x$enable_feedback" = "xyes"; then
+
+if test "x$enable_profile" = "xCOMMON" || test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(HAPTIC, haptic)
+fi
+
+if test "x$enable_profile" = "xMOBILE"; then
+PKG_CHECK_MODULES(DEVICED, deviced)
+fi
+
+PKG_CHECK_MODULES(FEEDBACK, feedback)
+PKG_CHECK_MODULES(MMFSOUND, mm-sound)
+fi
+
 if test "x$enable_assimp" = "xyes" ; then
   PKG_CHECK_MODULES(ASSIMP, assimp)
   ASSIMP_CFLAGS+=-DASSIMP_ENABLED
@@ -198,7 +220,6 @@ fi
 
 # Don't move this - it depends on the platform defaults above
 AM_CONDITIONAL([ASSIMP_ENABLED], [test x$enable_assimp = xyes])
-
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
@@ -254,7 +275,9 @@ AC_CONFIG_FILES([
  dali.pc
 ])
 
-if test "x$enable_profile" != "xLITE"; then
+AM_CONDITIONAL([USE_PLUGIN], [test x$enable_feedback = xyes || test x$enable_bullet = xyes])
+
+if test "x$enable_feedback" = "xyes" || test "x$enable_bullet" = "xyes"; then
 AC_CONFIG_FILES([
  plugins/Makefile
 ])

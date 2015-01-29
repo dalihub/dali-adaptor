@@ -79,7 +79,7 @@ Timer::~Timer()
 
 void Timer::Start()
 {
-  if(mImpl->mId > 0)
+  if(mImpl->mId != NULL)
   {
     Stop();
   }
