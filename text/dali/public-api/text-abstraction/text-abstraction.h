@@ -18,11 +18,11 @@
  *
  */
 
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/public-api/text-abstraction/font-client.h>
-#include <dali/public-api/text-abstraction/glyph-metrics.h>
+#include <dali/public-api/text-abstraction/glyph-info.h>
 #include <dali/public-api/text-abstraction/reordering.h>
 #include <dali/public-api/text-abstraction/segmentation.h>
 #include <dali/public-api/text-abstraction/shaping.h>
-#include <dali/public-api/text-abstraction/text-type-definitions.h>
 
 #endif //__DALI_TEXT_ABSTRACTION_H__

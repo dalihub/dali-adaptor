@@ -1,5 +1,5 @@
-#ifndef __DALI_TEXT_ABSTRACTION_TEXT_TYPE_DEFINITIONS_H__
-#define __DALI_TEXT_ABSTRACTION_TEXT_TYPE_DEFINITIONS_H__
+#ifndef __DALI_TEXT_ABSTRACTION_DEFINITIONS_H__
+#define __DALI_TEXT_ABSTRACTION_DEFINITIONS_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -38,4 +38,4 @@ typedef uint32_t Character;       ///< A UTF-32 representation of a character
 
 } // namespace Dali
 
-#endif // __DALI_TEXT_ABSTRACTION_TEXT_TYPE_DEFINITIONS_H__
+#endif // __DALI_TEXT_ABSTRACTION_DEFINITIONS_H__

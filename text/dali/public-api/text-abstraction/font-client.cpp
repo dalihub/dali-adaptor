@@ -16,16 +16,21 @@
  */
 
 // CLASS HEADER
-#include "font-client.h"
+#include <dali/public-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
-#include <internal/font-client-impl.h>
+#include <dali/internal/text-abstraction/font-client-impl.h>
 
 namespace Dali
 {
 
 namespace TextAbstraction
 {
+
+FontClient FontClient::Get()
+{
+  return Internal::FontClient::Get();
+}
 
 FontClient::FontClient()
 {
@@ -35,14 +40,15 @@ FontClient::~FontClient()
 {
 }
 
-FontClient::FontClient( Internal::FontClient* internal )
-: BaseHandle( internal )
+FontClient::FontClient( const FontClient& handle )
+: BaseHandle( handle )
 {
 }
 
-FontClient FontClient::Get()
+FontClient& FontClient::operator=( const FontClient& handle )
 {
-  return Internal::FontClient::Get();
+  BaseHandle::operator=( handle );
+  return *this;
 }
 
 void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
@@ -75,14 +81,19 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
 {
-  return GetImplementation(*this).CreateMetrics( fontId, array, size, horizontal );
+  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal );
 }
 
 BitmapImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
+}
+
+FontClient::FontClient( Internal::FontClient* internal )
+: BaseHandle( internal )
+{
 }
 
 } // namespace TextAbstraction

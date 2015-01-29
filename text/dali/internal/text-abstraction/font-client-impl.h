@@ -19,8 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <public-api/font-client.h>
 #include <dali/public-api/object/base-object.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/text-abstraction/font-client.h>
 
 namespace Dali
 {
@@ -86,7 +88,7 @@ public:
   /**
    * @copydoc Dali::FontClient::CreateMetrics()
    */
-  bool CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()

@@ -1,5 +1,5 @@
-#ifndef __DALI_TEXT_ABSTRACTION_GLYPH_METRICS_H__
-#define __DALI_TEXT_ABSTRACTION_GLYPH_METRICS_H__
+#ifndef __DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
+#define __DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include "text-type-definitions.h"
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
 {
@@ -28,13 +28,14 @@ namespace TextAbstraction
 {
 
 /**
- * POD structure for storing glyph metric information.
- * The values are expressed in 26.6 fractional pixel format.
+ * The information describing a glyph (font ID, index, metrics)
+ * The metrics are expressed in 26.6 fractional pixel format.
  */
-struct GlyphMetrics
+struct GlyphInfo
 {
-  GlyphMetrics()
-  : index( 0 ),
+  GlyphInfo()
+  : fontId( 0 ),
+    index( 0 ),
     width( 0 ),
     height( 0 ),
     xBearing( 0 ),
@@ -43,7 +44,8 @@ struct GlyphMetrics
   {
   }
 
-  GlyphIndex index; ///< Uniquely identifies a glyph for a given FontId
+  FontId fontId;       ///< Identifies the font containing the glyph
+  GlyphIndex index;    ///< Uniquely identifies a glyph for a given FontId
   uint32_t width;      ///< The width of the glyph
   uint32_t height;     ///< The height of the glyph
   uint32_t xBearing;   ///< The distance from the cursor position to the leftmost border of the glyph
@@ -55,4 +57,4 @@ struct GlyphMetrics
 
 } // TextAbstraction
 
-#endif //__DALI_TEXT_ABSTRACTION_GLYPH_METRICS_H__
+#endif //__DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__

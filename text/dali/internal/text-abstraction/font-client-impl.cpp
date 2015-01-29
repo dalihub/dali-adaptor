@@ -257,17 +257,19 @@ struct FontClient::Plugin
     return FontId(0);
   }
 
-  bool CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal )
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
   {
     bool success( true );
 
-    if( fontId > 0 &&
-        fontId-1 < mFontCache.size() )
+    for( unsigned int i=0; i<size; ++i )
     {
-      FT_Face ftFace = mFontCache[fontId-1].mFreeTypeFace;
+      FontId fontId = array[i].fontId;
 
-      for( unsigned int i=0; i<size; ++i )
+      if( fontId > 0 &&
+          fontId-1 < mFontCache.size() )
       {
+        FT_Face ftFace = mFontCache[fontId-1].mFreeTypeFace;
+
         int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_DEFAULT );
 
         if( FT_Err_Ok == error )
@@ -291,6 +293,10 @@ struct FontClient::Plugin
         {
           success = false;
         }
+      }
+      else
+      {
+        success = false;
       }
     }
 
@@ -478,11 +484,11 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return mPlugin->GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
 {
   CreatePlugin();
 
-  return mPlugin->CreateMetrics( fontId, array, size, horizontal );
+  return mPlugin->GetGlyphMetrics( array, size, horizontal );
 }
 
 BitmapImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )

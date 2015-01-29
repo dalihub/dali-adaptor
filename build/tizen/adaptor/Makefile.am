@@ -29,8 +29,8 @@ portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
 include ../../../platform-abstractions/slp/file.list
 
 # Text Abstraction
-text_abstraction_src_dir = ../../../text-abstraction
-include ../../../text-abstraction/file.list
+text_src_dir = ../../../text
+include ../../../text/file.list
 
 # Internal Common
 adaptor_common_dir = ../../../adaptors/common
@@ -185,7 +185,7 @@ libdali_adaptor_la_includes = \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
-                      -I../../../text-abstraction \
+                      -I../../../text \
                       -I../../../adaptors/
 if WAYLAND
 libdali_adaptor_la_includes += \

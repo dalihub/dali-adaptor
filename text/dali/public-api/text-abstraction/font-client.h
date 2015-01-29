@@ -21,9 +21,9 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/common/dali-vector.h>
-#include "text-type-definitions.h"
-#include "glyph-metrics.h"
-#include "font-list.h"
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/text-abstraction/glyph-info.h>
+#include <dali/public-api/text-abstraction/font-list.h>
 
 namespace Dali
 {
@@ -60,6 +60,13 @@ class DALI_IMPORT_API FontClient : public BaseHandle
 public:
 
   /**
+   * @brief Retrieve a handle to the FontClient instance.
+   *
+   * @return A handle to the FontClient
+   */
+  static FontClient Get();
+
+  /**
    * @brief Create an uninitialized TextAbstraction handle.
    */
   FontClient();
@@ -72,11 +79,19 @@ public:
   ~FontClient();
 
   /**
-   * @brief Retrieve a handle to the FontClient instance.
+   * @brief This copy constructor is required for (smart) pointer semantics.
    *
-   * @return A handle to the FontClient
+   * @param[in] handle A reference to the copied handle.
    */
-  static FontClient Get();
+  FontClient( const FontClient& handle );
+
+  /**
+   * @brief This assignment operator is required for (smart) pointer semantics.
+   *
+   * @param [in] handle  A reference to the copied handle.
+   * @return A reference to this.
+   */
+  FontClient& operator=( const FontClient& handle );
 
   /**
    * @brief Set the DPI of the target window.
@@ -110,7 +125,7 @@ public:
    *
    * @param[in] path The path to a font file.
    * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12.
-   * @param[in] face The index of the font face (optional).
+   * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = 12*64, FaceIndex faceIndex = 0 );
@@ -137,14 +152,13 @@ public:
   /**
    * @brief Retrieve the metrics for a series of glyphs.
    *
-   * @param[in] fontId The ID of the font for these glyphs.
-   * @param[in,out] metrics An array of metrics with initialized glyph IDs.
-   * On return, the remaining values will be initialized e.g. glyph size & bearing values.
+   * @param[in,out] array An array of glyph-info structures with initialized FontId & GlyphIndex values.
+   * On return, the remaining metrics values will be initialized e.g. glyph size & bearing values.
    * @param[in] size The size of the array.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
-   * @return True if metrics were found.
+   * @return True if all of the requested metrics were found.
    */
-  bool CreateMetrics( FontId fontId, GlyphMetrics* array, uint32_t size, bool horizontal = true );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true );
 
   /**
    * @brief Render a bitmap representation of a glyph.

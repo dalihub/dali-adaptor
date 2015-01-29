@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include "reordering.h"
+#include <dali/public-api/text-abstraction/reordering.h>
 
 // INTERNAL INCLUDES
-#include <internal/reordering-impl.h>
+#include <dali/internal/text-abstraction/reordering-impl.h>
 
 namespace Dali
 {

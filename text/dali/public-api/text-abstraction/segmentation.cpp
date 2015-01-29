@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include "shaping.h"
+#include <dali/public-api/text-abstraction/segmentation.h>
 
 // INTERNAL INCLUDES
-#include <internal/shaping-impl.h>
+#include <dali/internal/text-abstraction/segmentation-impl.h>
 
 namespace Dali
 {
@@ -27,22 +27,21 @@ namespace Dali
 namespace TextAbstraction
 {
 
-Shaping::Shaping()
+Segmentation::Segmentation()
 {
 }
-Shaping::~Shaping()
+Segmentation::~Segmentation()
 {
 }
-Shaping::Shaping(Dali::Internal::TextAbstraction::Shaping *impl)
+Segmentation::Segmentation(Dali::Internal::TextAbstraction::Segmentation *impl)
   : BaseHandle(impl)
 {
 }
 
-Shaping Shaping::Get()
+Segmentation Segmentation::Get()
 {
-  return Dali::Internal::TextAbstraction::Shaping::Get();
+  return Dali::Internal::TextAbstraction::Segmentation::Get();
 }
-
 
 } // namespace TextAbstraction
 

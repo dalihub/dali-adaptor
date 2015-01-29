@@ -16,10 +16,7 @@
  */
 
 // CLASS HEADER
-#include "segmentation.h"
-
-// INTERNAL INCLUDES
-#include <internal/segmentation-impl.h>
+#include <dali/public-api/text-abstraction/font-list.h>
 
 namespace Dali
 {
@@ -27,20 +24,14 @@ namespace Dali
 namespace TextAbstraction
 {
 
-Segmentation::Segmentation()
+DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontList )
 {
-}
-Segmentation::~Segmentation()
-{
-}
-Segmentation::Segmentation(Dali::Internal::TextAbstraction::Segmentation *impl)
-  : BaseHandle(impl)
-{
-}
+  for( unsigned int i=0; i<fontList.size(); ++i )
+  {
+    o << "Font " << i << ") path: " << fontList[i].path << " family: " << fontList[i].family << " style: " << fontList[i].style << std::endl;
+  }
 
-Segmentation Segmentation::Get()
-{
-  return Dali::Internal::TextAbstraction::Segmentation::Get();
+  return o;
 }
 
 } // namespace TextAbstraction

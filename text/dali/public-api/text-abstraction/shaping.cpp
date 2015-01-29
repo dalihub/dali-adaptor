@@ -16,7 +16,10 @@
  */
 
 // CLASS HEADER
-#include "font-list.h"
+#include <dali/public-api/text-abstraction/shaping.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/text-abstraction/shaping-impl.h>
 
 namespace Dali
 {
@@ -24,15 +27,22 @@ namespace Dali
 namespace TextAbstraction
 {
 
-DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontList )
+Shaping::Shaping()
 {
-  for( unsigned int i=0; i<fontList.size(); ++i )
-  {
-    o << "Font " << i << ") path: " << fontList[i].path << " family: " << fontList[i].family << " style: " << fontList[i].style << std::endl;
-  }
-
-  return o;
 }
+Shaping::~Shaping()
+{
+}
+Shaping::Shaping(Dali::Internal::TextAbstraction::Shaping *impl)
+  : BaseHandle(impl)
+{
+}
+
+Shaping Shaping::Get()
+{
+  return Dali::Internal::TextAbstraction::Shaping::Get();
+}
+
 
 } // namespace TextAbstraction
 

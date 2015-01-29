@@ -19,10 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <public-api/shaping.h>
 #include <dali/public-api/object/base-object.h>
 
-
+// INTERNAL INCLUDES
+#include <dali/public-api/text-abstraction/shaping.h>
 
 namespace Dali
 {
