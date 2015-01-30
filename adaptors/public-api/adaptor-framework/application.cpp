@@ -151,37 +151,37 @@ float Application::GetStereoBase() const
   return Internal::Adaptor::GetImplementation(*this).GetStereoBase();
 }
 
-Application::AppSignalV2& Application::InitSignal()
+Application::AppSignalType& Application::InitSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).InitSignal();
 }
 
-Application::AppSignalV2& Application::TerminateSignal()
+Application::AppSignalType& Application::TerminateSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).TerminateSignal();
 }
 
-Application::AppSignalV2& Application::PauseSignal()
+Application::AppSignalType& Application::PauseSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).PauseSignal();
 }
 
-Application::AppSignalV2& Application::ResumeSignal()
+Application::AppSignalType& Application::ResumeSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).ResumeSignal();
 }
 
-Application::AppSignalV2& Application::ResetSignal()
+Application::AppSignalType& Application::ResetSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).ResetSignal();
 }
 
-Application::AppSignalV2& Application::ResizeSignal()
+Application::AppSignalType& Application::ResizeSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).ResizeSignal();
 }
 
-Application::AppSignalV2& Application::LanguageChangedSignal()
+Application::AppSignalType& Application::LanguageChangedSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).LanguageChangedSignal();
 }

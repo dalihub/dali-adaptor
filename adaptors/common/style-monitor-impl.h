@@ -92,7 +92,7 @@ public:
   /**
    * @copydoc Dali::StyleMonitor::StyleChangeSignal()
    */
-  Dali::StyleMonitor::StyleChangeSignalV2& StyleChangeSignal();
+  Dali::StyleMonitor::StyleChangeSignalType& StyleChangeSignal();
 
 protected:
 
@@ -111,7 +111,7 @@ private:
 
 private:
 
-  Dali::StyleMonitor::StyleChangeSignalV2      mStyleChangeSignalV2; ///< Emitted when the style changes
+  Dali::StyleMonitor::StyleChangeSignalType      mStyleChangeSignal; ///< Emitted when the style changes
 
   Integration::PlatformAbstraction&            mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
   std::string                                  mUserDefinedThemeFilePath;///< String containing the user defined theme file path

@@ -101,17 +101,17 @@ void RotateTo(int angle);
 /**
  * @copydox Dali::VirtualKeyboard::StatusChangedSignal()
  */
-Dali::VirtualKeyboard::StatusSignalV2& StatusChangedSignal();
+Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal();
 
 /**
  * @copydox Dali::VirtualKeyboard::ResizedSignal()
  */
-Dali::VirtualKeyboard::VoidSignalV2& ResizedSignal();
+Dali::VirtualKeyboard::VoidSignalType& ResizedSignal();
 
 /**
  * @copydox Dali::VirtualKeyboard::LanguageChangedSignal()
  */
-Dali::VirtualKeyboard::VoidSignalV2& LanguageChangedSignal();
+Dali::VirtualKeyboard::VoidSignalType& LanguageChangedSignal();
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetTextDirection

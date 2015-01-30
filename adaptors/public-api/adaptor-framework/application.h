@@ -90,7 +90,7 @@ class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (Application&) > AppSignalV2;
+  typedef Signal< void (Application&) > AppSignalType;
 
   /**
    * Decides whether a Dali application window is opaque or transparent.
@@ -290,40 +290,40 @@ public:  // Signals
    * The user should connect to this signal to determine when they should initialise
    * their application.
    */
-  AppSignalV2& InitSignal();
+  AppSignalType& InitSignal();
 
   /**
    * The user should connect to this signal to determine when they should terminate
    * their application
    */
-  AppSignalV2& TerminateSignal();
+  AppSignalType& TerminateSignal();
 
   /**
    * The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
    */
-  AppSignalV2& PauseSignal();
+  AppSignalType& PauseSignal();
 
   /**
    * The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
    */
-  AppSignalV2& ResumeSignal();
+  AppSignalType& ResumeSignal();
 
   /**
    * This signal is sent when the system requires the user to reinitialise itself.
    */
-  AppSignalV2& ResetSignal();
+  AppSignalType& ResetSignal();
 
   /**
    * This signal is emitted when the window the application is rendering on is resized.
    */
-  AppSignalV2& ResizeSignal();
+  AppSignalType& ResizeSignal();
 
   /**
    * This signal is emitted when the language is changed on the device.
    */
-  AppSignalV2& LanguageChangedSignal();
+  AppSignalType& LanguageChangedSignal();
 
 public: // Not intended for application developers
   /**

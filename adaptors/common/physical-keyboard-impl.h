@@ -64,7 +64,7 @@ public:
   /**
    * @copydoc Dali::PhysicalKeyboard::StatusChangedSignal()
    */
-  Dali::PhysicalKeyboard::Signal& StatusChangedSignal() { return mStatusChangedSignal; }
+  Dali::PhysicalKeyboard::PhysicalKeyboardSignalType& StatusChangedSignal() { return mStatusChangedSignal; }
 
 protected:
 
@@ -86,7 +86,7 @@ private:
 
 private:
 
-  Dali::PhysicalKeyboard::Signal mStatusChangedSignal; ///< Status changed signal
+  Dali::PhysicalKeyboard::PhysicalKeyboardSignalType mStatusChangedSignal; ///< Status changed signal
   bool mAttached; ///< true if the physical keyboard is attached, false otherwise
 };
 

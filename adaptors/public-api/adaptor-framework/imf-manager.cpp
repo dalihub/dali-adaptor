@@ -93,12 +93,12 @@ std::string ImfManager::GetSurroundingText()
   return Internal::Adaptor::ImfManager::GetImplementation(*this).GetSurroundingText();
 }
 
-ImfManager::ImfManagerSignalV2& ImfManager::ActivatedSignal()
+ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ActivatedSignal();
 }
 
-ImfManager::ImfEventSignalV2& ImfManager::EventReceivedSignal()
+ImfManager::ImfEventSignalType& ImfManager::EventReceivedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).EventReceivedSignal();
 }

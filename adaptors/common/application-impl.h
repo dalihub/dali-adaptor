@@ -58,7 +58,7 @@ class Application : public BaseObject, public Framework::Observer
 {
 public:
 
-  typedef Dali::Application::AppSignalV2 AppSignalV2;
+  typedef Dali::Application::AppSignalType AppSignalType;
 
   /**
    * Constructor
@@ -194,37 +194,37 @@ public:  // Signals
   /**
    * @copydoc Dali::Application::InitSignal()
    */
-  Dali::Application::AppSignalV2& InitSignal() { return mInitSignalV2; }
+  Dali::Application::AppSignalType& InitSignal() { return mInitSignal; }
 
   /**
    * @copydoc Dali::Application::TerminateSignal()
    */
-  Dali::Application::AppSignalV2& TerminateSignal() { return mTerminateSignalV2; }
+  Dali::Application::AppSignalType& TerminateSignal() { return mTerminateSignal; }
 
   /**
    * @copydoc Dali::Application::PauseSignal()
    */
-  Dali::Application::AppSignalV2& PauseSignal() { return mPauseSignalV2; }
+  Dali::Application::AppSignalType& PauseSignal() { return mPauseSignal; }
 
   /**
    * @copydoc Dali::Application::ResumeSignal()
    */
-  Dali::Application::AppSignalV2& ResumeSignal() { return mResumeSignalV2; }
+  Dali::Application::AppSignalType& ResumeSignal() { return mResumeSignal; }
 
   /**
    * @copydoc Dali::Application::ResetSignal()
    */
-  Dali::Application::AppSignalV2& ResetSignal() { return mResetSignalV2; }
+  Dali::Application::AppSignalType& ResetSignal() { return mResetSignal; }
 
   /**
    * @copydoc Dali::Application::ResizeSignal()
    */
-  Dali::Application::AppSignalV2& ResizeSignal() { return mResizeSignalV2; }
+  Dali::Application::AppSignalType& ResizeSignal() { return mResizeSignal; }
 
   /**
    * @copydoc Dali::Application::LanguageChangedSignal()
    */
-  Dali::Application::AppSignalV2& LanguageChangedSignal() { return mLanguageChangedSignalV2; }
+  Dali::Application::AppSignalType& LanguageChangedSignal() { return mLanguageChangedSignal; }
 
 private:
 
@@ -250,13 +250,13 @@ private:
 
 private:
 
-  AppSignalV2                           mInitSignalV2;
-  AppSignalV2                           mTerminateSignalV2;
-  AppSignalV2                           mPauseSignalV2;
-  AppSignalV2                           mResumeSignalV2;
-  AppSignalV2                           mResetSignalV2;
-  AppSignalV2                           mResizeSignalV2;
-  AppSignalV2                           mLanguageChangedSignalV2;
+  AppSignalType                           mInitSignal;
+  AppSignalType                           mTerminateSignal;
+  AppSignalType                           mPauseSignal;
+  AppSignalType                           mResumeSignal;
+  AppSignalType                           mResetSignal;
+  AppSignalType                           mResizeSignal;
+  AppSignalType                           mLanguageChangedSignal;
 
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;

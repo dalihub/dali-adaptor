@@ -23,7 +23,7 @@
 #include "window.h"
 #include "application-configuration.h"
 #include "tts-player.h"
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 
@@ -103,7 +103,7 @@ class Adaptor
 {
 public:
 
-  typedef SignalV2< void (Adaptor&) > AdaptorSignalV2; ///< Generic Type for adaptor signals
+  typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
 
 public:
   /**
@@ -246,14 +246,14 @@ public:  // Signals
    *
    * @return The signal to connect to
    */
-  AdaptorSignalV2& ResizedSignal();
+  AdaptorSignalType& ResizedSignal();
 
   /**
    * @brief This signal is emitted when the language is changed on the device.
    *
    * @return The signal to connect to
    */
-  AdaptorSignalV2& LanguageChangedSignal();
+  AdaptorSignalType& LanguageChangedSignal();
 
 private:
 

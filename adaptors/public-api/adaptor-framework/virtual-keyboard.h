@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
 
 namespace Dali
@@ -35,8 +35,8 @@ namespace VirtualKeyboard
 
 // Types
 
-typedef SignalV2< void () > VoidSignalV2;
-typedef SignalV2< void (bool) > StatusSignalV2;
+typedef Signal< void () > VoidSignalType;
+typedef Signal< void (bool) > StatusSignalType;
 
 // Enumerations
 
@@ -146,7 +146,7 @@ DALI_IMPORT_API TextDirection GetTextDirection();
  * has just been hidden.
  * @return The signal to connect to.
  */
-DALI_IMPORT_API StatusSignalV2& StatusChangedSignal();
+DALI_IMPORT_API StatusSignalType& StatusChangedSignal();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard is resized.
@@ -158,7 +158,7 @@ DALI_IMPORT_API StatusSignalV2& StatusChangedSignal();
  * User can get changed size by using GetSizeAndPosition() in the callback
  * @return The signal to connect to.
  */
-DALI_IMPORT_API VoidSignalV2& ResizedSignal();
+DALI_IMPORT_API VoidSignalType& ResizedSignal();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
@@ -170,7 +170,7 @@ DALI_IMPORT_API VoidSignalV2& ResizedSignal();
  * User can get the text direction of the language by calling GetTextDirection() in the callback.
  * @return The signal to connect to.
  */
-DALI_IMPORT_API VoidSignalV2& LanguageChangedSignal();
+DALI_IMPORT_API VoidSignalType& LanguageChangedSignal();
 
 } // namespace VirtualKeyboard
 

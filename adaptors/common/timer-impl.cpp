@@ -140,7 +140,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalV2& Timer::TickSignal()
+Dali::Timer::TimerSignalType& Timer::TickSignal()
 {
   return mTickSignal;
 }
