@@ -27,10 +27,16 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+}
 EnvironmentOptions::EnvironmentOptions()
 : mFpsFrequency(0),
   mUpdateStatusFrequency(0),
-  mPerformanceLoggingLevel(0),
+  mPerformanceStatsLevel(0),
+  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY),
+  mPerformanceTimeStampOutput(0),
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
   mPanGesturePredictionAmount(-1), ///< only sets value in pan gesture if greater than 0
@@ -53,13 +59,17 @@ EnvironmentOptions::~EnvironmentOptions()
 void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
-                             unsigned int logPerformanceLevel,
+                             unsigned int logPerformanceStats,
+                             unsigned int logPerformanceStatsFrequency,
+                             unsigned int performanceTimeStampOutput,
                              unsigned int logPanGestureLevel )
 {
   mLogFunction = logFunction;
   mFpsFrequency = logFrameRateFrequency;
   mUpdateStatusFrequency = logupdateStatusFrequency;
-  mPerformanceLoggingLevel = logPerformanceLevel;
+  mPerformanceStatsLevel = logPerformanceStats;
+  mPerformanceStatsFrequency = logPerformanceStatsFrequency;
+  mPerformanceTimeStampOutput= performanceTimeStampOutput;
   mPanGestureLoggingLevel = logPanGestureLevel;
 }
 
@@ -83,9 +93,17 @@ unsigned int EnvironmentOptions::GetUpdateStatusLoggingFrequency() const
   return mUpdateStatusFrequency;
 }
 
-unsigned int EnvironmentOptions::GetPerformanceLoggingLevel() const
+unsigned int EnvironmentOptions::GetPerformanceStatsLoggingOptions() const
 {
-  return mPerformanceLoggingLevel;
+  return mPerformanceStatsLevel;
+}
+unsigned int EnvironmentOptions::GetPerformanceStatsLoggingFrequency() const
+{
+  return mPerformanceStatsFrequency;
+}
+unsigned int EnvironmentOptions::GetPerformanceTimeStampOutput() const
+{
+  return mPerformanceTimeStampOutput;
 }
 
 unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
@@ -188,9 +206,15 @@ void EnvironmentOptions::SetGlesCallTime( int time )
   mGlesCallTime = time;
 }
 
-int EnvironmentOptions::GetGlesCallTime()
+int EnvironmentOptions::GetGlesCallTime() const
 {
   return mGlesCallTime;
+}
+
+bool EnvironmentOptions::PerformanceServerRequired() const
+{
+  return ( (GetPerformanceStatsLoggingOptions() > 0) ||
+           ( GetPerformanceTimeStampOutput() > 0 ) );
 }
 
 } // Adaptor

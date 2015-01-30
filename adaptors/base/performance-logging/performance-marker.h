@@ -38,16 +38,46 @@ class PerformanceMarker
 {
 public:
 
+
   /**
-   * Constructor
-   * @param type marker type
+   * Bitmask used to filter different types of markers based
+   * on what group they belong to.
+   */
+  enum MarkerFilter
+  {
+    FILTERING_DISABLED   = 0,      ///< disabled
+    V_SYNC_EVENTS        = 1 << 0, ///< v-sync
+    UPDATE               = 1 << 1, ///< update start / end
+    RENDER               = 1 << 2, ///< render start / end
+    EVENT_PROCESS        = 1 << 3, ///< process events start / end
+    SWAP_BUFFERS         = 1 << 4, ///< swap buffers start / end
+    LIFE_CYCLE_EVENTS    = 1 << 5, ///< pause / resume
+    RESOURCE_EVENTS      = 1 << 6, ///< resource events
+    CUSTOM_EVENTS        = 1 << 7
+  };
+
+  /**
+   * Marker event type
+   */
+  enum MarkerEventType
+  {
+    SINGLE_EVENT,           ///< event is something that has no duration associated with it
+    START_TIMED_EVENT,      ///< start of a timed event
+    END_TIMED_EVENT         ///< end of a timed event
+
+  };
+
+
+  /**
+   * @brief Constructor
+   * @param[in] type marker type
    */
   PerformanceMarker( PerformanceInterface::MarkerType type );
 
   /**
-   * Constructor
-   * @param type marker type
-   * @param time time stamp
+   * @brief Constructor
+   * @param[in] type marker type
+   * @param[in] time time stamp
    */
   PerformanceMarker( PerformanceInterface::MarkerType type,  FrameTimeStamp time );
 
@@ -68,12 +98,26 @@ public:
   }
 
   /**
+   * @return the event type of marker
+   */
+  MarkerEventType GetEventType() const;
+
+  /**
+   * @return marker name
+   */
+  const char* const GetName( ) const;
+
+  /**
    * @param start the start marker
    * @param end the end marker
    * @return difference in microseconds between two markers
    */
   static unsigned int MicrosecondDiff( const PerformanceMarker& start, const PerformanceMarker& end  );
 
+  /**
+   * @return if a marker is enabled as part of a group
+   */
+  bool IsFilterEnabled( MarkerFilter filter ) const;
 private:
 
   PerformanceInterface::MarkerType mType;         ///< marker type
