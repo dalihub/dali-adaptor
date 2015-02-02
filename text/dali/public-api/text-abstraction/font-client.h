@@ -46,12 +46,12 @@ class FontClient;
  *
  * <h3>Accessing Fonts</h3>
  *
- * A "font" is created from the system for a specific point size. A "FontId" is used to identify each font.
+ * A "font" is created from the system for a specific point size in 26.6 fractional points. A "FontId" is used to identify each font.
  * For example two different fonts with point sizes 10 & 12 can be created from the "Ubuntu Mono" family:
  * @code
  * FontClient fontClient   = FontClient::Get();
- * FontId ubuntuMonoTen    = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 10 );
- * FontId ubuntuMonoTwelve = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 12 );
+ * FontId ubuntuMonoTen    = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 10*64 );
+ * FontId ubuntuMonoTwelve = fontClient.GetFontId( "/usr/share/fonts/truetype/ubuntu-font-family/UbuntuMono-R.ttf", 12*64 );
  * @endcode
  * Glyph metrics and bitmap resources can then be retrieved using the FontId.
  */
@@ -124,7 +124,7 @@ public:
    * @brief Retrieve the unique identifier for a font.
    *
    * @param[in] path The path to a font file.
-   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12.
+   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
