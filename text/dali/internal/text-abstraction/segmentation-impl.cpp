@@ -30,9 +30,8 @@ namespace Internal
 namespace TextAbstraction
 {
 
-
 Segmentation::Segmentation()
-:mPlugin(NULL)
+: mPlugin( NULL )
 {
 
 }
@@ -67,6 +66,20 @@ Dali::TextAbstraction::Segmentation Segmentation::Get()
    return segmentationHandle;
 }
 
-} // namespace Segmentation
+void Segmentation::GetLineBreakPositions( const Dali::TextAbstraction::Character* const text,
+                                          Dali::TextAbstraction::Length numberOfCharacters,
+                                          Dali::TextAbstraction::LineBreakInfo* breakInfo )
+{
+}
+
+void Segmentation::GetWordBreakPositions( const Dali::TextAbstraction::Character* const text,
+                                          Dali::TextAbstraction::Length numberOfCharacters,
+                                          Dali::TextAbstraction::WordBreakInfo* breakInfo )
+{
+}
+
+} // namespace TextAbstraction
+
 } // namespace Internal
+
 } // namespace Dali

@@ -35,6 +35,27 @@ typedef uint32_t Character;       ///< A UTF-32 representation of a character
 typedef uint32_t CharacterIndex;  ///< An index into an array of characters
 typedef uint32_t Length;          ///< The length of an array
 typedef uint32_t BidiInfoIndex;   ///< Index to the bidirectional info for a paragraph.
+typedef char     LineBreakInfo;   ///< Line break info (must break, allow break, no break).
+typedef char     WordBreakInfo;   ///< Word break info (break, no break).
+
+/**
+ * @brief Enumerates the possible line break info values.
+ */
+enum
+{
+  LINE_MUST_BREAK  = 0u, ///< Text must be broken into a new line.
+  LINE_ALLOW_BREAK = 1u, ///< Is possible to break the text into a new line.
+  LINE_NO_BREAK    = 2u  ///< Text can't be broken into a new line.
+};
+
+/**
+ * @brief Enumerates the possible word break info values.
+ */
+enum
+{
+  WORD_BREAK    = 0u, ///< Text can be broken into a new word.
+  WORD_NO_BREAK = 1u, ///< Text can't be broken into a new word.
+};
 
 } // namespace TextAbstraction
 

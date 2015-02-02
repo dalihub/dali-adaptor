@@ -56,6 +56,21 @@ public:
    */
   static Dali::TextAbstraction::Segmentation Get();
 
+  /**
+   * @copydoc Dali::Segmentation::GetLineBreakPositions()
+   */
+  void GetLineBreakPositions( const Dali::TextAbstraction::Character* const text,
+                              Dali::TextAbstraction::Length numberOfCharacters,
+                              Dali::TextAbstraction::LineBreakInfo* breakInfo );
+
+
+  /**
+   * @copydoc Dali::Segmentation::GetWordBreakPositions()
+   */
+  void GetWordBreakPositions( const Dali::TextAbstraction::Character* const text,
+                              Dali::TextAbstraction::Length numberOfCharacters,
+                              Dali::TextAbstraction::WordBreakInfo* breakInfo );
+
 private:
 
   // Undefined copy constructor.

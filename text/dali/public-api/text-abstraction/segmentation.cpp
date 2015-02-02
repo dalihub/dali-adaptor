@@ -30,17 +30,37 @@ namespace TextAbstraction
 Segmentation::Segmentation()
 {
 }
+
 Segmentation::~Segmentation()
 {
 }
-Segmentation::Segmentation(Dali::Internal::TextAbstraction::Segmentation *impl)
-  : BaseHandle(impl)
+
+Segmentation::Segmentation( Dali::Internal::TextAbstraction::Segmentation* implementation )
+: BaseHandle( implementation )
 {
 }
 
 Segmentation Segmentation::Get()
 {
   return Dali::Internal::TextAbstraction::Segmentation::Get();
+}
+
+void Segmentation::GetLineBreakPositions( const Character* const text,
+                                          Length numberOfCharacters,
+                                          LineBreakInfo* breakInfo )
+{
+  GetImplementation( *this ).GetLineBreakPositions( text,
+                                                    numberOfCharacters,
+                                                    breakInfo );
+}
+
+void Segmentation::GetWordBreakPositions( const Character* const text,
+                                          Length numberOfCharacters,
+                                          WordBreakInfo* breakInfo )
+{
+  GetImplementation( *this ).GetWordBreakPositions( text,
+                                                    numberOfCharacters,
+                                                    breakInfo );
 }
 
 } // namespace TextAbstraction
