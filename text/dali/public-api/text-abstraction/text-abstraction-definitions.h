@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <stdint.h>
-#include <string>
 
 namespace Dali
 {
@@ -33,6 +32,9 @@ typedef uint32_t PointSize26Dot6; ///< The point size in 26.6 fractional points
 typedef uint32_t FaceIndex;       ///< Used with fonts which allow several font faces
 typedef uint32_t GlyphIndex;      ///< Uniquely identifies a glyph within a particular font
 typedef uint32_t Character;       ///< A UTF-32 representation of a character
+typedef uint32_t CharacterIndex;  ///< An index into an array of characters
+typedef uint32_t Length;          ///< The length of an array
+typedef uint32_t BidiInfoIndex;   ///< Index to the bidirectional info for a paragraph.
 
 } // namespace TextAbstraction
 

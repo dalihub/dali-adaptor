@@ -3,11 +3,11 @@
 text_abstraction_src_files = \
    $(text_src_dir)/dali/public-api/text-abstraction/font-client.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/font-list.cpp \
-   $(text_src_dir)/dali/public-api/text-abstraction/reordering.cpp \
+   $(text_src_dir)/dali/public-api/text-abstraction/bidirectional-support.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/segmentation.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/shaping.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/font-client-impl.cpp \
-   $(text_src_dir)/dali/internal/text-abstraction/reordering-impl.cpp \
+   $(text_src_dir)/dali/internal/text-abstraction/bidirectional-support-impl.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/segmentation-impl.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/shaping-impl.cpp
 
@@ -15,7 +15,7 @@ text_abstraction_header_files = \
    $(text_src_dir)/dali/public-api/text-abstraction/font-client.h \
    $(text_src_dir)/dali/public-api/text-abstraction/font-list.h \
    $(text_src_dir)/dali/public-api/text-abstraction/glyph-info.h \
-   $(text_src_dir)/dali/public-api/text-abstraction/reordering.h \
+   $(text_src_dir)/dali/public-api/text-abstraction/bidirectional-support.h \
    $(text_src_dir)/dali/public-api/text-abstraction/segmentation.h \
    $(text_src_dir)/dali/public-api/text-abstraction/shaping.h \
    $(text_src_dir)/dali/public-api/text-abstraction/text-abstraction.h \
