@@ -66,6 +66,19 @@ TextAbstraction::Shaping Shaping::Get()
   return shapingHandle;
 }
 
+Length Shaping::Shape( const Character* const text,
+                       Length numberOfCharacters,
+                       FontId fontId,
+                       Script script )
+{
+  return 0u;
+}
+
+void Shaping::GetGlyphs( GlyphInfo* glyphInfo,
+                         CharacterIndex* glyphToCharacterMap )
+{
+}
+
 } // namespace Internal
 
 } // namespace TextAbstraction

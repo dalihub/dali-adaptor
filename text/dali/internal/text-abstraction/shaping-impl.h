@@ -55,6 +55,20 @@ public:
    */
   static TextAbstraction::Shaping Get();
 
+  /**
+   * @copydoc Dali::Shaping::Shape()
+   */
+  Length Shape( const Character* const text,
+                Length numberOfCharacters,
+                FontId fontId,
+                Script script );
+
+  /**
+   * @copydoc Dali::Shaping::GetGlyphs()
+   */
+  void GetGlyphs( GlyphInfo* glyphInfo,
+                  CharacterIndex* glyphToCharacterMap );
+
 private:
 
   // Undefined copy constructor.

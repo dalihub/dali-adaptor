@@ -45,6 +45,23 @@ Shaping Shaping::Get()
   return Internal::Shaping::Get();
 }
 
+Length Shaping::Shape( const Character* const text,
+                       Length numberOfCharacters,
+                       FontId fontId,
+                       Script script )
+{
+  return GetImplementation( *this ).Shape( text,
+                                           numberOfCharacters,
+                                           fontId,
+                                           script );
+}
+
+void Shaping::GetGlyphs( GlyphInfo* glyphInfo,
+                         CharacterIndex* glyphToCharacterMap )
+{
+  GetImplementation( *this ).GetGlyphs( glyphInfo,
+                                        glyphToCharacterMap );
+}
 
 } // namespace TextAbstraction
 
