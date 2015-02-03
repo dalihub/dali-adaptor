@@ -81,6 +81,11 @@ public:
   FontId FindDefaultFont( Character charcode );
 
   /**
+   * @copydoc Dali::FontClient::GetFontMetrics()
+   */
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
+
+  /**
    * @copydoc Dali::FontClient::GetGlyphIndex()
    */
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );

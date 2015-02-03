@@ -14,6 +14,7 @@ text_abstraction_src_files = \
 text_abstraction_header_files = \
    $(text_src_dir)/dali/public-api/text-abstraction/font-client.h \
    $(text_src_dir)/dali/public-api/text-abstraction/font-list.h \
+   $(text_src_dir)/dali/public-api/text-abstraction/font-metrics.h \
    $(text_src_dir)/dali/public-api/text-abstraction/glyph-info.h \
    $(text_src_dir)/dali/public-api/text-abstraction/bidirectional-support.h \
    $(text_src_dir)/dali/public-api/text-abstraction/segmentation.h \
