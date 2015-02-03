@@ -24,6 +24,7 @@
 #include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/public-api/text-abstraction/glyph-info.h>
 #include <dali/public-api/text-abstraction/font-list.h>
+#include <dali/public-api/text-abstraction/font-metrics.h>
 
 namespace Dali
 {
@@ -139,6 +140,14 @@ public:
    * @return A valid font ID, or zero if no appropriate font was found.
    */
   FontId FindDefaultFont( Character charcode );
+
+  /**
+   * @brief Query the metrics for a font.
+   *
+   * @param[in] fontId The ID of the font for the required glyph.
+   * @param[out] metrics The font metrics.
+   */
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.

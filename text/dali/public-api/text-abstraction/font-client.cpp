@@ -76,6 +76,11 @@ FontId FontClient::FindDefaultFont( Character charcode )
   return GetImplementation(*this).FindDefaultFont( charcode );
 }
 
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+{
+  GetImplementation(*this).GetFontMetrics( fontId, metrics );
+}
+
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
 {
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );

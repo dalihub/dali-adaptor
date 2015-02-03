@@ -42,11 +42,12 @@ struct FontClient::Plugin
 {
   struct CacheItem
   {
-    CacheItem( FontId id, FT_Face ftFace, const std::string& path, PointSize26Dot6 pointSize, FaceIndex face )
+    CacheItem( FontId id, FT_Face ftFace, const std::string& path, PointSize26Dot6 pointSize, FaceIndex face, const FontMetrics& metrics )
     : mFreeTypeFace( ftFace ),
       mPath( path ),
       mPointSize( pointSize ),
-      mFaceIndex( face )
+      mFaceIndex( face ),
+      mMetrics( metrics )
     {
     }
 
@@ -54,6 +55,7 @@ struct FontClient::Plugin
     std::string mPath;
     PointSize26Dot6 mPointSize;
     FaceIndex mFaceIndex;
+    FontMetrics mMetrics;
   };
 
   Plugin( unsigned int horizontalDpi, unsigned int verticalDpi )
@@ -236,7 +238,11 @@ struct FontClient::Plugin
       if( FT_Err_Ok == error )
       {
         id = mFontCache.size() + 1;
-        mFontCache.push_back( CacheItem( id, ftFace, path, pointSize, faceIndex ) );
+
+        FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
+        FontMetrics metrics( ftMetrics.ascender, ftMetrics.descender, ftMetrics.height );
+
+        mFontCache.push_back( CacheItem( id, ftFace, path, pointSize, faceIndex, metrics ) );
       }
       else
       {
@@ -255,6 +261,19 @@ struct FontClient::Plugin
   {
     // TODO - Return cached results based on script
     return FontId(0);
+  }
+
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics )
+  {
+    if( fontId > 0 &&
+        fontId-1 < mFontCache.size() )
+    {
+      metrics = mFontCache[fontId-1].mMetrics;
+    }
+    else
+    {
+      DALI_LOG_ERROR( "Invalid font ID %d\n", fontId );
+    }
   }
 
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
@@ -475,6 +494,13 @@ FontId FontClient::FindDefaultFont( Character charcode )
   CreatePlugin();
 
   return mPlugin->FindDefaultFont( charcode );
+}
+
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+{
+  CreatePlugin();
+
+  return mPlugin->GetFontMetrics( fontId, metrics );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
