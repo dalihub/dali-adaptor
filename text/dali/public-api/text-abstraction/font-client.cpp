@@ -27,6 +27,8 @@ namespace Dali
 namespace TextAbstraction
 {
 
+const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
+
 FontClient FontClient::Get()
 {
   return Internal::FontClient::Get();
@@ -61,9 +63,19 @@ void FontClient::GetSystemFonts( FontList& systemFonts )
   GetImplementation(*this).GetSystemFonts( systemFonts );
 }
 
-bool FontClient::FindSystemFont( Character charcode, FontDescription& systemFont )
+void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
 {
-  return GetImplementation(*this).FindSystemFont( charcode, systemFont );
+  GetImplementation(*this).GetDescription( id, fontDescription );
+}
+
+PointSize26Dot6 FontClient::GetPointSize( FontId id )
+{
+  return GetImplementation(*this).GetPointSize( id );
+}
+
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize )
+{
+  return GetImplementation(*this).FindDefaultFont( charcode, pointSize );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -71,9 +83,15 @@ FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, F
   return GetImplementation(*this).GetFontId( path, pointSize, faceIndex );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode )
+FontId FontClient::GetFontId( const FontFamily& fontFamily,
+                              const FontStyle& fontStyle,
+                              PointSize26Dot6 pointSize,
+                              FaceIndex faceIndex )
 {
-  return GetImplementation(*this).FindDefaultFont( charcode );
+  return GetImplementation(*this).GetFontId( fontFamily,
+                                             fontStyle,
+                                             pointSize,
+                                             faceIndex );
 }
 
 void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )

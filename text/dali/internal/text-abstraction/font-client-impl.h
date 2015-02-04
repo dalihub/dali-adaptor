@@ -36,7 +36,7 @@ namespace Internal
 /**
  * Implementation of the FontClient
  */
-class FontClient : public Dali::BaseObject
+class FontClient : public BaseObject
 {
 public:
 
@@ -66,19 +66,32 @@ public:
   void GetSystemFonts( FontList& systemFonts );
 
   /**
-   * @copydoc Dali::FontClient::FindSystemFont()
+   * @copydoc Dali::FontClient::GetDescription()
    */
-  bool FindSystemFont( Character charcode, FontDescription& systemFont );
+  void GetDescription( FontId id, FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId()
+   * @copydoc Dali::FontClient::GetPointSize()
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
+  PointSize26Dot6 GetPointSize( FontId id );
 
   /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
-  FontId FindDefaultFont( Character charcode );
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize );
+
+  /**
+   * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   */
+  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
+
+  /**
+   * @copydoc Dali::FontClient::GetFontId(const FontFamily& fontFamily, const FontStyle& fontStyle, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   */
+  FontId GetFontId( const FontFamily& fontFamily,
+                    const FontStyle& fontStyle,
+                    PointSize26Dot6 pointSize,
+                    FaceIndex faceIndex );
 
   /**
    * @copydoc Dali::FontClient::GetFontMetrics()

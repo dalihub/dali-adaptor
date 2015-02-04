@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -36,7 +37,7 @@ namespace Internal
 /**
  * Implementation of the BidirectionalSupport
  */
-class BidirectionalSupport : public Dali::BaseObject
+class BidirectionalSupport : public BaseObject
 {
 public:
 

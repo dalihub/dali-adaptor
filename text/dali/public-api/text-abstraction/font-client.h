@@ -18,10 +18,9 @@
  *
  */
 
+// INTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/images/bitmap-image.h>
-#include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/public-api/text-abstraction/glyph-info.h>
 #include <dali/public-api/text-abstraction/font-list.h>
 #include <dali/public-api/text-abstraction/font-metrics.h>
@@ -59,6 +58,9 @@ class FontClient;
 class DALI_IMPORT_API FontClient : public BaseHandle
 {
 public:
+  static const PointSize26Dot6 DEFAULT_POINT_SIZE; ///< The default point size.
+
+public:
 
   /**
    * @brief Retrieve a handle to the FontClient instance.
@@ -94,6 +96,10 @@ public:
    */
   FontClient& operator=( const FontClient& handle );
 
+  ////////////////////////////////////////
+  // Font management and validation.
+  ////////////////////////////////////////
+
   /**
    * @brief Set the DPI of the target window.
    *
@@ -111,15 +117,33 @@ public:
   void GetSystemFonts( FontList& systemFonts );
 
   /**
-   * @brief Find an appropriate system-font for displaying a UTF-32 character.
+   * @brief Retrieves the font description of a given font @p id.
+   *
+   * @param[in] id The font id.
+   * @param[out] fontDescription The path, family & style describing the font.
+   */
+  void GetDescription( FontId id, FontDescription& fontDescription );
+
+  /**
+   * @brief Retrieves the font point size of a given font @p id.
+   *
+   * @param[in] id The font id.
+   *
+   * @return The point size in 26.6 fractional points.
+   */
+  PointSize26Dot6 GetPointSize( FontId id );
+
+  /**
+   * @brief Find an appropriate font for displaying a UTF-32 character.
    *
    * This is useful when localised strings are provided for multiple languages
    * i.e. when a single default font does not work for all languages.
    * @param[in] charcode The character for which a font is needed.
-   * @param[out] systemFont The path, family & style describing the font.
-   * @return True if an appropriate system font was found.
+   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @return A valid font ID, or zero if the font does not exist.
    */
-  bool FindSystemFont( Character charcode, FontDescription& systemFont );
+  FontId FindDefaultFont( Character charcode,
+                          PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE );
 
   /**
    * @brief Retrieve the unique identifier for a font.
@@ -129,17 +153,25 @@ public:
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = 12*64, FaceIndex faceIndex = 0 );
+  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE, FaceIndex faceIndex = 0 );
 
   /**
-   * @brief Retrieve the ID of the default font for displaying a UTF-32 character.
+   * @brief Retrieve the unique identifier for a font.
    *
-   * This is useful when localised strings are provided for multiple languages
-   * i.e. when a single default font does not work for all languages.
-   * @param[in] charcode The character for which a font is needed.
-   * @return A valid font ID, or zero if no appropriate font was found.
+   * @param[in] fontFamily The font family name.
+   * @param[in] fontStyle  The font style.
+   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] faceIndex The index of the font face (optional).
+   * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId FindDefaultFont( Character charcode );
+  FontId GetFontId( const FontFamily& fontFamily,
+                    const FontStyle& fontStyle,
+                    PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                    FaceIndex faceIndex = 0 );
+
+  ////////////////////////////////////////
+  // Font metrics, glyphs and bitmaps.
+  ////////////////////////////////////////
 
   /**
    * @brief Query the metrics for a font.

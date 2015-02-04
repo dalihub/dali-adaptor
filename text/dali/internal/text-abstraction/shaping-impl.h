@@ -36,7 +36,7 @@ namespace Internal
 /**
  * Implementation of the Shaping
  */
-class Shaping : public Dali::BaseObject
+class Shaping : public BaseObject
 {
 public:
 

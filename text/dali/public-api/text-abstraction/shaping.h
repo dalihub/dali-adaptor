@@ -19,7 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/text-abstraction.h>
+#include <dali/public-api/text-abstraction/script.h>
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
@@ -29,6 +30,8 @@ namespace Dali
 
 namespace TextAbstraction
 {
+
+struct GlyphInfo;
 
 namespace Internal DALI_INTERNAL
 {
@@ -63,7 +66,7 @@ class DALI_IMPORT_API Shaping : public BaseHandle
 public:
 
   /**
-   * @brief Create an uninitialized TextAbstraction handle.
+   * @brief Create an uninitialized Shaping handle.
    *
    */
   Shaping();
@@ -85,7 +88,7 @@ public:
   /**
    * @brief Retrieve a handle to the Shaping instance.
    *
-   * @return A handle to the Shaping
+   * @return A handle to the Shaping.
    */
   static Shaping Get();
 

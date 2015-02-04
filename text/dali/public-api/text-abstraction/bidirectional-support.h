@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/text-abstraction.h>
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>

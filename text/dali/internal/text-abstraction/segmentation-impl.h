@@ -37,7 +37,7 @@ namespace Internal
  * Implementation of the Segmentation
  */
 
-class Segmentation : public Dali::BaseObject
+class Segmentation : public BaseObject
 {
 public:
 

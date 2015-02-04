@@ -182,11 +182,20 @@ struct FontClient::Plugin
     return false;
   }
 
-  bool FindSystemFont( Character charcode, FontDescription& systemFont )
+  void GetDescription( FontId id, FontDescription& fontDescription ) const
+  {
+    // TODO
+  }
+
+  PointSize26Dot6 GetPointSize( FontId id )
+  {
+    return 12*64;
+  }
+
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize )
   {
     // TODO - Use FcCharSetHasChar()
-
-    return false;
+    return FontId(0);
   }
 
   FontId GetFontId( const std::string& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -207,6 +216,14 @@ struct FontClient::Plugin
     }
 
     return id;
+  }
+
+  FontId GetFontId( const FontFamily& fontFamily,
+                    const FontStyle& fontStyle,
+                    PointSize26Dot6 pointSize,
+                    FaceIndex faceIndex )
+  {
+    return 0u;
   }
 
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode )
@@ -266,12 +283,6 @@ struct FontClient::Plugin
     }
 
     return id;
-  }
-
-  FontId FindDefaultFont( Character charcode )
-  {
-    // TODO - Return cached results based on script
-    return FontId(0);
   }
 
   void GetFontMetrics( FontId fontId, FontMetrics& metrics )
@@ -479,6 +490,18 @@ void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
   }
 }
 
+void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
+{
+  CreatePlugin();
+}
+
+PointSize26Dot6 FontClient::GetPointSize( FontId id )
+{
+  CreatePlugin();
+
+  return mPlugin->GetPointSize( id );
+}
+
 void FontClient::GetSystemFonts( FontList& systemFonts )
 {
   CreatePlugin();
@@ -486,11 +509,11 @@ void FontClient::GetSystemFonts( FontList& systemFonts )
   mPlugin->GetSystemFonts( systemFonts );
 }
 
-bool FontClient::FindSystemFont( Character charcode, FontDescription& systemFont )
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize )
 {
   CreatePlugin();
 
-  return mPlugin->FindSystemFont( charcode, systemFont );
+  return mPlugin->FindDefaultFont( charcode, pointSize );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -500,11 +523,17 @@ FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, F
   return mPlugin->GetFontId( path, pointSize, faceIndex );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode )
+FontId FontClient::GetFontId( const FontFamily& fontFamily,
+                              const FontStyle& fontStyle,
+                              PointSize26Dot6 pointSize,
+                              FaceIndex faceIndex )
 {
   CreatePlugin();
 
-  return mPlugin->FindDefaultFont( charcode );
+  return mPlugin->GetFontId( fontFamily,
+                             fontStyle,
+                             pointSize,
+                             faceIndex );
 }
 
 void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )

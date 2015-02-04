@@ -62,12 +62,12 @@ TextAbstraction::Segmentation Segmentation::Get()
     }
     else // create and register the object
     {
-      segmentationHandle = TextAbstraction::Segmentation( new Segmentation);
+      segmentationHandle = TextAbstraction::Segmentation( new Segmentation );
       service.Register( typeid( segmentationHandle ), segmentationHandle );
     }
   }
 
-   return segmentationHandle;
+  return segmentationHandle;
 }
 
 void Segmentation::GetLineBreakPositions( const Character* const text,
