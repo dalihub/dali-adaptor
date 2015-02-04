@@ -24,15 +24,14 @@
 namespace Dali
 {
 
-namespace Internal
-{
-
 namespace TextAbstraction
 {
 
+namespace Internal
+{
 
 Shaping::Shaping()
-:mPlugin(NULL)
+: mPlugin( NULL )
 {
 
 }
@@ -42,31 +41,33 @@ Shaping::~Shaping()
 
 }
 
-Dali::TextAbstraction::Shaping Shaping::Get()
+TextAbstraction::Shaping Shaping::Get()
 {
-  Dali::TextAbstraction::Shaping shapingHandle;
+  TextAbstraction::Shaping shapingHandle;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  SingletonService service( SingletonService::Get() );
+  if( service )
   {
-     // Check whether the singleton is already created
-     Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::TextAbstraction::Shaping ) );
-     if(handle)
-     {
-       // If so, downcast the handle
-       Shaping* impl = dynamic_cast< Dali::Internal::TextAbstraction::Shaping* >( handle.GetObjectPtr() );
-       shapingHandle = Dali::TextAbstraction::Shaping( impl );
-     }
-     else // create and register the object
-     {
-       shapingHandle = Dali::TextAbstraction::Shaping( new Shaping);
-       service.Register( typeid( shapingHandle ), shapingHandle );
-     }
-   }
+    // Check whether the singleton is already created
+    Dali::BaseHandle handle = service.GetSingleton( typeid( TextAbstraction::Shaping ) );
+    if( handle )
+    {
+      // If so, downcast the handle
+      Shaping* impl = dynamic_cast< Internal::Shaping* >( handle.GetObjectPtr() );
+      shapingHandle = TextAbstraction::Shaping( impl );
+    }
+    else // create and register the object
+    {
+      shapingHandle = TextAbstraction::Shaping( new Shaping );
+      service.Register( typeid( shapingHandle ), shapingHandle );
+    }
+  }
 
-   return shapingHandle;
+  return shapingHandle;
 }
 
-} // namespace Shaping
 } // namespace Internal
+
+} // namespace TextAbstraction
+
 } // namespace Dali

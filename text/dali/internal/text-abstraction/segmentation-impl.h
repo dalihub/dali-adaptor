@@ -27,17 +27,17 @@
 namespace Dali
 {
 
-namespace Internal
+namespace TextAbstraction
 {
 
-namespace TextAbstraction
+namespace Internal
 {
 
 /**
  * Implementation of the Segmentation
  */
 
-class Segmentation :  public Dali::BaseObject
+class Segmentation : public Dali::BaseObject
 {
 public:
 
@@ -54,22 +54,22 @@ public:
   /**
    * @copydoc Dali::Segmentation::Get()
    */
-  static Dali::TextAbstraction::Segmentation Get();
+  static TextAbstraction::Segmentation Get();
 
   /**
    * @copydoc Dali::Segmentation::GetLineBreakPositions()
    */
-  void GetLineBreakPositions( const Dali::TextAbstraction::Character* const text,
-                              Dali::TextAbstraction::Length numberOfCharacters,
-                              Dali::TextAbstraction::LineBreakInfo* breakInfo );
+  void GetLineBreakPositions( const Character* const text,
+                              Length numberOfCharacters,
+                              LineBreakInfo* breakInfo );
 
 
   /**
    * @copydoc Dali::Segmentation::GetWordBreakPositions()
    */
-  void GetWordBreakPositions( const Dali::TextAbstraction::Character* const text,
-                              Dali::TextAbstraction::Length numberOfCharacters,
-                              Dali::TextAbstraction::WordBreakInfo* breakInfo );
+  void GetWordBreakPositions( const Character* const text,
+                              Length numberOfCharacters,
+                              WordBreakInfo* breakInfo );
 
 private:
 
@@ -83,23 +83,22 @@ private:
 
 }; // class Segmentation
 
+} // namespace Internal
 
 } // namespace TextAbstraction
 
-} // namespace Internal
-
-inline static Internal::TextAbstraction::Segmentation& GetImplementation(Dali::TextAbstraction::Segmentation& reordering)
+inline static TextAbstraction::Internal::Segmentation& GetImplementation( TextAbstraction::Segmentation& segmentation )
 {
-  DALI_ASSERT_ALWAYS( reordering && "reordering handle is empty" );
-  BaseObject& handle = reordering.GetBaseObject();
-  return static_cast<Internal::TextAbstraction::Segmentation&>(handle);
+  DALI_ASSERT_ALWAYS( segmentation && "segmentation handle is empty" );
+  BaseObject& handle = segmentation.GetBaseObject();
+  return static_cast<TextAbstraction::Internal::Segmentation&>( handle );
 }
 
-inline static const  Internal::TextAbstraction::Segmentation& GetImplementation(const Dali::TextAbstraction::Segmentation& reordering)
+inline static const TextAbstraction::Internal::Segmentation& GetImplementation( const TextAbstraction::Segmentation& segmentation )
 {
-  DALI_ASSERT_ALWAYS( reordering && "reordering handle is empty" );
-  const BaseObject& handle = reordering.GetBaseObject();
-  return static_cast<const Internal::TextAbstraction::Segmentation&>(handle);
+  DALI_ASSERT_ALWAYS( segmentation && "segmentation handle is empty" );
+  const BaseObject& handle = segmentation.GetBaseObject();
+  return static_cast<const TextAbstraction::Internal::Segmentation&>( handle );
 }
 
 } // namespace Dali

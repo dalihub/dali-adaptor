@@ -35,14 +35,14 @@ BidirectionalSupport::~BidirectionalSupport()
 {
 }
 
-BidirectionalSupport::BidirectionalSupport( Dali::Internal::TextAbstraction::BidirectionalSupport* implementation )
+BidirectionalSupport::BidirectionalSupport( Internal::BidirectionalSupport* implementation )
 : BaseHandle( implementation )
 {
 }
 
 BidirectionalSupport BidirectionalSupport::Get()
 {
-  return Dali::Internal::TextAbstraction::BidirectionalSupport::Get();
+  return Internal::BidirectionalSupport::Get();
 }
 
 BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,

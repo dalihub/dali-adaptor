@@ -27,18 +27,20 @@
 namespace Dali
 {
 
+namespace TextAbstraction
+{
+
 namespace Internal DALI_INTERNAL
 {
 
-namespace TextAbstraction
-{
 class BidirectionalSupport;
-} // TextAbstraction
+
 } // Internal
 
+} // TextAbstraction
+
 namespace TextAbstraction
 {
-
 
 /**
  * BidirectionalSupport API
@@ -67,7 +69,7 @@ public:
    *
    * @param[in] implementation a pointer to the internal bidirectional support object.
    */
-  explicit DALI_INTERNAL BidirectionalSupport( Dali::Internal::TextAbstraction::BidirectionalSupport* implementation );
+  explicit DALI_INTERNAL BidirectionalSupport( Internal::BidirectionalSupport* implementation );
 
   /**
    * @brief Retrieve a handle to the BidirectionalSupport instance.

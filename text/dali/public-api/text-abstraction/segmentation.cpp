@@ -35,14 +35,14 @@ Segmentation::~Segmentation()
 {
 }
 
-Segmentation::Segmentation( Dali::Internal::TextAbstraction::Segmentation* implementation )
+Segmentation::Segmentation( Internal::Segmentation* implementation )
 : BaseHandle( implementation )
 {
 }
 
 Segmentation Segmentation::Get()
 {
-  return Dali::Internal::TextAbstraction::Segmentation::Get();
+  return Internal::Segmentation::Get();
 }
 
 void Segmentation::GetLineBreakPositions( const Character* const text,
