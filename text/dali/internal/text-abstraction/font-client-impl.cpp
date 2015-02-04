@@ -293,19 +293,19 @@ struct FontClient::Plugin
 
         if( FT_Err_Ok == error )
         {
-          array[i].width  = ftFace->glyph->metrics.width;
-          array[i].height = ftFace->glyph->metrics.height;
+          array[i].width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
+          array[i].height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
           if( horizontal )
           {
-            array[i].xBearing = ftFace->glyph->metrics.horiBearingX;
-            array[i].yBearing = ftFace->glyph->metrics.horiBearingY;
-            array[i].advance  = ftFace->glyph->metrics.horiAdvance;
+            array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
+            array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
+            array[i].advance  = static_cast< float >( ftFace->glyph->metrics.horiAdvance ) * FROM_266;
           }
           else
           {
-            array[i].xBearing = ftFace->glyph->metrics.vertBearingX;
-            array[i].yBearing = ftFace->glyph->metrics.vertBearingY;
-            array[i].advance  = ftFace->glyph->metrics.vertAdvance;
+            array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
+            array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
+            array[i].advance  = static_cast< float >( ftFace->glyph->metrics.vertAdvance ) * FROM_266;
           }
         }
         else
