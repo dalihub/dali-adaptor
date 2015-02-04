@@ -61,7 +61,7 @@ private:
    */
   virtual void Save(const Integration::ResourceRequest& request);
 
-}; // class ResourceThreadImage
+}; // class ResourceThreadDistanceField
 
 } // namespace SlpPlatform
 
