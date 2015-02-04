@@ -21,6 +21,10 @@
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 
+// EXTERNAL INCLUDES
+#include <linebreak.h>
+#include <wordbreak.h>
+
 namespace Dali
 {
 
@@ -70,12 +74,14 @@ void Segmentation::GetLineBreakPositions( const Dali::TextAbstraction::Character
                                           Dali::TextAbstraction::Length numberOfCharacters,
                                           Dali::TextAbstraction::LineBreakInfo* breakInfo )
 {
+  set_linebreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
 }
 
 void Segmentation::GetWordBreakPositions( const Dali::TextAbstraction::Character* const text,
                                           Dali::TextAbstraction::Length numberOfCharacters,
                                           Dali::TextAbstraction::WordBreakInfo* breakInfo )
 {
+  set_wordbreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
 }
 
 } // namespace TextAbstraction
