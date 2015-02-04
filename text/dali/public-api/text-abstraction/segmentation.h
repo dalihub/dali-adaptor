@@ -27,14 +27,17 @@
 namespace Dali
 {
 
+namespace TextAbstraction
+{
+
 namespace Internal DALI_INTERNAL
 {
 
-namespace TextAbstraction
-{
 class Segmentation;
-} // TextAbstraction
+
 } // Internal
+
+} // TextAbstraction
 
 namespace TextAbstraction
 {
@@ -66,7 +69,7 @@ public:
    *
    * @param[in] implementation A pointer to the internal segmentation object.
    */
-  explicit DALI_INTERNAL Segmentation( Dali::Internal::TextAbstraction::Segmentation* implementation );
+  explicit DALI_INTERNAL Segmentation( Internal::Segmentation* implementation );
 
   /**
    * @brief Retrieve a handle to the Segmentation instance.

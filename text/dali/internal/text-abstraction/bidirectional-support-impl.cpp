@@ -24,10 +24,10 @@
 namespace Dali
 {
 
-namespace Internal
+namespace TextAbstraction
 {
 
-namespace TextAbstraction
+namespace Internal
 {
 
 BidirectionalSupport::BidirectionalSupport()
@@ -41,50 +41,50 @@ BidirectionalSupport::~BidirectionalSupport()
 
 }
 
-Dali::TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
+TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
 {
-  Dali::TextAbstraction::BidirectionalSupport bidirectionalSupportHandle;
+  TextAbstraction::BidirectionalSupport bidirectionalSupportHandle;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  SingletonService service( SingletonService::Get() );
+  if( service )
   {
-     // Check whether the singleton is already created
-     Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::TextAbstraction::BidirectionalSupport ) );
-     if(handle)
-     {
-       // If so, downcast the handle
-       BidirectionalSupport* impl = dynamic_cast< Dali::Internal::TextAbstraction::BidirectionalSupport* >( handle.GetObjectPtr() );
-       bidirectionalSupportHandle = Dali::TextAbstraction::BidirectionalSupport( impl );
-     }
-     else // create and register the object
-     {
-       bidirectionalSupportHandle = Dali::TextAbstraction::BidirectionalSupport( new BidirectionalSupport);
-       service.Register( typeid( bidirectionalSupportHandle ), bidirectionalSupportHandle );
-     }
-   }
+    // Check whether the singleton is already created
+    BaseHandle handle = service.GetSingleton( typeid( TextAbstraction::BidirectionalSupport ) );
+    if(handle)
+    {
+      // If so, downcast the handle
+      BidirectionalSupport* impl = dynamic_cast< Internal::BidirectionalSupport* >( handle.GetObjectPtr() );
+      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport( impl );
+    }
+    else // create and register the object
+    {
+      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport( new BidirectionalSupport );
+      service.Register( typeid( bidirectionalSupportHandle ), bidirectionalSupportHandle );
+    }
+  }
 
-   return bidirectionalSupportHandle;
+  return bidirectionalSupportHandle;
 }
 
-Dali::TextAbstraction::BidiInfoIndex BidirectionalSupport::CreateInfo( const Dali::TextAbstraction::Character* const paragraph,
-                                                                       Dali::TextAbstraction::Length numberOfCharacters )
+BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,
+                                                Length numberOfCharacters )
 {
   return 0u;
 }
 
-void BidirectionalSupport::DestroyInfo( Dali::TextAbstraction::BidiInfoIndex bidiInfoIndex )
+void BidirectionalSupport::DestroyInfo( BidiInfoIndex bidiInfoIndex )
 {
 }
 
-void BidirectionalSupport::Reorder( Dali::TextAbstraction::BidiInfoIndex bidiInfoIndex,
-                                    Dali::TextAbstraction::CharacterIndex firstCharacterIndex,
-                                    Dali::TextAbstraction::Length numberOfCharacters,
-                                    Dali::TextAbstraction::CharacterIndex* visualToLogicalMap )
+void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
+                                    CharacterIndex firstCharacterIndex,
+                                    Length numberOfCharacters,
+                                    CharacterIndex* visualToLogicalMap )
 {
 }
-
-} // namespace TextAbstraction
 
 } // namespace Internal
+
+} // namespace TextAbstraction
 
 } // namespace Dali

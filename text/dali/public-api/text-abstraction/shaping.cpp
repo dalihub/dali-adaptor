@@ -30,17 +30,19 @@ namespace TextAbstraction
 Shaping::Shaping()
 {
 }
+
 Shaping::~Shaping()
 {
 }
-Shaping::Shaping(Dali::Internal::TextAbstraction::Shaping *impl)
-  : BaseHandle(impl)
+
+Shaping::Shaping( Internal::Shaping *impl )
+: BaseHandle( impl )
 {
 }
 
 Shaping Shaping::Get()
 {
-  return Dali::Internal::TextAbstraction::Shaping::Get();
+  return Internal::Shaping::Get();
 }
 
 

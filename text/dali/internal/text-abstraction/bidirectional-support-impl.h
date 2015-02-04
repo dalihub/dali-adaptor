@@ -27,17 +27,17 @@
 namespace Dali
 {
 
-namespace Internal
+namespace TextAbstraction
 {
 
-namespace TextAbstraction
+namespace Internal
 {
 
 /**
  * Implementation of the BidirectionalSupport
  */
 
-class BidirectionalSupport :  public Dali::BaseObject
+class BidirectionalSupport : public Dali::BaseObject
 {
 public:
 
@@ -54,26 +54,26 @@ public:
   /**
    * @copydoc Dali::BidirectionalSupport::Get()
    */
-  static Dali::TextAbstraction::BidirectionalSupport Get();
+  static TextAbstraction::BidirectionalSupport Get();
 
   /**
    * @copydoc Dali::BidirectionalSupport::CreateInfo()
    */
-  Dali::TextAbstraction::BidiInfoIndex CreateInfo( const Dali::TextAbstraction::Character* const paragraph,
-                                                   Dali::TextAbstraction::Length numberOfCharacters );
+  BidiInfoIndex CreateInfo( const Character* const paragraph,
+                            Length numberOfCharacters );
 
   /**
    * @copydoc Dali::BidirectionalSupport::DestroyInfo()
    */
-  void DestroyInfo( Dali::TextAbstraction::BidiInfoIndex bidiInfoIndex );
+  void DestroyInfo( BidiInfoIndex bidiInfoIndex );
 
   /**
    * @copydoc Dali::BidirectionalSupport::Reorder()
    */
-  void Reorder( Dali::TextAbstraction::BidiInfoIndex bidiInfoIndex,
-                Dali::TextAbstraction::CharacterIndex firstCharacterIndex,
-                Dali::TextAbstraction::Length numberOfCharacters,
-                Dali::TextAbstraction::CharacterIndex* visualToLogicalMap );
+  void Reorder( BidiInfoIndex bidiInfoIndex,
+                CharacterIndex firstCharacterIndex,
+                Length numberOfCharacters,
+                CharacterIndex* visualToLogicalMap );
 
 private:
 
@@ -87,23 +87,22 @@ private:
 
 }; // class BidirectionalSupport
 
+} // namespace Internal
 
 } // namespace TextAbstraction
 
-} // namespace Internal
-
-inline static Internal::TextAbstraction::BidirectionalSupport& GetImplementation(Dali::TextAbstraction::BidirectionalSupport& bidirectionalSupport)
+inline static TextAbstraction::Internal::BidirectionalSupport& GetImplementation( TextAbstraction::BidirectionalSupport& bidirectionalSupport )
 {
   DALI_ASSERT_ALWAYS( bidirectionalSupport && "bidirectional support handle is empty" );
   BaseObject& handle = bidirectionalSupport.GetBaseObject();
-  return static_cast<Internal::TextAbstraction::BidirectionalSupport&>(handle);
+  return static_cast<TextAbstraction::Internal::BidirectionalSupport&>(handle);
 }
 
-inline static const  Internal::TextAbstraction::BidirectionalSupport& GetImplementation(const Dali::TextAbstraction::BidirectionalSupport& bidirectionalSupport)
+inline static const TextAbstraction::Internal::BidirectionalSupport& GetImplementation( const TextAbstraction::BidirectionalSupport& bidirectionalSupport )
 {
   DALI_ASSERT_ALWAYS( bidirectionalSupport && "bidirectional support handle is empty" );
   const BaseObject& handle = bidirectionalSupport.GetBaseObject();
-  return static_cast<const Internal::TextAbstraction::BidirectionalSupport&>(handle);
+  return static_cast<const TextAbstraction::Internal::BidirectionalSupport&>(handle);
 }
 
 } // namespace Dali

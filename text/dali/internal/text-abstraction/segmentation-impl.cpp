@@ -28,10 +28,10 @@
 namespace Dali
 {
 
-namespace Internal
+namespace TextAbstraction
 {
 
-namespace TextAbstraction
+namespace Internal
 {
 
 Segmentation::Segmentation()
@@ -45,47 +45,47 @@ Segmentation::~Segmentation()
 
 }
 
-Dali::TextAbstraction::Segmentation Segmentation::Get()
+TextAbstraction::Segmentation Segmentation::Get()
 {
-  Dali::TextAbstraction::Segmentation segmentationHandle;
+  TextAbstraction::Segmentation segmentationHandle;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  SingletonService service( SingletonService::Get() );
+  if( service )
   {
-     // Check whether the singleton is already created
-     Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::TextAbstraction::Segmentation ) );
-     if(handle)
-     {
-       // If so, downcast the handle
-       Segmentation* impl = dynamic_cast< Dali::Internal::TextAbstraction::Segmentation* >( handle.GetObjectPtr() );
-       segmentationHandle = Dali::TextAbstraction::Segmentation( impl );
-     }
-     else // create and register the object
-     {
-       segmentationHandle = Dali::TextAbstraction::Segmentation( new Segmentation);
-       service.Register( typeid( segmentationHandle ), segmentationHandle );
-     }
-   }
+    // Check whether the singleton is already created
+    Dali::BaseHandle handle = service.GetSingleton( typeid( TextAbstraction::Segmentation ) );
+    if( handle )
+    {
+      // If so, downcast the handle
+      Segmentation* impl = dynamic_cast< Internal::Segmentation* >( handle.GetObjectPtr() );
+      segmentationHandle = TextAbstraction::Segmentation( impl );
+    }
+    else // create and register the object
+    {
+      segmentationHandle = TextAbstraction::Segmentation( new Segmentation);
+      service.Register( typeid( segmentationHandle ), segmentationHandle );
+    }
+  }
 
    return segmentationHandle;
 }
 
-void Segmentation::GetLineBreakPositions( const Dali::TextAbstraction::Character* const text,
-                                          Dali::TextAbstraction::Length numberOfCharacters,
-                                          Dali::TextAbstraction::LineBreakInfo* breakInfo )
+void Segmentation::GetLineBreakPositions( const Character* const text,
+                                          Length numberOfCharacters,
+                                          LineBreakInfo* breakInfo )
 {
   set_linebreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
 }
 
-void Segmentation::GetWordBreakPositions( const Dali::TextAbstraction::Character* const text,
-                                          Dali::TextAbstraction::Length numberOfCharacters,
-                                          Dali::TextAbstraction::WordBreakInfo* breakInfo )
+void Segmentation::GetWordBreakPositions( const Character* const text,
+                                          Length numberOfCharacters,
+                                          WordBreakInfo* breakInfo )
 {
   set_wordbreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
 }
 
-} // namespace TextAbstraction
-
 } // namespace Internal
+
+} // namespace TextAbstraction
 
 } // namespace Dali

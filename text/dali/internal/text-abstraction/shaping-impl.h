@@ -27,17 +27,16 @@
 namespace Dali
 {
 
-namespace Internal
+namespace TextAbstraction
 {
 
-namespace TextAbstraction
+namespace Internal
 {
 
 /**
  * Implementation of the Shaping
  */
-
-class Shaping :  public Dali::BaseObject
+class Shaping : public Dali::BaseObject
 {
 public:
 
@@ -54,7 +53,7 @@ public:
   /**
    * @copydoc Dali::Shaping::Get()
    */
-  static Dali::TextAbstraction::Shaping Get();
+  static TextAbstraction::Shaping Get();
 
 private:
 
@@ -68,23 +67,22 @@ private:
 
 }; // class Shaping
 
+} // namespace Internal
 
 } // namespace TextAbstraction
 
-} // namespace Internal
-
-inline static Internal::TextAbstraction::Shaping& GetImplementation(Dali::TextAbstraction::Shaping& shaping)
+inline static TextAbstraction::Internal::Shaping& GetImplementation( TextAbstraction::Shaping& shaping )
 {
   DALI_ASSERT_ALWAYS( shaping && "shaping handle is empty" );
   BaseObject& handle = shaping.GetBaseObject();
-  return static_cast<Internal::TextAbstraction::Shaping&>(handle);
+  return static_cast<TextAbstraction::Internal::Shaping&>( handle );
 }
 
-inline static const  Internal::TextAbstraction::Shaping& GetImplementation(const Dali::TextAbstraction::Shaping& shaping)
+inline static const TextAbstraction::Internal::Shaping& GetImplementation( const TextAbstraction::Shaping& shaping )
 {
   DALI_ASSERT_ALWAYS( shaping && "shaping handle is empty" );
   const BaseObject& handle = shaping.GetBaseObject();
-  return static_cast<const Internal::TextAbstraction::Shaping&>(handle);
+  return static_cast<const TextAbstraction::Internal::Shaping&>( handle );
 }
 
 } // namespace Dali
