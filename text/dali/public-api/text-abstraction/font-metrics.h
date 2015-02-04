@@ -29,21 +29,17 @@ namespace TextAbstraction
  */
 struct FontMetrics
 {
-  FontMetrics()
-  : ascender( 0 ),
-    descender( 0 ),
-    height( 0 )
-  {
-  }
+  /**
+   * @brief Default constructor.
+   */
+  FontMetrics();
 
+  /**
+   * @brief Create the font metrics in 26.6 fractional pixel format.
+   */
   FontMetrics( signed long ascender26Dot6,
                signed long descender26Dot6,
-               signed long height26Dot6 )
-  : ascender( ascender26Dot6 ),
-    descender( descender26Dot6 ),
-    height( height26Dot6 )
-  {
-  }
+               signed long height26Dot6 );
 
   signed long ascender;   ///< The ascender in 26.6 fractional pixels.
   signed long descender;  ///< The descender in 26.6 fractional pixels.

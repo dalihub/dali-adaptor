@@ -33,16 +33,15 @@ namespace TextAbstraction
  */
 struct GlyphInfo
 {
-  GlyphInfo()
-  : fontId( 0 ),
-    index( 0 ),
-    width( 0 ),
-    height( 0 ),
-    xBearing( 0 ),
-    yBearing( 0 ),
-    advance( 0 )
-  {
-  }
+  /**
+   * @brief Default constructor.
+   */
+  GlyphInfo();
+
+  /**
+   * @brief Creates the GlyphInfo without metrics.
+   */
+  GlyphInfo( FontId font, GlyphIndex i );
 
   FontId fontId;       ///< Identifies the font containing the glyph
   GlyphIndex index;    ///< Uniquely identifies a glyph for a given FontId
