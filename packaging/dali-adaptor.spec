@@ -55,7 +55,8 @@ BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  pkgconfig(vconf)
+BuildRequires:  vconf-devel
+BuildRequires:  vconf-keys-devel
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
