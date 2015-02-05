@@ -29,7 +29,7 @@ namespace TextAbstraction
 
 /**
  * The information describing a glyph (font ID, index, metrics)
- * The metrics have been converted from Fractional26.6 to floats.
+ * The metrics are in pixels.
  */
 struct GlyphInfo
 {
@@ -43,8 +43,8 @@ struct GlyphInfo
    */
   GlyphInfo( FontId font, GlyphIndex i );
 
-  FontId fontId;       ///< Identifies the font containing the glyph
-  GlyphIndex index;    ///< Uniquely identifies a glyph for a given FontId
+  FontId fontId;    ///< Identifies the font containing the glyph
+  GlyphIndex index; ///< Uniquely identifies a glyph for a given FontId
   float width;      ///< The width of the glyph
   float height;     ///< The height of the glyph
   float xBearing;   ///< The distance from the cursor position to the leftmost border of the glyph

@@ -34,14 +34,6 @@ namespace Internal
 {
 
 /**
- * Conversion from Fractional26.6 to float
- */
-namespace
-{
-   const float FROM_266 = 1.0f / 64.0f;
-}
-
-/**
  * Implementation of the FontClient
  */
 class FontClient : public Dali::BaseObject

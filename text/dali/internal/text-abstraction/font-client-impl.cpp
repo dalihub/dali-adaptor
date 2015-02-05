@@ -29,6 +29,14 @@
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 
+/**
+ * Conversion from Fractional26.6 to float
+ */
+namespace
+{
+const float FROM_266 = 1.0f / 64.0f;
+}
+
 namespace Dali
 {
 
@@ -240,7 +248,10 @@ struct FontClient::Plugin
         id = mFontCache.size() + 1;
 
         FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
-        FontMetrics metrics( ftMetrics.ascender, ftMetrics.descender, ftMetrics.height );
+
+        FontMetrics metrics( static_cast< float >( ftMetrics.ascender  ) * FROM_266,
+                             static_cast< float >( ftMetrics.descender ) * FROM_266,
+                             static_cast< float >( ftMetrics.height    ) * FROM_266 );
 
         mFontCache.push_back( CacheItem( id, ftFace, path, pointSize, faceIndex, metrics ) );
       }

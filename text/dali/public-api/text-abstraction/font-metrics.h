@@ -25,7 +25,7 @@ namespace TextAbstraction
 {
 
 /**
- * The metrics for a Font expressed in 26.6 fractional pixel format.
+ * The metrics for a Font expressed in pixels.
  */
 struct FontMetrics
 {
@@ -35,15 +35,15 @@ struct FontMetrics
   FontMetrics();
 
   /**
-   * @brief Create the font metrics in 26.6 fractional pixel format.
+   * @brief Create the font metrics in pixels.
    */
-  FontMetrics( signed long ascender26Dot6,
-               signed long descender26Dot6,
-               signed long height26Dot6 );
+  FontMetrics( float ascenderPixels,
+               float descenderPixels,
+               float heightPixels );
 
-  signed long ascender;   ///< The ascender in 26.6 fractional pixels.
-  signed long descender;  ///< The descender in 26.6 fractional pixels.
-  signed long height;     ///< The height in 26.6 fractional pixels.
+  float ascender;   ///< The ascender in pixels.
+  float descender;  ///< The descender in pixels.
+  float height;     ///< The height in pixels.
 };
 
 } // Dali

@@ -31,12 +31,12 @@ FontMetrics::FontMetrics()
 {
 }
 
-FontMetrics::FontMetrics( signed long ascender26Dot6,
-                          signed long descender26Dot6,
-                          signed long height26Dot6 )
-: ascender( ascender26Dot6 ),
-  descender( descender26Dot6 ),
-  height( height26Dot6 )
+FontMetrics::FontMetrics( float ascenderPixels,
+                          float descenderPixels,
+                          float heightPixels )
+: ascender( ascenderPixels ),
+  descender( descenderPixels ),
+  height( heightPixels )
 {
 }
 
