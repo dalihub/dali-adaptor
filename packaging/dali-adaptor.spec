@@ -258,19 +258,7 @@ exit 0
 ##############################
 
 %files
-
-%if "%{profile}" == "mobile" || "%{profile}" == "wearable"
-%manifest dali-adaptor.manifest-mobile
-%endif
-
-%if "%{profile}" == "tv"
-%manifest dali-adaptor.manifest-tv
-%endif
-
-%if "%{profile}" == "common"
 %manifest dali-adaptor.manifest
-%endif
-
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adap*.so*
 %defattr(-,app,app,-)
