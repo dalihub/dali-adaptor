@@ -45,7 +45,7 @@ class Orientation : public BaseObject, public RotationObserver
 {
 public:
 
-  typedef Dali::Orientation::OrientationSignalV2 OrientationSignalV2;
+  typedef Dali::Orientation::OrientationSignalType OrientationSignalType;
 
   static Orientation* New(Window* window);
 
@@ -84,7 +84,7 @@ public: // Signals
   /**
    * @copydoc Dali::Orientation::ChangedSignal()
    */
-  OrientationSignalV2& ChangedSignal();
+  OrientationSignalType& ChangedSignal();
 
 private:
   /**
@@ -111,7 +111,7 @@ private:
 
   Window*                                  mWindow;
 
-  OrientationSignalV2 mChangedSignal;
+  OrientationSignalType mChangedSignal;
 
   int                                      mOrientation;
   int                                      mWindowWidth;

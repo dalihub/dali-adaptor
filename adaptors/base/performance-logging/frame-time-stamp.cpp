@@ -61,7 +61,7 @@ FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex )
 
 unsigned int FrameTimeStamp::MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end )
 {
-  unsigned int microDiff = end.microseconds - start.microseconds;
+  int microDiff = end.microseconds - start.microseconds;
   unsigned int secDiff = ( end.seconds - start.seconds ) * MICROSECONDS_PER_SECOND;
   return ( microDiff + secDiff);
 }

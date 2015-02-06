@@ -59,7 +59,7 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 class Window : public Dali::BaseObject, public Indicator::Observer, public LifeCycleObserver
 {
 public:
-  typedef Dali::Window::IndicatorSignalV2 IndicatorSignalV2;
+  typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
 
   /**
    * Create a new Window. This should only be called once by the Application class
@@ -260,7 +260,7 @@ public: // Signals
   /**
    * The user should connect to this signal to get a timing when indicator was shown / hidden.
    */
-  IndicatorSignalV2& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignalV2; }
+  IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
 
 private:
 
@@ -290,7 +290,7 @@ private:
   Dali::Window::WindowOrientation              mPreferredOrientation;
 
   // Signals
-  IndicatorSignalV2 mIndicatorVisibilityChangedSignalV2;
+  IndicatorSignalType mIndicatorVisibilityChangedSignal;
 };
 
 } // namespace Adaptor

@@ -99,10 +99,10 @@ void ClipboardEventNotifier::ClearContent()
 
 void ClipboardEventNotifier::EmitContentSelectedSignal()
 {
-  if ( !mContentSelectedSignalV2.Empty() )
+  if ( !mContentSelectedSignal.Empty() )
   {
     Dali::ClipboardEventNotifier handle( this );
-    mContentSelectedSignalV2.Emit( handle );
+    mContentSelectedSignal.Emit( handle );
   }
 }
 

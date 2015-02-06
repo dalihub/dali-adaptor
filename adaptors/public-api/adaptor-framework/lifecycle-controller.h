@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -57,7 +57,7 @@ class DALI_IMPORT_API LifecycleController : public BaseHandle
 {
 public: // Typedefs
 
-  typedef SignalV2< void (void) > LifecycleSignalV2;   ///< Lifecycle Signal type
+  typedef Signal< void (void) > LifecycleSignalType;   ///< Lifecycle Signal type
 
 public: // Creation & Destruction
 
@@ -95,40 +95,40 @@ public: // Signals
    * The user should connect to this signal to determine when they should initialise
    * their application.
    */
-  LifecycleSignalV2& InitSignal();
+  LifecycleSignalType& InitSignal();
 
   /**
    * The user should connect to this signal to determine when they should terminate
    * their application
    */
-  LifecycleSignalV2& TerminateSignal();
+  LifecycleSignalType& TerminateSignal();
 
   /**
    * The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
    */
-  LifecycleSignalV2& PauseSignal();
+  LifecycleSignalType& PauseSignal();
 
   /**
    * The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
    */
-  LifecycleSignalV2& ResumeSignal();
+  LifecycleSignalType& ResumeSignal();
 
   /**
    * This signal is sent when the system requires the user to reinitialise itself.
    */
-  LifecycleSignalV2& ResetSignal();
+  LifecycleSignalType& ResetSignal();
 
   /**
    * This signal is emitted when the window the application is rendering on is resized.
    */
-  LifecycleSignalV2& ResizeSignal();
+  LifecycleSignalType& ResizeSignal();
 
   /**
    * This signal is emitted when the language is changed on the device.
    */
-  LifecycleSignalV2& LanguageChangedSignal();
+  LifecycleSignalType& LanguageChangedSignal();
 
 public: // Operators
 

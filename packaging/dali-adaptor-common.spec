@@ -1,3 +1,5 @@
+%bcond_with wayland
+
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
 Version:    1.0.28
@@ -35,12 +37,21 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
+BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  pkgconfig(libpng)
+%if %{with wayland}
+BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(egl)
+BuildRequires:  pkgconfig(ecore-wayland)
+BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(wayland-client)
+%else
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(gles20)
+%endif
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)
@@ -120,17 +131,17 @@ LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections "
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
 
-libtoolize --force
-cd %{_builddir}/%{name}-%{version}/build/tizen
-autoreconf --install
-DALI_DATA_RW_DIR="%{dali_data_rw_dir}" ; export DALI_DATA_RW_DIR
-DALI_DATA_RO_DIR="%{dali_data_ro_dir}" ; export DALI_DATA_RO_DIR
-FONT_PRELOADED_PATH="%{font_preloaded_path}" ; export FONT_PRELOADED_PATH
-FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
-FONT_APPLICATION_PATH="%{font_application_path}" ; export FONT_APPLICATION_PATH
-FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
+%if %{with wayland}
+CFLAGS+=" -DWAYLAND"
+CXXFLAGS+=" -DWAYLAND"
+configure_flags="--enable-wayland"
+%endif
 
-%configure --with-jpeg-turbo --enable-gles=20 --enable-profile=TV \
+libtoolize --force
+cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
+cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}"
+
+%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
@@ -140,7 +151,7 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %if 0%{?dali_assimp_plugin}
            --enable-assimp \
 %endif
-           --libdir=%{_libdir}
+           $configure_flags --libdir=%{_libdir}
 
 make %{?jobs:-j%jobs}
 
@@ -219,13 +230,12 @@ exit 0
 exit 0
 %endif
 
-
 ##############################
 # Files in Binary Packages
 ##############################
 
 %files
-%manifest dali-adaptor.manifest-tv
+%manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adap*.so*
 %defattr(-,app,app,-)

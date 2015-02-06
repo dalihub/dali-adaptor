@@ -57,7 +57,7 @@ void ClipboardEventNotifier::EmitContentSelectedSignal()
   Internal::Adaptor::ClipboardEventNotifier::GetImplementation(*this).EmitContentSelectedSignal();
 }
 
-ClipboardEventNotifier::ClipboardEventSignalV2& ClipboardEventNotifier::ContentSelectedSignal()
+ClipboardEventNotifier::ClipboardEventSignalType& ClipboardEventNotifier::ContentSelectedSignal()
 {
   return Internal::Adaptor::ClipboardEventNotifier::GetImplementation(*this).ContentSelectedSignal();
 }

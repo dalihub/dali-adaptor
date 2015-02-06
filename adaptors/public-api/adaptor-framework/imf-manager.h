@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -124,9 +124,9 @@ public:
     bool preeditResetRequired; ///< flag if preedit reset is required.
   };
 
-  typedef SignalV2< void (ImfManager&) > ImfManagerSignalV2; ///< Keyboard actived signal
+  typedef Signal< void (ImfManager&) > ImfManagerSignalType; ///< Keyboard actived signal
 
-  typedef SignalV2< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalV2; ///< keyboard events
+  typedef Signal< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalType; ///< keyboard events
 
 public:
 
@@ -221,14 +221,14 @@ public:
    *
    * @return The IMF Activated signal.
    */
-  ImfManagerSignalV2& ActivatedSignal();
+  ImfManagerSignalType& ActivatedSignal();
 
   /**
    * @brief This is emitted when the IMF manager receives an event from the IMF.
    *
    * @return The Event signal containing the event data.
    */
-  ImfEventSignalV2& EventReceivedSignal();
+  ImfEventSignalType& EventReceivedSignal();
 
   // Construction & Destruction
 

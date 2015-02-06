@@ -42,7 +42,7 @@ class ClipboardEventNotifier : public Dali::BaseObject
 {
 public:
 
-  typedef Dali::ClipboardEventNotifier::ClipboardEventSignalV2 ClipboardEventSignalV2;
+  typedef Dali::ClipboardEventNotifier::ClipboardEventSignalType ClipboardEventSignalType;
 
   // Creation
 
@@ -85,9 +85,9 @@ public: // Signals
   /**
    * @copydoc Dali::ClipboardEventNotifier::ContentSelectedSignal
    */
-  ClipboardEventSignalV2& ContentSelectedSignal()
+  ClipboardEventSignalType& ContentSelectedSignal()
   {
-    return mContentSelectedSignalV2;
+    return mContentSelectedSignal;
   }
 
 private:
@@ -112,7 +112,7 @@ private:
 
   std::string mContent;    ///< The current selected content.
 
-  ClipboardEventSignalV2 mContentSelectedSignalV2;
+  ClipboardEventSignalType mContentSelectedSignal;
 
 public:
 

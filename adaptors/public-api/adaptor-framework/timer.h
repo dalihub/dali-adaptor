@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -50,7 +50,7 @@ class DALI_IMPORT_API Timer : public BaseHandle
 {
 public: // Signal typedefs
 
-  typedef SignalV2< bool () > TimerSignalV2; ///< Timer finished signal callback type
+  typedef Signal< bool () > TimerSignalType; ///< Timer finished signal callback type
 
 public: // API
 
@@ -145,7 +145,7 @@ public: // Signals
    * This return value is ignored for one-shot events, which will always stop after the first execution.
    * @returns The signal to Connect() with.
    */
-  TimerSignalV2& TickSignal();
+  TimerSignalType& TickSignal();
 
 public: // Not intended for application developers
   explicit DALI_INTERNAL Timer(Internal::Adaptor::Timer* timer);

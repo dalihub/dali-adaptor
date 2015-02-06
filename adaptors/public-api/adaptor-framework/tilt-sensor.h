@@ -22,7 +22,7 @@
 #include <boost/function.hpp>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -81,7 +81,7 @@ class DALI_IMPORT_API TiltSensor : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (const TiltSensor&) > TiltedSignalV2;
+  typedef Signal< void (const TiltSensor&) > TiltedSignalType;
 
   static const float DEFAULT_UPDATE_FREQUENCY; // 60 hertz
 
@@ -159,7 +159,7 @@ public:
    *
    * @note The signal name is "tilted" if using BaseHandle::ConnectSignal()
    */
-  TiltedSignalV2& TiltedSignal();
+  TiltedSignalType& TiltedSignal();
 
   /**
    * Set the sensor update frequency.

@@ -270,7 +270,7 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 #if defined(DALI_PROFILE_MOBILE)
     else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
     {
-      ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_BG_TRANSPARENT);
+      ecore_x_e_illume_indicator_opacity_set(xWinId, ECORE_X_ILLUME_INDICATOR_OPAQUE);
     }
 #endif
   }
@@ -489,7 +489,7 @@ void Window::IndicatorClosed( Indicator* indicator )
 
 void Window::IndicatorVisibilityChanged(bool isVisible)
 {
-  mIndicatorVisibilityChangedSignalV2.Emit(isVisible);
+  mIndicatorVisibilityChangedSignal.Emit(isVisible);
 }
 
 void Window::SetIndicatorActorRotation()

@@ -70,7 +70,7 @@ Quaternion TiltSensor::GetRotation() const
   return GetImplementation(*this).GetRotation();
 }
 
-TiltSensor::TiltedSignalV2& TiltSensor::TiltedSignal()
+TiltSensor::TiltedSignalType& TiltSensor::TiltedSignal()
 {
   return GetImplementation(*this).TiltedSignal();
 }

@@ -134,9 +134,9 @@ bool AccessibilityManager::HandleActionClearFocusEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionClearFocusSignalV2.Empty() )
+    if( !mActionClearFocusSignal.Empty() )
     {
-      mActionClearFocusSignalV2.Emit( handle );
+      mActionClearFocusSignal.Emit( handle );
     }
   }
 
@@ -165,9 +165,9 @@ bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsi
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionScrollSignalV2.Empty() )
+    if( !mActionScrollSignal.Empty() )
     {
-      mActionScrollSignalV2.Emit( handle, event );
+      mActionScrollSignal.Emit( handle, event );
     }
   }
 
@@ -213,9 +213,9 @@ bool AccessibilityManager::HandleActionBackEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionBackSignalV2.Empty() )
+    if( !mActionBackSignal.Empty() )
     {
-      mActionBackSignalV2.Emit( handle );
+      mActionBackSignal.Emit( handle );
     }
   }
 
@@ -252,7 +252,7 @@ void AccessibilityManager::EnableAccessibility()
 
     //emit status changed signal
     Dali::AccessibilityManager handle( this );
-    mStatusChangedSignalV2.Emit( handle );
+    mStatusChangedSignal.Emit( handle );
   }
 }
 
@@ -269,7 +269,7 @@ void AccessibilityManager::DisableAccessibility()
 
     //emit status changed signal
     Dali::AccessibilityManager handle( this );
-    mStatusChangedSignalV2.Emit( handle );
+    mStatusChangedSignal.Emit( handle );
 
     // Destroy the TtsPlayer if exists.
     if ( Adaptor::IsAvailable() )

@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -40,7 +40,7 @@ class DALI_IMPORT_API PhysicalKeyboard : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (PhysicalKeyboard) > Signal;
+  typedef Signal< void (PhysicalKeyboard) > PhysicalKeyboardSignalType;
 
 public:
 
@@ -80,7 +80,7 @@ public:
    * @pre The PhysicalKeyboard has been initialized.
    * @return The status changed signal.
    */
-  Signal& StatusChangedSignal();
+  PhysicalKeyboardSignalType& StatusChangedSignal();
 
   // Not intended for application developers
 

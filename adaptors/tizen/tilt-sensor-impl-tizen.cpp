@@ -156,9 +156,9 @@ Quaternion TiltSensor::GetRotation() const
   return mRotation;
 }
 
-TiltSensor::TiltedSignalV2& TiltSensor::TiltedSignal()
+TiltSensor::TiltedSignalType& TiltSensor::TiltedSignal()
 {
-  return mTiltedSignalV2;
+  return mTiltedSignal;
 }
 
 void TiltSensor::SetUpdateFrequency( float frequencyHertz )
@@ -298,10 +298,10 @@ bool TiltSensor::Update()
     mPitch = newPitch;
     mRotation = newRotation;
 
-    if ( !mTiltedSignalV2.Empty() )
+    if ( !mTiltedSignal.Empty() )
     {
       Dali::TiltSensor handle( this );
-      mTiltedSignalV2.Emit( handle );
+      mTiltedSignal.Emit( handle );
     }
   }
 

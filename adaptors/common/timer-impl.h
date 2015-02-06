@@ -91,7 +91,7 @@ public:
 
 public: // Signals
 
-  Dali::Timer::TimerSignalV2& TickSignal();
+  Dali::Timer::TimerSignalType& TickSignal();
 
 private: // Implementation
 
@@ -101,7 +101,7 @@ private: // Implementation
 
 private: // Data
 
-  Dali::Timer::TimerSignalV2 mTickSignal;
+  Dali::Timer::TimerSignalType mTickSignal;
 
   // To hide away implementation details
   struct Impl;

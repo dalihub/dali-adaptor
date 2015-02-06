@@ -90,9 +90,9 @@ void SoundPlayer::Stop( int handle )
   mPlugin.StopSound( handle );
 }
 
-SoundPlayer::SoundPlayFinishedSignalV2& SoundPlayer::SoundPlayFinishedSignal()
+SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
 {
-  return mSoundPlayFinishedSignalV2;
+  return mSoundPlayFinishedSignal;
 }
 
 bool SoundPlayer::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
@@ -126,10 +126,10 @@ void SoundPlayer::EmitSoundPlayFinishedSignal()
 {
   // Emit SoundPlayFinished signal
 
-  if ( !mSoundPlayFinishedSignalV2.Empty() )
+  if ( !mSoundPlayFinishedSignal.Empty() )
   {
     Dali::SoundPlayer handle( this );
-    mSoundPlayFinishedSignalV2.Emit( handle );
+    mSoundPlayFinishedSignal.Emit( handle );
   }
 }
 

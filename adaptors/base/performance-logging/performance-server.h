@@ -23,6 +23,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/performance-logging/performance-marker.h>
+#include <base/performance-logging/statistics/stat-context-manager.h>
 
 // EXTERNAL INCLUDES
 #include <boost/thread/mutex.hpp>
@@ -37,20 +38,20 @@ namespace Adaptor
 {
 
 class EnvironmentOptions;
-
+class StatContext;
 /**
  * Concrete implementation of performance interface.
  * Adaptor classes should never include this file, they
  * just need to include the abstract class performance-interface.h
  */
-class PerformanceServer : public PerformanceInterface
+class PerformanceServer : public PerformanceInterface, public StatContextLogInterface
 {
 public:
 
   /**
-   * Constructor
-   * @param adaptorServices adaptor internal services
-   * @param environmentOptions environment options
+   * @brief Constructor
+   * @param[in] adaptorServices adaptor internal services
+   * @param[in] environmentOptions environment options
    */
   PerformanceServer( AdaptorInternalServices& adaptorServices,
                      const EnvironmentOptions& environmentOptions );
@@ -71,19 +72,21 @@ public:
   virtual void RemoveContext( ContextId contextId );
 
   /**
-   * @copydoc PerformanceInterface::AddMarker()
+   * @copydoc PerformanceInterface::AddMarker( MarkerType markerType )
    */
   virtual void AddMarker( MarkerType markerType );
 
   /**
-   * @copydoc PerformanceLogger::AddMarker()
+   * @copydoc PerformanceLogger::AddMarker( MarkerType markerType, ContextId contextId )
    */
   virtual void AddMarker( MarkerType markerType, ContextId contextId );
 
   /**
    * @copydoc PerformanceInterface::SetLogging()
    */
-  virtual void SetLogging( unsigned int level, unsigned int logFrequency );
+  virtual void SetLogging( unsigned int statisticsLogOptions,
+                           unsigned int timeStampOutput,
+                           unsigned int logFrequency );
 
   /**
    * @copydoc PerformanceLogger::SetLoggingFrequency()
@@ -95,133 +98,33 @@ public:
    */
   virtual void EnableLogging( bool enable, ContextId contextId );
 
+public: //StatLogInterface
+
+  /**
+   * @copydoc StatLogInterface::LogContextStatistics()
+   */
+  virtual void LogContextStatistics( const char* const text );
+
 private:
 
   /**
-   * Class to hold a stat context
+   * @brief log the marker out to kernel/ DALi log
+   * @param[in] marker performance marker
+   * @param[in] description marker description
    */
-  class StatContext
-  {
-  public:
-
-    /**
-     * Default constructor
-     */
-    StatContext();
-
-    /**
-     * Constructor
-     *
-     * @param[in] id The ID to give the context
-     * @param[in] contextName Name of the context to print in console
-     */
-    StatContext( unsigned int id, const char* contextName );
-
-    /**
-     * Return the ID
-     *
-     * @return Return the ID
-     */
-    unsigned int GetId() const;
-
-    /**
-     * Return the context name
-     *
-     * @return Return the context name
-     */
-    const char* GetName() const;
-
-    /**
-     * Log the given marker
-     *
-     * @param[in] marker The marker to log
-     */
-    void LogMarker( const PerformanceMarker& marker );
-
-    /**
-     * Set the frequency for logging
-     *
-     * @param[in] frequencyMicroseconds The frequency to set
-     */
-    void SetLogFrequency( unsigned int frequencyMicroseconds );
-
-    /**
-     * Enable/disable logging
-     *
-     * @param[in] enableLogging Flag to spePerformancecify enabling/disabling
-     */
-    void EnableLogging( bool enableLogging );
-
-  private:
-
-    /**
-     * Helper to print to console
-     */
-    void LogMarker();
-
-    /**
-     * Accumulate timer from markers
-     */
-    void TimeMarkers();
-
-  private:
-
-    typedef Dali::Vector< PerformanceMarker > MarkerVector;
-
-    FrameTimeStats mStats;       ///< Frame time stats to accumulate
-    MarkerVector mMarkers;       ///< vector of markers
-    boost::mutex mDataMutex;     ///< mutex
-
-    const char* mName;           ///< Name of the context
-
-    unsigned int mId;            ///< The ID of the context
-
-    unsigned int mLogFrequencyMicroseconds; ///< if logging is enabled, what frequency to log out at in micro-seconds
-    bool mLog;                              ///< Whether to print the log for this context or not
-  };
-
-  /**
-   * Helper
-   */
-  void AddMarkerToLog( const PerformanceMarker& marker, ContextId contextId );
-
-  /**
-   * Retrieve a stat context by ID
-   *
-   * @param[in] contextId The ID of the context to retrieve
-   * @return Return the stat context if it exists or null
-   */
-  StatContext* GetContext( ContextId contextId );
-
-  /**
-   * Return a string representation of the marker type
-   *
-   * @param[in] type The marker type
-   * @return Return the name of the given marker
-   */
-  const char* GetMarkerName( MarkerType type ) const;
+  void LogMarker( const PerformanceMarker& marker, const char* const description );
 
 private:
-
-  typedef Dali::Vector< StatContext* > StatContexts;
-
-  // The list of stat contexts
-  StatContexts mStatContexts;
 
   Integration::PlatformAbstraction& mPlatformAbstraction; ///< platform abstraction
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
   KernelTraceInterface& mKernelTrace;                     ///< kernel trace interface
-
-  unsigned int mLogLevel;         ///< log level
-  unsigned int mNextContextId;    ///< The next valid context ID
-
-  // Some defaults
-  ContextId mUpdateStats;    ///< update time statistics
-  ContextId mRenderStats;    ///< render time statistics
-  ContextId mEventStats;     ///< event time statistics
-
-  bool mLoggingEnabled:1;         ///< whether logging update / render to a log is enabled
-  bool mLogFunctionInstalled:1;   ///< whether the log function is installed
+  boost::mutex mDataMutex;                                ///< mutex
+  StatContextManager mStatContextManager;                 ///< Stat context manager
+  unsigned int mStatisticsLogBitmask;                     ///< statistics log level
+  unsigned int mPerformanceOutputBitmask;                 ///< performance marker output
+  bool mLoggingEnabled:1;                                 ///< whether logging update / render to a log is enabled
+  bool mLogFunctionInstalled:1;                           ///< whether the log function is installed
 };
 
 

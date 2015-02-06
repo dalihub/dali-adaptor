@@ -33,21 +33,12 @@ namespace Adaptor
 
 int GetLongPressTime( int defaultTime )
 {
-  int delay( 0 );
-
-  // read system setting
-  if( SYSTEM_SETTINGS_ERROR_NONE != system_settings_get_value_int(SYSTEM_SETTINGS_KEY_TAP_AND_HOLD_DELAY, &delay ) )
-  {
-    // on error, return default
-    delay = defaultTime;
-  }
-
-  return delay;
+  return defaultTime;
 }
 
 int GetElmAccessActionOver()
 {
-  return ELM_ACCESS_ACTION_OVER;
+  return 0;
 }
 
 } // namespace Adaptor

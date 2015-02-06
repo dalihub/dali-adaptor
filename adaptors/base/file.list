@@ -11,5 +11,7 @@ base_adaptor_src_files = \
   $(base_adaptor_src_dir)/environment-options.cpp \
   $(base_adaptor_src_dir)/performance-logging/frame-time-stats.cpp \
   $(base_adaptor_src_dir)/performance-logging/performance-marker.cpp \
+  $(base_adaptor_src_dir)/performance-logging/statistics/stat-context.cpp \
+  $(base_adaptor_src_dir)/performance-logging/statistics/stat-context-manager.cpp \
   $(base_adaptor_src_dir)/performance-logging/performance-server.cpp \
   $(base_adaptor_src_dir)/performance-logging/performance-interface-factory.cpp

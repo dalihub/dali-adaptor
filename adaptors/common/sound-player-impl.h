@@ -43,7 +43,7 @@ class SoundPlayer : public Dali::BaseObject
 
 public:
 
-  typedef Dali::SoundPlayer::SoundPlayFinishedSignalV2 SoundPlayFinishedSignalV2;
+  typedef Dali::SoundPlayer::SoundPlayFinishedSignalType SoundPlayFinishedSignalType;
 
   /**
    * Create a SoundPlayer.
@@ -70,7 +70,7 @@ public:
   /**
    * @copydoc Dali::SoundPlayer::SoundPlayFinishedSignal()
    */
-  SoundPlayFinishedSignalV2& SoundPlayFinishedSignal();
+  SoundPlayFinishedSignalType& SoundPlayFinishedSignal();
 
   /**
    * Connects a callback function with the object's signals.
@@ -110,7 +110,7 @@ private:
 private:
 
   FeedbackPluginProxy mPlugin;
-  SoundPlayFinishedSignalV2 mSoundPlayFinishedSignalV2;
+  SoundPlayFinishedSignalType mSoundPlayFinishedSignal;
 };
 
 } // namespace Adaptor

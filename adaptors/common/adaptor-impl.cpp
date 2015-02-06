@@ -128,20 +128,24 @@ void Adaptor::ParseEnvironmentOptions()
   // get logging options
   unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
   unsigned int logupdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
-  unsigned int logPerformanceLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE, 0 );
+  unsigned int logPerformanceStats = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
+  unsigned int logPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
+  unsigned int performanceTimeStampOutput= GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
+
+
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
   // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
 
-  mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceLevel, logPanGesture );
+  mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
 
   int predictionMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
   {
     mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
   }
-  int predictionAmount = -1;
+  int predictionAmount(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
   {
     if( predictionAmount < 0 )
@@ -150,6 +154,36 @@ void Adaptor::ParseEnvironmentOptions()
       predictionAmount = 0;
     }
     mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
+  }
+  int minPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
+  {
+    if( minPredictionAmount < 0 )
+    {
+      // do not support times in the past
+      minPredictionAmount = 0;
+    }
+    mEnvironmentOptions.SetPanGestureMinimumPredictionAmount(minPredictionAmount);
+  }
+  int maxPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
+  {
+    if( minPredictionAmount > -1 && maxPredictionAmount < minPredictionAmount )
+    {
+      // maximum amount should not be smaller than minimum amount
+      maxPredictionAmount = minPredictionAmount;
+    }
+    mEnvironmentOptions.SetPanGestureMaximumPredictionAmount(maxPredictionAmount);
+  }
+  int predictionAmountAdjustment(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
+  {
+    if( predictionAmountAdjustment < 0 )
+    {
+      // negative amount doesn't make sense
+      predictionAmountAdjustment = 0;
+    }
+    mEnvironmentOptions.SetPanGesturePredictionAmountAdjustment(predictionAmountAdjustment);
   }
   int smoothingMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
@@ -198,7 +232,7 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.
 
-  if( mEnvironmentOptions.GetPerformanceLoggingLevel() > 0 )
+  if( mEnvironmentOptions.PerformanceServerRequired() )
   {
     mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, mEnvironmentOptions );
   }
@@ -243,9 +277,21 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   {
     Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGesturePredictionMode());
   }
-  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0.0f )
+  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0 )
   {
     Integration::SetPanGesturePredictionAmount(mEnvironmentOptions.GetPanGesturePredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGestureMaximumPredictionAmount() >= 0 )
+  {
+    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions.GetPanGestureMaximumPredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGestureMinimumPredictionAmount() >= 0 )
+  {
+    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions.GetPanGestureMinimumPredictionAmount());
+  }
+  if( mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment() >= 0 )
+  {
+    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment());
   }
   if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
   {
@@ -809,12 +855,12 @@ void Adaptor::SurfaceSizeChanged(const PositionSize& positionSize)
   // let the core know the surface size has changed
   mCore->SurfaceResized(positionSize.width, positionSize.height);
 
-  mResizedSignalV2.Emit( mAdaptor );
+  mResizedSignal.Emit( mAdaptor );
 }
 
 void Adaptor::NotifyLanguageChanged()
 {
-  mLanguageChangedSignalV2.Emit( mAdaptor );
+  mLanguageChangedSignal.Emit( mAdaptor );
 }
 
 void Adaptor::RequestUpdateOnce()
@@ -837,8 +883,8 @@ void Adaptor::ProcessCoreEventsFromIdle()
 }
 
 Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
-: mResizedSignalV2(),
-  mLanguageChangedSignalV2(),
+: mResizedSignal(),
+  mLanguageChangedSignal(),
   mAdaptor(adaptor),
   mState(READY),
   mCore(NULL),

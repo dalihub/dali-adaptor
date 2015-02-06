@@ -42,37 +42,37 @@ LifecycleController::~LifecycleController()
 {
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::InitSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::InitSignal()
 {
   return GetImplementation(*this).InitSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::TerminateSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::TerminateSignal()
 {
   return GetImplementation(*this).TerminateSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::PauseSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::PauseSignal()
 {
   return GetImplementation(*this).PauseSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::ResumeSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::ResumeSignal()
 {
   return GetImplementation(*this).ResumeSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::ResetSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::ResetSignal()
 {
   return GetImplementation(*this).ResetSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::ResizeSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::ResizeSignal()
 {
   return GetImplementation(*this).ResizeSignal();
 }
 
-LifecycleController::LifecycleSignalV2& LifecycleController::LanguageChangedSignal()
+LifecycleController::LifecycleSignalType& LifecycleController::LanguageChangedSignal()
 {
   return GetImplementation(*this).LanguageChangedSignal();
 }

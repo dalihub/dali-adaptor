@@ -2,16 +2,40 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.27
+Version:    1.0.28
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
+%if "%{profile}" == "mobile"
+%define dali_profile MOBILE
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
+%endif
+
+%if "%{profile}" == "tv"
+%define dali_profile TV
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
+%endif
+
+%if "%{profile}" == "wearable"
+%define dali_profile WEARABLE
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
+%endif
+
+%if "%{profile}" == "common"
+%define dali_profile COMMON
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
+%endif
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -31,17 +55,18 @@ BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  pkgconfig(vconf)
+BuildRequires:  vconf-devel
+BuildRequires:  vconf-keys-devel
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
-BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  pkgconfig(libpng)
-%if %{with wayland}
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(egl)
+
+%if %{with wayland}
 BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
@@ -50,7 +75,6 @@ BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
-BuildRequires:  pkgconfig(gles20)
 %endif
 
 %if 0%{?dali_assimp_plugin}
@@ -141,7 +165,7 @@ libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
 cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=COMMON \
+%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif

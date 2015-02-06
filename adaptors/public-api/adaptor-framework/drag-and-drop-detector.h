@@ -23,7 +23,7 @@
 #include <boost/function.hpp>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -93,7 +93,7 @@ public:
 
   // Typedefs
 
-  typedef SignalV2< void ( DragAndDropDetector ) > DragAndDropSignal; ///< Drag & Drop signal
+  typedef Signal< void ( DragAndDropDetector ) > DragAndDropSignal; ///< Drag & Drop signal
 
   /**
    * @brief Create an uninitialized handle.

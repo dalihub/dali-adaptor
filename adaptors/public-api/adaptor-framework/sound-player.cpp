@@ -47,7 +47,7 @@ void SoundPlayer::Stop(int handle)
   GetImplementation(*this).Stop(handle);
 }
 
-SoundPlayer::SoundPlayFinishedSignalV2& SoundPlayer::SoundPlayFinishedSignal()
+SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
 {
   return GetImplementation(*this).SoundPlayFinishedSignal();
 }
