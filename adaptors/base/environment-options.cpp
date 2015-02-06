@@ -32,7 +32,8 @@ namespace
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
 }
 EnvironmentOptions::EnvironmentOptions()
-: mFpsFrequency(0),
+: mNetworkControl(0),
+  mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mPerformanceStatsLevel(0),
   mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY),
@@ -59,6 +60,7 @@ EnvironmentOptions::~EnvironmentOptions()
 }
 
 void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
+                             unsigned int networkControl,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
                              unsigned int logPerformanceStats,
@@ -67,6 +69,7 @@ void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunctio
                              unsigned int logPanGestureLevel )
 {
   mLogFunction = logFunction;
+  mNetworkControl = networkControl;
   mFpsFrequency = logFrameRateFrequency;
   mUpdateStatusFrequency = logupdateStatusFrequency;
   mPerformanceStatsLevel = logPerformanceStats;
@@ -85,6 +88,10 @@ void EnvironmentOptions::UnInstallLogFunction() const
   Dali::Integration::Log::UninstallLogFunction();
 }
 
+unsigned int EnvironmentOptions::GetNetworkControlMode() const
+{
+  return mNetworkControl;
+}
 unsigned int EnvironmentOptions::GetFrameRateLoggingFrequency() const
 {
   return mFpsFrequency;
@@ -236,7 +243,8 @@ void EnvironmentOptions::SetWindowHeight( int height )
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
   return ( (GetPerformanceStatsLoggingOptions() > 0) ||
-           ( GetPerformanceTimeStampOutput() > 0 ) );
+           ( GetPerformanceTimeStampOutput() > 0 ) ||
+           ( GetNetworkControlMode() > 0) );
 }
 
 } // Adaptor
