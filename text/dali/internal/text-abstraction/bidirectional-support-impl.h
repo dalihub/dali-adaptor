@@ -77,23 +77,23 @@ public:
 
 private:
 
+  /**
+   * Helper for lazy initialization.
+   */
+  void CreatePlugin();
+
+private:
+
   // Undefined copy constructor.
   BidirectionalSupport( const BidirectionalSupport& );
 
   // Undefined assignment constructor.
   BidirectionalSupport& operator=( BidirectionalSupport& );
 
-  void* mPlugin; ///< TODO replace this with bidirectional support plugin
-
 private:
 
-  /**
-   * Stores bidirectional info per paragraph.
-   */
-  struct BidirectionalInfo;
-
-  Vector<BidirectionalInfo*> mParagraphBidirectionalInfo; ///< Stores the bidirectional info per paragraph.
-  Vector<BidiInfoIndex>      mFreeIndices;                ///< Stores indices of free positions in the bidirectional info vector.
+  struct Plugin;
+  Plugin* mPlugin;
 
 }; // class BidirectionalSupport
 

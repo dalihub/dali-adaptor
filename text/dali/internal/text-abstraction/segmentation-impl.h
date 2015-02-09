@@ -73,13 +73,23 @@ public:
 
 private:
 
+  /**
+   * Helper for lazy initialization.
+   */
+  void CreatePlugin();
+
+private:
+
   // Undefined copy constructor.
   Segmentation( const Segmentation& );
 
   // Undefined assignment constructor.
   Segmentation& operator=( Segmentation& );
 
-  void* mPlugin; ///< TODO replace this with segmentation plugin
+private:
+
+  struct Plugin;
+  Plugin* mPlugin;
 
 }; // class Segmentation
 

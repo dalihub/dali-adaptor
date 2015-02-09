@@ -34,15 +34,30 @@ namespace TextAbstraction
 namespace Internal
 {
 
+struct Segmentation::Plugin
+{
+  void GetLineBreakPositions( const Character* const text,
+                              Length numberOfCharacters,
+                              LineBreakInfo* breakInfo )
+  {
+    set_linebreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+  }
+
+  void GetWordBreakPositions( const Character* const text,
+                              Length numberOfCharacters,
+                              WordBreakInfo* breakInfo )
+  {
+    set_wordbreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+  }
+};
+
 Segmentation::Segmentation()
 : mPlugin( NULL )
-{
-
-}
+{}
 
 Segmentation::~Segmentation()
 {
-
+  delete mPlugin;
 }
 
 TextAbstraction::Segmentation Segmentation::Get()
@@ -74,14 +89,26 @@ void Segmentation::GetLineBreakPositions( const Character* const text,
                                           Length numberOfCharacters,
                                           LineBreakInfo* breakInfo )
 {
-  set_linebreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+  CreatePlugin();
+
+  mPlugin->GetLineBreakPositions( text, numberOfCharacters, breakInfo );
 }
 
 void Segmentation::GetWordBreakPositions( const Character* const text,
                                           Length numberOfCharacters,
                                           WordBreakInfo* breakInfo )
 {
-  set_wordbreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+  CreatePlugin();
+
+  mPlugin->GetWordBreakPositions( text, numberOfCharacters, breakInfo );
+}
+
+void Segmentation::CreatePlugin()
+{
+  if( !mPlugin )
+  {
+    mPlugin = new Plugin();
+  }
 }
 
 } // namespace Internal
