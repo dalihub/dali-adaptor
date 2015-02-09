@@ -16,12 +16,8 @@
 
 SUBDIRS = adaptor
 
-if ! LITE_PROFILE
-if ! WEARABLE_PROFILE
-if ! UBUNTU_PROFILE
+if USE_PLUGIN
 SUBDIRS += plugins
-endif
-endif
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig

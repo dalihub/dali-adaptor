@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/object/base-handle.h>
 
 namespace Dali
@@ -46,7 +46,7 @@ class DALI_IMPORT_API Orientation : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (Orientation) > OrientationSignalV2; ///< Orientation changed signal type
+  typedef Signal< void (Orientation) > OrientationSignalType; ///< Orientation changed signal type
 
   /**
    * @brief Create an unintialized handle.
@@ -105,7 +105,7 @@ public:
    *
    * @return The orientation change signal.
    */
-  OrientationSignalV2& ChangedSignal();
+  OrientationSignalType& ChangedSignal();
 
 public: // Not intended for application developers
   /**

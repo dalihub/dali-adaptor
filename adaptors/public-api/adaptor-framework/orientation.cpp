@@ -53,7 +53,7 @@ float Orientation::GetRadians() const
   return Internal::Adaptor::GetImplementation(*this).GetRadians();
 }
 
-Orientation::OrientationSignalV2& Orientation::ChangedSignal()
+Orientation::OrientationSignalType& Orientation::ChangedSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).ChangedSignal();
 }

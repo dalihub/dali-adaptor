@@ -1,11 +1,15 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.25
+Version:    1.0.28
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
+
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -40,6 +44,10 @@ BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  fribidi-devel
 
+%if 0%{?dali_assimp_plugin}
+BuildRequires:  pkgconfig(assimp)
+%endif
+
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
 platform abstraction and application shell
@@ -61,10 +69,12 @@ Development components for the DALi Tizen Adaptor - public headers and package c
 %package dali-feedback-plugin
 Summary:    Plugin to play haptic and audio feedback for Dali
 Group:      System/Libraries
+%if 0%{?dali_feedback_plugin}
 #Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
+%endif
 
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
@@ -75,7 +85,9 @@ Feedback plugin to play haptic and audio feedback for Dali
 %package dali-bullet-plugin
 Summary:    Plugin to provide physics
 Group:      System/Libraries
+%if 0%{?dali_bullet_plugin}
 BuildRequires:  pkgconfig(bullet)
+%endif
 
 %description dali-bullet-plugin
 Dynamics plugin to wrap the libBulletDynamics libraries
@@ -106,12 +118,6 @@ PREFIX+="/usr"
 CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections "
 LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections "
 
-%if 0%{?sec_build_binary_debug_enable}
-export CFLAGS="$CFLAGS -DTIZEN_DEBUG_ENABLE"
-export CXXFLAGS="$CXXFLAGS -DTIZEN_DEBUG_ENABLE"
-export FFLAGS="$FFLAGS -DTIZEN_DEBUG_ENABLE"
-%endif
-
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
@@ -126,7 +132,17 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}" ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-%configure --with-jpeg-turbo --enable-gles=20 --enable-profile=TV --libdir=%{_libdir}
+%configure --with-jpeg-turbo --enable-gles=20 --enable-profile=TV \
+%if 0%{?dali_feedback_plugin}
+           --enable-feedback \
+%endif
+%if 0%{?dali_bullet_plugin}
+           --enable-bullet \
+%endif
+%if 0%{?dali_assimp_plugin}
+           --enable-assimp \
+%endif
+           --libdir=%{_libdir}
 
 make %{?jobs:-j%jobs}
 
@@ -166,13 +182,17 @@ chown 5000:5000 %{user_font_cache_dir}
 chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
+%if 0%{?dali_feedback_plugin}
 %post dali-feedback-plugin
 /sbin/ldconfig
 exit 0
+%endif
 
+%if 0%{?dali_bullet_plugin}
 %post dali-bullet-plugin
 /sbin/ldconfig
 exit 0
+%endif
 
 ##############################
 #   Pre Uninstall old package
@@ -189,13 +209,17 @@ exit 0
 /sbin/ldconfig
 exit 0
 
+%if 0%{?dali_feedback_plugin}
 %postun dali-feedback-plugin
 /sbin/ldconfig
 exit 0
+%endif
 
+%if 0%{?dali_bullet_plugin}
 %postun dali-bullet-plugin
 /sbin/ldconfig
 exit 0
+%endif
 
 
 ##############################
@@ -217,12 +241,16 @@ exit 0
 %{dev_include_path}/dali/*
 %{_libdir}/pkgconfig/dali*.pc
 
+%if 0%{?dali_feedback_plugin}
 %files dali-feedback-plugin
 %defattr(-,root,root,-)
 %{_libdir}/libdali-feedback-plugin.so*
 %{dali_plugin_sound_files}/*
 %{dali_plugin_theme_files}/*
+%endif
 
+%if 0%{?dali_bullet_plugin}
 %files dali-bullet-plugin
 %defattr(-,root,root,-)
 %{_libdir}/libdali-bullet-plugin.so*
+%endif

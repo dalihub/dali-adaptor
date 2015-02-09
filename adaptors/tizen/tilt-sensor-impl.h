@@ -42,7 +42,7 @@ class TiltSensor : public Dali::BaseObject
 {
 public:
 
-  typedef Dali::TiltSensor::TiltedSignalV2 TiltedSignalV2;
+  typedef Dali::TiltSensor::TiltedSignalType TiltedSignalType;
 
   /**
    * Create a TiltSensor.
@@ -89,7 +89,7 @@ public:
   /**
    * @copydoc Dali::TiltSensor::TiltedSignal()
    */
-  TiltedSignalV2& TiltedSignal();
+  TiltedSignalType& TiltedSignal();
 
   /**
    * @copydoc Dali::TiltSensor::SetUpdateFrequency()
@@ -162,7 +162,7 @@ private:
   std::deque<float> mRollValues;
   std::deque<float> mPitchValues;
 
-  TiltedSignalV2 mTiltedSignalV2;
+  TiltedSignalType mTiltedSignal;
 };
 
 } // namespace Adaptor

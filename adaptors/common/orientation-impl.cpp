@@ -70,7 +70,7 @@ float Orientation::GetRadians() const
   return Math::PI * (float)mOrientation / 180.0f;
 }
 
-Orientation::OrientationSignalV2& Orientation::ChangedSignal()
+Orientation::OrientationSignalType& Orientation::ChangedSignal()
 {
   return mChangedSignal;
 }

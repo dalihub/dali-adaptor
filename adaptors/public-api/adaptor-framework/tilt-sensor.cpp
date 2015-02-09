@@ -25,8 +25,6 @@
 namespace Dali
 {
 
-const char* const TiltSensor::SIGNAL_TILTED = "tilted";
-
 const float TiltSensor::DEFAULT_UPDATE_FREQUENCY = 60.0f;
 
 TiltSensor::TiltSensor()
@@ -72,7 +70,7 @@ Quaternion TiltSensor::GetRotation() const
   return GetImplementation(*this).GetRotation();
 }
 
-TiltSensor::TiltedSignalV2& TiltSensor::TiltedSignal()
+TiltSensor::TiltedSignalType& TiltSensor::TiltedSignal()
 {
   return GetImplementation(*this).TiltedSignal();
 }

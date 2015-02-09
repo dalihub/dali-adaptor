@@ -62,37 +62,37 @@ public:
   /**
    * @copydoc Dali::StyleMonitor::InitSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& InitSignal();
+  Dali::LifecycleController::LifecycleSignalType& InitSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::TerminateSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& TerminateSignal();
+  Dali::LifecycleController::LifecycleSignalType& TerminateSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::PauseSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& PauseSignal();
+  Dali::LifecycleController::LifecycleSignalType& PauseSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::ResumeSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& ResumeSignal();
+  Dali::LifecycleController::LifecycleSignalType& ResumeSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::ResetSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& ResetSignal();
+  Dali::LifecycleController::LifecycleSignalType& ResetSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::ResizeSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& ResizeSignal();
+  Dali::LifecycleController::LifecycleSignalType& ResizeSignal();
 
   /**
    * @copydoc Dali::StyleMonitor::LanguageChangedSignal()
    */
-  Dali::LifecycleController::LifecycleSignalV2& LanguageChangedSignal();
+  Dali::LifecycleController::LifecycleSignalType& LanguageChangedSignal();
 
 public:
 
@@ -192,13 +192,13 @@ private:
 private:
 
   // Signals
-  Dali::LifecycleController::LifecycleSignalV2 mInitSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mTerminateSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mPauseSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mResumeSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mResetSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mResizeSignal;
-  Dali::LifecycleController::LifecycleSignalV2 mLanguageChangedSignal;
+  Dali::LifecycleController::LifecycleSignalType mInitSignal;
+  Dali::LifecycleController::LifecycleSignalType mTerminateSignal;
+  Dali::LifecycleController::LifecycleSignalType mPauseSignal;
+  Dali::LifecycleController::LifecycleSignalType mResumeSignal;
+  Dali::LifecycleController::LifecycleSignalType mResetSignal;
+  Dali::LifecycleController::LifecycleSignalType mResizeSignal;
+  Dali::LifecycleController::LifecycleSignalType mLanguageChangedSignal;
 
 };
 

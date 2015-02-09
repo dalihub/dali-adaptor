@@ -23,12 +23,17 @@ include ../../../plugins/file.list
 
 plugin_sounds_dir = ../../../plugins/sounds
 
-lib_LTLIBRARIES = libdali-feedback-plugin.la
+lib_LTLIBRARIES =
+
+if USE_FEEDBACK
+lib_LTLIBRARIES += libdali-feedback-plugin.la
+endif
 
 if USE_BULLET
 lib_LTLIBRARIES += libdali-bullet-plugin.la
 endif
 
+if USE_FEEDBACK
 dalisounddir = ${dataReadOnlyDir}/plugins/sounds/
 dalisound_DATA = ${dali_plugin_sound_files}
 
@@ -45,6 +50,7 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(MMFSOUND_CFLAGS) \
                       $(FEEDBACK_CFLAGS) \
                       $(DALI_PROFILE_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -Werror -Wall
@@ -83,6 +89,9 @@ endif
 libdali_feedback_plugin_la_LIBADD += \
                       $(FEEDBACK_LIBS)
 
+endif
+
+if USE_BULLET
 
 # Bullet Physics
 libdali_bullet_plugin_la_SOURCES = \
@@ -92,6 +101,7 @@ libdali_bullet_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       $(DALICORE_CFLAGS) \
                       $(DLOG_CFLAGS) \
                       $(BULLET_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
                       -I../../.. \
                       -Werror -Wall
 
@@ -103,3 +113,4 @@ libdali_bullet_plugin_la_LDFLAGS = \
                       -rdynamic
 
 libdali_bullet_plugin_la_DEPENDENCIES =
+endif

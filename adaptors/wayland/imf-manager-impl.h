@@ -44,8 +44,8 @@ class RenderSurface;
 class ImfManager : public Dali::BaseObject
 {
 public:
-  typedef Dali::ImfManager::ImfManagerSignalV2 ImfManagerSignalV2;
-  typedef Dali::ImfManager::ImfEventSignalV2 ImfEventSignalV2;
+  typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
+  typedef Dali::ImfManager::ImfEventSignalType ImfEventSignalType;
 
 public:
 
@@ -156,12 +156,12 @@ public:  // Signals
   /**
    * @copydoc Dali::ImfManager::ActivatedSignal()
    */
-  ImfManagerSignalV2& ActivatedSignal() { return mActivatedSignalV2; }
+  ImfManagerSignalType& ActivatedSignal() { return mActivatedSignal; }
 
   /**
    * @copydoc Dali::ImfManager::EventReceivedSignal()
    */
-  ImfEventSignalV2& EventReceivedSignal() { return mEventSignalV2; }
+  ImfEventSignalType& EventReceivedSignal() { return mEventSignal; }
 
 protected:
 
@@ -191,8 +191,8 @@ private:
 
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
 
-  ImfManagerSignalV2      mActivatedSignalV2;
-  ImfEventSignalV2        mEventSignalV2;
+  ImfManagerSignalType      mActivatedSignal;
+  ImfEventSignalType        mEventSignal;
 
 public:
 

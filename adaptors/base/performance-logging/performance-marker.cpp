@@ -18,6 +18,11 @@
 // CLASS HEADER
 #include "performance-marker.h"
 
+// INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
+
+
 namespace Dali
 {
 
@@ -26,6 +31,37 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace
+{
+
+struct NamePair
+{
+  PerformanceInterface::MarkerType type;
+  const char* const name;
+  PerformanceMarker::MarkerFilter group;
+  PerformanceMarker::MarkerEventType eventType;
+};
+
+const NamePair MARKER_LOOKUP[] =
+{
+    { PerformanceInterface::VSYNC       ,         "V_SYNC"               , PerformanceMarker::V_SYNC_EVENTS, PerformanceMarker::SINGLE_EVENT      },
+    { PerformanceInterface::UPDATE_START ,        "UPDATE_START"         , PerformanceMarker::UPDATE,        PerformanceMarker::START_TIMED_EVENT },
+    { PerformanceInterface::UPDATE_END   ,        "UPDATE_END"           , PerformanceMarker::UPDATE,        PerformanceMarker::END_TIMED_EVENT   },
+    { PerformanceInterface::RENDER_START ,        "RENDER_START"         , PerformanceMarker::RENDER,        PerformanceMarker::START_TIMED_EVENT },
+    { PerformanceInterface::RENDER_END   ,        "RENDER_END"           , PerformanceMarker::RENDER,        PerformanceMarker::END_TIMED_EVENT   },
+    { PerformanceInterface::SWAP_START   ,        "SWAP_START"           , PerformanceMarker::SWAP_BUFFERS,  PerformanceMarker::START_TIMED_EVENT },
+    { PerformanceInterface::SWAP_END     ,        "SWAP_END"             , PerformanceMarker::SWAP_BUFFERS,  PerformanceMarker::END_TIMED_EVENT   },
+    { PerformanceInterface::PROCESS_EVENTS_START, "PROCESS_EVENT_START"  , PerformanceMarker::EVENT_PROCESS, PerformanceMarker::START_TIMED_EVENT },
+    { PerformanceInterface::PROCESS_EVENTS_END,   "PROCESS_EVENT_END"    , PerformanceMarker::EVENT_PROCESS, PerformanceMarker::END_TIMED_EVENT   },
+    { PerformanceInterface::PAUSED       ,        "PAUSED"               , PerformanceMarker::LIFE_CYCLE_EVENTS, PerformanceMarker::SINGLE_EVENT  },
+    { PerformanceInterface::RESUME       ,        "RESUMED"              , PerformanceMarker::LIFE_CYCLE_EVENTS, PerformanceMarker::SINGLE_EVENT  },
+    { PerformanceInterface::START        ,        "START"                , PerformanceMarker::CUSTOM_EVENTS, PerformanceMarker::START_TIMED_EVENT  },
+    { PerformanceInterface::END          ,        "END"                  , PerformanceMarker::CUSTOM_EVENTS, PerformanceMarker::END_TIMED_EVENT  }
+};
+} // un-named namespace
+
+
 
 PerformanceMarker::PerformanceMarker( PerformanceInterface::MarkerType type )
 :mType(type)
@@ -38,10 +74,26 @@ PerformanceMarker::PerformanceMarker( PerformanceInterface::MarkerType type, Fra
 {
 }
 
+const char* const PerformanceMarker::GetName( ) const
+{
+  return MARKER_LOOKUP[ mType ].name;
+}
+
+PerformanceMarker::MarkerEventType PerformanceMarker::GetEventType() const
+{
+  return MARKER_LOOKUP[ mType ].eventType;
+}
+
 unsigned int PerformanceMarker::MicrosecondDiff( const PerformanceMarker& start,const PerformanceMarker& end )
 {
   return FrameTimeStamp::MicrosecondDiff( start.mTimeStamp, end.mTimeStamp );
 }
+
+bool PerformanceMarker::IsFilterEnabled( MarkerFilter filter ) const
+{
+  return  (filter & MARKER_LOOKUP[ mType ].group);
+}
+
 
 } // namespace Adaptor
 

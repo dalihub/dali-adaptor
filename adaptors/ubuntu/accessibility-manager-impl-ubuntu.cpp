@@ -115,9 +115,9 @@ bool AccessibilityManager::HandleActionClearFocusEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionClearFocusSignalV2.Empty() )
+    if( !mActionClearFocusSignal.Empty() )
     {
-      mActionClearFocusSignalV2.Emit( handle );
+      mActionClearFocusSignal.Emit( handle );
     }
   }
 
@@ -146,9 +146,9 @@ bool AccessibilityManager::HandleActionScrollEvent(const TouchPoint& point, unsi
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionScrollSignalV2.Empty() )
+    if( !mActionScrollSignal.Empty() )
     {
-      mActionScrollSignalV2.Emit( handle, event );
+      mActionScrollSignal.Emit( handle, event );
     }
   }
 
@@ -194,9 +194,9 @@ bool AccessibilityManager::HandleActionBackEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionBackSignalV2.Empty() )
+    if( !mActionBackSignal.Empty() )
     {
-      mActionBackSignalV2.Emit( handle );
+      mActionBackSignal.Emit( handle );
     }
   }
 
@@ -233,7 +233,7 @@ void AccessibilityManager::EnableAccessibility()
 
     //emit status changed signal
     Dali::AccessibilityManager handle( this );
-    mStatusChangedSignalV2.Emit( handle );
+    mStatusChangedSignal.Emit( handle );
   }
 }
 
@@ -250,7 +250,7 @@ void AccessibilityManager::DisableAccessibility()
 
     //emit status changed signal
     Dali::AccessibilityManager handle( this );
-    mStatusChangedSignalV2.Emit( handle );
+    mStatusChangedSignal.Emit( handle );
 
     // Destroy the TtsPlayer if exists.
     if ( Adaptor::IsAvailable() )
@@ -307,9 +307,9 @@ bool AccessibilityManager::HandleActionNextEvent(bool allowEndFeedback)
    */
   if( !mIndicatorFocused )
   {
-    if( !mActionNextSignalV2.Empty() )
+    if( !mActionNextSignal.Empty() )
     {
-      mActionNextSignalV2.Emit( handle );
+      mActionNextSignal.Emit( handle );
     }
   }
 
@@ -335,9 +335,9 @@ bool AccessibilityManager::HandleActionPreviousEvent(bool allowEndFeedback)
    */
  if ( !mIndicatorFocused )
   {
-    if( !mActionPreviousSignalV2.Empty() )
+    if( !mActionPreviousSignal.Empty() )
     {
-      mActionPreviousSignalV2.Emit( handle );
+      mActionPreviousSignal.Emit( handle );
     }
   }
 
@@ -363,9 +363,9 @@ bool AccessibilityManager::HandleActionActivateEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionActivateSignalV2.Empty() )
+    if( !mActionActivateSignal.Empty() )
     {
-      mActionActivateSignalV2.Emit( handle );
+      mActionActivateSignal.Emit( handle );
     }
   }
 
@@ -438,9 +438,9 @@ bool AccessibilityManager::HandleActionReadEvent(unsigned int x, unsigned int y,
      */
     if( !mIndicatorFocused )
     {
-      if ( !mActionReadSignalV2.Empty() )
+      if ( !mActionReadSignal.Empty() )
       {
-        mActionReadSignalV2.Emit( handle );
+        mActionReadSignal.Emit( handle );
       }
     }
   }
@@ -452,9 +452,9 @@ bool AccessibilityManager::HandleActionReadEvent(unsigned int x, unsigned int y,
      */
     if( !mIndicatorFocused )
     {
-      if ( !mActionOverSignalV2.Empty() )
+      if ( !mActionOverSignal.Empty() )
       {
-        mActionOverSignalV2.Emit( handle );
+        mActionOverSignal.Emit( handle );
       }
     }
   }
@@ -482,9 +482,9 @@ bool AccessibilityManager::HandleActionReadNextEvent(bool allowEndFeedback)
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionReadNextSignalV2.Empty() )
+    if( !mActionReadNextSignal.Empty() )
     {
-      mActionReadNextSignalV2.Emit( handle );
+      mActionReadNextSignal.Emit( handle );
     }
   }
 
@@ -510,9 +510,9 @@ bool AccessibilityManager::HandleActionReadPreviousEvent(bool allowEndFeedback)
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionReadPreviousSignalV2.Empty() )
+    if( !mActionReadPreviousSignal.Empty() )
     {
-      mActionReadPreviousSignalV2.Emit( handle );
+      mActionReadPreviousSignal.Emit( handle );
     }
   }
 
@@ -538,9 +538,9 @@ bool AccessibilityManager::HandleActionUpEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionUpSignalV2.Empty() )
+    if( !mActionUpSignal.Empty() )
     {
-      mActionUpSignalV2.Emit( handle );
+      mActionUpSignal.Emit( handle );
     }
   }
 
@@ -566,9 +566,9 @@ bool AccessibilityManager::HandleActionDownEvent()
    */
   if ( !mIndicatorFocused )
   {
-    if( !mActionDownSignalV2.Empty() )
+    if( !mActionDownSignal.Empty() )
     {
-      mActionDownSignalV2.Emit( handle );
+      mActionDownSignal.Emit( handle );
     }
   }
 

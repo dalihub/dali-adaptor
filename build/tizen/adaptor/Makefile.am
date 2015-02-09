@@ -158,13 +158,11 @@ adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
 endif
 
 # Feedback Plugin
-if ! LITE_PROFILE
-if ! WEARABLE_PROFILE
+if USE_FEEDBACK
 plugin_themes_dir = ../../../adaptors/common/feedback
 dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
 dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
 dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
-endif
 endif
 
 if TURBO_JPEG_IS_ON
@@ -310,7 +308,9 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if WEARABLE_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_la_CXXFLAGS += \
+                      $(HAPTIC_CFLAGS) \
+                      $(EFL_ASSIST_CFLAGS)
 endif
 
 if TV_PROFILE

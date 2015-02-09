@@ -60,7 +60,7 @@ void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
   GetImplementation(*this).ShowIndicator( visibleMode );
 }
 
-Window::IndicatorSignalV2& Window::IndicatorVisibilityChangedSignal()
+Window::IndicatorSignalType& Window::IndicatorVisibilityChangedSignal()
 {
   return GetImplementation(*this).IndicatorVisibilityChangedSignal();
 }

@@ -24,8 +24,6 @@
 namespace Dali
 {
 
-const char* const SoundPlayer::SIGNAL_SOUND_PLAY_FINISHED = "sound-play-finished";
-
 SoundPlayer::SoundPlayer()
 {
 }
@@ -49,7 +47,7 @@ void SoundPlayer::Stop(int handle)
   GetImplementation(*this).Stop(handle);
 }
 
-SoundPlayer::SoundPlayFinishedSignalV2& SoundPlayer::SoundPlayFinishedSignal()
+SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
 {
   return GetImplementation(*this).SoundPlayFinishedSignal();
 }

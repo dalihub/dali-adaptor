@@ -67,7 +67,7 @@ void StyleMonitor::SetTheme(const std::string& themFilePath)
   return GetImplementation(*this).SetTheme(themFilePath);
 }
 
-StyleMonitor::StyleChangeSignalV2& StyleMonitor::StyleChangeSignal()
+StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 {
   return GetImplementation(*this).StyleChangeSignal();
 }

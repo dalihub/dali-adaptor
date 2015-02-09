@@ -46,7 +46,7 @@ Vector2 DragAndDropDetector::GetCurrentScreenPosition() const
 
 bool DragAndDropDetector::IsEnabled() const
 {
-  return !mDroppedSignalV2.Empty() || !mEnteredSignalV2.Empty() || !mExitedSignalV2.Empty() || !mMovedSignalV2.Empty() ;
+  return !mDroppedSignal.Empty() || !mEnteredSignal.Empty() || !mExitedSignal.Empty() || !mMovedSignal.Empty() ;
 }
 
 void DragAndDropDetector::SetContent( const std::string& content )
@@ -66,37 +66,37 @@ void DragAndDropDetector::SetPosition( Vector2 screenPosition )
 
 void DragAndDropDetector::EmitEnteredSignal()
 {
-  if ( !mEnteredSignalV2.Empty() )
+  if ( !mEnteredSignal.Empty() )
   {
     Dali::DragAndDropDetector handle( this );
-    mEnteredSignalV2.Emit( handle );
+    mEnteredSignal.Emit( handle );
   }
 }
 
 void DragAndDropDetector::EmitExitedSignal()
 {
-  if ( !mExitedSignalV2.Empty() )
+  if ( !mExitedSignal.Empty() )
   {
     Dali::DragAndDropDetector handle( this );
-    mExitedSignalV2.Emit( handle );
+    mExitedSignal.Emit( handle );
   }
 }
 
 void DragAndDropDetector::EmitMovedSignal()
 {
-  if ( !mMovedSignalV2.Empty() )
+  if ( !mMovedSignal.Empty() )
   {
     Dali::DragAndDropDetector handle( this );
-    mMovedSignalV2.Emit( handle );
+    mMovedSignal.Emit( handle );
   }
 }
 
 void DragAndDropDetector::EmitDroppedSignal()
 {
-  if ( !mDroppedSignalV2.Empty() )
+  if ( !mDroppedSignal.Empty() )
   {
     Dali::DragAndDropDetector handle( this );
-    mDroppedSignalV2.Emit( handle );
+    mDroppedSignal.Emit( handle );
   }
 }
 

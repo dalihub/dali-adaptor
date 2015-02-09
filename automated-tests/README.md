@@ -3,7 +3,7 @@ Testing environment   {#auto_testing}
 
 The new test environment from Tizen is the Web-TCT test suite. This was written for testing web components, but can easily be used for testing Dali.
 
-Each of the DALi repositories, **dali-core**, **dali-adaptor** and **dali-toolkit**, have their own test suites under the `automated-tests` folder. Within the src folder are a number of secondary folders - these correspond to 'managed' tests (for testing the frozen API for products), unmanaged tests (tests for other APIs) and internal (for desktop testing only)
+Each of the DALi repositories, **dali-core**, **dali-adaptor** and **dali-toolkit**, have their own test suites under the `automated-tests` folder. Within the src folder are a number of secondary folders - these correspond to 'API' tests  and internal (for desktop testing only)
 
 Installation
 ------------
@@ -82,7 +82,7 @@ To execute tests, cd into automated-tests and run
 
     ./execute.sh
 
-This will execute dali, dali-unmanaged and dali-internal test sets. Note that the output summary for the first will be printed before running the second.
+This will execute dali and dali-internal test sets. Note that the output summary for the first will be printed before running the second.
 
 By default the tests execute in parallel, which is faster but does not produce a single output file (summary.xml).  Use this to execute the tests in series:
 
@@ -134,7 +134,7 @@ To execute tests, cd into automated-tests and run
 
     tct-mgr
 
-This will bring up the java test suite program. You should see the Plan pane with a list of all tests in. Select the tct-dali-core-tests and tct-dali-unmanaged-tests. and you will be offered a dialog to choose a test plan: either create a new one or use temp.
+This will bring up the java test suite program. You should see the Plan pane with a list of all tests in. Select the tct-dali-core-tests. and you will be offered a dialog to choose a test plan: either create a new one or use temp.
 Select dali test suite, and click Run, then "Create a new plan", and call it "Dali-Core" or some such. It will now run the dali-test suite.
 
 You can find the output files under /opt/tct/manager/result/
@@ -147,11 +147,6 @@ To Managed API
 --------------
 
 If you are adding test cases for new or existing managed API (CAPI), you need to add your changes to the src/dali mirror, and copy your change to the managed test suite in core-api. You need to inform HQ of your update.
-
-To Unmanaged API
-----------------
-
-If you are adding test cases for unmanaged API, you need to add your changes to the src/dali-adaptor-unmanaged test suite.
 
 For internal API
 ----------------

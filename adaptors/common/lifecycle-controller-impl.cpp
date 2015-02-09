@@ -88,7 +88,7 @@ LifecycleController::~LifecycleController()
 {
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::InitSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::InitSignal()
 {
   return mInitSignal;
 }
@@ -101,7 +101,7 @@ void LifecycleController::EmitInitSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::TerminateSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::TerminateSignal()
 {
   return mTerminateSignal;
 }
@@ -114,7 +114,7 @@ void LifecycleController::EmitTerminateSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::PauseSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::PauseSignal()
 {
   return mPauseSignal;
 }
@@ -127,7 +127,7 @@ void LifecycleController::EmitPauseSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::ResumeSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::ResumeSignal()
 {
   return mResumeSignal;
 }
@@ -140,7 +140,7 @@ void LifecycleController::EmitResumeSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::ResetSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::ResetSignal()
 {
   return mResetSignal;
 }
@@ -153,7 +153,7 @@ void LifecycleController::EmitResetSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::ResizeSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::ResizeSignal()
 {
   return mResizeSignal;
 }
@@ -166,7 +166,7 @@ void LifecycleController::EmitResizeSignal()
   }
 }
 
-Dali::LifecycleController::LifecycleSignalV2& LifecycleController::LanguageChangedSignal()
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::LanguageChangedSignal()
 {
   return mLanguageChangedSignal;
 }

@@ -23,7 +23,7 @@
 #include <boost/function.hpp>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -38,8 +38,10 @@ class DragAndDropDetector;
 
 /**
  * @brief The DragAndDropDetector%s provides signals when draggable objects are dragged into our window.
+ *
  * It provides signals for when the draggable object enters our window, moves around in our window,
  * leaves our window and when it is finally dropped into our window.
+ *
  * The basic usage is shown below:
  *
  * @code
@@ -91,16 +93,7 @@ public:
 
   // Typedefs
 
-  /**
-   * @brief Drag & Drop signal.
-   */
-  typedef SignalV2< void ( DragAndDropDetector ) > DragAndDropSignalV2;
-
-  // Signal Names
-  static const char* const SIGNAL_ENTERED;///< name "drag-and-drop-entered"
-  static const char* const SIGNAL_EXITED; ///< name "drag-and-drop-exited"
-  static const char* const SIGNAL_MOVED;  ///< name "drag-and-drop-moved"
-  static const char* const SIGNAL_DROPPED;///< name "drag-and-drop-dropped"
+  typedef Signal< void ( DragAndDropDetector ) > DragAndDropSignal; ///< Drag & Drop signal
 
   /**
    * @brief Create an uninitialized handle.
@@ -131,7 +124,7 @@ public:
    */
   Vector2 GetCurrentScreenPosition() const;
 
-public:  // Signals
+  // Signals
 
   /**
    * @brief This is emitted when a dragged object enters a DALi window.
@@ -142,7 +135,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  DragAndDropSignalV2& EnteredSignal();
+  DragAndDropSignal& EnteredSignal();
 
   /**
    * @brief This is emitted when a dragged object leaves a DALi window.
@@ -153,7 +146,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  DragAndDropSignalV2& ExitedSignal();
+  DragAndDropSignal& ExitedSignal();
 
   /**
    * @brief This is emitted when a dragged object is moved within the DALi window.
@@ -162,10 +155,9 @@ public:  // Signals
    * @code
    *   void YourCallback( DragAndDropDetector detector );
    * @endcode
-   * This will be replaced by a property notification system once that is in place.
    * @return The signal to connect to.
    */
-  DragAndDropSignalV2& MovedSignal();
+  DragAndDropSignal& MovedSignal();
 
   /**
    * @brief This is emitted when a dragged object is dropped within a DALi window.
@@ -176,7 +168,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  DragAndDropSignalV2& DroppedSignal();
+  DragAndDropSignal& DroppedSignal();
 
 public: // Not intended for application developers
 

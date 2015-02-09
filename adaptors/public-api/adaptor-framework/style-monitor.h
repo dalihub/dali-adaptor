@@ -23,7 +23,7 @@
 #include <string>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
 #include "style-change.h"
@@ -50,7 +50,7 @@ class DALI_IMPORT_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 
-  typedef SignalV2< void (StyleMonitor, StyleChange) > StyleChangeSignalV2;   ///< StyleChange Signal type
+  typedef Signal< void (StyleMonitor, StyleChange) > StyleChangeSignalType;   ///< StyleChange Signal type
 
 public: // Creation & Destruction
 
@@ -132,7 +132,7 @@ public: // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  StyleChangeSignalV2& StyleChangeSignal();
+  StyleChangeSignalType& StyleChangeSignal();
 
 public: // Operators
 

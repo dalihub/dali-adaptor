@@ -53,9 +53,9 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
 void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, int value );
 
 // Signals
-Dali::VirtualKeyboard::StatusSignalV2 gKeyboardStatusSignalV2;
-Dali::VirtualKeyboard::VoidSignalV2   gKeyboardResizeSignalV2;
-Dali::VirtualKeyboard::VoidSignalV2   gKeyboardLanguageChangedSignalV2;
+Dali::VirtualKeyboard::StatusSignalType gKeyboardStatusSignal;
+Dali::VirtualKeyboard::VoidSignalType   gKeyboardResizeSignal;
+Dali::VirtualKeyboard::VoidSignalType   gKeyboardLanguageChangedSignal;
 
 Dali::VirtualKeyboard::ReturnKeyType gReturnKeyType = Dali::VirtualKeyboard::DEFAULT;  // the currently used return key type.
 
@@ -67,7 +67,7 @@ void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int 
     {
       DALI_LOG_INFO( gLogFilter, Debug::General, "VKB ECORE_IMF_INPUT_PANEL_STATE_SHOW\n" );
 
-      gKeyboardStatusSignalV2.Emit( true );
+      gKeyboardStatusSignal.Emit( true );
 
       break;
     }
@@ -76,7 +76,7 @@ void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int 
     {
       DALI_LOG_INFO( gLogFilter, Debug::General, "VKB ECORE_IMF_INPUT_PANEL_STATE_HIDE\n" );
 
-      gKeyboardStatusSignalV2.Emit( false );
+      gKeyboardStatusSignal.Emit( false );
 
       break;
     }
@@ -95,7 +95,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   DALI_LOG_INFO( gLogFilter, Debug::General, "VKB InputPanelLanguageChangeCallback" );
 
   // Emit the signal that the language has changed
-  gKeyboardLanguageChangedSignalV2.Emit();
+  gKeyboardLanguageChangedSignal.Emit();
 }
 
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
@@ -103,7 +103,7 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   DALI_LOG_INFO( gLogFilter, Debug::General, "VKB InputPanelGeometryChangedCallback\n" );
 
   // Emit signal that the keyboard is resized
-  gKeyboardResizeSignalV2.Emit();
+  gKeyboardResizeSignal.Emit();
 }
 
 } // unnamed namespace
@@ -250,19 +250,19 @@ Rect<int> GetSizeAndPosition()
   return Rect<int>(xPos,yPos,width,height);
 }
 
-Dali::VirtualKeyboard::StatusSignalV2& StatusChangedSignal()
+Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal()
 {
-  return gKeyboardStatusSignalV2;
+  return gKeyboardStatusSignal;
 }
 
-Dali::VirtualKeyboard::VoidSignalV2& ResizedSignal()
+Dali::VirtualKeyboard::VoidSignalType& ResizedSignal()
 {
-  return gKeyboardResizeSignalV2;
+  return gKeyboardResizeSignal;
 }
 
-Dali::VirtualKeyboard::VoidSignalV2& LanguageChangedSignal()
+Dali::VirtualKeyboard::VoidSignalType& LanguageChangedSignal()
 {
-  return gKeyboardLanguageChangedSignalV2;
+  return gKeyboardLanguageChangedSignal;
 }
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()

@@ -79,7 +79,7 @@ Timer::~Timer()
 
 void Timer::Start()
 {
-  if(mImpl->mId > 0)
+  if(mImpl->mId != NULL)
   {
     Stop();
   }
@@ -140,7 +140,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalV2& Timer::TickSignal()
+Dali::Timer::TimerSignalType& Timer::TickSignal()
 {
   return mTickSignal;
 }

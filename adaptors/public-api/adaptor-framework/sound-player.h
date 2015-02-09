@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -40,12 +40,7 @@ class DALI_IMPORT_API SoundPlayer : public BaseHandle
 {
 public:
 
-  typedef SignalV2< void (SoundPlayer&) > SoundPlayFinishedSignalV2; ///< Sound play finished signal
-
-  // Signal Names
-  static const char* const SIGNAL_SOUND_PLAY_FINISHED; ///< name "sound-play-finished"
-
-public:
+  typedef Signal< void (SoundPlayer&) > SoundPlayFinishedSignalType; ///< Sound play finished signal
 
   /**
    * @brief Create an uninitialized handle.
@@ -90,8 +85,10 @@ public:
    *
    * @pre The SoundPlayer needs to be initialized.
    * @return The signal to connect to.
+   *
+   * @note The signal name is "sound-play-finished" if using BaseHandle::ConnectSignal()
    */
-  SoundPlayFinishedSignalV2& SoundPlayFinishedSignal();
+  SoundPlayFinishedSignalType& SoundPlayFinishedSignal();
 
 public: // Not intended for application developers
 

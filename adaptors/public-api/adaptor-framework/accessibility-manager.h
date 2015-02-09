@@ -23,7 +23,7 @@
 #include <boost/function.hpp>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/events/touch-event.h>
 
 namespace Dali
@@ -55,23 +55,8 @@ public:
    *
    * Signal connected callback should return the result
    */
-  typedef SignalV2< bool ( AccessibilityManager& ) > AccessibilityActionSignalV2; ///< Generic signal type
-  typedef SignalV2< bool (AccessibilityManager&, const Dali::TouchEvent&)> AccessibilityActionScrollSignalV2; ///< Scroll signal type
-
-  // Signal Names
-  static const char* const SIGNAL_STATUS_CHANGED;       ///< name "accessibility-status-changed"
-  static const char* const SIGNAL_ACTION_NEXT;          ///< name "accessibility-action-next"
-  static const char* const SIGNAL_ACTION_PREVIOUS;      ///< name "accessibility-action-previous"
-  static const char* const SIGNAL_ACTION_ACTIVATE;      ///< name "accessibility-action-activatae"
-  static const char* const SIGNAL_ACTION_OVER;          ///< name "accessibility-action-over"
-  static const char* const SIGNAL_ACTION_READ;          ///< name "accessibility-action-read"
-  static const char* const SIGNAL_ACTION_READ_NEXT;     ///< name "accessibility-action-read-next"
-  static const char* const SIGNAL_ACTION_READ_PREVIOUS; ///< name "accessibility-action-read-prev"
-  static const char* const SIGNAL_ACTION_UP;            ///< name "accessibility-action-up"
-  static const char* const SIGNAL_ACTION_DOWN;          ///< name "accessibility-action-down"
-  static const char* const SIGNAL_ACTION_CLEAR_FOCUS;   ///< name "accessibility-action-clear-focus"
-  static const char* const SIGNAL_ACTION_BACK;          ///< name "accessibility-action-back"
-  static const char* const SIGNAL_ACTION_SCROLL;        ///< name "accessibility-action-scroll"
+  typedef Signal< bool ( AccessibilityManager& ) > AccessibilityActionSignalType; ///< Generic signal type
+  typedef Signal< bool (AccessibilityManager&, const Dali::TouchEvent&)> AccessibilityActionScrollSignalType; ///< Scroll signal type
 
   /**
    * @brief Create an uninitialized handle.
@@ -250,7 +235,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& StatusChangedSignal();
+  AccessibilityActionSignalType& StatusChangedSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to move focus to the next
@@ -262,7 +247,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionNextSignal();
+  AccessibilityActionSignalType& ActionNextSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to move focus to the previous
@@ -274,7 +259,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionPreviousSignal();
+  AccessibilityActionSignalType& ActionPreviousSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to activate the current focused
@@ -286,7 +271,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionActivateSignal();
+  AccessibilityActionSignalType& ActionActivateSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to focus and read the actor
@@ -298,7 +283,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionReadSignal();
+  AccessibilityActionSignalType& ActionReadSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to focus and read the actor
@@ -310,7 +295,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionOverSignal();
+  AccessibilityActionSignalType& ActionOverSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to move focus to the next
@@ -322,7 +307,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionReadNextSignal();
+  AccessibilityActionSignalType& ActionReadNextSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to move focus to the previous
@@ -334,7 +319,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionReadPreviousSignal();
+  AccessibilityActionSignalType& ActionReadPreviousSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to change the value when the
@@ -346,7 +331,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionUpSignal();
+  AccessibilityActionSignalType& ActionUpSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to change the value when the
@@ -358,7 +343,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionDownSignal();
+  AccessibilityActionSignalType& ActionDownSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to clear the focus from the
@@ -370,7 +355,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionClearFocusSignal();
+  AccessibilityActionSignalType& ActionClearFocusSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to navigate back (by two
@@ -382,7 +367,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionSignalV2& ActionBackSignal();
+  AccessibilityActionSignalType& ActionBackSignal();
 
   /**
    * @brief This is emitted when accessibility action is received to handle scroll event (by two
@@ -394,7 +379,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  AccessibilityActionScrollSignalV2& ActionScrollSignal();
+  AccessibilityActionScrollSignalType& ActionScrollSignal();
 
 public: // Not intended for application developers
 

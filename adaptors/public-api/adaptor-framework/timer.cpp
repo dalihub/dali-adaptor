@@ -86,7 +86,7 @@ bool Timer::IsRunning() const
   return Internal::Adaptor::GetImplementation(*this).IsRunning();
 }
 
-Timer::TimerSignalV2& Timer::TickSignal()
+Timer::TimerSignalType& Timer::TickSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).TickSignal();
 }

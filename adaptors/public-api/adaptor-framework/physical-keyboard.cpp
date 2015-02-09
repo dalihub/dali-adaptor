@@ -51,7 +51,7 @@ bool PhysicalKeyboard::IsAttached() const
   return GetImplementation( *this ).IsAttached();
 }
 
-PhysicalKeyboard::Signal& PhysicalKeyboard::StatusChangedSignal()
+PhysicalKeyboard::PhysicalKeyboardSignalType& PhysicalKeyboard::StatusChangedSignal()
 {
   return GetImplementation( *this ).StatusChangedSignal();
 }

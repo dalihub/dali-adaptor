@@ -27,13 +27,22 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+}
 EnvironmentOptions::EnvironmentOptions()
 : mFpsFrequency(0),
   mUpdateStatusFrequency(0),
-  mPerformanceLoggingLevel(0),
+  mPerformanceStatsLevel(0),
+  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY),
+  mPerformanceTimeStampOutput(0),
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
-  mPanGesturePredictionAmount(-1.0f), ///< only sets value in pan gesture if greater than 0
+  mPanGesturePredictionAmount(-1), ///< only sets value in pan gesture if greater than 0
+  mPanGestureMaxPredictionAmount(-1),
+  mPanGestureMinPredictionAmount(-1),
+  mPanGesturePredictionAmountAdjustment(-1),
   mPanGestureSmoothingMode(-1),
   mPanGestureSmoothingAmount(-1.0f),
   mPanMinimumDistance(-1),
@@ -50,13 +59,17 @@ EnvironmentOptions::~EnvironmentOptions()
 void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
                              unsigned int logFrameRateFrequency,
                              unsigned int logupdateStatusFrequency,
-                             unsigned int logPerformanceLevel,
+                             unsigned int logPerformanceStats,
+                             unsigned int logPerformanceStatsFrequency,
+                             unsigned int performanceTimeStampOutput,
                              unsigned int logPanGestureLevel )
 {
   mLogFunction = logFunction;
   mFpsFrequency = logFrameRateFrequency;
   mUpdateStatusFrequency = logupdateStatusFrequency;
-  mPerformanceLoggingLevel = logPerformanceLevel;
+  mPerformanceStatsLevel = logPerformanceStats;
+  mPerformanceStatsFrequency = logPerformanceStatsFrequency;
+  mPerformanceTimeStampOutput= performanceTimeStampOutput;
   mPanGestureLoggingLevel = logPanGestureLevel;
 }
 
@@ -80,9 +93,17 @@ unsigned int EnvironmentOptions::GetUpdateStatusLoggingFrequency() const
   return mUpdateStatusFrequency;
 }
 
-unsigned int EnvironmentOptions::GetPerformanceLoggingLevel() const
+unsigned int EnvironmentOptions::GetPerformanceStatsLoggingOptions() const
 {
-  return mPerformanceLoggingLevel;
+  return mPerformanceStatsLevel;
+}
+unsigned int EnvironmentOptions::GetPerformanceStatsLoggingFrequency() const
+{
+  return mPerformanceStatsFrequency;
+}
+unsigned int EnvironmentOptions::GetPerformanceTimeStampOutput() const
+{
+  return mPerformanceTimeStampOutput;
 }
 
 unsigned int EnvironmentOptions::GetPanGestureLoggingLevel() const
@@ -95,9 +116,24 @@ int EnvironmentOptions::GetPanGesturePredictionMode() const
   return mPanGesturePredictionMode;
 }
 
-float EnvironmentOptions::GetPanGesturePredictionAmount() const
+int EnvironmentOptions::GetPanGesturePredictionAmount() const
 {
   return mPanGesturePredictionAmount;
+}
+
+int EnvironmentOptions::GetPanGestureMaximumPredictionAmount() const
+{
+  return mPanGestureMaxPredictionAmount;
+}
+
+int EnvironmentOptions::GetPanGestureMinimumPredictionAmount() const
+{
+  return mPanGestureMinPredictionAmount;
+}
+
+int EnvironmentOptions::GetPanGesturePredictionAmountAdjustment() const
+{
+  return mPanGesturePredictionAmountAdjustment;
 }
 
 int EnvironmentOptions::GetPanGestureSmoothingMode() const
@@ -130,6 +166,21 @@ void EnvironmentOptions::SetPanGesturePredictionAmount( unsigned int amount )
   mPanGesturePredictionAmount = amount;
 }
 
+void EnvironmentOptions::SetPanGestureMaximumPredictionAmount( unsigned int amount )
+{
+  mPanGestureMaxPredictionAmount = amount;
+}
+
+void EnvironmentOptions::SetPanGestureMinimumPredictionAmount( unsigned int amount )
+{
+  mPanGestureMinPredictionAmount = amount;
+}
+
+void EnvironmentOptions::SetPanGesturePredictionAmountAdjustment( unsigned int amount )
+{
+  mPanGesturePredictionAmountAdjustment = amount;
+}
+
 void EnvironmentOptions::SetPanGestureSmoothingMode( unsigned int mode )
 {
   mPanGestureSmoothingMode = mode;
@@ -155,9 +206,15 @@ void EnvironmentOptions::SetGlesCallTime( int time )
   mGlesCallTime = time;
 }
 
-int EnvironmentOptions::GetGlesCallTime()
+int EnvironmentOptions::GetGlesCallTime() const
 {
   return mGlesCallTime;
+}
+
+bool EnvironmentOptions::PerformanceServerRequired() const
+{
+  return ( (GetPerformanceStatsLoggingOptions() > 0) ||
+           ( GetPerformanceTimeStampOutput() > 0 ) );
 }
 
 } // Adaptor

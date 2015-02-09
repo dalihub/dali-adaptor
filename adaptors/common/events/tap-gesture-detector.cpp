@@ -21,11 +21,9 @@
 // EXTERNAL INCLUDES
 #include <cmath>
 
-#include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/math/vector2.h>
 
 #include <dali/integration-api/events/gesture-requests.h>
-#include <dali/integration-api/events/tap-gesture-event.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <base/core-event-interface.h>
 
@@ -44,7 +42,7 @@ namespace
 {
 // TODO: Set these according to DPI
 const float MAXIMUM_MOTION_ALLOWED = 20.0f;
-const unsigned long MAXIMUM_TIME_ALLOWED = 300u;
+const unsigned long MAXIMUM_TIME_ALLOWED = 500u;
 } // unnamed namespace
 
 TapGestureDetector::TapGestureDetector(CoreEventInterface& coreEventInterface, Vector2 screenSize, const Integration::TapGestureRequest& request)
@@ -56,10 +54,8 @@ TapGestureDetector::TapGestureDetector(CoreEventInterface& coreEventInterface, V
   mTapsRegistered(0),
   mTouchPosition(),
   mTouchTime(0u),
-  mTimerSlot( this )
+  mLastTapTime(0u)
 {
-  mTimer = Dali::Timer::New(MAXIMUM_TIME_ALLOWED);
-  mTimer.TickSignal().Connect( mTimerSlot, &TapGestureDetector::TimerCallback );
 }
 
 TapGestureDetector::~TapGestureDetector()
@@ -79,91 +75,71 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
       {
         if (pointState == TouchPoint::Down)
         {
-          mTouchPosition.x = point.screen.x;
-          mTouchPosition.y = point.screen.y;
-          mTouchTime = event.time;
-          mTapsRegistered = 0;
-          mState = Touched;
-          EmitGesture( Gesture::Possible, mTouchTime );
+          SetupForTouchDown( event, point );
         }
         break;
       }
 
       case Touched:
       {
-        Vector2 distanceDelta(abs(mTouchPosition.x - point.screen.x),
-                              abs(mTouchPosition.y - point.screen.y));
-
-        unsigned long timeDelta = abs(event.time - mTouchTime);
-
-        if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
-            distanceDelta.y > MAXIMUM_MOTION_ALLOWED ||
-            timeDelta > MAXIMUM_TIME_ALLOWED)
+        // Only progress from a touch up event
+        if ( pointState == TouchPoint::Up )
         {
-          // We may have already registered some taps so try emitting the gesture
-          EmitGesture( mTapsRegistered ? Gesture::Started : Gesture::Cancelled, event.time );
-          mState = (pointState == TouchPoint::Motion) ? Failed : Clear;
-          mTimer.Stop();
-        }
-
-        if (mState == Touched && pointState == TouchPoint::Up)
-        {
-          ++mTapsRegistered;
-
-          if (mTapsRegistered < mMaximumTapsRequired)
-          {
-            // Only emit gesture after timer expires if asked for multiple taps.
-            mState = Registered;
-            mTimer.Start();
-          }
-          else
-          {
-            EmitGesture(Gesture::Started, event.time);
-            mState = Clear;
-            mTimer.Stop();
-          }
+          mLastTapTime = mTouchTime;
+          EmitSingleTap( event.time, point );
+          mState = Registered;
         }
         break;
       }
 
       case Registered:
       {
+        if ( pointState == TouchPoint::Up )
+        {
+          // This is a possible multiple tap, so has it been quick enough ?
+          unsigned long timeDelta = abs( event.time - mLastTapTime );
+          if ( timeDelta > MAXIMUM_TIME_ALLOWED )
+          {
+            mLastTapTime = event.time;
+            EmitSingleTap( event.time, point );
+            mState = Clear;
+            break;
+          }
+          else
+          {
+            ++mTapsRegistered;
+            EmitGesture( Gesture::Started, event.time );
+            mState = Clear;
+          }
+          break;
+        }
         if (pointState == TouchPoint::Down)
         {
-          mTimer.Stop();
-
           Vector2 distanceDelta(abs(mTouchPosition.x - point.screen.x),
                                 abs(mTouchPosition.y - point.screen.y));
 
-          // Check if subsequent tap is in a different position, if not then emit the previous tap
-          // count gesture (if required),
-          if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
-              distanceDelta.y > MAXIMUM_MOTION_ALLOWED)
-          {
-            EmitGesture(Gesture::Started, event.time);
-            mTouchPosition.x = point.screen.x;
-            mTouchPosition.y = point.screen.y;
-          }
+          unsigned long timeDelta = abs( mTouchTime - mLastTapTime );
 
-          mTouchTime = event.time;
-          mState = Touched;
-          mTimer.Start();
+          if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
+              distanceDelta.y > MAXIMUM_MOTION_ALLOWED ||
+              timeDelta > MAXIMUM_TIME_ALLOWED )
+          {
+            SetupForTouchDown( event, point );
+          }
+          else
+          {
+            EmitPossibleState( event );
+          }
         }
         break;
       }
 
       case Failed:
-      {
-        if (pointState == TouchPoint::Up)
-        {
-          mState = Clear;
-        }
-        break;
-      }
-
       default:
+      {
         mState = Clear;
         break;
+      }
     }
   }
   else
@@ -175,6 +151,26 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
   }
 }
 
+void TapGestureDetector::SetupForTouchDown( const Integration::TouchEvent& event, const TouchPoint& point )
+{
+  mTouchPosition.x = point.screen.x;
+  mTouchPosition.y = point.screen.y;
+  mTouchTime = event.time;
+  mLastTapTime = 0u;
+  mTapsRegistered = 0;
+  mState = Touched;
+  EmitPossibleState( event );
+}
+
+void TapGestureDetector::EmitPossibleState( const Integration::TouchEvent& event )
+{
+  Integration::TapGestureEvent tapEvent( Gesture::Possible );
+  tapEvent.point = mTouchPosition;
+  tapEvent.time = event.time;
+  mCoreEventInterface.QueueCoreEvent(tapEvent);
+}
+
+
 void TapGestureDetector::Update(const Integration::GestureRequest& request)
 {
   const Integration::TapGestureRequest& tap = static_cast<const Integration::TapGestureRequest&>(request);
@@ -183,31 +179,38 @@ void TapGestureDetector::Update(const Integration::GestureRequest& request)
   mMaximumTapsRequired = tap.maxTaps;
 }
 
-bool TapGestureDetector::TimerCallback()
-{
-  EmitGesture( ( mTapsRegistered >= mMinimumTapsRequired ? Gesture::Started : Gesture::Cancelled ), mTouchTime + MAXIMUM_TIME_ALLOWED);
-  mState = Clear;
-
-  // There is no touch event at this time, so ProcessEvents must be called directly
-  mCoreEventInterface.ProcessCoreEvents();
-
-  return false;
-}
-
 void TapGestureDetector::EmitGesture( Gesture::State state, unsigned int time )
 {
-  if ( (state == Gesture::Possible) ||
-       (state == Gesture::Cancelled) ||
+  if ( (state == Gesture::Cancelled) ||
        (mTapsRegistered >= mMinimumTapsRequired && mTapsRegistered <= mMaximumTapsRequired) )
+
   {
     Integration::TapGestureEvent event( state );
-    event.numberOfTaps = mTapsRegistered;
-    event.point = mTouchPosition;
-    event.time = time;
-
-    mCoreEventInterface.QueueCoreEvent(event);
+    EmitTap( time, event );
   }
-  mTapsRegistered = 0;
+}
+
+void TapGestureDetector::EmitSingleTap( unsigned int time, const TouchPoint& point )
+{
+  Integration::TapGestureEvent event( Gesture::Started );
+  Vector2 distanceDelta(abs(mTouchPosition.x - point.screen.x),
+                        abs(mTouchPosition.y - point.screen.y));
+
+  if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
+      distanceDelta.y > MAXIMUM_MOTION_ALLOWED )
+  {
+    event.state = Gesture::Cancelled;
+  }
+  mTapsRegistered = 1u;
+  EmitTap( time, event );
+}
+
+void TapGestureDetector::EmitTap( unsigned int time, Integration::TapGestureEvent& event )
+{
+  event.numberOfTaps = mTapsRegistered;
+  event.point = mTouchPosition;
+  event.time = time;
+  mCoreEventInterface.QueueCoreEvent(event);
 }
 
 } // namespace Adaptor

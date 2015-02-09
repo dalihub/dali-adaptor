@@ -76,12 +76,12 @@ bool Adaptor::AddIdle( boost::function<void(void)> callBack )
   return mImpl->AddIdle(callBack);
 }
 
-Adaptor::AdaptorSignalV2& Adaptor::ResizedSignal()
+Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()
 {
   return mImpl->ResizedSignal();
 }
 
-Adaptor::AdaptorSignalV2& Adaptor::LanguageChangedSignal()
+Adaptor::AdaptorSignalType& Adaptor::LanguageChangedSignal()
 {
   return mImpl->LanguageChangedSignal();
 }

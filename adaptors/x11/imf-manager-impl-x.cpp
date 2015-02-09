@@ -283,7 +283,7 @@ void ImfManager::Activate()
 
     // emit keyboard activated signal
     Dali::ImfManager handle( this );
-    mActivatedSignalV2.Emit( handle );
+    mActivatedSignal.Emit( handle );
   }
 }
 
@@ -394,7 +394,7 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
 
     Dali::ImfManager handle( this );
     Dali::ImfManager::ImfEventData imfEventData ( Dali::ImfManager::PREEDIT, keyString, cursorPosition, numberOfChars );
-    Dali::ImfManager::ImfCallbackData callbackData = mEventSignalV2.Emit( handle, imfEventData );
+    Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfEventData );
 
     if ( callbackData.update )
     {
@@ -424,7 +424,7 @@ void ImfManager::CommitReceived( void *, Ecore_IMF_Context *imfContext, void *ev
 
     Dali::ImfManager handle( this );
     Dali::ImfManager::ImfEventData imfEventData ( Dali::ImfManager::COMMIT, keyString, cursorOffset, numberOfChars );
-    Dali::ImfManager::ImfCallbackData callbackData = mEventSignalV2.Emit( handle, imfEventData );
+    Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfEventData );
 
     if ( callbackData.update )
     {
@@ -451,7 +451,7 @@ Eina_Bool ImfManager::RetrieveSurrounding( void *data, Ecore_IMF_Context *imfCon
 
   Dali::ImfManager::ImfEventData imfData ( Dali::ImfManager::GETSURROUNDING , keyString, cursorOffset, numberOfChars );
   Dali::ImfManager handle( this );
-  mEventSignalV2.Emit( handle, imfData );
+  mEventSignal.Emit( handle, imfData );
 
   if ( text )
   {
@@ -494,7 +494,7 @@ void ImfManager::DeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, v
 
     Dali::ImfManager::ImfEventData imfData ( Dali::ImfManager::DELETESURROUNDING , keyString, cursorOffset, numberOfChars );
     Dali::ImfManager handle( this );
-    mEventSignalV2.Emit( handle, imfData );
+    mEventSignal.Emit( handle, imfData );
   }
 }
 

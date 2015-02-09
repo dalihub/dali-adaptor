@@ -22,7 +22,7 @@
 #include <boost/function.hpp>
 
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal-v2.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -47,10 +47,7 @@ public:
   /**
    * @brief Clipboard event
    */
-  typedef SignalV2< void ( ClipboardEventNotifier& ) > ClipboardEventSignalV2;
-
-  // Signal Names
-  static const char* const SIGNAL_CONTENT_SELECTED; ///< name "content-selected"
+  typedef Signal< void ( ClipboardEventNotifier& ) > ClipboardEventSignalType;
 
   /**
    * @brief Create an uninitialized handle.
@@ -106,7 +103,7 @@ public:  // Signals
    * @endcode
    * @return The signal to connect to.
    */
-  ClipboardEventSignalV2& ContentSelectedSignal();
+  ClipboardEventSignalType& ContentSelectedSignal();
 
 public: // Not intended for application developers
 
