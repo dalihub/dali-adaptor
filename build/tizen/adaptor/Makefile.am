@@ -69,12 +69,6 @@ include ../../../adaptors/public-api/file.list
 
 ############# source files #############
 
-if ASSIMP_ENABLED
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
-else
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
-endif # ASSIMP_ENABLED
-
 # COMMON
 if COMMON_PROFILE
 
@@ -236,7 +230,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \

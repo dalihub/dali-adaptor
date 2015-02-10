@@ -99,12 +99,6 @@ if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -fvisibility=hidden -DHIDE_DALI_INTERNALS"
 fi
 
-AC_ARG_ENABLE([assimp],
-              [AC_HELP_STRING([--enable-assimp],
-                              [Enable assimp plugin, overriding platform defaults])],
-              [enable_assimp=yes],
-              [enable_assimp=no])
-
 AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
@@ -190,14 +184,6 @@ PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 fi
 
-if test "x$enable_assimp" = "xyes" ; then
-  PKG_CHECK_MODULES(ASSIMP, assimp)
-  ASSIMP_CFLAGS+=-DASSIMP_ENABLED
-fi
-
-# Don't move this - it depends on the platform defaults above
-AM_CONDITIONAL([ASSIMP_ENABLED], [test x$enable_assimp = xyes])
-
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
 else
@@ -269,7 +255,6 @@ Configuration
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
-  Using Assimp Library:             $enable_assimp
   Using JPEG Turbo Library:         $with_jpeg_turbo
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir

@@ -81,22 +81,6 @@ const char* ELM_INDICATOR_LANDSCAPE("elm_indicator_landscape");
 const char* ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE("elm_indicator_portrait_fixed");
 const char* ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE("elm_indicator_landscape_fixed");
 
-const char* MESH_VERTEX_SHADER =
-"attribute lowp vec3     aColor;\n"
-"varying   mediump vec4  vColor;\n"
-"void main()\n"
-"{\n"
-"  gl_Position = uMvpMatrix * vec4(aPosition, 1.0);\n"
-"  vColor = vec4(aColor.r, aColor.g, aColor.b, aTexCoord.x);\n"
-"}\n";
-
-const char* MESH_FRAGMENT_SHADER =
-"varying mediump vec4  vColor;\n"
-"void main()\n"
-"{\n"
-"  gl_FragColor = vColor*uColor;\n"
-"}\n";
-
 // Copied from ecore_evas_extn_engine.h
 
 enum // opcodes
@@ -222,30 +206,6 @@ struct IpcDataEvMouseOut
   {
   }
 };
-
-void SetMeshDataColors(Dali::AnimatableMesh mesh, const Vector4 (&colors)[NUM_GRADIENT_INTERVALS+1])
-{
-  for( size_t i=0; i<NUM_GRADIENT_INTERVALS+1; i++ )
-  {
-    int j=i*2;
-    mesh[j].SetColor(colors[i]);
-    mesh[j+1].SetColor(colors[i]);
-    mesh[j].SetTextureCoords(Dali::Vector2(colors[i].a, colors[i].a));
-    mesh[j+1].SetTextureCoords(Dali::Vector2(colors[i].a, colors[i].a));
-  }
-}
-
-void SetMeshDataColors(Dali::AnimatableMesh mesh, const Vector4& color)
-{
-  for( size_t i=0, length=NUM_GRADIENT_INTERVALS+1 ; i<length; i++ )
-  {
-    int j=i*2;
-    mesh[j].SetColor(color);
-    mesh[j+1].SetColor(color);
-    mesh[j].SetTextureCoords(Dali::Vector2(color.a, color.a));
-    mesh[j+1].SetTextureCoords(Dali::Vector2(color.a, color.a));
-  }
-}
 
 } // anonymous namespace
 
@@ -381,21 +341,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mIndicatorImageActor.SetLeaveRequired( true );
   mIndicatorImageActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
 
-  SetBackground();
-  mBackgroundActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
-  mBackgroundActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
-  mBackgroundActor.SetZ( -0.02f );
-
-  // add background to image actor to move it with indicator image
-  mIndicatorImageActor.Add( mBackgroundActor );
-
   mIndicatorActor = Dali::Actor::New();
   mIndicatorActor.Add( mIndicatorImageActor );
-
-  if( mOrientation == Dali::Window::LANDSCAPE || mOrientation == Dali::Window::LANDSCAPE_INVERSE )
-  {
-    mBackgroundActor.SetVisible( false );
-  }
 
   // Event handler to find out flick down gesture
   mEventActor = Dali::Actor::New();
@@ -452,16 +399,6 @@ void Indicator::Open( Dali::Window::WindowOrientation orientation )
   DALI_ASSERT_DEBUG( mState == DISCONNECTED );
 
   Connect( orientation );
-
-  // Change background visibility depending on orientation
-  if(mOrientation == Dali::Window::PORTRAIT || mOrientation == Dali::Window::PORTRAIT_INVERSE)
-  {
-    mBackgroundActor.SetVisible(true);
-  }
-  else
-  {
-    mBackgroundActor.SetVisible(false);
-  }
 }
 
 void Indicator::Close()
@@ -776,10 +713,6 @@ void Indicator::Resize( int width, int height )
     mEventActor.SetSize(mImageWidth, mImageHeight);
 
     SetBackground();
-    if( mBackgroundActor )
-    {
-      mBackgroundActor.SetSize( mImageWidth, mImageHeight );
-    }
   }
 }
 
@@ -991,32 +924,6 @@ bool Indicator::CopyToBuffer( int bufferNumber )
 
 void Indicator::SetBackground()
 {
-  if( ! mBackgroundActor )
-  {
-    ConstructBackgroundMesh();
-  }
-
-  switch( mOpacityMode )
-  {
-    case Dali::Window::TRANSLUCENT:
-    {
-      SetMeshDataColors( mBackgroundMesh, GRADIENT_COLORS );
-    }
-    break;
-
-    case Dali::Window::TRANSPARENT:
-    {
-      SetMeshDataColors( mBackgroundMesh, Color::TRANSPARENT );
-    }
-    break;
-
-    case Dali::Window::OPAQUE:
-    default :
-    {
-      SetMeshDataColors( mBackgroundMesh, Color::BLACK );
-    }
-    break;
-  }
 }
 
 void Indicator::CreateNewPixmapImage()
@@ -1032,10 +939,6 @@ void Indicator::CreateNewPixmapImage()
     mEventActor.SetSize(mImageWidth, mImageHeight);
 
     SetBackground();
-    if( mBackgroundActor )
-    {
-      mBackgroundActor.SetSize( mImageWidth, mImageHeight );
-    }
   }
   else
   {
@@ -1206,45 +1109,6 @@ bool Indicator::CheckVisibleState()
   }
 
   return true;
-}
-
-void Indicator::ConstructBackgroundMesh()
-{
-  // Construct 5 interval mesh
-  // 0  +---+  1
-  //    | \ |
-  // 2  +---+  3
-  //    | \ |
-  // 4  +---+  5
-  //    | \ |
-  // 6  +---+  7
-  //    | \ |
-  // 8  +---+  9
-  //    | \ |
-  // 10 +---+  11
-  Dali::AnimatableMesh::Faces faces;
-  faces.reserve(NUM_GRADIENT_INTERVALS * 6); // 2 tris per interval
-  for(int i=0; i<NUM_GRADIENT_INTERVALS; i++)
-  {
-    int j=i*2;
-    faces.push_back(j); faces.push_back(j+3); faces.push_back(j+1);
-    faces.push_back(j); faces.push_back(j+2); faces.push_back(j+3);
-  }
-
-  mBackgroundMesh = Dali::AnimatableMesh::New((NUM_GRADIENT_INTERVALS+1)*2, faces);
-  float interval=1.0f / (float)NUM_GRADIENT_INTERVALS;
-  for(int i=0;i<NUM_GRADIENT_INTERVALS+1;i++)
-  {
-    int j=i*2;
-    mBackgroundMesh[j  ].SetPosition(Vector3(-0.5f, -0.5f+(interval*(float)i), 0.0f));
-    mBackgroundMesh[j+1].SetPosition(Vector3( 0.5f, -0.5f+(interval*(float)i), 0.0f));
-  }
-
-  mBackgroundActor = Dali::MeshActor::New(mBackgroundMesh);
-  Dali::ShaderEffect shaderEffect = Dali::ShaderEffect::New( MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER,
-                                                             GEOMETRY_TYPE_UNTEXTURED_MESH, // Using vertex color
-                                                             Dali::ShaderEffect::HINT_BLENDING );
-  mBackgroundActor.SetShaderEffect(shaderEffect);
 }
 
 void Indicator::ClearSharedFileInfo()
