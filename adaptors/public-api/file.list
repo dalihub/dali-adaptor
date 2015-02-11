@@ -3,9 +3,9 @@ public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/application.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-loader.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/bitmap-saver.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/color-controller.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/clipboard.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/color-controller.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/device-layout.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/event-feeder.cpp \

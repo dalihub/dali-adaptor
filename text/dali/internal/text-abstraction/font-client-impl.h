@@ -61,6 +61,17 @@ public:
   void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
 
   /**
+   * @copydoc Dali::FontClient::SetDefaultFontFamily()
+   */
+  void SetDefaultFontFamily( const std::string& fontFamilyName,
+                             const std::string& fontStyle );
+
+  /**
+   * @copydoc Dali::FontClient::GetDefaultFonts()
+   */
+  void GetDefaultFonts( FontList& defaultFonts );
+
+  /**
    * @copydoc Dali::FontClient::GetSystemFonts()
    */
   void GetSystemFonts( FontList& systemFonts );

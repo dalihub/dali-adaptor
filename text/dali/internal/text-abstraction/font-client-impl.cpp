@@ -80,9 +80,26 @@ void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
   }
 }
 
+void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
+                                       const std::string& fontStyle )
+{
+  CreatePlugin();
+
+  mPlugin->SetDefaultFontFamily( fontFamilyName, fontStyle );
+}
+
+void FontClient::GetDefaultFonts( FontList& defaultFonts )
+{
+  CreatePlugin();
+
+  mPlugin->GetDefaultFonts( defaultFonts );
+}
+
 void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
 {
   CreatePlugin();
+
+  mPlugin->GetDescription( id, fontDescription );
 }
 
 PointSize26Dot6 FontClient::GetPointSize( FontId id )
@@ -159,7 +176,6 @@ void FontClient::CreatePlugin()
   if( !mPlugin )
   {
     mPlugin = new Plugin( mDpiHorizontal, mDpiVertical );
-    mPlugin->Initialize();
   }
 }
 

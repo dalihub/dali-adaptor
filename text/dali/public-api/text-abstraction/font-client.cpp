@@ -58,6 +58,17 @@ void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
   GetImplementation(*this).SetDpi( horizontalDpi, verticalDpi );
 }
 
+void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
+                                       const std::string& fontStyle )
+{
+  GetImplementation(*this).SetDefaultFontFamily( fontFamilyName, fontStyle );
+}
+
+void FontClient::GetDefaultFonts( FontList& defaultFonts )
+{
+  GetImplementation(*this).GetDefaultFonts( defaultFonts );
+}
+
 void FontClient::GetSystemFonts( FontList& systemFonts )
 {
   GetImplementation(*this).GetSystemFonts( systemFonts );
