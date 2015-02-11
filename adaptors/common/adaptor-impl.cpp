@@ -36,8 +36,7 @@
 
 #include <callback-manager.h>
 #include <trigger-event.h>
-#include <window-render-surface.h>
-#include <render-surface-impl.h>
+#include <render-surface.h>
 #include <tts-player-impl.h>
 #include <accessibility-manager-impl.h>
 #include <timer-impl.h>
@@ -54,10 +53,9 @@
 #include <clipboard-impl.h>
 #include <vsync-monitor.h>
 #include <object-profiler.h>
+#include <base/display-connection.h>
 
 #include <tizen-logging.h>
-
-
 
 namespace Dali
 {
@@ -109,13 +107,11 @@ bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
 
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( RenderSurface *surface, const DeviceLayout& baseLayout,
+Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, const DeviceLayout& baseLayout,
                              Dali::Configuration::ContextLoss configuration )
 {
-  DALI_ASSERT_ALWAYS( surface->GetType() != Dali::RenderSurface::NO_SURFACE && "No surface for adaptor" );
-
   Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( *adaptor, surface, baseLayout );
+  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, baseLayout );
   adaptor->mImpl = impl;
 
   impl->Initialize(configuration);
@@ -372,15 +368,13 @@ void Adaptor::Start()
     mDeferredRotationObserver = NULL;
   }
 
-  // guarantee map the surface before starting render-thread.
-  mSurface->Map();
-
+  // NOTE: dpi must be set before starting the render thread
   // use default or command line settings if not run on device
   if( mHDpi == 0 || mVDpi == 0 )
   {
     unsigned int dpiHor, dpiVer;
     dpiHor = dpiVer = 0;
-    mSurface->GetDpi(dpiHor, dpiVer);
+    Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
 
     // tell core about the value
     mCore->SetDpi(dpiHor, dpiVer);
@@ -556,22 +550,12 @@ void Adaptor::SurfaceResized( const PositionSize& positionSize )
   }
 }
 
-void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
+void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
 {
-  // adaptor implementation needs the implementation of
-  RenderSurface* internalSurface = dynamic_cast<Internal::Adaptor::RenderSurface*>( &surface );
-  DALI_ASSERT_ALWAYS( internalSurface && "Incorrect surface" );
+  mNativeWindow = nativeWindow;
+  mSurface = &surface;
 
-  ECore::WindowRenderSurface* windowSurface = dynamic_cast<Internal::Adaptor::ECore::WindowRenderSurface*>( &surface);
-  if( windowSurface != NULL )
-  {
-    windowSurface->Map();
-    // @todo Restart event handler with new surface
-  }
-
-  mSurface = internalSurface;
-
-  SurfaceSizeChanged( internalSurface->GetPositionSize() );
+  SurfaceSizeChanged(mSurface->GetPositionSize());
 
   // flush the event queue to give update and render threads chance
   // to start processing messages for new camera setup etc as soon as possible
@@ -580,7 +564,7 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
   mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
 
   // this method blocks until the render thread has completed the replace.
-  mUpdateRenderController->ReplaceSurface(internalSurface);
+  mUpdateRenderController->ReplaceSurface(mSurface);
 
   // Inform core, so that texture resources can be reloaded
   mCore->RecoverFromContextLoss();
@@ -588,7 +572,7 @@ void Adaptor::ReplaceSurface( Dali::RenderSurface& surface )
   mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
-Dali::RenderSurface& Adaptor::GetSurface() const
+RenderSurface& Adaptor::GetSurface() const
 {
   return *mSurface;
 }
@@ -698,6 +682,7 @@ TriggerEventInterface& Adaptor::GetTriggerEventInterface()
 {
   return *mNotificationTrigger;
 }
+
 TriggerEventFactoryInterface& Adaptor::GetTriggerEventFactoryInterface()
 {
   return mTriggerEventFactory;
@@ -712,6 +697,7 @@ RenderSurface* Adaptor::GetRenderSurfaceInterface()
 {
   return mSurface;
 }
+
 VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
 {
   return mVSyncMonitor;
@@ -772,6 +758,10 @@ void Adaptor::SetMinimumPinchDistance(float distance)
   }
 }
 
+Any Adaptor::GetNativeWindowHandle()
+{
+  return mNativeWindow;
+}
 
 void Adaptor::AddObserver( LifeCycleObserver& observer )
 {
@@ -904,7 +894,7 @@ void Adaptor::ProcessCoreEventsFromIdle()
   mNotificationOnIdleInstalled = false;
 }
 
-Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
+Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mAdaptor(adaptor),
@@ -914,6 +904,7 @@ Adaptor::Adaptor(Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLay
   mVSyncMonitor(NULL),
   mGLES( NULL ),
   mEglFactory( NULL ),
+  mNativeWindow( nativeWindow ),
   mSurface( surface ),
   mPlatformAbstraction( NULL ),
   mEventHandler( NULL ),

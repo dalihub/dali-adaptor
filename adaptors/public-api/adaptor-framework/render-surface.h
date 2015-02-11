@@ -19,12 +19,25 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/view-mode.h>
+
+// INTERNAL INCLUDES
 
 namespace Dali
 {
+
+class EglInterface;
+class DisplayConnection;
+
+namespace Integration
+{
+
+class GlAbstraction;
+
+} // namespace Integration
 
 /**
  * @brief The position and size of the render surface.
@@ -43,19 +56,10 @@ typedef Dali::Rect<int> PositionSize;
  * The implementation of the factory method below should choose an appropriate
  * implementation of RenderSurface for the given platform
  */
+
 class RenderSurface
 {
 public:
-  /**
-   * @brief enumeration of surface types
-   */
-  enum SurfaceType
-  {
-    NO_SURFACE,     ///< not configured
-    PIXMAP,         ///< Pixmap
-    WINDOW,         ///< Window
-    NATIVE_BUFFER   ///< Native Buffer
-  };
 
   /**
    * @brief Constructor
@@ -70,28 +74,81 @@ public:
   virtual ~RenderSurface() {}
 
   /**
-   * @brief returns the surface type.
-   * @return the surface type
-   */
-  virtual SurfaceType GetType() = 0;
-
-  /**
-   * @brief Returns the window or pixmap surface.
-   * @return surface
-   */
-  virtual Any GetSurface() = 0;
-
-  /**
-   * @brief Returns the display.
-   * @return display
-   */
-  virtual Any GetDisplay() = 0;
-
-  /**
    * @brief Return the size and position of the surface.
    * @return The position and size
    */
   virtual PositionSize GetPositionSize() const = 0;
+
+  /**
+   * Initialize EGL, RenderSurface should create egl display and initialize
+   * @param egl implementation to use for the creation
+   */
+  virtual void InitializeEgl( EglInterface& egl ) = 0;
+
+  /**
+   * @brief Creates EGL Surface
+   * @param egl implementation to use for the creation
+   */
+  virtual void CreateEglSurface( EglInterface& egl ) = 0;
+
+  /**
+   * @brief Destroys EGL Surface
+   * @param egl implementation to use for the destruction
+   */
+  virtual void DestroyEglSurface( EglInterface& egl ) = 0;
+
+  /**
+   * @brief Replace the EGL Surface
+   * @param egl implementation to use for the creation
+   * @return true if context was lost
+   */
+  virtual bool ReplaceEGLSurface( EglInterface& egl ) = 0;
+
+  /**
+   * @brief Resizes the underlying surface. Only available for x window
+   */
+  virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
+
+  /**
+   * @brief Set the stereoscopic 3D view mode
+   * @param[in] viewMode The new view mode
+   */
+  virtual void SetViewMode( ViewMode viewMode ) = 0;
+
+  /**
+   * @brief Called when Render thread has started
+   */
+  virtual void StartRender() = 0;
+
+  /**
+   * @brief Invoked by render thread before Core::Render
+   * If the operation fails, then Core::Render should not be called until there is
+   * a surface to render onto.
+   * @param[in] egl The Egl interface
+   * @param[in] glAbstraction OpenGLES abstraction interface
+   * @return True if the operation is successful, False if the operation failed
+   */
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction ) = 0;
+
+  /**
+   * @brief Invoked by render thread after Core::Render
+   * @param[in] egl The Egl interface
+   * @param[in] glAbstraction OpenGLES abstraction interface
+   * @param[in] displayConnection display connection
+   * @param[in] deltaTime Time (in microseconds) since PostRender was last called.
+   * @param[in] replacingSurface True if the surface is being replaced.
+   */
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface ) = 0;
+
+  /**
+   * @brief Invoked by render thread when the thread should be stop
+   */
+  virtual void StopRender() = 0;
+
+  /**
+   * @brief Invoked by Event Thread when the compositor lock should be released and rendering should resume.
+   */
+  virtual void ReleaseLock() = 0;
 
 private:
 
@@ -104,7 +161,6 @@ private:
    * @brief Undefined assignment operator. RenderSurface cannot be copied
    */
   RenderSurface& operator=( const RenderSurface& rhs );
-
 };
 
 } // namespace Dali

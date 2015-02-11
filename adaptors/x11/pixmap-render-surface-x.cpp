@@ -30,16 +30,13 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+
 #include <ecore-x-types.h>
 #include <trigger-event.h>
+#include <gl/egl-implementation.h>
+#include <base/display-connection.h>
 
 namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
 {
 
 #if defined(DEBUG_ENABLED)
@@ -49,12 +46,11 @@ extern Debug::Filter* gRenderSurfaceLogFilter;
 namespace ECore
 {
 
-PixmapRenderSurface::PixmapRenderSurface( Dali::PositionSize positionSize,
-                              Any surface,
-                              Any display,
-                              const std::string& name,
-                              bool isTransparent)
-: RenderSurface( Dali::RenderSurface::PIXMAP, positionSize, surface, display, name, isTransparent ),
+PixmapRenderSurface::PixmapRenderSurface(Dali::PositionSize positionSize,
+                                         Any surface,
+                                         const std::string& name,
+                                         bool isTransparent)
+: EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
   mSyncMode(SYNC_MODE_NONE),
   mSyncReceived(false)
 {
@@ -74,12 +70,7 @@ PixmapRenderSurface::~PixmapRenderSurface()
 
 Ecore_X_Drawable PixmapRenderSurface::GetDrawable()
 {
-  return (Ecore_X_Drawable)mX11Pixmap;
-}
-
-Dali::RenderSurface::SurfaceType PixmapRenderSurface::GetType()
-{
-  return Dali::RenderSurface::PIXMAP;
+  return (Ecore_X_Drawable) mX11Pixmap;
 }
 
 Any PixmapRenderSurface::GetSurface()
@@ -87,48 +78,46 @@ Any PixmapRenderSurface::GetSurface()
   return Any( mX11Pixmap );
 }
 
-void PixmapRenderSurface::InitializeEgl( EglInterface& eglIf )
+void PixmapRenderSurface::InitializeEgl( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
-  eglImpl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   eglImpl.ChooseConfig(false, mColorDepth);
 }
 
-void PixmapRenderSurface::CreateEglSurface( EglInterface& eglIf )
+void PixmapRenderSurface::CreateEglSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   // create the EGL surface
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XPixmap pixmap = static_cast< XPixmap>( mX11Pixmap );
+  XPixmap pixmap = static_cast<XPixmap>( mX11Pixmap );
   eglImpl.CreateSurfacePixmap( (EGLNativePixmapType)pixmap, mColorDepth ); // reinterpret_cast does not compile
 }
 
-void PixmapRenderSurface::DestroyEglSurface( EglInterface& eglIf )
+void PixmapRenderSurface::DestroyEglSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.DestroySurface();
 }
 
-bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& eglIf )
+bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
-  eglImpl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
-
   // a new surface for the new pixmap
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XPixmap pixmap = static_cast< XPixmap>( mX11Pixmap );
-  return eglImpl.ReplaceSurfacePixmap( (EGLNativePixmapType)pixmap, // reinterpret_cast does not compile
-                                       reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
+  XPixmap pixmap = static_cast<XPixmap>( mX11Pixmap );
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+
+  return eglImpl.ReplaceSurfacePixmap( (EGLNativePixmapType)pixmap ); // reinterpret_cast does not compile
+
 }
 
 void PixmapRenderSurface::StartRender()
@@ -142,7 +131,7 @@ bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& 
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
@@ -156,8 +145,7 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
   else
   {
-    // as a fallback, send damage event. This is needed until livebox is fixed to
-    // stop using damage events for render
+    // as a fallback, send damage event.
     Ecore_X_Drawable drawable = GetDrawable();
 
     if( drawable )
@@ -170,13 +158,15 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
       rect.width = mPosition.width;
       rect.height = mPosition.height;
 
-      // make a fixes region as updated area
-      region = XFixesCreateRegion( mMainDisplay, &rect, 1 );
-      // add damage event to updated drawable
-      XDamageAdd( mMainDisplay, (Drawable)drawable, region );
-      XFixesDestroyRegion( mMainDisplay, region );
+      XDisplay* display = AnyCast<XDisplay*>(displayConnection->GetDisplay());
 
-      XFlush( mMainDisplay );
+      // make a fixes region as updated area
+      region = XFixesCreateRegion( display, &rect, 1 );
+      // add damage event to updated drawable
+      XDamageAdd( display, (Drawable)drawable, region );
+      XFixesDestroyRegion( display, region );
+
+      XFlush( display );
     }
   }
 
@@ -249,11 +239,6 @@ void PixmapRenderSurface::ReleaseLock()
   mSyncNotify.notify_all();
 }
 
-
 } // namespace ECore
-
-} // namespace Adaptor
-
-} // namespace Internal
 
 } // namespace Dali
