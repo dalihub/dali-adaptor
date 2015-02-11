@@ -50,7 +50,7 @@ public:
 
   /**
    * @brief Triggers the event.
-   *
+   * This method cannot ever block, it needs to return immediately.
    * This can be called from one thread in order to wake up another thread.
    */
   virtual void Trigger() = 0;
