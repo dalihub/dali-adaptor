@@ -10,6 +10,7 @@ text_abstraction_src_files = \
    $(text_src_dir)/dali/public-api/text-abstraction/shaping.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/bidirectional-support-impl.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/font-client-impl.cpp \
+   $(text_src_dir)/dali/internal/text-abstraction/font-client-plugin-impl.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/segmentation-impl.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/shaping-impl.cpp
 

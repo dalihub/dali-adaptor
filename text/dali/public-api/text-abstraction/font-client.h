@@ -19,17 +19,19 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/images/bitmap-image.h>
-#include <dali/public-api/text-abstraction/glyph-info.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/text-abstraction/font-list.h>
-#include <dali/public-api/text-abstraction/font-metrics.h>
+#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
 {
 
 namespace TextAbstraction
 {
+
+struct FontMetrics;
+struct GlyphInfo;
 
 namespace Internal DALI_INTERNAL
 {
