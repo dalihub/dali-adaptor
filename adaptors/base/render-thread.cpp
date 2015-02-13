@@ -166,12 +166,28 @@ bool RenderThread::Run()
     // Consume any pending events
     ConsumeEvents();
 
-    // Check if we've got any requests from the main thread (e.g. replace surface)
-    bool requestProcessed = ProcessRequest( request );
+    bool processRequests = true;
+    bool requestProcessed = false;
+    while( processRequests && running)
+    {
+      // Check if we've got any requests from the main thread (e.g. replace surface)
+      requestProcessed = ProcessRequest( request );
 
-    // perform any pre-render operations
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - PreRender\n");
-    if( running && PreRender() == true)
+      // perform any pre-render operations
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - PreRender\n");
+      bool preRendered = PreRender(); // Returns false if no surface onto which to render
+      if( preRendered )
+      {
+        processRequests = false;
+      }
+      else
+      {
+        // Block until new surface... - cleared by ReplaceSurface code in UpdateRenderController
+        running = mUpdateRenderSync.RenderSyncWithRequest(request);
+      }
+    }
+
+    if( running )
     {
        // Render
       DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - Core.Render()\n");

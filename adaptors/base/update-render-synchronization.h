@@ -111,10 +111,20 @@ public:
   void UpdateWhilePaused();
 
   /**
-   * Inform the render thread that there is a new surface.
+   * Inform the render thread that there is a new surface, and that
+   * it should replace the current surface.
    * @param[in] newSurface The new surface for rendering.
    */
   bool ReplaceSurface( RenderSurface* newSurface );
+
+  /**
+   * Inform the render thread that there is a new surface. Should be used
+   * after SurfaceLost() has been used to inform RenderThread that the surface
+   * has gone.
+   *
+   * @param[in] newSurface The new surface for rendering.
+   */
+  bool NewSurface( RenderSurface* newSurface );
 
   /**
    * Called by Update thread before it runs the update. This is the point where we can pause
@@ -143,6 +153,13 @@ public:
    * @return True if updating should continue, false if the update-thread should quit.
    */
   bool UpdateTryToSleep();
+
+  /**
+   * Block the render thread whilst waiting for requests e.g. providing a new
+   * surface.
+   * @param[in] request Pointer to set if there are any requests
+   */
+  bool RenderSyncWithRequest(RenderRequest*& request );
 
   /**
    * Called by the render-thread to wait for a buffer to read from and then render.
@@ -256,7 +273,8 @@ private:
   boost::condition_variable mVSyncReceivedCondition;  ///< The render thread waits on this condition
   boost::condition_variable mVSyncSleepCondition;     ///< The vsync thread waits for this condition
   boost::condition_variable mPausedCondition;         ///< The controller waits for this condition while paused
-  boost::condition_variable mRequestFinishedCondition;///< The controller waits for this condition
+  boost::condition_variable mRenderRequestSleepCondition;   ///< The render thread waits for this condition
+  boost::condition_variable mRenderRequestFinishedCondition;///< The controller waits for this condition
 
   FrameTime mFrameTime;                               ///< Frame timer predicts next vsync time
   TriggerEventInterface& mNotificationTrigger;        ///< Reference to notification event trigger

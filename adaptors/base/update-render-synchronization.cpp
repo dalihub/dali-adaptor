@@ -87,6 +87,7 @@ void UpdateRenderSynchronization::Stop()
   mRenderFinishedCondition.notify_one();
   mVSyncSleepCondition.notify_one();
   mVSyncReceivedCondition.notify_one();
+  mRenderRequestSleepCondition.notify_one();
 
   mFrameTime.Suspend();
 }
@@ -151,7 +152,7 @@ bool UpdateRenderSynchronization::ReplaceSurface( RenderSurface* newSurface )
     mReplaceSurfaceRequest.SetSurface(newSurface);
     mReplaceSurfaceRequested = true;
 
-    mRequestFinishedCondition.wait(lock); // wait unlocks the mutex on entry, and locks again on exit.
+    mRenderRequestFinishedCondition.wait(lock); // wait unlocks the mutex on entry, and locks again on exit.
 
     mReplaceSurfaceRequested = false;
     result = mReplaceSurfaceRequest.GetReplaceCompleted();
@@ -159,6 +160,32 @@ bool UpdateRenderSynchronization::ReplaceSurface( RenderSurface* newSurface )
 
   return result;
 }
+
+bool UpdateRenderSynchronization::NewSurface( RenderSurface* newSurface )
+{
+  bool result=false;
+
+  UpdateRequested();
+  UpdateWhilePaused();
+  {
+    boost::unique_lock< boost::mutex > lock( mMutex );
+
+    mReplaceSurfaceRequest.SetSurface(newSurface);
+    mReplaceSurfaceRequested = true;
+
+    // Unlock the render thread sleeping on requests
+    mRenderRequestSleepCondition.notify_one();
+
+    // Lock event thread until request has been processed
+    mRenderRequestFinishedCondition.wait(lock);// wait unlocks the mutex on entry, and locks again on exit.
+
+    mReplaceSurfaceRequested = false;
+    result = mReplaceSurfaceRequest.GetReplaceCompleted();
+  }
+
+  return result;
+}
+
 
 void UpdateRenderSynchronization::UpdateReadyToRun()
 {
@@ -278,6 +305,22 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
   return mRunning;
 }
 
+bool UpdateRenderSynchronization::RenderSyncWithRequest(RenderRequest*& requestPtr)
+{
+  boost::unique_lock< boost::mutex > lock( mMutex );
+
+  // Wait for a replace surface request
+  mRenderRequestSleepCondition.wait(lock);
+
+  // write any new requests
+  if( mReplaceSurfaceRequested )
+  {
+    requestPtr = &mReplaceSurfaceRequest;
+  }
+  mReplaceSurfaceRequested = false;
+  return mRunning;
+}
+
 bool UpdateRenderSynchronization::RenderSyncWithUpdate(RenderRequest*& requestPtr)
 {
   boost::unique_lock< boost::mutex > lock( mMutex );
@@ -325,7 +368,7 @@ void UpdateRenderSynchronization::RenderFinished( bool updateRequired, bool requ
   if( requestProcessed )
   {
     // Notify the event thread that a request has completed
-    mRequestFinishedCondition.notify_one();
+    mRenderRequestFinishedCondition.notify_one();
   }
 
   AddPerformanceMarker( PerformanceInterface::RENDER_END );
