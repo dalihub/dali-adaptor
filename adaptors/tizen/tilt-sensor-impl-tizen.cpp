@@ -20,10 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <cmath>
-#ifdef DALI_PROFILE_LITE
+#ifdef SENSOR_ENABLED
 #include <sensor_internal.h>
-#else
-#include <sensor.h>
 #endif
 
 #include <dali/public-api/object/type-registry.h>
@@ -31,10 +29,6 @@
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
-
-#ifdef __arm__
-#define SENSOR_ENABLED
-#endif
 
 namespace // unnamed namespace
 {
