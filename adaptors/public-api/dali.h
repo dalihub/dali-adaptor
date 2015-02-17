@@ -55,6 +55,8 @@
 #include <dali/public-api/adaptor-framework/virtual-keyboard.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
+#include <dali/public-api/text-abstraction/text-abstraction.h>
+
 #include <dali/public-api/dali-adaptor-version.h>
 
 #endif //__DALI_H__
