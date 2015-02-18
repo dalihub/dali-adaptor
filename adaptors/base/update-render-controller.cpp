@@ -125,6 +125,18 @@ void UpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
   mUpdateRenderSync->ReplaceSurface( newSurface );
 }
 
+void UpdateRenderController::NewSurface( RenderSurface* newSurface )
+{
+  // This API shouldn't be used when there is a current surface, but check anyway.
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->StopRender();
+  }
+
+  mUpdateRenderSync->NewSurface( newSurface );
+}
+
 void UpdateRenderController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
