@@ -106,11 +106,11 @@ public:
   }
 
   /**
-   * @copydoc Dali::PixmapImage::GetPixelFormat()
+   * @copydoc Dali::PixmapImage::RequiresBlending()
    */
-  Pixel::Format GetPixelFormat() const
+  bool RequiresBlending() const
   {
-    return mPixelFormat;
+    return mBlendingRequired;
   }
 
 private:
@@ -133,17 +133,10 @@ private:
   void Initialize();
 
   /**
-   * Uses X11 to get the default depth.
+   * Decide whether blending is required based on the color depth.
    * @param depth the PixelImage depth enum
-   * @return default x11 pixel depth
    */
-  int GetPixelDepth(Dali::PixmapImage::ColorDepth depth) const;
-
-  /**
-   * Sets the pixel format based on the bit depth
-   * @param depth depth in bytes
-   */
-  void SetPixelFormat(int depth);
+  void SetBlending(Dali::PixmapImage::ColorDepth depth);
 
   /**
    * Given an existing pixmap, the function uses X to find out
@@ -156,7 +149,7 @@ private:
   unsigned int mWidth;                        ///< pixmap width
   unsigned int mHeight;                       ///< pixmap heights
   bool mOwnPixmap;                            ///< Whether we created pixmap or not
-  Pixel::Format mPixelFormat;                 ///< pixmap pixel format
+  bool mBlendingRequired;                      ///< Whether blending is required
   Dali::PixmapImage::ColorDepth mColorDepth;  ///< color depth of pixmap
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions

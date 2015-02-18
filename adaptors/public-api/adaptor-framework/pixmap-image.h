@@ -22,7 +22,8 @@
 #include <string>
 
 #include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/images/native-image.h>
+#include <dali/public-api/images/native-image-interface.h>
+#include <dali/public-api/images/pixel.h>
 #include <dali/public-api/object/any.h>
 
 namespace Dali
@@ -49,7 +50,7 @@ typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
  * externally by X11 or ECORE-X11.
  *
  */
-class DALI_IMPORT_API PixmapImage : public NativeImage
+class DALI_IMPORT_API PixmapImage : public NativeImageInterface
 {
 public:
 
@@ -118,39 +119,39 @@ public:
 private:   // native image
 
   /**
-   * @copydoc Dali::NativeImage::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
    */
   virtual bool GlExtensionCreate();
 
   /**
-   * @copydoc Dali::NativeImage::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
    */
   virtual void GlExtensionDestroy();
 
   /**
-   * @copydoc Dali::NativeImage::TargetTexture()
+   * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
   virtual unsigned int TargetTexture();
 
   /**
-   * @copydoc Dali::NativeImage::PrepareTexture()
+   * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   virtual void PrepareTexture();
 
   /**
-   * @copydoc Dali::NativeImage::GetWidth()
+   * @copydoc Dali::NativeImageInterface::GetWidth()
    */
   virtual unsigned int GetWidth() const;
 
   /**
-   * @copydoc Dali::NativeImage::GetHeight()
+   * @copydoc Dali::NativeImageInterface::GetHeight()
    */
   virtual unsigned int GetHeight() const;
 
   /**
-   * @copydoc Dali::NativeImage::GetPixelFormat()
+   * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
-  virtual Pixel::Format GetPixelFormat() const;
+  virtual bool RequiresBlending() const;
 
 private:
 

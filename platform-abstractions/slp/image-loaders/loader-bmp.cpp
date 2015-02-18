@@ -1356,27 +1356,6 @@ bool LoadBitmapFromBmp( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
   }
 
   attributes.SetSize(infoHeader.width, infoHeader.height);
-  attributes.SetPixelFormat(pixelFormat);
-
-  switch(customizedFormat)
-  {
-    case BMP_RLE8:
-    case BMP_RGB8:
-    case BMP_RGB4:
-    case BMP_RGB1:
-    case BMP_RLE4:
-    case BMP_RGB555:
-    case BMP_BITFIELDS555:
-    case BMP_RGB24V5:
-      attributes.SetPixelFormat(Pixel::RGB888);
-      break;
-    case BMP_BITFIELDS32:
-    case BMP_BITFIELDS32V4:
-      attributes.SetPixelFormat(Pixel::RGB8888);
-      break;
-    default:
-      break;
-  }
   return true;
 }
 

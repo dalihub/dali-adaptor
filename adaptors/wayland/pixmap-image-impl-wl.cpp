@@ -59,7 +59,6 @@ PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapI
 : mWidth( width ),
   mHeight( height ),
   mOwnPixmap( true ),
-  mPixelFormat( Pixel::RGB888 ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
   mEglImageExtensions( NULL )
@@ -67,6 +66,8 @@ PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapI
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
   EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
   mEglImageExtensions = eglFactory.GetImageExtensions();
+  SetBlending( mColorDepth );
+
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 }
 
@@ -121,59 +122,25 @@ unsigned int PixmapImage::TargetTexture()
   return 0;
 }
 
-int PixmapImage::GetPixelDepth(Dali::PixmapImage::ColorDepth depth) const
+void PixmapImage::SetBlending(Dali::PixmapImage::ColorDepth depth)
 {
   switch (depth)
   {
-    case Dali::PixmapImage::COLOR_DEPTH_8:
+    case Dali::PixmapImage::COLOR_DEPTH_16: //Pixel::RGB565
+    case Dali::PixmapImage::COLOR_DEPTH_24: // Pixel::RGB888
     {
-      return 8;
+      mBlendingRequired = false;
+      break;
     }
-    case Dali::PixmapImage::COLOR_DEPTH_16:
+    case Dali::PixmapImage::COLOR_DEPTH_8: //Pixel::A8
+    case Dali::PixmapImage::COLOR_DEPTH_32: // Pixel::RGBA8888
     {
-      return 16;
-    }
-    case Dali::PixmapImage::COLOR_DEPTH_24:
-    {
-      return 24;
-    }
-    case Dali::PixmapImage::COLOR_DEPTH_32:
-    {
-      return 32;
+      mBlendingRequired = true;
+      break;
     }
     default:
     {
       DALI_ASSERT_DEBUG(0 && "unknown color enum");
-      return 0;
-    }
-  }
-}
-
-void PixmapImage::SetPixelFormat(int depth)
-{
-  // store the pixel format based on the depth
-  switch (depth)
-  {
-    case 8:
-    {
-      mPixelFormat = Pixel::A8;
-      break;
-    }
-    case 16:
-    {
-      mPixelFormat = Pixel::RGB565;
-      break;
-    }
-    case 32:
-    {
-      mPixelFormat = Pixel::RGBA8888;
-      break;
-    }
-    case 24:
-    default:
-    {
-      mPixelFormat = Pixel::RGB888;
-      break;
     }
   }
 }
