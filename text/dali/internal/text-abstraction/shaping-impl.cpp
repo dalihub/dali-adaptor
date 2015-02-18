@@ -73,7 +73,8 @@ struct Shaping::Plugin
   : mFreeTypeLibrary( NULL ),
     mIndices(),
     mAdvance(),
-    mCharacterMap()
+    mCharacterMap(),
+    mFontId( 0u )
   {
   }
 
@@ -100,6 +101,7 @@ struct Shaping::Plugin
     mIndices.Clear();
     mAdvance.Clear();
     mCharacterMap.Clear();
+    mFontId = fontId;
 
     TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
 
@@ -172,6 +174,7 @@ struct Shaping::Plugin
       GlyphInfo& glyph = *( glyphInfo + index );
       CharacterIndex& glyphToCharacter = *( glyphToCharacterMap + index );
 
+      glyph.fontId = mFontId;
       glyph.index = *( indicesIt + index );
       glyph.advance = *( advanceIt + index );
 
@@ -184,6 +187,7 @@ struct Shaping::Plugin
   Vector<CharacterIndex> mIndices;
   Vector<float>          mAdvance;
   Vector<CharacterIndex> mCharacterMap;
+  FontId                 mFontId;
 };
 
 Shaping::Shaping()
