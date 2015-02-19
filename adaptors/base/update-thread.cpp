@@ -18,14 +18,15 @@
 // CLASS HEADER
 #include "update-thread.h"
 
-// EXTERNAL INCLUDES
-#include <boost/thread.hpp>
-
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
 #include <base/environment-options.h>
+
+// EXTERNAL INCLUDES
+#include <boost/thread.hpp>
+#include <cstdio>
 
 namespace Dali
 {

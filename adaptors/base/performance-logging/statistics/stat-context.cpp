@@ -22,6 +22,9 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
 
+// EXTERNAL INCLUDES
+#include <cstdio>
+
 namespace Dali
 {
 

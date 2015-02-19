@@ -22,6 +22,8 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-attributes.h>
 
+#include <cstdlib>
+
 namespace Dali
 {
 using Integration::Bitmap;

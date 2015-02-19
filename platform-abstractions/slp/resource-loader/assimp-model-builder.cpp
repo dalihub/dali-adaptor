@@ -18,12 +18,6 @@
 // Class header
 #include "assimp-model-builder.h"
 
-// External headers
-#include <libgen.h>
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h> // Post processing flags
-
 // Core headers
 #include <dali/public-api/common/light.h>
 #include <dali/public-api/math/matrix.h>
@@ -34,14 +28,19 @@
 #include <dali/public-api/modeling/entity-animator-map.h>
 #include <dali/public-api/modeling/model-data.h>
 #include <dali/public-api/modeling/model-animation-map.h>
-
 #include <dali/public-api/animation/key-frames.h>
-
 #include <dali/integration-api/debug.h>
 
 // Local headers
 #include "assimp-proxy.h"
 #include "left-hand-convertor.h"
+
+// External headers
+#include <libgen.h>
+#include <assimp/assimp.hpp>
+#include <assimp/aiScene.h>
+#include <assimp/aiPostProcess.h> // Post processing flags
+#include <cstdio>
 
 namespace Dali
 {

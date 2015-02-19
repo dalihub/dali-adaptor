@@ -27,6 +27,7 @@
 // EXTERNAL INCLUDES
 #include <boost/functional/hash.hpp>
 #include <boost/thread.hpp>
+#include <cstdio>
 
 namespace Dali
 {

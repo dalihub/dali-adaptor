@@ -21,7 +21,9 @@
 // EXTERNAL INCLUDES
 #ifndef DALI_PROFILE_UBUNTU
 #include <dlog.h>
-#endif // DALI_PROFILE_UBUNTU
+#else // DALI_PROFILE_UBUNTU
+#include <cstdio>
+#endif
 
 namespace Dali
 {
