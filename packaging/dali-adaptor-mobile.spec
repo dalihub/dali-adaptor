@@ -123,6 +123,10 @@ LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections "
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
 
+%if 0%{?TIZEN_SDK_2_3}
+CXXFLAGS+=" -DTIZEN_SDK_2_3"
+%endif
+
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen
 autoreconf --install
