@@ -187,6 +187,7 @@ void FontClient::Plugin::GetDescription( FontId id,
     if( item.fontId == id )
     {
       fontDescription = *( mFontDescriptionCache.begin() + item.validatedFontId );
+      return;
     }
   }
 
