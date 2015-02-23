@@ -41,6 +41,7 @@ BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  libcurl-devel
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)

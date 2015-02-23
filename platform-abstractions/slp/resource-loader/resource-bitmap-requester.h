@@ -75,7 +75,8 @@ public:
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
 
 protected:
-  ResourceThreadImage*          mThreadImage;           ///< Image loader thread object
+  ResourceThreadImage*          mThreadImageLocal;      ///< Image loader thread object to load images in local machine
+  ResourceThreadImage*          mThreadImageRemote;     ///< Image loader thread object to download images in remote http server
   ResourceThreadDistanceField*  mThreadDistanceField;   ///< Distance field generator thread.
 };
 

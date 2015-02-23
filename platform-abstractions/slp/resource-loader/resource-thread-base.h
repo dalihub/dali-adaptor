@@ -48,6 +48,8 @@ public:
   {
     /** Pull a resource out of the platform's file system. */
     RequestLoad,
+    /** Pull a resource over http protocol. */
+    RequestDownload,
     /** Pull a resource out of a memory buffer. */
     RequestDecode,
     /** Push a resource's data out to the file system. */
@@ -125,6 +127,12 @@ protected:
    * @param[in] request  The requested resource/file url and attributes
    */
   virtual void Load(const Integration::ResourceRequest& request) = 0;
+
+  /**
+   * Download a resource
+   * @param[in] request  The requested resource/file url and attributes
+   */
+  virtual void Download(const Integration::ResourceRequest& request);
 
   /**
    * Decode a resource exactly as if it were being loaded but source its data

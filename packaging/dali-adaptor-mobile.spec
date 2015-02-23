@@ -44,6 +44,7 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(opengl-es-20)
 BuildRequires:  pkgconfig(efl-assist)
+BuildRequires:  libcurl-devel
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)
