@@ -15,6 +15,9 @@
  *
  */
 
+// CLASS HEADER
+#include "vsync-notifier.h"
+
 // EXTERNAL INCLUDES
 #include <boost/thread.hpp>
 
@@ -22,7 +25,6 @@
 #include <dali/integration-api/platform-abstraction.h>
 
 // INTERNAL INCLUDES
-#include "vsync-notifier.h"
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
 #include <base/environment-options.h>

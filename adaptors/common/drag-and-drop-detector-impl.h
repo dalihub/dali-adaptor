@@ -23,9 +23,9 @@
 
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/math/vector2.h>
-#include <drag-and-drop-detector.h>
 
 // INTERNAL INCLUDES
+#include <drag-and-drop-detector.h>
 
 namespace Dali
 {

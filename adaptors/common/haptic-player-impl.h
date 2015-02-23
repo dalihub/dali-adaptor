@@ -21,9 +21,9 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/object/base-object.h>
-#include <haptic-player.h>
 
 // INTERNAL INCLUDES
+#include <haptic-player.h>
 #include <feedback/feedback-plugin-proxy.h>
 
 namespace Dali

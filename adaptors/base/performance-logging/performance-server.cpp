@@ -18,9 +18,11 @@
 // CLASS HEADER
 #include "performance-server.h"
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/platform-abstraction.h>
+
 // INTERNAL INCLUDES
 #include <base/environment-options.h>
-#include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {

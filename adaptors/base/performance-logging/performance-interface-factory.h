@@ -18,9 +18,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
-#include <dali/integration-api/debug.h>
 #include <base/environment-options.h>
 
 namespace Dali

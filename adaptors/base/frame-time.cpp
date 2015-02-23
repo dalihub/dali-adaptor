@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include "frame-time.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
 

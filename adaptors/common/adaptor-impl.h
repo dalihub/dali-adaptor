@@ -23,12 +23,12 @@
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 
-// INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/integration-api/render-controller.h>
 
+// INTERNAL INCLUDES
 #include <adaptor.h>
 #include <render-surface.h>
 #include <tts-player.h>

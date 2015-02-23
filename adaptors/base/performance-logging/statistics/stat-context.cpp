@@ -19,11 +19,11 @@
 // CLASS HEADER
 #include "stat-context.h"
 
-// INTERNAL INCLUDES
-#include <dali/integration-api/platform-abstraction.h>
-
 // EXTERNAL INCLUDES
 #include <cstdio>
+
+// INTERNAL INCLUDES
+#include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {

@@ -22,10 +22,10 @@
 #include <boost/bind.hpp>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/object/type-registry.h>
-#include <adaptor.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <adaptor.h>
 #include <window-render-surface.h>
 #include <adaptor-impl.h>
 #include <singleton-service-impl.h>

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-#include "bitmap-loader-impl.h"
+// EXTERNAL INCLUDES
+#include <string>
+
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/resource-cache.h>
-#include "image-loaders/image-loader.h"
 
-#include <string>
+// INTERNAL INCLUDES
+#include "bitmap-loader-impl.h"
+#include "image-loaders/image-loader.h"
 
 namespace Dali
 {

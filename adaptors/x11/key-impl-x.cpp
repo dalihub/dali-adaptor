@@ -24,7 +24,6 @@
 #include <string.h>
 #include <iostream>
 
-
 #include <dali/integration-api/debug.h>
 
 

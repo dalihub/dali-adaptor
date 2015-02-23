@@ -20,9 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-#include <virtual-keyboard.h>
 
 // INTERNAL INCLUDES
+#include <virtual-keyboard.h>
 
 namespace Dali
 {

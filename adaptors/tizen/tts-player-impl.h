@@ -24,6 +24,8 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/base-object.h>
+
+// INTERNAL INCLUDES
 #include <tts-player.h>
 
 namespace Dali

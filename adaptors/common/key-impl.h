@@ -18,7 +18,7 @@
  *
  */
 
-// EXTERNAL INCLUDES
+// INTERNAL INCLUDES
 #include <key.h>
 
 namespace Dali

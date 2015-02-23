@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <clipboard.h>
 #include <dali/public-api/object/base-object.h>
 #include <Ecore_X.h>
 
-
+// INTERNAL INCLUDES
+#include <clipboard.h>
 
 namespace Dali
 {

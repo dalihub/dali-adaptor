@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include "stat-context-manager.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 namespace Dali

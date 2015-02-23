@@ -15,6 +15,7 @@
  *
  */
 
+// CLASS HEADER
 #include "abort-handler.h"
 
 namespace Dali

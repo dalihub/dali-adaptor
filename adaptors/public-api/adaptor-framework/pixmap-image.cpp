@@ -18,11 +18,11 @@
 // CLASS HEADER
 #include <pixmap-image.h>
 
-// INTERNAL INCLUDES
-#include <pixmap-image-impl.h>
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
+
+// INTERNAL INCLUDES
+#include <pixmap-image-impl.h>
 
 namespace Dali
 {

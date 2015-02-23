@@ -18,9 +18,10 @@
 // CLASS HEADER
 #include "render-thread.h"
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/update-render-synchronization.h>
 #include <base/environment-options.h>

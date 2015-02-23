@@ -29,7 +29,6 @@
 #include <errno.h>
 
 #include <dali/public-api/images/bitmap-image.h>
-#include <pixmap-image.h>
 #include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
@@ -42,6 +41,7 @@
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
 #include <accessibility-manager-impl.h>
+#include <pixmap-image.h>
 
 using Dali::Vector4;
 

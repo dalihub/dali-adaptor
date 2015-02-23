@@ -19,9 +19,9 @@
 #include "accessibility-gesture-detector.h"
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/events/gesture-requests.h>
 #include <accessibility-manager-impl.h>
 
 namespace Dali

@@ -18,16 +18,15 @@
 // CLASS HEADER
 #include "data-cache-impl.h"
 
-// INTERNAL INCLUDES
-#include "data-cache-io.h"
-#include "data-compression.h"
-#include <dali/integration-api/debug.h>
-
-
 // EXTERNAL INCLUDES
 #include <boost/functional/hash.hpp>
 #include <boost/thread.hpp>
 #include <cstdio>
+
+// INTERNAL INCLUDES
+#include "data-cache-io.h"
+#include "data-compression.h"
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {

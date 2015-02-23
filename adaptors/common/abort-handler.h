@@ -18,7 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <signal.h>
+
+// INTERNAL INCLUDES
 #include "application.h"
 
 namespace Dali

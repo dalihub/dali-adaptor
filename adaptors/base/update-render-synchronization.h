@@ -18,16 +18,16 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <stdint.h>
+#include <boost/thread.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 // INTERNAL INCLUDES
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/trigger-event-interface.h>
 #include <base/frame-time.h>
 #include <base/render-thread.h>
-
-// EXTERNAL INCLUDES
-#include <stdint.h>
-#include <boost/thread.hpp>
-#include <boost/thread/condition_variable.hpp>
 
 namespace Dali
 {

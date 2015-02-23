@@ -23,6 +23,8 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/integration-api/bitmap.h>
+
+// INTERNAL INCLUDES
 #include <bitmap-loader.h>
 
 namespace Dali

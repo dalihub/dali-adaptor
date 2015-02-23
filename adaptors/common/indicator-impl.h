@@ -23,8 +23,6 @@
 #include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/actors/mesh-actor.h>
 #include <dali/public-api/geometry/animatable-mesh.h>
-#include <window.h>
-#include <timer.h>
 #include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
@@ -33,6 +31,8 @@
 #include <indicator-buffer.h>
 #include <server-connection.h>
 #include <shared-file.h>
+#include <timer.h>
+#include <window.h>
 
 namespace Dali
 {

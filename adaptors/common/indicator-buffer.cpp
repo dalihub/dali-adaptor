@@ -15,6 +15,7 @@
  *
  */
 
+// CLASS HEADER
 #include "indicator-buffer.h"
 
 namespace Dali

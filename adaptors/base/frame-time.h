@@ -18,6 +18,7 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <stdint.h>
 
 namespace Dali

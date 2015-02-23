@@ -18,6 +18,7 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <dali/public-api/common/dali-common.h>

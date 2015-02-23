@@ -18,8 +18,7 @@
  *
  */
 
-// EXTERNAL INCLUDES
-
+// INTERNAL INCLUDES
 #include <gl/gl-implementation.h>
 
 namespace Dali

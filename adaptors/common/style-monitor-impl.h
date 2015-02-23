@@ -21,10 +21,10 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
-#include <style-monitor.h>
 #include <dali/integration-api/platform-abstraction.h>
 
 // INTERNAL INCLUDES
+#include <style-monitor.h>
 
 namespace Dali
 {

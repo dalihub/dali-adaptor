@@ -22,10 +22,10 @@
 #include <Ecore.h>
 #include <Ecore_Wayland.h>
 #include <dali/public-api/dali-core.h>
+#include <dali/public-api/object/any.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/any.h>
 #include <singleton-service-impl.h>
 
 namespace //unnamed namespace

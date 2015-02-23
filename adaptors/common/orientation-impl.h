@@ -22,9 +22,9 @@
 #include <cmath>
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/object/base-object.h>
-#include <orientation.h>
 
 // INTERNAL INCLUDES
+#include <orientation.h>
 #include <rotation-observer.h>
 
 namespace Dali

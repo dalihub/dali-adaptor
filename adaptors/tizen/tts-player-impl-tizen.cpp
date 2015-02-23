@@ -22,7 +22,6 @@
 #include <tts.h>
 #include <stdio.h>
 
-// INTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 
 

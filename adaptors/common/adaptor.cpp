@@ -20,12 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
 #include <accessibility-manager.h>
 #include <imf-manager.h>
 #include <style-monitor.h>
 #include <window.h>
-
-// INTERNAL INCLUDES
 #include <adaptor-impl.h>
 #include <render-surface-impl.h>
 #include <window-impl.h>

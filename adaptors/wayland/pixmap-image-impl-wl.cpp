@@ -20,12 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <render-surface.h>
 
 // INTERNAL INCLUDES
 #include <gl/egl-image-extensions.h>
 #include <gl/egl-factory.h>
 #include <adaptor-impl.h>
+#include <render-surface.h>
 
 // Allow this to be encoded and saved:
 #include <platform-abstractions/slp/resource-loader/resource-loader.h>

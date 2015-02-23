@@ -18,13 +18,13 @@
 // CLASS HEADER
 #include "kernel-trace.h"
 
-// INTERNAL HEADERS
-#include <dali/integration-api/debug.h>
-
 // EXTERNAL HEADERS
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+
+// INTERNAL HEADERS
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {

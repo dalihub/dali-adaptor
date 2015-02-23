@@ -15,7 +15,7 @@
  *
  */
 
-// HEADER
+// CLASS HEADER
 #include <event-feeder.h>
 
 // INTERNAL INCLUDES

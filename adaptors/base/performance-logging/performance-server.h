@@ -18,15 +18,15 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <boost/thread/mutex.hpp>
+#include <dali/public-api/common/dali-vector.h>
+
 // INTERNAL INCLUDES
 #include <base/performance-logging/frame-time-stats.h>
-#include <dali/public-api/common/dali-vector.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/performance-logging/performance-marker.h>
 #include <base/performance-logging/statistics/stat-context-manager.h>
-
-// EXTERNAL INCLUDES
-#include <boost/thread/mutex.hpp>
 
 namespace Dali
 {
