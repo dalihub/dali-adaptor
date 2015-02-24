@@ -87,8 +87,7 @@ struct BidirectionalSupport::Plugin
 
     // Store the bidirectional info and return the index.
     BidiInfoIndex index = 0u;
-    const std::size_t numberOfItems = mFreeIndices.Count();
-    if( numberOfItems != 0u )
+    if( 0u != mFreeIndices.Count() )
     {
       Vector<BidiInfoIndex>::Iterator it = mFreeIndices.End() - 1u;
 
@@ -100,7 +99,7 @@ struct BidirectionalSupport::Plugin
     }
     else
     {
-      index = static_cast<BidiInfoIndex>( numberOfItems );
+      index = static_cast<BidiInfoIndex>( mParagraphBidirectionalInfo.Count() );
 
       mParagraphBidirectionalInfo.PushBack( bidirectionalInfo );
     }
