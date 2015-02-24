@@ -45,7 +45,7 @@ bool IndicatorBuffer::UpdatePixels( const unsigned char *src, size_t size )
   return true;
 }
 
-NativeImage& IndicatorBuffer::GetNativeImage() const
+NativeImageInterface& IndicatorBuffer::GetNativeImage() const
 {
   DALI_ASSERT_DEBUG(mNativeImage.Get());
   return *mNativeImage;

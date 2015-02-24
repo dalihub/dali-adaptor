@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL HEADERS
-#include <dali/public-api/images/native-image.h>
+#include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/lockless-buffer.h>
@@ -43,7 +43,7 @@ typedef IntrusivePtr<NativeBitmapBuffer> NativeBitmapBufferPtr;
 /**
  * A Bitmap-based implementation of the NativeImage interface.
  */
-class NativeBitmapBuffer : public NativeImage
+class NativeBitmapBuffer : public NativeImageInterface
 {
 
 public:
@@ -71,39 +71,39 @@ public:
 
 public:
   /**
-   * @copydoc Dali::NativeImage::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
    */
   virtual bool GlExtensionCreate();
 
   /**
-   * @copydoc Dali::NativeImage::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
    */
   virtual void GlExtensionDestroy();
 
   /**
-   * @copydoc Dali::NativeImage::TargetTexture()
+   * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
   virtual unsigned int TargetTexture();
 
   /**
-   * @copydoc Dali::NativeImage::PrepareTexture()
+   * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   virtual void PrepareTexture();
 
   /**
-   * @copydoc Dali::NativeImage::GetWidth()
+   * @copydoc Dali::NativeImageInterface::GetWidth()
    */
   virtual unsigned int GetWidth() const;
 
   /**
-   * @copydoc Dali::NativeImage::GetHeight()
+   * @copydoc Dali::NativeImageInterface::GetHeight()
    */
   virtual unsigned int GetHeight() const;
 
   /**
-   * @copydoc Dali::NativeImage::GetPixelFormat()
+   * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
-  virtual Pixel::Format GetPixelFormat() const;
+  virtual bool RequiresBlending() const;
 
 private:
   NativeBitmapBuffer( const NativeBitmapBuffer& );             ///< not defined
