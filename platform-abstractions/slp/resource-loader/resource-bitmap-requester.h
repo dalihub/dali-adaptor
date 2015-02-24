@@ -20,7 +20,6 @@
 
 #include "resource-requester-base.h"
 #include "resource-thread-image.h"
-#include "resource-thread-distance-field.h"
 
 namespace Dali
 {
@@ -77,7 +76,6 @@ public:
 protected:
   ResourceThreadImage*          mThreadImageLocal;      ///< Image loader thread object to load images in local machine
   ResourceThreadImage*          mThreadImageRemote;     ///< Image loader thread object to download images in remote http server
-  ResourceThreadDistanceField*  mThreadDistanceField;   ///< Distance field generator thread.
 };
 
 } // SlpPlatform

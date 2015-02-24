@@ -30,28 +30,24 @@ ResourceBitmapRequester::ResourceBitmapRequester( ResourceLoader& resourceLoader
 {
   mThreadImageLocal  = new ResourceThreadImage( resourceLoader, false );
   mThreadImageRemote  = new ResourceThreadImage( resourceLoader, true );
-  mThreadDistanceField = new ResourceThreadDistanceField( resourceLoader );
 }
 
 ResourceBitmapRequester::~ResourceBitmapRequester()
 {
   delete mThreadImageLocal;
   delete mThreadImageRemote;
-  delete mThreadDistanceField;
 }
 
 void ResourceBitmapRequester::Pause()
 {
   mThreadImageLocal->Pause();
   mThreadImageRemote->Pause();
-  mThreadDistanceField->Pause();
 }
 
 void ResourceBitmapRequester::Resume()
 {
   mThreadImageLocal->Resume();
   mThreadImageRemote->Resume();
-  mThreadDistanceField->Resume();
 }
 
 void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& request )
@@ -63,7 +59,6 @@ void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& reques
     // Work out what thread to decode / load the image on:
     ResourceThreadBase* const localImageThread = mThreadImageLocal;
     ResourceThreadBase* const remoteImageThread = mThreadImageRemote;
-    ResourceThreadBase* const distanceFieldThread = mThreadDistanceField ;
     ResourceThreadBase* workerThread;
 
     // Work out if the resource is in memory, a file, or in a remote server:
@@ -88,11 +83,6 @@ void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& reques
       }
     }
 
-    if( resType->imageAttributes.IsDistanceField() )
-    {
-      workerThread = distanceFieldThread;
-    }
-
     // Dispatch the job to the right thread:
     workerThread->AddRequest( request, requestType );
   }
@@ -113,7 +103,6 @@ void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration
 {
   mThreadImageLocal->CancelRequest(id);
   mThreadImageRemote->CancelRequest(id);
-  mThreadDistanceField->CancelRequest(id);
 }
 
 } // SlpPlatform
