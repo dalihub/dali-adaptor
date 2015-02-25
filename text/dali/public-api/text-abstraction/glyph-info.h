@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
@@ -31,7 +34,7 @@ namespace TextAbstraction
  * The information describing a glyph (font ID, index, metrics)
  * The metrics are in pixels.
  */
-struct GlyphInfo
+struct DALI_IMPORT_API GlyphInfo
 {
   /**
    * @brief Default constructor.

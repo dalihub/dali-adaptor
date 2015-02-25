@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 namespace Dali
 {
 
@@ -27,7 +30,7 @@ namespace TextAbstraction
 /**
  * The metrics for a Font expressed in pixels.
  */
-struct FontMetrics
+struct DALI_IMPORT_API FontMetrics
 {
   /**
    * @brief Default constructor.
