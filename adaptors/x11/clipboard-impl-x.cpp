@@ -20,11 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore_X.h>
+#include <dali/public-api/object/any.h>
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/any.h>
 #include <adaptor-impl.h>
 #include <ecore-x-window-interface.h>
 #include <singleton-service-impl.h>

@@ -21,9 +21,10 @@
 // EXTERNAL INCLUDES
 #include <math.h>
 
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <base/environment-options.h>
-#include <dali/integration-api/debug.h>
 
 namespace
 {

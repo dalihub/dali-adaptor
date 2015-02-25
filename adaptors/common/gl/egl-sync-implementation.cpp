@@ -30,9 +30,10 @@
 
 #include <boost/thread/mutex.hpp>
 
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <gl/egl-implementation.h>
-#include <dali/integration-api/debug.h>
 
 #ifdef _ARCH_ARM_
 

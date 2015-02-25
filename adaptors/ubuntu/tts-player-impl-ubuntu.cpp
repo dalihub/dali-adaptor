@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include "tts-player-impl.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
 
 

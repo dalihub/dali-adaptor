@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include "performance-marker.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 

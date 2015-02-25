@@ -18,7 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+
+// INTERNAL INCLUDES
 #include <color-controller.h>
 
 namespace Dali

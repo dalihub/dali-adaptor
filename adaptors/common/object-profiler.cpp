@@ -15,7 +15,10 @@
  *
  */
 
+// CLASS HEADER
 #include "object-profiler.h"
+
+// EXTERNAL INCLUDES
 #include <stdlib.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>

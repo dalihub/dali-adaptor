@@ -35,7 +35,7 @@ public:
    * Constructor
    * @param[in] resourceLoader A reference to the ResourceLoader
    */
-  ResourceThreadImage(ResourceLoader& resourceLoader);
+  ResourceThreadImage(ResourceLoader& resourceLoader, bool forRemoteImage);
 
   /**
    * Destructor
@@ -50,6 +50,11 @@ private:
   virtual void Load(const Integration::ResourceRequest& request);
 
   /**
+   * @copydoc ResourceThreadBase::Download
+   */
+  virtual void Download(const Integration::ResourceRequest& request);
+
+  /**
    * @copydoc ResourceThreadBase::Decode
    */
   virtual void Decode(const Integration::ResourceRequest& request);
@@ -59,6 +64,27 @@ private:
    */
   virtual void Save(const Integration::ResourceRequest& request);
 
+  /**
+   * Download a requested image into a memory buffer.
+   * @param[in] request  The requested resource/file url and attributes
+   * @param[out] dataBuffer  A memory buffer object to be written with downloaded image data.
+   * @param[out] dataSize  The size of the memory buffer.
+   */
+  bool DownloadRemoteImageIntoMemory(const Integration::ResourceRequest& request, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize);
+
+  /**
+   * Load a requested image from a local file.
+   * @param[in] request  The requested resource/file url and attributes
+   */
+  void LoadImageFromLocalFile(const Integration::ResourceRequest& request);
+
+  /**
+   * Decode a requested image from a memory buffer.
+   * @param[in] blobBytes  A pointer to the memory buffer containig the requested image data.
+   * @param[in] blobSize  The size of the memory buffer containing the requested image data.
+   * @param[in] request  The requested resource/file url and attributes
+   */
+  void DecodeImageFromMemory(void* blobBytes, size_t blobSize, const Integration::ResourceRequest& request);
 }; // class ResourceThreadImage
 
 } // namespace SlpPlatform

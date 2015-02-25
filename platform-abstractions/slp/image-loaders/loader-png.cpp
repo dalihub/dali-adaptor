@@ -311,7 +311,6 @@ bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
 
   // set the attributes
   attributes.SetSize( width, height );
-  attributes.SetPixelFormat( pixelFormat );
 
   free(rows);
 

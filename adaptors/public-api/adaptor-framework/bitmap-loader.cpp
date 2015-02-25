@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
+// CLASS HEADER
 #include "bitmap-loader.h"
 
+// EXTERNAL INCLUDES
 #include <string>
 
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/resource-cache.h>
 
+// INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
 #include <bitmap-loader-impl.h>
 

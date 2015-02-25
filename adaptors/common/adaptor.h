@@ -20,12 +20,15 @@
 
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
-#include "window.h"
-#include "application-configuration.h"
-#include "tts-player.h"
+
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
+
+// INTERNAL INCLUDES
+#include "window.h"
+#include "application-configuration.h"
+#include "tts-player.h"
 
 namespace Dali DALI_INTERNAL
 {

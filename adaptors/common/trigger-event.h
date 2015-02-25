@@ -21,8 +21,9 @@
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 
-// INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+
+// INTERNAL INCLUDES
 #include <base/interfaces/trigger-event-interface.h>
 
 namespace Dali

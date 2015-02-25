@@ -26,6 +26,8 @@
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/gesture-requests.h>
+
+// INTERNAL INCLUDES
 #include "system-settings.h"
 
 #define MSG_DOMAIN_CONTROL_ACCESS (int)ECORE_X_ATOM_E_ILLUME_ACCESS_CONTROL

@@ -18,12 +18,14 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>
 #include <base/performance-logging/frame-time-stats.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/performance-logging/statistics/stat-context-log-interface.h>
-
 
 namespace Dali
 {

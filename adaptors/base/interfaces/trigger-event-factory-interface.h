@@ -18,12 +18,11 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <base/interfaces/trigger-event-interface.h>
-
 // EXTERNAL INCLUDES
 #include <boost/function.hpp>
 
+// INTERNAL INCLUDES
+#include <base/interfaces/trigger-event-interface.h>
 
 namespace Dali
 {

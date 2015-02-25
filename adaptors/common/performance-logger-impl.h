@@ -18,10 +18,11 @@
  *
  */
 
-#include <base/interfaces/performance-interface.h>
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+
+// INTERNAL INCLUDES
+#include <base/interfaces/performance-interface.h>
 #include <performance-logger.h>
 
 namespace Dali

@@ -25,9 +25,9 @@
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
-#include <accessibility-manager.h>
 
 // INTERNAL INCLUDES
+#include <accessibility-manager.h>
 #include <accessibility-action-handler.h>
 #include <accessibility-gesture-handler.h>
 #include <indicator-impl.h>

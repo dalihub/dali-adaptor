@@ -26,13 +26,13 @@
 #include <dali/integration-api/system-overlay.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
-#include <orientation.h>
 
 // INTERNAL HEADERS
 #include <window-render-surface.h>
 #include <drag-and-drop-detector-impl.h>
 #include <indicator-impl.h>
 #include <window-visibility-observer.h>
+#include <orientation.h>
 #include <orientation-impl.h>
 
 namespace

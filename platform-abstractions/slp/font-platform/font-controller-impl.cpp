@@ -365,7 +365,8 @@ const FontController::StyledFontFamily& FontController::GetFontFamilyForChars( c
 {
   if( 0u == mPreferredFonts.Count() )
   {
-    CreatePreferedFontList();
+    StyledFontFamily tizenFont( DEFAULT_FONT_FAMILY_NAME, DEFAULT_FONT_STYLE );
+    CreatePreferedFontList( tizenFont );
   }
 
   // Cycle through the preferred list of fonts on the system for 'Tizen'.
@@ -455,11 +456,7 @@ bool FontController::AllGlyphsSupported( const StyledFontFamily& styledFontFamil
 
 void FontController::SetDefaultFontFamily( const StyledFontFamily& styledFontFamily )
 {
-  // reload font configuration files
-  const bool ok =  FcInitReinitialize();
-  DALI_ASSERT_ALWAYS( ok && "FcInitReinitialize failed");
-
-  CreatePreferedFontList();
+  CreatePreferedFontList(styledFontFamily);
 }
 
 void FontController::AddCachedFont( const StyledFontFamily& styledFontFamily, const std::string& fontPath, _FcCharSet *characterSet )
@@ -725,16 +722,12 @@ const FontController::StyledFontFamily& FontController::GetMatchedFont( const St
   return NULL_STYLED_FONT_FAMILY;
 }
 
-void FontController::CreatePreferedFontList( )
+void FontController::CreatePreferedFontList( const StyledFontFamily& styledFontFamily )
 {
-  StyledFontFamily tizenFont;
-  tizenFont.first = DEFAULT_FONT_FAMILY_NAME;
-  tizenFont.second = DEFAULT_FONT_STYLE;
-
   // clear the current list
   ClearPreferredFontList();
 
-  FcPattern* searchPattern = CreateFontFamilyPattern( tizenFont );
+  FcPattern* searchPattern = CreateFontFamilyPattern( styledFontFamily );
 
   FcResult result(FcResultMatch);
 

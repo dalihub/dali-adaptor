@@ -28,26 +28,26 @@ namespace SlpPlatform
 ResourceBitmapRequester::ResourceBitmapRequester( ResourceLoader& resourceLoader )
 : ResourceRequesterBase( resourceLoader )
 {
-  mThreadImage  = new ResourceThreadImage( resourceLoader );
-  mThreadDistanceField = new ResourceThreadDistanceField( resourceLoader );
+  mThreadImageLocal  = new ResourceThreadImage( resourceLoader, false );
+  mThreadImageRemote  = new ResourceThreadImage( resourceLoader, true );
 }
 
 ResourceBitmapRequester::~ResourceBitmapRequester()
 {
-  delete mThreadImage;
-  delete mThreadDistanceField;
+  delete mThreadImageLocal;
+  delete mThreadImageRemote;
 }
 
 void ResourceBitmapRequester::Pause()
 {
-  mThreadImage->Pause();
-  mThreadDistanceField->Pause();
+  mThreadImageLocal->Pause();
+  mThreadImageRemote->Pause();
 }
 
 void ResourceBitmapRequester::Resume()
 {
-  mThreadImage->Resume();
-  mThreadDistanceField->Resume();
+  mThreadImageLocal->Resume();
+  mThreadImageRemote->Resume();
 }
 
 void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& request )
@@ -56,13 +56,32 @@ void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& reques
   BitmapResourceType* resType = static_cast<BitmapResourceType*>(request.GetType());
   if( resType )
   {
-    // Work out if the resource is in memory or a file:
-    const ResourceThreadBase::RequestType requestType = request.GetResource().Get() ? ResourceThreadBase::RequestDecode : ResourceThreadBase::RequestLoad;
-
     // Work out what thread to decode / load the image on:
-    ResourceThreadBase* const imageThread = mThreadImage;
-    ResourceThreadBase* const distanceFieldThread = mThreadDistanceField ;
-    ResourceThreadBase* const workerThread = ( !resType->imageAttributes.IsDistanceField() ) ? imageThread : distanceFieldThread;
+    ResourceThreadBase* const localImageThread = mThreadImageLocal;
+    ResourceThreadBase* const remoteImageThread = mThreadImageRemote;
+    ResourceThreadBase* workerThread;
+
+    // Work out if the resource is in memory, a file, or in a remote server:
+    ResourceThreadBase::RequestType requestType;
+    if( request.GetResource().Get() )
+    {
+      requestType = ResourceThreadBase::RequestDecode;
+      workerThread = localImageThread;
+    }
+    else
+    {
+      const std::string& resourcePath = request.GetPath();
+      if( resourcePath.length() > 7 && strncasecmp( resourcePath.c_str(), "http://", 7 ) == 0 )
+      {
+        requestType = ResourceThreadBase::RequestDownload;
+        workerThread = remoteImageThread;
+      }
+      else
+      {
+        requestType = ResourceThreadBase::RequestLoad;
+        workerThread = localImageThread;
+      }
+    }
 
     // Dispatch the job to the right thread:
     workerThread->AddRequest( request, requestType );
@@ -82,8 +101,8 @@ void ResourceBitmapRequester::SaveResource(const Integration::ResourceRequest& r
 
 void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
-  mThreadImage->CancelRequest(id);
-  mThreadDistanceField->CancelRequest(id);
+  mThreadImageLocal->CancelRequest(id);
+  mThreadImageRemote->CancelRequest(id);
 }
 
 } // SlpPlatform

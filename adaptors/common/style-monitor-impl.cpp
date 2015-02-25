@@ -18,8 +18,10 @@
 // CLASS HEADER
 #include "style-monitor-impl.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
+
+// INTERNAL INCLUDES
 #include <adaptor-impl.h>
 #include <singleton-service-impl.h>
 

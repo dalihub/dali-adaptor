@@ -19,6 +19,9 @@
 // CLASS HEADER
 #include "stat-context.h"
 
+// EXTERNAL INCLUDES
+#include <cstdio>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
 

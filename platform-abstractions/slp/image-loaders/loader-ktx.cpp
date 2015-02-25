@@ -371,7 +371,6 @@ bool LoadBitmapFromKtx( FILE * const fp, Bitmap& bitmap, ImageAttributes& attrib
 
   // Ignore all input requests from image attributes and set the available metadata:
   attributes.SetSize(width, height);
-  attributes.SetPixelFormat(pixelFormat);
 
   return true;
 }

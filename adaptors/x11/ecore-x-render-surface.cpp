@@ -52,10 +52,7 @@ namespace ECore
 namespace
 {
 
-const float MINIMUM_DIMENSION_CHANGE = 1.0f; ///< Minimum change for window to be considered to have moved
 static bool gXInitThreadsCalled = false;     ///< global to say whether XInitThreads has been called in this process
-const unsigned int MICROSECONDS_PER_SECOND = 1000000;
-const unsigned int MILLISECONDS_PER_SECOND = 1000;
 
 } // unnamed namespace
 

@@ -18,7 +18,7 @@
  *
  */
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/events/pan-gesture-event.h>
 
 namespace Dali

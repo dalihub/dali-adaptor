@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
-
 #include <dali/public-api/math/rect.h>
 
 namespace Dali

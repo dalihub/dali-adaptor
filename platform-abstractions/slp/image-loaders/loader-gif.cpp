@@ -232,7 +232,6 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attribut
   }
 
   attributes.SetSize( actualWidth, actualHeight );
-  attributes.SetPixelFormat( pixelFormat );
 
   finished = true;
 

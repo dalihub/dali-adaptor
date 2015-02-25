@@ -21,16 +21,15 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
-#include <window.h>
-#include <orientation.h>
-#include <render-surface.h>
-#include <drag-and-drop-detector.h>
 
 // INTERNAL INCLUDES
 #include <base/lifecycle-observer.h>
 #include <adaptor-impl.h>
 #include <indicator-impl.h>
-
+#include <window.h>
+#include <orientation.h>
+#include <render-surface.h>
+#include <drag-and-drop-detector.h>
 
 namespace Dali
 {

@@ -19,9 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <render-surface.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/view-mode.h>
+
+// INTERNAL INCLUDES
+#include <render-surface.h>
 #include <base/interfaces/egl-interface.h>
 
 namespace Dali

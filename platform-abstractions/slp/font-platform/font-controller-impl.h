@@ -210,8 +210,9 @@ private:
 
    /**
     * Create a preferred list of fonts to use for when GetFontFamilyForChars() is called.
+    * @param[in] styledFontFamily The name of the font's family and the font's style.
     */
-  void CreatePreferedFontList();
+  void CreatePreferedFontList( const StyledFontFamily& styleFontFamily );
 
   /**
    * Deletes all preferred fonts.

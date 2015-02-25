@@ -734,7 +734,6 @@ bool LoadBitmapFromIco( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
   memcpy(pixels, (unsigned char*)&surface[0], w * h * 4);
 
   attributes.SetSize(w, h);
-  attributes.SetPixelFormat(Pixel::RGBA8888);
 
   return true;
 }
