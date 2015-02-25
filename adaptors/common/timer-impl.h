@@ -21,10 +21,10 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/base-object.h>
-#include <timer.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/timer-interface.h>
+#include <timer.h>
 
 namespace Dali
 {

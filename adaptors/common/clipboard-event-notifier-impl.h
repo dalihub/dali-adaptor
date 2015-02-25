@@ -22,9 +22,9 @@
 #include <string>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/math/vector2.h>
-#include <clipboard-event-notifier.h>
 
 // INTERNAL INCLUDES
+#include <clipboard-event-notifier.h>
 
 namespace Dali
 {

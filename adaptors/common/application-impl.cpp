@@ -20,9 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <style-monitor.h>
 
 // INTERNAL INCLUDES
+#include <style-monitor.h>
 #include <command-line-options.h>
 #include <common/adaptor-impl.h>
 #include <singleton-service-impl.h>

@@ -21,10 +21,10 @@
 // EXTERNAL INCLUDES
 #include <deque>
 #include <dali/public-api/object/base-object.h>
-#include <timer.h>
 
 // INTERNAL INCLUDES
 #include <tilt-sensor.h>
+#include <timer.h>
 
 namespace Dali
 {

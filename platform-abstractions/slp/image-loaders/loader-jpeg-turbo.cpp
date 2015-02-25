@@ -352,7 +352,6 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, 
   }
 
   attributes.SetSize( scaledPostXformWidth, scaledPostXformHeight );
-  attributes.SetPixelFormat( Pixel::RGB888 );
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );

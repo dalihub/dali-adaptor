@@ -18,9 +18,11 @@
  *
  */
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/gl-abstraction.h>
+
+// INTERNAL INCLUDES
 #include <base/interfaces/egl-factory-interface.h>
 #include <base/interfaces/trigger-event-interface.h>
 #include <base/interfaces/performance-interface.h>

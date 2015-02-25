@@ -64,7 +64,7 @@ public:
    * Returns the NativeImage used internally
    * @return the NativeImage used internally
    */
-  NativeImage& GetNativeImage() const;
+  NativeImageInterface& GetNativeImage() const;
 
   /**
    * Set currently used Adaptor
@@ -73,7 +73,7 @@ public:
   void SetAdaptor( Adaptor* adaptor );
 
 private:
-  NativeImagePtr mNativeImage; ///< Image buffer created for shared file copy
+  NativeImageInterfacePtr mNativeImage; ///< Image buffer created for shared file copy
 
   NativeBitmapBufferPtr mBitmapBuffer;    ///< Image buffer created for shared file copy if extension not available
 

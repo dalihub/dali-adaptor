@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/images/pixel.h>
 

@@ -24,10 +24,10 @@
 #include <algorithm>
 
 #include <dali/public-api/common/vector-wrapper.h>
-#include <adaptor.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <adaptor.h>
 #include <locale-utils.h>
 #include <imf-manager-impl.h>
 

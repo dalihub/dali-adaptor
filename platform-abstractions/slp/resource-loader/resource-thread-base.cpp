@@ -272,6 +272,12 @@ void ResourceThreadBase::ProcessNextRequest()
       }
       break;
 
+      case RequestDownload:
+      {
+        Download(*request);
+      }
+      break;
+
       case RequestDecode:
       {
         Decode(*request);
@@ -297,6 +303,13 @@ void ResourceThreadBase::UninstallLogging()
 {
   // uninstall it on resource loading thread.
   Dali::Integration::Log::UninstallLogFunction();
+}
+
+void ResourceThreadBase::Download(const Integration::ResourceRequest& request)
+{
+  DALI_LOG_TRACE_METHOD(mLogFilter);
+  DALI_LOG_WARNING("Resource Downloading from a remote server not supported for this type.");
+  ///! If you need this for a subclassed thread, look to ResourceThreadImage::Download() for an example implementation.
 }
 
 void ResourceThreadBase::Decode(const Integration::ResourceRequest& request)

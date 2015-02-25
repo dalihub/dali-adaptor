@@ -98,9 +98,9 @@ unsigned int NativeBitmapBuffer::GetHeight() const
   return mHeight;
 }
 
-Pixel::Format NativeBitmapBuffer::GetPixelFormat() const
+bool NativeBitmapBuffer::RequiresBlending() const
 {
-  return mPixelFormat;
+  return Pixel::HasAlpha( mPixelFormat );
 }
 
 } // namespace Adaptor

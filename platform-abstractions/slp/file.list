@@ -18,7 +18,6 @@ slp_platform_abstraction_src_files = \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-image.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-distance-field.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-model.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-shader.cpp \
   \

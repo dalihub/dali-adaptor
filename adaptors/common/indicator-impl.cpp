@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #include <dali/public-api/images/bitmap-image.h>
-#include <pixmap-image.h>
+#include <dali/public-api/images/native-image.h>
 #include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
@@ -42,6 +42,7 @@
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
 #include <accessibility-manager-impl.h>
+#include <pixmap-image.h>
 
 using Dali::Vector4;
 
@@ -990,7 +991,7 @@ void Indicator::CreateNewPixmapImage()
 
   if( pixmapImage )
   {
-    mIndicatorImageActor.SetImage( Dali::Image::New(*pixmapImage) );
+    mIndicatorImageActor.SetImage( Dali::NativeImage::New(*pixmapImage) );
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
@@ -1018,7 +1019,7 @@ void Indicator::CreateNewImage()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d\n", mImageWidth, mImageHeight );
   mIndicatorBuffer = new IndicatorBuffer( mAdaptor, mImageWidth, mImageHeight, Pixel::BGRA8888 );
-  Dali::Image image = Dali::Image::New( mIndicatorBuffer->GetNativeImage() );
+  Dali::Image image = Dali::NativeImage::New( mIndicatorBuffer->GetNativeImage() );
 
   if( CopyToBuffer() ) // Only create images if we have valid image buffer
   {

@@ -59,16 +59,15 @@ public:
 
   /**
    * @brief Constructor
-   *
-   * Application or Adaptor needs to create the appropriate concrete RenderSurface type.
-   * @see CreateDefaultSurface
+   * Inlined as this is a pure abstract interface
    */
-  RenderSurface();
+  RenderSurface() {}
 
   /**
    * @brief Virtual Destructor.
-  */
-  virtual ~RenderSurface();
+   * Inlined as this is a pure abstract interface
+   */
+  virtual ~RenderSurface() {}
 
   /**
    * @brief returns the surface type.
@@ -107,18 +106,6 @@ private:
   RenderSurface& operator=( const RenderSurface& rhs );
 
 };
-
-/**
- * @brief Default surface factory function.
- *
- * A surface is created with the given type.
- *
- * @param [in] type the type of surface to create
- * @param [in] positionSize the position and size of the surface to create
- * @param [in] name optional name of surface passed in
- * @return The render surface
- */
-DALI_IMPORT_API RenderSurface* CreateDefaultSurface( RenderSurface::SurfaceType type, PositionSize positionSize, const std::string& name = "" );
 
 } // namespace Dali
 

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <boost/thread.hpp>
+#include <cstdio>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

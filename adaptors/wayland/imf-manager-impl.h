@@ -24,11 +24,10 @@
 #include <Ecore_Wayland.h>
 
 #include <dali/public-api/object/base-object.h>
-#include <imf-manager.h>
 #include <dali/integration-api/events/key-event-integ.h>
 
 // INTERNAL INCLUDES
-
+#include <imf-manager.h>
 
 namespace Dali
 {

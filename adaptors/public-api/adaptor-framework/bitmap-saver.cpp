@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
+// CLASS HEADER
 #include "bitmap-saver.h"
+
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
 #include <platform-abstractions/slp/resource-loader/resource-loader.h>
 #include <platform-abstractions/slp/image-loaders/loader-jpeg.h>
 #include <platform-abstractions/slp/image-loaders/loader-png.h>

@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.29
+Version:    1.0.30
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -65,6 +65,7 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(egl)
+BuildRequires:  libcurl-devel
 
 %if %{with wayland}
 BuildRequires:  pkgconfig(ecore-wayland)
@@ -152,7 +153,7 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %build
 PREFIX+="/usr"
 CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections "
-LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections "
+LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"

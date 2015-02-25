@@ -22,7 +22,6 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-// INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 namespace Dali

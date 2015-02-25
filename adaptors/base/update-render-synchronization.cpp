@@ -18,8 +18,10 @@
 // CLASS HEADER
 #include "update-render-synchronization.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
 
 namespace Dali

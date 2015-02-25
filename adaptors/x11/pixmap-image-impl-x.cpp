@@ -91,7 +91,7 @@ PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapI
   mHeight( height ),
   mOwnPixmap( true ),
   mPixmap( 0 ),
-  mPixelFormat( Pixel::RGB888 ),
+  mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
   mEglImageExtensions( NULL )
@@ -121,8 +121,12 @@ void PixmapImage::Initialize()
   // get the pixel depth
   int depth = GetPixelDepth(mColorDepth);
 
-  // set the pixel format
-  SetPixelFormat(depth);
+  // set whether blending is required according to pixel format based on the depth
+  /* default pixel format is RGB888
+     If depth = 8, Pixel::A8;
+     If depth = 16, Pixel::RGB565;
+     If depth = 32, Pixel::RGBA8888 */
+  mBlendingRequired = ( depth == 32 || depth == 8 );
 
   mPixmap = ecore_x_pixmap_new( 0, mWidth, mHeight, depth );
   ecore_x_sync();
@@ -333,35 +337,6 @@ int PixmapImage::GetPixelDepth(Dali::PixmapImage::ColorDepth depth) const
   }
 }
 
-void PixmapImage::SetPixelFormat(int depth)
-{
-  // store the pixel format based on the depth
-  switch (depth)
-  {
-    case 8:
-    {
-      mPixelFormat = Pixel::A8;
-      break;
-    }
-    case 16:
-    {
-      mPixelFormat = Pixel::RGB565;
-      break;
-    }
-    case 32:
-    {
-      mPixelFormat = Pixel::RGBA8888;
-      break;
-    }
-    case 24:
-    default:
-    {
-      mPixelFormat = Pixel::RGB888;
-      break;
-    }
-  }
-}
-
 Ecore_X_Pixmap PixmapImage::GetPixmapFromAny(Any pixmap) const
 {
   if (pixmap.Empty())
@@ -391,8 +366,13 @@ void PixmapImage::GetPixmapDetails()
   // get the width, height and depth
   ecore_x_pixmap_geometry_get(mPixmap, &x, &y, (int*)&mWidth, (int*)&mHeight);
 
-  // set the pixel format
-  SetPixelFormat(ecore_x_pixmap_depth_get(mPixmap));
+  // set whether blending is required according to pixel format based on the depth
+  /* default pixel format is RGB888
+     If depth = 8, Pixel::A8;
+     If depth = 16, Pixel::RGB565;
+     If depth = 32, Pixel::RGBA8888 */
+  int depth = ecore_x_pixmap_depth_get(mPixmap);
+  mBlendingRequired = ( depth == 32 || depth == 8 );
 }
 
 } // namespace Adaptor

@@ -17,6 +17,8 @@
 
 // CLASS HEADER
 #include "performance-interface-factory.h"
+
+// INTERNAL INCLUDES
 #include "performance-server.h"
 
 namespace Dali

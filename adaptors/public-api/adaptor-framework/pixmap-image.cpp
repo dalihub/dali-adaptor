@@ -18,11 +18,11 @@
 // CLASS HEADER
 #include <pixmap-image.h>
 
-// INTERNAL INCLUDES
-#include <pixmap-image-impl.h>
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
+
+// INTERNAL INCLUDES
+#include <pixmap-image-impl.h>
 
 namespace Dali
 {
@@ -85,9 +85,9 @@ unsigned int PixmapImage::GetHeight() const
   return mImpl->GetHeight();
 }
 
-Pixel::Format PixmapImage::GetPixelFormat() const
+bool PixmapImage::RequiresBlending() const
 {
-  return mImpl->GetPixelFormat();
+  return mImpl->RequiresBlending();
 }
 
 PixmapImage::PixmapImage( unsigned int width, unsigned int height, ColorDepth depth, Any pixmap )

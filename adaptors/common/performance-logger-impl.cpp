@@ -17,6 +17,8 @@
 
 // CLASS HEADER
 #include <performance-logger-impl.h>
+
+// INTERNAL INCLUDES
 #include <adaptor-impl.h>
 
 namespace Dali
