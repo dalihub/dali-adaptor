@@ -28,9 +28,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/images/native-image.h>
-#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/common/stage.h>
