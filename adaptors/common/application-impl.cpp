@@ -52,8 +52,6 @@ namespace
 // Defaults taken from H2 device
 const unsigned int DEFAULT_WINDOW_WIDTH   = 480;
 const unsigned int DEFAULT_WINDOW_HEIGHT  = 800;
-const float        DEFAULT_HORIZONTAL_DPI = 220;
-const float        DEFAULT_VERTICAL_DPI   = 217;
 }
 
 ApplicationPtr Application::New(
@@ -123,17 +121,6 @@ void Application::CreateAdaptor()
   DALI_ASSERT_ALWAYS( mWindow && "Window required to create adaptor" );
 
   mAdaptor = &Dali::Adaptor::New( mWindow, mBaseLayout, mContextLossConfiguration );
-
-  // Allow DPI to be overridden from command line.
-  unsigned int hDPI=DEFAULT_HORIZONTAL_DPI;
-  unsigned int vDPI=DEFAULT_VERTICAL_DPI;
-
-  std::string dpiStr = mCommandLineOptions->stageDPI;
-  if(!dpiStr.empty())
-  {
-    sscanf(dpiStr.c_str(), "%ux%u", &hDPI, &vDPI);
-  }
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetDpi(hDPI, vDPI);
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 }
