@@ -198,13 +198,14 @@ endif
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
-daliUserShaderCacheDir = ${dataReadWriteDir}/core/shaderbin/
+daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
 libdali_adaptor_la_CXXFLAGS = \
                       -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                       -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                       -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\"" \
                       -DDALI_USER_FONT_CACHE_DIR="\"${daliUserFontCacheDir}\"" \
+                      -DDALI_SHADERBIN_DIR="\"${daliShaderbinCacheDir}\"" \
                       -DDALI_DEFAULT_THEME_DIR="\"${daliDefaultThemeDir}\"" \
                       -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\"" \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
@@ -323,7 +324,7 @@ tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
 install-data-local:
-	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}
+	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
 
 # Install resource log analyzer script
 bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh

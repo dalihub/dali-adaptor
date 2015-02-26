@@ -457,6 +457,12 @@ private:
    */
   void ProcessCoreEventsFromIdle();
 
+  /**
+   * Gets path for data/resource storage.
+   * @param[out] path Path for data/resource storage
+   */
+  void GetDataStoragePath(std::string& path);
+
 private:
 
   /**

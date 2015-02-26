@@ -15,29 +15,34 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
 %define over_tizen_2_2 0
+%define shaderbincache_flag DISABLE
+%endif
 
-%else if "%{profile}" == "tv"
+%if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
 %define over_tizen_2_2 1
+%define shaderbincache_flag ENABLE
+%endif
 
-%else if "%{profile}" == "wearable"
+%if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
 %define over_tizen_2_2 0
+%define shaderbincache_flag DISABLE
+%endif
 
-%else
-## profile == common
+%if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
 %define over_tizen_2_2 0
-
+%define shaderbincache_flag DISABLE
 %endif
 
 Requires(post): /sbin/ldconfig
@@ -137,7 +142,7 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %define dali_data_rw_dir         /usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
 %define user_font_cache_dir      %{dali_data_rw_dir}/glyphcache/
-%define user_shader_cache_dir    %{dali_data_rw_dir}/core/shaderbin/
+%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define font_preloaded_path      /usr/share/fonts/
 %define font_downloaded_path     /opt/share/fonts/
 %define font_application_path    /usr/share/app_fonts/
@@ -174,7 +179,7 @@ libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
 cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-profile=%{dali_profile} \
+%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
@@ -212,7 +217,6 @@ cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{
 
 %pre
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################
@@ -221,7 +225,6 @@ exit 0
 %post
 /sbin/ldconfig
 chown 5000:5000 %{user_font_cache_dir}
-chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
 %if 0%{?dali_feedback_plugin}
@@ -241,7 +244,6 @@ exit 0
 ##############################
 %preun
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################
