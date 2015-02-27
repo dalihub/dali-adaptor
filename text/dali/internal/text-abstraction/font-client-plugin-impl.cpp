@@ -670,7 +670,7 @@ void FontClient::Plugin::ConvertBitmap( BitmapImage& destBitmap,
     // TODO - Support all pixel modes
     if( FT_PIXEL_MODE_GRAY == srcBitmap.pixel_mode )
     {
-      if( srcBitmap.pitch == srcBitmap.width )
+      if( srcBitmap.pitch == static_cast< int >( srcBitmap.width ) )
       {
         destBitmap = BitmapImage::New( srcBitmap.width, srcBitmap.rows, Pixel::L8 );
 
