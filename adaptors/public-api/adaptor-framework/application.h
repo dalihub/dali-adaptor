@@ -19,10 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 #include <string>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/common/view-mode.h>
+#include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
+
 
 // INTERNAL INCLUDES
 #include "application-configuration.h"
@@ -236,10 +237,12 @@ public:
    *   void MyFunction();
    * @endcode
    *
-   * @param[in]  callBack  The function to call.
+   * @param[in]  callback  The function to call.
    * @return true if added successfully, false otherwise
+   *
+   * @note Ownership of the callback is passed onto this class.
    */
-  bool AddIdle(boost::function<void(void)> callBack);
+  bool AddIdle( CallbackBase* callback );
 
   /**
    * Retrieves the window used by the Application class.
@@ -274,14 +277,16 @@ public: // Stereoscopy
   ViewMode GetViewMode() const;
 
   /**
-   * Set the stereo base (eye seperation) for stereoscopic 3D
-   * @param[in] stereoBase The stereo base (eye seperation) for stereoscopic 3D
+   * Set the stereo base (eye separation) for Stereoscopic 3D
+   *
+   * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
    */
   void SetStereoBase( float stereoBase );
 
   /**
-   * Get the stereo base (eye seperation) for stereoscopic 3D
-   * @return The stereo base (eye seperation) for stereoscopic 3D
+   * Get the stereo base (eye separation) for Stereoscopic 3D
+   *
+   * @return The stereo base (eye separation) for Stereoscopic 3D
    */
   float GetStereoBase() const;
 

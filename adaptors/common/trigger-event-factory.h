@@ -56,7 +56,7 @@ public:
   /**
    * @copydoc TriggerEventFactoryInterface::CreateTriggerEvent
    */
-  virtual TriggerEventInterface* CreateTriggerEvent(  boost::function<void()> functor, TriggerEventInterface::Options options );
+  virtual TriggerEventInterface* CreateTriggerEvent(  CallbackBase* callback, TriggerEventInterface::Options options );
 
 
   /**

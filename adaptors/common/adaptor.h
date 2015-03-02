@@ -19,8 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
+#include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
@@ -167,8 +166,10 @@ public:
    *
    * @param[in]  callBack  The function to call.
    * @return true if added successfully, false otherwise
+   *
+   * @note Ownership of the callback is passed onto this class.
    */
-  bool AddIdle( boost::function<void(void)> callBack );
+  bool AddIdle( CallbackBase* callback );
 
   /**
    * @brief Get the render surface the adaptor is using to render to.

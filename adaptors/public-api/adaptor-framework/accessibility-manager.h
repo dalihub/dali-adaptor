@@ -20,11 +20,9 @@
 
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
+#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <dali/public-api/events/touch-event.h>
 
 namespace Dali
 {

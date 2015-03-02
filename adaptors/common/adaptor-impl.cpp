@@ -260,7 +260,7 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 
   mObjectProfiler = new ObjectProfiler();
 
-  mNotificationTrigger = new TriggerEvent( boost::bind(&Adaptor::ProcessCoreEvents, this) );
+  mNotificationTrigger = new TriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ) );
 
   mVSyncMonitor = new VSyncMonitor;
 
@@ -593,27 +593,27 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle(boost::function<void(void)> callBack)
+bool Adaptor::AddIdle( CallbackBase* callback )
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
   if( RUNNING == mState )
   {
-    idleAdded = mCallbackManager->AddCallback(callBack, CallbackManager::IDLE_PRIORITY);
+    idleAdded = mCallbackManager->AddCallback( callback, CallbackManager::IDLE_PRIORITY );
   }
 
   return idleAdded;
 }
 
-bool Adaptor::CallFromMainLoop(boost::function<void(void)> callBack)
+bool Adaptor::CallFromMainLoop( CallbackBase* callback )
 {
   bool callAdded(false);
 
   // Only allow the callback if the Adaptor is actually running
   if ( RUNNING == mState )
   {
-    callAdded = mCallbackManager->AddCallback(callBack, CallbackManager::DEFAULT_PRIORITY);
+    callAdded = mCallbackManager->AddCallback( callback, CallbackManager::DEFAULT_PRIORITY );
   }
 
   return callAdded;
@@ -814,7 +814,7 @@ void Adaptor::RequestProcessEventsOnIdle()
   // and we haven't installed the idle notification
   if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState ) )
   {
-    mNotificationOnIdleInstalled = AddIdle( boost::bind( &Adaptor::ProcessCoreEventsFromIdle, this ) );
+    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ) );
   }
 }
 

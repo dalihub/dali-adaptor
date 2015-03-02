@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/signals/callback.h>
 
 namespace Dali
 {
@@ -38,8 +38,6 @@ class CallbackManager
 {
 
 public:
-
-    typedef boost::function<void(void)> Callback;   ///< Callback typedef
 
     /**
      * Determines the priority of the call back
@@ -77,7 +75,7 @@ public:
      * @param priority call back priority
      * @return true on success
      */
-    virtual bool AddCallback( Callback callback, Priority priority ) = 0;
+    virtual bool AddCallback( CallbackBase* callback, Priority priority ) = 0;
 
     /**
      * Adds a call back asynchronously to handle an event.
@@ -86,7 +84,7 @@ public:
      * @param callback custom call back function
      * @return true on success
      */
-    virtual bool AddEventCallback( Callback callback, int type, EventControl control ) = 0;
+    virtual bool AddEventCallback( CallbackBase* callback, int type, EventControl control ) = 0;
 
     /**
      * Starts the callback manager.

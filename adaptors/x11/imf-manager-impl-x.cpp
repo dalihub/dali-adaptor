@@ -19,7 +19,6 @@
 #include <imf-manager-impl.h>
 
 // EXTERNAL INCLUDES
-#include <boost/bind.hpp>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>

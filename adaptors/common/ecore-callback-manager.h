@@ -60,12 +60,12 @@ public:
     /**
      * @copydoc CallbackManager::AddCallback()
      */
-    virtual bool AddCallback(Callback callback, Priority priority);
+    virtual bool AddCallback(CallbackBase* callback, Priority priority);
 
     /**
      * @copydoc CallbackManager::AddEventCallback()
      */
-    virtual bool AddEventCallback(Callback callback, int type, EventControl control);
+    virtual bool AddEventCallback(CallbackBase* callback, int type, EventControl control);
 
     /**
      * @copydoc CallbackManager::Start()

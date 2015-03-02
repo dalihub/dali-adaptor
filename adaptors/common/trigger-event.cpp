@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <sys/eventfd.h>
-#include <boost/bind.hpp>
+#include <unistd.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -37,10 +37,10 @@ namespace Internal
 namespace Adaptor
 {
 
-TriggerEvent::TriggerEvent( boost::function<void()> functor, TriggerEventInterface::Options options )
-: mFileDescriptorMonitor(NULL),
-  mFunctor(functor),
-  mFileDescriptor(-1),
+TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options )
+: mFileDescriptorMonitor( NULL ),
+  mCallback( callback ),
+  mFileDescriptor( -1 ),
   mOptions( options )
 {
   // Create accompanying file descriptor.
@@ -48,7 +48,7 @@ TriggerEvent::TriggerEvent( boost::function<void()> functor, TriggerEventInterfa
   if (mFileDescriptor >= 0)
   {
     // Now Monitor the created event file descriptor
-    mFileDescriptorMonitor = new FileDescriptorMonitor(mFileDescriptor, boost::bind(&TriggerEvent::Triggered, this));
+    mFileDescriptorMonitor = new FileDescriptorMonitor( mFileDescriptor, MakeCallback( this, &TriggerEvent::Triggered ) );
   }
   else
   {
@@ -58,11 +58,8 @@ TriggerEvent::TriggerEvent( boost::function<void()> functor, TriggerEventInterfa
 
 TriggerEvent::~TriggerEvent()
 {
-  if (mFileDescriptorMonitor)
-  {
-    delete mFileDescriptorMonitor;
-    mFileDescriptorMonitor = NULL;
-  }
+  delete mFileDescriptorMonitor;
+  delete mCallback;
 
   if (mFileDescriptor >= 0)
   {
@@ -104,8 +101,8 @@ void TriggerEvent::Triggered()
     DALI_LOG_WARNING("Unable to read to UpdateEvent File descriptor\n");
   }
 
-  // Call the connected boost function.
-  mFunctor();
+  // Call the connected callback
+  CallbackBase::Execute( *mCallback );
 
   //check if we should delete ourselves after the trigger
   if( mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER )
