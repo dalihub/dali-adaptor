@@ -101,7 +101,7 @@ protected:
     /**
      * Constructor. open lock file
      */
-    LockFile(const char* filename);
+    LockFile(const std::string filename);
 
     /**
      * Close lock file
@@ -305,23 +305,29 @@ private:
   void Disconnect();
 
   /**
-   * Close existing lock file and open the new lock file.
-   * @param[in] epcEvent Current ecore event.
-   */
-  void NewLockFile(Ecore_Ipc_Event_Server_Data *epcEvent);
-
-  /**
    * Handle Resize event
    * @param[in] width The new width
    * @param[in] height The new height
    */
-  void Resize(int width, int height);
+  void Resize( int width, int height );
+
+  /**
+   * Set the lock file info.
+   * @param[in] epcEvent Current ecore event.
+   */
+  void SetLockFileInfo( Ecore_Ipc_Event_Server_Data *epcEvent );
+
+  /**
+   * Set the shared indicator image info
+   * @param[in] epcEvent The event containing the image data
+   */
+  void SetSharedImageInfo( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
    * Load the shared indicator image
    * @param[in] epcEvent The event containing the image data
    */
-  void LoadSharedImage(Ecore_Ipc_Event_Server_Data *epcEvent);
+  void LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
    * Load the pixmap indicator image
@@ -331,15 +337,17 @@ private:
 
   /**
    * Inform dali that the indicator data has been updated.
+   * @param[in] bufferNumber The shared file number
    */
-  void UpdateImageData();
+  void UpdateImageData( int bufferNumber );
 
   /**
    * Lock the temporary file, Copy the shared image into IndicatorBuffer
    * and then unlock the temporary file.
    * Caller should ensure we are not writing image to gl texture.
+   * @param[in] bufferNumber The shared file number
    */
-  bool CopyToBuffer();
+  bool CopyToBuffer( int bufferNumber );
 
   /**
    * Update the background with the correct colors
@@ -348,8 +356,9 @@ private:
 
   /**
    * Create a new image for the indicator, and set up signal handling for it.
+   * @param[in] bufferNumber The shared file number
    */
-  void CreateNewImage();
+  void CreateNewImage( int bufferNumber );
 
   /**
    * Create a new pixmap image for the indicator, and set up signal handling for it.
@@ -375,7 +384,7 @@ private:
    *                     if it equal to 0, hide the indicator
    *                     if it less than 0, show always
    */
-  void ShowIndicator(float duration);
+  void ShowIndicator( float duration );
 
   /**
    * Showing timer callback
@@ -386,13 +395,13 @@ private:
    * Showing animation finished callback
    * @param[in] animation
    */
-  void OnAnimationFinished(Dali::Animation& animation);
+  void OnAnimationFinished( Dali::Animation& animation );
 
 private: // Implementation of ServerConnection::Observer
   /**
    * @copydoc Dali::Internal::Adaptor::ServerConnection::Observer::DataReceived()
    */
-  virtual void DataReceived(void* event);
+  virtual void DataReceived( void* event );
 
   /**
    * @copydoc Dali::Internal::Adaptor::ServerConnection::Observer::DataReceived()
@@ -400,12 +409,46 @@ private: // Implementation of ServerConnection::Observer
   virtual void ConnectionClosed();
 
 private:
+
   /**
    * Construct the gradient mesh
    */
   void ConstructBackgroundMesh();
 
+  /**
+   * Clear shared file info
+   */
+  void ClearSharedFileInfo();
+
 private:
+
+  struct SharedFileInfo
+  {
+    SharedFileInfo()
+      : mLock( NULL ),
+        mSharedFile( NULL ),
+        mImageWidth( 0 ),
+        mImageHeight( 0 ),
+        mLockFileName(),
+        mSharedFileName(),
+        mSharedFileID( 0 ),
+        mSharedFileNumber( 0 )
+    {
+    }
+
+    LockFile*                        mLock;              ///< File lock for the shared file
+    SharedFile*                      mSharedFile;        ///< Shared file
+
+    int                              mImageWidth;        ///< Shared image width
+    int                              mImageHeight;       ///< Shared image height
+
+    std::string                      mLockFileName;      ///< Lock file name
+    std::string                      mSharedFileName;    ///< Shared file name
+    int                              mSharedFileID;      ///< Shared file ID
+    int                              mSharedFileNumber;  ///< Shared file number
+  };
+
+  static const int SHARED_FILE_NUMBER = 2;               ///< Shared file number
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
   PixmapId                         mPixmap;              ///< Pixmap including indicator content
@@ -429,8 +472,6 @@ private:
 
   Adaptor*                         mAdaptor;
   ServerConnection*                mServerConnection;
-  LockFile*                        mLock;                ///< File lock for the shared file
-  SharedFile*                      mSharedFile;          ///< Shared file
   Indicator::Observer*             mObserver;            ///< Upload observer
 
   Dali::Window::WindowOrientation  mOrientation;
@@ -444,6 +485,9 @@ private:
   Dali::Animation                  mIndicatorAnimation;  ///< Animation to show/hide indicator image
 
   bool                             mIsAnimationPlaying;  ///< Whether the animation is playing
+
+  int                              mCurrentSharedFile;   ///< Current shared file number
+  SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
 };
 
 } // Adaptor
