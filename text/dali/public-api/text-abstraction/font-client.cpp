@@ -125,6 +125,28 @@ BitmapImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
 }
 
+bool FontClient::IsScalable( const FontPath& path )
+{
+  return GetImplementation(*this).IsScalable( path );;
+}
+
+bool FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& style )
+{
+  return GetImplementation(*this).IsScalable( fontFamily, style );
+}
+
+void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+{
+  GetImplementation(*this).GetFixedSizes( path, sizes );
+}
+
+void FontClient::GetFixedSizes( const FontFamily& fontFamily,
+                                const FontStyle& style,
+                                Dali::Vector< PointSize26Dot6 >& sizes )
+{
+  GetImplementation(*this).GetFixedSizes( fontFamily, style, sizes );
+}
+
 FontClient::FontClient( Internal::FontClient* internal )
 : BaseHandle( internal )
 {

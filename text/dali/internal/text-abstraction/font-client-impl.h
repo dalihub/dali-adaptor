@@ -105,6 +105,28 @@ public:
                     FaceIndex faceIndex );
 
   /**
+   * @copydoc Dali::FontClient::IsScalable(const FontPath& path )
+   */
+  bool IsScalable( const FontPath& path );
+
+  /**
+   * @copydoc Dali::FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& fontStyle )
+   */
+  bool IsScalable( const FontFamily& fontFamily, const FontStyle& style );
+
+  /**
+   * @copydoc Dali::FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+   */
+  void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
+
+  /**
+   * @copydoc Dali::FontClient::GetFixedSizes( const FontFamily& fontFamily, const FontStyle& fontStyle, Dali::Vector< PointSize26Dot6>& sizes )
+   */
+  void GetFixedSizes( const FontFamily& fontFamily,
+                      const FontStyle& style,
+                      Dali::Vector< PointSize26Dot6 >& sizes );
+
+  /**
    * @copydoc Dali::FontClient::GetFontMetrics()
    */
   void GetFontMetrics( FontId fontId, FontMetrics& metrics );

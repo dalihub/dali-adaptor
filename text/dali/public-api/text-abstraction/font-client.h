@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/text-abstraction/font-list.h>
@@ -186,6 +187,42 @@ public:
                     const FontStyle& fontStyle,
                     PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
+
+  /**
+   * @brief Check to see if a font is scalable.
+   *
+   * @param[in] path The path to a font file.
+   * @return true if scalable.
+   */
+  bool IsScalable( const FontPath& path );
+
+  /**
+   * @brief Check to see if a font is scalable.
+   *
+   * @param[in] fontFamily The font family name.
+   * @param[in] style The font style.
+   * @return true if scalable
+   */
+  bool IsScalable( const FontFamily& fontFamily, const FontStyle& style );
+
+  /**
+   * @brief Get a list of sizes available for a fixed size font.
+   *
+   * @param[in] path The path to a font file.
+   * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
+   */
+  void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
+
+  /**
+   * @brief Get a list of sizes available for a fixed size font.
+   *
+   * @param[in] fontFamily The font family name.
+   * @param[in] style The font style.
+   * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
+   */
+  void GetFixedSizes( const FontFamily& fontFamily,
+                      const FontStyle& style,
+                      Dali::Vector< PointSize26Dot6 >& sizes );
 
   ////////////////////////////////////////
   // Font metrics, glyphs and bitmaps.

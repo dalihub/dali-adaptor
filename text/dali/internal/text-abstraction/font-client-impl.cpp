@@ -123,6 +123,36 @@ FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSiz
   return mPlugin->FindDefaultFont( charcode, pointSize );
 }
 
+bool FontClient::IsScalable( const FontPath& path )
+{
+  CreatePlugin();
+
+  return mPlugin->IsScalable( path );
+}
+
+bool FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& style )
+{
+  CreatePlugin();
+
+  return mPlugin->IsScalable( fontFamily, style );
+}
+
+void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+{
+  CreatePlugin();
+
+  mPlugin->GetFixedSizes( path, sizes );
+}
+
+void FontClient::GetFixedSizes( const FontFamily& fontFamily,
+                                const FontStyle& style,
+                                Dali::Vector< PointSize26Dot6 >& sizes )
+{
+  CreatePlugin();
+
+  mPlugin->GetFixedSizes( fontFamily, style, sizes );
+}
+
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
 {
   CreatePlugin();
