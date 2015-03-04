@@ -361,6 +361,6 @@ struct DefaultFunctionCoverage
 
 
 // Helper to Create bitmap image
-BitmapImage CreateBitmapImage();
+BufferImage CreateBufferImage();
 
 #endif // __DALI_TEST_SUITE_UTILS_H__

@@ -19,9 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
-
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/trigger-event-interface.h>
@@ -56,10 +55,11 @@ public:
    * Creates an event file descriptor and starts a GSource which reads from the file
    * descriptor when there is data.
    *
-   * @param[in]  functor to call
-   * @param[in] options, trigger event options.
+   * @param[in] callback The callback to call
+   * @param[in] options Trigger event options.
+   * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent( boost::function<void()> functor, TriggerEventInterface::Options options = TriggerEventInterface::NONE );
+  TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options = TriggerEventInterface::NONE );
 
   /**
    * Destructor
@@ -89,7 +89,7 @@ private:
 private:
 
   FileDescriptorMonitor* mFileDescriptorMonitor;
-  boost::function<void()> mFunctor; ///< Function object to call
+  CallbackBase* mCallback;
   int mFileDescriptor;
   TriggerEventInterface::Options mOptions;
 };

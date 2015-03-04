@@ -22,7 +22,6 @@
 #include <app.h>
 #include <bundle.h>
 #include <Ecore.h>
-#include <boost/bind.hpp>
 
 #include <dali/integration-api/debug.h>
 
@@ -62,6 +61,8 @@ struct Framework::Impl
   // Constructor
 
   Impl(void* data)
+  : mAbortCallBack( NULL ),
+    mCallbackManager( NULL )
   {
     mEventCallback.create = AppCreate;
     mEventCallback.terminate = AppTerminate;
@@ -83,6 +84,8 @@ struct Framework::Impl
 
   ~Impl()
   {
+    delete mAbortCallBack;
+
     // we're quiting the main loop so
     // mCallbackManager->RemoveAllCallBacks() does not need to be called
     // to delete our abort handler
@@ -91,7 +94,7 @@ struct Framework::Impl
 
   // Data
 
-  boost::function<void(void)> mAbortCallBack;
+  CallbackBase* mAbortCallBack;
   app_event_callback_s mEventCallback;
   CallbackManager *mCallbackManager;
   // Static methods
@@ -204,7 +207,7 @@ Framework::Framework(Framework::Observer& observer, int *argc, char ***argv, con
   mName(name),
   mBundleName(""),
   mBundleId(""),
-  mAbortHandler(boost::bind(&Framework::AbortCallback, this)),
+  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
   mImpl(NULL)
 {
   InitThreads();
@@ -240,9 +243,9 @@ bool Framework::IsMainLoopRunning()
   return mRunning;
 }
 
-void Framework::AddAbortCallback(boost::function<void(void)> callBack)
+void Framework::AddAbortCallback( CallbackBase* callback )
 {
-  mImpl->mAbortCallBack = callBack;
+  mImpl->mAbortCallBack = callback;
 }
 
 std::string Framework::GetBundleName() const
@@ -270,7 +273,7 @@ void Framework::AbortCallback( )
   // if an abort call back has been installed run it.
   if (mImpl->mAbortCallBack)
   {
-    mImpl->mAbortCallBack();
+    CallbackBase::Execute( *mImpl->mAbortCallBack );
   }
   else
   {

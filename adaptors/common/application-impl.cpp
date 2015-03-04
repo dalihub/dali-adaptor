@@ -142,7 +142,7 @@ void Application::Lower()
 void Application::Quit()
 {
   // Actually quit the application.
-  AddIdle(boost::bind(&Application::QuitFromMainLoop, this));
+  AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ) );
 }
 
 void Application::QuitFromMainLoop()
@@ -159,7 +159,7 @@ void Application::QuitFromMainLoop()
 
 void Application::OnInit()
 {
-  mFramework->AddAbortCallback(boost::bind(&Application::QuitFromMainLoop, this));
+  mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
 
   CreateWindow();
   CreateAdaptor();
@@ -249,9 +249,9 @@ void Application::OnResize(Dali::Adaptor& adaptor)
   mResizeSignal.Emit( application );
 }
 
-bool Application::AddIdle(boost::function<void(void)> callBack)
+bool Application::AddIdle( CallbackBase* callback )
 {
-  return mAdaptor->AddIdle(callBack);
+  return mAdaptor->AddIdle( callback );
 }
 
 Dali::Adaptor& Application::GetAdaptor()

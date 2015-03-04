@@ -19,13 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
-
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
@@ -193,12 +190,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::AddIdle()
    */
-  virtual bool AddIdle( boost::function<void(void)> callBack );
+  virtual bool AddIdle( CallbackBase* callback );
 
   /**
    * @copydoc Internal::Framework::CallFromMainLoop()
    */
-  virtual bool CallFromMainLoop(boost::function<void(void)> callBack);
+  virtual bool CallFromMainLoop( CallbackBase* callback );
 
 public:
 

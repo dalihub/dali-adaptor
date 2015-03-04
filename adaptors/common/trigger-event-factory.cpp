@@ -31,9 +31,9 @@ namespace Internal
 namespace Adaptor
 {
 
-TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(  boost::function<void()> functor,  TriggerEventInterface::Options options )
+TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(  CallbackBase* callback,  TriggerEventInterface::Options options )
 {
-  return new TriggerEvent( functor, options );
+  return new TriggerEvent( callback, options );
 }
 
 void TriggerEventFactory::DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface )

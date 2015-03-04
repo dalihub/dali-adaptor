@@ -480,10 +480,10 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
   return success;
 }
 
-BitmapImage FontClient::Plugin::CreateBitmap( FontId fontId,
+BufferImage FontClient::Plugin::CreateBitmap( FontId fontId,
                                               GlyphIndex glyphIndex )
 {
-  BitmapImage bitmap;
+  BufferImage bitmap;
 
   if( fontId > 0 &&
       fontId-1 < mFontCache.size() )
@@ -759,7 +759,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
   return id;
 }
 
-void FontClient::Plugin::ConvertBitmap( BitmapImage& destBitmap,
+void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
                                         FT_Bitmap srcBitmap )
 {
   if( srcBitmap.width*srcBitmap.rows > 0 )
@@ -770,7 +770,7 @@ void FontClient::Plugin::ConvertBitmap( BitmapImage& destBitmap,
       {
         if( srcBitmap.pitch == static_cast< int >( srcBitmap.width ) )
         {
-          destBitmap = BitmapImage::New( srcBitmap.width, srcBitmap.rows, Pixel::L8 );
+          destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::L8 );
 
           PixelBuffer* destBuffer = destBitmap.GetBuffer();
           memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows );
@@ -782,7 +782,7 @@ void FontClient::Plugin::ConvertBitmap( BitmapImage& destBitmap,
       {
         if ( srcBitmap.pitch == static_cast< int >( srcBitmap.width << 2 ) )
         {
-          destBitmap = BitmapImage::New( srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888 );
+          destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888 );
 
           PixelBuffer* destBuffer = destBitmap.GetBuffer();
           memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows*4 );

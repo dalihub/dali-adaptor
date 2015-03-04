@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/images/bitmap-image.h>
+#include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/text-abstraction/font-list.h>
 #include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
@@ -261,9 +261,9 @@ public:
    *
    * @param[in] fontId The ID of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
-   * @return A valid BitmapImage, or an empty handle if the glyph could not be rendered.
+   * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
-  BitmapImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
 public: // Not intended for application developers
   /**

@@ -36,16 +36,21 @@ namespace Adaptor
 struct FileDescriptorMonitor::Impl
 {
   // Construction
-  Impl(int fileDescriptor, boost::function<void()> functor)
-  : mFileDescriptor(fileDescriptor),
-    mFunctor(functor),
-    mHandler(NULL)
+  Impl( int fileDescriptor, CallbackBase* callback )
+  : mFileDescriptor( fileDescriptor ),
+    mCallback( callback ),
+    mHandler( NULL )
   {
+  }
+
+  ~Impl()
+  {
+    delete mCallback;
   }
 
   // Data
   int mFileDescriptor;
-  boost::function<void()> mFunctor;
+  CallbackBase* mCallback;
   Ecore_Fd_Handler* mHandler;
 
   // Static Methods
@@ -57,15 +62,15 @@ struct FileDescriptorMonitor::Impl
   {
     Impl* impl = reinterpret_cast<Impl*>(data);
 
-    impl->mFunctor();
+    CallbackBase::Execute( *impl->mCallback );
 
     return ECORE_CALLBACK_RENEW;
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, boost::function<void()> functor)
+FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback )
 {
-  mImpl = new Impl(fileDescriptor, functor);
+  mImpl = new Impl(fileDescriptor, callback);
 
   if (fileDescriptor >= 0)
   {

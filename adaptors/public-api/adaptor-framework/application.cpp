@@ -116,9 +116,9 @@ Orientation Application::GetOrientation()
   return Orientation();
 }
 
-bool Application::AddIdle(boost::function<void(void)> callBack)
+bool Application::AddIdle( CallbackBase* callback )
 {
-  return Internal::Adaptor::GetImplementation(*this).AddIdle(callBack);
+  return Internal::Adaptor::GetImplementation(*this).AddIdle( callback );
 }
 
 Window Application::GetWindow()

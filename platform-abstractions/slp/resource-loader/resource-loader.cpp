@@ -34,10 +34,8 @@
 #include <dali/public-api/common/scoped-pointer.h>
 #include "resource-requester-base.h"
 #include "resource-bitmap-requester.h"
-#include "resource-model-requester.h"
 #include "resource-shader-requester.h"
 #include "debug/resource-loader-debug.h"
-#include "../interfaces/data-cache.h"
 
 
 /**
@@ -106,7 +104,6 @@ struct ResourceLoader::ResourceLoaderImpl
   {
     mRequestHandlers.insert(std::make_pair(ResourceBitmap, new ResourceBitmapRequester(*loader)));
     mRequestHandlers.insert(std::make_pair(ResourceShader, new ResourceShaderRequester(*loader)));
-    mRequestHandlers.insert(std::make_pair(ResourceModel, new ResourceModelRequester(*loader)));
   }
 
   ~ResourceLoaderImpl()
