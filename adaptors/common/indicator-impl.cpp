@@ -28,9 +28,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <dali/public-api/images/bitmap-image.h>
 #include <dali/public-api/images/native-image.h>
-#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/common/stage.h>
@@ -1204,7 +1202,6 @@ void Indicator::ConstructBackgroundMesh()
   }
 
   mBackgroundActor = Dali::MeshActor::New(mBackgroundMesh);
-  mBackgroundActor.SetAffectedByLighting(false);
   Dali::ShaderEffect shaderEffect = Dali::ShaderEffect::New( MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER,
                                                              GEOMETRY_TYPE_UNTEXTURED_MESH, // Using vertex color
                                                              Dali::ShaderEffect::HINT_BLENDING );

@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
 #include <string>
 
 #include <dali/public-api/object/base-handle.h>

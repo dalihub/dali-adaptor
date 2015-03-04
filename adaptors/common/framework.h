@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-#include <boost/function.hpp>
+#include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
 #include "abort-handler.h"
@@ -118,8 +118,9 @@ public:
    * If the main loop aborts unexpectedly, then the connected callback function is called.
    * @param[in]  callBack  The function to call.
    * @note Only one callback can be registered.  The last callback to be set will be called on abort.
+   * @note The ownership of callback is passed onto this class.
    */
-  void AddAbortCallback(boost::function<void(void)> callBack);
+  void AddAbortCallback( CallbackBase* callback );
 
   /**
    * Gets bundle name which was passed in app_reset callback.

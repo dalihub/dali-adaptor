@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/function.hpp>
+#include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/trigger-event-interface.h>
@@ -44,10 +44,11 @@ public:
 
   /**
    * @brief Create a new concrete implementation of the event trigger interface.
-   * @param functor the function to call when interface->Trigger() is called
+   * @param callback called when interface->Trigger() is called
    * @return pointer to a new trigger event
+   * @note Ownership of callback should be taken over by deriving classes
    */
-  virtual TriggerEventInterface* CreateTriggerEvent( boost::function<void()> functor,
+  virtual TriggerEventInterface* CreateTriggerEvent( CallbackBase* callback,
                                                      TriggerEventInterface::Options options = TriggerEventInterface::NONE) = 0;
   /**
    * @brief destroy a trigger event

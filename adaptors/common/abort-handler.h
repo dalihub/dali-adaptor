@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <signal.h>
+#include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
 #include "application.h"
@@ -46,8 +47,9 @@ public:
   /**
    * Constructor
    * @param[in] callback The function to call when abort signals occur
+   * @note The ownership of callback is passed onto this class.
    */
-  AbortHandler(boost::function<void(void)> callback);
+  AbortHandler( CallbackBase* callback );
 
   /**
    * Destructor
@@ -90,7 +92,7 @@ private:
   SignalHandlerFuncPtr        mSignalOldHandlers[_NSIG-1];
   unsigned long long          mSignalMask;
 
-  boost::function<void(void)> mCallback;
+  CallbackBase*               mCallback;
 
   static AbortHandler*        gInstance;
 };

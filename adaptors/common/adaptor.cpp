@@ -71,9 +71,9 @@ void Adaptor::Stop()
   mImpl->Stop();
 }
 
-bool Adaptor::AddIdle( boost::function<void(void)> callBack )
+bool Adaptor::AddIdle( CallbackBase* callback )
 {
-  return mImpl->AddIdle(callBack);
+  return mImpl->AddIdle( callback );
 }
 
 Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()

@@ -19,8 +19,6 @@
 #include "gesture-manager.h"
 
 // EXTERNAL INCLUDES
-#include <boost/bind.hpp>
-
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES

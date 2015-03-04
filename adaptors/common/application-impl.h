@@ -19,10 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
-
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-object.h>
 
@@ -100,7 +96,7 @@ public:
   /**
    * @copydoc Dali::Application::AddIdle()
    */
-  bool AddIdle(boost::function<void(void)> callBack);
+  bool AddIdle( CallbackBase* callback );
 
   /**
    * @copydoc Dali::Application::GetAdaptor();

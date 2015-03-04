@@ -16,17 +16,14 @@ slp_platform_abstraction_src_files = \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-requester-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-bitmap-requester.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-model-requester.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-shader-requester.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-text-requester.cpp \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-base.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-image.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-model.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-shader.cpp \
   $(slp_platform_abstraction_src_dir)/resource-loader/resource-thread-text.cpp \
   \
-  $(slp_platform_abstraction_src_dir)/resource-loader/binary-model-builder.cpp \
   \
   $(slp_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \
   \
@@ -44,14 +41,6 @@ slp_turbo_jpeg_loader = \
 
 slp_jpeg_loader = \
   $(slp_platform_abstraction_src_dir)/image-loaders/loader-jpeg.cpp
-
-slp_assimp_src_files = \
-  $(slp_platform_abstraction_src_dir)/resource-loader/assimp-proxy.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/assimp-model-builder.cpp \
-  $(slp_platform_abstraction_src_dir)/resource-loader/left-hand-convertor.cpp
-
-slp_assimp_stub_src_files = \
-  $(slp_platform_abstraction_src_dir)/resource-loader/assimp-stubs.cpp
 
 # Add public headers here:
 

@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "abort-handler.h"
 
+// EXTERNAL INCLUDES
+#include <cstring>
+
 namespace Dali
 {
 namespace Internal
@@ -27,7 +30,7 @@ namespace Adaptor
 
 AbortHandler* AbortHandler::gInstance(NULL);
 
-AbortHandler::AbortHandler(boost::function<void(void)> callback)
+AbortHandler::AbortHandler( CallbackBase* callback )
 : mSignalMask( 0 ),
   mCallback( callback )
 {
@@ -39,6 +42,8 @@ AbortHandler::AbortHandler(boost::function<void(void)> callback)
 
 AbortHandler::~AbortHandler()
 {
+  delete mCallback;
+
   int signum;
   for ( signum = 1; signum < _NSIG; signum++ )
   {
@@ -75,7 +80,7 @@ void AbortHandler::SignalHandler( int signum )
   {
     if( gInstance->mCallback )
     {
-      gInstance->mCallback();
+      CallbackBase::Execute( *gInstance->mCallback );
     }
   }
 }
