@@ -127,8 +127,9 @@ struct Shaping::Plugin
     /* Create a buffer for harfbuzz to use */
     hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
 
+    const bool rtlDiection = ( ARABIC == script );
     hb_buffer_set_direction( harfBuzzBuffer,
-                             ( ARABIC == script ) ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
+                             rtlDiection ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
 
     hb_buffer_set_script( harfBuzzBuffer,
                           SCRIPT_TO_HARFBUZZ[ script ] ); /* see hb-unicode.h */
@@ -147,11 +148,16 @@ struct Shaping::Plugin
     hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
     hb_glyph_position_t *glyphPositions = hb_buffer_get_glyph_positions( harfBuzzBuffer, &glyphCount );
 
+    const Length lastGlyphIndex = glyphCount - 1u;
     for( Length i = 0u; i < glyphCount; ++i )
     {
-      mIndices.PushBack( glyphInfo[i].codepoint );
-      mAdvance.PushBack( glyphPositions[i].x_advance / TO_PIXELS );
-      mCharacterMap.PushBack( glyphInfo[i].cluster );
+      // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
+      // The glyphs are needed in the logical order to layout the text in lines.
+      const Length index = rtlDiection ? ( lastGlyphIndex - i ) : i;
+
+      mIndices.PushBack( glyphInfo[index].codepoint );
+      mAdvance.PushBack( glyphPositions[index].x_advance / TO_PIXELS );
+      mCharacterMap.PushBack( glyphInfo[index].cluster );
     }
 
     /* Cleanup */
