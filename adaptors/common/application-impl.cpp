@@ -74,7 +74,11 @@ Application::Application( int* argc, char** argv[], const std::string& name, con
   mResumeSignal(),
   mResetSignal(),
   mResizeSignal(),
+  mAppControlSignal(),
   mLanguageChangedSignal(),
+  mRegionChangedSignal(),
+  mBatteryLowSignal(),
+  mMemoryLowSignal(),
   mEventLoop( NULL ),
   mFramework( NULL ),
   mCommandLineOptions( NULL ),
@@ -251,9 +255,33 @@ void Application::OnReset()
   mWindow.Raise();
 }
 
+void Application::OnAppControl(void *data)
+{
+  Dali::Application application(this);
+  mAppControlSignal.Emit( application , data );
+}
+
 void Application::OnLanguageChanged()
 {
   mAdaptor->NotifyLanguageChanged();
+}
+
+void Application::OnRegionChanged()
+{
+  Dali::Application application(this);
+  mRegionChangedSignal.Emit( application );
+}
+
+void Application::OnBatteryLow()
+{
+  Dali::Application application(this);
+  mBatteryLowSignal.Emit( application );
+}
+
+void Application::OnMemoryLow()
+{
+  Dali::Application application(this);
+  mMemoryLowSignal.Emit( application );
 }
 
 void Application::OnResize(Dali::Adaptor& adaptor)

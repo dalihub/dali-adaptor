@@ -181,9 +181,29 @@ Application::AppSignalType& Application::ResizeSignal()
   return Internal::Adaptor::GetImplementation(*this).ResizeSignal();
 }
 
+Application::AppControlSignalType & Application::AppControlSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).AppControlSignal();
+}
+
 Application::AppSignalType& Application::LanguageChangedSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).LanguageChangedSignal();
+}
+
+Application::AppSignalType& Application::RegionChangedSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).RegionChangedSignal();
+}
+
+Application::AppSignalType& Application::BatteryLowSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).BatteryLowSignal();
+}
+
+Application::AppSignalType& Application::MemoryLowSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).MemoryLowSignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

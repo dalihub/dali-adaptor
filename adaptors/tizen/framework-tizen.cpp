@@ -48,7 +48,12 @@ enum
   APP_PAUSE,
   APP_RESUME,
   APP_RESET,
+  APP_CONTROL,
   APP_LANGUAGE_CHANGE,
+  APP_DEVICE_ROTATED,
+  APP_REGION_CHANGED,
+  APP_BATTERY_LOW,
+  APP_MEMORY_LOW
 };
 
 } // Unnamed namespace
@@ -68,16 +73,25 @@ struct Framework::Impl
     mEventCallback.terminate = AppTerminate;
     mEventCallback.pause = AppPause;
     mEventCallback.resume = AppResume;
-#if defined(TIZEN_SDK_2_3)
-    mEventCallback.app_control = AppControl;
-#else
+#ifndef OVER_TIZEN_SDK_2_2
     mEventCallback.service = AppService;
-#endif
+
     mEventCallback.low_memory = NULL;
     mEventCallback.low_battery = NULL;
-    mEventCallback.device_orientation = DeviceRotated;
-    mEventCallback.language_changed = AppLanguageChange;
+    mEventCallback.device_orientation = AppDeviceRotated;
+    mEventCallback.language_changed = AppLanguageChanged;
     mEventCallback.region_format_changed = NULL;
+
+#else
+    mEventCallback.app_control = AppControl;
+
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, AppBatteryLow, data);
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, AppMemoryLow, data);
+    ui_app_add_event_handler(&handlers[APP_EVENT_DEVICE_ORIENTATION_CHANGED], APP_EVENT_DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, data);
+    ui_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, AppLanguageChanged, data);
+    ui_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, AppRegionChanged, data);
+
+#endif
 
     mCallbackManager = CallbackManager::New();
   }
@@ -95,16 +109,21 @@ struct Framework::Impl
   // Data
 
   CallbackBase* mAbortCallBack;
-  app_event_callback_s mEventCallback;
   CallbackManager *mCallbackManager;
-  // Static methods
+
+#ifndef OVER_TIZEN_SDK_2_2
+  app_event_callback_s mEventCallback;
+#else
+  ui_app_lifecycle_callback_s mEventCallback;
+  app_event_handler_h handlers[5];
+#endif
 
   /**
    * Called by AppCore on application creation.
    */
   static bool AppCreate(void *data)
   {
-    return static_cast<Framework*>(data)->SlpAppStatusHandler(APP_CREATE);
+    return static_cast<Framework*>(data)->AppStatusHandler(APP_CREATE, NULL);
   }
 
   /**
@@ -112,7 +131,7 @@ struct Framework::Impl
    */
   static void AppTerminate(void *data)
   {
-    static_cast<Framework*>(data)->SlpAppStatusHandler(APP_TERMINATE);
+    static_cast<Framework*>(data)->AppStatusHandler(APP_TERMINATE, NULL);
   }
 
   /**
@@ -120,7 +139,7 @@ struct Framework::Impl
    */
   static void AppPause(void *data)
   {
-    static_cast<Framework*>(data)->SlpAppStatusHandler(APP_PAUSE);
+    static_cast<Framework*>(data)->AppStatusHandler(APP_PAUSE, NULL);
   }
 
   /**
@@ -128,73 +147,110 @@ struct Framework::Impl
    */
   static void AppResume(void *data)
   {
-    static_cast<Framework*>(data)->SlpAppStatusHandler(APP_RESUME);
+    static_cast<Framework*>(data)->AppStatusHandler(APP_RESUME, NULL);
   }
+
+  static void ProcessBundle(Framework* framework, bundle *bundleData)
+  {
+    if(bundleData == NULL)
+    {
+      return;
+    }
+
+    // get bundle name
+    char* bundleName = const_cast<char*>(bundle_get_val(bundleData, "name"));
+    if(bundleName != NULL)
+    {
+      framework->SetBundleName(bundleName);
+    }
+
+    // get bundle id
+    char* bundleId = const_cast<char*>(bundle_get_val(bundleData, "id"));
+    if(bundleId != NULL)
+    {
+      framework->SetBundleId(bundleId);
+    }
+  }
+
+#ifndef OVER_TIZEN_SDK_2_2
+  /**
+   * Called by AppCore when the application is launched from another module (e.g. homescreen).
+   * @param[in] b the bundle data which the launcher module sent
+   */
+  static void AppService(service_h service, void *data)
+  {
+    Framework* framework = static_cast<Framework*>(data);
+
+    if(framework == NULL)
+    {
+      return;
+    }
+    bundle *bundleData = NULL;
+
+    service_to_bundle(service, &bundleData);
+    ProcessBundle(framework, bundleData);
+
+    framework->AppStatusHandler(APP_RESET, NULL);
+  }
+
+  static void AppLanguageChanged(void* user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_LANGUAGE_CHANGE, NULL);
+  }
+
+  static void AppDeviceRotated(app_device_orientation_e orientation, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_DEVICE_ROTATED, NULL);
+  }
+
+#else
 
   /**
    * Called by AppCore when the application is launched from another module (e.g. homescreen).
    * @param[in] b the bundle data which the launcher module sent
    */
-
-#if defined(TIZEN_SDK_2_3)
   static void AppControl(app_control_h app_control, void *data)
-#else
-  static void AppService(service_h service, void *data)
-#endif
   {
     Framework* framework = static_cast<Framework*>(data);
-
-    if(framework)
+    if(framework == NULL)
     {
-      bundle *bundleData = NULL;
-#if defined(TIZEN_SDK_2_3)
-      app_control_to_bundle(app_control, &bundleData);
-#else
-      service_to_bundle(service, &bundleData);
+      return;
+    }
+    bundle *bundleData = NULL;
+
+    app_control_to_bundle(app_control, &bundleData);
+    ProcessBundle(framework, bundleData);
+
+    framework->AppStatusHandler(APP_RESET, NULL);
+    framework->AppStatusHandler(APP_CONTROL, app_control);
+  }
+
+  static void AppLanguageChanged(app_event_info_h event_info, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_LANGUAGE_CHANGE, NULL);
+  }
+
+  static void AppDeviceRotated(app_event_info_h event_info, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_DEVICE_ROTATED, NULL);
+  }
+
+  static void AppRegionChanged(app_event_info_h event_info, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_REGION_CHANGED, NULL);
+  }
+
+  static void AppBatteryLow(app_event_info_h event_info, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_BATTERY_LOW, NULL);
+  }
+
+  static void AppMemoryLow(app_event_info_h event_info, void *user_data)
+  {
+    static_cast<Framework*>(user_data)->AppStatusHandler(APP_MEMORY_LOW, NULL);
+  }
+
 #endif
-
-      if(bundleData)
-      {
-        // get bundle name
-        char* bundleName = const_cast<char*>(bundle_get_val(bundleData, "name"));
-        if(bundleName != NULL)
-        {
-          framework->SetBundleName(bundleName);
-        }
-
-        // get bundle id
-        char* bundleId = const_cast<char*>(bundle_get_val(bundleData, "id"));
-        if(bundleId != NULL)
-        {
-          framework->SetBundleId(bundleId);
-        }
-      }
-      framework->SlpAppStatusHandler(APP_RESET);
-    }
-  }
-
-  /**
-   * Called by AppCore when the language changes on the device.
-   */
-  static void AppLanguageChange(void* data)
-  {
-    static_cast<Framework*>(data)->SlpAppStatusHandler(APP_LANGUAGE_CHANGE);
-  }
-
-  static void DeviceRotated(app_device_orientation_e orientation, void *user_data)
-  {
-    switch(orientation)
-    {
-      case APP_DEVICE_ORIENTATION_0:
-        break;
-      case APP_DEVICE_ORIENTATION_90:
-        break;
-      case APP_DEVICE_ORIENTATION_180:
-        break;
-      case APP_DEVICE_ORIENTATION_270:
-        break;
-    }
-  }
 
 };
 
@@ -228,7 +284,16 @@ void Framework::Run()
 {
   mRunning = true;
 
+#ifndef OVER_TIZEN_SDK_2_2
   app_efl_main(mArgc, mArgv, &mImpl->mEventCallback, this);
+
+#else
+  int ret = ui_app_main(*mArgc, *mArgv, &mImpl->mEventCallback, this);
+  if (ret != APP_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("Framework::Run(), ui_app_main() is failed. err = %d", ret);
+  }
+#endif
 
   mRunning = false;
 }
@@ -281,7 +346,7 @@ void Framework::AbortCallback( )
   }
 }
 
-bool Framework::SlpAppStatusHandler(int type)
+bool Framework::AppStatusHandler(int type, void *bundleData)
 {
   switch (type)
   {
@@ -299,24 +364,58 @@ bool Framework::SlpAppStatusHandler(int type)
     }
 
     case APP_RESET:
+    {
       mObserver.OnReset();
       break;
+    }
 
     case APP_RESUME:
+    {
       mObserver.OnResume();
       break;
+    }
 
     case APP_TERMINATE:
-     mObserver.OnTerminate();
+    {
+      mObserver.OnTerminate();
       break;
+    }
 
     case APP_PAUSE:
+    {
       mObserver.OnPause();
       break;
+    }
+
+    case APP_CONTROL:
+    {
+      mObserver.OnAppControl(bundleData);
+      break;
+    }
 
     case APP_LANGUAGE_CHANGE:
+    {
       mObserver.OnLanguageChanged();
       break;
+    }
+
+    case APP_REGION_CHANGED:
+    {
+      mObserver.OnRegionChanged();
+      break;
+    }
+
+    case APP_BATTERY_LOW:
+    {
+      mObserver.OnBatteryLow();
+      break;
+    }
+
+    case APP_MEMORY_LOW:
+    {
+      mObserver.OnMemoryLow();
+      break;
+    }
 
     default:
       break;
