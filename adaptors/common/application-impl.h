@@ -55,6 +55,7 @@ class Application : public BaseObject, public Framework::Observer
 public:
 
   typedef Dali::Application::AppSignalType AppSignalType;
+  typedef Dali::Application::AppControlSignalType AppControlSignalType;
 
   /**
    * Constructor
@@ -168,6 +169,12 @@ public: // From Framework::Observer
   virtual void OnResume();
 
   /**
+  * Called when the framework received AppControlSignal.
+  * @param[in] The bundle data of AppControl event.
+  */
+  virtual void OnAppControl(void *data);
+
+  /**
    * Called when the framework informs the application that it should reset itself.
    */
   virtual void OnReset();
@@ -176,6 +183,21 @@ public: // From Framework::Observer
    * Called when the framework informs the application that the language of the device has changed.
    */
   virtual void OnLanguageChanged();
+
+  /**
+  * Called when the framework informs the application that the region of the device has changed.
+  */
+  virtual void OnRegionChanged();
+
+  /**
+  * Called when the framework informs the application that the battery level of the device is low.
+  */
+  virtual void OnBatteryLow();
+
+  /**
+  * Called when the framework informs the application that the memory level of the device is low.
+  */
+  virtual void OnMemoryLow();
 
 public:
 
@@ -213,6 +235,11 @@ public:  // Signals
   Dali::Application::AppSignalType& ResetSignal() { return mResetSignal; }
 
   /**
+  * @copydoc Dali::Application::AppControlSignal()
+  */
+  Dali::Application::AppControlSignalType& AppControlSignal() { return mAppControlSignal; }
+
+  /**
    * @copydoc Dali::Application::ResizeSignal()
    */
   Dali::Application::AppSignalType& ResizeSignal() { return mResizeSignal; }
@@ -221,6 +248,21 @@ public:  // Signals
    * @copydoc Dali::Application::LanguageChangedSignal()
    */
   Dali::Application::AppSignalType& LanguageChangedSignal() { return mLanguageChangedSignal; }
+
+  /**
+  * @copydoc Dali::Application::RegionChangedSignal()
+  */
+  Dali::Application::AppSignalType& RegionChangedSignal() { return mRegionChangedSignal; }
+
+  /**
+  * @copydoc Dali::Application::BatteryLowSignal()
+  */
+  Dali::Application::AppSignalType& BatteryLowSignal() { return mBatteryLowSignal; }
+
+  /**
+  * @copydoc Dali::Application::MemoryLowSignal()
+  */
+  Dali::Application::AppSignalType& MemoryLowSignal() { return mMemoryLowSignal; }
 
 private:
 
@@ -252,7 +294,12 @@ private:
   AppSignalType                           mResumeSignal;
   AppSignalType                           mResetSignal;
   AppSignalType                           mResizeSignal;
+  AppControlSignalType                    mAppControlSignal;
   AppSignalType                           mLanguageChangedSignal;
+  AppSignalType                           mRegionChangedSignal;
+  AppSignalType                           mBatteryLowSignal;
+  AppSignalType                           mMemoryLowSignal;
+
 
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;

@@ -93,6 +93,7 @@ class DALI_IMPORT_API Application : public BaseHandle
 public:
 
   typedef Signal< void (Application&) > AppSignalType;
+  typedef Signal< void (Application&, void *) > AppControlSignalType;
 
   /**
    * Decides whether a Dali application window is opaque or transparent.
@@ -327,9 +328,32 @@ public:  // Signals
   AppSignalType& ResizeSignal();
 
   /**
+  * This signal is emitted when another application sends a launch request to the application.
+  * When the application is launched, this signal is emitted after the main loop of the application starts up.
+  * The passed parameter describes the launch request and contains the information about why the application is launched.
+  */
+  AppControlSignalType& AppControlSignal();
+
+  /**
    * This signal is emitted when the language is changed on the device.
    */
   AppSignalType& LanguageChangedSignal();
+
+  /**
+  * This signal is emitted when the region of the device is changed.
+  */
+  AppSignalType& RegionChangedSignal();
+
+  /**
+  * This signal is emitted when the battery level of the device is low.
+  */
+  AppSignalType& BatteryLowSignal();
+
+  /**
+  * This signal is emitted when the memory level of the device is low.
+  */
+  AppSignalType& MemoryLowSignal();
+
 
 public: // Not intended for application developers
   /**
