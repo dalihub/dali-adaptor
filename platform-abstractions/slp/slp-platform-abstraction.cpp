@@ -50,7 +50,8 @@ const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 
 
 SlpPlatformAbstraction::SlpPlatformAbstraction()
 : mResourceLoader(new ResourceLoader),
-  mDynamicsFactory(NULL)
+  mDynamicsFactory(NULL),
+  mDataStoragePath( "" )
 {
 }
 
@@ -119,7 +120,20 @@ void SlpPlatformAbstraction::SaveResource(const Integration::ResourceRequest& re
 {
   if (mResourceLoader)
   {
-    mResourceLoader->SaveResource(request);
+    if( request.GetType()->id == Integration::ResourceShader )
+    {
+#ifdef SHADERBIN_CACHE_ENABLED
+      std::string path = mDataStoragePath;
+      path += request.GetPath();
+
+      Integration::ResourceRequest newRequest( request.GetId(), *request.GetType(), path, request.GetResource() );
+      mResourceLoader->SaveResource(newRequest);
+#endif
+    }
+    else
+    {
+      mResourceLoader->SaveResource(request);
+    }
   }
 }
 
@@ -206,6 +220,36 @@ Integration::DynamicsFactory* SlpPlatformAbstraction::GetDynamicsFactory()
   }
 
   return mDynamicsFactory;
+}
+
+bool SlpPlatformAbstraction::LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
+{
+  bool result = false;
+
+#ifdef SHADERBIN_CACHE_ENABLED
+  std::string path;
+
+  if( mResourceLoader )
+  {
+    path = DALI_SHADERBIN_DIR;
+    path += filename;
+    result = mResourceLoader->LoadFile( path, buffer );
+  }
+
+  if( mResourceLoader && result == false )
+  {
+    path = mDataStoragePath;
+    path += filename;
+    result = mResourceLoader->LoadFile( path, buffer );
+  }
+#endif
+
+  return result;
+}
+
+void SlpPlatformAbstraction::SetDataStoragePath( const std::string& path )
+{
+  mDataStoragePath = path;
 }
 
 }  // namespace SlpPlatform

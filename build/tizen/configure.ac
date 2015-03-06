@@ -93,12 +93,22 @@ AC_ARG_ENABLE([debug],
               [enable_debug=$enableval],
               [enable_debug=no])
 
+AC_ARG_ENABLE(shaderbincache,
+              [AC_HELP_STRING([--enable-shaderbincache],
+                              [enables shader binary cache])],
+              [enable_shaderbincache=$enableval],
+              [enable_shaderbincache=DISABLE])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDEBUG_ENABLED"
 fi
 
 if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -fvisibility=hidden -DHIDE_DALI_INTERNALS"
+fi
+
+if test "x$enable_shaderbincache" = "xENABLE"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DSHADERBIN_CACHE_ENABLED"
 fi
 
 AC_ARG_ENABLE([assimp],

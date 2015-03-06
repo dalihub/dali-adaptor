@@ -225,6 +225,10 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 
   mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
 
+  std::string path;
+  GetDataStoragePath( path );
+  mPlatformAbstraction->SetDataStoragePath( path );
+
   ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
   {

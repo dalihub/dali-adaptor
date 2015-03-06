@@ -76,9 +76,31 @@ public:
     virtual void OnReset() {}
 
     /**
+    * Invoked when the AppControl message is received.
+    * @param[in] The bundle data of AppControl message.
+    */
+    virtual void OnAppControl(void *) {}
+
+    /**
      * Invoked when the language of the device is changed.
      */
     virtual void OnLanguageChanged() {}
+
+    /**
+    * Invoked when the region is changed.
+    */
+    virtual void OnRegionChanged() {}
+
+    /**
+    * Invoked when the battery level of the device is low.
+    */
+    virtual void OnBatteryLow() {}
+
+    /**
+    * Invoked when the memory level of the device is low.
+    */
+    virtual void OnMemoryLow() {}
+
   };
 
 public:
@@ -140,10 +162,11 @@ private:
 
 private:
   /**
-   * Called by the SLP framework when an application lifecycle event occurs.
+   * Called by the App framework when an application lifecycle event occurs.
    * @param[in]  type  The type of event occurred.
+   * @param[in] bundleData The bundle data of event occurred.
    */
-  bool SlpAppStatusHandler(int type);
+   bool AppStatusHandler(int type, void *bundleData);
 
   /**
    * Called app_reset callback was called with bundle.
