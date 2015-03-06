@@ -109,11 +109,15 @@ if MOBILE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
 
-endif
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
 
+endif # MOBILE_PROFILE
 
 # LITE
 if LITE_PROFILE
@@ -130,9 +134,14 @@ if WEARABLE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
-endif
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
+
+endif # WEARABLE
 
 
 # TV
@@ -140,8 +149,13 @@ if TV_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tv_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files)
+endif # WAYLAND
+
 endif
 
 # Feedback Plugin
