@@ -12,6 +12,7 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_feedback_plugin 1
 %define dali_bullet_plugin 1
 %define dali_assimp_plugin 1
+%define over_tizen_2_2 1
 
 %if 0%{?over_tizen_2_2}
 %define shaderbincache_flag ENABLE
