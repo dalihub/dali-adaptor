@@ -51,6 +51,7 @@ enum Script
   LAO,        ///< The Lao script. Used by the Lao language.
   THAI,       ///< The Thai script. Used by the Thai language
   BURMESE,    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  EMOJI,      ///< The Emoji which map to standardized Unicode characters.
   UNKNOWN     ///< The script is unknown.
 };
 
@@ -74,6 +75,7 @@ const char* const ScriptName[] =
   "LAO",        ///< The Lao script. Used by the Lao language.
   "THAI",       ///< The Thai script. Used by the Thai language
   "BURMESE",    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  "EMOJI",      ///< The Emoji which map to standardized Unicode characters.
   "UNKNOWN"     ///< The script is unknown.
 };
 
