@@ -19,6 +19,7 @@
 #include <dali/internal/text-abstraction/font-client-plugin-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
@@ -37,6 +38,8 @@ const std::string FONT_FORMAT( "TrueType" );
 const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
 const std::string DEFAULT_FONT_STYLE( "Regular" );
 }
+
+using Dali::Vector;
 
 namespace Dali
 {
@@ -216,7 +219,7 @@ PointSize26Dot6 FontClient::Plugin::GetPointSize( FontId id )
 }
 
 FontId FontClient::Plugin::FindDefaultFont( Character charcode,
-                                            PointSize26Dot6 pointSize )
+                                            PointSize26Dot6 requestedSize )
 {
   // Create the list of default fonts if it has not been created.
   if( mDefaultFonts.empty() )
@@ -246,9 +249,30 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
 
     if( FcCharSetHasChar( charSet, charcode ) )
     {
+      Vector< PointSize26Dot6 > fixedSizes;
+      GetFixedSizes( description.family,
+                     description.style,
+                     fixedSizes );
+
+      const Vector< PointSize26Dot6 >::SizeType count = fixedSizes.Count();
+      if( 0 != count )
+      {
+        // If the font is not scalable, pick the largest size <= requestedSize
+        PointSize26Dot6 size = fixedSizes[0];
+        for( unsigned int i=1; i<count; ++i )
+        {
+          if( fixedSizes[i] <= requestedSize &&
+              fixedSizes[i] > size )
+          {
+            size = fixedSizes[i];
+          }
+        }
+        requestedSize = size;
+      }
+
       return GetFontId( description.family,
                         description.style,
-                        pointSize,
+                        requestedSize,
                         0u );
     }
   }
@@ -908,7 +932,7 @@ bool FontClient::Plugin::IsScalable( const FontFamily& fontFamily, const FontSty
   return true;
 }
 
-void FontClient::Plugin::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6 >& sizes )
+void FontClient::Plugin::GetFixedSizes( const FontPath& path, Vector< PointSize26Dot6 >& sizes )
 {
   // Empty the caller container
   sizes.Clear();
@@ -935,7 +959,7 @@ void FontClient::Plugin::GetFixedSizes( const FontPath& path, Dali::Vector< Poin
 
 void FontClient::Plugin::GetFixedSizes( const FontFamily& fontFamily,
                                         const FontStyle& fontStyle,
-                                        Dali::Vector< PointSize26Dot6 >& sizes )
+                                        Vector< PointSize26Dot6 >& sizes )
 {
   // Create a font pattern.
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontFamily,
