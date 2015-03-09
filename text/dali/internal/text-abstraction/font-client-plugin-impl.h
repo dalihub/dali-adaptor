@@ -87,15 +87,24 @@ struct FontClient::Plugin
                const FontPath& path,
                PointSize26Dot6 pointSize,
                FaceIndex face,
-               const FontMetrics& metrics,
-               bool isFixedSizeBitmap = false );
+               const FontMetrics& metrics );
 
-    FT_Face mFreeTypeFace;      ///< The FreeType face.
-    FontPath mPath;             ///< The path to the font file name.
-    PointSize26Dot6 mPointSize; ///< The font point size.
-    FaceIndex mFaceIndex;       ///< The face index.
-    FontMetrics mMetrics;       ///< The font metrics.
-    bool mIsFixedSizeBitmap;    ///< Font is fixed size bitmap.
+    CacheItem( FT_Face ftFace,
+               const FontPath& path,
+               PointSize26Dot6 pointSize,
+               FaceIndex face,
+               const FontMetrics& metrics,
+               float fixedWidth,
+               float fixedHeight );
+
+    FT_Face mFreeTypeFace;       ///< The FreeType face.
+    FontPath mPath;              ///< The path to the font file name.
+    PointSize26Dot6 mPointSize;  ///< The font point size.
+    FaceIndex mFaceIndex;        ///< The face index.
+    FontMetrics mMetrics;        ///< The font metrics.
+    FT_Short mFixedWidthPixels;  ///< The height in pixels (fixed size bitmaps only)
+    FT_Short mFixedHeightPixels; ///< The height in pixels (fixed size bitmaps only)
+    bool mIsFixedSizeBitmap;     ///< Whether the font has fixed size bitmaps.
   };
 
   /**

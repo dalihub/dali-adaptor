@@ -58,7 +58,8 @@ FontClient::Plugin::FontDescriptionCacheItem::FontDescriptionCacheItem( const Fo
 : fontFamily( fontFamily ),
   fontStyle( fontStyle ),
   index( index )
-{}
+{
+}
 
 FontClient::Plugin::FontIdCacheItem::FontIdCacheItem( FontDescriptionId validatedFontId,
                                                       PointSize26Dot6 pointSize,
@@ -66,21 +67,42 @@ FontClient::Plugin::FontIdCacheItem::FontIdCacheItem( FontDescriptionId validate
 : validatedFontId( validatedFontId ),
   pointSize( pointSize ),
   fontId( fontId )
-{}
+{
+}
+
+FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
+                                          const FontPath& path,
+                                          PointSize26Dot6 pointSize,
+                                          FaceIndex face,
+                                          const FontMetrics& metrics )
+: mFreeTypeFace( ftFace ),
+  mPath( path ),
+  mPointSize( pointSize ),
+  mFaceIndex( face ),
+  mMetrics( metrics ),
+  mFixedWidthPixels( 0.0f ),
+  mFixedHeightPixels( 0.0f ),
+  mIsFixedSizeBitmap( false )
+{
+}
 
 FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
                                           const FontPath& path,
                                           PointSize26Dot6 pointSize,
                                           FaceIndex face,
                                           const FontMetrics& metrics,
-                                          bool isFixedSizeBitmap )
+                                          float fixedWidth,
+                                          float fixedHeight )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
   mPointSize( pointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
-  mIsFixedSizeBitmap( isFixedSizeBitmap )
-{}
+  mFixedWidthPixels( fixedWidth ),
+  mFixedHeightPixels( fixedHeight ),
+  mIsFixedSizeBitmap( true )
+{
+}
 
 FontClient::Plugin::Plugin( unsigned int horizontalDpi,
                             unsigned int verticalDpi )
@@ -454,20 +476,16 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
         int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_COLOR );
         if ( FT_Err_Ok == error )
         {
-          // TODO passing height for metrics, should store width, height and advance
-
-          float height = mFontCache[ fontId -1 ].mMetrics.height;
-          array[i].width = height;
-          array[i].height = height;
-          array[i].advance = height;
+          array[i].width = mFontCache[ fontId -1 ].mFixedWidthPixels;
+          array[i].height = mFontCache[ fontId -1 ].mFixedHeightPixels;
+          array[i].advance = mFontCache[ fontId -1 ].mFixedWidthPixels;
           array[i].xBearing = 0.0f;
-          array[i].yBearing = 0.0f;
-          return success;
+          array[i].yBearing = mFontCache[ fontId -1 ].mFixedHeightPixels;
         }
         else
         {
           DALI_LOG_ERROR( "FreeType Bitmap Load_Glyph error %d\n", error );
-          return false;
+          success = false;
         }
       }
 
@@ -704,12 +722,15 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
           }
           else
           {
+            float fixedWidth  = static_cast< float >( ftFace->available_sizes[ i ].width );
+            float fixedHeight = static_cast< float >( ftFace->available_sizes[ i ].height );
+
             // Indicate that the font is a fixed sized bitmap
             FontMetrics metrics( 0.0f,
                                  0.0f,
-                                 static_cast< float >( ftFace->available_sizes[ i ].height ) );
+                                 fixedHeight );
 
-            mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics, FONT_FIXED_SIZE_BITMAP ) );
+            mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
             id = mFontCache.size();
 
             if( cacheDescription )
