@@ -127,9 +127,9 @@ struct Shaping::Plugin
     /* Create a buffer for harfbuzz to use */
     hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
 
-    const bool rtlDiection = ( ARABIC == script );
+    const bool rtlDirection = IsRightToLeftScript( script );
     hb_buffer_set_direction( harfBuzzBuffer,
-                             rtlDiection ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
+                             rtlDirection ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
 
     hb_buffer_set_script( harfBuzzBuffer,
                           SCRIPT_TO_HARFBUZZ[ script ] ); /* see hb-unicode.h */
@@ -153,7 +153,7 @@ struct Shaping::Plugin
     {
       // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
       // The glyphs are needed in the logical order to layout the text in lines.
-      const Length index = rtlDiection ? ( lastGlyphIndex - i ) : i;
+      const Length index = rtlDirection ? ( lastGlyphIndex - i ) : i;
 
       mIndices.PushBack( glyphInfo[index].codepoint );
       mAdvance.PushBack( glyphPositions[index].x_advance / TO_PIXELS );

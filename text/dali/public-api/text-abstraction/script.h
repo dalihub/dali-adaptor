@@ -79,6 +79,96 @@ const char* const ScriptName[] =
   "UNKNOWN"     ///< The script is unknown.
 };
 
+/**
+ * @brief Whether the script is a right to left script.
+ *
+ * @param[in] script The script.
+ *
+ * @return @e true if the script is right to left.
+ */
+bool IsRightToLeftScript( Script script );
+
+/**
+ * @brief Retrieves a character's script.
+ *
+ * @param[in] character The character.
+ *
+ * @return The chraracter's script.
+ */
+Script GetCharacterScript( Character character );
+
+/**
+ * @brief Whether the character is a white space.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a white space.
+ */
+bool IsWhiteSpace( Character character );
+
+/**
+ * @brief Whether the character is a new paragraph character.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a new paragraph character.
+ */
+bool IsNewParagraph( Character character );
+
+/**
+ * @brief Whether the character is a zero width non joiner.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a zero width non joiner.
+ */
+bool IsZeroWidthNonJoiner( Character character );
+
+/**
+ * @brief Whether the character is a zero width joiner.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a zero width joiner.
+ */
+bool IsZeroWidthJoiner( Character character );
+
+/**
+ * @brief Whether the character is a zero width space.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a zero width space.
+ */
+bool IsZeroWidthSpace( Character character );
+
+/**
+ * @brief Whether the character is a left to right mark.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a left to right mark.
+ */
+bool IsLeftToRightMark( Character character );
+
+/**
+ * @brief Whether the character is a right to left mark.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a right to left mark.
+ */
+bool IsRightToLeftMark( Character character );
+
+/**
+ * @brief Whether the character is a thin space.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a thin space.
+ */
+bool IsThinSpace( Character character );
+
 } // namespace TextAbstraction
 
 } // namespace Dali

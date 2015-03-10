@@ -6,6 +6,7 @@ text_abstraction_src_files = \
    $(text_src_dir)/dali/public-api/text-abstraction/font-list.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/font-metrics.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/glyph-info.cpp \
+   $(text_src_dir)/dali/public-api/text-abstraction/script.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/segmentation.cpp \
    $(text_src_dir)/dali/public-api/text-abstraction/shaping.cpp \
    $(text_src_dir)/dali/internal/text-abstraction/bidirectional-support-impl.cpp \
