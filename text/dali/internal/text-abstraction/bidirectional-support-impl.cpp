@@ -80,10 +80,10 @@ struct BidirectionalSupport::Plugin
     fribidi_get_bidi_types( paragraph, numberOfCharacters, bidirectionalInfo->characterTypes );
 
     // Retrieve the paragraph's direction.
-    bidirectionalInfo->paragraphDirection = fribidi_get_par_direction( paragraph, numberOfCharacters );
+    bidirectionalInfo->paragraphDirection = fribidi_get_par_direction( bidirectionalInfo->characterTypes, numberOfCharacters );
 
     // Retrieve the embedding levels.
-    fribidi_get_par_embedding_levels( paragraph, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels );
+    fribidi_get_par_embedding_levels( bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels );
 
     // Store the bidirectional info and return the index.
     BidiInfoIndex index = 0u;
