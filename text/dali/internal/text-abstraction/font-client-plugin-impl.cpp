@@ -712,7 +712,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
       // Ensure this size is available
       for ( int i = 0; i < ftFace->num_fixed_sizes; ++i )
       {
-        if ( pointSize == ftFace->available_sizes[ i ].size )
+        if ( static_cast<FT_Pos>(pointSize) == ftFace->available_sizes[ i ].size )
         {
           // Tell Freetype to use this size
           error = FT_Select_Size( ftFace, i );

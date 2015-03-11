@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
 
@@ -86,7 +89,7 @@ const char* const ScriptName[] =
  *
  * @return @e true if the script is right to left.
  */
-bool IsRightToLeftScript( Script script );
+DALI_IMPORT_API bool IsRightToLeftScript( Script script );
 
 /**
  * @brief Retrieves a character's script.
@@ -95,7 +98,7 @@ bool IsRightToLeftScript( Script script );
  *
  * @return The chraracter's script.
  */
-Script GetCharacterScript( Character character );
+DALI_IMPORT_API Script GetCharacterScript( Character character );
 
 /**
  * @brief Whether the character is a white space.
@@ -104,7 +107,7 @@ Script GetCharacterScript( Character character );
  *
  * @return @e true if the character is a white space.
  */
-bool IsWhiteSpace( Character character );
+DALI_IMPORT_API bool IsWhiteSpace( Character character );
 
 /**
  * @brief Whether the character is a new paragraph character.
@@ -113,7 +116,7 @@ bool IsWhiteSpace( Character character );
  *
  * @return @e true if the character is a new paragraph character.
  */
-bool IsNewParagraph( Character character );
+DALI_IMPORT_API bool IsNewParagraph( Character character );
 
 /**
  * @brief Whether the character is a zero width non joiner.
@@ -122,7 +125,7 @@ bool IsNewParagraph( Character character );
  *
  * @return @e true if the character is a zero width non joiner.
  */
-bool IsZeroWidthNonJoiner( Character character );
+DALI_IMPORT_API bool IsZeroWidthNonJoiner( Character character );
 
 /**
  * @brief Whether the character is a zero width joiner.
@@ -131,7 +134,7 @@ bool IsZeroWidthNonJoiner( Character character );
  *
  * @return @e true if the character is a zero width joiner.
  */
-bool IsZeroWidthJoiner( Character character );
+DALI_IMPORT_API bool IsZeroWidthJoiner( Character character );
 
 /**
  * @brief Whether the character is a zero width space.
@@ -140,7 +143,7 @@ bool IsZeroWidthJoiner( Character character );
  *
  * @return @e true if the character is a zero width space.
  */
-bool IsZeroWidthSpace( Character character );
+DALI_IMPORT_API bool IsZeroWidthSpace( Character character );
 
 /**
  * @brief Whether the character is a left to right mark.
@@ -149,7 +152,7 @@ bool IsZeroWidthSpace( Character character );
  *
  * @return @e true if the character is a left to right mark.
  */
-bool IsLeftToRightMark( Character character );
+DALI_IMPORT_API bool IsLeftToRightMark( Character character );
 
 /**
  * @brief Whether the character is a right to left mark.
@@ -158,7 +161,7 @@ bool IsLeftToRightMark( Character character );
  *
  * @return @e true if the character is a right to left mark.
  */
-bool IsRightToLeftMark( Character character );
+DALI_IMPORT_API bool IsRightToLeftMark( Character character );
 
 /**
  * @brief Whether the character is a thin space.
@@ -167,7 +170,7 @@ bool IsRightToLeftMark( Character character );
  *
  * @return @e true if the character is a thin space.
  */
-bool IsThinSpace( Character character );
+DALI_IMPORT_API bool IsThinSpace( Character character );
 
 } // namespace TextAbstraction
 
