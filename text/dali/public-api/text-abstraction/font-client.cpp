@@ -84,9 +84,9 @@ PointSize26Dot6 FontClient::GetPointSize( FontId id )
   return GetImplementation(*this).GetPointSize( id );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize )
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor )
 {
-  return GetImplementation(*this).FindDefaultFont( charcode, pointSize );
+  return GetImplementation(*this).FindDefaultFont( charcode, pointSize, preferColor );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )

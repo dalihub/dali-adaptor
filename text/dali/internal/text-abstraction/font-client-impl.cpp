@@ -116,11 +116,11 @@ void FontClient::GetSystemFonts( FontList& systemFonts )
   mPlugin->GetSystemFonts( systemFonts );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize )
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor )
 {
   CreatePlugin();
 
-  return mPlugin->FindDefaultFont( charcode, pointSize );
+  return mPlugin->FindDefaultFont( charcode, pointSize, preferColor );
 }
 
 bool FontClient::IsScalable( const FontPath& path )

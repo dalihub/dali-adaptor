@@ -159,10 +159,12 @@ public:
    * i.e. when a single default font does not work for all languages.
    * @param[in] charcode The character for which a font is needed.
    * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] preferColor True if a color font is preferred.
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId FindDefaultFont( Character charcode,
-                          PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE );
+                          PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                          bool preferColor = false );
 
   /**
    * @brief Retrieve the unique identifier for a font.
