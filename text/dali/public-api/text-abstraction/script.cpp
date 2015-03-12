@@ -44,8 +44,8 @@ const unsigned int CHAR_TS   = 0x2009; ///< Thin Space.
 
 bool IsRightToLeftScript( Script script )
 {
-  // VCC TODO: add hebrew and other right to left scripts if any.
-  return ARABIC == script;
+  return ( ( ARABIC == script ) ||
+           ( HEBREW == script ) );
 }
 
 Script GetCharacterScript( Character character )
@@ -66,7 +66,7 @@ Script GetCharacterScript( Character character )
   // 0x2c60 - 0x2c7f Latin Extended-C
   // 0xa720 - 0xa7ff Latin Extended-D
   // 0xab30 - 0xab6f Latin Extended-E
-  // 0xfb00 - 0xfb4f Alphabetic Presentation Forms
+  // 0xfb00 - 0xfb06 Latin Alphabetic Presentation Forms
   // 0xff00 - 0xffef Halfwidth and Fullwidth Forms
 
   // Brahmic scripts:
@@ -91,8 +91,9 @@ Script GetCharacterScript( Character character )
   // 0xfe70 - 0xfeff Arabic Presentation Forms-B
   // 0x1ee00 - 0x1eeff Arabic Mathematical Alphabetic Symbols
 
-  // CJK and Vietnamese script.
-  // 0x2E80 - 0x2eff CJK Radicals Supplement
+  // CJK (Chinese, Japanese and Korean) and Vietnamese script.
+  // 0x2e80 - 0x2eff CJK Radicals Supplement
+  // 0x2f00 - 0x2fdf Kangxi Radicals
   // 0x3000 - 0x303f CJK Symbols and Punctuation
   // 0x3200 - 0x32ff Enclosed CJK Letters and Months
   // 0x3400 - 0x4dbf CJK Unified Ideographs Extension A
@@ -107,8 +108,12 @@ Script GetCharacterScript( Character character )
   // 0x26100 - 0x275ff CJK Unified Ideographs Extension B
   // 0x27600 - 0x290ff CJK Unified Ideographs Extension B
   // 0x29100 - 0x2a6df CJK Unified Ideographs Extension B
-  // 2a700-2b73f. CJK Unified Ideographs Extension C
-  // 2b740-2b81f. CJK Unified Ideographs Extension D
+  // 0x2a700 - 0x2b73f CJK Unified Ideographs Extension C
+  // 0x2b740 - 0x2b81f CJK Unified Ideographs Extension D
+
+  // Japanese scripts.
+  // 0x3040 - 0x309f Hiragana
+  // 0x30a0 - 0x30ff Katakana
 
   // Hangul script
   // 0x1100 - 0x11ff Hangul jamo
@@ -129,6 +134,10 @@ Script GetCharacterScript( Character character )
 
   // Burmese script
   // 0x1000 - 0x109f Myanmar
+
+  // Hebrew script
+  // 0x0591 - 0x05f4 Hebrew
+  // 0xfb1d - 0xfb4f Hebrew subset of Alphabetic Presentation Forms
 
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
@@ -157,6 +166,10 @@ Script GetCharacterScript( Character character )
         if( character <= 0x02ff )
         {
           return LATIN;
+        }
+        if( ( 0x0591 <= character ) && ( character <= 0x05f4 ) )
+        {
+          return HEBREW;
         }
         if( ( 0x0600 <= character ) && ( character <= 0x06ff ) )
         {
@@ -310,9 +323,21 @@ Script GetCharacterScript( Character character )
         {
           return CJK;
         }
+        if( ( 0x2f00 <= character ) && ( character <= 0x2fdf ) )
+        {
+          return CJK;
+        }
         if( ( 0x3000 <= character ) && ( character <= 0x303f ) )
         {
           return CJK;
+        }
+        if( ( 0x3040 <= character ) && ( character <= 0x309f ) )
+        {
+          return HIRAGANA;
+        }
+        if( ( 0x30a0 <= character ) && ( character <= 0x30ff ) )
+        {
+          return KATAKANA;
         }
         if( ( 0x3130 <= character ) && ( character <= 0x318f ) )
         {
@@ -362,9 +387,13 @@ Script GetCharacterScript( Character character )
         {
           return HANGUL;
         }
-        if( ( 0xfb00 <= character ) && ( character <= 0xfb4f ) )
+        if( ( 0xfb00 <= character ) && ( character <= 0xfb06 ) )
         {
           return LATIN;
+        }
+        if( ( 0xfb1d <= character ) && ( character <= 0xfb4f ) )
+        {
+          return HEBREW;
         }
         if( ( 0xfb50 <= character ) && ( character <= 0xfdff ) )
         {

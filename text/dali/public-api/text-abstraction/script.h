@@ -54,6 +54,9 @@ enum Script
   LAO,        ///< The Lao script. Used by the Lao language.
   THAI,       ///< The Thai script. Used by the Thai language
   BURMESE,    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  HEBREW,     ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
+  HIRAGANA,   ///< The Hiragana script. Used by the Japanese.
+  KATAKANA,   ///< The Katakana script. Used by the Japanese.
   EMOJI,      ///< The Emoji which map to standardized Unicode characters.
   UNKNOWN     ///< The script is unknown.
 };
@@ -78,6 +81,9 @@ const char* const ScriptName[] =
   "LAO",        ///< The Lao script. Used by the Lao language.
   "THAI",       ///< The Thai script. Used by the Thai language
   "BURMESE",    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  "HEBREW",     ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
+  "HIRAGANA",   ///< The Hiragana script. Used by the Japanese.
+  "KATAKANA",   ///< The Katakana script. Used by the Japanese.
   "EMOJI",      ///< The Emoji which map to standardized Unicode characters.
   "UNKNOWN"     ///< The script is unknown.
 };
