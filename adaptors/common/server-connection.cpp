@@ -27,9 +27,9 @@
 
 namespace
 {
-// Copied from ecore_evas_extn.c
+// Copied from ecore_evas_extn_engine.h
 // procotol version - change this as needed
-const int MAJOR( 0x1011 );
+const int MAJOR( 0x2011 );
 }
 
 

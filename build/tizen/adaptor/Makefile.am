@@ -109,11 +109,15 @@ if MOBILE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
 
-endif
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
 
+endif # MOBILE_PROFILE
 
 # LITE
 if LITE_PROFILE
@@ -130,9 +134,14 @@ if WEARABLE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
-endif
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
+
+endif # WEARABLE
 
 
 # TV
@@ -140,8 +149,14 @@ if TV_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tv_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
+                             $(adaptor_x11_internal_tv_profile_key_src_files)
+endif # WAYLAND
+
 endif
 
 # Feedback Plugin
@@ -198,13 +213,14 @@ endif
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
-daliUserShaderCacheDir = ${dataReadWriteDir}/core/shaderbin/
+daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
 libdali_adaptor_la_CXXFLAGS = \
                       -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                       -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                       -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\"" \
                       -DDALI_USER_FONT_CACHE_DIR="\"${daliUserFontCacheDir}\"" \
+                      -DDALI_SHADERBIN_DIR="\"${daliShaderbinCacheDir}\"" \
                       -DDALI_DEFAULT_THEME_DIR="\"${daliDefaultThemeDir}\"" \
                       -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\"" \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
@@ -323,7 +339,7 @@ tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
 install-data-local:
-	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}
+	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
 
 # Install resource log analyzer script
 bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh

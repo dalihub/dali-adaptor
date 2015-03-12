@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.32
+Version:    1.0.33
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -88,7 +88,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %define dali_data_rw_dir         /opt/usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
 %define user_font_cache_dir      %{dali_data_rw_dir}/glyphcache/
-%define user_shader_cache_dir    %{dali_data_rw_dir}/core/shaderbin/
+%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define font_preloaded_path      /usr/share/fonts/
 %define font_downloaded_path     /opt/share/fonts/
 %define font_application_path    /usr/share/app_fonts/
@@ -155,7 +155,6 @@ cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{
 
 %pre
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################
@@ -164,7 +163,6 @@ exit 0
 %post
 /sbin/ldconfig
 chown 5000:5000 %{user_font_cache_dir}
-chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
 %if 0%{?dali_feedback_plugin}
@@ -178,7 +176,6 @@ exit 0
 ##############################
 %preun
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################

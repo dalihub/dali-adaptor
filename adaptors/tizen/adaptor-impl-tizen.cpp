@@ -15,35 +15,33 @@
  *
  */
 
-// HEADER
-#include <dali-adaptor-version.h>
+// CLASS HEADER
+#include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#ifdef DEBUG_ENABLED
-#include <iostream>
+#ifdef OVER_TIZEN_SDK_2_2
+#include <app.h>
 #endif
 
 namespace Dali
 {
 
-const unsigned int ADAPTOR_MAJOR_VERSION = 1;
-const unsigned int ADAPTOR_MINOR_VERSION = 0;
-const unsigned int ADAPTOR_MICRO_VERSION = 33;
-const char * const ADAPTOR_BUILD_DATE    = __DATE__ " " __TIME__;
+namespace Internal
+{
 
-#ifdef DEBUG_ENABLED
-namespace
+namespace Adaptor
 {
-/// Allows the printing of the version number ONLY when debug is enabled
-struct PrintVersion
+
+void Adaptor::GetDataStoragePath( std::string& path)
 {
-  PrintVersion()
-  {
-    std::cout << "DALi Adaptor:   " << ADAPTOR_MAJOR_VERSION << "." << ADAPTOR_MINOR_VERSION << "." << ADAPTOR_MICRO_VERSION << " (" << ADAPTOR_BUILD_DATE << ")" << std::endl;
-  }
-};
-PrintVersion ADAPTOR_VERSION;
-} // unnamed namespace
+  path = "";
+#ifdef OVER_TIZEN_SDK_2_2
+  path = app_get_data_path();
 #endif
+}
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
