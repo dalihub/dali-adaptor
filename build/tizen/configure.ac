@@ -131,6 +131,12 @@ AC_ARG_WITH([jpeg-turbo],
 
 AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 
+AC_ARG_WITH([over-tizen_2_2],
+            [AC_HELP_STRING([--with-over-tizen_2_2],
+                            [Use tizen API over ver. 2.2])],
+            [with_over_tizen_2_2=yes],
+            [with_over_tizen_2_2=no])
+
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
               [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
@@ -170,7 +176,12 @@ PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+
+if test "x$with_over_tizen_2_2" = "xyes"; then
+PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
 fi
+
+fi # ubuntu profile test
 
 if test "x$enable_wayland" = "xyes"; then
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
@@ -287,4 +298,5 @@ Configuration
   Font Path (Downloaded):           $fontDownloadedPath
   Font Path (Application):          $fontApplicationPath
   Font Configuration File:          $fontConfigurationFilePath
+  OVERTIZEN2.2:                     $with_over_tizen_2_2
 "

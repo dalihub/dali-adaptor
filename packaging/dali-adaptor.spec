@@ -75,6 +75,11 @@ BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 
+
+%if 0%{?over_tizen_2_2}
+BuildRequires:  pkgconfig(capi-system-info)
+%endif
+
 %if %{with wayland}
 BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(wayland-egl)
@@ -188,6 +193,9 @@ cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LD
 %endif
 %if 0%{?dali_assimp_plugin}
            --enable-assimp \
+%endif
+%if 0%{?over_tizen_2_2}
+           --with-over-tizen_2_2 \
 %endif
            $configure_flags --libdir=%{_libdir}
 
