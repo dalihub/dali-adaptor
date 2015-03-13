@@ -241,7 +241,6 @@ public:
    * @brief Get the native handle of the window.
    * @return The native handle of the window or an empty handle.
    */
-
   Any GetNativeHandle() const;
 
 public: // Signals

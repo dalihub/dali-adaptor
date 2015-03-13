@@ -7,4 +7,3 @@ adaptor_tizen_internal_src_files = \
   $(adaptor_tizen_dir)/vsync-monitor-tizen.cpp \
   $(adaptor_tizen_dir)/tilt-sensor-impl-tizen.cpp \
   $(adaptor_tizen_dir)/tts-player-impl-tizen.cpp
-
