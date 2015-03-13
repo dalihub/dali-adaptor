@@ -166,7 +166,8 @@ adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
 else
-adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files)
+adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
+                             $(adaptor_x11_internal_tv_profile_key_src_files)
 endif # WAYLAND
 
 endif

@@ -171,7 +171,6 @@ public:
    */
   void RotationDone( int orientation, int width, int height );
 
-
 private:
   /**
    * Private constructor.

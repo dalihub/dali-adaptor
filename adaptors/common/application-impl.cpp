@@ -47,13 +47,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
-{
-// Defaults taken from H2 device
-const unsigned int DEFAULT_WINDOW_WIDTH   = 480;
-const unsigned int DEFAULT_WINDOW_HEIGHT  = 800;
-}
-
 ApplicationPtr Application::New(
   int* argc,
   char **argv[],
@@ -106,15 +99,12 @@ Application::~Application()
 
 void Application::CreateWindow()
 {
-#ifndef __arm__
-   PositionSize windowPosition(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-#else
-   PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
-#endif
-  if (mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0)
+  PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
+
+  if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
   {
     // let the command line options over ride
-    windowPosition = PositionSize(0,0,mCommandLineOptions->stageWidth,mCommandLineOptions->stageHeight);
+    windowPosition = PositionSize( 0, 0, mCommandLineOptions->stageWidth, mCommandLineOptions->stageHeight );
   }
 
   mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );

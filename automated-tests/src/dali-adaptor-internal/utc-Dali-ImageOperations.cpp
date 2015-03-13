@@ -16,8 +16,10 @@
  */
 
 #include <dali-test-suite-utils.h>
-
 #include "platform-abstractions/portable/image-operations.h"
+#include <dali/public-api/common/ref-counted-dali-vector.h>
+
+#include <sys/mman.h>
 
 using namespace Dali::Internal::Platform;
 
@@ -344,16 +346,22 @@ int UtcDaliImageOperationsAveragePixelRGB565(void)
 /**
  * @brief Build a square bitmap, downscale it and assert the resulting bitmap has the right dimensions.
  */
-void TestDownscaledBitmapHasRightDimensionsAndFormat( Pixel::Format format, uint32_t sourceDimension, uint32_t targetDimension, uint32_t expectedDimension, const char * const location )
+void TestDownscaledBitmapHasRightDimensionsAndFormat(
+    Pixel::Format format,
+    uint32_t sourceDimension,
+    uint32_t targetDimension,
+    uint32_t expectedDimension,
+    const char * const location )
 {
   ImageAttributes attributes;
   attributes.SetScalingMode( ImageAttributes::ShrinkToFit );
+  attributes.SetFilterMode( ImageAttributes::Box );
   attributes.SetSize( targetDimension, targetDimension );
 
   Integration::BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
   sourceBitmap->GetPackedPixelsProfile()->ReserveBuffer( format, sourceDimension, sourceDimension, sourceDimension, sourceDimension );
 
-  Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, attributes );
+  Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, ImageDimensions( targetDimension, targetDimension ), attributes.GetScalingMode(), attributes.GetFilterMode() );
   DALI_TEST_EQUALS( downScaled->GetImageWidth(), expectedDimension, location );
   DALI_TEST_EQUALS( downScaled->GetImageHeight(), expectedDimension, location );
   DALI_TEST_EQUALS( downScaled->GetPixelFormat(), format, location );
@@ -1077,6 +1085,389 @@ int UtcDaliImageOperationsAverageScanlinesRGB565(void)
   // Check for buffer overrun:
   DALI_TEST_EQUALS( outputBuffer[arrayLength], 0xDEAD, TEST_LOCATION );
   DALI_TEST_EQUALS( outputBuffer[arrayLength+1], 0xDEAD, TEST_LOCATION );
+
+  END_TEST;
+}
+
+namespace
+{
+
+void MakeSingleColorImageRGBA8888( unsigned int width, unsigned int height, uint32_t *inputImage )
+{
+  const uint32_t inPixel = PixelRGBA8888( 255, 192, 128, 64 );
+  for( unsigned int i = 0; i < width * height; ++i )
+  {
+    inputImage[i] = inPixel;
+  }
+}
+
+/**
+ * @brief Allocate an image buffer with protected pages to top and tail it and
+ * SEGV if an operation strays into them.
+ */
+void MakeGuardedOutputImageRGBA8888( unsigned int desiredWidth,  unsigned int desiredHeight, uint32_t *& outputBuffer, uint32_t *& outputImage )
+{
+  const size_t outputBufferSize = getpagesize() + sizeof(uint32_t) * desiredWidth * desiredHeight + getpagesize();
+  outputBuffer = (uint32_t *) valloc( outputBufferSize );
+  mprotect( outputBuffer, getpagesize(), PROT_READ );
+  mprotect( ((char*) outputBuffer) + outputBufferSize - getpagesize(), getpagesize(), PROT_READ );
+  outputImage = outputBuffer + getpagesize() / sizeof(outputBuffer[0]);
+}
+
+/**
+ * @brief Allocate a buffer of pages that are read-only, that is big enough for the number of pixels passed-in.
+ */
+uint32_t* AllocateReadOnlyPagesRGBA( unsigned int numPixels )
+{
+  const unsigned int numWholePages = (numPixels * sizeof(uint32_t)) / getpagesize();
+  bool needExtraPage = (numPixels * sizeof(uint32_t)) % getpagesize() != 0;
+  const size_t outputBufferSize = (numWholePages + (needExtraPage ? 1 : 0)) * getpagesize();
+  uint32_t * outputBuffer = (uint32_t *) valloc( outputBufferSize );
+  mprotect( outputBuffer, outputBufferSize, PROT_READ );
+
+  return outputBuffer;
+}
+
+/**
+ * @brief Free a buffer of pages that are read-only.
+ */
+void FreeReadOnlyPagesRGBA( uint32_t * pages, unsigned int numPixels )
+{
+  const size_t bufferSize = numPixels * 4;
+  mprotect( pages, bufferSize, PROT_READ | PROT_WRITE );
+  free( pages );
+}
+
+/*
+ * @brief Make an image with a checkerboard pattern.
+ * @note This is an easy pattern to scan for correctness after a downscaling test.
+ */
+Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > MakeCheckerboardImageRGBA8888( unsigned int width,  unsigned int height, unsigned int checkerSize )
+{
+  const unsigned int imageWidth = width * checkerSize;
+  const unsigned int imageHeight = height * checkerSize;
+  Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > image = new Dali::RefCountedVector<uint32_t>;
+  image->GetVector().Resize( imageWidth * imageHeight );
+
+  uint32_t rowColor = 0xffffffff;
+  for( unsigned int cy = 0; cy < height; ++cy )
+  {
+    rowColor = rowColor == 0xffffffff ? 0xff000000 : 0xffffffff;
+    uint32_t checkColor = rowColor;
+    for( unsigned int cx = 0; cx < width; ++cx )
+    {
+      checkColor = checkColor == 0xffffffff ? 0xff000000 : 0xffffffff;
+      uint32_t paintedColor = checkColor;
+      // Draw 3 special case checks as r,g,b:
+      if(cx == 0 && cy == 0)
+      {
+        paintedColor = 0xff0000ff;// Red
+      }
+      else if(cx == 7 && cy == 0)
+      {
+        paintedColor = 0xff00ff00;// Green
+      }
+      else if(cx == 7 && cy == 7)
+      {
+        paintedColor = 0xffff0000;// blue
+      }
+      uint32_t * check = &image->GetVector()[ (cy * checkerSize * imageWidth) + (cx * checkerSize)];
+      for( unsigned int py = 0; py < checkerSize; ++py )
+      {
+        uint32_t * checkLine = check +  py * imageWidth;
+        for( unsigned int px = 0; px < checkerSize; ++px )
+        {
+          checkLine[px] = paintedColor;
+        }
+      }
+    }
+  }
+
+  return image;
+}
+
+}
+
+/**
+ * @brief Test that a scaling doesn't stray outside the bounds of the destination image.
+ *
+ * The test allocates a destination buffer that is an exact multiple of the page size
+ * with guard pages at either end.
+ */
+int UtcDaliImageOperationsPointSampleRGBA888InBounds(void)
+{
+  const unsigned int inputWidth = 163;
+  const unsigned int inputHeight = 691;
+  const unsigned int destinationBufferSize = 4096 * 4;
+  const unsigned int desiredWidth = 64;
+  const unsigned int desiredHeight = destinationBufferSize / desiredWidth; // (256)
+
+  uint32_t inputImage[ inputWidth * inputHeight ];
+
+  // Allocate an output image buffer with read-only guard pages at either end:
+  // The test will segfault if it strays into the guard pages.
+  uint32_t *outputBuffer, *outputImage;
+  MakeGuardedOutputImageRGBA8888( desiredWidth, desiredHeight, outputBuffer, outputImage );
+
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, inputWidth, inputHeight, (unsigned char*) outputImage, desiredWidth, desiredHeight );
+
+  FreeReadOnlyPagesRGBA( outputBuffer, desiredWidth * desiredHeight );
+
+  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
+  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
+
+  END_TEST;
+}
+
+/**
+ * @brief Test the right pixels are generated when downsampling a checkerboard into a small image.
+ */
+int UtcDaliImageOperationsPointSampleCheckerboardRGBA888(void)
+{
+  Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > image = MakeCheckerboardImageRGBA8888( 8, 8, 32 );
+  const unsigned int desiredWidth = 8;
+  const unsigned int desiredHeight = 8;
+
+  uint32_t outputImage[ desiredWidth * desiredHeight ];
+
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) &image->GetVector()[0], 256, 256, (unsigned char*) outputImage, desiredWidth, desiredHeight );
+
+  DALI_TEST_EQUALS( outputImage[0], 0xff0000ff, TEST_LOCATION ); // < Red corner pixel
+  DALI_TEST_EQUALS( outputImage[7], 0xff00ff00, TEST_LOCATION ); // < Green corner pixel
+  DALI_TEST_EQUALS( outputImage[8*8-1], 0xffff0000, TEST_LOCATION ); // < Blue corner pixel
+
+  DALI_TEST_EQUALS( outputImage[1], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[2], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[3], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[4], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[5], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[6], 0xffffffff, TEST_LOCATION ); // < white pixel
+
+  // Second scanline:
+  DALI_TEST_EQUALS( outputImage[8+0], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+1], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+2], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+3], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+4], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+5], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+6], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+7], 0xffffffff, TEST_LOCATION ); // < white pixel
+
+  // Third scanline:
+  DALI_TEST_EQUALS( outputImage[16+0], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+1], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+2], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+3], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+4], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+5], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+6], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+7], 0xff000000, TEST_LOCATION ); // < black pixel
+
+  // ... could do more scanlines (there are 8)
+
+  // Sample a few more pixels:
+
+  // Diagonals:
+  DALI_TEST_EQUALS( outputImage[24+3], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[32+4], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[40+5], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[48+6], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[24+4], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[32+3], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[40+2], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[48+1], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[56+0], 0xff000000, TEST_LOCATION ); // < black pixel
+
+  END_TEST;
+}
+
+/**
+ * @brief Test that a scaling preserves input color in destination image.
+ */
+int UtcDaliImageOperationsPointSampleRGBA888PixelsCorrectColor(void)
+{
+  const unsigned int inputWidth = 137;
+  const unsigned int inputHeight = 571;
+  const unsigned int desiredWidth = 59;
+  const unsigned int desiredHeight = 257;
+
+  uint32_t inputImage[ inputWidth * inputHeight ];
+  MakeSingleColorImageRGBA8888( inputWidth, inputHeight, inputImage );
+
+  uint32_t *outputBuffer, *outputImage;
+  MakeGuardedOutputImageRGBA8888( desiredWidth, desiredHeight, outputBuffer, outputImage );
+
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, inputWidth, inputHeight, (unsigned char*) outputImage, desiredWidth, desiredHeight );
+
+  // Check that all the output pixels are the right color:
+  const uint32_t reference = inputImage[ inputWidth * inputHeight / 2];
+  unsigned int differentColorCount = 0;
+  for( unsigned int i = 0; i < desiredWidth * desiredHeight; ++i )
+  {
+    if( outputImage[i] != reference )
+    {
+      ++differentColorCount;
+    }
+  }
+
+  FreeReadOnlyPagesRGBA( outputBuffer, desiredWidth * desiredHeight );
+
+  DALI_TEST_EQUALS( 0U, differentColorCount, TEST_LOCATION );
+
+  END_TEST;
+}
+
+/**
+ * @brief Test that scaling down to a 1x1 image works.
+ */
+int UtcDaliImageOperationsPointSampleRGBA888ScaleToSinglePixel(void)
+{
+  const unsigned int desiredWidth = 1;
+  const unsigned int desiredHeight = 1;
+
+  uint32_t inputImage[ 1024 * 1024 ];
+  MakeSingleColorImageRGBA8888( 1024, 1024, inputImage );
+  uint32_t outputImage = 0;
+
+  // Try several different starting image sizes:
+
+  // 1x1 -> 1x1:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1,    1, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // Single-pixel wide tall stripe:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1, 1024, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // Single-pixel tall, wide strip:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 1024,    1, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // Square mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  103,  103, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // Wide mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  313,  79, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // Tall mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   53,  467, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, inputImage[0], TEST_LOCATION );
+  outputImage = 0;
+
+  // 0 x 0 input image (make sure output not written to):
+  outputImage = 0xDEADBEEF;
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
+  DALI_TEST_EQUALS( outputImage, 0xDEADBEEF, TEST_LOCATION );
+  outputImage = 0;
+
+  END_TEST;
+}
+
+/**
+ * @brief Test that downsampling to 0 - area images is a NOP and does not modify the destination.
+ * (edge-case)
+ */
+int UtcDaliImageOperationsPointSampleRGBA888ScaleToZeroDims(void)
+{
+  uint32_t inputImage[ 1024 * 1024 ];
+  MakeSingleColorImageRGBA8888( 1024, 1024, inputImage );
+  uint32_t* outputImage = AllocateReadOnlyPagesRGBA(1);
+
+  // Try several different starting image sizes:
+
+  // 1x1 -> 1x1:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1,    1, (unsigned char*) &outputImage, 0, 0 );
+
+  // Single-pixel wide tall stripe:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1, 1024, (unsigned char*) &outputImage, 0, 33 );
+
+  // Single-pixel tall, wide strip:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 1024,    1, (unsigned char*) &outputImage, 0, 67 );
+
+  // Square mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  103,  103, (unsigned char*) &outputImage, 21, 0 );
+
+  // Wide mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  313,  79, (unsigned char*) &outputImage, 99, 0 );
+
+  // Tall mid-size image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   53,  467, (unsigned char*) &outputImage, 9999, 0 );
+
+  // 0 x 0 input image:
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) &outputImage, 200, 99 );
+
+  FreeReadOnlyPagesRGBA( outputImage, getpagesize() / 4 );
+
+  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
+  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
+
+  END_TEST;
+}
+
+/**
+ * @brief Test that a scaling doesn't stray outside the bounds of the destination image.
+ *
+ * The test allocates a destination buffer that is an exact multiple of the page size
+ * with guard pages at either end.
+ */
+int UtcDaliImageOperationsPointSampleRGB88InBounds(void)
+{
+  const unsigned int inputWidth = 163;
+  const unsigned int inputHeight = 691;
+  const unsigned int desiredWidth = 32;
+  const unsigned int desiredHeight = 128;
+  const unsigned int outputBuffersizeInWords = desiredWidth * (desiredHeight / 4) * 3;
+
+  uint8_t inputImage[ inputWidth * inputHeight ][3];
+
+  // Allocate an output image buffer with read-only guard pages at either end:
+  // The test will segfault if it strays into the guard pages.
+  uint32_t *outputBuffer, *outputImage;
+
+  MakeGuardedOutputImageRGBA8888( desiredWidth * (desiredHeight / 4), 3, outputBuffer, outputImage );
+
+  Dali::Internal::Platform::PointSample3BPP( &inputImage[0][0], inputWidth, inputHeight, (uint8_t*) outputImage, desiredWidth, desiredHeight );
+
+  FreeReadOnlyPagesRGBA( outputBuffer, outputBuffersizeInWords );
+
+  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
+  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
+
+  END_TEST;
+}
+
+/**
+ * @brief Test the small int (x,y) tuple.
+ */
+int UtcDaliImageOperationsVector2Uint16(void)
+{
+  Vector2Uint16 vec1( 2, 3 );
+
+  DALI_TEST_EQUALS( vec1.GetWidth(), 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetX(),     2, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( vec1.GetHeight(), 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetY(),      3, TEST_LOCATION );
+
+  Vector2Uint16 vec1Copy = vec1;
+
+  DALI_TEST_EQUALS( vec1Copy.GetWidth(), 2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetX(),     2, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( vec1Copy.GetHeight(), 3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetY(),      3, TEST_LOCATION );
+
+  Vector2Uint16 vec2( 65535u, 65535u );
+
+  DALI_TEST_EQUALS( vec2.GetX(), 65535u, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec2.GetY(), 65535u, TEST_LOCATION );
 
   END_TEST;
 }

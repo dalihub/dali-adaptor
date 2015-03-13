@@ -33,7 +33,7 @@ IndicatorBuffer::IndicatorBuffer( Adaptor* adaptor, unsigned int width, unsigned
 {
   DALI_ASSERT_ALWAYS( adaptor );
 
-  // Use BufferImage when SharedGlBuffer extension is unavailable
+  // Use BitmapImage when SharedGlBuffer extension is unavailable
   mBitmapBuffer = new NativeBitmapBuffer( adaptor, mImageWidth, mImageHeight, mPixelFormat );
   mNativeImage = mBitmapBuffer;
 }
