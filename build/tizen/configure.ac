@@ -133,13 +133,13 @@ AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV,UBUNTU],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
               [enable_profile=COMMON])
 
 # Ensure valid profile selected
-if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xLITE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
 fi
 
@@ -152,7 +152,6 @@ DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
 DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
 AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
-AM_CONDITIONAL([LITE_PROFILE], [test x$enable_profile = xLITE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])

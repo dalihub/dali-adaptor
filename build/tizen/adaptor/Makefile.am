@@ -119,16 +119,6 @@ endif # WAYLAND
 
 endif # MOBILE_PROFILE
 
-# LITE
-if LITE_PROFILE
-
-adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
-endif
-
-
 # WEARABLE
 if WEARABLE_PROFILE
 
@@ -301,10 +291,6 @@ libdali_adaptor_la_LIBADD += \
                       $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
-endif
-
-if LITE_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if WEARABLE_PROFILE
