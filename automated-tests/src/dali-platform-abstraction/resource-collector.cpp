@@ -16,7 +16,7 @@
  */
 
 #include "resource-collector.h"
-#include "slp-platform-abstraction.h"
+#include "tizen-platform-abstraction.h"
 #include <dali/integration-api/debug.h>
 
 namespace Dali

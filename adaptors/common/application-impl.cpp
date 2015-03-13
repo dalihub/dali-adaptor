@@ -31,9 +31,9 @@
 namespace Dali
 {
 
-namespace SlpPlatform
+namespace TizenPlatform
 {
-class SlpPlatformAbstraction;
+class TizenPlatformAbstraction;
 }
 
 namespace Integration

@@ -55,7 +55,7 @@
 #include <vsync-monitor.h>
 #include <object-profiler.h>
 
-#include <slp-logging.h>
+#include <tizen-logging.h>
 
 
 
@@ -135,8 +135,8 @@ void Adaptor::ParseEnvironmentOptions()
 
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
-  // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
-  Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
+  // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
+  Dali::Integration::Log::LogFunction  logFunction(Dali::TizenPlatform::LogMessage);
 
   mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
 
@@ -222,7 +222,7 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 {
   ParseEnvironmentOptions();
 
-  mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
+  mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
   std::string path;
   GetDataStoragePath( path );
