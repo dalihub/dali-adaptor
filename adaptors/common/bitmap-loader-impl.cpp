@@ -49,7 +49,7 @@ void BitmapLoader::Initialize(const std::string& filename)
 {
   ImageAttributes attributes;
   Integration::BitmapResourceType bitmapResourceType( attributes );
-  Integration::ResourcePointer resource = SlpPlatform::ImageLoader::LoadResourceSynchronously( bitmapResourceType, filename );
+  Integration::ResourcePointer resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( bitmapResourceType, filename );
 
   mBitmap = static_cast<Integration::Bitmap*>(resource.Get());
 }

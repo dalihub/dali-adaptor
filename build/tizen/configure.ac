@@ -77,7 +77,7 @@ AC_ARG_ENABLE([feedback],
 AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
-DALI_ADAPTOR_CFLAGS=-DPLATFORM_SLP
+DALI_ADAPTOR_CFLAGS=-DPLATFORM_TIZEN
 
 AC_ARG_ENABLE(exportall,
               [AC_HELP_STRING([--enable-exportall],
