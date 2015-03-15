@@ -507,29 +507,31 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
           success = false;
         }
       }
-
-      int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_DEFAULT );
-
-      if( FT_Err_Ok == error )
+      else
       {
-        array[i].width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
-        array[i].height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
-        if( horizontal )
+        int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_DEFAULT );
+
+        if( FT_Err_Ok == error )
         {
-          array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
-          array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
-          array[i].advance  = static_cast< float >( ftFace->glyph->metrics.horiAdvance ) * FROM_266;
+          array[i].width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
+          array[i].height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
+          if( horizontal )
+          {
+            array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
+            array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
+            array[i].advance  = static_cast< float >( ftFace->glyph->metrics.horiAdvance ) * FROM_266;
+          }
+          else
+          {
+            array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
+            array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
+            array[i].advance  = static_cast< float >( ftFace->glyph->metrics.vertAdvance ) * FROM_266;
+          }
         }
         else
         {
-          array[i].xBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
-          array[i].yBearing = static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
-          array[i].advance  = static_cast< float >( ftFace->glyph->metrics.vertAdvance ) * FROM_266;
+          success = false;
         }
-      }
-      else
-      {
-        success = false;
       }
     }
     else
