@@ -29,6 +29,7 @@
 #include "resource-loader/resource-loader.h"
 #include "dynamics/dynamics-factory.h"
 
+#include "slp-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
 
 namespace Dali
@@ -45,6 +46,7 @@ namespace SlpPlatform
 
 namespace
 {
+const std::string FONT_CONFIGURATION_FILE( FONT_CONFIGURATION_FILE_PATH ); ///< Default font configuration file
 const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 1000 nanoseconds = 1 microsecond
 }
 
@@ -83,6 +85,22 @@ void SlpPlatformAbstraction::Resume()
   {
     mResourceLoader->Resume();
   }
+}
+
+void SlpPlatformAbstraction::GetDefaultFontDescription( std::string& fontFamily, std::string& fontStyle ) const
+{
+  FontConfigurationParser::Parse(FONT_CONFIGURATION_FILE, fontFamily, fontStyle);
+}
+
+int SlpPlatformAbstraction::GetDefaultFontSize() const
+{
+  int fontSize( 0 );
+
+#ifndef DALI_PROFILE_UBUNTU
+  vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
+#endif // DALI_PROFILE_UBUNTU
+
+  return fontSize;
 }
 
 void SlpPlatformAbstraction::GetClosestImageSize( const std::string& filename,

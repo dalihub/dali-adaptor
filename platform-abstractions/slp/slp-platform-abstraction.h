@@ -123,6 +123,16 @@ public: // PlatformAbstraction overrides
   virtual void JoinLoaderThreads();
 
   /**
+   * @copydoc PlatformAbstraction::GetDefaultFontDescription()
+   */
+  virtual void GetDefaultFontDescription( std::string& family, std::string& style ) const;
+
+  /**
+   * @copydoc PlatformAbstraction::GetDefaultFontSize()
+   */
+  virtual int GetDefaultFontSize() const;
+
+  /**
    * @copydoc PlatformAbstraction::SetDpi()
    */
   virtual void SetDpi (unsigned int DpiHorizontal, unsigned int DpiVertical);

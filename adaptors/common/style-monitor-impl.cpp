@@ -79,7 +79,8 @@ Dali::StyleMonitor StyleMonitor::Get()
 }
 
 StyleMonitor::StyleMonitor(Integration::PlatformAbstraction& platformAbstraction)
-: mPlatformAbstraction(platformAbstraction)
+: mPlatformAbstraction(platformAbstraction),
+  mDefaultFontSize(0u)
 {
 }
 
@@ -89,9 +90,13 @@ StyleMonitor::~StyleMonitor()
 
 void StyleMonitor::StyleChanged(StyleChange styleChange)
 {
-  if (styleChange.defaultFontChange || styleChange.defaultFontSizeChange)
+  if ( styleChange.defaultFontChange )
   {
-    //mPlatformAbstraction.UpdateDefaultsFromDevice();
+    mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
+  }
+  if ( styleChange.defaultFontSizeChange )
+  {
+    mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
   }
 
   EmitStyleChangeSignal(styleChange);
@@ -99,14 +104,17 @@ void StyleMonitor::StyleChanged(StyleChange styleChange)
 
 std::string StyleMonitor::GetDefaultFontFamily() const
 {
-  //return mPlatformAbstraction.GetDefaultFontFamily();
-  return std::string();
+  return mDefaultFontFamily;
 }
 
-float StyleMonitor::GetDefaultFontSize() const
+std::string StyleMonitor::GetDefaultFontStyle() const
 {
-  //return mPlatformAbstraction.GetDefaultFontSize();
-  return float();
+  return mDefaultFontStyle;
+}
+
+unsigned int StyleMonitor::GetDefaultFontSize() const
+{
+  return mDefaultFontSize;
 }
 
 const std::string& StyleMonitor::GetTheme() const

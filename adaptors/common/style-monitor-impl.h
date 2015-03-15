@@ -73,9 +73,14 @@ public:
   std::string GetDefaultFontFamily() const;
 
   /**
+   * @copydoc Dali::StyleMonitor::GetDefaultFontStyle() const
+   */
+  std::string GetDefaultFontStyle() const;
+
+  /**
    * @copydoc Dali::StyleMonitor::GetDefaultFontSize() const
    */
-  float GetDefaultFontSize() const;
+  unsigned int GetDefaultFontSize() const;
 
   /**
    * @copydoc Dali::StyleMonitor::GetTheme() const
@@ -111,11 +116,14 @@ private:
 
 private:
 
-  Dali::StyleMonitor::StyleChangeSignalType      mStyleChangeSignal; ///< Emitted when the style changes
+  Dali::StyleMonitor::StyleChangeSignalType mStyleChangeSignal; ///< Emitted when the style changes
 
-  Integration::PlatformAbstraction&            mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
-  std::string                                  mUserDefinedThemeFilePath;///< String containing the user defined theme file path
+  Integration::PlatformAbstraction& mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
 
+  std::string mDefaultFontFamily;        ///< The default font family
+  std::string mDefaultFontStyle;         ///< The default font style
+  std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
+  unsigned int mDefaultFontSize;         ///< The default accessibility font size e.g. 0 is smallest
 };
 
 } // namespace Adaptor
