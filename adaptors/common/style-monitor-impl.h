@@ -80,7 +80,7 @@ public:
   /**
    * @copydoc Dali::StyleMonitor::GetDefaultFontSize() const
    */
-  unsigned int GetDefaultFontSize() const;
+  int GetDefaultFontSize() const;
 
   /**
    * @copydoc Dali::StyleMonitor::GetTheme() const
@@ -123,7 +123,7 @@ private:
   std::string mDefaultFontFamily;        ///< The default font family
   std::string mDefaultFontStyle;         ///< The default font style
   std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
-  unsigned int mDefaultFontSize;         ///< The default accessibility font size e.g. 0 is smallest
+  int mDefaultFontSize;                  ///< The default accessibility font size e.g. 0 is smallest
 };
 
 } // namespace Adaptor

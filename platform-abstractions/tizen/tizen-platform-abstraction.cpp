@@ -94,7 +94,7 @@ void TizenPlatformAbstraction::GetDefaultFontDescription( std::string& fontFamil
 
 int TizenPlatformAbstraction::GetDefaultFontSize() const
 {
-  int fontSize( 0 );
+  int fontSize( -1 );
 
 #ifndef DALI_PROFILE_UBUNTU
   vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );

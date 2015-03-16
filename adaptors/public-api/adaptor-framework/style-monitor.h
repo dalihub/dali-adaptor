@@ -111,9 +111,9 @@ public: // Style Information
   /**
    * @brief Retrieves the default font size.
    *
-   * This is an accessibility size, which is mapped to a UI Control specific point-size in stylesheets.
+   * This is an logical size, which is mapped to a UI Control specific point-size in stylesheets.
    * For example if zero the smallest size, this could potentially map to TextLabel point-size 8.
-   * @return The default font size.
+   * @return The default font size, or a negative value if not set.
    */
   int GetDefaultFontSize() const;
 

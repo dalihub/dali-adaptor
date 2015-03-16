@@ -80,8 +80,10 @@ Dali::StyleMonitor StyleMonitor::Get()
 
 StyleMonitor::StyleMonitor(Integration::PlatformAbstraction& platformAbstraction)
 : mPlatformAbstraction(platformAbstraction),
-  mDefaultFontSize(0u)
+  mDefaultFontSize(-1)
 {
+  mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
+  mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
 }
 
 StyleMonitor::~StyleMonitor()
@@ -112,7 +114,7 @@ std::string StyleMonitor::GetDefaultFontStyle() const
   return mDefaultFontStyle;
 }
 
-unsigned int StyleMonitor::GetDefaultFontSize() const
+int StyleMonitor::GetDefaultFontSize() const
 {
   return mDefaultFontSize;
 }
