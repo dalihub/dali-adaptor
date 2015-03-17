@@ -73,6 +73,10 @@ namespace Adaptor
 
 #define DALI_GLES_CALL_TIME "DALI_GLES_CALL_TIME"
 
+#define DALI_WINDOW_WIDTH "DALI_WINDOW_WIDTH"
+
+#define DALI_WINDOW_HEIGHT "DALI_WINDOW_HEIGHT"
+
 } // namespace Adaptor
 
 } // namespace Internal

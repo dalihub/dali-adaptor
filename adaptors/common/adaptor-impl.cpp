@@ -215,6 +215,13 @@ void Adaptor::ParseEnvironmentOptions()
     mEnvironmentOptions.SetGlesCallTime( glesCallTime );
   }
 
+  int windowWidth(0), windowHeight(0);
+  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  {
+    mEnvironmentOptions.SetWindowWidth( windowWidth );
+    mEnvironmentOptions.SetWindowHeight( windowHeight );
+  }
+
   mEnvironmentOptions.InstallLogFunction();
 }
 
@@ -304,6 +311,10 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   if( mEnvironmentOptions.GetPanGestureSmoothingAmount() >= 0.0f )
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions.GetPanGestureSmoothingAmount());
+  }
+  if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+  {
+    SurfaceResized( PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() ));
   }
 }
 
