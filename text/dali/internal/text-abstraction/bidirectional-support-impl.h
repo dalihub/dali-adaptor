@@ -75,6 +75,12 @@ public:
                 Length numberOfCharacters,
                 CharacterIndex* visualToLogicalMap );
 
+  /**
+   * @copydoc Dali::BidirectionalSupport::GetMirroredText()
+   */
+  bool GetMirroredText( Character* text,
+                        Length numberOfCharacters );
+
 private:
 
   /**

@@ -105,6 +105,17 @@ public:
                 CharacterIndex firstCharacterIndex,
                 Length numberOfCharacters,
                 CharacterIndex* visualToLogicalMap );
+
+  /**
+   * @brief Replaces any character which could be mirrored.
+   *
+   * @param[in,out] text The text.
+   * @param[in] numberOfCharacters The number of characters.
+   *
+   * @return @e true if a character has been replaced.
+   */
+  bool GetMirroredText( Character* text,
+                        Length numberOfCharacters );
 };
 
 } // namespace TextAbstraction

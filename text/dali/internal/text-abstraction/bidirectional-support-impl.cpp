@@ -167,6 +167,28 @@ struct BidirectionalSupport::Plugin
     free( embeddedLevels );
   }
 
+  bool GetMirroredText( Character* text,
+                        Length numberOfCharacters ) const
+  {
+    bool updated = false;
+
+    for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
+    {
+      // Get a reference to the character inside the text.
+      Character& character = *( text + index );
+
+      // Retrieve the mirrored character.
+      FriBidiChar mirroredCharacter = character;
+      const bool mirrored = fribidi_get_mirror_char( character, &mirroredCharacter );
+      updated = updated || mirrored;
+
+      // Update the character inside the text.
+      character = mirroredCharacter;
+    }
+
+    return updated;
+  }
+
   Vector<BidirectionalInfo*> mParagraphBidirectionalInfo; ///< Stores the bidirectional info per paragraph.
   Vector<BidiInfoIndex>      mFreeIndices;                ///< Stores indices of free positions in the bidirectional info vector.
 };
@@ -233,6 +255,14 @@ void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
                     firstCharacterIndex,
                     numberOfCharacters,
                     visualToLogicalMap );
+}
+
+bool BidirectionalSupport::GetMirroredText( Character* text,
+                                            Length numberOfCharacters )
+{
+  CreatePlugin();
+
+  return mPlugin->GetMirroredText( text, numberOfCharacters );
 }
 
 void BidirectionalSupport::CreatePlugin()

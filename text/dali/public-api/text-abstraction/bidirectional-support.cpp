@@ -68,6 +68,13 @@ void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
                                       visualToLogicalMap );
 }
 
+bool BidirectionalSupport::GetMirroredText( Character* text,
+                                            Length numberOfCharacters )
+{
+  return GetImplementation( *this ).GetMirroredText( text,
+                                                     numberOfCharacters );
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali
