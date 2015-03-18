@@ -32,6 +32,11 @@ namespace Dali
 
 const KEY DALI_KEY_INVALID          = -1;
 const KEY DALI_KEY_ESCAPE           = 9;
+const KEY DALI_KEY_BACKSPACE        = 22;
+const KEY DALI_KEY_CURSOR_UP        = 111;
+const KEY DALI_KEY_CURSOR_LEFT      = 113;
+const KEY DALI_KEY_CURSOR_RIGHT     = 114;
+const KEY DALI_KEY_CURSOR_DOWN      = 116;
 const KEY DALI_KEY_BACK             = 166;
 const KEY DALI_KEY_CAMERA           = 167;
 const KEY DALI_KEY_CONFIG           = 168;
@@ -68,11 +73,6 @@ const KEY DALI_KEY_VOICE            = 198;
 const KEY DALI_KEY_LANGUAGE         = 199;
 const KEY DALI_KEY_VOLUME_UP        = 200;
 const KEY DALI_KEY_VOLUME_DOWN      = 201;
-const KEY DALI_KEY_BACKSPACE        = 202;
-const KEY DALI_KEY_CURSOR_LEFT      = 203;
-const KEY DALI_KEY_CURSOR_RIGHT     = 204;
-const KEY DALI_KEY_CURSOR_UP        = 205;
-const KEY DALI_KEY_CURSOR_DOWN      = 206;
 
 namespace Internal
 {
