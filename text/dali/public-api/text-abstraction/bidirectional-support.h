@@ -116,6 +116,15 @@ public:
    */
   bool GetMirroredText( Character* text,
                         Length numberOfCharacters );
+
+  /**
+   * @brief Retrieves the paragrpah's direction.
+   *
+   * @param[in] bidiInfoIndex The index to the of the object inside the table storing the bidirectional data for the current paragraph.
+   *
+   * @return @e true if the paragraph is right to left, otherwise @e false.
+   */
+  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
 };
 
 } // namespace TextAbstraction

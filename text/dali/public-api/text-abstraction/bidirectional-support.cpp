@@ -75,6 +75,11 @@ bool BidirectionalSupport::GetMirroredText( Character* text,
                                                      numberOfCharacters );
 }
 
+bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+{
+  return GetImplementation( *this ).GetParagraphDirection( bidiInfoIndex );
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali

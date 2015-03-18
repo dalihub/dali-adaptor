@@ -81,6 +81,11 @@ public:
   bool GetMirroredText( Character* text,
                         Length numberOfCharacters );
 
+  /**
+   * @copydoc Dali::BidirectionalSupport::GetParagraphDirection()
+   */
+  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
+
 private:
 
   /**

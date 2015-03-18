@@ -189,6 +189,29 @@ struct BidirectionalSupport::Plugin
     return updated;
   }
 
+  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+  {
+    // Retrieve the paragraph's bidirectional info.
+    const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
+
+    switch( bidirectionalInfo->paragraphDirection )
+    {
+      case FRIBIDI_PAR_RTL:  // Right-To-Left paragraph.
+      case FRIBIDI_PAR_WRTL: // Weak Right To Left paragraph.
+      {
+        return true;
+      }
+      case FRIBIDI_PAR_LTR:  // Left-To-Right paragraph.
+      case FRIBIDI_PAR_ON:   // DirectiOn-Neutral paragraph.
+      case FRIBIDI_PAR_WLTR: // Weak Left To Right paragraph.
+      {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
   Vector<BidirectionalInfo*> mParagraphBidirectionalInfo; ///< Stores the bidirectional info per paragraph.
   Vector<BidiInfoIndex>      mFreeIndices;                ///< Stores indices of free positions in the bidirectional info vector.
 };
@@ -263,6 +286,16 @@ bool BidirectionalSupport::GetMirroredText( Character* text,
   CreatePlugin();
 
   return mPlugin->GetMirroredText( text, numberOfCharacters );
+}
+
+bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+{
+  if( !mPlugin )
+  {
+    return false;
+  }
+
+  return mPlugin->GetParagraphDirection( bidiInfoIndex );
 }
 
 void BidirectionalSupport::CreatePlugin()
