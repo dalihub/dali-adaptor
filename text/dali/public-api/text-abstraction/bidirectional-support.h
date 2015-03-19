@@ -125,6 +125,17 @@ public:
    * @return @e true if the paragraph is right to left, otherwise @e false.
    */
   bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
+
+  /**
+   * @brief Retrieves the character's directions.
+   *
+   * @param[in] bidiInfoIndex The index to the of the object inside the table storing the bidirectional data for the current paragraph.
+   * @param[out] directions The direction, @e false is left to right and @e true is right to left, of each character of the paragraph.
+   * @param[in] numberOfCharacters The number of characters.
+   */
+  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
+                               CharacterDirection* directions,
+                               Length numberOfCharacters );
 };
 
 } // namespace TextAbstraction

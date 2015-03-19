@@ -80,6 +80,15 @@ bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) 
   return GetImplementation( *this ).GetParagraphDirection( bidiInfoIndex );
 }
 
+void BidirectionalSupport::GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
+                                                   CharacterDirection* directions,
+                                                   Length numberOfCharacters )
+{
+  GetImplementation( *this ).GetCharactersDirection( bidiInfoIndex,
+                                                     directions,
+                                                     numberOfCharacters );
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali
