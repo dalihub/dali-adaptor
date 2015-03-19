@@ -56,7 +56,7 @@
 #include <clipboard-impl.h>
 #include <vsync-monitor.h>
 #include <object-profiler.h>
-#include <slp-logging.h>
+#include <tizen-logging.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -136,8 +136,8 @@ void Adaptor::ParseEnvironmentOptions()
 
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
-  // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
-  Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
+  // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
+  Dali::Integration::Log::LogFunction  logFunction(Dali::TizenPlatform::LogMessage);
 
   mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
 
@@ -216,6 +216,13 @@ void Adaptor::ParseEnvironmentOptions()
     mEnvironmentOptions.SetGlesCallTime( glesCallTime );
   }
 
+  int windowWidth(0), windowHeight(0);
+  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  {
+    mEnvironmentOptions.SetWindowWidth( windowWidth );
+    mEnvironmentOptions.SetWindowHeight( windowHeight );
+  }
+
   mEnvironmentOptions.InstallLogFunction();
 }
 
@@ -223,7 +230,7 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 {
   ParseEnvironmentOptions();
 
-  mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
+  mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
   std::string path;
   GetDataStoragePath( path );
@@ -305,6 +312,10 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   if( mEnvironmentOptions.GetPanGestureSmoothingAmount() >= 0.0f )
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions.GetPanGestureSmoothingAmount());
+  }
+  if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+  {
+    SurfaceResized( PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() ));
   }
 }
 

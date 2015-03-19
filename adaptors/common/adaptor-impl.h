@@ -33,7 +33,7 @@
 #include <device-layout.h>
 #include <clipboard.h>
 
-#include <slp-platform-abstraction.h>
+#include <tizen-platform-abstraction.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
 #include <base/core-event-interface.h>
@@ -495,7 +495,7 @@ private: // Data
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
   RenderSurface*                        mSurface;                     ///< Current surface
-  SlpPlatform::SlpPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks

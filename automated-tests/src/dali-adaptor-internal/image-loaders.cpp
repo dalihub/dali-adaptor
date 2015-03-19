@@ -19,7 +19,7 @@
 #include <dali-test-suite-utils.h>
 
 
-class StubImageLoaderClient : public Dali::SlpPlatform::ResourceLoadingClient
+class StubImageLoaderClient : public Dali::TizenPlatform::ResourceLoadingClient
 {
 public:
   StubImageLoaderClient() {}

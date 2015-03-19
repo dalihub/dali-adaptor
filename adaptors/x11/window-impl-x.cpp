@@ -503,22 +503,22 @@ void Window::SetIndicatorActorRotation()
     case Dali::Window::PORTRAIT:
       actor.SetParentOrigin( ParentOrigin::TOP_CENTER );
       actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetRotation( Degree(0), Vector3::ZAXIS );
+      actor.SetOrientation( Degree(0), Vector3::ZAXIS );
       break;
     case Dali::Window::PORTRAIT_INVERSE:
       actor.SetParentOrigin( ParentOrigin::BOTTOM_CENTER );
       actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetRotation( Degree(180), Vector3::ZAXIS );
+      actor.SetOrientation( Degree(180), Vector3::ZAXIS );
       break;
     case Dali::Window::LANDSCAPE:
       actor.SetParentOrigin( ParentOrigin::CENTER_LEFT );
       actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetRotation( Degree(270), Vector3::ZAXIS );
+      actor.SetOrientation( Degree(270), Vector3::ZAXIS );
       break;
     case Dali::Window::LANDSCAPE_INVERSE:
       actor.SetParentOrigin( ParentOrigin::CENTER_RIGHT );
       actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetRotation( Degree(90), Vector3::ZAXIS );
+      actor.SetOrientation( Degree(90), Vector3::ZAXIS );
       break;
   }
 }

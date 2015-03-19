@@ -21,9 +21,9 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <platform-abstractions/slp/resource-loader/resource-loader.h>
-#include <platform-abstractions/slp/image-loaders/loader-jpeg.h>
-#include <platform-abstractions/slp/image-loaders/loader-png.h>
+#include <platform-abstractions/tizen/resource-loader/resource-loader.h>
+#include <platform-abstractions/tizen/image-loaders/loader-jpeg.h>
+#include <platform-abstractions/tizen/image-loaders/loader-png.h>
 #include <image-encoder.h>
 
 namespace Dali
@@ -95,12 +95,12 @@ bool EncodeToFormat( const unsigned char* pixelBuffer,
   {
     case JPG_FORMAT:
     {
-      return SlpPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat );
+      return TizenPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat );
       break;
     }
     case PNG_FORMAT:
     {
-      return SlpPlatform::EncodeToPng( pixelBuffer, encodedPixels, width, height, pixelFormat );
+      return TizenPlatform::EncodeToPng( pixelBuffer, encodedPixels, width, height, pixelFormat );
       break;
     }
     default:
@@ -129,7 +129,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
     DALI_LOG_ERROR("Encoding pixels failed");
     return false;
   }
-  return SlpPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded );
+  return TizenPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded );
 }
 
 } // namespace Dali

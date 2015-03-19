@@ -24,9 +24,9 @@ base_adaptor_src_dir = ../../../adaptors/base
 include ../../../adaptors/base/file.list
 
 # Platform Abstraction
-slp_platform_abstraction_src_dir = ../../../platform-abstractions/slp
+tizen_platform_abstraction_src_dir = ../../../platform-abstractions/tizen
 portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
-include ../../../platform-abstractions/slp/file.list
+include ../../../platform-abstractions/tizen/file.list
 
 # Text Abstraction
 text_src_dir = ../../../text
@@ -77,9 +77,9 @@ include ../../../text/dali/internal/libunibreak/file.list
 ############# source files #############
 
 if ASSIMP_ENABLED
-slp_platform_abstraction_src_files += $(slp_assimp_src_files)
+tizen_platform_abstraction_src_files += $(tizen_assimp_src_files)
 else
-slp_platform_abstraction_src_files += $(slp_assimp_stubs_src_files)
+tizen_platform_abstraction_src_files += $(tizen_assimp_stubs_src_files)
 endif # ASSIMP_ENABLED
 
 # COMMON
@@ -129,17 +129,6 @@ endif # WAYLAND
 
 endif # MOBILE_PROFILE
 
-# LITE
-if LITE_PROFILE
-
-adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files) \
-                             $(static_libraries_libunibreak_src_files)
-endif
-
-
 # WEARABLE
 if WEARABLE_PROFILE
 
@@ -181,27 +170,27 @@ dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
 endif
 
 if TURBO_JPEG_IS_ON
-  slp_platform_abstraction_src_files += $(slp_turbo_jpeg_loader)
+  tizen_platform_abstraction_src_files += $(tizen_turbo_jpeg_loader)
 else
-  slp_platform_abstraction_src_files += $(slp_jpeg_loader)
+  tizen_platform_abstraction_src_files += $(tizen_jpeg_loader)
 endif
 
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
-                     $(slp_platform_abstraction_src_files) \
+                     $(tizen_platform_abstraction_src_files) \
                      $(text_abstraction_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
 libdali_adaptor_la_DEPENDENCIES =
 
-# List include directories with more platform-specific (slp) before portable root:
+# List include directories with more platform-specific (tizen) before portable root:
 libdali_adaptor_la_includes = \
                       -I../../.. \
-                      -I../../../platform-abstractions/slp \
-                      -I../../../platform-abstractions/slp/resource-loader \
+                      -I../../../platform-abstractions/tizen \
+                      -I../../../platform-abstractions/tizen/resource-loader \
                       -I../../../platform-abstractions/portable \
                       -I../../../platform-abstractions/ \
                       -I../../../adaptors/public-api \
@@ -321,10 +310,6 @@ libdali_adaptor_la_LIBADD += \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif
 
-if LITE_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
-endif
-
 if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
@@ -355,6 +340,14 @@ tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_f
 
 tizentextabstractionpublicapidir = $(tizenadaptorpublicapidir)/text-abstraction
 tizentextabstractionpublicapi_HEADERS = $(text_abstraction_header_files)
+
+if !UBUNTU_PROFILE
+
+if !WAYLAND
+tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
+endif # NOT WAYLAND
+
+endif # NOT UBUNTU_PROFILE
 
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
