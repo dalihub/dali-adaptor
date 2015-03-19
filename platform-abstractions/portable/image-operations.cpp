@@ -33,9 +33,48 @@ namespace Platform
 
 namespace
 {
+
 using Integration::Bitmap;
 using Integration::BitmapPtr;
 typedef unsigned char PixelBuffer;
+
+/**
+ * @brief 4 byte pixel structure.
+ */
+struct Pixel4Bytes
+{
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  uint8_t a;
+} __attribute__((packed, aligned(4))); //< Tell the compiler it is okay to use a single 32 bit load.
+
+/**
+ * @brief RGB888 pixel structure.
+ */
+struct Pixel3Bytes
+{
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+} __attribute__((packed, aligned(1)));
+
+/**
+ * @brief RGB565 pixel typedefed from a short.
+ *
+ * Access fields by manual shifting and masking.
+ */
+typedef uint16_t PixelRGB565;
+
+/**
+ * @brief a Pixel composed of two independent byte components.
+ */
+struct Pixel2Bytes
+{
+  uint8_t l;
+  uint8_t a;
+} __attribute__((packed, aligned(2))); //< Tell the compiler it is okay to use a single 16 bit load.
+
 
 #if defined(DEBUG_ENABLED)
 /**
@@ -299,16 +338,27 @@ ImageDimensions FitToScalingMode( ImageDimensions requestedSize, ImageDimensions
 }
 
 /**
- * @brief Construct a bitmap object from a copy of the pixel array passed in.
+ * @brief Construct a bitmap with format and dimensions requested.
  */
-BitmapPtr MakeBitmap(const uint8_t * const pixels, Pixel::Format pixelFormat, unsigned int width, unsigned int height )
+BitmapPtr MakeEmptyBitmap( Pixel::Format pixelFormat, unsigned int width, unsigned int height )
 {
-  DALI_ASSERT_DEBUG( pixels && "Null bitmap buffer to copy." );
   DALI_ASSERT_DEBUG( Pixel::GetBytesPerPixel(pixelFormat) && "Compressed formats not supported." );
 
   // Allocate a pixel buffer to hold the image passed in:
   Integration::BitmapPtr newBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
   newBitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, width, height, width, height );
+  return newBitmap;
+}
+
+/**
+ * @brief Construct a bitmap object from a copy of the pixel array passed in.
+ */
+BitmapPtr MakeBitmap( const uint8_t * const pixels, Pixel::Format pixelFormat, unsigned int width, unsigned int height )
+{
+  DALI_ASSERT_DEBUG( pixels && "Null bitmap buffer to copy." );
+
+  // Allocate a pixel buffer to hold the image passed in:
+  Integration::BitmapPtr newBitmap = MakeEmptyBitmap( pixelFormat, width, height );
 
   // Copy over the pixels from the downscaled image that was generated in-place in the pixel buffer of the input bitmap:
   memcpy( newBitmap->GetBuffer(), pixels, width * height * Pixel::GetBytesPerPixel( pixelFormat ) );
@@ -470,17 +520,29 @@ Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap,
     const unsigned int filteredHeight = filteredDimensions.GetHeight();
 
     // Run a filter to scale down the bitmap if it needs it:
-    if( (filteredWidth < shrunkWidth || filteredHeight < shrunkHeight) &&
-        (filterMode == ImageAttributes::Nearest || filterMode == ImageAttributes::Linear ||
-         filterMode == ImageAttributes::BoxThenNearest || filterMode == ImageAttributes::BoxThenLinear) )
+    bool filtered = false;
+    if( filteredWidth < shrunkWidth || filteredHeight < shrunkHeight )
     {
-      ///@note If a linear filter is requested, we do our best with a point filter for now.
-      PointSample( bitmap.GetBuffer(), shrunkWidth, shrunkHeight, pixelFormat, bitmap.GetBuffer(), filteredWidth, filteredHeight );
-
-      outputBitmap =  MakeBitmap( bitmap.GetBuffer(), pixelFormat, filteredWidth, filteredHeight );
+      if( filterMode == ImageAttributes::Linear || filterMode == ImageAttributes::BoxThenLinear ||
+          filterMode == ImageAttributes::Nearest || filterMode == ImageAttributes::BoxThenNearest )
+      {
+        outputBitmap = MakeEmptyBitmap( pixelFormat, filteredWidth, filteredHeight );
+        if( outputBitmap )
+        {
+          if( filterMode == ImageAttributes::Linear || filterMode == ImageAttributes::BoxThenLinear )
+          {
+            LinearSample( bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), pixelFormat, outputBitmap->GetBuffer(), filteredDimensions );
+          }
+          else
+          {
+            PointSample( bitmap.GetBuffer(), shrunkWidth, shrunkHeight, pixelFormat, outputBitmap->GetBuffer(), filteredWidth, filteredHeight );
+          }
+          filtered = true;
+        }
+      }
     }
     // Copy out the 2^x downscaled, box-filtered pixels if no secondary filter (point or linear) was applied:
-    else if( shrunkWidth < bitmapWidth || shrunkHeight < bitmapHeight )
+    if( filtered == false && ( shrunkWidth < bitmapWidth || shrunkHeight < bitmapHeight ) )
     {
       outputBitmap = MakeBitmap( bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight );
     }
@@ -821,6 +883,10 @@ void DownscaleInPlacePow2( unsigned char * const pixels,
       {
         Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel( pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight );
       }
+      else
+      {
+        DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+      }
     }
   }
   else
@@ -829,11 +895,11 @@ void DownscaleInPlacePow2( unsigned char * const pixels,
   }
 }
 
-void DownscaleInPlacePow2RGB888( unsigned char * const pixels,
-                                 const unsigned int inputWidth,
-                                 const unsigned int inputHeight,
-                                 const unsigned int desiredWidth,
-                                 const unsigned int desiredHeight,
+void DownscaleInPlacePow2RGB888( unsigned char *pixels,
+                                 unsigned int inputWidth,
+                                 unsigned int inputHeight,
+                                 unsigned int desiredWidth,
+                                 unsigned int desiredHeight,
                                  BoxDimensionTest dimensionTest,
                                  unsigned& outWidth,
                                  unsigned& outHeight )
@@ -841,11 +907,11 @@ void DownscaleInPlacePow2RGB888( unsigned char * const pixels,
   DownscaleInPlacePow2Generic<3, HalveScanlineInPlaceRGB888, AverageScanlines3>( pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight );
 }
 
-void DownscaleInPlacePow2RGBA8888( unsigned char * const pixels,
-                                   const unsigned int inputWidth,
-                                   const unsigned int inputHeight,
-                                   const unsigned int desiredWidth,
-                                   const unsigned int desiredHeight,
+void DownscaleInPlacePow2RGBA8888( unsigned char * pixels,
+                                   unsigned int inputWidth,
+                                   unsigned int inputHeight,
+                                   unsigned int desiredWidth,
+                                   unsigned int desiredHeight,
                                    BoxDimensionTest dimensionTest,
                                    unsigned& outWidth,
                                    unsigned& outHeight )
@@ -871,11 +937,11 @@ void DownscaleInPlacePow2RGB565( unsigned char * pixels,
  *
  * For 2-byte formats such as lum8alpha8, but not packed 16 bit formats like RGB565.
  */
-void DownscaleInPlacePow2ComponentPair( unsigned char * const pixels,
-                                        const unsigned int inputWidth,
-                                        const unsigned int inputHeight,
-                                        const unsigned int desiredWidth,
-                                        const unsigned int desiredHeight,
+void DownscaleInPlacePow2ComponentPair( unsigned char *pixels,
+                                        unsigned int inputWidth,
+                                        unsigned int inputHeight,
+                                        unsigned int desiredWidth,
+                                        unsigned int desiredHeight,
                                         BoxDimensionTest dimensionTest,
                                         unsigned& outWidth,
                                         unsigned& outHeight )
@@ -898,9 +964,15 @@ void DownscaleInPlacePow2SingleBytePerPixel( unsigned char * pixels,
 namespace
 {
 
-// Point sample an image to a new resolution (like GL_NEAREST).
+/**
+ * @brief Point sample an image to a new resolution (like GL_NEAREST).
+ *
+ * Template is used purely as a type-safe code generator in this one
+ * compilation unit. Generated code is inlined into type-specific wrapper
+ * functions below which are exported to rest of module.
+ */
 template<typename PIXEL>
-void PointSampleAddressablePixels( const uint8_t * inPixels,
+inline void PointSampleAddressablePixels( const uint8_t * inPixels,
                                    unsigned int inputWidth,
                                    unsigned int inputHeight,
                                    uint8_t * outPixels,
@@ -950,9 +1022,7 @@ void PointSampleAddressablePixels( const uint8_t * inPixels,
 
 }
 
-/*
- * RGBA8888
- */
+// RGBA8888
 void PointSample4BPP( const unsigned char * inPixels,
                       unsigned int inputWidth,
                       unsigned int inputHeight,
@@ -963,9 +1033,7 @@ void PointSample4BPP( const unsigned char * inPixels,
   PointSampleAddressablePixels<uint32_t>( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
 }
 
-/*
- * RGB565, LA88
- */
+// RGB565, LA88
 void PointSample2BPP( const unsigned char * inPixels,
                       unsigned int inputWidth,
                       unsigned int inputHeight,
@@ -976,9 +1044,7 @@ void PointSample2BPP( const unsigned char * inPixels,
   PointSampleAddressablePixels<uint16_t>( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
 }
 
-/*
- * L8, A8
- */
+// L8, A8
 void PointSample1BPP( const unsigned char * inPixels,
                       unsigned int inputWidth,
                       unsigned int inputHeight,
@@ -989,8 +1055,7 @@ void PointSample1BPP( const unsigned char * inPixels,
   PointSampleAddressablePixels<uint8_t>( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
 }
 
-/*
- * RGB888
+/* RGB888
  * RGB888 is a special case as its pixels are not aligned addressable units.
  */
 void PointSample3BPP( const uint8_t * inPixels,
@@ -1016,20 +1081,22 @@ void PointSample3BPP( const uint8_t * inPixels,
   unsigned int inY = 0; //< 16.16 fixed-point input image y-coord.
   for( unsigned int outY = 0; outY < desiredHeight; ++outY )
   {
-    const uint8_t* const inScanline = &inPixels[inputWidth * (inY >> 16u) * BYTES_PER_PIXEL];
+    const unsigned int integerY = (inY + (1u << 15u)) >> 16u;
+    const uint8_t* const inScanline = &inPixels[inputWidth * integerY * BYTES_PER_PIXEL];
     uint8_t* const outScanline = &outPixels[desiredWidth * outY * BYTES_PER_PIXEL];
     unsigned int inX = 0; //< 16.16 fixed-point input image x-coord.
 
     for( unsigned int outX = 0; outX < desiredWidth * BYTES_PER_PIXEL; outX += BYTES_PER_PIXEL )
     {
-      // Truncate the fixed-point input coordinate to the address of the input pixel to sample:
-      const uint8_t* const inPixelAddress = &inScanline[(inX >> 16u) * BYTES_PER_PIXEL];
+      // Round the fixed-point input coordinate to the address of the input pixel to sample:
+      const unsigned int integerX = (inX + (1u << 15u)) >> 16u;
+      const uint8_t* const inPixelAddress = &inScanline[integerX * BYTES_PER_PIXEL];
 
       // Issue loads for all pixel color components up-front:
       const unsigned int c0 = inPixelAddress[0];
       const unsigned int c1 = inPixelAddress[1];
       const unsigned int c2 = inPixelAddress[2];
-      ///@ToDo: Benchmark one 32bit load that will be unaligned 2/3 of the time + 3 rotate and masks, versus these three aligned byte loads.
+      ///@ToDo: Optimise - Benchmark one 32bit load that will be unaligned 2/3 of the time + 3 rotate and masks, versus these three aligned byte loads, versus using an RGB packed, aligned(1) struct and letting compiler pick a strategy.
 
       // Output the pixel components:
       outScanline[outX]     = c0;
@@ -1056,13 +1123,13 @@ void PointSample( const unsigned char * inPixels,
   // Check the pixel format is one that is supported:
   if( pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 )
   {
-    if( pixelFormat == Pixel::RGBA8888 )
-    {
-      PointSample4BPP( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
-    }
-    else if( pixelFormat == Pixel::RGB888 )
+    if( pixelFormat == Pixel::RGB888 )
     {
       PointSample3BPP( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
+    }
+    else if( pixelFormat == Pixel::RGBA8888 )
+    {
+      PointSample4BPP( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
     }
     else if( pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 )
     {
@@ -1072,10 +1139,227 @@ void PointSample( const unsigned char * inPixels,
     {
       PointSample1BPP( inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight );
     }
+    else
+    {
+      DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+    }
   }
   else
   {
     DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not point sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat) );
+  }
+}
+
+// Linear sampling group below
+
+namespace
+{
+
+/** @brief Blend 4 pixels together using horizontal and vertical weights. */
+inline uint8_t BilinearFilter1BPPByte( uint8_t tl, uint8_t tr, uint8_t bl, uint8_t br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
+{
+  return BilinearFilter1Component( tl, tr, bl, br, fractBlendHorizontal, fractBlendVertical );
+}
+
+/** @copydoc BilinearFilter1BPPByte */
+inline Pixel2Bytes BilinearFilter2Bytes( Pixel2Bytes tl, Pixel2Bytes tr, Pixel2Bytes bl, Pixel2Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
+{
+  Pixel2Bytes pixel;
+  pixel.l = BilinearFilter1Component( tl.l, tr.l, bl.l, br.l, fractBlendHorizontal, fractBlendVertical );
+  pixel.a = BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical );
+  return pixel;
+}
+
+/** @copydoc BilinearFilter1BPPByte */
+inline Pixel3Bytes BilinearFilterRGB888( Pixel3Bytes tl, Pixel3Bytes tr, Pixel3Bytes bl, Pixel3Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
+{
+  Pixel3Bytes pixel;
+  pixel.r = BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical );
+  pixel.g = BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical );
+  pixel.b = BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical );
+  return pixel;
+}
+
+/** @copydoc BilinearFilter1BPPByte */
+inline PixelRGB565 BilinearFilterRGB565( PixelRGB565 tl, PixelRGB565 tr, PixelRGB565 bl, PixelRGB565 br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
+{
+  const PixelRGB565 pixel = (BilinearFilter1Component( tl >> 11u, tr >> 11u, bl >> 11u, br >> 11u, fractBlendHorizontal, fractBlendVertical ) << 11u) +
+                            (BilinearFilter1Component( (tl >> 5u) & 63u, (tr >> 5u) & 63u, (bl >> 5u) & 63u, (br >> 5u) & 63u, fractBlendHorizontal, fractBlendVertical ) << 5u) +
+                             BilinearFilter1Component( tl & 31u, tr & 31u, bl & 31u, br & 31u, fractBlendHorizontal, fractBlendVertical );
+  return pixel;
+}
+
+/** @copydoc BilinearFilter1BPPByte */
+inline Pixel4Bytes BilinearFilter4Bytes( Pixel4Bytes tl, Pixel4Bytes tr, Pixel4Bytes bl, Pixel4Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
+{
+  Pixel4Bytes pixel;
+  pixel.r = BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical );
+  pixel.g = BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical );
+  pixel.b = BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical );
+  pixel.a = BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical );
+  return pixel;
+}
+
+/**
+ * @brief Generic version of bilinear sampling image resize function.
+ * @note Limited to one compilation unit and exposed through type-specific
+ * wrapper functions below.
+ */
+template<
+  typename PIXEL,
+  PIXEL (*BilinearFilter) ( PIXEL tl, PIXEL tr, PIXEL bl, PIXEL br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical ),
+  bool DEBUG_ASSERT_ALIGNMENT
+>
+inline void LinearSampleGeneric( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  const unsigned int inputWidth = inputDimensions.GetWidth();
+  const unsigned int inputHeight = inputDimensions.GetHeight();
+  const unsigned int desiredWidth = desiredDimensions.GetWidth();
+  const unsigned int desiredHeight = desiredDimensions.GetHeight();
+
+  DALI_ASSERT_DEBUG( ((outPixels >= inPixels + inputWidth   * inputHeight   * sizeof(PIXEL)) ||
+                      (inPixels >= outPixels + desiredWidth * desiredHeight * sizeof(PIXEL))) &&
+                     "Input and output buffers cannot overlap.");
+  if( DEBUG_ASSERT_ALIGNMENT )
+  {
+    DALI_ASSERT_DEBUG( ((uint64_t) inPixels)  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+    DALI_ASSERT_DEBUG( ((uint64_t) outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+  }
+
+  if( inputWidth < 1u || inputHeight < 1u || desiredWidth < 1u || desiredHeight < 1u )
+  {
+    return;
+  }
+  const PIXEL* const inAligned = reinterpret_cast<const PIXEL*>(inPixels);
+  PIXEL* const       outAligned = reinterpret_cast<PIXEL*>(outPixels);
+  const unsigned int deltaX = (inputWidth  << 16u) / desiredWidth;
+  const unsigned int deltaY = (inputHeight << 16u) / desiredHeight;
+
+  unsigned int inY = 0;
+  for( unsigned int outY = 0; outY < desiredHeight; ++outY )
+  {
+    PIXEL* const outScanline = &outAligned[desiredWidth * outY];
+
+    // Find the two scanlines to blend and the weight to blend with:
+    const unsigned int integerY1 = inY >> 16u;
+    const unsigned int integerY2 = integerY1 >= inputHeight ? integerY1 : integerY1 + 1;
+    const unsigned int inputYWeight = inY & 65535u;
+
+    DALI_ASSERT_DEBUG( integerY1 < inputHeight );
+    DALI_ASSERT_DEBUG( integerY2 < inputHeight );
+
+    const PIXEL* const inScanline1 = &inAligned[inputWidth * integerY1];
+    const PIXEL* const inScanline2 = &inAligned[inputWidth * integerY2];
+
+    unsigned int inX = 0;
+    for( unsigned int outX = 0; outX < desiredWidth; ++outX )
+    {
+      // Work out the two pixel scanline offsets for this cluster of four samples:
+      const unsigned int integerX1 = inX >> 16u;
+      const unsigned int integerX2 = integerX1 >= inputWidth ? integerX1 : integerX1 + 1;
+
+      // Execute the loads:
+      const PIXEL pixel1 = inScanline1[integerX1];
+      const PIXEL pixel2 = inScanline2[integerX1];
+      const PIXEL pixel3 = inScanline1[integerX2];
+      const PIXEL pixel4 = inScanline2[integerX2];
+      ///@ToDo Optimise - for 1 and 2  and 4 byte types to execute a single 2, 4, or 8 byte load per pair (caveat clamping) and let half of them be unaligned.
+
+      // Weighted bilinear filter:
+      const unsigned int inputXWeight = inX & 65535u;
+      outScanline[outX] = BilinearFilter( pixel1, pixel3, pixel2, pixel4, inputXWeight, inputYWeight );
+
+      inX += deltaX;
+    }
+    inY += deltaY;
+  }
+}
+
+}
+
+// Format-specific linear scaling instantiations:
+
+void LinearSample1BPP( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  LinearSampleGeneric<uint8_t, BilinearFilter1BPPByte, false>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+void LinearSample2BPP( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  LinearSampleGeneric<Pixel2Bytes, BilinearFilter2Bytes, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+void LinearSampleRGB565( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  LinearSampleGeneric<PixelRGB565, BilinearFilterRGB565, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+void LinearSample3BPP( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  LinearSampleGeneric<Pixel3Bytes, BilinearFilterRGB888, false>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       unsigned char * __restrict__ outPixels,
+                       ImageDimensions desiredDimensions )
+{
+  LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+// Dispatch to a format-appropriate linear sampling function:
+void LinearSample( const unsigned char * __restrict__ inPixels,
+                   ImageDimensions inDimensions,
+                   Pixel::Format pixelFormat,
+                   unsigned char * __restrict__ outPixels,
+                   ImageDimensions outDimensions )
+{
+  // Check the pixel format is one that is supported:
+  if( pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565 )
+  {
+    if( pixelFormat == Pixel::RGB888 )
+    {
+      LinearSample3BPP( inPixels, inDimensions, outPixels, outDimensions );
+    }
+    else if( pixelFormat == Pixel::RGBA8888 )
+    {
+      LinearSample4BPP( inPixels, inDimensions, outPixels, outDimensions );
+    }
+    else if( pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 )
+    {
+      LinearSample1BPP( inPixels, inDimensions, outPixels, outDimensions );
+    }
+    else if( pixelFormat == Pixel::LA88 )
+    {
+      LinearSample2BPP( inPixels, inDimensions, outPixels, outDimensions );
+    }
+    else if ( pixelFormat == Pixel::RGB565 )
+    {
+      LinearSampleRGB565( inPixels, inDimensions, outPixels, outDimensions );
+    }
+    else
+    {
+      DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+    }
+  }
+  else
+  {
+    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat) );
   }
 }
 

@@ -35,7 +35,7 @@ namespace Adaptor
 {
 
 /**
- * The Framework class is used to register callbacks with the SLP platform so that
+ * The Framework class is used to register callbacks with the TIZEN platform so that
  * we know when any of the application lifecycle events occur.  This includes events
  * like when our application is to be initialised, terminated, paused, resumed etc.
  */

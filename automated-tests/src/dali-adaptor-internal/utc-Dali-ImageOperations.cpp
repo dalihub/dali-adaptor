@@ -1471,3 +1471,53 @@ int UtcDaliImageOperationsVector2Uint16(void)
 
   END_TEST;
 }
+
+/**
+ * @brief Test the four-tap linear blending for single-byte modes.
+ */
+int UtcDaliImageOperationsBilinearFilter1BPP(void)
+{
+  // Zeros blend to zero:
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 0, 0, 0, 0 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 0, 0, 32768, 0 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 0, 0, 65535, 0 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 0, 0, 0, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 0, 0, 0, 65535 ), TEST_LOCATION );
+
+  // Ones and zeros average to 0.5:
+  DALI_TEST_EQUALS( 127u, BilinearFilter1Component( 255, 0, 0, 255, 32768, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 127u, BilinearFilter1Component( 0, 255, 0, 255, 32768, 32768 ), TEST_LOCATION );
+
+  // Quarters ones average to 0.25:
+  DALI_TEST_EQUALS( 64u, BilinearFilter1Component( 255, 0, 0, 0, 32768, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 64u, BilinearFilter1Component( 0, 255, 0, 0, 32768, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 64u, BilinearFilter1Component( 0, 0, 255, 0, 32768, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 64u, BilinearFilter1Component( 0, 0, 0, 255, 32768, 32768 ), TEST_LOCATION );
+
+  // Horizontal blends:
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 255, 0, 255, 0, 32768 ), TEST_LOCATION );
+  for( unsigned y = 0; y < 65536u; y += 256 )
+  {
+    // Vertical blends don't change result in this case as there is no vertical gradient in inputs:
+    DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 255, 0, 255, 0, y ), TEST_LOCATION );
+  }
+  DALI_TEST_EQUALS( 5u, BilinearFilter1Component( 0, 255, 0, 255, 1233, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 29u, BilinearFilter1Component( 0, 255, 0, 255, 7539, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 29u, BilinearFilter1Component( 0, 255, 0, 255, 7539, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 67u, BilinearFilter1Component( 0, 255, 0, 255, 17291, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 123u, BilinearFilter1Component( 0, 255, 0, 255, 31671, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 184u, BilinearFilter1Component( 0, 255, 0, 255, 47231, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 207u, BilinearFilter1Component( 0, 255, 0, 255, 53129, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 239u, BilinearFilter1Component( 0, 255, 0, 255, 61392, 32768 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 255u, BilinearFilter1Component( 0, 255, 0, 255, 65535, 32768 ), TEST_LOCATION );
+
+  // Vertical Blends:
+  DALI_TEST_EQUALS( 0u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 0 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 60u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 15379 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 130u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 33451 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 186u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 47836 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 244u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 62731 ), TEST_LOCATION );
+  DALI_TEST_EQUALS( 255u, BilinearFilter1Component( 0, 0, 255, 255, 32768, 65535 ), TEST_LOCATION );
+
+  END_TEST;
+}

@@ -48,6 +48,8 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
   mGlesCallTime(0),
+  mWindowWidth( 0 ),
+  mWindowHeight( 0 ),
   mLogFunction( NULL )
 {
 }
@@ -156,6 +158,16 @@ int EnvironmentOptions::GetMinimumPanEvents() const
   return mPanMinimumEvents;
 }
 
+unsigned int EnvironmentOptions::GetWindowWidth() const
+{
+  return mWindowWidth;
+}
+
+unsigned int EnvironmentOptions::GetWindowHeight() const
+{
+  return mWindowHeight;
+}
+
 void EnvironmentOptions::SetPanGesturePredictionMode( unsigned int mode )
 {
   mPanGesturePredictionMode = mode;
@@ -209,6 +221,16 @@ void EnvironmentOptions::SetGlesCallTime( int time )
 int EnvironmentOptions::GetGlesCallTime() const
 {
   return mGlesCallTime;
+}
+
+void EnvironmentOptions::SetWindowWidth( int width )
+{
+  mWindowWidth = width;
+}
+
+void EnvironmentOptions::SetWindowHeight( int height )
+{
+  mWindowHeight = height;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const

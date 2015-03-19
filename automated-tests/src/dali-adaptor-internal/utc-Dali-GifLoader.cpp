@@ -19,13 +19,13 @@
 #include <stdlib.h>
 #include <dali-test-suite-utils.h>
 
-#include "platform-abstractions/slp/image-loaders/loader-gif.h"
+#include "platform-abstractions/tizen/image-loaders/loader-gif.h"
 #include "image-loaders.h"
 
 using namespace Dali;
 
 namespace {
-static const LoadFunctions GifLoaders( SlpPlatform::LoadGifHeader, SlpPlatform::LoadBitmapFromGif );
+static const LoadFunctions GifLoaders( TizenPlatform::LoadGifHeader, TizenPlatform::LoadBitmapFromGif );
 }
 
 
