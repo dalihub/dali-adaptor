@@ -257,6 +257,7 @@ static void set_wordbreaks(
             break;
 
         case WBP_ALetter:
+        case WBP_Hebrew:
             if ((wbcSeqStart == WBP_ALetter) || /* WB5,6,7 */
                     (wbcLast == WBP_Numeric) || /* WB10 */
                     (wbcSeqStart == WBP_ExtendNumLet)) /* WB13b */
