@@ -19,7 +19,7 @@
 #include "clipboard-event-notifier-impl.h"
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/dali-core.h>
+#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>

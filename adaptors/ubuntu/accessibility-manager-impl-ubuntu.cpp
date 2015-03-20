@@ -19,8 +19,7 @@
 #include "accessibility-manager-impl.h"
 
 // EXTERNAL INCLUDES
-
-#include <dali/public-api/dali-core.h>
+#include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>

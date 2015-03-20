@@ -8,6 +8,7 @@ SET(TC_SOURCES
     utc-Dali-Key.cpp
     utc-Dali-SingletonService.cpp
     utc-Dali-Timer.cpp
+    utc-Dali-Application.cpp
 )
 
 LIST(APPEND TC_SOURCES
