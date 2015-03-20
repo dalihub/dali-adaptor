@@ -228,6 +228,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
                       $(CAPI_APPFW_APPLICATION_CFLAGS) \
+                      $(CAPI_SYSTEM_INFO_CFLAGS) \
                       $(ELEMENTARY_CFLAGS) \
                       $(EVAS_CFLAGS) \
                       $(ECORE_CFLAGS) \
@@ -264,6 +265,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBCURL_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
+                      $(CAPI_SYSTEM_INFO_LIBS) \
                       -lgif \
                       -lboost_thread
 

@@ -9,9 +9,9 @@ Source0:    %{name}-%{version}.tar.gz
 
 %define dali_profile MOBILE
 %define dali_mobile_profile 1
-%define dali_feedback_plugin 1
-%define dali_bullet_plugin 1
-%define dali_assimp_plugin 1
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 
 %if 0%{?over_tizen_2_2}
@@ -50,6 +50,10 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(opengl-es-20)
 BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  libcurl-devel
+
+%if 0%{?over_tizen_2_2}
+BuildRequires:  pkgconfig(capi-system-info)
+%endif
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)
@@ -153,6 +157,9 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %endif
 %if 0%{?dali_assimp_plugin}
            --enable-assimp \
+%endif
+%if 0%{?over_tizen_2_2}
+           --with-over-tizen_2_2 \
 %endif
            --libdir=%{_libdir}
 
