@@ -86,6 +86,13 @@ public:
    */
   bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
 
+  /**
+   * @copydoc Dali::BidirectionalSupport::GetCharactersDirection()
+   */
+  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
+                               CharacterDirection* directions,
+                               Length numberOfCharacters );
+
 private:
 
   /**

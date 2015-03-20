@@ -34,6 +34,63 @@ namespace TextAbstraction
 namespace Internal
 {
 
+namespace
+{
+  typedef unsigned char BidiDirection;
+
+  // Internal charcter's direction.
+  const BidiDirection LEFT_TO_RIGHT = 0u;
+  const BidiDirection NEUTRAL = 1u;
+  const BidiDirection RIGHT_TO_LEFT = 2u;
+
+  /**
+   * @param[in] paragraphDirection The FriBiDi paragraph's direction.
+   *
+   * @return Whether the paragraph is right to left.
+   */
+  bool GetBidiParagraphDirection( FriBidiParType paragraphDirection )
+  {
+    switch( paragraphDirection )
+    {
+      case FRIBIDI_PAR_RTL:  // Right-To-Left paragraph.
+      case FRIBIDI_PAR_WRTL: // Weak Right To Left paragraph.
+      {
+        return true;
+      }
+      case FRIBIDI_PAR_LTR:  // Left-To-Right paragraph.
+      case FRIBIDI_PAR_ON:   // DirectiOn-Neutral paragraph.
+      case FRIBIDI_PAR_WLTR: // Weak Left To Right paragraph.
+      {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  BidiDirection GetBidiCharacterDirection( FriBidiCharType characterDirection )
+  {
+    switch( characterDirection )
+    {
+      case FRIBIDI_TYPE_LTR: // Left-To-Right letter.
+      case FRIBIDI_TYPE_EN:  // European Numeral.
+      case FRIBIDI_TYPE_AN:  // Arabic Numeral.
+      case FRIBIDI_TYPE_ES:  // European number Separator.
+      case FRIBIDI_TYPE_ET:  // European number Terminator.
+      {
+        return LEFT_TO_RIGHT;
+      }
+      case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
+      case FRIBIDI_TYPE_AL:  // Arabic Letter.
+      {
+        return RIGHT_TO_LEFT;
+      }
+    }
+
+    return NEUTRAL;
+  }
+}
+
 struct BidirectionalSupport::Plugin
 {
   /**
@@ -194,22 +251,48 @@ struct BidirectionalSupport::Plugin
     // Retrieve the paragraph's bidirectional info.
     const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
 
-    switch( bidirectionalInfo->paragraphDirection )
+    return GetBidiParagraphDirection( bidirectionalInfo->paragraphDirection );
+  }
+
+  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
+                               CharacterDirection* directions,
+                               Length numberOfCharacters )
+  {
+    const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
+
+    const CharacterDirection paragraphDirection = GetBidiParagraphDirection( bidirectionalInfo->paragraphDirection );
+    CharacterDirection previousDirection = paragraphDirection;
+
+    for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
     {
-      case FRIBIDI_PAR_RTL:  // Right-To-Left paragraph.
-      case FRIBIDI_PAR_WRTL: // Weak Right To Left paragraph.
+      CharacterDirection& characterDirection = *( directions + index );
+      characterDirection = false;
+
+      // Get the bidi direction.
+      const BidiDirection bidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + index ) );
+
+      if( RIGHT_TO_LEFT == bidiDirection )
       {
-        return true;
+        characterDirection = true;
       }
-      case FRIBIDI_PAR_LTR:  // Left-To-Right paragraph.
-      case FRIBIDI_PAR_ON:   // DirectiOn-Neutral paragraph.
-      case FRIBIDI_PAR_WLTR: // Weak Left To Right paragraph.
+      else if( NEUTRAL == bidiDirection )
       {
-        return false;
+        // For neutral characters it check's the next and previous directions.
+        // If they are equals set that direction. If they are not, sets the paragraph's direction.
+        // If there is no next, sets the paragraph's direction.
+
+        CharacterDirection nextDirection = paragraphDirection;
+        const Length nextIndex = index + 1u;
+        if( nextIndex < numberOfCharacters )
+        {
+          const BidiDirection nextBidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + nextIndex ) );
+
+          nextDirection = RIGHT_TO_LEFT == nextBidiDirection;
+        }
+
+        characterDirection = previousDirection == nextDirection ? previousDirection : paragraphDirection;
       }
     }
-
-    return false;
   }
 
   Vector<BidirectionalInfo*> mParagraphBidirectionalInfo; ///< Stores the bidirectional info per paragraph.
@@ -296,6 +379,17 @@ bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) 
   }
 
   return mPlugin->GetParagraphDirection( bidiInfoIndex );
+}
+
+void BidirectionalSupport::GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
+                                                   CharacterDirection* directions,
+                                                   Length numberOfCharacters )
+{
+  CreatePlugin();
+
+  mPlugin->GetCharactersDirection( bidiInfoIndex,
+                                   directions,
+                                   numberOfCharacters );
 }
 
 void BidirectionalSupport::CreatePlugin()
