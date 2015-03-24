@@ -747,7 +747,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
             float fixedHeight = static_cast< float >( ftFace->available_sizes[ i ].height );
 
             // Indicate that the font is a fixed sized bitmap
-            FontMetrics metrics( 0.0f,
+            FontMetrics metrics( fixedHeight,
                                  0.0f,
                                  fixedHeight );
 
