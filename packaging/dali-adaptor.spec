@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.34
+Version:    1.0.35
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -74,6 +74,11 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
+
+
+%if 0%{?over_tizen_2_2}
+BuildRequires:  pkgconfig(capi-system-info)
+%endif
 
 %if %{with wayland}
 BuildRequires:  pkgconfig(ecore-wayland)
@@ -188,6 +193,9 @@ cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LD
 %endif
 %if 0%{?dali_assimp_plugin}
            --enable-assimp \
+%endif
+%if 0%{?over_tizen_2_2}
+           --with-over-tizen_2_2 \
 %endif
            $configure_flags --libdir=%{_libdir}
 
