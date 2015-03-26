@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__
-#define __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__
+#ifndef __DALI_INTERNAL_ADAPTOR_SYSTEM_TRACE_H__
+#define __DALI_INTERNAL_ADAPTOR_SYSTEM_TRACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,33 +30,28 @@ namespace Adaptor
 {
 
 /**
- * Concrete Kernel Tracing Interface.
- * Used to log trace messages to the kernel using ftrace.
+ * Concrete System  Tracing Interface.
+ * Used to log trace messages to the system using ttrace
  *
  */
-class KernelTrace : public TraceInterface
+class SystemTrace : public TraceInterface
 {
 public:
 
   /**
    * Constructor
    */
-  KernelTrace();
+  SystemTrace();
 
   /**
    * Destructor
    */
-  virtual ~KernelTrace();
+  virtual ~SystemTrace();
 
   /**
    * @copydoc KernelTracerInterface::KernelTrace()
    */
   virtual void Trace( const PerformanceMarker& marker, const std::string& traceMessage );
-
-private:
-
-  int mFileDescriptor;
-  bool mLoggedError:1;
 
 };
 
@@ -66,4 +61,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_KERNEL_TRACE_H__
+#endif // __DALI_INTERNAL_ADAPTOR_SYSTEM_TRACE_H__

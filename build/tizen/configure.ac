@@ -47,6 +47,9 @@ PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
+PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
+                  [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
+                  )
 
 # Check for availability of BulletPhysics
 PKG_CHECK_EXISTS(bullet, [

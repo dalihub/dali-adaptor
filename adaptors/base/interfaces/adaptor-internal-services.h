@@ -29,7 +29,7 @@
 #include <base/interfaces/socket-factory-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
-#include <base/interfaces/kernel-trace-interface.h>
+#include <base/interfaces/trace-interface.h>
 #include <render-surface.h>
 
 
@@ -104,9 +104,15 @@ public:
   virtual PerformanceInterface* GetPerformanceInterface()  = 0;
 
   /**
-   * @return kernel trace interface
+   * @return interface for logging to the kernel ( e.g. using ftrace )
    */
-  virtual KernelTraceInterface& GetKernelTraceInterface()  = 0;
+  virtual TraceInterface& GetKernelTraceInterface()  = 0;
+
+  /**
+   * @return system trace interface, e.g. for using Tizen Trace (ttrace) or Android Trace (atrace)
+   */
+  virtual TraceInterface& GetSystemTraceInterface()  = 0;
+
 
 protected:
 

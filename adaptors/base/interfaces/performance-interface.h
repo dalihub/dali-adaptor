@@ -57,7 +57,8 @@ public:
   };
 
   /**
-   * bitmask of time stamp output options
+   * bitmask of time stamp output options.
+   * E.g. DALI_PERFORMANCE_TIMESTAMP_OUTPUT = 1 dali-demo
    * Used for logging out time stamped markers for detailed analysis (see MarkerType, for the markers logged)
    * Typical output would look like:
    *   379.059025 (seconds), V_SYNC
