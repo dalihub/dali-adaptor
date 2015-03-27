@@ -25,9 +25,14 @@
 // INTERNAL INCLUDES
 #include <ecore-wl-types.h>
 #include <trigger-event.h>
-#include <gl/egl-implementation.h>
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 #if defined(DEBUG_ENABLED)
@@ -37,19 +42,33 @@ Debug::Filter* gRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 namespace ECore
 {
 
-EcoreWlRenderSurface::EcoreWlRenderSurface(Dali::PositionSize positionSize,
-                                           Any surface,
-                                           const std::string& name,
-                                           bool isTransparent)
-: mPosition(positionSize),
-  mTitle(name),
-  mRenderNotification(NULL),
-  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
-  mOwnSurface(false)
+namespace
 {
+
+static bool gWlInitThreadsCalled = false;     ///< global to say whether WlInitThreads has been called in this process
+
+} // unnamed namespace
+
+RenderSurface::RenderSurface( SurfaceType type,
+                              Dali::PositionSize positionSize,
+                              Any surface,
+                              Any display,
+                              const std::string& name,
+                              bool isTransparent)
+: mMainDisplay(NULL),
+  mType(type),
+  mPosition(positionSize),
+  mTitle(name),
+  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mRenderNotification( NULL ),
+  mOwnSurface(false),
+  mOwnDisplay(false)
+{
+  // see if there is a display in Any display
+  SetDisplay( display );
 }
 
-void EcoreWlRenderSurface::Init( Any surface )
+void RenderSurface::Init( Any surface )
 {
   // see if there is a surface in Any surface
   unsigned int surfaceId  = GetSurfaceId( surface );
@@ -57,6 +76,14 @@ void EcoreWlRenderSurface::Init( Any surface )
   // if the surface is empty, create a new one.
   if ( surfaceId == 0 )
   {
+    if ( !gWlInitThreadsCalled )
+    {
+      ecore_wl_init(NULL);
+      mMainDisplay = ecore_wl_display_get();
+      mOwnDisplay = true;
+      gWlInitThreadsCalled = true;
+    }
+
     // we own the surface about to created
     mOwnSurface = true;
     CreateWlRenderable();
@@ -68,49 +95,129 @@ void EcoreWlRenderSurface::Init( Any surface )
   }
 
 #ifdef DEBUG_ENABLED
-  // prints out 'INFO: DALI: new EcoreWlRenderSurface, created display xx, used existing surface xx
+  // prints out 'INFO: DALI: new RenderSurface, created display xx, used existing surface xx
   // we can not use LOG_INFO because the surface can be created before Dali Core is created.
-  printf( "INFO: DALI: new EcoreWlRenderSurface, %s %s surface %X \n",
-          mOwnSurface?"created":"used existing",
-          Dali::RenderSurface::PIXMAP==mType?" pixmap" :"window",
-          GetDrawable() );
+  printf(  "INFO: DALI: new RenderSurface, %s display %p, %s %s surface %X \n",
+             mOwnDisplay?"created":"used existing",mMainDisplay,
+             mOwnSurface?"created":"used existing",
+             Dali::RenderSurface::PIXMAP==mType?" pixmap" :"window",
+             GetDrawable() );
 #endif
 }
 
-EcoreWlRenderSurface::~EcoreWlRenderSurface()
+RenderSurface::~RenderSurface()
 {
+  // release the display connection if we use our own
+  if( mOwnDisplay )
+  {
+    if( mMainDisplay )
+    {
+      // NOTE, on 64bit desktop with some NVidia driver versions this crashes
+    }
+  }
 }
 
-void EcoreWlRenderSurface::SetRenderNotification(TriggerEventInterface* renderNotification)
+Ecore_Wl_Window* RenderSurface::GetWlWindow()
+{
+  return 0;
+}
+
+WlDisplay* RenderSurface::GetMainDisplay()
+{
+  return mMainDisplay;
+}
+
+void RenderSurface::SetRenderNotification( TriggerEvent* renderNotification )
 {
   mRenderNotification = renderNotification;
 }
 
-Ecore_Wl_Window* EcoreWlRenderSurface::GetWlWindow()
+Ecore_Wl_Window* RenderSurface::GetDrawable()
 {
   return 0;
 }
 
-Ecore_Wl_Window* EcoreWlRenderSurface::GetDrawable()
+Any RenderSurface::GetDisplay()
 {
-  return 0;
+  // this getter is used by main thread so we need to return the main thread version of the display
+  return Any( ecore_wl_display_get() );
 }
 
-PositionSize EcoreWlRenderSurface::GetPositionSize() const
+PositionSize RenderSurface::GetPositionSize() const
 {
   return mPosition;
 }
 
-void EcoreWlRenderSurface::MoveResize( Dali::PositionSize positionSize )
+void RenderSurface::MoveResize( Dali::PositionSize positionSize )
 {
   // nothing to do in base class
 }
 
-void EcoreWlRenderSurface::SetViewMode( ViewMode viewMode )
+void RenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) const
+{
+  // calculate DPI
+  float xres, yres;
+
+  // 1 inch = 25.4 millimeters
+  xres = ecore_wl_dpi_get();
+  yres = ecore_wl_dpi_get();
+
+  dpiHorizontal = int(xres + 0.5f);  // rounding
+  dpiVertical   = int(yres + 0.5f);
+}
+
+void RenderSurface::Map()
 {
 }
 
-unsigned int EcoreWlRenderSurface::GetSurfaceId( Any surface ) const
+void RenderSurface::TransferDisplayOwner( Internal::Adaptor::RenderSurface& newSurface )
+{
+  // if we don't own the display return
+  if( mOwnDisplay == false )
+  {
+    return;
+  }
+
+  RenderSurface* other = dynamic_cast< RenderSurface* >( &newSurface );
+  if( other )
+  {
+    // if both surfaces share the same display, and this surface owns it,
+    // then transfer the ownership to the new surface
+    if( other->mMainDisplay == mMainDisplay )
+    {
+      mOwnDisplay = false;
+      other->mOwnDisplay = true;
+    }
+  }
+}
+
+void RenderSurface::ConsumeEvents()
+{
+}
+
+void RenderSurface::SetViewMode( ViewMode )
+{
+}
+
+void RenderSurface::SetDisplay( Any display )
+{
+  // the render surface can be passed either EFL e-core types, or x11 types
+  // we use boost any to determine at run time which type
+
+  if ( display.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( display.GetType() == typeid (WlDisplay *) )
+                        &&
+                        "Display type is invalid" );
+
+    mOwnDisplay = false;
+
+    mMainDisplay = AnyCast< WlDisplay* >( display );
+  }
+}
+
+unsigned int RenderSurface::GetSurfaceId( Any surface ) const
 {
   unsigned int surfaceId = 0;
 
@@ -126,5 +233,9 @@ unsigned int EcoreWlRenderSurface::GetSurfaceId( Any surface ) const
 }
 
 } // namespace ECore
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali

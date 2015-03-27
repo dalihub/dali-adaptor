@@ -1,3 +1,6 @@
+#ifndef __DALI_INTERNAL_X11_TYPES_H__
+#define __DALI_INTERNAL_X11_TYPES_H__
+
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -15,12 +18,8 @@
  *
  */
 
-// CLASS HEADER
-#include "trigger-event-factory.h"
-
-// INTERNAL INCLUDES
-#include <trigger-event.h>
-
+// EXTERNAL INCLUDES
+#include <X11/Xlib.h>
 
 namespace Dali
 {
@@ -31,20 +30,15 @@ namespace Internal
 namespace Adaptor
 {
 
-TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(  CallbackBase* callback,  TriggerEventInterface::Options options )
-{
-  return new TriggerEvent( callback, options );
-}
-
-void TriggerEventFactory::DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface )
-{
-  TriggerEvent* triggerEvent( static_cast< TriggerEvent* >( triggerEventInterface) );
-  delete triggerEvent;
-}
-
-
-} // namespace Internal
+typedef ::Pixmap XPixmap;
+typedef ::Window XWindow;
+typedef ::Display XDisplay;
+typedef ::Screen XScreen;
 
 } // namespace Adaptor
 
+} // namespace Internal
+
 } // namespace Dali
+
+#endif /* __DALI_INTERNAL_X11_TYPES_H__ */

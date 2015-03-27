@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>
-#include <trigger-event-factory-interface.h>
+#include <base/interfaces/trigger-event-factory-interface.h>
 #include <base/performance-logging/networking/client-send-data-interface.h>
 #include <base/interfaces/socket-factory-interface.h>
 

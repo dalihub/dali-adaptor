@@ -82,8 +82,6 @@ struct Window::EventHandler
                              ECORE_X_ATOM_E_DEICONIFY_APPROVE,
                              &tmp, 1);
 #endif // DALI_PROFILE_UBUNTU
-
-    ecore_x_input_multi_select( mEcoreWindow );
   }
 
   /**
@@ -363,11 +361,8 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
 {
   // create an X11 window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
-  windowSurface->Map();
-
-  mSurface = windowSurface;
-
+  Any display;
+  mSurface = new ECore::WindowRenderSurface( windowPosition, surface, display, name, mIsTransparent );
   mOrientation = Orientation::New(this);
 
   // create event handler for X11 window

@@ -23,6 +23,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/orientation-impl.cpp  \
   $(adaptor_common_dir)/performance-logger-impl.cpp \
   $(adaptor_common_dir)/physical-keyboard-impl.cpp \
+  $(adaptor_common_dir)/render-surface-impl.cpp \
   $(adaptor_common_dir)/server-connection.cpp \
   $(adaptor_common_dir)/shared-file.cpp \
   $(adaptor_common_dir)/singleton-service-impl.cpp \

@@ -334,9 +334,7 @@ void Application::ReplaceWindow(PositionSize windowPosition, const std::string& 
   windowImpl.SetAdaptor(*mAdaptor);
   newWindow.ShowIndicator(Dali::Window::INVISIBLE);
   Dali::RenderSurface* renderSurface = windowImpl.GetSurface();
-
-  Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(*renderSurface);
   mWindow = newWindow;
 }
 

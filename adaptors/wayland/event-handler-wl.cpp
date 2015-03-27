@@ -677,11 +677,14 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 {
   Ecore_Wl_Window* window = 0;
 
-  // this code only works with the Ecore RenderSurface so need to downcast
-  ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
-  if( ecoreSurface )
+  if( surface->GetType() == Dali::RenderSurface::WINDOW )
   {
-    window = ecoreSurface->GetWlWindow();
+    // this code only works with the Ecore RenderSurface so need to downcast
+    ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
+    if( ecoreSurface )
+    {
+      window = ecoreSurface->GetWlWindow();
+    }
   }
 
   mImpl = new Impl(this, window);

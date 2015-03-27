@@ -21,19 +21,30 @@
 namespace Dali
 {
 
+namespace Internal
+{
+
+namespace Adaptor
+{
+
 namespace ECore
 {
 
-DALI_EXPORT_API PixmapRenderSurface* CreatePixmapSurface(
-                                     PositionSize       positionSize,
-                                     Any                surface,
-                                     const std::string& name,
-                                     bool               isTransparent)
+DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
+  PositionSize       positionSize,
+  Any                surface,
+  Any                display,
+  const std::string& name,
+  bool               isTransparent )
 {
-  return new PixmapRenderSurface(positionSize, surface, name, isTransparent);
+  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
 }
 
 } // namespace ECoreX
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

@@ -22,14 +22,12 @@
 #include <boost/thread.hpp>
 
 // INTERNAL INCLUDES
-#include <egl-interface.h>
-#include <render-surface.h> // needed for Dali::RenderSurface
+#include <base/interfaces/egl-interface.h>
+#include <render-surface-impl.h> // needed for Dali::Internal::Adaptor::RenderSurface
+
 
 namespace Dali
 {
-
-class RenderSurface;
-class DisplayConnection;
 
 namespace Integration
 {
@@ -43,9 +41,11 @@ namespace Adaptor
 {
 
 class AdaptorInternalServices;
+class RenderSurface;
 class UpdateRenderSynchronization;
 class EglFactoryInterface;
 class EnvironmentOptions;
+
 
 class RenderRequest
 {
@@ -118,15 +118,16 @@ public:
    * @param[in] sync update-render synchronization object
    * @param[in] adaptorInterfaces base adaptor interface
    * @param[in] environmentOptions environment options
+
    */
   RenderThread( UpdateRenderSynchronization& sync,
                 AdaptorInternalServices& adaptorInterfaces,
                 const EnvironmentOptions& environmentOptions );
 
   /**
-   * Destructor
+   * Virtual Destructor
    */
-  ~RenderThread();
+  virtual ~RenderThread();
 
 public:
 
@@ -139,6 +140,11 @@ public:
    * Stops the render-thread
    */
   void Stop();
+
+  /**
+   * Offscreen was posted to onscreen
+   */
+  void RenderSync();
 
 private: // Render thread side helpers
 
@@ -154,6 +160,12 @@ private: // Render thread side helpers
    * Called from render thread
    */
   void InitializeEgl();
+
+  /**
+   * Check if display has events
+   * Called from render thread
+   */
+  void ConsumeEvents();
 
   /**
    * Check if main thread made any requests, e.g. ReplaceSurface
@@ -199,7 +211,6 @@ private: // Data
   EglInterface*                 mEGL;                    ///< Interface to EGL implementation
   boost::thread*                mThread;                 ///< render thread
   RenderSurface*                mSurface;                ///< Current surface
-  Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
   const EnvironmentOptions&     mEnvironmentOptions;     ///< Environment options
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialzed.
 };

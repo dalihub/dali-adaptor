@@ -411,6 +411,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   }
 }
 
+
 void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
 {
   DALI_ASSERT_ALWAYS( ( mEglSurface == 0 ) && "EGL surface already exists" );
@@ -445,27 +446,49 @@ void EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDe
   DALI_ASSERT_ALWAYS( mEglSurface && "Create pixmap surface failed" );
 }
 
-bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
+bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLNativeDisplayType display )
 {
   bool contextLost = false;
 
-  // display connection has not changed, then we can just create a new surface
-  //  the surface is bound to the context, so set the context to null
-  MakeContextNull();
+  // If the display connection has not changed, then we can just create a new surface
+  if ( display == mEglNativeDisplay )
+  {
+    //  the surface is bound to the context, so set the context to null
+    MakeContextNull();
 
-  // destroy the surface
-  DestroySurface();
+    // destroy the surface
+    DestroySurface();
 
-  // create the EGL surface
-  CreateSurfaceWindow( window, mColorDepth );
+    // create the EGL surface
+    CreateSurfaceWindow( window, mColorDepth );
 
-  // set the context to be current with the new surface
-  MakeContextCurrent();
+    // set the context to be current with the new surface
+    MakeContextCurrent();
+  }
+  else  // the display connection has changed, we need to start egl with a new x-connection
+  {
+    TerminateGles();
+
+    // let the adaptor know that all resources have been lost
+    contextLost = true;
+
+    // re-initialise GLES with the new connection
+    InitializeGles( display );
+
+    // create the EGL surface
+    CreateSurfaceWindow( window, mColorDepth );
+
+     // create the OpenGL context
+    CreateContext();
+
+    // Make it current
+    MakeContextCurrent();
+  }
 
   return contextLost;
 }
 
-bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap )
+bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLNativeDisplayType display )
 {
   bool contextLost = false;
 
@@ -475,13 +498,39 @@ bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap )
   // destroy the surface
   DestroySurface();
 
-  // display connection has not changed, then we can just create a new surface
-  // create the EGL surface
-  CreateSurfacePixmap( pixmap, mColorDepth );
+  // If the display has not changed, then we can just create a new surface
+  if ( display == mEglNativeDisplay )
+  {
+    // create the EGL surface
+    CreateSurfacePixmap( pixmap, mColorDepth );
 
-  // set the context to be current with the new surface
-  MakeContextCurrent();
+    // set the context to be current with the new surface
+    MakeContextCurrent();
+  }
+  else  // the display has changed, we need to start egl with a new x-connection
+  {
+    // Note! this code path is untested
 
+    // this will release all EGL specific resources
+    eglTerminate( mEglDisplay );
+
+    mGlesInitialized = false;
+
+    // let the adaptor know that all resources have been lost
+    contextLost = true;
+
+    // re-initialise GLES with the new connection
+    InitializeGles( display );
+
+    // create the EGL surface
+    CreateSurfacePixmap( pixmap, mColorDepth );
+
+    // create the OpenGL context
+    CreateContext();
+
+    // Make it current
+    MakeContextCurrent();
+  }
   return contextLost;
 }
 

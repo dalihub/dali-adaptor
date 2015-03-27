@@ -1,5 +1,5 @@
-#ifndef __DALI_INTEGRATION_EGL_INTERFACE_H__
-#define __DALI_INTEGRATION_EGL_INTERFACE_H__
+#ifndef __DALI_INTERNAL_ADAPTOR_BASE_EGL_INTERFACE_H__
+#define __DALI_INTERNAL_ADAPTOR_BASE_EGL_INTERFACE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -20,12 +20,10 @@
 
 namespace Dali
 {
-
-enum ColorDepth
+namespace Internal
 {
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
+namespace Adaptor
+{
 
 /**
  * EglInterface provides an interface for managing EGL contexts
@@ -71,6 +69,10 @@ protected:
   virtual ~EglInterface() {}
 };
 
+} // namespace Adaptor
+
+} // namespace Internal
+
 } // namespace Dali
 
-#endif // __DALI_INTEGRATION_EGL_INTERFACE_H__
+#endif // __DALI_INTERNAL_ADAPTOR_BASE_EGL_INTERFACE_H__

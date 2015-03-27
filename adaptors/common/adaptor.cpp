@@ -26,8 +26,8 @@
 #include <imf-manager.h>
 #include <style-monitor.h>
 #include <window.h>
-#include <render-surface.h>
 #include <adaptor-impl.h>
+#include <render-surface-impl.h>
 #include <window-impl.h>
 
 namespace Dali
@@ -40,23 +40,9 @@ Adaptor& Adaptor::New( Window window )
 
 Adaptor& Adaptor::New( Window window, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration )
 {
-  Any winId = window.GetNativeHandle();
-
   Internal::Adaptor::Window& windowImpl = GetImplementation(window);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( winId, windowImpl.GetSurface(), baseLayout, configuration );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( windowImpl.GetSurface(), baseLayout, configuration );
   windowImpl.SetAdaptor(*adaptor);
-  return *adaptor;
-}
-
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface )
-{
-  return New( nativeWindow, surface, DeviceLayout::DEFAULT_BASE_LAYOUT, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-}
-
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration )
-{
-  Dali::RenderSurface* pSurface = const_cast<Dali::RenderSurface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, baseLayout, configuration );
   return *adaptor;
 }
 
@@ -88,11 +74,6 @@ void Adaptor::Stop()
 bool Adaptor::AddIdle( CallbackBase* callback )
 {
   return mImpl->AddIdle( callback );
-}
-
-void Adaptor::ReplaceSurface( Any nativeWindow, Dali::RenderSurface& surface )
-{
-  mImpl->ReplaceSurface(nativeWindow, surface);
 }
 
 Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()
@@ -143,21 +124,6 @@ void Adaptor::NotifyLanguageChanged()
 void Adaptor::SetMinimumPinchDistance(float distance)
 {
   mImpl->SetMinimumPinchDistance(distance);
-}
-
-void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
-{
-  mImpl->FeedTouchPoint(point, timeStamp);
-}
-
-void Adaptor::FeedWheelEvent( MouseWheelEvent& wheelEvent )
-{
-  mImpl->FeedWheelEvent(wheelEvent);
-}
-
-void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
-{
-  mImpl->FeedKeyEvent(keyEvent);
 }
 
 Adaptor::Adaptor()

@@ -47,8 +47,6 @@
 namespace Dali
 {
 
-class RenderSurface;
-
 namespace Integration
 {
 class Core;
@@ -65,6 +63,7 @@ class EglFactory;
 class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
+class RenderSurface;
 class UpdateRenderController;
 class TriggerEvent;
 class CallbackManager;
@@ -91,15 +90,13 @@ public:
 
   /**
    * Creates a New Adaptor
-   * @param[in]  nativeWindow  native window handle
-   * @param[in]  surface       A render surface can be one of the following
-   *                           - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                           - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout    The base layout that the application has been written for
+   * @param[in]  surface     A render surface can be one of the following
+   *                         - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                         - Window, adaptor will use existing Window to draw on to
+   * @param[in]  baseLayout  The base layout that the application has been written for
    * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
    */
-  static Dali::Adaptor* New( Any nativeWindow,
-                             RenderSurface* surface,
+  static Dali::Adaptor* New( RenderSurface* surface,
                              const DeviceLayout& baseLayout,
                              Dali::Configuration::ContextLoss configuration );
 
@@ -172,12 +169,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
+  virtual void ReplaceSurface( Dali::RenderSurface& surface );
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual RenderSurface& GetSurface() const;
+  virtual Dali::RenderSurface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -269,13 +266,6 @@ public:
    * @param[in] distance The minimum pinch distance in pixels
    */
   void SetMinimumPinchDistance(float distance);
-
-  /**
-   * Gets native window handle
-   *
-   * @return native window handle
-   */
-  Any GetNativeWindowHandle();
 
 public:
 
@@ -466,7 +456,7 @@ private:
    * Assigns the render surface to the adaptor
    *
    */
-  void SetSurface(RenderSurface *surface);
+  void SetSurface(Dali::RenderSurface *surface);
 
   /**
    * Sends an notification message from main loop idle handler
@@ -483,14 +473,13 @@ private:
 
   /**
    * Constructor
-   * @param[in]  nativeWindow native window handle
-   * @param[in]  adaptor      The public adaptor
-   * @param[in]  surface      A render surface can be one of the following
-   *                          - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                          - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout   The base layout that the application has been written for
+   * @param[in]  adaptor     The public adaptor
+   * @param[in]  surface     A render surface can be one of the following
+   *                         - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                         - Window, adaptor will use existing Window to draw on to
+   * @param[in]  baseLayout  The base layout that the application has been written for
    */
-  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout );
+  Adaptor( Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout );
 
 private: // Types
 
@@ -507,8 +496,8 @@ private: // Types
 
 private: // Data
 
-  AdaptorSignalType                     mResizedSignal;               ///< Resized signal.
-  AdaptorSignalType                     mLanguageChangedSignal;       ///< Language changed signal.
+  AdaptorSignalType                       mResizedSignal;             ///< Resized signal.
+  AdaptorSignalType                       mLanguageChangedSignal;     ///< Language changed signal.
 
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor
@@ -519,7 +508,6 @@ private: // Data
   GlSyncImplementation*                 mGlSync;                      ///< GL Sync implementation
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
-  Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
   TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
 

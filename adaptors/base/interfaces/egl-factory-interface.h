@@ -20,13 +20,11 @@
 
 namespace Dali
 {
-
-class EglInterface;
-
 namespace Internal
 {
 namespace Adaptor
 {
+class EglInterface;
 
 /**
  * Factory interface for creating EGL implementation

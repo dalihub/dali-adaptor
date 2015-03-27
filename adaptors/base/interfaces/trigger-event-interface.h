@@ -1,5 +1,5 @@
-#ifndef __DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H__
-#define __DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H__
+#ifndef __DALI_INTERNAL_ADAPTOR_BASE_TRIGGER_EVENT_INTERFACE_H__
+#define __DALI_INTERNAL_ADAPTOR_BASE_TRIGGER_EVENT_INTERFACE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -20,6 +20,12 @@
 
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 /**
@@ -58,7 +64,6 @@ protected:
   {
   }
 
-public:
   /**
    * @brief Virtual destructor
    */
@@ -77,6 +82,10 @@ private:
 
 };
 
+} // namespace Adaptor
+
+} // namespace Internal
+
 } // namespace Dali
 
-#endif // __DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H__
+#endif // __DALI_INTERNAL_ADAPTOR_BASE_TRIGGER_EVENT_INTERFACE_H__

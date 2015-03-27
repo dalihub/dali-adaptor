@@ -25,10 +25,14 @@
 // INTERNAL INCLUDES
 #include <ecore-wl-types.h>
 #include <trigger-event.h>
-#include <gl/egl-implementation.h>
-#include <base/display-connection.h>
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 #if defined(DEBUG_ENABLED)
@@ -38,11 +42,12 @@ extern Debug::Filter* gRenderSurfaceLogFilter;
 namespace ECore
 {
 
-PixmapRenderSurface::PixmapRenderSurface(Dali::PositionSize positionSize,
-                                         Any surface,
-                                         const std::string& name,
-                                         bool isTransparent)
-: EcoreWlRenderSurface( positionSize, surface, name, isTransparent )
+PixmapRenderSurface::PixmapRenderSurface( Dali::PositionSize positionSize,
+                              Any surface,
+                              Any display,
+                              const std::string& name,
+                              bool isTransparent)
+: RenderSurface( Dali::RenderSurface::PIXMAP, positionSize, surface, display, name, isTransparent )
 {
   Init( surface );
 }
@@ -57,9 +62,9 @@ PixmapRenderSurface::~PixmapRenderSurface()
   }
 }
 
-Ecore_Wl_Window* PixmapRenderSurface::GetDrawable()
+Dali::RenderSurface::SurfaceType PixmapRenderSurface::GetType()
 {
-  return NULL;
+  return Dali::RenderSurface::PIXMAP;
 }
 
 Any PixmapRenderSurface::GetSurface()
@@ -67,35 +72,41 @@ Any PixmapRenderSurface::GetSurface()
   return Any( NULL );
 }
 
-void PixmapRenderSurface::InitializeEgl( EglInterface& egl )
+void PixmapRenderSurface::InitializeEgl( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
+  eglImpl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
 
   eglImpl.ChooseConfig(false, mColorDepth);
 }
 
-void PixmapRenderSurface::CreateEglSurface( EglInterface& egl )
+void PixmapRenderSurface::CreateEglSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+
+  //EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
 
   // create the EGL surface
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
   // FIXME
 }
 
-void PixmapRenderSurface::DestroyEglSurface( EglInterface& egl )
+void PixmapRenderSurface::DestroyEglSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
 }
 
-bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
+  eglImpl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
 
   // a new surface for the new pixmap
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
@@ -105,7 +116,6 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
 void PixmapRenderSurface::StartRender()
 {
-  // FIXME
 }
 
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
@@ -114,12 +124,12 @@ bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& 
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
 
- // create damage for client applications which wish to know the update timing
+  // create damage for client applications which wish to know the update timing
   if( mRenderNotification )
   {
     // use notification trigger
@@ -128,6 +138,8 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
   else
   {
+    // as a fallback, send damage event. This is needed until livebox is fixed to
+    // stop using damage events for render
     // FIXME
   }
 
@@ -137,7 +149,6 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
 
 void PixmapRenderSurface::StopRender()
 {
-  // FIXME
 }
 
 void PixmapRenderSurface::CreateWlRenderable()
@@ -150,24 +161,24 @@ void PixmapRenderSurface::CreateWlRenderable()
 
 void PixmapRenderSurface::UseExistingRenderable( unsigned int surfaceId )
 {
-  // FIXME
 }
 
 void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
 {
-  // FIXME
 }
 
 void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
 {
-  // FIXME
 }
 
 void PixmapRenderSurface::ReleaseLock()
 {
-  // FIXME
 }
 
 } // namespace ECore
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali

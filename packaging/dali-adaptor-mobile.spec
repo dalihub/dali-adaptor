@@ -70,21 +70,9 @@ platform abstraction and application shell
 Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
-Requires:   %{name}-integration-devel = %{version}-%{release}
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs
-
-##############################
-# integration-devel
-##############################
-%package integration-devel
-Summary:    Integration development package for the Adaptor
-Group:      Development/Building
-Requires:   %{name} = %{version}-%{release}
-
-%description integration-devel
-Integration development package for the Adaptor - headers for integrating with an adaptor library.
 
 ##############################
 # Dali Feedback Plugin
@@ -265,14 +253,8 @@ exit 0
 
 %files devel
 %defattr(-,root,root,-)
-%{dev_include_path}/dali/dali.h
-%{dev_include_path}/dali/public-api/*
-%{_libdir}/pkgconfig/dali.pc
-
-%files integration-devel
-%defattr(-,root,root,-)
-%{dev_include_path}/dali/integration-api/adaptors/*
-%{_libdir}/pkgconfig/dali-adaptor-integration.pc
+%{dev_include_path}/dali/*
+%{_libdir}/pkgconfig/dali*.pc
 
 %if 0%{?dali_feedback_plugin}
 %files dali-feedback-plugin

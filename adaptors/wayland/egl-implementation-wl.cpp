@@ -17,7 +17,6 @@
 
 
 // CLASS HEADER
-#include <wayland-egl.h>
 #include <gl/egl-implementation.h>
 
 // EXTERNAL INCLUDES
@@ -231,6 +230,7 @@ void EglImplementation::MakeContextCurrent()
       eglQueryString(mEglDisplay, EGL_VERSION),
       eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
       eglQueryString(mEglDisplay, EGL_EXTENSIONS));
+
 }
 
 void EglImplementation::MakeContextNull()
@@ -368,27 +368,27 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR("Display is not an EGL display connection\n");
+        DALI_LOG_ERROR("Display is not an EGL display connection");
         break;
       }
       case EGL_BAD_ATTRIBUTE:
       {
-        DALI_LOG_ERROR("The parameter configAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range\n");
+        DALI_LOG_ERROR("The parameter confirAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range");
         break;
       }
       case EGL_NOT_INITIALIZED:
       {
-        DALI_LOG_ERROR("Display has not been initialized\n");
+        DALI_LOG_ERROR("Display has not been initialized");
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR("The parameter numConfig is NULL\n");
+        DALI_LOG_ERROR("The parameter numConfig is NULL");
         break;
       }
       default:
       {
-        DALI_LOG_ERROR("Unknown error.\n");
+        DALI_LOG_ERROR("Unknown error");
       }
     }
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
@@ -396,11 +396,12 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if ( numConfigs != 1 )
   {
-    DALI_LOG_ERROR("No configurations found.\n");
+    DALI_LOG_ERROR("No configurations found.");
 
     TEST_EGL_ERROR("eglChooseConfig");
   }
 }
+
 
 void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
 {
@@ -436,27 +437,54 @@ void EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDe
   DALI_ASSERT_ALWAYS( mEglSurface && "Create pixmap surface failed" );
 }
 
-bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
+bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLNativeDisplayType display )
 {
   bool contextLost = false;
 
-  // display connection has not changed, then we can just create a new surface
   //  the surface is bound to the context, so set the context to null
   MakeContextNull();
 
   // destroy the surface
   DestroySurface();
 
-  // create the EGL surface
-  CreateSurfaceWindow( window, mColorDepth );
+  // If the display has not changed, then we can just create a new surface
+  if ( display == mEglNativeDisplay )
+  {
+    // create the EGL surface
+    CreateSurfaceWindow( window, mColorDepth );
 
-  // set the context to be current with the new surface
-  MakeContextCurrent();
+    // set the context to be current with the new surface
+    MakeContextCurrent();
+  }
+  else  // the display has changed, we need to start egl with a new x-connection
+  {
+    // Note! this code path is untested
+
+    // this will release all EGL specific resources
+    eglTerminate( mEglDisplay );
+
+    mGlesInitialized = false;
+
+    // let the adaptor know that all resources have been lost
+    contextLost = true;
+
+    // re-initialise GLES with the new connection
+    InitializeGles( display );
+
+    // create the EGL surface
+    CreateSurfaceWindow( window, mColorDepth );
+
+    // create the OpenGL context
+    CreateContext();
+
+    // Make it current
+    MakeContextCurrent();
+  }
 
   return contextLost;
 }
 
-bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap )
+bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLNativeDisplayType display )
 {
   bool contextLost = false;
 
@@ -466,13 +494,39 @@ bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap )
   // destroy the surface
   DestroySurface();
 
-  // display connection has not changed, then we can just create a new surface
-  // create the EGL surface
-  CreateSurfacePixmap( pixmap, mColorDepth );
+  // If the display has not changed, then we can just create a new surface
+  if ( display == mEglNativeDisplay )
+  {
+    // create the EGL surface
+    CreateSurfacePixmap( pixmap, mColorDepth );
 
-  // set the context to be current with the new surface
-  MakeContextCurrent();
+    // set the context to be current with the new surface
+    MakeContextCurrent();
+  }
+  else  // the display has changed, we need to start egl with a new x-connection
+  {
+    // Note! this code path is untested
 
+    // this will release all EGL specific resources
+    eglTerminate( mEglDisplay );
+
+    mGlesInitialized = false;
+
+    // let the adaptor know that all resources have been lost
+    contextLost = true;
+
+    // re-initialise GLES with the new connection
+    InitializeGles( display );
+
+    // create the EGL surface
+    CreateSurfacePixmap( pixmap, mColorDepth );
+
+    // create the OpenGL context
+    CreateContext();
+
+    // Make it current
+    MakeContextCurrent();
+  }
   return contextLost;
 }
 

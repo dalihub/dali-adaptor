@@ -24,14 +24,20 @@
 namespace Dali
 {
 
+namespace Internal
+{
+
+namespace Adaptor
+{
+
 namespace ECore
 {
 
 /**
- * @copydoc Dali::ECore::EcoreXRenderSurface.
+ * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface.
  * Window specialization.
  */
-class WindowRenderSurface : public EcoreXRenderSurface
+class WindowRenderSurface : public RenderSurface
 {
 public:
 
@@ -39,16 +45,18 @@ public:
     * Uses an X11 surface to render to.
     * @param [in] positionSize the position and size of the surface
     * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
+    * @param [in] display connection to X-server if the surface is a X window or pixmap (type must be void * to X display struct)
     * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
   WindowRenderSurface( Dali::PositionSize positionSize,
                        Any surface,
+                       Any display,
                        const std::string& name,
                        bool isTransparent = false );
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::~EcoreXRenderSurface
+   * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::~RenderSurface
    */
   virtual ~WindowRenderSurface();
 
@@ -65,75 +73,82 @@ public: // API
    */
   void RequestToApproveDeiconify();
 
-  /**
-   * Map window
-   */
-  virtual void Map();
+public: // from Dali::RenderSurface
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::GetSurface()
+   * @copydoc Dali::RenderSurface::GetType()
+   */
+  virtual Dali::RenderSurface::SurfaceType GetType();
+
+  /**
+   * @copydoc Dali::RenderSurface::GetSurface()
    */
   virtual Any GetSurface();
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::GetXWindow()
+   * @copydoc Dali::RenderSurface::GetDrawable()
    */
   virtual Ecore_X_Window GetXWindow();
 
-public: // from Dali::RenderSurface
+public:  // from Internal::Adaptor::RenderSurface
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::InitializeEgl()
    */
   virtual void InitializeEgl( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::CreateEglSurface()
    */
   virtual void CreateEglSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::DestroyEglSurface()
    */
   virtual void DestroyEglSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::ReplaceEGLSurface()
    */
   virtual bool ReplaceEGLSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::MoveResize()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::MoveResize()
    */
   virtual void MoveResize( Dali::PositionSize positionSize);
 
   /**
-   * @copydoc Dali::RenderSurface::SetViewMode()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::Map()
    */
-  void SetViewMode( ViewMode viewMode );
+  virtual void Map();
 
   /**
-   * @copydoc Dali::RenderSurface::StartRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StartRender()
    */
   virtual void StartRender();
 
   /**
-   * @copydoc Dali::RenderSurface::PreRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
 
   /**
-   * @copydoc Dali::RenderSurface::PostRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface );
 
   /**
-   * @copydoc Dali::RenderSurface::StopRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
    */
   virtual void StopRender();
 
   /**
-   * @copydoc Dali::RenderSurface::ReleaseLock()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::SetViewMode()
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::ReleaseLock()
    */
   virtual void ReleaseLock();
 
@@ -145,7 +160,7 @@ protected:
   virtual void CreateXRenderable();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::ECore::EcoreXRenderSurface::UseExistingRenderable
+   * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::UseExistingRenderable
    */
   virtual void UseExistingRenderable( unsigned int surfaceId );
 
@@ -157,6 +172,10 @@ private: // Data
 }; // class WindowRenderSurface
 
 } // namespace ECore
+
+} // namespace Adaptor
+
+} // namespace internal
 
 } // namespace Dali
 

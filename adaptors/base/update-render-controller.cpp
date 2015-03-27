@@ -26,6 +26,7 @@
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
 
+
 namespace Dali
 {
 

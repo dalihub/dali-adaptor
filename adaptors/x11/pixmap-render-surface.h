@@ -1,5 +1,5 @@
-#ifndef __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
-#define __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#ifndef __DALI_INTERNAL_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#define __DALI_INTERNAL_ECORE_X_PIXMAP_RENDER_SURFACE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,10 +19,17 @@
  */
 
 // INTERNAL INCLUDES
-#include <ecore-wl-render-surface.h>
+#include <ecore-x-render-surface.h>
 
 namespace Dali
 {
+
+namespace Internal
+{
+
+namespace Adaptor
+{
+class TriggerEvent;
 
 namespace ECore
 {
@@ -30,80 +37,87 @@ namespace ECore
 /**
  * Ecore X11 implementation of render surface.
  */
-class PixmapRenderSurface : public EcoreWlRenderSurface
+class PixmapRenderSurface : public RenderSurface
 {
 public:
 
   /**
-    * Uses an Wayland surface to render to.
+    * Uses an X11 surface to render to.
     * @param [in] positionSize the position and size of the surface
-    * @param [in] surface can be a Wayland-window (type must be unsigned int).
+    * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
+    * @param [in] display connection to X-server if the surface is a X window or pixmap (type must be void * to X display struct)
     * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
   PixmapRenderSurface( Dali::PositionSize positionSize,
                        Any surface,
+                       Any display,
                        const std::string& name,
                        bool isTransparent = false);
 
   /**
-   * @copydoc Dali::RenderSurface::~RenderSurface
+   * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::~RenderSurface
    */
   virtual ~PixmapRenderSurface();
 
 public: // API
 
   /**
-   * @copydoc Dali::ECore::EcoreWlRenderSurface::GetDrawable()
+   * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::GetDrawable()
    */
-  virtual Ecore_Wl_Window* GetDrawable();
-
-  /**
-   * @brief GetSurface
-   *
-   * @return pixmap
-   */
-  virtual Any GetSurface();
+  virtual Ecore_X_Drawable GetDrawable();
 
 public: // from Dali::RenderSurface
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::RenderSurface::GetType()
+   */
+  virtual Dali::RenderSurface::SurfaceType GetType();
+
+  /**
+   * @copydoc Dali::RenderSurface::GetSurface()
+   */
+  virtual Any GetSurface();
+
+public: // from Internal::Adaptor::RenderSurface
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::InitializeEgl()
    */
   virtual void InitializeEgl( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::CreateEglSurface()
    */
   virtual void CreateEglSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::DestroyEglSurface()
    */
   virtual void DestroyEglSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::ReplaceEGLSurface()
    */
   virtual bool ReplaceEGLSurface( EglInterface& egl );
 
   /**
-   * @copydoc Dali::RenderSurface::StartRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StartRender()
    */
   virtual void StartRender();
 
   /**
-   * @copydoc Dali::RenderSurface::PreRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::PreRender()
    */
   virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
 
   /**
-   * @copydoc Dali::RenderSurface::PostRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int timeDelta, bool replacingSurface );
 
   /**
-   * @copydoc Dali::RenderSurface::StopRender()
+   * @copydoc Dali::Internal::Adaptor::RenderSurface::StopRender()
    */
   virtual void StopRender();
 
@@ -124,7 +138,7 @@ private:
    * If sync mode is WAIT, then acquire a lock. This prevents render thread from
    * continuing until the pixmap has been drawn by the compositor.
    * It must be released for rendering to continue.
-   * @param[in] syncMode The current sync mode
+   * @param[in] syncMode The sync mode
    */
   void AcquireLock( SyncMode syncMode );
 
@@ -136,7 +150,7 @@ private:
   /**
    * Create XPixmap
    */
-  virtual void CreateWlRenderable();
+  virtual void CreateXRenderable();
 
   /**
    * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::UseExistingRenderable
@@ -145,10 +159,19 @@ private:
 
 private: // Data
 
+  Ecore_X_Pixmap   mX11Pixmap;    ///< X-Pixmap
+  SyncMode         mSyncMode;     ///< Stores whether the post render should block waiting for compositor
+  boost::mutex                mSyncMutex;  ///< mutex to lock during waiting sync
+  boost::condition_variable   mSyncNotify; ///< condition to notify main thread that pixmap was flushed to onscreen
+  bool             mSyncReceived; ///< true, when a pixmap sync has occurred, (cleared after reading)
 };
 
 } // namespace ECore
 
+} // namespace Adaptor
+
+} // namespace internal
+
 } // namespace Dali
 
-#endif // __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#endif // __DALI_INTERNAL_ECORE_X_PIXMAP_RENDER_SURFACE_H__

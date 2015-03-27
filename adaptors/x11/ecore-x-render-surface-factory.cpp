@@ -16,25 +16,35 @@
  */
 
 // INTERNAL INCLUDES
-#include <pixmap-render-surface.h>
+#include "pixmap-render-surface.h"
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 namespace ECore
 {
 
-DALI_EXPORT_API PixmapRenderSurface* CreatePixmapSurface(
+DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
   PositionSize       positionSize,
   Any                surface,
+  Any                display,
   const std::string& name,
-  bool               isTransparent)
+  bool               isTransparent )
 {
-  return new PixmapRenderSurface(positionSize, surface, name, isTransparent);
+  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
 }
 
-
 } // namespace ECore
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

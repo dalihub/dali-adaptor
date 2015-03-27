@@ -25,14 +25,12 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/performance-interface.h>
-#include <trigger-event-interface.h>
+#include <base/interfaces/trigger-event-interface.h>
 #include <base/frame-time.h>
 #include <base/render-thread.h>
 
 namespace Dali
 {
-
-class RenderSurface;
 
 namespace Integration
 {
@@ -49,6 +47,7 @@ namespace Adaptor
 {
 
 class AdaptorInternalServices;
+class RenderSurface;
 
 /**
  * This object is used to synchronize the update, render and vsync threads.

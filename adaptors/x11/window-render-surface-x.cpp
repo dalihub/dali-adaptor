@@ -30,13 +30,16 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
 #include <ecore-x-types.h>
 #include <trigger-event.h>
-#include <gl/egl-implementation.h>
-#include <base/display-connection.h>
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 #if defined(DEBUG_ENABLED)
@@ -55,9 +58,10 @@ const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be co
 
 WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           Any surface,
+                                          Any display,
                                           const std::string& name,
                                           bool isTransparent)
-: EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
+: RenderSurface( Dali::RenderSurface::WINDOW, positionSize, surface, display, name, isTransparent ),
   mNeedToApproveDeiconify(false)
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
@@ -76,6 +80,11 @@ Ecore_X_Drawable WindowRenderSurface::GetDrawable()
 {
   // already an e-core type
   return (Ecore_X_Drawable)mX11Window;
+}
+
+Dali::RenderSurface::SurfaceType WindowRenderSurface::GetType()
+{
+  return Dali::RenderSurface::WINDOW;
 }
 
 Any WindowRenderSurface::GetSurface()
@@ -98,7 +107,8 @@ void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
+  eglImpl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
 
   eglImpl.ChooseConfig(true, mColorDepth);
 }
@@ -107,7 +117,7 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
 
   // create the EGL surface
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
@@ -119,19 +129,21 @@ void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
 }
 
-bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
+  EglImplementation& egl = static_cast<EglImplementation&>( eglIf );
+  egl.InitializeGles( reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
+
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
   XWindow window = static_cast< XWindow >( mX11Window );
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-
-  return eglImpl.ReplaceSurfaceWindow( (EGLNativeWindowType)window ); // reinterpret_cast does not compile
+  return egl.ReplaceSurfaceWindow( (EGLNativeWindowType)window, // reinterpret_cast does not compile
+                                   reinterpret_cast< EGLNativeDisplayType >( mMainDisplay ) );
 }
 
 void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
@@ -186,9 +198,9 @@ bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& 
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface )
+void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, unsigned int, bool )
 {
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>( egl );
   eglImpl.SwapBuffers();
 
   // When the window is deiconified, it approves the deiconify operation to window manager after rendering
@@ -197,26 +209,16 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
     glAbstraction.Finish();
 
-    XDisplay* display = AnyCast<XDisplay *>(displayConnection->GetDisplay());
-
 #ifndef DALI_PROFILE_UBUNTU
     /* client sends immediately reply message using value 1 */
-    XEvent xev;
-
-    xev.xclient.window = mX11Window;
-    xev.xclient.type = ClientMessage;
-    xev.xclient.message_type = ECORE_X_ATOM_E_DEICONIFY_APPROVE;
-    xev.xclient.format = 32;
-    xev.xclient.data.l[0] = mX11Window;
-    xev.xclient.data.l[1] = 1;
-    xev.xclient.data.l[2] = 0;
-    xev.xclient.data.l[3] = 0;
-    xev.xclient.data.l[4] = 0;
-
-    XSendEvent(display, mX11Window, false, ECORE_X_EVENT_MASK_WINDOW_CONFIGURE, &xev);
+    ecore_x_client_message32_send(mX11Window,
+                        ECORE_X_ATOM_E_DEICONIFY_APPROVE,
+                        ECORE_X_EVENT_MASK_WINDOW_CONFIGURE,
+                        mX11Window, 1,
+                        0, 0, 0);
 #endif // DALI_PROFILE_UBUNTU
 
-    XSync(display, false);
+    ecore_x_sync();
 
     mNeedToApproveDeiconify = false;
   }
@@ -300,5 +302,9 @@ void WindowRenderSurface::ReleaseLock()
 }
 
 } // namespace ECore
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
