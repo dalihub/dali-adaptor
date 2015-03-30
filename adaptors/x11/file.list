@@ -2,6 +2,7 @@
 
 _adaptor_x11_internal_src_files = \
   $(adaptor_x11_dir)/clipboard-impl-x.cpp \
+  $(adaptor_x11_dir)/display-connection-impl-x.cpp \
   $(adaptor_x11_dir)/imf-manager-impl-x.cpp \
   $(adaptor_x11_dir)/pixmap-image-impl-x.cpp \
   $(adaptor_x11_dir)/server-connection-x.cpp \

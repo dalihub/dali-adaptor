@@ -34,6 +34,7 @@
 namespace Dali
 {
 class Adaptor;
+class RenderSurface;
 
 namespace Integration
 {
@@ -44,7 +45,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-class RenderSurface;
 class Indicator;
 class Orientation;
 

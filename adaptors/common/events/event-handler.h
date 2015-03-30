@@ -33,6 +33,8 @@
 namespace Dali
 {
 
+class RenderSurface;
+
 struct StyleChange;
 
 namespace Internal
@@ -43,7 +45,6 @@ namespace Adaptor
 
 class CoreEventInterface;
 class GestureManager;
-class RenderSurface;
 class StyleMonitor;
 
 /**

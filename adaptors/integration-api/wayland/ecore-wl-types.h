@@ -1,3 +1,6 @@
+#ifndef __DALI_WL_TYPES_H__
+#define __DALI_WL_TYPES_H__
+
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -15,31 +18,15 @@
  *
  */
 
-// CLASS HEADER
-#include "render-surface-impl.h"
-
 // EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
+#include <wayland-client.h>
 
 namespace Dali
 {
 
-namespace Internal
-{
-
-namespace Adaptor
-{
-
-RenderSurface::RenderSurface()
-{
-}
-
-RenderSurface::~RenderSurface()
-{
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
+typedef ::wl_display WlDisplay;
+typedef ::wl_surface WlSurface;
 
 } // namespace Dali
+
+#endif /* __DALI_WL_TYPES_H__ */

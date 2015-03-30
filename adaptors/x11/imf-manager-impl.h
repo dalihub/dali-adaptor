@@ -31,13 +31,13 @@
 namespace Dali
 {
 
+class RenderSurface;
+
 namespace Internal
 {
 
 namespace Adaptor
 {
-
-class RenderSurface;
 
 class ImfManager : public Dali::BaseObject
 {
