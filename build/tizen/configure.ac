@@ -232,34 +232,8 @@ else
   dataReadOnlyDir=${prefix}/share/dali/
 fi
 
-if test x$FONT_PRELOADED_PATH != x; then
-  fontPreloadedPath=$FONT_PRELOADED_PATH
-else
-  fontPreloadedPath=/usr/share/fonts/
-fi
-
-if test x$FONT_DOWNLOADED_PATH != x; then
-  fontDownloadedPath=$FONT_DOWNLOADED_PATH
-else
-  fontDownloadedPath=/opt/share/fonts/
-fi
-
-if test x$FONT_APPLICATION_PATH != x; then
-  fontApplicationPath=$FONT_APPLICATION_PATH
-else
-  fontApplicationPath=~/.fonts/
-fi
-
-if test x$FONT_CONFIGURATION_FILE != x; then
-  fontConfigurationFilePath=$FONT_CONFIGURATION_FILE
-fi
-
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
-AC_SUBST(fontPreloadedPath)
-AC_SUBST(fontDownloadedPath)
-AC_SUBST(fontApplicationPath)
-AC_SUBST(fontConfigurationFilePath)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
 
@@ -296,9 +270,5 @@ Configuration
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
-  Font Path (Preloaded):            $fontPreloadedPath
-  Font Path (Downloaded):           $fontDownloadedPath
-  Font Path (Application):          $fontApplicationPath
-  Font Configuration File:          $fontConfigurationFilePath
   OVERTIZEN2.2:                     $with_over_tizen_2_2
 "
