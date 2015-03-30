@@ -132,14 +132,14 @@ void Adaptor::ParseEnvironmentOptions()
   unsigned int logPerformanceStats = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
   unsigned int logPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
   unsigned int performanceTimeStampOutput= GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
-
+  unsigned int networkControl= GetIntegerEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
 
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction  logFunction(Dali::TizenPlatform::LogMessage);
 
-  mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
+  mEnvironmentOptions.SetLogOptions( logFunction, networkControl, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
 
   int predictionMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
@@ -693,6 +693,12 @@ TriggerEventFactoryInterface& Adaptor::GetTriggerEventFactoryInterface()
 {
   return mTriggerEventFactory;
 }
+
+SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
+{
+  return mSocketFactory;
+}
+
 RenderSurface* Adaptor::GetRenderSurfaceInterface()
 {
   return mSurface;

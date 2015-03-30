@@ -45,6 +45,11 @@ namespace Adaptor
  */
 #define DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT "DALI_PERFORMANCE_TIMESTAMP_OUTPUT"
 
+/**
+ * Allow control and monitoring of DALi via the network
+ */
+#define DALI_ENV_NETWORK_CONTROL "DALI_NETWORK_CONTROL"
+
 // environment variable for enabling/disabling fps tracking
 #define DALI_ENV_FPS_TRACKING "DALI_FPS_TRACKING"
 

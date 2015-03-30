@@ -24,7 +24,8 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/egl-factory-interface.h>
-#include <base/interfaces/trigger-event-interface.h>
+#include <base/interfaces/trigger-event-factory-interface.h>
+#include <base/interfaces/socket-factory-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
 #include <base/interfaces/kernel-trace-interface.h>
@@ -75,6 +76,16 @@ public:
    * @return trigger event
    */
   virtual TriggerEventInterface& GetTriggerEventInterface()  = 0;
+
+  /**
+   * @return trigger event factory interface
+   */
+  virtual TriggerEventFactoryInterface& GetTriggerEventFactoryInterface() = 0;
+
+  /**
+   * @return socket factory interface
+   */
+  virtual SocketFactoryInterface& GetSocketFactoryInterface() = 0;
 
   /**
    * @return render surface
