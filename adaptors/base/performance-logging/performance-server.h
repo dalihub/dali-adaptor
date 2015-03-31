@@ -18,12 +18,12 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/thread/mutex.hpp>
+// EXTERNAL INCLDUES
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/frame-time-stats.h>
+#include <base/performance-logging/networking/network-performance-server.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/performance-logging/performance-marker.h>
 #include <base/performance-logging/statistics/stat-context-manager.h>
@@ -120,9 +120,11 @@ private:
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
   KernelTraceInterface& mKernelTrace;                     ///< kernel trace interface
   boost::mutex mDataMutex;                                ///< mutex
+  NetworkPerformanceServer mNetworkServer;                ///< network server
   StatContextManager mStatContextManager;                 ///< Stat context manager
   unsigned int mStatisticsLogBitmask;                     ///< statistics log level
   unsigned int mPerformanceOutputBitmask;                 ///< performance marker output
+  bool mNetworkControlEnabled:1;                          ///< Whether network control is enabled
   bool mLoggingEnabled:1;                                 ///< whether logging update / render to a log is enabled
   bool mLogFunctionInstalled:1;                           ///< whether the log function is installed
 };

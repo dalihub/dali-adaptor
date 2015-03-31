@@ -23,6 +23,10 @@
 #include <bundle.h>
 #include <Ecore.h>
 
+#ifdef OVER_TIZEN_SDK_2_2
+#include <system_info.h>
+#endif
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -266,6 +270,18 @@ Framework::Framework(Framework::Observer& observer, int *argc, char ***argv, con
   mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
   mImpl(NULL)
 {
+
+#ifdef OVER_TIZEN_SDK_2_2
+  bool featureFlag = true;
+  system_info_get_platform_bool( "tizen.org/feature/opengles.version.2_0", &featureFlag );
+
+  if( featureFlag == false )
+  {
+    set_last_result( TIZEN_ERROR_NOT_SUPPORTED );
+    throw Dali::DaliException( "", "OpenGL ES 2.0 is not supported." );
+  }
+#endif
+
   InitThreads();
   mImpl = new Impl(this);
 }

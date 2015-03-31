@@ -252,11 +252,6 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
       oss += "<Stage::KeepRendering() used> ";
     }
 
-    if ( keepUpdatingStatus & Integration::KeepUpdating::INCOMING_MESSAGES )
-    {
-      oss  +=  "<Messages sent to Update> ";
-    }
-
     if ( keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING )
     {
       oss  +=  "<Animations running> ";

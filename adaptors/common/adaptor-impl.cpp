@@ -55,7 +55,7 @@
 #include <vsync-monitor.h>
 #include <object-profiler.h>
 
-#include <slp-logging.h>
+#include <tizen-logging.h>
 
 
 
@@ -131,14 +131,14 @@ void Adaptor::ParseEnvironmentOptions()
   unsigned int logPerformanceStats = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
   unsigned int logPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
   unsigned int performanceTimeStampOutput= GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
-
+  unsigned int networkControl= GetIntegerEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
 
   unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
-  // all threads here (event, update, and render) will send their logs to SLP Platform's LogMessage handler.
-  Dali::Integration::Log::LogFunction  logFunction(Dali::SlpPlatform::LogMessage);
+  // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
+  Dali::Integration::Log::LogFunction  logFunction(Dali::TizenPlatform::LogMessage);
 
-  mEnvironmentOptions.SetLogOptions( logFunction, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
+  mEnvironmentOptions.SetLogOptions( logFunction, networkControl, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
 
   int predictionMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
@@ -215,6 +215,13 @@ void Adaptor::ParseEnvironmentOptions()
     mEnvironmentOptions.SetGlesCallTime( glesCallTime );
   }
 
+  int windowWidth(0), windowHeight(0);
+  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  {
+    mEnvironmentOptions.SetWindowWidth( windowWidth );
+    mEnvironmentOptions.SetWindowHeight( windowHeight );
+  }
+
   mEnvironmentOptions.InstallLogFunction();
 }
 
@@ -222,7 +229,11 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
 {
   ParseEnvironmentOptions();
 
-  mPlatformAbstraction = new SlpPlatform::SlpPlatformAbstraction;
+  mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
+
+  std::string path;
+  GetDataStoragePath( path );
+  mPlatformAbstraction->SetDataStoragePath( path );
 
   ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
@@ -301,6 +312,10 @@ void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions.GetPanGestureSmoothingAmount());
   }
+  if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+  {
+    SurfaceResized( PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() ));
+  }
 }
 
 Adaptor::~Adaptor()
@@ -360,19 +375,20 @@ void Adaptor::Start()
   // guarantee map the surface before starting render-thread.
   mSurface->Map();
 
-  // NOTE: dpi must be set before starting the render thread
   // use default or command line settings if not run on device
-#ifdef __arm__
-  // set the DPI value for font rendering
-  unsigned int dpiHor, dpiVer;
-  dpiHor = dpiVer = 0;
-  mSurface->GetDpi(dpiHor, dpiVer);
+  if( mHDpi == 0 || mVDpi == 0 )
+  {
+    unsigned int dpiHor, dpiVer;
+    dpiHor = dpiVer = 0;
+    mSurface->GetDpi(dpiHor, dpiVer);
 
-  // tell core about the value
-  mCore->SetDpi(dpiHor, dpiVer);
-#else
-  mCore->SetDpi(mHDpi, mVDpi);
-#endif
+    // tell core about the value
+    mCore->SetDpi(dpiHor, dpiVer);
+  }
+  else
+  {
+    mCore->SetDpi(mHDpi, mVDpi);
+  }
 
   // Tell the core the size of the surface just before we start the render-thread
   PositionSize size = mSurface->GetPositionSize();
@@ -686,6 +702,12 @@ TriggerEventFactoryInterface& Adaptor::GetTriggerEventFactoryInterface()
 {
   return mTriggerEventFactory;
 }
+
+SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
+{
+  return mSocketFactory;
+}
+
 RenderSurface* Adaptor::GetRenderSurfaceInterface()
 {
   return mSurface;

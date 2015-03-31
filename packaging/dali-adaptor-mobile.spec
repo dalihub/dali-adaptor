@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.32
+Version:    1.0.35
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -9,9 +9,14 @@ Source0:    %{name}-%{version}.tar.gz
 
 %define dali_profile MOBILE
 %define dali_mobile_profile 1
-%define dali_feedback_plugin 1
-%define dali_bullet_plugin 1
-%define dali_assimp_plugin 1
+%define dali_feedback_plugin 0
+%define dali_bullet_plugin 0
+%define dali_assimp_plugin 0
+%define over_tizen_2_2 1
+
+%if 0%{?over_tizen_2_2}
+%define shaderbincache_flag ENABLE
+%endif
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -45,6 +50,10 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(opengl-es-20)
 BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  libcurl-devel
+
+%if 0%{?over_tizen_2_2}
+BuildRequires:  pkgconfig(capi-system-info)
+%endif
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)
@@ -102,7 +111,7 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %define dali_data_rw_dir         /opt/usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
 %define user_font_cache_dir      %{dali_data_rw_dir}/glyphcache/
-%define user_shader_cache_dir    %{dali_data_rw_dir}/core/shaderbin/
+%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define font_preloaded_path      /usr/share/fonts/
 %define font_downloaded_path     /opt/share/fonts/
 %define font_application_path    /usr/share/app_fonts/
@@ -124,8 +133,9 @@ LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbol
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
 
-%if 0%{?TIZEN_SDK_2_3}
-CXXFLAGS+=" -DTIZEN_SDK_2_3"
+%if 0%{?over_tizen_2_2}
+CFLAGS+=" -DOVER_TIZEN_SDK_2_2"
+CXXFLAGS+=" -DOVER_TIZEN_SDK_2_2"
 %endif
 
 libtoolize --force
@@ -138,7 +148,7 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}" ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-%configure --with-jpeg-turbo --enable-gles=20 --enable-profile=%{dali_profile} \
+%configure --with-jpeg-turbo --enable-gles=20 --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
@@ -147,6 +157,9 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %endif
 %if 0%{?dali_assimp_plugin}
            --enable-assimp \
+%endif
+%if 0%{?over_tizen_2_2}
+           --with-over-tizen_2_2 \
 %endif
            --libdir=%{_libdir}
 
@@ -176,7 +189,6 @@ cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{
 
 %pre
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################
@@ -185,7 +197,6 @@ exit 0
 %post
 /sbin/ldconfig
 chown 5000:5000 %{user_font_cache_dir}
-chown 5000:5000 %{user_shader_cache_dir}
 exit 0
 
 %if 0%{?dali_feedback_plugin}
@@ -205,7 +216,6 @@ exit 0
 ##############################
 %preun
 rm -f %{user_font_cache_dir}/*
-rm -f %{user_shader_cache_dir}/*
 exit 0
 
 ##############################

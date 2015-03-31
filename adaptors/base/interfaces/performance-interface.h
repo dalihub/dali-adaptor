@@ -72,10 +72,10 @@ public:
   enum TimeStampOutput
   {
     NO_TIME_STAMP_OUTPUT         = 0,
-    OUTPUT_DALI_LOG              = 1 << 0, ///< Bit 1 (1), log markers to DALi log
-    OUTPUT_KERNEL_TRACE          = 1 << 1, ///< Bit 2 (2), log makers to kernel trace
-    OUTPUT_SYSTEM_TRACE          = 1 << 2, ///< Bit 3 (4), log markers to system trace
-    OUTPUT_NETWORK               = 1 << 3, ///< Bit 4 (8), log markers to network client
+    OUTPUT_DALI_LOG              = 1 << 0, ///< Bit 0 (1), log markers to DALi log
+    OUTPUT_KERNEL_TRACE          = 1 << 1, ///< Bit 1 (2), log makers to kernel trace
+    OUTPUT_SYSTEM_TRACE          = 1 << 2, ///< Bit 2 (4), log markers to system trace
+    OUTPUT_NETWORK               = 1 << 3, ///< Bit 3 (8), log markers to network client
   };
 
   /**

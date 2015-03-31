@@ -24,7 +24,7 @@
 #include <Ecore_Wayland.h>
 #include <Elementary.h>
 
-#include <dali/public-api/dali-core.h>
+#include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/gesture-requests.h>
 

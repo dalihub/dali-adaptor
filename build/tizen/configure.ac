@@ -77,7 +77,7 @@ AC_ARG_ENABLE([feedback],
 AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
-DALI_ADAPTOR_CFLAGS=-DPLATFORM_SLP
+DALI_ADAPTOR_CFLAGS=-DPLATFORM_TIZEN
 
 AC_ARG_ENABLE(exportall,
               [AC_HELP_STRING([--enable-exportall],
@@ -91,12 +91,22 @@ AC_ARG_ENABLE([debug],
               [enable_debug=$enableval],
               [enable_debug=no])
 
+AC_ARG_ENABLE(shaderbincache,
+              [AC_HELP_STRING([--enable-shaderbincache],
+                              [enables shader binary cache])],
+              [enable_shaderbincache=$enableval],
+              [enable_shaderbincache=DISABLE])
+
 if test "x$enable_debug" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDEBUG_ENABLED"
 fi
 
 if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -fvisibility=hidden -DHIDE_DALI_INTERNALS"
+fi
+
+if test "x$enable_shaderbincache" = "xENABLE"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DSHADERBIN_CACHE_ENABLED"
 fi
 
 AC_ARG_ENABLE([gles],
@@ -115,15 +125,21 @@ AC_ARG_WITH([jpeg-turbo],
 
 AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
 
+AC_ARG_WITH([over-tizen_2_2],
+            [AC_HELP_STRING([--with-over-tizen_2_2],
+                            [Use tizen API over ver. 2.2])],
+            [with_over_tizen_2_2=yes],
+            [with_over_tizen_2_2=no])
+
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,LITE,WEARABLE,TV,UBUNTU],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
               [enable_profile=COMMON])
 
 # Ensure valid profile selected
-if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xLITE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
 fi
 
@@ -136,7 +152,6 @@ DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
 DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
 AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
-AM_CONDITIONAL([LITE_PROFILE], [test x$enable_profile = xLITE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
@@ -155,7 +170,12 @@ PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+
+if test "x$with_over_tizen_2_2" = "xyes"; then
+PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
 fi
+
+fi # ubuntu profile test
 
 if test "x$enable_wayland" = "xyes"; then
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
@@ -263,4 +283,5 @@ Configuration
   Font Path (Downloaded):           $fontDownloadedPath
   Font Path (Application):          $fontApplicationPath
   Font Configuration File:          $fontConfigurationFilePath
+  OVERTIZEN2.2:                     $with_over_tizen_2_2
 "

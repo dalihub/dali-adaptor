@@ -33,7 +33,7 @@
 #include <device-layout.h>
 #include <clipboard.h>
 
-#include <slp-platform-abstraction.h>
+#include <tizen-platform-abstraction.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
 #include <base/core-event-interface.h>
@@ -42,6 +42,7 @@
 #include <window-visibility-observer.h>
 #include <kernel-trace.h>
 #include <trigger-event-factory.h>
+#include <networking/socket-factory.h>
 
 namespace Dali
 {
@@ -325,6 +326,11 @@ public:  //AdaptorInternalServices
   virtual TriggerEventFactoryInterface& GetTriggerEventFactoryInterface();
 
   /**
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSocketFactoryInterface()
+   */
+  virtual SocketFactoryInterface& GetSocketFactoryInterface();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
   virtual RenderSurface* GetRenderSurfaceInterface();
@@ -457,6 +463,12 @@ private:
    */
   void ProcessCoreEventsFromIdle();
 
+  /**
+   * Gets path for data/resource storage.
+   * @param[out] path Path for data/resource storage
+   */
+  void GetDataStoragePath(std::string& path);
+
 private:
 
   /**
@@ -497,7 +509,7 @@ private: // Data
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
   RenderSurface*                        mSurface;                     ///< Current surface
-  SlpPlatform::SlpPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
@@ -518,6 +530,7 @@ private: // Data
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
+  SocketFactory                         mSocketFactory;               ///< Socket factory
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

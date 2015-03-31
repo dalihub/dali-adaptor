@@ -39,7 +39,7 @@ INCLUDE_DIRECTORIES(
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
     ../../../adaptors/tizen
-    ../../../platform-abstractions/slp
+    ../../../platform-abstractions/tizen
     ../../../
     /usr/include/freetype2
 )

@@ -30,6 +30,8 @@ namespace Adaptor
 
 /**
  * Contains environment options which define settings and the ability to install a log function.
+ *
+ * TODO: This file and adaptor needs cleaning up. There should not be any environment options in the adaptor class, only here!
  */
 class EnvironmentOptions
 {
@@ -48,6 +50,7 @@ public:
 
   /**
    * @param logFunction logging function
+   * @param networkControl whether network control is enabled
    * @param logFilterOptions bitmask of the logging options defined in intergration/debug.h (e.g.
    * @param logFrameRateFrequency frequency of how often FPS is logged out (e.g. 0 = off, 2 = every 2 seconds).
    * @param logupdateStatusFrequency frequency of how often the update status is logged in number of frames
@@ -57,6 +60,7 @@ public:
    * @param logPanGestureLevel pan-gesture logging, 0 = disabled,  1 = enabled
    */
   void SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
+                       unsigned int networkControl,
                        unsigned int logFrameRateFrequency,
                        unsigned int logupdateStatusFrequency,
                        unsigned int logPerformanceStats,
@@ -73,6 +77,11 @@ public:
    * Un-install the log function for the current thread.
    */
   void UnInstallLogFunction() const;
+
+  /**
+   * @return whether network control is enabled or not ( 0 = off, 1 = on )
+   */
+  unsigned int GetNetworkControlMode() const;
 
   /**
    * @return frequency of how often FPS is logged out (e.g. 0 = off, 2 = every 2 seconds).
@@ -148,6 +157,16 @@ public:
    * @return The minimum events before a pan can be started (-1 means it's not set)
    */
   int GetMinimumPanEvents() const;
+
+  /**
+   * @return The width of the window
+   */
+  unsigned int GetWindowWidth() const;
+
+  /**
+   * @return The height of the window
+   */
+  unsigned int GetWindowHeight() const;
 
   /**
    * @brief Sets the mode used to predict pan gesture movement
@@ -229,12 +248,23 @@ public:
   int GetGlesCallTime() const;
 
   /**
+   * @brief Sets the width of the window
+   */
+  void SetWindowWidth( int width );
+
+  /**
+   * @brief Sets the width of the window
+   */
+  void SetWindowHeight( int height );
+
+  /**
    * @return true if performance server is required
    */
   bool PerformanceServerRequired() const;
 
 private:
 
+  unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
   unsigned int mPerformanceStatsLevel;            ///< performance statistics logging bitmask
@@ -246,11 +276,13 @@ private:
   int mPanGestureMaxPredictionAmount;             ///< maximum prediction amount for pan gestures
   int mPanGestureMinPredictionAmount;             ///< minimum prediction amount for pan gestures
   int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
-  int mPanGestureSmoothingMode;                  ///< prediction mode for pan gestures
-  float mPanGestureSmoothingAmount;              ///< prediction amount for pan gestures
+  int mPanGestureSmoothingMode;                   ///< prediction mode for pan gestures
+  float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
   int mGlesCallTime;                              ///< time in seconds between status updates
+  unsigned int mWindowWidth;                      ///< width of the window
+  unsigned int mWindowHeight;                     ///< height of the window
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

@@ -24,9 +24,9 @@ base_adaptor_src_dir = ../../../adaptors/base
 include ../../../adaptors/base/file.list
 
 # Platform Abstraction
-slp_platform_abstraction_src_dir = ../../../platform-abstractions/slp
+tizen_platform_abstraction_src_dir = ../../../platform-abstractions/tizen
 portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
-include ../../../platform-abstractions/slp/file.list
+include ../../../platform-abstractions/tizen/file.list
 
 # Internal Common
 adaptor_common_dir = ../../../adaptors/common
@@ -103,30 +103,29 @@ if MOBILE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
 
-endif
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
 
-
-# LITE
-if LITE_PROFILE
-
-adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
-endif
-
+endif # MOBILE_PROFILE
 
 # WEARABLE
 if WEARABLE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tizen_internal_src_files)
-endif
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+endif # WAYLAND
+
+endif # WEARABLE
 
 
 # TV
@@ -134,8 +133,14 @@ if TV_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_x11_tv_internal_src_files)
+                             $(adaptor_tizen_internal_src_files)
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
+                             $(adaptor_x11_internal_tv_profile_key_src_files)
+endif # WAYLAND
+
 endif
 
 # Feedback Plugin
@@ -147,26 +152,26 @@ dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
 endif
 
 if TURBO_JPEG_IS_ON
-  slp_platform_abstraction_src_files += $(slp_turbo_jpeg_loader)
+  tizen_platform_abstraction_src_files += $(tizen_turbo_jpeg_loader)
 else
-  slp_platform_abstraction_src_files += $(slp_jpeg_loader)
+  tizen_platform_abstraction_src_files += $(tizen_jpeg_loader)
 endif
 
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
-                     $(slp_platform_abstraction_src_files) \
+                     $(tizen_platform_abstraction_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
 libdali_adaptor_la_DEPENDENCIES =
 
-# List include directories with more platform-specific (slp) before portable root:
+# List include directories with more platform-specific (tizen) before portable root:
 libdali_adaptor_la_includes = \
                       -I../../.. \
-                      -I../../../platform-abstractions/slp \
-                      -I../../../platform-abstractions/slp/resource-loader \
+                      -I../../../platform-abstractions/tizen \
+                      -I../../../platform-abstractions/tizen/resource-loader \
                       -I../../../platform-abstractions/portable \
                       -I../../../platform-abstractions/ \
                       -I../../../adaptors/public-api \
@@ -192,13 +197,14 @@ endif
 daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
 daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
-daliUserShaderCacheDir = ${dataReadWriteDir}/core/shaderbin/
+daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
 libdali_adaptor_la_CXXFLAGS = \
                       -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                       -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                       -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\"" \
                       -DDALI_USER_FONT_CACHE_DIR="\"${daliUserFontCacheDir}\"" \
+                      -DDALI_SHADERBIN_DIR="\"${daliShaderbinCacheDir}\"" \
                       -DDALI_DEFAULT_THEME_DIR="\"${daliDefaultThemeDir}\"" \
                       -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\"" \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
@@ -216,6 +222,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
                       $(CAPI_APPFW_APPLICATION_CFLAGS) \
+                      $(CAPI_SYSTEM_INFO_CFLAGS) \
                       $(ELEMENTARY_CFLAGS) \
                       $(EVAS_CFLAGS) \
                       $(ECORE_CFLAGS) \
@@ -251,6 +258,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBCURL_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
+                      $(CAPI_SYSTEM_INFO_LIBS) \
                       -lgif \
                       -lboost_thread
 
@@ -278,10 +286,6 @@ libdali_adaptor_la_LIBADD += \
                       $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
-endif
-
-if LITE_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if WEARABLE_PROFILE
@@ -312,11 +316,19 @@ tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
 tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
 tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)
 
+if !UBUNTU_PROFILE
+
+if !WAYLAND
+tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
+endif # NOT WAYLAND
+
+endif # NOT UBUNTU_PROFILE
+
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
 install-data-local:
-	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliUserShaderCacheDir}
+	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
 
 # Install resource log analyzer script
 bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh

@@ -31,9 +31,9 @@
 namespace Dali
 {
 
-namespace SlpPlatform
+namespace TizenPlatform
 {
-class SlpPlatformAbstraction;
+class TizenPlatformAbstraction;
 }
 
 namespace Integration
@@ -46,15 +46,6 @@ namespace Internal
 
 namespace Adaptor
 {
-
-namespace
-{
-// Defaults taken from H2 device
-const unsigned int DEFAULT_WINDOW_WIDTH   = 480;
-const unsigned int DEFAULT_WINDOW_HEIGHT  = 800;
-const float        DEFAULT_HORIZONTAL_DPI = 220;
-const float        DEFAULT_VERTICAL_DPI   = 217;
-}
 
 ApplicationPtr Application::New(
   int* argc,
@@ -108,15 +99,12 @@ Application::~Application()
 
 void Application::CreateWindow()
 {
-#ifndef __arm__
-   PositionSize windowPosition(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-#else
-   PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
-#endif
-  if (mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0)
+  PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
+
+  if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
   {
     // let the command line options over ride
-    windowPosition = PositionSize(0,0,mCommandLineOptions->stageWidth,mCommandLineOptions->stageHeight);
+    windowPosition = PositionSize( 0, 0, mCommandLineOptions->stageWidth, mCommandLineOptions->stageHeight );
   }
 
   mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );
@@ -128,16 +116,17 @@ void Application::CreateAdaptor()
 
   mAdaptor = &Dali::Adaptor::New( mWindow, mBaseLayout, mContextLossConfiguration );
 
-  // Allow DPI to be overridden from command line.
-  unsigned int hDPI=DEFAULT_HORIZONTAL_DPI;
-  unsigned int vDPI=DEFAULT_VERTICAL_DPI;
-
   std::string dpiStr = mCommandLineOptions->stageDPI;
   if(!dpiStr.empty())
   {
+    // Use DPI from command line.
+    unsigned int hDPI = 0;
+    unsigned int vDPI = 0;
+
     sscanf(dpiStr.c_str(), "%ux%u", &hDPI, &vDPI);
+
+    Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetDpi(hDPI, vDPI);
   }
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetDpi(hDPI, vDPI);
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 }

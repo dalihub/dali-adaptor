@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
-#include "slp-platform-abstraction.h"
+#include "tizen-platform-abstraction.h"
 #include "resource-collector.h"
 
 using namespace Dali;
