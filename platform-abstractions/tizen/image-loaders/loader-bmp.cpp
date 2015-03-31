@@ -20,7 +20,6 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 
 #include <cstdlib>
 
@@ -1042,19 +1041,20 @@ bool DecodeRLE8(FILE *fp,
 
 } // unnamed namespace
 
-bool LoadBmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
+bool LoadBmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   BmpFileHeader fileHeader;
   BmpInfoHeader infoHeader;
 
-  bool ret = LoadBmpHeader(fp, width, height, fileHeader, infoHeader);
+  bool ret = LoadBmpHeader( input.file, width, height, fileHeader, infoHeader );
 
   return ret;
 }
 
-bool LoadBitmapFromBmp( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromBmp( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
-  DALI_ASSERT_DEBUG(bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into.");
+  DALI_ASSERT_DEBUG( bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into." );
+  FILE* const fp = input.file;
   if(fp == NULL)
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
@@ -1355,7 +1355,6 @@ bool LoadBitmapFromBmp( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
     return false;
   }
 
-  attributes.SetSize(infoHeader.width, infoHeader.height);
   return true;
 }
 

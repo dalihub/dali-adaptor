@@ -17,9 +17,13 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/images/image-operations.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/bitmap.h>
+
+// INTERNAL INCLUDES
 #include "resource-loading-client.h"
 
 namespace Dali
@@ -51,13 +55,17 @@ bool ConvertBitmapToStream( std::string path, FILE * const fp, Integration::Bitm
 
 Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
 
-void GetClosestImageSize( const std::string& filename,
-                          const ImageAttributes& attributes,
-                          Vector2 &closestSize );
+ImageDimensions  GetClosestImageSize( const std::string& filename,
+                          ImageDimensions size,
+                          FittingMode::Type fittingMode,
+                          SamplingMode::Type samplingMode,
+                          bool orientationCorrection );
 
-void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                          const ImageAttributes& attributes,
-                          Vector2 &closestSize );
+ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                          ImageDimensions size,
+                          FittingMode::Type fittingMode,
+                          SamplingMode::Type samplingMode,
+                          bool orientationCorrection );
 
 } // ImageLoader
 } // TizenPlatform

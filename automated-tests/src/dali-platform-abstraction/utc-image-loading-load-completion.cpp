@@ -36,8 +36,7 @@ int UtcDaliLoadCompletion(void)
 
   // Start a bunch of loads that should work:
 
-  const Dali::ImageAttributes attributes;
-  const Dali::Integration::BitmapResourceType bitmapResourceType( attributes );
+  Dali::Integration::BitmapResourceType bitmapResourceType;
   Dali::Integration::LoadResourcePriority priority = Dali::Integration::LoadPriorityNormal;
   unsigned loadsLaunched = 0;
 
@@ -45,14 +44,14 @@ int UtcDaliLoadCompletion(void)
   {
     for( unsigned validImage = 0; validImage < NUM_VALID_IMAGES; ++validImage )
     {
-      gAbstraction->LoadResource( ResourceRequest( loadGroup * NUM_VALID_IMAGES + validImage + 1, bitmapResourceType, VALID_IMAGES[validImage], priority ) );
+      Dali::Integration::ResourceRequest request( loadGroup * NUM_VALID_IMAGES + validImage + 1, bitmapResourceType, VALID_IMAGES[validImage], priority );
+      gAbstraction->LoadResource( request );
     }
     loadsLaunched += NUM_VALID_IMAGES;
   }
 
   // Drain the completed loads:
   Dali::Internal::Platform::ResourceCollector resourceSink;
-  usleep( 1000 * 1000 );
   gAbstraction->GetResources( resourceSink );
   usleep( 500 * 1000 );
   gAbstraction->GetResources( resourceSink );

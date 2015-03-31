@@ -101,8 +101,8 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   // Check the header file.
 
   unsigned int width(0), height(0);
-  Dali::ImageAttributes attributes;
-  DALI_TEST_CHECK( functions.header( fp, attributes, width, height ) );
+  const Dali::TizenPlatform::ImageLoader::Input input( fp );
+  DALI_TEST_CHECK( functions.header( input, width, height ) );
 
   DALI_TEST_EQUALS( width,  image.reportedWidth,  TEST_LOCATION );
   DALI_TEST_EQUALS( height, image.reportedHeight, TEST_LOCATION );
@@ -116,9 +116,9 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
 
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
-  DALI_TEST_EQUALS( image.width,  attributes.GetWidth(),  TEST_LOCATION );
-  DALI_TEST_EQUALS( image.height, attributes.GetHeight(), TEST_LOCATION );
+  DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );
+  DALI_TEST_EQUALS( image.width,  bitmap->GetImageWidth(),  TEST_LOCATION );
+  DALI_TEST_EQUALS( image.height, bitmap->GetImageHeight(), TEST_LOCATION );
 
   // Compare buffer generated with reference buffer.
   Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
@@ -141,13 +141,13 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
 
   Dali::Integration::Bitmap* bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN );
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
-  Dali::ImageAttributes attributes;
+  const Dali::TizenPlatform::ImageLoader::Input input( fp );
 
-  DALI_TEST_CHECK( functions.loader( fp, *bitmap, attributes, StubImageLoaderClient() ) );
+  DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );
 
   Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
 
   FILE* writeFp = fopen( targetFilename.c_str(), "wb" );
   AutoCloseFile autoCloseWrite( writeFp );
-  fwrite( bufferPtr, sizeof( Dali::PixelBuffer ), attributes.GetWidth() * attributes.GetHeight(), writeFp );
+  fwrite( bufferPtr, 1, bitmap->GetBufferSize(), writeFp );
 }

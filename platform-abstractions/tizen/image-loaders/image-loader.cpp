@@ -17,7 +17,6 @@
 #include "image-loader.h"
 
 #include <dali/public-api/common/ref-counted-dali-vector.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 
@@ -29,6 +28,8 @@
 #include "loader-ktx.h"
 #include "loader-wbmp.h"
 #include "image-operations.h"
+#include "image-loader-input.h"
+#include "portable/file-closer.h"
 
 using namespace Dali::Integration;
 
@@ -39,11 +40,11 @@ namespace TizenPlatform
 
 namespace
 {
-typedef bool (*LoadBitmapFunction)( FILE*, Bitmap&, ImageAttributes&, const ResourceLoadingClient& );
-typedef bool (*LoadBitmapHeaderFunction)(FILE*, const ImageAttributes& attrs, unsigned int& width, unsigned int& height );
+typedef bool (*LoadBitmapFunction)( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+typedef bool (*LoadBitmapHeaderFunction)( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 #if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_IMAGE_LOADING");
+Integration::Log::Filter* gLogFilter = Debug::Filter::New( Debug::Concise, false, "LOG_IMAGE_LOADING" );
 #endif
 
 /**
@@ -170,7 +171,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
 
   bool loaderFound = false;
   const BitmapLoader *lookupPtr = BITMAP_LOADER_LOOKUP_TABLE;
-  ImageAttributes attrs;
+  ImageLoader::Input defaultInput( fp );
 
   // try hinted format first
   if ( format != FORMAT_UNKNOWN )
@@ -181,7 +182,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
     {
       unsigned int width = 0;
       unsigned int height = 0;
-      loaderFound = lookupPtr->header(fp, attrs, width, height );
+      loaderFound = lookupPtr->header( fp, width, height );
     }
   }
 
@@ -197,7 +198,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
         // to seperate ico file format and wbmp file format
         unsigned int width = 0;
         unsigned int height = 0;
-        loaderFound = lookupPtr->header(fp, attrs, width, height);
+        loaderFound = lookupPtr->header(fp, width, height);
       }
       if (loaderFound)
       {
@@ -216,7 +217,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
       // to seperate ico file format and wbmp file format
       unsigned int width = 0;
       unsigned int height = 0;
-      loaderFound = lookupPtr->header(fp, attrs, width, height);
+      loaderFound = lookupPtr->header(fp, width, height);
       if (loaderFound)
       {
         break;
@@ -247,9 +248,9 @@ bool GetBitmapLoaderFunctions( FILE *fp,
 namespace ImageLoader
 {
 
-bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, FILE * const fp, const ResourceLoadingClient& client, BitmapPtr& ptr)
+bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, FILE * const fp, const ResourceLoadingClient& client, BitmapPtr& ptr )
 {
-  DALI_LOG_TRACE_METHOD(gLogFilter);
+  DALI_LOG_TRACE_METHOD( gLogFilter );
   DALI_ASSERT_DEBUG( ResourceBitmap == resourceType.id );
 
   bool result = false;
@@ -267,20 +268,19 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
                                    header,
                                    profile ) )
     {
-      bitmap = Bitmap::New(profile, ResourcePolicy::DISCARD );
+      bitmap = Bitmap::New( profile, ResourcePolicy::DISCARD );
 
-      DALI_LOG_SET_OBJECT_STRING(bitmap, path);
-      const BitmapResourceType& resType = static_cast<const BitmapResourceType&>(resourceType);
-      const ImageAttributes& requestedAttributes = resType.imageAttributes; //< Original attributes.
-      ImageAttributes attributes  = resType.imageAttributes; //< r/w copy of the attributes.
+      DALI_LOG_SET_OBJECT_STRING( bitmap, path );
+      const BitmapResourceType& resType = static_cast<const BitmapResourceType&>( resourceType );
+      const ScalingParameters scalingParameters( resType.size, resType.scalingMode, resType.samplingMode );
+      const ImageLoader::Input input( fp, scalingParameters, resType.orientationCorrection );
 
       // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
       // This won't do anything from synchronous API, it's only useful when called from another thread.
       client.InterruptionPoint(); // Note: By design, this can throw an exception
 
       // Run the image type decoder:
-      // Note, this can overwrite the attributes parameter.
-      result = function( fp, *bitmap, attributes, client );
+      result = function( client, input, *bitmap );
 
       if (!result)
       {
@@ -288,13 +288,13 @@ bool ConvertStreamToBitmap(const ResourceType& resourceType, std::string path, F
         bitmap = 0;
       }
 
-      // Apply the requested image attributes in best-effort fashion:
+      // Apply the requested image attributes if not interrupted:
       client.InterruptionPoint(); // Note: By design, this can throw an exception
-      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, requestedAttributes );
+      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, resType.size, resType.scalingMode, resType.samplingMode );
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
+      DALI_LOG_WARNING( "Image Decoder for %s unavailable\n", path.c_str() );
     }
   }
 
@@ -307,7 +307,8 @@ ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& reso
   ResourcePointer resource;
   BitmapPtr bitmap = 0;
 
-  FILE * const fp = fopen( resourcePath.c_str(), "rb" );
+  Internal::Platform::FileCloser fc( resourcePath.c_str(), "rb");
+  FILE * const fp = fc.GetFile();
   if( fp != NULL )
   {
     bool result = ConvertStreamToBitmap( resourceType, resourcePath, fp, StubbedResourceLoadingClient(), bitmap );
@@ -315,17 +316,22 @@ ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& reso
     {
       resource.Reset(bitmap.Get());
     }
-    fclose(fp);
   }
   return resource;
 }
 
-
-void GetClosestImageSize( const std::string& filename,
-                          const ImageAttributes& attributes,
-                          Vector2 &closestSize )
+///@ToDo: Rename GetClosestImageSize() functions. Make them use the orientation correction and scaling information. Requires jpeg loader to tell us about reorientation. [Is there still a requirement for this functionality at all?]
+ImageDimensions  GetClosestImageSize( const std::string& filename,
+                                      ImageDimensions size,
+                                      FittingMode::Type fittingMode,
+                                      SamplingMode::Type samplingMode,
+                                      bool orientationCorrection )
 {
-  FILE *fp = fopen(filename.c_str(), "rb");
+  unsigned int width = 0;
+  unsigned int height = 0;
+
+  Internal::Platform::FileCloser fc(filename.c_str(), "rb");
+  FILE *fp = fc.GetFile();
   if (fp != NULL)
   {
     LoadBitmapFunction loaderFunction;
@@ -338,32 +344,32 @@ void GetClosestImageSize( const std::string& filename,
                                    headerFunction,
                                    profile ) )
     {
-      unsigned int width;
-      unsigned int height;
+      const ImageLoader::Input input( fp, ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
 
-      const bool read_res = headerFunction(fp, attributes, width, height);
+      const bool read_res = headerFunction( input, width, height );
       if(!read_res)
       {
         DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", filename.c_str());
       }
-
-      closestSize.width = (float)width;
-      closestSize.height = (float)height;
     }
     else
     {
       DALI_LOG_WARNING("Image Decoder for %s unavailable\n", filename.c_str());
     }
-    fclose(fp);
   }
+  return ImageDimensions( width, height );
 }
 
 
-void GetClosestImageSize( ResourcePointer resourceBuffer,
-                          const ImageAttributes& attributes,
-                          Vector2 &closestSize )
+
+ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                     ImageDimensions size,
+                                     FittingMode::Type fittingMode,
+                                     SamplingMode::Type samplingMode,
+                                     bool orientationCorrection )
 {
-  BitmapPtr bitmap = 0;
+  unsigned int width = 0;
+  unsigned int height = 0;
 
   // Get the blob of binary data that we need to decode:
   DALI_ASSERT_DEBUG( resourceBuffer );
@@ -379,7 +385,8 @@ void GetClosestImageSize( ResourcePointer resourceBuffer,
     if( blobBytes != 0 && blobSize > 0U )
     {
       // Open a file handle on the memory buffer:
-      FILE * const fp = fmemopen(blobBytes, blobSize, "rb");
+      Internal::Platform::FileCloser fc( blobBytes, blobSize, "rb" );
+      FILE *fp = fc.GetFile();
       if ( fp != NULL )
       {
         LoadBitmapFunction loaderFunction;
@@ -392,21 +399,17 @@ void GetClosestImageSize( ResourcePointer resourceBuffer,
                                        headerFunction,
                                        profile ) )
         {
-          unsigned int width;
-          unsigned int height;
-          const bool read_res = headerFunction(fp, attributes, width, height);
-          if(!read_res)
+          const ImageLoader::Input input( fp, ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
+          const bool read_res = headerFunction( input, width, height );
+          if( !read_res )
           {
-            DALI_LOG_WARNING("Image Decoder failed to read header for resourceBuffer\n");
+            DALI_LOG_WARNING( "Image Decoder failed to read header for resourceBuffer\n" );
           }
-
-          closestSize.width = (float) width;
-          closestSize.height = (float) height;
         }
-        fclose(fp);
       }
     }
   }
+  return ImageDimensions( width, height );
 }
 
 } // ImageLoader

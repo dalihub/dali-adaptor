@@ -22,6 +22,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/pixel.h>
 #include "image-encoder.h"
+#include "image-loader-input.h"
 
 namespace Dali
 {
@@ -52,7 +53,7 @@ const unsigned char MAGIC_BYTE_2 = 0xD8;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromJpeg( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
+bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.
@@ -65,7 +66,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes&
  * @param[in/out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height);
+bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 /**
  * Encode raw pixel data to JPEG format.

@@ -25,7 +25,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/pixel.h>
-#include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
@@ -295,18 +294,22 @@ bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height, K
 } // unnamed namespace
 
 // File loading API entry-point:
-bool LoadKtxHeader(FILE * const fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
+bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   KtxFileHeader fileHeader;
+  FILE* const fp = input.file;
+
   bool ret = LoadKtxHeader(fp, width, height, fileHeader);
   return ret;
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx( FILE * const fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromKtx( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);
+
+  FILE* const fp = input.file;
   if( fp == NULL )
   {
     DALI_LOG_ERROR( "Null file handle passed to KTX compressed bitmap file loader.\n" );
@@ -367,9 +370,6 @@ bool LoadBitmapFromKtx( FILE * const fp, Bitmap& bitmap, ImageAttributes& attrib
     DALI_LOG_ERROR( "Read of image pixel data failed.\n" );
     return false;
   }
-
-  // Ignore all input requests from image attributes and set the available metadata:
-  attributes.SetSize(width, height);
 
   return true;
 }

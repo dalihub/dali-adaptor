@@ -23,7 +23,6 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/math/math-utils.h>
 #include <dali/public-api/math/vector2.h>
 

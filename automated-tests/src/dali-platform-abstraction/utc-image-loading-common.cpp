@@ -31,54 +31,55 @@ void utc_dali_loading_startup(void)
   // Setup some ImageAttributes to engage post-processing stages:
 
   ImageAttributes scaleToFillAttributes;
-  scaleToFillAttributes.SetScalingMode( ImageAttributes::ScaleToFill );
-  scaleToFillAttributes.SetSize( 160, 120 );
+  scaleToFillAttributes.second.first = FittingMode::SCALE_TO_FILL;
+  scaleToFillAttributes.first = ImageDimensions( 160, 120 );
   gCancelAttributes.push_back( scaleToFillAttributes );
 
   // Hit the derived dimensions code:
   ImageAttributes scaleToFillAttributesDeriveWidth = scaleToFillAttributes;
-  scaleToFillAttributesDeriveWidth.SetSize( 0, 120 );
+  scaleToFillAttributesDeriveWidth.first = ImageDimensions( 0, 120 );
   gCancelAttributes.push_back( scaleToFillAttributesDeriveWidth );
 
   ImageAttributes scaleToFillAttributesDeriveHeight = scaleToFillAttributes;
-  scaleToFillAttributesDeriveHeight.SetSize( 160, 0 );
+  scaleToFillAttributesDeriveHeight.first = ImageDimensions( 160, 0 );
   gCancelAttributes.push_back( scaleToFillAttributesDeriveHeight );
 
   // Try to push a tall crop:
   ImageAttributes scaleToFillAttributesTall = scaleToFillAttributes;
-  scaleToFillAttributesTall.SetSize( 160, 480 );
+  scaleToFillAttributesTall.first = ImageDimensions( 160, 480 );
   ImageAttributes scaleToFillAttributesTall2 = scaleToFillAttributes;
-  scaleToFillAttributesTall2.SetSize( 160, 509 );
+  scaleToFillAttributesTall2.first = ImageDimensions( 160, 509 );
   ImageAttributes scaleToFillAttributesTall3 = scaleToFillAttributes;
-  scaleToFillAttributesTall3.SetSize( 37, 251 );
+  scaleToFillAttributesTall3.first = ImageDimensions( 37, 251 );
   gCancelAttributes.push_back( scaleToFillAttributesTall );
   gCancelAttributes.push_back( scaleToFillAttributesTall2 );
   gCancelAttributes.push_back( scaleToFillAttributesTall3 );
 
   // Try to push a wide crop:
   ImageAttributes scaleToFillAttributesWide = scaleToFillAttributes;
-  scaleToFillAttributesWide.SetSize( 320, 60 );
+  scaleToFillAttributesWide.first = ImageDimensions( 320, 60 );
   ImageAttributes scaleToFillAttributesWide2 = scaleToFillAttributes;
-  scaleToFillAttributesWide2.SetSize( 317, 60 );
+  scaleToFillAttributesWide2.first = ImageDimensions( 317, 60 );
   ImageAttributes scaleToFillAttributesWide3 = scaleToFillAttributes;
-  scaleToFillAttributesWide3.SetSize( 317, 53 );
+  scaleToFillAttributesWide3.first = ImageDimensions( 317, 53 );
   gCancelAttributes.push_back( scaleToFillAttributesWide );
   gCancelAttributes.push_back( scaleToFillAttributesWide2 );
   gCancelAttributes.push_back( scaleToFillAttributesWide3 );
 
   ImageAttributes shrinkToFitAttributes = scaleToFillAttributes;
-  shrinkToFitAttributes.SetScalingMode( ImageAttributes::ShrinkToFit );
+  shrinkToFitAttributes.second.first = FittingMode::SHRINK_TO_FIT;
   gCancelAttributes.push_back( shrinkToFitAttributes );
 
   ImageAttributes fitWidthAttributes = scaleToFillAttributes;
-  fitWidthAttributes.SetScalingMode( ImageAttributes::FitWidth );
+  fitWidthAttributes.second.first = FittingMode::FIT_WIDTH;
   gCancelAttributes.push_back( fitWidthAttributes );
 
   ImageAttributes fitHeightAttributes = scaleToFillAttributes;
-  fitHeightAttributes.SetScalingMode( ImageAttributes::FitHeight );
+  fitHeightAttributes.second.first = FittingMode::FIT_HEIGHT;
   gCancelAttributes.push_back( fitHeightAttributes );
 
   ///@ToDo: Add attribute variants for all scale modes.
+  ///@ToDo: Add attribute variants for all filter modes.
 
   // Pad the array to a prime number to mitigate any accidental periodic
   // patterns in which image file has which attributes applied to its load:

@@ -19,7 +19,6 @@
 #include "loader-jpeg.h"
 #include "resource-loading-client.h"
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
 
@@ -64,25 +63,6 @@ namespace
      char R;
      char G;
      char B;
-  };
-
-  struct RGBA8888Type
-  {
-     char R;
-     char G;
-     char B;
-     char A;
-  };
-
-  struct RGB565Type
-  {
-    char RG;
-    char GB;
-  };
-
-  struct L8Type
-  {
-    char gray;
   };
 
   /**
@@ -229,9 +209,10 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   const int flags= 0;
+  FILE* const fp = input.file;
 
   if( fseek(fp,0,SEEK_END) )
   {
@@ -294,7 +275,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, 
 
   JPGFORM_CODE transform = JPGFORM_NONE;
 
-  if( attributes.GetOrientationCorrection() )
+  if( input.reorientationRequested )
   {
     ExifAutoPtr exifData( exif_data_new_from_data(jpegBufferPtr, jpegBufferSize) );
     if( exifData.mData )
@@ -318,8 +299,8 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, 
     return false;
   }
 
-  int requiredWidth  = attributes.GetWidth();
-  int requiredHeight = attributes.GetHeight();
+  int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
+  int requiredHeight = input.scalingParameters.dimensions.GetHeight();
 
   // If transform is a 90 or 270 degree rotation, the logical width and height
   // request from the client needs to be adjusted to account by effectively
@@ -350,8 +331,6 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, 
     DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     return false;
   }
-
-  attributes.SetSize( scaledPostXformWidth, scaledPostXformHeight );
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );
@@ -397,6 +376,7 @@ bool LoadBitmapFromJpeg( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, 
   return result;
 }
 
+///@Todo: Move all these rotation functions to portable/image-operations and take "Jpeg" out of their names.
 bool JpegRotate90(unsigned char *buffer, int width, int height, int bpp)
 {
   int  w, iw, ih, hw = 0;
@@ -772,10 +752,11 @@ ExifData* LoadExifData( FILE* fp )
   return exifData;
 }
 
-bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height)
+bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
-  unsigned int requiredWidth  = attributes.GetWidth();
-  unsigned int requiredHeight = attributes.GetHeight();
+  unsigned int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
+  unsigned int requiredHeight = input.scalingParameters.dimensions.GetHeight();
+  FILE* const fp = input.file;
 
   bool success = false;
   if( requiredWidth == 0 && requiredHeight == 0 )
@@ -791,7 +772,7 @@ bool LoadJpegHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &w
     {
       JPGFORM_CODE transform = JPGFORM_NONE;
 
-      if( attributes.GetOrientationCorrection() )
+      if( input.reorientationRequested )
       {
         ExifAutoPtr exifData( LoadExifData( fp ) );
         if( exifData.mData )

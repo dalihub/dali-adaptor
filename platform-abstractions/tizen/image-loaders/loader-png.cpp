@@ -26,7 +26,6 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/image.h>
-#include <dali/public-api/images/image-attributes.h>
 #include "dali/public-api/math/math-utils.h"
 #include "dali/public-api/math/vector2.h"
 #include "platform-capabilities.h"
@@ -118,18 +117,18 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
 
 } // namespace - anonymous
 
-bool LoadPngHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
+bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   png_structp png = NULL;
   png_infop info = NULL;
   auto_png autoPng(png, info);
 
-  bool success = LoadPngHeader(fp, width, height, png, info);
+  bool success = LoadPngHeader( input.file, width, height, png, info );
 
   return success;
 }
 
-bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromPng( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   png_structp png = NULL;
   png_infop info = NULL;
@@ -144,7 +143,7 @@ bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
   bool valid = false;
 
   // Load info from the header
-  if( !LoadPngHeader(fp, width, height, png, info) )
+  if( !LoadPngHeader( input.file, width, height, png, info ) )
   {
     return false;
   }
@@ -308,9 +307,6 @@ bool LoadBitmapFromPng( FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, c
 
   // decode image
   png_read_image(png, rows);
-
-  // set the attributes
-  attributes.SetSize( width, height );
 
   free(rows);
 
