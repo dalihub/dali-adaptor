@@ -1292,7 +1292,7 @@ void Indicator::ShowIndicator(float duration)
   {
     if( EqualsZero(duration) )
     {
-      mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, -mImageHeight, 0), Dali::AlphaFunctions::EaseOut);
+      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageActor, Dali::Actor::Property::POSITION ), Vector3(0, -mImageHeight, 0), Dali::AlphaFunctions::EaseOut );
 
       mIsShowing = false;
 
@@ -1300,7 +1300,7 @@ void Indicator::ShowIndicator(float duration)
     }
     else
     {
-      mIndicatorAnimation.MoveTo(mIndicatorImageActor, Vector3(0, 0, 0), Dali::AlphaFunctions::EaseOut);
+      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageActor, Dali::Actor::Property::POSITION ), Vector3(0, 0, 0), Dali::AlphaFunctions::EaseOut );
 
       mIsShowing = true;
 
