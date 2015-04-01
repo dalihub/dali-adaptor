@@ -749,7 +749,9 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
             // Indicate that the font is a fixed sized bitmap
             FontMetrics metrics( fixedHeight,
                                  0.0f,
-                                 fixedHeight );
+                                 fixedHeight,
+                                 0.0f,
+                                 0.0f );
 
             mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
             id = mFontCache.size();
@@ -796,7 +798,9 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
         FontMetrics metrics( static_cast< float >( ftMetrics.ascender  ) * FROM_266,
                              static_cast< float >( ftMetrics.descender ) * FROM_266,
-                             static_cast< float >( ftMetrics.height    ) * FROM_266 );
+                             static_cast< float >( ftMetrics.height    ) * FROM_266,
+                             static_cast< float >( ftFace->underline_position ) * FROM_266,
+                             static_cast< float >( ftFace->underline_thickness ) * FROM_266 );
 
         mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics ) );
         id = mFontCache.size();

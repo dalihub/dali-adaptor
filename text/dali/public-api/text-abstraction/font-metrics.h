@@ -42,11 +42,15 @@ struct DALI_IMPORT_API FontMetrics
    */
   FontMetrics( float ascenderPixels,
                float descenderPixels,
-               float heightPixels );
+               float heightPixels,
+               float underlinePositionPixels,
+               float underlinePositionThickness );
 
-  float ascender;   ///< The ascender in pixels.
-  float descender;  ///< The descender in pixels.
-  float height;     ///< The height in pixels.
+  float ascender;             ///< The ascender in pixels.
+  float descender;            ///< The descender in pixels.
+  float height;               ///< The height in pixels.
+  float underlinePosition;    ///< The underline position in pixels.
+  float underlineThickness;   ///< The vertical height of the underline in pixels.
 };
 
 } // Dali

@@ -33,10 +33,14 @@ FontMetrics::FontMetrics()
 
 FontMetrics::FontMetrics( float ascenderPixels,
                           float descenderPixels,
-                          float heightPixels )
+                          float heightPixels,
+                          float underlinePositionPixels,
+                          float underlineThicknessPixels )
 : ascender( ascenderPixels ),
   descender( descenderPixels ),
-  height( heightPixels )
+  height( heightPixels ),
+  underlinePosition( underlinePositionPixels ),
+  underlineThickness( underlineThicknessPixels )
 {
 }
 
