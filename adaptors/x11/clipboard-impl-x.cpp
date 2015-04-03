@@ -66,22 +66,24 @@ BaseHandle Create()
     if ( service )
     {
       Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
+      Any nativewindow = adaptorImpl.GetNativeWindowHandle();
 
       // The Ecore_X_Window needs to use the Clipboard.
       // Only when the render surface is window, we can get the Ecore_X_Window.
-      Ecore_X_Window ecoreXwin( 0 );
-      Dali::RenderSurface& surface( adaptorImpl.GetSurface() );
-      if( surface.GetType() == Dali::RenderSurface::WINDOW )
+      Ecore_X_Window ecoreXwin( AnyCast<Ecore_X_Window>(nativewindow) );
+      if (ecoreXwin)
       {
-        ecoreXwin = AnyCast< Ecore_X_Window >( adaptorImpl.GetSurface().GetSurface() );
+        // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
+        // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
+        // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
+        Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( ecoreXwin ) );
+        service.Register( typeid( clipboard ), clipboard );
+        handle = clipboard;
       }
-
-      // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
-      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-      Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( ecoreXwin ) );
-      service.Register( typeid( clipboard ), clipboard );
-      handle = clipboard;
+      else
+      {
+        DALI_LOG_ERROR("Failed to get native window handle");
+      }
     }
   }
 

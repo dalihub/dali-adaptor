@@ -23,7 +23,6 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/orientation-impl.cpp  \
   $(adaptor_common_dir)/performance-logger-impl.cpp \
   $(adaptor_common_dir)/physical-keyboard-impl.cpp \
-  $(adaptor_common_dir)/render-surface-impl.cpp \
   $(adaptor_common_dir)/server-connection.cpp \
   $(adaptor_common_dir)/shared-file.cpp \
   $(adaptor_common_dir)/singleton-service-impl.cpp \
@@ -40,6 +39,9 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/events/pan-gesture-detector.cpp \
   $(adaptor_common_dir)/events/pinch-gesture-detector.cpp \
   $(adaptor_common_dir)/events/tap-gesture-detector.cpp \
+  \
+ $(adaptor_common_dir)/networking/socket-impl.cpp \
+  $(adaptor_common_dir)/networking/socket-factory.cpp \
   \
   $(adaptor_common_dir)/feedback/feedback-controller.cpp \
   $(adaptor_common_dir)/feedback/feedback-plugin-proxy.cpp \

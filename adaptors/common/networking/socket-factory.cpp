@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  *
  */
+// CLASS HEADER
+#include "socket-factory.h"
 
 // INTERNAL INCLUDES
-#include <pixmap-render-surface.h>
+#include <networking/socket-impl.h>
 
 namespace Dali
 {
@@ -27,26 +29,19 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECore
+SocketInterface* SocketFactory::NewSocket( SocketInterface::Protocol protocol  )
 {
-
-DALI_EXPORT_API RenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  Any                display,
-  const std::string& name,
-  bool               isTransparent )
-{
-  return new PixmapRenderSurface( positionSize, surface, display, name, isTransparent );
+  return new Socket( protocol );
 }
 
-} // namespace ECoreX
+void SocketFactory::DestroySocket( SocketInterface* socketInterface )
+{
+  Socket* socket( static_cast<Socket* >( socketInterface ));
+  delete socket;
+}
 
-} // namespace Adaptor
+} // Adaptor
 
-} // namespace Internal
+} // Internal
 
-} // namespace Dali
-
-
-
+} // Dali

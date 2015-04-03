@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_X11_TYPES_H__
-#define __DALI_INTERNAL_X11_TYPES_H__
+#ifndef __DALI_X11_TYPES_H__
+#define __DALI_X11_TYPES_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -24,21 +24,11 @@
 namespace Dali
 {
 
-namespace Internal
-{
-
-namespace Adaptor
-{
-
 typedef ::Pixmap XPixmap;
 typedef ::Window XWindow;
 typedef ::Display XDisplay;
 typedef ::Screen XScreen;
 
-} // namespace Adaptor
-
-} // namespace Internal
-
 } // namespace Dali
 
-#endif /* __DALI_INTERNAL_X11_TYPES_H__ */
+#endif /* __DALI_X11_TYPES_H__ */

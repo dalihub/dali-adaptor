@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_TRIGGER_EVENT_FACTORY_H__
-#define __DALI_INTERNAL_ADAPTOR_TRIGGER_EVENT_FACTORY_H__
+#ifndef __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H__
+#define __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,22 +19,17 @@
  */
 
 // INTERNAL INCLUDES
-#include <base/interfaces/trigger-event-factory-interface.h>
+#include <trigger-event-factory-interface.h>
+#include <dali/public-api/common/dali-common.h>
 
 namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
 {
 
 /**
  * @brief Trigger interface factory class
  *
  */
-class TriggerEventFactory : public TriggerEventFactoryInterface
+class DALI_IMPORT_API TriggerEventFactory : public TriggerEventFactoryInterface
 {
 
 public:
@@ -66,10 +61,6 @@ public:
 
 };
 
-} // namespace Internal
-
-} // namespace Adaptor
-
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_TRIGGER_EVENT_FACTORY_H__
+#endif // __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H__

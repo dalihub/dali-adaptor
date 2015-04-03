@@ -21,30 +21,18 @@
 // INTERNAL INCLUDES
 #include <trigger-event.h>
 
-
 namespace Dali
 {
 
-namespace Internal
+TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent( CallbackBase* callback,  TriggerEventInterface::Options options )
 {
-
-namespace Adaptor
-{
-
-TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(  CallbackBase* callback,  TriggerEventInterface::Options options )
-{
-  return new TriggerEvent( callback, options );
+  return new Internal::Adaptor::TriggerEvent( callback, options );
 }
 
 void TriggerEventFactory::DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface )
 {
-  TriggerEvent* triggerEvent( static_cast< TriggerEvent* >( triggerEventInterface) );
+  Internal::Adaptor::TriggerEvent* triggerEvent( static_cast<Internal::Adaptor::TriggerEvent *>(triggerEventInterface) );
   delete triggerEvent;
 }
-
-
-} // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
