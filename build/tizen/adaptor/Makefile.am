@@ -204,15 +204,11 @@ libdali_adaptor_la_includes = \
                       -I../../../adaptors/integration-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
-<<<<<<< HEAD
+                      -I../../../adaptors/base/interfaces \
                       -I../../../adaptors/ \
                       -I../../../text \
                       -I../../../text/dali/internal/libunibreak
 
-=======
-                      -I../../../adaptors/base/interfaces \
-                      -I../../../adaptors/
->>>>>>> origin/tizen
 if WAYLAND
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/wayland \
