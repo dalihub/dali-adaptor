@@ -27,6 +27,11 @@
 
 using namespace Dali::Integration;
 
+namespace
+{
+const int CONNECTION_TIMEOUT( 30 );
+}
+
 namespace Dali
 {
 
@@ -106,6 +111,7 @@ bool ResourceThreadImage::DownloadRemoteImageIntoMemory(const Integration::Resou
   curl_easy_setopt( curl_handle, CURLOPT_VERBOSE, 0 );
   curl_easy_setopt( curl_handle, CURLOPT_URL, request.GetPath().c_str() );
   curl_easy_setopt( curl_handle, CURLOPT_FAILONERROR, 1 );
+  curl_easy_setopt( curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT );
 
   // Download header first to get data size
   char* headerBytes = NULL;
@@ -126,7 +132,7 @@ bool ResourceThreadImage::DownloadRemoteImageIntoMemory(const Integration::Resou
     }
     else
     {
-      DALI_LOG_WARNING( "Failed to download file to load \"%s\"\n", request.GetPath().c_str() );
+      DALI_LOG_WARNING( "Failed to download http header for \"%s\" with error code %d\n", request.GetPath().c_str(), cresult );
       succeeded = false;
     }
 
@@ -160,7 +166,7 @@ bool ResourceThreadImage::DownloadRemoteImageIntoMemory(const Integration::Resou
       cresult = curl_easy_perform( curl_handle );
       if( CURLE_OK != cresult )
       {
-        DALI_LOG_WARNING( "Failed to download file to load \"%s\"\n", request.GetPath().c_str() );
+        DALI_LOG_WARNING( "Failed to download image file \"%s\" with error code %d\n", request.GetPath().c_str(), cresult );
         succeeded = false;
       }
     }

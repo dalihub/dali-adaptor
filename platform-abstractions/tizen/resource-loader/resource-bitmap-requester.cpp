@@ -71,10 +71,20 @@ void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& reques
     else
     {
       const std::string& resourcePath = request.GetPath();
-      if( resourcePath.length() > 7 && strncasecmp( resourcePath.c_str(), "http://", 7 ) == 0 )
+      if( strncasecmp( resourcePath.c_str(), "http", 4 ) == 0 )
       {
-        requestType = ResourceThreadBase::RequestDownload;
-        workerThread = remoteImageThread;
+        if( resourcePath.size() > 4 &&
+            ( strncasecmp( &resourcePath.c_str()[4], "://", 3 ) == 0 ||
+              strncasecmp( &resourcePath.c_str()[4], "s://", 4) == 0 ) )
+        {
+          requestType = ResourceThreadBase::RequestDownload;
+          workerThread = remoteImageThread;
+        }
+        else
+        {
+          requestType = ResourceThreadBase::RequestLoad;
+          workerThread = localImageThread;
+        }
       }
       else
       {
