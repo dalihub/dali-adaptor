@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_BASE_TRIGGER_EVENT_FACTORY_INTERFACE_H__
-#define __DALI_INTERNAL_BASE_TRIGGER_EVENT_FACTORY_INTERFACE_H__
+#ifndef __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_INTERFACE_H__
+#define __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_INTERFACE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -22,15 +22,9 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <base/interfaces/trigger-event-interface.h>
+#include <trigger-event-interface.h>
 
 namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
 {
 
 /**
@@ -45,6 +39,7 @@ public:
   /**
    * @brief Create a new concrete implementation of the event trigger interface.
    * @param callback called when interface->Trigger() is called
+   * @param options TriggerEventInterface option
    * @return pointer to a new trigger event
    * @note Ownership of callback should be taken over by deriving classes
    */
@@ -52,7 +47,7 @@ public:
                                                      TriggerEventInterface::Options options = TriggerEventInterface::NONE) = 0;
   /**
    * @brief destroy a trigger event
-   * @param trigger event to destroy
+   * @param triggerEventInterface event to destroy
    */
   virtual void DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface ) = 0;
 
@@ -83,11 +78,6 @@ private:
 
 };
 
-
-} // namespace Internal
-
-} // namespace Adaptor
-
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_BASE_TRIGGER_EVENT_FACTORY_INTERFACE_H__
+#endif // __DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_INTERFACE_H__

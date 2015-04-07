@@ -21,24 +21,18 @@
 // EXTERNAL INCLUDES
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include <boost/any.hpp>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
-#include <base/interfaces/egl-interface.h>
+#include <egl-interface.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
 namespace Adaptor
 {
-
-enum ColorDepth
-{
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
 
 /**
  * EglImplementation class provides an EGL implementation.
@@ -58,7 +52,7 @@ public:
 
 public:
 
- /**
+  /**
    * (Called from  ECoreX::RenderSurface, not RenderThread, so not in i/f, hence, not virtual)
    * Initialize GL
    * @param display The display
@@ -145,20 +139,18 @@ public:
   /**
    * Replaces the render surface
    * @param[in] window, the window to create the new surface on
-   * @param[in] display, the display
    * @return true if the context was lost due to a change in display
    *         between old surface and new surface
    */
-  bool ReplaceSurfaceWindow( EGLNativeWindowType window, EGLNativeDisplayType display );
+  bool ReplaceSurfaceWindow( EGLNativeWindowType window );
 
   /**
    * Replaces the render surface
    * @param[in] pixmap, the pixmap to create the new surface on
-   * @param[in] display, the display
    * @return true if the context was lost due to a change in x-display
    *         between old surface and new surface
    */
-  bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLNativeDisplayType display );
+  bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap );
 
   /**
    * returns the display with which this object was initialized

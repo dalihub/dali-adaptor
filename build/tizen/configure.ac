@@ -246,6 +246,7 @@ AC_CONFIG_FILES([
  Makefile
  adaptor/Makefile
  dali.pc
+ adaptor/dali-adaptor-integration.pc
 ])
 
 AM_CONDITIONAL([USE_PLUGIN], [test x$enable_feedback = xyes || test x$enable_bullet = xyes])
