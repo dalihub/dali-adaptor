@@ -100,7 +100,6 @@ public:
     * Invoked when the memory level of the device is low.
     */
     virtual void OnMemoryLow() {}
-
   };
 
 public:
@@ -163,10 +162,10 @@ private:
 private:
   /**
    * Called by the App framework when an application lifecycle event occurs.
-   * @param[in]  type  The type of event occurred.
+   * @param[in] type The type of event occurred.
    * @param[in] bundleData The bundle data of event occurred.
    */
-   bool AppStatusHandler(int type, void *bundleData);
+  bool AppStatusHandler(int type, void *bundleData);
 
   /**
    * Called app_reset callback was called with bundle.

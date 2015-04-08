@@ -346,7 +346,6 @@ public:  // Signals
   */
   AppSignalType& MemoryLowSignal();
 
-
 public: // Not intended for application developers
   /**
    * Internal constructor
