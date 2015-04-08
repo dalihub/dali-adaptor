@@ -292,6 +292,8 @@ struct BidirectionalSupport::Plugin
 
         characterDirection = previousDirection == nextDirection ? previousDirection : paragraphDirection;
       }
+
+      previousDirection = characterDirection;
     }
   }
 
