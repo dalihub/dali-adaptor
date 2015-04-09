@@ -92,6 +92,9 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 %endif
 
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
+
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)
 %endif

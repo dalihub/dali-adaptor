@@ -42,6 +42,8 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  libcurl-devel
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)

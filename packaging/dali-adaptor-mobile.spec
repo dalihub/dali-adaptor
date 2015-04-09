@@ -50,6 +50,8 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(opengl-es-20)
 BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  libcurl-devel
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
 
 %if 0%{?over_tizen_2_2}
 BuildRequires:  pkgconfig(capi-system-info)
