@@ -79,6 +79,11 @@ namespace Dali
 
 const KEY DALI_KEY_INVALID          = -1;
 const KEY DALI_KEY_ESCAPE           = 9;
+const KEY DALI_KEY_BACKSPACE        = 22;
+const KEY DALI_KEY_CURSOR_UP        = 111;
+const KEY DALI_KEY_CURSOR_LEFT      = 113;
+const KEY DALI_KEY_CURSOR_RIGHT     = 114;
+const KEY DALI_KEY_CURSOR_DOWN      = 116;
 const KEY DALI_KEY_BACK             = 166;
 const KEY DALI_KEY_CAMERA           = 167;
 const KEY DALI_KEY_CONFIG           = 168;

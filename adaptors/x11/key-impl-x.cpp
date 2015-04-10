@@ -32,6 +32,11 @@ namespace Dali
 
 const KEY DALI_KEY_INVALID          = -1;
 const KEY DALI_KEY_ESCAPE           = 9;
+const KEY DALI_KEY_BACKSPACE        = 22;
+const KEY DALI_KEY_CURSOR_UP        = 111;
+const KEY DALI_KEY_CURSOR_LEFT      = 113;
+const KEY DALI_KEY_CURSOR_RIGHT     = 114;
+const KEY DALI_KEY_CURSOR_DOWN      = 116;
 const KEY DALI_KEY_BACK             = 166;
 const KEY DALI_KEY_CAMERA           = 167;
 const KEY DALI_KEY_CONFIG           = 168;
@@ -132,6 +137,9 @@ KeyLookup KeyLookupTable[]=
   { KEY_LANGUAGE,           DALI_KEY_LANGUAGE,        false },
   { KEY_VOLUMEUP,           DALI_KEY_VOLUME_UP,       true  },
   { KEY_VOLUMEDOWN,         DALI_KEY_VOLUME_DOWN,     true  },
+  { "BackSpace",            DALI_KEY_BACKSPACE,       false },
+  { "Left",                 DALI_KEY_CURSOR_LEFT,     false },
+  { "Right",                DALI_KEY_CURSOR_RIGHT,    false }
 };
 
 const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable))/ (sizeof(KeyLookup));

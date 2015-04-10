@@ -4,25 +4,16 @@ tizen_platform_abstraction_src_files = \
   $(tizen_platform_abstraction_src_dir)/tizen-platform-abstraction.cpp \
   $(tizen_platform_abstraction_src_dir)/tizen-logging.cpp \
   $(tizen_platform_abstraction_src_dir)/tizen-font-configuration-parser.cpp \
-  $(tizen_platform_abstraction_src_dir)/font-platform/font-controller-impl.cpp \
-  $(tizen_platform_abstraction_src_dir)/data-cache/data-cache-io.cpp \
-  $(tizen_platform_abstraction_src_dir)/data-cache/data-cache-impl.cpp \
-  $(tizen_platform_abstraction_src_dir)/data-cache/tests/data-cache-debug.cpp \
-  $(tizen_platform_abstraction_src_dir)/data-cache/data-compression.cpp \
-  $(tizen_platform_abstraction_src_dir)/data-cache/metrics-cache.cpp \
   $(tizen_platform_abstraction_src_dir)/dynamics/dynamics-factory.cpp \
   \
-  $(tizen_platform_abstraction_src_dir)/resource-loader/loader-font.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-requester-base.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-bitmap-requester.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-shader-requester.cpp \
-  $(tizen_platform_abstraction_src_dir)/resource-loader/resource-text-requester.cpp \
   \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-base.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-image.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-shader.cpp \
-  $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-text.cpp \
   \
   \
   $(tizen_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \

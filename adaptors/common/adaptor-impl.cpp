@@ -34,6 +34,8 @@
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
+#include <dali/public-api/text-abstraction/font-client.h>
+
 #include <callback-manager.h>
 #include <trigger-event.h>
 #include <render-surface.h>
@@ -56,6 +58,8 @@
 #include <base/display-connection.h>
 
 #include <tizen-logging.h>
+
+using Dali::TextAbstraction::FontClient;
 
 namespace Dali
 {
@@ -368,21 +372,16 @@ void Adaptor::Start()
     mDeferredRotationObserver = NULL;
   }
 
-  // NOTE: dpi must be set before starting the render thread
-  // use default or command line settings if not run on device
-  if( mHDpi == 0 || mVDpi == 0 )
-  {
-    unsigned int dpiHor, dpiVer;
-    dpiHor = dpiVer = 0;
-    Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
+  unsigned int dpiHor, dpiVer;
+  dpiHor = dpiVer = 0;
+  Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
 
-    // tell core about the value
-    mCore->SetDpi(dpiHor, dpiVer);
-  }
-  else
-  {
-    mCore->SetDpi(mHDpi, mVDpi);
-  }
+  // tell core about the DPI value
+  mCore->SetDpi(dpiHor, dpiVer);
+
+  // set the DPI value for font rendering
+  FontClient fontClient = FontClient::Get();
+  fontClient.SetDpi( dpiHor, dpiVer );
 
   // Tell the core the size of the surface just before we start the render-thread
   PositionSize size = mSurface->GetPositionSize();
@@ -643,12 +642,6 @@ void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 void Adaptor::SetUseHardwareVSync( bool useHardware )
 {
   mVSyncMonitor->SetUseHardwareVSync( useHardware );
-}
-
-void Adaptor::SetDpi(size_t hDpi, size_t vDpi)
-{
-  mHDpi = hDpi;
-  mVDpi = vDpi;
 }
 
 EglFactory& Adaptor::GetEGLFactory() const
@@ -912,8 +905,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mNotificationOnIdleInstalled( false ),
   mNotificationTrigger(NULL),
   mGestureManager(NULL),
-  mHDpi( 0 ),
-  mVDpi( 0 ),
   mDaliFeedbackPlugin(NULL),
   mFeedbackController(NULL),
   mObservers(),

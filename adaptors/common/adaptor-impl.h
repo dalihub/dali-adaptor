@@ -219,14 +219,6 @@ public:
   void SetUseHardwareVSync(bool useHardware);
 
   /**
-   * Overrides DPI.
-   * Primarily for host/simulation testing
-   * @param[in] hDpi The Horizontal DPI
-   * @param[in] vDpi The Vertical DPI
-   */
-  void SetDpi(size_t hDpi, size_t vDpi);
-
-  /**
    * @return reference to EglFactory class
    */
   EglFactory& GetEGLFactory() const;
@@ -528,8 +520,6 @@ private: // Data
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEvent*                         mNotificationTrigger;         ///< Notification event trigger
   GestureManager*                       mGestureManager;              ///< Gesture manager
-  size_t                                mHDpi;                        ///< Override horizontal DPI
-  size_t                                mVDpi;                        ///< Override vertical DPI
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support

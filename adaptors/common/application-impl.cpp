@@ -116,18 +116,6 @@ void Application::CreateAdaptor()
 
   mAdaptor = &Dali::Adaptor::New( mWindow, mBaseLayout, mContextLossConfiguration );
 
-  std::string dpiStr = mCommandLineOptions->stageDPI;
-  if(!dpiStr.empty())
-  {
-    // Use DPI from command line.
-    unsigned int hDPI = 0;
-    unsigned int vDPI = 0;
-
-    sscanf(dpiStr.c_str(), "%ux%u", &hDPI, &vDPI);
-
-    Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetDpi(hDPI, vDPI);
-  }
-
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 }
 

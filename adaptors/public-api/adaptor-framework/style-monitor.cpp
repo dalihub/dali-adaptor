@@ -52,7 +52,7 @@ std::string StyleMonitor::GetDefaultFontFamily() const
   return GetImplementation(*this).GetDefaultFontFamily();
 }
 
-float StyleMonitor::GetDefaultFontSize() const
+int StyleMonitor::GetDefaultFontSize() const
 {
   return GetImplementation(*this).GetDefaultFontSize();
 }
