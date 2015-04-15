@@ -20,6 +20,7 @@
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 
 #include <sys/mman.h>
+#include <unistd.h>
 
 using namespace Dali::Internal::Platform;
 
