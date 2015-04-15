@@ -32,6 +32,8 @@ DALI_ADAPTOR_VERSION=dali_version
 AC_SUBST(DALI_ADAPTOR_VERSION)
 
 FREETYPE_REQUIRED=9.16.3
+# 17.1.11 = Freetype version 2.5.2
+FREETYPE_BITMAP_SUPPORT_VERSION=17.1.11
 
 PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(ELEMENTARY, elementary)
@@ -39,6 +41,7 @@ PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
+PKG_CHECK_MODULES(FREETYPE_BITMAP_SUPPORT, [freetype2 >= $FREETYPE_BITMAP_SUPPORT_VERSION], [ freetype_bitmap_support=yes  ], [ freetype_bitmap_support=no ] )
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
 PKG_CHECK_MODULES(PNG, libpng)
 PKG_CHECK_MODULES(XML, libxml-2.0)
@@ -50,6 +53,7 @@ PKG_CHECK_MODULES(FRIBIDI, fribidi)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
                   )
+
 
 # Check for availability of BulletPhysics
 PKG_CHECK_EXISTS(bullet, [
@@ -260,6 +264,10 @@ AC_CONFIG_FILES([
 ])
 fi
 
+if test "x$freetype_bitmap_support" = "xyes"; then
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DFREETYPE_BITMAP_SUPPORT"
+fi
+
 AC_OUTPUT
 
 
@@ -271,6 +279,7 @@ Configuration
   Compile flags                     $DALI_ADAPTOR_CFLAGS
   Using Assimp Library:             $enable_assimp
   Using JPEG Turbo Library:         $with_jpeg_turbo
+  Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
