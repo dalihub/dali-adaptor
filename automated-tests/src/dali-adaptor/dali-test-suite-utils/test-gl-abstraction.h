@@ -22,12 +22,14 @@
 #include <sstream>
 #include <string>
 #include <map>
-
-// INTERNAL INCLUDES
+#include <cstdio>
+#include <cstring> // strcpy
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+
+// INTERNAL INCLUDES
 #include "test-trace-call-stack.h"
 
 namespace Dali

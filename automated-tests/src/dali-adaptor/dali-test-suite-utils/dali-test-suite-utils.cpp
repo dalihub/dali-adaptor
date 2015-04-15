@@ -15,11 +15,16 @@
  *
  */
 
+// HEADER
+#include "dali-test-suite-utils.h"
+
+// EXTERNAL INCLDUES
+#include <cstdio>
+#include <cstdarg>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-core.h>
-#include <stdarg.h>
 
-#include "dali-test-suite-utils.h"
 
 using namespace Dali;
 
