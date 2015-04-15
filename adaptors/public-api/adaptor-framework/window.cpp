@@ -50,11 +50,6 @@ Window& Window::operator=(const Window& rhs)
   return *this;
 }
 
-void Window::SetIndicatorStyle( IndicatorStyle style )
-{
-  GetImplementation(*this).SetIndicatorStyle( style );
-}
-
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
 {
   GetImplementation(*this).ShowIndicator( visibleMode );

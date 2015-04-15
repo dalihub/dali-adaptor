@@ -170,7 +170,6 @@ public:
    */
   Indicator( Adaptor* adaptor,
              Dali::Window::WindowOrientation orientation,
-             Dali::Window::IndicatorStyle style,
              Observer* observer );
 
   /**
@@ -269,24 +268,9 @@ private:
   void OnStageTouched(const Dali::TouchEvent& touchEvent);
 
   /**
-   * Return the given orientation in degrees
-   *
-   * @param[in] orientation The given indicator orientation
-   * @return value of 0, 90, 180 or 270
-   */
-  int OrientationToDegrees( Dali::Window::WindowOrientation orientation );
-
-  /**
-   * Connect to the indicator service matching the orientation
-   * @param[in] orientation The current indicator orientation
-   */
-  bool Connect( Dali::Window::WindowOrientation orientation );
-
-  /**
    * Connect to the indicator service
-   * @param[in] serviceName The indicator service name
    */
-  bool Connect( const char *serviceName );
+  bool Connect();
 
   /**
    * Start the reconnection timer. This will run every second until we reconnect to
@@ -466,7 +450,6 @@ private:
   Dali::Timer                      mReconnectTimer;      ///< Reconnection timer
   SlotDelegate< Indicator >        mConnection;
 
-  Dali::Window::IndicatorStyle     mStyle;               ///< Style of the indicator
   Dali::Window::IndicatorBgOpacity mOpacityMode;         ///< Opacity enum for background
   Indicator::State                 mState;               ///< The connection state
 
@@ -475,7 +458,6 @@ private:
   Indicator::Observer*             mObserver;            ///< Upload observer
 
   Dali::Window::WindowOrientation  mOrientation;
-  int                              mRotation;            ///< Orientation in degrees
   int                              mImageWidth;
   int                              mImageHeight;
   Dali::Window::IndicatorVisibleMode mVisible;           ///< Whether the indicator is visible

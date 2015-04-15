@@ -88,15 +88,6 @@ public:
     AUTO = 2 // hide in default, will show when necessary
   };
 
-  /**
-   * @brief Style of the indicator.
-   */
-  enum IndicatorStyle
-  {
-    FIXED_COLOR = 0, // fixed color style
-    CHANGEABLE_COLOR // changeable color style
-  };
-
   // Methods
 
   /**
@@ -137,14 +128,6 @@ public:
    * @return A reference to this
    */
   Window& operator=(const Window& rhs);
-
-  /**
-   * @brief This sets the style of indicator
-   * @param[in] style style type of the indicator
-   *
-   * @note This should be called before ShowIndicator()
-   */
-  void SetIndicatorStyle( IndicatorStyle style );
 
   /**
    * @brief This sets whether the indicator bar should be shown or not.
