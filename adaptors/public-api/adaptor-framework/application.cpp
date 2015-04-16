@@ -19,12 +19,10 @@
 #include "application.h"
 
 // EXTERNAL INCLUDES
-#include <orientation.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <application-impl.h>
-#include <orientation-impl.h>
 
 namespace Dali
 {
@@ -104,16 +102,6 @@ void Application::Lower()
 void Application::Quit()
 {
   Internal::Adaptor::GetImplementation(*this).Quit();
-}
-
-Orientation Application::GetOrientation()
-{
-  Window window = GetWindow();
-  if( window )
-  {
-    return window.GetOrientation();
-  }
-  return Orientation();
 }
 
 bool Application::AddIdle( CallbackBase* callback )
