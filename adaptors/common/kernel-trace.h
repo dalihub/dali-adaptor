@@ -18,7 +18,7 @@
  *
  */
 
-#include <base/interfaces/kernel-trace-interface.h>
+#include <base/interfaces/trace-interface.h>
 
 namespace Dali
 {
@@ -34,7 +34,7 @@ namespace Adaptor
  * Used to log trace messages to the kernel using ftrace.
  *
  */
-class KernelTrace : public KernelTraceInterface
+class KernelTrace : public TraceInterface
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   /**
    * @copydoc KernelTracerInterface::KernelTrace()
    */
-  virtual void Trace( const std::string& traceMessage );
+  virtual void Trace( const PerformanceMarker& marker, const std::string& traceMessage );
 
 private:
 

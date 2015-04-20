@@ -34,6 +34,7 @@
 namespace Dali
 {
 class Adaptor;
+class RenderSurface;
 
 namespace Integration
 {
@@ -44,7 +45,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-class RenderSurface;
 class Indicator;
 class Orientation;
 
@@ -80,11 +80,6 @@ public:
    * @return The render surface
    */
   RenderSurface* GetSurface();
-
-  /**
-   * @copydoc Dali::Window::SetIndicatorStyle()
-   */
-  void SetIndicatorStyle( Dali::Window::IndicatorStyle style );
 
   /**
    * @copydoc Dali::Window::ShowIndicator()
@@ -265,7 +260,6 @@ private:
   typedef std::vector<Indicator*> DiscardedIndicators;
 
   RenderSurface*                   mSurface;
-  Dali::Window::IndicatorStyle     mIndicatorStyle;     ///< indicator style
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
   bool                             mIndicatorIsShown:1; ///< private state
   bool                             mShowRotatedIndicatorOnClose:1;

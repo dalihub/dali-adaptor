@@ -28,6 +28,14 @@ tizen_platform_abstraction_src_dir = ../../../platform-abstractions/tizen
 portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
 include ../../../platform-abstractions/tizen/file.list
 
+# Text Abstraction
+text_src_dir = ../../../text
+include ../../../text/file.list
+
+# Integration
+adaptor_integration_api_dir = ../../../adaptors/integration-api
+include ../../../adaptors/integration-api/file.list
+
 # Internal Common
 adaptor_common_dir = ../../../adaptors/common
 include ../../../adaptors/common/file.list
@@ -66,6 +74,9 @@ endif
 adaptor_public_api_dir = ../../../adaptors/public-api
 include ../../../adaptors/public-api/file.list
 
+# Static libraries
+static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
+include ../../../text/dali/internal/libunibreak/file.list
 
 ############# source files #############
 
@@ -74,7 +85,8 @@ if COMMON_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files) \
+                             $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files) \
@@ -93,7 +105,8 @@ adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
                              $(adaptor_ubuntu_internal_src_files) \
                              $(adaptor_x11_ubuntu_internal_src_files) \
-                             $(adaptor_x11_internal_default_profile_src_files)
+                             $(adaptor_x11_internal_default_profile_src_files) \
+                             $(static_libraries_libunibreak_src_files)
 
 endif # UBUNTU_PROFILE
 
@@ -103,7 +116,8 @@ if MOBILE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files) \
+                             $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
@@ -118,7 +132,8 @@ if WEARABLE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files) \
+                             $(static_libraries_libunibreak_src_files)
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
 else
@@ -133,7 +148,8 @@ if TV_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files)
+                             $(adaptor_tizen_internal_src_files) \
+                             $(static_libraries_libunibreak_src_files)
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
 else
@@ -142,6 +158,9 @@ adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
 endif # WAYLAND
 
 endif
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = dali-adaptor-integration.pc
 
 # Feedback Plugin
 if USE_FEEDBACK
@@ -162,6 +181,7 @@ lib_LTLIBRARIES = libdali-adaptor.la
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(tizen_platform_abstraction_src_files) \
+                     $(text_abstraction_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
@@ -175,15 +195,22 @@ libdali_adaptor_la_includes = \
                       -I../../../platform-abstractions/portable \
                       -I../../../platform-abstractions/ \
                       -I../../../adaptors/public-api \
+                      -I../../../adaptors/integration-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/common \
-                      -I../../../adaptors/
+                      -I../../../adaptors/base/interfaces \
+                      -I../../../adaptors/ \
+                      -I../../../text \
+                      -I../../../text/dali/internal/libunibreak
+
 if WAYLAND
 libdali_adaptor_la_includes += \
-                      -I../../../adaptors/wayland
+                      -I../../../adaptors/wayland \
+                      -I../../../adaptors/integration-api/wayland
 else
 libdali_adaptor_la_includes += \
-                      -I../../../adaptors/x11
+                      -I../../../adaptors/x11 \
+                      -I../../../adaptors/integration-api/x11
 endif
 
 if UBUNTU_PROFILE
@@ -258,6 +285,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBCURL_LIBS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
+                      $(HARFBUZZ_LIBS) \
                       $(CAPI_SYSTEM_INFO_LIBS) \
                       -lgif \
                       -lboost_thread
@@ -313,8 +341,22 @@ endif
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
 tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
 
+tizenadaptorintegrationapidir = $(devincludepath)/dali/integration-api/adaptors
+tizenadaptorintegrationapi_HEADERS = $(adaptor_integration_api_header_files)
+
+if WAYLAND
+tizenadaptorintegrationwaylandapidir = $(devincludepath)/dali/integration-api/adaptors
+tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_wayland_api_header_files)
+else
+tizenadaptorintegrationx11apidir = $(devincludepath)/dali/integration-api/adaptors
+tizenadaptorintegrationx11api_HEADERS = $(adaptor_integration_x11_api_header_files)
+endif
+
 tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
 tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)
+
+tizentextabstractionpublicapidir = $(tizenadaptorpublicapidir)/text-abstraction
+tizentextabstractionpublicapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
 
@@ -342,6 +384,8 @@ linker_test_SOURCES = linker-test.cpp
 linker_test_CXXFLAGS = \
   -I../../../adaptors/common \
   -I../../../adaptors/public-api \
+  -I../../../adaptors/integration-api \
+  -I../../../adaptors/base/interfaces \
   -I../../../adaptors/public-api/adaptor-framework \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
@@ -349,9 +393,20 @@ linker_test_CXXFLAGS = \
   $(DALIX11_CFLAGS) \
   -Werror -Wall
 
+if WAYLAND
+linker_test_CXXFLAGS += \
+  -I../../../adaptors/integration-api/wayland
+else
+
+linker_test_CXXFLAGS += \
+  -I../../../adaptors/integration-api/x11
+endif
+
+
 linker_test_DEPENDENCIES = libdali-adaptor.la
 linker_test_LDADD = \
   $(DALICORE_LIBS) \
   $(VCONF_LIBS) \
   libdali-adaptor.la \
+  $(HARFBUZZ_LIBS) \
   -L${prefix}/lib

@@ -21,6 +21,8 @@
 namespace Dali
 {
 
+class RenderSurface;
+
 namespace Internal
 {
 
@@ -31,7 +33,6 @@ class UpdateThread;
 class RenderThread;
 class VSyncNotifier;
 class UpdateRenderSynchronization;
-class RenderSurface;
 class AdaptorInternalServices;
 class EnvironmentOptions;
 

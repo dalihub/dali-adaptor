@@ -20,6 +20,7 @@
 #include <dali/public-api/common/ref-counted-dali-vector.h>
 
 #include <sys/mman.h>
+#include <unistd.h>
 
 using namespace Dali::Internal::Platform;
 
@@ -1383,25 +1384,25 @@ int UtcDaliImageOperationsPointSampleRGBA888ScaleToZeroDims(void)
   // Try several different starting image sizes:
 
   // 1x1 -> 1x1:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1,    1, (unsigned char*) &outputImage, 0, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1,    1, (unsigned char*) outputImage, 0, 0 );
 
   // Single-pixel wide tall stripe:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1, 1024, (unsigned char*) &outputImage, 0, 33 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1, 1024, (unsigned char*) outputImage, 0, 33 );
 
   // Single-pixel tall, wide strip:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 1024,    1, (unsigned char*) &outputImage, 0, 67 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 1024,    1, (unsigned char*) outputImage, 0, 67 );
 
   // Square mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  103,  103, (unsigned char*) &outputImage, 21, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  103,  103, (unsigned char*) outputImage, 21, 0 );
 
   // Wide mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  313,  79, (unsigned char*) &outputImage, 99, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  313,  79, (unsigned char*) outputImage, 99, 0 );
 
   // Tall mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   53,  467, (unsigned char*) &outputImage, 9999, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   53,  467, (unsigned char*) outputImage, 9999, 0 );
 
   // 0 x 0 input image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) &outputImage, 200, 99 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) outputImage, 200, 99 );
 
   FreeReadOnlyPagesRGBA( outputImage, getpagesize() / 4 );
 

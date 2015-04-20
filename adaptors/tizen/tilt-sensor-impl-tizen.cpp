@@ -209,7 +209,7 @@ TiltSensor::TiltSensor()
   mSensorFrameworkHandle( -1 ),
   mRoll( 0.0f ),
   mPitch( 0.0f ),
-  mRotation( 0.0f, Vector3::YAXIS ),
+  mRotation( Radian( 0.0f), Vector3::YAXIS ),
   mRotationThreshold( 0.0f )
 {
   mRollValues.resize( NUMBER_OF_SAMPLES, 0.0f );
@@ -280,8 +280,8 @@ bool TiltSensor::Update()
   newRoll  = Clamp( float(averageRoll  / MAX_ACCELEROMETER_XY_VALUE), -1.0f/*min*/, 1.0f/*max*/ );
   newPitch = Clamp( float(averagePitch / MAX_ACCELEROMETER_XY_VALUE), -1.0f/*min*/, 1.0f/*max*/ );
 
-  newRotation = Quaternion( newRoll  * Math::PI * -0.5f, Vector3::YAXIS ) *
-              Quaternion( newPitch * Math::PI * -0.5f, Vector3::XAXIS );
+  newRotation = Quaternion( Radian( newRoll  * Math::PI * -0.5f ), Vector3::YAXIS ) *
+                Quaternion( Radian( newPitch * Math::PI * -0.5f ), Vector3::XAXIS );
 #endif // SENSOR_ENABLED
 
   Radian angle(Quaternion::AngleBetween(newRotation, mRotation));

@@ -103,6 +103,12 @@ public:
   MarkerEventType GetEventType() const;
 
   /**
+   * @return the filter type of marker
+   */
+  MarkerFilter GetFilterType() const;
+
+
+  /**
    * @return marker name
    */
   const char* const GetName( ) const;

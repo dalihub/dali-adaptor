@@ -1114,16 +1114,12 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 {
   Ecore_X_Window window = 0;
 
-  if( surface->GetType() == Dali::RenderSurface::WINDOW )
+  // this code only works with the EcoreX11 RenderSurface so need to downcast
+  ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
+  if( ecoreSurface )
   {
-    // this code only works with the EcoreX11 RenderSurface so need to downcast
-    ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
-    if( ecoreSurface )
-    {
-      // enable multi touch
-      window = ecoreSurface->GetXWindow();
-      ecore_x_input_multi_select( window );
-    }
+    // enable multi touch
+    window = ecoreSurface->GetXWindow();
   }
 
   mImpl = new Impl(this, window);

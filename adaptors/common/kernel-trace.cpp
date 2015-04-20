@@ -68,7 +68,7 @@ KernelTrace::~KernelTrace()
 // If the message did not get added to the trace, then check you have write permissions to the trace_marker file.
 //
 //
-void KernelTrace::Trace( const std::string& traceMessage )
+void KernelTrace::Trace( const PerformanceMarker& marker, const std::string& traceMessage )
 {
   // Open the trace_marker file
   if( mFileDescriptor == 0 )

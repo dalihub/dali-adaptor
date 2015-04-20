@@ -148,11 +148,6 @@ RenderSurface* Window::GetSurface()
   return mSurface;
 }
 
-void Window::SetIndicatorStyle( Dali::Window::IndicatorStyle style )
-{
-  mIndicatorStyle = style;
-}
-
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
   DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "visible : %d\n", visibleMode );
@@ -184,7 +179,6 @@ void Window::SetClass(std::string name, std::string klass)
 
 Window::Window()
 : mSurface(NULL),
-  mIndicatorStyle(Dali::Window::CHANGEABLE_COLOR),
   mIndicatorVisible(Dali::Window::VISIBLE),
   mIndicatorIsShown(false),
   mShowRotatedIndicatorOnClose(false),
@@ -224,8 +218,11 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
 {
   // create an Wayland window by default
   Any surface;
-  Any display;
-  mSurface = new ECore::WindowRenderSurface( windowPosition, surface, display, name, mIsTransparent );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
+  windowSurface->Map();
+
+  mSurface = windowSurface;
+
   mOrientation = Orientation::New(this);
 
   // create event handler for Wayland window
@@ -238,7 +235,7 @@ void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
   {
     if( mIndicatorVisible != Dali::Window::INVISIBLE )
     {
-      mIndicator = new Indicator( mAdaptor, mIndicatorOrientation, mIndicatorStyle, this );
+      mIndicator = new Indicator( mAdaptor, mIndicatorOrientation, this );
       mIndicator->SetOpacityMode( mIndicatorOpacityMode );
       Dali::Actor actor = mIndicator->GetActor();
       SetIndicatorActorRotation();

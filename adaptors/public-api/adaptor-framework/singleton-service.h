@@ -52,6 +52,13 @@ public:
   SingletonService();
 
   /**
+   * Create a SingletonService.
+   * This should only be called once by the Application class.
+   * @return A newly created SingletonService.
+   */
+  static Dali::SingletonService New();
+
+  /**
    * @brief Retrieves a handle to the SingletonService.
    *
    * @return A handle to the SingletonService if it is available. This will be an empty handle if

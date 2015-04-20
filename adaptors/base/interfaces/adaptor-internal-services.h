@@ -23,13 +23,14 @@
 #include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
+#include <trigger-event-interface.h>
+#include <trigger-event-factory-interface.h>
 #include <base/interfaces/egl-factory-interface.h>
-#include <base/interfaces/trigger-event-factory-interface.h>
 #include <base/interfaces/socket-factory-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
-#include <base/interfaces/kernel-trace-interface.h>
-#include <render-surface-impl.h> // @todo move to base/interfaces
+#include <base/interfaces/trace-interface.h>
+#include <render-surface.h>
 
 
 namespace Dali
@@ -103,9 +104,15 @@ public:
   virtual PerformanceInterface* GetPerformanceInterface()  = 0;
 
   /**
-   * @return kernel trace interface
+   * @return interface for logging to the kernel ( e.g. using ftrace )
    */
-  virtual KernelTraceInterface& GetKernelTraceInterface()  = 0;
+  virtual TraceInterface& GetKernelTraceInterface()  = 0;
+
+  /**
+   * @return system trace interface, e.g. for using Tizen Trace (ttrace) or Android Trace (atrace)
+   */
+  virtual TraceInterface& GetSystemTraceInterface()  = 0;
+
 
 protected:
 

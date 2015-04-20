@@ -41,11 +41,14 @@
 #include <damage-observer.h>
 #include <window-visibility-observer.h>
 #include <kernel-trace.h>
+#include <system-trace.h>
 #include <trigger-event-factory.h>
 #include <networking/socket-factory.h>
 
 namespace Dali
 {
+
+class RenderSurface;
 
 namespace Integration
 {
@@ -63,7 +66,6 @@ class EglFactory;
 class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
-class RenderSurface;
 class UpdateRenderController;
 class TriggerEvent;
 class CallbackManager;
@@ -90,13 +92,15 @@ public:
 
   /**
    * Creates a New Adaptor
-   * @param[in]  surface     A render surface can be one of the following
-   *                         - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                         - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  nativeWindow  native window handle
+   * @param[in]  surface       A render surface can be one of the following
+   *                           - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                           - Window, adaptor will use existing Window to draw on to
+   * @param[in]  baseLayout    The base layout that the application has been written for
    * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
    */
-  static Dali::Adaptor* New( RenderSurface* surface,
+  static Dali::Adaptor* New( Any nativeWindow,
+                             RenderSurface* surface,
                              const DeviceLayout& baseLayout,
                              Dali::Configuration::ContextLoss configuration );
 
@@ -169,12 +173,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Dali::RenderSurface& surface );
+  virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual Dali::RenderSurface& GetSurface() const;
+  virtual RenderSurface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -214,14 +218,6 @@ public:
    * @copydoc Dali::Adaptor::SetUseHardwareVSync()
    */
   void SetUseHardwareVSync(bool useHardware);
-
-  /**
-   * Overrides DPI.
-   * Primarily for host/simulation testing
-   * @param[in] hDpi The Horizontal DPI
-   * @param[in] vDpi The Vertical DPI
-   */
-  void SetDpi(size_t hDpi, size_t vDpi);
 
   /**
    * @return reference to EglFactory class
@@ -266,6 +262,13 @@ public:
    * @param[in] distance The minimum pinch distance in pixels
    */
   void SetMinimumPinchDistance(float distance);
+
+  /**
+   * Gets native window handle
+   *
+   * @return native window handle
+   */
+  Any GetNativeWindowHandle();
 
 public:
 
@@ -348,7 +351,12 @@ public:  //AdaptorInternalServices
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
    */
-  virtual KernelTraceInterface& GetKernelTraceInterface();
+  virtual TraceInterface& GetKernelTraceInterface();
+
+  /**
+   * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSystemTraceInterface()
+   */
+  virtual TraceInterface& GetSystemTraceInterface();
 
 public: // Stereoscopy
 
@@ -456,7 +464,7 @@ private:
    * Assigns the render surface to the adaptor
    *
    */
-  void SetSurface(Dali::RenderSurface *surface);
+  void SetSurface(RenderSurface *surface);
 
   /**
    * Sends an notification message from main loop idle handler
@@ -473,13 +481,14 @@ private:
 
   /**
    * Constructor
-   * @param[in]  adaptor     The public adaptor
-   * @param[in]  surface     A render surface can be one of the following
-   *                         - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                         - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  nativeWindow native window handle
+   * @param[in]  adaptor      The public adaptor
+   * @param[in]  surface      A render surface can be one of the following
+   *                          - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                          - Window, adaptor will use existing Window to draw on to
+   * @param[in]  baseLayout   The base layout that the application has been written for
    */
-  Adaptor( Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout );
+  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout );
 
 private: // Types
 
@@ -496,8 +505,8 @@ private: // Types
 
 private: // Data
 
-  AdaptorSignalType                       mResizedSignal;             ///< Resized signal.
-  AdaptorSignalType                       mLanguageChangedSignal;     ///< Language changed signal.
+  AdaptorSignalType                     mResizedSignal;               ///< Resized signal.
+  AdaptorSignalType                     mLanguageChangedSignal;       ///< Language changed signal.
 
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor
@@ -508,6 +517,7 @@ private: // Data
   GlSyncImplementation*                 mGlSync;                      ///< GL Sync implementation
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
+  Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
   TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
 
@@ -516,8 +526,6 @@ private: // Data
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEvent*                         mNotificationTrigger;         ///< Notification event trigger
   GestureManager*                       mGestureManager;              ///< Gesture manager
-  size_t                                mHDpi;                        ///< Override horizontal DPI
-  size_t                                mVDpi;                        ///< Override vertical DPI
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support
@@ -528,6 +536,7 @@ private: // Data
   EnvironmentOptions                    mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
+  SystemTrace                           mSystemTracer;                ///< System tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory

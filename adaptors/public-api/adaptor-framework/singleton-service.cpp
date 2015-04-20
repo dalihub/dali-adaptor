@@ -28,6 +28,11 @@ SingletonService::SingletonService()
 {
 }
 
+SingletonService SingletonService::New()
+{
+  return Internal::Adaptor::SingletonService::New();
+}
+
 SingletonService SingletonService::Get()
 {
   return Internal::Adaptor::SingletonService::Get();

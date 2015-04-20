@@ -178,7 +178,6 @@ int ObjectProfiler::GetMemorySize(const std::string& name, int count)
       { "Layer", LAYER_MEMORY_SIZE },
       { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
       { "ImageActor", IMAGE_ACTOR_MEMORY_SIZE },
-      { "TextActor", TEXT_ACTOR_MEMORY_SIZE },
       { "Image", IMAGE_MEMORY_SIZE },
     };
 

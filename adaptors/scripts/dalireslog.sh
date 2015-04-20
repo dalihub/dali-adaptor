@@ -391,7 +391,7 @@ function checkUploaded
         STATES_G[$lastIdx]=1
       elif [[ ${FILENAMES_G[$lastIdx]} == "-" && ${STATES_G[$lastIdx]} == 1 ]]
       then
-        #BitmapImage already in memory and GPU mem. -> updated
+        #BufferImage already in memory and GPU mem. -> updated
         SIZES_G[$lastIdx]=$SIZE
         SIZE_DETAILS_G[$lastIdx]="$SIZE_DETAILS"
       else

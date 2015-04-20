@@ -72,6 +72,11 @@ extern const KEY DALI_KEY_VOICE;
 extern const KEY DALI_KEY_LANGUAGE;
 extern const KEY DALI_KEY_VOLUME_UP;
 extern const KEY DALI_KEY_VOLUME_DOWN;
+extern const KEY DALI_KEY_BACKSPACE;
+extern const KEY DALI_KEY_CURSOR_LEFT;
+extern const KEY DALI_KEY_CURSOR_RIGHT;
+extern const KEY DALI_KEY_CURSOR_UP;
+extern const KEY DALI_KEY_CURSOR_DOWN;
 
 /**
  * @brief Check if a key event is for a specific DALI KEY.

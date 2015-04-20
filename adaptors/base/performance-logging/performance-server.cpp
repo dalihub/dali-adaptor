@@ -38,6 +38,7 @@ PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
 :mPlatformAbstraction( adaptorServices.GetPlatformAbstractionInterface() ),
  mEnvironmentOptions( environmentOptions ),
  mKernelTrace( adaptorServices.GetKernelTraceInterface() ),
+ mSystemTrace( adaptorServices.GetSystemTraceInterface() ),
  mNetworkServer( adaptorServices, environmentOptions ),
  mStatContextManager( *this ),
  mStatisticsLogBitmask( 0 ),
@@ -197,8 +198,14 @@ void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* 
   // log to kernel trace
   if( mPerformanceOutputBitmask & OUTPUT_KERNEL_TRACE )
   {
-    // name will be something like UPDATE_START or UPDATE_END
-    mKernelTrace.Trace( description );
+    // description will be something like UPDATE_START or UPDATE_END
+    mKernelTrace.Trace( marker, description );
+  }
+
+  // log to system trace
+  if( mPerformanceOutputBitmask & OUTPUT_SYSTEM_TRACE )
+  {
+    mSystemTrace.Trace( marker, description );
   }
 
   // log to Dali log

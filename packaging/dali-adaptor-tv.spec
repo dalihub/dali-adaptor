@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.35
+Version:    1.0.38
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -42,6 +42,8 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  libcurl-devel
+BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  fribidi-devel
 
 %if 0%{?dali_assimp_plugin}
 BuildRequires:  pkgconfig(assimp)

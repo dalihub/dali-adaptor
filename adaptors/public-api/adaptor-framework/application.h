@@ -223,14 +223,6 @@ public:
   void Quit();
 
   /**
-   * This returns a handle to the Orientation object used by Application which allows
-   * the user to determine the orientation of the device and connect to a
-   * signal emitted whenever the orientation changes.
-   * @return A handle to the Orientation object used by the Application
-   */
-  Orientation GetOrientation();
-
-  /**
    * Ensures that the function passed in is called from the main loop when it is idle.
    *
    * A callback of the following type may be used:

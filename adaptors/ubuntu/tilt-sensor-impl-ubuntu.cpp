@@ -206,7 +206,7 @@ TiltSensor::TiltSensor()
   mSensorFrameworkHandle( -1 ),
   mRoll( 0.0f ),
   mPitch( 0.0f ),
-  mRotation( 0.0f, Vector3::YAXIS ),
+  mRotation( Dali::ANGLE_0, Vector3::YAXIS ),
   mRotationThreshold( 0.0f )
 {
   mRollValues.resize( NUMBER_OF_SAMPLES, 0.0f );
