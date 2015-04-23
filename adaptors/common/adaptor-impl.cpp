@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include "adaptor-impl.h"
 
 // EXTERNAL INCLUDES
-#include <boost/thread/tss.hpp>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -30,7 +29,6 @@
 
 // INTERNAL INCLUDES
 #include <base/update-render-controller.h>
-#include <base/environment-variables.h>
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
@@ -41,7 +39,6 @@
 #include <render-surface.h>
 #include <tts-player-impl.h>
 #include <accessibility-manager-impl.h>
-#include <timer-impl.h>
 #include <events/gesture-manager.h>
 #include <events/event-handler.h>
 #include <feedback/feedback-controller.h>
@@ -72,43 +69,7 @@ namespace Adaptor
 
 namespace
 {
-boost::thread_specific_ptr<Adaptor> gThreadLocalAdaptor;
-
-unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
-{
-  const char* variableParameter = std::getenv(variable);
-
-  // if the parameter exists convert it to an integer, else return the default value
-  unsigned int intValue = variableParameter ? atoi(variableParameter) : defaultValue;
-  return intValue;
-}
-
-bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
-{
-  const char* variableParameter = std::getenv(variable);
-
-  if( !variableParameter )
-  {
-    return false;
-  }
-  // if the parameter exists convert it to an integer, else return the default value
-  intValue = atoi(variableParameter);
-  return true;
-}
-
-bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
-{
-  const char* variableParameter = std::getenv(variable);
-
-  if( !variableParameter )
-  {
-    return false;
-  }
-  // if the parameter exists convert it to an integer, else return the default value
-  floatValue = atof(variableParameter);
-  return true;
-}
-
+__thread Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, const DeviceLayout& baseLayout,
@@ -123,111 +84,13 @@ Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, const Dev
   return adaptor;
 }
 
-void Adaptor::ParseEnvironmentOptions()
+
+void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 {
-  // get logging options
-  unsigned int logFrameRateFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
-  unsigned int logupdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
-  unsigned int logPerformanceStats = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
-  unsigned int logPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
-  unsigned int performanceTimeStampOutput= GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
-  unsigned int networkControl= GetIntegerEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
-
-  unsigned int logPanGesture = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
-
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
-  Dali::Integration::Log::LogFunction  logFunction(Dali::TizenPlatform::LogMessage);
-
-  mEnvironmentOptions.SetLogOptions( logFunction, networkControl, logFrameRateFrequency, logupdateStatusFrequency, logPerformanceStats, logPerformanceStatsFrequency, performanceTimeStampOutput, logPanGesture );
-
-  int predictionMode;
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
-  {
-    mEnvironmentOptions.SetPanGesturePredictionMode(predictionMode);
-  }
-  int predictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
-  {
-    if( predictionAmount < 0 )
-    {
-      // do not support times in the past
-      predictionAmount = 0;
-    }
-    mEnvironmentOptions.SetPanGesturePredictionAmount(predictionAmount);
-  }
-  int minPredictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
-  {
-    if( minPredictionAmount < 0 )
-    {
-      // do not support times in the past
-      minPredictionAmount = 0;
-    }
-    mEnvironmentOptions.SetPanGestureMinimumPredictionAmount(minPredictionAmount);
-  }
-  int maxPredictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
-  {
-    if( minPredictionAmount > -1 && maxPredictionAmount < minPredictionAmount )
-    {
-      // maximum amount should not be smaller than minimum amount
-      maxPredictionAmount = minPredictionAmount;
-    }
-    mEnvironmentOptions.SetPanGestureMaximumPredictionAmount(maxPredictionAmount);
-  }
-  int predictionAmountAdjustment(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
-  {
-    if( predictionAmountAdjustment < 0 )
-    {
-      // negative amount doesn't make sense
-      predictionAmountAdjustment = 0;
-    }
-    mEnvironmentOptions.SetPanGesturePredictionAmountAdjustment(predictionAmountAdjustment);
-  }
-  int smoothingMode;
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
-  {
-    mEnvironmentOptions.SetPanGestureSmoothingMode(smoothingMode);
-  }
-  float smoothingAmount = 1.0f;
-  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_AMOUNT, smoothingAmount) )
-  {
-    smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
-    mEnvironmentOptions.SetPanGestureSmoothingAmount(smoothingAmount);
-  }
-
-  int minimumDistance(-1);
-  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
-  {
-    mEnvironmentOptions.SetMinimumPanDistance( minimumDistance );
-  }
-
-  int minimumEvents(-1);
-  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
-  {
-    mEnvironmentOptions.SetMinimumPanEvents( minimumEvents );
-  }
-
-  int glesCallTime(0);
-  if ( GetIntegerEnvironmentVariable(DALI_GLES_CALL_TIME, glesCallTime ))
-  {
-    mEnvironmentOptions.SetGlesCallTime( glesCallTime );
-  }
-
-  int windowWidth(0), windowHeight(0);
-  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
-  {
-    mEnvironmentOptions.SetWindowWidth( windowWidth );
-    mEnvironmentOptions.SetWindowHeight( windowHeight );
-  }
-
-  mEnvironmentOptions.InstallLogFunction();
-}
-
-void Adaptor::Initialize(Dali::Configuration::ContextLoss configuration)
-{
-  ParseEnvironmentOptions();
+  Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
+  mEnvironmentOptions.SetLogFunction( logFunction );
+  mEnvironmentOptions.InstallLogFunction(); // install logging for main thread
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -323,8 +186,8 @@ Adaptor::~Adaptor()
   // Ensure stop status
   Stop();
 
-  // Release first as we do not want any access to Adaptor as it is being destroyed.
-  gThreadLocalAdaptor.release();
+  // set to NULL first as we do not want any access to Adaptor as it is being destroyed.
+  gThreadLocalAdaptor = NULL;
 
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
   {
@@ -620,13 +483,13 @@ bool Adaptor::CallFromMainLoop( CallbackBase* callback )
 
 Dali::Adaptor& Adaptor::Get()
 {
-  DALI_ASSERT_ALWAYS( gThreadLocalAdaptor.get() != NULL && "Adaptor not instantiated" );
+  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
   return gThreadLocalAdaptor->mAdaptor;
 }
 
 bool Adaptor::IsAvailable()
 {
-  return gThreadLocalAdaptor.get() != NULL;
+  return gThreadLocalAdaptor != NULL;
 }
 
 Dali::Integration::Core& Adaptor::GetCore()
@@ -920,8 +783,8 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mPerformanceInterface(NULL),
   mObjectProfiler(NULL)
 {
-  DALI_ASSERT_ALWAYS( gThreadLocalAdaptor.get() == NULL && "Cannot create more than one Adaptor per thread" );
-  gThreadLocalAdaptor.reset(this);
+  DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
+  gThreadLocalAdaptor = this;
 }
 
 // Stereoscopy

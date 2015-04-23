@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ namespace Adaptor
 {
 
 /**
- * Contains environment options which define settings and the ability to install a log function.
+ * This class provides the environment options which define settings as well as
+ * the ability to install a log function.
  *
- * TODO: This file and adaptor needs cleaning up. There should not be any environment options in the adaptor class, only here!
  */
 class EnvironmentOptions
 {
@@ -50,23 +50,8 @@ public:
 
   /**
    * @param logFunction logging function
-   * @param networkControl whether network control is enabled
-   * @param logFilterOptions bitmask of the logging options defined in intergration/debug.h (e.g.
-   * @param logFrameRateFrequency frequency of how often FPS is logged out (e.g. 0 = off, 2 = every 2 seconds).
-   * @param logupdateStatusFrequency frequency of how often the update status is logged in number of frames
-   * @param logPerformanceStats performance statistics logging, 0 = disabled,  1+ =  enabled
-   * @param logPerformanceStatsFrequency statistics logging frequency in seconds
-   * @param performanceTimeStampOutput where to output performance related time stamps to
-   * @param logPanGestureLevel pan-gesture logging, 0 = disabled,  1 = enabled
    */
-  void SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
-                       unsigned int networkControl,
-                       unsigned int logFrameRateFrequency,
-                       unsigned int logupdateStatusFrequency,
-                       unsigned int logPerformanceStats,
-                       unsigned int logPerformanceStatsFrequency,
-                       unsigned int performanceTimeStampOutput,
-                       unsigned int logPanGestureLevel );
+  void SetLogFunction( const Dali::Integration::Log::LogFunction& logFunction );
 
   /**
    * Install the log function for the current thread.
@@ -262,7 +247,15 @@ public:
    */
   bool PerformanceServerRequired() const;
 
-private:
+private: // Internal
+
+  /**
+   * Parses the environment options.
+   * Called from the constructor
+   */
+  void ParseEnvironmentOptions();
+
+private: // Data
 
   unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
