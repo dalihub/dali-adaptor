@@ -39,10 +39,9 @@ namespace TextAbstraction
 namespace Internal
 {
 
-const unsigned int HIGH_QUALITY_PIXEL_SIZE = 200u;  // Pixel size sent to FreeType2 FT_Set_Char_Size() for high quality glyphs.
 const char*        DEFAULT_LANGUAGE = "en";
 const unsigned int DEFAULT_LANGUAGE_LENGTH = 2u;
-const float        TO_PIXELS = 64.f;
+const float        FROM_266 = 1.0f / 64.0f;
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
 {
@@ -101,7 +100,15 @@ struct Shaping::Plugin
     mIndices.Clear();
     mAdvance.Clear();
     mCharacterMap.Clear();
+    mOffset.Clear();
     mFontId = fontId;
+
+    // Reserve some space to avoid reallocations.
+    const Length numberOfGlyphs = static_cast<Length>( 1.3f * static_cast<float>( numberOfCharacters ) );
+    mIndices.Reserve( numberOfGlyphs );
+    mAdvance.Reserve( numberOfGlyphs );
+    mCharacterMap.Reserve( numberOfGlyphs );
+    mOffset.Reserve( 2u * numberOfGlyphs );
 
     TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
 
@@ -118,7 +125,15 @@ struct Shaping::Plugin
       return 0u;
     }
 
-    FT_Set_Pixel_Sizes( face, HIGH_QUALITY_PIXEL_SIZE, HIGH_QUALITY_PIXEL_SIZE );
+    unsigned int horizontalDpi = 0u;
+    unsigned int verticalDpi = 0u;
+    fontClient.GetDpi( horizontalDpi, verticalDpi );
+
+    FT_Set_Char_Size( face,
+                      0u,
+                      fontClient.GetPointSize( fontId ),
+                      horizontalDpi,
+                      verticalDpi );
 
     /* Get our harfbuzz font struct */
     hb_font_t* harfBuzzFont;
@@ -147,17 +162,62 @@ struct Shaping::Plugin
     unsigned int glyphCount;
     hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
     hb_glyph_position_t *glyphPositions = hb_buffer_get_glyph_positions( harfBuzzBuffer, &glyphCount );
-
-    const Length lastGlyphIndex = glyphCount - 1u;
-    for( Length i = 0u; i < glyphCount; ++i )
+    const GlyphIndex lastGlyphIndex = glyphCount - 1u;
+    for( GlyphIndex i = 0u; i < glyphCount; )
     {
-      // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
-      // The glyphs are needed in the logical order to layout the text in lines.
-      const Length index = rtlDirection ? ( lastGlyphIndex - i ) : i;
+      if( rtlDirection )
+      {
+        // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
+        // The glyphs are needed in the logical order to layout the text in lines.
+        // Do not change the order of the glyphs if they belong to the same cluster.
+        GlyphIndex rtlIndex = lastGlyphIndex - i;
 
-      mIndices.PushBack( glyphInfo[index].codepoint );
-      mAdvance.PushBack( glyphPositions[index].x_advance / TO_PIXELS );
-      mCharacterMap.PushBack( glyphInfo[index].cluster );
+        unsigned int cluster = glyphInfo[rtlIndex].cluster;
+        unsigned int previousCluster = cluster;
+        Length numberOfGlyphsInCluster = 0u;
+
+        while( ( cluster == previousCluster ) )
+        {
+          ++numberOfGlyphsInCluster;
+          previousCluster = cluster;
+
+          if( rtlIndex > 0u )
+          {
+            --rtlIndex;
+
+            cluster = glyphInfo[rtlIndex].cluster;
+          }
+          else
+          {
+            break;
+          }
+        }
+
+        rtlIndex = lastGlyphIndex - ( i + ( numberOfGlyphsInCluster - 1u ) );
+
+        for( GlyphIndex j = 0u; j < numberOfGlyphsInCluster; ++j )
+        {
+          const GlyphIndex index = rtlIndex + j;
+
+          mIndices.PushBack( glyphInfo[index].codepoint );
+          mAdvance.PushBack( floor( glyphPositions[index].x_advance * FROM_266 ) );
+          mCharacterMap.PushBack( glyphInfo[index].cluster );
+          mOffset.PushBack( floor( glyphPositions[index].x_offset * FROM_266 ) );
+          mOffset.PushBack( floor( glyphPositions[index].y_offset * FROM_266 ) );
+        }
+
+        i += numberOfGlyphsInCluster;
+      }
+      else
+      {
+        mIndices.PushBack( glyphInfo[i].codepoint );
+        mAdvance.PushBack( floor( glyphPositions[i].x_advance * FROM_266 ) );
+        mCharacterMap.PushBack( glyphInfo[i].cluster );
+        mOffset.PushBack( floor( glyphPositions[i].x_offset * FROM_266 ) );
+        mOffset.PushBack( floor( glyphPositions[i].y_offset * FROM_266 ) );
+
+        ++i;
+      }
     }
 
     /* Cleanup */
@@ -173,9 +233,10 @@ struct Shaping::Plugin
   {
     Vector<CharacterIndex>::ConstIterator indicesIt = mIndices.Begin();
     Vector<float>::ConstIterator advanceIt = mAdvance.Begin();
+    Vector<float>::ConstIterator offsetIt = mOffset.Begin();
     Vector<CharacterIndex>::ConstIterator characterMapIt = mCharacterMap.Begin();
 
-    for( Length index = 0u, size = mIndices.Count(); index < size; ++index )
+    for( GlyphIndex index = 0u, size = mIndices.Count(); index < size; ++index )
     {
       GlyphInfo& glyph = *( glyphInfo + index );
       CharacterIndex& glyphToCharacter = *( glyphToCharacterMap + index );
@@ -183,6 +244,10 @@ struct Shaping::Plugin
       glyph.fontId = mFontId;
       glyph.index = *( indicesIt + index );
       glyph.advance = *( advanceIt + index );
+
+      const GlyphIndex offsetIndex = 2u * index;
+      glyph.xBearing = *( offsetIt + offsetIndex );
+      glyph.yBearing = *( offsetIt + offsetIndex + 1u );
 
       glyphToCharacter = *( characterMapIt + index );
     }
@@ -192,6 +257,7 @@ struct Shaping::Plugin
 
   Vector<CharacterIndex> mIndices;
   Vector<float>          mAdvance;
+  Vector<float>          mOffset;
   Vector<CharacterIndex> mCharacterMap;
   FontId                 mFontId;
 };

@@ -75,11 +75,8 @@ const Dali::Vector4 GRADIENT_COLORS[NUM_GRADIENT_INTERVALS+1] =
 const float OPAQUE_THRESHOLD(0.99f);
 const float TRANSPARENT_THRESHOLD(0.05f);
 
-// Indicator orientation
-const char* ELM_INDICATOR_PORTRAIT("elm_indicator_portrait");
-const char* ELM_INDICATOR_LANDSCAPE("elm_indicator_landscape");
-const char* ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE("elm_indicator_portrait_fixed");
-const char* ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE("elm_indicator_landscape_fixed");
+// indicator service name
+const char* INDICATOR_SERVICE_NAME("elm_indicator");
 
 const char* MESH_VERTEX_SHADER =
 "attribute lowp vec3     aColor;\n"
@@ -351,18 +348,16 @@ bool Indicator::ScopedLock::IsLocked()
   return mLocked;
 }
 
-Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Dali::Window::IndicatorStyle style, Observer* observer )
+Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Observer* observer )
 : mPixmap( 0 ),
   mGestureDetected( false ),
   mConnection( this ),
-  mStyle( style ),
   mOpacityMode( Dali::Window::OPAQUE ),
   mState( DISCONNECTED ),
   mAdaptor(adaptor),
   mServerConnection( NULL ),
   mObserver( observer ),
   mOrientation( orientation ),
-  mRotation( 0 ),
   mImageWidth( 0 ),
   mImageHeight( 0 ),
   mVisible( Dali::Window::INVISIBLE ),
@@ -451,7 +446,9 @@ void Indicator::Open( Dali::Window::WindowOrientation orientation )
   // disconnected state before opening a second time.
   DALI_ASSERT_DEBUG( mState == DISCONNECTED );
 
-  Connect( orientation );
+  mOrientation = orientation;
+
+  Connect();
 
   // Change background visibility depending on orientation
   if(mOrientation == Dali::Window::PORTRAIT || mOrientation == Dali::Window::PORTRAIT_INVERSE)
@@ -607,94 +604,15 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
   return false;
 }
 
-/**
- * Return the current orientation in degrees
- * @return value of 0, 90, 180 or 270
- */
-int Indicator::OrientationToDegrees( Dali::Window::WindowOrientation orientation )
-{
-  int degree = 0;
-
-  switch( orientation )
-  {
-    case Dali::Window::PORTRAIT:
-      degree = 0;
-      break;
-    case Dali::Window::PORTRAIT_INVERSE:
-      degree = 180;
-      break;
-    case Dali::Window::LANDSCAPE:
-      degree = 90;
-      break;
-    case Dali::Window::LANDSCAPE_INVERSE:
-      degree = 270;
-      break;
-  }
-  return degree;
-}
-
-bool Indicator::Connect( Dali::Window::WindowOrientation orientation )
-{
-  DALI_ASSERT_DEBUG( mState == DISCONNECTED );
-
-  bool connected = false;
-  mOrientation = orientation;
-  mRotation = OrientationToDegrees(mOrientation);
-
-  switch( orientation )
-  {
-    case Dali::Window::PORTRAIT:
-      if(mStyle == Dali::Window::FIXED_COLOR)
-      {
-        connected = Connect( ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE );
-      }
-      else
-      {
-        connected = Connect( ELM_INDICATOR_PORTRAIT );
-      }
-      break;
-    case Dali::Window::PORTRAIT_INVERSE:
-      if(mStyle == Dali::Window::FIXED_COLOR)
-      {
-        connected = Connect( ELM_INDICATOR_PORTRAIT_FIXED_COLOR_STYLE );
-      }
-      else
-      {
-        connected = Connect( ELM_INDICATOR_PORTRAIT );
-      }
-      break;
-    case Dali::Window::LANDSCAPE:
-      if(mStyle == Dali::Window::FIXED_COLOR)
-      {
-        connected = Connect( ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE );
-      }
-      else
-      {
-        connected = Connect( ELM_INDICATOR_LANDSCAPE );
-      }
-      break;
-    case Dali::Window::LANDSCAPE_INVERSE:
-      if(mStyle == Dali::Window::FIXED_COLOR)
-      {
-        connected = Connect( ELM_INDICATOR_LANDSCAPE_FIXED_COLOR_STYLE );
-      }
-      else
-      {
-        connected = Connect( ELM_INDICATOR_LANDSCAPE );
-      }
-      break;
-  }
-
-  return connected;
-}
-
-bool Indicator::Connect( const char *serviceName )
+bool Indicator::Connect()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
+  DALI_ASSERT_DEBUG( mState == DISCONNECTED );
+
   bool connected = false;
 
-  mServerConnection = new ServerConnection( serviceName, 0, false, this );
+  mServerConnection = new ServerConnection( INDICATOR_SERVICE_NAME, 0, false, this );
   if( mServerConnection )
   {
     connected = mServerConnection->IsConnected();
@@ -734,7 +652,7 @@ bool Indicator::OnReconnectTimer()
 
   if( mState == DISCONNECTED )
   {
-    if( ! Connect( mOrientation ) )
+    if( !Connect() )
     {
       retry = true;
     }
@@ -1193,7 +1111,7 @@ void Indicator::ConnectionClosed()
   mState = DISCONNECTED;
 
   // Attempt to re-connect
-  Connect(mOrientation);
+  Connect();
 }
 
 bool Indicator::CheckVisibleState()

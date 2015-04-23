@@ -19,6 +19,7 @@
  */
 
 #include <cstdio>
+#include "image-loader-input.h"
 
 namespace Dali
 {
@@ -41,9 +42,9 @@ const unsigned char MAGIC_BYTE_1 = 0x00;
 const unsigned char MAGIC_BYTE_2 = 0x00;
 }
 
-bool LoadBitmapFromIco( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
+bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
-bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
+bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 }
 

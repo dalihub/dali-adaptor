@@ -41,6 +41,7 @@
 #include <damage-observer.h>
 #include <window-visibility-observer.h>
 #include <kernel-trace.h>
+#include <system-trace.h>
 #include <trigger-event-factory.h>
 #include <networking/socket-factory.h>
 
@@ -350,7 +351,12 @@ public:  //AdaptorInternalServices
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
    */
-  virtual KernelTraceInterface& GetKernelTraceInterface();
+  virtual TraceInterface& GetKernelTraceInterface();
+
+  /**
+   * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSystemTraceInterface()
+   */
+  virtual TraceInterface& GetSystemTraceInterface();
 
 public: // Stereoscopy
 
@@ -530,6 +536,7 @@ private: // Data
   EnvironmentOptions                    mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
+  SystemTrace                           mSystemTracer;                ///< System tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory

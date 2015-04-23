@@ -45,6 +45,9 @@ struct NamePair
 
 const NamePair MARKER_LOOKUP[] =
 {
+    // timed event names must be postfixed with with _START and _END
+    // this is to allow tracers to extract the event name by removing the _START, _END strings
+    //
     { PerformanceInterface::VSYNC       ,         "V_SYNC"               , PerformanceMarker::V_SYNC_EVENTS, PerformanceMarker::SINGLE_EVENT      },
     { PerformanceInterface::UPDATE_START ,        "UPDATE_START"         , PerformanceMarker::UPDATE,        PerformanceMarker::START_TIMED_EVENT },
     { PerformanceInterface::UPDATE_END   ,        "UPDATE_END"           , PerformanceMarker::UPDATE,        PerformanceMarker::END_TIMED_EVENT   },
@@ -82,6 +85,11 @@ const char* const PerformanceMarker::GetName( ) const
 PerformanceMarker::MarkerEventType PerformanceMarker::GetEventType() const
 {
   return MARKER_LOOKUP[ mType ].eventType;
+}
+
+PerformanceMarker::MarkerFilter PerformanceMarker::GetFilterType() const
+{
+  return MARKER_LOOKUP[ mType ].group;
 }
 
 unsigned int PerformanceMarker::MicrosecondDiff( const PerformanceMarker& start,const PerformanceMarker& end )

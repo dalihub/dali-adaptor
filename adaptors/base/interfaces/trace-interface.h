@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_BASE_KERNEL_TRACE_INTERFACE_H__
-#define __DALI_INTERNAL_BASE_KERNEL_TRACE_INTERFACE_H__
+#ifndef __DALI_INTERNAL_BASE_TRACE_INTERFACE_H__
+#define __DALI_INTERNAL_BASE_TRACE_INTERFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,12 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <string>
+
+
+// INTERNAL INCLUDES
+#include <base/performance-logging/performance-marker.h>
 
 namespace Dali
 {
@@ -30,43 +35,44 @@ namespace Adaptor
 {
 
 /**
- * Abstract Kernel Tracing Interface.
- * Used to log trace messages to the kernel.
- * E.g. On Linux this will use ftrace
+ * Abstract Tracing Interface.
+ * Used to log trace messages.
+ * E.g. On Linux this may use ftrace
  *
  */
-class KernelTraceInterface
+class TraceInterface
 {
 
 public:
 
   /**
    * Write a trace message
+   * @param marker performance marker
    * @param traceMessage trace message
    */
-  virtual void Trace( const std::string& traceMessage ) = 0;
+  virtual void Trace( const PerformanceMarker& marker, const std::string& traceMessage ) = 0;
 
 protected:
 
   /**
    * Constructor
    */
-  KernelTraceInterface()
+  TraceInterface()
   {
   }
 
   /**
    * virtual destructor
    */
-  virtual ~KernelTraceInterface()
+  virtual ~TraceInterface()
   {
   }
 
   // Undefined copy constructor.
-  KernelTraceInterface( const KernelTraceInterface& );
+  TraceInterface( const TraceInterface& );
 
   // Undefined assignment operator.
-  KernelTraceInterface& operator=( const KernelTraceInterface& );
+  TraceInterface& operator=( const TraceInterface& );
 };
 
 } // namespace Internal

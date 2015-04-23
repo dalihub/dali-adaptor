@@ -57,7 +57,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
@@ -339,11 +338,12 @@ bool LoadIcoHeaderHelper( FILE* fp,
 
 }//unnamed namespace
 
-bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
+bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;
   unsigned int fsize;
+  FILE* const fp = input.file;
 
   if ( false == LoadIcoHeaderHelper(fp, chosen, map, fsize) )
   {
@@ -356,11 +356,12 @@ bool LoadIcoHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &wi
   return true;
 }
 
-bool LoadBitmapFromIco( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;
   unsigned int fsize;
+  FILE* const fp = input.file;
 
   if ( false == LoadIcoHeaderHelper(fp, chosen, map, fsize) )
   {
@@ -732,8 +733,6 @@ bool LoadBitmapFromIco( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, w, h);
   memset(pixels, 0, w * h * 4);
   memcpy(pixels, (unsigned char*)&surface[0], w * h * 4);
-
-  attributes.SetSize(w, h);
 
   return true;
 }

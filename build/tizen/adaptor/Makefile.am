@@ -315,8 +315,7 @@ libdali_adaptor_la_CXXFLAGS += \
                       $(DEVICED_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
-                      $(NATIVE_BUFFER_POOL_CFLAGS) \
-                      -DFREETYPE_BITMAP_SUPPORT
+                      $(NATIVE_BUFFER_POOL_CFLAGS)
 
 libdali_adaptor_la_LIBADD += \
                       $(EFL_ASSIST_LIBS) \
@@ -327,13 +326,11 @@ endif
 if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
-                      $(EFL_ASSIST_CFLAGS) \
-                      -DFREETYPE_BITMAP_SUPPORT
+                      $(EFL_ASSIST_CFLAGS)
 endif
 
 if TV_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS) \
-                               -DFREETYPE_BITMAP_SUPPORT
+libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 libdali_adaptor_la_LIBADD +=
 endif
 
@@ -346,10 +343,6 @@ CFLAGS += -fPIC
 endif
 else
 libdali_adaptor_la_LIBADD += -ljpeg
-endif
-
-if UBUNTU_PROFILE
-libdali_adaptor_la_CXXFLAGS += -DFREETYPE_BITMAP_SUPPORT
 endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api

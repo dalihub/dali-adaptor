@@ -300,7 +300,6 @@ private:
   AppSignalType                           mBatteryLowSignal;
   AppSignalType                           mMemoryLowSignal;
 
-
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;
 

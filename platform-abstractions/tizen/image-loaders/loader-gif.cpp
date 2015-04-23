@@ -22,7 +22,6 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 
 namespace Dali
 {
@@ -174,7 +173,7 @@ GifColorType* GetImageColors( SavedImage* image, GifFileType* gifInfo )
 }
 
 /// Called when we want to handle IMAGE_DESC_RECORD_TYPE
-bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attributes, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
+bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
 {
   if ( DGifGetImageDesc( gifInfo ) == GIF_ERROR )
   {
@@ -206,8 +205,6 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attribut
     return false;
   }
 
-  // TODO: Add scaling support
-
   // Get the colormap for the GIF
   GifColorType* color( GetImageColors( image, gifInfo ) );
 
@@ -230,8 +227,6 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, ImageAttributes& attribut
       pixels += 3;
     }
   }
-
-  attributes.SetSize( actualWidth, actualHeight );
 
   finished = true;
 
@@ -263,16 +258,18 @@ bool HandleExtensionRecordType( GifFileType* gifInfo )
 
 } // unnamed namespace
 
-bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
+bool LoadGifHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   GifFileType* gifInfo = NULL;
   AutoCleanupGif autoCleanupGif(gifInfo);
+  FILE* const fp = input.file;
 
   return LoadGifHeader(fp, width, height, &gifInfo);
 }
 
-bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromGif( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
+  FILE* const fp = input.file;
   // Load the GIF Header file.
 
   GifFileType* gifInfo( NULL );
@@ -300,7 +297,7 @@ bool LoadBitmapFromGif(FILE *fp, Bitmap& bitmap, ImageAttributes& attributes, co
 
     if( IMAGE_DESC_RECORD_TYPE == recordType )
     {
-      if ( !HandleImageDescriptionRecordType( bitmap, attributes, gifInfo, width, height, finished ) )
+      if ( !HandleImageDescriptionRecordType( bitmap, gifInfo, width, height, finished ) )
       {
         return false;
       }

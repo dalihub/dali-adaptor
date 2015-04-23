@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ Window& Window::operator=(const Window& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
-}
-
-void Window::SetIndicatorStyle( IndicatorStyle style )
-{
-  GetImplementation(*this).SetIndicatorStyle( style );
 }
 
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )

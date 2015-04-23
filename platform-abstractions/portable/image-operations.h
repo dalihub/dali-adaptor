@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
+#include <dali/public-api/images/image-operations.h>
 
 namespace Dali
 {
@@ -44,94 +44,11 @@ enum BoxDimensionTest
 };
 
 /**
- * @brief Simple class for passing around pairs of small ints.
- *
- * These are immutable. If you want to change a value, make a whole new object.
- * @note One of these can be passed in a single 32 bit integer register on
- * common architectures.
- */
-class Vector2Uint16
-{
-public:
-  /**
-   * @brief Default constructor for the (0, 0) vector.
-   */
-  Vector2Uint16() : mData(0) {}
-
-  /**
-   * @brief Constructor taking separate x and y (width and height) parameters.
-   * @param[in] width The width or X dimension of the vector. Make sure it is less than 65536,
-   * @param[in] height The height or Y dimension of the vector. Make sure it is less than 65536,
-   */
-  Vector2Uint16( uint32_t width, uint32_t height )
-  {
-    DALI_ASSERT_DEBUG( width < ( 1u << 16 ) && "Width parameter not representable." );
-    DALI_ASSERT_DEBUG( height < ( 1u << 16 ) && "Height parameter not representable." );
-
-    /* Do equivalent of the code below with one aligned memory access:
-     * mComponents[0] = width;
-     * mComponents[1] = height;
-     * Unit tests make sure this is equivalent.
-     **/
-    mData = (height << 16u) + width;
-  }
-
-  /**
-   * @brief Copy constructor.
-   */
-  Vector2Uint16( const Vector2Uint16& rhs )
-  {
-    mData = rhs.mData;
-  }
-
-  /**
-   * @returns the x dimension stored in this 2-tuple.
-   */
-  uint16_t GetWidth() const
-  {
-    return mComponents[0];
-  }
-
-  /**
-   * @returns the y dimension stored in this 2-tuple.
-   */
-  uint16_t GetHeight() const
-  {
-    return mComponents[1];
-  }
-
-  /**
-   * @returns the x dimension stored in this 2-tuple.
-   */
-  uint16_t GetX()  const
-  {
-    return mComponents[0];
-  }
-
-  /**
-   * @returns the y dimension stored in this 2-tuple.
-   */
-  uint16_t GetY() const
-  {
-    return mComponents[1];
-  }
-
-private:
-  union
-  {
-    // Addressable view of X and Y:
-    uint16_t mComponents[2];
-    // Packed view of X and Y to force alignment and allow a faster copy:
-    uint32_t mData;
-  };
-};
-
-/**
  * @brief The integer dimensions of an image or a region of an image packed into
  *        16 bits per component.
  * @note  This can only be used for images of up to 65535 x 65535 pixels.
   */
-typedef Vector2Uint16 ImageDimensions;
+typedef Uint16Pair ImageDimensions;
 
 /**
  * @defgroup BitmapOperations Bitmap-to-Bitmap Image operations.
@@ -152,13 +69,13 @@ typedef Vector2Uint16 ImageDimensions;
  *         bitmap passed-in, or the original bitmap passed in if the attributes
  *         have no effect.
  */
-Integration::BitmapPtr ApplyAttributesToBitmap( Integration::BitmapPtr bitmap, const ImageAttributes& requestedAttributes );
+Integration::BitmapPtr ApplyAttributesToBitmap( Integration::BitmapPtr bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode = FittingMode::DEFAULT, SamplingMode::Type samplingMode = SamplingMode::DEFAULT );
 
 /**
  * @brief Apply downscaling to a bitmap according to requested attributes.
  * @note The input bitmap pixel buffer may be modified and used as scratch working space for efficiency, so it must be discarded.
  **/
-Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap, ImageDimensions desired, ImageAttributes::ScalingMode scalingMode, ImageAttributes::FilterMode filterMode );
+Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap, ImageDimensions desired, FittingMode::Type fittingMode, SamplingMode::Type samplingMode );
 /**@}*/
 
 /**
@@ -187,8 +104,8 @@ void DownscaleInPlacePow2( unsigned char * const pixels,
                            unsigned int inputHeight,
                            unsigned int desiredWidth,
                            unsigned int desiredHeight,
-                           ImageAttributes::ScalingMode scalingMode,
-                           ImageAttributes::FilterMode filterMode,
+                           FittingMode::Type fittingMode,
+                           SamplingMode::Type samplingMode,
                            unsigned& outWidth,
                            unsigned& outHeight );
 
@@ -560,7 +477,7 @@ inline unsigned int BilinearFilter1Component(unsigned int tl, unsigned int tr, u
 {
   DALI_ASSERT_DEBUG( fractBlendHorizontal <= 65535u && "Factor should be in 0.16 fixed-point." );
   DALI_ASSERT_DEBUG( fractBlendVertical   <= 65535u && "Factor should be in 0.16 fixed-point." );
-  //
+
   const unsigned int topBlend = WeightedBlendIntToFixed1616( tl, tr, fractBlendHorizontal );
   const unsigned int botBlend = WeightedBlendIntToFixed1616( bl, br, fractBlendHorizontal );
   const uint64_t blended2x2 = WeightedBlendFixed1616ToFixed1632( topBlend, botBlend, fractBlendVertical );

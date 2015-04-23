@@ -80,6 +80,12 @@ void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
   }
 }
 
+void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi )
+{
+  horizontalDpi = mDpiHorizontal;
+  verticalDpi = mDpiVertical;
+}
+
 void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
                                        const std::string& fontStyle )
 {

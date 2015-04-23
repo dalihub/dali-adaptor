@@ -195,8 +195,8 @@ int UtcDaliTiltSensorGetRotation(void)
 
   Quaternion rotation = sensor.GetRotation();
 
-  float roll  = sensor.GetRoll();
-  float pitch = sensor.GetPitch();
+  Radian roll( sensor.GetRoll() );
+  Radian pitch( sensor.GetPitch() );
 
   Quaternion expectedRotation = Quaternion( roll  * Math::PI * -0.5f, Vector3::YAXIS ) *
                                 Quaternion( pitch * Math::PI * -0.5f, Vector3::XAXIS );

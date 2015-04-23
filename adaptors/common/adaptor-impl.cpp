@@ -696,9 +696,14 @@ VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
   return mVSyncMonitor;
 }
 
-KernelTraceInterface& Adaptor::GetKernelTraceInterface()
+TraceInterface& Adaptor::GetKernelTraceInterface()
 {
   return mKernelTracer;
+}
+
+TraceInterface& Adaptor::GetSystemTraceInterface()
+{
+  return mSystemTracer;
 }
 
 PerformanceInterface* Adaptor::GetPerformanceInterface()

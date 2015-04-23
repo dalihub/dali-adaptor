@@ -113,6 +113,15 @@ public:
   void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
 
   /**
+   * @brief Retrieves the DPI previously set to the target window.
+   *
+   * @note Multiple windows are not currently supported.
+   * @param[out] horizontalDpi The horizontal resolution in DPI.
+   * @param[out] verticalDpi The vertical resolution in DPI.
+   */
+  void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
+
+  /**
    * Set the default font family and its style that should be used by the font client.
    *
    * @param[in] fontFamilyName The default name of the font's family.
@@ -251,7 +260,8 @@ public:
    * @brief Retrieve the metrics for a series of glyphs.
    *
    * @param[in,out] array An array of glyph-info structures with initialized FontId & GlyphIndex values.
-   * On return, the remaining metrics values will be initialized e.g. glyph size & bearing values.
+   * It may contain the advance and an offset set into the bearing from the shaping tool.
+   * On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
    * @param[in] size The size of the array.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
    * @return True if all of the requested metrics were found.

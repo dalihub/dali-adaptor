@@ -55,7 +55,8 @@ int UtcDaliCancelAllLoads(void)
     // Issue load requests for a batch of images:
     for( unsigned validImage = 0; validImage < NUM_VALID_IMAGES; ++validImage )
     {
-      const BitmapResourceType bitmapResourceType( gCancelAttributes[ loadsLaunched % gCancelAttributes.size() ] );
+      const ImageAttributes & loadParams = gCancelAttributes[ loadsLaunched % gCancelAttributes.size() ];
+      const BitmapResourceType bitmapResourceType( loadParams.first, loadParams.second.first, loadParams.second.second.first, loadParams.second.second.second );
       const ResourceId resourceId = loadGroup * NUM_VALID_IMAGES + validImage + 1;
       gAbstraction->LoadResource( ResourceRequest( resourceId, bitmapResourceType, VALID_IMAGES[validImage], priority ) );
       loadsLaunched += 1;

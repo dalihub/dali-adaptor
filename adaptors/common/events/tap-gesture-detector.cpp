@@ -82,12 +82,15 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
 
       case Touched:
       {
-        // Only progress from a touch up event
         if ( pointState == TouchPoint::Up )
         {
           mLastTapTime = mTouchTime;
           EmitSingleTap( event.time, point );
           mState = Registered;
+        }
+        else if (pointState == TouchPoint::Interrupted)
+        {
+          mState = Clear;
         }
         break;
       }

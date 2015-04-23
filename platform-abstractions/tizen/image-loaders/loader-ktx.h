@@ -19,6 +19,7 @@
  */
 
 #include <cstdio>
+#include "image-loader-input.h"
 
 namespace Dali
 {
@@ -50,7 +51,7 @@ const unsigned char MAGIC_BYTE_2 = 0x4B;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromKtx( FILE * const fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
+bool LoadBitmapFromKtx( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a KTX file and fills in the width and height appropriately.
@@ -60,7 +61,7 @@ bool LoadBitmapFromKtx( FILE * const fp, Integration::Bitmap& bitmap, ImageAttri
  * @param[out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadKtxHeader(FILE * const fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height);
+bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 } // namespace TizenPlatform
 

@@ -26,7 +26,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-attributes.h>
 #include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
@@ -93,9 +92,9 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client )
+bool LoadBitmapFromWbmp( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
-
+  FILE* const fp = input.file;
   if(fp == NULL)
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
@@ -210,14 +209,14 @@ bool LoadBitmapFromWbmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes&
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::L8, w, h);//Pixel::RGBA8888
 
   memcpy(pixels, (unsigned char*)&surface[0], w * h );//w * h * 4
-  attributes.SetSize(w, h);
 
   return true;
 }
 
 
-bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height )
+bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
+  FILE* const fp = input.file;
   if(fp == NULL)
   {
     DALI_LOG_ERROR("Error loading bitmap\n");

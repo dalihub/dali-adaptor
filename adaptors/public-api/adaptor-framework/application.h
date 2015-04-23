@@ -2,7 +2,7 @@
 #define __DALI_APPLICATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,14 +223,6 @@ public:
   void Quit();
 
   /**
-   * This returns a handle to the Orientation object used by Application which allows
-   * the user to determine the orientation of the device and connect to a
-   * signal emitted whenever the orientation changes.
-   * @return A handle to the Orientation object used by the Application
-   */
-  Orientation GetOrientation();
-
-  /**
    * Ensures that the function passed in is called from the main loop when it is idle.
    *
    * A callback of the following type may be used:
@@ -353,7 +345,6 @@ public:  // Signals
   * This signal is emitted when the memory level of the device is low.
   */
   AppSignalType& MemoryLowSignal();
-
 
 public: // Not intended for application developers
   /**

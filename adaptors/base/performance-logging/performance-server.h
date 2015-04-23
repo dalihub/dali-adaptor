@@ -118,7 +118,8 @@ private:
 
   Integration::PlatformAbstraction& mPlatformAbstraction; ///< platform abstraction
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
-  KernelTraceInterface& mKernelTrace;                     ///< kernel trace interface
+  TraceInterface& mKernelTrace;                           ///< kernel trace interface
+  TraceInterface& mSystemTrace;                           ///< system trace interface
   boost::mutex mDataMutex;                                ///< mutex
   NetworkPerformanceServer mNetworkServer;                ///< network server
   StatContextManager mStatContextManager;                 ///< Stat context manager

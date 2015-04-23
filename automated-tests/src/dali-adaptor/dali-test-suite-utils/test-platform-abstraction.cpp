@@ -64,22 +64,27 @@ void TestPlatformAbstraction::Resume()
   mTrace.PushCall("Resume", "");
 }
 
-void TestPlatformAbstraction::GetClosestImageSize( const std::string& filename,
-                                                   const ImageAttributes& attributes,
-                                                   Vector2& closestSize)
+ImageDimensions TestPlatformAbstraction::GetClosestImageSize( const std::string& filename,
+                                                              ImageDimensions size,
+                                                              FittingMode::Type fittingMode,
+                                                              SamplingMode::Type samplingMode,
+                                                              bool orientationCorrection )
 {
-  closestSize = mClosestSize;
+  ImageDimensions closestSize = ImageDimensions( mClosestSize.x, mClosestSize.y );
   mTrace.PushCall("GetClosestImageSize", "");
+  return closestSize;
 }
 
-void TestPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                                   const ImageAttributes& attributes,
-                                                   Vector2& closestSize)
+ImageDimensions TestPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                                   ImageDimensions size,
+                                                   FittingMode::Type fittingMode,
+                                                   SamplingMode::Type samplingMode,
+                                                   bool orientationCorrection )
 {
-  closestSize = mClosestSize;
+  ImageDimensions closestSize = ImageDimensions( mClosestSize.x, mClosestSize.y );
   mTrace.PushCall("GetClosestImageSize", "");
+  return closestSize;
 }
-
 
 /**
  * @copydoc PlatformAbstraction::LoadResource()

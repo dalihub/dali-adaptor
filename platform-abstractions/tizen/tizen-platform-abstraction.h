@@ -76,16 +76,20 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  virtual void GetClosestImageSize( const std::string& filename,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize );
+  virtual ImageDimensions GetClosestImageSize( const std::string& filename,
+                                               ImageDimensions size,
+                                               FittingMode::Type fittingMode,
+                                               SamplingMode::Type samplingMode,
+                                               bool orientationCorrection );
 
   /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  virtual void GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                    const ImageAttributes& attributes,
-                                    Vector2& closestSize );
+  virtual ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                               ImageDimensions size,
+                                               FittingMode::Type fittingMode,
+                                               SamplingMode::Type samplingMode,
+                                               bool orientationCorrection );
 
   /**
    * @copydoc PlatformAbstraction::LoadResource()
