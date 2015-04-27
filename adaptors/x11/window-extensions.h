@@ -33,7 +33,7 @@ namespace WindowExtensions
  *
  * The effect will be shown when the application is launched, quit, shown and hiden.
  *
- * @note This function is only specified by tizen.
+ * @note This function is only specified by Tizen.
  *
  * @param[in] window The window to set.
  * @param[in] enable True if the effect is enabled.
@@ -43,7 +43,7 @@ DALI_IMPORT_API void EnableEffect( Window window, bool enable );
 /**
  * @brief Retrieve whether the effect is enabled or not.
  *
- * @note This function is only specified by tizen.
+ * @note This function is only specified by Tizen.
  *
  * @param[in] window The window to set.
  * @return True if the effect is enabled.
