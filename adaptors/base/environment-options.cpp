@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,14 @@
 // CLASS HEADER
 #include "environment-options.h"
 
+// EXTERNAL INCLUDES
+#include <cstdlib>
+#include <dali/integration-api/render-controller.h>
+#include <dali/public-api/math/math-utils.h>
+
+// INTERNAL INCLUDES
+#include <base/environment-variables.h>
+
 namespace Dali
 {
 
@@ -30,6 +38,42 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+
+unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  // if the parameter exists convert it to an integer, else return the default value
+  unsigned int intValue = variableParameter ? std::atoi(variableParameter) : defaultValue;
+  return intValue;
+}
+
+bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  if( !variableParameter )
+  {
+    return false;
+  }
+  // if the parameter exists convert it to an integer, else return the default value
+  intValue = std::atoi(variableParameter);
+  return true;
+}
+
+bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
+{
+  const char* variableParameter = std::getenv(variable);
+
+  if( !variableParameter )
+  {
+    return false;
+  }
+  // if the parameter exists convert it to an integer, else return the default value
+  floatValue = std::atof(variableParameter);
+  return true;
+}
+
 }
 EnvironmentOptions::EnvironmentOptions()
 : mNetworkControl(0),
@@ -50,32 +94,18 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumEvents(-1),
   mGlesCallTime(0),
   mWindowWidth( 0 ),
-  mWindowHeight( 0 ),
-  mLogFunction( NULL )
+  mWindowHeight( 0 )
 {
+  ParseEnvironmentOptions();
 }
 
 EnvironmentOptions::~EnvironmentOptions()
 {
 }
 
-void EnvironmentOptions::SetLogOptions( const Dali::Integration::Log::LogFunction& logFunction,
-                             unsigned int networkControl,
-                             unsigned int logFrameRateFrequency,
-                             unsigned int logupdateStatusFrequency,
-                             unsigned int logPerformanceStats,
-                             unsigned int logPerformanceStatsFrequency,
-                             unsigned int performanceTimeStampOutput,
-                             unsigned int logPanGestureLevel )
+void EnvironmentOptions::SetLogFunction( const Dali::Integration::Log::LogFunction& logFunction )
 {
   mLogFunction = logFunction;
-  mNetworkControl = networkControl;
-  mFpsFrequency = logFrameRateFrequency;
-  mUpdateStatusFrequency = logupdateStatusFrequency;
-  mPerformanceStatsLevel = logPerformanceStats;
-  mPerformanceStatsFrequency = logPerformanceStatsFrequency;
-  mPerformanceTimeStampOutput= performanceTimeStampOutput;
-  mPanGestureLoggingLevel = logPanGestureLevel;
 }
 
 void EnvironmentOptions::InstallLogFunction() const
@@ -245,6 +275,101 @@ bool EnvironmentOptions::PerformanceServerRequired() const
   return ( (GetPerformanceStatsLoggingOptions() > 0) ||
            ( GetPerformanceTimeStampOutput() > 0 ) ||
            ( GetNetworkControlMode() > 0) );
+}
+
+void EnvironmentOptions::ParseEnvironmentOptions()
+{
+  // get logging options
+  mFpsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
+  mUpdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
+  mPerformanceStatsLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
+  mPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
+  mPerformanceTimeStampOutput = GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
+  mNetworkControl = GetIntegerEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
+  mPanGestureLoggingLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
+
+  int predictionMode;
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
+  {
+    SetPanGesturePredictionMode(predictionMode);
+  }
+  int predictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
+  {
+    if( predictionAmount < 0 )
+    {
+      // do not support times in the past
+      predictionAmount = 0;
+    }
+    SetPanGesturePredictionAmount(predictionAmount);
+  }
+  int minPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
+  {
+    if( minPredictionAmount < 0 )
+    {
+      // do not support times in the past
+      minPredictionAmount = 0;
+    }
+    SetPanGestureMinimumPredictionAmount(minPredictionAmount);
+  }
+  int maxPredictionAmount(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
+  {
+    if( minPredictionAmount > -1 && maxPredictionAmount < minPredictionAmount )
+    {
+      // maximum amount should not be smaller than minimum amount
+      maxPredictionAmount = minPredictionAmount;
+    }
+    SetPanGestureMaximumPredictionAmount(maxPredictionAmount);
+  }
+  int predictionAmountAdjustment(-1);
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
+  {
+    if( predictionAmountAdjustment < 0 )
+    {
+      // negative amount doesn't make sense
+      predictionAmountAdjustment = 0;
+    }
+    SetPanGesturePredictionAmountAdjustment(predictionAmountAdjustment);
+  }
+  int smoothingMode;
+  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
+  {
+    SetPanGestureSmoothingMode(smoothingMode);
+  }
+  float smoothingAmount = 1.0f;
+  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_AMOUNT, smoothingAmount) )
+  {
+    smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
+    SetPanGestureSmoothingAmount(smoothingAmount);
+  }
+
+  int minimumDistance(-1);
+  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
+  {
+    SetMinimumPanDistance( minimumDistance );
+  }
+
+  int minimumEvents(-1);
+  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
+  {
+    SetMinimumPanEvents( minimumEvents );
+  }
+
+  int glesCallTime(0);
+  if ( GetIntegerEnvironmentVariable(DALI_GLES_CALL_TIME, glesCallTime ))
+  {
+    SetGlesCallTime( glesCallTime );
+  }
+
+  int windowWidth(0), windowHeight(0);
+  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  {
+    SetWindowWidth( windowWidth );
+    SetWindowHeight( windowHeight );
+  }
+
 }
 
 } // Adaptor

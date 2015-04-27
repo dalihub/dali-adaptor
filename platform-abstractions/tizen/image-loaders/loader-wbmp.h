@@ -19,6 +19,7 @@
  */
 
 #include <cstdio>
+#include "image-loader-input.h"
 
 namespace Dali
 {
@@ -34,9 +35,9 @@ namespace TizenPlatform
 
 class ResourceLoadingClient;
 
-bool LoadBitmapFromWbmp( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
+bool LoadBitmapFromWbmp( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
-bool LoadWbmpHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
+bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 }
 

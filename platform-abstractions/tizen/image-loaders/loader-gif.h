@@ -19,6 +19,7 @@
  */
 
 #include <cstdio>
+#include "image-loader-input.h"
 
 namespace Dali
 {
@@ -50,7 +51,7 @@ const unsigned char MAGIC_BYTE_2 = 0x49;
  * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromGif( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& attributes, const ResourceLoadingClient& client );
+bool LoadBitmapFromGif( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.
@@ -60,7 +61,7 @@ bool LoadBitmapFromGif( FILE *fp, Integration::Bitmap& bitmap, ImageAttributes& 
  * @param[in/out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadGifHeader(FILE *fp, const ImageAttributes& attributes, unsigned int &width, unsigned int &height );
+bool LoadGifHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 } // namespace TizenPlatform
 

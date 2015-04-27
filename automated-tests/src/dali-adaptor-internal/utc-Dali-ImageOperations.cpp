@@ -354,15 +354,15 @@ void TestDownscaledBitmapHasRightDimensionsAndFormat(
     uint32_t expectedDimension,
     const char * const location )
 {
-  ImageAttributes attributes;
-  attributes.SetScalingMode( ImageAttributes::ShrinkToFit );
-  attributes.SetFilterMode( ImageAttributes::Box );
-  attributes.SetSize( targetDimension, targetDimension );
+  ImageDimensions desired( targetDimension, targetDimension );
+  FittingMode::Type fittingMode( FittingMode::SHRINK_TO_FIT );
+  SamplingMode::Type samplingMode( SamplingMode::BOX );
 
   Integration::BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
   sourceBitmap->GetPackedPixelsProfile()->ReserveBuffer( format, sourceDimension, sourceDimension, sourceDimension, sourceDimension );
 
-  Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, ImageDimensions( targetDimension, targetDimension ), attributes.GetScalingMode(), attributes.GetFilterMode() );
+  Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, desired, fittingMode, samplingMode );
+
   DALI_TEST_EQUALS( downScaled->GetImageWidth(), expectedDimension, location );
   DALI_TEST_EQUALS( downScaled->GetImageHeight(), expectedDimension, location );
   DALI_TEST_EQUALS( downScaled->GetPixelFormat(), format, location );
@@ -1447,9 +1447,9 @@ int UtcDaliImageOperationsPointSampleRGB88InBounds(void)
 /**
  * @brief Test the small int (x,y) tuple.
  */
-int UtcDaliImageOperationsVector2Uint16(void)
+int UtcDaliImageOperationsUint16Pair(void)
 {
-  Vector2Uint16 vec1( 2, 3 );
+  Uint16Pair vec1( 2, 3 );
 
   DALI_TEST_EQUALS( vec1.GetWidth(), 2, TEST_LOCATION );
   DALI_TEST_EQUALS( vec1.GetX(),     2, TEST_LOCATION );
@@ -1457,7 +1457,7 @@ int UtcDaliImageOperationsVector2Uint16(void)
   DALI_TEST_EQUALS( vec1.GetHeight(), 3, TEST_LOCATION );
   DALI_TEST_EQUALS( vec1.GetY(),      3, TEST_LOCATION );
 
-  Vector2Uint16 vec1Copy = vec1;
+  Uint16Pair vec1Copy = vec1;
 
   DALI_TEST_EQUALS( vec1Copy.GetWidth(), 2, TEST_LOCATION );
   DALI_TEST_EQUALS( vec1Copy.GetX(),     2, TEST_LOCATION );
@@ -1465,7 +1465,7 @@ int UtcDaliImageOperationsVector2Uint16(void)
   DALI_TEST_EQUALS( vec1Copy.GetHeight(), 3, TEST_LOCATION );
   DALI_TEST_EQUALS( vec1Copy.GetY(),      3, TEST_LOCATION );
 
-  Vector2Uint16 vec2( 65535u, 65535u );
+  Uint16Pair vec2( 65535u, 65535u );
 
   DALI_TEST_EQUALS( vec2.GetX(), 65535u, TEST_LOCATION );
   DALI_TEST_EQUALS( vec2.GetY(), 65535u, TEST_LOCATION );

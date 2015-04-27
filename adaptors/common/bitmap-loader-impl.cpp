@@ -47,8 +47,8 @@ BitmapLoader::~BitmapLoader()
 
 void BitmapLoader::Initialize(const std::string& filename)
 {
-  ImageAttributes attributes;
-  Integration::BitmapResourceType bitmapResourceType( attributes );
+  // Load with default scaling and orientation correction:
+  Integration::BitmapResourceType bitmapResourceType;
   Integration::ResourcePointer resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( bitmapResourceType, filename );
 
   mBitmap = static_cast<Integration::Bitmap*>(resource.Get());
