@@ -349,7 +349,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(TPKP_CURL_CFLAGS)
+                      $(TPKP_CURL_CFLAGS) \
+                      $(UTILX_CFLAGS)
 
 # Todo, as soon as common repos are updated on build server remove this.
 if !COMMON_PROFILE
@@ -373,6 +374,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBCURL_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
+                      $(UTILX_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \
@@ -479,6 +481,7 @@ tizentextabstractiondevelapidir = $(tizenadaptordevelapidir)/text-abstraction
 tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
+tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_header_files)
 
 if !WAYLAND
 tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)
