@@ -15,7 +15,8 @@ adaptor_wayland_tizen_internal_src_files = \
   $(adaptor_wayland_dir)/pixmap-render-surface-wl.cpp \
   $(adaptor_wayland_dir)/ecore-wl-render-surface.cpp \
   $(adaptor_wayland_dir)/window-render-surface-wl.cpp \
-  $(adaptor_wayland_dir)/key-impl-wl.cpp
+  $(adaptor_wayland_dir)/key-impl-wl.cpp \
+  $(adaptor_wayland_dir)/key-grab-wl.cpp
 
 adaptor_wayland_tizen_common_internal_default_profile_src_files = \
   $(adaptor_wayland_dir)/ecore-wl-render-surface-factory.cpp \
