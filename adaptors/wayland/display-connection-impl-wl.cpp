@@ -44,7 +44,7 @@ DisplayConnection* DisplayConnection::New()
 DisplayConnection::DisplayConnection()
 : mDisplay(NULL)
 {
-  //FIXME
+  mDisplay = ecore_wl_display_get();
 }
 
 DisplayConnection::~DisplayConnection()
