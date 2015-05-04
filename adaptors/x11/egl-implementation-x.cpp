@@ -76,6 +76,12 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
 
     //@todo see if we can just EGL_DEFAULT_DISPLAY instead
     mEglDisplay = eglGetDisplay(mEglNativeDisplay);
+    EGLint error = eglGetError();
+
+    if( mEglDisplay == NULL && error != EGL_SUCCESS )
+    {
+      throw Dali::DaliException( "", "OpenGL ES is not supported");
+    }
 
     EGLint majorVersion = 0;
     EGLint minorVersion = 0;
