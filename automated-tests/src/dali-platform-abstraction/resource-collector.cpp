@@ -18,6 +18,7 @@
 #include "resource-collector.h"
 #include "tizen-platform-abstraction.h"
 #include <dali/integration-api/debug.h>
+#include <unistd.h>
 
 namespace Dali
 {
