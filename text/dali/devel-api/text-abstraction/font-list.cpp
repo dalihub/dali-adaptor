@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/font-list.h>
+#include <dali/devel-api/text-abstraction/font-list.h>
 
 namespace Dali
 {

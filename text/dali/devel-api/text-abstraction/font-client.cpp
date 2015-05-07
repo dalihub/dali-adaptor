@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/text-abstraction/font-client-impl.h>

@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/shaping.h>
+#include <dali/devel-api/text-abstraction/shaping.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/text-abstraction/shaping-impl.h>

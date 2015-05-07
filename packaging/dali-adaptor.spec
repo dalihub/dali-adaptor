@@ -302,6 +302,7 @@ exit 0
 %defattr(-,root,root,-)
 %{dev_include_path}/dali/dali.h
 %{dev_include_path}/dali/public-api/*
+%{dev_include_path}/dali/devel-api/*
 %{_libdir}/pkgconfig/dali.pc
 
 %files integration-devel

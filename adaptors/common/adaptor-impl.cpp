@@ -32,7 +32,7 @@
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
-#include <dali/public-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <callback-manager.h>
 #include <trigger-event.h>

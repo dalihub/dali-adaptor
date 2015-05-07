@@ -20,6 +20,7 @@
 #include <iostream>
 #include <dali.h>
 #include <dali-test-suite-utils.h>
+#include <lifecycle-controller.h>
 
 #include <lifecycle-controller-impl.h>
 

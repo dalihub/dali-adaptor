@@ -25,7 +25,12 @@
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
-#include "style-change.h"
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+// @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
+#include <style-change.h>
+#else
+#include <dali/public-api/adaptor-framework/style-change.h>
+#endif
 
 namespace Dali
 {

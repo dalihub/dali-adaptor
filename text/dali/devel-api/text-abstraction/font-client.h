@@ -22,8 +22,8 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/text-abstraction/font-list.h>
-#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/devel-api/text-abstraction/font-list.h>
+#include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
 {

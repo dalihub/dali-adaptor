@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 namespace Dali
 {

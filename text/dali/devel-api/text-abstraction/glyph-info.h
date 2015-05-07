@@ -22,7 +22,7 @@
 #include <dali/public-api/common/dali-common.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
 {

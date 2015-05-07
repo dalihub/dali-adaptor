@@ -20,6 +20,7 @@
 #include <iostream>
 #include <dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/devel-api/adaptor-framework/singleton-service.h>
 
 using namespace Dali;
 

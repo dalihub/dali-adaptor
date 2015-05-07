@@ -28,9 +28,9 @@
 
 #include <dali/integration-api/dynamics/dynamics-collision-data.h>
 #include <dali/integration-api/dynamics/dynamics-world-settings.h>
-#include <dali/public-api/dynamics/dynamics-body-config.h>
-#include <dali/public-api/dynamics/dynamics-world-config.h>
-#include <dali/public-api/dynamics/dynamics-world.h>
+#include <dali/devel-api/dynamics/dynamics-body-config.h>
+#include <dali/devel-api/dynamics/dynamics-world-config.h>
+#include <dali/devel-api/dynamics/dynamics-world.h>
 
 // INTERNAL INCLUDES
 #include "bullet-dynamics-body.h"

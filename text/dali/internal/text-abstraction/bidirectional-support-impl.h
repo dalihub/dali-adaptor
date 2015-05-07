@@ -23,7 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/bidirectional-support.h>
+#include <dali/devel-api/text-abstraction/bidirectional-support.h>
 
 namespace Dali
 {
