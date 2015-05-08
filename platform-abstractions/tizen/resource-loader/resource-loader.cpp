@@ -61,18 +61,6 @@ namespace TizenPlatform
 namespace
 {
 
-#ifdef DEBUG_ENABLED
-// For DEBUG_ENABLED profiling of distance field glyph generation
-double GetTimeMicroseconds()
-{
-  timespec time;
-  clock_gettime(CLOCK_MONOTONIC, &time);
-  double seconds = time.tv_sec;
-  seconds += 1e-3 * time.tv_nsec;
-  return seconds;
-}
-#endif
-
 } // unnamed namespace
 
 

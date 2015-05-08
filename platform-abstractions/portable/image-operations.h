@@ -51,6 +51,16 @@ enum BoxDimensionTest
 typedef Uint16Pair ImageDimensions;
 
 /**
+ * @brief Work out the true desired width and height, accounting for special
+ * rules for zeros in either or both input requested dimensions.
+ *
+ * @param[in] rawDimensions Width and height of image before processing.
+ * @param[in] requestedDimensions Width and height of area to scale image into. Can be zero.
+ * @return Dimensions of area to scale image into after special rules are applied.
+ */
+ImageDimensions CalculateDesiredDimensions( ImageDimensions rawDimensions, ImageDimensions requestedDimensions );
+
+/**
  * @defgroup BitmapOperations Bitmap-to-Bitmap Image operations.
  * @{
  */
