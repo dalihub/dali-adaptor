@@ -227,8 +227,6 @@ libdali_adaptor_la_includes += \
                       -I../../../adaptors/tizen
 endif
 
-daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
-daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
 daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
