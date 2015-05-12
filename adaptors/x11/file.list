@@ -24,8 +24,7 @@ adaptor_x11_tizen_internal_src_files = \
   $(adaptor_x11_dir)/accessibility-manager-impl-x.cpp \
   $(adaptor_x11_dir)/framework-x.cpp \
   $(adaptor_x11_dir)/key-impl-x.cpp \
-  $(adaptor_x11_dir)/window-extensions.cpp \
-  $(adaptor_x11_dir)/key-grab-x.cpp
+  $(adaptor_x11_dir)/window-extensions.cpp
 
 adaptor_x11_tv_internal_src_files = \
   $(_adaptor_x11_internal_src_files) \
@@ -37,5 +36,4 @@ adaptor_x11_internal_default_profile_src_files = \
   $(adaptor_x11_dir)/system-settings-x.cpp
 
 public_api_adaptor_tizen_x11_header_files = \
-  $(adaptor_x11_dir)/window-extensions.h \
-  $(adaptor_x11_dir)/key-grab.h
+  $(adaptor_x11_dir)/window-extensions.h

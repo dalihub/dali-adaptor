@@ -132,19 +132,6 @@ class KeyMap
     }
   }
 
-  const char* GetKeyName( int daliKeyCode ) const
-  {
-    for( size_t i = 0; i < KEY_LOOKUP_COUNT ; ++i )
-    {
-      const KeyLookup& keyLookup( KeyLookupTable[i] );
-      if( keyLookup.daliKeyCode == daliKeyCode )
-      {
-        return keyLookup.keyName;
-      }
-    }
-    return "";
-  }
-
   bool IsDeviceButton( const char* keyName ) const
   {
     Lookup::const_iterator i = mLookup.find( keyName );
@@ -183,11 +170,6 @@ bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
 bool IsDeviceButton( const char* keyName )
 {
   return globalKeyLookup.IsDeviceButton( keyName );
-}
-
-const char* GetKeyName( Dali::KEY daliKey )
-{
-  return globalKeyLookup.GetKeyName( daliKey );
 }
 
 } // namespace KeyLookup
