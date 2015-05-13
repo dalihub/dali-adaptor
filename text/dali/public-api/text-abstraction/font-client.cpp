@@ -110,26 +110,6 @@ FontId FontClient::GetFontId( const FontFamily& fontFamily,
                                              faceIndex );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
-{
-  GetImplementation(*this).GetFontMetrics( fontId, metrics );
-}
-
-GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
-{
-  return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
-}
-
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
-{
-  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal );
-}
-
-BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
-{
-  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
-}
-
 bool FontClient::IsScalable( const FontPath& path )
 {
   return GetImplementation(*this).IsScalable( path );;
@@ -150,6 +130,31 @@ void FontClient::GetFixedSizes( const FontFamily& fontFamily,
                                 Dali::Vector< PointSize26Dot6 >& sizes )
 {
   GetImplementation(*this).GetFixedSizes( fontFamily, style, sizes );
+}
+
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+{
+  GetImplementation(*this).GetFontMetrics( fontId, metrics );
+}
+
+GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
+{
+  return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
+}
+
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
+{
+  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal );
+}
+
+BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+{
+  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
+}
+
+const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+{
+  return GetImplementation(*this).GetEllipsisGlyph( pointSize );
 }
 
 FontClient::FontClient( Internal::FontClient* internal )

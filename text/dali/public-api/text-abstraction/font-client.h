@@ -277,6 +277,15 @@ public:
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
+  /**
+   * @brief Retrieves the ellipsis glyph for a requested point size.
+   *
+   * @param[in] pointSize The requested point size.
+   *
+   * @return The ellipsis glyph.
+   */
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
+
 public: // Not intended for application developers
   /**
    * @brief This constructor is used by FontClient::Get().
