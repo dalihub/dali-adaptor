@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/image-actor.h>
-#include <dali/public-api/actors/mesh-actor.h>
-#include <dali/public-api/geometry/animatable-mesh.h>
+#include <dali/devel-api/actors/mesh-actor.h>
+#include <dali/devel-api/geometry/animatable-mesh.h>
 #include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>

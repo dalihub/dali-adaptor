@@ -16,7 +16,7 @@
 
 #include "image-loader.h"
 
-#include <dali/public-api/common/ref-counted-dali-vector.h>
+#include <dali/devel-api/common/ref-counted-dali-vector.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 

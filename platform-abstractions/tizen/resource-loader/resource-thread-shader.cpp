@@ -20,7 +20,7 @@
 #include "resource-thread-shader.h"
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/shader-data.h>
-#include <dali/public-api/common/scoped-pointer.h>
+#include <dali/devel-api/common/scoped-pointer.h>
 
 using namespace Dali::Integration;
 using boost::mutex;
