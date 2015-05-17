@@ -25,6 +25,7 @@
 #include <dali/public-api/adaptor-framework/orientation.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/adaptor-framework/pixmap-image.h>
 #include <dali/public-api/dali-adaptor-version.h>
 
 #endif //__DALI_H__
