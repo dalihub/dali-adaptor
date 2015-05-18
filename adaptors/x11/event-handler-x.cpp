@@ -1079,19 +1079,6 @@ struct EventHandler::Impl
 
     handler->SendEvent( fontChange );
   }
-
-  /**
-   * Called when style is changed
-   */
-  static void VconfNotifyThemeChanged( keynode_t* node, void* data )
-  {
-    EventHandler* handler( static_cast<EventHandler*>(data) );
-
-    StyleChange themeChange;
-    themeChange.themeChange = true;
-
-    handler->SendEvent( themeChange );
-  }
 #endif // DALI_PROFILE_UBUNTU
 
   // Data

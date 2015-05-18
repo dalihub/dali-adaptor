@@ -56,26 +56,16 @@ public:
 
   typedef Dali::Application::AppSignalType AppSignalType;
   typedef Dali::Application::AppControlSignalType AppControlSignalType;
+  typedef Dali::Application::WINDOW_MODE WINDOW_MODE;
 
   /**
-   * Constructor
-   * @param[in]  app         The public instance of the Application
+   * Create a new application
    * @param[in]  argc        A pointer to the number of arguments
    * @param[in]  argv        A pointer to the argument list
-   * @param[in]  name        A name of application
-   * @param[in]  baseLayout  The base layout that the application has been written for
+   * @param[in]  stylesheet  The path to user defined theme file
    * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
    */
-  static ApplicationPtr New(int* argc, char **argv[], const std::string& name,
-                            const DeviceLayout& baseLayout,
-                            Dali::Application::WINDOW_MODE windowMode);
-
-  Application( int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout, Dali::Application::WINDOW_MODE windowMode );
-
-  /**
-   * Destructor
-   */
-  virtual ~Application();
+  static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
 public:
 
@@ -108,16 +98,6 @@ public:
    * @copydoc Dali::Application::GetWindow();
    */
   Dali::Window GetWindow();
-
-  /**
-   * @copydoc Dali::Application::GetTheme();
-   */
-  const std::string& GetTheme();
-
-  /**
-   * @copydoc Dali::Application::SetTheme();
-   */
-  void SetTheme(const std::string& themeFilePath);
 
   /**
    * @copydoc Dali::Application::ReplaceWindow();
@@ -266,6 +246,20 @@ public:  // Signals
 
 private:
 
+  /**
+   * Private Constructor
+   * @param[in]  argc        A pointer to the number of arguments
+   * @param[in]  argv        A pointer to the argument list
+   * @param[in]  stylesheet  The path to user defined theme file
+   * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
+   */
+  Application( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+
+  /**
+   * Destructor
+   */
+  virtual ~Application();
+
   // Undefined
   Application(const Application&);
   Application& operator=(Application&);
@@ -311,9 +305,9 @@ private:
   Dali::Window                          mWindow;
   Dali::Application::WINDOW_MODE        mWindowMode;
   std::string                           mName;
+  std::string                           mStylesheet;
 
   bool                                  mInitialized;
-  DeviceLayout                          mBaseLayout;
 
   SlotDelegate< Application >           mSlotDelegate;
 };
