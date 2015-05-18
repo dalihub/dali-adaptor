@@ -58,6 +58,7 @@ void EcoreWlRenderSurface::Init( Any surface )
   if ( surfaceId == 0 )
   {
     // we own the surface about to created
+    ecore_wl_init(NULL);
     mOwnSurface = true;
     CreateWlRenderable();
   }

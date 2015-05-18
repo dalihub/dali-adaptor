@@ -18,7 +18,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/images/image-operations.h>
+#include <dali/devel-api/images/image-operations.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/bitmap.h>

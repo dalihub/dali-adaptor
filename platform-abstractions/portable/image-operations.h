@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/image-operations.h>
+#include <dali/devel-api/images/image-operations.h>
 
 namespace Dali
 {
@@ -49,6 +49,16 @@ enum BoxDimensionTest
  * @note  This can only be used for images of up to 65535 x 65535 pixels.
   */
 typedef Uint16Pair ImageDimensions;
+
+/**
+ * @brief Work out the true desired width and height, accounting for special
+ * rules for zeros in either or both input requested dimensions.
+ *
+ * @param[in] rawDimensions Width and height of image before processing.
+ * @param[in] requestedDimensions Width and height of area to scale image into. Can be zero.
+ * @return Dimensions of area to scale image into after special rules are applied.
+ */
+ImageDimensions CalculateDesiredDimensions( ImageDimensions rawDimensions, ImageDimensions requestedDimensions );
 
 /**
  * @defgroup BitmapOperations Bitmap-to-Bitmap Image operations.

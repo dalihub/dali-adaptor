@@ -241,6 +241,8 @@ void Application::OnAppControl(void *data)
 void Application::OnLanguageChanged()
 {
   mAdaptor->NotifyLanguageChanged();
+  Dali::Application application(this);
+  mLanguageChangedSignal.Emit( application );
 }
 
 void Application::OnRegionChanged()

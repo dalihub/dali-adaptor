@@ -19,7 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#include <string>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/math/vector4.h>
 
 namespace Dali
 {

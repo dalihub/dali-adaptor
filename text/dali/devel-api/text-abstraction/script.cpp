@@ -16,7 +16,7 @@
  */
 
 // FILE HEADER
-#include <dali/public-api/text-abstraction/script.h>
+#include <dali/devel-api/text-abstraction/script.h>
 
 namespace Dali
 {

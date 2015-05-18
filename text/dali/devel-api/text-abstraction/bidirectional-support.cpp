@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/bidirectional-support.h>
+#include <dali/devel-api/text-abstraction/bidirectional-support.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/text-abstraction/bidirectional-support-impl.h>

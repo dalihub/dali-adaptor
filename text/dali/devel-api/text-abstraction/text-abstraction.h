@@ -1,3 +1,6 @@
+#ifndef __DALI_TEXT_ABSTRACTION_H__
+#define __DALI_TEXT_ABSTRACTION_H__
+
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
@@ -15,37 +18,12 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/public-api/text-abstraction/glyph-info.h>
+#include <dali/devel-api/text-abstraction/bidirectional-support.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-metrics.h>
+#include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/devel-api/text-abstraction/script.h>
+#include <dali/devel-api/text-abstraction/segmentation.h>
+#include <dali/devel-api/text-abstraction/shaping.h>
 
-namespace Dali
-{
-
-namespace TextAbstraction
-{
-
-GlyphInfo::GlyphInfo()
-: fontId( 0 ),
-  index( 0 ),
-  width( 0 ),
-  height( 0 ),
-  xBearing( 0 ),
-  yBearing( 0 ),
-  advance( 0 )
-{
-}
-
-GlyphInfo::GlyphInfo( FontId font, GlyphIndex i )
-: fontId( font ),
-  index( i ),
-  width( 0 ),
-  height( 0 ),
-  xBearing( 0 ),
-  yBearing( 0 ),
-  advance( 0 )
-{
-}
-
-} // namespace TextAbstraction
-
-} // namespace Dali
+#endif //__DALI_TEXT_ABSTRACTION_H__

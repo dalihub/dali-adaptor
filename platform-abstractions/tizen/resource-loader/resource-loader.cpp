@@ -29,9 +29,9 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/common/set-wrapper.h>
+#include <dali/devel-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/public-api/common/scoped-pointer.h>
+#include <dali/devel-api/common/scoped-pointer.h>
 #include "resource-requester-base.h"
 #include "resource-bitmap-requester.h"
 #include "resource-shader-requester.h"
@@ -60,18 +60,6 @@ namespace TizenPlatform
 
 namespace
 {
-
-#ifdef DEBUG_ENABLED
-// For DEBUG_ENABLED profiling of distance field glyph generation
-double GetTimeMicroseconds()
-{
-  timespec time;
-  clock_gettime(CLOCK_MONOTONIC, &time);
-  double seconds = time.tv_sec;
-  seconds += 1e-3 * time.tv_nsec;
-  return seconds;
-}
-#endif
 
 } // unnamed namespace
 

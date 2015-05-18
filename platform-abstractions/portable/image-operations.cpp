@@ -149,40 +149,6 @@ inline void DebugAssertDualScanlineParameters( const uint8_t * const scanline1,
 }
 
 /**
- * @brief Work out the desired width and height according to the rules documented for the ImageAttributes class.
- *
- * @param[in] bitmapWidth Width of image before processing.
- * @param[in] bitmapHeight Height of image before processing.
- * @param[in] requestedWidth Width of area to scale image into. Can be zero.
- * @param[in] requestedHeight Height of area to scale image into. Can be zero.
- * @return Dimensions of area to scale image into after special rules are applied.
- * @see ImageAttributes
- */
-ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned int bitmapHeight, unsigned int requestedWidth, unsigned int requestedHeight )
-{
-  // If no dimensions have been requested, default to the source ones:
-  if( requestedWidth == 0 && requestedHeight == 0 )
-  {
-    return ImageDimensions( bitmapWidth, bitmapHeight );
-  }
-
-  // If both dimensions have values requested, use them both:
-  if( requestedWidth != 0 && requestedHeight != 0 )
-  {
-    return ImageDimensions( requestedWidth, requestedHeight );
-  }
-
-  // If only one of the dimensions has been requested, calculate the other from
-  // the requested one and the source image aspect ratio:
-
-  if( requestedWidth != 0 )
-  {
-    return ImageDimensions( requestedWidth, bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f );
-  }
-  return ImageDimensions( bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight );
-}
-
-/**
  * @brief Converts a scaling mode to the definition of which dimensions matter when box filtering as a part of that mode.
  */
 BoxDimensionTest DimensionTestForScalingMode( FittingMode::Type fittingMode )
@@ -231,7 +197,6 @@ BoxDimensionTest DimensionTestForScalingMode( FittingMode::Type fittingMode )
  */
 ImageDimensions FitForShrinkToFit( ImageDimensions target, ImageDimensions source )
 {
-  DALI_ASSERT_DEBUG( true && " " );
   // Scale the input by the least extreme of the two dimensions:
   const float widthScale  = target.GetX() / float(source.GetX());
   const float heightScale = target.GetY() / float(source.GetY());
@@ -249,9 +214,9 @@ ImageDimensions FitForShrinkToFit( ImageDimensions target, ImageDimensions sourc
 /**
  * @brief Work out the dimensions for a uniform scaling of the input to map it
  * into the target while effecting SCALE_TO_FILL scaling mode.
- * @note The output dimensions will need either top and bottom or left and right
- * to be cropped away unless the source was pre-cropped to match the destination
- * aspect ratio.
+ * @note An image scaled into the output dimensions will need either top and
+ * bottom or left and right to be cropped away unless the source was pre-cropped
+ * to match the destination aspect ratio.
  */
 ImageDimensions FitForScaleToFill( ImageDimensions target, ImageDimensions source )
 {
@@ -367,7 +332,44 @@ BitmapPtr MakeBitmap( const uint8_t * const pixels, Pixel::Format pixelFormat, u
   return newBitmap;
 }
 
+/**
+ * @brief Work out the desired width and height, accounting for zeros.
+ *
+ * @param[in] bitmapWidth Width of image before processing.
+ * @param[in] bitmapHeight Height of image before processing.
+ * @param[in] requestedWidth Width of area to scale image into. Can be zero.
+ * @param[in] requestedHeight Height of area to scale image into. Can be zero.
+ * @return Dimensions of area to scale image into after special rules are applied.
+ */
+ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned int bitmapHeight, unsigned int requestedWidth, unsigned int requestedHeight )
+{
+  // If no dimensions have been requested, default to the source ones:
+  if( requestedWidth == 0 && requestedHeight == 0 )
+  {
+    return ImageDimensions( bitmapWidth, bitmapHeight );
+  }
+
+  // If both dimensions have values requested, use them both:
+  if( requestedWidth != 0 && requestedHeight != 0 )
+  {
+    return ImageDimensions( requestedWidth, requestedHeight );
+  }
+
+  // Only one of the dimensions has been requested. Calculate the other from
+  // the requested one and the source image aspect ratio:
+  if( requestedWidth != 0 )
+  {
+    return ImageDimensions( requestedWidth, bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f );
+  }
+  return ImageDimensions( bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight );
+}
+
 } // namespace - unnamed
+
+ImageDimensions CalculateDesiredDimensions( ImageDimensions rawDimensions, ImageDimensions requestedDimensions )
+{
+  return CalculateDesiredDimensions( rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight() ) ;
+}
 
 /**
  * @brief Implement ScaleTofill scaling mode cropping.

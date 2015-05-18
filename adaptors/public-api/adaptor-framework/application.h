@@ -27,7 +27,6 @@
 
 // INTERNAL INCLUDES
 #include "application-configuration.h"
-#include "style-monitor.h"
 #include "device-layout.h"
 #include "window.h"
 

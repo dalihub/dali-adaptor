@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
 
 // EXTERNAL INCLUDES
@@ -37,6 +36,8 @@ const float FROM_266 = 1.0f / 64.0f;
 const std::string FONT_FORMAT( "TrueType" );
 const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
 const std::string DEFAULT_FONT_STYLE( "Regular" );
+
+const uint32_t ELLIPSIS_CHARACTER = 0x2026;
 }
 
 using Dali::Vector;
@@ -114,7 +115,8 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   mFontCache(),
   mValidatedFontCache(),
   mFontDescriptionCache( 1u ),
-  mFontIdCache()
+  mFontIdCache(),
+  mEllipsisCache()
 {
   int error = FT_Init_FreeType( &mFreeTypeLibrary );
   if( FT_Err_Ok != error )
@@ -603,6 +605,43 @@ BufferImage FontClient::Plugin::CreateBitmap( FontId fontId,
   }
 
   return bitmap;
+}
+
+const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+{
+  // First look into the cache if there is an ellipsis glyph for the requested point size.
+  for( Vector<EllipsisItem>::ConstIterator it = mEllipsisCache.Begin(),
+         endIt = mEllipsisCache.End();
+       it != endIt;
+       ++it )
+  {
+    const EllipsisItem& item = *it;
+
+    if( fabsf( item.size - pointSize ) < Math::MACHINE_EPSILON_1000 )
+    {
+      // Use the glyph in the cache.
+      return item.glyph;
+    }
+  }
+
+  // No glyph has been found. Create one.
+  mEllipsisCache.PushBack( EllipsisItem() );
+  EllipsisItem& item = *( mEllipsisCache.End() - 1u );
+
+  item.size = pointSize;
+
+  // Find a font for the ellipsis glyph.
+  item.glyph.fontId = FindDefaultFont( ELLIPSIS_CHARACTER,
+                                       pointSize,
+                                       false );
+
+  // Set the character index to access the glyph inside the font.
+  item.glyph.index = FT_Get_Char_Index( mFontCache[item.glyph.fontId-1].mFreeTypeFace,
+                                        ELLIPSIS_CHARACTER );
+
+  GetGlyphMetrics( &item.glyph, 1u, true );
+
+  return item.glyph;
 }
 
 void FontClient::Plugin::InitSystemFonts()

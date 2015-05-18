@@ -74,6 +74,11 @@ endif
 adaptor_public_api_dir = ../../../adaptors/public-api
 include ../../../adaptors/public-api/file.list
 
+# Devel API ( for use by Toolkit)
+adaptor_devel_api_dir = ../../../adaptors/devel-api
+include ../../../adaptors/devel-api/file.list
+
+
 # Static libraries
 static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
 include ../../../text/dali/internal/libunibreak/file.list
@@ -182,6 +187,7 @@ libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(tizen_platform_abstraction_src_files) \
                      $(text_abstraction_src_files) \
+                     $(devel_api_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files)
 
@@ -197,6 +203,7 @@ libdali_adaptor_la_includes = \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/integration-api \
                       -I../../../adaptors/public-api/adaptor-framework \
+                      -I../../../adaptors/devel-api/adaptor-framework \
                       -I../../../adaptors/common \
                       -I../../../adaptors/base/interfaces \
                       -I../../../adaptors/ \
@@ -221,8 +228,6 @@ libdali_adaptor_la_includes += \
                       -I../../../adaptors/tizen
 endif
 
-daliDefaultFontCacheDir = ${dataReadOnlyDir}/glyphcache/
-daliUserFontCacheDir = ${dataReadWriteDir}/glyphcache/
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
 daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
@@ -341,6 +346,8 @@ endif
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
 tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
 
+tizenadaptordevelapidir= $(devincludepath)/dali/devel-api
+
 tizenadaptorintegrationapidir = $(devincludepath)/dali/integration-api/adaptors
 tizenadaptorintegrationapi_HEADERS = $(adaptor_integration_api_header_files)
 
@@ -355,8 +362,11 @@ endif
 tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
 tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)
 
-tizentextabstractionpublicapidir = $(tizenadaptorpublicapidir)/text-abstraction
-tizentextabstractionpublicapi_HEADERS = $(text_abstraction_header_files)
+tizenadaptorframeworkdevelapidir = $(tizenadaptordevelapidir)/adaptor-framework
+tizenadaptorframeworkdevelapi_HEADERS = $(devel_api_adaptor_framework_header_files)
+
+tizentextabstractiondevelapidir = $(tizenadaptordevelapidir)/text-abstraction
+tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
 
@@ -384,9 +394,10 @@ linker_test_SOURCES = linker-test.cpp
 linker_test_CXXFLAGS = \
   -I../../../adaptors/common \
   -I../../../adaptors/public-api \
-  -I../../../adaptors/integration-api \
+    -I../../../adaptors/integration-api \
   -I../../../adaptors/base/interfaces \
   -I../../../adaptors/public-api/adaptor-framework \
+  -I../../../adaptors/devel-api/adaptor-framework \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
   $(VCONF_CFLAGS) \

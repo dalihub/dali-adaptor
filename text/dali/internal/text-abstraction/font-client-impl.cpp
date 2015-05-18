@@ -207,6 +207,13 @@ BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
   return mPlugin->CreateBitmap( fontId, glyphIndex );
 }
 
+const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+{
+  CreatePlugin();
+
+  return mPlugin->GetEllipsisGlyph( pointSize );
+}
+
 void FontClient::CreatePlugin()
 {
   if( !mPlugin )

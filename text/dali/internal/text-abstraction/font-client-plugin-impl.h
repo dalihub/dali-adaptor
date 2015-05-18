@@ -19,7 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/font-metrics.h>
+#include <dali/devel-api/text-abstraction/font-metrics.h>
+#include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/internal/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
@@ -105,6 +106,12 @@ struct FontClient::Plugin
     FT_Short mFixedWidthPixels;  ///< The height in pixels (fixed size bitmaps only)
     FT_Short mFixedHeightPixels; ///< The height in pixels (fixed size bitmaps only)
     bool mIsFixedSizeBitmap;     ///< Whether the font has fixed size bitmaps.
+  };
+
+  struct EllipsisItem
+  {
+    PointSize26Dot6 size;
+    GlyphInfo glyph;
   };
 
   /**
@@ -209,7 +216,7 @@ struct FontClient::Plugin
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
 
   /**
-   * @copydoc Dali::FontClient::CreateMetrics()
+   * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
@@ -217,6 +224,11 @@ struct FontClient::Plugin
    * @copydoc Dali::FontClient::CreateBitmap()
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @copydoc Dali::FontClient::GetEllipsisGlyph()
+   */
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
 
 private:
 
@@ -351,6 +363,8 @@ private:
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given 'font family name, font style'.
   FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font family name and font style pairs.
   std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font ids for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+
+  Vector<EllipsisItem> mEllipsisCache;      ///< Caches ellipsis glyphs for a particular point size.
 };
 
 } // namespace Internal

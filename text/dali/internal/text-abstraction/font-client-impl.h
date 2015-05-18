@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 namespace Dali
 {
@@ -142,7 +142,7 @@ public:
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
 
   /**
-   * @copydoc Dali::FontClient::CreateMetrics()
+   * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
@@ -150,6 +150,11 @@ public:
    * @copydoc Dali::FontClient::CreateBitmap()
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @copydoc Dali::FontClient::GetEllipsisGlyph()
+   */
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
 
 private:
 

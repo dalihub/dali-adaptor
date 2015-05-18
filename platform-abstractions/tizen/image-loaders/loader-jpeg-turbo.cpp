@@ -21,6 +21,7 @@
 #include <dali/integration-api/bitmap.h>
 #include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
+#include "image-operations.h"
 
 // EXTERNAL HEADERS
 #include <libexif/exif-data.h>
@@ -30,7 +31,6 @@
 #include <jpeglib.h>
 #include <cstring>
 #include <setjmp.h>
-
 
 namespace Dali
 {
@@ -168,7 +168,9 @@ bool JpegRotate90 (unsigned char *buffer, int width, int height, int bpp);
 bool JpegRotate180(unsigned char *buffer, int width, int height, int bpp);
 bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp);
 JPGFORM_CODE ConvertExifOrientation(ExifData* exifData);
-bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transform,
+bool TransformSize( int requiredWidth, int requiredHeight,
+                    FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
+                    JPGFORM_CODE transform,
                     int& preXformImageWidth, int& preXformImageHeight,
                     int& postXformImageWidth, int& postXformImageHeight );
 
@@ -314,7 +316,10 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   int scaledPostXformWidth  = postXformImageWidth;
   int scaledPostXformHeight = postXformImageHeight;
 
-  TransformSize( requiredWidth, requiredHeight, transform,
+  TransformSize( requiredWidth, requiredHeight,
+                 input.scalingParameters.scalingMode,
+                 input.scalingParameters.samplingMode,
+                 transform,
                  scaledPreXformWidth, scaledPreXformHeight,
                  scaledPostXformWidth, scaledPostXformHeight );
 
@@ -325,8 +330,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   // Allow early cancellation before decoding:
   client.InterruptionPoint();
 
-  const int pitch = scaledPreXformWidth * DECODED_PIXEL_SIZE;
-  if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, pitch, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
+  if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
     DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     return false;
@@ -344,19 +348,12 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   bool result = false;
   switch(transform)
   {
-    case JPGFORM_FLIP_H:
-    case JPGFORM_FLIP_V:
-    case JPGFORM_TRANSPOSE:
-    case JPGFORM_TRANSVERSE: ///!ToDo: None of these are supported!
-    {
-      DALI_LOG_WARNING( "Unsupported JPEG Orientation transformation: %x.\n", transform );
-      break;
-    }
     case JPGFORM_NONE:
     {
       result = true;
       break;
     }
+    // 3 orientation changes for a camera held perpendicular to the ground or upside-down:
     case JPGFORM_ROT_180:
     {
       result = JpegRotate180(bitmapPixelBuffer, bufferWidth, bufferHeight, DECODED_PIXEL_SIZE);
@@ -370,6 +367,16 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
     case JPGFORM_ROT_90:
     {
       result = JpegRotate90(bitmapPixelBuffer, bufferWidth, bufferHeight, DECODED_PIXEL_SIZE);
+      break;
+    }
+    /// Less-common orientation changes, since they don't correspond to a camera's
+    // physical orientation:
+    case JPGFORM_FLIP_H:
+    case JPGFORM_FLIP_V:
+    case JPGFORM_TRANSPOSE:
+    case JPGFORM_TRANSVERSE:
+    {
+      DALI_LOG_WARNING( "Unsupported JPEG Orientation transformation: %x.\n", transform );
       break;
     }
   }
@@ -638,7 +645,9 @@ JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
   return transform;
 }
 
-bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transform,
+bool TransformSize( int requiredWidth, int requiredHeight,
+                    FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
+                    JPGFORM_CODE transform,
                     int& preXformImageWidth, int& preXformImageHeight,
                     int& postXformImageWidth, int& postXformImageHeight )
 {
@@ -649,6 +658,11 @@ bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transfor
     std::swap( requiredWidth, requiredHeight );
     std::swap( postXformImageWidth, postXformImageHeight );
   }
+
+  // Apply the special rules for when there are one or two zeros in requested dimensions:
+  const ImageDimensions correctedDesired = Internal::Platform::CalculateDesiredDimensions( ImageDimensions( postXformImageWidth, postXformImageHeight), ImageDimensions( requiredWidth, requiredHeight ) );
+  requiredWidth = correctedDesired.GetWidth();
+  requiredHeight = correctedDesired.GetHeight();
 
   // Rescale image during decode using one of the decoder's built-in rescaling
   // ratios (expected to be powers of 2), keeping the final image at least as
@@ -663,35 +677,79 @@ bool TransformSize( int requiredWidth, int requiredHeight, JPGFORM_CODE transfor
   }
   else
   {
-    // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
-    int scaleFactorIndex( 0 );
-    for( int i = 1; i < numFactors; ++i )
+    // Internal jpeg downscaling is the same as our BOX_X sampling modes so only
+    // apply it if the application requested one of those:
+    // (use a switch case here so this code will fail to compile if other modes are added)
+    bool downscale = true;
+    switch( samplingMode )
     {
-      // if requested width or height set to 0, ignore value
-      // TJSCALED performs an integer-based ceil operation on (dim*factor)
-      if( (requiredWidth  && TJSCALED(postXformImageWidth , (factors[i])) > requiredWidth) ||
-          (requiredHeight && TJSCALED(postXformImageHeight, (factors[i])) > requiredHeight) )
+      case SamplingMode::BOX:
+      case SamplingMode::BOX_THEN_NEAREST:
+      case SamplingMode::BOX_THEN_LINEAR:
+      case SamplingMode::DONT_CARE:
       {
-        scaleFactorIndex = i;
+        downscale = true;
+        break;
       }
-      else
+      case SamplingMode::NO_FILTER:
+      case SamplingMode::NEAREST:
+      case SamplingMode::LINEAR:
       {
-        // This scaling would result in an image that was smaller than requested in both
-        // dimensions, so stop at the previous entry.
+        downscale = false;
         break;
       }
     }
 
-    // Workaround for libjpeg-turbo problem adding a green line on one edge
-    // when downscaling to 1/8 in each dimension. Prefer not to scale to less than
-    // 1/4 in each dimension:
-    if( 2 < scaleFactorIndex )
+    int scaleFactorIndex( 0 );
+    if( downscale )
     {
-      scaleFactorIndex = 2;
-      DALI_LOG_INFO( gLoaderFilter, Debug::General, "Down-scaling requested for image limited to 1/4.\n" );
+      // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
+      for( int i = 1; i < numFactors; ++i )
+      {
+        bool widthLessRequired  = TJSCALED( postXformImageWidth,  factors[i]) < requiredWidth;
+        bool heightLessRequired = TJSCALED( postXformImageHeight, factors[i]) < requiredHeight;
+        switch( fittingMode )
+        {
+          // If either scaled dimension is smaller than the desired one, we were done at the last iteration:
+          case FittingMode::SCALE_TO_FILL:
+          {
+            if ( widthLessRequired || heightLessRequired )
+            {
+              break;
+            }
+          }
+          // If both dimensions are smaller than the desired one, we were done at the last iteration:
+          case FittingMode::SHRINK_TO_FIT:
+          {
+            if ( widthLessRequired && heightLessRequired )
+            {
+              break;
+            }
+          }
+          // If the width is smaller than the desired one, we were done at the last iteration:
+          case FittingMode::FIT_WIDTH:
+          {
+            if ( widthLessRequired )
+            {
+              break;
+            }
+          }
+          // If the width is smaller than the desired one, we were done at the last iteration:
+          case FittingMode::FIT_HEIGHT:
+          {
+            if ( heightLessRequired )
+            {
+              break;
+            }
+          }
+
+          // This factor stays is within our fitting mode constraint so remember it:
+          scaleFactorIndex = i;
+        }
+      }
     }
 
-    // Regardless of requested size, downscale to avoid exceeding the maximum texture size
+    // Regardless of requested size, downscale to avoid exceeding the maximum texture size:
     for( int i = scaleFactorIndex; i < numFactors; ++i )
     {
       // Continue downscaling to below maximum texture size (if possible)
@@ -785,7 +843,7 @@ bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsig
         int postXformImageWidth = headerWidth;
         int postXformImageHeight = headerHeight;
 
-        success = TransformSize(requiredWidth, requiredHeight, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+        success = TransformSize( requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight );
         if(success)
         {
           width = postXformImageWidth;

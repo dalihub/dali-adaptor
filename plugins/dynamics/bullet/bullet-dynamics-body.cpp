@@ -27,7 +27,7 @@
 #pragma GCC diagnostic error "-Wfloat-equal"
 
 #include <dali/integration-api/dynamics/dynamics-body-settings.h>
-#include <dali/public-api/geometry/mesh.h>
+#include <dali/devel-api/geometry/mesh.h>
 #include <dali/public-api/math/math-utils.h>
 
 // INTERNAL INCLUDES

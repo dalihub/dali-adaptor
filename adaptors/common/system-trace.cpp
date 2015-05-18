@@ -20,7 +20,7 @@
 
 // EXTERNAL HEADERS
 #include <string>
-#include <dali/public-api/common/hash.h>
+#include <dali/devel-api/common/hash.h>
 
 // INTERNAL HEADERS
 #include <dali/integration-api/debug.h>
