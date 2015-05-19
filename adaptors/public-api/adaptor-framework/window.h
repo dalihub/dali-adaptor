@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/base-handle.h>
@@ -186,20 +185,6 @@ public:
    * @brief Remove an orientation from the list of available orientations.
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
-
-  /**
-   * @brief Set the orientations that this window can rotate to.
-   *
-   * By default, the window does not change orientation.
-   * @param[in] orientations The list of orientations
-   */
-  void SetAvailableOrientations( const std::vector<WindowOrientation>& orientations );
-
-  /**
-   * @brief Get the list of orientations this window can rotate to.
-   * @return the list of orientations
-   */
-  const std::vector<WindowOrientation>& GetAvailableOrientations();
 
   /**
    * @brief Set a preferred orientation.

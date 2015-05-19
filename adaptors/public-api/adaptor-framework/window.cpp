@@ -106,16 +106,6 @@ void Window::RemoveAvailableOrientation( WindowOrientation orientation )
   GetImplementation(*this).RemoveAvailableOrientation( orientation );
 }
 
-void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations)
-{
-  GetImplementation(*this).SetAvailableOrientations( orientations );
-}
-
-const std::vector<Dali::Window::WindowOrientation>& Window::GetAvailableOrientations()
-{
-  return GetImplementation(*this).GetAvailableOrientations();
-}
-
 void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
 {
   GetImplementation(*this).SetPreferredOrientation( orientation );
