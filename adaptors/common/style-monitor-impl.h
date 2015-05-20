@@ -92,6 +92,11 @@ public:
    */
   void SetTheme(const std::string& themeFilePath);
 
+  /**
+   * @copydoc Dali::StyleMonitor::LoadThemeFile()
+   */
+  bool LoadThemeFile( const std::string& filename, std::string& output );
+
   // Signals
 
   /**

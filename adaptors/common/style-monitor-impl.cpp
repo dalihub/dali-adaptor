@@ -20,6 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
+#include <fstream>
+#include <sstream>
 
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
@@ -132,6 +134,23 @@ void StyleMonitor::SetTheme(const std::string& path)
   mUserDefinedThemeFilePath = path;
 
   EmitStyleChangeSignal(styleChange);
+}
+
+bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
+{
+  bool retval( false );
+  std::ifstream in( filename.c_str(), std::ios::in );
+  if( in )
+  {
+    std::stringstream buffer;
+    buffer << in.rdbuf();
+
+    output = buffer.str();
+
+    in.close();
+    retval = true;
+  }
+  return retval;
 }
 
 Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
