@@ -47,8 +47,7 @@ ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
 # Adaptor directories are included in order of most-specific to least specific:
 INCLUDE_DIRECTORIES(
-    ${${CAPI_LIB}_INCLUDE_DIRS}
-    ../dali-adaptor/dali-test-suite-utils
+    ../../../
     ../../../adaptors/mobile
     ../../../adaptors/x11
     ../../../adaptors/common
@@ -59,7 +58,8 @@ INCLUDE_DIRECTORIES(
     ../../../adaptors/public-api/adaptor-framework
     ../../../adaptors/tizen
     ../../../adaptors/ubuntu
-    ../../../
+    ${${CAPI_LIB}_INCLUDE_DIRS}
+    ../dali-adaptor/dali-test-suite-utils
 )
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
