@@ -57,13 +57,135 @@ struct MyTestApp : public ConnectionTracker
   Application& application;
 };
 
+void ApplicationSignalCallback( Application& app )
+{
+}
+
+void ApplicationControlSignalCallback(Application&, void *)
+{
+}
+
 } // unnamed namespace
+
 int UtcDaliApplicationNew(void)
 {
   Application application = Application::New();
 
   MyTestApp testApp( application );
 
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationCopyAndAssignment(void)
+{
+  Application application = Application::New();
+  Application copy( application );
+  DALI_TEST_CHECK( copy == application );
+
+  Application assigned;
+  DALI_TEST_CHECK( !assigned );
+  assigned = application;
+  DALI_TEST_CHECK( copy == assigned );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationInitSignal(void)
+{
+  Application application = Application::New();
+  application.InitSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTerminateSignal(void)
+{
+  Application application = Application::New();
+  application.TerminateSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationPauseSignal(void)
+{
+  Application application = Application::New();
+  application.PauseSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationResumeSignal(void)
+{
+  Application application = Application::New();
+  application.ResumeSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationResetSignal(void)
+{
+  Application application = Application::New();
+  application.ResetSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationResizeSignal(void)
+{
+  Application application = Application::New();
+  application.ResizeSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationlControlSignal(void)
+{
+  Application application = Application::New();
+  application.AppControlSignal().Connect( &ApplicationControlSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationLanguageChangedSignal(void)
+{
+  Application application = Application::New();
+  application.LanguageChangedSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationRegionChangedSignal(void)
+{
+  Application application = Application::New();
+  application.RegionChangedSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationBatteryLowSignal(void)
+{
+  Application application = Application::New();
+  application.BatteryLowSignal().Connect( &ApplicationSignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationMemoryLowSignal(void)
+{
+  Application application = Application::New();
+  application.MemoryLowSignal().Connect( &ApplicationSignalCallback );
   DALI_TEST_CHECK( application );
 
   END_TEST;

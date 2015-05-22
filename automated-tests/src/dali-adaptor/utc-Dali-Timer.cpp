@@ -355,3 +355,23 @@ int UtcDaliTimerReset(void)
 
   END_TEST;
 }
+
+int UtcDaliTimerDownCastP(void)
+{
+  Timer timer = Timer::New(100);
+  Timer cast = Timer::DownCast( timer );
+
+  DALI_TEST_CHECK( cast );
+
+  END_TEST;
+}
+
+int UtcDaliTimerDownCastN(void)
+{
+  Timer timer;
+  Timer cast = Timer::DownCast( timer );
+
+  DALI_TEST_CHECK( ! cast );
+
+  END_TEST;
+}
