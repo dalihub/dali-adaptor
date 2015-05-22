@@ -1,7 +1,6 @@
 public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/application.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/key.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/window.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/timer.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.cpp \
@@ -17,7 +16,6 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/application-configuration.h \
   $(adaptor_public_api_dir)/adaptor-framework/input-method.h \
   $(adaptor_public_api_dir)/adaptor-framework/key.h \
-  $(adaptor_public_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_public_api_dir)/adaptor-framework/style-change.h \
   $(adaptor_public_api_dir)/adaptor-framework/timer.h \
   $(adaptor_public_api_dir)/adaptor-framework/pixmap-image.h \

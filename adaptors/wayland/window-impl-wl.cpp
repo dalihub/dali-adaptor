@@ -408,11 +408,6 @@ void Window::OnDestroy()
   mAdaptor = NULL;
 }
 
-OrientationPtr Window::GetOrientation()
-{
-  return mOrientation;
-}
-
 void Window::AddAvailableOrientation(Dali::Window::WindowOrientation orientation)
 {
   bool found = false;

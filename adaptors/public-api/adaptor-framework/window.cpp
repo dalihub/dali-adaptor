@@ -90,12 +90,6 @@ void Window::Activate()
   GetImplementation(*this).Activate();
 }
 
-Orientation Window::GetOrientation()
-{
-  Internal::Adaptor::OrientationPtr orientation = GetImplementation(*this).GetOrientation();
-  return Orientation(orientation.Get());
-}
-
 void Window::AddAvailableOrientation( WindowOrientation orientation )
 {
   GetImplementation(*this).AddAvailableOrientation( orientation );

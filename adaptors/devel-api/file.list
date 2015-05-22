@@ -9,6 +9,7 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/haptic-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.cpp \
@@ -35,6 +36,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/haptic-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.h \
   $(adaptor_devel_api_dir)/adaptor-framework/render-surface.h \
   $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.h \
