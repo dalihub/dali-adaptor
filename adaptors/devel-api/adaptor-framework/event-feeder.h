@@ -25,7 +25,7 @@ namespace Dali
 {
 
 struct KeyEvent;
-struct MouseWheelEvent;
+struct WheelEvent;
 struct TouchPoint;
 
 namespace EventFeeder
@@ -42,13 +42,13 @@ namespace EventFeeder
 DALI_IMPORT_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
 /**
- * Feed a mouse wheel event to the adaptor.
+ * Feed a wheel event to the adaptor.
  *
- * @param[in]  wheelEvent mouse wheel event
+ * @param[in]  wheelEvent wheel event
  *
  * @note For testing/automation purposes only.
  */
-DALI_IMPORT_API void FeedWheelEvent( MouseWheelEvent& wheelEvent );
+DALI_IMPORT_API void FeedWheelEvent( WheelEvent& wheelEvent );
 
 /**
  * Feed a key event to the adaptor.

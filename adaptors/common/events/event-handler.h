@@ -77,10 +77,10 @@ public:
   void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
   /**
-   * Feed (Send) mouse wheel event to core and gesture manager
-   * @param[in]  wheelEvent The mouse wheel event
+   * Feed (Send) wheel event to core and gesture manager
+   * @param[in]  wheelEvent The wheel event
    */
-  void FeedWheelEvent( MouseWheelEvent& wheelEvent );
+  void FeedWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * Feed (Send) key event to core
@@ -127,10 +127,10 @@ private:
   void SendEvent(KeyEvent& keyEvent);
 
   /**
-   * Send mouse wheel event to core.
-   * @param[in]  wheelEvent The mouse wheel event
+   * Send wheel event to core.
+   * @param[in]  wheelEvent The wheel event
    */
-  void SendMouseWheelEvent( MouseWheelEvent& wheelEvent );
+  void SendWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * Send a style change event to the style monitor.

@@ -23,6 +23,10 @@
 #include <Ecore_Input.h>
 #include <Ecore_X.h>
 
+#include <X11/Xlib.h>
+#include <X11/extensions/XInput2.h>
+#include <X11/extensions/XI2.h>
+
 #include <cstring>
 
 #include <sys/time.h>
@@ -35,12 +39,12 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/events/mouse-wheel-event.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
-#include <dali/integration-api/events/mouse-wheel-event-integ.h>
+#include <dali/integration-api/events/wheel-event-integ.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -74,6 +78,9 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 
 namespace
 {
+
+const char * DETENT_DEVICE_NAME = "tizen_detent";
+
 #ifndef DALI_PROFILE_UBUNTU
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
@@ -191,7 +198,8 @@ struct EventHandler::Impl
   Impl( EventHandler* handler, Ecore_X_Window window )
   : mHandler( handler ),
     mEcoreEventHandler(),
-    mWindow( window )
+    mWindow( window ),
+    mXiDeviceId( 0 )
   {
     // Only register for touch and key events if we have a window
     if ( window != 0 )
@@ -231,6 +239,70 @@ struct EventHandler::Impl
       // Register Selection event - clipboard selection, Drag & Drop selection etc.
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_CLEAR, EcoreEventSelectionClear, handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_NOTIFY, EcoreEventSelectionNotify, handler ) );
+
+      // Initialize Xi2 system
+      Display* display = static_cast< Display* >(ecore_x_display_get());
+      Ecore_X_Window rootWindow = ecore_x_window_root_first_get();
+      int opcode = 0, event = 0, error = 0;
+      int major = XI_2_Major;
+      int minor = XI_2_Minor;
+      int deviceCount = 0;
+      XIEventMask xiEventMask;
+
+      // Check if X input extension available
+      if( XQueryExtension( display, "XInputExtension", &opcode, &event, &error ) )
+      {
+        // We support version 2.0
+        if( XIQueryVersion( display, &major, &minor ) != BadRequest )
+        {
+          xiEventMask.deviceid = XIAllDevices;
+
+          // Check device id
+          bool match = false;
+          XIDeviceInfo* deviceInfo = NULL;
+          deviceInfo = XIQueryDevice( display, XIAllDevices, &deviceCount );
+
+          for( int i = 0; i < deviceCount; i++ )
+          {
+            if( !strncmp( deviceInfo[i].name, DETENT_DEVICE_NAME, strlen( DETENT_DEVICE_NAME ) ) )
+            {
+              xiEventMask.deviceid = deviceInfo[i].deviceid;
+              match = true;
+              break;
+            }
+          }
+
+          if( match )
+          {
+            mXiDeviceId = xiEventMask.deviceid;
+
+            // SelectXi2Event
+            xiEventMask.mask = (unsigned char*)(calloc( 1, XIMaskLen( XI_LASTEVENT ) ) );
+            XISetMask( xiEventMask.mask, XI_RawMotion );
+
+            xiEventMask.mask_len = sizeof( xiEventMask.mask );
+
+            int ret = XISelectEvents( display, rootWindow, &xiEventMask, 1 );
+            if( ret == 0 )
+            {
+              // Register custom wheel events
+              mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_X_EVENT_GENERIC, EcoreEventCustomWheel, handler ) );
+            }
+            else
+            {
+              DALI_LOG_INFO( gImfLogging, Debug::General, "Failed to Select Events\n" );
+            }
+          }
+        }
+        else
+        {
+          DALI_LOG_INFO( gImfLogging, Debug::General, "Failed to query XI Version\n" );
+        }
+      }
+      else
+      {
+        DALI_LOG_INFO( gImfLogging, Debug::General, "Failed to query XInputExtension\n" );
+      }
 
 #ifndef DALI_PROFILE_UBUNTU
       // Register Vconf notify - font name, font size and style
@@ -307,24 +379,6 @@ struct EventHandler::Impl
   }
 
   /**
-   * Called when a touch up is received.
-   */
-  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
-  {
-    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
-
-    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
-
-    EventHandler* handler( (EventHandler*)data );
-    if ( mouseWheelEvent->window == handler->mImpl->mWindow )
-    {
-      MouseWheelEvent wheelEvent(mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
-      handler->SendMouseWheelEvent( wheelEvent );
-    }
-    return ECORE_CALLBACK_PASS_ON;
-  }
-
-  /**
    * Called when a touch motion is received.
    */
   static Eina_Bool EcoreEventMouseButtonMove( void* data, int type, void* event )
@@ -336,6 +390,87 @@ struct EventHandler::Impl
     {
       TouchPoint point( touchEvent->multi.device, TouchPoint::Motion, touchEvent->x, touchEvent->y );
       handler->SendEvent( point, touchEvent->timestamp );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Wheel Callbacks
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Called when a mouse wheel is received.
+   */
+  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
+  {
+    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
+
+    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
+
+    EventHandler* handler( (EventHandler*)data );
+    if ( mouseWheelEvent->window == handler->mImpl->mWindow )
+    {
+      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+      handler->SendWheelEvent( wheelEvent );
+    }
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+   * Called when a custom wheel is received.
+   */
+  static Eina_Bool EcoreEventCustomWheel( void* data, int type, void* event )
+  {
+    Ecore_X_Event_Generic *genericEvent( (Ecore_X_Event_Generic*)event );
+    EventHandler* handler( (EventHandler*)data );
+
+    switch( genericEvent->evtype )
+    {
+      case XI_RawMotion:
+      {
+        XIRawEvent* xiRawEvent = static_cast< XIRawEvent* >( genericEvent->data );
+        unsigned int timeStamp = 0;
+
+        if( xiRawEvent->deviceid != handler->mImpl->mXiDeviceId )
+        {
+          return ECORE_CALLBACK_PASS_ON;
+        }
+
+        // X(0): rotate: NOT USED
+        // Y(1): timestamp
+        // Z(2): direction
+
+        double* value = xiRawEvent->raw_values;
+
+        if( XIMaskIsSet( xiRawEvent->valuators.mask, 1) )
+        {
+          timeStamp = static_cast< unsigned int >( *(value + 1) );
+        }
+
+        if( XIMaskIsSet( xiRawEvent->valuators.mask, 2) )
+        {
+          // if z == 1, clockwise
+          // otherwise counter-clockwise
+          int z = static_cast< int >( *(value + 2) );
+
+          // In DALi, positive value means clockwise, and negative value means counter-clockwise
+          if( z == 0 )
+          {
+            z = -1;
+          }
+
+          DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventCustomWheel: z: %d\n", z );
+
+          WheelEvent wheelEvent( WheelEvent::CUSTOM_WHEEL, 0, 0, Vector2(0.0f, 0.0f), z, timeStamp );
+          handler->SendWheelEvent( wheelEvent );
+        }
+        break;
+      }
+      default:
+      {
+        break;
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -1077,6 +1212,7 @@ struct EventHandler::Impl
   EventHandler* mHandler;
   std::vector<Ecore_Event_Handler*> mEcoreEventHandler;
   Ecore_X_Window mWindow;
+  int mXiDeviceId;
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
@@ -1163,10 +1299,10 @@ void EventHandler::SendEvent(KeyEvent& keyEvent)
   mCoreEventInterface.ProcessCoreEvents();
 }
 
-void EventHandler::SendMouseWheelEvent( MouseWheelEvent& wheelEvent )
+void EventHandler::SendWheelEvent( WheelEvent& wheelEvent )
 {
-  // Create MouseWheelEvent and send to Core.
-  Integration::MouseWheelEvent event(wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp);
+  // Create WheelEvent and send to Core.
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
   mCoreEventInterface.QueueCoreEvent( event );
   mCoreEventInterface.ProcessCoreEvents();
 }
@@ -1203,9 +1339,9 @@ void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
   SendEvent(point, timeStamp);
 }
 
-void EventHandler::FeedWheelEvent( MouseWheelEvent& wheelEvent )
+void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 {
-  SendMouseWheelEvent( wheelEvent );
+  SendWheelEvent( wheelEvent );
 }
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )

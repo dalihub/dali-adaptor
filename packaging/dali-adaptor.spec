@@ -86,6 +86,7 @@ BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
 %else
+BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xdamage)
