@@ -44,8 +44,19 @@ namespace Adaptor
 namespace VirtualKeyboard
 {
 
+Dali::InputMethod::ActionButton gActionButtonFunction = Dali::InputMethod::ACTION_DEFAULT;
+
 void RotateTo(int angle)
 {
+}
+
+void SetReturnKeyType( const InputMethod::ActionButton type )
+{
+}
+
+Dali::InputMethod::ActionButton GetReturnKeyType()
+{
+  return gActionButtonFunction;
 }
 
 } // namespace VirtualKeyboard

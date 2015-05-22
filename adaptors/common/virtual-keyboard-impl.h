@@ -69,14 +69,19 @@ void Hide();
 bool IsVisible();
 
 /**
+ * @copydoc Dali::VirtualKeyboard::ApplySettings()
+ */
+void ApplySettings( const Property::Map& settingsMap );
+
+/**
  * @copydoc Dali::VirtualKeyboard::SetReturnKeyType()
  */
-void SetReturnKeyType( Dali::VirtualKeyboard::ReturnKeyType type );
+void SetReturnKeyType( const Dali::InputMethod::ActionButton type );
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetReturnKeyType()
  */
-Dali::VirtualKeyboard::ReturnKeyType GetReturnKeyType();
+Dali::InputMethod::ActionButton GetReturnKeyType();
 
 /**
  * @copydoc Dali::VirtualKeyboard::EnablePrediction()

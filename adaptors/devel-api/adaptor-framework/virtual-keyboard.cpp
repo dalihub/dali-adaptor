@@ -42,12 +42,17 @@ bool IsVisible()
   return Internal::Adaptor::VirtualKeyboard::IsVisible();
 }
 
-void SetReturnKeyType( ReturnKeyType type )
+void ApplySettings( const Property::Map& settingsMap )
+{
+  Internal::Adaptor::VirtualKeyboard::ApplySettings( settingsMap );
+}
+
+void SetReturnKeyType( const InputMethod::ActionButton type )
 {
   Internal::Adaptor::VirtualKeyboard::SetReturnKeyType( type );
 }
 
-ReturnKeyType GetReturnKeyType()
+InputMethod::ActionButton  GetReturnKeyType()
 {
   return Internal::Adaptor::VirtualKeyboard::GetReturnKeyType();
 }

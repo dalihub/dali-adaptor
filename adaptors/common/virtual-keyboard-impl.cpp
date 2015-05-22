@@ -29,7 +29,6 @@
 #include <locale-utils.h>
 #include <imf-manager-impl.h>
 
-
 namespace Dali
 {
 
@@ -48,6 +47,8 @@ namespace
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_VIRTUAL_KEYBOARD");
 #endif
 
+#define TOKEN_STRING(x) #x
+
 //forward declarations
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value );
 void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, int value );
@@ -56,8 +57,6 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
 Dali::VirtualKeyboard::StatusSignalType gKeyboardStatusSignal;
 Dali::VirtualKeyboard::VoidSignalType   gKeyboardResizeSignal;
 Dali::VirtualKeyboard::VoidSignalType   gKeyboardLanguageChangedSignal;
-
-Dali::VirtualKeyboard::ReturnKeyType gReturnKeyType = Dali::VirtualKeyboard::DEFAULT;  // the currently used return key type.
 
 void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int value )
 {
@@ -179,23 +178,28 @@ bool IsVisible()
   return false;
 }
 
-void SetReturnKeyType( Dali::VirtualKeyboard::ReturnKeyType type )
+void ApplySettings( const Property::Map& settingsMap )
 {
-  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when setting values
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  using namespace InputMethod; // Allows exclusion of namespace in TOKEN_STRING.
 
-  if( imfContext )
+  for ( unsigned int i = 0, count = settingsMap.Count(); i < count; ++i )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "VKB Retrun key type is changed[%d]\n", type );
+    std::string key = settingsMap.GetKey( i );
+    Property::Value item = settingsMap.GetValue(i);
 
-    gReturnKeyType = type;
-    ecore_imf_context_input_panel_return_key_type_set( imfContext, static_cast<Ecore_IMF_Input_Panel_Return_Key_Type>( type ) );
-  }
-}
-
-Dali::VirtualKeyboard::ReturnKeyType GetReturnKeyType()
-{
-  return gReturnKeyType;
+    if ( key == TOKEN_STRING( ACTION_BUTTON ) )
+    {
+      if ( item.GetType() == Property::INTEGER )
+      {
+        int value = item.Get< int >();
+        VirtualKeyboard::SetReturnKeyType( static_cast<InputMethod::ActionButton>(value) );
+      }
+    }
+    else
+    {
+      DALI_LOG_INFO( gLogFilter, Debug::General, "Provided Settings Key not supported\n" );
+    }
+   }
 }
 
 void EnablePrediction(const bool enable)
