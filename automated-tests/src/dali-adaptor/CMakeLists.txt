@@ -7,6 +7,7 @@ SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
     utc-Dali-Key.cpp
     utc-Dali-SingletonService.cpp
+    utc-Dali-Window.cpp
     utc-Dali-Timer.cpp
     utc-Dali-Application.cpp
 )
