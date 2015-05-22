@@ -92,15 +92,26 @@ StyleMonitor::~StyleMonitor()
 {
 }
 
-void StyleMonitor::StyleChanged(StyleChange styleChange)
+void StyleMonitor::StyleChanged( StyleChange::Type styleChange )
 {
-  if ( styleChange.defaultFontChange )
+  switch ( styleChange )
   {
-    mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
-  }
-  if ( styleChange.defaultFontSizeChange )
-  {
-    mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
+    case StyleChange::DEFAULT_FONT_CHANGE:
+    {
+      mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
+      break;
+    }
+
+    case StyleChange::DEFAULT_FONT_SIZE_CHANGE:
+    {
+      mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
+      break;
+    }
+
+    case StyleChange::THEME_CHANGE:
+    {
+      break;
+    }
   }
 
   EmitStyleChangeSignal(styleChange);
@@ -128,12 +139,8 @@ const std::string& StyleMonitor::GetTheme() const
 
 void StyleMonitor::SetTheme(const std::string& path)
 {
-  StyleChange styleChange;
-  styleChange.themeChange = true;
-  styleChange.themeFilePath = path;
   mUserDefinedThemeFilePath = path;
-
-  EmitStyleChangeSignal(styleChange);
+  EmitStyleChangeSignal( StyleChange::THEME_CHANGE );
 }
 
 bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
@@ -158,7 +165,7 @@ Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
   return mStyleChangeSignal;
 }
 
-void StyleMonitor::EmitStyleChangeSignal(StyleChange styleChange)
+void StyleMonitor::EmitStyleChangeSignal( StyleChange::Type styleChange )
 {
   if( !mStyleChangeSignal.Empty() )
   {

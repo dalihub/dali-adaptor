@@ -63,7 +63,7 @@ public:
    * Informs the Style Monitor that the style has changed.
    * @param[in]  styleChange  The details of the change.
    */
-  void StyleChanged(StyleChange styleChange);
+  void StyleChanged( StyleChange::Type styleChange );
 
   // Style Information
 
@@ -117,7 +117,7 @@ private:
    * Emit the style change signal.
    * @param[in]  styleChange  The details of the style change
    */
-  inline void EmitStyleChangeSignal(StyleChange styleChange);
+  inline void EmitStyleChangeSignal( StyleChange::Type styleChange );
 
 private:
 

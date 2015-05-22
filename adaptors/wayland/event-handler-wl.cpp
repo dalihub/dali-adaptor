@@ -637,11 +637,7 @@ struct EventHandler::Impl
   static void VconfNotifyFontNameChanged( keynode_t* node, void* data )
   {
     EventHandler* handler = static_cast<EventHandler*>( data );
-
-    StyleChange fontChange;
-    fontChange.defaultFontChange = true;
-
-    handler->SendEvent( fontChange );
+    handler->SendEvent( StyleChange::DEFAULT_FONT_CHANGE );
   }
 
   /**
@@ -650,11 +646,7 @@ struct EventHandler::Impl
   static void VconfNotifyFontSizeChanged( keynode_t* node, void* data )
   {
     EventHandler* handler = static_cast<EventHandler*>( data );
-
-    StyleChange fontChange;
-    fontChange.defaultFontSizeChange = true;
-
-    handler->SendEvent( fontChange );
+    handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }
 
   // Data
@@ -754,7 +746,7 @@ void EventHandler::SendMouseWheelEvent( MouseWheelEvent& wheelEvent )
   mCoreEventInterface.ProcessCoreEvents();
 }
 
-void EventHandler::SendEvent(StyleChange styleChange)
+void EventHandler::SendEvent( StyleChange::Type styleChange )
 {
   DALI_ASSERT_DEBUG( mStyleMonitor && "StyleMonitor Not Available" );
   GetImplementation( mStyleMonitor ).StyleChanged(styleChange);

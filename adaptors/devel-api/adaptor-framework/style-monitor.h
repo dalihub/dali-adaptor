@@ -54,7 +54,7 @@ class DALI_IMPORT_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 
-  typedef Signal< void (StyleMonitor, StyleChange) > StyleChangeSignalType;   ///< StyleChange Signal type
+  typedef Signal< void ( StyleMonitor, StyleChange::Type ) > StyleChangeSignalType;   ///< StyleChange Signal type
 
 public: // Creation & Destruction
 
