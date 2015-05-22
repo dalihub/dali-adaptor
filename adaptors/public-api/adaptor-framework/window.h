@@ -172,11 +172,6 @@ public:
   void Activate();
 
   /**
-   * @brief Get the orientation class ( to allow signal connection ).
-   */
-  Orientation GetOrientation();
-
-  /**
    * @brief Add an orientation to the list of available orientations.
    */
   void AddAvailableOrientation( WindowOrientation orientation );
