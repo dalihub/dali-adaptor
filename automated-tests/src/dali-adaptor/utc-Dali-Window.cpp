@@ -35,8 +35,6 @@ void utc_dali_window_cleanup(void)
 namespace
 {
 
-class Internal::Adaptor::Window;
-
 intptr_t screenId = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_x_default_screen_get below without compilation warnings
 
 } // unnamed namespace
