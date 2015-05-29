@@ -27,8 +27,6 @@
 
 // INTERNAL INCLUDES
 #include "application-configuration.h"
-#include "style-monitor.h"
-#include "device-layout.h"
 #include "window.h"
 
 namespace Dali
@@ -108,8 +106,6 @@ public:
 
   /**
    * This is the constructor for applications without an argument list.
-   *
-   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
    */
   static Application New();
 
@@ -118,60 +114,27 @@ public:
    *
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
-   *
-   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
-   * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
   static Application New( int* argc, char **argv[] );
 
   /**
    * This is the constructor for applications with a name
    *
-   * @param[in,out]  argc  A pointer to the number of arguments
-   * @param[in,out]  argv  A pointer the the argument list
-   * @param[in]  name  A name of application
-   *
-   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
-   * @note Supported options are stripped from argv, and argc is updated appropriately.
+   * @param[in,out]  argc        A pointer to the number of arguments
+   * @param[in,out]  argv        A pointer the the argument list
+   * @param[in]      stylesheet  The path to user defined theme file
    */
-  static Application New( int* argc, char **argv[], const std::string& name );
+  static Application New( int* argc, char **argv[], const std::string& stylesheet );
 
   /**
-   * This is the constructor for applications with a name, and also require a
-   * transparent top-level window
-   *
-   * @param[in,out]  argc  A pointer to the number of arguments
-   * @param[in,out]  argv  A pointer the the argument list
-   * @param[in]  name  A name of application
-   * @param[in]  windowMode A member of WINDOW_MODE
-   *
-   * @note The default base layout (DeviceLayout::DEFAULT_BASE_LAYOUT) will be used with this constructor.
-   * @note Supported options are stripped from argv, and argc is updated appropriately.
-   */
-  static Application New( int* argc, char **argv[], const std::string& name, WINDOW_MODE windowMode );
-
-  /**
-   * This is the constructor for applications when a layout for the application is specified.
+   * This is the constructor for applications with a name
    *
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
-   * @param[in]  baseLayout  The base layout that the application has been written for
-   *
-   * @note Supported options are stripped from argv, and argc is updated appropriately.
+   * @param[in]      stylesheet  The path to user defined theme file
+   * @param[in]      windowMode  A member of WINDOW_MODE
    */
-  static Application New( int* argc, char **argv[], const DeviceLayout& baseLayout );
-
-  /**
-   * This is the constructor for applications with a name and when a layout for the application is specified.
-   *
-   * @param[in,out]  argc  A pointer to the number of arguments
-   * @param[in,out]  argv  A pointer the the argument list
-   * @param[in]  name  A name of application
-   * @param[in]  baseLayout  The base layout that the application has been written for
-   *
-   * @note Supported options are stripped from argv, and argc is updated appropriately.
-   */
-  static Application New( int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout );
+  static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
   /**
    * Construct an empty handle

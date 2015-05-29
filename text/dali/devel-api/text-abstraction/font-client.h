@@ -22,8 +22,8 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/text-abstraction/font-list.h>
-#include <dali/public-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/devel-api/text-abstraction/font-list.h>
+#include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
 {
@@ -276,6 +276,15 @@ public:
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @brief Retrieves the ellipsis glyph for a requested point size.
+   *
+   * @param[in] pointSize The requested point size.
+   *
+   * @return The ellipsis glyph.
+   */
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
 
 public: // Not intended for application developers
   /**

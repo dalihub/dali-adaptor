@@ -35,8 +35,6 @@ namespace Dali
 
 class RenderSurface;
 
-struct StyleChange;
-
 namespace Internal
 {
 
@@ -138,7 +136,7 @@ private:
    * Send a style change event to the style monitor.
    * @param[in]  styleChange  The style that has changed.
    */
-  void SendEvent(StyleChange styleChange);
+  void SendEvent( StyleChange::Type styleChange );
 
   /**
    * Send a window damage event to the observer.

@@ -30,7 +30,6 @@
 #include <render-surface.h>
 #include <tts-player.h>
 #include <imf-manager.h>
-#include <device-layout.h>
 #include <clipboard.h>
 
 #include <tizen-platform-abstraction.h>
@@ -96,12 +95,10 @@ public:
    * @param[in]  surface       A render surface can be one of the following
    *                           - Pixmap, adaptor will use existing Pixmap to draw on to
    *                           - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout    The base layout that the application has been written for
    * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
    */
   static Dali::Adaptor* New( Any nativeWindow,
                              RenderSurface* surface,
-                             const DeviceLayout& baseLayout,
                              Dali::Configuration::ContextLoss configuration );
 
   /**
@@ -481,9 +478,8 @@ private:
    * @param[in]  surface      A render surface can be one of the following
    *                          - Pixmap, adaptor will use existing Pixmap to draw on to
    *                          - Window, adaptor will use existing Window to draw on to
-   * @param[in]  baseLayout   The base layout that the application has been written for
    */
-  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout );
+  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface );
 
 private: // Types
 
@@ -527,7 +523,6 @@ private: // Data
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
   DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
   RotationObserver*                     mDeferredRotationObserver;    ///< deferred Rotation observer needs event handler
-  DeviceLayout                          mBaseLayout;                  ///< The base layout of the application
   EnvironmentOptions                    mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer

@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/text-abstraction/shaping.h>
+#include <dali/devel-api/text-abstraction/shaping.h>
 
 namespace Dali
 {

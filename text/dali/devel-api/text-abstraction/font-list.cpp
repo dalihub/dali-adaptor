@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/font-metrics.h>
+#include <dali/devel-api/text-abstraction/font-list.h>
 
 namespace Dali
 {
@@ -24,24 +24,14 @@ namespace Dali
 namespace TextAbstraction
 {
 
-FontMetrics::FontMetrics()
-: ascender( 0 ),
-  descender( 0 ),
-  height( 0 )
+DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontList )
 {
-}
+  for( unsigned int i=0; i<fontList.size(); ++i )
+  {
+    o << "Font " << i << ") path: " << fontList[i].path << " family: " << fontList[i].family << " style: " << fontList[i].style << std::endl;
+  }
 
-FontMetrics::FontMetrics( float ascenderPixels,
-                          float descenderPixels,
-                          float heightPixels,
-                          float underlinePositionPixels,
-                          float underlineThicknessPixels )
-: ascender( ascenderPixels ),
-  descender( descenderPixels ),
-  height( heightPixels ),
-  underlinePosition( underlinePositionPixels ),
-  underlineThickness( underlineThicknessPixels )
-{
+  return o;
 }
 
 } // namespace TextAbstraction

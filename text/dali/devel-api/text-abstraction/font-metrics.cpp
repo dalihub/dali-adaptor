@@ -16,37 +16,34 @@
  */
 
 // CLASS HEADER
-#include <device-layout.h>
+#include <dali/devel-api/text-abstraction/font-metrics.h>
 
 namespace Dali
 {
 
-const DeviceLayout DeviceLayout::DEFAULT_BASE_LAYOUT
-(
-  Vector2(720.0f, 1280.0f), // The resolution of the screen
-  4.65f,                    // The screen size
-  Vector2(316.0f, 316.0f),  // The DPI
-  30.0f                     // The Viewing Distance
-);
+namespace TextAbstraction
+{
 
-DeviceLayout::DeviceLayout()
-: resolution(),
-  screenSize(0.0f),
-  dpi(),
-  viewingDistance(0.0f)
+FontMetrics::FontMetrics()
+: ascender( 0 ),
+  descender( 0 ),
+  height( 0 )
 {
 }
 
-DeviceLayout::DeviceLayout(Vector2 resolution, float screenSize, Vector2 dpi, float viewingDistance)
-: resolution(resolution),
-  screenSize(screenSize),
-  dpi(dpi),
-  viewingDistance(viewingDistance)
+FontMetrics::FontMetrics( float ascenderPixels,
+                          float descenderPixels,
+                          float heightPixels,
+                          float underlinePositionPixels,
+                          float underlineThicknessPixels )
+: ascender( ascenderPixels ),
+  descender( descenderPixels ),
+  height( heightPixels ),
+  underlinePosition( underlinePositionPixels ),
+  underlineThickness( underlineThicknessPixels )
 {
 }
 
-DeviceLayout::~DeviceLayout()
-{
-}
+} // namespace TextAbstraction
 
 } // namespace Dali

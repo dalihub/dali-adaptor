@@ -103,7 +103,7 @@ private:
    * Callback function for Dali::ObjectRegistry::SignalObjectCreated signal
    * @param [in] object Handle to the newly created object
    */
-  void StyleChangedCallback(Dali::StyleMonitor styleMonitor, StyleChange styleChange);
+  void StyleChangedCallback(Dali::StyleMonitor styleMonitor, StyleChange::Type styleChange);
 
   /**
    * Callback function for Dali::Toolkit::PushButton::SignalPressed signal

@@ -32,7 +32,7 @@
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
-#include <dali/public-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <callback-manager.h>
 #include <trigger-event.h>
@@ -72,11 +72,10 @@ namespace
 __thread Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, const DeviceLayout& baseLayout,
-                             Dali::Configuration::ContextLoss configuration )
+Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, baseLayout );
+  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface );
   adaptor->mImpl = impl;
 
   impl->Initialize(configuration);
@@ -755,7 +754,7 @@ void Adaptor::ProcessCoreEventsFromIdle()
   mNotificationOnIdleInstalled = false;
 }
 
-Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, const DeviceLayout& baseLayout)
+Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mAdaptor(adaptor),
@@ -778,7 +777,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mObservers(),
   mDragAndDropDetector(),
   mDeferredRotationObserver(NULL),
-  mBaseLayout(baseLayout),
   mEnvironmentOptions(),
   mPerformanceInterface(NULL),
   mObjectProfiler(NULL)

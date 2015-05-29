@@ -20,7 +20,16 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/object/property-map.h>
 #include <dali/public-api/math/rect.h>
+
+// INTERNAL INCLUDES
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+// @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
+#include "input-method.h"
+#else
+#include <dali/public-api/adaptor-framework/input-method.h>
+#endif
 
 namespace Dali
 {
@@ -83,16 +92,22 @@ DALI_IMPORT_API void Hide();
 DALI_IMPORT_API bool IsVisible();
 
 /**
+ * @brief Set one or more of the Input Method Settings
+ * @param[in] settingsMap Map of Settings to be applied.
+ */
+DALI_IMPORT_API void ApplySettings( const Property::Map& settingsMap );
+
+/**
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_IMPORT_API void SetReturnKeyType( ReturnKeyType type );
+DALI_IMPORT_API void SetReturnKeyType( const InputMethod::ActionButton type );
 
 /**
  * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
-DALI_IMPORT_API ReturnKeyType GetReturnKeyType();
+DALI_IMPORT_API InputMethod::ActionButton GetReturnKeyType();
 
 /**
  * @brief Enable/disable prediction (predictive text).

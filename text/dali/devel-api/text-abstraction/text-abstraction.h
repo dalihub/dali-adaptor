@@ -1,3 +1,6 @@
+#ifndef __DALI_TEXT_ABSTRACTION_H__
+#define __DALI_TEXT_ABSTRACTION_H__
+
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
@@ -15,25 +18,12 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/public-api/text-abstraction/font-list.h>
+#include <dali/devel-api/text-abstraction/bidirectional-support.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-metrics.h>
+#include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/devel-api/text-abstraction/script.h>
+#include <dali/devel-api/text-abstraction/segmentation.h>
+#include <dali/devel-api/text-abstraction/shaping.h>
 
-namespace Dali
-{
-
-namespace TextAbstraction
-{
-
-DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontList )
-{
-  for( unsigned int i=0; i<fontList.size(); ++i )
-  {
-    o << "Font " << i << ") path: " << fontList[i].path << " family: " << fontList[i].family << " style: " << fontList[i].style << std::endl;
-  }
-
-  return o;
-}
-
-} // namespace TextAbstraction
-
-} // namespace Dali
+#endif //__DALI_TEXT_ABSTRACTION_H__

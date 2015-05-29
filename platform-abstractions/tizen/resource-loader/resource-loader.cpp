@@ -29,9 +29,8 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/common/set-wrapper.h>
+#include <dali/devel-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/public-api/common/scoped-pointer.h>
 #include "resource-requester-base.h"
 #include "resource-bitmap-requester.h"
 #include "resource-shader-requester.h"

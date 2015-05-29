@@ -50,15 +50,14 @@ namespace Adaptor
 ApplicationPtr Application::New(
   int* argc,
   char **argv[],
-  const std::string& name,
-  const DeviceLayout& baseLayout,
+  const std::string& stylesheet,
   Dali::Application::WINDOW_MODE windowMode)
 {
-  ApplicationPtr application ( new Application (argc, argv, name, baseLayout, windowMode ) );
+  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode ) );
   return application;
 }
 
-Application::Application( int* argc, char** argv[], const std::string& name, const DeviceLayout& baseLayout, Dali::Application::WINDOW_MODE windowMode)
+Application::Application( int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode )
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -77,14 +76,20 @@ Application::Application( int* argc, char** argv[], const std::string& name, con
   mAdaptor( NULL ),
   mWindow(),
   mWindowMode( windowMode ),
-  mName( name ),
+  mName(),
+  mStylesheet( stylesheet ),
   mInitialized( false ),
-  mBaseLayout( baseLayout ),
   mSlotDelegate( this )
 {
+  // Copy mName from command-line args
+  if( argc && ( *argc > 0 ) )
+  {
+    mName = (*argv)[0];
+  }
+
   mCommandLineOptions = new CommandLineOptions(argc, argv);
 
-  mFramework = new Framework(*this, argc, argv, name);
+  mFramework = new Framework(*this, argc, argv, mName);
 }
 
 Application::~Application()
@@ -114,7 +119,7 @@ void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS( mWindow && "Window required to create adaptor" );
 
-  mAdaptor = &Dali::Adaptor::New( mWindow, mBaseLayout, mContextLossConfiguration );
+  mAdaptor = &Dali::Adaptor::New( mWindow, mContextLossConfiguration );
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 }
@@ -176,6 +181,11 @@ void Application::OnInit()
       viewMode = static_cast<ViewMode>( mCommandLineOptions->viewMode );
     }
     Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetViewMode( viewMode );
+  }
+
+  if( ! mStylesheet.empty() )
+  {
+    Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
 
   mInitialized = true;
@@ -241,6 +251,8 @@ void Application::OnAppControl(void *data)
 void Application::OnLanguageChanged()
 {
   mAdaptor->NotifyLanguageChanged();
+  Dali::Application application(this);
+  mLanguageChangedSignal.Emit( application );
 }
 
 void Application::OnRegionChanged()
@@ -280,16 +292,6 @@ Dali::Adaptor& Application::GetAdaptor()
 Dali::Window Application::GetWindow()
 {
   return mWindow;
-}
-
-const std::string& Application::GetTheme()
-{
-  return Dali::StyleMonitor::Get().GetTheme();
-}
-
-void Application::SetTheme(const std::string& themeFilePath)
-{
-  return Dali::StyleMonitor::Get().SetTheme(themeFilePath);
 }
 
 // Stereoscopy

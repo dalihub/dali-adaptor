@@ -20,8 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
-#include <dali/public-api/text-abstraction/font-client.h>
-#include <dali/public-api/text-abstraction/glyph-info.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
 
 // EXTERNAL INCLUDES
@@ -45,24 +45,38 @@ const float        FROM_266 = 1.0f / 64.0f;
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
 {
+  HB_SCRIPT_CYRILLIC,
+  HB_SCRIPT_GREEK,
   HB_SCRIPT_LATIN,
+
   HB_SCRIPT_ARABIC,
-  HB_SCRIPT_DEVANAGARI,
-  HB_SCRIPT_BENGALI,
-  HB_SCRIPT_GURMUKHI,
-  HB_SCRIPT_GUJARATI,
-  HB_SCRIPT_ORIYA,
-  HB_SCRIPT_TAMIL,
-  HB_SCRIPT_TELUGU,
-  HB_SCRIPT_KANNADA,
-  HB_SCRIPT_MALAYALAM,
-  HB_SCRIPT_SINHALA,
+  HB_SCRIPT_HEBREW,
+
+  HB_SCRIPT_ARMENIAN,
+  HB_SCRIPT_GEORGIAN,
+
   HB_SCRIPT_HAN,
   HB_SCRIPT_HANGUL,
-  HB_SCRIPT_KHMER,
+  HB_SCRIPT_HIRAGANA,
+  HB_SCRIPT_KATAKANA,
+
+  HB_SCRIPT_BENGALI,
+  HB_SCRIPT_MYANMAR,
+  HB_SCRIPT_DEVANAGARI,
+  HB_SCRIPT_GUJARATI,
+  HB_SCRIPT_GURMUKHI,
+  HB_SCRIPT_KANNADA,
+  HB_SCRIPT_MALAYALAM,
+  HB_SCRIPT_ORIYA,
+  HB_SCRIPT_SINHALA,
+  HB_SCRIPT_TAMIL,
+  HB_SCRIPT_TELUGU,
+
   HB_SCRIPT_LAO,
   HB_SCRIPT_THAI,
-  HB_SCRIPT_MYANMAR,
+  HB_SCRIPT_KHMER,
+
+  HB_SCRIPT_UNKNOWN, // EMOJI
   HB_SCRIPT_UNKNOWN
 };
 

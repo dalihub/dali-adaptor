@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/text-abstraction/segmentation.h>
+#include <dali/devel-api/text-abstraction/segmentation.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/text-abstraction/segmentation-impl.h>

@@ -25,7 +25,12 @@
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
-#include "style-change.h"
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+// @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
+#include <style-change.h>
+#else
+#include <dali/public-api/adaptor-framework/style-change.h>
+#endif
 
 namespace Dali
 {
@@ -49,7 +54,7 @@ class DALI_IMPORT_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 
-  typedef Signal< void (StyleMonitor, StyleChange) > StyleChangeSignalType;   ///< StyleChange Signal type
+  typedef Signal< void ( StyleMonitor, StyleChange::Type ) > StyleChangeSignalType;   ///< StyleChange Signal type
 
 public: // Creation & Destruction
 
@@ -128,6 +133,14 @@ public: // Style Information
    * @param[in] themeFilePath Path of the user defined theme
    */
   void SetTheme(const std::string& themeFilePath);
+
+  /**
+   * @brief Utility to load a theme file
+   * @param filename of the theme
+   * @param output to write the contents to
+   * @return true if the load is successful
+   */
+  bool LoadThemeFile( const std::string& filename, std::string& output );
 
 public: // Signals
 

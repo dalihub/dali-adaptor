@@ -107,7 +107,7 @@ public:
 
 public: // Not intended for application developers
   /**
-   * @brief This constructor is used by Dali::Application::GetOrientation().
+   * @brief Helper function.
    *
    * @param[in] orientation A pointer to the orientation object
    */
