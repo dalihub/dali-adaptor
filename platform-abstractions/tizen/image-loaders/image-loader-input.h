@@ -19,7 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstdio>
-#include <dali/devel-api/images/image-operations.h>
+#include <dali/public-api/images/image-operations.h>
 
 // INTERNAL INCLUDES
 
