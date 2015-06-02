@@ -73,6 +73,7 @@ Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
 Requires:   %{name}-integration-devel = %{version}-%{release}
+Requires:   boost-devel
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs
