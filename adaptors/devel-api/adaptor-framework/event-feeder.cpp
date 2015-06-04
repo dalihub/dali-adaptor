@@ -35,7 +35,7 @@ void FeedTouchPoint( TouchPoint& point, int timeStamp )
   }
 }
 
-void FeedWheelEvent( MouseWheelEvent& wheelEvent )
+void FeedWheelEvent( WheelEvent& wheelEvent )
 {
   if ( Adaptor::IsAvailable() )
   {

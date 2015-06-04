@@ -150,7 +150,7 @@ void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
   mImpl->FeedTouchPoint(point, timeStamp);
 }
 
-void Adaptor::FeedWheelEvent( MouseWheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
 {
   mImpl->FeedWheelEvent(wheelEvent);
 }

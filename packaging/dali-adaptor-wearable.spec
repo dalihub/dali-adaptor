@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.42
+Version:    1.0.43
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -62,6 +62,7 @@ platform abstraction and application shell
 Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
+Requires:   boost-devel
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs

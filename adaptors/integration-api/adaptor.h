@@ -274,11 +274,11 @@ public:
   void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
   /**
-   * @brief Feed a mouse wheel event to the adaptor.
+   * @brief Feed a wheel event to the adaptor.
    *
-   * @param[in]  wheelEvent mouse wheel event
+   * @param[in]  wheelEvent wheel event
    */
-  void FeedWheelEvent( MouseWheelEvent& wheelEvent );
+  void FeedWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * @brief Feed a key event to the adaptor.
