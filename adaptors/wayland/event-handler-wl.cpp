@@ -34,12 +34,12 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/events/mouse-wheel-event.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
-#include <dali/integration-api/events/mouse-wheel-event-integ.h>
+#include <dali/integration-api/events/wheel-event-integ.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -274,8 +274,8 @@ struct EventHandler::Impl
     EventHandler* handler( (EventHandler*)data );
     if ( mouseWheelEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
-      MouseWheelEvent wheelEvent(mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
-      handler->SendMouseWheelEvent( wheelEvent );
+      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+      handler->SendWheelEvent( wheelEvent );
     }
     return ECORE_CALLBACK_PASS_ON;
   }
@@ -637,11 +637,7 @@ struct EventHandler::Impl
   static void VconfNotifyFontNameChanged( keynode_t* node, void* data )
   {
     EventHandler* handler = static_cast<EventHandler*>( data );
-
-    StyleChange fontChange;
-    fontChange.defaultFontChange = true;
-
-    handler->SendEvent( fontChange );
+    handler->SendEvent( StyleChange::DEFAULT_FONT_CHANGE );
   }
 
   /**
@@ -650,11 +646,7 @@ struct EventHandler::Impl
   static void VconfNotifyFontSizeChanged( keynode_t* node, void* data )
   {
     EventHandler* handler = static_cast<EventHandler*>( data );
-
-    StyleChange fontChange;
-    fontChange.defaultFontSizeChange = true;
-
-    handler->SendEvent( fontChange );
+    handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }
 
   // Data
@@ -746,15 +738,15 @@ void EventHandler::SendEvent(KeyEvent& keyEvent)
   mCoreEventInterface.ProcessCoreEvents();
 }
 
-void EventHandler::SendMouseWheelEvent( MouseWheelEvent& wheelEvent )
+void EventHandler::SendWheelEvent( WheelEvent& wheelEvent )
 {
-  // Create MouseWheelEvent and send to Core.
-  Integration::MouseWheelEvent event(wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp);
+  // Create WheelEvent and send to Core.
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
   mCoreEventInterface.QueueCoreEvent( event );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
-void EventHandler::SendEvent(StyleChange styleChange)
+void EventHandler::SendEvent( StyleChange::Type styleChange )
 {
   DALI_ASSERT_DEBUG( mStyleMonitor && "StyleMonitor Not Available" );
   GetImplementation( mStyleMonitor ).StyleChanged(styleChange);
@@ -786,9 +778,9 @@ void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
   SendEvent(point, timeStamp);
 }
 
-void EventHandler::FeedWheelEvent( MouseWheelEvent& wheelEvent )
+void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 {
-  SendMouseWheelEvent( wheelEvent );
+  SendWheelEvent( wheelEvent );
 }
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )

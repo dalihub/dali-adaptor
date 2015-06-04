@@ -6,7 +6,9 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
     utc-Dali-Key.cpp
+    utc-Dali-PixmapImage.cpp
     utc-Dali-SingletonService.cpp
+    utc-Dali-Window.cpp
     utc-Dali-Timer.cpp
     utc-Dali-Application.cpp
 )
@@ -38,6 +40,7 @@ FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
 ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
 INCLUDE_DIRECTORIES(
+    ../../../
     ${${CAPI_LIB}_INCLUDE_DIRS}
     dali-test-suite-utils
 )

@@ -90,12 +90,6 @@ void Window::Activate()
   GetImplementation(*this).Activate();
 }
 
-Orientation Window::GetOrientation()
-{
-  Internal::Adaptor::OrientationPtr orientation = GetImplementation(*this).GetOrientation();
-  return Orientation(orientation.Get());
-}
-
 void Window::AddAvailableOrientation( WindowOrientation orientation )
 {
   GetImplementation(*this).AddAvailableOrientation( orientation );
@@ -104,16 +98,6 @@ void Window::AddAvailableOrientation( WindowOrientation orientation )
 void Window::RemoveAvailableOrientation( WindowOrientation orientation )
 {
   GetImplementation(*this).RemoveAvailableOrientation( orientation );
-}
-
-void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations)
-{
-  GetImplementation(*this).SetAvailableOrientations( orientations );
-}
-
-const std::vector<Dali::Window::WindowOrientation>& Window::GetAvailableOrientations()
-{
-  return GetImplementation(*this).GetAvailableOrientations();
 }
 
 void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )

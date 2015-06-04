@@ -31,7 +31,6 @@
 namespace Dali
 {
 
-struct DeviceLayout;
 class RenderSurface;
 
 namespace Internal
@@ -111,7 +110,6 @@ public:
    * @brief Create a new adaptor using the window.
    *
    * @param[in] window The window to draw onto
-   * @note The default base layout DeviceLayout::DEFAULT_BASE_LAYOUT will be used.
    * @return a reference to the adaptor handle
    */
   static Adaptor& New( Window window );
@@ -120,18 +118,16 @@ public:
    * @brief Create a new adaptor using the window.
    *
    * @param[in] window The window to draw onto
-   * @param[in] baseLayout  The base layout that the application has been written for
    * @param[in] configuration The context loss configuration.
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Window window, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration );
+  static Adaptor& New( Window window, Configuration::ContextLoss configuration );
 
   /**
    * @brief Create a new adaptor using render surface.
    *
    * @param[in] nativeWindow native window handle
    * @param[in] surface The surface to draw onto
-   * @note The default base layout DeviceLayout::DEFAULT_BASE_LAYOUT will be used.
    * @return a reference to the adaptor handle
    */
   static Adaptor& New( Any nativeWindow, const Dali::RenderSurface& surface );
@@ -141,11 +137,10 @@ public:
    *
    * @param[in] nativeWindow native window handle
    * @param[in] surface The surface to draw onto
-   * @param[in] baseLayout  The base layout that the application has been written for
    * @param[in] configuration The context loss configuration.
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Any nativeWindow, const Dali::RenderSurface& surface, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
+  static Adaptor& New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
 
   /**
    * @brief Virtual Destructor.
@@ -279,11 +274,11 @@ public:
   void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
   /**
-   * @brief Feed a mouse wheel event to the adaptor.
+   * @brief Feed a wheel event to the adaptor.
    *
-   * @param[in]  wheelEvent mouse wheel event
+   * @param[in]  wheelEvent wheel event
    */
-  void FeedWheelEvent( MouseWheelEvent& wheelEvent );
+  void FeedWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * @brief Feed a key event to the adaptor.

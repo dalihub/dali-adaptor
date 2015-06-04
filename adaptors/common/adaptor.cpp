@@ -35,28 +35,28 @@ namespace Dali
 
 Adaptor& Adaptor::New( Window window )
 {
-  return New( window, DeviceLayout::DEFAULT_BASE_LAYOUT, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
+  return New( window, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
 }
 
-Adaptor& Adaptor::New( Window window, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration )
+Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
 {
   Any winId = window.GetNativeHandle();
 
   Internal::Adaptor::Window& windowImpl = GetImplementation(window);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( winId, windowImpl.GetSurface(), baseLayout, configuration );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( winId, windowImpl.GetSurface(), configuration );
   windowImpl.SetAdaptor(*adaptor);
   return *adaptor;
 }
 
 Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface )
 {
-  return New( nativeWindow, surface, DeviceLayout::DEFAULT_BASE_LAYOUT, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
+  return New( nativeWindow, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
 }
 
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, const DeviceLayout& baseLayout, Configuration::ContextLoss configuration )
+Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration )
 {
   Dali::RenderSurface* pSurface = const_cast<Dali::RenderSurface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, baseLayout, configuration );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, configuration );
   return *adaptor;
 }
 
@@ -150,7 +150,7 @@ void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
   mImpl->FeedTouchPoint(point, timeStamp);
 }
 
-void Adaptor::FeedWheelEvent( MouseWheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
 {
   mImpl->FeedWheelEvent(wheelEvent);
 }

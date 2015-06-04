@@ -54,7 +54,7 @@ class DALI_IMPORT_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 
-  typedef Signal< void (StyleMonitor, StyleChange) > StyleChangeSignalType;   ///< StyleChange Signal type
+  typedef Signal< void ( StyleMonitor, StyleChange::Type ) > StyleChangeSignalType;   ///< StyleChange Signal type
 
 public: // Creation & Destruction
 
@@ -133,6 +133,14 @@ public: // Style Information
    * @param[in] themeFilePath Path of the user defined theme
    */
   void SetTheme(const std::string& themeFilePath);
+
+  /**
+   * @brief Utility to load a theme file
+   * @param filename of the theme
+   * @param output to write the contents to
+   * @return true if the load is successful
+   */
+  bool LoadThemeFile( const std::string& filename, std::string& output );
 
 public: // Signals
 

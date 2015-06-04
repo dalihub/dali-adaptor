@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL HEADERS
-#include <dali/devel-api/images/native-image-interface.h>
+#include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/lockless-buffer.h>

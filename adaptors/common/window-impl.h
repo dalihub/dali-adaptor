@@ -117,11 +117,6 @@ public:
   void Activate();
 
   /**
-   * @copydoc Dali::Window::GetOrientation()
-   */
-  OrientationPtr GetOrientation();
-
-  /**
    * @copydoc Dali::Window::AddAvailableOrientation()
    */
   void AddAvailableOrientation(Dali::Window::WindowOrientation orientation);

@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.41
+Version:    1.0.43
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -86,6 +86,7 @@ BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
 %else
+BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xdamage)
@@ -111,6 +112,7 @@ Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
 Requires:   %{name}-integration-devel = %{version}-%{release}
+Requires:   boost-devel
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs

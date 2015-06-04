@@ -34,31 +34,19 @@ Application Application::New()
 
 Application Application::New( int* argc, char **argv[] )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", DeviceLayout::DEFAULT_BASE_LAYOUT, OPAQUE );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE );
   return Application(internal.Get());
 }
 
-Application Application::New( int* argc, char **argv[], const std::string& name )
+Application Application::New( int* argc, char **argv[], const std::string& stylesheet )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, DeviceLayout::DEFAULT_BASE_LAYOUT, OPAQUE );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE );
   return Application(internal.Get());
 }
 
-Application Application::New( int* argc, char **argv[], const std::string& name, WINDOW_MODE windowMode )
+Application Application::New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, DeviceLayout::DEFAULT_BASE_LAYOUT, windowMode );
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char **argv[], const DeviceLayout& baseLayout)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "Dali Application", baseLayout, OPAQUE );
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char **argv[], const std::string& name, const DeviceLayout& baseLayout)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, name, baseLayout, OPAQUE );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode );
   return Application(internal.Get());
 }
 

@@ -139,6 +139,24 @@ Script GetCharacterScript( Character character )
   // 0x0591 - 0x05f4 Hebrew
   // 0xfb1d - 0xfb4f Hebrew subset of Alphabetic Presentation Forms
 
+  // Cyrillic script
+  // 0x0400 - 0x04ff Cyrillic
+  // 0x0500 - 0x052f Cyrillic suplement
+  // 0x2de0 - 0x2dff Cyrillic Extended-A
+  // 0xa640 - 0xa69f Cyrillic Extended-B
+
+  // Georgian script
+  // 0x10a0 - 0x10ff Georgian
+  // 0x2d00 - 0x2d2f Georgian suplement
+
+  // Greek script
+  // 0x0370 - 0x03ff Greek & Coptic
+  // 0x1f00 - 0x1fff Greek Extended
+
+  // Armenian script
+  // 0x0530 - 0x058f Armenian
+  // 0xfb13 - 0xfb17 Armenian subset of Alphabetic prefentation forms
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -166,6 +184,22 @@ Script GetCharacterScript( Character character )
         if( character <= 0x02ff )
         {
           return LATIN;
+        }
+        if( ( 0x0370 <= character ) && ( character <= 0x03ff ) )
+        {
+          return GREEK;
+        }
+        if( ( 0x0400 <= character ) && ( character <= 0x04ff ) )
+        {
+          return CYRILLIC;
+        }
+        if( ( 0x0500 <= character ) && ( character <= 0x052f ) )
+        {
+          return CYRILLIC;
+        }
+        if( ( 0x0530 <= character ) && ( character <= 0x058f ) )
+        {
+          return ARMENIAN;
         }
         if( ( 0x0591 <= character ) && ( character <= 0x05f4 ) )
         {
@@ -256,6 +290,10 @@ Script GetCharacterScript( Character character )
         {
           return BURMESE;
         }
+        if( ( 0x10a0 <= character ) && ( character <= 0x10ff ) )
+        {
+          return GEORGIAN;
+        }
         if( ( 0x1100 <= character ) && ( character <= 0x11ff ) )
         {
           return HANGUL;
@@ -275,6 +313,10 @@ Script GetCharacterScript( Character character )
       }
       else // > 0x1eff
       {
+        if( ( 0x1f00 <= character ) && ( character <= 0x1fff ) )
+        {
+          return GREEK;
+        }
         if( character == 0x203c )
         {
           return EMOJI; // 5. Uncategorized: double exclamation mark
@@ -319,6 +361,14 @@ Script GetCharacterScript( Character character )
     {
       if( character <= 0xfdff )
       {
+        if( ( 0x2d00 <= character ) && ( character <= 0x2d2f ) )
+        {
+          return GEORGIAN;
+        }
+        if( ( 0x2de0 <= character ) && ( character <= 0x2dff ) )
+        {
+          return CYRILLIC;
+        }
         if( ( 0x2e80 <= character ) && ( character <= 0x2eff ) )
         {
           return CJK;
@@ -367,6 +417,10 @@ Script GetCharacterScript( Character character )
         {
           return CJK;
         }
+        if( ( 0xa640 <= character ) && ( character <= 0xa69f ) )
+        {
+          return CYRILLIC;
+        }
         if( ( 0xa720 <= character ) && ( character <= 0xa7ff ) )
         {
           return LATIN;
@@ -390,6 +444,10 @@ Script GetCharacterScript( Character character )
         if( ( 0xfb00 <= character ) && ( character <= 0xfb06 ) )
         {
           return LATIN;
+        }
+        if( ( 0xfb13 <= character ) && ( character <= 0xfb17 ) )
+        {
+          return ARMENIAN;
         }
         if( ( 0xfb1d <= character ) && ( character <= 0xfb4f ) )
         {

@@ -224,11 +224,11 @@ const FeedbackStyleInfo& FeedbackController::GetStyleInfo( const string& type ) 
   }
 }
 
-void FeedbackController::StyleChangedCallback( Dali::StyleMonitor styleMonitor, Dali::StyleChange styleChange )
+void FeedbackController::StyleChangedCallback( Dali::StyleMonitor styleMonitor, Dali::StyleChange::Type styleChange )
 {
-  if( styleChange.themeChange )
+  if( StyleChange::THEME_CHANGE )
   {
-    const string& userDefinedThemePath = styleChange.themeFilePath;
+    const string& userDefinedThemePath = styleMonitor.GetTheme();
     const string& userDefinedTheme = LoadFile( userDefinedThemePath );
 
     if( !LoadTheme( userDefinedTheme ) )

@@ -255,9 +255,9 @@ std::string DumpJson( Dali::Actor actor, int level )
   Dali::Property::IndexContainer indices;
   actor.GetPropertyIndices( indices );
 
-  Dali::Property::IndexContainer::iterator iter = indices.begin();
+  Dali::Property::IndexContainer::Iterator iter = indices.Begin();
   int numCustom = 0;
-  for( ; iter != indices.end() ; iter++ )
+  for( ; iter != indices.End() ; iter++ )
   {
     int i = *iter;
     if( !ExcludeProperty( i ) )

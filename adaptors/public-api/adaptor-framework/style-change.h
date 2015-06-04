@@ -25,33 +25,17 @@
 namespace Dali
 {
 
-/**
- * @brief Used to describe what style information has changed.
- *
- * This structure is used when any style changes occur and contains information about what exactly
- * has changed.
- */
-struct DALI_IMPORT_API StyleChange
+namespace StyleChange
 {
-  // Construction
 
-  /**
-   * @brief Default Constructor.
-   */
-  StyleChange()
-  : defaultFontChange(false),
-    defaultFontSizeChange(false),
-    themeChange(false)
-  {
-  }
-
-  // Data
-
-  bool defaultFontChange:1;     ///< Denotes that the default font has changed.
-  bool defaultFontSizeChange:1; ///< Denotes that the default font size has changed.
-  bool themeChange:1;           ///< Denotes that the theme has changed.
-  std::string themeFilePath;    ///< Contains the path to the new theme file.
+enum Type
+{
+  DEFAULT_FONT_CHANGE,      ///< Denotes that the default font has changed.
+  DEFAULT_FONT_SIZE_CHANGE, ///< Denotes that the default font size has changed.
+  THEME_CHANGE              ///< Denotes that the theme has changed.
 };
+
+} // namespace StyleChange
 
 } // namespace Dali
 
