@@ -76,21 +76,6 @@ public: // API
   ~TtsPlayer();
 
   /**
-   * @brief This copy constructor is required for (smart) pointer semantics.
-   *
-   * @param [in] handle A reference to the copied handle
-   */
-  TtsPlayer(const TtsPlayer& handle);
-
-  /**
-   * @brief This assignment operator is required for (smart) pointer semantics.
-   *
-   * @param [in] rhs  A reference to the copied handle
-   * @return A reference to this
-   */
-  TtsPlayer& operator=(const TtsPlayer& rhs);
-
-  /**
    * @brief Start playing the audio data synthesized from the specified text.
    *
    * @pre The TtsPlayer needs to be initialized.

@@ -25,7 +25,6 @@
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/public-api/adaptor-framework/pixmap-image.h>
 #include <dali/public-api/dali-adaptor-version.h>
 
