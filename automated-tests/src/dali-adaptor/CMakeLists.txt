@@ -10,7 +10,6 @@ SET(TC_SOURCES
     utc-Dali-SingletonService.cpp
     utc-Dali-Window.cpp
     utc-Dali-Timer.cpp
-    utc-Dali-TtsPlayer.cpp
     utc-Dali-Application.cpp
 )
 
