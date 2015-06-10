@@ -45,6 +45,17 @@ TtsPlayer::~TtsPlayer()
 {
 }
 
+TtsPlayer::TtsPlayer(const TtsPlayer& handle)
+: BaseHandle(handle)
+{
+}
+
+TtsPlayer& TtsPlayer::operator=(const TtsPlayer& rhs)
+{
+  BaseHandle::operator=(rhs);
+  return *this;
+}
+
 void TtsPlayer::Play(const std::string& text)
 {
   return GetImplementation(*this).Play(text);
