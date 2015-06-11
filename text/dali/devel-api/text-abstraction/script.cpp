@@ -167,6 +167,11 @@ Script GetCharacterScript( Character character )
   // 6b. Additional transport and map symbols ( 1F681 - 1F6C5 )
   // 6c. Other additional symbols ( 1F30D - 1F567 )
 
+  if( IsCommonScript( character ) )
+  {
+    return COMMON;
+  }
+
   if( character <= 0x0cff )
   {
     if( character <= 0x09ff )
@@ -564,6 +569,18 @@ bool IsRightToLeftMark( Character character )
 bool IsThinSpace( Character character )
 {
   return CHAR_TS == character;
+}
+
+bool IsCommonScript( Character character )
+{
+  return ( IsWhiteSpace( character )         ||
+           IsZeroWidthNonJoiner( character ) ||
+           IsZeroWidthJoiner( character )    ||
+           IsZeroWidthSpace( character )     ||
+           IsLeftToRightMark( character )    ||
+           IsRightToLeftMark( character )    ||
+           IsThinSpace( character )          ||
+           IsNewParagraph( character ) );
 }
 
 } // namespace TextAbstraction
