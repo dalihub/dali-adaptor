@@ -33,6 +33,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/trigger-event.cpp \
   $(adaptor_common_dir)/trigger-event-factory.cpp \
   $(adaptor_common_dir)/virtual-keyboard-impl.cpp \
+  $(adaptor_common_dir)/key-impl.cpp \
   \
   $(adaptor_common_dir)/events/gesture-manager.cpp \
   $(adaptor_common_dir)/events/long-press-gesture-detector.cpp \
@@ -41,7 +42,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/events/pinch-gesture-detector.cpp \
   $(adaptor_common_dir)/events/tap-gesture-detector.cpp \
   \
- $(adaptor_common_dir)/networking/socket-impl.cpp \
+  $(adaptor_common_dir)/networking/socket-impl.cpp \
   $(adaptor_common_dir)/networking/socket-factory.cpp \
   \
   $(adaptor_common_dir)/feedback/feedback-controller.cpp \
