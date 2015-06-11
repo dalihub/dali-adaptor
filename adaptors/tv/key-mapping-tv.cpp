@@ -15,45 +15,32 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <map>
-#include <string.h>
-#include <iostream>
-
 // CLASS HEADER
-#include <stdlib.h>
-#include <iostream>
-#include <dali.h>
-#include <dali-test-suite-utils.h>
+#include "key-impl.h"
 
-using namespace Dali;
-
-void utc_dali_adaptor_key_startup(void)
+namespace Dali
 {
-  test_return_value = TET_UNDEF;
-}
 
-void utc_dali_adaptor_key_cleanup(void)
+namespace Internal
 {
-  test_return_value = TET_PASS;
-}
 
-// Copied from key-impl.h
-struct KeyLookup
+namespace Adaptor
 {
-  const char* keyName;          ///< XF86 key name
-  const Dali::KEY daliKeyCode;  ///< Dali key code
-  const bool  deviceButton;     ///< Whether the key is from a button on the device
-};
 
-// Common keys for all platforms
+namespace KeyLookup
+{
+
+// matches a DALI_KEY enum, to key name
 KeyLookup KeyLookupTable[]=
 {
-  { "Escape",                DALI_KEY_ESCAPE,          false },  // item not defined in utilX
-  { "Menu",                  DALI_KEY_MENU,            false },  // item not defined in utilX
+  // more than one key name can be assigned to a single dali-key code
+  // e.g. "Menu" and "XF86Menu" are both assigned to  DALI_KEY_MENU
 
-  // Now the key names are used as literal string not defined symbols,
-  // since these definition in utilX.h is deprecated and we're guided not to use them
+  { "Escape",                DALI_KEY_ESCAPE,          false },
+  { "Menu",                  DALI_KEY_MENU,            false },
+
+  // Now literal strings are used as key names instead of defined symbols in utilX,
+  // since these definition in utilX.h is deprecated
   { "XF86Camera",            DALI_KEY_CAMERA,          false },
   { "XF86Camera_Full",       DALI_KEY_CONFIG,          false },
   { "XF86PowerOff",          DALI_KEY_POWER,           true  },
@@ -88,41 +75,13 @@ KeyLookup KeyLookupTable[]=
   { "XF86AudioRaiseVolume",  DALI_KEY_VOLUME_UP,       true  },
   { "XF86AudioLowerVolume",  DALI_KEY_VOLUME_DOWN,     true  },
 };
+
 const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable))/ (sizeof(KeyLookup));
 
+} // namespace KeyLookup
 
-// Generate a KeyPressEvent to send to Core
-Dali::KeyEvent GenerateKeyPress( const std::string& keyName )
-{
-  KeyEvent keyPress;
-  keyPress.keyPressedName = keyName;
-  return keyPress;
-}
+} // namespace Adaptor
 
-int UtcDaliKeyIsKey(void)
-{
-  TestApplication application;
+} // namespace Internal
 
-  for ( std::size_t i = 0; i < KEY_LOOKUP_COUNT; ++i )
-  {
-    tet_printf( "Checking %s", KeyLookupTable[i].keyName );
-    DALI_TEST_CHECK( IsKey( GenerateKeyPress( KeyLookupTable[i].keyName ), KeyLookupTable[i].daliKeyCode ) );
-  }
-  END_TEST;
-}
-
-int UtcDaliKeyIsKeyNegative(void)
-{
-  TestApplication application;
-
-  // Random value
-  DALI_TEST_CHECK( IsKey( GenerateKeyPress( "invalid-key-name" ), DALI_KEY_MUTE ) == false );
-
-  // Compare with another key value
-  for ( std::size_t i = 0; i < KEY_LOOKUP_COUNT; ++i )
-  {
-    tet_printf( "Checking %s", KeyLookupTable[i].keyName );
-    DALI_TEST_CHECK( IsKey( GenerateKeyPress( KeyLookupTable[i].keyName ), KeyLookupTable[ ( i + 1 ) % KEY_LOOKUP_COUNT ].daliKeyCode ) == false );
-  }
-  END_TEST;
-}
+} // namespace Dali
