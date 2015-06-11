@@ -9,4 +9,4 @@ Description: Adaptor integration layer for 3D Canvas using OpenGLES
 Version: ${apiversion}
 Requires: dali
 Libs: -L${libdir}
-Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptors/
+Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptors/
