@@ -36,7 +36,11 @@ void Adaptor::GetDataStoragePath( std::string& path)
 {
   path = "";
 #ifdef OVER_TIZEN_SDK_2_2
-  path = app_get_data_path();
+  char *pathInt = app_get_data_path();
+  if ( pathInt )
+  {
+    path = pathInt;
+  }
 #endif
 }
 
