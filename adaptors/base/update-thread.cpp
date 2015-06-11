@@ -226,10 +226,8 @@ void UpdateThread::OutputFPSRecord()
         break;
       }
     }
-
+    fclose( outfile );
   }
-  fclose( outfile );
-
 }
 
 void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate )
