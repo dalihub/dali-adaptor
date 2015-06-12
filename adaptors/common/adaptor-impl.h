@@ -294,6 +294,11 @@ public:
   void RequestUpdateOnce();
 
   /**
+   * @copydoc Dali::Adaptor::NotifySceneCreated()
+   */
+  void NotifySceneCreated();
+
+  /**
    * @copydoc Dali::Adaptor::NotifyLanguageChanged()
    */
   void NotifyLanguageChanged();
