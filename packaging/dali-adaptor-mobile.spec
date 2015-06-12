@@ -21,6 +21,7 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       boost-thread
+Requires:       boost-chrono
 Requires:       giflib
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
@@ -47,7 +48,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
-BuildRequires:  pkgconfig(opengl-es-20)
+BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(efl-assist)
 BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
@@ -125,6 +126,7 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %setup -q
 %define dali_data_rw_dir         /opt/usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
+%define smack_rule_dir           /etc/smack/accesses2.d/
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define font_preloaded_path      /usr/share/fonts/
 %define font_downloaded_path     /opt/share/fonts/
@@ -186,6 +188,12 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 cd build/tizen
 %make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
+
+##############################
+# Smack
+##############################
+mkdir -p %{buildroot}%{smack_rule_dir}
+cp -f %{_builddir}/%{name}-%{version}/%{name}.rule-mobile %{buildroot}%{smack_rule_dir}/%{name}.rule
 
 # LICENSE
 mkdir -p %{buildroot}/usr/share/license
@@ -255,6 +263,7 @@ exit 0
 %files
 %manifest dali-adaptor.manifest-mobile
 %defattr(-,root,root,-)
+%{smack_rule_dir}/%{name}.rule
 %{_libdir}/libdali-adap*.so*
 %defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
