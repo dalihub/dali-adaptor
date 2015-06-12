@@ -233,6 +233,28 @@ void TtsPlayer::Resume()
   }
 }
 
+Dali::TtsPlayer::State TtsPlayer::GetState()
+{
+  Dali::TtsPlayer::State ttsState = Dali::TtsPlayer::UNAVAILABLE;
+
+  if(mInitialized)
+  {
+    // Check the current TTS state
+    tts_state_e state;
+    int retVal = tts_get_state(mTtsHandle, &state);
+    if(retVal != TTS_ERROR_NONE)
+    {
+      LogErrorCode(static_cast<tts_error_e>(retVal));
+    }
+    else
+    {
+      ttsState = static_cast<Dali::TtsPlayer::State>(state);
+    }
+  }
+
+  return ttsState;
+}
+
 void TtsPlayer::StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData)
 {
   TtsPlayer* obj = static_cast<TtsPlayer*>(userData);

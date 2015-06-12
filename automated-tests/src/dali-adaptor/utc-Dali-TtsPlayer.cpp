@@ -155,3 +155,20 @@ int UtcDaliTtsPlayerResumeN(void)
   END_TEST;
 }
 
+int UtcDaliTtsPlayerGetStateN(void)
+{
+  Dali::TtsPlayer player = Dali::TtsPlayer::Get();
+
+  try
+  {
+    Dali::TtsPlayer::State state = player.GetState();
+    DALI_TEST_CHECK( false ); // Should not reach here!
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
