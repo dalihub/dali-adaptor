@@ -135,6 +135,11 @@ bool Adaptor::IsAvailable()
   return Internal::Adaptor::Adaptor::IsAvailable();
 }
 
+void Adaptor::NotifySceneCreated()
+{
+  mImpl->NotifySceneCreated();
+}
+
 void Adaptor::NotifyLanguageChanged()
 {
   mImpl->NotifyLanguageChanged();

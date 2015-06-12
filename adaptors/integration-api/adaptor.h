@@ -247,6 +247,13 @@ public:
   static bool IsAvailable();
 
   /**
+   * @brief Call this method to notify Dali when scene is created and initialized.
+   *
+   * Notify Adaptor that the scene has been created.
+   */
+  void NotifySceneCreated();
+
+  /**
    * @brief Call this method to notify Dali when the system language changes.
    *
    * Use this only when NOT using Dali::Application, As Application created using
