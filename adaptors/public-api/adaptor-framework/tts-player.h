@@ -50,6 +50,17 @@ public: // ENUMs
     MODE_NUM
   };
 
+  /**
+   * @brief Enumeration of TTS state.
+   */
+  enum State
+  {
+    UNAVAILABLE = 0,    ///< Player is not available
+    READY,              ///< Player is ready to play
+    PLAYING,            ///< Player is playing
+    PAUSED              ///< Player is paused
+  };
+
 public: // API
 
   /**
@@ -114,6 +125,12 @@ public: // API
    * @pre The TtsPlayer needs to be initialized.
    */
   void Resume();
+
+  /**
+   * @brief Gets the current state of the player.
+   * @pre The TtsPlayer needs to be initialized.
+   */
+  State GetState();
 
 public: // Not intended for application developers
 

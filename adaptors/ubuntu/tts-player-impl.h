@@ -73,6 +73,11 @@ public:
    */
   void Resume();
 
+  /**
+   * @copydoc TtsPlayer::GetState()
+   */
+  Dali::TtsPlayer::State GetState();
+
 private:
 
   /**

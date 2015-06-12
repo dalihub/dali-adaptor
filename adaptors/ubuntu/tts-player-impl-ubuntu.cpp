@@ -78,6 +78,12 @@ void TtsPlayer::Resume()
 {
 }
 
+Dali::TtsPlayer::State TtsPlayer::GetState()
+{
+  return Dali::TtsPlayer::UNAVAILABLE;
+}
+
+
 } // namespace Adaptor
 
 } // namespace Internal
