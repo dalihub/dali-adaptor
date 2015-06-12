@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <accessibility-manager.h>
+#include <accessibility-adaptor.h>
 #include <imf-manager.h>
 #include <style-monitor.h>
 #include <render-surface.h>

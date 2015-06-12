@@ -38,7 +38,7 @@
 #include <trigger-event.h>
 #include <render-surface.h>
 #include <tts-player-impl.h>
-#include <accessibility-manager-impl.h>
+#include <accessibility-adaptor-impl.h>
 #include <events/gesture-manager.h>
 #include <events/event-handler.h>
 #include <feedback/feedback-controller.h>

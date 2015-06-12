@@ -78,6 +78,11 @@ public:
    */
   Dali::TtsPlayer::State GetState();
 
+  /**
+   * @copydoc TtsPlayer::StateChangedSignal()
+   */
+  Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
+
 private:
 
   /**
@@ -103,6 +108,13 @@ private:
   void LogErrorCode(tts_error_e reason);
 
   /**
+   * Used to emit the state changed signal from outside the object (EG. A static function).
+   * @param[in] previous The previous state
+   * @param[in] current The current state
+   */
+  void EmitStateChangedSignal( tts_state_e previous, tts_state_e current );
+
+  /**
    * Called when the state of TTS is changed.
    *
    * @param[in] tts The handle for TTS
@@ -120,6 +132,7 @@ private:
 
 private:
 
+  Dali::TtsPlayer::StateChangedSignalType mStateChangedSignal; ///< Signal emitted when the TTS state changes
   bool mInitialized; ///< Whether the TTS player is initialised successfully or not
   std::string mUnplayedString; ///< The text that can not be played because tts engine is not yet initialized
   tts_h mTtsHandle;  ///< The handle of TTS
