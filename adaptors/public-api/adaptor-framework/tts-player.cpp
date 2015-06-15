@@ -58,7 +58,7 @@ TtsPlayer& TtsPlayer::operator=(const TtsPlayer& rhs)
 
 void TtsPlayer::Play(const std::string& text)
 {
-  return GetImplementation(*this).Play(text);
+  GetImplementation(*this).Play(text);
 }
 
 void TtsPlayer::Stop()
@@ -74,6 +74,11 @@ void TtsPlayer::Pause()
 void TtsPlayer::Resume()
 {
   GetImplementation(*this).Resume();
+}
+
+TtsPlayer::State TtsPlayer::GetState()
+{
+  return GetImplementation(*this).GetState();
 }
 
 TtsPlayer::TtsPlayer( Internal::Adaptor::TtsPlayer* player )
