@@ -742,6 +742,11 @@ void Adaptor::SurfaceSizeChanged(const PositionSize& positionSize)
   mResizedSignal.Emit( mAdaptor );
 }
 
+void Adaptor::NotifySceneCreated()
+{
+  GetCore().SceneCreated();
+}
+
 void Adaptor::NotifyLanguageChanged()
 {
   mLanguageChangedSignal.Emit( mAdaptor );
