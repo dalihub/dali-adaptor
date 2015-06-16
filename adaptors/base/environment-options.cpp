@@ -74,9 +74,16 @@ bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
   return true;
 }
 
+const char * GetCharEnvironmentVariable( const char * variable )
+{
+  return std::getenv( variable );
 }
+
+} // unnamed namespace
+
 EnvironmentOptions::EnvironmentOptions()
-: mNetworkControl(0),
+: mWindowName(),
+  mNetworkControl(0),
   mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mPerformanceStatsLevel(0),
@@ -270,6 +277,19 @@ void EnvironmentOptions::SetWindowHeight( int height )
   mWindowHeight = height;
 }
 
+void EnvironmentOptions::SetWindowName( const char * name )
+{
+  if ( name )
+  {
+    mWindowName = name;
+  }
+}
+
+const std::string& EnvironmentOptions::GetWindowName() const
+{
+  return mWindowName;
+}
+
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
   return ( (GetPerformanceStatsLoggingOptions() > 0) ||
@@ -370,6 +390,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     SetWindowHeight( windowHeight );
   }
 
+  SetWindowName( GetCharEnvironmentVariable( DALI_WINDOW_NAME ) );
 }
 
 } // Adaptor

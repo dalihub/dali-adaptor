@@ -83,9 +83,11 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mInitialized( false ),
   mSlotDelegate( this )
 {
-  // Copy mName from command-line args
-  if( argc && ( *argc > 0 ) )
+  // Get mName from environment options
+  mName = mEnvironmentOptions.GetWindowName();
+  if( mName.empty() && argc && ( *argc > 0 ) )
   {
+    // Set mName from command-line args if environment option not set
     mName = (*argv)[0];
   }
 
