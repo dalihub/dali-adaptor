@@ -110,7 +110,7 @@ public:
    * @param[in]  argc      A pointer to the number of arguments.
    * @param[in]  argv      A pointer the the argument list.
    */
-  Framework(Observer& observer, int* argc, char ***argv, const std::string& name);
+  Framework( Observer& observer, int* argc, char ***argv );
 
   /**
    * Destructor
@@ -193,7 +193,6 @@ private:
   bool               mRunning;
   int*               mArgc;
   char***            mArgv;
-  std::string        mName;
   std::string        mBundleName;
   std::string        mBundleId;
   AbortHandler       mAbortHandler;

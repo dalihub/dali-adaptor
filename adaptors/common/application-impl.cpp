@@ -71,6 +71,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mMemoryLowSignal(),
   mEventLoop( NULL ),
   mFramework( NULL ),
+  mContextLossConfiguration( Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS ),
   mCommandLineOptions( NULL ),
   mSingletonService( SingletonService::New() ),
   mAdaptor( NULL ),
@@ -78,6 +79,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mWindowMode( windowMode ),
   mName(),
   mStylesheet( stylesheet ),
+  mEnvironmentOptions(),
   mInitialized( false ),
   mSlotDelegate( this )
 {
@@ -89,7 +91,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
 
-  mFramework = new Framework(*this, argc, argv, mName);
+  mFramework = new Framework( *this, argc, argv );
 }
 
 Application::~Application()
@@ -108,8 +110,13 @@ void Application::CreateWindow()
 
   if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
   {
-    // let the command line options over ride
+    // Command line options override environment options and full screen
     windowPosition = PositionSize( 0, 0, mCommandLineOptions->stageWidth, mCommandLineOptions->stageHeight );
+  }
+  else if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+  {
+    // Environment options override full screen functionality if command line arguments not provided
+    windowPosition = PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() );
   }
 
   mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );
@@ -119,7 +126,7 @@ void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS( mWindow && "Window required to create adaptor" );
 
-  mAdaptor = &Dali::Adaptor::New( mWindow, mContextLossConfiguration );
+  mAdaptor = Dali::Internal::Adaptor::Adaptor::New( mWindow, mContextLossConfiguration, &mEnvironmentOptions );
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 }
