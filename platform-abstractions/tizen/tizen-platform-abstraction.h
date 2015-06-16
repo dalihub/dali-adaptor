@@ -143,7 +143,7 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
-  virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadFile()
@@ -153,12 +153,17 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
-   * @copydoc PlatformAbstraction::LoadShaderBinFile()
+   * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
+
+  /**
+   * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
+   */
+  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
    * Sets path for data/resource storage.

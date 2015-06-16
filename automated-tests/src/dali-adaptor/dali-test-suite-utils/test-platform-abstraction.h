@@ -70,7 +70,7 @@ public:
     }
 
     bool loadResult;
-    std::vector< unsigned char> buffer;
+    Dali::Vector< unsigned char> buffer;
   };
 
   /**
@@ -163,18 +163,20 @@ public:
   /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
-  virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
-   * @copydoc PlatformAbstraction::LoadShaderBinFile()
+   * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer
+  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer
 ) const;
+
+  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const { return true; }
 
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes) const;
 
   virtual void JoinLoaderThreads();
 
@@ -190,7 +192,8 @@ public: // TEST FUNCTIONS
     SaveResourceFunc,
     SaveFileFunc,
     LoadFileFunc,
-    LoadShaderBinFileFunc,
+    LoadShaderBinaryFileFunc,
+    SaveShaderBinaryFileFunc,
     CancelLoadFunc,
     GetResourcesFunc,
     IsLoadingFunc,
@@ -240,7 +243,7 @@ public: // TEST FUNCTIONS
 
   void SetClosestImageSize(const Vector2& size);
 
-  void SetLoadFileResult( bool result, std::vector< unsigned char >& buffer );
+  void SetLoadFileResult( bool result, Dali::Vector< unsigned char >& buffer );
 
   void SetSaveFileResult( bool result );
 

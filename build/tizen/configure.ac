@@ -275,6 +275,7 @@ Configuration
   Data Dir (Read Only):             $dataReadOnlyDir
   OVERTIZEN2.2:                     $with_over_tizen_2_2
   EldBus:                           $eldbus_available
+  Shader Binary Cache:              $enable_shaderbincache
   Build for Node.JS (LibUV)         $build_for_node_js
 "
 # optional output of node.js source path if we're building for node.js
