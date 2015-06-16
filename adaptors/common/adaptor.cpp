@@ -25,10 +25,8 @@
 #include <accessibility-manager.h>
 #include <imf-manager.h>
 #include <style-monitor.h>
-#include <window.h>
 #include <render-surface.h>
 #include <adaptor-impl.h>
-#include <window-impl.h>
 
 namespace Dali
 {
@@ -40,11 +38,7 @@ Adaptor& Adaptor::New( Window window )
 
 Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
 {
-  Any winId = window.GetNativeHandle();
-
-  Internal::Adaptor::Window& windowImpl = GetImplementation(window);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( winId, windowImpl.GetSurface(), configuration );
-  windowImpl.SetAdaptor(*adaptor);
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, configuration, NULL );
   return *adaptor;
 }
 
@@ -56,7 +50,7 @@ Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface )
 Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration )
 {
   Dali::RenderSurface* pSurface = const_cast<Dali::RenderSurface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, configuration );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, configuration, NULL );
   return *adaptor;
 }
 

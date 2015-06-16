@@ -53,6 +53,7 @@
 #include <vsync-monitor.h>
 #include <object-profiler.h>
 #include <base/display-connection.h>
+#include <window-impl.h>
 
 #include <tizen-logging.h>
 
@@ -72,10 +73,10 @@ namespace
 __thread Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration )
+Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface );
+  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions );
   adaptor->mImpl = impl;
 
   impl->Initialize(configuration);
@@ -83,13 +84,22 @@ Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Con
   return adaptor;
 }
 
+Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+{
+  Any winId = window.GetNativeHandle();
+
+  Window& windowImpl = Dali::GetImplementation(window);
+  Dali::Adaptor* adaptor = New( winId, windowImpl.GetSurface(), configuration, environmentOptions );
+  windowImpl.SetAdaptor(*adaptor);
+  return adaptor;
+}
 
 void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
-  mEnvironmentOptions.SetLogFunction( logFunction );
-  mEnvironmentOptions.InstallLogFunction(); // install logging for main thread
+  mEnvironmentOptions->SetLogFunction( logFunction );
+  mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -105,20 +115,20 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.
 
-  if( mEnvironmentOptions.PerformanceServerRequired() )
+  if( mEnvironmentOptions->PerformanceServerRequired() )
   {
-    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, mEnvironmentOptions );
+    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
   }
 
   mCallbackManager = CallbackManager::New();
 
   PositionSize size = mSurface->GetPositionSize();
 
-  mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, mEnvironmentOptions);
+  mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
 
-  if( mEnvironmentOptions.GetGlesCallTime() > 0 )
+  if( mEnvironmentOptions->GetGlesCallTime() > 0 )
   {
-    mGLES = new GlProxyImplementation( mEnvironmentOptions );
+    mGLES = new GlProxyImplementation( *mEnvironmentOptions );
   }
   else
   {
@@ -137,46 +147,42 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mVSyncMonitor = new VSyncMonitor;
 
-  mUpdateRenderController = new UpdateRenderController( *this, mEnvironmentOptions );
+  mUpdateRenderController = new UpdateRenderController( *this, *mEnvironmentOptions );
 
   mDaliFeedbackPlugin = new FeedbackPluginProxy( FeedbackPluginProxy::DEFAULT_OBJECT_NAME );
 
   // Should be called after Core creation
-  if( mEnvironmentOptions.GetPanGestureLoggingLevel() )
+  if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
   {
     Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
   }
-  if( mEnvironmentOptions.GetPanGesturePredictionMode() >= 0 )
+  if( mEnvironmentOptions->GetPanGesturePredictionMode() >= 0 )
   {
-    Integration::SetPanGesturePredictionMode(mEnvironmentOptions.GetPanGesturePredictionMode());
+    Integration::SetPanGesturePredictionMode(mEnvironmentOptions->GetPanGesturePredictionMode());
   }
-  if( mEnvironmentOptions.GetPanGesturePredictionAmount() >= 0 )
+  if( mEnvironmentOptions->GetPanGesturePredictionAmount() >= 0 )
   {
-    Integration::SetPanGesturePredictionAmount(mEnvironmentOptions.GetPanGesturePredictionAmount());
+    Integration::SetPanGesturePredictionAmount(mEnvironmentOptions->GetPanGesturePredictionAmount());
   }
-  if( mEnvironmentOptions.GetPanGestureMaximumPredictionAmount() >= 0 )
+  if( mEnvironmentOptions->GetPanGestureMaximumPredictionAmount() >= 0 )
   {
-    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions.GetPanGestureMaximumPredictionAmount());
+    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount());
   }
-  if( mEnvironmentOptions.GetPanGestureMinimumPredictionAmount() >= 0 )
+  if( mEnvironmentOptions->GetPanGestureMinimumPredictionAmount() >= 0 )
   {
-    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions.GetPanGestureMinimumPredictionAmount());
+    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount());
   }
-  if( mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment() >= 0 )
+  if( mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment() >= 0 )
   {
-    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions.GetPanGesturePredictionAmountAdjustment());
+    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment());
   }
-  if( mEnvironmentOptions.GetPanGestureSmoothingMode() >= 0 )
+  if( mEnvironmentOptions->GetPanGestureSmoothingMode() >= 0 )
   {
-    Integration::SetPanGestureSmoothingMode(mEnvironmentOptions.GetPanGestureSmoothingMode());
+    Integration::SetPanGestureSmoothingMode(mEnvironmentOptions->GetPanGestureSmoothingMode());
   }
-  if( mEnvironmentOptions.GetPanGestureSmoothingAmount() >= 0.0f )
+  if( mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f )
   {
-    Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions.GetPanGestureSmoothingAmount());
-  }
-  if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
-  {
-    SurfaceResized( PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() ));
+    Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
   }
 }
 
@@ -211,6 +217,12 @@ Adaptor::~Adaptor()
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
+
+  // Delete environment options if we own it
+  if( mEnvironmentOptionsOwned )
+  {
+    delete mEnvironmentOptions;
+  }
 }
 
 void Adaptor::Start()
@@ -759,7 +771,7 @@ void Adaptor::ProcessCoreEventsFromIdle()
   mNotificationOnIdleInstalled = false;
 }
 
-Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface)
+Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mAdaptor(adaptor),
@@ -782,9 +794,10 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mObservers(),
   mDragAndDropDetector(),
   mDeferredRotationObserver(NULL),
-  mEnvironmentOptions(),
+  mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
   mPerformanceInterface(NULL),
-  mObjectProfiler(NULL)
+  mObjectProfiler(NULL),
+  mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
   gThreadLocalAdaptor = this;
