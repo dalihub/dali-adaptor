@@ -247,6 +247,16 @@ public:
    */
   bool PerformanceServerRequired() const;
 
+  /**
+   * @brief Sets the window name.
+   */
+  void SetWindowName( const char * name );
+
+  /**
+   * @return Gets the window name. NULL if not set
+   */
+  const std::string& GetWindowName() const;
+
 private: // Internal
 
   /**
@@ -257,6 +267,7 @@ private: // Internal
 
 private: // Data
 
+  std::string mWindowName;                        ///< name of the window
   unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames

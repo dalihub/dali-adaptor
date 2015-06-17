@@ -82,6 +82,8 @@ namespace Adaptor
 
 #define DALI_WINDOW_HEIGHT "DALI_WINDOW_HEIGHT"
 
+#define DALI_WINDOW_NAME "DALI_WINDOW_NAME"
+
 } // namespace Adaptor
 
 } // namespace Internal
