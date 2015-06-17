@@ -122,6 +122,13 @@ void Application::CreateWindow()
   }
 
   mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );
+
+  // Set the window class name if available
+  const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
+  if( ! windowClassName.empty() )
+  {
+    mWindow.SetClass( mName, windowClassName );
+  }
 }
 
 void Application::CreateAdaptor()
