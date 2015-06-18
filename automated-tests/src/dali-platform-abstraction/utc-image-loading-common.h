@@ -77,9 +77,9 @@ double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
 /** Live platform abstraction recreated for each test case. */
 extern Integration::PlatformAbstraction * gAbstraction;
 
-/** A variety of ImageAttributes to reach different code paths that have embedded code paths. */
-typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageAttributes;
-extern std::vector<ImageAttributes> gCancelAttributes;
+/** A variety of parameters to reach different code paths in the image loading. */
+typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;
+extern std::vector<ImageParameters> gCancelAttributes;
 
 
 void utc_dali_loading_startup(void);
