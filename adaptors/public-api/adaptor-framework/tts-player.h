@@ -50,6 +50,17 @@ public: // ENUMs
     MODE_NUM
   };
 
+  /**
+   * @brief Enumeration of TTS state.
+   */
+  enum State
+  {
+    UNAVAILABLE = 0,    ///< Player is not available
+    READY,              ///< Player is ready to play
+    PLAYING,            ///< Player is playing
+    PAUSED              ///< Player is paused
+  };
+
 public: // API
 
   /**
@@ -60,11 +71,10 @@ public: // API
   TtsPlayer();
 
   /**
-   * @brief Gets the singleton of the TtsPlayer for each mode.
+   * @brief Gets the singleton of the TtsPlayer for the given mode.
    *
-   * Internally, each tts player handles (singleton instance) are managed for each mode.
    * @param mode the mode of tts-player
-   * @return A handle of the Ttsplayer for given mode.
+   * @return A handle of the Ttsplayer for the given mode.
    */
   static TtsPlayer Get(Dali::TtsPlayer::Mode mode = Dali::TtsPlayer::DEFAULT);
 
@@ -74,6 +84,21 @@ public: // API
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
   ~TtsPlayer();
+
+  /**
+   * @brief This copy constructor is required for (smart) pointer semantics.
+   *
+   * @param [in] handle A reference to the copied handle
+   */
+  TtsPlayer(const TtsPlayer& handle);
+
+  /**
+   * @brief This assignment operator is required for (smart) pointer semantics.
+   *
+   * @param [in] rhs  A reference to the copied handle
+   * @return A reference to this
+   */
+  TtsPlayer& operator=(const TtsPlayer& rhs);
 
   /**
    * @brief Start playing the audio data synthesized from the specified text.
@@ -100,6 +125,12 @@ public: // API
    * @pre The TtsPlayer needs to be initialized.
    */
   void Resume();
+
+  /**
+   * @brief Gets the current state of the player.
+   * @pre The TtsPlayer needs to be initialized.
+   */
+  State GetState();
 
 public: // Not intended for application developers
 

@@ -48,6 +48,7 @@ namespace Dali
 {
 
 class RenderSurface;
+class Window;
 
 namespace Integration
 {
@@ -91,15 +92,25 @@ public:
 
   /**
    * Creates a New Adaptor
-   * @param[in]  nativeWindow  native window handle
-   * @param[in]  surface       A render surface can be one of the following
-   *                           - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                           - Window, adaptor will use existing Window to draw on to
-   * @param[in]  configuration The context loss configuration ( to choose resource discard policy )
+   * @param[in]  nativeWindow        Native window handle
+   * @param[in]  surface             A render surface can be one of the following
+   *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                                  - Window, adaptor will use existing Window to draw on to
+   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
+   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( Any nativeWindow,
                              RenderSurface* surface,
-                             Dali::Configuration::ContextLoss configuration );
+                             Dali::Configuration::ContextLoss configuration,
+                             EnvironmentOptions* environmentOptions );
+
+  /**
+   * Creates a New Adaptor
+   * @param[in]  nativeWindow        native window handle
+   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
+   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   */
+  static Dali::Adaptor* New( Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
@@ -294,6 +305,11 @@ public:
   void RequestUpdateOnce();
 
   /**
+   * @copydoc Dali::Adaptor::NotifySceneCreated()
+   */
+  void NotifySceneCreated();
+
+  /**
    * @copydoc Dali::Adaptor::NotifyLanguageChanged()
    */
   void NotifyLanguageChanged();
@@ -478,8 +494,9 @@ private:
    * @param[in]  surface      A render surface can be one of the following
    *                          - Pixmap, adaptor will use existing Pixmap to draw on to
    *                          - Window, adaptor will use existing Window to draw on to
+   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface );
+  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions );
 
 private: // Types
 
@@ -523,13 +540,14 @@ private: // Data
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
   DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
   RotationObserver*                     mDeferredRotationObserver;    ///< deferred Rotation observer needs event handler
-  EnvironmentOptions                    mEnvironmentOptions;          ///< environment options
+  EnvironmentOptions*                   mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
   SystemTrace                           mSystemTracer;                ///< System tracer
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
+  const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

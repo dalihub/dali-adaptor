@@ -36,6 +36,8 @@ namespace TextAbstraction
  */
 enum Script
 {
+  COMMON,     ///< Valid for all scripts. i.e white space or '\n'.
+
   CYRILLIC,   ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
   GREEK,      ///< The Greek script. Used by Greek.
   LATIN,      ///< The latin script. Used by many western languages and others around the world.
@@ -74,6 +76,8 @@ enum Script
 
 const char* const ScriptName[] =
 {
+  "COMMON",     ///< Valid for all scripts. i.e white space or '\n'.
+
   "CYRILLIC",   ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
   "GREEK",      ///< The Greek script. Used by Greek.
   "LATIN",      ///< The latin script. Used by many western languages and others around the world.
@@ -199,6 +203,15 @@ DALI_IMPORT_API bool IsRightToLeftMark( Character character );
  * @return @e true if the character is a thin space.
  */
 DALI_IMPORT_API bool IsThinSpace( Character character );
+
+/**
+ * @brief Whether the character is common within all scripts.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is common within all scripts.
+ */
+DALI_IMPORT_API bool IsCommonScript( Character character );
 
 } // namespace TextAbstraction
 

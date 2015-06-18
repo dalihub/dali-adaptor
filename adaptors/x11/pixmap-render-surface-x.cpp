@@ -194,6 +194,9 @@ void PixmapRenderSurface::CreateXRenderable()
   gc = ecore_x_gc_new( mX11Pixmap,
                        ECORE_X_GC_VALUE_MASK_FOREGROUND,
                        &foreground );
+
+  DALI_ASSERT_ALWAYS( gc && "CreateXRenderable(): failed to get gc" );
+
   ecore_x_drawable_rectangle_fill( mX11Pixmap, gc, 0, 0, mPosition.width, mPosition.height );
 
   DALI_ASSERT_ALWAYS( mX11Pixmap && "Failed to create X pixmap" );
