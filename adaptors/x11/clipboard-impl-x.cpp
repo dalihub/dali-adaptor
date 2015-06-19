@@ -173,7 +173,7 @@ unsigned int Clipboard::NumberOfItems()
   Ecore_X_Atom xAtomCbhmCountGet = ecore_x_atom_get( CBHM_cCOUNT );
 
   std::string ret( ECore::WindowInterface::GetWindowProperty( xAtomCbhmCountGet, NULL, 0 ) );
-  int count = -1;
+  int count = 0;
 
   if ( !ret.empty() )
   {
