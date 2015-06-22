@@ -40,10 +40,12 @@ namespace Adaptor
 class ObjectProfiler : public ConnectionTracker
 {
 public:
+
   /**
    * Constructor
+   * @param timeInterval to specify the frequency of reporting
    */
-  ObjectProfiler();
+  ObjectProfiler( unsigned int timeInterval );
 
   /**
    * Destructor
@@ -89,7 +91,6 @@ private:
   Dali::Timer             mTimer;
   InstanceCountMap        mInstanceCountMap;
   InstanceTypes           mInstanceTypes;
-  bool                    mIsActive;
 };
 
 } // Adaptor

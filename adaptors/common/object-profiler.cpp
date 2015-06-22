@@ -38,28 +38,18 @@ namespace Internal
 namespace Adaptor
 {
 
-ObjectProfiler::ObjectProfiler()
-: mIsActive(false)
+ObjectProfiler::ObjectProfiler( unsigned int timeInterval )
 {
   // This class must be created after the Stage; this means it doesn't count the initial objects
   // that are created by the stage (base layer, default camera actor)
   mObjectRegistry = Dali::Stage::GetCurrent().GetObjectRegistry();
 
-  char* profile = getenv("PROFILE_DALI_OBJECTS");
-  if( profile != NULL )
-  {
-    mIsActive = true;
-    int timeInterval = atoi(profile);
-    if( timeInterval > 0 )
-    {
-      mTimer = Dali::Timer::New(timeInterval*1000);
-      mTimer.TickSignal().Connect( this, &ObjectProfiler::OnTimeout );
-      mTimer.Start();
-    }
+  mTimer = Dali::Timer::New( timeInterval * 1000 );
+  mTimer.TickSignal().Connect( this, &ObjectProfiler::OnTimeout );
+  mTimer.Start();
 
-    mObjectRegistry.ObjectCreatedSignal().Connect( this, &ObjectProfiler::OnObjectCreated );
-    mObjectRegistry.ObjectDestroyedSignal().Connect( this, &ObjectProfiler::OnObjectDestroyed );
-  }
+  mObjectRegistry.ObjectCreatedSignal().Connect( this, &ObjectProfiler::OnObjectCreated );
+  mObjectRegistry.ObjectDestroyedSignal().Connect( this, &ObjectProfiler::OnObjectDestroyed );
 }
 
 ObjectProfiler::~ObjectProfiler()
