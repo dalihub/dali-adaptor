@@ -179,6 +179,12 @@ int ObjectProfiler::GetMemorySize(const std::string& name, int count)
       { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
       { "ImageActor", IMAGE_ACTOR_MEMORY_SIZE },
       { "Image", IMAGE_MEMORY_SIZE },
+      { "Renderer", RENDERER_MEMORY_SIZE },
+      { "Geometry", GEOMETRY_MEMORY_SIZE },
+      { "PropertyBuffer", PROPERTY_BUFFER_MEMORY_SIZE },
+      { "Material", MATERIAL_MEMORY_SIZE },
+      { "Sampler", SAMPLER_MEMORY_SIZE },
+      { "Shader", SHADER_MEMORY_SIZE },
     };
 
   for( size_t i=0; i<sizeof(memoryMemorySizes)/sizeof(MemoryMemorySize); i++ )
