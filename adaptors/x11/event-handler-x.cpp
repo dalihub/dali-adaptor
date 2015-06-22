@@ -292,6 +292,13 @@ struct EventHandler::Impl
             {
               DALI_LOG_INFO( gImfLogging, Debug::General, "Failed to Select Events\n" );
             }
+
+            free( xiEventMask.mask );
+
+            if( deviceInfo != NULL )
+            {
+              XIFreeDeviceInfo( deviceInfo );
+            }
           }
         }
         else
