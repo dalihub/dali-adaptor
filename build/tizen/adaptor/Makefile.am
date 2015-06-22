@@ -272,6 +272,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(ASSIMP_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
 
+libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
+
 libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
                       $(OPENGLES20_LIBS) \
