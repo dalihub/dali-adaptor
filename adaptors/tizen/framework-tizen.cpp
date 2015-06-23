@@ -25,7 +25,6 @@
 
 #ifdef OVER_TIZEN_SDK_2_2
 #include <system_info.h>
-#include <app_control_internal.h>
 #endif
 
 #include <dali/integration-api/debug.h>
