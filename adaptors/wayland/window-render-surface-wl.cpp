@@ -102,7 +102,7 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
   // create the EGL surface
-  mWlSurface = ecore_wl_window_surface_create(mWlWindow);
+  ecore_wl_window_surface_create(mWlWindow);
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
   eglImpl.CreateSurfaceWindow( (EGLNativeWindowType)mEglWindow, mColorDepth ); // reinterpret_cast does not compile
 }

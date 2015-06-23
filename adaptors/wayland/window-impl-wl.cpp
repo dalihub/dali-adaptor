@@ -65,13 +65,6 @@ struct Window::EventHandler
   : mWindow( window ),
     mEcoreWindow( 0 )
   {
-    // store ecore window handle
-    ECore::WindowRenderSurface* wlWindow( dynamic_cast< ECore::WindowRenderSurface * >( mWindow->mSurface ) );
-    if( wlWindow )
-    {
-      mEcoreWindow = wlWindow->GetWlWindow();
-    }
-    DALI_ASSERT_ALWAYS( mEcoreWindow != 0 && "There is no ecore wl window");
   }
 
   /**

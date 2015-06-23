@@ -339,15 +339,6 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 libdali_adaptor_la_LIBADD +=
 endif
 
-if !UBUNTU_PROFILE
-if WAYLAND
-else
-# X11
-libdali_adaptor_la_CXXFLAGS += $(UTILX_CFLAGS)
-libdali_adaptor_la_LIBADD += $(UTILX_LIBS)
-endif
-endif
-
 if TURBO_JPEG_IS_ON
 libdali_adaptor_la_LIBADD += -lturbojpeg
 CFLAGS += -D_TURBO_JPEG_LOADER
@@ -385,7 +376,6 @@ tizentextabstractiondevelapidir = $(tizenadaptordevelapidir)/text-abstraction
 tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
-tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_header_files)
 
 if !WAYLAND
 tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
