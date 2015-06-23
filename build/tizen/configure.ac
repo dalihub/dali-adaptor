@@ -136,6 +136,32 @@ AC_ARG_ENABLE([gles],
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
+# node.js by default statically links against libuv, so it doesn't need to install
+# a libuv headers/ shared library. So we can't use pkg-config to access any headers.
+# As a work around we pass the node deps path so we can access the libuv headers inside nodes
+# directory
+AC_ARG_WITH([node-js],
+              [AC_HELP_STRING([--with-node-js],
+                              [Node.JS path that contains Lib UV headers. Setting this configures DALi to work with LibUV mainloop used in Node.JS.
+                              For example /usr/tmp/downloads/node-v0.12.4/deps/uv/include/ ])],
+              [with_node_js=$withval],
+              [with_node_js=no])
+
+# Node.JS already has a libuv main loop running,so we have to integrate with it
+AM_CONDITIONAL(LIB_UV_EVENT_LOOP, test x$with_node_js != xno)
+
+
+build_for_node_js=no
+if test "x$with_node_js" != "xno"; then
+  AC_MSG_NOTICE("build for node_js == yes");
+  [build_for_node_js=yes]
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DNODE_JS_SUPPORT  -I${with_node_js}"
+else
+ #not using node.js build
+  AC_MSG_NOTICE("build for node_js == no");
+fi
+
+
 AC_ARG_WITH([over-tizen_2_2],
             [AC_HELP_STRING([--with-over-tizen_2_2],
                             [Use tizen API over ver. 2.2])],
@@ -271,4 +297,9 @@ Configuration
   Data Dir (Read Only):             $dataReadOnlyDir
   OVERTIZEN2.2:                     $with_over_tizen_2_2
   EldBus:                           $eldbus_available
+  Build for Node.JS (LibUV)         $build_for_node_js
 "
+# optional output of node.js source path if we're building for node.js
+if test "x$build_for_node_js" != "xno"; then
+echo "  Node.JS LibUV header path         $with_node_js"
+fi

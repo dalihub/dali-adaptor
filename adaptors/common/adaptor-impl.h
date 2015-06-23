@@ -132,6 +132,11 @@ public:
    */
   static bool IsAvailable();
 
+  /**
+   * @copydoc Dali::Core::SceneCreated();
+   */
+  void SceneCreated();
+
 public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::Start()

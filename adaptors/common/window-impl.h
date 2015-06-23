@@ -261,6 +261,7 @@ private:
   bool                             mStarted:1;
   bool                             mIsTransparent:1;
   bool                             mWMRotationAppSet:1;
+  bool                             mEcoreEventHander:1;
   Indicator*                       mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;

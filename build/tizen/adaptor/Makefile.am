@@ -164,6 +164,18 @@ endif # WAYLAND
 
 endif
 
+# Node JS support for using an external libuv main loop. If not enabled then just use e-core as normal
+# Used for things like callbacks, file-monintors, x input handling
+if LIB_UV_EVENT_LOOP
+main_loop_integration_src_files = $(adaptor_common_internal_uv_src_files)
+input_event_handler_src_files = $(adaptor_uv_x_event_handler_internal_src_files)
+else
+main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
+input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
+endif
+
+
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = dali-adaptor-integration.pc
 
@@ -179,11 +191,14 @@ lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
+                     $(main_loop_integration_src_files) \
                      $(tizen_platform_abstraction_src_files) \
                      $(text_abstraction_src_files) \
                      $(devel_api_src_files) \
                      $(public_api_src_files) \
-                     $(adaptor_internal_src_files)
+                     $(adaptor_internal_src_files) \
+                     $(input_event_handler_src_files)
+
 
 libdali_adaptor_la_DEPENDENCIES =
 
@@ -381,14 +396,19 @@ bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
 
 # linking test
 
+# turn off the linker test if were building for libuv
+# We can't link to LibUV becase it is statically linked to Node.JS (by default)
+if !LIB_UV_EVENT_LOOP
 noinst_PROGRAMS = linker.test
+endif # NOT LIB_UV_EVENT_LOOP
 
 linker_test_SOURCES = linker-test.cpp
 
 linker_test_CXXFLAGS = \
+  -DDALI_ADAPTOR_COMPILATION \
   -I../../../adaptors/common \
   -I../../../adaptors/public-api \
-    -I../../../adaptors/integration-api \
+  -I../../../adaptors/integration-api \
   -I../../../adaptors/base/interfaces \
   -I../../../adaptors/public-api/adaptor-framework \
   -I../../../adaptors/devel-api/adaptor-framework \

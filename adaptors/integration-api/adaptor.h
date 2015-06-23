@@ -23,10 +23,20 @@
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/common/view-mode.h>
 
 // INTERNAL INCLUDES
-#include "window.h"
-#include "application-configuration.h"
+
+
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+// @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
+#include <window.h>
+#include <application-configuration.h>
+#else
+#include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/adaptor-framework/application-configuration.h>
+#endif
+
 
 namespace Dali
 {
@@ -294,6 +304,21 @@ public:
    * @param[in] keyEvent The key event holding the key information.
    */
   void FeedKeyEvent( KeyEvent& keyEvent );
+
+  /**
+   * @copydoc Dali::Core::SceneCreated();
+   */
+  void SceneCreated();
+
+  /**
+   * @copydoc Dali::Application::SetViewMode();
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Application::SetStereoBase();
+   */
+  void SetStereoBase( float stereoBase );
 
 public:  // Signals
 

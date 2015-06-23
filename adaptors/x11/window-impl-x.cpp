@@ -63,8 +63,8 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
-    mWindowPropertyHandler( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_PROPERTY,  EcoreEventWindowPropertyChanged, this ) ),
-    mClientMessagehandler( ecore_event_handler_add( ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this ) ),
+    mWindowPropertyHandler( NULL ),
+    mClientMessagehandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -83,7 +83,13 @@ struct Window::EventHandler
                              &tmp, 1);
 #endif // DALI_PROFILE_UBUNTU
 
-    ecore_x_input_multi_select( mEcoreWindow );
+    if( mWindow->mEcoreEventHander )
+    {
+      ecore_x_input_multi_select( mEcoreWindow );
+      mWindowPropertyHandler=  ecore_event_handler_add( ECORE_X_EVENT_WINDOW_PROPERTY,  EcoreEventWindowPropertyChanged, this );
+      mClientMessagehandler =  ecore_event_handler_add( ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this );
+    }
+
   }
 
   /**
@@ -318,6 +324,7 @@ Window::Window()
   mStarted(false),
   mIsTransparent(false),
   mWMRotationAppSet(false),
+  mEcoreEventHander(true),
   mIndicator(NULL),
   mIndicatorOrientation(Dali::Window::PORTRAIT),
   mNextIndicatorOrientation(Dali::Window::PORTRAIT),
@@ -327,6 +334,17 @@ Window::Window()
   mEventHandler(NULL),
   mPreferredOrientation(Dali::Window::PORTRAIT)
 {
+
+  // Detect if we're not running in a ecore main loop (e.g. libuv).
+  // Typically ecore_x_init is called by app_efl_main->elm_init
+  // but if we're not using app_efl_main then we have to call it ourselves
+  // This is a hack until we create a pure X Window class
+  if( ecore_x_display_get() == NULL )
+  {
+    mEcoreEventHander = false;
+    ecore_x_init (NULL); //  internally calls _ecore_x_input_init
+  }
+
 }
 
 Window::~Window()
