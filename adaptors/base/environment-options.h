@@ -79,6 +79,11 @@ public:
   unsigned int GetUpdateStatusLoggingFrequency() const;
 
   /**
+   * @return object profiler status interval ( 0 == off )
+   */
+  unsigned int GetObjectProfilerInterval() const;
+
+  /**
    * @return performance statistics log level ( 0 == off )
    */
   unsigned int GetPerformanceStatsLoggingOptions() const;
@@ -195,6 +200,7 @@ private: // Data
   unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
+  unsigned int mObjectProfilerInterval;           ///< how often object counts are logged out in seconds
   unsigned int mPerformanceStatsLevel;            ///< performance statistics logging bitmask
   unsigned int mPerformanceStatsFrequency;        ///< performance statistics logging frequency (seconds)
   unsigned int mPerformanceTimeStampOutput;       ///< performance time stamp output ( bitmask)

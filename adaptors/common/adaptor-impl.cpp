@@ -141,7 +141,11 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
 
-  mObjectProfiler = new ObjectProfiler();
+  const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
+  if( 0u < timeInterval )
+  {
+    mObjectProfiler = new ObjectProfiler( timeInterval );
+  }
 
   mNotificationTrigger = new TriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ) );
 
