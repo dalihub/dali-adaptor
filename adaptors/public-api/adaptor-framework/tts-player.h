@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -60,6 +61,13 @@ public: // ENUMs
     PLAYING,            ///< Player is playing
     PAUSED              ///< Player is paused
   };
+
+public: // Typedefs
+
+  /**
+   * @brief Type of signal emitted when the TTS state changes.
+   */
+  typedef Signal< void ( const Dali::TtsPlayer::State, const Dali::TtsPlayer::State ) > StateChangedSignalType;
 
 public: // API
 
@@ -131,6 +139,13 @@ public: // API
    * @pre The TtsPlayer needs to be initialized.
    */
   State GetState();
+
+  /**
+   * @brief Allows connection TTS state change signal.
+   * Note: Only supported by some adaptor types.
+   * @return A reference to the signal for connection.
+   */
+  Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
 
 public: // Not intended for application developers
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,10 @@
 #include <vconf.h>
 #include <vconf-keys.h>
 #endif // DALI_PROFILE_UBUNTU
+
+#ifdef DALI_ELDBUS_AVAILABLE
+#include <Eldbus.h>
+#endif // DALI_ELDBUS_AVAILABLE
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/events/touch-point.h>
@@ -81,6 +85,16 @@ namespace
 
 const char * DETENT_DEVICE_NAME = "tizen_detent";
 
+// DBUS accessibility
+#define A11Y_BUS "org.a11y.Bus"
+#define A11Y_INTERFACE "org.a11y.Bus"
+#define A11Y_PATH "/org/a11y/bus"
+#define A11Y_GET_ADDRESS "GetAddress"
+#define BUS "com.samsung.EModule"
+#define INTERFACE "com.samsung.GestureNavigation"
+#define PATH "/com/samsung/GestureNavigation"
+#define SIGNAL "GestureDetected"
+
 #ifndef DALI_PROFILE_UBUNTU
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
@@ -108,6 +122,83 @@ const unsigned int DRAG_AND_DROP_ATOMS_NUMBER = sizeof( DRAG_AND_DROP_ATOMS ) / 
 const unsigned int DRAG_AND_DROP_TYPES_NUMBER = sizeof( DRAG_AND_DROP_TYPES ) / sizeof( const char * );
 
 const unsigned int BYTES_PER_CHARACTER_FOR_ATTRIBUTES = 3;
+
+#ifdef DALI_ELDBUS_AVAILABLE
+// DBus gesture string matching lists.
+// TODO: This needs moving to its own module.
+const char * ElDBusAccessibilityFingerCountStrings[] =
+{
+  "OneFinger",
+  "TwoFingers",
+  "ThreeFingers"
+};
+const unsigned int FingerCountStringsTotal = sizeof( ElDBusAccessibilityFingerCountStrings ) / sizeof( ElDBusAccessibilityFingerCountStrings[0] );
+enum GestureType
+{
+  GESTURE_TYPE_NONE,
+  GESTURE_TYPE_HOVER,
+  GESTURE_TYPE_SINGLE_TAP,
+  GESTURE_TYPE_DOUBLE_TAP,
+  GESTURE_TYPE_TRIPLE_TAP
+};
+struct GestureTypeTable
+{
+  const char* name;
+  const GestureType type;
+};
+GestureTypeTable ElDBusAccessibilityFullEventTypeStrings[] =
+{
+  { "Hover",     GESTURE_TYPE_HOVER      },
+  { "SingleTap", GESTURE_TYPE_SINGLE_TAP },
+  { "DoubleTap", GESTURE_TYPE_DOUBLE_TAP },
+  { "TripleTap", GESTURE_TYPE_TRIPLE_TAP }
+};
+const unsigned int FullEventTypeStringsTotal = sizeof( ElDBusAccessibilityFullEventTypeStrings ) / sizeof( ElDBusAccessibilityFullEventTypeStrings[0] );
+enum SubGestureType
+{
+  SUB_GESTURE_TYPE_NONE,
+  SUB_GESTURE_TYPE_FLICK
+};
+struct SubGestureTypeTable
+{
+  const char* name;
+  const SubGestureType type;
+};
+SubGestureTypeTable ElDBusAccessibilityDirectionalEventTypeStrings[] =
+{
+  { "Flick", SUB_GESTURE_TYPE_FLICK }
+};
+const unsigned int DirectionalEventTypeStringsTotal = sizeof( ElDBusAccessibilityDirectionalEventTypeStrings ) / sizeof( ElDBusAccessibilityDirectionalEventTypeStrings[0] );
+enum GestureDirection
+{
+  GESTURE_DIRECTION_NONE,
+  GESTURE_DIRECTION_UP,
+  GESTURE_DIRECTION_DOWN,
+  GESTURE_DIRECTION_LEFT,
+  GESTURE_DIRECTION_RIGHT,
+  GESTURE_DIRECTION_UP_RETURN,
+  GESTURE_DIRECTION_DOWN_RETURN,
+  GESTURE_DIRECTION_LEFT_RETURN,
+  GESTURE_DIRECTION_RIGHT_RETURN
+};
+struct GestureDirectionTable
+{
+	const char* name;
+	const GestureDirection direction;
+};
+GestureDirectionTable ElDBusAccessibilityDirectionStrings[] =
+{
+  { "Up",           GESTURE_DIRECTION_UP           },
+  { "Down",         GESTURE_DIRECTION_DOWN         },
+  { "Left",         GESTURE_DIRECTION_LEFT         },
+  { "Right",        GESTURE_DIRECTION_RIGHT        },
+  { "UpReturn",     GESTURE_DIRECTION_UP_RETURN    },
+  { "DownReturn",   GESTURE_DIRECTION_DOWN_RETURN  },
+  { "LeftReturn",   GESTURE_DIRECTION_LEFT_RETURN  },
+  { "RightReturn",  GESTURE_DIRECTION_RIGHT_RETURN }
+};
+const unsigned int DirectionStringsTotal = sizeof( ElDBusAccessibilityDirectionStrings ) / sizeof( ElDBusAccessibilityDirectionStrings[0] );
+#endif // DALI_ELDBUS_AVAILABLE
 
 /**
  * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
@@ -316,6 +407,25 @@ struct EventHandler::Impl
       vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, handler );
       vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, handler );
 #endif // DALI_PROFILE_UBUNTU
+
+#ifdef DALI_ELDBUS_AVAILABLE
+
+      // Initialize ElDBus.
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Starting DBus Initialization" );
+      eldbus_init();
+
+      Eldbus_Connection *sessionConnection;
+      sessionConnection = eldbus_connection_get( ELDBUS_CONNECTION_TYPE_SESSION );
+
+      Eldbus_Object *a11yObject = eldbus_object_get( sessionConnection, A11Y_BUS, A11Y_PATH );
+      Eldbus_Proxy *elDBusManager = eldbus_proxy_get( a11yObject, A11Y_INTERFACE );
+
+      // Pass in handler in the cb_data field so we can access the accessibility adaptor within the callback.
+      eldbus_proxy_call( elDBusManager, A11Y_GET_ADDRESS, EcoreElDBusInitialisation, handler, -1, "" );
+
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Finished DBus Initialization" );
+
+#endif // DALI_ELDBUS_AVAILABLE
     }
   }
 
@@ -333,6 +443,11 @@ struct EventHandler::Impl
     {
       ecore_event_handler_del( *iter );
     }
+
+#ifdef DALI_ELDBUS_AVAILABLE
+    // Close down ElDBus
+    eldbus_shutdown();
+#endif // DALI_ELDBUS_AVAILABLE
   }
 
   // Static methods
@@ -898,9 +1013,9 @@ struct EventHandler::Impl
 
     if (clientMessageEvent->message_type == ECORE_X_ATOM_E_ILLUME_ACCESS_CONTROL)
     {
-      if ( ( (unsigned int)clientMessageEvent->data.l[0] == handler->mImpl->mWindow ) && handler->mAccessibilityManager )
+      if ( ( (unsigned int)clientMessageEvent->data.l[0] == handler->mImpl->mWindow ) && handler->mAccessibilityAdaptor )
       {
-        AccessibilityManager* accessibilityManager( &AccessibilityManager::GetImplementation( handler->mAccessibilityManager ) );
+        AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( handler->mAccessibilityAdaptor ) );
 
         if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_SCROLL)
         {
@@ -933,11 +1048,11 @@ struct EventHandler::Impl
             (unsigned int)clientMessageEvent->data.l[2],
             (unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4]);
 
-          // Send touch event to accessibility manager.
+          // Send touch event to accessibility adaptor.
           TouchPoint point( 0, state, (float)clientMessageEvent->data.l[3], (float)clientMessageEvent->data.l[4] );
 
           // In accessibility mode, scroll action should be handled when the currently focused actor is contained in scrollable control
-          accessibilityManager->HandleActionScrollEvent( point, GetCurrentMilliSeconds() );
+          accessibilityAdaptor->HandleActionScrollEvent( point, GetCurrentMilliSeconds() );
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_MOUSE)
         {
@@ -970,51 +1085,51 @@ struct EventHandler::Impl
             (unsigned int)clientMessageEvent->data.l[2],
             (unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4]);
 
-          // Send touch event to accessibility manager.
+          // Send touch event to accessibility adaptor.
           TouchPoint point( 0, state, (float)clientMessageEvent->data.l[3], (float)clientMessageEvent->data.l[4] );
 
           // In accessibility mode, scroll action should be handled when the currently focused actor is contained in scrollable control
-          accessibilityManager->HandleActionTouchEvent( point, GetCurrentMilliSeconds() );
+          accessibilityAdaptor->HandleActionTouchEvent( point, GetCurrentMilliSeconds() );
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_BACK)
         {
           // 2 finger circle draw, do back
-          accessibilityManager->HandleActionBackEvent();
+          accessibilityAdaptor->HandleActionBackEvent();
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_NEXT)
         {
           // one finger flick down
           // focus next object
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionNextEvent();
+            accessibilityAdaptor->HandleActionNextEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_PREV)
         {
           // one finger flick up
           // focus previous object
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionPreviousEvent();
+            accessibilityAdaptor->HandleActionPreviousEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_ACTIVATE)
         {
           // one finger double tap
           // same as one finger tap in normal mode (i.e. execute focused actor)
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionActivateEvent();
+            accessibilityAdaptor->HandleActionActivateEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_READ)
         {
           // one finger tap
           // focus & read an actor at ( e->data.l[2], e->data.l[3] ) position according to finger
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true /* allow read again*/);
+            accessibilityAdaptor->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[2], (unsigned int)clientMessageEvent->data.l[3], true /* allow read again*/);
           }
         }
 #if defined(DALI_PROFILE_MOBILE)
@@ -1025,9 +1140,9 @@ struct EventHandler::Impl
           // x : e->data.l[3]
           // y : e->data.l[4]
           // focus & read an actor at (x, y) position according to finger
-          if(accessibilityManager && (unsigned int)clientMessageEvent->data.l[2] == 1 /*only work for move event*/)
+          if(accessibilityAdaptor && (unsigned int)clientMessageEvent->data.l[2] == 1 /*only work for move event*/)
           {
-            accessibilityManager->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4], false /* not allow read again*/);
+            accessibilityAdaptor->HandleActionReadEvent((unsigned int)clientMessageEvent->data.l[3], (unsigned int)clientMessageEvent->data.l[4], false /* not allow read again*/);
           }
         }
 #endif
@@ -1035,50 +1150,50 @@ struct EventHandler::Impl
         {
           // one finger flick right
           // focus next object
-           if(accessibilityManager)
+           if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionReadNextEvent();
+            accessibilityAdaptor->HandleActionReadNextEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_READ_PREV)
         {
           // one finger flick left
           // focus previous object
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionReadPreviousEvent();
+            accessibilityAdaptor->HandleActionReadPreviousEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_UP)
         {
           // double down and move (right, up)
           // change slider value
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionUpEvent();
+            accessibilityAdaptor->HandleActionUpEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_DOWN)
         {
           // double down and move (left, down)
           // change slider value
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionDownEvent();
+            accessibilityAdaptor->HandleActionDownEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_ENABLE)
         {
-           if(accessibilityManager)
+           if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionEnableEvent();
+            accessibilityAdaptor->HandleActionEnableEvent();
           }
         }
         else if((unsigned int)clientMessageEvent->data.l[1] == ECORE_X_ATOM_E_ILLUME_ACCESS_ACTION_DISABLE)
         {
-          if(accessibilityManager)
+          if(accessibilityAdaptor)
           {
-            accessibilityManager->HandleActionDisableEvent();
+            accessibilityAdaptor->HandleActionDisableEvent();
           }
         }
         // TODO: some more actions could be added later
@@ -1114,6 +1229,317 @@ struct EventHandler::Impl
 #endif // DALI_PROFILE_UBUNTU
     return ECORE_CALLBACK_PASS_ON;
   }
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // ElDBus Accessibility Callbacks
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  // Callback for Ecore ElDBus accessibility events.
+  static void OnEcoreElDBusAccessibilityNotification( void *context EINA_UNUSED, const Eldbus_Message *message )
+  {
+    EventHandler* handler( (EventHandler*)context );
+
+    if ( !handler->mAccessibilityAdaptor )
+    {
+      DALI_LOG_ERROR( "Invalid accessibility adaptor\n" );
+      return;
+    }
+
+    AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( handler->mAccessibilityAdaptor ) );
+    if ( !accessibilityAdaptor )
+    {
+      DALI_LOG_ERROR( "Cannot access accessibility adaptor\n" );
+      return;
+    }
+
+    const char *gestureName;
+    int xS, yS, xE, yE;
+    unsigned int state;
+
+    // The string defines the arg-list's respective types.
+    if( !eldbus_message_arguments_get( message, "siiiiu", &gestureName, &xS, &yS, &xE, &yE, &state ) )
+    {
+      DALI_LOG_ERROR( "OnEcoreElDBusAccessibilityNotification: Error getting arguments\n" );
+    }
+
+    DALI_LOG_INFO( gImfLogging, Debug::General, "Got gesture: Name: %s  Args: %d,%d,%d,%d  State: %d\n", gestureName, xS, yS, xE, yE );
+
+    unsigned int fingers = 0;
+    char* stringPosition = ( char* )gestureName;
+
+    // Check how many fingers the gesture uses.
+    for( unsigned int i = 0; i < FingerCountStringsTotal; ++i )
+    {
+      unsigned int matchLength = strlen( ElDBusAccessibilityFingerCountStrings[ i ] );
+      if( strncmp( gestureName, ElDBusAccessibilityFingerCountStrings[ i ], matchLength ) == 0 )
+      {
+        fingers = i + 1;
+        stringPosition += matchLength;
+        break;
+      }
+    }
+
+    if( fingers == 0 )
+    {
+      // Error: invalid gesture.
+      return;
+    }
+
+    GestureType gestureType = GESTURE_TYPE_NONE;
+    SubGestureType subGestureType = SUB_GESTURE_TYPE_NONE;
+    GestureDirection direction = GESTURE_DIRECTION_NONE;
+
+    // Check for full gesture type names first.
+    for( unsigned int i = 0; i < FullEventTypeStringsTotal; ++i )
+    {
+      unsigned int matchLength = strlen( ElDBusAccessibilityFullEventTypeStrings[ i ].name );
+      if( strncmp( stringPosition, ElDBusAccessibilityFullEventTypeStrings[ i ].name, matchLength ) == 0 )
+      {
+        gestureType = ElDBusAccessibilityFullEventTypeStrings[ i ].type;
+        break;
+      }
+    }
+
+    // If we didn't find a full gesture, check for sub gesture type names.
+    if( gestureType == GESTURE_TYPE_NONE )
+    {
+      // No full gesture name found, look for partial types.
+      for( unsigned int i = 0; i < DirectionalEventTypeStringsTotal; ++i )
+      {
+        unsigned int matchLength = strlen( ElDBusAccessibilityDirectionalEventTypeStrings[ i ].name );
+        if( strncmp( stringPosition, ElDBusAccessibilityDirectionalEventTypeStrings[ i ].name, matchLength ) == 0 )
+        {
+          subGestureType = ElDBusAccessibilityDirectionalEventTypeStrings[ i ].type;
+          stringPosition += matchLength;
+        break;
+        }
+      }
+
+      if( subGestureType == SUB_GESTURE_TYPE_NONE )
+      {
+        // ERROR: Gesture not recognised.
+        return;
+      }
+
+      // If the gesture was a sub type, get it's respective direction.
+      for( unsigned int i = 0; i < DirectionStringsTotal; ++i )
+      {
+        unsigned int matchLength = strlen( ElDBusAccessibilityDirectionStrings[ i ].name );
+        if( strncmp( stringPosition, ElDBusAccessibilityDirectionStrings[ i ].name, matchLength ) == 0 )
+        {
+          direction = ElDBusAccessibilityDirectionStrings[ i ].direction;
+          stringPosition += matchLength;
+          break;
+        }
+      }
+
+      if( direction == GESTURE_DIRECTION_NONE )
+      {
+        // ERROR: Gesture not recognised.
+        return;
+      }
+    }
+
+    // Action the detected gesture here.
+    if( gestureType != GESTURE_TYPE_NONE )
+    {
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Got gesture: Fingers: %d  Gesture type: %d\n", fingers, gestureType );
+    }
+    else
+    {
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Got gesture: Fingers: %d  Gesture sub type: %d Gesture direction: %d\n",
+        fingers, subGestureType, direction );
+    }
+
+    // Create a touch point object.
+    TouchPoint::State touchPointState( TouchPoint::Down );
+    if ( state == 0 )
+    {
+      touchPointState = TouchPoint::Down; // Mouse down.
+    }
+    else if ( state == 1 )
+    {
+      touchPointState = TouchPoint::Motion; // Mouse move.
+    }
+    else if ( state == 2 )
+    {
+      touchPointState = TouchPoint::Up; // Mouse up.
+    }
+    else
+    {
+      touchPointState = TouchPoint::Interrupted; // Error.
+    }
+
+    // Send touch event to accessibility adaptor.
+    TouchPoint point( 0, touchPointState, (float)xS, (float)yS );
+
+    // Perform actions based on received gestures.
+    // Note: This is seperated from the reading so we can (in future)
+    // have other input readers without changing the below code.
+    switch( fingers )
+    {
+      case 1:
+      {
+        if( gestureType == GESTURE_TYPE_SINGLE_TAP || ( gestureType == GESTURE_TYPE_HOVER && touchPointState == TouchPoint::Motion ) )
+        {
+          // Focus, read out.
+          accessibilityAdaptor->HandleActionReadEvent( (unsigned int)xS, (unsigned int)yS, true /* allow read again */ );
+        }
+        else if( gestureType == GESTURE_TYPE_DOUBLE_TAP )
+        {
+          if( false ) // TODO: how to detect double tap + hold?
+          {
+            // Move or drag icon / view more options for selected items.
+            // accessibilityAdaptor->HandleActionTouchEvent( point, GetCurrentMilliSeconds() );
+          }
+          else
+          {
+            // Activate selected item / active edit mode.
+            accessibilityAdaptor->HandleActionActivateEvent();
+          }
+        }
+        else if( gestureType == GESTURE_TYPE_TRIPLE_TAP )
+        {
+          // Zoom
+          accessibilityAdaptor->HandleActionZoomEvent();
+        }
+        else if( subGestureType == SUB_GESTURE_TYPE_FLICK )
+        {
+          if( direction == GESTURE_DIRECTION_LEFT )
+          {
+            // Move to previous item.
+            accessibilityAdaptor->HandleActionReadPreviousEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_RIGHT )
+          {
+            // Move to next item.
+            accessibilityAdaptor->HandleActionReadNextEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_UP )
+          {
+            // Move to next item.
+            accessibilityAdaptor->HandleActionPreviousEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_DOWN )
+          {
+            // Move to next item.
+            accessibilityAdaptor->HandleActionNextEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_LEFT_RETURN )
+          {
+            // Scroll up to the previous page
+            accessibilityAdaptor->HandleActionPageUpEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_RIGHT_RETURN )
+          {
+            // Scroll down to the next page
+            accessibilityAdaptor->HandleActionPageDownEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_UP_RETURN )
+          {
+            // Move to the first item on screen
+            accessibilityAdaptor->HandleActionMoveToFirstEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_DOWN_RETURN )
+          {
+            // Move to the last item on screen
+            accessibilityAdaptor->HandleActionMoveToLastEvent();
+          }
+        }
+        break;
+      }
+
+      case 2:
+      {
+        if( gestureType == GESTURE_TYPE_HOVER )
+        {
+          // In accessibility mode, scroll action should be handled when the currently focused actor is contained in scrollable control
+          accessibilityAdaptor->HandleActionScrollEvent( point, GetCurrentMilliSeconds() );
+        }
+        else if( gestureType == GESTURE_TYPE_SINGLE_TAP )
+        {
+          // Pause/Resume current speech
+          accessibilityAdaptor->HandleActionReadPauseResumeEvent();
+        }
+        else if( gestureType == GESTURE_TYPE_DOUBLE_TAP )
+        {
+          // Start/Stop current action
+          accessibilityAdaptor->HandleActionStartStopEvent();
+        }
+        else if( gestureType == GESTURE_TYPE_TRIPLE_TAP )
+        {
+          // Read information from indicator
+          accessibilityAdaptor->HandleActionReadIndicatorInformationEvent();
+        }
+        else if( subGestureType == SUB_GESTURE_TYPE_FLICK )
+        {
+          if( direction == GESTURE_DIRECTION_LEFT )
+          {
+            // Scroll left to the previous page
+            accessibilityAdaptor->HandleActionPageLeftEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_RIGHT )
+          {
+            // Scroll right to the next page
+            accessibilityAdaptor->HandleActionPageRightEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_UP )
+          {
+            // Scroll up the list.
+            accessibilityAdaptor->HandleActionScrollUpEvent();
+          }
+          else if( direction == GESTURE_DIRECTION_DOWN )
+          {
+            // Scroll down the list.
+            accessibilityAdaptor->HandleActionScrollDownEvent();
+          }
+        }
+        break;
+      }
+
+      case 3:
+      {
+        if( gestureType == GESTURE_TYPE_SINGLE_TAP )
+        {
+          // Read from top item on screen continuously.
+          accessibilityAdaptor->HandleActionReadFromTopEvent();
+        }
+        else if( gestureType == GESTURE_TYPE_DOUBLE_TAP )
+        {
+          // Read from next item continuously.
+          accessibilityAdaptor->HandleActionReadFromNextEvent();
+        }
+        break;
+      }
+    }
+  }
+
+  // Callback for to set up Ecore ElDBus for accessibility callbacks.
+  static void EcoreElDBusInitialisation( void *handle, const Eldbus_Message *message, Eldbus_Pending *pending EINA_UNUSED )
+  {
+    Eldbus_Object *object;
+    Eldbus_Proxy *manager;
+    const char *a11yBusAddress = NULL;
+
+    // The string defines the arg-list's respective types.
+    if( !eldbus_message_arguments_get( message, "s", &a11yBusAddress ) )
+    {
+      DALI_LOG_ERROR( "EcoreElDBusInitialisation: Error getting arguments\n" );
+    }
+
+    DALI_LOG_INFO( gImfLogging, Debug::General, "Ecore ElDBus Accessibility address: %s\n", a11yBusAddress );
+
+    Eldbus_Connection *a11yConnection = eldbus_address_connection_get( a11yBusAddress );
+
+    object = eldbus_object_get( a11yConnection, BUS, PATH );
+    manager = eldbus_proxy_get( object, INTERFACE );
+
+    // Pass the callback data through to the signal handler.
+    eldbus_proxy_signal_handler_add( manager, SIGNAL, OnEcoreElDBusAccessibilityNotification, handle );
+  }
+#endif // DALI_ELDBUS_AVAILABLE
 
   /**
    * Called when the source window notifies us the content in clipboard is selected.
@@ -1229,7 +1655,7 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mDamageObserver( damageObserver ),
   mRotationObserver( NULL ),
   mDragAndDropDetector( dndDetector ),
-  mAccessibilityManager( AccessibilityManager::Get() ),
+  mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard(Clipboard::Get()),
   mImpl( NULL )

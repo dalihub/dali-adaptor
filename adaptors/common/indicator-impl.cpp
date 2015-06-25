@@ -39,7 +39,7 @@
 
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
-#include <accessibility-manager-impl.h>
+#include <accessibility-adaptor-impl.h>
 #include <pixmap-image.h>
 
 using Dali::Vector4;
@@ -408,11 +408,11 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
 
   Open( orientation );
 
-  // register indicator to accessibility manager
-  Dali::AccessibilityManager accessibilityManager = AccessibilityManager::Get();
-  if(accessibilityManager)
+  // register indicator to accessibility adaptor
+  Dali::AccessibilityAdaptor accessibilityAdaptor = AccessibilityAdaptor::Get();
+  if(accessibilityAdaptor)
   {
-    AccessibilityManager::GetImplementation( accessibilityManager ).SetIndicator( this );
+    AccessibilityAdaptor::GetImplementation( accessibilityAdaptor ).SetIndicator( this );
   }
   // hide the indicator by default
   mIndicatorActor.SetVisible( false );

@@ -270,7 +270,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
                       $(ASSIMP_CFLAGS) \
-                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
+                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
+                      $(ELDBUS_CFLAGS)
 
 libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
 
@@ -295,6 +296,7 @@ libdali_adaptor_la_LIBADD = \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(CAPI_SYSTEM_INFO_LIBS) \
+                      $(ELDBUS_LIBS) \
                       -lgif \
                       -lboost_thread \
                       -lturbojpeg

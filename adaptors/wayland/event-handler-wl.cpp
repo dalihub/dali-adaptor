@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -662,7 +662,7 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mDamageObserver( damageObserver ),
   mRotationObserver( NULL ),
   mDragAndDropDetector( dndDetector ),
-  mAccessibilityManager( AccessibilityManager::Get() ),
+  mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard(Clipboard::Get()),
   mImpl( NULL )

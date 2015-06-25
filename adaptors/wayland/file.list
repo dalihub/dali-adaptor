@@ -1,7 +1,7 @@
 # wayland
 
 adaptor_wayland_tizen_internal_src_files = \
-  $(adaptor_wayland_dir)/accessibility-manager-impl-wl.cpp \
+  $(adaptor_wayland_dir)/accessibility-adaptor-impl-wl.cpp \
   $(adaptor_wayland_dir)/clipboard-impl-wl.cpp \
   $(adaptor_wayland_dir)/display-connection-impl-wl.cpp \
   $(adaptor_wayland_dir)/framework-wl.cpp \
