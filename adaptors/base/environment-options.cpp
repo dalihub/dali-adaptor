@@ -74,13 +74,22 @@ bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
   return true;
 }
 
+const char * GetCharEnvironmentVariable( const char * variable )
+{
+  return std::getenv( variable );
 }
+
+} // unnamed namespace
+
 EnvironmentOptions::EnvironmentOptions()
-: mNetworkControl(0),
+: mWindowName(),
+  mWindowClassName(),
+  mNetworkControl(0),
   mFpsFrequency(0),
   mUpdateStatusFrequency(0),
+  mObjectProfilerInterval( 0 ),
   mPerformanceStatsLevel(0),
-  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY),
+  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY ),
   mPerformanceTimeStampOutput(0),
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
@@ -130,6 +139,11 @@ unsigned int EnvironmentOptions::GetFrameRateLoggingFrequency() const
 unsigned int EnvironmentOptions::GetUpdateStatusLoggingFrequency() const
 {
   return mUpdateStatusFrequency;
+}
+
+unsigned int EnvironmentOptions::GetObjectProfilerInterval() const
+{
+  return mObjectProfilerInterval;
 }
 
 unsigned int EnvironmentOptions::GetPerformanceStatsLoggingOptions() const
@@ -205,74 +219,24 @@ unsigned int EnvironmentOptions::GetWindowHeight() const
   return mWindowHeight;
 }
 
-void EnvironmentOptions::SetPanGesturePredictionMode( unsigned int mode )
-{
-  mPanGesturePredictionMode = mode;
-}
-
-void EnvironmentOptions::SetPanGesturePredictionAmount( unsigned int amount )
-{
-  mPanGesturePredictionAmount = amount;
-}
-
-void EnvironmentOptions::SetPanGestureMaximumPredictionAmount( unsigned int amount )
-{
-  mPanGestureMaxPredictionAmount = amount;
-}
-
-void EnvironmentOptions::SetPanGestureMinimumPredictionAmount( unsigned int amount )
-{
-  mPanGestureMinPredictionAmount = amount;
-}
-
-void EnvironmentOptions::SetPanGesturePredictionAmountAdjustment( unsigned int amount )
-{
-  mPanGesturePredictionAmountAdjustment = amount;
-}
-
-void EnvironmentOptions::SetPanGestureSmoothingMode( unsigned int mode )
-{
-  mPanGestureSmoothingMode = mode;
-}
-
-void EnvironmentOptions::SetPanGestureSmoothingAmount( float amount )
-{
-  mPanGestureSmoothingAmount = amount;
-}
-
-void EnvironmentOptions::SetMinimumPanDistance( int distance )
-{
-  mPanMinimumDistance = distance;
-}
-
-void EnvironmentOptions::SetMinimumPanEvents( int events )
-{
-  mPanMinimumEvents = events;
-}
-
-void EnvironmentOptions::SetGlesCallTime( int time )
-{
-  mGlesCallTime = time;
-}
-
 int EnvironmentOptions::GetGlesCallTime() const
 {
   return mGlesCallTime;
 }
 
-void EnvironmentOptions::SetWindowWidth( int width )
+const std::string& EnvironmentOptions::GetWindowName() const
 {
-  mWindowWidth = width;
+  return mWindowName;
 }
 
-void EnvironmentOptions::SetWindowHeight( int height )
+const std::string& EnvironmentOptions::GetWindowClassName() const
 {
-  mWindowHeight = height;
+  return mWindowClassName;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
-  return ( (GetPerformanceStatsLoggingOptions() > 0) ||
+  return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
            ( GetPerformanceTimeStampOutput() > 0 ) ||
            ( GetNetworkControlMode() > 0) );
 }
@@ -282,6 +246,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   // get logging options
   mFpsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
   mUpdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
+  mObjectProfilerInterval = GetIntegerEnvironmentVariable( DALI_ENV_OBJECT_PROFILER_INTERVAL, 0 );
   mPerformanceStatsLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
   mPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
   mPerformanceTimeStampOutput = GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
@@ -291,7 +256,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   int predictionMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
   {
-    SetPanGesturePredictionMode(predictionMode);
+    mPanGesturePredictionMode = predictionMode;
   }
   int predictionAmount(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
@@ -301,7 +266,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       // do not support times in the past
       predictionAmount = 0;
     }
-    SetPanGesturePredictionAmount(predictionAmount);
+    mPanGesturePredictionAmount = predictionAmount;
   }
   int minPredictionAmount(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
@@ -311,7 +276,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       // do not support times in the past
       minPredictionAmount = 0;
     }
-    SetPanGestureMinimumPredictionAmount(minPredictionAmount);
+    mPanGestureMinPredictionAmount = minPredictionAmount;
   }
   int maxPredictionAmount(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
@@ -321,7 +286,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       // maximum amount should not be smaller than minimum amount
       maxPredictionAmount = minPredictionAmount;
     }
-    SetPanGestureMaximumPredictionAmount(maxPredictionAmount);
+    mPanGestureMaxPredictionAmount = maxPredictionAmount;
   }
   int predictionAmountAdjustment(-1);
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
@@ -331,45 +296,56 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       // negative amount doesn't make sense
       predictionAmountAdjustment = 0;
     }
-    SetPanGesturePredictionAmountAdjustment(predictionAmountAdjustment);
+    mPanGesturePredictionAmountAdjustment = predictionAmountAdjustment;
   }
   int smoothingMode;
   if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
   {
-    SetPanGestureSmoothingMode(smoothingMode);
+    mPanGestureSmoothingMode = smoothingMode;
   }
   float smoothingAmount = 1.0f;
   if( GetFloatEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_AMOUNT, smoothingAmount) )
   {
     smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
-    SetPanGestureSmoothingAmount(smoothingAmount);
+    mPanGestureSmoothingAmount = smoothingAmount;
   }
 
   int minimumDistance(-1);
   if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
   {
-    SetMinimumPanDistance( minimumDistance );
+    mPanMinimumDistance = minimumDistance;
   }
 
   int minimumEvents(-1);
   if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
   {
-    SetMinimumPanEvents( minimumEvents );
+    mPanMinimumEvents = minimumEvents;
   }
 
   int glesCallTime(0);
   if ( GetIntegerEnvironmentVariable(DALI_GLES_CALL_TIME, glesCallTime ))
   {
-    SetGlesCallTime( glesCallTime );
+    mGlesCallTime = glesCallTime;
   }
 
   int windowWidth(0), windowHeight(0);
   if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
   {
-    SetWindowWidth( windowWidth );
-    SetWindowHeight( windowHeight );
+    mWindowWidth = windowWidth;
+    mWindowHeight = windowHeight;
   }
 
+  const char * windowName = GetCharEnvironmentVariable( DALI_WINDOW_NAME );
+  if ( windowName )
+  {
+    mWindowName = windowName;
+  }
+
+  const char * windowClassName = GetCharEnvironmentVariable( DALI_WINDOW_CLASS_NAME );
+  if ( windowClassName )
+  {
+    mWindowClassName = windowClassName;
+  }
 }
 
 } // Adaptor

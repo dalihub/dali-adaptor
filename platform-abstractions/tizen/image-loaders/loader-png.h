@@ -31,7 +31,6 @@ namespace Integration
 {
   class Bitmap;
 }
-struct ImageAttributes;
 
 namespace TizenPlatform
 {

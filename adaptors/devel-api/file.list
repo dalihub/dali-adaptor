@@ -17,7 +17,6 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/style-monitor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/tts-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp
 
 
@@ -43,6 +42,5 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/sound-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/style-monitor.h \
   $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/tts-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h

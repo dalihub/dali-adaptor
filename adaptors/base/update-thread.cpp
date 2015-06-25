@@ -40,7 +40,6 @@ namespace Adaptor
 namespace
 {
 const char* DALI_TEMP_UPDATE_FPS_FILE( "/tmp/dalifps.txt" );
-const unsigned int MICROSECONDS_PER_MILLISECOND( 1000 );
 
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gUpdateLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_UPDATE_THREAD");
@@ -52,23 +51,19 @@ UpdateThread::UpdateThread( UpdateRenderSynchronization& sync,
                             const EnvironmentOptions& environmentOptions )
 : mUpdateRenderSync( sync ),
   mCore( adaptorInterfaces.GetCore()),
-  mFpsTrackingSeconds( environmentOptions.GetFrameRateLoggingFrequency() ),
+  mFpsTrackingSeconds( fabsf( environmentOptions.GetFrameRateLoggingFrequency() ) ),
+  mFrameCount( 0.0f ),
   mElapsedTime( 0.0f ),
-  mElapsedSeconds( 0u ),
   mStatusLogInterval( environmentOptions.GetUpdateStatusLoggingFrequency() ),
   mStatusLogCount( 0u ),
   mThread( NULL ),
   mEnvironmentOptions( environmentOptions )
 {
-  if( mFpsTrackingSeconds > 0 )
-  {
-    mFpsRecord.resize( mFpsTrackingSeconds, 0.0f );
-  }
 }
 
 UpdateThread::~UpdateThread()
 {
-  if(mFpsTrackingSeconds > 0)
+  if( mFpsTrackingSeconds > 0.f )
   {
     OutputFPSRecord();
   }
@@ -127,7 +122,7 @@ bool UpdateThread::Run()
 
     mCore.Update( lastFrameDelta, lastSyncTime, nextSyncTime, status );
 
-    if( mFpsTrackingSeconds > 0 )
+    if( mFpsTrackingSeconds > 0.f )
     {
       FPSTracking(status.SecondsFromLastFrame());
     }
@@ -169,67 +164,35 @@ bool UpdateThread::Run()
   return true;
 }
 
-void UpdateThread::FPSTracking(float secondsFromLastFrame)
+void UpdateThread::FPSTracking( float secondsFromLastFrame )
 {
-  if (mElapsedSeconds < mFpsTrackingSeconds)
+  if ( mElapsedTime < mFpsTrackingSeconds )
   {
     mElapsedTime += secondsFromLastFrame;
-    if( secondsFromLastFrame  > 1.0 )
-    {
-      int seconds = floor(mElapsedTime);
-      mElapsedSeconds += seconds;
-      mElapsedTime -= static_cast<float>(seconds);
-    }
-    else
-    {
-      if( mElapsedTime>=1.0f )
-      {
-        mElapsedTime -= 1.0f;
-        mFpsRecord[mElapsedSeconds] += 1.0f - mElapsedTime/secondsFromLastFrame;
-        mElapsedSeconds++;
-        mFpsRecord[mElapsedSeconds] += mElapsedTime/secondsFromLastFrame;
-      }
-      else
-      {
-        mFpsRecord[mElapsedSeconds] += 1.0f;
-      }
-    }
+    mFrameCount += 1.f;
   }
   else
   {
     OutputFPSRecord();
-    mFpsRecord.clear();
-    mFpsTrackingSeconds = 0;
+    mFrameCount = 0.f;
+    mElapsedTime = 0.f;
   }
 }
 
 void UpdateThread::OutputFPSRecord()
 {
-  for(unsigned int i = 0; i < mElapsedSeconds; i++)
-  {
-    DALI_LOG_FPS("fps( %d ):%f\n",i ,mFpsRecord[i]);
-  }
+  float fps = mFrameCount / mElapsedTime;
+  DALI_LOG_FPS("Frame count %.0f, elapsed time %.1fs, FPS: %.2f\n", mFrameCount, mElapsedTime, fps );
 
-  // Dumps out the DALI_FPS_TRACKING worth of frame rates.
-  // E.g. if we run:   DALI_FPS_TRACKING=30  dali-demo
-  // it will dump out the first 30 seconds of FPS information to a temp file
-  FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w");
+  // Dumps out the frame rate.
+  FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w" );
   if( outfile )
   {
-    for(unsigned int i = 0; i < mElapsedSeconds; i++)
-    {
-      char fpsString[10];
-      snprintf(fpsString,sizeof(fpsString),"%.2f \n",mFpsRecord[i]);
-      int ret = fputs( fpsString, outfile );
-      if( ret < 0)
-      {
-        break;
-      }
-    }
-
+    char fpsString[10];
+    snprintf(fpsString,sizeof(fpsString),"%.2f \n", fps );
+    fputs( fpsString, outfile ); // ignore the error on purpose
+    fclose( outfile );
   }
-  fclose( outfile );
-
 }
 
 void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate )

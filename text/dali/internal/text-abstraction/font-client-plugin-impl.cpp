@@ -884,7 +884,14 @@ void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
           destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::L8 );
 
           PixelBuffer* destBuffer = destBitmap.GetBuffer();
-          memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows );
+          if( destBuffer )
+          {
+            memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows );
+          }
+          else
+          {
+            DALI_LOG_ERROR( "GetBuffer returns null\n" );
+          }
         }
         break;
       }
@@ -897,7 +904,14 @@ void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
           destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888 );
 
           PixelBuffer* destBuffer = destBitmap.GetBuffer();
-          memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows*4 );
+          if( destBuffer )
+          {
+            memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows*4 );
+          }
+          else
+          {
+            DALI_LOG_ERROR( "GetBuffer returns null\n" );
+          }
         }
         break;
       }

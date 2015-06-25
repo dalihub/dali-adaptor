@@ -25,6 +25,7 @@
 
 #ifdef OVER_TIZEN_SDK_2_2
 #include <system_info.h>
+#include <app_control_internal.h>
 #endif
 
 #include <dali/integration-api/debug.h>
@@ -258,13 +259,12 @@ struct Framework::Impl
 
 };
 
-Framework::Framework(Framework::Observer& observer, int *argc, char ***argv, const std::string& name)
+Framework::Framework( Framework::Observer& observer, int *argc, char ***argv )
 : mObserver(observer),
   mInitialised(false),
   mRunning(false),
   mArgc(argc),
   mArgv(argv),
-  mName(name),
   mBundleName(""),
   mBundleId(""),
   mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),

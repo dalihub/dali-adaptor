@@ -131,7 +131,19 @@ struct BidirectionalSupport::Plugin
     BidirectionalInfo* bidirectionalInfo = new BidirectionalInfo();
 
     bidirectionalInfo->characterTypes = reinterpret_cast<FriBidiCharType*>( malloc( numberOfCharacters * sizeof( FriBidiCharType ) ) );
+    if( !bidirectionalInfo->characterTypes )
+    {
+      delete bidirectionalInfo;
+      return 0;
+    }
+
     bidirectionalInfo->embeddedLevels = reinterpret_cast<FriBidiLevel*>( malloc( numberOfCharacters * sizeof( FriBidiLevel ) ) );
+    if( !bidirectionalInfo->embeddedLevels )
+    {
+      free( bidirectionalInfo->characterTypes );
+      delete bidirectionalInfo;
+      return 0;
+    }
 
     // Retrieve the type of each character..
     fribidi_get_bidi_types( paragraph, numberOfCharacters, bidirectionalInfo->characterTypes );
@@ -208,20 +220,23 @@ struct BidirectionalSupport::Plugin
     // Copy embedded levels as fribidi_reorder_line() may change them.
     const uint32_t embeddedLevelsSize = numberOfCharacters * sizeof( FriBidiLevel );
     FriBidiLevel* embeddedLevels = reinterpret_cast<FriBidiLevel*>( malloc( embeddedLevelsSize ) );
-    memcpy( embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex,  embeddedLevelsSize );
+    if( embeddedLevels )
+    {
+      memcpy( embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex,  embeddedLevelsSize );
 
-    // Reorder the line.
-    fribidi_reorder_line( flags,
-                          bidirectionalInfo->characterTypes + firstCharacterIndex,
-                          numberOfCharacters,
-                          0u,
-                          bidirectionalInfo->paragraphDirection,
-                          embeddedLevels,
-                          NULL,
-                          reinterpret_cast<FriBidiStrIndex*>( visualToLogicalMap ) );
+      // Reorder the line.
+      fribidi_reorder_line( flags,
+                            bidirectionalInfo->characterTypes + firstCharacterIndex,
+                            numberOfCharacters,
+                            0u,
+                            bidirectionalInfo->paragraphDirection,
+                            embeddedLevels,
+                            NULL,
+                            reinterpret_cast<FriBidiStrIndex*>( visualToLogicalMap ) );
 
-    // Free resources.
-    free( embeddedLevels );
+      // Free resources.
+      free( embeddedLevels );
+    }
   }
 
   bool GetMirroredText( Character* text,

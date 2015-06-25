@@ -175,12 +175,6 @@ dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
 dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
 endif
 
-if TURBO_JPEG_IS_ON
-  tizen_platform_abstraction_src_files += $(tizen_turbo_jpeg_loader)
-else
-  tizen_platform_abstraction_src_files += $(tizen_jpeg_loader)
-endif
-
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
@@ -271,6 +265,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBCURL_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
 
+libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
+
 libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
                       $(OPENGLES20_LIBS) \
@@ -293,7 +289,8 @@ libdali_adaptor_la_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(CAPI_SYSTEM_INFO_LIBS) \
                       -lgif \
-                      -lboost_thread
+                      -lboost_thread \
+                      -lturbojpeg
 
 if WAYLAND
 libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
@@ -332,15 +329,9 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 libdali_adaptor_la_LIBADD +=
 endif
 
-if TURBO_JPEG_IS_ON
-libdali_adaptor_la_LIBADD += -lturbojpeg
-CFLAGS += -D_TURBO_JPEG_LOADER
 if UBUNTU_PROFILE
 libdali_adaptor_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
-endif
-else
-libdali_adaptor_la_LIBADD += -ljpeg
 endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
@@ -371,7 +362,7 @@ tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 if !UBUNTU_PROFILE
 
 if !WAYLAND
-tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
+tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)
 endif # NOT WAYLAND
 
 endif # NOT UBUNTU_PROFILE

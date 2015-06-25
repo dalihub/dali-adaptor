@@ -124,13 +124,12 @@ struct Framework::Impl
 
 };
 
-Framework::Framework(Framework::Observer& observer, int *argc, char ***argv, const std::string& name)
+Framework::Framework( Framework::Observer& observer, int *argc, char ***argv )
 : mObserver(observer),
   mInitialised(false),
   mRunning(false),
   mArgc(argc),
   mArgv(argv),
-  mName(name),
   mBundleName(""),
   mBundleId(""),
   mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),

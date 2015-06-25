@@ -20,18 +20,13 @@ tizen_platform_abstraction_src_files = \
   \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-bmp.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-gif.cpp \
-  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-png.cpp \
-  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
+    $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
+  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-jpeg-turbo.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ktx.cpp \
+  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-png.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-wbmp.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/image-loader.cpp \
   $(portable_platform_abstraction_src_dir)/image-operations.cpp
-
-tizen_turbo_jpeg_loader = \
-  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-jpeg-turbo.cpp
-
-tizen_jpeg_loader = \
-  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-jpeg.cpp
 
 # Add public headers here:
 

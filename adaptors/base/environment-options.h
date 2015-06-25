@@ -79,6 +79,11 @@ public:
   unsigned int GetUpdateStatusLoggingFrequency() const;
 
   /**
+   * @return object profiler status interval ( 0 == off )
+   */
+  unsigned int GetObjectProfilerInterval() const;
+
+  /**
    * @return performance statistics log level ( 0 == off )
    */
   unsigned int GetPerformanceStatsLoggingOptions() const;
@@ -119,6 +124,13 @@ public:
   int GetPanGestureMinimumPredictionAmount() const;
 
   /**
+   * @brief Gets the prediction amount to adjust when the pan velocity is changed.
+   *
+   * If the pan velocity is accelerating, the prediction amount will be increased
+   * by the specified amount until it reaches the upper bound. If the pan velocity
+   * is decelerating, the prediction amount will be decreased by the specified
+   * amount until it reaches the lower bound.
+   *
    * @return pan-gesture prediction amount adjustment
    */
   int GetPanGesturePredictionAmountAdjustment() const;
@@ -154,98 +166,24 @@ public:
   unsigned int GetWindowHeight() const;
 
   /**
-   * @brief Sets the mode used to predict pan gesture movement
-   *
-   * @param[in] mode The prediction mode to use
-   */
-  void SetPanGesturePredictionMode( unsigned int mode );
-
-  /**
-   * @brief Sets the prediction amount of the pan gesture
-   *
-   * @param[in] amount The prediction amount in milliseconds
-   */
-  void SetPanGesturePredictionAmount( unsigned int amount );
-
-  /**
-   * @brief Sets the upper bound of the prediction amount for clamping
-   *
-   * @param[in] amount The prediction amount in milliseconds
-   */
-  void SetPanGestureMaximumPredictionAmount( unsigned int amount );
-
-  /**
-   * @brief Sets the lower bound of the prediction amount for clamping
-   *
-   * @param[in] amount The prediction amount in milliseconds
-   */
-  void SetPanGestureMinimumPredictionAmount( unsigned int amount );
-
-  /**
-   * @brief Sets the prediction amount to adjust when the pan velocity is changed.
-   * If the pan velocity is accelerating, the prediction amount will be increased
-   * by the specified amount until it reaches the upper bound. If the pan velocity
-   * is decelerating, the prediction amount will be decreased by the specified
-   * amount until it reaches the lower bound.
-   *
-   * @param[in] amount The prediction amount in milliseconds
-   */
-  void SetPanGesturePredictionAmountAdjustment( unsigned int amount );
-
-  /**
-   * @brief Called to set how pan gestures smooth input
-   *
-   * @param[in] mode The smoothing mode to use
-   */
-  void SetPanGestureSmoothingMode( unsigned int mode );
-
-  /**
-   * @brief Sets the mode used to smooth pan gesture movement properties calculated on the Update thread
-   *
-   * @param[in] amount The smoothing amount [0.0f,1.0f] - 0.0f would be no smoothing, 1.0f maximum smoothing
-   */
-  void SetPanGestureSmoothingAmount( float amount );
-
-  /**
-   * @brief Sets the minimum distance required before a pan starts
-   *
-   * @param[in] distance The minimum distance before a pan starts
-   */
-  void SetMinimumPanDistance( int distance );
-
-  /**
-   * @brief Sets the minimum number of events required before a pan starts
-   *
-   * @param[in] events The minimum events before a pan starts
-   */
-  void SetMinimumPanEvents( int events );
-
-  /**
-   * @brief Sets how often the gles call logging occurs
-   *
-   * @param[in] time the number of seconds between logging output
-   */
-  void SetGlesCallTime( int time );
-
-  /**
    * @brief Get the graphics status time
    */
   int GetGlesCallTime() const;
 
   /**
-   * @brief Sets the width of the window
-   */
-  void SetWindowWidth( int width );
-
-  /**
-   * @brief Sets the width of the window
-   */
-  void SetWindowHeight( int height );
-
-  /**
    * @return true if performance server is required
    */
   bool PerformanceServerRequired() const;
+
+  /**
+   * @return Gets the window name.
+   */
+  const std::string& GetWindowName() const;
+
+  /**
+   * @return Gets the window class.
+   */
+  const std::string& GetWindowClassName() const;
 
 private: // Internal
 
@@ -257,9 +195,12 @@ private: // Internal
 
 private: // Data
 
+  std::string mWindowName;                        ///< name of the window
+  std::string mWindowClassName;                   ///< name of the class the window belongs to
   unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
+  unsigned int mObjectProfilerInterval;           ///< how often object counts are logged out in seconds
   unsigned int mPerformanceStatsLevel;            ///< performance statistics logging bitmask
   unsigned int mPerformanceStatsFrequency;        ///< performance statistics logging frequency (seconds)
   unsigned int mPerformanceTimeStampOutput;       ///< performance time stamp output ( bitmask)

@@ -126,14 +126,6 @@ AC_ARG_ENABLE([gles],
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
-AC_ARG_WITH([jpeg-turbo],
-            [AC_HELP_STRING([--with-jpeg-turbo],
-                            [Use the JPEG Turbo library])],
-            [with_jpeg_turbo=$withval],
-            [with_jpeg_turbo=yes])
-
-AM_CONDITIONAL(TURBO_JPEG_IS_ON, test $with_jpeg_turbo = yes)
-
 AC_ARG_WITH([over-tizen_2_2],
             [AC_HELP_STRING([--with-over-tizen_2_2],
                             [Use tizen API over ver. 2.2])],
@@ -263,7 +255,6 @@ Configuration
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
-  Using JPEG Turbo Library:         $with_jpeg_turbo
   Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir

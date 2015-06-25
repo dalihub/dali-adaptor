@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.43
+Version:    1.0.46
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -14,7 +14,7 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
-%define over_tizen_2_2 0
+%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
@@ -32,7 +32,7 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_feedback_plugin 0
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
-%define over_tizen_2_2 0
+%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
@@ -42,7 +42,6 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_bullet_plugin 0
 %define dali_assimp_plugin 0
 %define over_tizen_2_2 0
-
 %define shaderbincache_flag DISABLE
 %endif
 

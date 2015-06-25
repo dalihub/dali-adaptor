@@ -35,5 +35,5 @@ adaptor_x11_internal_default_profile_src_files = \
   $(adaptor_x11_dir)/ecore-x-render-surface-factory.cpp \
   $(adaptor_x11_dir)/system-settings-x.cpp
 
-public_api_adaptor_tizen_x11_header_files = \
+devel_api_adaptor_tizen_x11_header_files = \
   $(adaptor_x11_dir)/window-extensions.h

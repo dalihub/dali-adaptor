@@ -27,9 +27,10 @@ namespace TextAbstraction
 namespace
 {
 const unsigned int WHITE_SPACE_THRESHOLD  = 0x21; ///< All characters below 0x21 are considered white spaces.
-const unsigned int CHAR_FL   = 0x000A; ///< NL Line feed, new line.
+const unsigned int CHAR_LF   = 0x000A; ///< NL Line feed, new line.
 const unsigned int CHAR_VT   = 0x000B; ///< Vertical tab.
 const unsigned int CHAR_FF   = 0x000C; ///< NP Form feed, new page.
+const unsigned int CHAR_CR   = 0x000D; ///< Carriage return, new line.
 const unsigned int CHAR_NEL  = 0x0085; ///< Next line.
 const unsigned int CHAR_LS   = 0x2028; ///< Line separator.
 const unsigned int CHAR_PS   = 0x2029; ///< Paragraph separator
@@ -166,6 +167,11 @@ Script GetCharacterScript( Character character )
   // 6. Additional Emoticons ( 1F600 - 1F636 )
   // 6b. Additional transport and map symbols ( 1F681 - 1F6C5 )
   // 6c. Other additional symbols ( 1F30D - 1F567 )
+
+  if( IsCommonScript( character ) )
+  {
+    return COMMON;
+  }
 
   if( character <= 0x0cff )
   {
@@ -528,9 +534,10 @@ bool IsWhiteSpace( Character character )
 
 bool IsNewParagraph( Character character )
 {
-  return ( ( CHAR_FL == character )  ||
+  return ( ( CHAR_LF == character )  ||
            ( CHAR_VT == character )  ||
            ( CHAR_FF == character )  ||
+           ( CHAR_CR == character )  ||
            ( CHAR_NEL == character ) ||
            ( CHAR_LS == character )  ||
            ( CHAR_PS == character ) );
@@ -564,6 +571,18 @@ bool IsRightToLeftMark( Character character )
 bool IsThinSpace( Character character )
 {
   return CHAR_TS == character;
+}
+
+bool IsCommonScript( Character character )
+{
+  return ( IsWhiteSpace( character )         ||
+           IsZeroWidthNonJoiner( character ) ||
+           IsZeroWidthJoiner( character )    ||
+           IsZeroWidthSpace( character )     ||
+           IsLeftToRightMark( character )    ||
+           IsRightToLeftMark( character )    ||
+           IsThinSpace( character )          ||
+           IsNewParagraph( character ) );
 }
 
 } // namespace TextAbstraction

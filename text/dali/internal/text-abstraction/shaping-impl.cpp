@@ -45,6 +45,8 @@ const float        FROM_266 = 1.0f / 64.0f;
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
 {
+  HB_SCRIPT_COMMON,
+
   HB_SCRIPT_CYRILLIC,
   HB_SCRIPT_GREEK,
   HB_SCRIPT_LATIN,
