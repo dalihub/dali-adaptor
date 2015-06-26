@@ -20,8 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/image-actor.h>
-#include <dali/devel-api/actors/mesh-actor.h>
-#include <dali/devel-api/geometry/animatable-mesh.h>
 #include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
@@ -395,11 +393,6 @@ private: // Implementation of ServerConnection::Observer
 private:
 
   /**
-   * Construct the gradient mesh
-   */
-  void ConstructBackgroundMesh();
-
-  /**
    * Clear shared file info
    */
   void ClearSharedFileInfo();
@@ -439,8 +432,6 @@ private:
   Dali::Image                      mImage;               ///< Image created from mIndicatorBuffer
   Dali::ImageActor                 mIndicatorImageActor; ///< Actor created from mImage
 
-  Dali::AnimatableMesh             mBackgroundMesh;
-  Dali::MeshActor                  mBackgroundActor;     ///< Actor for background
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
   Dali::Actor                      mEventActor;          ///< Handle to event
   Dali::PanGestureDetector         mPanDetector;         ///< Pan detector to find flick gesture for hidden indicator

@@ -85,12 +85,6 @@ include ../../../text/dali/internal/libunibreak/file.list
 
 ############# source files #############
 
-if ASSIMP_ENABLED
-tizen_platform_abstraction_src_files += $(tizen_assimp_src_files)
-else
-tizen_platform_abstraction_src_files += $(tizen_assimp_stubs_src_files)
-endif # ASSIMP_ENABLED
-
 # COMMON
 if COMMON_PROFILE
 
@@ -269,7 +263,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
                       $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
                       $(ELDBUS_CFLAGS)
 
