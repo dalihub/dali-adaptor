@@ -55,7 +55,17 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
                   )
 
 
-# Check for availability of BulletPhysics
+# Check for EldBus.h in ECore
+PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
+
+DALI_ELDBUS_AVAILABLE=
+if test "x$eldbus_available" = "xyes"; then
+  DALI_ELDBUS_AVAILABLE=true
+  DALI_TOOLKIT_CFLAGS="$DALI_TOOLKIT_CFLAGS -DDALI_ELDBUS_AVAILABLE "
+fi
+AC_SUBST(DALI_ELDBUS_AVAILABLE)
+
+
 PKG_CHECK_EXISTS(bullet, [
   BULLET_CFLAGS=`pkg-config --cflags bullet`
   BULLET_LIBS=`pkg-config --libs bullet`
@@ -260,4 +270,5 @@ Configuration
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
   OVERTIZEN2.2:                     $with_over_tizen_2_2
+  EldBus:                           $eldbus_available
 "
