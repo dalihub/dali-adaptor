@@ -61,7 +61,7 @@ PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=
 DALI_ELDBUS_AVAILABLE=
 if test "x$eldbus_available" = "xyes"; then
   DALI_ELDBUS_AVAILABLE=true
-  DALI_TOOLKIT_CFLAGS="$DALI_TOOLKIT_CFLAGS -DDALI_ELDBUS_AVAILABLE "
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_ELDBUS_AVAILABLE "
 fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
@@ -96,7 +96,7 @@ AC_ARG_ENABLE([feedback],
 AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
-DALI_ADAPTOR_CFLAGS=-DPLATFORM_TIZEN
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DPLATFORM_TIZEN"
 
 AC_ARG_ENABLE(exportall,
               [AC_HELP_STRING([--enable-exportall],
