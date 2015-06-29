@@ -22,6 +22,7 @@
 #include <render-surface.h>
 #include <orientation.h>
 #include <timer.h>
+#include <iostream>
 
 using namespace Dali;
 
@@ -50,8 +51,16 @@ int
 main(int argc, char **argv)
 {
   Application app = Application::New(&argc, &argv);
-  LinkerApp linkerApp (app);
-  app.MainLoop();
+
+  try
+  {
+    LinkerApp linkerApp (app);
+    app.MainLoop();
+  }
+  catch(...)
+  {
+    std::cout << "Exception caught";
+  }
 
   return 0;
 }
