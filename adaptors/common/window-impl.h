@@ -59,6 +59,7 @@ class Window : public Dali::BaseObject, public Indicator::Observer, public LifeC
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
+  typedef Signal< void () > SignalType;
 
   /**
    * Create a new Window. This should only be called once by the Application class
@@ -246,10 +247,16 @@ private: // Adaptor::Observer interface
   virtual void OnDestroy();
 
 public: // Signals
+
   /**
    * The user should connect to this signal to get a timing when indicator was shown / hidden.
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
+
+  /**
+   * This signal is emitted when the window is requesting to be deleted
+   */
+  SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
 
 private:
 
@@ -280,6 +287,7 @@ private:
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
+  SignalType          mDeleteRequestSignal;
 };
 
 } // namespace Adaptor

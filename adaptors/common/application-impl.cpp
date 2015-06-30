@@ -123,6 +123,9 @@ void Application::CreateWindow()
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
   mWindow = Dali::Window::New( windowPosition, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
+
+  // Quit the application when the window is closed
+  GetImplementation( mWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
 }
 
 void Application::CreateAdaptor()

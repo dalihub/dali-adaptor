@@ -65,6 +65,7 @@ struct Window::EventHandler
   : mWindow( window ),
     mWindowPropertyHandler( NULL ),
     mClientMessagehandler( NULL ),
+    mWindowDeleteRequestHandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -86,10 +87,14 @@ struct Window::EventHandler
     if( mWindow->mEcoreEventHander )
     {
       ecore_x_input_multi_select( mEcoreWindow );
+
+      // This ensures that we catch the window close (or delete) request
+      ecore_x_icccm_protocol_set( mEcoreWindow, ECORE_X_WM_PROTOCOL_DELETE_REQUEST, EINA_TRUE );
+
       mWindowPropertyHandler=  ecore_event_handler_add( ECORE_X_EVENT_WINDOW_PROPERTY,  EcoreEventWindowPropertyChanged, this );
       mClientMessagehandler =  ecore_event_handler_add( ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this );
+      mWindowDeleteRequestHandler = ecore_event_handler_add( ECORE_X_EVENT_WINDOW_DELETE_REQUEST, EcoreEventWindowDeleteRequest, this );
     }
-
   }
 
   /**
@@ -104,6 +109,10 @@ struct Window::EventHandler
     if ( mClientMessagehandler )
     {
       ecore_event_handler_del( mClientMessagehandler );
+    }
+    if ( mWindowDeleteRequestHandler )
+    {
+      ecore_event_handler_del( mWindowDeleteRequestHandler );
     }
   }
 
@@ -196,10 +205,19 @@ struct Window::EventHandler
     return handled;
   }
 
+  /// Called when the window receives a delete request
+  static Eina_Bool EcoreEventWindowDeleteRequest( void* data, int type, void* event )
+  {
+    EventHandler* handler( (EventHandler*)data );
+    handler->mWindow->mDeleteRequestSignal.Emit();
+    return ECORE_CALLBACK_DONE;
+  }
+
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
   Ecore_Event_Handler* mClientMessagehandler;
+  Ecore_Event_Handler* mWindowDeleteRequestHandler;
   Ecore_X_Window mEcoreWindow;
 };
 

@@ -374,6 +374,8 @@ bool Framework::AppStatusHandler(int type, void *bundleData)
       mAbortHandler.AbortOnSignal( SIGINT );
       mAbortHandler.AbortOnSignal( SIGQUIT );
       mAbortHandler.AbortOnSignal( SIGKILL );
+      mAbortHandler.AbortOnSignal( SIGTERM );
+      mAbortHandler.AbortOnSignal( SIGHUP );
 
       mObserver.OnInit();
       break;
