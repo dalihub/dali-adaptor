@@ -205,11 +205,6 @@ public: // AdaptorInternalServices implementation
    */
   virtual bool AddIdle( CallbackBase* callback );
 
-  /**
-   * @copydoc Internal::Framework::CallFromMainLoop()
-   */
-  virtual bool CallFromMainLoop( CallbackBase* callback );
-
 public:
 
   /**
@@ -334,7 +329,7 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
    */
-  virtual TriggerEventInterface& GetTriggerEventInterface();
+  virtual TriggerEventInterface& GetProcessCoreEventsTrigger();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventFactoryInterface()
@@ -532,7 +527,7 @@ private: // Data
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
-  TriggerEvent*                         mNotificationTrigger;         ///< Notification event trigger
+  TriggerEventInterface*                mNotificationTrigger;         ///< Notification event trigger
   GestureManager*                       mGestureManager;              ///< Gesture manager
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.

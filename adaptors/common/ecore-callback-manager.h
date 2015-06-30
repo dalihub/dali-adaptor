@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/thread.hpp>
 #include <list>
 
 // INTERNAL INCLUDES
@@ -60,12 +59,7 @@ public:
     /**
      * @copydoc CallbackManager::AddCallback()
      */
-    virtual bool AddCallback(CallbackBase* callback, Priority priority);
-
-    /**
-     * @copydoc CallbackManager::AddEventCallback()
-     */
-    virtual bool AddEventCallback(CallbackBase* callback, int type, EventControl control);
+    virtual bool AddIdleCallback( CallbackBase* callback );
 
     /**
      * @copydoc CallbackManager::Start()
@@ -77,18 +71,14 @@ public:
      */
     virtual void Stop();
 
-    /**
-     * Remove all call backs
-     * Always called from the main thread
-     */
-    void RemoveAllCallbacksFromMainThread();
-
 private:
 
     /**
-     * Deletes any expired callbacks in the callback container
+     * Remove all idle call backs that are pending
+     * Called by Stop()
+     * Always called from the main thread
      */
-    void RefreshContainer();
+    void RemoveAllCallbacks();
 
     /**
      * Removes a single call back from the container
@@ -104,20 +94,11 @@ private:
      */
     void RemoveStandardCallback(CallbackData *callbackData);
 
-    /**
-     * Remove an event handler from ecore
-     * Always called from main thread
-     * @param callbackData callback data
-     */
-    void RemoveEventCallback(CallbackData *callbackData);
-
-
 
     typedef std::list<CallbackData *>  CallbackList;
 
     bool                           mRunning;            ///< flag is set to true if when running
-    CallbackList                   mCallbackContainer;  ///< container of live callbacks
-    boost::mutex                   mMutex;              ///< protect access to shared data
+    CallbackList                   mCallbackContainer;  ///< container of live idle callbacks
 };
 
 } // namespace Adaptor
