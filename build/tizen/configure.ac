@@ -53,6 +53,7 @@ PKG_CHECK_MODULES(FRIBIDI, fribidi)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
                   )
+PKG_CHECK_MODULES(ECORE_IMF, [ecore-imf >= 1.13], [ecore_imf_1_13=yes], [ecore_imf_1_13=no])
 
 
 # Check for EldBus.h in ECore
@@ -104,6 +105,11 @@ fi
 
 if test "x$enable_shaderbincache" = "xENABLE"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DSHADERBIN_CACHE_ENABLED"
+fi
+
+# If Ecore IMF version is greater than 1.13, then some structures are different
+if test "x$ecore_imf_1_13" = "xyes"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DECORE_IMF_1_13"
 fi
 
 AC_ARG_ENABLE([gles],
@@ -277,6 +283,7 @@ Configuration
   EldBus:                           $eldbus_available
   Shader Binary Cache:              $enable_shaderbincache
   Build for Node.JS (LibUV)         $build_for_node_js
+  Ecore Version At Least 1.13.0     $ecore_imf_1_13
 "
 # optional output of node.js source path if we're building for node.js
 if test "x$build_for_node_js" != "xno"; then

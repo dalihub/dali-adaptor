@@ -647,6 +647,9 @@ struct EventHandler::Impl
         ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
         ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+#ifdef ECORE_IMF_1_13
+        ecoreKeyDownEvent.dev_name  = "";
+#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_DOWN,
@@ -727,6 +730,9 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+#ifdef ECORE_IMF_1_13
+        ecoreKeyUpEvent.dev_name  = "";
+#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
