@@ -85,12 +85,6 @@ include ../../../text/dali/internal/libunibreak/file.list
 
 ############# source files #############
 
-if ASSIMP_ENABLED
-tizen_platform_abstraction_src_files += $(tizen_assimp_src_files)
-else
-tizen_platform_abstraction_src_files += $(tizen_assimp_stubs_src_files)
-endif # ASSIMP_ENABLED
-
 # COMMON
 if COMMON_PROFILE
 
@@ -269,8 +263,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
-                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
+                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
+                      $(ELDBUS_CFLAGS)
 
 libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
 
@@ -295,6 +289,7 @@ libdali_adaptor_la_LIBADD = \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(CAPI_SYSTEM_INFO_LIBS) \
+                      $(ELDBUS_LIBS) \
                       -lgif \
                       -lboost_thread \
                       -lturbojpeg
@@ -369,7 +364,7 @@ tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 if !UBUNTU_PROFILE
 
 if !WAYLAND
-tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
+tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)
 endif # NOT WAYLAND
 
 endif # NOT UBUNTU_PROFILE

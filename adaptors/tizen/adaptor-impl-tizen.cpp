@@ -40,6 +40,7 @@ void Adaptor::GetDataStoragePath( std::string& path)
   if ( pathInt )
   {
     path = pathInt;
+    free( pathInt );
   }
 #endif
 }

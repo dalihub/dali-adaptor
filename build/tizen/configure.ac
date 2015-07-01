@@ -55,7 +55,17 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
                   )
 
 
-# Check for availability of BulletPhysics
+# Check for EldBus.h in ECore
+PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
+
+DALI_ELDBUS_AVAILABLE=
+if test "x$eldbus_available" = "xyes"; then
+  DALI_ELDBUS_AVAILABLE=true
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_ELDBUS_AVAILABLE "
+fi
+AC_SUBST(DALI_ELDBUS_AVAILABLE)
+
+
 PKG_CHECK_EXISTS(bullet, [
   BULLET_CFLAGS=`pkg-config --cflags bullet`
   BULLET_LIBS=`pkg-config --libs bullet`
@@ -86,7 +96,7 @@ AC_ARG_ENABLE([feedback],
 AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
-DALI_ADAPTOR_CFLAGS=-DPLATFORM_TIZEN
+DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DPLATFORM_TIZEN"
 
 AC_ARG_ENABLE(exportall,
               [AC_HELP_STRING([--enable-exportall],
@@ -117,12 +127,6 @@ fi
 if test "x$enable_shaderbincache" = "xENABLE"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DSHADERBIN_CACHE_ENABLED"
 fi
-
-AC_ARG_ENABLE([assimp],
-              [AC_HELP_STRING([--enable-assimp],
-                              [Enable assimp plugin, overriding platform defaults])],
-              [enable_assimp=yes],
-              [enable_assimp=no])
 
 AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
@@ -168,11 +172,7 @@ AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 # should not disable features. This allows the developer to override
 # features through the command line.
 
-if test "x$enable_profile" = "xMOBILE"; then
-PKG_CHECK_MODULES(OPENGLES20, gles20)
-else
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
-fi
 
 if test "x$enable_profile" != "xUBUNTU"; then
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
@@ -214,14 +214,6 @@ fi
 PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 fi
-
-if test "x$enable_assimp" = "xyes" ; then
-  PKG_CHECK_MODULES(ASSIMP, assimp)
-  ASSIMP_CFLAGS+=-DASSIMP_ENABLED
-fi
-
-# Don't move this - it depends on the platform defaults above
-AM_CONDITIONAL([ASSIMP_ENABLED], [test x$enable_assimp = xyes])
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
@@ -273,10 +265,10 @@ Configuration
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
   Compile flags                     $DALI_ADAPTOR_CFLAGS
-  Using Assimp Library:             $enable_assimp
   Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
   OVERTIZEN2.2:                     $with_over_tizen_2_2
+  EldBus:                           $eldbus_available
 "

@@ -162,6 +162,7 @@ int UtcDaliTtsPlayerGetStateN(void)
   try
   {
     Dali::TtsPlayer::State state = player.GetState();
+    tet_printf( "Error: TtsPlayer state = %d, expected exception\n", (unsigned int)state );
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )

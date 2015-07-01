@@ -83,6 +83,10 @@ Dali::TtsPlayer::State TtsPlayer::GetState()
   return Dali::TtsPlayer::UNAVAILABLE;
 }
 
+Dali::TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
+{
+  return mStateChangedSignal;
+}
 
 } // namespace Adaptor
 

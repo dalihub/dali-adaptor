@@ -1,5 +1,5 @@
-#ifndef __DALI_ACCESSIBILITY_MANAGER_H__
-#define __DALI_ACCESSIBILITY_MANAGER_H__
+#ifndef __DALI_ACCESSIBILITY_ADAPTOR_H__
+#define __DALI_ACCESSIBILITY_ADAPTOR_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -22,7 +22,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -31,7 +30,7 @@ namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
-class AccessibilityManager;
+class AccessibilityAdaptor;
 }
 }
 
@@ -40,42 +39,33 @@ class AccessibilityGestureHandler;
 class TouchPoint;
 
 /**
- * @brief The AccessibilityManager provides signals when accessibility & screen reader feature turned on in device.
+ * @brief The AccessibilityAdaptor provides communication to the indicator and the accessibility manager interface (implemented in toolkit).
+ *
  */
-class DALI_IMPORT_API AccessibilityManager : public BaseHandle
+class DALI_IMPORT_API AccessibilityAdaptor : public BaseHandle
 {
 public:
-
-  // Typedefs
-
-  /**
-   * @brief Accessibility Action Signal.
-   *
-   * Signal connected callback should return the result
-   */
-  typedef Signal< bool ( AccessibilityManager& ) > AccessibilityActionSignalType; ///< Generic signal type
-  typedef Signal< bool (AccessibilityManager&, const Dali::TouchEvent&)> AccessibilityActionScrollSignalType; ///< Scroll signal type
 
   /**
    * @brief Create an uninitialized handle.
    *
-   * This can be initialized by calling getting the manager from Dali::Adaptor.
+   * This can be initialized by calling getting the adaptor from Dali::Adaptor.
    */
-  AccessibilityManager();
+  AccessibilityAdaptor();
 
   /**
-   * @brief Retrieve a handle to the AccessibilityManager.
+   * @brief Retrieve a handle to the AccessibilityAdaptor.
    *
-   * @return A handle to the AccessibilityManager.
+   * @return A handle to the AccessibilityAdaptor.
    */
-  static AccessibilityManager Get();
+  static AccessibilityAdaptor Get();
 
   /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  ~AccessibilityManager();
+  ~AccessibilityAdaptor();
 
   /**
    * @brief Returns the current position of the read action.
@@ -127,7 +117,7 @@ public:
 
   /**
    * @brief Handle the accessibility action to activate the current focused actor (by one
-   * finger double tap)
+   * finger )
    *
    * @return Whether the action is performed successfully or not.
    */
@@ -222,180 +212,137 @@ public:
    */
   void HandleActionDisableEvent();
 
-public:  // Signals
+  /**
+   * @brief Handle the accessibility action to scroll up the list and focus on
+   * the first item on the list after the scrolling and read the item
+   * (by two finger swipe up).
+   *
+   * @return Whether the action is performed successfully or not.
+   */
+  bool HandleActionScrollUpEvent();
 
   /**
-   * @brief This is emitted when accessibility(screen-reader) feature turned on or off.
+   * @brief Handle the accessibility action to scroll down the list and focus on
+   * the first item on the list after the scrolling and read the item
+   * (by two finger swipe down).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& StatusChangedSignal();
+  bool HandleActionScrollDownEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to move focus to the next
-   * focusable actor (by one finger flick down).
+   * @brief Handle the accessibility action to scroll left to the previous page
+   * (by two finger swipe left).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionNextSignal();
+  bool HandleActionPageLeftEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to move focus to the previous
-   * focusable actor (by one finger flick up).
+   * @brief Handle the accessibility action to scroll right to the next page
+   * (by two finger swipe right).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionPreviousSignal();
+  bool HandleActionPageRightEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to activate the current focused
-   * actor (by one finger double tap).
+   * @brief Handle the accessibility action to scroll up to the previous page
+   * (by one finger swipe left and right).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionActivateSignal();
+  bool HandleActionPageUpEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to focus and read the actor
-   * (by one finger tap).
+   * @brief Handle the accessibility action to scroll down to the next page
+   * (by one finger swipe right and left).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionReadSignal();
+  bool HandleActionPageDownEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to focus and read the actor
-   * (by one finger move).
+   * @brief Handle the accessibility action to move the focus to the first item on the screen
+   * (by one finger swipe up and down).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionOverSignal();
+  bool HandleActionMoveToFirstEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to move focus to the next
-   * focusable actor (by one finger flick right).
+   * @brief Handle the accessibility action to move the focus to the last item on the screen
+   * (by one finger swipe down and up).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionReadNextSignal();
+  bool HandleActionMoveToLastEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to move focus to the previous
-   * focusable actor (by one finger flick left).
+   * @brief Handle the accessibility action to move the focus to the first item on the top
+   * and read from the top item continously (by three fingers single tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionReadPreviousSignal();
+  bool HandleActionReadFromTopEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to change the value when the
-   * current focused actor is a slider (by double finger down and move up and right).
+   * @brief Handle the accessibility action to move focus to and read from the next focusable
+   * actor continously (by three fingers double tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionUpSignal();
+  bool HandleActionReadFromNextEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to change the value when the
-   * current focused actor is a slider (by double finger down and move down and left).
+   * @brief Handle the accessibility action to do the zooming
+   * (by one finger triple tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionDownSignal();
+  bool HandleActionZoomEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to clear the focus from the
-   * current focused actor if any, so that no actor is focused in the focus chain.
+   * @brief Handle the accessibility action to read the information in the indicator
+   * (by two fingers triple tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionClearFocusSignal();
+  bool HandleActionReadIndicatorInformationEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to navigate back (by two
-   * fingers circle draw).
+   * @brief Handle the accessibility action to pause/resume the current speech
+   * (by two fingers single tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionSignalType& ActionBackSignal();
+  bool HandleActionReadPauseResumeEvent();
 
   /**
-   * @brief This is emitted when accessibility action is received to handle scroll event (by two
-   * fingers drag).
+   * @brief Handle the accessibility action to start/stop the current action
+   * (by two fingers double tap).
    *
-   * A callback of the following type may be connected:
-   * @code
-   *   bool YourCallback( AccessibilityManager& manager, const TouchEvent& event );
-   * @endcode
-   * @return The signal to connect to.
+   * @return Whether the action is performed successfully or not.
    */
-  AccessibilityActionScrollSignalType& ActionScrollSignal();
+  bool HandleActionStartStopEvent();
 
 public: // Not intended for application developers
 
   /**
    * @brief Creates a handle using the Adaptor::Internal implementation.
    *
-   * @param[in] manager The AccessibilityManager implementation.
+   * @param[in] adaptor The AccessibilityAdaptor implementation.
    */
-  DALI_INTERNAL AccessibilityManager( Internal::Adaptor::AccessibilityManager& manager );
+  DALI_INTERNAL AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor& adaptor );
 
   /**
-   * @brief This constructor is used by AccessibilityManager::Get().
+   * @brief This constructor is used by AccessibilityAdaptor::Get().
    *
-   * @param[in] manager A pointer to the accessibility manager.
+   * @param[in] adaptor A pointer to the accessibility adaptor.
    */
-  explicit DALI_INTERNAL AccessibilityManager( Internal::Adaptor::AccessibilityManager* manager );
+  explicit DALI_INTERNAL AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor* adaptor );
 };
 
 } // namespace Dali
 
-#endif // __DALI_ACCESSIBILITY_MANAGER_H__
+#endif // __DALI_ACCESSIBILITY_ADAPTOR_H__
