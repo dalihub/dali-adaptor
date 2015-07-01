@@ -28,7 +28,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
-#include <base/update-render-controller.h>
+#include <base/thread-controller.h>
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
@@ -148,7 +148,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mVSyncMonitor = new VSyncMonitor;
 
-  mUpdateRenderController = new UpdateRenderController( *this, *mEnvironmentOptions );
+  mThreadController = new ThreadController( *this, *mEnvironmentOptions );
 
   // Should be called after Core creation
   if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
@@ -198,7 +198,7 @@ Adaptor::~Adaptor()
     (*iter)->OnDestroy();
   }
 
-  delete mUpdateRenderController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
+  delete mThreadController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
   delete mVSyncMonitor;
   delete mEventHandler;
   delete mObjectProfiler;
@@ -257,8 +257,8 @@ void Adaptor::Start()
   PositionSize size = mSurface->GetPositionSize();
   mCore->SurfaceResized( size.width, size.height );
 
-  // Start the update & render threads
-  mUpdateRenderController->Start();
+  // Start all the threads
+  mThreadController->Start();
 
   mState = RUNNING;
 
@@ -288,7 +288,7 @@ void Adaptor::Pause()
       mEventHandler->Pause();
     }
 
-    mUpdateRenderController->Pause();
+    mThreadController->Pause();
     mCore->Suspend();
     mState = PAUSED;
   }
@@ -303,14 +303,14 @@ void Adaptor::Resume()
     // We put ResumeFrameTime first, as this was originally called at the start of mCore->Resume()
     // If there were events pending, mCore->Resume() will call
     //   RenderController->RequestUpdate()
-    //     UpdateRenderController->RequestUpdate()
-    //       UpdateRenderSynchronization->RequestUpdate()
+    //     ThreadController->RequestUpdate()
+    //       ThreadSynchronization->RequestUpdate()
     // and we should have reset the frame timers before allowing Core->Update() to be called.
-    //@todo Should we call UpdateRenderController->Resume before mCore->Resume()?
+    //@todo Should we call ThreadController->Resume before mCore->Resume()?
 
-    mUpdateRenderController->ResumeFrameTime();
+    mThreadController->ResumeFrameTime();
     mCore->Resume();
-    mUpdateRenderController->Resume();
+    mThreadController->Resume();
 
     mState = RUNNING;
 
@@ -341,7 +341,7 @@ void Adaptor::Stop()
       (*iter)->OnStop();
     }
 
-    mUpdateRenderController->Stop();
+    mThreadController->Stop();
     mCore->Suspend();
 
     // Delete the TTS player
@@ -438,7 +438,7 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
   ProcessCoreEvents();
 
   // this method blocks until the render thread has completed the replace.
-  mUpdateRenderController->ReplaceSurface(mSurface);
+  mThreadController->ReplaceSurface(mSurface);
 }
 
 RenderSurface& Adaptor::GetSurface() const
@@ -499,7 +499,7 @@ Dali::Integration::Core& Adaptor::GetCore()
 
 void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 {
-  mUpdateRenderController->SetRenderRefreshRate( numberOfVSyncsPerRender );
+  mThreadController->SetRenderRefreshRate( numberOfVSyncsPerRender );
 }
 
 void Adaptor::SetUseHardwareVSync( bool useHardware )
@@ -677,7 +677,7 @@ void Adaptor::RequestUpdate()
   if ( PAUSED  == mState ||
        RUNNING == mState )
   {
-    mUpdateRenderController->RequestUpdate();
+    mThreadController->RequestUpdate();
   }
 }
 
@@ -745,9 +745,9 @@ void Adaptor::RequestUpdateOnce()
 {
   if( PAUSED_WHILE_HIDDEN != mState )
   {
-    if( mUpdateRenderController )
+    if( mThreadController )
     {
-      mUpdateRenderController->RequestUpdateOnce();
+      mThreadController->RequestUpdateOnce();
     }
   }
 }
@@ -766,7 +766,7 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mAdaptor(adaptor),
   mState(READY),
   mCore(NULL),
-  mUpdateRenderController(NULL),
+  mThreadController(NULL),
   mVSyncMonitor(NULL),
   mGLES( NULL ),
   mEglFactory( NULL ),

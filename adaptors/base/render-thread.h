@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_RENDER_THREAD_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ namespace Adaptor
 {
 
 class AdaptorInternalServices;
-class UpdateRenderSynchronization;
+class ThreadSynchronization;
 class EglFactoryInterface;
 class EnvironmentOptions;
 
@@ -115,11 +115,11 @@ public:
 
   /**
    * Create the render-thread; this will not do anything until Start() is called.
-   * @param[in] sync update-render synchronization object
+   * @param[in] sync thread synchronization object
    * @param[in] adaptorInterfaces base adaptor interface
    * @param[in] environmentOptions environment options
    */
-  RenderThread( UpdateRenderSynchronization& sync,
+  RenderThread( ThreadSynchronization& sync,
                 AdaptorInternalServices& adaptorInterfaces,
                 const EnvironmentOptions& environmentOptions );
 
@@ -202,7 +202,7 @@ private: // Render thread side helpers
 
 private: // Data
 
-  UpdateRenderSynchronization&  mUpdateRenderSync;       ///< Used to synchronize the update & render threads
+  ThreadSynchronization&        mThreadSync;             ///< Used to synchronize the all threads
   Dali::Integration::Core&      mCore;                   ///< Dali core reference
   Integration::GlAbstraction&   mGLES;                   ///< GL abstraction reference
   EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation

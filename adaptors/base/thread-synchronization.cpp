@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "update-render-synchronization.h"
+#include "thread-synchronization.h"
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -41,7 +41,7 @@ const unsigned int INPUT_EVENT_UPDATE_PERIOD( MICROSECONDS_PER_SECOND / 90 ); //
 
 } // unnamed namespace
 
-UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalServices& adaptorInterfaces,
+ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorInterfaces,
                                                           unsigned int numberOfVSyncsPerRender)
 : mMaximumUpdateCount( adaptorInterfaces.GetCore().GetMaximumUpdateCount()),
   mNumberOfVSyncsPerRender( numberOfVSyncsPerRender ),
@@ -63,17 +63,17 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
 {
 }
 
-UpdateRenderSynchronization::~UpdateRenderSynchronization()
+ThreadSynchronization::~ThreadSynchronization()
 {
 }
 
-void UpdateRenderSynchronization::Start()
+void ThreadSynchronization::Start()
 {
   mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
   mRunning = true;
 }
 
-void UpdateRenderSynchronization::Stop()
+void ThreadSynchronization::Stop()
 {
   mRunning = false;
 
@@ -94,7 +94,7 @@ void UpdateRenderSynchronization::Stop()
   mFrameTime.Suspend();
 }
 
-void UpdateRenderSynchronization::Pause()
+void ThreadSynchronization::Pause()
 {
   mPaused = true;
 
@@ -102,12 +102,12 @@ void UpdateRenderSynchronization::Pause()
   mFrameTime.Suspend();
 }
 
-void UpdateRenderSynchronization::ResumeFrameTime()
+void ThreadSynchronization::ResumeFrameTime()
 {
   mFrameTime.Resume();
 }
 
-void UpdateRenderSynchronization::Resume()
+void ThreadSynchronization::Resume()
 {
   mPaused = false;
   mVSyncSleep = false;
@@ -118,7 +118,7 @@ void UpdateRenderSynchronization::Resume()
   AddPerformanceMarker( PerformanceInterface::RESUME);
 }
 
-void UpdateRenderSynchronization::UpdateRequested()
+void ThreadSynchronization::UpdateRequested()
 {
   mUpdateRequested = true;
 
@@ -126,7 +126,7 @@ void UpdateRenderSynchronization::UpdateRequested()
   mUpdateSleepCondition.notify_one();
 }
 
-void UpdateRenderSynchronization::UpdateWhilePaused()
+void ThreadSynchronization::UpdateWhilePaused()
 {
   {
     boost::unique_lock< boost::mutex > lock( mMutex );
@@ -142,7 +142,7 @@ void UpdateRenderSynchronization::UpdateWhilePaused()
   mPausedCondition.notify_one();
 }
 
-bool UpdateRenderSynchronization::ReplaceSurface( RenderSurface* newSurface )
+bool ThreadSynchronization::ReplaceSurface( RenderSurface* newSurface )
 {
   bool result=false;
 
@@ -163,7 +163,7 @@ bool UpdateRenderSynchronization::ReplaceSurface( RenderSurface* newSurface )
   return result;
 }
 
-bool UpdateRenderSynchronization::NewSurface( RenderSurface* newSurface )
+bool ThreadSynchronization::NewSurface( RenderSurface* newSurface )
 {
   bool result=false;
 
@@ -189,7 +189,7 @@ bool UpdateRenderSynchronization::NewSurface( RenderSurface* newSurface )
 }
 
 
-void UpdateRenderSynchronization::UpdateReadyToRun()
+void ThreadSynchronization::UpdateReadyToRun()
 {
   bool wokenFromPause( false );
 
@@ -217,7 +217,7 @@ void UpdateRenderSynchronization::UpdateReadyToRun()
   AddPerformanceMarker( PerformanceInterface::UPDATE_START );
 }
 
-bool UpdateRenderSynchronization::UpdateSyncWithRender( bool notifyEvent, bool& renderNeedsUpdate )
+bool ThreadSynchronization::UpdateSyncWithRender( bool notifyEvent, bool& renderNeedsUpdate )
 {
   AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
@@ -251,7 +251,7 @@ bool UpdateRenderSynchronization::UpdateSyncWithRender( bool notifyEvent, bool& 
   return mRunning;
 }
 
-void UpdateRenderSynchronization::UpdateWaitForAllRenderingToFinish()
+void ThreadSynchronization::UpdateWaitForAllRenderingToFinish()
 {
   boost::unique_lock< boost::mutex > lock( mMutex );
 
@@ -264,7 +264,7 @@ void UpdateRenderSynchronization::UpdateWaitForAllRenderingToFinish()
   }
 }
 
-bool UpdateRenderSynchronization::UpdateTryToSleep()
+bool ThreadSynchronization::UpdateTryToSleep()
 {
   if ( !mUpdateRequired && !mUpdateRequested )
   {
@@ -307,7 +307,7 @@ bool UpdateRenderSynchronization::UpdateTryToSleep()
   return mRunning;
 }
 
-bool UpdateRenderSynchronization::RenderSyncWithRequest(RenderRequest*& requestPtr)
+bool ThreadSynchronization::RenderSyncWithRequest(RenderRequest*& requestPtr)
 {
   boost::unique_lock< boost::mutex > lock( mMutex );
 
@@ -323,7 +323,7 @@ bool UpdateRenderSynchronization::RenderSyncWithRequest(RenderRequest*& requestP
   return mRunning;
 }
 
-bool UpdateRenderSynchronization::RenderSyncWithUpdate(RenderRequest*& requestPtr)
+bool ThreadSynchronization::RenderSyncWithUpdate(RenderRequest*& requestPtr)
 {
   boost::unique_lock< boost::mutex > lock( mMutex );
 
@@ -351,7 +351,7 @@ bool UpdateRenderSynchronization::RenderSyncWithUpdate(RenderRequest*& requestPt
   return mRunning;
 }
 
-void UpdateRenderSynchronization::RenderFinished( bool updateRequired, bool requestProcessed )
+void ThreadSynchronization::RenderFinished( bool updateRequired, bool requestProcessed )
 {
   {
     boost::unique_lock< boost::mutex > lock( mMutex );
@@ -376,7 +376,7 @@ void UpdateRenderSynchronization::RenderFinished( bool updateRequired, bool requ
   AddPerformanceMarker( PerformanceInterface::RENDER_END );
 }
 
-void UpdateRenderSynchronization::WaitSync()
+void ThreadSynchronization::WaitSync()
 {
   // Block until the start of a new sync.
   // If we're experiencing slowdown and are behind by more than a frame
@@ -397,7 +397,7 @@ void UpdateRenderSynchronization::WaitSync()
   mAllowUpdateWhilePaused = false;
 }
 
-bool UpdateRenderSynchronization::VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds, unsigned int& numberOfVSyncsPerRender )
+bool ThreadSynchronization::VSyncNotifierSyncWithUpdateAndRender( bool validSync, unsigned int frameNumber, unsigned int seconds, unsigned int microseconds, unsigned int& numberOfVSyncsPerRender )
 {
   // This may have changed since the last sync. Update VSyncNotifier's copy here if so.
   if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
@@ -433,12 +433,12 @@ bool UpdateRenderSynchronization::VSyncNotifierSyncWithUpdateAndRender( bool val
   return mRunning;
 }
 
-unsigned int UpdateRenderSynchronization::GetFrameNumber() const
+unsigned int ThreadSynchronization::GetFrameNumber() const
 {
   return mSyncFrameNumber;
 }
 
-uint64_t UpdateRenderSynchronization::GetTimeMicroseconds()
+uint64_t ThreadSynchronization::GetTimeMicroseconds()
 {
   uint64_t currentTime(0);
 
@@ -453,12 +453,12 @@ uint64_t UpdateRenderSynchronization::GetTimeMicroseconds()
   return currentTime;
 }
 
-void UpdateRenderSynchronization::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
+void ThreadSynchronization::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 {
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
 }
 
-inline void UpdateRenderSynchronization::AddPerformanceMarker( PerformanceInterface::MarkerType type )
+inline void ThreadSynchronization::AddPerformanceMarker( PerformanceInterface::MarkerType type )
 {
   if( mPerformanceInterface )
   {
@@ -466,7 +466,7 @@ inline void UpdateRenderSynchronization::AddPerformanceMarker( PerformanceInterf
   }
 }
 
-void UpdateRenderSynchronization::PredictNextSyncTime(
+void ThreadSynchronization::PredictNextSyncTime(
   float& lastFrameDeltaSeconds,
   unsigned int& lastSyncTimeMilliseconds,
   unsigned int& nextSyncTimeMilliseconds )

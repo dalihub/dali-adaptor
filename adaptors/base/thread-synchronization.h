@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_UPDATE_RENDER_SYNCHRONIZATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class AdaptorInternalServices;
  * However the Core::Update() for frame N+2 may not be called, until the Core::Render() method for frame N has returned.
  *
  */
-class UpdateRenderSynchronization
+class ThreadSynchronization
 {
 public:
 
@@ -66,12 +66,12 @@ public:
    * @param[in] adaptorInterfaces base adaptor interface
    * @param[in] numberOfVSyncsPerRender The number of frames per render
   */
-  UpdateRenderSynchronization( AdaptorInternalServices& adaptorInterfaces, unsigned int numberOfVSyncsPerRender );
+  ThreadSynchronization( AdaptorInternalServices& adaptorInterfaces, unsigned int numberOfVSyncsPerRender );
 
   /**
    * Non virtual destructor. Not intended as base class.
    */
-  ~UpdateRenderSynchronization();
+  ~ThreadSynchronization();
 
   /**
    * Start the threads
@@ -238,10 +238,10 @@ public:
 private:
 
   // Undefined copy constructor.
-  UpdateRenderSynchronization( const UpdateRenderSynchronization& );
+  ThreadSynchronization( const ThreadSynchronization& );
 
   // Undefined assignment operator.
-  UpdateRenderSynchronization& operator=( const UpdateRenderSynchronization& );
+  ThreadSynchronization& operator=( const ThreadSynchronization& );
 
   /**
    * Helper to add a performance marker to the performance server (if its active)
@@ -284,7 +284,7 @@ private:
   ReplaceSurfaceRequest mReplaceSurfaceRequest; ///< Holder for a replace surface request
   bool mReplaceSurfaceRequested; ///< True if there is a new replace surface request
 
-}; // class UpdateRenderSynchronization
+}; // class ThreadSynchronization
 
 } // namespace Adaptor
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/update-render-synchronization.h>
+#include <base/thread-synchronization.h>
 #include <base/environment-options.h>
 
 namespace Dali
@@ -45,10 +45,10 @@ Integration::Log::Filter* gUpdateLogFilter = Integration::Log::Filter::New(Debug
 #endif
 } // unnamed namespace
 
-UpdateThread::UpdateThread( UpdateRenderSynchronization& sync,
+UpdateThread::UpdateThread( ThreadSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
                             const EnvironmentOptions& environmentOptions )
-: mUpdateRenderSync( sync ),
+: mThreadSync( sync ),
   mCore( adaptorInterfaces.GetCore()),
   mFpsTrackingSeconds( fabsf( environmentOptions.GetFrameRateLoggingFrequency() ) ),
   mFrameCount( 0.0f ),
@@ -110,14 +110,14 @@ bool UpdateThread::Run()
     DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 1 - Sync()\n");
 
     // Inform synchronization object update is ready to run, this will pause update thread if required.
-    mUpdateRenderSync.UpdateReadyToRun();
+    mThreadSync.UpdateReadyToRun();
     DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 2 - Ready()\n");
 
     // get the last delta and the predict when this update will be rendered
     float lastFrameDelta( 0.0f );
     unsigned int lastSyncTime( 0 );
     unsigned int nextSyncTime( 0 );
-    mUpdateRenderSync.PredictNextSyncTime( lastFrameDelta, lastSyncTime, nextSyncTime );
+    mThreadSync.PredictNextSyncTime( lastFrameDelta, lastSyncTime, nextSyncTime );
 
     DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 3 - Update(delta:%f, lastSync:%u, nextSync:%u)\n", lastFrameDelta, lastSyncTime, nextSyncTime);
 
@@ -132,7 +132,7 @@ bool UpdateThread::Run()
 
     // tell the synchronisation class that a buffer has been written to,
     // and to wait until there is a free buffer to write to
-    running = mUpdateRenderSync.UpdateSyncWithRender( status.NeedsNotification(), renderNeedsUpdate );
+    running = mThreadSync.UpdateSyncWithRender( status.NeedsNotification(), renderNeedsUpdate );
     DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 4 - UpdateSyncWithRender complete\n");
 
     if( running )
@@ -154,7 +154,7 @@ bool UpdateThread::Run()
       {
         DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 5 - Nothing to update, trying to sleep\n");
 
-        running = mUpdateRenderSync.UpdateTryToSleep();
+        running = mThreadSync.UpdateTryToSleep();
       }
     }
   }

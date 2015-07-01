@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  */
 
 // CLASS HEADER
-#include "update-render-controller.h"
+#include "thread-controller.h"
 
 // INTERNAL INCLUDES
 #include <base/update-thread.h>
 #include <base/render-thread.h>
-#include <base/update-render-synchronization.h>
+#include <base/thread-synchronization.h>
 #include <base/vsync-notifier.h>
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
@@ -35,84 +35,84 @@ namespace Internal
 namespace Adaptor
 {
 
-UpdateRenderController::UpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
+ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces,
                                                 const EnvironmentOptions& environmentOptions )
 : mAdaptorInterfaces( adaptorInterfaces ),
   mUpdateThread( NULL ),
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
-  mUpdateRenderSync( NULL ),
+  mThreadSync( NULL ),
   mNumberOfVSyncsPerRender( 1 )
 {
-  mUpdateRenderSync = new UpdateRenderSynchronization( adaptorInterfaces, mNumberOfVSyncsPerRender );
+  mThreadSync = new ThreadSynchronization( adaptorInterfaces, mNumberOfVSyncsPerRender );
 
-  mUpdateThread = new UpdateThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
+  mUpdateThread = new UpdateThread( *mThreadSync, adaptorInterfaces, environmentOptions );
 
-  mRenderThread = new RenderThread( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
+  mRenderThread = new RenderThread( *mThreadSync, adaptorInterfaces, environmentOptions );
 
-  mVSyncNotifier = new VSyncNotifier( *mUpdateRenderSync, adaptorInterfaces, environmentOptions );
+  mVSyncNotifier = new VSyncNotifier( *mThreadSync, adaptorInterfaces, environmentOptions );
 }
 
-UpdateRenderController::~UpdateRenderController()
+ThreadController::~ThreadController()
 {
   delete mVSyncNotifier;
   delete mRenderThread;
   delete mUpdateThread;
-  delete mUpdateRenderSync;
+  delete mThreadSync;
 }
 
-void UpdateRenderController::Start()
+void ThreadController::Start()
 {
   // Notify the synchronization object before starting the threads
-  mUpdateRenderSync->Start();
+  mThreadSync->Start();
 
   mUpdateThread->Start();
   mRenderThread->Start();
   mVSyncNotifier->Start();
 }
 
-void UpdateRenderController::Pause()
+void ThreadController::Pause()
 {
-  mUpdateRenderSync->Pause();
+  mThreadSync->Pause();
 
   // if update thread is napping, wake it up to get it to pause in correct place
-  mUpdateRenderSync->UpdateRequested();
+  mThreadSync->UpdateRequested();
 }
 
-void UpdateRenderController::ResumeFrameTime()
+void ThreadController::ResumeFrameTime()
 {
-  mUpdateRenderSync->ResumeFrameTime();
+  mThreadSync->ResumeFrameTime();
 }
 
-void UpdateRenderController::Resume()
+void ThreadController::Resume()
 {
-  mUpdateRenderSync->Resume();
+  mThreadSync->Resume();
 }
 
-void UpdateRenderController::Stop()
+void ThreadController::Stop()
 {
   // Notify the synchronization object before stopping the threads
-  mUpdateRenderSync->Stop();
+  mThreadSync->Stop();
 
   mVSyncNotifier->Stop();
   mUpdateThread->Stop();
   mRenderThread->Stop();
 }
 
-void UpdateRenderController::RequestUpdate()
+void ThreadController::RequestUpdate()
 {
-  mUpdateRenderSync->UpdateRequested();
+  mThreadSync->UpdateRequested();
 }
 
-void UpdateRenderController::RequestUpdateOnce()
+void ThreadController::RequestUpdateOnce()
 {
   // we may be sleeping
-  mUpdateRenderSync->UpdateRequested();
+  mThreadSync->UpdateRequested();
   // if we are paused, need to allow one update
-  mUpdateRenderSync->UpdateWhilePaused();
+  mThreadSync->UpdateWhilePaused();
 }
 
-void UpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
+void ThreadController::ReplaceSurface( RenderSurface* newSurface )
 {
   // tell render thread to start the replace. This call will block until the replace
   // has completed.
@@ -121,10 +121,10 @@ void UpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
   // Ensure the current surface releases any locks to prevent deadlock.
   currentSurface->StopRender();
 
-  mUpdateRenderSync->ReplaceSurface( newSurface );
+  mThreadSync->ReplaceSurface( newSurface );
 }
 
-void UpdateRenderController::NewSurface( RenderSurface* newSurface )
+void ThreadController::NewSurface( RenderSurface* newSurface )
 {
   // This API shouldn't be used when there is a current surface, but check anyway.
   RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
@@ -133,13 +133,13 @@ void UpdateRenderController::NewSurface( RenderSurface* newSurface )
     currentSurface->StopRender();
   }
 
-  mUpdateRenderSync->NewSurface( newSurface );
+  mThreadSync->NewSurface( newSurface );
 }
 
-void UpdateRenderController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
+void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
-  mUpdateRenderSync->SetRenderRefreshRate(numberOfVSyncsPerRender);
+  mThreadSync->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
 

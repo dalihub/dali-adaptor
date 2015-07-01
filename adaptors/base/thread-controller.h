@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_UPDATE_RENDER_CONTROLLER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,26 +32,26 @@ namespace Adaptor
 class UpdateThread;
 class RenderThread;
 class VSyncNotifier;
-class UpdateRenderSynchronization;
+class ThreadSynchronization;
 class AdaptorInternalServices;
 class EnvironmentOptions;
 
 /**
- * Class to control the update and render threads.
+ * Class to control all the threads.
  */
-class UpdateRenderController
+class ThreadController
 {
 public:
 
   /**
    * Constructor
    */
-  UpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
+  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.
    */
-  ~UpdateRenderController();
+  ~ThreadController();
 
   /**
    * @copydoc Dali::Adaptor::Start()
@@ -111,17 +111,17 @@ public:
 private:
 
   // Undefined copy constructor.
-  UpdateRenderController( const UpdateRenderController& );
+  ThreadController( const ThreadController& );
 
   // Undefined assignment operator.
-  UpdateRenderController& operator=( const UpdateRenderController& );
+  ThreadController& operator=( const ThreadController& );
 
   AdaptorInternalServices&     mAdaptorInterfaces;
 
-  UpdateThread*                mUpdateThread;     ///< The update-thread owned by UpdateRenderController
-  RenderThread*                mRenderThread;     ///< The render-thread owned by UpdateRenderController
-  VSyncNotifier*               mVSyncNotifier;    ///< The vsync-thread owned by UpdateRenderController
-  UpdateRenderSynchronization* mUpdateRenderSync; ///< Used to synchronize the update & render threads; also owned by UpdateRenderController
+  UpdateThread*                mUpdateThread;     ///< The update-thread owned by ThreadController
+  RenderThread*                mRenderThread;     ///< The render-thread owned by ThreadController
+  VSyncNotifier*               mVSyncNotifier;    ///< The vsync-thread owned by ThreadController
+  ThreadSynchronization*       mThreadSync;       ///< Used to synchronize all the threads; owned by ThreadController
   unsigned int                 mNumberOfVSyncsPerRender; ///< Frame skipping count
 };
 

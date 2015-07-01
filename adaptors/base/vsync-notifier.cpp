@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/update-render-synchronization.h>
+#include <base/thread-synchronization.h>
 #include <base/environment-options.h>
 
 namespace Dali
@@ -47,10 +47,10 @@ Integration::Log::Filter* gSyncLogFilter = Integration::Log::Filter::New(Debug::
 
 } // unnamed namespace
 
-VSyncNotifier::VSyncNotifier( UpdateRenderSynchronization& sync,
+VSyncNotifier::VSyncNotifier( ThreadSynchronization& sync,
                               AdaptorInternalServices& adaptorInterfaces,
                               const EnvironmentOptions& environmentOptions )
-: mUpdateRenderSync( sync ),
+: mThreadSync( sync ),
   mCore( adaptorInterfaces.GetCore() ),
   mPlatformAbstraction( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mVSyncMonitor( adaptorInterfaces.GetVSyncMonitorInterface() ),
@@ -165,7 +165,7 @@ void VSyncNotifier::Run()
 
     DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 3 SyncWithUpdateAndRender(frame#:%d, current Sec:%u current uSec:%u)\n", frameNumber+1, currentSeconds, currentMicroseconds);
 
-    running = mUpdateRenderSync.VSyncNotifierSyncWithUpdateAndRender( validSync, ++frameNumber, currentSeconds, currentMicroseconds, mNumberOfVSyncsPerRender );
+    running = mThreadSync.VSyncNotifierSyncWithUpdateAndRender( validSync, ++frameNumber, currentSeconds, currentMicroseconds, mNumberOfVSyncsPerRender );
     // The number of vsyncs per render may have been modified by this call.
   }
 

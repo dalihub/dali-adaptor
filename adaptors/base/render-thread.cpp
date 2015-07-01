@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/update-render-synchronization.h>
+#include <base/thread-synchronization.h>
 #include <base/environment-options.h>
 #include <base/display-connection.h>
 
@@ -81,10 +81,10 @@ bool ReplaceSurfaceRequest::GetReplaceCompleted()
 }
 
 
-RenderThread::RenderThread( UpdateRenderSynchronization& sync,
+RenderThread::RenderThread( ThreadSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
                             const EnvironmentOptions& environmentOptions )
-: mUpdateRenderSync( sync ),
+: mThreadSync( sync ),
   mCore( adaptorInterfaces.GetCore() ),
   mGLES( adaptorInterfaces.GetGlesInterface() ),
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
@@ -175,10 +175,10 @@ bool RenderThread::Run()
   // render loop, we stay inside here when rendering
   while( running )
   {
-    // Sync with update thread and get any outstanding requests from UpdateRenderSynchronization
+    // Sync with update thread and get any outstanding requests from ThreadSynchronization
     DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - RenderSyncWithUpdate()\n");
     RenderRequest* request = NULL;
-    running = mUpdateRenderSync.RenderSyncWithUpdate( request );
+    running = mThreadSync.RenderSyncWithUpdate( request );
 
     DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - Process requests\n");
 
@@ -201,8 +201,8 @@ bool RenderThread::Run()
       }
       else
       {
-        // Block until new surface... - cleared by ReplaceSurface code in UpdateRenderController
-        running = mUpdateRenderSync.RenderSyncWithRequest(request);
+        // Block until new surface... - cleared by ReplaceSurface code in ThreadController
+        running = mThreadSync.RenderSyncWithRequest(request);
       }
     }
 
@@ -214,9 +214,9 @@ bool RenderThread::Run()
 
       // Notify the update-thread that a render has completed
       DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 5 - Sync.RenderFinished()\n");
-      mUpdateRenderSync.RenderFinished( renderStatus.NeedsUpdate(), requestProcessed );
+      mThreadSync.RenderFinished( renderStatus.NeedsUpdate(), requestProcessed );
 
-      uint64_t newTime( mUpdateRenderSync.GetTimeMicroseconds() );
+      uint64_t newTime( mThreadSync.GetTimeMicroseconds() );
 
       // perform any post-render operations
       if ( renderStatus.HasRendered() )
