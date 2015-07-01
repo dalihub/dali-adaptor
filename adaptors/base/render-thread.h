@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/thread.hpp>
+#include <pthread.h>
 
 // INTERNAL INCLUDES
 #include <egl-interface.h>
@@ -190,6 +190,16 @@ private: // Render thread side helpers
    */
   void PostRender( unsigned int timeDelta );
 
+  /**
+   * Helper for the thread calling the entry function.
+   * @param[in] This A pointer to the current RenderThread object
+   */
+  static inline void* InternalThreadEntryFunc( void* This )
+  {
+    ( static_cast<RenderThread*>( This ) )->Run();
+    return NULL;
+  }
+
 private: // Data
 
   UpdateRenderSynchronization&  mUpdateRenderSync;       ///< Used to synchronize the update & render threads
@@ -197,7 +207,7 @@ private: // Data
   Integration::GlAbstraction&   mGLES;                   ///< GL abstraction reference
   EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation
   EglInterface*                 mEGL;                    ///< Interface to EGL implementation
-  boost::thread*                mThread;                 ///< render thread
+  pthread_t*                    mThread;                 ///< render thread
   RenderSurface*                mSurface;                ///< Current surface
   Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
   const EnvironmentOptions&     mEnvironmentOptions;     ///< Environment options

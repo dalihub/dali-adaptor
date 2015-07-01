@@ -19,7 +19,6 @@
 #include "update-thread.h"
 
 // EXTERNAL INCLUDES
-#include <boost/thread.hpp>
 #include <cstdio>
 
 // INTERNAL INCLUDES
@@ -76,7 +75,9 @@ void UpdateThread::Start()
   if ( !mThread )
   {
     // Create and run the update-thread
-    mThread = new boost::thread( boost::bind( &UpdateThread::Run, this ) );
+    mThread =  new pthread_t();
+    int error = pthread_create( mThread, NULL, InternalThreadEntryFunc, this );
+    DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() in UpdateThread" );
   }
 }
 
@@ -86,7 +87,7 @@ void UpdateThread::Stop()
   if( mThread )
   {
     // wait for the thread to finish
-    mThread->join();
+    pthread_join(*mThread, NULL);
 
     delete mThread;
     mThread = NULL;

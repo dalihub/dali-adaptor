@@ -119,7 +119,9 @@ void RenderThread::Start()
   DALI_ASSERT_ALWAYS( !mEGL && "Egl already initialized" );
 
   // create the render thread, initially we are rendering
-  mThread = new boost::thread(boost::bind(&RenderThread::Run, this));
+  mThread = new pthread_t();
+  int error = pthread_create( mThread, NULL, InternalThreadEntryFunc, this );
+  DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() in RenderThread" );
 
   mSurface->StartRender();
 }
@@ -135,7 +137,7 @@ void RenderThread::Stop()
     mSurface->StopRender();
 
     // wait for the thread to finish
-    mThread->join();
+    pthread_join(*mThread, NULL);
 
     delete mThread;
     mThread = NULL;

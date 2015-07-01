@@ -18,10 +18,8 @@
  *
  */
 
-namespace boost
-{
-class thread;
-} // namespace boost
+// EXTERNAL INCLUDES
+#include <pthread.h>
 
 namespace Dali
 {
@@ -101,6 +99,16 @@ private:
    */
   void UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate );
 
+  /**
+   * Helper for the thread calling the entry function
+   * @param[in] This A pointer to the current UpdateThread object
+   */
+  static inline void* InternalThreadEntryFunc( void* This )
+  {
+    ( static_cast<UpdateThread*>( This ) )->Run();
+    return NULL;
+  }
+
 private: // Data
 
   UpdateRenderSynchronization&        mUpdateRenderSync;    ///< Used to synchronize the update & render threads
@@ -114,7 +122,7 @@ private: // Data
   unsigned int                        mStatusLogInterval;   ///< Interval in frames between status debug prints
   unsigned int                        mStatusLogCount;      ///< Used to count frames between status debug prints
 
-  boost::thread*                      mThread;              ///< The actual update-thread.
+  pthread_t*                          mThread;              ///< The actual update-thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< environment options
 }; // class UpdateThread
 
