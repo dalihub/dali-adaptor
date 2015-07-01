@@ -82,11 +82,20 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
 
       case Touched:
       {
+        unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
+
         if ( pointState == TouchPoint::Up )
         {
-          mLastTapTime = mTouchTime;
-          EmitSingleTap( event.time, point );
-          mState = Registered;
+          if ( deltaBetweenTouchDownTouchUp < MAXIMUM_TIME_ALLOWED )
+          {
+            mLastTapTime = mTouchTime;
+            EmitSingleTap( event.time, point );
+            mState = Registered;
+          }
+          else
+          {
+            mState = Clear;
+          }
         }
         else if (pointState == TouchPoint::Interrupted)
         {
@@ -99,18 +108,27 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
       {
         if ( pointState == TouchPoint::Up )
         {
-          // This is a possible multiple tap, so has it been quick enough ?
-          unsigned long timeDelta = abs( event.time - mLastTapTime );
-          if ( timeDelta > MAXIMUM_TIME_ALLOWED )
+          unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
+
+          if ( deltaBetweenTouchDownTouchUp < MAXIMUM_TIME_ALLOWED )
           {
-            mLastTapTime = event.time;
-            EmitSingleTap( event.time, point );
-            mState = Registered;
+            // This is a possible multiple tap, so has it been quick enough ?
+            unsigned long timeDelta = abs( event.time - mLastTapTime );
+            if ( timeDelta > MAXIMUM_TIME_ALLOWED ) // If exceeded time between taps then just a single tap.
+            {
+              mLastTapTime = event.time;
+              EmitSingleTap( event.time, point );
+              mState = Registered;
+            }
+            else
+            {
+              ++mTapsRegistered;
+              EmitGesture( Gesture::Started, event.time );
+              mState = Clear;
+            }
           }
-          else
+          else // Delta between touch down and touch up too long to be considered a Tap event
           {
-            ++mTapsRegistered;
-            EmitGesture( Gesture::Started, event.time );
             mState = Clear;
           }
         }
