@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_RESOURCE_THREAD_IMAGE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
  * limitations under the License.
  *
  */
-
+// EXTERNAL INCLUDES
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
+
+// INTERNAL INCLUDES
 #include "resource-thread-base.h"
 
 namespace Dali
@@ -35,7 +37,7 @@ public:
    * Constructor
    * @param[in] resourceLoader A reference to the ResourceLoader
    */
-  ResourceThreadImage(ResourceLoader& resourceLoader, bool forRemoteImage);
+  ResourceThreadImage( ResourceLoader& resourceLoader );
 
   /**
    * Destructor

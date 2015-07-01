@@ -15,6 +15,8 @@ tizen_platform_abstraction_src_files = \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-image.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-thread-shader.cpp \
   \
+  $(tizen_platform_abstraction_src_dir)/resource-loader/network/file-download.cpp \
+  $(tizen_platform_abstraction_src_dir)/resource-loader/network/http-utils.cpp \
   \
   $(tizen_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \
   \

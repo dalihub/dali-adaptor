@@ -48,7 +48,7 @@ public:
   {
     /** Pull a resource out of the platform's file system. */
     RequestLoad,
-    /** Pull a resource over http protocol. */
+    /** Pull a resource from the network. */
     RequestDownload,
     /** Pull a resource out of a memory buffer. */
     RequestDecode,
