@@ -61,27 +61,25 @@ ThreadController::~ThreadController()
   delete mThreadSync;
 }
 
-void ThreadController::Start()
+void ThreadController::Initialize()
 {
   // Notify the synchronization object before starting the threads
-  mThreadSync->Start();
+  mThreadSync->Initialise();
 
+  // We want to the threads to be set up before they start
   mUpdateThread->Start();
   mRenderThread->Start();
   mVSyncNotifier->Start();
 }
 
+void ThreadController::Start()
+{
+  mThreadSync->Start();
+}
+
 void ThreadController::Pause()
 {
   mThreadSync->Pause();
-
-  // if update thread is napping, wake it up to get it to pause in correct place
-  mThreadSync->UpdateRequested();
-}
-
-void ThreadController::ResumeFrameTime()
-{
-  mThreadSync->ResumeFrameTime();
 }
 
 void ThreadController::Resume()
@@ -101,15 +99,13 @@ void ThreadController::Stop()
 
 void ThreadController::RequestUpdate()
 {
-  mThreadSync->UpdateRequested();
+  mThreadSync->UpdateRequest();
 }
 
 void ThreadController::RequestUpdateOnce()
 {
-  // we may be sleeping
-  mThreadSync->UpdateRequested();
   // if we are paused, need to allow one update
-  mThreadSync->UpdateWhilePaused();
+  mThreadSync->UpdateOnce();
 }
 
 void ThreadController::ReplaceSurface( RenderSurface* newSurface )
@@ -124,24 +120,11 @@ void ThreadController::ReplaceSurface( RenderSurface* newSurface )
   mThreadSync->ReplaceSurface( newSurface );
 }
 
-void ThreadController::NewSurface( RenderSurface* newSurface )
-{
-  // This API shouldn't be used when there is a current surface, but check anyway.
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
-  {
-    currentSurface->StopRender();
-  }
-
-  mThreadSync->NewSurface( newSurface );
-}
-
 void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
   mThreadSync->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
-
 
 } // namespace Adaptor
 

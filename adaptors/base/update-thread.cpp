@@ -48,7 +48,7 @@ Integration::Log::Filter* gUpdateLogFilter = Integration::Log::Filter::New(Debug
 UpdateThread::UpdateThread( ThreadSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
                             const EnvironmentOptions& environmentOptions )
-: mThreadSync( sync ),
+: mThreadSynchronization( sync ),
   mCore( adaptorInterfaces.GetCore()),
   mFpsTrackingSeconds( fabsf( environmentOptions.GetFrameRateLoggingFrequency() ) ),
   mFrameCount( 0.0f ),
@@ -97,69 +97,55 @@ void UpdateThread::Stop()
 bool UpdateThread::Run()
 {
   DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run()\n");
-  Integration::UpdateStatus status;
 
-  // install a function for logging
+  // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();
 
-  bool running( true );
+  Integration::UpdateStatus status;
+  bool runUpdate = true;
+  float lastFrameDelta( 0.0f );
+  unsigned int lastSyncTime( 0 );
+  unsigned int nextSyncTime( 0 );
 
   // Update loop, we stay inside here while the update-thread is running
-  while ( running )
+  // We also get the last delta and the predict when this update will be rendered
+  while ( mThreadSynchronization.UpdateReady( status.NeedsNotification(), runUpdate, lastFrameDelta, lastSyncTime, nextSyncTime ) )
   {
-    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 1 - Sync()\n");
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 1 - UpdateReady(delta:%f, lastSync:%u, nextSync:%u)\n", lastFrameDelta, lastSyncTime, nextSyncTime);
 
-    // Inform synchronization object update is ready to run, this will pause update thread if required.
-    mThreadSync.UpdateReadyToRun();
-    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 2 - Ready()\n");
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 2 - Core.Update()\n");
 
-    // get the last delta and the predict when this update will be rendered
-    float lastFrameDelta( 0.0f );
-    unsigned int lastSyncTime( 0 );
-    unsigned int nextSyncTime( 0 );
-    mThreadSync.PredictNextSyncTime( lastFrameDelta, lastSyncTime, nextSyncTime );
-
-    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 3 - Update(delta:%f, lastSync:%u, nextSync:%u)\n", lastFrameDelta, lastSyncTime, nextSyncTime);
-
+    mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::UPDATE_START );
     mCore.Update( lastFrameDelta, lastSyncTime, nextSyncTime, status );
+    mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
     if( mFpsTrackingSeconds > 0.f )
     {
       FPSTracking(status.SecondsFromLastFrame());
     }
 
-    bool renderNeedsUpdate;
+    unsigned int keepUpdatingStatus = status.KeepUpdating();
 
-    // tell the synchronisation class that a buffer has been written to,
-    // and to wait until there is a free buffer to write to
-    running = mThreadSync.UpdateSyncWithRender( status.NeedsNotification(), renderNeedsUpdate );
-    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 4 - UpdateSyncWithRender complete\n");
-
-    if( running )
+    // Optional logging of update/render status
+    if ( mStatusLogInterval )
     {
-      unsigned int keepUpdatingStatus = status.KeepUpdating();
-
-      // Optional logging of update/render status
-      if ( mStatusLogInterval )
-      {
-        UpdateStatusLogging( keepUpdatingStatus, renderNeedsUpdate );
-      }
-
-      //  2 things can keep update running.
-      // - The status of the last update
-      // - The status of the last render
-      bool runUpdate = (Integration::KeepUpdating::NOT_REQUESTED != keepUpdatingStatus) || renderNeedsUpdate;
-
-      if( !runUpdate )
-      {
-        DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 5 - Nothing to update, trying to sleep\n");
-
-        running = mThreadSync.UpdateTryToSleep();
-      }
+      UpdateStatusLogging( keepUpdatingStatus );
     }
+
+    //  2 things can keep update running.
+    // - The status of the last update
+    // - The status of the last render
+    runUpdate = (Integration::KeepUpdating::NOT_REQUESTED != keepUpdatingStatus);
+
+    DALI_LOG_INFO( gUpdateLogFilter, Debug::Verbose, "UpdateThread::Run. 3 - runUpdate(%d)\n", runUpdate );
+
+    // Reset time variables
+    lastFrameDelta = 0.0f;
+    lastSyncTime = 0;
+    nextSyncTime = 0;
   }
 
-  // uninstall a function for logging
+  // Uninstall the logging function
   mEnvironmentOptions.UnInstallLogFunction();
 
   return true;
@@ -196,7 +182,7 @@ void UpdateThread::OutputFPSRecord()
   }
 }
 
-void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate )
+void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus )
 {
   DALI_ASSERT_ALWAYS( mStatusLogInterval );
 
@@ -234,11 +220,6 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
     if ( keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC )
     {
       oss += "<Render task waiting for completion> ";
-    }
-
-    if ( renderNeedsUpdate )
-    {
-      oss  +=  "<Render needs Update> ";
     }
 
     DALI_LOG_UPDATE_STATUS( "%s\n", oss.c_str());

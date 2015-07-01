@@ -54,6 +54,11 @@ public:
   ~ThreadController();
 
   /**
+   * Initializes the thread controller
+   */
+  void Initialize();
+
+  /**
    * @copydoc Dali::Adaptor::Start()
    */
   void Start();
@@ -74,12 +79,6 @@ public:
   void Stop();
 
   /**
-   * Ensure the frame time values are reset before the next call to Core::Update()
-   * following a Resume application state change.
-   */
-  void ResumeFrameTime();
-
-  /**
    * Called by the adaptor when core requires another update
    */
   void RequestUpdate();
@@ -95,13 +94,6 @@ public:
    * @param surface new surface
    */
   void ReplaceSurface( RenderSurface* surface );
-
-  /**
-   * Provides a new surface. Should be used if the old surface has been lost
-   * for any reason.
-   * @param surface new surface
-   */
-  void NewSurface( RenderSurface* surface );
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()

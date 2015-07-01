@@ -158,9 +158,8 @@ private: // Render thread side helpers
   /**
    * Check if main thread made any requests, e.g. ReplaceSurface
    * Called from render thread
-   * @return true if a request was processed, false otherwise.
    */
-  bool ProcessRequest(RenderRequest* request);
+  void ProcessRequest( RenderRequest* request );
 
   /**
    * Replaces the rendering surface
@@ -186,9 +185,8 @@ private: // Render thread side helpers
   /**
    * Called after core has rendered the scene
    * Called from render thread
-   * @param[in] timeDelta Time since PostRender was last called in microseconds
    */
-  void PostRender( unsigned int timeDelta );
+  void PostRender();
 
   /**
    * Helper for the thread calling the entry function.
@@ -202,7 +200,7 @@ private: // Render thread side helpers
 
 private: // Data
 
-  ThreadSynchronization&        mThreadSync;             ///< Used to synchronize the all threads
+  ThreadSynchronization&        mThreadSynchronization;  ///< Used to synchronize the all threads
   Dali::Integration::Core&      mCore;                   ///< Dali core reference
   Integration::GlAbstraction&   mGLES;                   ///< GL abstraction reference
   EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation

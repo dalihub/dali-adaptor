@@ -60,7 +60,7 @@ public:
     /* Do nothing in main implementation */
   }
 
-  void PostRender( unsigned int timeDelta )
+  void PostRender()
   {
     /* Do nothing in main implementation */
   }

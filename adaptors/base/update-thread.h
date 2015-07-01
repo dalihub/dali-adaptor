@@ -95,9 +95,8 @@ private:
   /**
    * Optionally output the update thread status.
    * @param[in] keepUpdatingStatus Whether the update-thread requested further updates.
-   * @param[in] renderNeedsUpdate Whether the render-thread requested another update.
    */
-  void UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate );
+  void UpdateStatusLogging( unsigned int keepUpdatingStatus );
 
   /**
    * Helper for the thread calling the entry function
@@ -111,7 +110,7 @@ private:
 
 private: // Data
 
-  ThreadSynchronization&              mThreadSync;          ///< Used to synchronize all the threads
+  ThreadSynchronization&              mThreadSynchronization; ///< Used to synchronize all the threads
 
   Dali::Integration::Core&            mCore;                ///< Dali core reference
 

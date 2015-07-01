@@ -257,8 +257,8 @@ void Adaptor::Start()
   PositionSize size = mSurface->GetPositionSize();
   mCore->SurfaceResized( size.width, size.height );
 
-  // Start all the threads
-  mThreadController->Start();
+  // Initialize the thread controller
+  mThreadController->Initialize();
 
   mState = RUNNING;
 
@@ -300,17 +300,8 @@ void Adaptor::Resume()
   // Only resume the adaptor if we are in the suspended state.
   if( PAUSED == mState )
   {
-    // We put ResumeFrameTime first, as this was originally called at the start of mCore->Resume()
-    // If there were events pending, mCore->Resume() will call
-    //   RenderController->RequestUpdate()
-    //     ThreadController->RequestUpdate()
-    //       ThreadSynchronization->RequestUpdate()
-    // and we should have reset the frame timers before allowing Core->Update() to be called.
-    //@todo Should we call ThreadController->Resume before mCore->Resume()?
-
-    mThreadController->ResumeFrameTime();
+    // Resume core first
     mCore->Resume();
-    mThreadController->Resume();
 
     mState = RUNNING;
 
@@ -327,6 +318,9 @@ void Adaptor::Resume()
     }
 
     ProcessCoreEvents(); // Ensure any outstanding messages are processed
+
+    // Ensure our first update includes the processed messages
+    mThreadController->Resume();
   }
 }
 
@@ -734,6 +728,9 @@ void Adaptor::SurfaceSizeChanged(const PositionSize& positionSize)
 void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
+
+  // Start thread controller after the scene has been created
+  mThreadController->Start();
 }
 
 void Adaptor::NotifyLanguageChanged()

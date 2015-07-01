@@ -135,10 +135,9 @@ public:
    * @param[in] egl The Egl interface
    * @param[in] glAbstraction OpenGLES abstraction interface
    * @param[in] displayConnection display connection
-   * @param[in] deltaTime Time (in microseconds) since PostRender was last called.
    * @param[in] replacingSurface True if the surface is being replaced.
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, unsigned int deltaTime, bool replacingSurface ) = 0;
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface ) = 0;
 
   /**
    * @brief Invoked by render thread when the thread should be stop
