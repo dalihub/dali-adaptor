@@ -291,6 +291,7 @@ libdali_adaptor_la_LIBADD = \
                       $(CAPI_SYSTEM_INFO_LIBS) \
                       $(ELDBUS_LIBS) \
                       -lgif \
+                      -lpthread \
                       -lboost_thread \
                       -lturbojpeg
 

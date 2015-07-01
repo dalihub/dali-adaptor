@@ -6,11 +6,12 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
-    utc-Dali-GifLoader.cpp
-    utc-Dali-TiltSensor.cpp
+    utc-ConditionalWait.cpp
     utc-Dali-CommandLineOptions.cpp
-    utc-Dali-Lifecycle-Controller.cpp
+    utc-Dali-GifLoader.cpp
     utc-Dali-ImageOperations.cpp
+    utc-Dali-Lifecycle-Controller.cpp
+    utc-Dali-TiltSensor.cpp
 )
 
 LIST(APPEND TC_SOURCES
@@ -65,6 +66,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
+    -lpthread
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}
