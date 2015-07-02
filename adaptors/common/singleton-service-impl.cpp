@@ -19,11 +19,9 @@
 #include <singleton-service-impl.h>
 
 // EXTERNAL INCLUDES
-#include <boost/thread/tss.hpp>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
 #if defined(DEBUG_ENABLED)
 #include <tizen-logging.h>
 Debug::Filter* gSingletonServiceLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_SINGLETON_SERVICE" );
@@ -50,24 +48,10 @@ namespace Internal
 namespace Adaptor
 {
 
+// @todo Start using pthread_key_create if we want to avoid leaking the SingletonService on shutdown
 namespace
 {
-
-/*
- * Dummy cleanup function required as boost::thread_specific_ptr requires access to destructor but
- * we should not make the destructor of SingletonService public as it is a ref-counted object.
- *
- * We do not expect this to be called as we only release the pointer, and not reset.
- */
-void DummyCleanup( SingletonService* service )
-{
-  if ( service )
-  {
-    service->UnregisterAll();
-  }
-}
-
-boost::thread_specific_ptr< SingletonService > gSingletonService( &DummyCleanup );
+__thread SingletonService * gSingletonService = 0;
 } // unnamed namespace
 
 Dali::SingletonService SingletonService::New()
@@ -79,9 +63,9 @@ Dali::SingletonService SingletonService::New()
 Dali::SingletonService SingletonService::Get()
 {
   Dali::SingletonService singletonService;
-  if ( gSingletonService.get() )
+  if ( gSingletonService )
   {
-    singletonService = Dali::SingletonService( gSingletonService.get() );
+    singletonService = Dali::SingletonService( gSingletonService );
   }
   return singletonService;
 }
@@ -117,16 +101,17 @@ SingletonService::SingletonService()
 : mSingletonContainer()
 {
   // Can only have one instance of SingletonService
-  DALI_ASSERT_ALWAYS( !gSingletonService.get() && "Only one instance of SingletonService is allowed");
+  DALI_ASSERT_ALWAYS( !gSingletonService && "Only one instance of SingletonService is allowed");
 
-  gSingletonService.reset( this );
+  gSingletonService = this;
 
   DALI_LOG_SINGLETON_SERVICE_DIRECT( Debug::Concise, "SingletonService Created\n" );
 }
 
 SingletonService::~SingletonService()
 {
-  gSingletonService.release();
+  gSingletonService = 0;
+
   DALI_LOG_SINGLETON_SERVICE_DIRECT( Debug::Concise, "SingletonService Destroyed\n" );
 }
 
@@ -135,3 +120,4 @@ SingletonService::~SingletonService()
 } // namespace Internal
 
 } // namespace Dali
+
