@@ -10,7 +10,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/clipboard-event-notifier-impl.cpp \
   $(adaptor_common_dir)/command-line-options.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector-impl.cpp \
-  $(adaptor_common_dir)/haptic-player-impl.cpp \
+  $(adaptor_common_dir)/feedback-player-impl.cpp \
   $(adaptor_common_dir)/indicator-impl.cpp \
   $(adaptor_common_dir)/indicator-buffer.cpp \
   $(adaptor_common_dir)/kernel-trace.cpp \
@@ -42,7 +42,6 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/networking/socket-impl.cpp \
   $(adaptor_common_dir)/networking/socket-factory.cpp \
   \
-  $(adaptor_common_dir)/feedback/feedback-controller.cpp \
   $(adaptor_common_dir)/feedback/feedback-plugin-proxy.cpp \
   \
   $(adaptor_common_dir)/gl/egl-factory.cpp \

@@ -16,9 +16,10 @@
  */
 
 // CLASS HEADER
-#include <haptic-player-impl.h>
+#include <feedback-player-impl.h>
 
 // EXTERNAL INCLUDES
+#include <fstream>
 #include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
@@ -39,36 +40,36 @@ namespace // unnamed namespace
 // Type Registration
 Dali::BaseHandle Create()
 {
-  return HapticPlayer::Get();
+  return FeedbackPlayer::Get();
 }
 
-Dali::TypeRegistration HAPTIC_PLAYER_TYPE( typeid(Dali::HapticPlayer), typeid(Dali::BaseHandle), Create );
+Dali::TypeRegistration FEEDBACK_PLAYER_TYPE( typeid(Dali::FeedbackPlayer), typeid(Dali::BaseHandle), Create );
 
 } // unnamed namespace
 
-Dali::HapticPlayer HapticPlayer::New()
+Dali::FeedbackPlayer FeedbackPlayer::New()
 {
-  Dali::HapticPlayer player = Dali::HapticPlayer( new HapticPlayer() );
+  Dali::FeedbackPlayer player = Dali::FeedbackPlayer( new FeedbackPlayer() );
   return player;
 }
 
-Dali::HapticPlayer HapticPlayer::Get()
+Dali::FeedbackPlayer FeedbackPlayer::Get()
 {
-  Dali::HapticPlayer player;
+  Dali::FeedbackPlayer player;
 
   Dali::SingletonService service( SingletonService::Get() );
   if ( service )
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::HapticPlayer ) );
+    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::FeedbackPlayer ) );
     if ( handle )
     {
       // If so, downcast the handle
-      player = Dali::HapticPlayer( dynamic_cast< HapticPlayer* >( handle.GetObjectPtr() ) );
+      player = Dali::FeedbackPlayer( dynamic_cast< FeedbackPlayer* >( handle.GetObjectPtr() ) );
     }
     else
     {
-      player = Dali::HapticPlayer( New() );
+      player = Dali::FeedbackPlayer( New() );
       service.Register( typeid( player ), player );
     }
   }
@@ -76,27 +77,58 @@ Dali::HapticPlayer HapticPlayer::Get()
   return player;
 }
 
-void HapticPlayer::PlayMonotone( unsigned int duration )
+void FeedbackPlayer::PlayMonotone( unsigned int duration )
 {
   mPlugin.PlayHapticMonotone( duration );
 }
 
-void HapticPlayer::PlayFile( const std::string& filePath )
+void FeedbackPlayer::PlayFile( const std::string& filePath )
 {
   mPlugin.PlayHaptic( filePath );
 }
 
-void HapticPlayer::Stop()
+void FeedbackPlayer::Stop()
 {
   mPlugin.StopHaptic();
 }
 
-HapticPlayer::HapticPlayer()
+int FeedbackPlayer::PlaySound( const std::string& filename )
+{
+  return mPlugin.PlaySound(filename);
+}
+
+void FeedbackPlayer::StopSound( int handle )
+{
+  mPlugin.StopSound(handle);
+}
+
+void FeedbackPlayer::PlayFeedbackPattern( int type, int pattern )
+{
+  mPlugin.PlayFeedbackPattern(type, pattern);
+}
+
+bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
+{
+  bool loaded = false;
+
+  std::ifstream stream(filename.c_str());
+
+  if( stream.is_open() )
+  {
+    data.assign((std::istreambuf_iterator<char>(stream)),
+                std::istreambuf_iterator<char>());
+    loaded = true;
+  }
+
+  return loaded;
+}
+
+FeedbackPlayer::FeedbackPlayer()
 : mPlugin( FeedbackPluginProxy::DEFAULT_OBJECT_NAME )
 {
 }
 
-HapticPlayer::~HapticPlayer()
+FeedbackPlayer::~FeedbackPlayer()
 {
 }
 
