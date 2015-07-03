@@ -28,8 +28,6 @@
 
 #endif
 
-#include <boost/thread/mutex.hpp>
-
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES

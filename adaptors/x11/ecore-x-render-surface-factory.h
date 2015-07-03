@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/any.hpp>
 #include <string>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/common/dali-common.h>
