@@ -60,10 +60,10 @@ public:
   void Wait();
 
   /**
-   * @brief Return true if the wait is locked, i.e. someone is waiting for it
-   * @return true if this object is waiting on a thread
+   * @brief Return the count of threads waiting for this conditional
+   * @return count of waits
    */
-  bool IsWaiting() const;
+  unsigned int GetWaitCount() const;
 
 private:
 
