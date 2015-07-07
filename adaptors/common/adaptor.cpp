@@ -159,6 +159,22 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
   mImpl->FeedKeyEvent(keyEvent);
 }
 
+void Adaptor::SceneCreated()
+{
+  mImpl->SceneCreated();
+}
+
+void Adaptor::SetViewMode( ViewMode mode )
+{
+  mImpl->SetViewMode( mode );
+}
+
+void Adaptor::SetStereoBase(  float stereoBase )
+{
+  mImpl->SetStereoBase( stereoBase );
+}
+
+
 Adaptor::Adaptor()
 : mImpl( NULL )
 {

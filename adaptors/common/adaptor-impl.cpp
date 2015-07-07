@@ -494,6 +494,11 @@ bool Adaptor::IsAvailable()
   return gThreadLocalAdaptor != NULL;
 }
 
+void Adaptor::SceneCreated()
+{
+  mCore->SceneCreated();
+}
+
 Dali::Integration::Core& Adaptor::GetCore()
 {
   return *mCore;
