@@ -152,6 +152,8 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   // flush gl instruction queue
   glAbstraction.Flush();
 
+  mImpl->mSyncReceived = false;
+
   // create damage for client applications which wish to know the update timing
   if( mRenderNotification )
   {
@@ -186,7 +188,10 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     }
   }
 
-  AcquireLock( replacingSurface ? SYNC_MODE_NONE : SYNC_MODE_WAIT );
+  if( !replacingSurface && mImpl->mSyncMode != SYNC_MODE_NONE )
+  {
+    AcquireLock();
+  }
 }
 
 void PixmapRenderSurface::StopRender()
@@ -233,26 +238,18 @@ void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
   mImpl->mSyncMode = syncMode;
 }
 
-void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
+void PixmapRenderSurface::AcquireLock()
 {
-  Dali::Mutex::ScopedLock lock( mImpl->mSyncMutex );
-
-  // wait for sync
-  if( syncMode != SYNC_MODE_NONE &&
-      mImpl->mSyncMode != SYNC_MODE_NONE &&
-      !mImpl->mSyncReceived )
+  if( !mImpl->mSyncReceived )
   {
-    mImpl->mSyncNotify.Wait( );
+    mImpl->mSyncNotify.Wait();
   }
   mImpl->mSyncReceived = false;
 }
 
 void PixmapRenderSurface::ReleaseLock()
 {
-  {
-    Dali::Mutex::ScopedLock lock( mImpl->mSyncMutex );
-    mImpl->mSyncReceived = true;
-  }
+  mImpl->mSyncReceived = true;
 
   // wake render thread if it was waiting for the notify
   mImpl->mSyncNotify.Notify();
