@@ -119,10 +119,6 @@ void PerformanceServer::AddMarker( MarkerType markerType, ContextId contextId )
     return;
   }
 
-  // This is only called from main event thread, but may overlap with internal AddMarker calls
-  // from other threads ( update, render etc).
-  boost::mutex::scoped_lock sharedDatalock( mDataMutex );
-
   // Get the time stamp
   unsigned int seconds = 0;
   unsigned int microseconds = 0;
@@ -139,7 +135,6 @@ void PerformanceServer::AddMarker( MarkerType markerType, ContextId contextId )
 
   // Add custom marker to statistics context manager
   mStatContextManager.AddCustomMarker( marker, contextId );
-
 }
 
 void PerformanceServer::AddMarker( MarkerType markerType )
@@ -150,10 +145,6 @@ void PerformanceServer::AddMarker( MarkerType markerType )
   {
     return;
   }
-
-  // AddMarker can be called from multiple threads, to avoid problems
-  // with updating contexts and the kernel trace, lock here.
-  boost::mutex::scoped_lock sharedDatalock( mDataMutex );
 
   if( markerType == VSYNC )
   {
@@ -189,7 +180,7 @@ void PerformanceServer::LogContextStatistics( const char* const text )
 
 void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* const description )
 {
-  // log to the network ( this is thread safe)
+  // log to the network ( this is thread safe )
   if( mNetworkControlEnabled )
   {
     mNetworkServer.TransmitMarker( marker, description );
@@ -198,6 +189,8 @@ void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* 
   // log to kernel trace
   if( mPerformanceOutputBitmask & OUTPUT_KERNEL_TRACE )
   {
+    // Kernel tracing implementation may not be thread safe
+    Mutex::ScopedLock lock( mLogMutex );
     // description will be something like UPDATE_START or UPDATE_END
     mKernelTrace.Trace( marker, description );
   }
@@ -205,10 +198,13 @@ void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* 
   // log to system trace
   if( mPerformanceOutputBitmask & OUTPUT_SYSTEM_TRACE )
   {
+    // System  tracing implementation may not be thread safe
+    Mutex::ScopedLock lock( mLogMutex );
+
     mSystemTrace.Trace( marker, description );
   }
 
-  // log to Dali log
+  // log to Dali log ( this is thread safe )
   if ( mPerformanceOutputBitmask & OUTPUT_DALI_LOG )
   {
     Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo,

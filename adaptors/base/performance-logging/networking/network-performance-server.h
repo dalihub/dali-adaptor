@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
+#include <pthread.h>
+#include <dali/devel-api/common/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
@@ -28,11 +28,6 @@
 #include <base/performance-logging/networking/network-performance-client.h>
 #include <base/interfaces/adaptor-internal-services.h>
 
-
-namespace boost
-{
-class thread;
-}
 namespace Dali
 {
 
@@ -115,6 +110,23 @@ protected:  // ClientSendDataInterface
   virtual void SendData( const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId );
 
 private:
+
+  /**
+   * Helper for the thread calling the entry function.
+   * @param[in] This A pointer to the current RenderThread object
+   */
+  static void* ConnectionListenerFunc( void* This )
+  {
+    ( static_cast<NetworkPerformanceServer*>( This ) )->ConnectionListener();
+    return NULL;
+  }
+
+  /**
+   * Helper for the thread calling the entry function.
+   * @param[in] This A pointer to the current RenderThread object
+   */
+  static void* ClientThreadFunc( void* data );
+
   /**
    * @brief Client thread function
    * @param client network client object
@@ -134,9 +146,10 @@ private:
   /**
    * @brief Add a new client to the client list
    * @param clientSocket client socket
+   * @param clientThread client thread
    * @return client
    */
-  NetworkPerformanceClient* AddClient( SocketInterface* clientSocket );
+  NetworkPerformanceClient* AddClient( SocketInterface* clientSocket, pthread_t* clientThread );
 
   /**
    * @brief Delete a client from the client list
@@ -152,12 +165,11 @@ private:
   SocketFactoryInterface& mSocketFactory;                 ///< used to create sockets
   const EnvironmentOptions& mLogOptions;                  ///< log options
   Dali::Vector< NetworkPerformanceClient* > mClients;     ///< list of connected clients
-  boost::thread* mServerThread;                           ///< thread that listens for new connections
+  pthread_t mServerThread;                                ///< thread that listens for new connections
   SocketInterface* mListeningSocket;                      ///< socket used to listen for new connections
-  boost::mutex mClientListMutex;                          ///< mutex
-  boost::condition_variable mClientCountUpdated;          ///< used to say the client count has changed
+  Dali::Mutex mClientListMutex;                           ///< mutex
   unsigned int mClientUniqueId;                           ///< increments for every client connection
-  unsigned int mClientCount;                              ///< client count
+  volatile unsigned int mClientCount;                     ///< client count
   bool mLogFunctionInstalled;                             ///< whether the log function is installed
 
 };
