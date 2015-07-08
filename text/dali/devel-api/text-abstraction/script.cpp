@@ -123,6 +123,10 @@ Script GetCharacterScript( Character character )
   // 0xac00 - 0xd7af Hangul Syllables
   // 0xd7b0 - 0xd7ff Hangul Jamo Extended-B
 
+  // Bopomofo script
+  // 0x3100 - 0x312f Bopomofo
+  // 0x31a0 - 0x31bf Bopomofo Extended
+
   // Khmer script
   // 0x1780 - 0x17ff Khmer
   // 0x19e0 - 0x19ff Khmer Symbols
@@ -395,9 +399,17 @@ Script GetCharacterScript( Character character )
         {
           return KATAKANA;
         }
+        if( ( 0x3100 <= character ) && ( character <= 0x312f ) )
+        {
+          return BOPOMOFO;
+        }
         if( ( 0x3130 <= character ) && ( character <= 0x318f ) )
         {
           return HANGUL;
+        }
+        if( ( 0x31a0 <= character ) && ( character <= 0x31bf ) )
+        {
+          return BOPOMOFO;
         }
         if( ( 0x3200 <= character ) && ( character <= 0x32ff ) )
         {

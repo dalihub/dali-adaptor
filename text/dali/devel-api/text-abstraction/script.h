@@ -52,6 +52,7 @@ enum Script
   HANGUL,     ///< The Hangul jamo script. Used by Korean.
   HIRAGANA,   ///< The Hiragana script. Used by the Japanese.
   KATAKANA,   ///< The Katakana script. Used by the Japanese.
+  BOPOMOFO,   ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
 
   BENGALI,    ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
   BURMESE,    ///< The Burmese script. Used by the Burmese (Myanmar) language.
@@ -92,6 +93,7 @@ const char* const ScriptName[] =
   "HANGUL",     ///< The Hangul jamo script. Used by Korean.
   "HIRAGANA",   ///< The Hiragana script. Used by the Japanese.
   "KATAKANA",   ///< The Katakana script. Used by the Japanese.
+  "BOPOMOFO",   ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
 
   "BENGALI",    ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
   "BURMESE",    ///< The Burmese script. Used by the Burmese (Myanmar) language.
