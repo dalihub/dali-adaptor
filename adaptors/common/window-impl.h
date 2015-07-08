@@ -64,10 +64,11 @@ public:
    * Create a new Window. This should only be called once by the Application class
    * @param[in] windowPosition The position and size of the window
    * @param[in] name The window title
+   * @param[in] className The window class name
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& posSize, const std::string& name, bool isTransparent = false);
+  static Window* New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * Pass the adaptor back to the overlay. This allows the window to access Core's overlay.
@@ -176,7 +177,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(const PositionSize& posSize, const std::string& name);
+  void Initialize(const PositionSize& posSize, const std::string& name, const std::string& className);
 
   /**
    * Shows / hides the indicator bar.

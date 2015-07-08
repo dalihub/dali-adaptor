@@ -96,7 +96,17 @@ public:
    * @param[in] isTransparent Whether window is transparent
    * @return a new window
    */
-  static Window New(PositionSize windowPosition, std::string name, bool isTransparent = false);
+  static Window New(PositionSize windowPosition, const std::string& name, bool isTransparent = false);
+
+  /**
+   * @brief Create an initialized handle to a new Window.
+   * @param[in] windowPosition The position and size of the window
+   * @param[in] name The window title
+   * @param[in] className The window class name
+   * @param[in] isTransparent Whether window is transparent
+   * @return a new window
+   */
+  static Window New(PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @brief Create an uninitalized handle.
