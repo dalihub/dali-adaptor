@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Samsung Electronics Co., Ltd.
+# Copyright (c) 2015 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,34 +66,12 @@ fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
 
-PKG_CHECK_EXISTS(bullet, [
-  BULLET_CFLAGS=`pkg-config --cflags bullet`
-  BULLET_LIBS=`pkg-config --libs bullet`
-  BULLET=yes
-], [
-  AC_MSG_WARN([BulletPhysics development files not found, not building bullet plugin])
-  BULLET_CFLAGS=
-  BULLET_LIBS=
-  BULLET=no
-])
-
-AC_SUBST(BULLET_CFLAGS)
-AC_SUBST(BULLET_LIBS)
-
-AC_ARG_ENABLE([bullet],
-              [AC_HELP_STRING([ --enable-bullet],
-                              [Enable bullet plugin])],
-              [enable_bullet=yes],
-              [enable_bullet=no])
-
-
 AC_ARG_ENABLE([feedback],
               [AC_HELP_STRING([ --enable-feedback],
                               [Enable feedback plugin])],
               [enable_feedback=yes],
               [enable_feedback=no])
 
-AM_CONDITIONAL([USE_BULLET], [test x$BULLET = xyes && test x$enable_bullet = xyes])
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DPLATFORM_TIZEN"
@@ -270,9 +248,9 @@ AC_CONFIG_FILES([
  adaptor/dali-adaptor-integration.pc
 ])
 
-AM_CONDITIONAL([USE_PLUGIN], [test x$enable_feedback = xyes || test x$enable_bullet = xyes])
+AM_CONDITIONAL([USE_PLUGIN], [test x$enable_feedback = xyes])
 
-if test "x$enable_feedback" = "xyes" || test "x$enable_bullet" = "xyes"; then
+if test "x$enable_feedback" = "xyes"; then
 AC_CONFIG_FILES([
  plugins/Makefile
 ])

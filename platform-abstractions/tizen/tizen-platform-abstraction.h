@@ -35,7 +35,6 @@ Integration::PlatformAbstraction* CreatePlatformAbstraction();
 namespace TizenPlatform
 {
 
-class DynamicsFactory;
 class ResourceLoader;
 
 /**
@@ -157,11 +156,6 @@ public: // PlatformAbstraction overrides
   virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
 
   /**
-   * @copydoc PlatformAbstraction::GetDynamicsFactory();
-   */
-  virtual Integration::DynamicsFactory* GetDynamicsFactory();
-
-  /**
    * @copydoc PlatformAbstraction::LoadShaderBinFile()
    */
   virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
@@ -174,7 +168,6 @@ public: // PlatformAbstraction overrides
 
 private:
   ResourceLoader* mResourceLoader;
-  DynamicsFactory* mDynamicsFactory;
   std::string mDataStoragePath;
 };
 

@@ -221,11 +221,6 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus, bool re
       oss  +=  "<Animations running> ";
     }
 
-    if ( keepUpdatingStatus & Integration::KeepUpdating::DYNAMICS_CHANGED )
-    {
-      oss  +=  "<Dynamics running> ";
-    }
-
     if ( keepUpdatingStatus & Integration::KeepUpdating::LOADING_RESOURCES )
     {
       oss  +=  "<Resources loading> ";

@@ -27,7 +27,6 @@
 #include <dali/integration-api/resource-types.h>
 
 #include "resource-loader/resource-loader.h"
-#include "dynamics/dynamics-factory.h"
 
 #include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
@@ -52,7 +51,6 @@ const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()
 : mResourceLoader(new ResourceLoader),
-  mDynamicsFactory(NULL),
   mDataStoragePath( "" )
 {
 }
@@ -60,7 +58,6 @@ TizenPlatformAbstraction::TizenPlatformAbstraction()
 TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
   delete mResourceLoader;
-  delete mDynamicsFactory;
 }
 
 void TizenPlatformAbstraction::GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds)
@@ -229,16 +226,6 @@ void TizenPlatformAbstraction::JoinLoaderThreads()
 {
   delete mResourceLoader;
   mResourceLoader = NULL;
-}
-
-Integration::DynamicsFactory* TizenPlatformAbstraction::GetDynamicsFactory()
-{
-  if( NULL == mDynamicsFactory )
-  {
-    mDynamicsFactory = new DynamicsFactory;
-  }
-
-  return mDynamicsFactory;
 }
 
 bool TizenPlatformAbstraction::LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
