@@ -1,5 +1,5 @@
-#ifndef __DALI_ECORE_CALLBACK_MANAGER_H__
-#define __DALI_ECORE_CALLBACK_MANAGER_H__
+#ifndef __DALI_UV_CALLBACK_MANAGER_H__
+#define __DALI_UV_CALLBACK_MANAGER_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <boost/thread.hpp>
 #include <list>
 
 // INTERNAL INCLUDES
@@ -38,34 +37,28 @@ namespace Adaptor
 struct CallbackData;
 
 /**
- * Ecore interface to install call backs in the applications main loop.
+ * @brief LibUV callback manager used to install call backs in the applications main loop.
+ * The manager keeps track of all callbacks, so that if Stop() is called it can remove them.
  */
-class EcoreCallbackManager : public CallbackManager
+class UvCallbackManager : public CallbackManager
 {
 
 public:
 
      /**
-     * constructor
+     * @brief constructor
      */
-    EcoreCallbackManager();
+    UvCallbackManager();
 
     /**
-     * destructor
+     * @brief destructor
      */
-    ~EcoreCallbackManager()
-    {
-    }
+    ~UvCallbackManager(){}
 
     /**
      * @copydoc CallbackManager::AddCallback()
      */
-    virtual bool AddCallback(CallbackBase* callback, Priority priority);
-
-    /**
-     * @copydoc CallbackManager::AddEventCallback()
-     */
-    virtual bool AddEventCallback(CallbackBase* callback, int type, EventControl control);
+    virtual bool AddIdleCallback( CallbackBase* callback );
 
     /**
      * @copydoc CallbackManager::Start()
@@ -77,47 +70,20 @@ public:
      */
     virtual void Stop();
 
-    /**
-     * Remove all call backs
-     * Always called from the main thread
-     */
-    void RemoveAllCallbacksFromMainThread();
-
 private:
 
     /**
-     * Deletes any expired callbacks in the callback container
-     */
-    void RefreshContainer();
-
-    /**
-     * Removes a single call back from the container
+     * @brief Removes a single call back from the container
      * Always called from main thread
      * @param callbackData callback data
      */
     void RemoveCallbackFromContainer(CallbackData *callbackData);
 
-    /**
-     * Remove a standard call back from ecore
-     * Always called from main thread
-     * @param callbackData callback data
-     */
-    void RemoveStandardCallback(CallbackData *callbackData);
 
-    /**
-     * Remove an event handler from ecore
-     * Always called from main thread
-     * @param callbackData callback data
-     */
-    void RemoveEventCallback(CallbackData *callbackData);
-
-
-
-    typedef std::list<CallbackData *>  CallbackList;
+    typedef std::list<CallbackData *>  CallbackList;    ///< list of callbacks installed
 
     bool                           mRunning;            ///< flag is set to true if when running
     CallbackList                   mCallbackContainer;  ///< container of live callbacks
-    boost::mutex                   mMutex;              ///< protect access to shared data
 };
 
 } // namespace Adaptor
@@ -126,4 +92,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_ECORE_CALLBACK_MANAGER_H__
+#endif // __DALI_UV_CALLBACK_MANAGER_H__

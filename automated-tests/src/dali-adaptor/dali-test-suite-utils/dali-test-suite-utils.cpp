@@ -19,7 +19,6 @@
 #include "dali-test-suite-utils.h"
 
 // EXTERNAL INCLUDES
-#include <ostream>
 #include <cstdio>
 #include <cstdarg>
 
@@ -102,7 +101,7 @@ void DALI_TEST_EQUALS( const Matrix3& matrix1, const Matrix3& matrix2, const cha
 
   for (int i=0;i<9;++i)
   {
-    equivalent &= (m1[i] != m2[i]);
+    equivalent &= (fabsf(m1[i] - m2[i])< GetRangedEpsilon(m1[i], m2[i]));
   }
 
   if (!equivalent)
@@ -242,47 +241,6 @@ void DALI_TEST_EQUALS( const std::string &str1, const char* str2, const char* lo
 void DALI_TEST_EQUALS( const char* str1, const std::string &str2, const char* location)
 {
   DALI_TEST_EQUALS(str1, str2.c_str(), location);
-}
-
-
-/**
- * Test whether one unsigned integer value is greater than another.
- * Test succeeds if value1 > value2
- * @param[in] value1 The first value
- * @param[in] value2 The second value
- * @param[in] location The TEST_LOCATION macro should be used here
- */
-void DALI_TEST_GREATER(unsigned int value1, unsigned int value2, const char* location)
-{
-  if (!(value1 > value2))
-  {
-    fprintf(stderr, "%s, checking %d > %d\n", location, value1, value2);
-    tet_result(TET_FAIL);
-  }
-  else
-  {
-    tet_result(TET_PASS);
-  }
-}
-
-/**
- * Test whether one float value is greater than another.
- * Test succeeds if value1 > value2
- * @param[in] value1 The first value
- * @param[in] value2 The second value
- * @param[in] location The TEST_LOCATION macro should be used here
- */
-void DALI_TEST_GREATER( float value1, float value2, const char* location)
-{
-  if (!(value1 > value2))
-  {
-    fprintf(stderr, "%s, checking %f > %f\n", location, value1, value2);
-    tet_result(TET_FAIL);
-  }
-  else
-  {
-    tet_result(TET_PASS);
-  }
 }
 
 void DALI_TEST_ASSERT( DaliException& e, std::string conditionSubString, const char* location )

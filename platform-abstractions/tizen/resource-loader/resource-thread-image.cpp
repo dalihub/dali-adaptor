@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
  *
  */
 
+// CLASS HEADER
 #include "resource-thread-image.h"
+
+// EXTERNAL INCLUDES
 #include <dali/devel-api/common/ref-counted-dali-vector.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
-#include <curl/curl.h>
+
+// INTERNAL INCLUDES
 #include "portable/file-closer.h"
 #include "image-loaders/image-loader.h"
+#include "network/file-download.h"
 
 using namespace Dali::Integration;
-
-namespace
-{
-const int CONNECTION_TIMEOUT( 30 );
-}
 
 namespace Dali
 {
@@ -38,7 +38,14 @@ namespace Dali
 namespace TizenPlatform
 {
 
-ResourceThreadImage::ResourceThreadImage(ResourceLoader& resourceLoader, bool forRemoteImage)
+namespace
+{
+
+// limit maximum image down load size to 50 MB
+const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+}
+
+ResourceThreadImage::ResourceThreadImage(ResourceLoader& resourceLoader)
 : ResourceThreadBase(resourceLoader)
 {
 }
@@ -104,87 +111,13 @@ void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
 
 bool ResourceThreadImage::DownloadRemoteImageIntoMemory(const Integration::ResourceRequest& request, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize)
 {
-  bool succeeded = true;
-  CURLcode cresult;
-
-  CURL* curl_handle = curl_easy_init();
-  curl_easy_setopt( curl_handle, CURLOPT_VERBOSE, 0 );
-  curl_easy_setopt( curl_handle, CURLOPT_URL, request.GetPath().c_str() );
-  curl_easy_setopt( curl_handle, CURLOPT_FAILONERROR, 1 );
-  curl_easy_setopt( curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT );
-
-  // Download header first to get data size
-  char* headerBytes = NULL;
-  size_t headerSize = 0;
-  FILE* header_fp = open_memstream( &headerBytes, &headerSize );
-  double size;
-
-  if( NULL != header_fp)
-  {
-    curl_easy_setopt( curl_handle, CURLOPT_HEADER, 1 );
-    curl_easy_setopt( curl_handle, CURLOPT_NOBODY, 1 );
-    curl_easy_setopt( curl_handle, CURLOPT_WRITEDATA, header_fp );
-
-    cresult = curl_easy_perform( curl_handle );
-    if( cresult == CURLE_OK )
-    {
-      curl_easy_getinfo( curl_handle, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &size );
-    }
-    else
-    {
-      DALI_LOG_WARNING( "Failed to download http header for \"%s\" with error code %d\n", request.GetPath().c_str(), cresult );
-      succeeded = false;
-    }
-
-    fclose( header_fp );
-  }
-  else
-  {
-    succeeded = false;
-  }
-
-  if( NULL != headerBytes )
-  {
-    free( headerBytes );
-  }
-
-  if( succeeded )
-  {
-    // Download file data
-    dataSize = static_cast<size_t>( size );
-    dataBuffer.Reserve( dataSize );
-    dataBuffer.Resize( dataSize );
-
-    Dali::Internal::Platform::FileCloser fileCloser( static_cast<void*>(&dataBuffer[0]), dataSize, "wb" );
-    FILE* data_fp = fileCloser.GetFile();
-    if( NULL != data_fp )
-    {
-      curl_easy_setopt( curl_handle, CURLOPT_HEADER, 0 );
-      curl_easy_setopt( curl_handle, CURLOPT_NOBODY, 0 );
-      curl_easy_setopt( curl_handle, CURLOPT_WRITEDATA, data_fp );
-
-      cresult = curl_easy_perform( curl_handle );
-      if( CURLE_OK != cresult )
-      {
-        DALI_LOG_WARNING( "Failed to download image file \"%s\" with error code %d\n", request.GetPath().c_str(), cresult );
-        succeeded = false;
-      }
-    }
-    else
-    {
-      succeeded = false;
-    }
-  }
-
-  curl_easy_cleanup( curl_handle );
-
-  if( !succeeded )
+  bool ok = Network::DownloadRemoteFileIntoMemory( request.GetPath(), dataBuffer,  dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE );
+  if( !ok )
   {
     FailedResource resource(request.GetId(), FailureUnknown);
     mResourceLoader.AddFailedLoad(resource);
   }
-
-  return succeeded;
+  return ok;
 }
 
 void ResourceThreadImage::LoadImageFromLocalFile(const Integration::ResourceRequest& request)

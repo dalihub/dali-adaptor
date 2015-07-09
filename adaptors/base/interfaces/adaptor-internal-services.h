@@ -74,9 +74,10 @@ public:
   virtual EglFactoryInterface& GetEGLFactoryInterface() const  = 0;
 
   /**
-   * @return trigger event
+   * Used by update-thread to notify core (main-thread) it has messages to process
+   * @return trigger event ProcessCoreEvents
    */
-  virtual TriggerEventInterface& GetTriggerEventInterface()  = 0;
+  virtual TriggerEventInterface& GetProcessCoreEventsTrigger()  = 0;
 
   /**
    * @return trigger event factory interface

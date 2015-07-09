@@ -18,12 +18,8 @@
  *
  */
 
-namespace boost
-{
-
-class thread;
-
-} // namespace boost
+// EXTERNAL INCLUDES
+#include <pthread.h>
 
 namespace Dali
 {
@@ -89,13 +85,23 @@ private:
    */
   void Run();
 
+  /**
+   * Helper for the thread calling the entry function
+   * @param[in] This A pointer to the current VSyncNotifier object
+   */
+  static inline void* InternalThreadEntryFunc( void* This )
+  {
+    ( static_cast<VSyncNotifier*>( This ) )->Run();
+    return NULL;
+  }
+
 private:
 
   UpdateRenderSynchronization&        mUpdateRenderSync;    ///< Used to synchronize the update, render & vsync threads
   Dali::Integration::Core&            mCore;                ///< Dali core reference
   Integration::PlatformAbstraction&   mPlatformAbstraction; ///< The platform abstraction for retrieving the current time etc.
   VSyncMonitorInterface*              mVSyncMonitor;        ///< VSyncMonitor interface
-  boost::thread*                      mThread;              ///< The actual thread.
+  pthread_t*                          mThread;              ///< The actual thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< Environment options
   unsigned int                        mNumberOfVSyncsPerRender;///< How many frames for each update/render cycle.
 

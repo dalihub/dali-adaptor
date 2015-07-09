@@ -19,7 +19,6 @@
 #include "orientation-impl.h"
 
 // EXTERNAL INCLUDES
-#include <Ecore.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES

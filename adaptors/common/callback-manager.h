@@ -40,25 +40,6 @@ class CallbackManager
 public:
 
     /**
-     * Determines the priority of the call back
-     */
-    enum Priority
-    {
-      IDLE_PRIORITY,     ///< idle priority
-      DEFAULT_PRIORITY,  ///< priority of the callback will be the same as input handlers and timer callbacks.
-    };
-
-    /**
-     * Controls whether an event once processed by the handler is passed on to other
-     * handlers, or not.
-     */
-    enum EventControl
-    {
-      CALLBACK_PASS_ON,   ///< Pass the event on to any other handlers registered for this event
-      CALLBACK_DONE,      ///< Don't pass the event to any other handlers
-    };
-
-    /**
      * Create a new call back interface
      */
     static CallbackManager* New();
@@ -69,22 +50,13 @@ public:
     virtual ~CallbackManager() {}
 
     /**
-     * Adds a call back asynchronously.
-     * Can be called from any thread.
+     * Adds a call back to be run on idle.
+     * Must be call from main thread only.
      * @param callback custom call back function
      * @param priority call back priority
      * @return true on success
      */
-    virtual bool AddCallback( CallbackBase* callback, Priority priority ) = 0;
-
-    /**
-     * Adds a call back asynchronously to handle an event.
-     * E.g. to handle a CTRL-C event.
-     * Can be called from any thread.
-     * @param callback custom call back function
-     * @return true on success
-     */
-    virtual bool AddEventCallback( CallbackBase* callback, int type, EventControl control ) = 0;
+    virtual bool AddIdleCallback( CallbackBase* callback ) = 0;
 
     /**
      * Starts the callback manager.

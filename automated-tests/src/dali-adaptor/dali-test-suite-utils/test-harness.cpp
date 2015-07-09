@@ -42,26 +42,22 @@ int RunTestCase( struct ::testcase_s& testCase )
 {
   int result = EXIT_STATUS_TESTCASE_FAILED;
 
-  try
+// dont want to catch exception as we want to be able to get
+// gdb stack trace from the first error
+// by default tests should all always pass with no exceptions
+  if( testCase.startup )
   {
-    if( testCase.startup )
-    {
-      testCase.startup();
-    }
-    result = testCase.function();
-    if( testCase.cleanup )
-    {
-      testCase.cleanup();
-    }
+    testCase.startup();
   }
-  catch (...)
+  result = testCase.function();
+  if( testCase.cleanup )
   {
-    printf("Caught exception in test case.\n");
-    result = EXIT_STATUS_TESTCASE_ABORTED;
+    testCase.cleanup();
   }
 
   return result;
 }
+
 
 int RunTestCaseInChildProcess( struct ::testcase_s& testCase, bool suppressOutput )
 {
@@ -109,14 +105,14 @@ int RunTestCaseInChildProcess( struct ::testcase_s& testCase, bool suppressOutpu
 #ifdef WCOREDUMP
       if(WCOREDUMP(status))
       {
-        printf("Test case %s crashed\n", testCase.name);
+        printf("Test case %s failed: due to a crash\n", testCase.name);
       }
 #endif
-      printf("Test case %s exited with signal %s\n", testCase.name, strsignal(WTERMSIG(status)));
+      printf("Test case %s failed: exit with signal %s\n", testCase.name, strsignal(WTERMSIG(status)));
     }
     else if(WIFSTOPPED(status))
     {
-      printf("Test case %s stopped with signal %s\n", testCase.name, strsignal(WSTOPSIG(status)));
+      printf("Test case %s failed: stopped with signal %s\n", testCase.name, strsignal(WSTOPSIG(status)));
     }
   }
   return testResult;
