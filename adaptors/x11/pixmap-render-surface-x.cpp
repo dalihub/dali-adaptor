@@ -138,7 +138,7 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
 void PixmapRenderSurface::StartRender()
 {
-  mImpl->mSyncMode = SYNC_MODE_WAIT;
+
 }
 
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
