@@ -69,19 +69,16 @@ struct ResourceLoader::ResourceLoaderImpl
   typedef RequestStore::iterator                  RequestStoreIter;
 
   typedef std::queue<LoadedResource> LoadedQueue;
-  typedef std::queue<SavedResource>  SavedQueue;
   typedef std::queue<FailedResource> FailedQueue;
 
   typedef std::pair<ResourceTypeId, ResourceRequesterBase*> RequestHandlerPair;
   typedef std::map<ResourceTypeId,  ResourceRequesterBase*> RequestHandlers;
   typedef RequestHandlers::iterator                         RequestHandlersIter;
 
-  boost::mutex mQueueMutex;             ///< used to synchronize access to mLoadedQueue, mSavedQueue and mFailedQueue
+  boost::mutex mQueueMutex;             ///< used to synchronize access to mLoadedQueue and mFailedQueue
   LoadedQueue  mPartiallyLoadedQueue;   ///< Partially complete load requests notifications are stored here until fetched by core
   LoadedQueue  mLoadedQueue;            ///< Completed load requests notifications are stored here until fetched by core
-  SavedQueue   mSavedQueue;             ///< Completed save request notifications are stored here until fetched by core
   FailedQueue  mFailedLoads;            ///< Failed load request notifications are stored here until fetched by core
-  FailedQueue  mFailedSaves;            ///< Failed save request notifications are stored here until fetched by core
 
   RequestHandlers mRequestHandlers;
   RequestStore mStoredRequests;         ///< Used to store load requests until loading is completed
@@ -160,15 +157,6 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
-  void SaveResource(const ResourceRequest& request)
-  {
-    ResourceRequesterBase* requester = GetRequester( request.GetType()->id );
-    if( requester )
-    {
-      requester->SaveResource( request );
-    }
-  }
-
   void CancelLoad(ResourceId id, ResourceTypeId typeId)
   {
     ResourceRequesterBase* requester = GetRequester(typeId);
@@ -235,14 +223,6 @@ struct ResourceLoader::ResourceLoaderImpl
       cache.LoadResponse( loaded.id, loaded.type, loaded.resource, RESOURCE_COMPLETELY_LOADED );
     }
 
-    // iterate through the successfully saved resources
-    while (!mSavedQueue.empty())
-    {
-      SavedResource saved(mSavedQueue.front());
-      mSavedQueue.pop();
-      cache.SaveComplete(saved.id, saved.type);
-    }
-
     // iterate through the resources which failed to load
     while (!mFailedLoads.empty())
     {
@@ -250,14 +230,6 @@ struct ResourceLoader::ResourceLoaderImpl
       mFailedLoads.pop();
       ClearRequest(failed.id);
       cache.LoadFailed(failed.id, failed.failureType);
-    }
-
-    // iterate through the resources which failed to save
-    while (!mFailedSaves.empty())
-    {
-      FailedResource failed(mFailedSaves.front());
-      mFailedSaves.pop();
-      cache.SaveFailed(failed.id, failed.failureType);
     }
   }
 
@@ -277,28 +249,12 @@ struct ResourceLoader::ResourceLoaderImpl
     mLoadedQueue.push( resource );
   }
 
-  void AddSavedResource(SavedResource& resource)
-  {
-    // Lock the SavedQueue to store the loaded resource
-    unique_lock<mutex> lock(mQueueMutex);
-
-    mSavedQueue.push(resource);
-  }
-
   void AddFailedLoad(FailedResource& resource)
   {
     // Lock the FailedQueue to store the failed resource information
     unique_lock<mutex> lock(mQueueMutex);
 
     mFailedLoads.push(resource);
-  }
-
-  void AddFailedSave(FailedResource& resource)
-  {
-    // Lock the FailedQueue to store the failed resource information
-    unique_lock<mutex> lock(mQueueMutex);
-
-    mFailedSaves.push(resource);
   }
 
   void StoreRequest( const ResourceRequest& request )
@@ -381,19 +337,9 @@ void ResourceLoader::AddLoadedResource(LoadedResource& resource)
   mImpl->AddLoadedResource( resource );
 }
 
-void ResourceLoader::AddSavedResource(SavedResource& resource)
-{
-  mImpl->AddSavedResource( resource );
-}
-
 void ResourceLoader::AddFailedLoad(FailedResource& resource)
 {
   mImpl->AddFailedLoad( resource );
-}
-
-void ResourceLoader::AddFailedSave(FailedResource& resource)
-{
-  mImpl->AddFailedSave( resource );
 }
 
 /********************************************************************************/
@@ -403,11 +349,6 @@ void ResourceLoader::AddFailedSave(FailedResource& resource)
 void ResourceLoader::LoadResource(const ResourceRequest& request)
 {
   mImpl->LoadResource(request);
-}
-
-void ResourceLoader::SaveResource(const ResourceRequest& request)
-{
-  mImpl->SaveResource(request);
 }
 
 void ResourceLoader::CancelLoad(ResourceId id, ResourceTypeId typeId)

@@ -74,12 +74,6 @@ public:
   virtual Integration::LoadStatus LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource ) = 0;
 
   /**
-   * Save a resource
-   * @param[in] request The initial save request
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request ) = 0;
-
-  /**
    * Cancal load requests
    * @param[in] id The request id of the loading request
    * @param[in] typeId The resource type id of the loading request

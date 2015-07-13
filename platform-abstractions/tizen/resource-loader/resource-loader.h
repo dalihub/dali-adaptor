@@ -232,11 +232,6 @@ public:
   void LoadResource(const Integration::ResourceRequest& request);
 
   /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  void SaveResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);

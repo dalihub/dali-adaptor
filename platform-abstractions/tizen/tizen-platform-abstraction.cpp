@@ -131,14 +131,6 @@ Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously
   return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
 }
 
-void TizenPlatformAbstraction::SaveResource(const Integration::ResourceRequest& request)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->SaveResource(request);
-  }
-}
-
 void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
   if (mResourceLoader)

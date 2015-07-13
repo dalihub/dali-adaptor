@@ -101,11 +101,6 @@ public: // PlatformAbstraction overrides
   virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
 
   /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
