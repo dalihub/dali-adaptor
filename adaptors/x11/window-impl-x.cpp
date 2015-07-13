@@ -375,8 +375,7 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
 {
   // create an X11 window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
-  SetClass( name, className );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, className, mIsTransparent );
   windowSurface->Map();
 
   mSurface = windowSurface;
