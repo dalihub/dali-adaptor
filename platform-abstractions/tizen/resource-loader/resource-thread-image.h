@@ -62,11 +62,6 @@ private:
   virtual void Decode(const Integration::ResourceRequest& request);
 
   /**
-   *@copydoc ResourceThreadBase::Save
-   */
-  virtual void Save(const Integration::ResourceRequest& request);
-
-  /**
    * Download a requested image into a memory buffer.
    * @param[in] request  The requested resource/file url and attributes
    * @param[out] dataBuffer  A memory buffer object to be written with downloaded image data.

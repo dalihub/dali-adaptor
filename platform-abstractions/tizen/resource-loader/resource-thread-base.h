@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_RESOURCE_THREAD_BASE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,10 @@
 // INTERNAL INCLUDES
 #include "resource-loader.h"
 #include "resource-loading-client.h"
-#include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/resource-cache.h>
+#include <base/conditional-wait.h>
 
 // EXTERNAL INCLUDES
 #include <deque>
-#include <boost/thread.hpp>
 
 namespace Dali
 {
@@ -51,9 +49,7 @@ public:
     /** Pull a resource from the network. */
     RequestDownload,
     /** Pull a resource out of a memory buffer. */
-    RequestDecode,
-    /** Push a resource's data out to the file system. */
-    RequestSave
+    RequestDecode
   };
 
   typedef std::pair<Integration::ResourceRequest, RequestType>  RequestInfo;
@@ -142,28 +138,28 @@ protected:
   virtual void Decode(const Integration::ResourceRequest& request);
 
   /**
-   * Save a resource
-   * @param[in] request  The requested resource/file url and attributes
-   */
-  virtual void Save(const Integration::ResourceRequest& request) = 0;
-
-  /**
    * @brief Cancels current resource request if it matches the one latched to be cancelled.
    *
    * @copydoc ResourceLoadingClient::InterruptionPoint
    */
   virtual void InterruptionPoint() const;
 
-protected:
-  ResourceLoader& mResourceLoader;
-  boost::thread* mThread;                       ///< thread instance
-  boost::condition_variable mCondition;         ///< condition variable
-  boost::mutex mMutex;                          ///< used to protect mQueue
-  RequestQueue mQueue;                          ///< Request queue
 private:
-  Integration::ResourceId mCurrentRequestId;    ///< Current request, set by worker thread
-  volatile Integration::ResourceId mCancelRequestId; ///< Request to be cancelled on thread: written by external thread and read by worker.
-  bool mPaused;                                ///< Whether to process work in mQueue
+  /**
+   * Helper for the thread calling the entry function
+   * @param[in] This A pointer to the current UpdateThread object
+   */
+  static void* InternalThreadEntryFunc( void* This );
+
+protected:
+  ResourceLoader&                    mResourceLoader;
+  pthread_t                          mThread;    ///< thread instance
+  Internal::Adaptor::ConditionalWait mCondition; ///< condition variable
+  RequestQueue                       mQueue;     ///< Request queue
+private:
+  Integration::ResourceId          mCurrentRequestId; ///< Current request, set by worker thread
+  volatile Integration::ResourceId mCancelRequestId;  ///< Request to be cancelled on thread: written by external thread and read by worker.
+  bool                             mPaused;           ///< Whether to process work in mQueue
 
 #if defined(DEBUG_ENABLED)
 public:

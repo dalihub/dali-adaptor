@@ -102,13 +102,6 @@ void ResourceThreadImage::Decode(const ResourceRequest& request)
   }
 }
 
-void ResourceThreadImage::Save(const Integration::ResourceRequest& request)
-{
-  DALI_LOG_TRACE_METHOD( mLogFilter );
-  DALI_ASSERT_DEBUG( request.GetType()->id == ResourceBitmap );
-  DALI_LOG_WARNING( "Image saving not supported on background resource threads." );
-}
-
 bool ResourceThreadImage::DownloadRemoteImageIntoMemory(const Integration::ResourceRequest& request, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize)
 {
   bool ok = Network::DownloadRemoteFileIntoMemory( request.GetPath(), dataBuffer,  dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE );

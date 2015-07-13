@@ -15,14 +15,16 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <memory>
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
 #include "resource-thread-base.h"
 #include "tizen-logging.h"
 #include "atomics.h"
 
 using namespace Dali::Integration;
-using boost::mutex;
-using boost::unique_lock;
 
 namespace Dali
 {
@@ -35,10 +37,11 @@ const Integration::ResourceId NO_REQUEST_CANCELLED = Integration::ResourceId(0) 
 
 namespace TizenPlatform
 {
+using Internal::Adaptor::ConditionalWait;
 
 namespace
 {
-const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY"; ///@Todo Move this to somewhere that other environment variables are declared and document it there.
+const char * const IDLE_PRIORITY_ENVIRONMENT_VARIABLE_NAME = "DALI_RESOURCE_THREAD_IDLE_PRIORITY";
 } // unnamed namespace
 
 /** Thrown by InterruptionPoint() to abort a request early. */
@@ -46,6 +49,7 @@ class CancelRequestException {};
 
 ResourceThreadBase::ResourceThreadBase( ResourceLoader& resourceLoader ) :
   mResourceLoader( resourceLoader ),
+  mThread( 0 ),
   mCurrentRequestId( NO_REQUEST_IN_FLIGHT ),
   mCancelRequestId( NO_REQUEST_CANCELLED ),
   mPaused( false )
@@ -54,7 +58,8 @@ ResourceThreadBase::ResourceThreadBase( ResourceLoader& resourceLoader ) :
   mLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_RESOURCE_THREAD_BASE");
 #endif
 
-  mThread = new boost::thread(boost::bind(&ResourceThreadBase::ThreadLoop, this));
+  int error = pthread_create( &mThread, NULL, InternalThreadEntryFunc, this );
+  DALI_ASSERT_ALWAYS( !error && "Error in pthread_create()" );
 }
 
 ResourceThreadBase::~ResourceThreadBase()
@@ -71,13 +76,12 @@ void ResourceThreadBase::TerminateThread()
   if (mThread)
   {
     // wake thread
-    mCondition.notify_all();
+    mCondition.Notify();
+
     // wait for thread to exit
-    mThread->join();
-    // delete thread instance
-    delete mThread;
-    // mark thread terminated
-    mThread = NULL;
+    pthread_join( mThread, NULL );
+
+    mThread = 0;
   }
 }
 
@@ -88,7 +92,7 @@ void ResourceThreadBase::AddRequest(const ResourceRequest& request, const Reques
 
   {
     // Lock while adding to the request queue
-    unique_lock<mutex> lock( mMutex );
+    ConditionalWait::ScopedLock lock( mCondition );
 
     wasEmpty = mQueue.empty();
     wasPaused = mPaused;
@@ -99,7 +103,7 @@ void ResourceThreadBase::AddRequest(const ResourceRequest& request, const Reques
   if( wasEmpty && !wasPaused )
   {
     // Wake-up the thread
-    mCondition.notify_all();
+    mCondition.Notify();
   }
 }
 
@@ -112,7 +116,7 @@ void ResourceThreadBase::CancelRequest( const Integration::ResourceId resourceId
   // Eliminate the cancelled request from the request queue if it is in there:
   {
     // Lock while searching and removing from the request queue:
-    unique_lock<mutex> lock( mMutex );
+    ConditionalWait::ScopedLock lock( mCondition );
 
     for( RequestQueueIter iterator = mQueue.begin();
          iterator != mQueue.end();
@@ -149,9 +153,15 @@ void ResourceThreadBase::InterruptionPoint() const
   }
 }
 
+void* ResourceThreadBase::InternalThreadEntryFunc( void* This )
+{
+    ( static_cast<ResourceThreadBase*>( This ) )->ThreadLoop();
+    return NULL;
+}
+
 void ResourceThreadBase::Pause()
 {
-  unique_lock<mutex> lock( mMutex );
+  ConditionalWait::ScopedLock lock( mCondition );
   mPaused = true;
 }
 
@@ -160,7 +170,7 @@ void ResourceThreadBase::Resume()
   // Clear the paused flag and if we weren't running already, also wake up the background thread:
   bool wasPaused = false;
   {
-    unique_lock<mutex> lock( mMutex );
+    ConditionalWait::ScopedLock lock( mCondition );
     wasPaused = mPaused;
     mPaused = false;
   }
@@ -169,7 +179,7 @@ void ResourceThreadBase::Resume()
   // chance to do some work:
   if( wasPaused )
   {
-    mCondition.notify_all();
+    mCondition.Notify();
   }
 }
 
@@ -231,13 +241,13 @@ void ResourceThreadBase::ThreadLoop()
 
 void ResourceThreadBase::WaitForRequests()
 {
-  unique_lock<mutex> lock( mMutex );
+  ConditionalWait::ScopedLock lock( mCondition );
 
   if( mQueue.empty() || mPaused == true )
   {
     // Waiting for a wake up from resource loader control thread
     // This will be to process a new request or terminate
-    mCondition.wait(lock);
+    mCondition.Wait( lock );
   }
 }
 
@@ -248,7 +258,7 @@ void ResourceThreadBase::ProcessNextRequest()
 
   {
     // lock the queue and extract the next request
-    unique_lock<mutex> lock(mMutex);
+    ConditionalWait::ScopedLock lock( mCondition );
 
     if (!mQueue.empty())
     {
@@ -281,12 +291,6 @@ void ResourceThreadBase::ProcessNextRequest()
       case RequestDecode:
       {
         Decode(*request);
-      }
-      break;
-
-      case RequestSave:
-      {
-        Save(*request);
       }
       break;
     }
