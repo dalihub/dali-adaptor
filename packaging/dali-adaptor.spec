@@ -12,8 +12,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
@@ -21,8 +19,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag ENABLE
 %endif
@@ -30,8 +26,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
@@ -39,8 +33,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 0
 %define shaderbincache_flag DISABLE
 %endif
@@ -95,10 +87,6 @@ BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  fribidi-devel
 
-%if 0%{?dali_assimp_plugin}
-BuildRequires:  pkgconfig(assimp)
-%endif
-
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
 platform abstraction and application shell
@@ -142,19 +130,6 @@ BuildRequires:  libfeedback-devel
 
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
-
-##############################
-# Dali Dynamics/Bullet Plugin
-##############################
-%package dali-bullet-plugin
-Summary:    Plugin to provide physics
-Group:      System/Libraries
-%if 0%{?dali_bullet_plugin}
-BuildRequires:  pkgconfig(bullet)
-%endif
-
-%description dali-bullet-plugin
-Dynamics plugin to wrap the libBulletDynamics libraries
 
 ##############################
 # Preparation
@@ -204,12 +179,6 @@ cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LD
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
-%if 0%{?dali_bullet_plugin}
-           --enable-bullet \
-%endif
-%if 0%{?dali_assimp_plugin}
-           --enable-assimp \
-%endif
 %if 0%{?over_tizen_2_2}
            --with-over-tizen_2_2 \
 %endif
@@ -255,12 +224,6 @@ exit 0
 exit 0
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%post dali-bullet-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -276,12 +239,6 @@ exit 0
 
 %if 0%{?dali_feedback_plugin}
 %postun dali-feedback-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
-%if 0%{?dali_bullet_plugin}
-%postun dali-bullet-plugin
 /sbin/ldconfig
 exit 0
 %endif
@@ -319,8 +276,3 @@ exit 0
 %{dali_plugin_theme_files}/*
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%files dali-bullet-plugin
-%defattr(-,root,root,-)
-%{_libdir}/libdali-bullet-plugin.so*
-%endif
