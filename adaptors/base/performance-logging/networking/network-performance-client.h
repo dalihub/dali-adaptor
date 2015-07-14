@@ -18,16 +18,15 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <pthread.h>
+
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>
 #include <trigger-event-factory-interface.h>
 #include <base/performance-logging/networking/client-send-data-interface.h>
 #include <base/interfaces/socket-factory-interface.h>
 
-namespace boost
-{
-class thread;
-}
 
 namespace Dali
 {
@@ -62,13 +61,15 @@ public:
 
   /**
    * @brief Constructor
+   * @param thread thread pointer
    * @param socket socket interface
    * @param clientId unique client id
    * @param triggerEventFactory used to create trigger events
    * @param sendDataInterface used to send data to the socket from main thread
    * @param SocketFactoryInterface used to delete the socket when the client is destroyed
    */
-  NetworkPerformanceClient( SocketInterface *socket,
+  NetworkPerformanceClient( pthread_t* thread,
+                            SocketInterface *socket,
                             unsigned int clientId,
                             TriggerEventFactoryInterface& triggerEventFactory,
                             ClientSendDataInterface& sendDataInterface,
@@ -114,8 +115,15 @@ public:
    */
   void ExitSelect();
 
+  /**
+   * @brief get the thread running the client
+   * @return thread pointer
+   */
+  pthread_t* GetThread();
+
 private:
 
+  pthread_t* mThread;                                   ///< thread for the client
   SocketInterface* mSocket;                             ///< socket interface
   PerformanceMarker::MarkerFilter mMarkerBitmask;       ///< What markers are currently filtered
   TriggerEventFactoryInterface& mTriggerEventFactory;   ///< Trigger event factory

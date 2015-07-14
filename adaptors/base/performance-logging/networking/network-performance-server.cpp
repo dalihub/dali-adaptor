@@ -18,8 +18,6 @@
 // CLASS HEADER
 #include "network-performance-server.h"
 
-// EXTERNAL INCLUDES
-#include <boost/thread.hpp>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>
@@ -40,6 +38,15 @@ const unsigned int MAXIMUM_PORTS_TO_TRY = 10; ///< if port in use, try up to SER
 const unsigned int CONNECTION_BACKLOG = 2;   ///<  maximum length of the queue of pending connections.
 const unsigned int SOCKET_READ_BUFFER_SIZE = 4096;
 typedef Vector< NetworkPerformanceClient*> ClientList;
+
+/**
+ * POD passed to client thread on startup
+ */
+struct ClientThreadInfo
+{
+  NetworkPerformanceServer* server;
+  NetworkPerformanceClient* client;
+};
 }
 
 NetworkPerformanceServer::NetworkPerformanceServer( AdaptorInternalServices& adaptorServices,
@@ -47,7 +54,7 @@ NetworkPerformanceServer::NetworkPerformanceServer( AdaptorInternalServices& ada
 : mTriggerEventFactory( adaptorServices.GetTriggerEventFactoryInterface() ),
   mSocketFactory( adaptorServices.GetSocketFactoryInterface() ),
   mLogOptions( logOptions ),
-  mServerThread( NULL ),
+  mServerThread( 0 ),
   mListeningSocket( NULL ),
   mClientUniqueId( 0 ),
   mClientCount( 0 ),
@@ -99,7 +106,8 @@ void NetworkPerformanceServer::Start()
     mListeningSocket->Listen( CONNECTION_BACKLOG );
 
     // start a thread which will block waiting for new connections
-    mServerThread = new boost::thread(boost::bind(&NetworkPerformanceServer::ConnectionListener, this));
+    int error = pthread_create( &mServerThread, NULL, ConnectionListenerFunc, this );
+    DALI_ASSERT_ALWAYS( !error && "pthread create failed" );
 
     Dali::Integration::Log::LogMessage(Integration::Log::DebugInfo, "~~~ NetworkPerformanceServer started on port %d ~~~ \n",  SERVER_PORT + basePort);
 
@@ -115,29 +123,19 @@ void NetworkPerformanceServer::Stop()
   mListeningSocket->ExitSelect();
 
   // wait for the thread to exit.
-  mServerThread->join();
+  void* exitValue;
+  pthread_join( mServerThread, &exitValue );
 
   // close the socket
   mListeningSocket->CloseSocket();
 
-  delete mServerThread;
   mSocketFactory.DestroySocket( mListeningSocket );
 
-  mServerThread = NULL;
   mListeningSocket = NULL;
 
   // this will tell all client threads to quit
   StopClients();
 
-  // wait for all threads to exit and the client count to hit zero
-  {
-    boost::mutex::scoped_lock lock(mClientListMutex);
-
-    while (mClientCount != 0)
-    {
-      mClientCountUpdated.wait(lock);
-    }
-  }
 }
 
 bool NetworkPerformanceServer::IsRunning() const
@@ -205,8 +203,17 @@ void NetworkPerformanceServer::ConnectionListener()
       SocketInterface* clientSocket = mListeningSocket->Accept();
 
       // new connection made, spawn a thread to handle it
-      NetworkPerformanceClient* client = AddClient( clientSocket );
-      new boost::thread(boost::bind(&NetworkPerformanceServer::ClientThread, this, client));
+      pthread_t* clientThread = new pthread_t();
+
+      NetworkPerformanceClient* client = AddClient( clientSocket, clientThread );
+
+      ClientThreadInfo* info = new ClientThreadInfo;
+      info->client = client;
+      info->server = this;
+
+      int error = pthread_create( clientThread, NULL, ClientThreadFunc, info );
+      DALI_ASSERT_ALWAYS( !error && "pthread create failed" );
+
     }
     else // ret == SocketInterface::QUIT or SocketInterface::ERROR
     {
@@ -215,17 +222,26 @@ void NetworkPerformanceServer::ConnectionListener()
   }
 }
 
-NetworkPerformanceClient* NetworkPerformanceServer::AddClient( SocketInterface* clientSocket )
+void* NetworkPerformanceServer::ClientThreadFunc( void* data )
+{
+  ClientThreadInfo* info = static_cast<ClientThreadInfo*>( data );
+  info->server->ClientThread( info->client );
+  delete info;
+  return NULL;
+}
+
+NetworkPerformanceClient* NetworkPerformanceServer::AddClient( SocketInterface* clientSocket, pthread_t* clientThread )
 {
   // This function is only called from the listening thread
-  NetworkPerformanceClient* client= new NetworkPerformanceClient(clientSocket,
-                                                                 mClientUniqueId++,
-                                                                 mTriggerEventFactory,
-                                                                 *this,
-                                                                 mSocketFactory);
+  NetworkPerformanceClient* client= new NetworkPerformanceClient( clientThread,
+                                                                  clientSocket,
+                                                                  mClientUniqueId++,
+                                                                  mTriggerEventFactory,
+                                                                  *this,
+                                                                  mSocketFactory);
 
   // protect the mClients list which can be accessed from multiple threads.
-  boost::mutex::scoped_lock sharedDatalock( mClientListMutex );
+  Mutex::ScopedLock lock( mClientListMutex );
 
   mClients.PushBack( client );
 
@@ -235,7 +251,7 @@ NetworkPerformanceClient* NetworkPerformanceServer::AddClient( SocketInterface* 
 void NetworkPerformanceServer::DeleteClient( NetworkPerformanceClient* client )
 {
   // protect the mClients list while modifying
-  boost::mutex::scoped_lock sharedDatalock( mClientListMutex );
+  Mutex::ScopedLock lock( mClientListMutex );
 
   // remove from the list, and delete it
   for( ClientList::Iterator iter = mClients.Begin(); iter != mClients.End() ; ++iter )
@@ -248,8 +264,6 @@ void NetworkPerformanceServer::DeleteClient( NetworkPerformanceClient* client )
       // if there server is shutting down, it waits for client count to hit zero
       mClientCount--;
 
-      // lets the server know the client count has been modified
-      mClientCountUpdated.notify_one();
       return;
     }
   }
@@ -263,7 +277,7 @@ void NetworkPerformanceServer::SendData( const char* const data, unsigned int bu
   }
 
   // prevent clients been added / deleted while transmiting data
-  boost::mutex::scoped_lock sharedDatalock( mClientListMutex );
+  Mutex::ScopedLock lock( mClientListMutex );
 
   for( ClientList::Iterator iter = mClients.Begin(); iter != mClients.End() ; ++iter )
   {
@@ -283,7 +297,7 @@ void NetworkPerformanceServer::TransmitMarker( const PerformanceMarker& marker, 
     return;
   }
   // prevent clients been added / deleted while transmiting data
-  boost::mutex::scoped_lock sharedDatalock( mClientListMutex );
+  Mutex::ScopedLock lock( mClientListMutex );
 
   for( ClientList::Iterator iter = mClients.Begin(); iter != mClients.End() ; ++iter )
   {
@@ -296,13 +310,19 @@ void NetworkPerformanceServer::TransmitMarker( const PerformanceMarker& marker, 
 void NetworkPerformanceServer::StopClients()
 {
   // prevent clients been added / deleted while stopping all clients
-  boost::mutex::scoped_lock sharedDatalock( mClientListMutex );
+  Mutex::ScopedLock lock( mClientListMutex );
 
   for( ClientList::Iterator iter = mClients.Begin(); iter != mClients.End() ; ++iter )
   {
     NetworkPerformanceClient* client = (*iter);
     // stop the client from waiting for new commands, and exit from it's thread
     client->ExitSelect();
+
+    void* exitValue;
+    pthread_t* thread = client->GetThread();
+    pthread_join( *thread, &exitValue );
+    delete thread;
+
   }
 }
 

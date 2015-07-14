@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/common/mutex.h>
+
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>
 #include <base/performance-logging/statistics/stat-context.h>
@@ -138,6 +141,7 @@ public:
      */
     StatContext* GetContext( PerformanceInterface::ContextId contextId ) const;
 
+    Dali::Mutex mDataMutex;                            ///< mutex
     StatContexts mStatContexts;                        ///< The list of stat contexts
     StatContextLogInterface& mLogInterface;            ///< Log interface
 

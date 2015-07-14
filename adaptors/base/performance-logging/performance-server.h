@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLDUES
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/devel-api/common/mutex.h>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/frame-time-stats.h>
@@ -120,7 +121,7 @@ private:
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
   TraceInterface& mKernelTrace;                           ///< kernel trace interface
   TraceInterface& mSystemTrace;                           ///< system trace interface
-  boost::mutex mDataMutex;                                ///< mutex
+  Dali::Mutex mLogMutex;                                  ///< mutex
   NetworkPerformanceServer mNetworkServer;                ///< network server
   StatContextManager mStatContextManager;                 ///< Stat context manager
   unsigned int mStatisticsLogBitmask;                     ///< statistics log level
