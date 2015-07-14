@@ -97,14 +97,14 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
     mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
   }
 
-  mFileDescriptor = shm_open( filename, O_RDWR, mode );
+  mFileDescriptor = shm_open( filename, O_RDONLY, mode );
 
   if( mFileDescriptor >= 0 )
   {
     mFilename = filename;
 
     mSize = size;
-    mAddress = mmap( NULL, mSize, PROT_READ | PROT_WRITE, MAP_SHARED, mFileDescriptor, 0 );
+    mAddress = mmap( NULL, mSize, PROT_READ, MAP_SHARED, mFileDescriptor, 0 );
 
     if( mAddress != MAP_FAILED )
     {
