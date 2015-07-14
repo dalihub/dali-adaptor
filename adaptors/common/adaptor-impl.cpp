@@ -40,8 +40,6 @@
 #include <accessibility-adaptor-impl.h>
 #include <events/gesture-manager.h>
 #include <events/event-handler.h>
-#include <feedback/feedback-controller.h>
-#include <feedback/feedback-plugin-proxy.h>
 #include <gl/gl-proxy-implementation.h>
 #include <gl/gl-implementation.h>
 #include <gl/egl-sync-implementation.h>
@@ -152,8 +150,6 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mUpdateRenderController = new UpdateRenderController( *this, *mEnvironmentOptions );
 
-  mDaliFeedbackPlugin = new FeedbackPluginProxy( FeedbackPluginProxy::DEFAULT_OBJECT_NAME );
-
   // Should be called after Core creation
   if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
   {
@@ -209,9 +205,6 @@ Adaptor::~Adaptor()
 
   delete mCore;
   delete mEglFactory;
-  // Delete feedback controller before feedback plugin & style monitor dependencies
-  delete mFeedbackController;
-  delete mDaliFeedbackPlugin;
   delete mGLES;
   delete mGestureManager;
   delete mPlatformAbstraction;
@@ -270,12 +263,6 @@ void Adaptor::Start()
   mState = RUNNING;
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
-
-  if ( !mFeedbackController )
-  {
-    // Start sound & haptic feedback
-    mFeedbackController = new FeedbackController( *mDaliFeedbackPlugin );
-  }
 
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
   {
@@ -785,8 +772,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mNotificationOnIdleInstalled( false ),
   mNotificationTrigger(NULL),
   mGestureManager(NULL),
-  mDaliFeedbackPlugin(NULL),
-  mFeedbackController(NULL),
   mObservers(),
   mDragAndDropDetector(),
   mDeferredRotationObserver(NULL),
