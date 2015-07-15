@@ -144,7 +144,6 @@ Feedback plugin to play haptic and audio feedback for Dali
 %define font_application_path    /usr/share/app_fonts/
 %define font_configuration_file  /opt/etc/fonts/conf.avail/99-slp.conf
 %define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
-%define dali_plugin_theme_files  %{dali_data_ro_dir}/themes/feedback-themes/
 
 %define dev_include_path %{_includedir}
 
@@ -273,6 +272,5 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-feedback-plugin.so*
 %{dali_plugin_sound_files}/*
-%{dali_plugin_theme_files}/*
 %endif
 
