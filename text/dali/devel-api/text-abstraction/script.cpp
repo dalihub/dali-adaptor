@@ -597,6 +597,12 @@ bool IsCommonScript( Character character )
            IsNewParagraph( character ) );
 }
 
+bool HasLigatureMustBreak( Script script )
+{
+  return ( ( LATIN == script ) ||
+           ( ARABIC == script ) );
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali

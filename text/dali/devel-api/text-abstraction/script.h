@@ -215,6 +215,17 @@ DALI_IMPORT_API bool IsThinSpace( Character character );
  */
 DALI_IMPORT_API bool IsCommonScript( Character character );
 
+/**
+ * @brief Whether the script contains ligatures that must be 'broken' for selection or cursor position.
+ *
+ * i.e The latin script has the 'ff' or 'fi' ligatures that need to be broken to position the cursor
+ * between the two characters. Equally the arabic script has the 'ﻻ' ligature that needs to be broken.
+ *
+ * @param[in] script The script.
+ *
+ * @return @e true if the script has ligatures that must be 'broken'.
+ */
+DALI_IMPORT_API bool HasLigatureMustBreak( Script script );
 } // namespace TextAbstraction
 
 } // namespace Dali
