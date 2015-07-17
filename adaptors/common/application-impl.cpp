@@ -121,14 +121,11 @@ void Application::CreateWindow()
     windowPosition = PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() );
   }
 
-  mWindow = Dali::Window::New( windowPosition, mName, mWindowMode == Dali::Application::TRANSPARENT );
-
-  // Set the window class name if available
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
-  if( ! windowClassName.empty() )
-  {
-    mWindow.SetClass( mName, windowClassName );
-  }
+  mWindow = Dali::Window::New( windowPosition, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
+
+  // Quit the application when the window is closed
+  GetImplementation( mWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
 }
 
 void Application::CreateAdaptor()

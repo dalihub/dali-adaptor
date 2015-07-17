@@ -7,7 +7,7 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/haptic-player.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
@@ -32,7 +32,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.h \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.h \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/haptic-player.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \

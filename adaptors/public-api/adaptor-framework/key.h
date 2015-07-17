@@ -27,56 +27,51 @@ namespace Dali DALI_IMPORT_API
 
 /**
  * @brief Mapping of keyboard and mouse button event keycodes to platform specific codes.
- *
- * For tizen the X Server Keycode is used as reference, unless it's over ridden
- * in utilX.h in which case the values are based on utilX.h
  */
 
-typedef int KEY;
-
-extern const KEY DALI_KEY_INVALID;
-extern const KEY DALI_KEY_ESCAPE;
-extern const KEY DALI_KEY_BACK;
-extern const KEY DALI_KEY_CAMERA;
-extern const KEY DALI_KEY_CONFIG;
-extern const KEY DALI_KEY_POWER;
-extern const KEY DALI_KEY_PAUSE;
-extern const KEY DALI_KEY_CANCEL;
-extern const KEY DALI_KEY_PLAY_CD;
-extern const KEY DALI_KEY_STOP_CD;
-extern const KEY DALI_KEY_PAUSE_CD;
-extern const KEY DALI_KEY_NEXT_SONG;
-extern const KEY DALI_KEY_PREVIOUS_SONG;
-extern const KEY DALI_KEY_REWIND;
-extern const KEY DALI_KEY_FASTFORWARD;
-extern const KEY DALI_KEY_MEDIA;
-extern const KEY DALI_KEY_PLAY_PAUSE;
-extern const KEY DALI_KEY_MUTE;
-extern const KEY DALI_KEY_SEND;
-extern const KEY DALI_KEY_SELECT;
-extern const KEY DALI_KEY_END;
-extern const KEY DALI_KEY_MENU;
-extern const KEY DALI_KEY_HOME;
-extern const KEY DALI_KEY_HOMEPAGE;
-extern const KEY DALI_KEY_WEBPAGE;
-extern const KEY DALI_KEY_MAIL;
-extern const KEY DALI_KEY_SCREENSAVER;
-extern const KEY DALI_KEY_BRIGHTNESS_UP;
-extern const KEY DALI_KEY_BRIGHTNESS_DOWN;
-extern const KEY DALI_KEY_SOFT_KBD;
-extern const KEY DALI_KEY_QUICK_PANEL;
-extern const KEY DALI_KEY_TASK_SWITCH;
-extern const KEY DALI_KEY_APPS;
-extern const KEY DALI_KEY_SEARCH;
-extern const KEY DALI_KEY_VOICE;
-extern const KEY DALI_KEY_LANGUAGE;
-extern const KEY DALI_KEY_VOLUME_UP;
-extern const KEY DALI_KEY_VOLUME_DOWN;
-extern const KEY DALI_KEY_BACKSPACE;
-extern const KEY DALI_KEY_CURSOR_LEFT;
-extern const KEY DALI_KEY_CURSOR_RIGHT;
-extern const KEY DALI_KEY_CURSOR_UP;
-extern const KEY DALI_KEY_CURSOR_DOWN;
+enum KEY
+{
+  DALI_KEY_INVALID          = -1,
+  DALI_KEY_ESCAPE           = 9,
+  DALI_KEY_BACKSPACE        = 22,
+  DALI_KEY_CURSOR_UP        = 111,
+  DALI_KEY_CURSOR_LEFT      = 113,
+  DALI_KEY_CURSOR_RIGHT     = 114,
+  DALI_KEY_CURSOR_DOWN      = 116,
+  DALI_KEY_BACK             = 166,
+  DALI_KEY_CAMERA           = 167,
+  DALI_KEY_CONFIG           = 168,
+  DALI_KEY_POWER            = 169,
+  DALI_KEY_PAUSE            = 170,
+  DALI_KEY_CANCEL           = 171,
+  DALI_KEY_PLAY_CD          = 172,
+  DALI_KEY_STOP_CD          = 173,
+  DALI_KEY_PAUSE_CD         = 174,
+  DALI_KEY_NEXT_SONG        = 175,
+  DALI_KEY_PREVIOUS_SONG    = 176,
+  DALI_KEY_REWIND           = 177,
+  DALI_KEY_FASTFORWARD      = 178,
+  DALI_KEY_MEDIA            = 179,
+  DALI_KEY_PLAY_PAUSE       = 180,
+  DALI_KEY_MUTE             = 181,
+  DALI_KEY_MENU             = 182,
+  DALI_KEY_HOME             = 183,
+  DALI_KEY_HOMEPAGE         = 187,
+  DALI_KEY_WEBPAGE          = 188,
+  DALI_KEY_MAIL             = 189,
+  DALI_KEY_SCREENSAVER      = 190,
+  DALI_KEY_BRIGHTNESS_UP    = 191,
+  DALI_KEY_BRIGHTNESS_DOWN  = 192,
+  DALI_KEY_SOFT_KBD         = 193,
+  DALI_KEY_QUICK_PANEL      = 194,
+  DALI_KEY_TASK_SWITCH      = 195,
+  DALI_KEY_APPS             = 196,
+  DALI_KEY_SEARCH           = 197,
+  DALI_KEY_VOICE            = 198,
+  DALI_KEY_LANGUAGE         = 199,
+  DALI_KEY_VOLUME_UP        = 200,
+  DALI_KEY_VOLUME_DOWN      = 201
+};
 
 /**
  * @brief Check if a key event is for a specific DALI KEY.

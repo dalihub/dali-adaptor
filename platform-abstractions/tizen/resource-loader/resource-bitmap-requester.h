@@ -64,11 +64,6 @@ public:
   virtual Integration::LoadStatus LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource );
 
   /**
-   * @copydoc ResourceRequester::SaveResource()
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request );
-
-  /**
    * @copydoc ResourceRequester::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);

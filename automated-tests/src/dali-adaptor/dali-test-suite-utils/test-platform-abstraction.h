@@ -51,14 +51,6 @@ public:
     bool                         loadFailed;
     Integration::ResourceId      loadFailedId;
     Integration::ResourceFailure loadFailure;
-
-    bool                         saved;
-    Integration::ResourceId      savedId;
-    Integration::ResourceTypeId  savedType;
-
-    bool                         saveFailed;
-    Integration::ResourceId      saveFailedId;
-    Integration::ResourceFailure saveFailure;
   };
 
   struct LoadFileResult
@@ -70,7 +62,7 @@ public:
     }
 
     bool loadResult;
-    std::vector< unsigned char> buffer;
+    Dali::Vector< unsigned char> buffer;
   };
 
   /**
@@ -126,11 +118,6 @@ public:
   virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
 
   /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
@@ -163,22 +150,22 @@ public:
   /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
-  virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
-   * @copydoc PlatformAbstraction::LoadShaderBinFile()
+   * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer
+  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer
 ) const;
+
+  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const { return true; }
 
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes) const;
 
   virtual void JoinLoaderThreads();
-
-  virtual Integration::DynamicsFactory* GetDynamicsFactory();
 
 public: // TEST FUNCTIONS
 
@@ -189,16 +176,15 @@ public: // TEST FUNCTIONS
     SuspendFunc,
     ResumeFunc,
     LoadResourceFunc,
-    SaveResourceFunc,
     SaveFileFunc,
     LoadFileFunc,
-    LoadShaderBinFileFunc,
+    LoadShaderBinaryFileFunc,
+    SaveShaderBinaryFileFunc,
     CancelLoadFunc,
     GetResourcesFunc,
     IsLoadingFunc,
     SetDpiFunc,
     JoinLoaderThreadsFunc,
-    GetDynamicsFactoryFunc
   } TestFuncEnum;
 
   /** Call this every test */
@@ -231,19 +217,13 @@ public: // TEST FUNCTIONS
   void SetResourceLoadFailed(Integration::ResourceId  id,
                              Integration::ResourceFailure failure);
 
-  void SetResourceSaved(Integration::ResourceId      savedId,
-                        Integration::ResourceTypeId  savedType);
-
-  void SetResourceSaveFailed(Integration::ResourceId  id,
-                             Integration::ResourceFailure failure);
-
   Integration::ResourceRequest* GetRequest();
 
   void DiscardRequest();
 
   void SetClosestImageSize(const Vector2& size);
 
-  void SetLoadFileResult( bool result, std::vector< unsigned char >& buffer );
+  void SetLoadFileResult( bool result, Dali::Vector< unsigned char >& buffer );
 
   void SetSaveFileResult( bool result );
 

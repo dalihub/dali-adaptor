@@ -124,9 +124,8 @@ private:
    * If sync mode is WAIT, then acquire a lock. This prevents render thread from
    * continuing until the pixmap has been drawn by the compositor.
    * It must be released for rendering to continue.
-   * @param[in] syncMode The current sync mode
    */
-  void AcquireLock( SyncMode syncMode );
+  void AcquireLock();
 
   /**
    * Release any locks.

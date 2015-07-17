@@ -137,11 +137,6 @@ Integration::LoadStatus ResourceBitmapRequester::LoadFurtherResources( Integrati
   return RESOURCE_COMPLETELY_LOADED;
 }
 
-void ResourceBitmapRequester::SaveResource(const Integration::ResourceRequest& request )
-{
-  // Nothing to do
-}
-
 void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
   if( mThreadImageLocal )

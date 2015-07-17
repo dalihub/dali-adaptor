@@ -27,7 +27,6 @@
 #include <dali/integration-api/resource-types.h>
 
 #include "resource-loader/resource-loader.h"
-#include "dynamics/dynamics-factory.h"
 
 #include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
@@ -52,7 +51,6 @@ const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()
 : mResourceLoader(new ResourceLoader),
-  mDynamicsFactory(NULL),
   mDataStoragePath( "" )
 {
 }
@@ -60,7 +58,6 @@ TizenPlatformAbstraction::TizenPlatformAbstraction()
 TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
   delete mResourceLoader;
-  delete mDynamicsFactory;
 }
 
 void TizenPlatformAbstraction::GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds)
@@ -134,28 +131,6 @@ Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously
   return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
 }
 
-
-void TizenPlatformAbstraction::SaveResource(const Integration::ResourceRequest& request)
-{
-  if (mResourceLoader)
-  {
-    if( request.GetType()->id == Integration::ResourceShader )
-    {
-#ifdef SHADERBIN_CACHE_ENABLED
-      std::string path = mDataStoragePath;
-      path += request.GetPath();
-
-      Integration::ResourceRequest newRequest( request.GetId(), *request.GetType(), path, request.GetResource() );
-      mResourceLoader->SaveResource(newRequest);
-#endif
-    }
-    else
-    {
-      mResourceLoader->SaveResource(request);
-    }
-  }
-}
-
 void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
   if (mResourceLoader)
@@ -190,13 +165,13 @@ void TizenPlatformAbstraction::SetDpi(unsigned int dpiHor, unsigned int dpiVer)
   }
 }
 
-bool TizenPlatformAbstraction::LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
+bool TizenPlatformAbstraction::LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
   bool result = false;
 
-  if (mResourceLoader)
+  if( mResourceLoader )
   {
-    result = mResourceLoader->LoadFile(filename, buffer);
+    result = mResourceLoader->LoadFile( filename, buffer );
   }
 
   return result;
@@ -213,13 +188,13 @@ std::string TizenPlatformAbstraction::LoadFile( const std::string& filename )
   return result;
 }
 
-bool TizenPlatformAbstraction::SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const
+bool TizenPlatformAbstraction::SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
 {
   bool result = false;
 
-  if (mResourceLoader)
+  if( mResourceLoader )
   {
-    result = mResourceLoader->SaveFile(filename, buffer);
+    result = mResourceLoader->SaveFile( filename, buffer, numBytes );
   }
 
   return result;
@@ -231,23 +206,14 @@ void TizenPlatformAbstraction::JoinLoaderThreads()
   mResourceLoader = NULL;
 }
 
-Integration::DynamicsFactory* TizenPlatformAbstraction::GetDynamicsFactory()
-{
-  if( NULL == mDynamicsFactory )
-  {
-    mDynamicsFactory = new DynamicsFactory;
-  }
-
-  return mDynamicsFactory;
-}
-
-bool TizenPlatformAbstraction::LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
+bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
   bool result = false;
 
 #ifdef SHADERBIN_CACHE_ENABLED
   std::string path;
 
+  // First check the system location where shaders are stored at install time:
   if( mResourceLoader )
   {
     path = DALI_SHADERBIN_DIR;
@@ -255,12 +221,33 @@ bool TizenPlatformAbstraction::LoadShaderBinFile( const std::string& filename, s
     result = mResourceLoader->LoadFile( path, buffer );
   }
 
+  // Fallback to the cache of shaders stored after previous runtime compilations:
+  // On desktop this looks in the current working directory that the app was launched from.
   if( mResourceLoader && result == false )
   {
     path = mDataStoragePath;
     path += filename;
     result = mResourceLoader->LoadFile( path, buffer );
   }
+#endif
+
+  return result;
+}
+
+bool TizenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
+{
+  bool result = false;
+
+#ifdef SHADERBIN_CACHE_ENABLED
+
+    // Fallback to the cache of shaders stored after previous runtime compilations:
+    // On desktop this looks in the current working directory that the app was launched from.
+    if( mResourceLoader )
+    {
+      std::string path = mDataStoragePath;
+      path += filename;
+      result = mResourceLoader->SaveFile( path, buffer, numBytes );
+    }
 #endif
 
   return result;

@@ -116,12 +116,14 @@ private:
 
 } // unnamed namespace
 
-NetworkPerformanceClient::NetworkPerformanceClient(  SocketInterface *socket,
+NetworkPerformanceClient::NetworkPerformanceClient(  pthread_t* thread,
+                                                     SocketInterface *socket,
                                                      unsigned int clientId,
                                                      TriggerEventFactoryInterface& triggerEventFactory,
                                                      ClientSendDataInterface& sendDataInterface,
                                                      SocketFactoryInterface& socketFactory )
-: mSocket( socket ),
+: mThread( thread ),
+  mSocket( socket ),
   mMarkerBitmask( PerformanceMarker::FILTERING_DISABLED ),
   mTriggerEventFactory( triggerEventFactory ),
   mSendDataInterface( sendDataInterface ),
@@ -184,6 +186,10 @@ void NetworkPerformanceClient::ExitSelect()
   mSocket->ExitSelect();
 }
 
+pthread_t* NetworkPerformanceClient::GetThread()
+{
+  return mThread;
+}
 
 void NetworkPerformanceClient::ProcessCommand( char* buffer, unsigned int bufferSizeInBytes )
 {

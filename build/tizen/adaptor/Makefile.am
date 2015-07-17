@@ -179,14 +179,6 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = dali-adaptor-integration.pc
 
-# Feedback Plugin
-if USE_FEEDBACK
-plugin_themes_dir = ../../../adaptors/common/feedback
-dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
-dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
-dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
-endif
-
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
@@ -251,7 +243,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
                       -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\"" \
                       -DFONT_CONFIGURATION_FILE_PATH="\"${fontConfigurationFilePath}\"" \
-                      -DDALI_FEEDBACK_THEME_DIR="\"${dalifeedbackthemedir}\"" \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \

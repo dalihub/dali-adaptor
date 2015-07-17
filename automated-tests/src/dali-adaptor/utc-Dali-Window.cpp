@@ -121,6 +121,19 @@ int UtcDaliWindowNewN(void)
     DALI_TEST_ASSERT( e, "Failed to create X window", TEST_LOCATION );
   }
 
+  // Attempt to create a new window
+  try
+  {
+    PositionSize windowPosition(0, 0, 0, 0);
+    Dali::Window window = Dali::Window::New( windowPosition, "test-window", "test-window-class", true );
+
+    tet_result( TET_FAIL );
+  }
+  catch ( DaliException& e )
+  {
+    DALI_TEST_ASSERT( e, "Failed to create X window", TEST_LOCATION );
+  }
+
   END_TEST;
 }
 
