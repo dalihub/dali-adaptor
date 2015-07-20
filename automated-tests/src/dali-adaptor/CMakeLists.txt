@@ -12,6 +12,7 @@ SET(TC_SOURCES
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Application.cpp
+    utc-Dali-FileLoader.cpp
 )
 
 LIST(APPEND TC_SOURCES
@@ -35,6 +36,8 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${${CAPI_LIB}_CFLAGS_OTHER}")
+
+ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )
 
 FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
     SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L${directory}")
