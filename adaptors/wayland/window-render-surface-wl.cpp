@@ -50,7 +50,8 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& name,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
-  mNeedToApproveDeiconify(false)
+  mEglWindow( NULL ),
+  mNeedToApproveDeiconify( false )
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Init( surface );
@@ -58,6 +59,12 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
 
 WindowRenderSurface::~WindowRenderSurface()
 {
+  if( mEglWindow != NULL )
+  {
+    wl_egl_window_destroy(mEglWindow);
+    mEglWindow = NULL;
+  }
+
   if( mOwnSurface )
   {
     ecore_wl_window_free( mWlWindow );
@@ -113,15 +120,18 @@ void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
-  wl_egl_window_destroy(mEglWindow);
-  mEglWindow = NULL;
 }
 
 bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  wl_egl_window_destroy(mEglWindow);
+  if( mEglWindow != NULL )
+  {
+    wl_egl_window_destroy(mEglWindow);
+    mEglWindow = NULL;
+  }
+
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );

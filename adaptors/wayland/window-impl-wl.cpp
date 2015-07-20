@@ -63,6 +63,8 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
+    mWindowPropertyHandler( NULL ),
+    mClientMessagehandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
