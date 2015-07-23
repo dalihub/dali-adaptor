@@ -227,10 +227,11 @@ void AccessibilityAdaptor::SetIndicator(Indicator* indicator)
 }
 
 AccessibilityAdaptor::AccessibilityAdaptor()
-: mIsEnabled(false),
-  mActionHandler(NULL),
-  mIndicator(NULL),
-  mIndicatorFocused(false)
+: mIsEnabled( false ),
+  mReadPosition(),
+  mActionHandler( NULL ),
+  mIndicator( NULL ),
+  mIndicatorFocused( false )
 {
   int isEnabled = 0;
   DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, isEnabled?"ENABLED":"DISABLED");
