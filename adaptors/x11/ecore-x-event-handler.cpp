@@ -291,6 +291,10 @@ struct EventHandler::Impl
     mEcoreEventHandler(),
     mWindow( window ),
     mXiDeviceId( 0 )
+#ifdef DALI_ELDBUS_AVAILABLE
+  , mSessionConnection( NULL ),
+    mA11yConnection( NULL )
+#endif
   {
     // Only register for touch and key events if we have a window
     if ( window != 0 )
@@ -414,10 +418,9 @@ struct EventHandler::Impl
       DALI_LOG_INFO( gImfLogging, Debug::General, "Starting DBus Initialization" );
       eldbus_init();
 
-      Eldbus_Connection *sessionConnection;
-      sessionConnection = eldbus_connection_get( ELDBUS_CONNECTION_TYPE_SESSION );
+      mSessionConnection = eldbus_connection_get( ELDBUS_CONNECTION_TYPE_SESSION );
 
-      Eldbus_Object *a11yObject = eldbus_object_get( sessionConnection, A11Y_BUS, A11Y_PATH );
+      Eldbus_Object *a11yObject = eldbus_object_get( mSessionConnection, A11Y_BUS, A11Y_PATH );
       Eldbus_Proxy *elDBusManager = eldbus_proxy_get( a11yObject, A11Y_INTERFACE );
 
       // Pass in handler in the cb_data field so we can access the accessibility adaptor within the callback.
@@ -446,6 +449,16 @@ struct EventHandler::Impl
 
 #ifdef DALI_ELDBUS_AVAILABLE
     // Close down ElDBus
+    if( mA11yConnection )
+    {
+      eldbus_connection_unref( mA11yConnection );
+    }
+
+    if( mSessionConnection )
+    {
+      eldbus_connection_unref( mSessionConnection );
+    }
+
     eldbus_shutdown();
 #endif // DALI_ELDBUS_AVAILABLE
   }
@@ -1525,6 +1538,7 @@ struct EventHandler::Impl
     Eldbus_Object *object;
     Eldbus_Proxy *manager;
     const char *a11yBusAddress = NULL;
+    EventHandler* handler = static_cast< EventHandler* >( handle );
 
     // The string defines the arg-list's respective types.
     if( !eldbus_message_arguments_get( message, "s", &a11yBusAddress ) )
@@ -1534,9 +1548,9 @@ struct EventHandler::Impl
 
     DALI_LOG_INFO( gImfLogging, Debug::General, "Ecore ElDBus Accessibility address: %s\n", a11yBusAddress );
 
-    Eldbus_Connection *a11yConnection = eldbus_address_connection_get( a11yBusAddress );
+    handler->mImpl->mA11yConnection = eldbus_address_connection_get( a11yBusAddress );
 
-    object = eldbus_object_get( a11yConnection, BUS, PATH );
+    object = eldbus_object_get( handler->mImpl->mA11yConnection, BUS, PATH );
     manager = eldbus_proxy_get( object, INTERFACE );
 
     // Pass the callback data through to the signal handler.
@@ -1649,6 +1663,11 @@ struct EventHandler::Impl
   std::vector<Ecore_Event_Handler*> mEcoreEventHandler;
   Ecore_X_Window mWindow;
   int mXiDeviceId;
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  Eldbus_Connection* mSessionConnection;
+  Eldbus_Connection* mA11yConnection;
+#endif
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
