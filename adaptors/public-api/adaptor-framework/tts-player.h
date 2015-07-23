@@ -24,6 +24,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -156,6 +160,9 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_TTS_PLAYER_H__

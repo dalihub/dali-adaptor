@@ -19,6 +19,11 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
+
 namespace Configuration
 {
 enum ContextLoss
@@ -28,6 +33,10 @@ enum ContextLoss
 };
 
 } // Configuration
+
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif

@@ -23,6 +23,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 namespace InputMethod
 {
@@ -66,6 +70,9 @@ enum Settings
 
 } // namespace InputMethod
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_INPUT_MEHTOD_H__
