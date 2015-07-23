@@ -107,7 +107,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
   {
-    dataRetentionPolicy = ResourcePolicy::DALI_RETAINS_MESH_DATA;
+    dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   }
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.

@@ -268,7 +268,7 @@ bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, 
                                    header,
                                    profile ) )
     {
-      bitmap = Bitmap::New( profile, ResourcePolicy::DISCARD );
+      bitmap = Bitmap::New( profile, ResourcePolicy::OWNED_DISCARD );
 
       DALI_LOG_SET_OBJECT_STRING( bitmap, path );
       const BitmapResourceType& resType = static_cast<const BitmapResourceType&>( resourceType );

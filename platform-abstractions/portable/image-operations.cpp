@@ -312,7 +312,7 @@ BitmapPtr MakeEmptyBitmap( Pixel::Format pixelFormat, unsigned int width, unsign
   DALI_ASSERT_DEBUG( Pixel::GetBytesPerPixel(pixelFormat) && "Compressed formats not supported." );
 
   // Allocate a pixel buffer to hold the image passed in:
-  Integration::BitmapPtr newBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
+  Integration::BitmapPtr newBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
   newBitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, width, height, width, height );
   return newBitmap;
 }
@@ -458,7 +458,7 @@ BitmapPtr CropForScaleToFill( BitmapPtr bitmap, ImageDimensions desiredDimension
     {
       const unsigned newWidth = inputWidth - 2 * columnsToTrim;
       const unsigned newHeight = inputHeight - 2 * scanlinesToTrim;
-      BitmapPtr croppedBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
+      BitmapPtr croppedBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
       Integration::Bitmap::PackedPixelsProfile * packedView = croppedBitmap->GetPackedPixelsProfile();
       DALI_ASSERT_DEBUG( packedView );
       const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
