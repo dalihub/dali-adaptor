@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <pthread.h>
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -29,10 +30,6 @@ namespace Internal
 
 namespace Adaptor
 {
-
-namespace
-{
-} // unnamed namespace
 
 struct ConditionalWait::ConditionalWaitImpl
 {
@@ -91,6 +88,38 @@ unsigned int ConditionalWait::GetWaitCount() const
 {
   return mImpl->count;
 }
+
+ConditionalWait::ScopedLock::ScopedLock( ConditionalWait& wait ) : mWait(wait)
+{
+  pthread_mutex_lock( &wait.mImpl->mutex );
+}
+
+ConditionalWait::ScopedLock::~ScopedLock()
+{
+  ConditionalWait& wait = mWait;
+  pthread_mutex_unlock( &wait.mImpl->mutex );
+}
+
+void ConditionalWait::Wait( const ScopedLock& scope )
+{
+  // Scope must be locked:
+  DALI_ASSERT_DEBUG( &scope.GetLockedWait() == this );
+
+  ++(mImpl->count);
+
+  // pthread_cond_wait may wake up without anyone calling Notify so loop until
+  // count has been reset in a notify:
+  do
+  {
+    // wait while condition changes
+    pthread_cond_wait( &mImpl->condition, &mImpl->mutex ); // releases the lock whilst waiting
+  }
+  while( 0 != mImpl->count );
+
+  // We return with our mutex locked safe in the knowledge that the ScopedLock
+  // passed in will unlock it in the caller.
+}
+
 
 } // namespace Adaptor
 
