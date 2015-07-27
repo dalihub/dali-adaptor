@@ -814,6 +814,18 @@ void EventHandler::Reset()
   mCoreEventInterface.ProcessCoreEvents();
 }
 
+void EventHandler::Pause()
+{
+  mPaused = true;
+  Reset();
+}
+
+void EventHandler::Resume()
+{
+  mPaused = false;
+  Reset();
+}
+
 void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )
 {
   mDragAndDropDetector = detector;

@@ -1255,7 +1255,12 @@ struct EventHandler::Impl
   // Callback for Ecore ElDBus accessibility events.
   static void OnEcoreElDBusAccessibilityNotification( void *context EINA_UNUSED, const Eldbus_Message *message )
   {
-    EventHandler* handler( (EventHandler*)context );
+    EventHandler* handler = static_cast< EventHandler* >( context );
+    // Ignore any accessibility events when paused.
+    if( handler->mPaused )
+    {
+      return;
+    }
 
     if ( !handler->mAccessibilityAdaptor )
     {
@@ -1671,7 +1676,7 @@ struct EventHandler::Impl
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
-: mCoreEventInterface(coreEventInterface),
+: mCoreEventInterface( coreEventInterface ),
   mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
@@ -1679,8 +1684,9 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mDragAndDropDetector( dndDetector ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
-  mClipboard(Clipboard::Get()),
-  mImpl( NULL )
+  mClipboard( Clipboard::Get() ),
+  mImpl( NULL ),
+  mPaused( false )
 {
   Ecore_X_Window window = 0;
 
@@ -1697,10 +1703,7 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 
 EventHandler::~EventHandler()
 {
-  if(mImpl)
-  {
-    delete mImpl;
-  }
+  delete mImpl;
 
   mGestureManager.Stop();
 }
@@ -1825,6 +1828,18 @@ void EventHandler::Reset()
 
   // Next the events are processed with a single call into Core
   mCoreEventInterface.ProcessCoreEvents();
+}
+
+void EventHandler::Pause()
+{
+  mPaused = true;
+  Reset();
+}
+
+void EventHandler::Resume()
+{
+  mPaused = false;
+  Reset();
 }
 
 void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )

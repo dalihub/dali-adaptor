@@ -95,9 +95,14 @@ public:
   void FeedEvent( Integration::Event& event );
 
   /**
-   * Resets the event handler.
+   * Called when the adaptor is paused.
    */
-  void Reset();
+  void Pause();
+
+  /**
+   * Called when the adaptor is resumed (from pause).
+   */
+  void Resume();
 
   /**
    * Sets the Drag & Drop detector.
@@ -153,7 +158,13 @@ private:
   /**
    * Inform rotation observer of rotation prepare event
    */
-  void SendRotationRequestEvent( );
+  void SendRotationRequestEvent();
+
+  /**
+   * Resets the event handler.
+   * Called when the adaptor is paused or resumed.
+   */
+  void Reset();
 
 private:
 
@@ -171,6 +182,8 @@ private:
 
   struct Impl; ///< Contains Ecore specific information
   Impl* mImpl; ///< Created on construction and destroyed on destruction.
+
+  bool mPaused; ///< The paused state of the adaptor.
 };
 
 } // namespace Adaptor

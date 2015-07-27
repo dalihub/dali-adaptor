@@ -129,7 +129,8 @@ struct EventHandler::Impl : public WindowEventInterface
    */
   Impl( EventHandler* handler, XID window, Display* display )
   : mXEventManager(window, display, this),
-    mHandler( handler )
+    mHandler( handler ),
+    mPaused( false )
   {
     mXEventManager.Initialize();
   }
@@ -326,6 +327,18 @@ void EventHandler::Reset()
 
   // Next the events are processed with a single call into Core
   mCoreEventInterface.ProcessCoreEvents();
+}
+
+void EventHandler::Pause()
+{
+  mPaused = true;
+  Reset();
+}
+
+void EventHandler::Resume()
+{
+  mPaused = false;
+  Reset();
 }
 
 void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )

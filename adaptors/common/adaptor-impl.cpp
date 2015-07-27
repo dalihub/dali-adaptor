@@ -285,7 +285,7 @@ void Adaptor::Pause()
     // Reset the event handler when adaptor paused
     if( mEventHandler )
     {
-      mEventHandler->Reset();
+      mEventHandler->Pause();
     }
 
     mUpdateRenderController->Pause();
@@ -317,7 +317,7 @@ void Adaptor::Resume()
     // Reset the event handler when adaptor resumed
     if( mEventHandler )
     {
-      mEventHandler->Reset();
+      mEventHandler->Resume();
     }
 
     // Inform observers that we have resumed.
