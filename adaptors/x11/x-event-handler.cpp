@@ -169,6 +169,7 @@ struct EventHandler::Impl : public WindowEventInterface
   // Data
   XEventManager mXEventManager;
   EventHandler* mHandler;
+  bool mPaused;
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
