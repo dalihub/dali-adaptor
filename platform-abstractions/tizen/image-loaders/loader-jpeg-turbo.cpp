@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,17 +240,17 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
     return false;
   }
 
-  std::vector<unsigned char> jpegBuffer(0);
+  Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.reserve( jpegBufferSize );
+    jpegBuffer.Reserve( jpegBufferSize );
   }
   catch(...)
   {
     DALI_LOG_ERROR( "Could not allocate temporary memory to hold JPEG file of size %uMB.\n", jpegBufferSize / 1048576U );
     return false;
   }
-  unsigned char * const jpegBufferPtr = &jpegBuffer[0];
+  unsigned char * const jpegBufferPtr = jpegBuffer.Begin();
 
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if( fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
@@ -390,8 +390,9 @@ bool JpegRotate90(unsigned char *buffer, int width, int height, int bpp)
   int ix, iy = 0;
   iw = width;
   ih = height;
-  std::vector<unsigned char> data(width * height * bpp);
-  unsigned char *dataPtr = &data[0];
+  Vector<unsigned char> data;
+  data.Reserve(width * height * bpp);
+  unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
   ih = iw;
@@ -466,8 +467,9 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
 
   iw = width;
   ih = height;
-  std::vector<unsigned char> data(width * height * bpp);
-  unsigned char *dataPtr = &data[0];
+  Vector<unsigned char> data;
+  data.Reserve(width * height * bpp);
+  unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
   ih = iw;
@@ -504,7 +506,8 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
   return true;
 }
 
-bool EncodeToJpeg( const unsigned char* const pixelBuffer, std::vector< unsigned char >& encodedPixels, const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality)
+bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char >& encodedPixels,
+                   const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality )
 {
   if( !pixelBuffer )
   {
@@ -576,9 +579,9 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, std::vector< unsigned
     // Safely wrap the jpeg codec's buffer in case we are about to throw, then
     // save the pixels to a persistent buffer that we own and let our cleaner
     // class clean up the buffer as it goes out of scope:
-    AutoJpgMem cleaner(dstBuffer);
-    encodedPixels.resize(dstBufferSize);
-    memcpy(&encodedPixels[0], dstBuffer, dstBufferSize);
+    AutoJpgMem cleaner( dstBuffer );
+    encodedPixels.Reserve( dstBufferSize );
+    memcpy( encodedPixels.Begin(), dstBuffer, dstBufferSize );
   }
   return true;
 }
@@ -708,44 +711,28 @@ bool TransformSize( int requiredWidth, int requiredHeight,
       {
         bool widthLessRequired  = TJSCALED( postXformImageWidth,  factors[i]) < requiredWidth;
         bool heightLessRequired = TJSCALED( postXformImageHeight, factors[i]) < requiredHeight;
-        switch( fittingMode )
+        // If either scaled dimension is smaller than the desired one, we were done at the last iteration
+        if ( (fittingMode == FittingMode::SCALE_TO_FILL) && (widthLessRequired || heightLessRequired) )
         {
-          // If either scaled dimension is smaller than the desired one, we were done at the last iteration:
-          case FittingMode::SCALE_TO_FILL:
-          {
-            if ( widthLessRequired || heightLessRequired )
-            {
-              break;
-            }
-          }
-          // If both dimensions are smaller than the desired one, we were done at the last iteration:
-          case FittingMode::SHRINK_TO_FIT:
-          {
-            if ( widthLessRequired && heightLessRequired )
-            {
-              break;
-            }
-          }
-          // If the width is smaller than the desired one, we were done at the last iteration:
-          case FittingMode::FIT_WIDTH:
-          {
-            if ( widthLessRequired )
-            {
-              break;
-            }
-          }
-          // If the width is smaller than the desired one, we were done at the last iteration:
-          case FittingMode::FIT_HEIGHT:
-          {
-            if ( heightLessRequired )
-            {
-              break;
-            }
-          }
-
-          // This factor stays is within our fitting mode constraint so remember it:
-          scaleFactorIndex = i;
+          break;
         }
+        // If both dimensions are smaller than the desired one, we were done at the last iteration:
+        if ( (fittingMode == FittingMode::SHRINK_TO_FIT) && ( widthLessRequired && heightLessRequired ) )
+        {
+          break;
+        }
+        // If the width is smaller than the desired one, we were done at the last iteration:
+        if ( fittingMode == FittingMode::FIT_WIDTH && widthLessRequired )
+        {
+          break;
+        }
+        // If the width is smaller than the desired one, we were done at the last iteration:
+        if ( fittingMode == FittingMode::FIT_HEIGHT && heightLessRequired )
+        {
+          break;
+        }
+        // This factor stays is within our fitting mode constraint so remember it:
+        scaleFactorIndex = i;
       }
     }
 

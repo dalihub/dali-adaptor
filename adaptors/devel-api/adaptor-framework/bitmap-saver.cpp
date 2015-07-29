@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
 #include <platform-abstractions/tizen/resource-loader/resource-loader.h>
@@ -85,7 +86,7 @@ FileFormat GetFormatFromFileName( const std::string& filename )
 }
 
 bool EncodeToFormat( const unsigned char* pixelBuffer,
-                     std::vector< unsigned char >& encodedPixels,
+                     Vector< unsigned char >& encodedPixels,
                      FileFormat formatEncoding,
                      std::size_t width,
                      std::size_t height,
@@ -121,7 +122,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
                   const std::size_t height )
 {
   DALI_ASSERT_DEBUG(pixelBuffer != 0 && filename.size() > 4 && width > 0 && height > 0);
-  std::vector< unsigned char > pixbufEncoded;
+  Vector< unsigned char > pixbufEncoded;
   const FileFormat format = GetFormatFromFileName( filename );
   const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat );
   if(!encodeResult)
@@ -129,7 +130,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
     DALI_LOG_ERROR("Encoding pixels failed");
     return false;
   }
-  return TizenPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded );
+  return TizenPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded.Begin(), pixbufEncoded.Count() );
 }
 
 } // namespace Dali

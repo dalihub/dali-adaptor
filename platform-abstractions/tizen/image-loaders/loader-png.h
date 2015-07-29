@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_LOADER_PNG_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #include <cstdio>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/pixel.h>
 #include "image-encoder.h"
 #include "image-loader-input.h"
@@ -64,11 +64,6 @@ bool LoadBitmapFromPng( const ResourceLoadingClient& client, const ImageLoader::
 bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 /**
- * A bucket of bytes representing a PNG image.
- **/
-typedef std::vector<unsigned char> PngBuffer;
-
-/**
  * Encode raw pixel data to PNG format.
  * @param[in]  pixelBuffer    Pointer to raw pixel data to be encoded
  * @param[out] encodedPixels  Encoded pixel data. Existing contents will be overwritten
@@ -76,7 +71,7 @@ typedef std::vector<unsigned char> PngBuffer;
  * @param[in]  height         Image height
  * @param[in]  pixelFormat    Input pixel format (must be Pixel::RGB888)
  */
-bool EncodeToPng( const unsigned char* pixelBuffer, PngBuffer& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat );
+bool EncodeToPng( const unsigned char* pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat );
 
 } // namespace TizenPlatform
 
