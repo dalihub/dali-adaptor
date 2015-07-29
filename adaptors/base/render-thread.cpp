@@ -123,19 +123,28 @@ void RenderThread::Start()
   int error = pthread_create( mThread, NULL, InternalThreadEntryFunc, this );
   DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() in RenderThread" );
 
-  mSurface->StartRender();
+  if( mSurface )
+  {
+    mSurface->StartRender();
+  }
 }
 
 void RenderThread::Stop()
 {
   DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Stop()\n");
 
-  // shutdown the render thread and destroy the opengl context
-  if( mThread )
+  if( mSurface )
   {
     // Tell surface we have stopped rendering
     mSurface->StopRender();
 
+    // The surface will be destroyed soon; this pointer will become invalid
+    mSurface = NULL;
+  }
+
+  // shutdown the render thread and destroy the opengl context
+  if( mThread )
+  {
     // wait for the thread to finish
     pthread_join(*mThread, NULL);
 
@@ -300,14 +309,16 @@ void RenderThread::ReplaceSurface( RenderSurface* newSurface )
   mSurfaceReplaced = true;
 }
 
-
 void RenderThread::ShutdownEgl()
 {
   // inform core of context destruction
   mCore.ContextDestroyed();
 
-  // give a chance to destroy the OpenGL surface that created externally
-  mSurface->DestroyEglSurface( *mEGL );
+  if( mSurface )
+  {
+    // give a chance to destroy the OpenGL surface that created externally
+    mSurface->DestroyEglSurface( *mEGL );
+  }
 
   // delete the GL context / egl surface
   mEGL->TerminateGles();
@@ -315,7 +326,12 @@ void RenderThread::ShutdownEgl()
 
 bool RenderThread::PreRender()
 {
-  bool success = mSurface->PreRender( *mEGL, mGLES );
+  bool success( false );
+  if( mSurface )
+  {
+    success = mSurface->PreRender( *mEGL, mGLES );
+  }
+
   if( success )
   {
     mGLES.PreRender();
@@ -328,11 +344,13 @@ void RenderThread::PostRender( unsigned int timeDelta )
   // Inform the gl implementation that rendering has finished before informing the surface
   mGLES.PostRender(timeDelta);
 
-  // Inform the surface that rendering this frame has finished.
-  mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, timeDelta, mSurfaceReplaced );
+  if( mSurface )
+  {
+    // Inform the surface that rendering this frame has finished.
+    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, timeDelta, mSurfaceReplaced );
+  }
   mSurfaceReplaced = false;
 }
-
 
 } // namespace Adaptor
 
