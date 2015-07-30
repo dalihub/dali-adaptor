@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
 #include "resource-loader.h"
 
 // EXTERNAL HEADERS
-#include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <cstring>
+#include <dali/devel-api/common/map-wrapper.h>
+#include <dali/devel-api/common/mutex.h>
 
 // INTERNAL HEADERS
 #include <dali/integration-api/bitmap.h>
@@ -35,32 +37,13 @@
 #include "resource-bitmap-requester.h"
 #include "debug/resource-loader-debug.h"
 
-
-/**
- * A macro to expand an argument to a compile time constant string literal.
- * Wrapping the stringify in an outer macro, means that any macro passed as
- * "x" will be expanded before being turned into a string.
- * Use this for example to turn the current line number into a string:
- *   puts("The current line number is " DALI_TO_STRING(__LINE__) ".");
- */
-#define DALI_TO_STRING_INNER(x) #x
-#define DALI_TO_STRING(x) DALI_TO_STRING_INNER(x)
-
 using namespace Dali::Integration;
-using boost::mutex;
-using boost::unique_lock;
 
 namespace Dali
 {
 
 namespace TizenPlatform
 {
-
-namespace
-{
-
-} // unnamed namespace
-
 
 struct ResourceLoader::ResourceLoaderImpl
 {
@@ -75,8 +58,7 @@ struct ResourceLoader::ResourceLoaderImpl
   typedef std::map<ResourceTypeId,  ResourceRequesterBase*> RequestHandlers;
   typedef RequestHandlers::iterator                         RequestHandlersIter;
 
-  boost::mutex mQueueMutex;             ///< used to synchronize access to mLoadedQueue and mFailedQueue
-  LoadedQueue  mPartiallyLoadedQueue;   ///< Partially complete load requests notifications are stored here until fetched by core
+  Dali::Mutex  mQueueMutex;             ///< used to synchronize access to mLoadedQueue and mFailedQueue
   LoadedQueue  mLoadedQueue;            ///< Completed load requests notifications are stored here until fetched by core
   FailedQueue  mFailedLoads;            ///< Failed load request notifications are stored here until fetched by core
 
@@ -153,7 +135,7 @@ struct ResourceLoader::ResourceLoaderImpl
     else
     {
       DALI_LOG_ERROR( "Unknown resource type (%u) with path \"%s\" in load request.\n", request.GetType()->id, request.GetPath().c_str() );
-      DALI_ASSERT_DEBUG( 0 == "Unknown resource type in load request at " __FILE__ ", line " DALI_TO_STRING(__LINE__) ".\n" );
+      DALI_ASSERT_DEBUG( 0 == "Unknown resource type in load request at " __FILE__ ".\n" );
     }
   }
 
@@ -192,27 +174,11 @@ struct ResourceLoader::ResourceLoaderImpl
     return loadStatus;
   }
 
-  bool IsLoading()
-  {
-    // TODO - not used - remove?
-    DALI_ASSERT_DEBUG( 0 == "IsLoading() Is not implemented so don't call it." );
-    return true;
-  }
-
   void GetResources(ResourceCache& cache)
   {
     // Fill the resource cache
 
-    unique_lock<mutex> lock(mQueueMutex);
-
-    // iterate through the partially loaded resources
-    while (!mPartiallyLoadedQueue.empty())
-    {
-      LoadedResource loaded( mPartiallyLoadedQueue.front() );
-      mPartiallyLoadedQueue.pop();
-      LoadStatus loadStatus = LoadFurtherResources( loaded );
-      cache.LoadResponse( loaded.id, loaded.type, loaded.resource, loadStatus );
-    }
+    Mutex::ScopedLock lock( mQueueMutex );
 
     // iterate through the successfully loaded resources
     while (!mLoadedQueue.empty())
@@ -233,18 +199,10 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
-  void AddPartiallyLoadedResource( LoadedResource& resource)
-  {
-    // Lock the LoadedQueue to store the loaded resource
-    unique_lock<mutex> lock(mQueueMutex);
-
-    mPartiallyLoadedQueue.push( resource );
-  }
-
   void AddLoadedResource(LoadedResource& resource)
   {
     // Lock the LoadedQueue to store the loaded resource
-    unique_lock<mutex> lock(mQueueMutex);
+    Mutex::ScopedLock lock( mQueueMutex );
 
     mLoadedQueue.push( resource );
   }
@@ -252,7 +210,7 @@ struct ResourceLoader::ResourceLoaderImpl
   void AddFailedLoad(FailedResource& resource)
   {
     // Lock the FailedQueue to store the failed resource information
-    unique_lock<mutex> lock(mQueueMutex);
+    Mutex::ScopedLock lock( mQueueMutex );
 
     mFailedLoads.push(resource);
   }
@@ -327,11 +285,6 @@ void ResourceLoader::GetResources(ResourceCache& cache)
 /**************************   CALLED FROM LOADER THREADS   **********************/
 /********************************************************************************/
 
-void ResourceLoader::AddPartiallyLoadedResource( LoadedResource& resource)
-{
-  mImpl->AddPartiallyLoadedResource( resource );
-}
-
 void ResourceLoader::AddLoadedResource(LoadedResource& resource)
 {
   mImpl->AddLoadedResource( resource );
@@ -354,16 +307,6 @@ void ResourceLoader::LoadResource(const ResourceRequest& request)
 void ResourceLoader::CancelLoad(ResourceId id, ResourceTypeId typeId)
 {
   mImpl->CancelLoad(id, typeId);
-}
-
-bool ResourceLoader::IsLoading()
-{
-  return mImpl->IsLoading();
-}
-
-void ResourceLoader::SetDpi(unsigned int dpiHor, unsigned int dpiVer)
-{
-  // Unused
 }
 
 bool ResourceLoader::LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
@@ -444,11 +387,6 @@ std::string ResourceLoader::LoadFile(const std::string& filename) const
   }
 
   return contents;
-}
-
-bool ResourceLoader::SaveFile(const std::string& filename, std::vector< unsigned char >& buffer)
-{
-  return SaveFile( filename, &buffer[0], buffer.size() );
 }
 
 bool ResourceLoader::SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes )

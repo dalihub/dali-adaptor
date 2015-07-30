@@ -299,6 +299,7 @@ libdali_adaptor_la_LIBADD = \
                       -lgif \
                       -lpthread \
                       -lboost_thread \
+                      -lboost_system \
                       -lturbojpeg
 
 if WAYLAND

@@ -273,7 +273,7 @@ void LogXI2Event( XGenericEventCookie* cookie )
 
 #else
 
-void LogDeviceInfo( Display* display, XIDeviceInfo* device )
+void LogInputDeviceInfo( const XIDeviceInfo* devices, unsigned int numberOfDevices)
 {
 }
 void LogXI2Event( XGenericEventCookie* cookie )

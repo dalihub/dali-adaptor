@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,11 +111,6 @@ public: // PlatformAbstraction overrides
   virtual void GetResources(Integration::ResourceCache& cache);
 
   /**
-   * @copydoc PlatformAbstraction::IsLoading()
-   */
-  virtual bool IsLoading();
-
-  /**
    * @copydoc PlatformAbstraction::JoinLoaderThreads()
    */
   virtual void JoinLoaderThreads();
@@ -131,11 +126,6 @@ public: // PlatformAbstraction overrides
   virtual int GetDefaultFontSize() const;
 
   /**
-   * @copydoc PlatformAbstraction::SetDpi()
-   */
-  virtual void SetDpi (unsigned int DpiHorizontal, unsigned int DpiVertical);
-
-  /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
   virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
@@ -144,11 +134,6 @@ public: // PlatformAbstraction overrides
    * @copydoc PlatformAbstraction::LoadFile()
    */
   virtual std::string LoadFile( const std::string& filename );
-
-  /**
-   * @copydoc PlatformAbstraction::SaveFile()
-   */
-  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()

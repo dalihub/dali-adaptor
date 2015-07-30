@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_LOADER_JPEG_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #include <stdio.h>
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/pixel.h>
 #include "image-encoder.h"
 #include "image-loader-input.h"
@@ -75,7 +75,7 @@ bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsig
  * @param[in]  pixelFormat    Input pixel format (must be Pixel::RGB888)
  * @param[in]  quality        JPEG quality on usual 1 to 100 scale.
  */
-bool EncodeToJpeg(const unsigned char* pixelBuffer, std::vector< unsigned char >& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat, unsigned quality = 80);
+bool EncodeToJpeg(const unsigned char* pixelBuffer, Vector< unsigned char >& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat, unsigned quality = 80);
 
 } // namespace TizenPlatform
 

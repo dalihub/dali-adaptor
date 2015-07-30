@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,29 +139,11 @@ void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integratio
   }
 }
 
-bool TizenPlatformAbstraction::IsLoading()
-{
-  if (mResourceLoader)
-  {
-    return mResourceLoader->IsLoading();
-  }
-
-  return false;
-}
-
 void TizenPlatformAbstraction::GetResources(Integration::ResourceCache& cache)
 {
   if (mResourceLoader)
   {
     mResourceLoader->GetResources(cache);
-  }
-}
-
-void TizenPlatformAbstraction::SetDpi(unsigned int dpiHor, unsigned int dpiVer)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->SetDpi(dpiHor, dpiVer);
   }
 }
 
@@ -183,18 +165,6 @@ std::string TizenPlatformAbstraction::LoadFile( const std::string& filename )
   if (mResourceLoader)
   {
     result = mResourceLoader->LoadFile(filename);
-  }
-
-  return result;
-}
-
-bool TizenPlatformAbstraction::SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
-{
-  bool result = false;
-
-  if( mResourceLoader )
-  {
-    result = mResourceLoader->SaveFile( filename, buffer, numBytes );
   }
 
   return result;
