@@ -365,6 +365,19 @@ void Adaptor::Stop()
   }
 }
 
+void Adaptor::ContextLost()
+{
+  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
+}
+
+void Adaptor::ContextRegained()
+{
+  // Inform core, so that texture resources can be reloaded
+  mCore->RecoverFromContextLoss();
+
+  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
+}
+
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
 {
   mEventHandler->FeedTouchPoint( point, timeStamp );
@@ -424,15 +437,8 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
-
   // this method blocks until the render thread has completed the replace.
   mUpdateRenderController->ReplaceSurface(mSurface);
-
-  // Inform core, so that texture resources can be reloaded
-  mCore->RecoverFromContextLoss();
-
-  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
 RenderSurface& Adaptor::GetSurface() const
