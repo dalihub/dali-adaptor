@@ -159,6 +159,16 @@ public: // AdaptorInternalServices implementation
   virtual void Stop();
 
   /**
+   * @copydoc Dali::Adaptor::ContextLost()
+   */
+  virtual void ContextLost();
+
+  /**
+   * @copydoc Dali::Adaptor::ContextRegained()
+   */
+  virtual void ContextRegained();
+
+  /**
    * @copydoc Dali::EventFeeder::FeedTouchPoint()
    */
   virtual void FeedTouchPoint( TouchPoint& point, int timeStamp );
