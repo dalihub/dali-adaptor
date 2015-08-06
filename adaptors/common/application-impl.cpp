@@ -80,7 +80,6 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mName(),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
-  mInitialized( false ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -166,7 +165,6 @@ void Application::QuitFromMainLoop()
 
   mFramework->Quit();
   // This will trigger OnTerminate(), below, after the main loop has completed.
-  mInitialized = false;
 }
 
 void Application::OnInit()
@@ -201,8 +199,6 @@ void Application::OnInit()
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
 
-  mInitialized = true;
-
   // Wire up the LifecycleController
   Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
 
@@ -225,8 +221,13 @@ void Application::OnTerminate()
   // we've been told to quit by AppCore, ecore_x_destroy has been called, need to quit synchronously
   // delete the window as ecore_x has been destroyed by AppCore
 
+  if( mAdaptor )
+  {
+    // Ensure that the render-thread is not using the surface(window) after we delete it
+    mAdaptor->Stop();
+  }
+
   mWindow.Reset();
-  mInitialized = false;
 }
 
 void Application::OnPause()

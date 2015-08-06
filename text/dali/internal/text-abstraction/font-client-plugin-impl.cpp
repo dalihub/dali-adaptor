@@ -315,11 +315,15 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
       // Keep going unless we prefer a different (color) font
       if( !preferColor || foundColor )
       {
+        FcPatternDestroy( match );
+        FcPatternDestroy( pattern );
         break;
       }
     }
-  }
 
+    FcPatternDestroy( match );
+    FcPatternDestroy( pattern );
+  }
   return fontId;
 }
 
@@ -1023,16 +1027,22 @@ bool FontClient::Plugin::IsScalable( const FontFamily& fontFamily, const FontSty
 
   // match the pattern
   FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
+  bool isScalable = true;
 
   if( match )
   {
     // Get the path to the font file name.
     FontPath path;
     GetFcString( match, FC_FILE, path );
-    return IsScalable( path );
+    isScalable = IsScalable( path );
   }
-  DALI_LOG_ERROR( "FreeType Cannot check font: %s %s\n", fontFamily.c_str(), fontStyle.c_str() );
-  return true;
+  else
+  {
+    DALI_LOG_ERROR( "FreeType Cannot check font: %s %s\n", fontFamily.c_str(), fontStyle.c_str() );
+  }
+  FcPatternDestroy( fontFamilyPattern );
+  FcPatternDestroy( match );
+  return isScalable;
 }
 
 void FontClient::Plugin::GetFixedSizes( const FontPath& path, Vector< PointSize26Dot6 >& sizes )
@@ -1078,9 +1088,14 @@ void FontClient::Plugin::GetFixedSizes( const FontFamily& fontFamily,
     // Get the path to the font file name.
     FontPath path;
     GetFcString( match, FC_FILE, path );
-    return GetFixedSizes( path, sizes );
+    GetFixedSizes( path, sizes );
   }
-  DALI_LOG_ERROR( "FreeType Cannot check font: %s %s\n", fontFamily.c_str(), fontStyle.c_str() );
+  else
+  {
+    DALI_LOG_ERROR( "FreeType Cannot check font: %s %s\n", fontFamily.c_str(), fontStyle.c_str() );
+  }
+  FcPatternDestroy( match );
+  FcPatternDestroy( fontFamilyPattern );
 }
 
 } // namespace Internal

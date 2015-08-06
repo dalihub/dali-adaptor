@@ -389,11 +389,11 @@ struct EventHandler::Impl
             }
 
             free( xiEventMask.mask );
+          }
 
-            if( deviceInfo != NULL )
-            {
-              XIFreeDeviceInfo( deviceInfo );
-            }
+          if( deviceInfo != NULL )
+          {
+            XIFreeDeviceInfo( deviceInfo );
           }
         }
         else

@@ -309,8 +309,6 @@ private:
   std::string                           mStylesheet;
   EnvironmentOptions                    mEnvironmentOptions;
 
-  bool                                  mInitialized;
-
   SlotDelegate< Application >           mSlotDelegate;
 };
 
