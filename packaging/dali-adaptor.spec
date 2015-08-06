@@ -69,7 +69,6 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
@@ -89,6 +88,7 @@ BuildRequires:  fribidi-devel
 
 %if 0%{?tizen_2_2_compatibility} != 1
 BuildRequires:  pkgconfig(capi-system-info)
+BuildRequires:  pkgconfig(capi-system-sensor)
 %endif
 
 # Tizen currently does not have libuv as a separate libuv package

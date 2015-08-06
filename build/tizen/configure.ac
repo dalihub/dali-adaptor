@@ -36,6 +36,7 @@ if test "x$with_libuv" != "xno"; then
   # build dali-adaptor & dali-adaptor-uv
   AC_CONFIG_SUBDIRS(adaptor-uv)
 fi
+
 if test "x$enable_feedback" = "xyes"; then
   # build dali-adaptor & dali-adaptor-uv & plugins
   AC_CONFIG_SUBDIRS(plugins)
