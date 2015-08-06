@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@
 #ifdef OVER_TIZEN_SDK_2_2
 #include <system_info.h>
 #include <app_control_internal.h>
+// To be removed when 2.2 is no longer supported.
+#ifndef TIZEN_2_2_COMPATIBILITY
+#include <bundle_internal.h>
+#endif
 #endif
 
 #include <dali/integration-api/debug.h>
@@ -322,7 +326,11 @@ void Framework::Run()
 
 void Framework::Quit()
 {
+#ifndef OVER_TIZEN_SDK_2_2
   app_efl_exit();
+#else
+  ui_app_exit();
+#endif
 }
 
 bool Framework::IsMainLoopRunning()
