@@ -23,6 +23,7 @@
 #include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
+#include <dali/devel-api/rendering/renderer.h>
 
 // INTERNAL INCLUDES
 #include <indicator-buffer.h>
@@ -235,9 +236,9 @@ private:
   void Initialize();
 
   /**
-   * Set the opacity of the background image
+   * Constructs the renderers used for the background
    */
-  void SetBackgroundOpacity( Dali::Window::IndicatorBgOpacity opacity );
+  Dali::Geometry CreateBackgroundGeometry();
 
   /**
    * Touch event callback.
@@ -332,11 +333,6 @@ private:
   bool CopyToBuffer( int bufferNumber );
 
   /**
-   * Update the background with the correct colors
-   */
-  void SetBackground();
-
-  /**
    * Create a new image for the indicator, and set up signal handling for it.
    * @param[in] bufferNumber The shared file number
    */
@@ -427,11 +423,17 @@ private:
 
   static const int SHARED_FILE_NUMBER = 2;               ///< Shared file number
 
+  Dali::Geometry                   mTranslucentGeometry; ///< Geometry used for rendering the translucent background
+  Dali::Geometry                   mSolidGeometry;       ///< Geometry used for rendering the opaque background
+  Dali::Material                   mBackgroundMaterial;  ///< Material used for rendering the background
+
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
   PixmapId                         mPixmap;              ///< Pixmap including indicator content
   Dali::Image                      mImage;               ///< Image created from mIndicatorBuffer
   Dali::ImageActor                 mIndicatorImageActor; ///< Actor created from mImage
 
+  Dali::Actor                      mIndicatorImageContainerActor; ///< Actor container for image and background
+  Dali::Actor                      mBackgroundActor;     ///< Actor for background
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
   Dali::Actor                      mEventActor;          ///< Handle to event
   Dali::PanGestureDetector         mPanDetector;         ///< Pan detector to find flick gesture for hidden indicator

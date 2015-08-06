@@ -34,6 +34,7 @@
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/blending.h>
 #include <dali/public-api/shader-effects/shader-effect.h>
+#include <dali/public-api/images/buffer-image.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -62,15 +63,38 @@ enum
 };
 
 const int NUM_GRADIENT_INTERVALS(5); // Number of gradient intervals
-const Dali::Vector4 GRADIENT_COLORS[NUM_GRADIENT_INTERVALS+1] =
-{
-  Vector4(0.0f, 0.0f, 0.0f, 0.6f),
-  Vector4(0.0f, 0.0f, 0.0f, 0.38f),
-  Vector4(0.0f, 0.0f, 0.0f, 0.20f),
-  Vector4(0.0f, 0.0f, 0.0f, 0.08f),
-  Vector4(0.0f, 0.0f, 0.0f, 0.0f),
-  Vector4(0.0f, 0.0f, 0.0f, 0.0f),
-};
+const float GRADIENT_ALPHA[NUM_GRADIENT_INTERVALS+1] = { 0.6f, 0.38f, 0.20f, 0.08f, 0.0f, 0.0f };
+
+#define MAKE_SHADER(A)#A
+
+const char* BACKGROUND_VERTEX_SHADER = MAKE_SHADER(
+  attribute mediump vec2 aPosition;
+  attribute mediump float aAlpha;
+  varying mediump float vAlpha;
+  uniform mediump mat4 uMvpMatrix;
+  uniform mediump vec3 uSize;
+
+  void main()
+  {
+    mediump vec4 vertexPosition = vec4( aPosition * uSize.xy, 0.0, 1.0 );
+    vertexPosition = uMvpMatrix * vertexPosition;
+
+    vAlpha = aAlpha;
+    gl_Position = vertexPosition;
+  }
+);
+
+const char* BACKGROUND_FRAGMENT_SHADER = MAKE_SHADER(
+  uniform lowp vec4 uColor;
+  varying mediump float vAlpha;
+
+  void main()
+  {
+    gl_FragColor = uColor;
+    gl_FragColor.a *= vAlpha;
+  }
+);
+
 
 const float OPAQUE_THRESHOLD(0.99f);
 const float TRANSPARENT_THRESHOLD(0.05f);
@@ -331,19 +355,35 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
 
   mIndicatorImageActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
   mIndicatorImageActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
+  mIndicatorImageActor.SetSortModifier( 1.0f );
 
   // Indicator image handles the touch event including "leave"
   mIndicatorImageActor.SetLeaveRequired( true );
   mIndicatorImageActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
 
+  mBackgroundActor = Dali::Actor::New();
+  mBackgroundActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+  mBackgroundActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
+  mBackgroundActor.SetColor( Color::BLACK );
+
+  mIndicatorImageContainerActor = Dali::Actor::New();
+  mIndicatorImageContainerActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+  mIndicatorImageContainerActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
+  mIndicatorImageContainerActor.Add( mBackgroundActor );
+  mIndicatorImageContainerActor.Add( mIndicatorImageActor );
+
   mIndicatorActor = Dali::Actor::New();
-  mIndicatorActor.Add( mIndicatorImageActor );
+  mIndicatorActor.Add( mIndicatorImageContainerActor );
+
+  if( mOrientation == Dali::Window::LANDSCAPE || mOrientation == Dali::Window::LANDSCAPE_INVERSE )
+  {
+    mBackgroundActor.SetVisible( false );
+  }
 
   // Event handler to find out flick down gesture
   mEventActor = Dali::Actor::New();
   mEventActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
   mEventActor.SetAnchorPoint( AnchorPoint::TOP_CENTER );
-  mEventActor.SetZ( -0.01f );
   mIndicatorActor.Add( mEventActor );
 
   // Attach pan gesture to find flick down during hiding.
@@ -396,6 +436,16 @@ void Indicator::Open( Dali::Window::WindowOrientation orientation )
   mOrientation = orientation;
 
   Connect();
+
+  // Change background visibility depending on orientation
+  if(mOrientation == Dali::Window::LANDSCAPE || mOrientation == Dali::Window::LANDSCAPE_INVERSE  )
+  {
+    mBackgroundActor.SetVisible( false );
+  }
+  else
+  {
+    SetOpacityMode( mOpacityMode );
+  }
 }
 
 void Indicator::Close()
@@ -418,7 +468,45 @@ void Indicator::Close()
 void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
 {
   mOpacityMode = mode;
-  SetBackground();
+
+  //@todo replace with a gradient renderer when that is implemented
+  Dali::Geometry geometry = CreateBackgroundGeometry();
+  if( geometry )
+  {
+    mBackgroundActor.SetVisible( true );
+
+    if( mBackgroundActor.GetRendererCount() > 0 )
+    {
+      Dali::Renderer renderer = mBackgroundActor.GetRendererAt( 0 );
+      if( renderer )
+      {
+        if( renderer.GetGeometry() == geometry )
+        {
+          return;
+        }
+        else
+        {
+          renderer.SetGeometry( geometry );
+        }
+      }
+    }
+    else
+    {
+      if( !mBackgroundMaterial )
+      {
+        Dali::Shader shader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
+        mBackgroundMaterial = Dali::Material::New( shader );
+      }
+
+      Dali::Renderer renderer = Dali::Renderer::New( geometry, mBackgroundMaterial );
+
+      mBackgroundActor.AddRenderer( renderer );
+    }
+  }
+  else
+  {
+    mBackgroundActor.SetVisible( false );
+  }
 }
 
 void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
@@ -629,8 +717,8 @@ void Indicator::Resize( int width, int height )
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
-
-    SetBackground();
+    mBackgroundActor.SetSize( mImageWidth, mImageHeight );
+    mIndicatorImageContainerActor.SetSize( mImageWidth, mImageHeight );
   }
 }
 
@@ -840,10 +928,6 @@ bool Indicator::CopyToBuffer( int bufferNumber )
   return success;
 }
 
-void Indicator::SetBackground()
-{
-}
-
 void Indicator::CreateNewPixmapImage()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mImageWidth, mImageHeight );
@@ -855,8 +939,8 @@ void Indicator::CreateNewPixmapImage()
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
-
-    SetBackground();
+    mBackgroundActor.SetSize( mImageWidth, mImageHeight );
+    mIndicatorImageContainerActor.SetSize( mImageWidth, mImageHeight );
   }
   else
   {
@@ -892,6 +976,127 @@ void Indicator::CreateNewImage( int bufferNumber )
     // Don't do connection in this callback - strange things happen!
     StartReconnectionTimer();
   }
+}
+
+//@todo replace with a gradient renderer when that is implemented
+Dali::Geometry Indicator::CreateBackgroundGeometry()
+{
+  switch( mOpacityMode )
+  {
+    case Dali::Window::TRANSLUCENT:
+      if( !mTranslucentGeometry )
+      {
+        // Construct 5 interval mesh
+        // 0  +---+  1
+        //    | \ |
+        // 2  +---+  3
+        //    | \ |
+        // 4  +---+  5
+        //    | \ |
+        // 6  +---+  7
+        //    | \ |
+        // 8  +---+  9
+        //    | \ |
+        // 10 +---+  11
+
+        // Create vertices
+        struct BackgroundVertex
+        {
+          Vector2 mPosition;
+          float   mAlpha;
+        };
+
+        unsigned int numVertices = 2 * ( NUM_GRADIENT_INTERVALS + 1 );
+        BackgroundVertex vertices[ numVertices ];
+
+        float d = -0.5f;
+        float delta = 1.0f / NUM_GRADIENT_INTERVALS;
+        BackgroundVertex* currentVertex = vertices;
+        for( int y = 0; y < NUM_GRADIENT_INTERVALS + 1; ++y, d += delta )
+        {
+          currentVertex->mPosition = Vector2( -0.5f, d );
+          currentVertex->mAlpha = GRADIENT_ALPHA[ y ];
+          currentVertex++;
+
+          currentVertex->mPosition = Vector2( 0.5f, d );
+          currentVertex->mAlpha = GRADIENT_ALPHA[ y ];
+          currentVertex++;
+        }
+
+        // Create indices
+        unsigned int numIndices = 2 * 3 * NUM_GRADIENT_INTERVALS;
+        unsigned int indices[ numIndices ];
+
+        unsigned int* currentIndex = indices;
+        for( int y = 0; y < NUM_GRADIENT_INTERVALS; ++y )
+        {
+          *currentIndex++ = (2 * y);
+          *currentIndex++ = (2 * y) + 3;
+          *currentIndex++ = (2 * y) + 1;
+
+          *currentIndex++ = (2 * y);
+          *currentIndex++ = (2 * y) + 2;
+          *currentIndex++ = (2 * y) + 3;
+        }
+
+        Dali::Property::Map vertexFormat;
+        vertexFormat[ "aPosition" ] = Dali::Property::VECTOR2;
+        vertexFormat[ "aAlpha" ] = Dali::Property::FLOAT;
+        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat, numVertices );
+        vertexPropertyBuffer.SetData( vertices );
+
+        Dali::Property::Map indexFormat;
+        indexFormat[ "indices" ] = Dali::Property::INTEGER;
+        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat, numIndices );
+        indexPropertyBuffer.SetData( indices );
+
+        // Create the geometry object
+        mTranslucentGeometry = Dali::Geometry::New();
+        mTranslucentGeometry.AddVertexBuffer( vertexPropertyBuffer );
+        mTranslucentGeometry.SetIndexBuffer( indexPropertyBuffer );
+      }
+
+      return mTranslucentGeometry;
+    case Dali::Window::OPAQUE:
+
+      if( !mSolidGeometry )
+      {
+        // Create vertices
+        struct BackgroundVertex
+        {
+          Vector2 mPosition;
+          float   mAlpha;
+        };
+
+        BackgroundVertex vertices[ 4 ] = { { Vector2( -0.5f, -0.5f ), 1.0f }, { Vector2( 0.5f, -0.5f ), 1.0f },
+                                           { Vector2( -0.5f,  0.5f ), 1.0f }, { Vector2( 0.5f,  0.5f ), 1.0f } };
+
+        // Create indices
+        unsigned int indices[ 6 ] = { 0, 3, 1, 0, 2, 3 };
+
+        Dali::Property::Map vertexFormat;
+        vertexFormat[ "aPosition" ] = Dali::Property::VECTOR2;
+        vertexFormat[ "aAlpha" ] = Dali::Property::FLOAT;
+        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat, 4 );
+        vertexPropertyBuffer.SetData( vertices );
+
+        Dali::Property::Map indexFormat;
+        indexFormat[ "indices" ] = Dali::Property::INTEGER;
+        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat, 6 );
+        indexPropertyBuffer.SetData( indices );
+
+        // Create the geometry object
+        mSolidGeometry = Dali::Geometry::New();
+        mSolidGeometry.AddVertexBuffer( vertexPropertyBuffer );
+        mSolidGeometry.SetIndexBuffer( indexPropertyBuffer );
+      }
+
+      return mSolidGeometry;
+    case Dali::Window::TRANSPARENT:
+      break;
+  }
+
+  return Dali::Geometry();
 }
 
 void Indicator::OnIndicatorTypeChanged( Type indicatorType )
@@ -1074,7 +1279,7 @@ void Indicator::ShowIndicator(float duration)
   {
     if( EqualsZero(duration) )
     {
-      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageActor, Dali::Actor::Property::POSITION ), Vector3(0, -mImageHeight, 0), Dali::AlphaFunction::EASE_OUT );
+      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageContainerActor, Dali::Actor::Property::POSITION ), Vector3(0, -mImageHeight, 0), Dali::AlphaFunction::EASE_OUT );
 
       mIsShowing = false;
 
@@ -1082,7 +1287,7 @@ void Indicator::ShowIndicator(float duration)
     }
     else
     {
-      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageActor, Dali::Actor::Property::POSITION ), Vector3(0, 0, 0), Dali::AlphaFunction::EASE_OUT );
+      mIndicatorAnimation.AnimateTo( Property( mIndicatorImageContainerActor, Dali::Actor::Property::POSITION ), Vector3(0, 0, 0), Dali::AlphaFunction::EASE_OUT );
 
       mIsShowing = true;
 
