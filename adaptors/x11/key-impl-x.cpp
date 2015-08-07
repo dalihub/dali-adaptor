@@ -26,6 +26,7 @@
 
 #include <dali/integration-api/debug.h>
 
+
 namespace Dali
 {
 
@@ -98,51 +99,47 @@ KeyLookup KeyLookupTable[]=
   // more than one key name can be assigned to a single dali-key code
   // e.g. Menu and KEY_MENU("FS86KeyMenu") are both assigned to  DALI_KEY_MENU
 
-  { "Escape",                DALI_KEY_ESCAPE,          false },  // item not defined in utilX
-  { "Menu",                  DALI_KEY_MENU,            false },  // item not defined in utilX
-
-  // Now the key names are used as literal string not defined symbols,
-  // since these definition in utilX.h is deprecated and we're guided not to use them
-  { "XF86Camera",            DALI_KEY_CAMERA,          false },
-  { "XF86Camera_Full",       DALI_KEY_CONFIG,          false },
-  { "XF86PowerOff",          DALI_KEY_POWER,           true  },
-  { "XF86Standby",           DALI_KEY_PAUSE,           false },
-  { "Cancel",                DALI_KEY_CANCEL,          false },
-  { "XF86AudioPlay",         DALI_KEY_PLAY_CD,         false },
-  { "XF86AudioStop",         DALI_KEY_STOP_CD,         false },
-  { "XF86AudioPause",        DALI_KEY_PAUSE_CD,        false },
-  { "XF86AudioNext",         DALI_KEY_NEXT_SONG,       false },
-  { "XF86AudioPrev",         DALI_KEY_PREVIOUS_SONG,   false },
-  { "XF86AudioRewind",       DALI_KEY_REWIND,          false },
-  { "XF86AudioForward",      DALI_KEY_FASTFORWARD,     false },
-  { "XF86AudioMedia",        DALI_KEY_MEDIA,           false },
-  { "XF86AudioPlayPause",    DALI_KEY_PLAY_PAUSE,      false },
-  { "XF86AudioMute",         DALI_KEY_MUTE,            false },
-  { "XF86Send",              DALI_KEY_SEND,            true  },
-  { "XF86Phone",             DALI_KEY_SELECT,          true  },
-  { "XF86Stop",              DALI_KEY_END,             true  },
-  { "XF86Menu",              DALI_KEY_MENU,            true  },
-  { "XF86Home",              DALI_KEY_HOME,            true  },
-  { "XF86Back",              DALI_KEY_BACK,            true  },
-  { "XF86HomePage",          DALI_KEY_HOMEPAGE,        false },
-  { "XF86WWW",               DALI_KEY_WEBPAGE,         false },
-  { "XF86Mail",              DALI_KEY_MAIL,            false },
-  { "XF86ScreenSaver",       DALI_KEY_SCREENSAVER,     false },
-  { "XF86MonBrightnessUp",   DALI_KEY_BRIGHTNESS_UP,   false },
-  { "XF86MonBrightnessDown", DALI_KEY_BRIGHTNESS_DOWN, false },
-  { "XF86SoftKBD",           DALI_KEY_SOFT_KBD,        false },
-  { "XF86QuickPanel",        DALI_KEY_QUICK_PANEL,     false },
-  { "XF86TaskPane",          DALI_KEY_TASK_SWITCH,     false },
-  { "XF86Apps",              DALI_KEY_APPS,            false },
-  { "XF86Search",            DALI_KEY_SEARCH,          false },
-  { "XF86Voice",             DALI_KEY_VOICE,           false },
-  { "Hangul",                DALI_KEY_LANGUAGE,        false },
-  { "XF86AudioRaiseVolume",  DALI_KEY_VOLUME_UP,       true  },
-  { "XF86AudioLowerVolume",  DALI_KEY_VOLUME_DOWN,     true  },
-
-  { "BackSpace",             DALI_KEY_BACKSPACE,       false },
-  { "Left",                  DALI_KEY_CURSOR_LEFT,     false },
-  { "Right",                 DALI_KEY_CURSOR_RIGHT,    false }
+  { "Escape",               DALI_KEY_ESCAPE,          false },  // item not defined in utilX
+  { "Menu",                 DALI_KEY_MENU,            false },  // item not defined in utilX
+  { KEY_CAMERA,             DALI_KEY_CAMERA,          false },
+  { KEY_CONFIG,             DALI_KEY_CONFIG,          false },
+  { KEY_POWER,              DALI_KEY_POWER,           true  },
+  { KEY_PAUSE,              DALI_KEY_PAUSE,           false },
+  { KEY_CANCEL,             DALI_KEY_CANCEL,          false },
+  { KEY_PLAYCD,             DALI_KEY_PLAY_CD,         false },
+  { KEY_STOPCD,             DALI_KEY_STOP_CD,         false },
+  { KEY_PAUSECD,            DALI_KEY_PAUSE_CD,        false },
+  { KEY_NEXTSONG,           DALI_KEY_NEXT_SONG,       false },
+  { KEY_PREVIOUSSONG,       DALI_KEY_PREVIOUS_SONG,   false },
+  { KEY_REWIND,             DALI_KEY_REWIND,          false },
+  { KEY_FASTFORWARD,        DALI_KEY_FASTFORWARD,     false },
+  { KEY_MEDIA,              DALI_KEY_MEDIA,           false },
+  { KEY_PLAYPAUSE,          DALI_KEY_PLAY_PAUSE,      false },
+  { KEY_MUTE,               DALI_KEY_MUTE,            false },
+  { KEY_SEND,               DALI_KEY_SEND,            true  },
+  { KEY_SELECT,             DALI_KEY_SELECT,          true  },
+  { KEY_END,                DALI_KEY_END,             true  },
+  { KEY_MENU,               DALI_KEY_MENU,            true  },
+  { KEY_HOME,               DALI_KEY_HOME,            true  },
+  { KEY_BACK,               DALI_KEY_BACK,            true  },
+  { KEY_HOMEPAGE,           DALI_KEY_HOMEPAGE,        false },
+  { KEY_WEBPAGE,            DALI_KEY_WEBPAGE,         false },
+  { KEY_MAIL,               DALI_KEY_MAIL,            false },
+  { KEY_SCREENSAVER,        DALI_KEY_SCREENSAVER,     false },
+  { KEY_BRIGHTNESSUP,       DALI_KEY_BRIGHTNESS_UP,   false },
+  { KEY_BRIGHTNESSDOWN,     DALI_KEY_BRIGHTNESS_DOWN, false },
+  { KEY_SOFTKBD,            DALI_KEY_SOFT_KBD,        false },
+  { KEY_QUICKPANEL,         DALI_KEY_QUICK_PANEL,     false },
+  { KEY_TASKSWITCH,         DALI_KEY_TASK_SWITCH,     false },
+  { KEY_APPS,               DALI_KEY_APPS,            false },
+  { KEY_SEARCH,             DALI_KEY_SEARCH,          false },
+  { KEY_VOICE,              DALI_KEY_VOICE,           false },
+  { KEY_LANGUAGE,           DALI_KEY_LANGUAGE,        false },
+  { KEY_VOLUMEUP,           DALI_KEY_VOLUME_UP,       true  },
+  { KEY_VOLUMEDOWN,         DALI_KEY_VOLUME_DOWN,     true  },
+  { "BackSpace",            DALI_KEY_BACKSPACE,       false },
+  { "Left",                 DALI_KEY_CURSOR_LEFT,     false },
+  { "Right",                DALI_KEY_CURSOR_RIGHT,    false }
 };
 
 const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable))/ (sizeof(KeyLookup));

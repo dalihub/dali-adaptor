@@ -568,8 +568,8 @@ struct EventHandler::Impl
 
     // XF86Stop and XF86Send must skip ecore_imf_context_filter_event.
     if ( strcmp( keyEvent->keyname, "XF86Send"  ) &&
-         strcmp( keyEvent->keyname, "XF86Home" ) &&
-         strcmp( keyEvent->keyname, "XF86Back" ) )
+         strcmp( keyEvent->keyname, "XF86Phone" ) &&
+         strcmp( keyEvent->keyname, "XF86Stop"  ) )
     {
       Ecore_IMF_Context* imfContext = NULL;
       Dali::ImfManager imfManager( ImfManager::Get() );
