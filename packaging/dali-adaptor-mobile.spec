@@ -20,14 +20,11 @@ Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-Requires:       boost-thread
-Requires:       boost-chrono
 Requires:       giflib
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
-BuildRequires:  boost-devel
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(fontconfig)
@@ -74,7 +71,6 @@ Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
 Requires:   %{name}-integration-devel = %{version}-%{release}
-Requires:   boost-devel
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs
