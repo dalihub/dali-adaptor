@@ -101,6 +101,11 @@ public: // PlatformAbstraction overrides
   virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
 
   /**
+   * @copydoc PlatformAbstraction::DecodeBuffer()
+   */
+  virtual Integration::BitmapPtr DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size );
+
+  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
