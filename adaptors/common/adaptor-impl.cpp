@@ -300,9 +300,6 @@ void Adaptor::Resume()
   // Only resume the adaptor if we are in the suspended state.
   if( PAUSED == mState )
   {
-    // Resume core first
-    mCore->Resume();
-
     mState = RUNNING;
 
     // Reset the event handler when adaptor resumed
@@ -317,9 +314,10 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    ProcessCoreEvents(); // Ensure any outstanding messages are processed
+    // Resume core so it processes any requests as well
+    mCore->Resume();
 
-    // Ensure our first update includes the processed messages
+    // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
   }
 }

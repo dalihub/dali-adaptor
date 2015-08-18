@@ -239,9 +239,11 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
-  mAdaptor->Resume();
+  // Emit the signal first so the application can queue any messages before we do an update/render
+  // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
   mResumeSignal.Emit( application );
+  mAdaptor->Resume();
 }
 
 void Application::OnReset()
