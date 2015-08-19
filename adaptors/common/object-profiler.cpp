@@ -38,28 +38,18 @@ namespace Internal
 namespace Adaptor
 {
 
-ObjectProfiler::ObjectProfiler()
-: mIsActive(false)
+ObjectProfiler::ObjectProfiler( unsigned int timeInterval )
 {
   // This class must be created after the Stage; this means it doesn't count the initial objects
   // that are created by the stage (base layer, default camera actor)
   mObjectRegistry = Dali::Stage::GetCurrent().GetObjectRegistry();
 
-  char* profile = getenv("PROFILE_DALI_OBJECTS");
-  if( profile != NULL )
-  {
-    mIsActive = true;
-    int timeInterval = atoi(profile);
-    if( timeInterval > 0 )
-    {
-      mTimer = Dali::Timer::New(timeInterval*1000);
-      mTimer.TickSignal().Connect( this, &ObjectProfiler::OnTimeout );
-      mTimer.Start();
-    }
+  mTimer = Dali::Timer::New( timeInterval * 1000 );
+  mTimer.TickSignal().Connect( this, &ObjectProfiler::OnTimeout );
+  mTimer.Start();
 
-    mObjectRegistry.ObjectCreatedSignal().Connect( this, &ObjectProfiler::OnObjectCreated );
-    mObjectRegistry.ObjectDestroyedSignal().Connect( this, &ObjectProfiler::OnObjectDestroyed );
-  }
+  mObjectRegistry.ObjectCreatedSignal().Connect( this, &ObjectProfiler::OnObjectCreated );
+  mObjectRegistry.ObjectDestroyedSignal().Connect( this, &ObjectProfiler::OnObjectDestroyed );
 }
 
 ObjectProfiler::~ObjectProfiler()
@@ -178,10 +168,13 @@ int ObjectProfiler::GetMemorySize(const std::string& name, int count)
       { "Layer", LAYER_MEMORY_SIZE },
       { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
       { "ImageActor", IMAGE_ACTOR_MEMORY_SIZE },
-      { "MeshActor", MESH_ACTOR_MEMORY_SIZE },
       { "Image", IMAGE_MEMORY_SIZE },
-      { "Mesh", MESH_MEMORY_SIZE },
+      { "Renderer", RENDERER_MEMORY_SIZE },
+      { "Geometry", GEOMETRY_MEMORY_SIZE },
+      { "PropertyBuffer", PROPERTY_BUFFER_MEMORY_SIZE },
       { "Material", MATERIAL_MEMORY_SIZE },
+      { "Sampler", SAMPLER_MEMORY_SIZE },
+      { "Shader", SHADER_MEMORY_SIZE },
     };
 
   for( size_t i=0; i<sizeof(memoryMemorySizes)/sizeof(MemoryMemorySize); i++ )

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_UPDATE_THREAD_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
-
-namespace boost
-{
-
-class thread;
-
-} // namespace boost
+#include <pthread.h>
 
 namespace Dali
 {
@@ -106,21 +99,30 @@ private:
    */
   void UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate );
 
+  /**
+   * Helper for the thread calling the entry function
+   * @param[in] This A pointer to the current UpdateThread object
+   */
+  static inline void* InternalThreadEntryFunc( void* This )
+  {
+    ( static_cast<UpdateThread*>( This ) )->Run();
+    return NULL;
+  }
+
 private: // Data
 
   UpdateRenderSynchronization&        mUpdateRenderSync;    ///< Used to synchronize the update & render threads
 
   Dali::Integration::Core&            mCore;                ///< Dali core reference
 
-  unsigned int                        mFpsTrackingSeconds;  ///< fps tracking time length in seconds
-  std::vector<float>                  mFpsRecord;           ///< Record of frame rate
-  float                               mElapsedTime;         ///< time elapsed within current second
-  unsigned int                        mElapsedSeconds;      ///< seconds elapsed since the fps tracking started
+  float                               mFpsTrackingSeconds;  ///< fps tracking time length in seconds
+  float                               mFrameCount;          ///< how many frames occurred during tracking period
+  float                               mElapsedTime;         ///< time elapsed from previous fps tracking output
 
   unsigned int                        mStatusLogInterval;   ///< Interval in frames between status debug prints
   unsigned int                        mStatusLogCount;      ///< Used to count frames between status debug prints
 
-  boost::thread*                      mThread;              ///< The actual update-thread.
+  pthread_t*                          mThread;              ///< The actual update-thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< environment options
 }; // class UpdateThread
 

@@ -21,9 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/gesture-requests.h>
 
-// INTERNAL INCLUDES
-#include <accessibility-manager-impl.h>
-
 namespace Dali
 {
 

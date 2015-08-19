@@ -59,7 +59,7 @@ public:
    * @param[in] options Trigger event options.
    * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options = TriggerEventInterface::NONE );
+  TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options );
 
   /**
    * Destructor

@@ -59,15 +59,17 @@ class Window : public Dali::BaseObject, public Indicator::Observer, public LifeC
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
+  typedef Signal< void () > SignalType;
 
   /**
    * Create a new Window. This should only be called once by the Application class
    * @param[in] windowPosition The position and size of the window
    * @param[in] name The window title
+   * @param[in] className The window class name
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& posSize, const std::string& name, bool isTransparent = false);
+  static Window* New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * Pass the adaptor back to the overlay. This allows the window to access Core's overlay.
@@ -176,7 +178,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(const PositionSize& posSize, const std::string& name);
+  void Initialize(const PositionSize& posSize, const std::string& name, const std::string& className);
 
   /**
    * Shows / hides the indicator bar.
@@ -245,10 +247,16 @@ private: // Adaptor::Observer interface
   virtual void OnDestroy();
 
 public: // Signals
+
   /**
    * The user should connect to this signal to get a timing when indicator was shown / hidden.
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
+
+  /**
+   * This signal is emitted when the window is requesting to be deleted
+   */
+  SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
 
 private:
 
@@ -261,6 +269,7 @@ private:
   bool                             mStarted:1;
   bool                             mIsTransparent:1;
   bool                             mWMRotationAppSet:1;
+  bool                             mEcoreEventHander:1;
   Indicator*                       mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
@@ -278,6 +287,7 @@ private:
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
+  SignalType          mDeleteRequestSignal;
 };
 
 } // namespace Adaptor

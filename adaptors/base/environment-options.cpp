@@ -87,8 +87,9 @@ EnvironmentOptions::EnvironmentOptions()
   mNetworkControl(0),
   mFpsFrequency(0),
   mUpdateStatusFrequency(0),
+  mObjectProfilerInterval( 0 ),
   mPerformanceStatsLevel(0),
-  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY),
+  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY ),
   mPerformanceTimeStampOutput(0),
   mPanGestureLoggingLevel(0),
   mPanGesturePredictionMode(-1),
@@ -138,6 +139,11 @@ unsigned int EnvironmentOptions::GetFrameRateLoggingFrequency() const
 unsigned int EnvironmentOptions::GetUpdateStatusLoggingFrequency() const
 {
   return mUpdateStatusFrequency;
+}
+
+unsigned int EnvironmentOptions::GetObjectProfilerInterval() const
+{
+  return mObjectProfilerInterval;
 }
 
 unsigned int EnvironmentOptions::GetPerformanceStatsLoggingOptions() const
@@ -230,7 +236,7 @@ const std::string& EnvironmentOptions::GetWindowClassName() const
 
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
-  return ( (GetPerformanceStatsLoggingOptions() > 0) ||
+  return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
            ( GetPerformanceTimeStampOutput() > 0 ) ||
            ( GetNetworkControlMode() > 0) );
 }
@@ -240,6 +246,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   // get logging options
   mFpsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
   mUpdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
+  mObjectProfilerInterval = GetIntegerEnvironmentVariable( DALI_ENV_OBJECT_PROFILER_INTERVAL, 0 );
   mPerformanceStatsLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
   mPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
   mPerformanceTimeStampOutput = GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );

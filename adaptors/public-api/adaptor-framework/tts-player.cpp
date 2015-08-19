@@ -81,6 +81,11 @@ TtsPlayer::State TtsPlayer::GetState()
   return GetImplementation(*this).GetState();
 }
 
+TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
+{
+  return GetImplementation(*this).StateChangedSignal();
+}
+
 TtsPlayer::TtsPlayer( Internal::Adaptor::TtsPlayer* player )
 : BaseHandle( player )
 {

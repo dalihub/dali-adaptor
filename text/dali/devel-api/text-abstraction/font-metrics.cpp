@@ -25,9 +25,11 @@ namespace TextAbstraction
 {
 
 FontMetrics::FontMetrics()
-: ascender( 0 ),
-  descender( 0 ),
-  height( 0 )
+: ascender( 0.f ),
+  descender( 0.f ),
+  height( 0.f ),
+  underlinePosition( 0.f ),
+  underlineThickness( 0.f )
 {
 }
 

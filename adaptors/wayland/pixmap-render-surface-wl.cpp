@@ -158,7 +158,7 @@ void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
   // FIXME
 }
 
-void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
+void PixmapRenderSurface::AcquireLock()
 {
   // FIXME
 }

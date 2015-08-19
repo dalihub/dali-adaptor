@@ -44,7 +44,7 @@ public:
    * @note Ownership of callback should be taken over by deriving classes
    */
   virtual TriggerEventInterface* CreateTriggerEvent( CallbackBase* callback,
-                                                     TriggerEventInterface::Options options = TriggerEventInterface::NONE) = 0;
+                                                     TriggerEventInterface::Options options ) = 0;
   /**
    * @brief destroy a trigger event
    * @param triggerEventInterface event to destroy

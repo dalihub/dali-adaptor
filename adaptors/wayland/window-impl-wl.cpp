@@ -113,11 +113,11 @@ struct Window::EventHandler
 };
 
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, bool isTransparent)
+Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name);
+  window->Initialize(posSize, name, className);
   return window;
 }
 
@@ -223,11 +223,12 @@ Window::~Window()
   delete mSurface;
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name)
+void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
   ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
+  SetClass( name, className );
   windowSurface->Map();
 
   mSurface = windowSurface;

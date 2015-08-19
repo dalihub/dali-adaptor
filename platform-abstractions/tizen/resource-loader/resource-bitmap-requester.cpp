@@ -15,8 +15,15 @@
  *
  */
 
+// CLASS HEADER
 #include "resource-bitmap-requester.h"
+
+// EXTERNAL INCLUDES
 #include <dali/integration-api/resource-cache.h>
+
+// INTERNAL INCLUDES
+#include "network/file-download.h"
+#include "network/http-utils.h"
 
 using namespace Dali::Integration;
 
@@ -24,12 +31,20 @@ namespace Dali
 {
 namespace TizenPlatform
 {
+namespace
+{
+enum ResourceScheme
+{
+  FILE_SYSTEM_RESOURCE,
+  NETWORK_RESOURCE
+};
+}// unnamed namespace
 
 ResourceBitmapRequester::ResourceBitmapRequester( ResourceLoader& resourceLoader )
-: ResourceRequesterBase( resourceLoader )
+: ResourceRequesterBase( resourceLoader ),
+  mThreadImageLocal( NULL ),
+  mThreadImageRemote( NULL )
 {
-  mThreadImageLocal  = new ResourceThreadImage( resourceLoader, false );
-  mThreadImageRemote  = new ResourceThreadImage( resourceLoader, true );
 }
 
 ResourceBitmapRequester::~ResourceBitmapRequester()
@@ -40,61 +55,79 @@ ResourceBitmapRequester::~ResourceBitmapRequester()
 
 void ResourceBitmapRequester::Pause()
 {
-  mThreadImageLocal->Pause();
-  mThreadImageRemote->Pause();
+  if( mThreadImageLocal )
+  {
+    mThreadImageLocal->Pause();
+  }
+  if( mThreadImageRemote )
+  {
+    mThreadImageRemote->Pause();
+  }
 }
 
 void ResourceBitmapRequester::Resume()
 {
-  mThreadImageLocal->Resume();
-  mThreadImageRemote->Resume();
+  if( mThreadImageLocal )
+  {
+    mThreadImageLocal->Resume();
+  }
+  if( mThreadImageRemote )
+  {
+    mThreadImageRemote->Resume();
+  }
 }
 
 void ResourceBitmapRequester::LoadResource( Integration::ResourceRequest& request )
 {
   DALI_ASSERT_DEBUG( (0 != dynamic_cast<BitmapResourceType*>(request.GetType())) && "Only requsts for bitmap resources can ever be routed to ResourceBitmapRequester.\n");
   BitmapResourceType* resType = static_cast<BitmapResourceType*>(request.GetType());
-  if( resType )
+  if( !resType )
   {
-    // Work out what thread to decode / load the image on:
-    ResourceThreadBase* const localImageThread = mThreadImageLocal;
-    ResourceThreadBase* const remoteImageThread = mThreadImageRemote;
-    ResourceThreadBase* workerThread;
+    return;
+  }
 
-    // Work out if the resource is in memory, a file, or in a remote server:
-    ResourceThreadBase::RequestType requestType;
-    if( request.GetResource().Get() )
+  // Work out what thread to decode / load the image on:
+  ResourceScheme scheme( FILE_SYSTEM_RESOURCE );
+
+  // Work out if the resource is in memory, a file, or in a remote server:
+  ResourceThreadBase::RequestType requestType;
+
+  // if resource exists already, then it just needs decoding
+  if( request.GetResource().Get() )
+  {
+    requestType = ResourceThreadBase::RequestDecode;
+  }
+  else
+  {
+    const std::string& resourcePath = request.GetPath();
+    if( Network::IsHttpUrl( resourcePath) )
     {
-      requestType = ResourceThreadBase::RequestDecode;
-      workerThread = localImageThread;
+      requestType = ResourceThreadBase::RequestDownload;
+      scheme = NETWORK_RESOURCE;
     }
     else
     {
-      const std::string& resourcePath = request.GetPath();
-      if( strncasecmp( resourcePath.c_str(), "http", 4 ) == 0 )
-      {
-        if( resourcePath.size() > 4 &&
-            ( strncasecmp( &resourcePath.c_str()[4], "://", 3 ) == 0 ||
-              strncasecmp( &resourcePath.c_str()[4], "s://", 4) == 0 ) )
-        {
-          requestType = ResourceThreadBase::RequestDownload;
-          workerThread = remoteImageThread;
-        }
-        else
-        {
-          requestType = ResourceThreadBase::RequestLoad;
-          workerThread = localImageThread;
-        }
-      }
-      else
-      {
-        requestType = ResourceThreadBase::RequestLoad;
-        workerThread = localImageThread;
-      }
+      requestType = ResourceThreadBase::RequestLoad;
     }
+  }
 
-    // Dispatch the job to the right thread:
-    workerThread->AddRequest( request, requestType );
+  // Dispatch the job to the right thread
+  // lazily create the thread
+  if( scheme ==  FILE_SYSTEM_RESOURCE )
+  {
+    if( !mThreadImageLocal )
+    {
+      mThreadImageLocal = new ResourceThreadImage( mResourceLoader );
+    }
+    mThreadImageLocal->AddRequest( request, requestType );
+  }
+  else
+  {
+    if( !mThreadImageRemote )
+    {
+      mThreadImageRemote = new ResourceThreadImage( mResourceLoader );
+    }
+    mThreadImageRemote->AddRequest( request, requestType );
   }
 }
 
@@ -104,15 +137,16 @@ Integration::LoadStatus ResourceBitmapRequester::LoadFurtherResources( Integrati
   return RESOURCE_COMPLETELY_LOADED;
 }
 
-void ResourceBitmapRequester::SaveResource(const Integration::ResourceRequest& request )
-{
-  // Nothing to do
-}
-
 void ResourceBitmapRequester::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
-  mThreadImageLocal->CancelRequest(id);
-  mThreadImageRemote->CancelRequest(id);
+  if( mThreadImageLocal )
+  {
+    mThreadImageLocal->CancelRequest(id);
+  }
+  if( mThreadImageRemote )
+  {
+    mThreadImageRemote->CancelRequest(id);
+  }
 }
 
 } // TizenPlatform

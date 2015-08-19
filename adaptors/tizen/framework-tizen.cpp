@@ -26,7 +26,6 @@
 #ifdef OVER_TIZEN_SDK_2_2
 #include <system_info.h>
 #include <app_control_internal.h>
-#include <bundle_internal.h>
 #endif
 
 #include <dali/integration-api/debug.h>
@@ -91,6 +90,8 @@ struct Framework::Impl
 #else
     mEventCallback.app_control = AppControl;
 
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, AppBatteryLow, data);
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, AppMemoryLow, data);
     ui_app_add_event_handler(&handlers[APP_EVENT_DEVICE_ORIENTATION_CHANGED], APP_EVENT_DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, data);
     ui_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, AppLanguageChanged, data);
     ui_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, AppRegionChanged, data);
@@ -308,7 +309,6 @@ void Framework::Run()
   {
     DALI_LOG_ERROR("Framework::Run(), ui_app_main() is failed. err = %d", ret);
   }
-
 #endif
 
   mRunning = false;
@@ -316,11 +316,7 @@ void Framework::Run()
 
 void Framework::Quit()
 {
-#ifndef OVER_TIZEN_SDK_2_2
   app_efl_exit();
-#else
-  ui_app_exit();
-#endif
 }
 
 bool Framework::IsMainLoopRunning()
@@ -378,6 +374,8 @@ bool Framework::AppStatusHandler(int type, void *bundleData)
       mAbortHandler.AbortOnSignal( SIGINT );
       mAbortHandler.AbortOnSignal( SIGQUIT );
       mAbortHandler.AbortOnSignal( SIGKILL );
+      mAbortHandler.AbortOnSignal( SIGTERM );
+      mAbortHandler.AbortOnSignal( SIGHUP );
 
       mObserver.OnInit();
       break;

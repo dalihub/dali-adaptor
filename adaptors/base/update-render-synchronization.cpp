@@ -56,7 +56,7 @@ UpdateRenderSynchronization::UpdateRenderSynchronization( AdaptorInternalService
   mSyncSeconds( 0u ),
   mSyncMicroseconds( 0u ),
   mFrameTime( adaptorInterfaces.GetPlatformAbstractionInterface() ),
-  mNotificationTrigger( adaptorInterfaces.GetTriggerEventInterface() ),
+  mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mReplaceSurfaceRequest(),
   mReplaceSurfaceRequested( false )

@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.0.45
+Version:    1.0.49
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -12,8 +12,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
@@ -21,8 +19,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag ENABLE
 %endif
@@ -30,8 +26,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
@@ -39,8 +33,6 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define dali_bullet_plugin 0
-%define dali_assimp_plugin 0
 %define over_tizen_2_2 0
 %define shaderbincache_flag DISABLE
 %endif
@@ -63,7 +55,8 @@ BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  pkgconfig(vconf)
+BuildRequires:  vconf-devel
+BuildRequires:  vconf-keys-devel
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
@@ -93,10 +86,6 @@ BuildRequires:  pkgconfig(utilX)
 
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  fribidi-devel
-
-%if 0%{?dali_assimp_plugin}
-BuildRequires:  pkgconfig(assimp)
-%endif
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -143,19 +132,6 @@ BuildRequires:  libfeedback-devel
 Feedback plugin to play haptic and audio feedback for Dali
 
 ##############################
-# Dali Dynamics/Bullet Plugin
-##############################
-%package dali-bullet-plugin
-Summary:    Plugin to provide physics
-Group:      System/Libraries
-%if 0%{?dali_bullet_plugin}
-BuildRequires:  pkgconfig(bullet)
-%endif
-
-%description dali-bullet-plugin
-Dynamics plugin to wrap the libBulletDynamics libraries
-
-##############################
 # Preparation
 ##############################
 %prep
@@ -168,7 +144,6 @@ Dynamics plugin to wrap the libBulletDynamics libraries
 %define font_application_path    /usr/share/app_fonts/
 %define font_configuration_file  /opt/etc/fonts/conf.avail/99-slp.conf
 %define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
-%define dali_plugin_theme_files  %{dali_data_ro_dir}/themes/feedback-themes/
 
 %define dev_include_path %{_includedir}
 
@@ -202,12 +177,6 @@ cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LD
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
-%endif
-%if 0%{?dali_bullet_plugin}
-           --enable-bullet \
-%endif
-%if 0%{?dali_assimp_plugin}
-           --enable-assimp \
 %endif
 %if 0%{?over_tizen_2_2}
            --with-over-tizen_2_2 \
@@ -254,12 +223,6 @@ exit 0
 exit 0
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%post dali-bullet-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -275,12 +238,6 @@ exit 0
 
 %if 0%{?dali_feedback_plugin}
 %postun dali-feedback-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
-%if 0%{?dali_bullet_plugin}
-%postun dali-bullet-plugin
 /sbin/ldconfig
 exit 0
 %endif
@@ -315,11 +272,5 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-feedback-plugin.so*
 %{dali_plugin_sound_files}/*
-%{dali_plugin_theme_files}/*
 %endif
 
-%if 0%{?dali_bullet_plugin}
-%files dali-bullet-plugin
-%defattr(-,root,root,-)
-%{_libdir}/libdali-bullet-plugin.so*
-%endif

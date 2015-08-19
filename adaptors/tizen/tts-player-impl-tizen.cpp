@@ -42,7 +42,38 @@ Dali::BaseHandle Create()
   return Dali::TtsPlayer::Get() ;
 }
 
-Dali::TypeRegistration mType( typeid(Dali::TtsPlayer), typeid(Dali::BaseHandle), Create ) ;
+Dali::TypeRegistration mType( typeid(Dali::TtsPlayer), typeid(Dali::BaseHandle), Create );
+
+/**
+ * Helper function to convert Tizen-specific TTS state to external state.
+ * @param state The Tizen TTS state.
+ * @return The external TTS state.
+ */
+Dali::TtsPlayer::State InternalToExternalState( tts_state_e state )
+{
+  switch( state )
+  {
+    case TTS_STATE_CREATED:
+    {
+      return Dali::TtsPlayer::UNAVAILABLE;
+    }
+    case TTS_STATE_READY:
+    {
+      return Dali::TtsPlayer::READY;
+    }
+    case TTS_STATE_PLAYING:
+    {
+      return Dali::TtsPlayer::PLAYING;
+    }
+    case TTS_STATE_PAUSED:
+    {
+      return Dali::TtsPlayer::PAUSED;
+    }
+  }
+
+  return Dali::TtsPlayer::UNAVAILABLE;
+}
+
 } // unnamed namespace
 
 #if defined(DEBUG_ENABLED)
@@ -248,16 +279,35 @@ Dali::TtsPlayer::State TtsPlayer::GetState()
     }
     else
     {
-      ttsState = static_cast<Dali::TtsPlayer::State>(state);
+      ttsState = InternalToExternalState( state );
     }
   }
 
   return ttsState;
 }
 
+Dali::TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
+{
+  return mStateChangedSignal;
+}
+
+void TtsPlayer::EmitStateChangedSignal( tts_state_e previous, tts_state_e current )
+{
+  // Convert the previous and current states to external states and emit them as a signal.
+  if( !mStateChangedSignal.Empty() )
+  {
+    mStateChangedSignal.Emit( InternalToExternalState( previous ), InternalToExternalState( current ) );
+  }
+}
+
 void TtsPlayer::StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData)
 {
+  // Get the implementation (this is a static function).
   TtsPlayer* obj = static_cast<TtsPlayer*>(userData);
+
+  // Emit the signal.
+  obj->EmitStateChangedSignal( previous, current );
+
   if(!obj->mInitialized && current == TTS_STATE_READY)
   {
     obj->mInitialized = true;

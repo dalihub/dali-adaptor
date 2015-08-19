@@ -79,7 +79,7 @@ struct LoadedResource
   }
 
   Integration::ResourceId      id;         ///< Integer ID
-  Integration::ResourceTypeId  type;       ///< Type enum (bitmap, shader, ...)
+  Integration::ResourceTypeId  type;       ///< Type enum (bitmap, ...)
   Integration::ResourcePointer resource;   ///< Reference counting pointer to the loaded / decoded representation  of the resource.
 };
 
@@ -232,11 +232,6 @@ public:
   void LoadResource(const Integration::ResourceRequest& request);
 
   /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  void SaveResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
@@ -261,6 +256,7 @@ public:
    * @copydoc SlpPlatformAbstraction::LoadFile()
    */
   bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc TizenPlatformAbstraction::LoadFile()
@@ -270,7 +266,8 @@ public:
   /**
    * @copydoc TizenPlatformAbstraction::SaveFile()
    */
-  static bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer);
+  static bool SaveFile( const std::string& filename, std::vector< unsigned char >& buffer );
+  static bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
 
 private:
   struct ResourceLoaderImpl;

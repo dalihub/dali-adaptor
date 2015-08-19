@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Samsung Electronics Co., Ltd.
+# Copyright (c) 2015 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,10 +27,6 @@ lib_LTLIBRARIES =
 
 if USE_FEEDBACK
 lib_LTLIBRARIES += libdali-feedback-plugin.la
-endif
-
-if USE_BULLET
-lib_LTLIBRARIES += libdali-bullet-plugin.la
 endif
 
 if USE_FEEDBACK
@@ -90,28 +86,4 @@ endif
 libdali_feedback_plugin_la_LIBADD += \
                       $(FEEDBACK_LIBS)
 
-endif
-
-if USE_BULLET
-
-# Bullet Physics
-libdali_bullet_plugin_la_SOURCES = \
-                      $(bullet_plugin_src_files)
-
-libdali_bullet_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
-                      $(DALICORE_CFLAGS) \
-                      $(DLOG_CFLAGS) \
-                      $(BULLET_CFLAGS) \
-                      $(DALI_ADAPTOR_CFLAGS) \
-                      -I../../.. \
-                      -Werror -Wall
-
-libdali_bullet_plugin_la_LIBADD = \
-                      $(DLOG_LIBS) \
-                      $(BULLET_LIBS)
-
-libdali_bullet_plugin_la_LDFLAGS = \
-                      -rdynamic
-
-libdali_bullet_plugin_la_DEPENDENCIES =
 endif

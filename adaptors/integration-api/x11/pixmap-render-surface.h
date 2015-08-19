@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <boost/thread.hpp>
-
 // INTERNAL INCLUDES
 #include <ecore-x-render-surface.h>
 
@@ -127,9 +124,8 @@ private:
    * If sync mode is WAIT, then acquire a lock. This prevents render thread from
    * continuing until the pixmap has been drawn by the compositor.
    * It must be released for rendering to continue.
-   * @param[in] syncMode The current sync mode
    */
-  void AcquireLock( SyncMode syncMode );
+  void AcquireLock();
 
   /**
    * Release any locks.
@@ -148,11 +144,8 @@ private:
 
 private: // Data
 
-  boost::condition_variable   mSyncNotify; ///< condition to notify main thread that pixmap was flushed to onscreen
-  boost::mutex                mSyncMutex;  ///< mutex to lock during waiting sync
-  Ecore_X_Pixmap   mX11Pixmap;    ///< X-Pixmap
-  SyncMode         mSyncMode;     ///< Stores whether the post render should block waiting for compositor
-  bool             mSyncReceived; ///< true, when a pixmap sync has occurred, (cleared after reading)
+  struct Impl;
+  Impl* mImpl;
 };
 
 } // namespace ECore

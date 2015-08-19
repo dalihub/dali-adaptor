@@ -85,12 +85,6 @@ include ../../../text/dali/internal/libunibreak/file.list
 
 ############# source files #############
 
-if ASSIMP_ENABLED
-tizen_platform_abstraction_src_files += $(tizen_assimp_src_files)
-else
-tizen_platform_abstraction_src_files += $(tizen_assimp_stubs_src_files)
-endif # ASSIMP_ENABLED
-
 # COMMON
 if COMMON_PROFILE
 
@@ -170,32 +164,33 @@ endif # WAYLAND
 
 endif
 
+# Node JS support for using an external libuv main loop. If not enabled then just use e-core as normal
+# Used for things like callbacks, file-monintors, x input handling
+if LIB_UV_EVENT_LOOP
+main_loop_integration_src_files = $(adaptor_common_internal_uv_src_files)
+input_event_handler_src_files = $(adaptor_uv_x_event_handler_internal_src_files)
+else
+main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
+input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
+endif
+
+
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = dali-adaptor-integration.pc
-
-# Feedback Plugin
-if USE_FEEDBACK
-plugin_themes_dir = ../../../adaptors/common/feedback
-dali_plugin_theme_files = $(plugin_themes_dir)/default-feedback-theme.json
-dalifeedbackthemedir = ${dataReadOnlyDir}/themes/feedback-themes/
-dalifeedbacktheme_DATA = ${dali_plugin_theme_files}
-endif
-
-if TURBO_JPEG_IS_ON
-  tizen_platform_abstraction_src_files += $(tizen_turbo_jpeg_loader)
-else
-  tizen_platform_abstraction_src_files += $(tizen_jpeg_loader)
-endif
 
 lib_LTLIBRARIES = libdali-adaptor.la
 
 libdali_adaptor_la_SOURCES = \
                      $(base_adaptor_src_files) \
+                     $(main_loop_integration_src_files) \
                      $(tizen_platform_abstraction_src_files) \
                      $(text_abstraction_src_files) \
                      $(devel_api_src_files) \
                      $(public_api_src_files) \
-                     $(adaptor_internal_src_files)
+                     $(adaptor_internal_src_files) \
+                     $(input_event_handler_src_files)
+
 
 libdali_adaptor_la_DEPENDENCIES =
 
@@ -248,7 +243,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
                       -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\"" \
                       -DFONT_CONFIGURATION_FILE_PATH="\"${fontConfigurationFilePath}\"" \
-                      -DDALI_FEEDBACK_THEME_DIR="\"${dalifeedbackthemedir}\"" \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \
@@ -275,8 +269,10 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(ASSIMP_CFLAGS) \
-                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS)
+                      $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
+                      $(ELDBUS_CFLAGS)
+
+libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
 
 libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
@@ -299,8 +295,11 @@ libdali_adaptor_la_LIBADD = \
                       $(CAPI_APPFW_APPLICATION_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(CAPI_SYSTEM_INFO_LIBS) \
+                      $(ELDBUS_LIBS) \
                       -lgif \
-                      -lboost_thread
+                      -lpthread \
+                      -lboost_thread \
+                      -lturbojpeg
 
 if WAYLAND
 libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
@@ -339,15 +338,9 @@ libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 libdali_adaptor_la_LIBADD +=
 endif
 
-if TURBO_JPEG_IS_ON
-libdali_adaptor_la_LIBADD += -lturbojpeg
-CFLAGS += -D_TURBO_JPEG_LOADER
 if UBUNTU_PROFILE
 libdali_adaptor_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
-endif
-else
-libdali_adaptor_la_LIBADD += -ljpeg
 endif
 
 if !UBUNTU_PROFILE
@@ -388,7 +381,7 @@ if !UBUNTU_PROFILE
 tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_header_files)
 
 if !WAYLAND
-tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_x11_header_files)
+tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)
 endif # NOT WAYLAND
 
 endif # NOT UBUNTU_PROFILE
@@ -404,14 +397,19 @@ bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
 
 # linking test
 
+# turn off the linker test if were building for libuv
+# We can't link to LibUV becase it is statically linked to Node.JS (by default)
+if !LIB_UV_EVENT_LOOP
 noinst_PROGRAMS = linker.test
+endif # NOT LIB_UV_EVENT_LOOP
 
 linker_test_SOURCES = linker-test.cpp
 
 linker_test_CXXFLAGS = \
+  -DDALI_ADAPTOR_COMPILATION \
   -I../../../adaptors/common \
   -I../../../adaptors/public-api \
-    -I../../../adaptors/integration-api \
+  -I../../../adaptors/integration-api \
   -I../../../adaptors/base/interfaces \
   -I../../../adaptors/public-api/adaptor-framework \
   -I../../../adaptors/devel-api/adaptor-framework \

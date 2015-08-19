@@ -88,6 +88,7 @@ void StatContextManager::AddInternalMarker( const PerformanceMarker& marker )
 {
   // log to the stat contexts, can be called from multiple threads so we
   // protect the data
+  Mutex::ScopedLock lock( mDataMutex );
   for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
   {
     StatContext* context = *it;
@@ -99,6 +100,7 @@ void StatContextManager::AddCustomMarker( const PerformanceMarker& marker, Perfo
 {
   // log to the stat contexts, can be called from multiple threads so we
   // protect the data
+  Mutex::ScopedLock lock( mDataMutex );
   StatContext* context = GetContext( contextId );
   if( context )
   {

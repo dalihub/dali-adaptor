@@ -28,6 +28,7 @@
 
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
+#include <dali/devel-api/common/mutex.h>
 
 // INTERNAL INCLUDES
 
@@ -35,6 +36,8 @@
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 #include <base/display-connection.h>
+#include <base/conditional-wait.h>
+
 
 namespace Dali
 {
@@ -46,14 +49,25 @@ extern Debug::Filter* gRenderSurfaceLogFilter;
 namespace ECore
 {
 
+
+struct PixmapRenderSurface::Impl
+{
+  Internal::Adaptor::ConditionalWait  mSyncNotify;   ///< condition to notify main thread that pixmap was flushed to onscreen
+  Dali::Mutex                         mSyncMutex;    ///< mutex to lock during waiting sync
+  Ecore_X_Pixmap                      mX11Pixmap;    ///< X-Pixmap
+  SyncMode                            mSyncMode;     ///< Stores whether the post render should block waiting for compositor
+  bool                                mSyncReceived; ///< true, when a pixmap sync has occurred, (cleared after reading)
+};
+
 PixmapRenderSurface::PixmapRenderSurface(Dali::PositionSize positionSize,
                                          Any surface,
                                          const std::string& name,
                                          bool isTransparent)
 : EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
-  mSyncMode(SYNC_MODE_NONE),
-  mSyncReceived(false)
+  mImpl( new Impl )
 {
+  mImpl->mSyncMode = SYNC_MODE_NONE;
+  mImpl->mSyncReceived = false;
   Init( surface );
 }
 
@@ -63,19 +77,21 @@ PixmapRenderSurface::~PixmapRenderSurface()
   if( mOwnSurface )
   {
     // if we did create the pixmap, delete the pixmap
-    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::General, "Own pixmap (%x) freed\n", mX11Pixmap );
-    ecore_x_pixmap_free( mX11Pixmap );
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::General, "Own pixmap (%x) freed\n", mImpl->mX11Pixmap );
+    ecore_x_pixmap_free( mImpl->mX11Pixmap );
   }
+
+  delete mImpl;
 }
 
 Ecore_X_Drawable PixmapRenderSurface::GetDrawable()
 {
-  return (Ecore_X_Drawable) mX11Pixmap;
+  return (Ecore_X_Drawable) mImpl->mX11Pixmap;
 }
 
 Any PixmapRenderSurface::GetSurface()
 {
-  return Any( mX11Pixmap );
+  return Any( mImpl->mX11Pixmap );
 }
 
 void PixmapRenderSurface::InitializeEgl( EglInterface& egl )
@@ -95,7 +111,7 @@ void PixmapRenderSurface::CreateEglSurface( EglInterface& egl )
 
   // create the EGL surface
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XPixmap pixmap = static_cast<XPixmap>( mX11Pixmap );
+  XPixmap pixmap = static_cast<XPixmap>( mImpl->mX11Pixmap );
   eglImpl.CreateSurfacePixmap( (EGLNativePixmapType)pixmap, mColorDepth ); // reinterpret_cast does not compile
 }
 
@@ -113,7 +129,7 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
   // a new surface for the new pixmap
   // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XPixmap pixmap = static_cast<XPixmap>( mX11Pixmap );
+  XPixmap pixmap = static_cast<XPixmap>( mImpl->mX11Pixmap );
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   return eglImpl.ReplaceSurfacePixmap( (EGLNativePixmapType)pixmap ); // reinterpret_cast does not compile
@@ -122,7 +138,7 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
 void PixmapRenderSurface::StartRender()
 {
-  mSyncMode = SYNC_MODE_WAIT;
+
 }
 
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
@@ -135,6 +151,8 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
 {
   // flush gl instruction queue
   glAbstraction.Flush();
+
+  mImpl->mSyncReceived = false;
 
   // create damage for client applications which wish to know the update timing
   if( mRenderNotification )
@@ -170,7 +188,10 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     }
   }
 
-  AcquireLock( replacingSurface ? SYNC_MODE_NONE : SYNC_MODE_WAIT );
+  if( !replacingSurface && mImpl->mSyncMode != SYNC_MODE_NONE )
+  {
+    AcquireLock();
+  }
 }
 
 void PixmapRenderSurface::StopRender()
@@ -185,21 +206,21 @@ void PixmapRenderSurface::CreateXRenderable()
   DALI_ASSERT_ALWAYS( mPosition.width > 0 && mPosition.height > 0 && "Pixmap size is invalid" );
 
   // create the pixmap
-  mX11Pixmap = ecore_x_pixmap_new(0, mPosition.width, mPosition.height, mColorDepth);
+  mImpl->mX11Pixmap = ecore_x_pixmap_new(0, mPosition.width, mPosition.height, mColorDepth);
 
   // clear the pixmap
   unsigned int foreground;
   Ecore_X_GC gc;
   foreground = 0;
-  gc = ecore_x_gc_new( mX11Pixmap,
+  gc = ecore_x_gc_new( mImpl->mX11Pixmap,
                        ECORE_X_GC_VALUE_MASK_FOREGROUND,
                        &foreground );
 
   DALI_ASSERT_ALWAYS( gc && "CreateXRenderable(): failed to get gc" );
 
-  ecore_x_drawable_rectangle_fill( mX11Pixmap, gc, 0, 0, mPosition.width, mPosition.height );
+  ecore_x_drawable_rectangle_fill( mImpl->mX11Pixmap, gc, 0, 0, mPosition.width, mPosition.height );
 
-  DALI_ASSERT_ALWAYS( mX11Pixmap && "Failed to create X pixmap" );
+  DALI_ASSERT_ALWAYS( mImpl->mX11Pixmap && "Failed to create X pixmap" );
 
   // we SHOULD guarantee the xpixmap/x11 window was created in x server.
   ecore_x_sync();
@@ -209,37 +230,29 @@ void PixmapRenderSurface::CreateXRenderable()
 
 void PixmapRenderSurface::UseExistingRenderable( unsigned int surfaceId )
 {
-  mX11Pixmap = static_cast< Ecore_X_Pixmap >( surfaceId );
+  mImpl->mX11Pixmap = static_cast< Ecore_X_Pixmap >( surfaceId );
 }
 
 void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
 {
-  mSyncMode = syncMode;
+  mImpl->mSyncMode = syncMode;
 }
 
-void PixmapRenderSurface::AcquireLock( SyncMode syncMode )
+void PixmapRenderSurface::AcquireLock()
 {
-  boost::unique_lock< boost::mutex > lock( mSyncMutex );
-
-  // wait for sync
-  if( syncMode != SYNC_MODE_NONE &&
-      mSyncMode != SYNC_MODE_NONE &&
-      !mSyncReceived )
+  if( !mImpl->mSyncReceived )
   {
-    mSyncNotify.wait( lock );
+    mImpl->mSyncNotify.Wait();
   }
-  mSyncReceived = false;
+  mImpl->mSyncReceived = false;
 }
 
 void PixmapRenderSurface::ReleaseLock()
 {
-  {
-    boost::unique_lock< boost::mutex > lock( mSyncMutex );
-    mSyncReceived = true;
-  }
+  mImpl->mSyncReceived = true;
 
   // wake render thread if it was waiting for the notify
-  mSyncNotify.notify_all();
+  mImpl->mSyncNotify.Notify();
 }
 
 } // namespace ECore

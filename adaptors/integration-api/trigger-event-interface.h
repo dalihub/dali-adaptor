@@ -38,7 +38,7 @@ public:
    */
   enum Options
   {
-    NONE,
+    KEEP_ALIVE_AFTER_TRIGGER,
     DELETE_AFTER_TRIGGER,  // automatically delete the trigger event object, after Trigger() is called.
   };
 

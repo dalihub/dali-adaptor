@@ -55,11 +55,7 @@ public:
 
   virtual void LoadResponse(Dali::Integration::ResourceId id, Dali::Integration::ResourceTypeId type, Dali::Integration::ResourcePointer resource, Dali::Integration::LoadStatus status);
 
-  virtual void SaveComplete(Dali::Integration::ResourceId id, Dali::Integration::ResourceTypeId type) {}
-
   virtual void LoadFailed(Dali::Integration::ResourceId id, Dali::Integration::ResourceFailure failure);
-
-  virtual void SaveFailed(Dali::Integration::ResourceId id, Dali::Integration::ResourceFailure failure) {}
 
   // Data:
   /** Record of the status of each completed resource. */

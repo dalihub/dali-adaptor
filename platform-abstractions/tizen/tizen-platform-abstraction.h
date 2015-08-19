@@ -35,7 +35,6 @@ Integration::PlatformAbstraction* CreatePlatformAbstraction();
 namespace TizenPlatform
 {
 
-class DynamicsFactory;
 class ResourceLoader;
 
 /**
@@ -102,11 +101,6 @@ public: // PlatformAbstraction overrides
   virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
 
   /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
@@ -144,7 +138,7 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
-  virtual bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadFile()
@@ -154,17 +148,17 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, std::vector< unsigned char >& buffer) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
-   * @copydoc PlatformAbstraction::GetDynamicsFactory();
+   * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual Integration::DynamicsFactory* GetDynamicsFactory();
+  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
-   * @copydoc PlatformAbstraction::LoadShaderBinFile()
+   * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
    */
-  virtual bool LoadShaderBinFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
+  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
    * Sets path for data/resource storage.
@@ -174,7 +168,6 @@ public: // PlatformAbstraction overrides
 
 private:
   ResourceLoader* mResourceLoader;
-  DynamicsFactory* mDynamicsFactory;
   std::string mDataStoragePath;
 };
 

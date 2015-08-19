@@ -20,61 +20,61 @@
 /** Live platform abstraction recreated for each test case. */
 Integration::PlatformAbstraction * gAbstraction = 0;
 
-/** A variety of ImageAttributes to reach different code paths that have embedded code paths. */
-std::vector<ImageAttributes> gCancelAttributes;
+/** A variety of parameters to reach different code paths in image loading code. */
+std::vector<ImageParameters> gCancelAttributes;
 
 void utc_dali_loading_startup(void)
 {
   test_return_value = TET_UNDEF;
   gAbstraction = CreatePlatformAbstraction();
 
-  // Setup some ImageAttributes to engage post-processing stages:
+  // Setup some loading parameters to engage post-processing stages:
 
-  ImageAttributes scaleToFillAttributes;
+  ImageParameters scaleToFillAttributes;
   scaleToFillAttributes.second.first = FittingMode::SCALE_TO_FILL;
   scaleToFillAttributes.first = ImageDimensions( 160, 120 );
   gCancelAttributes.push_back( scaleToFillAttributes );
 
   // Hit the derived dimensions code:
-  ImageAttributes scaleToFillAttributesDeriveWidth = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesDeriveWidth = scaleToFillAttributes;
   scaleToFillAttributesDeriveWidth.first = ImageDimensions( 0, 120 );
   gCancelAttributes.push_back( scaleToFillAttributesDeriveWidth );
 
-  ImageAttributes scaleToFillAttributesDeriveHeight = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesDeriveHeight = scaleToFillAttributes;
   scaleToFillAttributesDeriveHeight.first = ImageDimensions( 160, 0 );
   gCancelAttributes.push_back( scaleToFillAttributesDeriveHeight );
 
   // Try to push a tall crop:
-  ImageAttributes scaleToFillAttributesTall = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesTall = scaleToFillAttributes;
   scaleToFillAttributesTall.first = ImageDimensions( 160, 480 );
-  ImageAttributes scaleToFillAttributesTall2 = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesTall2 = scaleToFillAttributes;
   scaleToFillAttributesTall2.first = ImageDimensions( 160, 509 );
-  ImageAttributes scaleToFillAttributesTall3 = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesTall3 = scaleToFillAttributes;
   scaleToFillAttributesTall3.first = ImageDimensions( 37, 251 );
   gCancelAttributes.push_back( scaleToFillAttributesTall );
   gCancelAttributes.push_back( scaleToFillAttributesTall2 );
   gCancelAttributes.push_back( scaleToFillAttributesTall3 );
 
   // Try to push a wide crop:
-  ImageAttributes scaleToFillAttributesWide = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesWide = scaleToFillAttributes;
   scaleToFillAttributesWide.first = ImageDimensions( 320, 60 );
-  ImageAttributes scaleToFillAttributesWide2 = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesWide2 = scaleToFillAttributes;
   scaleToFillAttributesWide2.first = ImageDimensions( 317, 60 );
-  ImageAttributes scaleToFillAttributesWide3 = scaleToFillAttributes;
+  ImageParameters scaleToFillAttributesWide3 = scaleToFillAttributes;
   scaleToFillAttributesWide3.first = ImageDimensions( 317, 53 );
   gCancelAttributes.push_back( scaleToFillAttributesWide );
   gCancelAttributes.push_back( scaleToFillAttributesWide2 );
   gCancelAttributes.push_back( scaleToFillAttributesWide3 );
 
-  ImageAttributes shrinkToFitAttributes = scaleToFillAttributes;
+  ImageParameters shrinkToFitAttributes = scaleToFillAttributes;
   shrinkToFitAttributes.second.first = FittingMode::SHRINK_TO_FIT;
   gCancelAttributes.push_back( shrinkToFitAttributes );
 
-  ImageAttributes fitWidthAttributes = scaleToFillAttributes;
+  ImageParameters fitWidthAttributes = scaleToFillAttributes;
   fitWidthAttributes.second.first = FittingMode::FIT_WIDTH;
   gCancelAttributes.push_back( fitWidthAttributes );
 
-  ImageAttributes fitHeightAttributes = scaleToFillAttributes;
+  ImageParameters fitHeightAttributes = scaleToFillAttributes;
   fitHeightAttributes.second.first = FittingMode::FIT_HEIGHT;
   gCancelAttributes.push_back( fitHeightAttributes );
 

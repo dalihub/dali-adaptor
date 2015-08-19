@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <accessibility-manager.h>
+#include <accessibility-adaptor.h>
 #include <imf-manager.h>
 #include <style-monitor.h>
 #include <render-surface.h>
@@ -158,6 +158,22 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 {
   mImpl->FeedKeyEvent(keyEvent);
 }
+
+void Adaptor::SceneCreated()
+{
+  mImpl->SceneCreated();
+}
+
+void Adaptor::SetViewMode( ViewMode mode )
+{
+  mImpl->SetViewMode( mode );
+}
+
+void Adaptor::SetStereoBase(  float stereoBase )
+{
+  mImpl->SetStereoBase( stereoBase );
+}
+
 
 Adaptor::Adaptor()
 : mImpl( NULL )

@@ -187,6 +187,7 @@ public:
 
   /**
    * Ensures that the function passed in is called from the main loop when it is idle.
+   * @note Function must be called from main event thread only
    *
    * A callback of the following type may be used:
    * @code
