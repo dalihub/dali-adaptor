@@ -352,6 +352,15 @@ libdali_adaptor_la_LIBADD += $(UTILX_LIBS)
 endif
 endif
 
+if !UBUNTU_PROFILE
+if WAYLAND
+else
+# X11
+libdali_adaptor_la_CXXFLAGS += $(UTILX_CFLAGS)
+libdali_adaptor_la_LIBADD += $(UTILX_LIBS)
+endif
+endif
+
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
 tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
 
