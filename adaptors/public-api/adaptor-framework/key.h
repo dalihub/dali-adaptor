@@ -34,6 +34,8 @@ enum KEY
   DALI_KEY_INVALID          = -1,
   DALI_KEY_ESCAPE           = 9,
   DALI_KEY_BACKSPACE        = 22,
+  DALI_KEY_SHIFT_LEFT       = 50,
+  DALI_KEY_SHIFT_RIGHT      = 62,
   DALI_KEY_CURSOR_UP        = 111,
   DALI_KEY_CURSOR_LEFT      = 113,
   DALI_KEY_CURSOR_RIGHT     = 114,
