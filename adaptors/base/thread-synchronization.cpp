@@ -385,7 +385,8 @@ bool ThreadSynchronization::UpdateReady( bool notifyEvent, bool runUpdate, float
       {
         ConditionalWait::ScopedLock updateLock( mUpdateThreadWaitCondition );
         if( ( mState != State::STOPPED ) &&
-            ( mVSyncAheadOfUpdate == 0 ) )
+            ( mVSyncAheadOfUpdate == 0 ) &&
+            ( !mUpdateThreadResuming ) ) // Ensure we don't wait if the update-thread is JUST resuming
         {
           LOG_VSYNC_COUNTER_UPDATE( " vSyncAheadOfUpdate(%d) WAIT", mVSyncAheadOfUpdate );
           mUpdateThreadWaitCondition.Wait( updateLock );
@@ -626,7 +627,8 @@ void ThreadSynchronization::UpdateTryToSleep( bool runUpdate )
 {
   LOG_UPDATE_TRACE;
 
-  if( ! runUpdate )
+  if( ! runUpdate &&
+      ! IsUpdateThreadResuming() ) // Locks so we shouldn't have a lock, we shouldn't try to sleep if we're JUST resuming
   {
     LOG_UPDATE( "TryToSleep" );
 
