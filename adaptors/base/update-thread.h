@@ -35,7 +35,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class UpdateRenderSynchronization;
+class ThreadSynchronization;
 class AdaptorInternalServices;
 class EnvironmentOptions;
 
@@ -53,7 +53,7 @@ public:
    * @param[in] adaptorInterfaces base adaptor interface
    * @param[in] environmentOptions environment options
    */
-  UpdateThread(UpdateRenderSynchronization& sync,
+  UpdateThread(ThreadSynchronization& sync,
                AdaptorInternalServices& adaptorInterfaces,
                const EnvironmentOptions& environmentOptions );
 
@@ -95,9 +95,8 @@ private:
   /**
    * Optionally output the update thread status.
    * @param[in] keepUpdatingStatus Whether the update-thread requested further updates.
-   * @param[in] renderNeedsUpdate Whether the render-thread requested another update.
    */
-  void UpdateStatusLogging( unsigned int keepUpdatingStatus, bool renderNeedsUpdate );
+  void UpdateStatusLogging( unsigned int keepUpdatingStatus );
 
   /**
    * Helper for the thread calling the entry function
@@ -111,7 +110,7 @@ private:
 
 private: // Data
 
-  UpdateRenderSynchronization&        mUpdateRenderSync;    ///< Used to synchronize the update & render threads
+  ThreadSynchronization&              mThreadSynchronization; ///< Used to synchronize all the threads
 
   Dali::Integration::Core&            mCore;                ///< Dali core reference
 

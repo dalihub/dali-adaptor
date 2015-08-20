@@ -26,10 +26,11 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 
+// INTERNAL INCLUDES
 #include "resource-loader/resource-loader.h"
-
 #include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
+#include "portable/file-closer.h"
 
 namespace Dali
 {
@@ -129,6 +130,25 @@ void TizenPlatformAbstraction::LoadResource(const Integration::ResourceRequest& 
 Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
 {
   return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
+}
+
+Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size )
+{
+  Integration::BitmapPtr bitmap = 0;
+
+  Dali::Internal::Platform::FileCloser fileCloser( buffer, size, "rb" );
+  FILE * const fp = fileCloser.GetFile();
+  if( fp )
+  {
+    bool result = ImageLoader::ConvertStreamToBitmap( resourceType, "", fp, StubbedResourceLoadingClient(), bitmap );
+    if ( !result || !bitmap )
+    {
+      bitmap.Reset();
+      DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+    }
+  }
+
+  return bitmap;
 }
 
 void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)

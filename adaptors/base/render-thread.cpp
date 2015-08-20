@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/update-render-synchronization.h>
+#include <base/thread-synchronization.h>
 #include <base/environment-options.h>
 #include <base/display-connection.h>
 
@@ -81,10 +81,10 @@ bool ReplaceSurfaceRequest::GetReplaceCompleted()
 }
 
 
-RenderThread::RenderThread( UpdateRenderSynchronization& sync,
+RenderThread::RenderThread( ThreadSynchronization& sync,
                             AdaptorInternalServices& adaptorInterfaces,
                             const EnvironmentOptions& environmentOptions )
-: mUpdateRenderSync( sync ),
+: mThreadSynchronization( sync ),
   mCore( adaptorInterfaces.GetCore() ),
   mGLES( adaptorInterfaces.GetGlesInterface() ),
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
@@ -161,78 +161,60 @@ void RenderThread::Stop()
 
 bool RenderThread::Run()
 {
-  // install a function for logging
+  DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run\n");
+
+  // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();
 
   InitializeEgl();
 
-  bool running( true );
-
   Dali::Integration::RenderStatus renderStatus;
+  RenderRequest* request = NULL;
 
-  uint64_t currentTime( 0 );
-
-  // render loop, we stay inside here when rendering
-  while( running )
+  // Render loop, we stay inside here when rendering
+  while( mThreadSynchronization.RenderReady( request ) )
   {
-    // Sync with update thread and get any outstanding requests from UpdateRenderSynchronization
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - RenderSyncWithUpdate()\n");
-    RenderRequest* request = NULL;
-    running = mUpdateRenderSync.RenderSyncWithUpdate( request );
-
-    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - Process requests\n");
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 1 - RenderReady\n");
 
     // Consume any pending events to avoid memory leaks
+    DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 2 - ConsumeEvents\n");
     mDisplayConnection->ConsumeEvents();
 
-    bool processRequests = true;
-    bool requestProcessed = false;
-    while( processRequests && running)
+    // Check if we've got a request from the main thread (e.g. replace surface)
+    if( request )
     {
-      // Check if we've got any requests from the main thread (e.g. replace surface)
-      requestProcessed = ProcessRequest( request );
+      // Process the request, we should NOT render when we have a request
+      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - Process requests\n");
+      ProcessRequest( request );
+    }
+    else
+    {
+      // No request to process so we render
+      if( PreRender() ) // Returns false if no surface onto which to render
+      {
+        // Render
+        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - Core.Render()\n");
 
-      // perform any pre-render operations
-      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 3 - PreRender\n");
-      bool preRendered = PreRender(); // Returns false if no surface onto which to render
-      if( preRendered )
-      {
-        processRequests = false;
-      }
-      else
-      {
-        // Block until new surface... - cleared by ReplaceSurface code in UpdateRenderController
-        running = mUpdateRenderSync.RenderSyncWithRequest(request);
+        mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::RENDER_START );
+        mCore.Render( renderStatus );
+        mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::RENDER_END );
+
+        // Perform any post-render operations
+        if ( renderStatus.HasRendered() )
+        {
+          DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - PostRender()\n");
+          PostRender();
+        }
       }
     }
 
-    if( running )
-    {
-       // Render
-      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - Core.Render()\n");
-      mCore.Render( renderStatus );
-
-      // Notify the update-thread that a render has completed
-      DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 5 - Sync.RenderFinished()\n");
-      mUpdateRenderSync.RenderFinished( renderStatus.NeedsUpdate(), requestProcessed );
-
-      uint64_t newTime( mUpdateRenderSync.GetTimeMicroseconds() );
-
-      // perform any post-render operations
-      if ( renderStatus.HasRendered() )
-      {
-        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 6 - PostRender()\n");
-        PostRender( static_cast< unsigned int >(newTime - currentTime) );
-      }
-
-      currentTime = newTime;
-    }
+    request = NULL; // Clear the request if it was set, no need to release memory
   }
 
-  // shut down egl
+  // Shut down EGL
   ShutdownEgl();
 
-  // install a function for logging
+  // Uninstall the logging function
   mEnvironmentOptions.UnInstallLogFunction();
 
   return true;
@@ -264,10 +246,8 @@ void RenderThread::InitializeEgl()
 
 }
 
-bool RenderThread::ProcessRequest( RenderRequest* request )
+void RenderThread::ProcessRequest( RenderRequest* request )
 {
-  bool processedRequest = false;
-
   if( request != NULL )
   {
     switch(request->GetType())
@@ -278,12 +258,11 @@ bool RenderThread::ProcessRequest( RenderRequest* request )
         ReplaceSurfaceRequest* replaceSurfaceRequest = static_cast<ReplaceSurfaceRequest*>(request);
         ReplaceSurface( replaceSurfaceRequest->GetSurface() );
         replaceSurfaceRequest->ReplaceCompleted();
-        processedRequest = true;
+        mThreadSynchronization.RenderInformSurfaceReplaced();
         break;
       }
     }
   }
-  return processedRequest;
 }
 
 void RenderThread::ReplaceSurface( RenderSurface* newSurface )
@@ -296,13 +275,7 @@ void RenderThread::ReplaceSurface( RenderSurface* newSurface )
 
   mDisplayConnection->InitializeEgl(*mEGL);
 
-  bool contextLost = newSurface->ReplaceEGLSurface(*mEGL);
-  if( contextLost )
-  {
-    DALI_LOG_WARNING("Context lost\n");
-    mCore.ContextDestroyed();
-    mCore.ContextCreated();
-  }
+  newSurface->ReplaceEGLSurface(*mEGL);
 
   // use the new surface from now on
   mSurface = newSurface;
@@ -339,15 +312,15 @@ bool RenderThread::PreRender()
   return success;
 }
 
-void RenderThread::PostRender( unsigned int timeDelta )
+void RenderThread::PostRender()
 {
   // Inform the gl implementation that rendering has finished before informing the surface
-  mGLES.PostRender(timeDelta);
+  mGLES.PostRender();
 
   if( mSurface )
   {
     // Inform the surface that rendering this frame has finished.
-    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, timeDelta, mSurfaceReplaced );
+    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced );
   }
   mSurfaceReplaced = false;
 }
