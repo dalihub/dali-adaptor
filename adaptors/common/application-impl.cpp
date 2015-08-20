@@ -254,8 +254,6 @@ void Application::OnReset()
    */
   Dali::Application application(this);
   mResetSignal.Emit( application );
-
-  mWindow.Raise();
 }
 
 void Application::OnAppControl(void *data)
