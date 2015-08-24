@@ -86,12 +86,11 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   verticalDpi = mDpiVertical;
 }
 
-void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
-                                       const std::string& fontStyle )
+void FontClient::SetDefaultFont( const FontDescription& fontDescription )
 {
   CreatePlugin();
 
-  mPlugin->SetDefaultFontFamily( fontFamilyName, fontStyle );
+  mPlugin->SetDefaultFont( fontDescription );
 }
 
 void FontClient::GetDefaultFonts( FontList& defaultFonts )
@@ -136,11 +135,11 @@ bool FontClient::IsScalable( const FontPath& path )
   return mPlugin->IsScalable( path );
 }
 
-bool FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& style )
+bool FontClient::IsScalable( const FontDescription& fontDescription )
 {
   CreatePlugin();
 
-  return mPlugin->IsScalable( fontFamily, style );
+  return mPlugin->IsScalable( fontDescription );
 }
 
 void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
@@ -150,13 +149,12 @@ void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26D
   mPlugin->GetFixedSizes( path, sizes );
 }
 
-void FontClient::GetFixedSizes( const FontFamily& fontFamily,
-                                const FontStyle& style,
+void FontClient::GetFixedSizes( const FontDescription& fontDescription,
                                 Dali::Vector< PointSize26Dot6 >& sizes )
 {
   CreatePlugin();
 
-  mPlugin->GetFixedSizes( fontFamily, style, sizes );
+  mPlugin->GetFixedSizes( fontDescription, sizes );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -166,15 +164,13 @@ FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, F
   return mPlugin->GetFontId( path, pointSize, faceIndex );
 }
 
-FontId FontClient::GetFontId( const FontFamily& fontFamily,
-                              const FontStyle& fontStyle,
+FontId FontClient::GetFontId( const FontDescription& fontDescription,
                               PointSize26Dot6 pointSize,
                               FaceIndex faceIndex )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( fontFamily,
-                             fontStyle,
+  return mPlugin->GetFontId( fontDescription,
                              pointSize,
                              faceIndex );
 }

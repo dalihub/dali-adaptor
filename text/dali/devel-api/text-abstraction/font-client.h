@@ -123,12 +123,11 @@ public:
 
   /**
    * Set the default font family and its style that should be used by the font client.
+   * The style could be a pair 'font style, font width' or a cluster 'font width, font weight, font slant'.
    *
-   * @param[in] fontFamilyName The default name of the font's family.
-   * @param[in] fontStyle The default font's style.
+   * @param[in] fontDescription Description of the default font.
    */
-  void SetDefaultFontFamily( const std::string& fontFamilyName,
-                             const std::string& fontStyle );
+  void SetDefaultFont( const FontDescription& fontDescription );
 
   /**
    * @brief Retrieve the list of default fonts supported by the system.
@@ -183,19 +182,21 @@ public:
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE, FaceIndex faceIndex = 0 );
+  FontId GetFontId( const FontPath& path,
+                    PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                    FaceIndex faceIndex = 0 );
 
   /**
    * @brief Retrieve the unique identifier for a font.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] fontStyle  The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
    * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontFamily& fontFamily,
-                    const FontStyle& fontStyle,
+  FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
@@ -210,11 +211,13 @@ public:
   /**
    * @brief Check to see if a font is scalable.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] style The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
+   *
    * @return true if scalable
    */
-  bool IsScalable( const FontFamily& fontFamily, const FontStyle& style );
+  bool IsScalable( const FontDescription& fontDescription );
 
   /**
    * @brief Get a list of sizes available for a fixed size font.
@@ -227,12 +230,12 @@ public:
   /**
    * @brief Get a list of sizes available for a fixed size font.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] style The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
    * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
    */
-  void GetFixedSizes( const FontFamily& fontFamily,
-                      const FontStyle& style,
+  void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   ////////////////////////////////////////

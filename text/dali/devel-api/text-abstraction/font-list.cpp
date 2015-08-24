@@ -28,7 +28,8 @@ DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontL
 {
   for( unsigned int i=0; i<fontList.size(); ++i )
   {
-    o << "Font " << i << ") path: " << fontList[i].path << " family: " << fontList[i].family << " style: " << fontList[i].style << std::endl;
+    const FontDescription& description = fontList[i];
+    o << "Font " << i << ") path: " << description.path << " family: " << " width : " << description.width << " weight : " << description.weight << " slant : " << description.slant << std::endl;
   }
 
   return o;
