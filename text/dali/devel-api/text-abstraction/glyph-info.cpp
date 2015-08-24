@@ -31,7 +31,8 @@ GlyphInfo::GlyphInfo()
   height( 0 ),
   xBearing( 0 ),
   yBearing( 0 ),
-  advance( 0 )
+  advance( 0 ),
+  scaleFactor( 0 )
 {
 }
 
@@ -42,7 +43,8 @@ GlyphInfo::GlyphInfo( FontId font, GlyphIndex i )
   height( 0 ),
   xBearing( 0 ),
   yBearing( 0 ),
-  advance( 0 )
+  advance( 0 ),
+  scaleFactor( 0 )
 {
 }
 

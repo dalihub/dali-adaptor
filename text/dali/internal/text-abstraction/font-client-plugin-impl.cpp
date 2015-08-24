@@ -448,15 +448,30 @@ void FontClient::Plugin::ValidateFont( const FontFamily& fontFamily,
   FcPatternDestroy( fontFamilyPattern );
 }
 
-
-
 void FontClient::Plugin::GetFontMetrics( FontId fontId,
-                                         FontMetrics& metrics )
+                                         FontMetrics& metrics,
+                                         int maxFixedSize )
 {
   if( fontId > 0 &&
       fontId-1 < mFontCache.size() )
   {
-    metrics = mFontCache[fontId-1].mMetrics;
+    const CacheItem& font = mFontCache[fontId-1];
+
+    metrics = font.mMetrics;
+
+    // Adjust the metrics if the fixed-size font should be down-scaled
+    if( font.mIsFixedSizeBitmap &&
+        ( maxFixedSize > 0 ) &&
+        ( font.mFixedHeightPixels > maxFixedSize ) )
+    {
+      float scaleFactor = static_cast<float>(maxFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+
+      metrics.ascender           *= scaleFactor;
+      metrics.descender          *= scaleFactor;
+      metrics.height             *= scaleFactor;
+      metrics.underlinePosition  *= scaleFactor;
+      metrics.underlineThickness *= scaleFactor;
+    }
   }
   else
   {
@@ -482,7 +497,8 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
 
 bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
                                           uint32_t size,
-                                          bool horizontal )
+                                          bool horizontal,
+                                          int maxFixedSize )
 {
   bool success( true );
 
@@ -493,20 +509,37 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
     if( fontId > 0 &&
         fontId-1 < mFontCache.size() )
     {
-      FT_Face ftFace = mFontCache[fontId-1].mFreeTypeFace;
+      const CacheItem& font = mFontCache[fontId-1];
+
+      FT_Face ftFace = font.mFreeTypeFace;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
       // Check to see if we should be loading a Fixed Size bitmap?
-      if ( mFontCache[fontId-1].mIsFixedSizeBitmap )
+      if ( font.mIsFixedSizeBitmap )
       {
         int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_COLOR );
         if ( FT_Err_Ok == error )
         {
-          array[i].width = mFontCache[ fontId -1 ].mFixedWidthPixels;
-          array[i].height = mFontCache[ fontId -1 ].mFixedHeightPixels;
-          array[i].advance = mFontCache[ fontId -1 ].mFixedWidthPixels;
+          array[i].width = font.mFixedWidthPixels;
+          array[i].height = font.mFixedHeightPixels;
+          array[i].advance = font.mFixedWidthPixels;
           array[i].xBearing = 0.0f;
-          array[i].yBearing = mFontCache[ fontId -1 ].mFixedHeightPixels;
+          array[i].yBearing = font.mFixedHeightPixels;
+
+          // Adjust the metrics if the fixed-size font should be down-scaled
+          if( ( maxFixedSize > 0 ) &&
+              ( font.mFixedHeightPixels > maxFixedSize ) )
+          {
+            float scaleFactor = static_cast<float>(maxFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+
+            array[i].width    *= scaleFactor;
+            array[i].height   *= scaleFactor;
+            array[i].advance  *= scaleFactor;
+            array[i].xBearing *= scaleFactor;
+            array[i].yBearing *= scaleFactor;
+
+            array[i].scaleFactor = scaleFactor;
+          }
         }
         else
         {
@@ -643,7 +676,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize
   item.glyph.index = FT_Get_Char_Index( mFontCache[item.glyph.fontId-1].mFreeTypeFace,
                                         ELLIPSIS_CHARACTER );
 
-  GetGlyphMetrics( &item.glyph, 1u, true );
+  GetGlyphMetrics( &item.glyph, 1u, true, 0 );
 
   return item.glyph;
 }
@@ -792,9 +825,9 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
             float fixedHeight = static_cast< float >( ftFace->available_sizes[ i ].height );
 
             // Indicate that the font is a fixed sized bitmap
-            FontMetrics metrics( fixedHeight,
+            FontMetrics metrics( fixedHeight, // The ascender in pixels.
                                  0.0f,
-                                 fixedHeight,
+                                 fixedHeight, // The height in pixels.
                                  0.0f,
                                  0.0f );
 
