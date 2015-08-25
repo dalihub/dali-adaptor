@@ -1001,7 +1001,7 @@ bool FontClient::Plugin::FindValidatedFont( const FontFamily& fontFamily,
     const FontDescriptionCacheItem& item = *it;
 
     if( ( fontFamily == item.fontFamily ) &&
-        ( fontStyle == item.fontStyle ) )
+        ( fontStyle == item.fontStyle ) && ( fontFamily !="") )
     {
       validatedFontId = item.index;
 

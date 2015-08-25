@@ -1664,6 +1664,7 @@ struct EventHandler::Impl
    */
   static void VconfNotifyFontSizeChanged( keynode_t* node, void* data )
   {
+    DALI_LOG_INFO(gTouchEventLogFilter, Debug::Verbose, "VconfNotifyFontSizeChanged\n" );
     EventHandler* handler = static_cast<EventHandler*>( data );
     handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }

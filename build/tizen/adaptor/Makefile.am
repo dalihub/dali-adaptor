@@ -247,7 +247,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\"" \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
                       -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\"" \
-                      -DFONT_CONFIGURATION_FILE_PATH="\"${fontConfigurationFilePath}\"" \
+                      -DFONT_CONFIGURATION_FILE="\"${fontConfigurationFile}\"" \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \

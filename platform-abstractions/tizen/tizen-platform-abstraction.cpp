@@ -46,8 +46,7 @@ namespace TizenPlatform
 
 namespace
 {
-const std::string FONT_CONFIGURATION_FILE( FONT_CONFIGURATION_FILE_PATH ); ///< Default font configuration file
-const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 1000 nanoseconds = 1 microsecond
+const unsigned int NANOSECS_TO_MICROSECS( 1000 );               ///< 1000 nanoseconds = 1 microsecond
 }
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()

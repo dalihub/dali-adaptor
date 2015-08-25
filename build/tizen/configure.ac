@@ -250,10 +250,16 @@ else
   dataReadOnlyDir=${prefix}/share/dali/
 fi
 
+if test x$FONT_CONFIGURATION_FILE != x; then
+  fontConfigurationFile=$FONT_CONFIGURATION_FILE
+fi
+
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
+AC_SUBST(fontConfigurationFile)
+
 
 # Specify the include directory for development headers
 #devincludepath=${includedir}/dali/internal
@@ -298,6 +304,7 @@ Configuration
   Build for Node.JS (LibUV)         $build_for_node_js
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
   Network enabled:                  $enable_network
+  Font config file:                 $fontConfigurationFile
 "
 # optional output of node.js source path if we're building for node.js
 if test "x$build_for_node_js" != "xno"; then
