@@ -190,7 +190,8 @@ void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus )
 
   if ( !(++mStatusLogCount % mStatusLogInterval) )
   {
-    oss = "UpdateStatusLogging keepUpdating: " + keepUpdatingStatus ? "true":"false";
+    oss = "UpdateStatusLogging keepUpdating: ";
+    oss += (keepUpdatingStatus ? "true":"false");
 
     if ( keepUpdatingStatus )
     {
