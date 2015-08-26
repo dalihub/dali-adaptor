@@ -192,6 +192,11 @@ libdali_adaptor_la_SOURCES = \
                      $(input_event_handler_src_files)
 
 
+if ENABLE_NETWORK
+libdali_adaptor_la_SOURCES += \
+  $(base_adaptor_networking_src_files)
+endif
+
 libdali_adaptor_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (tizen) before portable root:
