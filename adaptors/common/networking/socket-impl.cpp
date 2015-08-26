@@ -122,7 +122,8 @@ bool Socket::Bind( uint16_t port )
 
   if( ret == -1 )
   {
-    DALI_LOG_ERROR("bind failed for port %d %s \n", port, strerror(errno) );
+    char buf[512];
+    DALI_LOG_ERROR( "bind failed for port %d %s \n", port, strerror_r( errno, buf, 512 ) );
     return false;
   }
 
@@ -271,7 +272,8 @@ bool Socket::ReuseAddress( bool reUse  )
   int ret = setsockopt( mSocketFileDescriptor, SOL_SOCKET, SO_REUSEADDR, &reUseInteger, sizeof(reUseInteger));
   if( ret == -1 )
   {
-    DALI_LOG_ERROR("SO_REUSEADDR option failed %s \n",strerror(errno));
+    char buf[512];
+    DALI_LOG_ERROR( "SO_REUSEADDR option failed %s \n", strerror_r( errno, buf, 512 ) );
     return false;
   }
   return true;
