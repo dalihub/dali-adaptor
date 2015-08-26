@@ -32,30 +32,66 @@ namespace Adaptor
 
 namespace
 {
+// Uncomment next line for FULL logging of the ThreadSynchronization class in release mode
+//#define RELEASE_BUILD_LOGGING
+
 #ifdef DEBUG_ENABLED
 
-#define ENABLE_LOG_IN_COLOR 1
-#define ENABLE_VSYNC_COUNTER_LOGGING 1
-#define ENABLE_UPDATE_COUNTER_LOGGING 1
-#define ENABLE_VSYNC_THREAD_LOGGING 1
-#define ENABLE_UPDATE_THREAD_LOGGING 1
-#define ENABLE_RENDER_THREAD_LOGGING 1
-#define ENABLE_EVENT_LOGGING 1
+#define ENABLE_LOG_IN_COLOR
+#define ENABLE_VSYNC_COUNTER_LOGGING
+#define ENABLE_UPDATE_COUNTER_LOGGING
+#define ENABLE_VSYNC_THREAD_LOGGING
+#define ENABLE_UPDATE_THREAD_LOGGING
+#define ENABLE_RENDER_THREAD_LOGGING
+#define ENABLE_EVENT_LOGGING
 
-Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, true, "LOG_THREAD_SYNC" );
+#define DEBUG_LEVEL_COUNTER     Debug::Verbose
+#define DEBUG_LEVEL_VSYNC       Debug::General
+#define DEBUG_LEVEL_UPDATE      Debug::General
+#define DEBUG_LEVEL_RENDER      Debug::General
+#define DEBUG_LEVEL_EVENT       Debug::Concise
+
+Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_THREAD_SYNC" );
 
 #define LOG_THREAD_SYNC(level, color, format, args...) \
-    if( gLogFilter && gLogFilter->IsEnabledFor( level ) ) { Dali::Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, "%s" format "%s\n", color, ## args, COLOR_CLEAR ); }
+  DALI_LOG_INFO( gLogFilter, level, "%s" format "%s\n", color, ## args, COLOR_CLEAR )
 
 #define LOG_THREAD_SYNC_TRACE(color) \
-    Dali::Integration::Log::TraceObj debugTraceObj( ( gLogFilter && gLogFilter->IsEnabledFor( Debug::Concise ) ) ? gLogFilter : NULL, "%s%s%s", color, __FUNCTION__, COLOR_CLEAR )
+  Dali::Integration::Log::TraceObj debugTraceObj( gLogFilter, "%s%s%s", color, __FUNCTION__, COLOR_CLEAR ); \
+  if( ! gLogFilter->IsTraceEnabled() ) { LOG_THREAD_SYNC( Debug::Concise, color, "%s", __FUNCTION__ ); }
 
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, args...) \
-    Dali::Integration::Log::TraceObj debugTraceObj( ( gLogFilter && gLogFilter->IsEnabledFor( Debug::Concise ) ) ? gLogFilter : NULL, "%s%s: " format "%s", color, __FUNCTION__, ## args, COLOR_CLEAR )
+  Dali::Integration::Log::TraceObj debugTraceObj( gLogFilter, "%s%s: " format "%s", color, __FUNCTION__, ## args, COLOR_CLEAR ); \
+  if( ! gLogFilter->IsTraceEnabled() ) { LOG_THREAD_SYNC( Debug::Concise, color, "%s: " format, __FUNCTION__, ## args ); }
 
-#else // DEBUG_ENABLED
+#elif defined( RELEASE_BUILD_LOGGING )
 
-#define LOG_THREAD_SYNC(color, format, args...)
+#define ENABLE_LOG_IN_COLOR
+#define ENABLE_VSYNC_COUNTER_LOGGING
+#define ENABLE_UPDATE_COUNTER_LOGGING
+#define ENABLE_VSYNC_THREAD_LOGGING
+#define ENABLE_UPDATE_THREAD_LOGGING
+#define ENABLE_RENDER_THREAD_LOGGING
+#define ENABLE_EVENT_LOGGING
+
+#define DEBUG_LEVEL_COUNTER     0
+#define DEBUG_LEVEL_VSYNC       0
+#define DEBUG_LEVEL_UPDATE      0
+#define DEBUG_LEVEL_RENDER      0
+#define DEBUG_LEVEL_EVENT       0
+
+#define LOG_THREAD_SYNC(level, color, format, args...) \
+  Dali::Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, "%s" format "%s\n", color, ## args, COLOR_CLEAR )
+
+#define LOG_THREAD_SYNC_TRACE(color) \
+  Dali::Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, "%s%s%s\n", color, __FUNCTION__, COLOR_CLEAR )
+
+#define LOG_THREAD_SYNC_TRACE_FMT(color, format, args...) \
+  Dali::Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, "%s%s: " format "%s\n", color, __FUNCTION__, ## args, COLOR_CLEAR )
+
+#else
+
+#define LOG_THREAD_SYNC(level, color, format, args...)
 #define LOG_THREAD_SYNC_TRACE(color)
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, args...)
 
@@ -82,23 +118,23 @@ Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, true, "LOG_THR
 #endif
 
 #ifdef ENABLE_VSYNC_COUNTER_LOGGING
-#define LOG_VSYNC_COUNTER_VSYNC(format, args...)    LOG_THREAD_SYNC(Debug::Verbose, COLOR_LIGHT_RED, "%s: " format, __FUNCTION__, ## args)
-#define LOG_VSYNC_COUNTER_UPDATE(format, args...)   LOG_THREAD_SYNC(Debug::Verbose, COLOR_LIGHT_YELLOW, "%s: " format, __FUNCTION__, ## args)
+#define LOG_VSYNC_COUNTER_VSYNC(format, args...)    LOG_THREAD_SYNC(DEBUG_LEVEL_COUNTER, COLOR_LIGHT_RED, "%s: " format, __FUNCTION__, ## args)
+#define LOG_VSYNC_COUNTER_UPDATE(format, args...)   LOG_THREAD_SYNC(DEBUG_LEVEL_COUNTER, COLOR_LIGHT_YELLOW, "%s: " format, __FUNCTION__, ## args)
 #else
 #define LOG_VSYNC_COUNTER_VSYNC(format, args...)
 #define LOG_VSYNC_COUNTER_UPDATE(format, args...)
 #endif
 
 #ifdef ENABLE_UPDATE_COUNTER_LOGGING
-#define LOG_UPDATE_COUNTER_UPDATE(format, args...)  LOG_THREAD_SYNC(Debug::Verbose, COLOR_YELLOW, "%s: " format, __FUNCTION__, ## args)
-#define LOG_UPDATE_COUNTER_RENDER(format, args...)  LOG_THREAD_SYNC(Debug::Verbose, COLOR_LIGHT_BLUE, "%s: " format, __FUNCTION__, ## args)
+#define LOG_UPDATE_COUNTER_UPDATE(format, args...)  LOG_THREAD_SYNC(DEBUG_LEVEL_COUNTER, COLOR_YELLOW, "%s: " format, __FUNCTION__, ## args)
+#define LOG_UPDATE_COUNTER_RENDER(format, args...)  LOG_THREAD_SYNC(DEBUG_LEVEL_COUNTER, COLOR_LIGHT_BLUE, "%s: " format, __FUNCTION__, ## args)
 #else
 #define LOG_UPDATE_COUNTER_UPDATE(format, args...)
 #define LOG_UPDATE_COUNTER_RENDER(format, args...)
 #endif
 
 #ifdef ENABLE_VSYNC_THREAD_LOGGING
-#define LOG_VSYNC(format, args...)             LOG_THREAD_SYNC(Debug::General, COLOR_RED, "%s: " format, __FUNCTION__, ## args)
+#define LOG_VSYNC(format, args...)             LOG_THREAD_SYNC(DEBUG_LEVEL_VSYNC, COLOR_RED, "%s: " format, __FUNCTION__, ## args)
 #define LOG_VSYNC_TRACE                        LOG_THREAD_SYNC_TRACE(COLOR_RED)
 #define LOG_VSYNC_TRACE_FMT(format, args...)   LOG_THREAD_SYNC_TRACE_FMT(COLOR_RED, format, ## args)
 #else
@@ -108,7 +144,7 @@ Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, true, "LOG_THR
 #endif
 
 #ifdef ENABLE_UPDATE_THREAD_LOGGING
-#define LOG_UPDATE(format, args...)            LOG_THREAD_SYNC(Debug::General, COLOR_YELLOW, "%s: " format, __FUNCTION__, ## args)
+#define LOG_UPDATE(format, args...)            LOG_THREAD_SYNC(DEBUG_LEVEL_UPDATE, COLOR_YELLOW, "%s: " format, __FUNCTION__, ## args)
 #define LOG_UPDATE_TRACE                       LOG_THREAD_SYNC_TRACE(COLOR_YELLOW)
 #define LOG_UPDATE_TRACE_FMT(format, args...)  LOG_THREAD_SYNC_TRACE_FMT(COLOR_YELLOW, format, ## args)
 #else
@@ -118,9 +154,9 @@ Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, true, "LOG_THR
 #endif
 
 #ifdef ENABLE_RENDER_THREAD_LOGGING
-#define LOG_RENDER(format, args...)            LOG_THREAD_SYNC(Debug::General, COLOR_BLUE, "%s: " format, __FUNCTION__, ## args)
+#define LOG_RENDER(format, args...)            LOG_THREAD_SYNC(DEBUG_LEVEL_RENDER, COLOR_BLUE, "%s: " format, __FUNCTION__, ## args)
 #define LOG_RENDER_TRACE                       LOG_THREAD_SYNC_TRACE(COLOR_BLUE)
-#define LOG_RENDER_TRACE_FMT(format, args...) LOG_THREAD_SYNC_TRACE_FMT(COLOR_BLUE, format, ## args)
+#define LOG_RENDER_TRACE_FMT(format, args...)  LOG_THREAD_SYNC_TRACE_FMT(COLOR_BLUE, format, ## args)
 #else
 #define LOG_RENDER(format, args...)
 #define LOG_RENDER_TRACE
@@ -128,7 +164,7 @@ Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, true, "LOG_THR
 #endif
 
 #ifdef ENABLE_EVENT_LOGGING
-#define LOG_EVENT(format, args...)             LOG_THREAD_SYNC(Debug::Concise, COLOR_WHITE, "%s: " format, __FUNCTION__, ## args)
+#define LOG_EVENT(format, args...)             LOG_THREAD_SYNC(DEBUG_LEVEL_EVENT, COLOR_WHITE, "%s: " format, __FUNCTION__, ## args)
 #define LOG_EVENT_TRACE                        LOG_THREAD_SYNC_TRACE(COLOR_WHITE)
 #define LOG_EVENT_TRACE_FMT(format, args...)   LOG_THREAD_SYNC_TRACE_FMT(COLOR_WHITE, format, ## args)
 #else

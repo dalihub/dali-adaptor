@@ -44,7 +44,7 @@ namespace VirtualKeyboard
 namespace
 {
 #if defined(DEBUG_ENABLED)
-Debug::Filter* gLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_VIRTUAL_KEYBOARD");
+Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VIRTUAL_KEYBOARD");
 #endif
 
 #define TOKEN_STRING(x) #x
@@ -160,7 +160,7 @@ bool IsVisible()
 {
   if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance */ )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "IsVisible\n" );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "IMF IsVisible\n" );
 
     Dali::ImfManager imfManager = ImfManager::Get();
     Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );

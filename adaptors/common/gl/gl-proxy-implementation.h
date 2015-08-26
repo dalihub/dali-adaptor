@@ -120,7 +120,7 @@ public:
   /**
    * @copydoc GlAbstraction::PostRender();
    */
-  virtual void PostRender( unsigned int timeDelta );
+  virtual void PostRender();
 
   /* OpenGL ES 2.0 API */
   virtual void ActiveTexture(GLenum texture);

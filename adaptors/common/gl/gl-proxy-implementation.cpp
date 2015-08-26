@@ -148,7 +148,7 @@ void GlProxyImplementation::PreRender()
 {
 }
 
-void GlProxyImplementation::PostRender( unsigned int timeDelta )
+void GlProxyImplementation::PostRender()
 {
   // Accumulate counts in each sampler
   AccumulateSamples();

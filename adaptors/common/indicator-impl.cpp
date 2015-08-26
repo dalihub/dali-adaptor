@@ -1343,8 +1343,6 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
   // once animation is finished and indicator is hidden, take it off stage
   if( !mIsShowing )
   {
-    mIndicatorActor.SetVisible( false );
-
     if( mObserver != NULL )
     {
       mObserver->IndicatorVisibilityChanged( mIsShowing ); // is showing?
