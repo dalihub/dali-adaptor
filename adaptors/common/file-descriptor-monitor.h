@@ -57,6 +57,14 @@ public:
   ~FileDescriptorMonitor();
 
 private:
+
+  // Undefined
+  FileDescriptorMonitor( const FileDescriptorMonitor& fileDescriptorMonitor );
+
+  // Undefined
+  FileDescriptorMonitor& operator=( const FileDescriptorMonitor& fileDescriptorMonitor );
+
+private:
   struct Impl;
   Impl* mImpl;
 };

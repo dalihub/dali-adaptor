@@ -172,6 +172,14 @@ private:
   DALI_INTERNAL virtual ~PixmapImage();
 
   /**
+   * @brief Undefined copy constructor
+   *
+   * This avoids accidental calls to a default copy constructor.
+   * @param[in] pixmapImage A reference to the object to copy.
+   */
+  DALI_INTERNAL PixmapImage( const PixmapImage& pixmapImage );
+
+  /**
    * @brief Undefined assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.

@@ -161,6 +161,14 @@ private:
   volatile Integration::ResourceId mCancelRequestId;  ///< Request to be cancelled on thread: written by external thread and read by worker.
   bool                             mPaused;           ///< Whether to process work in mQueue
 
+private:
+
+  // Undefined
+  ResourceThreadBase( const ResourceThreadBase& resourceThreadBase );
+
+  // Undefined
+  ResourceThreadBase& operator=( const ResourceThreadBase& resourceThreadBase );
+
 #if defined(DEBUG_ENABLED)
 public:
   Integration::Log::Filter* mLogFilter;

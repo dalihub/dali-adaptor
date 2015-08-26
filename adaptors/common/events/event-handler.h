@@ -168,6 +168,14 @@ private:
 
 private:
 
+  // Undefined
+  EventHandler( const EventHandler& eventHandler );
+
+  // Undefined
+  EventHandler& operator=( const EventHandler& eventHandler );
+
+private:
+
   CoreEventInterface& mCoreEventInterface; ///< Used to send events to Core.
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
   GestureManager& mGestureManager; ///< Reference to the GestureManager, set on construction, to send touch events to for analysis.
