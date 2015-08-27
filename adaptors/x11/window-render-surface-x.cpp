@@ -297,6 +297,11 @@ void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
   mX11Window = static_cast< Ecore_X_Window >( surfaceId );
 }
 
+void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& /* threadSynchronization */ )
+{
+  // Nothing to do.
+}
+
 void WindowRenderSurface::ReleaseLock()
 {
   // Nothing to do.

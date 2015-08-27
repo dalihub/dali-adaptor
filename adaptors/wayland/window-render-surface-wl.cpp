@@ -228,6 +228,11 @@ void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
   mWlWindow = AnyCast< Ecore_Wl_Window* >( surfaceId );
 }
 
+void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& /* threadSynchronization */ )
+{
+  // Nothing to do.
+}
+
 void WindowRenderSurface::ReleaseLock()
 {
   // Nothing to do.
