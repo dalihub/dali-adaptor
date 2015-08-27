@@ -179,11 +179,11 @@ FontId FontClient::GetFontId( const FontFamily& fontFamily,
                              faceIndex );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontMetrics( fontId, metrics );
+  return mPlugin->GetFontMetrics( fontId, metrics, maxFixedSize );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -193,11 +193,11 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return mPlugin->GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize )
 {
   CreatePlugin();
 
-  return mPlugin->GetGlyphMetrics( array, size, horizontal );
+  return mPlugin->GetGlyphMetrics( array, size, horizontal, maxFixedSize );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )

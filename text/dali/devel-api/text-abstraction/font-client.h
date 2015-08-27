@@ -244,8 +244,9 @@ public:
    *
    * @param[in] fontId The ID of the font for the required glyph.
    * @param[out] metrics The font metrics.
+   * @param[in] maxFixedSize The metrics for fixed-size fonts will be down-scaled, when exceeding this maximum value in pixels.
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize = 0 );
 
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.
@@ -264,9 +265,10 @@ public:
    * On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
    * @param[in] size The size of the array.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
+   * @param[in] maxFixedSize The metrics for fixed-size fonts will be down-scaled, when exceeding this maximum value in pixels.
    * @return True if all of the requested metrics were found.
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true, int maxFixedSize = 0 );
 
   /**
    * @brief Render a bitmap representation of a glyph.
