@@ -236,6 +236,15 @@ void ThreadSynchronization::UpdateOnce()
   LOG_EVENT_TRACE;
   LOG_EVENT( "UPDATE ONCE" );
 
+  // If we're sleeping then change state to running as this will also wake up the v-sync-thread
+  {
+    ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
+    if( mState == State::SLEEPING )
+    {
+      mState = State::RUNNING;
+    }
+  }
+
   mUpdateThreadWaitCondition.Notify();
 }
 
