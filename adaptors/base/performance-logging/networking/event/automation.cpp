@@ -325,7 +325,7 @@ void DumpScene( unsigned int clientId, ClientSendDataInterface* sendData )
   char buf[32];
   std::string json = GetActorTree();
   int length = json.length();
-  sprintf( buf, "%d\n", length );
+  snprintf( buf, 32, "%d\n", length );
   std::string header( buf );
   json = buf + json;
   sendData->SendData( json.c_str(), json.length(), clientId );

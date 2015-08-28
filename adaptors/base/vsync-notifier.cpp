@@ -160,7 +160,11 @@ void VSyncNotifier::Run()
       sleepTimeInMicroseconds += mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS;
 
       DALI_LOG_INFO( gSyncLogFilter, Debug::General, "VSyncNotifier::Run. 2 Start software sync (%d frames, %u microseconds) \n", mNumberOfVSyncsPerRender, sleepTimeInMicroseconds);
-      usleep( sleepTimeInMicroseconds );
+
+      timespec sleepTime;
+      sleepTime.tv_sec = 0;
+      sleepTime.tv_nsec = sleepTimeInMicroseconds * 1000;
+      nanosleep( &sleepTime, NULL );
     }
     mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::VSYNC );
   }
