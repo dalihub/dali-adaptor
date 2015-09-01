@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-TEMP=`getopt -o rn --long rebuild,no-gen,enable-profile: \
+TEMP=`getopt -o rn --long rebuild,no-gen \
      -n 'genmake' -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
@@ -11,13 +11,11 @@ eval set -- "$TEMP"
 
 opt_rebuild=false
 opt_generate=true
-enable_profile=""
 
 while true ; do
     case "$1" in
         -r|--rebuild) opt_rebuild=true ; shift ;;
         -n|--no-gen)  opt_generate=false ; shift ;;
-        --enable-profile) enable_profile=$2 ; shift ;;
         --) shift ; break ;;
         *) shift ;;   # Ignore
     esac
@@ -34,7 +32,7 @@ function build
         (cd src/$1; ../../scripts/tcheadgen.sh tct-$1-core.h)
         if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
     fi
-    (cd build ; cmake .. -DMODULE=$1 -DENABLE_PROFILE=$enable_profile; make -j7 )
+    (cd build ; cmake .. -DMODULE=$1 ; make -j7 )
 }
 
 if [ -n "$1" ] ; then
