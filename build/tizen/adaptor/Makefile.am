@@ -298,7 +298,6 @@ libdali_adaptor_la_LIBADD = \
                       $(ELDBUS_LIBS) \
                       -lgif \
                       -lpthread \
-                      -lboost_thread \
                       -lturbojpeg
 
 if WAYLAND

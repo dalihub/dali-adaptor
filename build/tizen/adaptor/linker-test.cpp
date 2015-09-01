@@ -50,10 +50,10 @@ public:
 int
 main(int argc, char **argv)
 {
-  Application app = Application::New(&argc, &argv);
-
   try
   {
+    Application app = Application::New(&argc, &argv);
+
     LinkerApp linkerApp (app);
     app.MainLoop();
   }

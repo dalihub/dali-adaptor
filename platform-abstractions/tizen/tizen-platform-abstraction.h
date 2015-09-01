@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,11 @@ public: // PlatformAbstraction overrides
   virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
 
   /**
+   * @copydoc PlatformAbstraction::DecodeBuffer()
+   */
+  virtual Integration::BitmapPtr DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size );
+
+  /**
    * @copydoc PlatformAbstraction::CancelLoad()
    */
   virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
@@ -109,11 +114,6 @@ public: // PlatformAbstraction overrides
    * @copydoc PlatformAbstraction::GetResources()
    */
   virtual void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc PlatformAbstraction::IsLoading()
-   */
-  virtual bool IsLoading();
 
   /**
    * @copydoc PlatformAbstraction::JoinLoaderThreads()
@@ -131,11 +131,6 @@ public: // PlatformAbstraction overrides
   virtual int GetDefaultFontSize() const;
 
   /**
-   * @copydoc PlatformAbstraction::SetDpi()
-   */
-  virtual void SetDpi (unsigned int DpiHorizontal, unsigned int DpiVertical);
-
-  /**
    * @copydoc PlatformAbstraction::LoadFile()
    */
   virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
@@ -144,11 +139,6 @@ public: // PlatformAbstraction overrides
    * @copydoc PlatformAbstraction::LoadFile()
    */
   virtual std::string LoadFile( const std::string& filename );
-
-  /**
-   * @copydoc PlatformAbstraction::SaveFile()
-   */
-  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()

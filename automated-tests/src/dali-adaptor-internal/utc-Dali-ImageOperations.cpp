@@ -358,7 +358,7 @@ void TestDownscaledBitmapHasRightDimensionsAndFormat(
   FittingMode::Type fittingMode( FittingMode::SHRINK_TO_FIT );
   SamplingMode::Type samplingMode( SamplingMode::BOX );
 
-  Integration::BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::DISCARD );
+  Integration::BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
   sourceBitmap->GetPackedPixelsProfile()->ReserveBuffer( format, sourceDimension, sourceDimension, sourceDimension, sourceDimension );
 
   Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, desired, fittingMode, samplingMode );

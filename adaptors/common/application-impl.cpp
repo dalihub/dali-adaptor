@@ -80,7 +80,6 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mName(),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
-  mInitialized( false ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -166,7 +165,6 @@ void Application::QuitFromMainLoop()
 
   mFramework->Quit();
   // This will trigger OnTerminate(), below, after the main loop has completed.
-  mInitialized = false;
 }
 
 void Application::OnInit()
@@ -201,8 +199,6 @@ void Application::OnInit()
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
 
-  mInitialized = true;
-
   // Wire up the LifecycleController
   Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
 
@@ -225,8 +221,13 @@ void Application::OnTerminate()
   // we've been told to quit by AppCore, ecore_x_destroy has been called, need to quit synchronously
   // delete the window as ecore_x has been destroyed by AppCore
 
+  if( mAdaptor )
+  {
+    // Ensure that the render-thread is not using the surface(window) after we delete it
+    mAdaptor->Stop();
+  }
+
   mWindow.Reset();
-  mInitialized = false;
 }
 
 void Application::OnPause()
@@ -238,9 +239,11 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
-  mAdaptor->Resume();
+  // Emit the signal first so the application can queue any messages before we do an update/render
+  // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
   mResumeSignal.Emit( application );
+  mAdaptor->Resume();
 }
 
 void Application::OnReset()
@@ -251,8 +254,6 @@ void Application::OnReset()
    */
   Dali::Application application(this);
   mResetSignal.Emit( application );
-
-  mWindow.Raise();
 }
 
 void Application::OnAppControl(void *data)

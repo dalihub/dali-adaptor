@@ -84,45 +84,6 @@ struct LoadedResource
 };
 
 /**
- * Contains information about a successfully saved resource
- */
-struct SavedResource
-{
-  /**
-   * Constructor
-   * @param[in] savedId   The ID of the resource
-   * @param[in] savedType The resource type
-   */
-  SavedResource(Integration::ResourceId     savedId,
-                Integration::ResourceTypeId savedType)
-  : id(savedId),
-    type(savedType)
-  {
-  }
-
-  /// Copy constructor
-  SavedResource(const LoadedResource& loaded)
-  : id(loaded.id),
-    type(loaded.type)
-  {
-  }
-
-  /// Assignment operator
-  SavedResource& operator=(const SavedResource& rhs)
-  {
-    if( this != &rhs )
-    {
-      id = rhs.id;
-      type = rhs.type;
-    }
-    return *this;
-  }
-
-  Integration::ResourceId     id;
-  Integration::ResourceTypeId type;
-};
-
-/**
  * Contains information about a failed resource load/save request
  */
 struct FailedResource
@@ -194,35 +155,16 @@ public:
   bool IsTerminating();
 
   /**
-   * Add a partially loaded resource to the PartiallyLoadedResource queue
-   * @param[in] resource The resource's information and data
-   */
-  void AddPartiallyLoadedResource(LoadedResource& resource);
-
-  /**
    * Add a completely loaded resource to the LoadedResource queue
    * @param[in] resource The resource's information and data
    */
   void AddLoadedResource(LoadedResource& resource);
 
   /**
-   * Add a successfully saved resource to the SavedResource queue
-   * @param[in] resource The resource's information
-   */
-  void AddSavedResource(SavedResource& resource);
-
-  /**
    * Add information about a failed resource load to the FailedLoads queue
    * @param[in] resource The failed resource's information
    */
   void AddFailedLoad(FailedResource& resource);
-
-  /**
-   * Add information about a failed resource save to the FailedSaves queue
-   * @param[in] resource The failed resource's information
-   */
-  void AddFailedSave(FailedResource& resource);
-
 
   // From PlatformAbstraction
 
@@ -237,20 +179,9 @@ public:
   void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
 
   /**
-   * @copydoc PlatformAbstraction::IsLoading()
-   * @deprecated This is not implemented: always returns true.
-   */
-  bool IsLoading();
-
-  /**
    * @copydoc PlatformAbstraction::GetResources()
    */
   void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc PlatformAbstraction::SetDpi()
-   */
-  void SetDpi(unsigned int dpiHor, unsigned int dpiVer);
 
   /**
    * @copydoc SlpPlatformAbstraction::LoadFile()
@@ -266,7 +197,6 @@ public:
   /**
    * @copydoc TizenPlatformAbstraction::SaveFile()
    */
-  static bool SaveFile( const std::string& filename, std::vector< unsigned char >& buffer );
   static bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
 
 private:

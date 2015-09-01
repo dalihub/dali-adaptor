@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,11 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 
+// INTERNAL INCLUDES
 #include "resource-loader/resource-loader.h"
-
 #include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
+#include "portable/file-closer.h"
 
 namespace Dali
 {
@@ -131,6 +132,25 @@ Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously
   return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
 }
 
+Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size )
+{
+  Integration::BitmapPtr bitmap = 0;
+
+  Dali::Internal::Platform::FileCloser fileCloser( buffer, size, "rb" );
+  FILE * const fp = fileCloser.GetFile();
+  if( fp )
+  {
+    bool result = ImageLoader::ConvertStreamToBitmap( resourceType, "", fp, StubbedResourceLoadingClient(), bitmap );
+    if ( !result || !bitmap )
+    {
+      bitmap.Reset();
+      DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+    }
+  }
+
+  return bitmap;
+}
+
 void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
 {
   if (mResourceLoader)
@@ -139,29 +159,11 @@ void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integratio
   }
 }
 
-bool TizenPlatformAbstraction::IsLoading()
-{
-  if (mResourceLoader)
-  {
-    return mResourceLoader->IsLoading();
-  }
-
-  return false;
-}
-
 void TizenPlatformAbstraction::GetResources(Integration::ResourceCache& cache)
 {
   if (mResourceLoader)
   {
     mResourceLoader->GetResources(cache);
-  }
-}
-
-void TizenPlatformAbstraction::SetDpi(unsigned int dpiHor, unsigned int dpiVer)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->SetDpi(dpiHor, dpiVer);
   }
 }
 
@@ -183,18 +185,6 @@ std::string TizenPlatformAbstraction::LoadFile( const std::string& filename )
   if (mResourceLoader)
   {
     result = mResourceLoader->LoadFile(filename);
-  }
-
-  return result;
-}
-
-bool TizenPlatformAbstraction::SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
-{
-  bool result = false;
-
-  if( mResourceLoader )
-  {
-    result = mResourceLoader->SaveFile( filename, buffer, numBytes );
   }
 
   return result;

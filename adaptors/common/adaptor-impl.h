@@ -66,7 +66,7 @@ class EglFactory;
 class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
-class UpdateRenderController;
+class ThreadController;
 class TriggerEvent;
 class CallbackManager;
 class FeedbackPluginProxy;
@@ -157,6 +157,16 @@ public: // AdaptorInternalServices implementation
    * @copydoc Dali::Adaptor::Stop()
    */
   virtual void Stop();
+
+  /**
+   * @copydoc Dali::Adaptor::ContextLost()
+   */
+  virtual void ContextLost();
+
+  /**
+   * @copydoc Dali::Adaptor::ContextRegained()
+   */
+  virtual void ContextRegained();
 
   /**
    * @copydoc Dali::EventFeeder::FeedTouchPoint()
@@ -519,7 +529,7 @@ private: // Data
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor
   Dali::Integration::Core*              mCore;                        ///< Dali Core
-  UpdateRenderController*               mUpdateRenderController;      ///< Controls update/render threads
+  ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
   GlImplementation*                     mGLES;                        ///< GL implementation
   GlSyncImplementation*                 mGlSync;                      ///< GL Sync implementation

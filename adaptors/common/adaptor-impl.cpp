@@ -28,7 +28,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
-#include <base/update-render-controller.h>
+#include <base/thread-controller.h>
 #include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
@@ -107,7 +107,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
   {
-    dataRetentionPolicy = ResourcePolicy::DALI_RETAINS_MESH_DATA;
+    dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   }
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.
@@ -148,7 +148,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mVSyncMonitor = new VSyncMonitor;
 
-  mUpdateRenderController = new UpdateRenderController( *this, *mEnvironmentOptions );
+  mThreadController = new ThreadController( *this, *mEnvironmentOptions );
 
   // Should be called after Core creation
   if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
@@ -198,7 +198,7 @@ Adaptor::~Adaptor()
     (*iter)->OnDestroy();
   }
 
-  delete mUpdateRenderController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
+  delete mThreadController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
   delete mVSyncMonitor;
   delete mEventHandler;
   delete mObjectProfiler;
@@ -257,8 +257,8 @@ void Adaptor::Start()
   PositionSize size = mSurface->GetPositionSize();
   mCore->SurfaceResized( size.width, size.height );
 
-  // Start the update & render threads
-  mUpdateRenderController->Start();
+  // Initialize the thread controller
+  mThreadController->Initialize();
 
   mState = RUNNING;
 
@@ -285,10 +285,10 @@ void Adaptor::Pause()
     // Reset the event handler when adaptor paused
     if( mEventHandler )
     {
-      mEventHandler->Reset();
+      mEventHandler->Pause();
     }
 
-    mUpdateRenderController->Pause();
+    mThreadController->Pause();
     mCore->Suspend();
     mState = PAUSED;
   }
@@ -300,24 +300,12 @@ void Adaptor::Resume()
   // Only resume the adaptor if we are in the suspended state.
   if( PAUSED == mState )
   {
-    // We put ResumeFrameTime first, as this was originally called at the start of mCore->Resume()
-    // If there were events pending, mCore->Resume() will call
-    //   RenderController->RequestUpdate()
-    //     UpdateRenderController->RequestUpdate()
-    //       UpdateRenderSynchronization->RequestUpdate()
-    // and we should have reset the frame timers before allowing Core->Update() to be called.
-    //@todo Should we call UpdateRenderController->Resume before mCore->Resume()?
-
-    mUpdateRenderController->ResumeFrameTime();
-    mCore->Resume();
-    mUpdateRenderController->Resume();
-
     mState = RUNNING;
 
     // Reset the event handler when adaptor resumed
     if( mEventHandler )
     {
-      mEventHandler->Reset();
+      mEventHandler->Resume();
     }
 
     // Inform observers that we have resumed.
@@ -326,7 +314,11 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    ProcessCoreEvents(); // Ensure any outstanding messages are processed
+    // Resume core so it processes any requests as well
+    mCore->Resume();
+
+    // Do at end to ensure our first update/render after resumption includes the processed messages as well
+    mThreadController->Resume();
   }
 }
 
@@ -341,7 +333,7 @@ void Adaptor::Stop()
       (*iter)->OnStop();
     }
 
-    mUpdateRenderController->Stop();
+    mThreadController->Stop();
     mCore->Suspend();
 
     // Delete the TTS player
@@ -363,6 +355,19 @@ void Adaptor::Stop()
 
     mState = STOPPED;
   }
+}
+
+void Adaptor::ContextLost()
+{
+  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
+}
+
+void Adaptor::ContextRegained()
+{
+  // Inform core, so that texture resources can be reloaded
+  mCore->RecoverFromContextLoss();
+
+  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
@@ -424,15 +429,8 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
-
   // this method blocks until the render thread has completed the replace.
-  mUpdateRenderController->ReplaceSurface(mSurface);
-
-  // Inform core, so that texture resources can be reloaded
-  mCore->RecoverFromContextLoss();
-
-  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
+  mThreadController->ReplaceSurface(mSurface);
 }
 
 RenderSurface& Adaptor::GetSurface() const
@@ -493,7 +491,7 @@ Dali::Integration::Core& Adaptor::GetCore()
 
 void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 {
-  mUpdateRenderController->SetRenderRefreshRate( numberOfVSyncsPerRender );
+  mThreadController->SetRenderRefreshRate( numberOfVSyncsPerRender );
 }
 
 void Adaptor::SetUseHardwareVSync( bool useHardware )
@@ -671,7 +669,7 @@ void Adaptor::RequestUpdate()
   if ( PAUSED  == mState ||
        RUNNING == mState )
   {
-    mUpdateRenderController->RequestUpdate();
+    mThreadController->RequestUpdate();
   }
 }
 
@@ -728,6 +726,9 @@ void Adaptor::SurfaceSizeChanged(const PositionSize& positionSize)
 void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
+
+  // Start thread controller after the scene has been created
+  mThreadController->Start();
 }
 
 void Adaptor::NotifyLanguageChanged()
@@ -739,9 +740,9 @@ void Adaptor::RequestUpdateOnce()
 {
   if( PAUSED_WHILE_HIDDEN != mState )
   {
-    if( mUpdateRenderController )
+    if( mThreadController )
     {
-      mUpdateRenderController->RequestUpdateOnce();
+      mThreadController->RequestUpdateOnce();
     }
   }
 }
@@ -760,7 +761,7 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mAdaptor(adaptor),
   mState(READY),
   mCore(NULL),
-  mUpdateRenderController(NULL),
+  mThreadController(NULL),
   mVSyncMonitor(NULL),
   mGLES( NULL ),
   mEglFactory( NULL ),

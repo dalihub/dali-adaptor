@@ -111,7 +111,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   fseek( fp, 0, 0 );
 
   // Create a bitmap object and store a pointer to that object so it is destroyed at the end.
-  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN  );
+  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
 
 
@@ -139,7 +139,7 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   FILE* fp = fopen( filename.c_str() , "rb" );
   AutoCloseFile autoClose( fp );
 
-  Dali::Integration::Bitmap* bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::RETAIN );
+  Dali::Integration::Bitmap* bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN );
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
   const Dali::TizenPlatform::ImageLoader::Input input( fp );
 

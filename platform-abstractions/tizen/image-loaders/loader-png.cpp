@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -347,28 +347,29 @@ namespace
    * */
   extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length)
   {
-    using Dali::TizenPlatform::PngBuffer;
     DALI_ASSERT_DEBUG(png_ptr && data);
     if(!png_ptr || !data)
     {
       return;
     }
     // Make sure we don't try to propagate a C++ exception up the call stack of a pure C library:
-    try {
+    try
+    {
       // Recover our buffer for writing into:
-      PngBuffer* const encoded_img = (PngBuffer*) png_get_io_ptr(png_ptr);
+      Vector<unsigned char>* const encoded_img = static_cast< Vector<unsigned char>* >( png_get_io_ptr(png_ptr) );
       if(encoded_img)
       {
-        const PngBuffer::size_type bufferSize = encoded_img->size();
-        encoded_img->resize(encoded_img->size() + length); //< Can throw OOM.
-        PngBuffer::value_type* const bufferBack = &((*encoded_img)[bufferSize]);
+        const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
+        encoded_img->Reserve( bufferSize + length ); //< Can throw OOM.
+        unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
         memcpy(bufferBack, data, length);
       }
       else
       {
         DALI_LOG_ERROR("PNG buffer for write to memory was passed from libpng as null.");
       }
-    } catch(...)
+    }
+    catch(...)
     {
       DALI_LOG_ERROR("C++ Exception caught");
     }
@@ -395,7 +396,7 @@ namespace
  * 7. If caller asks for no compression, bypass libpng and blat raw data to
  *    disk, topped and tailed with header/tail blocks.
  */
-bool EncodeToPng( const unsigned char* const pixelBuffer, PngBuffer& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat )
+bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat )
 {
   // Translate pixel format enum:
   int pngPixelFormat = -1;
@@ -455,7 +456,7 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, PngBuffer& encodedPixe
 
   // Since we are going to write to memory instead of a file, lets provide
   // libpng with a custom write function and ask it to pass back our
-  // std::vector buffer each time it calls back to flush data to "file":
+  // Vector buffer each time it calls back to flush data to "file":
   png_set_write_fn(png_ptr, &encodedPixels, WriteData, FlushData);
 
   // png_set_compression_level( png_ptr, Z_BEST_COMPRESSION);
