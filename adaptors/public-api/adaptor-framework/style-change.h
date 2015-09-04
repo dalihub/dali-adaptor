@@ -24,6 +24,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 namespace StyleChange
 {
@@ -37,6 +41,9 @@ enum Type
 
 } // namespace StyleChange
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_STYLE_CHANGE_H__

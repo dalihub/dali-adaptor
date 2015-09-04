@@ -28,6 +28,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -184,6 +188,9 @@ private:
   Internal::Adaptor::PixmapImage* mImpl; ///< Implementation pointer
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_PIXMAP_IMAGE_H__

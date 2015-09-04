@@ -22,8 +22,12 @@
 
 #include <dali/public-api/events/key-event.h>
 
-namespace Dali DALI_IMPORT_API
+namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 /**
  * @brief Mapping of keyboard and mouse button event keycodes to platform specific codes.
@@ -82,8 +86,11 @@ enum KEY
  * @param daliKey dali key enum
  * @return true if the key is matched, false if not
  */
-bool IsKey( const KeyEvent& keyEvent, KEY daliKey);
+DALI_IMPORT_API bool IsKey( const KeyEvent& keyEvent, KEY daliKey);
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_KEY_H__

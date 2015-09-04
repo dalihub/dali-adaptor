@@ -28,6 +28,11 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
+
 typedef Dali::Rect<int> PositionSize;
 
 namespace Internal DALI_INTERNAL
@@ -230,6 +235,9 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_WINDOW_H__
