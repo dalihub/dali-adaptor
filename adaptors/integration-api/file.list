@@ -1,6 +1,7 @@
 adaptor_integration_api_header_files = \
   $(adaptor_integration_api_dir)/adaptor.h \
   $(adaptor_integration_api_dir)/egl-interface.h \
+  $(adaptor_integration_api_dir)/thread-synchronization-interface.h \
   $(adaptor_integration_api_dir)/trigger-event-interface.h \
   $(adaptor_integration_api_dir)/trigger-event-factory-interface.h \
   $(adaptor_integration_api_dir)/trigger-event-factory.h \

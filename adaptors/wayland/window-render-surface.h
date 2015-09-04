@@ -134,6 +134,11 @@ public: // from Dali::RenderSurface
   virtual void StopRender();
 
   /**
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   */
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
+
+  /**
    * @copydoc Dali::RenderSurface::ReleaseLock()
    */
   virtual void ReleaseLock();

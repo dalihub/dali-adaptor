@@ -60,6 +60,7 @@ ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorIn
   mVSyncThreadStop( FALSE ),
   mRenderThreadStop( FALSE ),
   mRenderThreadReplacingSurface( FALSE ),
+  mRenderThreadSurfaceRendered( FALSE ),
   mEventThreadSurfaceReplaced( FALSE ),
   mVSyncThreadInitialised( FALSE ),
   mRenderThreadInitialised( FALSE ),
@@ -475,8 +476,11 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
       ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
       if( mUpdateAheadOfRender <= 0 && ! mRenderThreadStop )
       {
-        LOG_UPDATE_COUNTER_RENDER( "updateAheadOfRender(%d) WAIT", mUpdateAheadOfRender );
-        mRenderThreadWaitCondition.Wait( renderLock );
+        do
+        {
+          LOG_UPDATE_COUNTER_RENDER( "updateAheadOfRender(%d) WAIT", mUpdateAheadOfRender );
+          mRenderThreadWaitCondition.Wait( renderLock );
+        } while( mUpdateAheadOfRender <= 0 && ! mRenderThreadStop && ! mRenderThreadReplacingSurface );
       }
       else
       {
@@ -574,6 +578,46 @@ bool ThreadSynchronization::VSyncReady( bool validSync, unsigned int frameNumber
   }
 
   return IsVSyncThreadRunning(); // Call to this function locks so should not be called if we have a scoped-lock
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// POST RENDERING: EVENT THREAD
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ThreadSynchronization::PostRenderComplete()
+{
+  LOG_EVENT_TRACE;
+
+  {
+    ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+    mRenderThreadSurfaceRendered = TRUE;
+  }
+  mRenderThreadWaitCondition.Notify();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// POST RENDERING: RENDER THREAD
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ThreadSynchronization::PostRenderStarted()
+{
+  LOG_RENDER_TRACE;
+
+  ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+  mRenderThreadSurfaceRendered = FALSE;
+}
+
+void ThreadSynchronization::PostRenderWaitForCompletion()
+{
+  LOG_RENDER_TRACE;
+
+  ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+  if( !mRenderThreadSurfaceRendered &&
+      !mRenderThreadReplacingSurface )
+  {
+    LOG_RENDER( "WAIT" );
+    mRenderThreadWaitCondition.Wait( lock );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

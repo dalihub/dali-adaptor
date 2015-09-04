@@ -32,12 +32,12 @@
 
 // INTERNAL INCLUDES
 
+#include <integration-api/thread-synchronization-interface.h>
 #include <ecore-x-types.h>
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 #include <base/display-connection.h>
 #include <base/conditional-wait.h>
-
 
 namespace Dali
 {
@@ -49,14 +49,10 @@ extern Debug::Filter* gRenderSurfaceLogFilter;
 namespace ECore
 {
 
-
 struct PixmapRenderSurface::Impl
 {
-  Internal::Adaptor::ConditionalWait  mSyncNotify;   ///< condition to notify main thread that pixmap was flushed to onscreen
-  Dali::Mutex                         mSyncMutex;    ///< mutex to lock during waiting sync
-  Ecore_X_Pixmap                      mX11Pixmap;    ///< X-Pixmap
-  SyncMode                            mSyncMode;     ///< Stores whether the post render should block waiting for compositor
-  bool                                mSyncReceived; ///< true, when a pixmap sync has occurred, (cleared after reading)
+  Ecore_X_Pixmap                  mX11Pixmap;             ///< X-Pixmap
+  ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
 };
 
 PixmapRenderSurface::PixmapRenderSurface(Dali::PositionSize positionSize,
@@ -66,8 +62,7 @@ PixmapRenderSurface::PixmapRenderSurface(Dali::PositionSize positionSize,
 : EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
   mImpl( new Impl )
 {
-  mImpl->mSyncMode = SYNC_MODE_NONE;
-  mImpl->mSyncReceived = false;
+  mImpl->mThreadSynchronization = NULL;
   Init( surface );
 }
 
@@ -138,7 +133,6 @@ bool PixmapRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
 void PixmapRenderSurface::StartRender()
 {
-
 }
 
 bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
@@ -152,7 +146,10 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   // flush gl instruction queue
   glAbstraction.Flush();
 
-  mImpl->mSyncReceived = false;
+  if( mImpl->mThreadSynchronization )
+  {
+    mImpl->mThreadSynchronization->PostRenderStarted();
+  }
 
   // create damage for client applications which wish to know the update timing
   if( mRenderNotification )
@@ -188,16 +185,20 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     }
   }
 
-  if( !replacingSurface && mImpl->mSyncMode != SYNC_MODE_NONE )
+  if( mImpl->mThreadSynchronization )
   {
-    AcquireLock();
+    mImpl->mThreadSynchronization->PostRenderWaitForCompletion();
   }
 }
 
 void PixmapRenderSurface::StopRender()
 {
-  SetSyncMode(SYNC_MODE_NONE);
   ReleaseLock();
+}
+
+void PixmapRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
+{
+  mImpl->mThreadSynchronization = &threadSynchronization;
 }
 
 void PixmapRenderSurface::CreateXRenderable()
@@ -233,26 +234,12 @@ void PixmapRenderSurface::UseExistingRenderable( unsigned int surfaceId )
   mImpl->mX11Pixmap = static_cast< Ecore_X_Pixmap >( surfaceId );
 }
 
-void PixmapRenderSurface::SetSyncMode( SyncMode syncMode )
-{
-  mImpl->mSyncMode = syncMode;
-}
-
-void PixmapRenderSurface::AcquireLock()
-{
-  if( !mImpl->mSyncReceived )
-  {
-    mImpl->mSyncNotify.Wait();
-  }
-  mImpl->mSyncReceived = false;
-}
-
 void PixmapRenderSurface::ReleaseLock()
 {
-  mImpl->mSyncReceived = true;
-
-  // wake render thread if it was waiting for the notify
-  mImpl->mSyncNotify.Notify();
+  if( mImpl->mThreadSynchronization )
+  {
+    mImpl->mThreadSynchronization->PostRenderComplete();
+  }
 }
 
 } // namespace ECore
