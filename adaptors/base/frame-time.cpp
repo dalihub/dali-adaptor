@@ -88,6 +88,7 @@ void FrameTime::SetMinimumFrameTimeInterval( unsigned int interval )
 
 void FrameTime::SetSyncTime( unsigned int frameNumber )
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   // Only set the render time if we are running
   if ( mRunning )
   {
@@ -101,6 +102,7 @@ void FrameTime::SetSyncTime( unsigned int frameNumber )
 
 void FrameTime::Suspend()
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   mRunning = FALSE;
 
   // Reset members
@@ -148,6 +150,7 @@ void FrameTime::WakeUp()
 
 void FrameTime::PredictNextSyncTime( float& lastFrameDeltaSeconds, unsigned int& lastSyncTimeMilliseconds, unsigned int& nextSyncTimeMilliseconds )
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   if ( mRunning )
   {
     const unsigned int minimumFrameTimeInterval( mMinimumFrameTimeInterval );

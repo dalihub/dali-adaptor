@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <stdint.h>
+#include <dali/devel-api/common/mutex.h>
 
 namespace Dali
 {
@@ -118,20 +119,21 @@ private:
 
   unsigned int mMinimumFrameTimeInterval; ///< The minimum frame time interval, set by Adaptor.
 
-  uint64_t mLastSyncTime;                ///< The last Sync time (in microseconds).
-  uint64_t mLastSyncTimeAtUpdate;        ///< The last Sync time at Update (in microseconds).
+  volatile uint64_t mLastSyncTime;                ///< The last Sync time (in microseconds).
+  volatile uint64_t mLastSyncTimeAtUpdate;        ///< The last Sync time at Update (in microseconds).
 
   unsigned int mLastSyncFrameNumber;     ///< The last Sync frame number
   unsigned int mLastUpdateFrameNumber;   ///< The last Sync frame number handled in Update.
 
   // NOTE cannot use bitfields or booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
-  unsigned int mRunning;                 ///< The state of the FrameTime object.
+  volatile unsigned int mRunning;        ///< The state of the FrameTime object.
   unsigned int mFirstFrame;              ///< Whether the current update is the first frame (after initialisation, resume or wake up).
 
   unsigned int mPreviousUpdateFrames[3]; ///< Array holding the number of frames Update took in the last three iterations.
   unsigned int writePos;                 ///< The current write position in the array.
 
   unsigned int mExtraUpdatesSinceSync;   ///< The number of extra updates since the last Sync.
+  Dali::Mutex mMutex;                    ///< Mutex to ensure correct access locking.
 };
 
 } // namespace Adaptor
