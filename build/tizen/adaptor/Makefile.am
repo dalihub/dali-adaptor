@@ -196,7 +196,7 @@ libdali_adaptor_la_SOURCES = \
                      $(input_event_handler_src_files)
 
 
-if ENABLE_NETWORK
+if ENABLE_NETWORK_LOGGING
 libdali_adaptor_la_SOURCES += \
   $(base_adaptor_networking_src_files)
 endif
