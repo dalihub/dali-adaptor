@@ -76,6 +76,11 @@ public:
   void GetDefaultFonts( FontList& defaultFonts );
 
   /**
+   * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
+   */
+  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
+
+  /**
    * @copydoc Dali::FontClient::GetSystemFonts()
    */
   void GetSystemFonts( FontList& systemFonts );

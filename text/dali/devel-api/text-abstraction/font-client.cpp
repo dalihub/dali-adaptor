@@ -73,6 +73,11 @@ void FontClient::GetDefaultFonts( FontList& defaultFonts )
   GetImplementation(*this).GetDefaultFonts( defaultFonts );
 }
 
+void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+{
+  GetImplementation(*this).GetDefaultPlatformFontDescription( fontDescription );
+}
+
 void FontClient::GetSystemFonts( FontList& systemFonts )
 {
   GetImplementation(*this).GetSystemFonts( systemFonts );

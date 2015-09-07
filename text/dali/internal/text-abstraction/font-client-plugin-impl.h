@@ -141,6 +141,11 @@ struct FontClient::Plugin
   void SetDefaultFont( const FontDescription& fontDescription );
 
   /**
+   * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
+   */
+  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
+
+  /**
    * @copydoc Dali::FontClient::GetDefaultFonts()
    */
   void GetDefaultFonts( FontList& defaultFonts );

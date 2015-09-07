@@ -137,6 +137,13 @@ public:
   void GetDefaultFonts( FontList& defaultFonts );
 
   /**
+   * @brief Retrieve the active default font from the system
+   *
+   * @param[out] fontDescription font structure describing the default font
+   */
+  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
+
+  /**
    * @brief Retrieve the list of fonts supported by the system.
    *
    * @param[out] systemFonts A list of font paths, family & style strings.

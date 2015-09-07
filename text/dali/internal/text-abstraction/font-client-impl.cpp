@@ -100,6 +100,13 @@ void FontClient::GetDefaultFonts( FontList& defaultFonts )
   mPlugin->GetDefaultFonts( defaultFonts );
 }
 
+void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+{
+  CreatePlugin();
+
+  mPlugin->GetDefaultPlatformFontDescription( fontDescription );
+}
+
 void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
 {
   CreatePlugin();

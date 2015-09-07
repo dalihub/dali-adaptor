@@ -23,15 +23,22 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/platform-abstraction.h>
+#include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
 #include <fontconfig/fontconfig.h>
 
+namespace
+{
+
+#if defined(DEBUG_ENABLED)
+Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_FONT_CLIENT");
+#endif
+
 /**
  * Conversion from Fractional26.6 to float
  */
-namespace
-{
 const float FROM_266 = 1.0f / 64.0f;
 
 const std::string FONT_FORMAT( "TrueType" );
@@ -249,6 +256,8 @@ void FontClient::Plugin::SetDpi( unsigned int horizontalDpi,
 
 void FontClient::Plugin::SetDefaultFont( const FontDescription& fontDescription )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::SetDefaultFont family(%s)\n", fontDescription.family.c_str() );
+
   mDefaultFonts.clear();
 
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
@@ -302,10 +311,12 @@ void FontClient::Plugin::SetDefaultFont( const FontDescription& fontDescription 
 
 void FontClient::Plugin::GetDefaultFonts( FontList& defaultFonts )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultFonts mDefaultFonts(%s)\n", ( mDefaultFonts.empty()?"empty":"valid" ) );
+
   if( mDefaultFonts.empty() )
   {
     FontDescription fontDescription;
-    fontDescription.family = DEFAULT_FONT_FAMILY_NAME;
+    fontDescription.family = DEFAULT_FONT_FAMILY_NAME;  // todo This could be set to the Platform font
     fontDescription.width = IntToWidthType( DEFAULT_FONT_WIDTH );
     fontDescription.weight = IntToWeightType( DEFAULT_FONT_WEIGHT );
     fontDescription.slant = IntToSlantType( DEFAULT_FONT_SLANT );
@@ -315,8 +326,23 @@ void FontClient::Plugin::GetDefaultFonts( FontList& defaultFonts )
   defaultFonts = mDefaultFonts;
 }
 
+void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription\n");
+
+  if ( Adaptor::IsAvailable() )
+  {
+    std::string weight; // todo convert weight into enum
+    Dali::Internal::Adaptor::Adaptor& adaptorImpl( Dali::Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ) );
+    adaptorImpl.GetPlatformAbstraction().GetDefaultFontDescription( fontDescription.family, weight );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription Retreived fontFamily:%s\n", fontDescription.family.c_str() );
+  }
+}
+
 void FontClient::Plugin::GetSystemFonts( FontList& systemFonts )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetSystemFonts\n");
+
   if( mSystemFonts.empty() )
   {
     InitSystemFonts();
@@ -366,6 +392,8 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
                                             PointSize26Dot6 requestedSize,
                                             bool preferColor )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindDefaultFont DefaultFontsList(%s)\n", (mDefaultFonts.empty()?"empty":"created") );
+
   FontId fontId(0);
   bool foundColor(false);
 
@@ -453,6 +481,8 @@ FontId FontClient::Plugin::GetFontId( const FontPath& path,
                                       FaceIndex faceIndex,
                                       bool cacheDescription )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId fontPatch:%s\n", path.c_str() );
+
   FontId id( 0 );
 
   if( NULL != mFreeTypeLibrary )
@@ -475,6 +505,8 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                                       PointSize26Dot6 pointSize,
                                       FaceIndex faceIndex )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId font family(%s)\n", fontDescription.family.c_str() );
+
   // This method uses three vectors which caches:
   // * Pairs of non validated font descriptions and an index to a vector with paths to font file names.
   // * The path to font file names.
@@ -483,10 +515,10 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
   // 1) Checks in the cache if the font's description has been validated before.
   //    If it was it gets an index to the vector with paths to font file names. Otherwise,
   //    retrieves using font config a path to a font file name which matches with the
-  //    font's description. The path is stored in the chache.
+  //    font's description. The path is stored in the cache.
   //
   // 2) Checks in the cache if the pair 'font point size, index to the vector with paths to
-  //    fon file names' exists. If exists, it gets the font id. If it doesn't it calls
+  //    font file names' exists. If exists, it gets the font id. If it doesn't it calls
   //    the GetFontId() method with the path to the font file name and the point size to
   //    get the font id.
 
@@ -499,6 +531,8 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
   if( !FindValidatedFont( fontDescription,
                           validatedFontId ) )
   {
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId Validating Font\n");
+
     // Use font config to validate the font's description.
     ValidateFont( fontDescription,
                   validatedFontId );
@@ -528,6 +562,8 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
 void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
                                        FontDescriptionId& validatedFontId )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValidateFont Validating Font family(%s) \n", fontDescription.family.c_str() );
+
   // Create a font pattern.
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
 
@@ -575,6 +611,8 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
                     fontDescription.weight,
                     fontDescription.slant );
   }
+
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValidateFont validatedFontId(%u) font family(%s)\n", validatedFontId, fontDescription.family.c_str() );
 
   // destroy the pattern
   FcPatternDestroy( fontFamilyPattern );
@@ -815,6 +853,8 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize
 
 void FontClient::Plugin::InitSystemFonts()
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::InitSystemFonts \n");
+
   FcFontSet* fontSet = GetFcFontSet();
 
   if( fontSet )
@@ -846,6 +886,8 @@ void FontClient::Plugin::InitSystemFonts()
         fontDescription.width = IntToWidthType( width );
         fontDescription.weight = IntToWeightType( weight );
         fontDescription.slant = IntToSlantType( slant );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::InitSystemFonts font family(%s)\n", fontDescription.family.c_str() );
+
       }
     }
 
@@ -1162,6 +1204,8 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
 bool FontClient::Plugin::FindValidatedFont( const FontDescription& fontDescription,
                                             FontDescriptionId& validatedFontId )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont fontDescription family(%s)\n", fontDescription.family.c_str() );
+
   validatedFontId = 0u;
 
   for( std::vector<FontDescriptionCacheItem>::const_iterator it = mValidatedFontCache.begin(),
@@ -1179,9 +1223,13 @@ bool FontClient::Plugin::FindValidatedFont( const FontDescription& fontDescripti
     {
       validatedFontId = item.index;
 
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont validated font family(%s) font id (%u) \n", fontDescription.family.c_str(), validatedFontId );
+
       return true;
     }
   }
+
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont NOT VALIDATED return false\n" );
 
   return false;
 }
