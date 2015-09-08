@@ -532,49 +532,56 @@ bool ThreadSynchronization::VSyncReady( bool validSync, unsigned int frameNumber
 {
   LOG_VSYNC_TRACE;
 
+  // Ensure we do not process an invalid v-sync
+  if( validSync )
   {
-    ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
-    if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
     {
-      numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
-      mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
-    }
+      ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
+      if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
+      {
+        numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
+        mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
+      }
 
-    if( validSync )
-    {
       mFrameTime.SetSyncTime( frameNumber );
     }
-  }
 
-  if( ! mVSyncThreadInitialised )
-  {
-    LOG_VSYNC( "Initialised" );
+    if( ! mVSyncThreadInitialised )
+    {
+      LOG_VSYNC( "Initialised" );
 
-    mVSyncThreadInitialised = TRUE;
+      mVSyncThreadInitialised = TRUE;
 
-    // Notify event thread that this thread is up and running, this locks so we should have a scoped-lock
-    NotifyThreadInitialised();
+      // Notify event thread that this thread is up and running, this locks so we should have a scoped-lock
+      NotifyThreadInitialised();
+    }
+    else
+    {
+      // Increment v-sync-ahead-of-update count and inform update-thread
+      {
+        ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
+        ++mVSyncAheadOfUpdate;
+        LOG_VSYNC_COUNTER_VSYNC( " vSyncAheadOfUpdate(%d)", mVSyncAheadOfUpdate );
+      }
+      mUpdateThreadWaitCondition.Notify();
+    }
+
+    // Ensure update-thread has set us to run before continuing
+    // Ensure we do not wait if we're supposed to stop
+    {
+      ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
+      while( ! mVSyncThreadRunning && ! mVSyncThreadStop )
+      {
+        LOG_VSYNC( "WAIT" );
+        mVSyncThreadWaitCondition.Wait( vSyncLock );
+      }
+    }
   }
   else
   {
-    // Increment v-sync-ahead-of-update count and inform update-thread
-    {
-      ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
-      ++mVSyncAheadOfUpdate;
-      LOG_VSYNC_COUNTER_VSYNC( " vSyncAheadOfUpdate(%d)", mVSyncAheadOfUpdate );
-    }
-    mUpdateThreadWaitCondition.Notify();
-  }
+    LOG_VSYNC( "INVALID SYNC" );
 
-  // Ensure update-thread has set us to run before continuing
-  // Ensure we do not wait if we're supposed to stop
-  {
-    ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
-    while( ! mVSyncThreadRunning && ! mVSyncThreadStop )
-    {
-      LOG_VSYNC( "WAIT" );
-      mVSyncThreadWaitCondition.Wait( vSyncLock );
-    }
+    // Later we still check if the v-sync thread is supposed to keep running so we can still stop the thread if we are supposed to
   }
 
   return IsVSyncThreadRunning(); // Call to this function locks so should not be called if we have a scoped-lock
