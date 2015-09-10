@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/conditional-wait.h>
 
 // INTERNAL INCLUDES
 #include <integration-api/thread-synchronization-interface.h>
 #include <base/interfaces/performance-interface.h>
-#include <base/conditional-wait.h>
 #include <trigger-event-interface.h>
 #include <base/frame-time.h>
 #include <base/render-thread.h>

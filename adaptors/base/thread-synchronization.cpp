@@ -535,16 +535,22 @@ bool ThreadSynchronization::VSyncReady( bool validSync, unsigned int frameNumber
   // Ensure we do not process an invalid v-sync
   if( validSync )
   {
+    bool minimumFrameTimeIntervalChanged = false;
     {
       ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
       if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
       {
         numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
-        mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
+        minimumFrameTimeIntervalChanged = true;
       }
-
-      mFrameTime.SetSyncTime( frameNumber );
     }
+
+    if( minimumFrameTimeIntervalChanged )
+    {
+      mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
+    }
+
+    mFrameTime.SetSyncTime( frameNumber );
 
     if( ! mVSyncThreadInitialised )
     {

@@ -6,7 +6,6 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
-    utc-ConditionalWait.cpp
     utc-Dali-CommandLineOptions.cpp
     utc-Dali-GifLoader.cpp
     utc-Dali-ImageOperations.cpp
