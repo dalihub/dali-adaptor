@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.1
+Version:    1.1.2
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -271,6 +271,7 @@ exit 0
 %{dev_include_path}/dali/dali.h
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
+%{dev_include_path}/dali/doc/*
 %{_libdir}/pkgconfig/dali.pc
 
 %files integration-devel

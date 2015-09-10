@@ -200,6 +200,14 @@ public:
   static bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
 
 private:
+
+  // Undefined
+  ResourceLoader( const ResourceLoader& resourceLoader );
+
+  // Undefined
+  ResourceLoader& operator=( const ResourceLoader& resourceLoader );
+
+private:
   struct ResourceLoaderImpl;
   ResourceLoaderImpl* mImpl;
 

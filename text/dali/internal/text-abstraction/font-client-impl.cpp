@@ -86,12 +86,11 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   verticalDpi = mDpiVertical;
 }
 
-void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
-                                       const std::string& fontStyle )
+void FontClient::SetDefaultFont( const FontDescription& fontDescription )
 {
   CreatePlugin();
 
-  mPlugin->SetDefaultFontFamily( fontFamilyName, fontStyle );
+  mPlugin->SetDefaultFont( fontDescription );
 }
 
 void FontClient::GetDefaultFonts( FontList& defaultFonts )
@@ -99,6 +98,13 @@ void FontClient::GetDefaultFonts( FontList& defaultFonts )
   CreatePlugin();
 
   mPlugin->GetDefaultFonts( defaultFonts );
+}
+
+void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+{
+  CreatePlugin();
+
+  mPlugin->GetDefaultPlatformFontDescription( fontDescription );
 }
 
 void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
@@ -136,11 +142,11 @@ bool FontClient::IsScalable( const FontPath& path )
   return mPlugin->IsScalable( path );
 }
 
-bool FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& style )
+bool FontClient::IsScalable( const FontDescription& fontDescription )
 {
   CreatePlugin();
 
-  return mPlugin->IsScalable( fontFamily, style );
+  return mPlugin->IsScalable( fontDescription );
 }
 
 void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
@@ -150,13 +156,12 @@ void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26D
   mPlugin->GetFixedSizes( path, sizes );
 }
 
-void FontClient::GetFixedSizes( const FontFamily& fontFamily,
-                                const FontStyle& style,
+void FontClient::GetFixedSizes( const FontDescription& fontDescription,
                                 Dali::Vector< PointSize26Dot6 >& sizes )
 {
   CreatePlugin();
 
-  mPlugin->GetFixedSizes( fontFamily, style, sizes );
+  mPlugin->GetFixedSizes( fontDescription, sizes );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -166,24 +171,22 @@ FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, F
   return mPlugin->GetFontId( path, pointSize, faceIndex );
 }
 
-FontId FontClient::GetFontId( const FontFamily& fontFamily,
-                              const FontStyle& fontStyle,
+FontId FontClient::GetFontId( const FontDescription& fontDescription,
                               PointSize26Dot6 pointSize,
                               FaceIndex faceIndex )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( fontFamily,
-                             fontStyle,
+  return mPlugin->GetFontId( fontDescription,
                              pointSize,
                              faceIndex );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontMetrics( fontId, metrics );
+  return mPlugin->GetFontMetrics( fontId, metrics, maxFixedSize );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -193,11 +196,11 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return mPlugin->GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize )
 {
   CreatePlugin();
 
-  return mPlugin->GetGlyphMetrics( array, size, horizontal );
+  return mPlugin->GetGlyphMetrics( array, size, horizontal, maxFixedSize );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )

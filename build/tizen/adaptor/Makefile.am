@@ -83,6 +83,10 @@ include ../../../adaptors/devel-api/file.list
 static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
 include ../../../text/dali/internal/libunibreak/file.list
 
+# Package doc
+package_doxy_dir = ../../../doc
+include ../../../doc/file.list
+
 ############# source files #############
 
 # COMMON
@@ -192,6 +196,11 @@ libdali_adaptor_la_SOURCES = \
                      $(input_event_handler_src_files)
 
 
+if ENABLE_NETWORK_LOGGING
+libdali_adaptor_la_SOURCES += \
+  $(base_adaptor_networking_src_files)
+endif
+
 libdali_adaptor_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (tizen) before portable root:
@@ -242,7 +251,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\"" \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
                       -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\"" \
-                      -DFONT_CONFIGURATION_FILE_PATH="\"${fontConfigurationFilePath}\"" \
+                      -DFONT_CONFIGURATION_FILE="\"${fontConfigurationFile}\"" \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \
@@ -383,6 +392,10 @@ install-data-local:
 
 # Install resource log analyzer script
 bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
+
+# package doxygen file (contains doxygen grouping information)
+packagedoxydir = $(devincludepath)/dali/doc
+packagedoxy_HEADERS = $(package_doxy_files)
 
 # linking test
 

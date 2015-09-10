@@ -35,8 +35,7 @@ namespace Internal
 namespace Adaptor
 {
 
-ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces,
-                                                const EnvironmentOptions& environmentOptions )
+ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions )
 : mAdaptorInterfaces( adaptorInterfaces ),
   mUpdateThread( NULL ),
   mRenderThread( NULL ),
@@ -51,6 +50,13 @@ ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces,
   mRenderThread = new RenderThread( *mThreadSync, adaptorInterfaces, environmentOptions );
 
   mVSyncNotifier = new VSyncNotifier( *mThreadSync, adaptorInterfaces, environmentOptions );
+
+  // Set the thread-synchronization interface on the render-surface
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->SetThreadSynchronization( *mThreadSync );
+  }
 }
 
 ThreadController::~ThreadController()
@@ -110,6 +116,9 @@ void ThreadController::RequestUpdateOnce()
 
 void ThreadController::ReplaceSurface( RenderSurface* newSurface )
 {
+  // Set the thread-syncronization on the new surface
+  newSurface->SetThreadSynchronization( *mThreadSync );
+
   // tell render thread to start the replace. This call will block until the replace
   // has completed.
   RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();

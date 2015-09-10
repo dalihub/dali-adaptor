@@ -107,25 +107,12 @@ public: // from Dali::RenderSurface
    */
   virtual void StopRender();
 
+  /**
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   */
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
+
 private:
-  enum SyncMode
-  {
-    SYNC_MODE_NONE,
-    SYNC_MODE_WAIT
-  };
-
-  /**
-   * Set the sync mode.
-   * @param[in] syncMode The sync mode
-   */
-  void SetSyncMode( SyncMode syncMode );
-
-  /**
-   * If sync mode is WAIT, then acquire a lock. This prevents render thread from
-   * continuing until the pixmap has been drawn by the compositor.
-   * It must be released for rendering to continue.
-   */
-  void AcquireLock();
 
   /**
    * Release any locks.

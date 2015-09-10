@@ -257,6 +257,12 @@ struct Framework::Impl
 
 #endif
 
+private:
+  // Undefined
+  Impl( const Impl& impl );
+
+  // Undefined
+  Impl& operator=( const Impl& impl );
 };
 
 Framework::Framework( Framework::Observer& observer, int *argc, char ***argv )

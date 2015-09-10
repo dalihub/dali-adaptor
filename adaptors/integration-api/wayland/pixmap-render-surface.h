@@ -107,6 +107,11 @@ public: // from Dali::RenderSurface
    */
   virtual void StopRender();
 
+  /**
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   */
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
+
 private:
   enum SyncMode
   {

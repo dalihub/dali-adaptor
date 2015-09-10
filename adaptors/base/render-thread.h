@@ -198,6 +198,14 @@ private: // Render thread side helpers
     return NULL;
   }
 
+private:
+
+  // Undefined
+  RenderThread( const RenderThread& renderThread );
+
+  // Undefined
+  RenderThread& operator=( const RenderThread& renderThread );
+
 private: // Data
 
   ThreadSynchronization&        mThreadSynchronization;  ///< Used to synchronize the all threads

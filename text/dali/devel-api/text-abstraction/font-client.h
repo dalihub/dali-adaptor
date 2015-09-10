@@ -123,12 +123,11 @@ public:
 
   /**
    * Set the default font family and its style that should be used by the font client.
+   * The style could be a pair 'font style, font width' or a cluster 'font width, font weight, font slant'.
    *
-   * @param[in] fontFamilyName The default name of the font's family.
-   * @param[in] fontStyle The default font's style.
+   * @param[in] fontDescription Description of the default font.
    */
-  void SetDefaultFontFamily( const std::string& fontFamilyName,
-                             const std::string& fontStyle );
+  void SetDefaultFont( const FontDescription& fontDescription );
 
   /**
    * @brief Retrieve the list of default fonts supported by the system.
@@ -136,6 +135,13 @@ public:
    * @param[out] defaultFonts A list of default font paths, family & style strings.
    */
   void GetDefaultFonts( FontList& defaultFonts );
+
+  /**
+   * @brief Retrieve the active default font from the system
+   *
+   * @param[out] fontDescription font structure describing the default font
+   */
+  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
 
   /**
    * @brief Retrieve the list of fonts supported by the system.
@@ -183,19 +189,21 @@ public:
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE, FaceIndex faceIndex = 0 );
+  FontId GetFontId( const FontPath& path,
+                    PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                    FaceIndex faceIndex = 0 );
 
   /**
    * @brief Retrieve the unique identifier for a font.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] fontStyle  The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
    * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontFamily& fontFamily,
-                    const FontStyle& fontStyle,
+  FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
@@ -210,11 +218,13 @@ public:
   /**
    * @brief Check to see if a font is scalable.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] style The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
+   *
    * @return true if scalable
    */
-  bool IsScalable( const FontFamily& fontFamily, const FontStyle& style );
+  bool IsScalable( const FontDescription& fontDescription );
 
   /**
    * @brief Get a list of sizes available for a fixed size font.
@@ -227,12 +237,12 @@ public:
   /**
    * @brief Get a list of sizes available for a fixed size font.
    *
-   * @param[in] fontFamily The font family name.
-   * @param[in] style The font style.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
    * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
    */
-  void GetFixedSizes( const FontFamily& fontFamily,
-                      const FontStyle& style,
+  void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   ////////////////////////////////////////
@@ -244,8 +254,9 @@ public:
    *
    * @param[in] fontId The ID of the font for the required glyph.
    * @param[out] metrics The font metrics.
+   * @param[in] maxFixedSize The metrics for fixed-size fonts will be down-scaled, when exceeding this maximum value in pixels.
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize = 0 );
 
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.
@@ -264,9 +275,10 @@ public:
    * On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
    * @param[in] size The size of the array.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
+   * @param[in] maxFixedSize The metrics for fixed-size fonts will be down-scaled, when exceeding this maximum value in pixels.
    * @return True if all of the requested metrics were found.
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true, int maxFixedSize = 0 );
 
   /**
    * @brief Render a bitmap representation of a glyph.

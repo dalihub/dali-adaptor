@@ -25,6 +25,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali-adaptor-framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -151,6 +155,9 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL Timer(Internal::Adaptor::Timer* timer);
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_TIMER_H__

@@ -31,6 +31,7 @@ namespace Dali
 
 class EglInterface;
 class DisplayConnection;
+class ThreadSynchronizationInterface;
 
 namespace Integration
 {
@@ -148,6 +149,13 @@ public:
    * @brief Invoked by Event Thread when the compositor lock should be released and rendering should resume.
    */
   virtual void ReleaseLock() = 0;
+
+  /**
+   * @brief Sets the ThreadSynchronizationInterface
+   *
+   * @param threadSynchronization The thread-synchronization implementation.
+   */
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) = 0;
 
 private:
 

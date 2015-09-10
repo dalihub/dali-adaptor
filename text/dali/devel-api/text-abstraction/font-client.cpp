@@ -63,15 +63,19 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   GetImplementation(*this).GetDpi( horizontalDpi, verticalDpi );
 }
 
-void FontClient::SetDefaultFontFamily( const std::string& fontFamilyName,
-                                       const std::string& fontStyle )
+void FontClient::SetDefaultFont( const FontDescription& fontDescription )
 {
-  GetImplementation(*this).SetDefaultFontFamily( fontFamilyName, fontStyle );
+  GetImplementation(*this).SetDefaultFont( fontDescription );
 }
 
 void FontClient::GetDefaultFonts( FontList& defaultFonts )
 {
   GetImplementation(*this).GetDefaultFonts( defaultFonts );
+}
+
+void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+{
+  GetImplementation(*this).GetDefaultPlatformFontDescription( fontDescription );
 }
 
 void FontClient::GetSystemFonts( FontList& systemFonts )
@@ -99,13 +103,11 @@ FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, F
   return GetImplementation(*this).GetFontId( path, pointSize, faceIndex );
 }
 
-FontId FontClient::GetFontId( const FontFamily& fontFamily,
-                              const FontStyle& fontStyle,
+FontId FontClient::GetFontId( const FontDescription& fontDescription,
                               PointSize26Dot6 pointSize,
                               FaceIndex faceIndex )
 {
-  return GetImplementation(*this).GetFontId( fontFamily,
-                                             fontStyle,
+  return GetImplementation(*this).GetFontId( fontDescription,
                                              pointSize,
                                              faceIndex );
 }
@@ -115,9 +117,9 @@ bool FontClient::IsScalable( const FontPath& path )
   return GetImplementation(*this).IsScalable( path );;
 }
 
-bool FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& style )
+bool FontClient::IsScalable( const FontDescription& fontDescription )
 {
-  return GetImplementation(*this).IsScalable( fontFamily, style );
+  return GetImplementation(*this).IsScalable( fontDescription );
 }
 
 void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
@@ -125,16 +127,15 @@ void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26D
   GetImplementation(*this).GetFixedSizes( path, sizes );
 }
 
-void FontClient::GetFixedSizes( const FontFamily& fontFamily,
-                                const FontStyle& style,
+void FontClient::GetFixedSizes( const FontDescription& fontDescription,
                                 Dali::Vector< PointSize26Dot6 >& sizes )
 {
-  GetImplementation(*this).GetFixedSizes( fontFamily, style, sizes );
+  GetImplementation(*this).GetFixedSizes( fontDescription, sizes );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize )
 {
-  GetImplementation(*this).GetFontMetrics( fontId, metrics );
+  GetImplementation(*this).GetFontMetrics( fontId, metrics, maxFixedSize );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -142,9 +143,9 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize )
 {
-  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal );
+  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal, maxFixedSize );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )

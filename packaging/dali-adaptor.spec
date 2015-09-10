@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.1
+Version:    1.1.2
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0, BSD-2.0, MIT
@@ -168,8 +168,15 @@ CXXFLAGS+=" -DOVER_TIZEN_SDK_2_2"
 %endif
 
 libtoolize --force
-cd %{_builddir}/%{name}-%{version}/build/tizen && autoreconf --install
-cd %{_builddir}/%{name}-%{version}/build/tizen && CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}" FONT_PRELOADED_PATH="%{font_preloaded_path}" FONT_DOWNLOADED_PATH="%{font_downloaded_path}" FONT_APPLICATION_PATH="%{font_application_path}" FONT_CONFIGURATION_FILE="%{font_configuration_file}"
+cd %{_builddir}/%{name}-%{version}/build/tizen
+autoreconf --install
+
+DALI_DATA_RW_DIR="%{dali_data_rw_dir}" ; export DALI_DATA_RW_DIR
+DALI_DATA_RO_DIR="%{dali_data_ro_dir}"  ; export DALI_DATA_RO_DIR
+FONT_PRELOADED_PATH="%{font_preloaded_path}" ; export FONT_PRELOADED_PATH
+FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
+FONT_APPLICATION_PATH="%{font_application_path}"  ; export FONT_APPLICATION_PATH
+FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
@@ -257,6 +264,7 @@ exit 0
 %{dev_include_path}/dali/dali.h
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
+%{dev_include_path}/dali/doc/*
 %{_libdir}/pkgconfig/dali.pc
 
 %files integration-devel
