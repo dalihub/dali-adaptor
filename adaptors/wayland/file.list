@@ -7,7 +7,6 @@ adaptor_wayland_tizen_internal_src_files = \
   $(adaptor_wayland_dir)/framework-wl.cpp \
   $(adaptor_wayland_dir)/imf-manager-impl-wl.cpp \
   $(adaptor_wayland_dir)/pixmap-image-impl-wl.cpp \
-  $(adaptor_wayland_dir)/server-connection-wl.cpp \
   $(adaptor_wayland_dir)/virtual-keyboard-impl-wl.cpp \
   $(adaptor_wayland_dir)/window-impl-wl.cpp \
   $(adaptor_wayland_dir)/event-handler-wl.cpp \
