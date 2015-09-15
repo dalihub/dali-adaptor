@@ -411,7 +411,7 @@ private:
   volatile unsigned int mRenderThreadStop;            ///< Whether the render-thread should be stopped (set by the update-thread, read by the render-thread).
   volatile unsigned int mRenderThreadReplacingSurface;///< Whether the render-thread should replace the surface (set by the event & render threads, read by the render-thread).
 
-  volatile unsigned int mRenderThreadSurfaceRendered; ///< Whether the render-surface has rendered our surface (set by the event & render threads, read by the render-thread).
+  volatile unsigned int mRenderThreadPostRendering;   ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
 
   volatile unsigned int mEventThreadSurfaceReplaced;  ///< Checked by the event-thread & set by the render-thread when the surface has been replaced (set by the event & render threads, read by the event-thread).
 

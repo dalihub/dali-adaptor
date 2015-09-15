@@ -60,7 +60,7 @@ ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorIn
   mVSyncThreadStop( FALSE ),
   mRenderThreadStop( FALSE ),
   mRenderThreadReplacingSurface( FALSE ),
-  mRenderThreadSurfaceRendered( FALSE ),
+  mRenderThreadPostRendering( FALSE ),
   mEventThreadSurfaceReplaced( FALSE ),
   mVSyncThreadInitialised( FALSE ),
   mRenderThreadInitialised( FALSE ),
@@ -603,7 +603,7 @@ void ThreadSynchronization::PostRenderComplete()
 
   {
     ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-    mRenderThreadSurfaceRendered = TRUE;
+    mRenderThreadPostRendering = FALSE;
   }
   mRenderThreadWaitCondition.Notify();
 }
@@ -617,7 +617,7 @@ void ThreadSynchronization::PostRenderStarted()
   LOG_RENDER_TRACE;
 
   ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-  mRenderThreadSurfaceRendered = FALSE;
+  mRenderThreadPostRendering = TRUE;
 }
 
 void ThreadSynchronization::PostRenderWaitForCompletion()
@@ -625,8 +625,8 @@ void ThreadSynchronization::PostRenderWaitForCompletion()
   LOG_RENDER_TRACE;
 
   ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-  if( !mRenderThreadSurfaceRendered &&
-      !mRenderThreadReplacingSurface )
+  while( mRenderThreadPostRendering &&
+         ! mRenderThreadReplacingSurface ) // We should NOT wait if we're replacing the surface
   {
     LOG_RENDER( "WAIT" );
     mRenderThreadWaitCondition.Wait( lock );
