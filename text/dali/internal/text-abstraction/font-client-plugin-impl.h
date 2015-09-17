@@ -52,6 +52,17 @@ typedef uint32_t FontDescriptionId;
 struct FontClient::Plugin
 {
   /**
+   * @brief Caches an list of fallback fonts for a given font-description
+   */
+  struct FallbackCacheItem
+  {
+    FallbackCacheItem( const FontDescription& fontDescription, FontList* fallbackFonts );
+
+    FontDescription fontDescription; ///< The font description.
+    FontList* fallbackFonts;         ///< The list of fallback fonts for the given font-description.
+  };
+
+  /**
    * @brief Caches an index to the vector of font descriptions for a given font.
    */
   struct FontDescriptionCacheItem
@@ -166,9 +177,22 @@ struct FontClient::Plugin
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
+   * @copydoc Dali::FontClient::FindFontForCharacter()
+   */
+  FontId FindFontForCharacter( const FontList& fontList,
+                               Character charcode,
+                               PointSize26Dot6 requestedSize,
+                               bool preferColor );
+
+  /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
   FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+
+  /**
+   * @copydoc Dali::FontClient::FindFallbackFont()
+   */
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedSize, bool preferColor );
 
   /**
    * @see Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
@@ -322,7 +346,7 @@ private:
   bool FindFont( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex, FontId& fontId ) const;
 
   /**
-   * @brief Finds in the cahce a cluster 'font family, font width, font weight, font slant'
+   * @brief Finds in the cache a cluster 'font family, font width, font weight, font slant'
    * If there is one, it writes the index to the vector with font descriptions in the param @p validatedFontId.
    *
    * @param[in] fontDescription The font to validate.
@@ -332,6 +356,15 @@ private:
    */
   bool FindValidatedFont( const FontDescription& fontDescription,
                           FontDescriptionId& validatedFontId );
+
+  /**
+   * @brief Finds a fallback font list from the cache for a given font-description
+   *
+   * @param[in] fontDescription The font to validate.
+   * @param[out] A valid pointer to a font list, or NULL if not found.
+   */
+  bool FindFallbackFontList( const FontDescription& fontDescription,
+                             FontList*& fontList );
 
   /**
    * @brief Finds in the cache a pair 'validated font id and font point size'.
@@ -356,6 +389,14 @@ private:
   void ValidateFont( const FontDescription& fontDescription,
                      FontDescriptionId& validatedFontId );
 
+  /**
+   * Helper for SetDefaultFont etc.
+   *
+   * @param[in] fontDescription A font description.
+   * @param[out] fontList A list of the fonts which are a close match for fontDescription.
+   */
+  void SetFontList( const FontDescription& fontDescription, FontList& fontList );
+
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.
 
   unsigned int mDpiHorizontal; ///< Horizontal dpi.
@@ -363,6 +404,8 @@ private:
 
   FontList mSystemFonts;       ///< Cached system fonts.
   FontList mDefaultFonts;      ///< Cached default fonts.
+
+  std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
   std::vector<CacheItem>                mFontCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.

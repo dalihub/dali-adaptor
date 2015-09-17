@@ -168,7 +168,7 @@ public:
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
-   * @brief Find an appropriate font for displaying a UTF-32 character.
+   * @brief Find the default font for displaying a UTF-32 character.
    *
    * This is useful when localised strings are provided for multiple languages
    * i.e. when a single default font does not work for all languages.
@@ -180,6 +180,23 @@ public:
   FontId FindDefaultFont( Character charcode,
                           PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
                           bool preferColor = false );
+
+  /**
+   * @brief Find a fallback-font for displaying a UTF-32 character.
+   *
+   * This is useful when localised strings are provided for multiple languages
+   * i.e. when a single default font does not work for all languages.
+   * @param[in] preferredFont The preferred font which may not provide a glyph for charcode.
+   * The fallback-font will be the closest match to preferredFont, which does support the required glyph.
+   * @param[in] charcode The character for which a font is needed.
+   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] preferColor True if a color font is preferred.
+   * @return A valid font ID, or zero if the font does not exist.
+   */
+  FontId FindFallbackFont( FontId preferredFont,
+                           Character charcode,
+                           PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                           bool preferColor = false );
 
   /**
    * @brief Retrieve the unique identifier for a font.

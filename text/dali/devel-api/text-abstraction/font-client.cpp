@@ -98,6 +98,11 @@ FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSiz
   return GetImplementation(*this).FindDefaultFont( charcode, pointSize, preferColor );
 }
 
+FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor )
+{
+  return GetImplementation(*this).FindFallbackFont( preferredFont, charcode, pointSize, preferColor );
+}
+
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
 {
   return GetImplementation(*this).GetFontId( path, pointSize, faceIndex );
