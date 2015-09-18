@@ -1037,11 +1037,11 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
               description.family = FontFamily( ftFace->family_name );
 
               // Note FreeType doesn't give too much info to build a proper font style.
-              if( ftFace->style_flags | FT_STYLE_FLAG_ITALIC )
+              if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )
               {
                 description.slant = FontSlant::ITALIC;
               }
-              if( ftFace->style_flags | FT_STYLE_FLAG_BOLD )
+              if( ftFace->style_flags & FT_STYLE_FLAG_BOLD )
               {
                 description.weight = FontWeight::BOLD;
               }
@@ -1095,11 +1095,11 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
           description.family = FontFamily( ftFace->family_name );
 
           // Note FreeType doesn't give too much info to build a proper font style.
-          if( ftFace->style_flags | FT_STYLE_FLAG_ITALIC )
+          if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )
           {
             description.slant = FontSlant::ITALIC;
           }
-          if( ftFace->style_flags | FT_STYLE_FLAG_BOLD )
+          if( ftFace->style_flags & FT_STYLE_FLAG_BOLD )
           {
             description.weight = FontWeight::BOLD;
           }

@@ -18,13 +18,13 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <deque>
+#include <dali/devel-api/common/conditional-wait.h>
+
 // INTERNAL INCLUDES
 #include "resource-loader.h"
 #include "resource-loading-client.h"
-#include <base/conditional-wait.h>
-
-// EXTERNAL INCLUDES
-#include <deque>
 
 namespace Dali
 {
@@ -154,7 +154,7 @@ private:
 protected:
   ResourceLoader&                    mResourceLoader;
   pthread_t                          mThread;    ///< thread instance
-  Internal::Adaptor::ConditionalWait mCondition; ///< condition variable
+  ConditionalWait                    mCondition; ///< condition variable
   RequestQueue                       mQueue;     ///< Request queue
 private:
   Integration::ResourceId          mCurrentRequestId; ///< Current request, set by worker thread

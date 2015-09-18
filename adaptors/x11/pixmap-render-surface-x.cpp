@@ -37,7 +37,6 @@
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 #include <base/display-connection.h>
-#include <base/conditional-wait.h>
 
 namespace Dali
 {

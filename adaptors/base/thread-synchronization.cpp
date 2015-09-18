@@ -60,7 +60,7 @@ ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorIn
   mVSyncThreadStop( FALSE ),
   mRenderThreadStop( FALSE ),
   mRenderThreadReplacingSurface( FALSE ),
-  mRenderThreadSurfaceRendered( FALSE ),
+  mRenderThreadPostRendering( FALSE ),
   mEventThreadSurfaceReplaced( FALSE ),
   mVSyncThreadInitialised( FALSE ),
   mRenderThreadInitialised( FALSE ),
@@ -535,16 +535,22 @@ bool ThreadSynchronization::VSyncReady( bool validSync, unsigned int frameNumber
   // Ensure we do not process an invalid v-sync
   if( validSync )
   {
+    bool minimumFrameTimeIntervalChanged = false;
     {
       ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
       if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
       {
         numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
-        mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
+        minimumFrameTimeIntervalChanged = true;
       }
-
-      mFrameTime.SetSyncTime( frameNumber );
     }
+
+    if( minimumFrameTimeIntervalChanged )
+    {
+      mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
+    }
+
+    mFrameTime.SetSyncTime( frameNumber );
 
     if( ! mVSyncThreadInitialised )
     {
@@ -597,7 +603,7 @@ void ThreadSynchronization::PostRenderComplete()
 
   {
     ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-    mRenderThreadSurfaceRendered = TRUE;
+    mRenderThreadPostRendering = FALSE;
   }
   mRenderThreadWaitCondition.Notify();
 }
@@ -611,7 +617,7 @@ void ThreadSynchronization::PostRenderStarted()
   LOG_RENDER_TRACE;
 
   ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-  mRenderThreadSurfaceRendered = FALSE;
+  mRenderThreadPostRendering = TRUE;
 }
 
 void ThreadSynchronization::PostRenderWaitForCompletion()
@@ -619,8 +625,8 @@ void ThreadSynchronization::PostRenderWaitForCompletion()
   LOG_RENDER_TRACE;
 
   ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
-  if( !mRenderThreadSurfaceRendered &&
-      !mRenderThreadReplacingSurface )
+  while( mRenderThreadPostRendering &&
+         ! mRenderThreadReplacingSurface ) // We should NOT wait if we're replacing the surface
   {
     LOG_RENDER( "WAIT" );
     mRenderThreadWaitCondition.Wait( lock );
