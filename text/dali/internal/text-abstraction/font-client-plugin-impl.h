@@ -264,6 +264,14 @@ private:
   void InitSystemFonts();
 
   /**
+   * Gets the FontDescription which matches the given pattern
+   * @param[in] pattern pattern to match against
+   * @param[out] fontDescription the resultant fontDescription that matched
+   * @return true if match found
+   */
+  bool MatchFontDescriptionToPattern( _FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription );
+
+  /**
    * @brief Creates a font family pattern used to match fonts.
    *
    * @param[in] fontDescription The font to cache.

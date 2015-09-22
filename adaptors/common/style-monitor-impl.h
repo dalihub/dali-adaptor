@@ -22,6 +22,7 @@
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
 #include <style-monitor.h>
@@ -125,7 +126,8 @@ private:
 
   Integration::PlatformAbstraction& mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
 
-  std::string mDefaultFontFamily;        ///< The default font family
+  TextAbstraction::FontClient mfontClient;
+  std::string mDefaultFontFamily;        ///< The system default font family
   std::string mDefaultFontStyle;         ///< The default font style
   std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
   int mDefaultFontSize;                  ///< The default accessibility font size e.g. 0 is smallest
