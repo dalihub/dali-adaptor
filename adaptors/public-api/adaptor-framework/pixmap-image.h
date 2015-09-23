@@ -53,6 +53,7 @@ typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
  * The native pixmap can be created internally or
  * externally by X11 or ECORE-X11.
  *
+ * @since DALi 1.1.4
  */
 class DALI_IMPORT_API PixmapImage : public NativeImageInterface
 {
