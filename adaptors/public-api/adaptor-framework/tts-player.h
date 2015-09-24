@@ -25,7 +25,7 @@
 namespace Dali
 {
 /**
- * @addtogroup dali-adaptor-framework
+ * @addtogroup dali_adaptor_framework
  * @{
  */
 
