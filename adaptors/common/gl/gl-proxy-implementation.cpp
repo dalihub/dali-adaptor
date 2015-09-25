@@ -125,6 +125,40 @@ float Sampler::GetMax() const
   return mMax;
 }
 
+ObjectCounter::ObjectCounter( const char* description )
+:mDescription(description),
+ mCount(0),
+ mPeak(0)
+{}
+
+void ObjectCounter::Increment()
+{
+  ++mCount;
+  if( mCount > mPeak )
+  {
+    mPeak = mCount;
+  }
+}
+
+void ObjectCounter::Decrement()
+{
+  --mCount;
+}
+
+unsigned int ObjectCounter::GetCount() const
+{
+  return mCount;
+}
+unsigned int ObjectCounter::GetPeak() const
+{
+  return mPeak;
+}
+
+const char* ObjectCounter::GetDescription() const
+{
+  return mDescription;
+}
+
 GlProxyImplementation::GlProxyImplementation(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions),
   mActiveTextureSampler( "ActiveTexture calls"),
@@ -134,8 +168,9 @@ GlProxyImplementation::GlProxyImplementation(EnvironmentOptions& environmentOpti
   mDrawSampler("Draw calls"),
   mUniformSampler("Uniform sets"),
   mUseProgramSampler("Used programs"),
-  mDrawCount(0),
-  mUniformCount(0),
+  mBufferCount( "Buffer Count"),
+  mTextureCount("Texture Count"),
+  mProgramCount("Program Count"),
   mFrameCount(0)
 {
 }
@@ -162,22 +197,46 @@ void GlProxyImplementation::PostRender()
   }
 }
 
-void GlProxyImplementation::ActiveTexture( GLenum texture )
-{
-  mActiveTextureSampler.Increment();
-  GlImplementation::ActiveTexture(texture);
-}
-
 void GlProxyImplementation::Clear( GLbitfield mask )
 {
   mClearSampler.Increment();
   GlImplementation::Clear(mask);
 }
 
+void GlProxyImplementation::GenBuffers (GLsizei n, GLuint* buffers)
+{
+  mBufferCount.Increment();
+  GlImplementation::GenBuffers( n, buffers );
+}
+
+void GlProxyImplementation::DeleteBuffers (GLsizei n, const GLuint* buffers)
+{
+  mBufferCount.Decrement();
+  GlImplementation::DeleteBuffers( n, buffers );
+}
+
 void GlProxyImplementation::BindBuffer( GLenum target, GLuint buffer )
 {
   mBindBufferSampler.Increment();
   GlImplementation::BindBuffer(target,buffer);
+}
+
+void GlProxyImplementation::GenTextures (GLsizei n, GLuint* textures)
+{
+  mTextureCount.Increment();
+  GlImplementation::GenTextures( n, textures );
+}
+
+void GlProxyImplementation::DeleteTextures (GLsizei n, const GLuint* textures)
+{
+  mTextureCount.Decrement();
+  GlImplementation::DeleteTextures( n, textures );
+}
+
+void GlProxyImplementation::ActiveTexture( GLenum texture )
+{
+  mActiveTextureSampler.Increment();
+  GlImplementation::ActiveTexture(texture);
 }
 
 void GlProxyImplementation::BindTexture( GLenum target, GLuint texture )
@@ -312,6 +371,18 @@ void GlProxyImplementation::UniformMatrix4fv( GLint location, GLsizei count, GLb
   GlImplementation::UniformMatrix4fv(location,count,transpose,value);
 }
 
+GLuint GlProxyImplementation::CreateProgram (void)
+{
+  mProgramCount.Increment();
+  return GlImplementation::CreateProgram();
+}
+
+void GlProxyImplementation::DeleteProgram (GLuint program)
+{
+  mProgramCount.Decrement();
+  GlImplementation::DeleteProgram(program);
+}
+
 void GlProxyImplementation::UseProgram( GLuint program )
 {
   mUseProgramSampler.Increment();
@@ -340,6 +411,10 @@ void GlProxyImplementation::LogResults()
   LogCalls( mDrawSampler );
   LogCalls( mUniformSampler );
   LogCalls( mUseProgramSampler );
+  Debug::LogMessage( Debug::DebugInfo, "OpenGL ES Object Count:\n", mFrameCount );
+  LogObjectCounter( mBufferCount );
+  LogObjectCounter( mTextureCount );
+  LogObjectCounter( mProgramCount );
 }
 
 void GlProxyImplementation::LogCalls( const Sampler& sampler )
@@ -348,6 +423,14 @@ void GlProxyImplementation::LogCalls( const Sampler& sampler )
                      sampler.GetDescription(),
                      sampler.GetMeanValue(), sampler.GetMin(), sampler.GetMax(),
                      sampler.GetStandardDeviation() );
+}
+
+void GlProxyImplementation::LogObjectCounter( const ObjectCounter& sampler )
+{
+  Debug::LogMessage( Debug::DebugInfo, "  %s : %u  (Peak:%u)\n",
+                     sampler.GetDescription(),
+                     sampler.GetCount(),
+                     sampler.GetPeak() );
 }
 
 void GlProxyImplementation::ResetSamplers()
