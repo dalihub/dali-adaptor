@@ -24,6 +24,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/internal/text-abstraction/font-client-helper.h>
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
@@ -85,45 +86,7 @@ const unsigned int NUM_FONT_WEIGHT_TYPE = sizeof( FONT_WEIGHT_TYPE_TO_INT ) / si
 const int FONT_SLANT_TYPE_TO_INT[] = { 0, 100, 110 };
 const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / sizeof( int );
 
-/**
- * @brief Retrieves a table index for a given value.
- *
- * @param[in] value The value.
- * @param[in] table The table.
- * @param[in] maxIndex The maximum valid index of the table.
- *
- * @return The index to the closest available value
- */
-int ValueToIndex( int value, const int* const table, unsigned int maxIndex )
-{
-  if( ( NULL == table ) ||
-      ( value <= table[0] ) )
-  {
-    return 0;
-  }
-
-  if( value >= table[maxIndex] )
-  {
-    return maxIndex;
-  }
-
-  for( unsigned int index = 0u; index < maxIndex; )
-  {
-    const unsigned int indexPlus = ++index;
-    const int v1 = table[index];
-    const int v2 = table[indexPlus];
-    if( ( v1 < value ) && ( value <= v2 ) )
-    {
-      return ( ( value - v1 ) < ( v2 - value ) ) ? index : indexPlus;
-    }
-
-    index = indexPlus;
-  }
-
-  return 0;
-}
-
-}
+} // namespace
 
 using Dali::Vector;
 
