@@ -2,7 +2,7 @@
 #define __DALI_ADAPTOR_DOC_H__
 
 /**
- * @defgroup dali-adaptor DALi Adaptor
+ * @defgroup dali_adaptor DALi Adaptor
  *
  * @brief This module is a platform adaptation layer. It initializes and sets up DALi appropriately.
  * The module provides many platform-related services with its internal module,
@@ -11,7 +11,7 @@
  *
  * @ingroup dali
  * @{
- *   @defgroup dali-adaptor-framework Adaptor Framework
+ *   @defgroup dali_adaptor_framework Adaptor Framework
  *   @brief Classes for the adaption layer.
  * @}
  */

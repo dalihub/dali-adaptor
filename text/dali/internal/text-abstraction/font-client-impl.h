@@ -101,6 +101,11 @@ public:
   FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor );
 
   /**
+   * @copydoc Dali::FontClient::FindFallbackFont()
+   */
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+
+  /**
    * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
