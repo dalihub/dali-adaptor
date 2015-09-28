@@ -269,7 +269,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(ECORE_CFLAGS) \
                       $(ECORE_IPC_CFLAGS) \
                       $(DLOG_CFLAGS) \
-                      $(XML_CFLAGS) \
                       $(VCONF_CFLAGS) \
                       $(EXIF_CFLAGS) \
                       $(MMFSOUND_CFLAGS) \
@@ -292,7 +291,6 @@ libdali_adaptor_la_LIBADD = \
                       $(ELEMENTARY_LIBS) \
                       $(ECORE_IPC_LIBS) \
                       $(DLOG_LIBS) \
-                      $(XML_LIBS) \
                       $(VCONF_LIBS) \
                       $(EXIF_LIBS) \
                       $(TTS_LIBS) \

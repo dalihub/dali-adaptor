@@ -52,7 +52,6 @@ BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
-BuildRequires:  libxml2-devel
 BuildRequires:  vconf-devel
 BuildRequires:  vconf-keys-devel
 BuildRequires:  tts-devel

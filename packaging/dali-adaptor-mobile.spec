@@ -37,7 +37,6 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
-BuildRequires:  libxml2-devel
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
