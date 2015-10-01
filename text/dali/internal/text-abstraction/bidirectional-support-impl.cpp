@@ -297,15 +297,35 @@ struct BidirectionalSupport::Plugin
         // If there is no next, sets the paragraph's direction.
 
         CharacterDirection nextDirection = paragraphDirection;
-        const Length nextIndex = index + 1u;
-        if( nextIndex < numberOfCharacters )
-        {
-          const BidiDirection nextBidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + nextIndex ) );
 
-          nextDirection = RIGHT_TO_LEFT == nextBidiDirection;
+        // Look for the next non-neutral character.
+        Length nextIndex = index + 1u;
+        for( ; nextIndex < numberOfCharacters; ++nextIndex )
+        {
+          BidiDirection nextBidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + nextIndex ) );
+          if( nextBidiDirection != NEUTRAL )
+          {
+            nextDirection = RIGHT_TO_LEFT == nextBidiDirection;
+            break;
+          }
         }
 
+        // Calculate the direction for all the neutral characters.
         characterDirection = previousDirection == nextDirection ? previousDirection : paragraphDirection;
+
+        // Set the direction to all the neutral characters.
+        ++index;
+        for( ; index < nextIndex; ++index )
+        {
+          CharacterDirection& nextCharacterDirection = *( directions + index );
+          nextCharacterDirection = characterDirection;
+        }
+
+        // Set the direction of the next non-neutral character.
+        if( nextIndex < numberOfCharacters )
+        {
+          *( directions + nextIndex ) = nextDirection;
+        }
       }
 
       previousDirection = characterDirection;
