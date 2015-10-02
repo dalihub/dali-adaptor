@@ -22,6 +22,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <fstream>
 #include <sstream>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
@@ -38,6 +39,10 @@ namespace Adaptor
 
 namespace
 {
+
+#if defined(DEBUG_ENABLED)
+Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_STYLE_MONITOR");
+#endif
 
 BaseHandle Create()
 {
@@ -58,6 +63,21 @@ BaseHandle Create()
   return handle;
 }
 TypeRegistration STYLE_MONITOR_TYPE( typeid(Dali::StyleMonitor), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
+
+/**
+ * Use font client to get the system default font family
+ * @param[in] fontClient handle to font client
+ * @param[out] fontFamily string representing font family
+ */
+void GetSystemDefaultFontFamily( TextAbstraction::FontClient& fontClient, std::string& fontFamily )
+{
+  TextAbstraction::FontDescription defaultFontDescription;
+  if ( fontClient )
+  {
+    fontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
+    fontFamily = defaultFontDescription.family;
+  }
+}
 
 } // unnamed namespace
 
@@ -84,7 +104,9 @@ StyleMonitor::StyleMonitor(Integration::PlatformAbstraction& platformAbstraction
 : mPlatformAbstraction(platformAbstraction),
   mDefaultFontSize(-1)
 {
-  mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
+  mfontClient = TextAbstraction::FontClient::Get();
+  GetSystemDefaultFontFamily( mfontClient, mDefaultFontFamily );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
   mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
 }
 
@@ -98,7 +120,8 @@ void StyleMonitor::StyleChanged( StyleChange::Type styleChange )
   {
     case StyleChange::DEFAULT_FONT_CHANGE:
     {
-      mPlatformAbstraction.GetDefaultFontDescription( mDefaultFontFamily, mDefaultFontStyle );
+      GetSystemDefaultFontFamily( mfontClient, mDefaultFontFamily );
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleChanged::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
       break;
     }
 
@@ -169,6 +192,7 @@ void StyleMonitor::EmitStyleChangeSignal( StyleChange::Type styleChange )
 {
   if( !mStyleChangeSignal.Empty() )
   {
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::EmitStyleChangeSignal\n" );
     Dali::StyleMonitor handle( this );
     mStyleChangeSignal.Emit( handle, styleChange );
   }

@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.4
+Version:    1.1.5
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0, BSD-2.0, MIT
@@ -52,7 +52,6 @@ BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
-BuildRequires:  libxml2-devel
 BuildRequires:  vconf-devel
 BuildRequires:  vconf-keys-devel
 BuildRequires:  tts-devel

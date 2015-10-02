@@ -28,7 +28,6 @@
 
 // INTERNAL INCLUDES
 #include "resource-loader/resource-loader.h"
-#include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
 #include "portable/file-closer.h"
 
@@ -82,11 +81,6 @@ void TizenPlatformAbstraction::Resume()
   {
     mResourceLoader->Resume();
   }
-}
-
-void TizenPlatformAbstraction::GetDefaultFontDescription( std::string& fontFamily, std::string& fontStyle ) const
-{
-  FontConfigurationParser::Parse(FONT_CONFIGURATION_FILE, fontFamily, fontStyle);
 }
 
 int TizenPlatformAbstraction::GetDefaultFontSize() const

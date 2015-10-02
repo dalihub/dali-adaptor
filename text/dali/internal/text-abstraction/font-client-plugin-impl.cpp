@@ -24,6 +24,7 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/internal/text-abstraction/font-client-helper.h>
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
@@ -85,45 +86,7 @@ const unsigned int NUM_FONT_WEIGHT_TYPE = sizeof( FONT_WEIGHT_TYPE_TO_INT ) / si
 const int FONT_SLANT_TYPE_TO_INT[] = { 0, 100, 110 };
 const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / sizeof( int );
 
-/**
- * @brief Retrieves a table index for a given value.
- *
- * @param[in] value The value.
- * @param[in] table The table.
- * @param[in] maxIndex The maximum valid index of the table.
- *
- * @return The index to the closest available value
- */
-int ValueToIndex( int value, const int* const table, unsigned int maxIndex )
-{
-  if( ( NULL == table ) ||
-      ( value <= table[0] ) )
-  {
-    return 0;
-  }
-
-  if( value >= table[maxIndex] )
-  {
-    return maxIndex;
-  }
-
-  for( unsigned int index = 0u; index < maxIndex; )
-  {
-    const unsigned int indexPlus = ++index;
-    const int v1 = table[index];
-    const int v2 = table[indexPlus];
-    if( ( v1 < value ) && ( value <= v2 ) )
-    {
-      return ( ( value - v1 ) < ( v2 - value ) ) ? index : indexPlus;
-    }
-
-    index = indexPlus;
-  }
-
-  return 0;
-}
-
-}
+} // namespace
 
 using Dali::Vector;
 
@@ -354,13 +317,14 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription\n");
 
-  if ( Adaptor::IsAvailable() )
-  {
-    std::string weight; // todo convert weight into enum
-    Dali::Internal::Adaptor::Adaptor& adaptorImpl( Dali::Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ) );
-    adaptorImpl.GetPlatformAbstraction().GetDefaultFontDescription( fontDescription.family, weight );
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription Retreived fontFamily:%s\n", fontDescription.family.c_str() );
-  }
+  FcInitReinitialize(); // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
+
+  FcPattern* matchPattern = FcPatternCreate();
+  FcConfigSubstitute(NULL, matchPattern, FcMatchPattern);
+  FcDefaultSubstitute( matchPattern );
+
+  MatchFontDescriptionToPattern( matchPattern, fontDescription );
+  FcPatternDestroy( matchPattern );
 }
 
 void FontClient::Plugin::GetSystemFonts( FontList& systemFonts )
@@ -417,6 +381,8 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
                                                  PointSize26Dot6 requestedSize,
                                                  bool preferColor )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFontForCharacter\n");
+
   FontId fontId(0);
   bool foundColor(false);
 
@@ -637,27 +603,13 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
   // Create a font pattern.
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
 
-  FcResult result = FcResultMatch;
+  FontDescription description;
 
-  // match the pattern
-  FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
+  bool matched = MatchFontDescriptionToPattern( fontFamilyPattern, description );
+  FcPatternDestroy( fontFamilyPattern );
 
-  if( match )
+  if( matched )
   {
-    // Get the path to the font file name.
-    int width = 0;
-    int weight = 0;
-    int slant = 0;
-    FontDescription description;
-    GetFcString( match, FC_FILE, description.path );
-    GetFcString( match, FC_FAMILY, description.family );
-    GetFcInt( match, FC_WIDTH, width );
-    GetFcInt( match, FC_WEIGHT, weight );
-    GetFcInt( match, FC_SLANT, slant );
-    description.width = IntToWidthType( width );
-    description.weight = IntToWeightType( weight );
-    description.slant = IntToSlantType( slant );
-
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
 
@@ -669,9 +621,6 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
                                    validatedFontId );
 
     mValidatedFontCache.push_back( item );
-
-    // destroyed the matched pattern
-    FcPatternDestroy( match );
   }
   else
   {
@@ -683,9 +632,6 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
   }
 
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValidateFont validatedFontId(%u) font family(%s)\n", validatedFontId, fontDescription.family.c_str() );
-
-  // destroy the pattern
-  FcPatternDestroy( fontFamilyPattern );
 }
 
 void FontClient::Plugin::GetFontMetrics( FontId fontId,
@@ -964,6 +910,35 @@ void FontClient::Plugin::InitSystemFonts()
     FcFontSetDestroy( fontSet );
   }
 }
+
+bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription )
+{
+  FcResult result = FcResultMatch;
+  FcPattern* match = FcFontMatch( NULL /* use default configure */, pattern, &result );
+
+  bool ret = false;
+
+  if( match )
+  {
+    int width = 0;
+    int weight = 0;
+    int slant = 0;
+    GetFcString( match, FC_FILE, fontDescription.path );
+    GetFcString( match, FC_FAMILY, fontDescription.family );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::MatchFontDescriptionToPattern matched:%s \n", fontDescription.family.c_str());
+    GetFcInt( match, FC_WIDTH, width );
+    GetFcInt( match, FC_WEIGHT, weight );
+    GetFcInt( match, FC_SLANT, slant );
+    fontDescription.width = IntToWidthType( width );
+    fontDescription.weight = IntToWeightType( weight );
+    fontDescription.slant = IntToSlantType( slant );
+    // destroyed the matched pattern
+    FcPatternDestroy( match );
+    ret = true;
+  }
+  return ret;
+}
+
 
 FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& fontDescription )
 {
