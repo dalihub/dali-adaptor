@@ -368,6 +368,8 @@ bool ThreadSynchronization::UpdateReady( bool notifyEvent, bool runUpdate, float
       {
         ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
         ++mUpdateAheadOfRender;
+        DALI_ASSERT_ALWAYS( mUpdateAheadOfRender >= 0 );
+        DALI_ASSERT_ALWAYS( mUpdateAheadOfRender <= mMaximumUpdateCount );
         LOG_UPDATE_COUNTER_UPDATE( "updateAheadOfRender(%d)", mUpdateAheadOfRender );
       }
       mRenderThreadWaitCondition.Notify();
@@ -462,12 +464,6 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
       {
         mRenderThreadSurfaceReplaced = FALSE;
       }
-      else
-      {
-        // decrement update-ahead-of-render
-        ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
-        --mUpdateAheadOfRender;
-      }
     }
 
     // Check if we've had an update, if we haven't then we just wait
@@ -488,14 +484,6 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
       }
     }
   }
-  else
-  {
-    LOG_RENDER( "Just Rendered, now Replacing surface" );
-
-    // ... also decrement update-ahead-of-render
-    ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
-    --mUpdateAheadOfRender;
-  }
 
   // We may have been asked to replace the surface while we were waiting so check again here
   if( IsRenderThreadReplacingSurface() )
@@ -510,6 +498,17 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
   }
 
   return IsRenderThreadRunning(); // Call to this function locks so should not be called if we have a scoped-lock
+}
+
+void ThreadSynchronization::RenderFinished()
+{
+  // A frame has been rendered; decrement counter
+  ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
+  --mUpdateAheadOfRender;
+
+  LOG_RENDER( "mUpdateAheadOfRender %d\n", mUpdateAheadOfRender );
+  DALI_ASSERT_ALWAYS( mUpdateAheadOfRender < mMaximumUpdateCount );
+  DALI_ASSERT_ALWAYS( mUpdateAheadOfRender >= 0 );
 }
 
 void ThreadSynchronization::RenderInformSurfaceReplaced()

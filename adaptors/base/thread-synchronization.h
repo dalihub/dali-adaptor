@@ -177,6 +177,13 @@ public:
   bool RenderReady( RenderRequest*& request );
 
   /**
+   * Called by the render thread after it renders a frame.
+   * Used to notify the update-thread that a frame has been rendered.
+   * @pre Called by render thread only.
+   */
+  void RenderFinished();
+
+  /**
    * Called by the Render thread to inform the synchronization class that the surface has been replaced.
    *
    * @note Should only be called by the Render thread.
