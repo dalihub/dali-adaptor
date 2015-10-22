@@ -28,7 +28,7 @@
 
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL INCLUDES
 

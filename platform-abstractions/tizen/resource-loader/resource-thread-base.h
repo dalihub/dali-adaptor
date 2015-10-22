@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <deque>
-#include <dali/devel-api/common/conditional-wait.h>
+#include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
 #include "resource-loader.h"
