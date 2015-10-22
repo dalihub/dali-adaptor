@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLDUES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/frame-time-stats.h>
