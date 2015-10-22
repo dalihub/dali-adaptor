@@ -22,6 +22,8 @@
 #include <pthread.h>
 
 // INTERNAL INCLUDES
+#include <base/render-helper.h>
+#include <base/render-request.h>
 #include <egl-interface.h>
 #include <render-surface.h> // needed for Dali::RenderSurface
 
@@ -29,11 +31,9 @@ namespace Dali
 {
 
 class RenderSurface;
-class DisplayConnection;
 
 namespace Integration
 {
-class GlAbstraction;
 class Core;
 }
 
@@ -44,67 +44,7 @@ namespace Adaptor
 
 class AdaptorInternalServices;
 class ThreadSynchronization;
-class EglFactoryInterface;
 class EnvironmentOptions;
-
-class RenderRequest
-{
-public:
-  enum Request
-  {
-    REPLACE_SURFACE, // Request to replace surface
-  };
-
-  /**
-   * Constructor.
-   * @param[in] type The type of the request
-   */
-  RenderRequest( Request type );
-
-  /**
-   * @return the type of the request
-   */
-  Request GetType();
-
-private:
-  Request mRequestType;
-};
-
-class ReplaceSurfaceRequest : public RenderRequest
-{
-public:
-
-  /**
-   * Constructor
-   */
-  ReplaceSurfaceRequest();
-
-  /**
-   * Set the new surface
-   * @param[in] newSurface The new surface to use
-   */
-  void SetSurface(RenderSurface* newSurface);
-
-  /**
-   * @return the new surface
-   */
-  RenderSurface* GetSurface();
-
-  /**
-   * Called when the request has been completed to set the result.
-   */
-  void ReplaceCompleted();
-
-  /**
-   * @return true if the replace has completed.
-   */
-  bool GetReplaceCompleted();
-
-private:
-  RenderSurface* mNewSurface;     ///< The new surface to use.
-  unsigned int mReplaceCompleted; ///< Set to true when the replace has completed.
-};
-
 
 /**
  * The render-thread is responsible for calling Core::Render() after each update.
@@ -150,43 +90,10 @@ private: // Render thread side helpers
   bool Run();
 
   /**
-   * Initializes EGL.
-   * Called from render thread
-   */
-  void InitializeEgl();
-
-  /**
    * Check if main thread made any requests, e.g. ReplaceSurface
    * Called from render thread
    */
   void ProcessRequest( RenderRequest* request );
-
-  /**
-   * Replaces the rendering surface
-   * Used for replacing pixmaps due to resizing
-   * Called from render thread
-   * @param newSurface to use
-   */
-  void ReplaceSurface( RenderSurface* newSurface );
-
-  /**
-   * Shuts down EGL.
-   * Called from render thread
-   */
-  void ShutdownEgl();
-
-  /**
-   * Called before core renders the scene
-   * Called from render thread
-   * @return true if successful and Core::Render should be called.
-   */
-  bool PreRender();
-
-  /**
-   * Called after core has rendered the scene
-   * Called from render thread
-   */
-  void PostRender();
 
   /**
    * Helper for the thread calling the entry function.
@@ -210,14 +117,9 @@ private: // Data
 
   ThreadSynchronization&        mThreadSynchronization;  ///< Used to synchronize the all threads
   Dali::Integration::Core&      mCore;                   ///< Dali core reference
-  Integration::GlAbstraction&   mGLES;                   ///< GL abstraction reference
-  EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation
-  EglInterface*                 mEGL;                    ///< Interface to EGL implementation
   pthread_t*                    mThread;                 ///< render thread
-  RenderSurface*                mSurface;                ///< Current surface
-  Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
   const EnvironmentOptions&     mEnvironmentOptions;     ///< Environment options
-  bool                          mSurfaceReplaced;        ///< True when new surface has been initialzed.
+  RenderHelper                  mRenderHelper;           ///< Helper class for EGL, pre & post rendering
 };
 
 } // namespace Adaptor

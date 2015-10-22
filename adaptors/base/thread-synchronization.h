@@ -26,7 +26,7 @@
 #include <base/interfaces/performance-interface.h>
 #include <trigger-event-interface.h>
 #include <base/frame-time.h>
-#include <base/render-thread.h>
+#include <base/render-request.h>
 
 namespace Dali
 {
