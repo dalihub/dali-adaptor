@@ -23,7 +23,6 @@
 #include <Ecore_X.h>
 
 #include <dali/public-api/object/base-object.h>
-#include <dali/integration-api/events/key-event-integ.h>
 
 // INTERNAL INCLUDES
 #include <imf-manager.h>
@@ -112,22 +111,22 @@ public:
   /**
    * @copydoc Dali::ImfManager::PreEditChanged()
    */
-  void PreEditChanged( void *data, Ecore_IMF_Context *imfContext, void *event_info );
+  void PreEditChanged( void* data, Ecore_IMF_Context* imfContext, void* event_info );
 
   /**
    * @copydoc Dali::ImfManager::NotifyCursorPosition()
    */
-  void CommitReceived( void *data, Ecore_IMF_Context *imfContext, void *event_info );
+  void CommitReceived( void* data, Ecore_IMF_Context* imfContext, void* event_info );
 
   /**
    * @copydoc Dali::ImfManager::NotifyCursorPosition()
    */
-  Eina_Bool RetrieveSurrounding( void *data, Ecore_IMF_Context *imfContext, char** text, int* cursorPosition );
+  Eina_Bool RetrieveSurrounding( void* data, Ecore_IMF_Context* imfContext, char** text, int* cursorPosition );
 
   /**
    * @copydoc Dali::ImfManager::DeleteSurrounding()
    */
-  void DeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *event_info );
+  void DeleteSurrounding( void* data, Ecore_IMF_Context* imfContext, void* event_info );
 
   // Cursor related
   /**
@@ -136,24 +135,24 @@ public:
   void NotifyCursorPosition();
 
   /**
-   * @copydoc Dali::ImfManager::GetCursorPosition()
-   */
-  int GetCursorPosition();
-
-  /**
    * @copydoc Dali::ImfManager::SetCursorPosition()
    */
   void SetCursorPosition( unsigned int cursorPosition );
 
   /**
+   * @copydoc Dali::ImfManager::GetCursorPosition()
+   */
+  unsigned int GetCursorPosition() const;
+
+  /**
    * @copydoc Dali::ImfManager::SetSurroundingText()
    */
-  void SetSurroundingText( std::string text );
+  void SetSurroundingText( const std::string& text );
 
   /**
    * @copydoc Dali::ImfManager::GetSurroundingText()
    */
-  std::string GetSurroundingText();
+  const std::string& GetSurroundingText() const;
 
 public:  // Signals
 
@@ -198,8 +197,6 @@ private:
 
   bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
-
-  std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
 
   ImfManagerSignalType      mActivatedSignal;
   ImfEventSignalType        mEventSignal;
