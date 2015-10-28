@@ -188,7 +188,7 @@ AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
-AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_network_logging = xyes])
+AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_networklogging = xyes])
 
 # Platforms should either enable features or remove them, they
 # should not disable features. This allows the developer to override
@@ -302,7 +302,7 @@ Configuration
   Shader Binary Cache:              $enable_shaderbincache
   Build for Node.JS (LibUV)         $build_for_node_js
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
-  Network logging enabled:          $enable_network_logging
+  Network logging enabled:          $enable_networklogging
   Font config file:                 $fontConfigurationFile
 "
 # optional output of node.js source path if we're building for node.js
