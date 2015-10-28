@@ -38,7 +38,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class ImfManager : public Dali::BaseObject
+class DALI_IMPORT_API ImfManager : public Dali::BaseObject
 {
 public:
   typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
@@ -203,7 +203,7 @@ private:
 
 public:
 
-inline static Internal::Adaptor::ImfManager& GetImplementation(Dali::ImfManager& imfManager)
+DALI_IMPORT_API inline static Internal::Adaptor::ImfManager& GetImplementation(Dali::ImfManager& imfManager)
 {
   DALI_ASSERT_ALWAYS( imfManager && "ImfManager handle is empty" );
 
@@ -212,7 +212,7 @@ inline static Internal::Adaptor::ImfManager& GetImplementation(Dali::ImfManager&
   return static_cast<Internal::Adaptor::ImfManager&>(handle);
 }
 
-inline static const  Internal::Adaptor::ImfManager& GetImplementation(const Dali::ImfManager& imfManager)
+DALI_IMPORT_API inline static const  Internal::Adaptor::ImfManager& GetImplementation(const Dali::ImfManager& imfManager)
 {
   DALI_ASSERT_ALWAYS( imfManager && "ImfManager handle is empty" );
 
