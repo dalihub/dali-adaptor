@@ -6,8 +6,8 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
-    utc-ConditionalWait.cpp
     utc-Dali-CommandLineOptions.cpp
+    utc-Dali-FontClient.cpp
     utc-Dali-GifLoader.cpp
     utc-Dali-ImageOperations.cpp
     utc-Dali-Lifecycle-Controller.cpp
@@ -59,6 +59,7 @@ INCLUDE_DIRECTORIES(
     ../../../adaptors/public-api/adaptor-framework
     ../../../adaptors/tizen
     ../../../adaptors/ubuntu
+    ../../../text
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
 )

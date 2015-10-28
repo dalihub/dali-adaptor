@@ -1,6 +1,3 @@
-#ifndef __DALI_STYLE_CHANGE_H__
-#define __DALI_STYLE_CHANGE_H__
-
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
@@ -18,32 +15,33 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
-#include <dali/public-api/common/dali-common.h>
+#ifndef __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__
+#define __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__
 
 namespace Dali
 {
-/**
- * @addtogroup dali_adaptor_framework
- * @{
- */
 
-namespace StyleChange
+namespace TextAbstraction
 {
 
-enum Type
+namespace Internal
 {
-  DEFAULT_FONT_CHANGE,      ///< Denotes that the default font has changed.
-  DEFAULT_FONT_SIZE_CHANGE, ///< Denotes that the default font size has changed.
-  THEME_CHANGE              ///< Denotes that the theme has changed.
-};
-
-} // namespace StyleChange
 
 /**
- * @}
+ * @brief Retrieves a table index for a given value.
+ *
+ * @param[in] value The value.
+ * @param[in] table The table.
+ * @param[in] maxIndex The maximum valid index of the table.
+ *
+ * @return The index to the closest available value
  */
-} // namespace Dali
+int ValueToIndex( int value, const int* const table, unsigned int maxIndex );
 
-#endif // __DALI_STYLE_CHANGE_H__
+} // Internal
+
+} // TextAbstraction
+
+} // Dali
+
+#endif // __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__

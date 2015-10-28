@@ -140,6 +140,11 @@ void PixmapRenderSurface::StopRender()
   // FIXME
 }
 
+void PixmapRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
+{
+  // Nothing to do
+}
+
 void PixmapRenderSurface::CreateWlRenderable()
 {
   // check we're creating one with a valid size

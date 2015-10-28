@@ -37,7 +37,6 @@ const Integration::ResourceId NO_REQUEST_CANCELLED = Integration::ResourceId(0) 
 
 namespace TizenPlatform
 {
-using Internal::Adaptor::ConditionalWait;
 
 namespace
 {

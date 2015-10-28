@@ -60,6 +60,7 @@ ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorIn
   mVSyncThreadStop( FALSE ),
   mRenderThreadStop( FALSE ),
   mRenderThreadReplacingSurface( FALSE ),
+  mRenderThreadPostRendering( FALSE ),
   mEventThreadSurfaceReplaced( FALSE ),
   mVSyncThreadInitialised( FALSE ),
   mRenderThreadInitialised( FALSE ),
@@ -236,6 +237,15 @@ void ThreadSynchronization::UpdateOnce()
   LOG_EVENT_TRACE;
   LOG_EVENT( "UPDATE ONCE" );
 
+  // If we're sleeping then change state to running as this will also wake up the v-sync-thread
+  {
+    ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
+    if( mState == State::SLEEPING )
+    {
+      mState = State::RUNNING;
+    }
+  }
+
   mUpdateThreadWaitCondition.Notify();
 }
 
@@ -358,6 +368,8 @@ bool ThreadSynchronization::UpdateReady( bool notifyEvent, bool runUpdate, float
       {
         ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
         ++mUpdateAheadOfRender;
+        DALI_ASSERT_ALWAYS( mUpdateAheadOfRender >= 0 );
+        DALI_ASSERT_ALWAYS( mUpdateAheadOfRender <= mMaximumUpdateCount );
         LOG_UPDATE_COUNTER_UPDATE( "updateAheadOfRender(%d)", mUpdateAheadOfRender );
       }
       mRenderThreadWaitCondition.Notify();
@@ -452,12 +464,6 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
       {
         mRenderThreadSurfaceReplaced = FALSE;
       }
-      else
-      {
-        // decrement update-ahead-of-render
-        ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
-        --mUpdateAheadOfRender;
-      }
     }
 
     // Check if we've had an update, if we haven't then we just wait
@@ -466,22 +472,17 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
       ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
       if( mUpdateAheadOfRender <= 0 && ! mRenderThreadStop )
       {
-        LOG_UPDATE_COUNTER_RENDER( "updateAheadOfRender(%d) WAIT", mUpdateAheadOfRender );
-        mRenderThreadWaitCondition.Wait( renderLock );
+        do
+        {
+          LOG_UPDATE_COUNTER_RENDER( "updateAheadOfRender(%d) WAIT", mUpdateAheadOfRender );
+          mRenderThreadWaitCondition.Wait( renderLock );
+        } while( mUpdateAheadOfRender <= 0 && ! mRenderThreadStop && ! mRenderThreadReplacingSurface );
       }
       else
       {
         LOG_UPDATE_COUNTER_RENDER( "updateAheadOfRender(%d)", mUpdateAheadOfRender );
       }
     }
-  }
-  else
-  {
-    LOG_RENDER( "Just Rendered, now Replacing surface" );
-
-    // ... also decrement update-ahead-of-render
-    ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
-    --mUpdateAheadOfRender;
   }
 
   // We may have been asked to replace the surface while we were waiting so check again here
@@ -497,6 +498,17 @@ bool ThreadSynchronization::RenderReady( RenderRequest*& requestPtr )
   }
 
   return IsRenderThreadRunning(); // Call to this function locks so should not be called if we have a scoped-lock
+}
+
+void ThreadSynchronization::RenderFinished()
+{
+  // A frame has been rendered; decrement counter
+  ConditionalWait::ScopedLock renderLock( mRenderThreadWaitCondition );
+  --mUpdateAheadOfRender;
+
+  LOG_RENDER( "mUpdateAheadOfRender %d\n", mUpdateAheadOfRender );
+  DALI_ASSERT_ALWAYS( mUpdateAheadOfRender < mMaximumUpdateCount );
+  DALI_ASSERT_ALWAYS( mUpdateAheadOfRender >= 0 );
 }
 
 void ThreadSynchronization::RenderInformSurfaceReplaced()
@@ -519,52 +531,105 @@ bool ThreadSynchronization::VSyncReady( bool validSync, unsigned int frameNumber
 {
   LOG_VSYNC_TRACE;
 
+  // Ensure we do not process an invalid v-sync
+  if( validSync )
   {
-    ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
-    if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
+    bool minimumFrameTimeIntervalChanged = false;
     {
-      numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
+      ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
+      if( numberOfVSyncsPerRender != mNumberOfVSyncsPerRender )
+      {
+        numberOfVSyncsPerRender = mNumberOfVSyncsPerRender; // save it back
+        minimumFrameTimeIntervalChanged = true;
+      }
+    }
+
+    if( minimumFrameTimeIntervalChanged )
+    {
       mFrameTime.SetMinimumFrameTimeInterval( mNumberOfVSyncsPerRender * TIME_PER_FRAME_IN_MICROSECONDS );
     }
 
-    if( validSync )
+    mFrameTime.SetSyncTime( frameNumber );
+
+    if( ! mVSyncThreadInitialised )
     {
-      mFrameTime.SetSyncTime( frameNumber );
+      LOG_VSYNC( "Initialised" );
+
+      mVSyncThreadInitialised = TRUE;
+
+      // Notify event thread that this thread is up and running, this locks so we should have a scoped-lock
+      NotifyThreadInitialised();
     }
-  }
+    else
+    {
+      // Increment v-sync-ahead-of-update count and inform update-thread
+      {
+        ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
+        ++mVSyncAheadOfUpdate;
+        LOG_VSYNC_COUNTER_VSYNC( " vSyncAheadOfUpdate(%d)", mVSyncAheadOfUpdate );
+      }
+      mUpdateThreadWaitCondition.Notify();
+    }
 
-  if( ! mVSyncThreadInitialised )
-  {
-    LOG_VSYNC( "Initialised" );
-
-    mVSyncThreadInitialised = TRUE;
-
-    // Notify event thread that this thread is up and running, this locks so we should have a scoped-lock
-    NotifyThreadInitialised();
+    // Ensure update-thread has set us to run before continuing
+    // Ensure we do not wait if we're supposed to stop
+    {
+      ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
+      while( ! mVSyncThreadRunning && ! mVSyncThreadStop )
+      {
+        LOG_VSYNC( "WAIT" );
+        mVSyncThreadWaitCondition.Wait( vSyncLock );
+      }
+    }
   }
   else
   {
-    // Increment v-sync-ahead-of-update count and inform update-thread
-    {
-      ConditionalWait::ScopedLock lock( mUpdateThreadWaitCondition );
-      ++mVSyncAheadOfUpdate;
-      LOG_VSYNC_COUNTER_VSYNC( " vSyncAheadOfUpdate(%d)", mVSyncAheadOfUpdate );
-    }
-    mUpdateThreadWaitCondition.Notify();
-  }
+    LOG_VSYNC( "INVALID SYNC" );
 
-  // Ensure update-thread has set us to run before continuing
-  // Ensure we do not wait if we're supposed to stop
-  {
-    ConditionalWait::ScopedLock vSyncLock( mVSyncThreadWaitCondition );
-    while( ! mVSyncThreadRunning && ! mVSyncThreadStop )
-    {
-      LOG_VSYNC( "WAIT" );
-      mVSyncThreadWaitCondition.Wait( vSyncLock );
-    }
+    // Later we still check if the v-sync thread is supposed to keep running so we can still stop the thread if we are supposed to
   }
 
   return IsVSyncThreadRunning(); // Call to this function locks so should not be called if we have a scoped-lock
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// POST RENDERING: EVENT THREAD
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ThreadSynchronization::PostRenderComplete()
+{
+  LOG_EVENT_TRACE;
+
+  {
+    ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+    mRenderThreadPostRendering = FALSE;
+  }
+  mRenderThreadWaitCondition.Notify();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// POST RENDERING: RENDER THREAD
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ThreadSynchronization::PostRenderStarted()
+{
+  LOG_RENDER_TRACE;
+
+  ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+  mRenderThreadPostRendering = TRUE;
+}
+
+void ThreadSynchronization::PostRenderWaitForCompletion()
+{
+  LOG_RENDER_TRACE;
+
+  ConditionalWait::ScopedLock lock( mRenderThreadWaitCondition );
+  while( mRenderThreadPostRendering &&
+         ! mRenderThreadReplacingSurface ) // We should NOT wait if we're replacing the surface
+  {
+    LOG_RENDER( "WAIT" );
+    mRenderThreadWaitCondition.Wait( lock );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

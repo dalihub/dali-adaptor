@@ -44,7 +44,6 @@ PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
 PKG_CHECK_MODULES(FREETYPE_BITMAP_SUPPORT, [freetype2 >= $FREETYPE_BITMAP_SUPPORT_VERSION], [ freetype_bitmap_support=yes  ], [ freetype_bitmap_support=no ] )
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
 PKG_CHECK_MODULES(PNG, libpng)
-PKG_CHECK_MODULES(XML, libxml-2.0)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
 PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
@@ -95,6 +94,13 @@ AC_ARG_ENABLE(shaderbincache,
               [enable_shaderbincache=$enableval],
               [enable_shaderbincache=DISABLE])
 
+AC_ARG_ENABLE(networklogging,
+              [AC_HELP_STRING([--enable-networklogging],
+                              [enables network for debug tool])],
+              [enable_networklogging=$enableval],
+              [enable_networklogging=no])
+
+
 if test "x$enable_debug" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDEBUG_ENABLED"
 fi
@@ -105,6 +111,10 @@ fi
 
 if test "x$enable_shaderbincache" = "xENABLE"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DSHADERBIN_CACHE_ENABLED"
+fi
+
+if test "x$enable_networklogging" = "xyes"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DNETWORK_LOGGING_ENABLED"
 fi
 
 # If Ecore IMF version is greater than 1.13, then some structures are different
@@ -178,6 +188,8 @@ AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
+AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_network_logging = xyes])
+
 # Platforms should either enable features or remove them, they
 # should not disable features. This allows the developer to override
 # features through the command line.
@@ -237,10 +249,16 @@ else
   dataReadOnlyDir=${prefix}/share/dali/
 fi
 
+if test x$FONT_CONFIGURATION_FILE != x; then
+  fontConfigurationFile=$FONT_CONFIGURATION_FILE
+fi
+
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
+AC_SUBST(fontConfigurationFile)
+
 
 # Specify the include directory for development headers
 #devincludepath=${includedir}/dali/internal
@@ -284,6 +302,8 @@ Configuration
   Shader Binary Cache:              $enable_shaderbincache
   Build for Node.JS (LibUV)         $build_for_node_js
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
+  Network logging enabled:          $enable_network_logging
+  Font config file:                 $fontConfigurationFile
 "
 # optional output of node.js source path if we're building for node.js
 if test "x$build_for_node_js" != "xno"; then

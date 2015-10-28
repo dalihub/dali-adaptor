@@ -31,6 +31,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali_adaptor_framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -39,7 +43,6 @@ namespace Adaptor
 class Application;
 }
 }
-
 /**
  * An Application class object should be created by every application
  * that wishes to use Dali.  It provides a means for initialising the
@@ -317,6 +320,9 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL Application(Internal::Adaptor::Application* application);
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_APPLICATION_H__

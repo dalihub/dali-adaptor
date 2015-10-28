@@ -3,7 +3,6 @@
 tizen_platform_abstraction_src_files = \
   $(tizen_platform_abstraction_src_dir)/tizen-platform-abstraction.cpp \
   $(tizen_platform_abstraction_src_dir)/tizen-logging.cpp \
-  $(tizen_platform_abstraction_src_dir)/tizen-font-configuration-parser.cpp \
   \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/resource-requester-base.cpp \

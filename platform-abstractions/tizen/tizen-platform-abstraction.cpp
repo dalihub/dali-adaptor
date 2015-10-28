@@ -28,7 +28,6 @@
 
 // INTERNAL INCLUDES
 #include "resource-loader/resource-loader.h"
-#include "tizen-font-configuration-parser.h"
 #include "image-loaders/image-loader.h"
 #include "portable/file-closer.h"
 
@@ -46,8 +45,7 @@ namespace TizenPlatform
 
 namespace
 {
-const std::string FONT_CONFIGURATION_FILE( FONT_CONFIGURATION_FILE_PATH ); ///< Default font configuration file
-const unsigned int NANOSECS_TO_MICROSECS( 1000 );                          ///< 1000 nanoseconds = 1 microsecond
+const unsigned int NANOSECS_TO_MICROSECS( 1000 );               ///< 1000 nanoseconds = 1 microsecond
 }
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()
@@ -83,11 +81,6 @@ void TizenPlatformAbstraction::Resume()
   {
     mResourceLoader->Resume();
   }
-}
-
-void TizenPlatformAbstraction::GetDefaultFontDescription( std::string& fontFamily, std::string& fontStyle ) const
-{
-  FontConfigurationParser::Parse(FONT_CONFIGURATION_FILE, fontFamily, fontStyle);
 }
 
 int TizenPlatformAbstraction::GetDefaultFontSize() const

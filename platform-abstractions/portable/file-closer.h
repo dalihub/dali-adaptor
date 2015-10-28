@@ -93,6 +93,14 @@ public:
   }
 
 private:
+
+  // Undefined
+  FileCloser( const FileCloser& fileCloser );
+
+  // Undefined
+  FileCloser& operator=( const FileCloser& fileCloser );
+
+private:
   FILE* mFile;
 };
 

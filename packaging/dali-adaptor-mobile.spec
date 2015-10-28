@@ -1,6 +1,6 @@
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.1
+Version:    1.1.7
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0
@@ -37,7 +37,6 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
-BuildRequires:  libxml2-devel
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
@@ -271,6 +270,7 @@ exit 0
 %{dev_include_path}/dali/dali.h
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
+%{dev_include_path}/dali/doc/*
 %{_libdir}/pkgconfig/dali.pc
 
 %files integration-devel

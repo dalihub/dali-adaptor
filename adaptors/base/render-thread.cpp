@@ -199,6 +199,9 @@ bool RenderThread::Run()
         mCore.Render( renderStatus );
         mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
+        // Decrement the count of how far update is ahead of render
+        mThreadSynchronization.RenderFinished();
+
         // Perform any post-render operations
         if ( renderStatus.HasRendered() )
         {

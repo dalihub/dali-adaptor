@@ -66,15 +66,19 @@ public:
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
-   * @copydoc Dali::FontClient::SetDefaultFontFamily()
+   * @copydoc Dali::FontClient::SetDefaultFont()
    */
-  void SetDefaultFontFamily( const std::string& fontFamilyName,
-                             const std::string& fontStyle );
+  void SetDefaultFont( const FontDescription& fontDescription );
 
   /**
    * @copydoc Dali::FontClient::GetDefaultFonts()
    */
   void GetDefaultFonts( FontList& defaultFonts );
+
+  /**
+   * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
+   */
+  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
 
   /**
    * @copydoc Dali::FontClient::GetSystemFonts()
@@ -97,27 +101,31 @@ public:
   FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor );
 
   /**
+   * @copydoc Dali::FontClient::FindFallbackFont()
+   */
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+
+  /**
    * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId(const FontFamily& fontFamily, const FontStyle& fontStyle, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 pointSize, FaceIndex faceIndex )
    */
-  FontId GetFontId( const FontFamily& fontFamily,
-                    const FontStyle& fontStyle,
+  FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 pointSize,
                     FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable(const FontPath& path )
+   * @copydoc Dali::FontClient::IsScalable( const FontPath& path )
    */
   bool IsScalable( const FontPath& path );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable( const FontFamily& fontFamily, const FontStyle& fontStyle )
+   * @copydoc Dali::FontClient::IsScalable( const FontDescription& fontDescription )
    */
-  bool IsScalable( const FontFamily& fontFamily, const FontStyle& style );
+  bool IsScalable( const FontDescription& fontDescription );
 
   /**
    * @copydoc Dali::FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
@@ -125,16 +133,15 @@ public:
   void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
 
   /**
-   * @copydoc Dali::FontClient::GetFixedSizes( const FontFamily& fontFamily, const FontStyle& fontStyle, Dali::Vector< PointSize26Dot6>& sizes )
+   * @copydoc Dali::FontClient::GetFixedSizes()
    */
-  void GetFixedSizes( const FontFamily& fontFamily,
-                      const FontStyle& style,
+  void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   /**
    * @copydoc Dali::FontClient::GetFontMetrics()
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize );
 
   /**
    * @copydoc Dali::FontClient::GetGlyphIndex()
@@ -144,7 +151,7 @@ public:
   /**
    * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()

@@ -12,7 +12,6 @@ Requires: dali
 BuildRequires:  dali-integration-devel
 BuildRequires:  pkgconfig(dali-core)
 BuildRequires:  pkgconfig(dali)
-BuildRequires:  libxml2-devel
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(ecore)
 

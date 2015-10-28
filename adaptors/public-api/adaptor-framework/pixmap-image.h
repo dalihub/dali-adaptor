@@ -28,6 +28,10 @@
 
 namespace Dali
 {
+/**
+ * @addtogroup dali_adaptor_framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -49,6 +53,7 @@ typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
  * The native pixmap can be created internally or
  * externally by X11 or ECORE-X11.
  *
+ * @since DALi 1.1.4
  */
 class DALI_IMPORT_API PixmapImage : public NativeImageInterface
 {
@@ -172,6 +177,14 @@ private:
   DALI_INTERNAL virtual ~PixmapImage();
 
   /**
+   * @brief Undefined copy constructor
+   *
+   * This avoids accidental calls to a default copy constructor.
+   * @param[in] pixmapImage A reference to the object to copy.
+   */
+  DALI_INTERNAL PixmapImage( const PixmapImage& pixmapImage );
+
+  /**
    * @brief Undefined assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.
@@ -184,6 +197,9 @@ private:
   Internal::Adaptor::PixmapImage* mImpl; ///< Implementation pointer
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // __DALI_PIXMAP_IMAGE_H__

@@ -43,6 +43,54 @@ namespace Adaptor
 extern Debug::Filter* gIndicatorLogFilter;
 #endif
 
+ServerConnection::ServerConnection(
+  const char*                 serviceName,
+  int                         serviceNumber,
+  bool                        isSystem,
+  ServerConnection::Observer* observer)
+
+: mConnected(false),
+  mObserver(observer)
+{
+  Ecore_Ipc_Type ipctype = ECORE_IPC_LOCAL_USER;
+
+  ecore_ipc_init();
+  mService.name = eina_stringshare_add(serviceName);
+  mService.num = serviceNumber;
+  mService.isSystem = isSystem;
+
+  if( mService.isSystem )
+  {
+    ipctype = ECORE_IPC_LOCAL_SYSTEM;
+  }
+
+  DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "ServerConnection: Connecting to %s %d\n", mService.name, mService.num );
+
+  mIpcServer = ecore_ipc_server_connect( ipctype, (char *)mService.name, mService.num, this );
+
+  if( !mIpcServer )
+  {
+    DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "mIpcServer is null\n" );
+    ecore_ipc_shutdown();
+  }
+  else
+  {
+    mIpcHandlers.push_back( ecore_event_handler_add( ECORE_IPC_EVENT_SERVER_ADD,
+                                                     &ServerConnection::IpcServerAdd,
+                                                     this ) );
+
+    mIpcHandlers.push_back( ecore_event_handler_add( ECORE_IPC_EVENT_SERVER_DEL,
+                                                     &ServerConnection::IpcServerDel,
+                                                     this ) );
+
+    mIpcHandlers.push_back( ecore_event_handler_add( ECORE_IPC_EVENT_SERVER_DATA,
+                                                     &ServerConnection::IpcServerData,
+                                                     this));
+
+    mConnected = true;
+  }
+}
+
 ServerConnection::~ServerConnection()
 {
   CloseConnection();

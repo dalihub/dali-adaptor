@@ -94,6 +94,45 @@ private: // Data
 };
 
 /**
+ * Helper class to calculate number of OpenGL objects
+ */
+class ObjectCounter
+{
+public:
+  ObjectCounter( const char* description );
+
+  /**
+   * Increment the counter
+   */
+  void  Increment();
+
+  /**
+   * Decrement the counter
+   */
+  void Decrement();
+
+  /**
+   * @return The current number of objects
+   */
+  unsigned int GetCount() const;
+
+  /**
+   * @return The maximum number of objects created
+   */
+  unsigned int GetPeak() const;
+
+  /**
+   * @return the description of the sampler
+   */
+  const char* GetDescription() const;
+
+private:
+  const char* mDescription;
+  unsigned int mCount;
+  unsigned int mPeak;
+};
+
+/**
  * GlProxyImplementation is a wrapper for the concrete implementation
  * of GlAbstraction that also gathers statistical information.
  */
@@ -123,11 +162,15 @@ public:
   virtual void PostRender();
 
   /* OpenGL ES 2.0 API */
-  virtual void ActiveTexture(GLenum texture);
-
   virtual void Clear( GLbitfield mask );
 
+  virtual void GenBuffers (GLsizei n, GLuint* buffers);
+  virtual void DeleteBuffers (GLsizei n, const GLuint* buffers);
   virtual void BindBuffer( GLenum target, GLuint buffer );
+
+  virtual void GenTextures (GLsizei n, GLuint* textures);
+  virtual void DeleteTextures (GLsizei n, const GLuint* textures);
+  virtual void ActiveTexture(GLenum texture);
   virtual void BindTexture( GLenum target, GLuint texture );
 
   virtual void DrawArrays( GLenum mode, GLint first, GLsizei count );
@@ -153,6 +196,8 @@ public:
   virtual void UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
   virtual void UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
 
+  virtual GLuint CreateProgram (void);
+  virtual void DeleteProgram (GLuint program);
   virtual void UseProgram( GLuint program );
 
 private: // Helpers
@@ -160,6 +205,7 @@ private: // Helpers
   void AccumulateSamples();
   void LogResults();
   void LogCalls( const Sampler& sampler );
+  void LogObjectCounter( const ObjectCounter& sampler );
   void ResetSamplers();
 
 private: // Data
@@ -172,8 +218,10 @@ private: // Data
   Sampler mDrawSampler;
   Sampler mUniformSampler;
   Sampler mUseProgramSampler;
-  int mDrawCount;
-  int mUniformCount;
+  ObjectCounter mBufferCount;
+  ObjectCounter mTextureCount;
+  ObjectCounter mProgramCount;
+
   int mFrameCount;
 
 };
