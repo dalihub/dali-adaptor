@@ -23,6 +23,7 @@
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/devel-api/images/pixel-data.h>
 
 namespace Dali
 {
@@ -101,28 +102,20 @@ public:
   bool IsLoaded();
 
   /**
-   * Get the raw pixel data.
-   * @return The pixel data. Use the GetHeight(), GetWidth(), GetStride() and GetPixelFormat() methods
-   * to decode the data.
+   * @brief Returns the URL of the image.
+   *
+   * @return The URL of the image file.
    */
-  unsigned char* GetPixelData() const;
+  std::string GetUrl() const;
 
   /**
-   * Get the buffer height in pixels
-   * @return the height of the buffer in pixels
+   * @brief Get the pixel data.
+   *
+   * The returned pixel data is still valid after the BitmapLoader been destroyed.
+   *
+   * @return The pixel data.
    */
-  unsigned int GetImageHeight() const;
-
-  /**
-   * Get the buffer width in pixels
-   * @return the width of the buffer in pixels
-   */
-  unsigned int GetImageWidth() const;
-
-  /**
-   * Get the pixel format of the loaded bitmap.
-   */
-  Pixel::Format GetPixelFormat() const;
+  PixelDataPtr GetPixelData() const;
 
 public: // Not intended for application developers
 

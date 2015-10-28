@@ -70,24 +70,14 @@ bool BitmapLoader::IsLoaded()
   return GetImplementation(*this).IsLoaded();
 }
 
-unsigned char* BitmapLoader::GetPixelData() const
+std::string BitmapLoader::GetUrl() const
+{
+  return GetImplementation(*this).GetUrl();
+}
+
+PixelDataPtr BitmapLoader::GetPixelData() const
 {
   return GetImplementation(*this).GetPixelData();
-}
-
-unsigned int BitmapLoader::GetImageHeight() const
-{
-  return GetImplementation(*this).GetImageHeight();
-}
-
-unsigned int BitmapLoader::GetImageWidth() const
-{
-  return GetImplementation(*this).GetImageWidth();
-}
-
-Pixel::Format BitmapLoader::GetPixelFormat() const
-{
-  return GetImplementation(*this).GetPixelFormat();
 }
 
 } // namespace Dali
