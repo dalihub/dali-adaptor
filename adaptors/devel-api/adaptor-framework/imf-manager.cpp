@@ -38,11 +38,6 @@ ImfManager ImfManager::Get()
   return Internal::Adaptor::ImfManager::Get();
 }
 
-ImfContext ImfManager::GetContext()
-{
-  return reinterpret_cast<ImfContext>( Internal::Adaptor::ImfManager::GetImplementation(*this).GetContext() );
-}
-
 void ImfManager::Activate()
 {
   Internal::Adaptor::ImfManager::GetImplementation(*this).Activate();
@@ -78,17 +73,17 @@ void ImfManager::SetCursorPosition( unsigned int SetCursorPosition )
   Internal::Adaptor::ImfManager::GetImplementation(*this).SetCursorPosition( SetCursorPosition );
 }
 
-int ImfManager::GetCursorPosition()
+unsigned int ImfManager::GetCursorPosition() const
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).GetCursorPosition();
 }
 
-void ImfManager::SetSurroundingText( std::string text )
+void ImfManager::SetSurroundingText( const std::string& text )
 {
   Internal::Adaptor::ImfManager::GetImplementation(*this).SetSurroundingText( text );
 }
 
-std::string ImfManager::GetSurroundingText()
+const std::string& ImfManager::GetSurroundingText() const
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).GetSurroundingText();
 }

@@ -33,9 +33,6 @@ class ImfManager;
 }
 }
 
-// TODO: Temporary patch to hidden ecore dependency. Must fix it.
-typedef void* ImfContext;
-
 /**
  * @brief The ImfManager class
  *
@@ -66,8 +63,8 @@ public:
      * @brief Default Constructor.
      */
     ImfEventData()
-    : eventName( VOID ),
-      predictiveString(""),
+    : predictiveString(),
+      eventName( VOID ),
       cursorOffset( 0 ),
       numberOfChars ( 0 )
     {
@@ -81,16 +78,19 @@ public:
      * @param[in] aCursorOffset Start position from the current cursor position to start deleting characters.
      * @param[in] aNumberOfChars The number of characters to delete from the cursorOffset.
      */
-    ImfEventData(ImfEvent aEventName, const std::string& aPredictiveString, int aCursorOffset,int aNumberOfChars  )
-    : eventName(aEventName), predictiveString(aPredictiveString), cursorOffset( aCursorOffset ), numberOfChars( aNumberOfChars )
+    ImfEventData( ImfEvent aEventName, const std::string& aPredictiveString, int aCursorOffset, int aNumberOfChars )
+    : predictiveString( aPredictiveString ),
+      eventName( aEventName ),
+      cursorOffset( aCursorOffset ),
+      numberOfChars( aNumberOfChars )
     {
     }
 
     // Data
-    ImfEvent eventName; ///< The name of the event from the IMF.
     std::string predictiveString; ///< The pre-edit or commit string.
-    int cursorOffset; ///< Start position from the current cursor position to start deleting characters.
-    int numberOfChars; ///< number of characters to delete from the cursorOffset.
+    ImfEvent eventName;           ///< The name of the event from the IMF.
+    int cursorOffset;             ///< Start position from the current cursor position to start deleting characters.
+    int numberOfChars;            ///< number of characters to delete from the cursorOffset.
   };
 
   /**
@@ -101,8 +101,11 @@ public:
     /**
      * @brief Constructor
      */
-    ImfCallbackData( )
-    : update( false ), cursorPosition( 0 ), preeditResetRequired ( false )
+    ImfCallbackData()
+    : currentText(),
+      cursorPosition( 0 ),
+      update( false ),
+      preeditResetRequired( false )
     {
     }
 
@@ -113,19 +116,21 @@ public:
      * @param[in] aCurrentText current text string
      * @param[in] aPreeditResetRequired flag if preedit reset is required.
      */
-    ImfCallbackData(bool aUpdate, int aCursorPosition, std::string aCurrentText, bool aPreeditResetRequired )
-    : update(aUpdate), cursorPosition(aCursorPosition), currentText( aCurrentText ), preeditResetRequired( aPreeditResetRequired )
+    ImfCallbackData( bool aUpdate, int aCursorPosition, const std::string& aCurrentText, bool aPreeditResetRequired )
+    : currentText( aCurrentText ),
+      cursorPosition( aCursorPosition ),
+      update( aUpdate ),
+      preeditResetRequired( aPreeditResetRequired )
     {
     }
 
-    bool update; ///< if cursor position needs to be updated
-    int cursorPosition; ///< new position of cursor
-    std::string currentText; ///< current text string
-    bool preeditResetRequired; ///< flag if preedit reset is required.
+    std::string currentText;      ///< current text string
+    int cursorPosition;           ///< new position of cursor
+    bool update               :1; ///< if cursor position needs to be updated
+    bool preeditResetRequired :1; ///< flag if preedit reset is required.
   };
 
   typedef Signal< void (ImfManager&) > ImfManagerSignalType; ///< Keyboard actived signal
-
   typedef Signal< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalType; ///< keyboard events
 
 public:
@@ -135,12 +140,6 @@ public:
    * @return A handle to the ImfManager.
    */
   static ImfManager Get();
-
-  /**
-   * @brief Get the current imf context.
-   * @return current imf context.
-   */
-  ImfContext GetContext();
 
   /**
    * @brief Activate the IMF.
@@ -196,21 +195,21 @@ public:
    *
    * @return current position of cursor
    */
-  int GetCursorPosition();
+  unsigned int GetCursorPosition() const;
 
   /**
    * @brief Method to store the string required by the IMF, this is used to provide predictive word suggestions.
    *
    * @param[in] text The text string surrounding the current cursor point.
    */
-  void SetSurroundingText( std::string text );
+  void SetSurroundingText( const std::string& text );
 
   /**
    * @brief Gets current text string set within the IMF manager, this is used to offer predictive suggestions.
    *
    * @return current position of cursor
    */
-  std::string GetSurroundingText();
+  const std::string& GetSurroundingText() const;
 
 public:
 

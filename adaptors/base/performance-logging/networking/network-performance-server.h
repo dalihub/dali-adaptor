@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <pthread.h>
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES

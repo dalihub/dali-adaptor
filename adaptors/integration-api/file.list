@@ -15,4 +15,5 @@ adaptor_integration_wayland_api_header_files = \
 adaptor_integration_x11_api_header_files = \
   $(adaptor_integration_api_dir)/x11/ecore-x-types.h \
   $(adaptor_integration_api_dir)/x11/ecore-x-render-surface.h \
-  $(adaptor_integration_api_dir)/x11/pixmap-render-surface.h
+  $(adaptor_integration_api_dir)/x11/pixmap-render-surface.h \
+  $(adaptor_integration_api_dir)/x11/imf-manager-impl.h

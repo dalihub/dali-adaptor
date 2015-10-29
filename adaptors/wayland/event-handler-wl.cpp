@@ -319,7 +319,7 @@ struct EventHandler::Impl
       Dali::ImfManager imfManager( ImfManager::Get() );
       if ( imfManager )
       {
-        imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+        imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
       }
 
       if ( imfContext )
@@ -402,7 +402,7 @@ struct EventHandler::Impl
       Dali::ImfManager imfManager( ImfManager::Get() );
       if ( imfManager )
       {
-        imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+        imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
       }
 
       if ( imfContext )

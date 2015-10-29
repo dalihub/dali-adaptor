@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <algorithm>
 
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -134,7 +133,7 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
 void Show()
 {
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) to show the keyboard
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
   if( imfContext )
   {
@@ -147,7 +146,7 @@ void Hide()
   if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance*/ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
     if( imfContext )
     {
@@ -163,7 +162,7 @@ bool IsVisible()
     DALI_LOG_INFO( gLogFilter, Debug::General, "IMF IsVisible\n" );
 
     Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
     if ( imfContext )
     {
@@ -205,7 +204,7 @@ void ApplySettings( const Property::Map& settingsMap )
 void EnablePrediction(const bool enable)
 {
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when enabling prediction
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
   if ( imfContext )
   {
@@ -218,7 +217,7 @@ bool IsPredictionEnabled()
   if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManger */ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
     if ( imfContext )
     {
@@ -239,7 +238,7 @@ Rect<int> GetSizeAndPosition()
 
   width = height = xPos = yPos = 0;
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) as we may need to do some size related setup in the application
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
   if( imfContext )
   {
@@ -279,7 +278,7 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 
     if ( imfManager )
     {
-      Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+      Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
       if ( imfContext )
       {
