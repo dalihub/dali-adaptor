@@ -87,6 +87,8 @@ namespace Adaptor
 
 #define DALI_WINDOW_CLASS_NAME "DALI_WINDOW_CLASS_NAME"
 
+#define DALI_THREADING_MODE "DALI_THREADING_MODE"
+
 } // namespace Adaptor
 
 } // namespace Internal

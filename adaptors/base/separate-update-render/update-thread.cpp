@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/thread-synchronization.h>
+#include <base/separate-update-render/thread-synchronization.h>
 #include <base/environment-options.h>
 
 namespace Dali

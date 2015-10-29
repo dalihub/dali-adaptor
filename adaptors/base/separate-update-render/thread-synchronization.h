@@ -25,8 +25,8 @@
 #include <integration-api/thread-synchronization-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <trigger-event-interface.h>
-#include <base/frame-time.h>
-#include <base/render-request.h>
+#include <base/separate-update-render/frame-time.h>
+#include <base/separate-update-render/render-request.h>
 
 namespace Dali
 {

@@ -19,12 +19,9 @@
 #include "thread-controller.h"
 
 // INTERNAL INCLUDES
-#include <base/update-thread.h>
-#include <base/render-thread.h>
-#include <base/thread-synchronization.h>
-#include <base/vsync-notifier.h>
-#include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
+#include <base/thread-controller-interface.h>
+#include <base/separate-update-render/separate-update-render-controller.h>
 
 namespace Dali
 {
@@ -36,103 +33,67 @@ namespace Adaptor
 {
 
 ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions )
-: mAdaptorInterfaces( adaptorInterfaces ),
-  mUpdateThread( NULL ),
-  mRenderThread( NULL ),
-  mVSyncNotifier( NULL ),
-  mThreadSync( NULL ),
-  mNumberOfVSyncsPerRender( 1 )
+: mThreadControllerInterface( NULL )
 {
-  mThreadSync = new ThreadSynchronization( adaptorInterfaces, mNumberOfVSyncsPerRender );
-
-  mUpdateThread = new UpdateThread( *mThreadSync, adaptorInterfaces, environmentOptions );
-
-  mRenderThread = new RenderThread( *mThreadSync, adaptorInterfaces, environmentOptions );
-
-  mVSyncNotifier = new VSyncNotifier( *mThreadSync, adaptorInterfaces, environmentOptions );
-
-  // Set the thread-synchronization interface on the render-surface
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+  switch( environmentOptions.GetThreadingMode() )
   {
-    currentSurface->SetThreadSynchronization( *mThreadSync );
+    case ThreadingMode::SEPARATE_UPDATE_RENDER:
+    case ThreadingMode::COMBINED_UPDATE_RENDER:
+    case ThreadingMode::SINGLE_THREADED:
+    {
+      mThreadControllerInterface = new SeparateUpdateRenderController( adaptorInterfaces, environmentOptions );
+    }
   }
 }
 
 ThreadController::~ThreadController()
 {
-  delete mVSyncNotifier;
-  delete mRenderThread;
-  delete mUpdateThread;
-  delete mThreadSync;
+  delete mThreadControllerInterface;
 }
 
 void ThreadController::Initialize()
 {
-  // Notify the synchronization object before starting the threads
-  mThreadSync->Initialise();
-
-  // We want to the threads to be set up before they start
-  mUpdateThread->Start();
-  mRenderThread->Start();
-  mVSyncNotifier->Start();
+  mThreadControllerInterface->Initialize();
 }
 
 void ThreadController::Start()
 {
-  mThreadSync->Start();
+  mThreadControllerInterface->Start();
 }
 
 void ThreadController::Pause()
 {
-  mThreadSync->Pause();
+  mThreadControllerInterface->Pause();
 }
 
 void ThreadController::Resume()
 {
-  mThreadSync->Resume();
+  mThreadControllerInterface->Resume();
 }
 
 void ThreadController::Stop()
 {
-  // Notify the synchronization object before stopping the threads
-  mThreadSync->Stop();
-
-  mVSyncNotifier->Stop();
-  mUpdateThread->Stop();
-  mRenderThread->Stop();
+  mThreadControllerInterface->Stop();
 }
 
 void ThreadController::RequestUpdate()
 {
-  mThreadSync->UpdateRequest();
+  mThreadControllerInterface->RequestUpdate();
 }
 
 void ThreadController::RequestUpdateOnce()
 {
-  // if we are paused, need to allow one update
-  mThreadSync->UpdateOnce();
+  mThreadControllerInterface->RequestUpdateOnce();
 }
 
 void ThreadController::ReplaceSurface( RenderSurface* newSurface )
 {
-  // Set the thread-syncronization on the new surface
-  newSurface->SetThreadSynchronization( *mThreadSync );
-
-  // tell render thread to start the replace. This call will block until the replace
-  // has completed.
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-
-  // Ensure the current surface releases any locks to prevent deadlock.
-  currentSurface->StopRender();
-
-  mThreadSync->ReplaceSurface( newSurface );
+  mThreadControllerInterface->ReplaceSurface( newSurface );
 }
 
 void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
-  mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;
-  mThreadSync->SetRenderRefreshRate(numberOfVSyncsPerRender);
+  mThreadControllerInterface->SetRenderRefreshRate( numberOfVSyncsPerRender );
 }
 
 } // namespace Adaptor

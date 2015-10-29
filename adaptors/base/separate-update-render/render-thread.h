@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/render-helper.h>
-#include <base/render-request.h>
+#include <base/separate-update-render/render-request.h>
 #include <egl-interface.h>
 #include <render-surface.h> // needed for Dali::RenderSurface
 
