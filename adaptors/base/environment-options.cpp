@@ -104,7 +104,7 @@ EnvironmentOptions::EnvironmentOptions()
   mGlesCallTime(0),
   mWindowWidth( 0 ),
   mWindowHeight( 0 ),
-  mThreadingMode( ThreadingMode::SEPARATE_UPDATE_RENDER ),
+  mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mRenderRefreshRate( 1 ),
   mLogFunction( NULL )
 {

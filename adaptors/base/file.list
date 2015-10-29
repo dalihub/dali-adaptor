@@ -15,6 +15,7 @@ base_adaptor_src_files = \
   $(base_adaptor_src_dir)/performance-logging/performance-interface-factory.cpp \
   $(base_adaptor_src_dir)/performance-logging/statistics/stat-context.cpp \
   $(base_adaptor_src_dir)/performance-logging/statistics/stat-context-manager.cpp \
+  $(base_adaptor_src_dir)/combined-update-render/combined-update-render-controller.cpp \
   $(base_adaptor_src_dir)/separate-update-render/frame-time.cpp \
   $(base_adaptor_src_dir)/separate-update-render/separate-update-render-controller.cpp \
   $(base_adaptor_src_dir)/separate-update-render/render-request.cpp \
