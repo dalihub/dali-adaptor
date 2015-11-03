@@ -86,7 +86,7 @@ public:
    * @pre The SoundPlayer needs to be initialized.
    * @return The signal to connect to.
    *
-   * @note The signal name is "sound-play-finished" if using BaseHandle::ConnectSignal()
+   * @note The signal name is "soundPlayFinished" if using BaseHandle::ConnectSignal()
    */
   SoundPlayFinishedSignalType& SoundPlayFinishedSignal();
 
