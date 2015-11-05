@@ -40,6 +40,7 @@ namespace Adaptor
 namespace
 {
 
+const unsigned int NANOSECONDS_PER_MICROSECOND( 1000u );
 const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
 const unsigned int TIME_PER_FRAME_IN_MICROSECONDS( 16667u );
 
@@ -112,10 +113,10 @@ void VSyncNotifier::Run()
 
   unsigned int frameNumber( 0u );             // frameCount, updated when the thread is paused
   unsigned int currentSequenceNumber( 0u );   // platform specific vsync sequence number (increments with each vsync)
-  unsigned int currentSeconds( 0u );          // timestamp at latest sync
-  unsigned int currentMicroseconds( 0u );     // timestamp at latest sync
-  unsigned int seconds( 0u );
-  unsigned int microseconds( 0u );
+  unsigned int currentSeconds( 0u );              // timestamp at latest sync
+  unsigned int currentMicroseconds( 0u );         // timestamp at latest sync
+  uint64_t seconds( 0u );
+  uint64_t microseconds( 0u );
 
   bool validSync( true );
   while( mThreadSynchronization.VSyncReady( validSync, frameNumber++, currentSeconds, currentMicroseconds, mNumberOfVSyncsPerRender ) )
@@ -136,7 +137,8 @@ void VSyncNotifier::Run()
     else
     {
       // No..use software timer
-      mPlatformAbstraction.GetTimeMicroseconds( seconds, microseconds );
+      mPlatformAbstraction.GetTimeNanoseconds( seconds, microseconds );
+      microseconds /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
       unsigned int timeDelta( MICROSECONDS_PER_SECOND * (seconds - currentSeconds) );
       if( microseconds < currentMicroseconds)

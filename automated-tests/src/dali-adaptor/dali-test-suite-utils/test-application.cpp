@@ -48,6 +48,7 @@ TestApplication::TestApplication( bool   initialize,
   mSurfaceHeight( surfaceHeight ),
   mFrame( 0u ),
   mDpi( horizontalDpi, verticalDpi ),
+  mLastVSyncTime(0u),
   mDataRetentionPolicy( policy )
 {
   if ( initialize )
@@ -72,6 +73,8 @@ void TestApplication::Initialize()
 
   Dali::Integration::Log::LogFunction logFunction(&TestApplication::LogMessage);
   Dali::Integration::Log::InstallLogFunction(logFunction);
+
+  mCore->SceneCreated();
 }
 
 TestApplication::~TestApplication()
@@ -150,9 +153,9 @@ void TestApplication::SetSurfaceWidth( unsigned int width, unsigned height )
 
 void TestApplication::DoUpdate( unsigned int intervalMilliseconds )
 {
-  unsigned int seconds(0u), microseconds(0u);
-  mPlatformAbstraction.GetTimeMicroseconds( seconds, microseconds );
-  mLastVSyncTime = ( seconds * 1e3 ) + ( microseconds / 1e3 );
+  uint64_t seconds(0u), nanoseconds(0u);
+  mPlatformAbstraction.GetTimeNanoseconds( seconds, nanoseconds );
+  mLastVSyncTime = ( seconds * 1e3 ) + ( nanoseconds / 1e6 );
   unsigned int nextVSyncTime = mLastVSyncTime + 16;
 
   // Update Time values

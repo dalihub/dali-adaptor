@@ -65,9 +65,10 @@ const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0])
 /** Returns elapsed milliseconds. */
 double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
 {
-  unsigned int seconds;
-  unsigned int microseconds;
-  abstraction.GetTimeMicroseconds( seconds, microseconds );
+  uint64_t seconds;
+  uint64_t microseconds;
+  abstraction.GetTimeNanoseconds( seconds, microseconds );
+  microseconds /= 1000u;
   double milliseconds = seconds * 1000.0 + microseconds / 1000.0;
   return milliseconds;
 }
