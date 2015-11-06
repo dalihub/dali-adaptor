@@ -58,9 +58,9 @@ public: // Construction & Destruction
 public: // PlatformAbstraction overrides
 
   /**
-   * @copydoc PlatformAbstraction::GetTimeMicroseconds()
+   * @copydoc PlatformAbstraction::GetTimeNanoseconds()
    */
-  virtual void GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds);
+  virtual void GetTimeNanoseconds( uint64_t& seconds, uint64_t& nanoseconds );
 
   /**
    * @copydoc PlatformAbstraction::Suspend()

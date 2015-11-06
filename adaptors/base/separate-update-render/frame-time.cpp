@@ -42,6 +42,7 @@ const unsigned int DEFAULT_MINIMUM_FRAME_TIME_INTERVAL( 16667u );
 
 const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
 const unsigned int MICROSECONDS_PER_MILLISECOND( 1000u );
+const unsigned int NANOSECONDS_PER_MICROSECOND( 1000u);
 
 const float        MICROSECONDS_TO_SECONDS( 0.000001f );
 
@@ -220,13 +221,13 @@ void FrameTime::PredictNextSyncTime( float& lastFrameDeltaSeconds, unsigned int&
 
 inline void FrameTime::SetLastSyncTime()
 {
-  unsigned int seconds( 0u );
-  unsigned int microseconds( 0u );
+  uint64_t seconds( 0u );
+  uint64_t nanoseconds( 0u );
 
-  mPlatform.GetTimeMicroseconds( seconds, microseconds );
+  mPlatform.GetTimeNanoseconds( seconds, nanoseconds );
 
-  mLastSyncTime = seconds; // Promote from 32 bit to 64 bit value
-  mLastSyncTime = ( mLastSyncTime * MICROSECONDS_PER_SECOND ) + microseconds;
+  mLastSyncTime = seconds * MICROSECONDS_PER_SECOND;
+  mLastSyncTime += nanoseconds / NANOSECONDS_PER_MICROSECOND;
 }
 
 } // namespace Adaptor
