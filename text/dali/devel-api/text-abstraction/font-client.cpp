@@ -119,7 +119,7 @@ FontId FontClient::GetFontId( const FontDescription& fontDescription,
 
 bool FontClient::IsScalable( const FontPath& path )
 {
-  return GetImplementation(*this).IsScalable( path );;
+  return GetImplementation(*this).IsScalable( path );
 }
 
 bool FontClient::IsScalable( const FontDescription& fontDescription )

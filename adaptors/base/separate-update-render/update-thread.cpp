@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/thread-synchronization.h>
+#include <base/separate-update-render/thread-synchronization.h>
 #include <base/environment-options.h>
 
 namespace Dali
@@ -38,8 +38,6 @@ namespace Adaptor
 
 namespace
 {
-const char* DALI_TEMP_UPDATE_FPS_FILE( "/tmp/dalifps.txt" );
-
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gUpdateLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_UPDATE_THREAD");
 #endif
@@ -50,11 +48,8 @@ UpdateThread::UpdateThread( ThreadSynchronization& sync,
                             const EnvironmentOptions& environmentOptions )
 : mThreadSynchronization( sync ),
   mCore( adaptorInterfaces.GetCore()),
-  mFpsTrackingSeconds( fabsf( environmentOptions.GetFrameRateLoggingFrequency() ) ),
-  mFrameCount( 0.0f ),
-  mElapsedTime( 0.0f ),
-  mStatusLogInterval( environmentOptions.GetUpdateStatusLoggingFrequency() ),
-  mStatusLogCount( 0u ),
+  mFpsTracker( environmentOptions ),
+  mUpdateStatusLogger( environmentOptions ),
   mThread( NULL ),
   mEnvironmentOptions( environmentOptions )
 {
@@ -62,10 +57,6 @@ UpdateThread::UpdateThread( ThreadSynchronization& sync,
 
 UpdateThread::~UpdateThread()
 {
-  if( mFpsTrackingSeconds > 0.f )
-  {
-    OutputFPSRecord();
-  }
   Stop();
 }
 
@@ -119,18 +110,12 @@ bool UpdateThread::Run()
     mCore.Update( lastFrameDelta, lastSyncTime, nextSyncTime, status );
     mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
-    if( mFpsTrackingSeconds > 0.f )
-    {
-      FPSTracking(status.SecondsFromLastFrame());
-    }
+    mFpsTracker.Track( status.SecondsFromLastFrame() );
 
     unsigned int keepUpdatingStatus = status.KeepUpdating();
 
     // Optional logging of update/render status
-    if ( mStatusLogInterval )
-    {
-      UpdateStatusLogging( keepUpdatingStatus );
-    }
+    mUpdateStatusLogger.Log( keepUpdatingStatus );
 
     //  2 things can keep update running.
     // - The status of the last update
@@ -149,82 +134,6 @@ bool UpdateThread::Run()
   mEnvironmentOptions.UnInstallLogFunction();
 
   return true;
-}
-
-void UpdateThread::FPSTracking( float secondsFromLastFrame )
-{
-  if ( mElapsedTime < mFpsTrackingSeconds )
-  {
-    mElapsedTime += secondsFromLastFrame;
-    mFrameCount += 1.f;
-  }
-  else
-  {
-    OutputFPSRecord();
-    mFrameCount = 0.f;
-    mElapsedTime = 0.f;
-  }
-}
-
-void UpdateThread::OutputFPSRecord()
-{
-  float fps = mFrameCount / mElapsedTime;
-  DALI_LOG_FPS("Frame count %.0f, elapsed time %.1fs, FPS: %.2f\n", mFrameCount, mElapsedTime, fps );
-
-  // Dumps out the frame rate.
-  FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w" );
-  if( outfile )
-  {
-    char fpsString[10];
-    snprintf(fpsString,sizeof(fpsString),"%.2f \n", fps );
-    fputs( fpsString, outfile ); // ignore the error on purpose
-    fclose( outfile );
-  }
-}
-
-void UpdateThread::UpdateStatusLogging( unsigned int keepUpdatingStatus )
-{
-  DALI_ASSERT_ALWAYS( mStatusLogInterval );
-
-  std::string oss;
-
-  if ( !(++mStatusLogCount % mStatusLogInterval) )
-  {
-    oss = "UpdateStatusLogging keepUpdating: ";
-    oss += (keepUpdatingStatus ? "true":"false");
-
-    if ( keepUpdatingStatus )
-    {
-      oss += " because: ";
-    }
-
-    if ( keepUpdatingStatus & Integration::KeepUpdating::STAGE_KEEP_RENDERING )
-    {
-      oss += "<Stage::KeepRendering() used> ";
-    }
-
-    if ( keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING )
-    {
-      oss  +=  "<Animations running> ";
-    }
-
-    if ( keepUpdatingStatus & Integration::KeepUpdating::LOADING_RESOURCES )
-    {
-      oss  +=  "<Resources loading> ";
-    }
-
-    if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
-    {
-      oss += "<Monitoring performance> ";
-    }
-
-    if ( keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC )
-    {
-      oss += "<Render task waiting for completion> ";
-    }
-
-    DALI_LOG_UPDATE_STATUS( "%s\n", oss.c_str());
-  }
 }
 
 } // namespace Adaptor

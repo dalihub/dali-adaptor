@@ -169,6 +169,13 @@ AC_ARG_ENABLE([profile],
               [enable_profile=$enableval],
               [enable_profile=COMMON])
 
+# This allows building for tizen 2.2 devices.
+AC_ARG_WITH([tizen_2_2_compatibility],
+            [AC_HELP_STRING)[--with-tizen_2_2_compatibility],
+                            [Allow building for tizen 2.2 devices])],
+            [with_tizen_2_2_compatibility=yes],
+            [with_tizen_2_2_compatibility=no])
+
 # Ensure valid profile selected
 if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
@@ -194,9 +201,35 @@ AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_network_logging = xyes])
 # should not disable features. This allows the developer to override
 # features through the command line.
 
+if test "x$enable_profile" = "xCOMMON"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
+fi
 
-if test "x$enable_profile" != "xUBUNTU"; then
+if test "x$enable_profile" = "xMOBILE"; then
+  # Allow building for 2.2 tizen devices.
+  if test "x$with_tizen_2_2_compatibility" = "xyes"; then
+    PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
+  else
+    PKG_CHECK_MODULES(OPENGLES20, gles20)
+  fi
+  enable_assimp=no
+fi
+
+if test "x$enable_profile" = "xLITE"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
+
+if test "x$enable_profile" = "xWEARABLE"; then
+PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
+
+if test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
+fi
+
+if test "x$enable_profile" = "xUBUNTU"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
+else
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(SENSOR, sensor)
@@ -304,6 +337,7 @@ Configuration
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
   Network logging enabled:          $enable_network_logging
   Font config file:                 $fontConfigurationFile
+  Tizen 2.2 compatibility:          $with_tizen_2_2_compatibility
 "
 # optional output of node.js source path if we're building for node.js
 if test "x$build_for_node_js" != "xno"; then

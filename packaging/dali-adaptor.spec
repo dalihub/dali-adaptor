@@ -2,12 +2,17 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.8
+Version:    1.1.9
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0, BSD-2.0, MIT
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
+
+# Get the profile from tizen_profile_name if it exists.
+%if 0%{?tizen_profile_name:1}
+%define profile %{tizen_profile_name}
+%endif
 
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE

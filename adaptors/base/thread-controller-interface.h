@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_THREAD_CONTROLLER_H__
-#define __DALI_INTERNAL_THREAD_CONTROLLER_H__
+#ifndef __DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H__
+#define __DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -29,85 +29,79 @@ namespace Internal
 namespace Adaptor
 {
 
-class AdaptorInternalServices;
-class EnvironmentOptions;
-class ThreadControllerInterface;
-
 /**
- * Class to control all the threads.
+ * Interface Class for all controlling threads.
  */
-class ThreadController
+class ThreadControllerInterface
 {
 public:
 
   /**
-   * Constructor
+   * Virtual destructor. Not intended as base class.
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
-
-  /**
-   * Non virtual destructor. Not intended as base class.
-   */
-  ~ThreadController();
+  virtual ~ThreadControllerInterface() { }
 
   /**
    * Initializes the thread controller
    */
-  void Initialize();
+  virtual void Initialize() = 0;
 
   /**
    * @copydoc Dali::Adaptor::Start()
    */
-  void Start();
+  virtual void Start() = 0;
 
   /**
    * @copydoc Dali::Adaptor::Pause()
    */
-  void Pause();
+  virtual void Pause() = 0;
 
   /**
    * @copydoc Dali::Adaptor::Resume()
    */
-  void Resume();
+  virtual void Resume() = 0;
 
   /**
    * @copydoc Dali::Adaptor::Stop()
    */
-  void Stop();
+  virtual void Stop() = 0;
 
   /**
    * Called by the adaptor when core requires another update
    */
-  void RequestUpdate();
+  virtual void RequestUpdate() = 0;
 
   /**
    * Called by the adaptor when core requires one update
    * If Adaptor is paused, we do one update and return to pause
    */
-  void RequestUpdateOnce();
+  virtual void RequestUpdateOnce() = 0;
 
   /**
    * Replaces the surface.
    * @param surface new surface
    */
-  void ReplaceSurface( RenderSurface* surface );
+  virtual void ReplaceSurface( RenderSurface* surface ) = 0;
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
-  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+  virtual void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender ) = 0;
+
+protected:
+
+  /**
+   * Constructor
+   */
+  ThreadControllerInterface() { }
 
 private:
 
   // Undefined copy constructor.
-  ThreadController( const ThreadController& );
+  ThreadControllerInterface( const ThreadControllerInterface& );
 
   // Undefined assignment operator.
-  ThreadController& operator=( const ThreadController& );
-
-private:
-
-  ThreadControllerInterface* mThreadControllerInterface;
+  ThreadControllerInterface& operator=( const ThreadControllerInterface& );
 };
 
 } // namespace Adaptor
@@ -116,4 +110,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_THREAD_CONTROLLER_H__
+#endif // __DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H__

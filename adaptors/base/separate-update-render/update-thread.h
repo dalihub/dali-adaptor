@@ -21,6 +21,10 @@
 // EXTERNAL INCLUDES
 #include <pthread.h>
 
+// INTERNAL INCLUDES
+#include <base/fps-tracker.h>
+#include <base/update-status-logger.h>
+
 namespace Dali
 {
 
@@ -81,24 +85,6 @@ private:
   bool Run();
 
   /**
-   * When DALI_FPS_TRACKING is enabled, this method calculates the frame rates for the specified time period
-   */
-  void FPSTracking(float secondsFromLastFrame);
-
-  /**
-   * Output the FPS information
-   * when the FSP tracking is enabled,
-   * it is called when the specified tracking period is elapsed or in the destructor when the process finished beforehand
-   */
-  void OutputFPSRecord();
-
-  /**
-   * Optionally output the update thread status.
-   * @param[in] keepUpdatingStatus Whether the update-thread requested further updates.
-   */
-  void UpdateStatusLogging( unsigned int keepUpdatingStatus );
-
-  /**
    * Helper for the thread calling the entry function
    * @param[in] This A pointer to the current UpdateThread object
    */
@@ -114,12 +100,8 @@ private: // Data
 
   Dali::Integration::Core&            mCore;                ///< Dali core reference
 
-  float                               mFpsTrackingSeconds;  ///< fps tracking time length in seconds
-  float                               mFrameCount;          ///< how many frames occurred during tracking period
-  float                               mElapsedTime;         ///< time elapsed from previous fps tracking output
-
-  unsigned int                        mStatusLogInterval;   ///< Interval in frames between status debug prints
-  unsigned int                        mStatusLogCount;      ///< Used to count frames between status debug prints
+  FpsTracker                          mFpsTracker;          ///< Object that tracks the FPS
+  UpdateStatusLogger                  mUpdateStatusLogger;  ///< Object that logs the update-status as required.
 
   pthread_t*                          mThread;              ///< The actual update-thread.
   const EnvironmentOptions&           mEnvironmentOptions;  ///< environment options

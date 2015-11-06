@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
-#include <base/thread-synchronization-debug.h>
+#include <base/separate-update-render/thread-synchronization-debug.h>
 
 namespace Dali
 {
