@@ -89,6 +89,8 @@ namespace Adaptor
 
 #define DALI_THREADING_MODE "DALI_THREADING_MODE"
 
+#define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
+
 } // namespace Adaptor
 
 } // namespace Internal

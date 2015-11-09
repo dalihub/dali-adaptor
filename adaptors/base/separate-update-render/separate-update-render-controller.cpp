@@ -42,7 +42,7 @@ SeparateUpdateRenderController::SeparateUpdateRenderController( AdaptorInternalS
   mRenderThread( NULL ),
   mVSyncNotifier( NULL ),
   mThreadSync( NULL ),
-  mNumberOfVSyncsPerRender( 1 )
+  mNumberOfVSyncsPerRender( environmentOptions.GetRenderRefreshRate() )
 {
   mThreadSync = new ThreadSynchronization( adaptorInterfaces, mNumberOfVSyncsPerRender );
 

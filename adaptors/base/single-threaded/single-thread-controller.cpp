@@ -61,7 +61,7 @@ SingleThreadController::SingleThreadController( AdaptorInternalServices& adaptor
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mLastUpdateRenderTime( 0 ),
   mSystemTime( 0 ),
-  mRefreshRate( 1 ),
+  mRefreshRate( environmentOptions.GetRenderRefreshRate() ),
   mState( State::STOPPED ),
   mUpdatingAndRendering( false ),
   mStopRequestedWhileRendering( false )
