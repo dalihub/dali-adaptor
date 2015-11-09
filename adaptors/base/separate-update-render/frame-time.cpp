@@ -22,6 +22,9 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
 
+// INTERNAL INCLUDES
+#include <base/time-service.h>
+
 namespace Dali
 {
 
@@ -54,9 +57,8 @@ const unsigned int FALSE = 0u;
 } // unnamed namespace
 
 
-FrameTime::FrameTime( PlatformAbstraction& platform )
-: mPlatform( platform ),
-  mMinimumFrameTimeInterval( DEFAULT_MINIMUM_FRAME_TIME_INTERVAL ),
+FrameTime::FrameTime()
+: mMinimumFrameTimeInterval( DEFAULT_MINIMUM_FRAME_TIME_INTERVAL ),
   mLastSyncTime( 0u ),
   mLastSyncTimeAtUpdate( 0u ),
   mLastSyncFrameNumber( 0u ),
@@ -221,13 +223,10 @@ void FrameTime::PredictNextSyncTime( float& lastFrameDeltaSeconds, unsigned int&
 
 inline void FrameTime::SetLastSyncTime()
 {
-  uint64_t seconds( 0u );
   uint64_t nanoseconds( 0u );
+  TimeService::GetNanoseconds( nanoseconds );
 
-  mPlatform.GetTimeNanoseconds( seconds, nanoseconds );
-
-  mLastSyncTime = seconds * MICROSECONDS_PER_SECOND;
-  mLastSyncTime += nanoseconds / NANOSECONDS_PER_MICROSECOND;
+  mLastSyncTime = nanoseconds / NANOSECONDS_PER_MICROSECOND;
 }
 
 } // namespace Adaptor

@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <stdlib.h>
+#include <ctime>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
 #include "tizen-platform-abstraction.h"
@@ -65,12 +66,9 @@ const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0])
 /** Returns elapsed milliseconds. */
 double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
 {
-  uint64_t seconds;
-  uint64_t microseconds;
-  abstraction.GetTimeNanoseconds( seconds, microseconds );
-  microseconds /= 1000u;
-  double milliseconds = seconds * 1000.0 + microseconds / 1000.0;
-  return milliseconds;
+  timespec timeSpec;
+  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
+  return ( timeSpec.tv_sec * 1e3 ) + ( timeSpec.tv_nsec / 1e6 );
 }
 
 } // anon namespace

@@ -175,7 +175,6 @@ private:
   RenderHelper                      mRenderHelper;                    ///< Helper class for EGL, pre & post rendering
 
   Integration::Core&                mCore;                            ///< DALi core reference
-  Integration::PlatformAbstraction& mPlatformAbstraction;             ///< To get the current time
   PerformanceInterface*             mPerformanceInterface;            ///< The performance logging interface
 
   uint64_t                          mLastUpdateRenderTime;            ///< Last time we did an update and render

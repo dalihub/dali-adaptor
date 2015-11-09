@@ -6,6 +6,7 @@ base_adaptor_src_files = \
   $(base_adaptor_src_dir)/fps-tracker.cpp \
   $(base_adaptor_src_dir)/render-helper.cpp \
   $(base_adaptor_src_dir)/thread-controller.cpp \
+  $(base_adaptor_src_dir)/time-service.cpp \
   $(base_adaptor_src_dir)/update-status-logger.cpp \
   $(base_adaptor_src_dir)/performance-logging/frame-time-stamp.cpp \
   $(base_adaptor_src_dir)/performance-logging/frame-time-stats.cpp \

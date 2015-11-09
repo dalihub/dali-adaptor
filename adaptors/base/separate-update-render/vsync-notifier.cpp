@@ -27,6 +27,7 @@
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/separate-update-render/thread-synchronization.h>
 #include <base/environment-options.h>
+#include <base/time-service.h>
 
 namespace Dali
 {
@@ -40,6 +41,7 @@ namespace Adaptor
 namespace
 {
 
+const unsigned int NANOSECONDS_PER_SECOND( 1e+9 );
 const unsigned int NANOSECONDS_PER_MICROSECOND( 1000u );
 const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
 const unsigned int TIME_PER_FRAME_IN_MICROSECONDS( 16667u );
@@ -55,7 +57,6 @@ VSyncNotifier::VSyncNotifier( ThreadSynchronization& sync,
                               const EnvironmentOptions& environmentOptions )
 : mThreadSynchronization( sync ),
   mCore( adaptorInterfaces.GetCore() ),
-  mPlatformAbstraction( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mVSyncMonitor( adaptorInterfaces.GetVSyncMonitorInterface() ),
   mThread( NULL ),
   mEnvironmentOptions( environmentOptions ),
@@ -137,8 +138,12 @@ void VSyncNotifier::Run()
     else
     {
       // No..use software timer
-      mPlatformAbstraction.GetTimeNanoseconds( seconds, microseconds );
-      microseconds /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
+      uint64_t nanoseconds = 0;
+      TimeService::GetNanoseconds( nanoseconds );
+
+      seconds = nanoseconds / NANOSECONDS_PER_SECOND; // Convert to seconds
+      nanoseconds -= seconds * NANOSECONDS_PER_SECOND; // Only want remainder nanoseconds
+      microseconds = nanoseconds / NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
       unsigned int timeDelta( MICROSECONDS_PER_SECOND * (seconds - currentSeconds) );
       if( microseconds < currentMicroseconds)

@@ -40,7 +40,7 @@ const unsigned int FALSE = 0u;
 } // unnamed namespace
 
 ThreadSynchronization::ThreadSynchronization( AdaptorInternalServices& adaptorInterfaces, unsigned int numberOfVSyncsPerRender)
-: mFrameTime( adaptorInterfaces.GetPlatformAbstractionInterface() ),
+: mFrameTime(),
   mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mReplaceSurfaceRequest(),

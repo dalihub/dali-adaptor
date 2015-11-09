@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <base/interfaces/adaptor-internal-services.h>
 #include <base/environment-options.h>
+#include <base/time-service.h>
 
 namespace Dali
 {
@@ -41,8 +42,7 @@ const unsigned int MILLISECONDS_PER_FRAME = 17u;
 const float SECONDS_PER_FRAME = MILLISECONDS_PER_FRAME * 0.001f;
 
 const unsigned int NANOSECONDS_PER_MICROSECOND( 1000u );
-const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
-const float        MICROSECONDS_TO_SECONDS( 0.000001f );
+const float        NANOSECONDS_TO_SECONDS( 1e-9f );
 
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_THREAD_SYNC");
@@ -58,7 +58,6 @@ SingleThreadController::SingleThreadController( AdaptorInternalServices& adaptor
   mUpdateStatusLogger( environmentOptions ),
   mRenderHelper( adaptorInterfaces ),
   mCore( adaptorInterfaces.GetCore()),
-  mPlatformAbstraction( adaptorInterfaces.GetPlatformAbstractionInterface() ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mLastUpdateRenderTime( 0 ),
   mSystemTime( 0 ),
@@ -293,18 +292,13 @@ float SingleThreadController::UpdateTimeSinceLastRender()
   // No need calculating if FPS tracking is NOT enabled
   if( mFpsTracker.Enabled() )
   {
-    uint64_t seconds = 0;
-    uint64_t microSeconds = 0;
-
-    mPlatformAbstraction.GetTimeNanoseconds( seconds, microSeconds );
-    microSeconds /= NANOSECONDS_PER_MICROSECOND;
-
-    uint64_t currentTime = ( seconds * MICROSECONDS_PER_SECOND ) + microSeconds;
+    uint64_t currentTime = 0;
+    TimeService::GetNanoseconds( currentTime );
 
     uint64_t delta = currentTime - mSystemTime;
     mSystemTime = currentTime;
 
-    timeSinceLastRender = delta * MICROSECONDS_TO_SECONDS;
+    timeSinceLastRender = delta * NANOSECONDS_TO_SECONDS;
   }
 
   return timeSinceLastRender;

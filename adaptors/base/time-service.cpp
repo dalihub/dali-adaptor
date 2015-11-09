@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  *
  */
 
-// CLASS HEADER
-#include "frame-time-stamp.h"
+// HEADER
+#include "base/time-service.h"
+
+// EXTERNAL INCLUDES
+#include <ctime>
 
 namespace Dali
 {
@@ -27,37 +30,27 @@ namespace Internal
 namespace Adaptor
 {
 
-FrameTimeStamp::FrameTimeStamp()
-: frame(0),
-  microseconds(0),
-  bufferIndex(0)
+namespace TimeService
 {
+
+namespace
+{
+const uint64_t NANOSECONDS_PER_SECOND = 1e+9;
 }
 
-FrameTimeStamp::FrameTimeStamp(unsigned int frame,
-                               uint64_t     microseconds,
-                               unsigned int bufferIndex)
-: frame( frame ),
-  microseconds( microseconds ),
-  bufferIndex( bufferIndex )
+void GetNanoseconds( uint64_t& time )
 {
+  timespec timeSpec;
+  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
+
+  // Convert all values to uint64_t to match our return type
+  time = ( static_cast< uint64_t >( timeSpec.tv_sec ) * NANOSECONDS_PER_SECOND ) + static_cast< uint64_t >( timeSpec.tv_nsec );
 }
 
-FrameTimeStamp::FrameTimeStamp( unsigned int bufferIndex )
-: frame( 0 ),
-  microseconds( 0 ),
-  bufferIndex( bufferIndex )
-{
-}
-
-unsigned int FrameTimeStamp::MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end )
-{
-  return end.microseconds - start.microseconds;
-}
+} // namespace TimeService
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
