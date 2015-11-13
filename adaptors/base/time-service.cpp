@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,11 @@
  *
  */
 
-// CLASS HEADER
-#include <adaptor-impl.h>
+// HEADER
+#include "base/time-service.h"
 
 // EXTERNAL INCLUDES
-#ifndef TIZEN_SDK_2_2_COMPATIBILITY
-#include <app.h>
-#endif
+#include <ctime>
 
 namespace Dali
 {
@@ -32,23 +30,24 @@ namespace Internal
 namespace Adaptor
 {
 
-void Adaptor::GetDataStoragePath( std::string& path)
+namespace TimeService
 {
-#ifdef TIZEN_SDK_2_2_COMPATIBILITY
-  path = "";
-#else
-  char *pathInt = app_get_data_path();
-  if ( pathInt )
-  {
-    path = pathInt;
-    free( pathInt );
-  }
-  else
-  {
-    path = "";
-  }
-#endif
+
+namespace
+{
+const uint64_t NANOSECONDS_PER_SECOND = 1e+9;
 }
+
+void GetNanoseconds( uint64_t& time )
+{
+  timespec timeSpec;
+  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
+
+  // Convert all values to uint64_t to match our return type
+  time = ( static_cast< uint64_t >( timeSpec.tv_sec ) * NANOSECONDS_PER_SECOND ) + static_cast< uint64_t >( timeSpec.tv_nsec );
+}
+
+} // namespace TimeService
 
 } // namespace Adaptor
 

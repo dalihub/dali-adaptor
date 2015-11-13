@@ -74,34 +74,19 @@ public:
   bool IsLoaded();
 
   /**
-   * Get the raw pixel data.
-   * @return The pixel data. Use the GetHeight(), GetWidth(), GetStride() and GetPixelFormat() methods
-   * to decode the data.
+   * @copydoc Dali::BitmapLoader::GetUrl()
    */
-  unsigned char* GetPixelData() const;
+  const std::string& GetUrl() const;
 
   /**
-   * Get the buffer height in pixels
-   * @return the height of the buffer in pixels
+   * @copydoc Dali::BitmapLoader::GetPixelData
    */
-  unsigned int GetImageHeight() const;
-
-  /**
-   * Get the buffer width in pixels
-   * @return the width of the buffer in pixels
-   */
-  unsigned int GetImageWidth() const;
-
-  /**
-   * Get the pixel format of the loaded bitmap.
-   */
-  Pixel::Format GetPixelFormat() const;
+  PixelDataPtr GetPixelData() const;
 
 private:
   Integration::BitmapResourceType mResourceType;
-  Integration::BitmapPtr mBitmap;
+  PixelDataPtr mPixelData;
   const std::string mUrl;
-  bool mIsLoaded;
 };
 
 } // Internal

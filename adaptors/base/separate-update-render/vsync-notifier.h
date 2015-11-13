@@ -99,7 +99,6 @@ private:
 
   ThreadSynchronization&              mThreadSynchronization;   ///< Used to synchronize all the threads
   Dali::Integration::Core&            mCore;                    ///< Dali core reference
-  Integration::PlatformAbstraction&   mPlatformAbstraction;     ///< The platform abstraction for retrieving the current time etc.
   VSyncMonitorInterface*              mVSyncMonitor;            ///< VSyncMonitor interface
   pthread_t*                          mThread;                  ///< The actual thread.
   const EnvironmentOptions&           mEnvironmentOptions;      ///< Environment options

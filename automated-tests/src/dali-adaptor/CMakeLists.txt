@@ -13,6 +13,7 @@ SET(TC_SOURCES
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Application.cpp
     utc-Dali-FileLoader.cpp
+    utc-Dali-BitmapLoader.cpp
 )
 
 LIST(APPEND TC_SOURCES

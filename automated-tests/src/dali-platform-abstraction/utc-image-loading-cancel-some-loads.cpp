@@ -15,6 +15,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <set>
+
+// INTERNAL INCLUDES
 #include "utc-image-loading-common.h"
 
 void utc_image_loading_cancel_some_loads_startup(void)

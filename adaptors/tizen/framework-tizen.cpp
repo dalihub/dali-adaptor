@@ -23,13 +23,10 @@
 #include <bundle.h>
 #include <Ecore.h>
 
-#ifdef OVER_TIZEN_SDK_2_2
+#ifndef TIZEN_SDK_2_2_COMPATIBILITY
 #include <system_info.h>
 #include <app_control_internal.h>
-// To be removed when 2.2 is no longer supported.
-#ifndef TIZEN_2_2_COMPATIBILITY
 #include <bundle_internal.h>
-#endif
 #endif
 
 #include <dali/integration-api/debug.h>
@@ -82,7 +79,8 @@ struct Framework::Impl
     mEventCallback.terminate = AppTerminate;
     mEventCallback.pause = AppPause;
     mEventCallback.resume = AppResume;
-#ifndef OVER_TIZEN_SDK_2_2
+
+#ifdef TIZEN_SDK_2_2_COMPATIBILITY
     mEventCallback.service = AppService;
 
     mEventCallback.low_memory = NULL;
@@ -99,7 +97,6 @@ struct Framework::Impl
     ui_app_add_event_handler(&handlers[APP_EVENT_DEVICE_ORIENTATION_CHANGED], APP_EVENT_DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, data);
     ui_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, AppLanguageChanged, data);
     ui_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, AppRegionChanged, data);
-
 #endif
 
     mCallbackManager = CallbackManager::New();
@@ -120,7 +117,7 @@ struct Framework::Impl
   CallbackBase* mAbortCallBack;
   CallbackManager *mCallbackManager;
 
-#ifndef OVER_TIZEN_SDK_2_2
+#ifdef TIZEN_SDK_2_2_COMPATIBILITY
   app_event_callback_s mEventCallback;
 #else
   ui_app_lifecycle_callback_s mEventCallback;
@@ -181,7 +178,7 @@ struct Framework::Impl
     }
   }
 
-#ifndef OVER_TIZEN_SDK_2_2
+#ifdef TIZEN_SDK_2_2_COMPATIBILITY
   /**
    * Called by AppCore when the application is launched from another module (e.g. homescreen).
    * @param[in] b the bundle data which the launcher module sent
@@ -211,9 +208,7 @@ struct Framework::Impl
   {
     static_cast<Framework*>(user_data)->AppStatusHandler(APP_DEVICE_ROTATED, NULL);
   }
-
 #else
-
   /**
    * Called by AppCore when the application is launched from another module (e.g. homescreen).
    * @param[in] b the bundle data which the launcher module sent
@@ -258,7 +253,6 @@ struct Framework::Impl
   {
     static_cast<Framework*>(user_data)->AppStatusHandler(APP_MEMORY_LOW, NULL);
   }
-
 #endif
 
 private:
@@ -281,7 +275,7 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv )
   mImpl(NULL)
 {
 
-#ifdef OVER_TIZEN_SDK_2_2
+#ifndef TIZEN_SDK_2_2_COMPATIBILITY
   bool featureFlag = true;
   system_info_get_platform_bool( "tizen.org/feature/opengles.version.2_0", &featureFlag );
 
@@ -310,9 +304,8 @@ void Framework::Run()
 {
   mRunning = true;
 
-#ifndef OVER_TIZEN_SDK_2_2
+#ifdef TIZEN_SDK_2_2_COMPATIBILITY
   app_efl_main(mArgc, mArgv, &mImpl->mEventCallback, this);
-
 #else
   int ret = ui_app_main(*mArgc, *mArgv, &mImpl->mEventCallback, this);
   if (ret != APP_ERROR_NONE)
@@ -326,7 +319,7 @@ void Framework::Run()
 
 void Framework::Quit()
 {
-#ifndef OVER_TIZEN_SDK_2_2
+#ifdef TIZEN_SDK_2_2_COMPATIBILITY
   app_efl_exit();
 #else
   ui_app_exit();

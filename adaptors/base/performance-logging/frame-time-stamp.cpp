@@ -18,11 +18,6 @@
 // CLASS HEADER
 #include "frame-time-stamp.h"
 
-namespace
-{
-const unsigned int MICROSECONDS_PER_SECOND = 1000000; ///< 1000000 microseconds per second
-}
-
 namespace Dali
 {
 
@@ -34,26 +29,22 @@ namespace Adaptor
 
 FrameTimeStamp::FrameTimeStamp()
 : frame(0),
-  seconds(0),
   microseconds(0),
   bufferIndex(0)
 {
 }
 
 FrameTimeStamp::FrameTimeStamp(unsigned int frame,
-                               unsigned int seconds,
-                               unsigned int microseconds,
+                               uint64_t     microseconds,
                                unsigned int bufferIndex)
 : frame( frame ),
-  seconds( seconds ),
   microseconds( microseconds ),
   bufferIndex( bufferIndex )
 {
 }
 
-FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex )
+FrameTimeStamp::FrameTimeStamp( unsigned int bufferIndex )
 : frame( 0 ),
-  seconds(  0 ),
   microseconds( 0 ),
   bufferIndex( bufferIndex )
 {
@@ -61,9 +52,7 @@ FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex )
 
 unsigned int FrameTimeStamp::MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end )
 {
-  int microDiff = end.microseconds - start.microseconds;
-  unsigned int secDiff = ( end.seconds - start.seconds ) * MICROSECONDS_PER_SECOND;
-  return ( microDiff + secDiff);
+  return end.microseconds - start.microseconds;
 }
 
 } // namespace Adaptor

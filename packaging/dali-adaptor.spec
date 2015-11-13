@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.9
+Version:    1.1.10
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0, BSD-2.0, MIT
@@ -17,28 +17,25 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag ENABLE
 %endif
 
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 0
+%define tizen_2_2_compatibility 1
 %define shaderbincache_flag DISABLE
 %endif
 
@@ -69,7 +66,7 @@ BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 
 
-%if 0%{?over_tizen_2_2}
+%if 0%{?tizen_2_2_compatibility} != 1
 BuildRequires:  pkgconfig(capi-system-info)
 %endif
 
@@ -165,9 +162,9 @@ CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
 %endif
 
-%if 0%{?over_tizen_2_2}
-CFLAGS+=" -DOVER_TIZEN_SDK_2_2"
-CXXFLAGS+=" -DOVER_TIZEN_SDK_2_2"
+%if 0%{?tizen_2_2_compatibility}
+CFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
+CXXFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
 %endif
 
 libtoolize --force
@@ -185,8 +182,8 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
-%if 0%{?over_tizen_2_2}
-           --with-over-tizen_2_2 \
+%if 0%{?tizen_2_2_compatibility}
+           --with-tizen-2-2-compatibility \
 %endif
            $configure_flags --libdir=%{_libdir}
 

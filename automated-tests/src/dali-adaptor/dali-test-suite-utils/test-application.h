@@ -63,7 +63,7 @@ public:
 
   void Initialize();
   virtual ~TestApplication();
-  static void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
+  static void LogMessage( Dali::Integration::Log::DebugPriority level, std::string& message );
   Dali::Integration::Core& GetCore();
   TestPlatformAbstraction& GetPlatform();
   TestRenderController& GetRenderController();

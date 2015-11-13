@@ -101,6 +101,16 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
+  // Temporary code for opaque window. We have to modify it after wayland team finish the work.
+  if( mColorDepth == COLOR_DEPTH_32 )
+  {
+    ecore_wl_window_alpha_set( mWlWindow, true );
+  }
+  else
+  {
+    ecore_wl_window_alpha_set( mWlWindow, false );
+  }
+
   // create the EGL surface
   ecore_wl_window_surface_create(mWlWindow);
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
@@ -121,7 +131,22 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  wl_egl_window_destroy(mEglWindow);
+  if( mEglWindow != NULL )
+  {
+    wl_egl_window_destroy(mEglWindow);
+    mEglWindow = NULL;
+  }
+
+  // Temporary code for opaque window. We have to modify it after wayland team finish the work.
+  if( mColorDepth == COLOR_DEPTH_32 )
+  {
+    ecore_wl_window_alpha_set( mWlWindow, true );
+  }
+  else
+  {
+    ecore_wl_window_alpha_set( mWlWindow, false );
+  }
+
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );

@@ -39,6 +39,7 @@ namespace Adaptor
 
 namespace
 {
+const float MICROSECONDS_TO_SECOND = 1e-6;
 const char UNKNOWN_CMD[]= "Command or parameter invalid, type help for list of commands\n";
 
 
@@ -168,9 +169,8 @@ bool NetworkPerformanceClient::TransmitMarker( const PerformanceMarker& marker, 
   {
     // write out the time stamp
     char buffer[64];
-    int size = snprintf( buffer, sizeof(buffer),"%d.%06d (seconds), %s\n",
-                                    marker.GetTimeStamp().seconds,
-                                    marker.GetTimeStamp().microseconds,
+    int size = snprintf( buffer, sizeof(buffer),"%.6f (seconds), %s\n",
+                                    (float)( marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
                                     description );
 
    return mSocket->Write( buffer, size );

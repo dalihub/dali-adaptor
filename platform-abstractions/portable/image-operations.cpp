@@ -299,7 +299,7 @@ ImageDimensions FitToScalingMode( ImageDimensions requestedSize, ImageDimensions
       fitDimensions = FitForFitHeight( requestedSize, sourceSize );
       break;
     }
-  };
+  }
 
   return fitDimensions;
 }

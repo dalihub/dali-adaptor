@@ -59,6 +59,10 @@ Socket::Socket( Protocol protocol , int fileDescriptor )
   if( mSocketFileDescriptor == -1)
   {
     mSocketFileDescriptor = socket( addressFamily,type, netProtocol);
+    if( mSocketFileDescriptor == -1 )
+    {
+      DALI_LOG_ERROR( "Unable to create socket" );
+    }
   }
   else
   {

@@ -117,7 +117,6 @@ private:
 
 private:
 
-  Integration::PlatformAbstraction& mPlatformAbstraction; ///< platform abstraction
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
   TraceInterface& mKernelTrace;                           ///< kernel trace interface
   TraceInterface& mSystemTrace;                           ///< system trace interface

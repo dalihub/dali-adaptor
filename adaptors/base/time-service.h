@@ -1,5 +1,8 @@
+#ifndef __DALI_INTERNAL_TIME_SERVICE_H__
+#define __DALI_INTERNAL_TIME_SERVICE_H__
+
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +18,7 @@
  *
  */
 
-// CLASS HEADER
-#include <adaptor-impl.h>
-
-// EXTERNAL INCLUDES
-#ifndef TIZEN_SDK_2_2_COMPATIBILITY
-#include <app.h>
-#endif
+#include <stdint.h>
 
 namespace Dali
 {
@@ -32,26 +29,24 @@ namespace Internal
 namespace Adaptor
 {
 
-void Adaptor::GetDataStoragePath( std::string& path)
+namespace TimeService
 {
-#ifdef TIZEN_SDK_2_2_COMPATIBILITY
-  path = "";
-#else
-  char *pathInt = app_get_data_path();
-  if ( pathInt )
-  {
-    path = pathInt;
-    free( pathInt );
-  }
-  else
-  {
-    path = "";
-  }
-#endif
-}
+
+/**
+ * @brief Get the monotonic time since some unspecified starting point (usually the boot time).
+ *
+ * @param[out]  nanoseconds  The time in nanoseconds since the reference point.
+ *
+ * @note The maximum value this can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
+ */
+void GetNanoseconds( uint64_t& time );
+
+} // namespace TimeService
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
+
+#endif // __DALI_INTERNAL_TIME_SERVICE_H__

@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/environment-options.h>
+#include <base/time-service.h>
 
 namespace Dali
 {
@@ -33,18 +34,23 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+const unsigned int NANOSECONDS_PER_MICROSECOND = 1000u;
+const float        MICROSECONDS_TO_SECOND = 1e-6;
+} // unnamed namespace
+
 PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
                                       const EnvironmentOptions& environmentOptions)
-:mPlatformAbstraction( adaptorServices.GetPlatformAbstractionInterface() ),
- mEnvironmentOptions( environmentOptions ),
- mKernelTrace( adaptorServices.GetKernelTraceInterface() ),
- mSystemTrace( adaptorServices.GetSystemTraceInterface() ),
- mNetworkServer( adaptorServices, environmentOptions ),
- mStatContextManager( *this ),
- mStatisticsLogBitmask( 0 ),
- mNetworkControlEnabled( mEnvironmentOptions.GetNetworkControlMode()),
- mLoggingEnabled( false ),
- mLogFunctionInstalled( false )
+: mEnvironmentOptions( environmentOptions ),
+  mKernelTrace( adaptorServices.GetKernelTraceInterface() ),
+  mSystemTrace( adaptorServices.GetSystemTraceInterface() ),
+  mNetworkServer( adaptorServices, environmentOptions ),
+  mStatContextManager( *this ),
+  mStatisticsLogBitmask( 0 ),
+  mNetworkControlEnabled( mEnvironmentOptions.GetNetworkControlMode()),
+  mLoggingEnabled( false ),
+  mLogFunctionInstalled( false )
 {
   SetLogging( mEnvironmentOptions.GetPerformanceStatsLoggingOptions(),
               mEnvironmentOptions.GetPerformanceTimeStampOutput(),
@@ -120,12 +126,12 @@ void PerformanceServer::AddMarker( MarkerType markerType, ContextId contextId )
   }
 
   // Get the time stamp
-  unsigned int seconds = 0;
-  unsigned int microseconds = 0;
-  mPlatformAbstraction.GetTimeMicroseconds( seconds, microseconds );
+  uint64_t timeStamp = 0;
+  TimeService::GetNanoseconds( timeStamp );
+  timeStamp /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
   // Create a marker
-  PerformanceMarker marker( markerType, FrameTimeStamp( 0, seconds, microseconds ) );
+  PerformanceMarker marker( markerType, FrameTimeStamp( 0, timeStamp ) );
 
   // get the marker description for this context, e.g SIZE_NEGOTIATION_START
   const char* const description = mStatContextManager.GetMarkerDescription( markerType, contextId );
@@ -158,12 +164,12 @@ void PerformanceServer::AddMarker( MarkerType markerType )
   }
 
   // Get the time
-  unsigned int seconds = 0;
-  unsigned int microseconds = 0;
-  mPlatformAbstraction.GetTimeMicroseconds( seconds, microseconds );
+  uint64_t timeStamp = 0;
+  TimeService::GetNanoseconds( timeStamp );
+  timeStamp /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
   // Create a marker
-  PerformanceMarker marker( markerType, FrameTimeStamp( 0, seconds, microseconds ) );
+  PerformanceMarker marker( markerType, FrameTimeStamp( 0, timeStamp ) );
 
   // log it
   LogMarker(marker, marker.GetName() );
@@ -208,9 +214,8 @@ void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* 
   if ( mPerformanceOutputBitmask & OUTPUT_DALI_LOG )
   {
     Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo,
-                                    "%d.%06d (seconds), %s\n",
-                                    marker.GetTimeStamp().seconds,
-                                    marker.GetTimeStamp().microseconds,
+                                    "%.6f (seconds), %s\n",
+                                    (float)( marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
                                     description);
   }
 }
