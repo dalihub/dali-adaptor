@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_PIXMAP_IMAGE_H__
-#define __DALI_INTERNAL_PIXMAP_IMAGE_H__
+#ifndef __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
+#define __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <Ecore_X.h>
 
 // INTERNAL INCLUDES
-#include <pixmap-image.h>
+#include <native-image-source.h>
 
 namespace Dali
 {
@@ -34,63 +35,62 @@ namespace Adaptor
 class EglImageExtensions;
 
 /**
- * Dali internal PixmapImage.
+ * Dali internal NativeImageSource.
  */
-class PixmapImage
+class NativeImageSource
 {
 public:
 
   /**
-   * Create a new PixmapImage internally.
+   * Create a new NativeImageSource internally.
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] depth color depth of the pixmap
-   * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] depth color depth of the image.
+   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static PixmapImage* New(unsigned int width,
+  static NativeImageSource* New(unsigned int width,
                           unsigned int height,
-                          Dali::PixmapImage::ColorDepth depth,
-                          Any pixmap);
-
+                          Dali::NativeImageSource::ColorDepth depth,
+                          Any nativeImageSource);
   /**
-   * @copydoc Dali::PixmapImage::GetPixmap()
+   * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
-  Any GetPixmap() const;
+  Any GetNativeImageSource() const;
 
   /**
-   * @copydoc Dali::PixmapImage::GetPixels()
+   * @copydoc Dali::NativeImageSource::GetPixels()
    */
   bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const;
 
   /**
-   * @copydoc Dali::PixmapImage::EncodeToFile(const std::string& )
+   * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
    */
   bool EncodeToFile(const std::string& filename) const;
 
   /**
    * destructor
    */
-  ~PixmapImage();
+  ~NativeImageSource();
 
   /**
-   * @copydoc Dali::PixmapImage::GlExtensionCreate()
+   * @copydoc Dali::NativeImageSource::GlExtensionCreate()
    */
   bool GlExtensionCreate();
 
   /**
-   * @copydoc Dali::PixmapImage::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageSource::GlExtensionDestroy()
    */
   void GlExtensionDestroy();
 
   /**
-   * @copydoc Dali::PixmapImage::TargetTexture()
+   * @copydoc Dali::NativeImageSource::TargetTexture()
    */
   unsigned int TargetTexture();
 
   /**
-   * @copydoc Dali::PixmapImage::GetWidth()
+   * @copydoc Dali::NativeImageSource::GetWidth()
    */
   unsigned int GetWidth() const
   {
@@ -98,7 +98,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::PixmapImage::GetHeight()
+   * @copydoc Dali::NativeImageSource::GetHeight()
    */
   unsigned int GetHeight() const
   {
@@ -106,7 +106,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::PixmapImage::RequiresBlending()
+   * @copydoc Dali::NativeImageSource::RequiresBlending()
    */
   bool RequiresBlending() const
   {
@@ -116,16 +116,16 @@ public:
 private:
 
   /**
-   * Private constructor; @see PixmapImage::New()
+   * Private constructor; @see NativeImageSource::New()
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] colour depth of the pixmap
-   * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] colour depth of the image.
+   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  PixmapImage(unsigned int width,
+  NativeImageSource(unsigned int width,
               unsigned  int height,
-              Dali::PixmapImage::ColorDepth depth,
-              Any pixmap);
+              Dali::NativeImageSource::ColorDepth depth,
+              Any nativeImageSource);
 
   /**
    * 2nd phase construction.
@@ -133,10 +133,18 @@ private:
   void Initialize();
 
   /**
-   * Decide whether blending is required based on the color depth.
+   * Uses X11 to get the default depth.
    * @param depth the PixelImage depth enum
+   * @return default x11 pixel depth
    */
-  void SetBlending(Dali::PixmapImage::ColorDepth depth);
+  int GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const;
+
+  /**
+   * Gets the pixmap from the Any parameter
+   * @param pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @return pixmap x11 pixmap
+   */
+  Ecore_X_Pixmap GetPixmapFromAny(Any pixmap) const;
 
   /**
    * Given an existing pixmap, the function uses X to find out
@@ -146,11 +154,12 @@ private:
 
 private:
 
-  unsigned int mWidth;                        ///< pixmap width
-  unsigned int mHeight;                       ///< pixmap heights
+  unsigned int mWidth;                        ///< image width
+  unsigned int mHeight;                       ///< image heights
   bool mOwnPixmap;                            ///< Whether we created pixmap or not
+  Ecore_X_Pixmap mPixmap;                     ///< From Xlib
   bool mBlendingRequired;                      ///< Whether blending is required
-  Dali::PixmapImage::ColorDepth mColorDepth;  ///< color depth of pixmap
+  Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
 };
@@ -161,4 +170,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_PIXMAP_IMAGE_H__
+#endif // __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
