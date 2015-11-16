@@ -104,8 +104,8 @@ StyleMonitor::StyleMonitor(Integration::PlatformAbstraction& platformAbstraction
 : mPlatformAbstraction(platformAbstraction),
   mDefaultFontSize(-1)
 {
-  mfontClient = TextAbstraction::FontClient::Get();
-  GetSystemDefaultFontFamily( mfontClient, mDefaultFontFamily );
+  mFontClient = TextAbstraction::FontClient::Get();
+  GetSystemDefaultFontFamily( mFontClient, mDefaultFontFamily );
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
   mDefaultFontSize = mPlatformAbstraction.GetDefaultFontSize();
 }
@@ -120,7 +120,11 @@ void StyleMonitor::StyleChanged( StyleChange::Type styleChange )
   {
     case StyleChange::DEFAULT_FONT_CHANGE:
     {
-      GetSystemDefaultFontFamily( mfontClient, mDefaultFontFamily );
+      if ( mFontClient )
+      {
+        mFontClient.ResetSystemDefaults();
+        GetSystemDefaultFontFamily( mFontClient, mDefaultFontFamily );
+      }
       DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleChanged::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
       break;
     }

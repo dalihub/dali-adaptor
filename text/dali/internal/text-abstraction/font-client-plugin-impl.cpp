@@ -196,13 +196,15 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 : mFreeTypeLibrary( NULL ),
   mDpiHorizontal( horizontalDpi ),
   mDpiVertical( verticalDpi ),
+  mDefaultFontDescription(),
   mSystemFonts(),
   mDefaultFonts(),
   mFontCache(),
   mValidatedFontCache(),
   mFontDescriptionCache( 1u ),
   mFontIdCache(),
-  mEllipsisCache()
+  mEllipsisCache(),
+  mDefaultFontDescriptionCached( false )
 {
   int error = FT_Init_FreeType( &mFreeTypeLibrary );
   if( FT_Err_Ok != error )
@@ -234,6 +236,11 @@ void FontClient::Plugin::SetDpi( unsigned int horizontalDpi,
 {
   mDpiHorizontal = horizontalDpi;
   mDpiVertical = verticalDpi;
+}
+
+void FontClient::Plugin::ResetSystemDefaults()
+{
+  mDefaultFontDescriptionCached = false;
 }
 
 void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, FontList& fontList )
@@ -291,11 +298,6 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
   FcPatternDestroy( fontFamilyPattern );
 }
 
-void FontClient::Plugin::SetDefaultFont( const FontDescription& fontDescription )
-{
-  SetFontList( fontDescription, mDefaultFonts );
-}
-
 void FontClient::Plugin::GetDefaultFonts( FontList& defaultFonts )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultFonts mDefaultFonts(%s)\n", ( mDefaultFonts.empty()?"empty":"valid" ) );
@@ -317,14 +319,25 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription\n");
 
-  FcInitReinitialize(); // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
+  if( !mDefaultFontDescriptionCached )
+  {
+    FcInitReinitialize(); // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
 
-  FcPattern* matchPattern = FcPatternCreate();
-  FcConfigSubstitute(NULL, matchPattern, FcMatchPattern);
-  FcDefaultSubstitute( matchPattern );
+    FcPattern* matchPattern = FcPatternCreate();
+    FcConfigSubstitute(NULL, matchPattern, FcMatchPattern);
+    FcDefaultSubstitute( matchPattern );
 
-  MatchFontDescriptionToPattern( matchPattern, fontDescription );
-  FcPatternDestroy( matchPattern );
+    MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription );
+    FcPatternDestroy( matchPattern );
+
+    mDefaultFontDescriptionCached = true;
+  }
+
+  fontDescription.path   = mDefaultFontDescription.path;
+  fontDescription.family = mDefaultFontDescription.family;
+  fontDescription.width  = mDefaultFontDescription.width;
+  fontDescription.weight = mDefaultFontDescription.weight;
+  fontDescription.slant  = mDefaultFontDescription.slant;
 }
 
 void FontClient::Plugin::GetSystemFonts( FontList& systemFonts )

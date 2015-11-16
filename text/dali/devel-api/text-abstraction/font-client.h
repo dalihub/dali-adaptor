@@ -122,12 +122,11 @@ public:
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
-   * Set the default font family and its style that should be used by the font client.
-   * The style could be a pair 'font style, font width' or a cluster 'font width, font weight, font slant'.
+   * @brief Called when the user changes the system defaults.
    *
-   * @param[in] fontDescription Description of the default font.
+   * @post Previously cached system defaults are removed.
    */
-  void SetDefaultFont( const FontDescription& fontDescription );
+  void ResetSystemDefaults();
 
   /**
    * @brief Retrieve the list of default fonts supported by the system.
