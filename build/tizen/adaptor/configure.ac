@@ -51,16 +51,9 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
                   )
 
 
-AC_ARG_ENABLE([efl],
-              [AC_HELP_STRING([--enable-efl],
-                              [Builds with EFL libraries, On by default])],
-              [enable_efl=$enableval],
-              [enable_efl=yes])
-
-
-
-# Check if we need EFL Libraries ( on by default, disabled with --use-efl=no )
-# When running on Node.JS with Wayland no EFL libraries are required.
+# Currently, dali-adaptor always requires EFL on all platforms.
+# (on Wayland & X11, on Tizen devices & Ubuntu PC).
+enable_efl=yes
 if test "x$enable_efl" = "xyes"; then
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
@@ -78,19 +71,12 @@ if test "x$eldbus_available" = "xyes"; then
 fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
+
 PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
 
 if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
 fi
-
-AC_ARG_ENABLE([feedback],
-              [AC_HELP_STRING([ --enable-feedback],
-                              [Enable feedback plugin])],
-              [enable_feedback=yes],
-              [enable_feedback=no])
-
-AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DPLATFORM_TIZEN"
 
@@ -148,16 +134,9 @@ AC_ARG_ENABLE([gles],
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
-# node.js by default statically links against libuv, so it doesn't need to install
-# a libuv headers/ shared library. So we can't use pkg-config to access any headers.
-# As a work around we pass the node deps path so we can access the libuv headers inside nodes
-# directory
-AC_ARG_WITH([libuv],
-              [AC_HELP_STRING([--with-libuv],
-                              [Path that contains libuv headers. Setting this configures DALi to work with LibUV mainloop used in Node.JS.
-                              For example /usr/tmp/downloads/node/deps/uv/include/ ])],
-              [with_libuv=$withval],
-              [with_libuv=no])
+# Currently, dali-adaptor always does not require libuv because it runs on ecore on all platforms.
+# (on Wayland & X11, on Tizen devices & Ubuntu PC).
+with_libuv=no
 
 # Node.JS already has a libuv main loop running,so we have to integrate with it
 AM_CONDITIONAL(LIB_UV_EVENT_LOOP, test x$with_libuv != xno)
@@ -173,6 +152,9 @@ else
   AC_MSG_NOTICE("build with libuv mainloop == no (Node.JS not supported)");
 fi
 
+# Currently, dali-adaptor requires appfw on Tizen
+# and does not require it on Ubuntu.
+# So we should be able to enable/disable this option for dali-adaptor.
 AC_ARG_ENABLE([appfw],
               [AC_HELP_STRING([--enable-appfw],
                               [Builds with Tizen App framework libraries, off by default])],
@@ -225,7 +207,7 @@ PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 fi
 
 if test "x$enable_profile" = "xMOBILE"; then
-PKG_CHECK_MODULES(OPENGLES20, gles20)
+PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 enable_assimp=no
 fi
 
@@ -251,6 +233,7 @@ PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
+
 if test "x$enable_efl" = "xyes"; then
 if test "x$with_tizen_2_2_compatibility" = "xno"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
@@ -278,7 +261,6 @@ PKG_CHECK_MODULES(ECORE_X, [ecore-x],
 PKG_CHECK_MODULES(X11, [x11],
                   [DALI_USE_X11=1],
                   [DALI_USE_X11=0])
-PKG_CHECK_MODULES(UTILX, utilX)
 fi
 fi
 # Using Wayland API directly  ( main loop agnostic, typically for running on libuv)
@@ -299,20 +281,6 @@ PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client)
 fi
 fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
-
-if test "x$enable_feedback" = "xyes"; then
-
-if test "x$enable_profile" = "xCOMMON" || test "x$enable_profile" = "xTV"; then
-PKG_CHECK_MODULES(HAPTIC, haptic)
-fi
-
-if test "x$enable_profile" = "xMOBILE"; then
-PKG_CHECK_MODULES(DEVICED, deviced)
-fi
-
-PKG_CHECK_MODULES(FEEDBACK, feedback)
-PKG_CHECK_MODULES(MMFSOUND, mm-sound)
-fi
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
@@ -336,7 +304,6 @@ AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
 AC_SUBST(fontConfigurationFile)
 
-
 # Specify the include directory for development headers
 #devincludepath=${includedir}/dali/internal
 devincludepath=${includedir}
@@ -344,18 +311,9 @@ AC_SUBST(devincludepath)
 
 AC_CONFIG_FILES([
  Makefile
- adaptor/Makefile
- dali.pc
- adaptor/dali-adaptor-integration.pc
+ dali-adaptor.pc
+ dali-adaptor-integration.pc
 ])
-
-AM_CONDITIONAL([USE_PLUGIN], [test x$enable_feedback = xyes])
-
-if test "x$enable_feedback" = "xyes"; then
-AC_CONFIG_FILES([
- plugins/Makefile
-])
-fi
 
 if test "x$freetype_bitmap_support" = "xyes"; then
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DFREETYPE_BITMAP_SUPPORT"

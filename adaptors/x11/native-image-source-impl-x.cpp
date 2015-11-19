@@ -273,6 +273,20 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
+void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
+{
+  mPixmap = GetPixmapFromAny( nativeImageSource );
+
+  if (mPixmap)
+  {
+    // we don't own the pixmap
+    mOwnPixmap = false;
+
+    // find out the pixmap width / height and color depth
+    GetPixmapDetails();
+  }
+}
+
 bool NativeImageSource::GlExtensionCreate()
 {
   // if the image existed previously delete it.
