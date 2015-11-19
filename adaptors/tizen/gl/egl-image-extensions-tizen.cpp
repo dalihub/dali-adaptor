@@ -17,7 +17,7 @@
 
 
 // CLASS HEADER
-#include "egl-image-extensions.h"
+#include <gl/egl-image-extensions.h>
 
 // EXTERNAL INCLUDES
 #if DALI_GLES_VERSION >= 30
@@ -37,6 +37,10 @@
 // INTERNAL INCLUDES
 #include <gl/egl-implementation.h>
 
+// TBM surface support
+#ifndef EGL_NATIVE_SURFACE_TIZEN
+#define EGL_NATIVE_SURFACE_TIZEN 0x32A1
+#endif
 
 namespace
 {
@@ -89,7 +93,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
 
   EGLImageKHR eglImage  = eglCreateImageKHR( mEglImplementation->GetDisplay(),
                                              EGL_NO_CONTEXT,
-                                             EGL_NATIVE_PIXMAP_KHR,
+                                             EGL_NATIVE_SURFACE_TIZEN,
                                              clientBuffer,
                                              attribs );
 
@@ -199,7 +203,7 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     GLint glError = glGetError();
 #endif
 
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)eglImage);
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, (GLeglImageOES)eglImage);
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
