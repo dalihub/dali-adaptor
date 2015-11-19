@@ -44,12 +44,50 @@ class FileDescriptorMonitor
 public:
 
   /**
-   * Constructor
-   * @param[in]  fileDescriptor  The file descriptor to monitor
-   * @param[in]  callback        Called when anything is written to the file descriptor
-   * @note The ownership of callback is taken by this class.
+   * @brief Bitmask of file descriptor event types
    */
-  FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback );
+  enum EventType
+  {
+    FD_NO_EVENT = 0x0,
+    FD_READABLE = 0x1, // For example when monitoring a socket, data is available to read from the socket receive buffer
+    FD_WRITABLE = 0x2, // For example when monitoring a socket space is available in socket send buffer
+    FD_ERROR    = 0x4,
+  };
+
+  /**
+   * @brief Constructor.
+   *
+   * The callback will be passed a EventType bitmask to signal what type of events occured on the file
+   * descriptor.
+   * Example:
+   *
+   * MyClass::MyClass()
+   * {
+   *    mFileDescriptorMonitor = new FileDescriptorMonitor( myFd, MakeCallback( this, &MyClass::FdCallback ), FileDescriptorMonitor::FD_READABLE );
+   * }
+   *
+   * void MyClass::FdCallback( EventType event )
+   * {
+   *    if( event & FileDescriptorMonitor::FD_ERROR)
+   *    {
+   *      LOG_ERROR("...)
+   *    }
+   *    if( event & FileDescriptorMonitor::FD_READABLE )
+   *    {
+   *      // read from FD
+   *    }
+   *
+   * }
+   *
+   * @param[in] fileDescriptor  The file descriptor to monitor
+   * @param[in] callback Called when anything is written to the file descriptor
+   * @param[in] eventBitmask Bitmask of what to monitor on the file descriptor ( readable / writable ).
+   * @note The ownership of callback is taken by this class.
+   * @note Under Linux it is possible the file descriptor monitor will signal a fd is
+   * readable or writable even when it isn’t. The developer should check for handle EAGAIN or equivalent
+   * when reading from or write to the fd.
+   */
+  FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask );
 
   /**
    * Destructor

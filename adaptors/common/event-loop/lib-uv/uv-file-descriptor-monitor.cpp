@@ -48,8 +48,9 @@ struct FileDescriptorMonitor::Impl
 public:
 
   // Constructor
-  Impl( int fileDescriptor, CallbackBase* callback )
+  Impl( int fileDescriptor, CallbackBase* callback, uv_poll_event eventsToMonitor )
   : mFileDescriptor( fileDescriptor ),
+    mEventsToMonitor( eventsToMonitor ),
     mCallback( callback ),
     pollHandle( NULL )
   {
@@ -62,7 +63,7 @@ public:
 
     pollHandle->data = this;
 
-    uv_poll_start( pollHandle, UV_READABLE, PollCabllack);
+    uv_poll_start( pollHandle, mEventsToMonitor, PollCabllack);
   }
 
   ~Impl()
@@ -80,30 +81,66 @@ public:
 
   static void PollCabllack(uv_poll_t* handle, int status, int events)
   {
-     if( handle->data )
-     {
-        FileDescriptorMonitor::Impl* impl= static_cast<FileDescriptorMonitor::Impl* >(handle->data);
-        // run the function
-        CallbackBase::Execute( *impl->mCallback );
-     }
+    if( handle->data )
+    {
+       FileDescriptorMonitor::Impl* impl= static_cast<FileDescriptorMonitor::Impl* >(handle->data);
+
+       if( status < 0)
+       {
+         DALI_LOG_ERROR("LibUV FD_ERROR occurred on %d", impl->mFileDescriptor);
+         CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR );
+         return;
+       }
+       // filter the events that have occured based on what we are monitoring
+
+       int eventType = FileDescriptorMonitor::FD_NO_EVENT;
+
+       if (( impl->mEventsToMonitor & UV_READABLE ) && ( events & UV_READABLE ))
+       {
+         eventType = FileDescriptorMonitor::FD_READABLE;
+       }
+       if (( impl->mEventsToMonitor & UV_WRITABLE ) && ( events & UV_WRITABLE ))
+       {
+         eventType |= FileDescriptorMonitor::FD_WRITABLE;
+       }
+
+       // if there is an event, execute the callback
+       if( eventType != FileDescriptorMonitor::FD_NO_EVENT )
+       {
+         CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >(eventType) );
+       }
+    }
   }
   // Data
   int mFileDescriptor;
+  uv_poll_event mEventsToMonitor;
   CallbackBase* mCallback;
   uv_poll_t* pollHandle;
 
 };
 
 
-FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback )
+FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask )
 {
-  if (fileDescriptor < 0)
+  if (fileDescriptor < 1)
   {
+    DALI_ASSERT_ALWAYS( 0 && "Invalid File descriptor");
     return;
   }
+  int events = 0;
+  if( eventBitmask & FD_READABLE)
+  {
+    events = UV_READABLE;
+  }
+  if( eventBitmask & FD_WRITABLE)
+  {
+    events |= UV_WRITABLE;
+  }
+
+  DALI_ASSERT_ALWAYS( events && "Invalid FileDescriptorMonitor event type ");
 
   // waiting for a write event on a file descriptor
-  mImpl = new Impl(fileDescriptor, callback);
+  mImpl = new Impl( fileDescriptor, callback, static_cast< uv_poll_event >( events ) );
 }
 
 FileDescriptorMonitor::~FileDescriptorMonitor()

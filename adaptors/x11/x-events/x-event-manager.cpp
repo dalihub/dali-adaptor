@@ -53,14 +53,20 @@ void XEventManager::Initialize()
 
   CallbackBase* callback =  MakeCallback( this, &XEventManager::XEventReceived);
 
-  mFileDescriptorMonitor = new FileDescriptorMonitor( fileDescriptor, callback );
+  mFileDescriptorMonitor = new FileDescriptorMonitor( fileDescriptor, callback, FileDescriptorMonitor::FD_READABLE );
 
   mInitialized = true;
 }
 
 
-void XEventManager::XEventReceived()
+void XEventManager::XEventReceived( FileDescriptorMonitor::EventType eventMask )
 {
+  if( ! ( eventMask & FileDescriptorMonitor::FD_READABLE ) )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "X File descriptor error");
+    return;
+  }
+
   while( XPending( mDisplay) )
   {
     XEvent xEvent;
