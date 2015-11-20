@@ -1,6 +1,3 @@
-#ifndef __DALI_H__
-#define __DALI_H__
-
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
@@ -15,18 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-#include <dali/public-api/dali-core.h>
+// CLASS HEADER
+#include "environment-variable.h"
 
-// Application / UI Framework adaption
-#include <dali/public-api/adaptor-framework/application.h>
-#include <dali/public-api/adaptor-framework/input-method.h>
-#include <dali/public-api/adaptor-framework/key.h>
-#include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
-#include <dali/public-api/dali-adaptor-version.h>
+// EXTERNAL INCLUDE
+#include <cstdlib>
 
-#endif //__DALI_H__
+namespace Dali
+{
+
+namespace EnvironmentVariable
+{
+
+const char * GetEnvironmentVariable( const char * variable )
+{
+  return std::getenv( variable );
+}
+
+} // namespace EnvironmentVariable
+
+} // namespace Dali

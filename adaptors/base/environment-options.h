@@ -193,6 +193,11 @@ public:
    */
   ThreadingMode::Type GetThreadingMode() const;
 
+  /**
+   * @return The render refresh rate.
+   */
+  unsigned int GetRenderRefreshRate() const;
+
 private: // Internal
 
   /**
@@ -226,6 +231,7 @@ private: // Data
   unsigned int mWindowWidth;                      ///< width of the window
   unsigned int mWindowHeight;                     ///< height of the window
   ThreadingMode::Type mThreadingMode;             ///< threading mode
+  unsigned int mRenderRefreshRate;                ///< render refresh rate
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

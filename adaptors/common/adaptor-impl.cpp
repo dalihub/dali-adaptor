@@ -29,9 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <base/thread-controller.h>
-#if defined(NETWORK_LOGGING_ENABLED)
 #  include <base/performance-logging/performance-interface-factory.h>
-#endif
 #include <base/lifecycle-observer.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -114,12 +112,10 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.
 
-#if defined(NETWORK_LOGGING_ENABLED)
   if( mEnvironmentOptions->PerformanceServerRequired() )
   {
     mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
   }
-#endif
 
   mCallbackManager = CallbackManager::New();
 

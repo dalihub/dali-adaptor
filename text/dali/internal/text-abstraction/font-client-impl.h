@@ -66,9 +66,9 @@ public:
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
-   * @copydoc Dali::FontClient::SetDefaultFont()
+   * @copydoc Dali::FontClient::ResetSystemDefaults()
    */
-  void SetDefaultFont( const FontDescription& fontDescription );
+  void ResetSystemDefaults();
 
   /**
    * @copydoc Dali::FontClient::GetDefaultFonts()

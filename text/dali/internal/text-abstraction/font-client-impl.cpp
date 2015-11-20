@@ -86,11 +86,11 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   verticalDpi = mDpiVertical;
 }
 
-void FontClient::SetDefaultFont( const FontDescription& fontDescription )
+void FontClient::ResetSystemDefaults()
 {
   CreatePlugin();
 
-  mPlugin->SetDefaultFont( fontDescription );
+  mPlugin->ResetSystemDefaults();
 }
 
 void FontClient::GetDefaultFonts( FontList& defaultFonts )

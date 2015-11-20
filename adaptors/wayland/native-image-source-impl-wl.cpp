@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "pixmap-image-impl.h"
+#include "native-image-source-impl.h"
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -41,10 +41,10 @@ namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
 
-PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
+NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
-  PixmapImage* image = new PixmapImage( width, height, depth, pixmap );
-  DALI_ASSERT_DEBUG( image && "PixmapImage allocation failed." );
+  NativeImageSource* image = new NativeImageSource( width, height, depth, nativeImageSource );
+  DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
 
   // 2nd phase construction
   if(image) //< Defensive in case we ever compile without exceptions.
@@ -55,7 +55,7 @@ PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::Pix
   return image;
 }
 
-PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
+NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
   mOwnPixmap( true ),
@@ -71,26 +71,26 @@ PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapI
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 }
 
-void PixmapImage::Initialize()
+void NativeImageSource::Initialize()
 {
 }
 
-PixmapImage::~PixmapImage()
+NativeImageSource::~NativeImageSource()
 {
 }
 
-Any PixmapImage::GetPixmap() const
+Any NativeImageSource::GetNativeImageSource() const
 {
-  DALI_ASSERT_ALWAYS( false && "PixmapImage::GetPixmap() is not supported for Wayland." );
+  DALI_ASSERT_ALWAYS( false && "NativeImageSource::GetNativeImageSource() is not supported for Wayland." );
   return Any();
 }
 
-bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
     return false;
 }
 
-bool PixmapImage::EncodeToFile(const std::string& filename) const
+bool NativeImageSource::EncodeToFile(const std::string& filename) const
 {
   std::vector< unsigned char > pixbuf;
   unsigned int width(0), height(0);
@@ -103,37 +103,37 @@ bool PixmapImage::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-bool PixmapImage::GlExtensionCreate()
+bool NativeImageSource::GlExtensionCreate()
 {
     return false;
 }
 
-void PixmapImage::GlExtensionDestroy()
+void NativeImageSource::GlExtensionDestroy()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
 }
 
-unsigned int PixmapImage::TargetTexture()
+unsigned int NativeImageSource::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
-void PixmapImage::SetBlending(Dali::PixmapImage::ColorDepth depth)
+void NativeImageSource::SetBlending(Dali::NativeImageSource::ColorDepth depth)
 {
   switch (depth)
   {
-    case Dali::PixmapImage::COLOR_DEPTH_16: //Pixel::RGB565
-    case Dali::PixmapImage::COLOR_DEPTH_24: // Pixel::RGB888
+    case Dali::NativeImageSource::COLOR_DEPTH_16: //Pixel::RGB565
+    case Dali::NativeImageSource::COLOR_DEPTH_24: // Pixel::RGB888
     {
       mBlendingRequired = false;
       break;
     }
-    case Dali::PixmapImage::COLOR_DEPTH_8: //Pixel::A8
-    case Dali::PixmapImage::COLOR_DEPTH_32: // Pixel::RGBA8888
+    case Dali::NativeImageSource::COLOR_DEPTH_8: //Pixel::A8
+    case Dali::NativeImageSource::COLOR_DEPTH_32: // Pixel::RGBA8888
     {
       mBlendingRequired = true;
       break;
@@ -143,10 +143,6 @@ void PixmapImage::SetBlending(Dali::PixmapImage::ColorDepth depth)
       DALI_ASSERT_DEBUG(0 && "unknown color enum");
     }
   }
-}
-
-void PixmapImage::GetPixmapDetails()
-{
 }
 
 } // namespace Adaptor
