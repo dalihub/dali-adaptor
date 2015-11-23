@@ -57,7 +57,7 @@ void tet_printf(const char *format, ...);
 
 /**
  * DALI_TEST_CHECK is a wrapper for tet_result.
- * If the condition evaluates to false, then the function & line number is printed.
+ * If the condition evaluates to false, the test is stopped.
  * @param[in] The boolean expression to check
  */
 #define DALI_TEST_CHECK(condition)                                                        \
@@ -69,6 +69,7 @@ else                                                                            
 {                                                                                         \
   fprintf(stderr, "%s Failed in %s at line %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);    \
   tet_result(TET_FAIL);                                                                   \
+  throw("TET_FAIL");                                                                      \
 }
 
 template <typename Type>
@@ -162,8 +163,8 @@ std::ostream& operator<<( std::ostream& ostream, Degree angle );
  * @param[in] value2 The second value
  * @param[in] location The TEST_LOCATION macro should be used here
  */
-template<typename TypeA, typename TypeB>
-inline void DALI_TEST_EQUALS(TypeA value1, TypeB value2, const char* location)
+template<typename Type>
+inline void DALI_TEST_EQUALS(Type value1, Type value2, const char* location)
 {
   if (!(value1 == value2))
   {
@@ -219,6 +220,30 @@ inline void DALI_TEST_EQUALS<TimePeriod>( TimePeriod value1, TimePeriod value2, 
     tet_result(TET_PASS);
   }
 }
+
+/**
+ * Test whether two base handles are equal.
+ * @param[in] baseHandle1 The first value
+ * @param[in] baseHandle2 The second value
+ * @param[in] location The TEST_LOCATION macro should be used here
+ */
+void DALI_TEST_EQUALS( const BaseHandle& baseHandle1, const BaseHandle& baseHandle2, const char* location );
+
+/**
+ * Test whether a size_t value and an unsigned int are equal.
+ * @param[in] value1 The first value
+ * @param[in] value2 The second value
+ * @param[in] location The TEST_LOCATION macro should be used here
+ */
+void DALI_TEST_EQUALS( const size_t value1, const unsigned int value2, const char* location );
+
+/**
+ * Test whether an unsigned int and a size_t value and are equal.
+ * @param[in] value1 The first value
+ * @param[in] value2 The second value
+ * @param[in] location The TEST_LOCATION macro should be used here
+ */
+void DALI_TEST_EQUALS( const unsigned int value1, const size_t value2, const char* location );
 
 /**
  * Test whether two Matrix3 objects are equal.
@@ -308,7 +333,7 @@ void DALI_TEST_EQUALS( const char* str1, const std::string &str2, const char* lo
  * @param[in] location The TEST_LOCATION macro should be used here
  */
 template< typename T >
-void DALI_TEST_GREATER(unsigned int value1, unsigned int value2, const char* location)
+void DALI_TEST_GREATER( T value1, T value2, const char* location)
 {
   if (!(value1 > value2))
   {
@@ -368,7 +393,7 @@ struct DefaultFunctionCoverage
 };
 
 
-// Helper to Create bitmap image
+// Helper to Create buffer image
 BufferImage CreateBufferImage();
 
 #endif // __DALI_TEST_SUITE_UTILS_H__

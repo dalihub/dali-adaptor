@@ -420,7 +420,7 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   Dali::Internal::Platform::DownscaleInPlacePow2RGB888(check_4x4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight );
   DALI_TEST_EQUALS( outWidth, 1u, TEST_LOCATION );
   DALI_TEST_EQUALS( outHeight, 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( check_4x4[0], 0x7f, TEST_LOCATION );
+  DALI_TEST_EQUALS( check_4x4[0], (unsigned char)0x7f, TEST_LOCATION );
 
   // Scale down a 16 pixel black image with a single white pixel to a 1/16th grey single pixel:
   unsigned char single_4x4 [16 * 3] = {
@@ -432,7 +432,7 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight );
   DALI_TEST_EQUALS( outWidth, 1u, TEST_LOCATION );
   DALI_TEST_EQUALS( outHeight, 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( single_4x4[0], 0xf, TEST_LOCATION );
+  DALI_TEST_EQUALS( single_4x4[0], (unsigned char)0xf, TEST_LOCATION );
 
   // Scale down a 16 pixel black image with a single white pixel to a 1/16th grey single pixel:
   // (white pixel at bottom-right of image)
@@ -445,7 +445,7 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4_2, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight );
   DALI_TEST_EQUALS( outWidth, 1u, TEST_LOCATION );
   DALI_TEST_EQUALS( outHeight, 1u, TEST_LOCATION );
-  DALI_TEST_EQUALS( single_4x4_2[0], 0xf, TEST_LOCATION );
+  DALI_TEST_EQUALS( single_4x4_2[0], (unsigned char)0xf, TEST_LOCATION );
 
   // Build a larger ~600 x ~600 uniform magenta image for tests which only test output dimensions:
 
@@ -854,7 +854,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGBA8888(void)
   // Test for no beyond-bounds writes:
   for( size_t i = scanlineLength / 2; i < reference.Capacity(); ++i )
   {
-    DALI_TEST_EQUALS( reference[i],  0xEEEEEEEE, TEST_LOCATION );
+    DALI_TEST_EQUALS( reference[i],  (uint32_t)0xEEEEEEEE, TEST_LOCATION );
   }
 
   END_TEST;
@@ -884,7 +884,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGB565(void)
   // Test for no beyond-bounds writes:
   for( size_t i = scanlineLength / 2; i < reference.Capacity(); ++i )
   {
-    DALI_TEST_EQUALS( reference[i],  0xEEEE, TEST_LOCATION );
+    DALI_TEST_EQUALS( reference[i],  (uint16_t)0xEEEE, TEST_LOCATION );
   }
 
   END_TEST;
@@ -1084,8 +1084,8 @@ int UtcDaliImageOperationsAverageScanlinesRGB565(void)
   }
 
   // Check for buffer overrun:
-  DALI_TEST_EQUALS( outputBuffer[arrayLength], 0xDEAD, TEST_LOCATION );
-  DALI_TEST_EQUALS( outputBuffer[arrayLength+1], 0xDEAD, TEST_LOCATION );
+  DALI_TEST_EQUALS( outputBuffer[arrayLength], (uint16_t)0xDEAD, TEST_LOCATION );
+  DALI_TEST_EQUALS( outputBuffer[arrayLength+1], (uint16_t)0xDEAD, TEST_LOCATION );
 
   END_TEST;
 }
@@ -1233,51 +1233,51 @@ int UtcDaliImageOperationsPointSampleCheckerboardRGBA888(void)
 
   Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) &image->GetVector()[0], 256, 256, (unsigned char*) outputImage, desiredWidth, desiredHeight );
 
-  DALI_TEST_EQUALS( outputImage[0], 0xff0000ff, TEST_LOCATION ); // < Red corner pixel
-  DALI_TEST_EQUALS( outputImage[7], 0xff00ff00, TEST_LOCATION ); // < Green corner pixel
-  DALI_TEST_EQUALS( outputImage[8*8-1], 0xffff0000, TEST_LOCATION ); // < Blue corner pixel
+  DALI_TEST_EQUALS( outputImage[0], (uint32_t)0xff0000ff, TEST_LOCATION ); // < Red corner pixel
+  DALI_TEST_EQUALS( outputImage[7], (uint32_t)0xff00ff00, TEST_LOCATION ); // < Green corner pixel
+  DALI_TEST_EQUALS( outputImage[8*8-1], (uint32_t)0xffff0000, TEST_LOCATION ); // < Blue corner pixel
 
-  DALI_TEST_EQUALS( outputImage[1], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[2], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[3], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[4], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[5], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[6], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[1], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[2], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[3], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[4], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[5], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[6], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
 
   // Second scanline:
-  DALI_TEST_EQUALS( outputImage[8+0], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[8+1], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[8+2], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[8+3], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[8+4], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[8+5], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[8+6], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[8+7], 0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+0], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+1], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+2], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+3], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+4], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+5], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[8+6], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[8+7], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
 
   // Third scanline:
-  DALI_TEST_EQUALS( outputImage[16+0], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[16+1], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[16+2], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[16+3], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[16+4], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[16+5], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[16+6], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[16+7], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+0], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+1], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+2], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+3], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+4], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+5], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[16+6], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[16+7], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
 
   // ... could do more scanlines (there are 8)
 
   // Sample a few more pixels:
 
   // Diagonals:
-  DALI_TEST_EQUALS( outputImage[24+3], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[32+4], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[40+5], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[48+6], 0xffffffff, TEST_LOCATION ); // < white pixel
-  DALI_TEST_EQUALS( outputImage[24+4], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[32+3], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[40+2], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[48+1], 0xff000000, TEST_LOCATION ); // < black pixel
-  DALI_TEST_EQUALS( outputImage[56+0], 0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[24+3], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[32+4], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[40+5], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[48+6], (uint32_t)0xffffffff, TEST_LOCATION ); // < white pixel
+  DALI_TEST_EQUALS( outputImage[24+4], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[32+3], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[40+2], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[48+1], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
+  DALI_TEST_EQUALS( outputImage[56+0], (uint32_t)0xff000000, TEST_LOCATION ); // < black pixel
 
   END_TEST;
 }
@@ -1365,7 +1365,7 @@ int UtcDaliImageOperationsPointSampleRGBA888ScaleToSinglePixel(void)
   // 0 x 0 input image (make sure output not written to):
   outputImage = 0xDEADBEEF;
   Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) &outputImage, desiredWidth, desiredHeight );
-  DALI_TEST_EQUALS( outputImage, 0xDEADBEEF, TEST_LOCATION );
+  DALI_TEST_EQUALS( outputImage, (uint32_t)0xDEADBEEF, TEST_LOCATION );
   outputImage = 0;
 
   END_TEST;
@@ -1451,24 +1451,24 @@ int UtcDaliImageOperationsUint16Pair(void)
 {
   Uint16Pair vec1( 2, 3 );
 
-  DALI_TEST_EQUALS( vec1.GetWidth(), 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vec1.GetX(),     2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetWidth(), (uint16_t)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetX(),     (uint16_t)2, TEST_LOCATION );
 
-  DALI_TEST_EQUALS( vec1.GetHeight(), 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vec1.GetY(),      3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetHeight(), (uint16_t)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1.GetY(),      (uint16_t)3, TEST_LOCATION );
 
   Uint16Pair vec1Copy = vec1;
 
-  DALI_TEST_EQUALS( vec1Copy.GetWidth(), 2, TEST_LOCATION );
-  DALI_TEST_EQUALS( vec1Copy.GetX(),     2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetWidth(), (uint16_t)2, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetX(),     (uint16_t)2, TEST_LOCATION );
 
-  DALI_TEST_EQUALS( vec1Copy.GetHeight(), 3, TEST_LOCATION );
-  DALI_TEST_EQUALS( vec1Copy.GetY(),      3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetHeight(), (uint16_t)3, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec1Copy.GetY(),      (uint16_t)3, TEST_LOCATION );
 
   Uint16Pair vec2( 65535u, 65535u );
 
-  DALI_TEST_EQUALS( vec2.GetX(), 65535u, TEST_LOCATION );
-  DALI_TEST_EQUALS( vec2.GetY(), 65535u, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec2.GetX(), (uint16_t)65535u, TEST_LOCATION );
+  DALI_TEST_EQUALS( vec2.GetY(), (uint16_t)65535u, TEST_LOCATION );
 
   END_TEST;
 }
