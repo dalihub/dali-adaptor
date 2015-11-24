@@ -24,7 +24,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type" )
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror" )
 
 # Shouldn't have to do this!
 # But CMake's new auto-escape quote policy doesn't work right.
