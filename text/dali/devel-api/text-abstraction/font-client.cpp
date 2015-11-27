@@ -148,14 +148,19 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize )
 {
-  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal, desiredFixedSize );
+  return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal, desiredFixedSize );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
+}
+
+void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
+{
+  GetImplementation(*this).CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
 }
 
 const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 pointSize )
