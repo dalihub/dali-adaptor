@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/signals/callback.h>
+#include <file-descriptor-monitor.h>
 
 // INTERNAL INCLUDES
 #include <trigger-event-interface.h>
@@ -34,7 +35,6 @@ namespace Internal
 namespace Adaptor
 {
 
-class FileDescriptorMonitor;
 
 /**
  * The TriggerEvent class is used to send events between threads.  For example, this can be used
@@ -78,9 +78,10 @@ public:
 private:
 
   /**
-   * Called when our event file descriptor has been written to.
+   * @brief Called when our event file descriptor has been written to.
+   * @param[in] eventBitMask bit mask of events that occured on the file descriptor
    */
-  void Triggered();
+  void Triggered( FileDescriptorMonitor::EventType eventBitMask );
 
 private:
 

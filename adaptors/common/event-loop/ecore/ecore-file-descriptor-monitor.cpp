@@ -21,6 +21,9 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 
+// INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 namespace Dali
 {
 
@@ -36,8 +39,9 @@ namespace Adaptor
 struct FileDescriptorMonitor::Impl
 {
   // Construction
-  Impl( int fileDescriptor, CallbackBase* callback )
+  Impl( int fileDescriptor, CallbackBase* callback, int eventsToMonitor)
   : mFileDescriptor( fileDescriptor ),
+    mEventsToMonitor( eventsToMonitor ),
     mCallback( callback ),
     mHandler( NULL )
   {
@@ -50,6 +54,7 @@ struct FileDescriptorMonitor::Impl
 
   // Data
   int mFileDescriptor;
+  int mEventsToMonitor;              ///< what file descriptor events to monitor
   CallbackBase* mCallback;
   Ecore_Fd_Handler* mHandler;
 
@@ -62,20 +67,65 @@ struct FileDescriptorMonitor::Impl
   {
     Impl* impl = reinterpret_cast<Impl*>(data);
 
-    CallbackBase::Execute( *impl->mCallback );
+    // if we want read events, check to see if a read event is available
+    int type = FileDescriptorMonitor::FD_NO_EVENT;
+
+    if( ecore_main_fd_handler_active_get( handler, ECORE_FD_ERROR) )
+    {
+      CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR);
+      DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d", impl->mFileDescriptor);
+
+      return ECORE_CALLBACK_CANCEL;
+    }
+
+    if( impl->mEventsToMonitor & ECORE_FD_READ )
+    {
+      if (ecore_main_fd_handler_active_get( handler, ECORE_FD_READ))
+      {
+        type = FileDescriptorMonitor::FD_READABLE;
+      }
+    }
+    // check if we want write events
+    if( impl->mEventsToMonitor & ECORE_FD_WRITE )
+    {
+      if (ecore_main_fd_handler_active_get( handler, ECORE_FD_WRITE))
+      {
+        type |= FileDescriptorMonitor::FD_WRITABLE;
+      }
+    }
+
+    // if there is an event, execute the callback
+    if( type != FileDescriptorMonitor::FD_NO_EVENT )
+    {
+      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >(type ) );
+    }
 
     return ECORE_CALLBACK_RENEW;
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback )
+FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
-  mImpl = new Impl(fileDescriptor, callback);
+  mImpl = new Impl(fileDescriptor, callback, eventBitmask);
 
-  if (fileDescriptor >= 0)
+  if (fileDescriptor < 1)
   {
-    mImpl->mHandler = ecore_main_fd_handler_add(fileDescriptor, ECORE_FD_READ, &Impl::EventDispatch, mImpl, NULL, NULL);
+    DALI_ASSERT_ALWAYS( 0 && "Invalid File descriptor");
+    return;
   }
+
+  int events = 0;
+  if( eventBitmask & FD_READABLE)
+  {
+    events = ECORE_FD_READ;
+  }
+  if( eventBitmask & FD_WRITABLE)
+  {
+    events |= ECORE_FD_WRITE;
+  }
+  mImpl->mEventsToMonitor = events;
+  mImpl->mHandler = ecore_main_fd_handler_add( fileDescriptor, static_cast<Ecore_Fd_Handler_Flags >( events ), &Impl::EventDispatch, mImpl, NULL, NULL );
+
 }
 
 FileDescriptorMonitor::~FileDescriptorMonitor()
