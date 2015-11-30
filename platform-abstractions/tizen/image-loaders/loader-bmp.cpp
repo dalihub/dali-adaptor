@@ -108,7 +108,7 @@ bool LoadBmpHeader(FILE *fp, unsigned int &width, unsigned int &height, BmpFileH
   }
 
   width = infoHeader.width;
-  height = infoHeader.height;
+  height = abs(infoHeader.height);
 
   return true;
 }
