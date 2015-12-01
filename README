@@ -2,9 +2,6 @@ T.O.C.
 ======
 
  1.   GBS Builds
- 1.1. COMMON Profile
- 1.2. MOBILE Profile
- 1.3. WEARABLE Profile
  2.   Building for Ubuntu desktop
  2.1. Minimum Requirements
  2.2. Building the Repository
@@ -14,20 +11,7 @@ T.O.C.
 1. GBS Builds
 =============
 
-1.1. COMMON Profile
--------------------
-
  gbs build -A [TARGET_ARCH]
-
-1.2. MOBILE Profile
--------------------
-
- gbs build -A [TARGET_ARCH] --spec dali-adaptor-mobile.spec
-
-1.3. WEARABLE Profile
----------------------
-
- gbs build -A [TARGET_ARCH] --spec dali-adaptor-wearable.spec
 
 
 
