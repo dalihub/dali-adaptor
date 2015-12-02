@@ -35,4 +35,6 @@ dali-adaptor.includes
 tags
 /build/desktop
 /packaging/home*
-
+/debugfiles.list
+/debuglinks.list
+/debugsources.list
