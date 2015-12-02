@@ -233,18 +233,6 @@ AccessibilityAdaptor::AccessibilityAdaptor()
   mIndicator( NULL ),
   mIndicatorFocused( false )
 {
-  int isEnabled = 0;
-  DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, isEnabled?"ENABLED":"DISABLED");
-
-  if(isEnabled == 1)
-  {
-    mIsEnabled = true;
-  }
-  else
-  {
-    mIsEnabled = false;
-  }
-
   mAccessibilityGestureDetector = new AccessibilityGestureDetector();
 }
 
