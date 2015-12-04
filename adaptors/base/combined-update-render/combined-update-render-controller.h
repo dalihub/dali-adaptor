@@ -66,6 +66,9 @@ class EnvironmentOptions;
  *     is easier to make a decision about whether we should stop the update/render thread or not (depending on any
  *     update requests etc.).
  *  4. The main thread is blocked while the surface is being replaced.
+ *  5. When we resume from paused, elapsed time is used for the animations, i.e. the could have finished while we were paused.
+ *     However, FinishedSignal emission will only happen upon resumption.
+ *  6. Elapsed time is NOT used while if we are waking up from a sleep state or doing an UpdateOnce.
  */
 class CombinedUpdateRenderController : public ThreadControllerInterface,
                                        public ThreadSynchronizationInterface
@@ -143,9 +146,10 @@ private:
    * Runs the Update/Render Thread.
    * This will lock the mutex in mUpdateRenderThreadWaitCondition.
    *
-   * @param[in]  numberOfCycles  The number of times the update/render cycle should run. If -1, then it will run continuously.
+   * @param[in]  numberOfCycles           The number of times the update/render cycle should run. If -1, then it will run continuously.
+   * @param[in]  useElapsedTimeAfterWait  If true, then the elapsed time during wait is used for animations, otherwise no animation progression is made.
    */
-  inline void RunUpdateRenderThread( int numberOfCycles );
+  inline void RunUpdateRenderThread( int numberOfCycles, bool useElapsedTimeAfterWait );
 
   /**
    * Pauses the Update/Render Thread.
@@ -188,9 +192,11 @@ private:
   /**
    * Called by the Update/Render Thread which ensures a wait if required.
    *
+   * @param[out] useElapsedTime If true when returned, then the actual elapsed time will be used for animation.
+   *                            If false when returned, then there should NOT be any animation progression in the next Update.
    * @return false, if the thread should stop.
    */
-  bool UpdateRenderReady();
+  bool UpdateRenderReady( bool& useElapsedTime );
 
   /**
    * Checks to see if the surface needs to be replaced.
@@ -294,6 +300,8 @@ private:
 
   volatile int                      mUpdateRenderRunCount;             ///< The number of times Update/Render cycle should run. If -1, then will run continuously (set by the event-thread, read by v-sync-thread).
   volatile unsigned int             mDestroyUpdateRenderThread;        ///< Whether the Update/Render thread be destroyed (set by the event-thread, read by the update-render-thread).
+
+  volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
   RenderSurface* volatile           mNewSurface;                       ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
 

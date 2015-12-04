@@ -166,7 +166,7 @@ void CombinedUpdateRenderController::Start()
 
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
-  RunUpdateRenderThread( CONTINUOUS );
+  RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
 }
 
 void CombinedUpdateRenderController::Pause()
@@ -188,7 +188,7 @@ void CombinedUpdateRenderController::Resume()
   {
     LOG_EVENT( "Resuming" );
 
-    RunUpdateRenderThread( CONTINUOUS );
+    RunUpdateRenderThread( CONTINUOUS, true /* Animation progression required while we were paused */ );
 
     AddPerformanceMarker( PerformanceInterface::RESUME );
 
@@ -233,7 +233,7 @@ void CombinedUpdateRenderController::RequestUpdate()
   {
     LOG_EVENT( "Processing" );
 
-    RunUpdateRenderThread( CONTINUOUS );
+    RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
   }
 }
 
@@ -244,7 +244,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce()
     LOG_EVENT_TRACE;
 
     // Run Update/Render once
-    RunUpdateRenderThread( ONCE );
+    RunUpdateRenderThread( ONCE, false /* No animation progression */ );
   }
 }
 
@@ -285,11 +285,12 @@ void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOf
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles )
+void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, bool useElapsedTime )
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   mUpdateRenderRunCount = numberOfCycles;
-  LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d", mUpdateRenderRunCount );
+  mUseElapsedTimeAfterWait = useElapsedTime;
+  LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait );
   mUpdateRenderThreadWaitCondition.Notify( lock );
 }
 
@@ -355,21 +356,25 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   LOG_UPDATE_RENDER( "THREAD INITIALISED" );
 
-  while( UpdateRenderReady() )
+  bool useElapsedTime = true;
+
+  while( UpdateRenderReady( useElapsedTime ) )
   {
     LOG_UPDATE_RENDER_TRACE;
 
     uint64_t currentFrameStartTime = 0;
     TimeService::GetNanoseconds( currentFrameStartTime );
 
+    const uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
+
     // Optional FPS Tracking
     if( mFpsTracker.Enabled() )
     {
-      uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
       float absoluteTimeSinceLastRender = timeSinceLastFrame * NANOSECONDS_TO_SECOND;
       mFpsTracker.Track( absoluteTimeSinceLastRender );
-      lastFrameTime = currentFrameStartTime; // Store frame start time
     }
+
+    lastFrameTime = currentFrameStartTime; // Store frame start time
 
     //////////////////////////////
     // REPLACE SURFACE
@@ -387,13 +392,23 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // UPDATE
     //////////////////////////////
 
-    unsigned int currentTime = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
-    unsigned int nextFrameTime = currentTime + mDefaultFrameDurationMilliseconds;
+    const unsigned int currentTime = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
+    const unsigned int nextFrameTime = currentTime + mDefaultFrameDurationMilliseconds;
+
+    uint64_t noOfFramesSinceLastUpdate = 1;
+    float frameDelta = 0.0f;
+    if( useElapsedTime )
+    {
+      // If using the elapsed time, then calculate frameDelta as a multiple of mDefaultFrameDelta
+      noOfFramesSinceLastUpdate = std::max( timeSinceLastFrame / mDefaultFrameDurationNanoseconds, noOfFramesSinceLastUpdate );
+      frameDelta = mDefaultFrameDelta * noOfFramesSinceLastUpdate;
+    }
+    LOG_UPDATE_RENDER( "noOfFramesSinceLastUpdate(%u), frameDelta(%.6f)", noOfFramesSinceLastUpdate, frameDelta );
 
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
-    mCore.Update( mDefaultFrameDelta, currentTime, nextFrameTime, updateStatus );
+    mCore.Update( frameDelta, currentTime, nextFrameTime, updateStatus );
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -402,6 +417,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( updateStatus.NeedsNotification() )
     {
       mNotificationTrigger.Trigger();
+      LOG_UPDATE_RENDER( "Notification Triggered" );
     }
 
     // Optional logging of update/render status
@@ -430,6 +446,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         ! renderStatus.NeedsUpdate() )
     {
       mSleepTrigger->Trigger();
+      LOG_UPDATE_RENDER( "Sleep Triggered" );
     }
 
     //////////////////////////////
@@ -450,15 +467,24 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   mEnvironmentOptions.UnInstallLogFunction();
 }
 
-bool CombinedUpdateRenderController::UpdateRenderReady()
+bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime )
 {
+  useElapsedTime = true;
+
   ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
   while( ! mUpdateRenderRunCount && // Should try to wait if event-thread has paused the Update/Render thread
          ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
          ! mNewSurface ) // Ensure we don't wait if we need to replace the surface
   {
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
+
+    if( ! mUseElapsedTimeAfterWait )
+    {
+      useElapsedTime = false;
+    }
   }
+
+  mUseElapsedTimeAfterWait = FALSE;
 
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderRunCount: %d", mUpdateRenderRunCount );
 
