@@ -98,6 +98,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mDefaultFrameDelta( 0.0f ),
   mDefaultFrameDurationMilliseconds( 0u ),
   mDefaultFrameDurationNanoseconds( 0u ),
+  mDefaultHalfFrameNanoseconds( 0u ),
   mUpdateRequestCount( 0u ),
   mRunning( FALSE ),
   mUpdateRenderRunCount( 0 ),
@@ -277,6 +278,7 @@ void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOf
   mDefaultFrameDelta                  = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
   mDefaultFrameDurationMilliseconds   = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
   mDefaultFrameDurationNanoseconds    = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
+  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2;
 
   LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
 }
@@ -367,8 +369,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     const uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
 
-    // Optional FPS Tracking
-    if( mFpsTracker.Enabled() )
+    // Optional FPS Tracking when continuously rendering
+    if( useElapsedTime && mFpsTracker.Enabled() )
     {
       float absoluteTimeSinceLastRender = timeSinceLastFrame * NANOSECONDS_TO_SECOND;
       mFpsTracker.Track( absoluteTimeSinceLastRender );
@@ -381,7 +383,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     //////////////////////////////
 
     RenderSurface* newSurface = ShouldSurfaceBeReplaced();
-    if( newSurface )
+    if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
       mRenderHelper.ReplaceSurface( newSurface );
@@ -400,10 +402,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( useElapsedTime )
     {
       // If using the elapsed time, then calculate frameDelta as a multiple of mDefaultFrameDelta
-      noOfFramesSinceLastUpdate = std::max( timeSinceLastFrame / mDefaultFrameDurationNanoseconds, noOfFramesSinceLastUpdate );
+      // Round up if remainder is more than half the default frame time
+      noOfFramesSinceLastUpdate = ( timeSinceLastFrame + mDefaultHalfFrameNanoseconds) / mDefaultFrameDurationNanoseconds;
       frameDelta = mDefaultFrameDelta * noOfFramesSinceLastUpdate;
     }
-    LOG_UPDATE_RENDER( "noOfFramesSinceLastUpdate(%u), frameDelta(%.6f)", noOfFramesSinceLastUpdate, frameDelta );
+    LOG_UPDATE_RENDER( "timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta );
 
     Integration::UpdateStatus updateStatus;
 
