@@ -6,9 +6,10 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-platform-abstraction")
 
 SET(TC_SOURCES
-    utc-image-loading-load-completion.cpp
+    utc-image-fitting-modes.cpp
     utc-image-loading-cancel-all-loads.cpp
     utc-image-loading-cancel-some-loads.cpp
+    utc-image-loading-load-completion.cpp
 )
 
 LIST(APPEND TC_SOURCES
