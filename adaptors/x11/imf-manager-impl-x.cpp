@@ -29,6 +29,7 @@
 #include <adaptor-impl.h>
 #include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
+#include "ecore-virtual-keyboard.h"
 
 namespace Dali
 {

@@ -1,0 +1,4 @@
+# ECore Common
+
+adaptor_ecore_common_internal_src_files = \
+  $(adaptor_ecore_common_dir)/ecore-virtual-keyboard.cpp
