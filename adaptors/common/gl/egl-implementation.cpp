@@ -25,7 +25,6 @@
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
-#include <ecore-x-render-surface.h>
 #include <gl/gl-implementation.h>
 
 namespace

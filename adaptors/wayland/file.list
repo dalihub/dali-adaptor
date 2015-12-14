@@ -10,7 +10,6 @@ adaptor_wayland_tizen_internal_src_files = \
   $(adaptor_wayland_dir)/virtual-keyboard-impl-wl.cpp \
   $(adaptor_wayland_dir)/window-impl-wl.cpp \
   $(adaptor_wayland_dir)/event-handler-wl.cpp \
-  $(adaptor_wayland_dir)/egl-implementation-wl.cpp \
   $(adaptor_wayland_dir)/pixmap-render-surface-wl.cpp \
   $(adaptor_wayland_dir)/ecore-wl-render-surface.cpp \
   $(adaptor_wayland_dir)/window-render-surface-wl.cpp \

@@ -319,6 +319,8 @@ libdali_adaptor_la_LIBADD = \
                       -lturbojpeg
 
 if WAYLAND
+# This is to avoid having to include wayland-egl.h everywhere
+libdali_adaptor_la_CXXFLAGS += -DWL_EGL_PLATFORM
 libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
 libdali_adaptor_la_LIBADD += $(WAYLAND_LIBS)
 else

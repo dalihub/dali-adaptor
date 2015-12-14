@@ -45,6 +45,7 @@ adaptor_common_internal_src_files = \
   \
   $(adaptor_common_dir)/gl/egl-factory.cpp \
   $(adaptor_common_dir)/gl/egl-image-extensions.cpp \
+  $(adaptor_common_dir)/gl/egl-implementation.cpp \
   $(adaptor_common_dir)/gl/egl-sync-implementation.cpp \
   $(adaptor_common_dir)/gl/gl-proxy-implementation.cpp \
   $(adaptor_common_dir)/gl/gl-extensions.cpp
