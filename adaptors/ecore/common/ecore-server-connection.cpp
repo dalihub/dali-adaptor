@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "server-connection.h"
+#include "ecore-server-connection.h"
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>

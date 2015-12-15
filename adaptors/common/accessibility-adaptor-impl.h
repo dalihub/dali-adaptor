@@ -30,7 +30,7 @@
 #include <accessibility-adaptor.h>
 #include <accessibility-action-handler.h>
 #include <accessibility-gesture-handler.h>
-#include <indicator-impl.h>
+#include <indicator-interface.h>
 #include <accessibility-gesture-detector.h>
 
 namespace Dali
@@ -97,9 +97,10 @@ public:
   void SetGestureHandler(AccessibilityGestureHandler& handler);
 
   /**
-   * Set the Indicator
+   * @brief Set the Indicator
+   * @param[in] Indiciator interface
    */
-  void SetIndicator(Indicator* indicator);
+  void SetIndicator( IndicatorInterface* indicator );
 
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionNextEvent()
@@ -265,7 +266,7 @@ private:
 
   AccessibilityGestureDetectorPtr mAccessibilityGestureDetector; ///< The accessibility gesture detector
 
-  Indicator* mIndicator; ///< The indicator
+  IndicatorInterface* mIndicator; ///< The indicator
   bool mIndicatorFocused; ///< Whether the Indicator is focused
 
 public:

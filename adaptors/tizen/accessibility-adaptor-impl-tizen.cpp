@@ -259,7 +259,7 @@ bool AccessibilityAdaptor::IsEnabled() const
   return mIsEnabled;
 }
 
-void AccessibilityAdaptor::SetIndicator(Indicator* indicator)
+void AccessibilityAdaptor::SetIndicator(IndicatorInterface* indicator)
 {
   mIndicator = indicator;
 }

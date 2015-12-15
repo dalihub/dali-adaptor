@@ -24,8 +24,8 @@
 
 // INTERNAL INCLUDES
 #include <base/lifecycle-observer.h>
+#include <base/interfaces/indicator-interface.h>
 #include <adaptor-impl.h>
-#include <indicator-impl.h>
 #include <window.h>
 #include <orientation.h>
 #include <render-surface.h>
@@ -45,7 +45,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-class Indicator;
 class Orientation;
 
 class Window;
@@ -55,7 +54,7 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
  */
-class Window : public Dali::BaseObject, public Indicator::Observer, public LifeCycleObserver
+class Window : public Dali::BaseObject, public IndicatorInterface::Observer, public LifeCycleObserver
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
@@ -202,20 +201,20 @@ private:
    */
   void SetIndicatorProperties( bool isShown, Dali::Window::WindowOrientation lastOrientation );
 
-private: // Indicator::Observer interface
+private: // IndicatorInterface::Observer interface
 
   /**
-   * @copydoc Dali::Internal::Adaptor::Indicator::Observer::IndicatorTypeChanged()
+   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorTypeChanged()
    */
-  virtual void IndicatorTypeChanged( Indicator::Type type );
+  virtual void IndicatorTypeChanged( IndicatorInterface::Type type );
 
   /**
-   * @copydoc Dali::Internal::Adaptor::Indicator::Observer::IndicatorClosed()
+   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorClosed()
    */
-  virtual void IndicatorClosed(Indicator* indicator);
+  virtual void IndicatorClosed( IndicatorInterface* indicator);
 
   /**
-   * @copydoc Dali::Internal::Adaptor::Indicator::Observer::IndicatorVisibilityChanged()
+   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorVisibilityChanged()
    */
   virtual void IndicatorVisibilityChanged( bool isVisible );
 
@@ -260,7 +259,7 @@ public: // Signals
 
 private:
 
-  typedef std::vector<Indicator*> DiscardedIndicators;
+  typedef std::vector< IndicatorInterface * > DiscardedIndicators;
 
   RenderSurface*                   mSurface;
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
@@ -270,7 +269,7 @@ private:
   bool                             mIsTransparent:1;
   bool                             mWMRotationAppSet:1;
   bool                             mEcoreEventHander:1;
-  Indicator*                       mIndicator;
+  IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
   Dali::Window::IndicatorBgOpacity mIndicatorOpacityMode;
