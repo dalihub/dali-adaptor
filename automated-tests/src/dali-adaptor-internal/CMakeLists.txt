@@ -7,6 +7,7 @@ SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
     utc-Dali-CommandLineOptions.cpp
+    utc-Dali-CompressedTextures.cpp
     utc-Dali-FontClient.cpp
     utc-Dali-GifLoader.cpp
     utc-Dali-ImageOperations.cpp

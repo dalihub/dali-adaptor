@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ LoadFunctions::LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFuncti
 {
 }
 
-void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions )
+void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile )
 {
   FILE* fp = fopen( image.name.c_str() , "rb" );
   AutoCloseFile autoClose( fp );
@@ -111,9 +111,8 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   fseek( fp, 0, 0 );
 
   // Create a bitmap object and store a pointer to that object so it is destroyed at the end.
-  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN  );
+  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( bitmapProfile, ResourcePolicy::OWNED_RETAIN  );
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
-
 
   // Load Bitmap and check its return values.
   DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );

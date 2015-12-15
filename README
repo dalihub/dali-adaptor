@@ -5,7 +5,8 @@ T.O.C.
  2.   Building for Ubuntu desktop
  2.1. Minimum Requirements
  2.2. Building the Repository
- 2.3. Building and executing test cases
+ 2.3. Build target options
+ 2.4. Building and executing test cases
 
 
 
@@ -39,7 +40,22 @@ Then run the following commands:
  make install -j8
 
 
-2.3. Building and executing test cases
+2.3. Build target options
+-------------------------
+
+OpenGL ES context:
+
+When building, the OpenGL ES version of the target should be specified.
+
+Valid version options are 20, 30, 31
+
+With configure:
+Add: --enable-gles=X
+
+With gbs:
+Add to the gbs build line: --define "%target_gles_version X"
+
+2.4. Building and executing test cases
 --------------------------------------
 
 See the README.md in dali-adaptor/automated-tests.

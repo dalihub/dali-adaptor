@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,9 +98,9 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
 
     mContextAttribs.Reserve(5);
     mContextAttribs.PushBack( EGL_CONTEXT_MAJOR_VERSION_KHR );
-    mContextAttribs.PushBack( 3 );
+    mContextAttribs.PushBack( DALI_GLES_VERSION / 10 );
     mContextAttribs.PushBack( EGL_CONTEXT_MINOR_VERSION_KHR );
-    mContextAttribs.PushBack( 0 );
+    mContextAttribs.PushBack( DALI_GLES_VERSION % 10 );
 
 #else // DALI_GLES_VERSION >= 30
 
