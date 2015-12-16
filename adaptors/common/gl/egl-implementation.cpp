@@ -26,78 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <gl/gl-implementation.h>
-
-namespace
-{
-
-void PrintEglError( EGLint error )
-{
-  switch (error)
-  {
-    case EGL_BAD_DISPLAY:
-    {
-      DALI_LOG_ERROR("EGL_BAD_DISPLAY : Display is not an EGL display connection\n");
-      break;
-    }
-    case EGL_NOT_INITIALIZED:
-    {
-      DALI_LOG_ERROR("EGL_NOT_INITIALIZED : Display has not been initialized\n");
-      break;
-    }
-    case EGL_BAD_SURFACE:
-    {
-      DALI_LOG_ERROR("EGL_BAD_SURFACE : Draw or read is not an EGL surface\n");
-      break;
-    }
-    case EGL_BAD_CONTEXT:
-    {
-      DALI_LOG_ERROR("EGL_BAD_CONTEXT : Context is not an EGL rendering context\n");
-      break;
-    }
-    case EGL_BAD_MATCH:
-    {
-      DALI_LOG_ERROR("EGL_BAD_MATCH : Draw or read are not compatible with context, or if context is set to EGL_NO_CONTEXT and draw or read are not set to EGL_NO_SURFACE, or if draw or read are set to EGL_NO_SURFACE and context is not set to EGL_NO_CONTEXT\n");
-      break;
-    }
-    case EGL_BAD_ACCESS:
-    {
-      DALI_LOG_ERROR("EGL_BAD_ACCESS : Context is current to some other thread\n");
-      break;
-    }
-    case EGL_BAD_NATIVE_PIXMAP:
-    {
-      DALI_LOG_ERROR("EGL_BAD_NATIVE_PIXMAP : A native pixmap underlying either draw or read is no longer valid\n");
-      break;
-    }
-    case EGL_BAD_NATIVE_WINDOW:
-    {
-      DALI_LOG_ERROR("EGL_BAD_NATIVE_WINDOW : A native window underlying either draw or read is no longer valid\n");
-      break;
-    }
-    case EGL_BAD_CURRENT_SURFACE:
-    {
-      DALI_LOG_ERROR("EGL_BAD_CURRENT_SURFACE : The previous context has unflushed commands and the previous surface is no longer valid\n");
-      break;
-    }
-    case EGL_BAD_ALLOC:
-    {
-      DALI_LOG_ERROR("EGL_BAD_ALLOC : Allocation of ancillary buffers for draw or read were delayed until eglMakeCurrent is called, and there are not enough resources to allocate them\n");
-      break;
-    }
-    case EGL_CONTEXT_LOST:
-    {
-      DALI_LOG_ERROR("EGL_CONTEXT_LOST : If a power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering\n");
-      break;
-    }
-    default:
-    {
-      DALI_LOG_ERROR("Unknown error with code: %d\n", error);
-      break;
-    }
-  }
-}
-
-} // unnamed namespace
+#include <gl/egl-debug.h>
 
 namespace Dali
 {
@@ -114,7 +43,7 @@ namespace Adaptor
   if (err != EGL_SUCCESS) \
   { \
     DALI_LOG_ERROR("EGL error after %s\n", lastCommand); \
-    PrintEglError(err); \
+    Egl::PrintError(err); \
     DALI_ASSERT_ALWAYS(0 && "EGL error"); \
   } \
 }
@@ -122,11 +51,11 @@ namespace Adaptor
 EglImplementation::EglImplementation()
   : mEglNativeDisplay(0),
     mEglNativeWindow(0),
-    mEglNativePixmap(0),
+    mCurrentEglNativePixmap(0),
     mEglDisplay(0),
     mEglConfig(0),
     mEglContext(0),
-    mEglSurface(0),
+    mCurrentEglSurface(0),
     mGlesInitialized(false),
     mIsOwnSurface(true),
     mContextCurrent(false),
@@ -219,10 +148,10 @@ void EglImplementation::DestroyContext()
 
 void EglImplementation::DestroySurface()
 {
-  if(mIsOwnSurface && mEglSurface)
+  if(mIsOwnSurface && mCurrentEglSurface)
   {
-    eglDestroySurface( mEglDisplay, mEglSurface );
-    mEglSurface = 0;
+    eglDestroySurface( mEglDisplay, mCurrentEglSurface );
+    mCurrentEglSurface = 0;
   }
 }
 
@@ -232,14 +161,14 @@ void EglImplementation::MakeContextCurrent()
 
   if(mIsOwnSurface)
   {
-    eglMakeCurrent( mEglDisplay, mEglSurface, mEglSurface, mEglContext );
+    eglMakeCurrent( mEglDisplay, mCurrentEglSurface, mCurrentEglSurface, mEglContext );
   }
 
   EGLint error = eglGetError();
 
   if ( error != EGL_SUCCESS )
   {
-    PrintEglError(error);
+    Egl::PrintError(error);
 
     DALI_ASSERT_ALWAYS(false && "MakeContextCurrent failed!");
   }
@@ -254,6 +183,26 @@ void EglImplementation::MakeContextCurrent()
       eglQueryString(mEglDisplay, EGL_VERSION),
       eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
       eglQueryString(mEglDisplay, EGL_EXTENSIONS));
+}
+
+void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface )
+{
+  mCurrentEglNativePixmap = pixmap;
+  mCurrentEglSurface = eglSurface;
+
+  if(mIsOwnSurface)
+  {
+    eglMakeCurrent( mEglDisplay, mCurrentEglSurface, mCurrentEglSurface, mEglContext );
+  }
+
+  EGLint error = eglGetError();
+
+  if ( error != EGL_SUCCESS )
+  {
+    Egl::PrintError(error);
+
+    DALI_ASSERT_ALWAYS(false && "MakeCurrent failed!");
+  }
 }
 
 void EglImplementation::MakeContextNull()
@@ -272,9 +221,9 @@ void EglImplementation::TerminateGles()
     // to prevent crash in _mali_surface_destroy_callback
     MakeContextNull();
 
-    if(mIsOwnSurface && mEglSurface)
+    if(mIsOwnSurface && mCurrentEglSurface)
     {
-      eglDestroySurface(mEglDisplay, mEglSurface);
+      eglDestroySurface(mEglDisplay, mCurrentEglSurface);
     }
     eglDestroyContext(mEglDisplay, mEglContext);
 
@@ -283,7 +232,7 @@ void EglImplementation::TerminateGles()
     mEglDisplay = NULL;
     mEglConfig  = NULL;
     mEglContext = NULL;
-    mEglSurface = NULL;
+    mCurrentEglSurface = NULL;
 
     mGlesInitialized = false;
   }
@@ -296,12 +245,12 @@ bool EglImplementation::IsGlesInitialized() const
 
 void EglImplementation::SwapBuffers()
 {
-  eglSwapBuffers( mEglDisplay, mEglSurface );
+  eglSwapBuffers( mEglDisplay, mCurrentEglSurface );
 }
 
 void EglImplementation::CopyBuffers()
 {
-  eglCopyBuffers( mEglDisplay, mEglSurface, mEglNativePixmap );
+  eglCopyBuffers( mEglDisplay, mCurrentEglSurface, mCurrentEglNativePixmap );
 }
 
 void EglImplementation::WaitGL()
@@ -430,7 +379,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
 void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
 {
-  DALI_ASSERT_ALWAYS( ( mEglSurface == 0 ) && "EGL surface already exists" );
+  DALI_ASSERT_ALWAYS( ( mCurrentEglSurface == 0 ) && "EGL surface already exists" );
 
   mEglNativeWindow = window;
   mColorDepth = depth;
@@ -439,27 +388,27 @@ void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDe
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  mEglSurface = eglCreateWindowSurface( mEglDisplay, mEglConfig, mEglNativeWindow, NULL );
+  mCurrentEglSurface = eglCreateWindowSurface( mEglDisplay, mEglConfig, mEglNativeWindow, NULL );
   TEST_EGL_ERROR("eglCreateWindowSurface");
 
-  DALI_ASSERT_ALWAYS( mEglSurface && "Create window surface failed" );
+  DALI_ASSERT_ALWAYS( mCurrentEglSurface && "Create window surface failed" );
 }
 
-void EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth )
+EGLSurface EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth )
 {
-  DALI_ASSERT_ALWAYS( mEglSurface == 0 && "Cannot create more than one instance of surface pixmap" );
-
-  mEglNativePixmap = pixmap;
+  mCurrentEglNativePixmap = pixmap;
   mColorDepth = depth;
   mIsWindow = false;
 
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  mEglSurface = eglCreatePixmapSurface( mEglDisplay, mEglConfig, mEglNativePixmap, NULL );
+  mCurrentEglSurface = eglCreatePixmapSurface( mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL );
   TEST_EGL_ERROR("eglCreatePixmapSurface");
 
-  DALI_ASSERT_ALWAYS( mEglSurface && "Create pixmap surface failed" );
+  DALI_ASSERT_ALWAYS( mCurrentEglSurface && "Create pixmap surface failed" );
+
+  return mCurrentEglSurface;
 }
 
 bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
@@ -482,22 +431,16 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
   return contextLost;
 }
 
-bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap )
+bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSurface& eglSurface )
 {
   bool contextLost = false;
 
-  //  the surface is bound to the context, so set the context to null
-  MakeContextNull();
-
-  // destroy the surface
-  DestroySurface();
-
   // display connection has not changed, then we can just create a new surface
   // create the EGL surface
-  CreateSurfacePixmap( pixmap, mColorDepth );
+  eglSurface = CreateSurfacePixmap( pixmap, mColorDepth );
 
-  // set the context to be current with the new surface
-  MakeContextCurrent();
+  // set the eglSurface to be current
+  MakeCurrent( pixmap, eglSurface );
 
   return contextLost;
 }
