@@ -2,6 +2,7 @@
 
 adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/abort-handler.cpp \
+  $(adaptor_common_dir)/accessibility-adaptor-impl.cpp \
   $(adaptor_common_dir)/accessibility-gesture-detector.cpp \
   $(adaptor_common_dir)/adaptor.cpp \
   $(adaptor_common_dir)/adaptor-impl.cpp \

@@ -23,9 +23,6 @@
 
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/events/touch-event-integ.h>
-#include <dali/integration-api/events/hover-event-integ.h>
-#include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
@@ -43,7 +40,6 @@ namespace Adaptor
 namespace
 {
 
-// TODO: Update vconf-key.h ?
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS = "db/setting/accessibility/atspi";
 
 bool GetEnabledVConf()
@@ -91,6 +87,19 @@ BaseHandle Create()
     if ( service )
     {
       Dali::AccessibilityAdaptor adaptor = Dali::AccessibilityAdaptor( new AccessibilityAdaptor() );
+      AccessibilityAdaptor& adaptorImpl = AccessibilityAdaptor::GetImplementation( adaptor );
+
+      bool isEnabled = GetEnabledVConf();
+
+      if( isEnabled )
+      {
+        adaptorImpl.EnableAccessibility();
+      }
+      DALI_LOG_INFO( gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, isEnabled ? "ENABLED" : "DISABLED" );
+
+      vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, AccessibilityOnOffNotification, &adaptorImpl );
+      vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, AccessibilityOnOffNotification, &adaptorImpl );
+
       service.Register( typeid( adaptor ), adaptor );
       handle = adaptor;
     }
@@ -98,6 +107,7 @@ BaseHandle Create()
 
   return handle;
 }
+
 TypeRegistration ACCESSIBILITY_ADAPTOR_TYPE( typeid(Dali::AccessibilityAdaptor), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
 
 } // unnamed namespace
@@ -121,166 +131,7 @@ Dali::AccessibilityAdaptor AccessibilityAdaptor::Get()
   return adaptor;
 }
 
-Vector2 AccessibilityAdaptor::GetReadPosition() const
-{
-  return mReadPosition;
-}
-
-void AccessibilityAdaptor::SetActionHandler(AccessibilityActionHandler& handler)
-{
-  mActionHandler = &handler;
-}
-
-void AccessibilityAdaptor::SetGestureHandler(AccessibilityGestureHandler& handler)
-{
-  if( mAccessibilityGestureDetector )
-  {
-    mAccessibilityGestureDetector->SetGestureHandler(handler);
-  }
-}
-
-bool AccessibilityAdaptor::HandleActionClearFocusEvent()
-{
-  bool ret = false;
-
-  if( mActionHandler )
-  {
-    ret = mActionHandler->ClearAccessibilityFocus();
-  }
-
-  DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
-
-  return ret;
-}
-
-bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp)
-{
-  bool ret = false;
-
-  // We always need to emit a scroll signal, whether it's only a hover or not,
-  // so always send the action to the action handler.
-  if( mActionHandler )
-  {
-    Dali::TouchEvent event(timeStamp);
-    event.points.push_back(point);
-    ret = mActionHandler->AccessibilityActionScroll( event );
-  }
-
-  Integration::TouchEvent touchEvent;
-  Integration::HoverEvent hoverEvent;
-  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
-  if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth) // hover event is ignored
-  {
-    // Process the touch event in accessibility gesture detector
-    if( mAccessibilityGestureDetector )
-    {
-      mAccessibilityGestureDetector->SendEvent(touchEvent);
-      ret = true;
-    }
-  }
-
-  return ret;
-}
-
-bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
-{
-  bool ret = false;
-
-  Dali::TouchEvent touchEvent(timeStamp);
-  touchEvent.points.push_back(point);
-
-  if( mActionHandler )
-  {
-    ret = mActionHandler->AccessibilityActionTouch(touchEvent);
-  }
-  return ret;
-}
-
-bool AccessibilityAdaptor::HandleActionBackEvent()
-{
-  bool ret = false;
-
-  if( mActionHandler )
-  {
-    ret = mActionHandler->AccessibilityActionBack();
-  }
-
-  DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
-
-  return ret;
-}
-
-void AccessibilityAdaptor::HandleActionEnableEvent()
-{
-  EnableAccessibility();
-}
-
-void AccessibilityAdaptor::HandleActionDisableEvent()
-{
-  DisableAccessibility();
-}
-
-void AccessibilityAdaptor::EnableAccessibility()
-{
-  if(mIsEnabled == false)
-  {
-    mIsEnabled = true;
-
-    if( mActionHandler )
-    {
-      mActionHandler->ChangeAccessibilityStatus();
-    }
-  }
-}
-
-void AccessibilityAdaptor::DisableAccessibility()
-{
-  if(mIsEnabled == true)
-  {
-    mIsEnabled = false;
-
-    if( mActionHandler )
-    {
-      mActionHandler->ChangeAccessibilityStatus();
-    }
-
-    // Destroy the TtsPlayer if exists.
-    if ( Adaptor::IsAvailable() )
-    {
-      Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-      Adaptor& adaptorIpml = Adaptor::GetImplementation( adaptor );
-      adaptorIpml.DestroyTtsPlayer( Dali::TtsPlayer::SCREEN_READER );
-    }
-  }
-}
-
-bool AccessibilityAdaptor::IsEnabled() const
-{
-  return mIsEnabled;
-}
-
-void AccessibilityAdaptor::SetIndicator(IndicatorInterface* indicator)
-{
-  mIndicator = indicator;
-}
-
-AccessibilityAdaptor::AccessibilityAdaptor()
-: mIsEnabled( false ),
-  mReadPosition(),
-  mActionHandler( NULL ),
-  mIndicator( NULL),
-  mIndicatorFocused( false )
-{
-  mIsEnabled = GetEnabledVConf();
-  DALI_LOG_INFO( gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, mIsEnabled ? "ENABLED" : "DISABLED" );
-
-  vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, AccessibilityOnOffNotification, this );
-  vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, AccessibilityOnOffNotification, this );
-
-  mAccessibilityGestureDetector = new AccessibilityGestureDetector();
-}
-
-AccessibilityAdaptor::~AccessibilityAdaptor()
+void AccessibilityAdaptor::OnDestroy()
 {
   vconf_ignore_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, AccessibilityOnOffNotification );
   vconf_ignore_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, AccessibilityOnOffNotification );

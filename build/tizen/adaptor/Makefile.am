@@ -100,6 +100,7 @@ adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
                              $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
@@ -167,6 +168,7 @@ adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
                              $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
