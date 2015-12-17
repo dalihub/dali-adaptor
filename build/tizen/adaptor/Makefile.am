@@ -46,8 +46,8 @@ include ../../../adaptors/ecore/common/file.list
 
 # Wayland
 if WAYLAND
-adaptor_wayland_dir = ../../../adaptors/wayland
-include ../../../adaptors/wayland/file.list
+adaptor_ecore_wayland_dir = ../../../adaptors/ecore/wayland
+include ../../../adaptors/ecore/wayland/file.list
 else
 # X11
 adaptor_x11_dir = ../../../adaptors/x11
@@ -234,7 +234,7 @@ libdali_adaptor_la_includes = \
 if WAYLAND
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/common \
-                      -I../../../adaptors/wayland \
+                      -I../../../adaptors/ecore/wayland \
                       -I../../../adaptors/integration-api/wayland
 else
 libdali_adaptor_la_includes += \
