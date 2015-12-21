@@ -103,6 +103,15 @@ struct LoadFunctions
 void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile = Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS );
 
 /**
+ * Helper method to compare the resultant loaded image data of the specified image with a golden master data.
+ *
+ * @param[in] image         The image to load
+ * @param[in] functions     The functions to use to load the image
+ * @param[in] master        Golden master data to compare the resultant loaded image with
+ */
+void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& functions, const uint32_t* master );
+
+/**
  * Helper function which should be used when first creating a reference buffer file.
  * Set output file to a file in the /tmp/ directory e.g:
  *   DumpImageBufferToTempFile( "images/pattern.gif" , "/tmp/pattern.gif.buffer" );

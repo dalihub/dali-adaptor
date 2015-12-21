@@ -10,6 +10,7 @@ SET(TC_SOURCES
     utc-Dali-CompressedTextures.cpp
     utc-Dali-FontClient.cpp
     utc-Dali-GifLoader.cpp
+    utc-Dali-IcoLoader.cpp
     utc-Dali-ImageOperations.cpp
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-TiltSensor.cpp
