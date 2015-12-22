@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <ecore-wl-types.h>
+#include <wl-types.h>
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 

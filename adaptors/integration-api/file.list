@@ -8,7 +8,7 @@ adaptor_integration_api_header_files = \
   $(adaptor_integration_api_dir)/pixmap-render-surface-factory.h
 
 adaptor_integration_wayland_api_header_files = \
-  $(adaptor_integration_api_dir)/wayland/ecore-wl-types.h \
+  $(adaptor_integration_api_dir)/wayland/wl-types.h \
   $(adaptor_integration_api_dir)/wayland/ecore-wl-render-surface.h \
   $(adaptor_integration_api_dir)/wayland/pixmap-render-surface.h
 
