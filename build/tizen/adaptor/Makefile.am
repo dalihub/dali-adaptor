@@ -424,6 +424,9 @@ endif
 if UBUNTU_PROFILE
 libdali_adaptor_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
+else
+libdali_adaptor_la_CXXFLAGS += $(TPKP_CURL_CFLAGS)
+libdali_adaptor_la_LIBADD += $(TPKP_CURL_LIBS)
 endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api

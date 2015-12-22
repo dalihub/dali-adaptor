@@ -25,6 +25,9 @@
 // INTERNAL INCLUDES
 #include "portable/file-closer.h"
 
+#ifndef DALI_PROFILE_UBUNTU
+#include <tpkp_curl.h>
+#endif // DALI_PROFILE_UBUNTU
 
 using namespace Dali::Integration;
 
@@ -55,6 +58,11 @@ void ConfigureCurlOptions( CURL* curl_handle, const std::string& url )
   curl_easy_setopt( curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
   curl_easy_setopt( curl_handle, CURLOPT_HEADER, INCLUDE_HEADER );
   curl_easy_setopt( curl_handle, CURLOPT_NOBODY, EXCLUDE_BODY );
+
+#ifndef DALI_PROFILE_UBUNTU
+  // Apply certificate pinning on Tizen
+  curl_easy_setopt( curl_handle, CURLOPT_SSL_CTX_FUNCTION, tpkp_curl_ssl_ctx_callback );
+#endif // DALI_PROFILE_UBUNTU
 }
 
 // Without a write function or a buffer (file descriptor) to write to, curl will pump out
@@ -154,6 +162,11 @@ bool Network::DownloadRemoteFileIntoMemory( const std::string& url,
 
   // clean up session
   curl_easy_cleanup( curl_handle );
+
+#ifndef DALI_PROFILE_UBUNTU
+  // Clean up tpkp(the module for certificate pinning) resources on Tizen
+  tpkp_curl_cleanup();
+#endif // DALI_PROFILE_UBUNTU
 
   return result;
 }
