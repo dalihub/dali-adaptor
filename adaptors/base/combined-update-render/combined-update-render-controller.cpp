@@ -103,6 +103,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mRunning( FALSE ),
   mUpdateRenderRunCount( 0 ),
   mDestroyUpdateRenderThread( FALSE ),
+  mUpdateRenderThreadCanSleep( FALSE ),
+  mPendingRequestUpdate( FALSE ),
   mNewSurface( NULL ),
   mPostRendering( FALSE )
 {
@@ -236,6 +238,9 @@ void CombinedUpdateRenderController::RequestUpdate()
 
     RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
   }
+
+  ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
+  mPendingRequestUpdate = TRUE;
 }
 
 void CombinedUpdateRenderController::RequestUpdateOnce()
@@ -291,6 +296,7 @@ void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, 
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   mUpdateRenderRunCount = numberOfCycles;
+  mUpdateRenderThreadCanSleep = FALSE;
   mUseElapsedTimeAfterWait = useElapsedTime;
   LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait );
   mUpdateRenderThreadWaitCondition.Notify( lock );
@@ -312,7 +318,8 @@ void CombinedUpdateRenderController::StopUpdateRenderThread()
 bool CombinedUpdateRenderController::IsUpdateRenderThreadPaused()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-  return mUpdateRenderRunCount != CONTINUOUS; // Report paused if NOT continuously running
+  return ( mUpdateRenderRunCount != CONTINUOUS ) || // Report paused if NOT continuously running
+         mUpdateRenderThreadCanSleep;               // Report paused if sleeping
 }
 
 void CombinedUpdateRenderController::ProcessSleepRequest()
@@ -325,12 +332,14 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
     --mUpdateRequestCount;
   }
 
-  // Only sleep if our update-request count is 0
+  // Can sleep if our update-request count is 0
+  // Update/Render thread can choose to carry on updating if it determines more update/renders are required
   if( mUpdateRequestCount == 0 )
   {
     LOG_EVENT( "Going to sleep" );
 
-    PauseUpdateRenderThread();
+    ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+    mUpdateRenderThreadCanSleep = TRUE;
   }
 }
 
@@ -359,8 +368,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   LOG_UPDATE_RENDER( "THREAD INITIALISED" );
 
   bool useElapsedTime = true;
+  bool updateRequired = true;
 
-  while( UpdateRenderReady( useElapsedTime ) )
+  while( UpdateRenderReady( useElapsedTime, updateRequired ) )
   {
     LOG_UPDATE_RENDER_TRACE;
 
@@ -449,7 +459,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         ! renderStatus.NeedsUpdate() )
     {
       mSleepTrigger->Trigger();
+      updateRequired = false;
       LOG_UPDATE_RENDER( "Sleep Triggered" );
+    }
+    else
+    {
+      updateRequired = true;
     }
 
     //////////////////////////////
@@ -470,15 +485,21 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   mEnvironmentOptions.UnInstallLogFunction();
 }
 
-bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime )
+bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired )
 {
   useElapsedTime = true;
 
   ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
-  while( ! mUpdateRenderRunCount && // Should try to wait if event-thread has paused the Update/Render thread
+  while( ( ! mUpdateRenderRunCount || // Should try to wait if event-thread has paused the Update/Render thread
+           ( mUpdateRenderThreadCanSleep && ! updateRequired && ! mPendingRequestUpdate ) ) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
          ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
          ! mNewSurface ) // Ensure we don't wait if we need to replace the surface
   {
+    LOG_UPDATE_RENDER( "WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
+    LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
+    LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
+    LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
+
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
 
     if( ! mUseElapsedTimeAfterWait )
@@ -487,9 +508,14 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime )
     }
   }
 
-  mUseElapsedTimeAfterWait = FALSE;
+  LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
+  LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
+  LOG_COUNTER_UPDATE_RENDER( "mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
+  LOG_COUNTER_UPDATE_RENDER( "mNewSurface:                 %d", mNewSurface );
 
-  LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderRunCount: %d", mUpdateRenderRunCount );
+  mUseElapsedTimeAfterWait = FALSE;
+  mUpdateRenderThreadCanSleep = FALSE;
+  mPendingRequestUpdate = FALSE;
 
   // If we've been asked to run Update/Render cycles a finite number of times then decrement so we wait after the
   // requested number of cycles

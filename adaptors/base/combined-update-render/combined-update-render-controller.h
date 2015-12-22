@@ -192,11 +192,12 @@ private:
   /**
    * Called by the Update/Render Thread which ensures a wait if required.
    *
-   * @param[out] useElapsedTime If true when returned, then the actual elapsed time will be used for animation.
-   *                            If false when returned, then there should NOT be any animation progression in the next Update.
+   * @param[out] useElapsedTime  If true when returned, then the actual elapsed time will be used for animation.
+   *                             If false when returned, then there should NOT be any animation progression in the next Update.
+   * @param[in]  updateRequired  Whether another update is required.
    * @return false, if the thread should stop.
    */
-  bool UpdateRenderReady( bool& useElapsedTime );
+  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired );
 
   /**
    * Checks to see if the surface needs to be replaced.
@@ -301,6 +302,9 @@ private:
 
   volatile int                      mUpdateRenderRunCount;             ///< The number of times Update/Render cycle should run. If -1, then will run continuously (set by the event-thread, read by v-sync-thread).
   volatile unsigned int             mDestroyUpdateRenderThread;        ///< Whether the Update/Render thread be destroyed (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int             mUpdateRenderThreadCanSleep;       ///< Whether the Update/Render thread can sleep (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int             mPendingRequestUpdate;             ///< Is set as soon as an RequestUpdate is made and unset when the next update happens (set by the event-thread and update-render thread, read by the update-render-thread).
+                                                                       ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
 
   volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
