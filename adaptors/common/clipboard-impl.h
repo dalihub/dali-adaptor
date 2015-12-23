@@ -20,8 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
-#include <Ecore.h>
-#include <Ecore_Wayland.h>
 
 // INTERNAL INCLUDES
 #include <clipboard.h>
@@ -43,11 +41,23 @@ class Clipboard :  public Dali::BaseObject
 {
 public:
 
+  // Hide the specific windowing system
+  struct Impl;
+
   /**
    * @copydoc Dali::ClipboardEventNotifier::Get()
    */
   static Dali::Clipboard Get();
 
+  /**
+   * Constructor
+   * @param[in] impl Some data from a specific windowing system.
+   */
+  Clipboard(Impl* impl);
+
+  /**
+   * Destructor
+   */
   virtual ~Clipboard();
 
   /**
@@ -75,10 +85,15 @@ public:
    */
   void HideClipboard();
 
-  
 private:
+
+  // Undefined
   Clipboard( const Clipboard& );
   Clipboard& operator=( Clipboard& );
+
+private:
+
+  Impl* mImpl;
 
 }; // class clipboard
 

@@ -54,8 +54,19 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
+struct Clipboard::Impl
 {
+  Impl( Ecore_X_Window ecoreXwin )
+  {
+    mApplicationWindow = ecoreXwin;
+  }
+
+  Ecore_X_Window mApplicationWindow;
+};
+
+namespace // unnamed namespace
+{
+
 BaseHandle Create()
 {
   BaseHandle handle( Clipboard::Get() );
@@ -76,7 +87,8 @@ BaseHandle Create()
         // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
         // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
         // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-        Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( ecoreXwin ) );
+        Clipboard::Impl* impl( new Clipboard::Impl( ecoreXwin ) );
+        Dali::Clipboard clipboard = Dali::Clipboard( new Clipboard( impl ) );
         service.Register( typeid( clipboard ), clipboard );
         handle = clipboard;
       }
@@ -89,17 +101,19 @@ BaseHandle Create()
 
   return handle;
 }
+
 TypeRegistration CLIPBOARD_TYPE( typeid(Dali::Clipboard), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
 
 } // unnamed namespace
 
-Clipboard::Clipboard( Ecore_X_Window ecoreXwin)
+Clipboard::Clipboard(Impl* impl)
+: mImpl( impl )
 {
-  mApplicationWindow = ecoreXwin;
 }
 
 Clipboard::~Clipboard()
 {
+  delete mImpl;
 }
 
 Dali::Clipboard Clipboard::Get()
@@ -191,7 +205,7 @@ unsigned int Clipboard::NumberOfItems()
 void Clipboard::ShowClipboard()
 {
   // Claim the ownership of the SECONDARY selection.
-  ecore_x_selection_secondary_set(mApplicationWindow, "", 1);
+  ecore_x_selection_secondary_set(mImpl->mApplicationWindow, "", 1);
   Ecore_X_Window cbhmWin = ECore::WindowInterface::GetWindow();
 
   // Launch the clipboard window

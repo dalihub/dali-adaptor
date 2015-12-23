@@ -1,0 +1,19 @@
+# wayland
+
+adaptor_wayland_tizen_internal_src_files = \
+  $(adaptor_ecore_wayland_dir)/clipboard-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/display-connection-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/event-handler-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/framework-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/imf-manager-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/key-mapping-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/native-image-source-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/pixmap-render-surface-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/render-surface-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/virtual-keyboard-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/window-impl-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/window-render-surface-ecore-wl.cpp
+
+adaptor_wayland_tizen_common_internal_default_profile_src_files = \
+  $(adaptor_ecore_wayland_dir)/render-surface-factory-ecore-wl.cpp \
+  $(adaptor_ecore_wayland_dir)/system-settings-ecore-wl.cpp

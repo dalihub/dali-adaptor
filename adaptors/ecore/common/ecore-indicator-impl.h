@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_INDICATOR_H__
-#define __DALI_INTERNAL_INDICATOR_H__
+#ifndef __DALI_INTERNAL_ECORE_INDICATOR_H__
+#define __DALI_INTERNAL_ECORE_INDICATOR_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -19,15 +19,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/animation/animation.h>
+#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
 #include <dali/devel-api/rendering/renderer.h>
 
 // INTERNAL INCLUDES
+#include <base/interfaces/indicator-interface.h>
 #include <indicator-buffer.h>
-#include <server-connection.h>
+#include <ecore-server-connection.h>
 #include <shared-file.h>
 #include <timer.h>
 #include <window.h>
@@ -51,44 +52,16 @@ typedef unsigned int PixmapId;
  * The Indicator class connects to the indicator server, and gets and draws the indicator
  * for the given orientation.
  */
-class Indicator : public ConnectionTracker, public ServerConnection::Observer
+class Indicator : public ConnectionTracker, public ServerConnection::Observer, public IndicatorInterface
 {
 public:
+
   enum State
   {
     DISCONNECTED,
     CONNECTED
   };
 
-  enum Type
-  {
-    INDICATOR_TYPE_UNKNOWN,
-    INDICATOR_TYPE_1,
-    INDICATOR_TYPE_2
-  };
-
-public:
-  class Observer
-  {
-  public:
-    /**
-     * Notify the observer if the indicator type changes
-     * @param[in] type The new indicator type
-     */
-    virtual void IndicatorTypeChanged( Type type ) = 0;
-
-    /**
-     * Notify the observer when the upload has completed.
-     * @param[in] indicator The indicator that has finished uploading.
-     */
-    virtual void IndicatorClosed(Indicator* indicator) = 0;
-
-    /**
-     * Notify the observer when the indicator visible status is changed.
-     * @param[in] isShowing Whether the indicator is visible.
-     */
-    virtual void IndicatorVisibilityChanged( bool isVisible ) = 0;
-  };
 
 protected:
   /**
@@ -160,74 +133,56 @@ protected:
   };
 
 
-public:
+public:  // Dali::Internal::Adaptor::IndicicatorInterface
   /**
-   * Constructor. Creates a new indicator and opens a connection for
-   * the required orientation.
-   * @param[in] orientation The orientation in which to draw the indicator
-   * @param[in] observer The indicator closed
+   * @copydoc Dali::Internal::IndicatorInterface::IndicatorInterface
    */
   Indicator( Adaptor* adaptor,
              Dali::Window::WindowOrientation orientation,
-             Observer* observer );
+             IndicatorInterface::Observer* observer );
 
   /**
-   * Destructor
+   * @copydoc Dali::Internal::IndicatorInterface::~IndicatorInterface
    */
   virtual ~Indicator();
 
-  void SetAdaptor(Adaptor* adaptor);
+
+  virtual void SetAdaptor(Adaptor* adaptor);
 
   /**
-   * Get the actor which contains the indicator image. Ensure that the handle is
-   * released when no longer needed.
-   * Changes from the indicator service will modify the image and resize the actor appropriately.
-   * @return The indicator actor.
+   * @copydoc Dali::Internal::IndicatorInterface::GetActor
    */
-  Dali::Actor GetActor();
+  virtual Dali::Actor GetActor();
 
   /**
-   * Opens a new connection for the required orientation.
-   * @param[in] orientation The new orientation
+   * @copydoc Dali::Internal::IndicatorInterface::Open
    */
-  void Open( Dali::Window::WindowOrientation orientation );
+  virtual void Open( Dali::Window::WindowOrientation orientation );
 
   /**
-   * Close the current connection. Will respond with Observer::IndicatorClosed()
-   * when done.
-   * @note, IndicatorClosed() will be called synchronously if there's no update
-   * in progress, or asychronously if waiting for SignalUploaded )
+   * @copydoc Dali::Internal::IndicatorInterface::Close
    */
-  void Close();
+  virtual void Close();
 
   /**
-   * Set the opacity mode of the indicator background.
-   * @param[in] mode opacity mode
+   * @copydoc Dali::Internal::IndicatorInterface::SetOpacityMode
    */
-  void SetOpacityMode( Dali::Window::IndicatorBgOpacity mode );
+  virtual void SetOpacityMode( Dali::Window::IndicatorBgOpacity mode );
 
   /**
-   * Set whether the indicator is visible or not.
-   * @param[in] visibleMode visible mode for indicator bar.
-   * @param[in] forceUpdate true if want to change visible mode forcely
+   * @copydoc Dali::Internal::IndicatorInterface::SetVisible
    */
-  void SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate = false );
+  virtual void SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate = false );
 
   /**
-   * Check whether the indicator is connected to the indicator service.
-   * @return whether the indicator is connected or not.
+   * @copydoc Dali::Internal::IndicatorInterface::IsConnected
    */
-  bool IsConnected();
+  virtual bool IsConnected();
 
   /**
-   * Send message to the indicator service.
-   * @param[in] messageDomain Message Reference number
-   * @param[in] messageId Reference number of the message this message refers to
-   * @param[in] data The data to send as part of the message
-   * @param[in] size Length of the data, in bytes, to send
-   * @return whether the message is sent successfully or not
+   * @copydoc Dali::Internal::IndicatorInterface::SendMessage
    */
-  bool SendMessage( int messageDomain, int messageId, const void *data, int size );
+  virtual bool SendMessage( int messageDomain, int messageId, const void *data, int size );
 
 private:
   /**
@@ -448,7 +403,7 @@ private:
 
   Adaptor*                         mAdaptor;
   ServerConnection*                mServerConnection;
-  Indicator::Observer*             mObserver;            ///< Upload observer
+  IndicatorInterface::Observer*    mObserver;            ///< Upload observer
 
   Dali::Window::WindowOrientation  mOrientation;
   int                              mImageWidth;

@@ -30,7 +30,7 @@
 // INTERNAL HEADERS
 #include <window-render-surface.h>
 #include <drag-and-drop-detector-impl.h>
-#include <indicator-impl.h>
+#include <ecore-indicator-impl.h>
 #include <window-visibility-observer.h>
 #include <orientation.h>
 #include <orientation-impl.h>
@@ -508,7 +508,7 @@ void Window::IndicatorTypeChanged(Indicator::Type type)
   }
 }
 
-void Window::IndicatorClosed( Indicator* indicator )
+void Window::IndicatorClosed( IndicatorInterface* indicator )
 {
   DALI_LOG_TRACE_METHOD( gWindowLogFilter );
 

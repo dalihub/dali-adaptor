@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "indicator-impl.h"
+#include "ecore-indicator-impl.h"
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>
@@ -332,7 +332,7 @@ bool Indicator::ScopedLock::IsLocked()
   return mLocked;
 }
 
-Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, Observer* observer )
+Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
 : mPixmap( 0 ),
   mGestureDetected( false ),
   mConnection( this ),

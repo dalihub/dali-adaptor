@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <wayland-egl.h>
 #include <Ecore_Wayland.h>
-#include <ecore-wl-types.h>
+#include <wl-types.h>
 
 // INTERNAL INCLUDES
 #include <base/display-connection.h>

@@ -1,5 +1,5 @@
-#ifndef __DALI_WL_TYPES_H__
-#define __DALI_WL_TYPES_H__
+#ifndef __DALI_INTERNAL_EGL_DEBUG_H__
+#define __DALI_INTERNAL_EGL_DEBUG_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -18,15 +18,29 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <wayland-client.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 namespace Dali
 {
 
-typedef ::wl_display WlDisplay;
-typedef ::wl_surface WlSurface;
+namespace Internal
+{
 
-} // namespace Dali
+namespace Adaptor
+{
 
-#endif /* __DALI_WL_TYPES_H__ */
+namespace Egl
+{
+
+void PrintError( EGLint error);
+
+}  // namespace Egl
+
+}  // namespace Adaptor
+
+}  // namespace Internal
+
+}  // namespace Dali
+
+#endif //__DALI_INTERNAL_EGL_DEBUG_H__

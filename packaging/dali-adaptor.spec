@@ -2,7 +2,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.14
+Version:    1.1.15
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0, BSD-2.0, MIT
@@ -74,6 +74,12 @@ BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  wayland-devel
+# Currently Tizen Common does not use wayland extensions like xdg-shell
+%if "%{profile}" != "common"
+BuildRequires:  pkgconfig(wayland-extension-client)
+BuildRequires:  wayland-extension-client-devel
+%endif
 %else
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xi)

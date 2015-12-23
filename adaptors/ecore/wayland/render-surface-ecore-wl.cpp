@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <ecore-wl-types.h>
+#include <wl-types.h>
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 
@@ -74,7 +74,7 @@ void EcoreWlRenderSurface::Init( Any surface )
   printf( "INFO: DALI: new EcoreWlRenderSurface, %s %s surface %X \n",
           mOwnSurface?"created":"used existing",
           Dali::RenderSurface::PIXMAP==mType?" pixmap" :"window",
-          GetDrawable() );
+          AnyCast<Ecore_X_Drawable>( GetSurface() ) );
 #endif
 }
 

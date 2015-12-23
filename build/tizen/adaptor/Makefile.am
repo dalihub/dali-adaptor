@@ -40,10 +40,14 @@ include ../../../adaptors/integration-api/file.list
 adaptor_common_dir = ../../../adaptors/common
 include ../../../adaptors/common/file.list
 
+# ECore Common
+adaptor_ecore_common_dir = ../../../adaptors/ecore/common
+include ../../../adaptors/ecore/common/file.list
+
 # Wayland
 if WAYLAND
-adaptor_wayland_dir = ../../../adaptors/wayland
-include ../../../adaptors/wayland/file.list
+adaptor_ecore_wayland_dir = ../../../adaptors/ecore/wayland
+include ../../../adaptors/ecore/wayland/file.list
 else
 # X11
 adaptor_x11_dir = ../../../adaptors/x11
@@ -94,7 +98,9 @@ if COMMON_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
+                             $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
@@ -112,6 +118,7 @@ if UBUNTU_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_default_profile_src_files) \
+                             $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_ubuntu_internal_src_files) \
                              $(adaptor_x11_ubuntu_internal_src_files) \
                              $(adaptor_x11_internal_default_profile_src_files) \
@@ -125,6 +132,7 @@ if MOBILE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 
@@ -141,6 +149,7 @@ if WEARABLE_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
@@ -157,7 +166,9 @@ if TV_PROFILE
 
 adaptor_internal_src_files = $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_tv_profile_src_files) \
+                             $(adaptor_ecore_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
+                             $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
@@ -222,10 +233,12 @@ libdali_adaptor_la_includes = \
 
 if WAYLAND
 libdali_adaptor_la_includes += \
-                      -I../../../adaptors/wayland \
+                      -I../../../adaptors/ecore/common \
+                      -I../../../adaptors/ecore/wayland \
                       -I../../../adaptors/integration-api/wayland
 else
 libdali_adaptor_la_includes += \
+                      -I../../../adaptors/ecore/common \
                       -I../../../adaptors/x11 \
                       -I../../../adaptors/integration-api/x11
 endif
@@ -308,6 +321,8 @@ libdali_adaptor_la_LIBADD = \
                       -lturbojpeg
 
 if WAYLAND
+# This is to avoid having to include wayland-egl.h everywhere
+libdali_adaptor_la_CXXFLAGS += -DWL_EGL_PLATFORM
 libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
 libdali_adaptor_la_LIBADD += $(WAYLAND_LIBS)
 else

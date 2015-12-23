@@ -182,6 +182,7 @@ AC_ARG_ENABLE(wayland,
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
 DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
 AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
+AM_CONDITIONAL([WAYLAND_EXTENSIONS_SUPPORTED], [test x$enable_profile != xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
@@ -235,6 +236,11 @@ if test "x$enable_wayland" = "xyes"; then
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
                   [DALI_HAS_ECOREWL=yes],
                   [DALI_HAS_ECOREWL=no])
+
+# common profile currently does not have wayland extensions like xdg-shell
+if test "x$enable_profile" != "xCOMMON"; then
+PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client)
+fi
 else
 PKG_CHECK_MODULES(ECORE_X, [ecore-x],
                   [DALI_HAS_ECOREX=yes],
