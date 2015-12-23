@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,26 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <pixmap-render-surface.h>
+// CLASS HEADER
+#include "wayland-window.h"
 
 namespace Dali
 {
 
-namespace ECore
+namespace Wayland
 {
 
-DALI_EXPORT_API PixmapRenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  const std::string& name,
-  bool               isTransparent )
+Window::Window()
+:mSurfaceId( 0 )
 {
-  return new PixmapRenderSurface( positionSize, surface, name, isTransparent );
+
 }
 
-} // namespace ECoreX
+Window::~Window()
+{
+}
+
+
+} // namespace Wayland
 
 } // namespace Dali
-
-
-

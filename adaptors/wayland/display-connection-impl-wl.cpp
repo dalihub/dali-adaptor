@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// CLASS HEADER
+#include "display-connection-impl.h"
+
+
+namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
+{
+
+DisplayConnection* DisplayConnection::New()
+{
+  return new DisplayConnection();
+}
+
+DisplayConnection::DisplayConnection()
+: mDisplay(NULL)
+{
+}
+
+DisplayConnection::~DisplayConnection()
+{
+
+}
+
+Any DisplayConnection::GetDisplay()
+{
+  return Any(mDisplay);
+}
+
+void DisplayConnection::ConsumeEvents()
+{
+}
+
+bool DisplayConnection::InitializeEgl(EglInterface& egl)
+{
+  return true;
+}
+
+void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
+{
+  // calculate DPI
+  float xres, yres;
+
+  // 1 inch = 25.4 millimeters
+  xres = 72;// hardcoded for now, @todo use wl_output interface to calculate display dpi
+  yres = 72;// hardcoded for now
+
+  dpiHorizontal = int(xres + 0.5f);  // rounding
+  dpiVertical   = int(yres + 0.5f);
+}
+
+} // namespace Adaptor
+
+} // namespace Internal
+
+} // namespace Dali
