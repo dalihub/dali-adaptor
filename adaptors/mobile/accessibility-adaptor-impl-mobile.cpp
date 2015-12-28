@@ -23,9 +23,9 @@
 
 #ifndef WAYLAND
 #include <Ecore_X.h>
+#include <Elementary.h>
 #endif
 
-#include <Elementary.h>
 #include <vconf.h>
 
 #include <dali/public-api/object/type-registry.h>

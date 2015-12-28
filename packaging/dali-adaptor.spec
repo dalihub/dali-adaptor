@@ -66,9 +66,6 @@ BuildRequires:  pkgconfig(glesv2)
 # If we have not set a BuildRequires for the gles version, default it here.
 %{!?gles_requirement_setup: BuildRequires:  pkgconfig(glesv2)}
 
-# macro is enabled by passing gbs build --define "with_libuv 1"
-%define build_with_libuv 0%{?with_libuv:1}
-
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
@@ -93,15 +90,11 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 %endif
 
-%if 0%{?build_with_libuv}
 # Tizen currently does not have libuv as a separate libuv package
 # So we have to look into the uv headers bundled inside node-js
 BuildRequires:  nodejs-devel
-%endif
 
 
-%define dali_needs_efl_libraries 1
-%define dali_needs_appfw_libraries 1
 %if %{with wayland}
 
 ####### BUILDING FOR WAYLAND #######
@@ -112,18 +105,12 @@ BuildRequires:  wayland-devel
 %if "%{profile}" != "common"
 BuildRequires:  wayland-extension-client-devel
 %endif
-%if %{build_with_libuv}
-####### BUILDING FOR PURE WAYLAND #######
-# if we're building with wayland and runnning under node.js then we are using libuv mainloop
-# and DALis own wayland client (it needs wayland-client headers).
-# EFL libraries and APP Framework libraries are not required in this case
-%define dali_needs_efl_libraries 0
-%define dali_needs_appfw_libraries 0
+
+# dali-adaptor-uv uses libuv mainloop and has its own wayland client (it needs wayland-client headers).
 BuildRequires:  libxkbcommon-devel
-%else
-####### BUILDING FOR ECORE WAYLAND #######
+
+# dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
-%endif
 
 # tpkp-curl (certificate pinning for libcurl functions) is only available in Tizen 3.0
 BuildRequires:  pkgconfig(tpkp-curl)
@@ -138,17 +125,11 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 %endif
 
-###### Building with EFL libraries
-%if 0%{?dali_needs_efl_libraries}
+# for dali-adaptor
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(elementary)
-%endif
-
-###### Build with APP Framework
-%if 0%{?dali_needs_appfw_libraries}
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-system-system-settings)
-%endif
 
 %if 0%{?over_tizen_2_2}
 BuildRequires:  pkgconfig(capi-system-info)
@@ -252,6 +233,10 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 # Default to GLES 2.0 if not specified.
 %{!?target_gles_version: %define target_gles_version 20}
 
+#--enable-efl=no \ # only affects dali-adaptor-uv
+#--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
+#--with-libuv=/usr/include/node/ \ # only affects dali-adaptor-uv
+
 # Set up the build via configure.
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
@@ -260,19 +245,13 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
-%if 0%{?dali_needs_efl_libraries}
-            --enable-efl=yes \
+%if %{with wayland}
+           --enable-efl=no \
 %else
-            --enable-efl=no \
+           --enable-efl=yes \
 %endif
-%if 0%{?dali_needs_appfw_libraries}
-            --enable-appfw=yes \
-%else
-            --enable-appfw=no \
-%endif
-%if %{?build_with_libuv}
+           --enable-appfw=yes \
            --with-libuv=/usr/include/node/ \
-%endif
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -354,7 +333,8 @@ exit 0
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
-%{_libdir}/pkgconfig/dali.pc
+%{_libdir}/pkgconfig/dali-adaptor.pc
+%{_libdir}/pkgconfig/dali-adaptor-uv.pc
 
 %files integration-devel
 %defattr(-,root,root,-)

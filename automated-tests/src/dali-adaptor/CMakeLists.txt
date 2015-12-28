@@ -31,7 +31,7 @@ LIST(APPEND TC_SOURCES
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-core
-    dali
+    dali-adaptor
     ecore
 )
 
