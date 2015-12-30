@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <ecore-wl-types.h>
+#include <wl-types.h>
 #include <trigger-event.h>
 #include <gl/egl-implementation.h>
 #include <base/display-connection.h>
@@ -119,7 +119,7 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   }
 
   // create the EGL surface
-  ecore_wl_window_surface_create(mWlWindow);
+  mWlSurface = ecore_wl_window_surface_create(mWlWindow);
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
   eglImpl.CreateSurfaceWindow( (EGLNativeWindowType)mEglWindow, mColorDepth ); // reinterpret_cast does not compile
 }

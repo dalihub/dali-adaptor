@@ -278,6 +278,7 @@ PKG_CHECK_MODULES(ECORE_X, [ecore-x],
 PKG_CHECK_MODULES(X11, [x11],
                   [DALI_USE_X11=1],
                   [DALI_USE_X11=0])
+PKG_CHECK_MODULES(UTILX, utilX)
 fi
 fi
 # Using Wayland API directly  ( main loop agnostic, typically for running on libuv)

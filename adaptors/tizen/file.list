@@ -10,5 +10,7 @@ adaptor_tizen_internal_src_files = \
 adaptor_tizen_internal_non_mobile_src_files = \
   $(adaptor_tizen_dir)/accessibility-adaptor-impl-tizen.cpp
 
-
 adaptor_tizen_framework_efl_src_files = $(adaptor_tizen_dir)/framework-tizen.cpp
+
+public_api_adaptor_tizen_header_files = \
+  $(adaptor_tizen_dir)/key-grab.h
