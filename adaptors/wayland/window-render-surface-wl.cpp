@@ -108,15 +108,6 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
-  if( mColorDepth == COLOR_DEPTH_32 )
-  {
-    ecore_wl_window_alpha_set( mWlWindow, true );
-  }
-  else
-  {
-    ecore_wl_window_alpha_set( mWlWindow, false );
-  }
-
   // create the EGL surface
   mWlSurface = ecore_wl_window_surface_create(mWlWindow);
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
@@ -139,15 +130,6 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
   {
     wl_egl_window_destroy(mEglWindow);
     mEglWindow = NULL;
-  }
-
-  if( mColorDepth == COLOR_DEPTH_32 )
-  {
-    ecore_wl_window_alpha_set( mWlWindow, true );
-  }
-  else
-  {
-    ecore_wl_window_alpha_set( mWlWindow, false );
   }
 
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
