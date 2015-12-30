@@ -63,6 +63,8 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
+    mWindowPropertyHandler( NULL ),
+    mClientMessageHandler( NULL ),
     mEcoreWindow( 0 )
   {
   }
@@ -76,9 +78,9 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowPropertyHandler );
     }
-    if ( mClientMessagehandler )
+    if ( mClientMessageHandler )
     {
-      ecore_event_handler_del( mClientMessagehandler );
+      ecore_event_handler_del( mClientMessageHandler );
     }
   }
 
@@ -99,7 +101,7 @@ struct Window::EventHandler
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mClientMessagehandler;
+  Ecore_Event_Handler* mClientMessageHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
 
