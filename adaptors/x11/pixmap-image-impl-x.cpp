@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "native-image-source-impl.h"
+#include "pixmap-image-impl.h"
 
 // EXTERNAL INCLUDES
 #include <Ecore_X.h>
@@ -72,10 +72,10 @@ namespace
   };
 }
 
-NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+PixmapImage* PixmapImage::New(unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
 {
-  NativeImageSource* image = new NativeImageSource( width, height, depth, nativeImageSource );
-  DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
+  PixmapImage* image = new PixmapImage( width, height, depth, pixmap );
+  DALI_ASSERT_DEBUG( image && "PixmapImage allocation failed." );
 
   // 2nd phase construction
   if(image) //< Defensive in case we ever compile without exceptions.
@@ -86,7 +86,7 @@ NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int heigh
   return image;
 }
 
-NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+PixmapImage::PixmapImage( unsigned int width, unsigned int height, Dali::PixmapImage::ColorDepth depth, Any pixmap )
 : mWidth( width ),
   mHeight( height ),
   mOwnPixmap( true ),
@@ -102,10 +102,10 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   // assign the pixmap
-  mPixmap = GetPixmapFromAny(nativeImageSource);
+  mPixmap = GetPixmapFromAny(pixmap);
 }
 
-void NativeImageSource::Initialize()
+void PixmapImage::Initialize()
 {
   // if pixmap has been created outside of X11 Image we can return
   if (mPixmap)
@@ -132,7 +132,7 @@ void NativeImageSource::Initialize()
   ecore_x_sync();
 }
 
-NativeImageSource::~NativeImageSource()
+PixmapImage::~PixmapImage()
 {
   if (mOwnPixmap && mPixmap)
   {
@@ -140,13 +140,13 @@ NativeImageSource::~NativeImageSource()
   }
 }
 
-Any NativeImageSource::GetNativeImageSource() const
+Any PixmapImage::GetPixmap() const
 {
   // return ecore x11 type
   return Any(mPixmap);
 }
 
-bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool PixmapImage::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
   bool success = false;
@@ -248,7 +248,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   }
   if(!success)
   {
-    DALI_LOG_ERROR("Failed to get pixels from NativeImageSource.");
+    DALI_LOG_ERROR("Failed to get pixels from PixmapImage.");
     pixbuf.resize(0);
     width = 0;
     height = 0;
@@ -260,7 +260,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   return success;
 }
 
-bool NativeImageSource::EncodeToFile(const std::string& filename) const
+bool PixmapImage::EncodeToFile(const std::string& filename) const
 {
   std::vector< unsigned char > pixbuf;
   unsigned int width(0), height(0);
@@ -273,7 +273,7 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-bool NativeImageSource::GlExtensionCreate()
+bool PixmapImage::GlExtensionCreate()
 {
   // if the image existed previously delete it.
   if (mEglImageKHR != NULL)
@@ -290,42 +290,42 @@ bool NativeImageSource::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSource::GlExtensionDestroy()
+void PixmapImage::GlExtensionDestroy()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
 }
 
-unsigned int NativeImageSource::TargetTexture()
+unsigned int PixmapImage::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
-int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
+int PixmapImage::GetPixelDepth(Dali::PixmapImage::ColorDepth depth) const
 {
   switch (depth)
   {
-    case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
+    case Dali::PixmapImage::COLOR_DEPTH_DEFAULT:
     {
       // Get the default screen depth
       return ecore_x_default_depth_get(ecore_x_display_get(), ecore_x_default_screen_get());
     }
-    case Dali::NativeImageSource::COLOR_DEPTH_8:
+    case Dali::PixmapImage::COLOR_DEPTH_8:
     {
       return 8;
     }
-    case Dali::NativeImageSource::COLOR_DEPTH_16:
+    case Dali::PixmapImage::COLOR_DEPTH_16:
     {
       return 16;
     }
-    case Dali::NativeImageSource::COLOR_DEPTH_24:
+    case Dali::PixmapImage::COLOR_DEPTH_24:
     {
       return 24;
     }
-    case Dali::NativeImageSource::COLOR_DEPTH_32:
+    case Dali::PixmapImage::COLOR_DEPTH_32:
     {
       return 32;
     }
@@ -337,7 +337,7 @@ int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) 
   }
 }
 
-Ecore_X_Pixmap NativeImageSource::GetPixmapFromAny(Any pixmap) const
+Ecore_X_Pixmap PixmapImage::GetPixmapFromAny(Any pixmap) const
 {
   if (pixmap.Empty())
   {
@@ -359,7 +359,7 @@ Ecore_X_Pixmap NativeImageSource::GetPixmapFromAny(Any pixmap) const
   }
 }
 
-void NativeImageSource::GetPixmapDetails()
+void PixmapImage::GetPixmapDetails()
 {
   int x, y;
 

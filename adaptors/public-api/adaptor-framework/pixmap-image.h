@@ -1,5 +1,5 @@
-#ifndef __DALI_NATIVE_IMAGE_SOURCE_H__
-#define __DALI_NATIVE_IMAGE_SOURCE_H__
+#ifndef __DALI_PIXMAP_IMAGE_H__
+#define __DALI_PIXMAP_IMAGE_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -37,30 +37,30 @@ namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
-class NativeImageSource;
+class PixmapImage;
 }
 }
 
-class NativeImageSource;
+class PixmapImage;
 /**
- * @brief Pointer to Dali::NativeImageSource.
+ * @brief Pointer to Dali::PixmapImage.
  */
-typedef IntrusivePtr<NativeImageSource> NativeImageSourcePtr;
+typedef IntrusivePtr<PixmapImage> PixmapImagePtr;
 
 /**
- * @brief Used for displaying native images.
+ * @brief Used for displaying native Pixmap images.
  *
- * The native image source can be created internally or
+ * The native pixmap can be created internally or
  * externally by X11 or ECORE-X11.
  *
  * @since DALi 1.1.4
  */
-class DALI_IMPORT_API NativeImageSource : public NativeImageInterface
+class DALI_IMPORT_API PixmapImage : public NativeImageInterface
 {
 public:
 
    /**
-    * @brief When creating a native image the color depth has to be specified.
+    * @brief When creating a pixmap the color depth has to be specified.
     */
    enum ColorDepth
    {
@@ -72,33 +72,33 @@ public:
    };
 
   /**
-   * @brief Create a new NativeImageSource.
+   * @brief Create a new PixmapImage.
    *
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
+   * @param[in] depth color depth of the pixmap
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourcePtr New( unsigned int width, unsigned int height, ColorDepth depth );
+  static PixmapImagePtr New( unsigned int width, unsigned int height, ColorDepth depth );
 
   /**
-   * @brief Create a new NativeImageSource from an existing native image.
+   * @brief Create a new PixmapImage from an existing pixmap.
    *
-   * @param[in] nativeImageSource must be a X11 pixmap or a Ecore_X_Pixmap
+   * @param[in] pixmap must be a X11 pixmap or a Ecore_X_Pixmap
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourcePtr New( Any nativeImageSource );
+  static PixmapImagePtr New( Any pixmap );
 
   /**
-   * @brief Retrieve the internal native image.
+   * @brief Retrieve the internal pixmap
    *
-   * @return Any object containing the internal native image.
+   * @return pixmap any object containing the internal pixmap
    */
-  Any GetNativeImageSource();
+  Any GetPixmap();
 
   /**
-   * @brief Get a copy of the pixels used by NativeImageSource.
+   * @brief Get a copy of the pixels used by PixmapImage.
    *
    * This is only supported for 24 bit RGB and 32 bit RGBA internal formats
    * (COLOR_DEPTH_24 and COLOR_DEPTH_32).
@@ -164,25 +164,25 @@ private:
    * @brief Private constructor
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
-   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] depth color depth of the pixmap
+   * @param[in] pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  DALI_INTERNAL NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource );
+  DALI_INTERNAL PixmapImage( unsigned int width, unsigned int height, ColorDepth depth, Any pixmap );
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
    *
    * The implementation should destroy the NativeImage resources.
    */
-  DALI_INTERNAL virtual ~NativeImageSource();
+  DALI_INTERNAL virtual ~PixmapImage();
 
   /**
    * @brief Undefined copy constructor
    *
    * This avoids accidental calls to a default copy constructor.
-   * @param[in] nativeImageSource A reference to the object to copy.
+   * @param[in] pixmapImage A reference to the object to copy.
    */
-  DALI_INTERNAL NativeImageSource( const NativeImageSource& nativeImageSource );
+  DALI_INTERNAL PixmapImage( const PixmapImage& pixmapImage );
 
   /**
    * @brief Undefined assignment operator.
@@ -190,11 +190,11 @@ private:
    * This avoids accidental calls to a default assignment operator.
    * @param[in] rhs A reference to the object to copy.
    */
-  DALI_INTERNAL NativeImageSource& operator=(const NativeImageSource& rhs);
+  DALI_INTERNAL PixmapImage& operator=(const PixmapImage& rhs);
 
 private:
 
-  Internal::Adaptor::NativeImageSource* mImpl; ///< Implementation pointer
+  Internal::Adaptor::PixmapImage* mImpl; ///< Implementation pointer
 };
 
 /**
@@ -202,4 +202,4 @@ private:
  */
 } // namespace Dali
 
-#endif // __DALI_NATIVE_IMAGE_SOURCE_H__
+#endif // __DALI_PIXMAP_IMAGE_H__

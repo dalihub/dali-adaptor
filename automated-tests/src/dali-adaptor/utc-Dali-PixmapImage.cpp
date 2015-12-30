@@ -23,24 +23,24 @@
 using namespace Dali;
 
 
-void utc_dali_native_image_source_startup(void)
+void utc_dali_pixmap_image_startup(void)
 {
   test_return_value = TET_UNDEF;
 }
 
-void utc_dali_native_image_source_cleanup(void)
+void utc_dali_pixmap_image_cleanup(void)
 {
   test_return_value = TET_PASS;
 }
 
-int UtcDaliNativeImageSourceNewN(void)
+int UtcDaliPixmapImageNewN(void)
 {
   unsigned int width = 256u;
   unsigned int heigth = 256u;
 
   try
   {
-    NativeImageSourcePtr nativeImageSource = NativeImageSource::New(width, heigth, NativeImageSource::COLOR_DEPTH_DEFAULT );
+    PixmapImagePtr pixmapImage = PixmapImage::New(width, heigth, PixmapImage::COLOR_DEPTH_DEFAULT );
   }
   catch(Dali::DaliException& e)
   {

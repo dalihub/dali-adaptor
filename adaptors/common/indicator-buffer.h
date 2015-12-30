@@ -40,7 +40,7 @@ typedef IntrusivePtr<IndicatorBuffer> IndicatorBufferPtr;
 
 /**
  * The IndicatorBuffer class uses the best available implementation for rendering indicator data.
- * On platforms where EglImage is available it uses either SharedGlBuffer or NativeImageSource, on older
+ * On platforms where EglImage is available it uses either SharedGlBuffer or PixmapImage, on older
  * platforms it falls back to using a bitmap buffer based solution.
  */
 class IndicatorBuffer : public RefObject

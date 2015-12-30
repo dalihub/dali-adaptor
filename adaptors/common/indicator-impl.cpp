@@ -41,7 +41,7 @@
 // INTERNAL INCLUDES
 #include <adaptor-impl.h>
 #include <accessibility-adaptor-impl.h>
-#include <native-image-source.h>
+#include <pixmap-image.h>
 
 using Dali::Vector4;
 
@@ -931,11 +931,11 @@ bool Indicator::CopyToBuffer( int bufferNumber )
 void Indicator::CreateNewPixmapImage()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mImageWidth, mImageHeight );
-  Dali::NativeImageSourcePtr nativeImageSource = Dali::NativeImageSource::New( mPixmap );
+  Dali::PixmapImagePtr pixmapImage = Dali::PixmapImage::New( mPixmap );
 
-  if( nativeImageSource )
+  if( pixmapImage )
   {
-    mIndicatorImageActor.SetImage( Dali::NativeImage::New(*nativeImageSource) );
+    mIndicatorImageActor.SetImage( Dali::NativeImage::New(*pixmapImage) );
     mIndicatorImageActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
