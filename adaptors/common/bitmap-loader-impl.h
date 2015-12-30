@@ -23,7 +23,6 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/integration-api/resource-types.h>
 
 // INTERNAL INCLUDES
 #include <bitmap-loader.h>
@@ -36,24 +35,12 @@ namespace Internal
 class BitmapLoader : public BaseObject
 {
 public:
-
-  /**
-   * @copydoc Dali::BitmapLoader::New
-   */
-  static IntrusivePtr<BitmapLoader> New( const std::string& url,
-                                         ImageDimensions size,
-                                         FittingMode::Type fittingMode,
-                                         SamplingMode::Type samplingMode,
-                                         bool orientationCorrection);
+  static IntrusivePtr<BitmapLoader> New(const std::string& filename);
 
   /**
    * Create the bitmap loader object.
    */
-   BitmapLoader(const std::string& url,
-               ImageDimensions size,
-               FittingMode::Type fittingMode,
-               SamplingMode::Type samplingMode,
-               bool orientationCorrection);
+  BitmapLoader();
 
 protected:
   /**
@@ -61,17 +48,13 @@ protected:
    */
   ~BitmapLoader();
 
+  /**
+   * Second stage initialization - this will load the image synchronously.
+   * @param[in] filename  Filename of the bitmap image to load.
+   */
+  void Initialize(const std::string& filename);
+
 public:
-
-  /**
-   * @copydoc Dali::BitmapLoader::Load
-   */
-  void Load();
-
-  /**
-   * @copydoc Dali::BitmapLoader::IsLoaded
-   */
-  bool IsLoaded();
 
   /**
    * Get the raw pixel data.
@@ -93,15 +76,18 @@ public:
   unsigned int GetImageWidth() const;
 
   /**
+   * Get the number of bytes in each row of pixels
+   * @return The buffer stride in bytes.
+   */
+  unsigned int GetBufferStride() const;
+
+  /**
    * Get the pixel format of the loaded bitmap.
    */
   Pixel::Format GetPixelFormat() const;
 
 private:
-  Integration::BitmapResourceType mResourceType;
   Integration::BitmapPtr mBitmap;
-  const std::string mUrl;
-  bool mIsLoaded;
 };
 
 } // Internal

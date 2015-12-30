@@ -17,6 +17,9 @@
 // EXTERNAL INCLUDES
 #include <string>
 
+#include <dali/integration-api/resource-types.h>
+#include <dali/integration-api/resource-cache.h>
+
 // INTERNAL INCLUDES
 #include "bitmap-loader-impl.h"
 #include "image-loaders/image-loader.h"
@@ -26,25 +29,15 @@ namespace Dali
 namespace Internal
 {
 
-IntrusivePtr<BitmapLoader> BitmapLoader::New(const std::string& url,
-                                             ImageDimensions size,
-                                             FittingMode::Type fittingMode,
-                                             SamplingMode::Type samplingMode,
-                                             bool orientationCorrection)
+IntrusivePtr<BitmapLoader> BitmapLoader::New(const std::string& filename)
 {
-  IntrusivePtr<BitmapLoader> internal = new BitmapLoader( url, size, fittingMode, samplingMode, orientationCorrection );
+  IntrusivePtr<BitmapLoader> internal = new BitmapLoader();
+  internal->Initialize(filename);
   return internal;
 }
 
-BitmapLoader::BitmapLoader(const std::string& url,
-             ImageDimensions size,
-             FittingMode::Type fittingMode,
-             SamplingMode::Type samplingMode,
-             bool orientationCorrection)
-: mResourceType( size, fittingMode, samplingMode, orientationCorrection ),
-  mBitmap(NULL),
-  mUrl(url),
-  mIsLoaded( false )
+BitmapLoader::BitmapLoader()
+: mBitmap(NULL)
 {
 }
 
@@ -52,57 +45,38 @@ BitmapLoader::~BitmapLoader()
 {
 }
 
-void BitmapLoader::Load()
+void BitmapLoader::Initialize(const std::string& filename)
 {
-  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( mResourceType, mUrl );
+  // Load with default scaling and orientation correction:
+  Integration::BitmapResourceType bitmapResourceType;
+  Integration::ResourcePointer resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( bitmapResourceType, filename );
 
   mBitmap = static_cast<Integration::Bitmap*>(resource.Get());
-  mIsLoaded = true;
-}
-
-bool BitmapLoader::IsLoaded()
-{
-  return mIsLoaded;
 }
 
 unsigned char* BitmapLoader::GetPixelData() const
 {
-  if( mIsLoaded )
-  {
-    return mBitmap->GetBuffer();
-  }
-
-  return NULL;
+  return mBitmap->GetBuffer();
 }
 
 unsigned int BitmapLoader::GetImageHeight() const
 {
-  if( mIsLoaded )
-  {
-    return mBitmap->GetImageHeight();
-  }
-
-  return 0u;
+  return mBitmap->GetImageHeight();
 }
 
 unsigned int BitmapLoader::GetImageWidth() const
 {
-  if( mIsLoaded )
-  {
-    return mBitmap->GetImageWidth();
-  }
+  return mBitmap->GetImageWidth();
+}
 
-  return 0u;
+unsigned int BitmapLoader::GetBufferStride() const
+{
+  return mBitmap->GetPackedPixelsProfile()->GetBufferStride();
 }
 
 Pixel::Format BitmapLoader::GetPixelFormat() const
 {
-  if( mIsLoaded )
-  {
-    return mBitmap->GetPixelFormat();
-  }
-
-  return Pixel::RGBA8888;
+  return mBitmap->GetPixelFormat();
 }
 
 } // namespace Internal
