@@ -229,7 +229,7 @@ PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
-PKG_CHECK_MODULES(OPENGLES20, gles20)
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
 fi
 
 if test "x$enable_profile" = "xTV"; then
