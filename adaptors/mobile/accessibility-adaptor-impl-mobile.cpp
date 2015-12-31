@@ -20,7 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <vconf.h>
+
+#ifndef WAYLAND
 #include <Ecore_X.h>
+#endif
+
 #include <Elementary.h>
 #include <vconf.h>
 
@@ -33,7 +37,9 @@
 #include <singleton-service-impl.h>
 #include "system-settings.h"
 
+#ifndef WAYLAND
 #define MSG_DOMAIN_CONTROL_ACCESS (int)ECORE_X_ATOM_E_ILLUME_ACCESS_CONTROL
+#endif
 
 namespace Dali
 {
@@ -153,6 +159,7 @@ bool AccessibilityAdaptorMobile::HandleActionNextEvent(bool allowEndFeedback)
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -161,6 +168,9 @@ bool AccessibilityAdaptorMobile::HandleActionNextEvent(bool allowEndFeedback)
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionNext(allowEndFeedback);
   }
@@ -174,6 +184,7 @@ bool AccessibilityAdaptorMobile::HandleActionPreviousEvent(bool allowEndFeedback
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -182,6 +193,9 @@ bool AccessibilityAdaptorMobile::HandleActionPreviousEvent(bool allowEndFeedback
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionPrevious(allowEndFeedback);
   }
@@ -195,6 +209,7 @@ bool AccessibilityAdaptorMobile::HandleActionActivateEvent()
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -203,6 +218,9 @@ bool AccessibilityAdaptorMobile::HandleActionActivateEvent()
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionActivate();
   }
@@ -255,12 +273,14 @@ bool AccessibilityAdaptorMobile::HandleActionReadEvent(unsigned int x, unsigned 
     }
     else if( mIndicatorFocused && !indicatorFocused )
     {
+#ifndef WAYLAND
       Elm_Access_Action_Info actionInfo;
       actionInfo.action_type = ELM_ACCESS_ACTION_UNHIGHLIGHT;
 
       // Indicator should be unhighlighted
       ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
       DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] Send unhighlight message to indicator!!!!\n", __FUNCTION__, __LINE__);
+#endif
     }
 
     mIndicatorFocused = indicatorFocused;
@@ -268,6 +288,7 @@ bool AccessibilityAdaptorMobile::HandleActionReadEvent(unsigned int x, unsigned 
     // Send accessibility READ action information to Indicator
     if( mIndicatorFocused )
     {
+#ifndef WAYLAND
       Elm_Access_Action_Info actionInfo;
       actionInfo.x = mReadPosition.x;
       actionInfo.y = mReadPosition.y;
@@ -284,6 +305,7 @@ bool AccessibilityAdaptorMobile::HandleActionReadEvent(unsigned int x, unsigned 
       ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
 
       DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] Send READ message to indicator!!!!\n", __FUNCTION__, __LINE__);
+#endif
     }
   }
 
@@ -302,6 +324,7 @@ bool AccessibilityAdaptorMobile::HandleActionReadNextEvent(bool allowEndFeedback
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -310,6 +333,9 @@ bool AccessibilityAdaptorMobile::HandleActionReadNextEvent(bool allowEndFeedback
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionReadNext(allowEndFeedback);
   }
@@ -323,6 +349,7 @@ bool AccessibilityAdaptorMobile::HandleActionReadPreviousEvent(bool allowEndFeed
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -331,6 +358,9 @@ bool AccessibilityAdaptorMobile::HandleActionReadPreviousEvent(bool allowEndFeed
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionReadPrevious(allowEndFeedback);
   }
@@ -344,6 +374,7 @@ bool AccessibilityAdaptorMobile::HandleActionUpEvent()
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -352,6 +383,9 @@ bool AccessibilityAdaptorMobile::HandleActionUpEvent()
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionUp();
   }
@@ -365,6 +399,7 @@ bool AccessibilityAdaptorMobile::HandleActionDownEvent()
 {
   bool ret = false;
 
+#ifndef WAYLAND
   if( mIndicator && mIndicatorFocused )
   {
     Elm_Access_Action_Info actionInfo;
@@ -373,6 +408,9 @@ bool AccessibilityAdaptorMobile::HandleActionDownEvent()
     ret = mIndicator->SendMessage(MSG_DOMAIN_CONTROL_ACCESS, actionInfo.action_type, &actionInfo, sizeof(actionInfo));
   }
   else if( mActionHandler )
+#else
+  if( mActionHandler )
+#endif
   {
     ret = mActionHandler->AccessibilityActionDown();
   }
