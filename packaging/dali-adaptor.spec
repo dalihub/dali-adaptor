@@ -77,7 +77,6 @@ BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
 
 BuildRequires:  fribidi-devel
-BuildRequires:  pkgconfig(tpkp-curl)
 
 
 %if 0%{?tizen_2_2_compatibility} != 1
