@@ -324,7 +324,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(TTS_CFLAGS) \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
-                      $(LIBCURL_CFLAGS)
+                      $(LIBCURL_CFLAGS) \
+                      $(TPKP_CURL_CFLAGS)
 
 # Todo, as soon as common repos are updated on build server remove this.
 if !COMMON_PROFILE
@@ -347,6 +348,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBEXIF_LIBS) \
                       $(LIBCURL_LIBS) \
                       $(HARFBUZZ_LIBS) \
+                      $(TPKP_CURL_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg
@@ -424,9 +426,6 @@ endif
 if UBUNTU_PROFILE
 libdali_adaptor_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
-else
-libdali_adaptor_la_CXXFLAGS += $(TPKP_CURL_CFLAGS)
-libdali_adaptor_la_LIBADD += $(TPKP_CURL_LIBS)
 endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api

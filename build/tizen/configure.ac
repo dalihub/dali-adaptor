@@ -78,6 +78,11 @@ if test "x$eldbus_available" = "xyes"; then
 fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
+PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
+
+if test "x$tpkp_curl_available" = "xyes"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
+fi
 
 AC_ARG_ENABLE([feedback],
               [AC_HELP_STRING([ --enable-feedback],
@@ -246,8 +251,6 @@ PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
-PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl)
-
 if test "x$enable_efl" = "xyes"; then
 if test "x$with_tizen_2_2_compatibility" = "xno"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
