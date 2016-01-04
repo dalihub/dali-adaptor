@@ -33,7 +33,7 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 0
+%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
