@@ -1,0 +1,16 @@
+# wayland
+
+adaptor_wayland_tizen_internal_src_files = \
+  $(adaptor_wayland_dir)/wayland-window.cpp \
+  $(adaptor_wayland_dir)/window-impl-wl.cpp \
+  $(adaptor_wayland_dir)/display-connection-impl-wl.cpp \
+  $(adaptor_wayland_dir)/wayland-manager.cpp \
+  $(adaptor_wayland_dir)/input-manager.cpp \
+  $(adaptor_wayland_dir)/event-handler-wl.cpp \
+  $(adaptor_wayland_dir)/input/input-listeners.cpp \
+  $(adaptor_wayland_dir)/input/seat.cpp \
+  $(adaptor_wayland_dir)/input/key-mapping-wl.cpp \
+  $(adaptor_wayland_dir)/render-surface/render-surface-wl.cpp \
+  $(adaptor_wayland_dir)/clipboard/clipboard-impl-wl.cpp \
+  $(adaptor_wayland_dir)/imf/imf-manager-impl-wl.cpp \
+  $(adaptor_wayland_dir)/native-image/native-image-source-impl-wl.cpp

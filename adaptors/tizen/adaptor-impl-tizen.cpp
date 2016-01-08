@@ -19,7 +19,7 @@
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#ifndef TIZEN_SDK_2_2_COMPATIBILITY
+#ifdef  USE_APPFW
 #include <app.h>
 #endif
 
@@ -34,9 +34,7 @@ namespace Adaptor
 
 void Adaptor::GetDataStoragePath( std::string& path)
 {
-#ifdef TIZEN_SDK_2_2_COMPATIBILITY
-  path = "";
-#else
+#ifdef USE_APPFW
   char *pathInt = app_get_data_path();
   if ( pathInt )
   {
@@ -48,6 +46,7 @@ void Adaptor::GetDataStoragePath( std::string& path)
     path = "";
   }
 #endif
+
 }
 
 } // namespace Adaptor

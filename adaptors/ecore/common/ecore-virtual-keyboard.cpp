@@ -134,11 +134,15 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
 void Show()
 {
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) to show the keyboard
-  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
-  if( imfContext )
+  if( imfManager )
   {
-    ecore_imf_context_input_panel_show( imfContext );
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
+
+    if( imfContext )
+    {
+      ecore_imf_context_input_panel_show( imfContext );
+    }
   }
 }
 
@@ -205,11 +209,15 @@ void ApplySettings( const Property::Map& settingsMap )
 void EnablePrediction(const bool enable)
 {
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when enabling prediction
-  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
-  if ( imfContext )
+  if( imfManager )
   {
-    ecore_imf_context_prediction_allow_set( imfContext, (enable)? EINA_TRUE : EINA_FALSE);
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
+
+    if ( imfContext )
+    {
+      ecore_imf_context_prediction_allow_set( imfContext, (enable)? EINA_TRUE : EINA_FALSE);
+    }
   }
 }
 
@@ -239,16 +247,20 @@ Rect<int> GetSizeAndPosition()
 
   width = height = xPos = yPos = 0;
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) as we may need to do some size related setup in the application
-  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
-  if( imfContext )
+  if( imfManager )
   {
-    ecore_imf_context_input_panel_geometry_get(imfContext, &xPos, &yPos, &width, &height);
-  }
-  else
-  {
-    DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
+    Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
+
+    if( imfContext )
+    {
+      ecore_imf_context_input_panel_geometry_get(imfContext, &xPos, &yPos, &width, &height);
+    }
+    else
+    {
+      DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
     // return 0 as real size unknown.
+    }
   }
 
   return Rect<int>(xPos,yPos,width,height);
