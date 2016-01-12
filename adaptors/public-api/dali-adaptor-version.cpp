@@ -39,7 +39,7 @@ struct PrintVersion
 {
   PrintVersion()
   {
-    std::cout << "DALi Adaptor:   " << ADAPTOR_MAJOR_VERSION << "." << ADAPTOR_MINOR_VERSION << "." << ADAPTOR_MICRO_VERSION << " (" << ADAPTOR_BUILD_DATE << ")" << std::endl;
+    std::cerr << "DALi Adaptor:   " << ADAPTOR_MAJOR_VERSION << "." << ADAPTOR_MINOR_VERSION << "." << ADAPTOR_MICRO_VERSION << " (" << ADAPTOR_BUILD_DATE << ")" << std::endl;
   }
 };
 PrintVersion ADAPTOR_VERSION;
