@@ -351,7 +351,8 @@ libdali_adaptor_la_LIBADD = \
                       $(TPKP_CURL_LIBS) \
                       -lgif \
                       -lpthread \
-                      -lturbojpeg
+                      -lturbojpeg \
+                      -ljpeg
 
 if USE_EFL
 # EVAS used indicator
