@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,13 @@ const char* const VALID_IMAGES[] = {
   TEST_IMAGE_DIR "/frac.24.bmp",
   TEST_IMAGE_DIR "/frac.png",
   TEST_IMAGE_DIR "/interlaced.gif",
-  TEST_IMAGE_DIR "/pattern.gif"
+  TEST_IMAGE_DIR "/pattern.gif",
+  TEST_IMAGE_DIR "/fractal-compressed-ETC1_RGB8_OES-45x80.ktx",
+  TEST_IMAGE_DIR "/fractal-compressed-RGBA_ASTC_4x4_KHR-32x64.astc",
+  TEST_IMAGE_DIR "/test-image-4x4-32bpp.ico",
+  TEST_IMAGE_DIR "/test-image.wbmp"
 };
 const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0]);
-
-///@ToDo: Add valid ktx, ico, and wbmp image examples.
 
 /** Returns elapsed milliseconds. */
 double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
