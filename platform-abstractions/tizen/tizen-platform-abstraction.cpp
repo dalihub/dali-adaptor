@@ -43,11 +43,6 @@ Integration::PlatformAbstraction* CreatePlatformAbstraction()
 namespace TizenPlatform
 {
 
-namespace
-{
-const unsigned int NANOSECS_TO_MICROSECS( 1000 );               ///< 1000 nanoseconds = 1 microsecond
-}
-
 TizenPlatformAbstraction::TizenPlatformAbstraction()
 : mResourceLoader(new ResourceLoader),
   mDataStoragePath( "" )
@@ -57,14 +52,6 @@ TizenPlatformAbstraction::TizenPlatformAbstraction()
 TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
   delete mResourceLoader;
-}
-
-void TizenPlatformAbstraction::GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds)
-{
-  timespec time;
-  clock_gettime(CLOCK_MONOTONIC, &time);
-  seconds = time.tv_sec;
-  microSeconds = time.tv_nsec / NANOSECS_TO_MICROSECS;
 }
 
 void TizenPlatformAbstraction::Suspend()

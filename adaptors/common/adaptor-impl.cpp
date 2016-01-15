@@ -29,9 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <base/thread-controller.h>
-#if defined(NETWORK_LOGGING_ENABLED)
 #  include <base/performance-logging/performance-interface-factory.h>
-#endif
 #include <base/lifecycle-observer.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -114,12 +112,10 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
   // files automatically.
 
-#if defined(NETWORK_LOGGING_ENABLED)
   if( mEnvironmentOptions->PerformanceServerRequired() )
   {
     mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
   }
-#endif
 
   mCallbackManager = CallbackManager::New();
 
@@ -762,12 +758,13 @@ void Adaptor::ProcessCoreEventsFromIdle()
 Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions)
 : mResizedSignal(),
   mLanguageChangedSignal(),
-  mAdaptor(adaptor),
-  mState(READY),
-  mCore(NULL),
-  mThreadController(NULL),
-  mVSyncMonitor(NULL),
+  mAdaptor( adaptor ),
+  mState( READY ),
+  mCore( NULL ),
+  mThreadController( NULL ),
+  mVSyncMonitor( NULL ),
   mGLES( NULL ),
+  mGlSync( NULL ),
   mEglFactory( NULL ),
   mNativeWindow( nativeWindow ),
   mSurface( surface ),
@@ -775,14 +772,21 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mEventHandler( NULL ),
   mCallbackManager( NULL ),
   mNotificationOnIdleInstalled( false ),
-  mNotificationTrigger(NULL),
-  mGestureManager(NULL),
+  mNotificationTrigger( NULL ),
+  mGestureManager( NULL ),
+  mDaliFeedbackPlugin(),
+  mFeedbackController( NULL ),
+  mTtsPlayers(),
   mObservers(),
   mDragAndDropDetector(),
-  mDeferredRotationObserver(NULL),
+  mDeferredRotationObserver( NULL ),
   mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
-  mPerformanceInterface(NULL),
-  mObjectProfiler(NULL),
+  mPerformanceInterface( NULL ),
+  mKernelTracer(),
+  mSystemTracer(),
+  mTriggerEventFactory(),
+  mObjectProfiler( NULL ),
+  mSocketFactory(),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );

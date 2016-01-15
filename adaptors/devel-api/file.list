@@ -6,7 +6,9 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.cpp \
@@ -31,7 +33,9 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.h \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.h \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.h \

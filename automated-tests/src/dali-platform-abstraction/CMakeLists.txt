@@ -6,9 +6,10 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-platform-abstraction")
 
 SET(TC_SOURCES
-    utc-image-loading-load-completion.cpp
+    utc-image-fitting-modes.cpp
     utc-image-loading-cancel-all-loads.cpp
     utc-image-loading-cancel-some-loads.cpp
+    utc-image-loading-load-completion.cpp
 )
 
 LIST(APPEND TC_SOURCES
@@ -24,7 +25,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type" )
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror" )
 
 # Shouldn't have to do this!
 # But CMake's new auto-escape quote policy doesn't work right.

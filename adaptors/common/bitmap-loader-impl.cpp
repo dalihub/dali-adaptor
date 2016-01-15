@@ -17,9 +17,6 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-#include <dali/integration-api/resource-types.h>
-#include <dali/integration-api/resource-cache.h>
-
 // INTERNAL INCLUDES
 #include "bitmap-loader-impl.h"
 #include "image-loaders/image-loader.h"
@@ -29,15 +26,24 @@ namespace Dali
 namespace Internal
 {
 
-IntrusivePtr<BitmapLoader> BitmapLoader::New(const std::string& filename)
+IntrusivePtr<BitmapLoader> BitmapLoader::New(const std::string& url,
+                                             ImageDimensions size,
+                                             FittingMode::Type fittingMode,
+                                             SamplingMode::Type samplingMode,
+                                             bool orientationCorrection)
 {
-  IntrusivePtr<BitmapLoader> internal = new BitmapLoader();
-  internal->Initialize(filename);
+  IntrusivePtr<BitmapLoader> internal = new BitmapLoader( url, size, fittingMode, samplingMode, orientationCorrection );
   return internal;
 }
 
-BitmapLoader::BitmapLoader()
-: mBitmap(NULL)
+BitmapLoader::BitmapLoader(const std::string& url,
+                           ImageDimensions size,
+                           FittingMode::Type fittingMode,
+                           SamplingMode::Type samplingMode,
+                           bool orientationCorrection)
+: mResourceType( size, fittingMode, samplingMode, orientationCorrection ),
+  mPixelData(),
+  mUrl(url)
 {
 }
 
@@ -45,38 +51,37 @@ BitmapLoader::~BitmapLoader()
 {
 }
 
-void BitmapLoader::Initialize(const std::string& filename)
+void BitmapLoader::Load()
 {
-  // Load with default scaling and orientation correction:
-  Integration::BitmapResourceType bitmapResourceType;
-  Integration::ResourcePointer resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( bitmapResourceType, filename );
+  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( mResourceType, mUrl );
 
-  mBitmap = static_cast<Integration::Bitmap*>(resource.Get());
+  if( resource )
+  {
+    Integration::Bitmap* bitmap = static_cast<Integration::Bitmap*>(resource.Get());
+
+    // Use bitmap->GetBufferOwnership() to transfer the buffer ownership to pixelData.
+    // The destroy of bitmap will not release the buffer, instead, the pixelData is responsible for releasing when its reference count falls to zero.
+    mPixelData = PixelData::New( bitmap->GetBufferOwnership(),
+                                 bitmap->GetImageWidth(),
+                                 bitmap->GetImageHeight(),
+                                 bitmap->GetPixelFormat(),
+                                 PixelData::FREE);
+  }
 }
 
-unsigned char* BitmapLoader::GetPixelData() const
+bool BitmapLoader::IsLoaded()
 {
-  return mBitmap->GetBuffer();
+  return mPixelData ? true : false ;
 }
 
-unsigned int BitmapLoader::GetImageHeight() const
+const std::string& BitmapLoader::GetUrl() const
 {
-  return mBitmap->GetImageHeight();
+  return mUrl;
 }
 
-unsigned int BitmapLoader::GetImageWidth() const
+PixelDataPtr BitmapLoader::GetPixelData() const
 {
-  return mBitmap->GetImageWidth();
-}
-
-unsigned int BitmapLoader::GetBufferStride() const
-{
-  return mBitmap->GetPackedPixelsProfile()->GetBufferStride();
-}
-
-Pixel::Format BitmapLoader::GetPixelFormat() const
-{
-  return mBitmap->GetPixelFormat();
+  return mPixelData;
 }
 
 } // namespace Internal

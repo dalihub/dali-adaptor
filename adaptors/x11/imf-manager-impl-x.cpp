@@ -29,6 +29,7 @@
 #include <adaptor-impl.h>
 #include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
+#include "ecore-virtual-keyboard.h"
 
 namespace Dali
 {
@@ -41,7 +42,6 @@ namespace Adaptor
 
 namespace
 {
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_IMF_MANAGER");
 #endif
@@ -184,10 +184,9 @@ Dali::ImfManager ImfManager::Get()
 ImfManager::ImfManager( Ecore_X_Window ecoreXwin )
 : mIMFContext(),
   mIMFCursorPosition( 0 ),
-  mSurroundingText(""),
+  mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false ),
-  mKeyEvents()
+  mIdleCallbackConnected( false )
 {
   ecore_imf_init();
   CreateContext( ecoreXwin );
@@ -334,16 +333,16 @@ void ImfManager::SetRestoreAfterFocusLost( bool toggle )
  * We are still predicting what the user is typing.  The latest string is what the IMF module thinks
  * the user wants to type.
  */
-void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *event_info )
+void ImfManager::PreEditChanged( void*, Ecore_IMF_Context* imfContext, void* event_info )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::PreEditChanged\n" );
 
-  char *preEditString( NULL );
+  char* preEditString( NULL );
   int cursorPosition( 0 );
-  Eina_List *attrs = NULL;
-  Eina_List *l = NULL;
+  Eina_List* attrs = NULL;
+  Eina_List* l = NULL;
 
-  Ecore_IMF_Preedit_Attr *attr;
+  Ecore_IMF_Preedit_Attr* attr;
 
   // Retrieves attributes as well as the string the cursor position offset from start of pre-edit string.
   // the attributes (attrs) is used in languages that use the soft arrows keys to insert characters into a current pre-edit string.
@@ -352,7 +351,7 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
   if ( attrs )
   {
     // iterate through the list of attributes getting the type, start and end position.
-    for ( l = attrs, (attr =  (Ecore_IMF_Preedit_Attr*)eina_list_data_get(l) ); l; l = eina_list_next(l), ( attr = (Ecore_IMF_Preedit_Attr*)eina_list_data_get(l) ))
+    for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
 #ifdef DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
@@ -366,10 +365,11 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
         size_t byteIndex = 0;
 
         // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
-        while ( preEditString[byteIndex] != '\0' )
+        const char leadByte = preEditString[byteIndex];
+        while( leadByte != '\0' )
         {
           // attr->end_index is provided as a byte position not character and we need to know the character position.
-          size_t currentSequenceLength = Utf8SequenceLength(preEditString[byteIndex]); // returns number of bytes used to represent character.
+          const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
           if ( byteIndex == attr->end_index )
           {
             cursorPosition = visualCharacterIndex;
@@ -390,11 +390,8 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
 
   if ( Dali::Adaptor::IsAvailable() )
   {
-    std::string keyString ( preEditString );
-    int numberOfChars( 0 );
-
     Dali::ImfManager handle( this );
-    Dali::ImfManager::ImfEventData imfEventData ( Dali::ImfManager::PREEDIT, keyString, cursorPosition, numberOfChars );
+    Dali::ImfManager::ImfEventData imfEventData( Dali::ImfManager::PREEDIT, preEditString, cursorPosition, 0 );
     Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfEventData );
 
     if ( callbackData.update )
@@ -413,21 +410,19 @@ void ImfManager::PreEditChanged( void *, Ecore_IMF_Context *imfContext, void *ev
   free( preEditString );
 }
 
-void ImfManager::CommitReceived( void *, Ecore_IMF_Context *imfContext, void *event_info )
+void ImfManager::CommitReceived( void*, Ecore_IMF_Context* imfContext, void* event_info )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::CommitReceived\n" );
 
   if ( Dali::Adaptor::IsAvailable() )
   {
-    const std::string keyString( (char *)event_info );
-    const int cursorOffset( 0 );
-    const int numberOfChars( 0 );
+    const std::string keyString( static_cast<char*>( event_info ) );
 
     Dali::ImfManager handle( this );
-    Dali::ImfManager::ImfEventData imfEventData ( Dali::ImfManager::COMMIT, keyString, cursorOffset, numberOfChars );
+    Dali::ImfManager::ImfEventData imfEventData( Dali::ImfManager::COMMIT, keyString, 0, 0 );
     Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfEventData );
 
-    if ( callbackData.update )
+    if( callbackData.update )
     {
       SetCursorPosition( callbackData.cursorPosition );
       SetSurroundingText( callbackData.currentText );
@@ -442,37 +437,23 @@ void ImfManager::CommitReceived( void *, Ecore_IMF_Context *imfContext, void *ev
  * Here the IMF module wishes to know the string we are working with and where within the string the cursor is
  * We need to signal the application to tell us this information.
  */
-Eina_Bool ImfManager::RetrieveSurrounding( void *data, Ecore_IMF_Context *imfContext, char** text, int* cursorPosition )
+Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfContext, char** text, int* cursorPosition )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::RetrieveSurrounding\n" );
 
-  std::string keyString ( "" );
-  int cursorOffset( 0 );
-  int numberOfChars( 0 );
-
-  Dali::ImfManager::ImfEventData imfData ( Dali::ImfManager::GETSURROUNDING , keyString, cursorOffset, numberOfChars );
+  Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
   mEventSignal.Emit( handle, imfData );
 
-  if ( text )
+  if( text )
   {
-    std::string surroundingText( GetSurroundingText() );
-
-    if ( !surroundingText.empty() )
-    {
-      *text = strdup( surroundingText.c_str() );
-    }
-    else
-    {
-      *text = strdup( "" );
-    }
+    *text = strdup( mSurroundingText.c_str() );
   }
 
-  if ( cursorPosition )
+  if( cursorPosition )
   {
-    *cursorPosition = GetCursorPosition();
+    *cursorPosition = mIMFCursorPosition;
   }
-
 
   return EINA_TRUE;
 }
@@ -481,19 +462,15 @@ Eina_Bool ImfManager::RetrieveSurrounding( void *data, Ecore_IMF_Context *imfCon
  * Called when an IMF delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void ImfManager::DeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void ImfManager::DeleteSurrounding( void* data, Ecore_IMF_Context* imfContext, void* event_info )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::DeleteSurrounding\n" );
 
-  if ( Dali::Adaptor::IsAvailable() )
+  if( Dali::Adaptor::IsAvailable() )
   {
-    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = (Ecore_IMF_Event_Delete_Surrounding*) event_info;
+    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( event_info );
 
-    const std::string keyString( "" );
-    const int cursorOffset( deleteSurroundingEvent->offset );
-    const int numberOfChars( deleteSurroundingEvent->n_chars );
-
-    Dali::ImfManager::ImfEventData imfData ( Dali::ImfManager::DELETESURROUNDING , keyString, cursorOffset, numberOfChars );
+    Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::DELETESURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars );
     Dali::ImfManager handle( this );
     mEventSignal.Emit( handle, imfData );
   }
@@ -503,34 +480,34 @@ void ImfManager::NotifyCursorPosition()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::NotifyCursorPosition\n" );
 
-  if ( mIMFContext )
+  if( mIMFContext )
   {
     ecore_imf_context_cursor_position_set( mIMFContext, mIMFCursorPosition );
   }
-}
-
-int ImfManager::GetCursorPosition()
-{
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetCursorPosition\n" );
-
-  return mIMFCursorPosition;
 }
 
 void ImfManager::SetCursorPosition( unsigned int cursorPosition )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetCursorPosition\n" );
 
-  mIMFCursorPosition = ( int )cursorPosition;
+  mIMFCursorPosition = static_cast<int>( cursorPosition );
 }
 
-void ImfManager::SetSurroundingText( std::string text )
+unsigned int ImfManager::GetCursorPosition() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetCursorPosition\n" );
+
+  return static_cast<unsigned int>( mIMFCursorPosition );
+}
+
+void ImfManager::SetSurroundingText( const std::string& text )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetSurroundingText\n" );
 
   mSurroundingText = text;
 }
 
-std::string ImfManager::GetSurroundingText()
+const std::string& ImfManager::GetSurroundingText() const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetSurroundingText\n" );
 

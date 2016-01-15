@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ECORE_X_DIPLAY_CONNECTION_H__
-#define __DALI_INTERNAL_ECORE_X_DIPLAY_CONNECTION_H__
+#ifndef __DALI_INTERNAL_WAYLAND_DIPLAY_CONNECTION_H__
+#define __DALI_INTERNAL_WAYLAND_DIPLAY_CONNECTION_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -20,8 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <wayland-egl.h>
-#include <Ecore_Wayland.h>
-#include <ecore-wl-types.h>
+#include <wl-types.h>
 
 // INTERNAL INCLUDES
 #include <base/display-connection.h>
@@ -106,4 +105,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ECORE_X_DIPLAY_CONNECTION_H__
+#endif // __DALI_INTERNAL_WAYLAND_DIPLAY_CONNECTION_H__

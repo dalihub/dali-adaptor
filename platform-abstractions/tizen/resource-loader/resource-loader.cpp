@@ -24,7 +24,7 @@
 #include <queue>
 #include <cstring>
 #include <dali/devel-api/common/map-wrapper.h>
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL HEADERS
 #include <dali/integration-api/bitmap.h>

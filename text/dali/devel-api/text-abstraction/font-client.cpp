@@ -63,9 +63,9 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   GetImplementation(*this).GetDpi( horizontalDpi, verticalDpi );
 }
 
-void FontClient::SetDefaultFont( const FontDescription& fontDescription )
+void FontClient::ResetSystemDefaults()
 {
-  GetImplementation(*this).SetDefaultFont( fontDescription );
+  GetImplementation(*this).ResetSystemDefaults();
 }
 
 void FontClient::GetDefaultFonts( FontList& defaultFonts )
@@ -119,7 +119,7 @@ FontId FontClient::GetFontId( const FontDescription& fontDescription,
 
 bool FontClient::IsScalable( const FontPath& path )
 {
-  return GetImplementation(*this).IsScalable( path );;
+  return GetImplementation(*this).IsScalable( path );
 }
 
 bool FontClient::IsScalable( const FontDescription& fontDescription )

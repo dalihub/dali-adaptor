@@ -20,20 +20,19 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-#include <dali/integration-api/bitmap.h>
-#include <dali/integration-api/resource-types.h>
-#include <dali/integration-api/resource-cache.h>
-
 // INTERNAL INCLUDES
-#include "image-loaders/image-loader.h"
 #include <bitmap-loader-impl.h>
 
 namespace Dali
 {
 
-BitmapLoader BitmapLoader::New(const std::string& filename)
+BitmapLoader BitmapLoader::New( const std::string& url,
+                                ImageDimensions size,
+                                FittingMode::Type fittingMode,
+                                SamplingMode::Type samplingMode,
+                                bool orientationCorrection)
 {
-  IntrusivePtr<Internal::BitmapLoader> internal = Internal::BitmapLoader::New(filename);
+  IntrusivePtr<Internal::BitmapLoader> internal = Internal::BitmapLoader::New(url, size, fittingMode, samplingMode, orientationCorrection);
   return BitmapLoader( internal.Get() );
 }
 
@@ -61,29 +60,24 @@ BitmapLoader& BitmapLoader::operator=(const BitmapLoader& rhs)
   return *this;
 }
 
-unsigned char* BitmapLoader::GetPixelData() const
+void BitmapLoader::Load()
+{
+  GetImplementation(*this).Load();
+}
+
+bool BitmapLoader::IsLoaded()
+{
+  return GetImplementation(*this).IsLoaded();
+}
+
+std::string BitmapLoader::GetUrl() const
+{
+  return GetImplementation(*this).GetUrl();
+}
+
+PixelDataPtr BitmapLoader::GetPixelData() const
 {
   return GetImplementation(*this).GetPixelData();
-}
-
-unsigned int BitmapLoader::GetImageHeight() const
-{
-  return GetImplementation(*this).GetImageHeight();
-}
-
-unsigned int BitmapLoader::GetImageWidth() const
-{
-  return GetImplementation(*this).GetImageWidth();
-}
-
-unsigned int BitmapLoader::GetBufferStride() const
-{
-  return GetImplementation(*this).GetBufferStride();
-}
-
-Pixel::Format BitmapLoader::GetPixelFormat() const
-{
-  return GetImplementation(*this).GetPixelFormat();
 }
 
 } // namespace Dali

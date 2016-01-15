@@ -36,7 +36,7 @@ namespace Adaptor
 namespace // unnamed namespace
 {
 
-const char* const SIGNAL_SOUND_PLAY_FINISHED = "sound-play-finished";
+const char* const SIGNAL_SOUND_PLAY_FINISHED = "soundPlayFinished";
 
 // Type Registration
 Dali::BaseHandle GetInstance()

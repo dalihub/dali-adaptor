@@ -188,7 +188,7 @@ private:
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard
 
-  struct Impl; ///< Contains Ecore specific information
+  struct Impl; ///< Implementation
   Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
   bool mPaused; ///< The paused state of the adaptor.

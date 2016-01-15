@@ -23,7 +23,6 @@
 #include <Ecore_X.h>
 #include <algorithm>
 
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -77,9 +76,9 @@ void RotateTo(int angle)
     // Get Focus window
     XGetInputFocus(display, &focusWindow, &revert);
 
-    ecore_x_window_prop_property_set(focusWindow,
+    ecore_x_window_prop_property_set( focusWindow,
                                       ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
-                                      ECORE_X_ATOM_CARDINAL, 32, &angle, 1);
+                                      ECORE_X_ATOM_CARDINAL, 32, &angle, 1 );
     XCloseDisplay(display);
   }
 }
@@ -87,7 +86,7 @@ void RotateTo(int angle)
 void SetReturnKeyType( const InputMethod::ActionButton type )
 {
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when setting values
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>( imfManager.GetContext() );
+  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
 
   if( imfContext )
   {

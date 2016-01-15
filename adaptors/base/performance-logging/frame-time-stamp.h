@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <stdint.h>
+
 namespace Dali
 {
 
@@ -44,11 +47,10 @@ struct FrameTimeStamp
     /**
      * Constructor
      * @param frame the frame number
-     * @param second the seconds from a monotonic clock
-     * @param microseconds the microseconds from a monotonic clock
+     * @param microseconds the time from a monotonic clock
      * @param bufferIndex  double buffered index used for performing an update / render
      */
-    FrameTimeStamp( unsigned int frame, unsigned int seconds,unsigned int microseconds, unsigned int bufferIndex = BUFFER_NOT_USED );
+    FrameTimeStamp( unsigned int frame, uint64_t microseconds, unsigned int bufferIndex = BUFFER_NOT_USED );
 
     /**
      * Constructor
@@ -64,8 +66,7 @@ struct FrameTimeStamp
     static unsigned int MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end );
 
     unsigned int frame;            ///< Frame number ( not always available)
-    unsigned int seconds;          ///< Second time stamp
-    unsigned int microseconds;     ///< Microsecond time stamp
+    uint64_t     microseconds;     ///< Microsecond time stamp
     unsigned int bufferIndex;      ///< The double buffered index used for performing an update / render
   };
 } // namespace Adaptor

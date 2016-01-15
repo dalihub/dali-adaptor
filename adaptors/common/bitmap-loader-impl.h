@@ -23,6 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/resource-types.h>
 
 // INTERNAL INCLUDES
 #include <bitmap-loader.h>
@@ -35,12 +36,24 @@ namespace Internal
 class BitmapLoader : public BaseObject
 {
 public:
-  static IntrusivePtr<BitmapLoader> New(const std::string& filename);
+
+  /**
+   * @copydoc Dali::BitmapLoader::New
+   */
+  static IntrusivePtr<BitmapLoader> New( const std::string& url,
+                                         ImageDimensions size,
+                                         FittingMode::Type fittingMode,
+                                         SamplingMode::Type samplingMode,
+                                         bool orientationCorrection);
 
   /**
    * Create the bitmap loader object.
    */
-  BitmapLoader();
+   BitmapLoader(const std::string& url,
+               ImageDimensions size,
+               FittingMode::Type fittingMode,
+               SamplingMode::Type samplingMode,
+               bool orientationCorrection);
 
 protected:
   /**
@@ -48,46 +61,32 @@ protected:
    */
   ~BitmapLoader();
 
-  /**
-   * Second stage initialization - this will load the image synchronously.
-   * @param[in] filename  Filename of the bitmap image to load.
-   */
-  void Initialize(const std::string& filename);
-
 public:
 
   /**
-   * Get the raw pixel data.
-   * @return The pixel data. Use the GetHeight(), GetWidth(), GetStride() and GetPixelFormat() methods
-   * to decode the data.
+   * @copydoc Dali::BitmapLoader::Load
    */
-  unsigned char* GetPixelData() const;
+  void Load();
 
   /**
-   * Get the buffer height in pixels
-   * @return the height of the buffer in pixels
+   * @copydoc Dali::BitmapLoader::IsLoaded
    */
-  unsigned int GetImageHeight() const;
+  bool IsLoaded();
 
   /**
-   * Get the buffer width in pixels
-   * @return the width of the buffer in pixels
+   * @copydoc Dali::BitmapLoader::GetUrl()
    */
-  unsigned int GetImageWidth() const;
+  const std::string& GetUrl() const;
 
   /**
-   * Get the number of bytes in each row of pixels
-   * @return The buffer stride in bytes.
+   * @copydoc Dali::BitmapLoader::GetPixelData
    */
-  unsigned int GetBufferStride() const;
-
-  /**
-   * Get the pixel format of the loaded bitmap.
-   */
-  Pixel::Format GetPixelFormat() const;
+  PixelDataPtr GetPixelData() const;
 
 private:
-  Integration::BitmapPtr mBitmap;
+  Integration::BitmapResourceType mResourceType;
+  PixelDataPtr mPixelData;
+  const std::string mUrl;
 };
 
 } // Internal

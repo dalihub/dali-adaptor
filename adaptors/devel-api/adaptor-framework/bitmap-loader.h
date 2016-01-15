@@ -21,7 +21,9 @@
 #include <string>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/images/pixel.h>
+#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/devel-api/images/pixel-data.h>
 
 namespace Dali
 {
@@ -30,15 +32,33 @@ namespace Internal
 class BitmapLoader;
 }
 
+/**
+ * @brief The BitmapLoader class is used to load bitmap from the URL synchronously.
+ *
+ * As the loading is synchronous, it will block the loop whilst executing.
+ * Therefore, it should be used sparingly in the main event thread, and better to be called in the worker thread.
+ * The Load() API is thread safe, it can be called from any thread without changing the state of DALI.
+ */
 class DALI_IMPORT_API BitmapLoader : public BaseHandle
 {
 public:
+
   /**
-   * @brief Create an initialized bitmap loader. This will automatically load the image.
+   * @brief Create an initialized bitmap loader.
    *
-   * @param[in] filename  Filename of the bitmap image to load.
+   * By calling Load(), the synchronous loading is started immediately.
+   *
+   * @param [in] url The URL of the image file to load.
+   * @param [in] size The width and height to fit the loaded image to.
+   * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
+   * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
+   * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
    */
-  static BitmapLoader New(const std::string& filename);
+  static BitmapLoader New( const std::string& url,
+                           ImageDimensions size = ImageDimensions( 0, 0 ),
+                           FittingMode::Type fittingMode = FittingMode::DEFAULT,
+                           SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR,
+                           bool orientationCorrection = true);
 
   /**
    * @brief Create an empty handle.
@@ -70,34 +90,32 @@ public:
 public:
 
   /**
-   * Get the raw pixel data.
-   * @return The pixel data. Use the GetHeight(), GetWidth(), GetStride() and GetPixelFormat() methods
-   * to decode the data.
+   * @brief Start the synchronous loading.
    */
-  unsigned char* GetPixelData() const;
+  void Load();
 
   /**
-   * Get the buffer height in pixels
-   * @return the height of the buffer in pixels
+   * @brief Query whether the image is loaded.
+   *
+   * @reture true if the image is loaded, false otherwise.
    */
-  unsigned int GetImageHeight() const;
+  bool IsLoaded();
 
   /**
-   * Get the buffer width in pixels
-   * @return the width of the buffer in pixels
+   * @brief Returns the URL of the image.
+   *
+   * @return The URL of the image file.
    */
-  unsigned int GetImageWidth() const;
+  std::string GetUrl() const;
 
   /**
-   * Get the number of bytes in each row of pixels
-   * @return The buffer stride in bytes.
+   * @brief Get the pixel data.
+   *
+   * The returned pixel data is still valid after the BitmapLoader been destroyed.
+   *
+   * @return The pixel data.
    */
-  unsigned int GetBufferStride() const;
-
-  /**
-   * Get the pixel format of the loaded bitmap.
-   */
-  Pixel::Format GetPixelFormat() const;
+  PixelDataPtr GetPixelData() const;
 
 public: // Not intended for application developers
 

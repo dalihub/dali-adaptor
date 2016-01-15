@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/performance-marker.h>

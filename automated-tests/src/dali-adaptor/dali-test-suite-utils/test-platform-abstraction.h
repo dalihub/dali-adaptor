@@ -21,14 +21,12 @@
 // EXTERNAL INCLUDES
 #include <stdint.h>
 #include <cstring>
-#include <dali/public-api/images/image-operations.h>
+#include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/common/set-wrapper.h>
 #include <dali/integration-api/platform-abstraction.h>
 
 #include "test-trace-call-stack.h"
-
 
 namespace Dali
 {
@@ -76,11 +74,6 @@ public:
   virtual ~TestPlatformAbstraction();
 
   /**
-   * @copydoc PlatformAbstraction::GetTimeMicroseconds()
-   */
-  virtual void GetTimeMicroseconds(unsigned int &seconds, unsigned int &microSeconds);
-
-  /**
    * @copydoc PlatformAbstraction::Suspend()
    */
   virtual void Suspend();
@@ -107,6 +100,7 @@ public:
                                                FittingMode::Type fittingMode,
                                                SamplingMode::Type samplingMode,
                                                bool orientationCorrection );
+
   /**
    * @copydoc PlatformAbstraction::LoadResource()
    */
@@ -155,15 +149,17 @@ public:
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer
-) const;
-
-  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const { return true; }
+  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
 
   /**
    * @copydoc PlatformAbstraction::SaveFile()
    */
-  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes) const;
+  virtual bool SaveFile(const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
+
+ /**
+  * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
+  */
+  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const { return true; }
 
   virtual void JoinLoaderThreads();
 
@@ -172,7 +168,6 @@ public: // TEST FUNCTIONS
   // Enumeration of Platform Abstraction methods
   typedef enum
   {
-    GetTimeMicrosecondsFunc,
     SuspendFunc,
     ResumeFunc,
     LoadResourceFunc,
@@ -196,17 +191,9 @@ public: // TEST FUNCTIONS
 
   bool WasCalled(TestFuncEnum func);
 
-  void SetGetTimeMicrosecondsResult(size_t sec, size_t usec);
-
-  void IncrementGetTimeResult(size_t milliseconds);
-
   void SetIsLoadingResult(bool result);
 
-  void SetGetDefaultFontFamilyResult(std::string result);
-
   void SetGetDefaultFontSizeResult(float result);
-
-  void SetGetFontPathResult(std::string& result);
 
   void ClearReadyResources();
 
@@ -229,9 +216,8 @@ public: // TEST FUNCTIONS
 
 private:
   mutable TraceCallStack        mTrace;
-  size_t                        mSeconds;
-  size_t                        mMicroSeconds;
   bool                          mIsLoadingResult;
+  int                           mGetDefaultFontSizeResult;
   Resources                     mResources;
   Integration::ResourceRequest* mRequest;
   Vector2                       mSize;

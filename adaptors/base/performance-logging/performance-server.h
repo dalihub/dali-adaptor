@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLDUES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/devel-api/common/mutex.h>
+#include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL INCLUDES
 #include <base/performance-logging/frame-time-stats.h>
@@ -117,16 +117,20 @@ private:
 
 private:
 
-  Integration::PlatformAbstraction& mPlatformAbstraction; ///< platform abstraction
   const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
   TraceInterface& mKernelTrace;                           ///< kernel trace interface
   TraceInterface& mSystemTrace;                           ///< system trace interface
   Dali::Mutex mLogMutex;                                  ///< mutex
+
+#if defined(NETWORK_LOGGING_ENABLED)
   NetworkPerformanceServer mNetworkServer;                ///< network server
+  bool mNetworkControlEnabled;                          ///< Whether network control is enabled
+#endif
+
   StatContextManager mStatContextManager;                 ///< Stat context manager
   unsigned int mStatisticsLogBitmask;                     ///< statistics log level
   unsigned int mPerformanceOutputBitmask;                 ///< performance marker output
-  bool mNetworkControlEnabled:1;                          ///< Whether network control is enabled
+
   bool mLoggingEnabled:1;                                 ///< whether logging update / render to a log is enabled
   bool mLogFunctionInstalled:1;                           ///< whether the log function is installed
 };

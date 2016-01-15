@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_UPDATE_RENDER_CONTROLLER_H__
-#define __DALI_INTERNAL_UPDATE_RENDER_CONTROLLER_H__
+#ifndef __DALI_INTERNAL_THREAD_CONTROLLER_H__
+#define __DALI_INTERNAL_THREAD_CONTROLLER_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -29,12 +29,9 @@ namespace Internal
 namespace Adaptor
 {
 
-class UpdateThread;
-class RenderThread;
-class VSyncNotifier;
-class ThreadSynchronization;
 class AdaptorInternalServices;
 class EnvironmentOptions;
+class ThreadControllerInterface;
 
 /**
  * Class to control all the threads.
@@ -54,43 +51,54 @@ public:
   ~ThreadController();
 
   /**
-   * Initializes the thread controller
+   * @brief Initializes the thread controller
+   *
+   * Will do any required initialiszation, e.g. initialize EGL, create threads (if required), etc.
+   *
+   * @note When this function returns, the application Init signal should be emitted
    */
   void Initialize();
 
   /**
-   * @copydoc Dali::Adaptor::Start()
+   * @brief Called AFTER the Init signal has been emitted.
+   *
+   * In other words, should be called AFTER the Init signal has been emitted and all messages for the first scene
+   * have been queued for update to process.
    */
   void Start();
 
   /**
-   * @copydoc Dali::Adaptor::Pause()
+   * @brief When called, update and rendering is paused.
    */
   void Pause();
 
   /**
-   * @copydoc Dali::Adaptor::Resume()
+   * @brief Resumes update/rendering after a previous pause.
    */
   void Resume();
 
   /**
-   * @copydoc Dali::Adaptor::Stop()
+   * @brief Stops update/rendering altogether.
+   *
+   * Will shutdown EGL, destroy threads (if required) etc.
    */
   void Stop();
 
   /**
-   * Called by the adaptor when core requires another update
+   * @brief Called by the adaptor when core requires another update
    */
   void RequestUpdate();
 
   /**
-   * Called by the adaptor when core requires one update
-   * If Adaptor is paused, we do one update and return to pause
+   * @brief Called by the adaptor when core requires one update
+   *
+   * @note If Adaptor is paused, we do one update/render only
    */
   void RequestUpdateOnce();
 
   /**
-   * Replaces the surface.
+   * @brief Replaces the surface.
+   *
    * @param surface new surface
    */
   void ReplaceSurface( RenderSurface* surface );
@@ -108,13 +116,9 @@ private:
   // Undefined assignment operator.
   ThreadController& operator=( const ThreadController& );
 
-  AdaptorInternalServices&     mAdaptorInterfaces;
+private:
 
-  UpdateThread*                mUpdateThread;     ///< The update-thread owned by ThreadController
-  RenderThread*                mRenderThread;     ///< The render-thread owned by ThreadController
-  VSyncNotifier*               mVSyncNotifier;    ///< The vsync-thread owned by ThreadController
-  ThreadSynchronization*       mThreadSync;       ///< Used to synchronize all the threads; owned by ThreadController
-  unsigned int                 mNumberOfVSyncsPerRender; ///< Frame skipping count
+  ThreadControllerInterface* mThreadControllerInterface;
 };
 
 } // namespace Adaptor
@@ -123,4 +127,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_UPDATE_RENDER_CONTROLLER_H__
+#endif // __DALI_INTERNAL_THREAD_CONTROLLER_H__

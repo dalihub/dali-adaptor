@@ -236,6 +236,13 @@ bool LoadBitmapFromPng( const ResourceLoadingClient& client, const ImageLoader::
   {
     switch(colordepth)
     {
+      case 1:
+      {
+        pixelFormat = Pixel::LA88;
+        valid = true;
+        break;
+      }
+
       case 2:
       case 4:
       case 8:

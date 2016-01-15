@@ -103,7 +103,10 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumEvents(-1),
   mGlesCallTime(0),
   mWindowWidth( 0 ),
-  mWindowHeight( 0 )
+  mWindowHeight( 0 ),
+  mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
+  mRenderRefreshRate( 1 ),
+  mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
 }
@@ -234,6 +237,16 @@ const std::string& EnvironmentOptions::GetWindowClassName() const
   return mWindowClassName;
 }
 
+ThreadingMode::Type EnvironmentOptions::GetThreadingMode() const
+{
+  return mThreadingMode;
+}
+
+unsigned int EnvironmentOptions::GetRenderRefreshRate() const
+{
+  return mRenderRefreshRate;
+}
+
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
   return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
@@ -345,6 +358,31 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   if ( windowClassName )
   {
     mWindowClassName = windowClassName;
+  }
+
+  int threadingMode(0);
+  if ( GetIntegerEnvironmentVariable( DALI_THREADING_MODE, threadingMode ) )
+  {
+    switch( threadingMode )
+    {
+      case ThreadingMode::SEPARATE_UPDATE_RENDER:
+      case ThreadingMode::COMBINED_UPDATE_RENDER:
+      case ThreadingMode::SINGLE_THREADED:
+      {
+        mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
+        break;
+      }
+    }
+  }
+
+  int renderRefreshRate(0);
+  if ( GetIntegerEnvironmentVariable( DALI_REFRESH_RATE, renderRefreshRate ) )
+  {
+    // Only change it if it's valid
+    if( renderRefreshRate > 1 )
+    {
+      mRenderRefreshRate = renderRefreshRate;
+    }
   }
 }
 

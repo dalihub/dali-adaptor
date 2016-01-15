@@ -88,6 +88,14 @@ public:
   void MakeContextNull();
 
   /**
+   * @brief Make the OpenGL surface current
+   *
+   * @param pixmap The pixmap to replace the current surface
+   * @param eglSurface The eglSurface to replace the current OpenGL surface.
+   */
+  void MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface );
+
+  /**
    * Terminate GL
    */
   virtual void TerminateGles();
@@ -132,9 +140,9 @@ public:
    * Create the OpenGL surface using a pixmap
    * @param pixmap The pixmap to create the surface on
    * @param colorDepth Bit per pixel value (ex. 32 or 24)
-   * @return true on success, false on failure
+   * @return Handle to an off-screen EGL pixmap surface (the requester has an ownership of this egl surface)
    */
-  void CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth );
+  EGLSurface CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth );
 
   /**
    * Replaces the render surface
@@ -146,11 +154,12 @@ public:
 
   /**
    * Replaces the render surface
-   * @param[in] pixmap, the pixmap to create the new surface on
+   * @param[in] pixmap, the pixmap to replace the new surface on
+   * @param[out] eglSurface, the eglSurface is created using a pixmap.
    * @return true if the context was lost due to a change in x-display
    *         between old surface and new surface
    */
-  bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap );
+  bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSurface& eglSurface );
 
   /**
    * returns the display with which this object was initialized
@@ -170,12 +179,12 @@ private:
 
   EGLNativeDisplayType mEglNativeDisplay;
   EGLNativeWindowType  mEglNativeWindow;
-  EGLNativePixmapType  mEglNativePixmap;
+  EGLNativePixmapType  mCurrentEglNativePixmap;
 
   EGLDisplay           mEglDisplay;
   EGLConfig            mEglConfig;
   EGLContext           mEglContext;
-  EGLSurface           mEglSurface;
+  EGLSurface           mCurrentEglSurface;
 
   bool                 mGlesInitialized;
   bool                 mIsOwnSurface;

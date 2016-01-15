@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,13 @@ namespace Platform
 
 namespace
 {
+
+// The BORDER_FILL_VALUE is a single byte value that is used for horizontal and vertical borders.
+// A value of 0x00 gives us transparency for pixel buffers with an alpha channel, or black otherwise.
+// We can optionally use a Vector4 color here, but at reduced fill speed.
+const uint8_t BORDER_FILL_VALUE( 0x00 );
+// A maximum size limit for newly created bitmaps. ( 1u << 16 ) - 1 is chosen as we are using 16bit words for dimensions.
+const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -299,9 +306,100 @@ ImageDimensions FitToScalingMode( ImageDimensions requestedSize, ImageDimensions
       fitDimensions = FitForFitHeight( requestedSize, sourceSize );
       break;
     }
-  };
+  }
 
   return fitDimensions;
+}
+
+/**
+ * @brief Calculate the number of lines on the X and Y axis that need to be
+ * either added or removed with repect to the specified fitting mode.
+ * (e.g., nearest or linear).
+ * @param[in]     sourceSize      The size of the source image
+ * @param[in]     fittingMode     The fitting mode to use
+ * @param[in/out] requestedSize   The target size that the image will be fitted to.
+ *                                If the source image is smaller than the requested size, the source is not scaled up.
+ *                                So we reduce the target size while keeping aspect by lowering resolution.
+ * @param[out]    scanlinesToCrop The number of scanlines to remove from the image (can be negative to represent Y borders required)
+ * @param[out]    columnsToCrop   The number of columns to remove from the image (can be negative to represent X borders required)
+ */
+void CalculateBordersFromFittingMode(  ImageDimensions sourceSize, FittingMode::Type fittingMode, ImageDimensions& requestedSize, int& scanlinesToCrop, int& columnsToCrop )
+{
+  const unsigned int sourceWidth( sourceSize.GetWidth() );
+  const unsigned int sourceHeight( sourceSize.GetHeight() );
+  const float targetAspect( static_cast< float >( requestedSize.GetWidth() ) / static_cast< float >( requestedSize.GetHeight() ) );
+  int finalWidth = 0;
+  int finalHeight = 0;
+
+  switch( fittingMode )
+  {
+    case FittingMode::FIT_WIDTH:
+    {
+      finalWidth = sourceWidth;
+      finalHeight = static_cast< float >( sourceWidth ) / targetAspect;
+
+      columnsToCrop = 0;
+      scanlinesToCrop = -( finalHeight - sourceHeight );
+      break;
+    }
+
+    case FittingMode::FIT_HEIGHT:
+    {
+      finalWidth = static_cast< float >( sourceHeight ) * targetAspect;
+      finalHeight = sourceHeight;
+
+      columnsToCrop = -( finalWidth - sourceWidth );
+      scanlinesToCrop = 0;
+      break;
+    }
+
+    case FittingMode::SHRINK_TO_FIT:
+    {
+      const float sourceAspect( static_cast< float >( sourceWidth ) / static_cast< float >( sourceHeight ) );
+      if( sourceAspect > targetAspect )
+      {
+        finalWidth = sourceWidth;
+        finalHeight = static_cast< float >( sourceWidth ) / targetAspect;
+
+        columnsToCrop = 0;
+        scanlinesToCrop = -( finalHeight - sourceHeight );
+      }
+      else
+      {
+        finalWidth = static_cast< float >( sourceHeight ) * targetAspect;
+        finalHeight = sourceHeight;
+
+        columnsToCrop = -( finalWidth - sourceWidth );
+        scanlinesToCrop = 0;
+      }
+      break;
+    }
+
+    case FittingMode::SCALE_TO_FILL:
+    {
+      const float sourceAspect( static_cast< float >( sourceWidth ) / static_cast< float >( sourceHeight ) );
+      if( sourceAspect > targetAspect )
+      {
+        finalWidth = static_cast< float >( sourceHeight ) * targetAspect;
+        finalHeight = sourceHeight;
+
+        columnsToCrop = -( finalWidth - sourceWidth );
+        scanlinesToCrop = 0;
+      }
+      else
+      {
+        finalWidth = sourceWidth;
+        finalHeight = static_cast< float >( sourceWidth ) / targetAspect;
+
+        columnsToCrop = 0;
+        scanlinesToCrop = -( finalHeight - sourceHeight );
+      }
+      break;
+    }
+  }
+
+  requestedSize.SetWidth( finalWidth );
+  requestedSize.SetHeight( finalHeight );
 }
 
 /**
@@ -372,24 +470,36 @@ ImageDimensions CalculateDesiredDimensions( ImageDimensions rawDimensions, Image
 }
 
 /**
- * @brief Implement ScaleTofill scaling mode cropping.
+ * @brief Apply cropping and padding for specified fitting mode.
  *
- * Implement the cropping required for SCALE_TO_FILL mode,
- * returning a new bitmap with the aspect ratio specified by the scaling mode.
- * This scaling mode selects the central portion of a source image so any spare
- * pixels off one of either the top or bottom edge need to be removed.
+ * Once the bitmap has been (optionally) downscaled to an appropriate size, this method performs alterations
+ * based on the fitting mode.
  *
- * @note If the input bitmap was not previously downscaled to exactly encompass
- * the desired output size, the resulting bitmap will have the correct aspect
- * ratio but will have larger dimensions than requested. This can be used to
- * fake the scaling mode by relying on the GPU scaling at render time.
- * If the input bitmap was previously maximally downscaled using a
- * repeated box filter, this is a reasonable approach.
+ * This will add vertical or horizontal borders if necessary.
+ * Crop the source image data vertically or horizontally if necessary.
+ * The aspect of the source image is preserved.
+ * If the source image is smaller than the desired size, the algorithm will modify the the newly created
+ *   bitmaps dimensions to only be as large as necessary, as a memory saving optimization. This will cause
+ *   GPU scaling to be performed at render time giving the same result with less texture traversal.
  *
- * @return The bitmap passed in if no scaling is needed or possible, else a new,
- * smaller bitmap with the cropping required for the scaling mode applied.
+ * @param[in] bitmap            The source bitmap to perform modifications on.
+ * @param[in] desiredDimensions The target dimensions to aim to fill based on the fitting mode.
+ * @param[in] fittingMode       The fitting mode to use.
+ *
+ * @return                      A new bitmap with the padding and cropping required for fitting mode applied.
+ *                              If no modification is needed or possible, the passed in bitmap is returned.
  */
-Integration::BitmapPtr CropForScaleToFill( Integration::BitmapPtr bitmap, ImageDimensions desiredDimensions );
+Integration::BitmapPtr CropAndPadForFittingMode( Integration::BitmapPtr bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode );
+
+/**
+ * @brief Adds horizontal or vertical borders to the source image.
+ *
+ * @param[in] targetPixels     The destination image pointer to draw the borders on.
+ * @param[in] bytesPerPixel    The number of bytes per pixel of the target pixel buffer.
+ * @param[in] targetDimensions The dimensions of the destination image.
+ * @param[in] padDimensions    The columns and scanlines to pad with borders.
+ */
+void AddBorders( PixelBuffer *targetPixels, const unsigned int bytesPerPixel, const ImageDimensions targetDimensions, const ImageDimensions padDimensions );
 
 BitmapPtr ApplyAttributesToBitmap( BitmapPtr bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode, SamplingMode::Type samplingMode )
 {
@@ -404,10 +514,11 @@ BitmapPtr ApplyAttributesToBitmap( BitmapPtr bitmap, ImageDimensions dimensions,
     bitmap = DownscaleBitmap( *bitmap, desiredDimensions, fittingMode, samplingMode );
 
     // Cut the bitmap according to the desired width and height so that the
-    // resulting bitmap has the same aspect ratio as the desired dimensions:
-    if( bitmap && bitmap->GetPackedPixelsProfile() && fittingMode == FittingMode::SCALE_TO_FILL )
+    // resulting bitmap has the same aspect ratio as the desired dimensions.
+    // Add crop and add borders if necessary depending on fitting mode.
+    if( bitmap && bitmap->GetPackedPixelsProfile() )
     {
-      bitmap = CropForScaleToFill( bitmap, desiredDimensions );
+      bitmap = CropAndPadForFittingMode( bitmap, desiredDimensions, fittingMode );
     }
 
     // Examine the image pixels remaining after cropping and scaling to see if all
@@ -421,74 +532,148 @@ BitmapPtr ApplyAttributesToBitmap( BitmapPtr bitmap, ImageDimensions dimensions,
   return bitmap;
 }
 
-BitmapPtr CropForScaleToFill( BitmapPtr bitmap, ImageDimensions desiredDimensions )
+BitmapPtr CropAndPadForFittingMode( BitmapPtr bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode )
 {
-  const unsigned inputWidth = bitmap->GetImageWidth();
-  const unsigned inputHeight = bitmap->GetImageHeight();
-  const unsigned desiredWidth = desiredDimensions.GetWidth();
-  const unsigned desiredHeight = desiredDimensions.GetHeight();
+  const unsigned int inputWidth = bitmap->GetImageWidth();
+  const unsigned int inputHeight = bitmap->GetImageHeight();
 
-  if( desiredWidth < 1U || desiredHeight < 1U )
+  if( desiredDimensions.GetWidth() < 1u || desiredDimensions.GetHeight() < 1u )
   {
-    DALI_LOG_WARNING( "Image scaling aborted as desired dimensions too small (%u, %u)\n.", desiredWidth, desiredHeight );
+    DALI_LOG_WARNING( "Image scaling aborted as desired dimensions too small (%u, %u).\n", desiredDimensions.GetWidth(), desiredDimensions.GetHeight() );
   }
-  else if( inputWidth != desiredWidth || inputHeight != desiredHeight )
+  else if( inputWidth != desiredDimensions.GetWidth() || inputHeight != desiredDimensions.GetHeight() )
   {
-    const Vector2 desiredDims( desiredWidth, desiredHeight );
+    // Calculate any padding or cropping that needs to be done based on the fitting mode.
+    // Note: If the desired size is larger than the original image, the desired size will be
+    // reduced while maintaining the aspect, in order to save unnecessary memory usage.
+    int scanlinesToCrop = 0;
+    int columnsToCrop = 0;
 
-    // Scale the desired rectangle back to fit inside the rectangle of the loaded bitmap:
-    // There are two candidates (scaled by x, and scaled by y) and we choose the smallest area one.
-    const float widthsRatio = inputWidth / float(desiredWidth);
-    const Vector2 scaledByWidth = desiredDims * widthsRatio;
-    const float heightsRatio = inputHeight / float(desiredHeight);
-    const Vector2 scaledByHeight = desiredDims * heightsRatio;
-    // Trim top and bottom if the area of the horizontally-fitted candidate is less, else trim the sides:
-    const bool trimTopAndBottom = scaledByWidth.width * scaledByWidth.height < scaledByHeight.width * scaledByHeight.height;
-    const Vector2 scaledDims = trimTopAndBottom ? scaledByWidth : scaledByHeight;
+    CalculateBordersFromFittingMode( ImageDimensions( inputWidth, inputHeight ), fittingMode, desiredDimensions, scanlinesToCrop, columnsToCrop );
 
-    // Work out how many pixels to trim from top and bottom, and left and right:
-    // (We only ever do one dimension)
-    const unsigned scanlinesToTrim = trimTopAndBottom ? fabsf( (scaledDims.y - inputHeight) * 0.5f ) : 0;
-    const unsigned columnsToTrim = trimTopAndBottom ? 0 : fabsf( (scaledDims.x - inputWidth) * 0.5f );
+    unsigned int desiredWidth( desiredDimensions.GetWidth() );
+    unsigned int desiredHeight( desiredDimensions.GetHeight() );
 
-    DALI_LOG_INFO( gImageOpsLogFilter, Debug::Concise, "Bitmap, desired(%f, %f), loaded(%u,%u), cut_target(%f, %f), trimmed(%u, %u), vertical = %s.\n", desiredDims.x, desiredDims.y, inputWidth, inputHeight, scaledDims.x, scaledDims.y, columnsToTrim, scanlinesToTrim, trimTopAndBottom ? "true" : "false" );
-
-    // Make a new bitmap with the central part of the loaded one if required:
-    if( scanlinesToTrim > 0 || columnsToTrim > 0 )
+    // Action the changes by making a new bitmap with the central part of the loaded one if required.
+    if( scanlinesToCrop != 0 || columnsToCrop != 0 )
     {
-      const unsigned newWidth = inputWidth - 2 * columnsToTrim;
-      const unsigned newHeight = inputHeight - 2 * scanlinesToTrim;
+      // Split the adding and removing of scanlines and columns into separate variables,
+      // so we can use one piece of generic code to action the changes.
+      unsigned int scanlinesToPad = 0;
+      unsigned int columnsToPad = 0;
+      if( scanlinesToCrop < 0 )
+      {
+        scanlinesToPad = -scanlinesToCrop;
+        scanlinesToCrop = 0;
+      }
+      if( columnsToCrop < 0 )
+      {
+        columnsToPad = -columnsToCrop;
+        columnsToCrop = 0;
+      }
+
+      // If there is no filtering, then the final image size can become very large, exit if larger than maximum.
+      if( ( desiredWidth > MAXIMUM_TARGET_BITMAP_SIZE ) || ( desiredHeight > MAXIMUM_TARGET_BITMAP_SIZE ) ||
+          ( columnsToPad > MAXIMUM_TARGET_BITMAP_SIZE ) || ( scanlinesToPad > MAXIMUM_TARGET_BITMAP_SIZE ) )
+      {
+        DALI_LOG_WARNING( "Image scaling aborted as final dimensions too large (%u, %u).\n", desiredWidth, desiredHeight );
+        return bitmap;
+      }
+
+      // Create a new bitmap with the desired size.
       BitmapPtr croppedBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
-      Integration::Bitmap::PackedPixelsProfile * packedView = croppedBitmap->GetPackedPixelsProfile();
+      Integration::Bitmap::PackedPixelsProfile *packedView = croppedBitmap->GetPackedPixelsProfile();
       DALI_ASSERT_DEBUG( packedView );
       const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
-      packedView->ReserveBuffer( pixelFormat, newWidth, newHeight, newWidth, newHeight );
+      packedView->ReserveBuffer( pixelFormat, desiredWidth, desiredHeight, desiredWidth, desiredHeight );
 
-      const unsigned bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+      // Add some pre-calculated offsets to the bitmap pointers so this is not done within a loop.
+      // The cropping is added to the source pointer, and the padding is added to the destination.
+      const unsigned int bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+      const PixelBuffer * const sourcePixels = bitmap->GetBuffer() + ( ( ( ( scanlinesToCrop / 2 ) * inputWidth ) + ( columnsToCrop / 2 ) ) * bytesPerPixel );
+      PixelBuffer * const targetPixels = croppedBitmap->GetBuffer();
+      PixelBuffer * const targetPixelsActive = targetPixels + ( ( ( ( scanlinesToPad / 2 ) * desiredWidth ) + ( columnsToPad / 2 ) ) * bytesPerPixel );
+      DALI_ASSERT_DEBUG( sourcePixels && targetPixels );
 
-      const PixelBuffer * const srcPixels = bitmap->GetBuffer() + scanlinesToTrim * inputWidth * bytesPerPixel;
-      PixelBuffer * const destPixels = croppedBitmap->GetBuffer();
-      DALI_ASSERT_DEBUG( srcPixels && destPixels );
-
-      // Optimize to a single memcpy if the left and right edges don't need a crop, else copy a scanline at a time:
-      if( trimTopAndBottom )
+      // Copy the image data to the new bitmap.
+      // Optimize to a single memcpy if the left and right edges don't need a crop or a pad.
+      unsigned int outputSpan( desiredWidth * bytesPerPixel );
+      if( columnsToCrop == 0 && columnsToPad == 0 )
       {
-        memcpy( destPixels, srcPixels, newHeight * newWidth * bytesPerPixel );
+        memcpy( targetPixelsActive, sourcePixels, ( desiredHeight - scanlinesToPad ) * outputSpan );
       }
       else
       {
-        for( unsigned y = 0; y < newHeight; ++y )
+        // The width needs to change (due to either a crop or a pad), so we copy a scanline at a time.
+        // Precalculate any constants to optimize the inner loop.
+        const unsigned int inputSpan( inputWidth * bytesPerPixel );
+        const unsigned int copySpan( ( desiredWidth - columnsToPad ) * bytesPerPixel );
+        const unsigned int scanlinesToCopy( desiredHeight - scanlinesToPad );
+
+        for( unsigned int y = 0; y < scanlinesToCopy; ++y )
         {
-          memcpy( &destPixels[y * newWidth * bytesPerPixel], &srcPixels[y * inputWidth * bytesPerPixel + columnsToTrim * bytesPerPixel], newWidth * bytesPerPixel );
+          memcpy( &targetPixelsActive[ y * outputSpan ], &sourcePixels[ y * inputSpan ], copySpan );
         }
       }
 
-      // Overwrite the loaded bitmap with the cropped version:
+      // Add vertical or horizontal borders to the final image (if required).
+      desiredDimensions.SetWidth( desiredWidth );
+      desiredDimensions.SetHeight( desiredHeight );
+      AddBorders( croppedBitmap->GetBuffer(), bytesPerPixel, desiredDimensions, ImageDimensions( columnsToPad, scanlinesToPad ) );
+      // Overwrite the loaded bitmap with the cropped version
       bitmap = croppedBitmap;
     }
   }
 
   return bitmap;
+}
+
+void AddBorders( PixelBuffer *targetPixels, const unsigned int bytesPerPixel, const ImageDimensions targetDimensions, const ImageDimensions padDimensions )
+{
+  // Assign ints for faster access.
+  unsigned int desiredWidth( targetDimensions.GetWidth() );
+  unsigned int desiredHeight( targetDimensions.GetHeight() );
+  unsigned int columnsToPad( padDimensions.GetWidth() );
+  unsigned int scanlinesToPad( padDimensions.GetHeight() );
+  unsigned int outputSpan( desiredWidth * bytesPerPixel );
+
+  // Add letterboxing (symmetrical borders) if needed.
+  if( scanlinesToPad > 0 )
+  {
+    // Add a top border. Note: This is (deliberately) rounded down if padding is an odd number.
+    memset( targetPixels, BORDER_FILL_VALUE, ( scanlinesToPad / 2 ) * outputSpan );
+
+    // We subtract scanlinesToPad/2 from scanlinesToPad so that we have the correct
+    // offset for odd numbers (as the top border is 1 pixel smaller in these cases.
+    unsigned int bottomBorderHeight = scanlinesToPad - ( scanlinesToPad / 2 );
+
+    // Bottom border.
+    memset( &targetPixels[ ( desiredHeight - bottomBorderHeight ) * outputSpan ], BORDER_FILL_VALUE, bottomBorderHeight * outputSpan );
+  }
+  else if( columnsToPad > 0 )
+  {
+    // Add a left and right border.
+    // Left:
+    // Pre-calculate span size outside of loop.
+    unsigned int leftBorderSpanWidth( ( columnsToPad / 2 ) * bytesPerPixel );
+    for( unsigned int y = 0; y < desiredHeight; ++y )
+    {
+      memset( &targetPixels[ y * outputSpan ], BORDER_FILL_VALUE, leftBorderSpanWidth );
+    }
+
+    // Right:
+    // Pre-calculate the initial x offset as it is always the same for a small optimization.
+    // We subtract columnsToPad/2 from columnsToPad so that we have the correct
+    // offset for odd numbers (as the left border is 1 pixel smaller in these cases.
+    unsigned int rightBorderWidth = columnsToPad - ( columnsToPad / 2 );
+    PixelBuffer * const destPixelsRightBorder( targetPixels + ( ( desiredWidth - rightBorderWidth ) * bytesPerPixel ) );
+    unsigned int rightBorderSpanWidth = rightBorderWidth * bytesPerPixel;
+
+    for( unsigned int y = 0; y < desiredHeight; ++y )
+    {
+      memset( &destPixelsRightBorder[ y * outputSpan ], BORDER_FILL_VALUE, rightBorderSpanWidth );
+    }
+  }
 }
 
 Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap,

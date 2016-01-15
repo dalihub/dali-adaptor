@@ -70,7 +70,7 @@ private:
   /**
    * @brief Should be called when the Event file descriptor signals data is available
    */
-  void XEventReceived();
+  void XEventReceived( FileDescriptorMonitor::EventType eventMask );
 
   // Undefined copy constructor.
   XEventManager( const XEventManager& );

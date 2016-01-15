@@ -1,41 +1,58 @@
+# NOTES
+# This spec file is used to build DALi Adaptor for different Tizen Profiles
+# Current profiles are:  Mobile, TV, Wearable, Common
+#
+# The profile variable is defined outside of the spec file in a build.conf file.
+# It will contain the profile and whether or not to build with X11 or Wayland
+#
+# gbs will try to download the build.conf for the platform automatically from the repo location when
+# performing a gbs build ( use gbs build -v to see it download location) E.g.
+# http://download.tizen.org/snapshots/tizen/tv/tizen-tv/repos/arm-wayland/packages/repodata/xxxx-build.conf.gz
+
+
 %bcond_with wayland
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.7
+Version:    1.1.16
 Release:    1
 Group:      System/Libraries
-License:    Apache-2.0, BSD-2.0, MIT
+License:    Apache-2.0 and BSD-2-Clause and MIT
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
+
+# Get the profile from tizen_profile_name if it exists.
+%if 0%{?tizen_profile_name:1}
+%define profile %{tizen_profile_name}
+%endif
 
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag ENABLE
 %endif
 
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 1
 %define shaderbincache_flag DISABLE
 %endif
 
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define over_tizen_2_2 0
+%define tizen_2_2_compatibility 1
 %define shaderbincache_flag DISABLE
 %endif
+
+# macro is enabled by passing gbs build --define "with_libuv 1"
+%define build_with_libuv 0%{?with_libuv:1}
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
@@ -46,34 +63,61 @@ BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
-BuildRequires:  pkgconfig(elementary)
-BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  libjpeg-turbo-devel
-BuildRequires:  pkgconfig(evas)
 BuildRequires:  dali-devel
 BuildRequires:  dali-integration-devel
-BuildRequires:  vconf-devel
-BuildRequires:  vconf-keys-devel
+BuildRequires:  pkgconfig(vconf)
 BuildRequires:  tts-devel
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
-BuildRequires:  pkgconfig(capi-system-system-settings)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(glesv2)
-BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
+BuildRequires:  pkgconfig(harfbuzz)
+
+BuildRequires:  fribidi-devel
 
 
-%if 0%{?over_tizen_2_2}
+%if 0%{?tizen_2_2_compatibility} != 1
 BuildRequires:  pkgconfig(capi-system-info)
 %endif
 
+%if 0%{?build_with_libuv}
+# Tizen currently does not have libuv as a separate libuv package
+# So we have to look into the uv headers bundled inside node-js
+BuildRequires:  nodejs-devel
+%endif
+
+
+
+%define dali_needs_efl_libraries 1
+%define dali_needs_appfw_libraries 1
 %if %{with wayland}
-BuildRequires:  pkgconfig(ecore-wayland)
+
+####### BUILDING FOR WAYLAND #######
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  wayland-devel
+# Currently Tizen Common we use does not have wayland extensions like xdg-shell
+%if "%{profile}" != "common"
+BuildRequires:  wayland-extension-client-devel
+%endif
+%if %{build_with_libuv}
+####### BUILDING FOR PURE WAYLAND #######
+# if we're building with wayland and runnning under node.js then we are using libuv mainloop
+# and DALis own wayland client (it needs wayland-client headers).
+# EFL libraries and APP Framework libraries are not required in this case
+%define dali_needs_efl_libraries 0
+%define dali_needs_appfw_libraries 0
+BuildRequires:  libxkbcommon-devel
 %else
+####### BUILDING FOR ECORE WAYLAND #######
+BuildRequires:  pkgconfig(ecore-wayland)
+%endif
+####### BUILDING FOR X11#######
+%else
+BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xfixes)
@@ -81,8 +125,25 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 %endif
 
-BuildRequires:  pkgconfig(harfbuzz)
-BuildRequires:  fribidi-devel
+###### Building with EFL libraries
+%if 0%{?dali_needs_efl_libraries}
+BuildRequires:  pkgconfig(evas)
+BuildRequires:  pkgconfig(elementary)
+%endif
+
+###### Build with APP Framework
+%if 0%{?dali_needs_appfw_libraries}
+BuildRequires:  pkgconfig(capi-appfw-application)
+BuildRequires:  pkgconfig(capi-system-system-settings)
+%endif
+
+%if 0%{?over_tizen_2_2}
+BuildRequires:  pkgconfig(capi-system-info)
+%endif
+
+
+
+
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -161,9 +222,9 @@ CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
 %endif
 
-%if 0%{?over_tizen_2_2}
-CFLAGS+=" -DOVER_TIZEN_SDK_2_2"
-CXXFLAGS+=" -DOVER_TIZEN_SDK_2_2"
+%if 0%{?tizen_2_2_compatibility}
+CFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
+CXXFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
 %endif
 
 libtoolize --force
@@ -181,8 +242,21 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
-%if 0%{?over_tizen_2_2}
-           --with-over-tizen_2_2 \
+%if 0%{?tizen_2_2_compatibility}
+           --with-tizen-2-2-compatibility \
+%endif
+%if 0%{?dali_needs_efl_libraries}
+            --enable-efl=yes \
+%else
+            --enable-efl=no \
+%endif
+%if 0%{?dali_needs_appfw_libraries}
+            --enable-appfw=yes \
+%else
+            --enable-appfw=no \
+%endif
+%if %{?build_with_libuv}
+           --with-libuv=/usr/include/node/ \
 %endif
            $configure_flags --libdir=%{_libdir}
 

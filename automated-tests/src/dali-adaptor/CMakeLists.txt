@@ -6,13 +6,14 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
     utc-Dali-Key.cpp
-    utc-Dali-PixmapImage.cpp
+    utc-Dali-NativeImageSource.cpp
     utc-Dali-SingletonService.cpp
     utc-Dali-Window.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Application.cpp
     utc-Dali-FileLoader.cpp
+    utc-Dali-BitmapLoader.cpp
 )
 
 LIST(APPEND TC_SOURCES
@@ -34,7 +35,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     ecore
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror=return-type")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${${CAPI_LIB}_CFLAGS_OTHER}")
 
 ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )

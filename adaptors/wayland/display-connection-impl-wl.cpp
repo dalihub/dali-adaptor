@@ -18,12 +18,6 @@
 // CLASS HEADER
 #include "display-connection-impl.h"
 
-// EXTERNAL_HEADERS
-#include <Ecore_Wayland.h>
-#include <dali/integration-api/debug.h>
-
-// INTERNAL HEADERS
-#include <pixmap-render-surface.h>
 
 namespace Dali
 {
@@ -36,20 +30,17 @@ namespace Adaptor
 
 DisplayConnection* DisplayConnection::New()
 {
-  DisplayConnection* pDisplayConnection(new DisplayConnection());
-
-  return pDisplayConnection;
+  return new DisplayConnection();
 }
 
 DisplayConnection::DisplayConnection()
 : mDisplay(NULL)
 {
-  mDisplay = ecore_wl_display_get();
 }
 
 DisplayConnection::~DisplayConnection()
 {
-  //FIXME
+
 }
 
 Any DisplayConnection::GetDisplay()
@@ -63,14 +54,6 @@ void DisplayConnection::ConsumeEvents()
 
 bool DisplayConnection::InitializeEgl(EglInterface& egl)
 {
-  EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
-
-  if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.");
-    return false;
-  }
-
   return true;
 }
 
@@ -80,8 +63,8 @@ void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVer
   float xres, yres;
 
   // 1 inch = 25.4 millimeters
-  xres = ecore_wl_dpi_get();
-  yres = ecore_wl_dpi_get();
+  xres = 72;// hardcoded for now, @todo use wl_output interface to calculate display dpi
+  yres = 72;// hardcoded for now
 
   dpiHorizontal = int(xres + 0.5f);  // rounding
   dpiVertical   = int(yres + 0.5f);

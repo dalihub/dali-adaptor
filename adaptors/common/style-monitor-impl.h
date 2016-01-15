@@ -126,7 +126,7 @@ private:
 
   Integration::PlatformAbstraction& mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
 
-  TextAbstraction::FontClient mfontClient;
+  TextAbstraction::FontClient mFontClient;
   std::string mDefaultFontFamily;        ///< The system default font family
   std::string mDefaultFontStyle;         ///< The default font style
   std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path

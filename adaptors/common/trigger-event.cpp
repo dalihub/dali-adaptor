@@ -48,7 +48,7 @@ TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Optio
   if (mFileDescriptor >= 0)
   {
     // Now Monitor the created event file descriptor
-    mFileDescriptorMonitor = new FileDescriptorMonitor( mFileDescriptor, MakeCallback( this, &TriggerEvent::Triggered ) );
+    mFileDescriptorMonitor = new FileDescriptorMonitor( mFileDescriptor, MakeCallback( this, &TriggerEvent::Triggered ), FileDescriptorMonitor::FD_READABLE );
   }
   else
   {
@@ -90,8 +90,14 @@ void TriggerEvent::Trigger()
   }
 }
 
-void TriggerEvent::Triggered()
+void TriggerEvent::Triggered( FileDescriptorMonitor::EventType eventBitMask )
 {
+  if( !( eventBitMask & FileDescriptorMonitor::FD_READABLE ) )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "Trigger event file descriptor error");
+    return;
+  }
+
   // Reading from the file descriptor resets the event counter, we can ignore the count.
   uint64_t receivedData;
   size_t size;

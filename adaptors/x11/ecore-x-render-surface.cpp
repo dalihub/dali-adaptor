@@ -79,7 +79,7 @@ void EcoreXRenderSurface::Init( Any surface )
   // we can not use LOG_INFO because the surface can be created before Dali Core is created.
   printf( "INFO: DALI: new EcoreXRenderSurface, %s surface %X \n",
           mOwnSurface?"created":"used existing",
-          GetDrawable() );
+          AnyCast<Ecore_X_Drawable>( GetSurface() ) );
 #endif
 }
 

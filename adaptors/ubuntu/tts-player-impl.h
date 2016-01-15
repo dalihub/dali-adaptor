@@ -99,10 +99,6 @@ private:
 private:
 
   Dali::TtsPlayer::StateChangedSignalType mStateChangedSignal; ///< Signal emitted when the TTS state changes (non-functional, for interface compatibility).
-  std::string mUnplayedString; ///< The text that can not be played because tts engine is not yet initialized
-  int mUtteranceId;  ///< The utterance ID
-
-  Dali::TtsPlayer::Mode mTtsMode; ///< The current mode of tts engine
 
 #if defined(DEBUG_ENABLED)
 public:
