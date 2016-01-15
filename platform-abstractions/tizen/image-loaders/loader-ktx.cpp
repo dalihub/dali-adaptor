@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  *
  */
 
+// CLASS HEADER
 #include "loader-ktx.h"
 
+// EXTERNAL INCLUDES
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -51,6 +53,7 @@ const Byte FileIdentifier[] = {
    0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
 };
 
+
 /** The formats we support inside a KTX file container.
  *  Currently only compressed formats are allowed as we'd rather
  *  use a PNG or JPEG with their own compression for the general
@@ -58,6 +61,11 @@ const Byte FileIdentifier[] = {
 enum KtxInternalFormat
 {
   KTX_NOTEXIST = 0,
+
+  // GLES 2 Extension formats:
+  KTX_ETC1_RGB8_OES                               = 0x8D64,
+  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG             = 0x8C00,
+
   // GLES 3 Standard compressed formats (values same as in gl3.h):
   KTX_COMPRESSED_R11_EAC                          = 0x9270,
   KTX_COMPRESSED_SIGNED_R11_EAC                   = 0x9271,
@@ -70,14 +78,45 @@ enum KtxInternalFormat
   KTX_COMPRESSED_RGBA8_ETC2_EAC                   = 0x9278,
   KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC            = 0x9279,
 
-  // GLES 2 EXTENSION FORMATS:
-  KTX_ETC1_RGB8_OES                               = 0x8D64,
-  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG             = 0x8C00,
-  KTX_SENTINEL = ~0u,
+  // GLES 3.1 compressed formats:
+  KTX_COMPRESSED_RGBA_ASTC_4x4_KHR                = 0x93B0,
+  KTX_COMPRESSED_RGBA_ASTC_5x4_KHR                = 0x93B1,
+  KTX_COMPRESSED_RGBA_ASTC_5x5_KHR                = 0x93B2,
+  KTX_COMPRESSED_RGBA_ASTC_6x5_KHR                = 0x93B3,
+  KTX_COMPRESSED_RGBA_ASTC_6x6_KHR                = 0x93B4,
+  KTX_COMPRESSED_RGBA_ASTC_8x5_KHR                = 0x93B5,
+  KTX_COMPRESSED_RGBA_ASTC_8x6_KHR                = 0x93B6,
+  KTX_COMPRESSED_RGBA_ASTC_8x8_KHR                = 0x93B7,
+  KTX_COMPRESSED_RGBA_ASTC_10x5_KHR               = 0x93B8,
+  KTX_COMPRESSED_RGBA_ASTC_10x6_KHR               = 0x93B9,
+  KTX_COMPRESSED_RGBA_ASTC_10x8_KHR               = 0x93BA,
+  KTX_COMPRESSED_RGBA_ASTC_10x10_KHR              = 0x93BB,
+  KTX_COMPRESSED_RGBA_ASTC_12x10_KHR              = 0x93BC,
+  KTX_COMPRESSED_RGBA_ASTC_12x12_KHR              = 0x93BD,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR        = 0x93D0,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR        = 0x93D1,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR        = 0x93D2,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR        = 0x93D3,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR        = 0x93D4,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR        = 0x93D5,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR        = 0x93D6,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR        = 0x93D7,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR       = 0x93D8,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR       = 0x93D9,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR       = 0x93DA,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR      = 0x93DB,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR      = 0x93DC,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR      = 0x93DD,
+
+  KTX_SENTINEL = ~0u
 };
 
 const unsigned KtxInternalFormats[] =
 {
+  // GLES 2 Extension formats:
+  KTX_ETC1_RGB8_OES,
+  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG,
+
   // GLES 3 Standard compressed formats:
   KTX_COMPRESSED_R11_EAC,
   KTX_COMPRESSED_SIGNED_R11_EAC,
@@ -89,9 +128,37 @@ const unsigned KtxInternalFormats[] =
   KTX_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2,
   KTX_COMPRESSED_RGBA8_ETC2_EAC,
   KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,
-  // GLES 2 EXTENSION FORMATS:
-  KTX_ETC1_RGB8_OES,
-  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG,
+
+  // GLES 3.1 Compressed formats:
+  KTX_COMPRESSED_RGBA_ASTC_4x4_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_5x4_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_5x5_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_6x5_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_6x6_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_8x5_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_8x6_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_8x8_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_10x5_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_10x6_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_10x8_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_10x10_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_12x10_KHR,
+  KTX_COMPRESSED_RGBA_ASTC_12x12_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
+
   KTX_SENTINEL
 };
 
@@ -173,9 +240,22 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
   using namespace Dali::Pixel;
   switch(ktxPixelFormat)
   {
+    // GLES 2 extension compressed formats:
+    case KTX_ETC1_RGB8_OES:
+    {
+      format = COMPRESSED_RGB8_ETC1;
+      break;
+    }
+    case KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+    {
+      format = COMPRESSED_RGB_PVRTC_4BPPV1;
+      break;
+    }
+
+    // GLES 3 extension compressed formats:
     case KTX_COMPRESSED_R11_EAC:
     {
-      format = Dali::Pixel::COMPRESSED_R11_EAC;
+      format = COMPRESSED_R11_EAC;
       break;
     }
     case KTX_COMPRESSED_SIGNED_R11_EAC:
@@ -223,15 +303,146 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
       format = COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
       break;
     }
-    // GLES 2 extension compressed formats:
-    case KTX_ETC1_RGB8_OES:
+
+    // GLES 3.1 extension compressed formats:
+    case KTX_COMPRESSED_RGBA_ASTC_4x4_KHR:
     {
-      format = COMPRESSED_RGB8_ETC1;
+      format = COMPRESSED_RGBA_ASTC_4x4_KHR;
       break;
     }
-    case KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+    case KTX_COMPRESSED_RGBA_ASTC_5x4_KHR:
     {
-      format = COMPRESSED_RGB_PVRTC_4BPPV1;
+      format = COMPRESSED_RGBA_ASTC_5x4_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_5x5_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_5x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_6x5_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_6x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_6x6_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_6x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_8x5_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_8x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_8x6_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_8x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_8x8_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_8x8_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_10x5_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_10x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_10x6_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_10x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_10x8_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_10x8_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_10x10_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_10x10_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_12x10_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_12x10_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_RGBA_ASTC_12x12_KHR:
+    {
+      format = COMPRESSED_RGBA_ASTC_12x12_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
+      break;
+    }
+    case KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+    {
+      format = COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
       break;
     }
 

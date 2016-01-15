@@ -267,7 +267,6 @@ Dali::KeyEvent Seat::GetDALiKeyEvent( unsigned int serial, unsigned int timestam
  {
    symbol = symbols[0];
  }
- else
 
  // get its name
  xkb_keysym_get_name( symbol, key, sizeof(key));

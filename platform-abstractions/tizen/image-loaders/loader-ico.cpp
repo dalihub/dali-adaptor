@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,9 @@ namespace TizenPlatform
 
 namespace
 {
-//reserved 2 bytes + type 2 bytes + count 2 bytes + count * 16 bytes
+// Reserved 2 bytes + type 2 bytes + count 2 bytes + count * 16 bytes
 const unsigned char ICO_FILE_HEADER = 22;
-// info header 40 bytes = size 4 bytes + width 4 bytes + height 4 bytes + planes 2 bytes + bitcount 2 bytes
+// Info header 40 bytes = size 4 bytes + width 4 bytes + height 4 bytes + planes 2 bytes + bitcount 2 bytes
 // + compression 4 bytes + imagesize 4 bytes + xpixelsPerM 4 bytes + ypixelsPerM 4 bytes + colorsUsed 4 bytes + colorImportant 4 bytes
 // besides, there are rgba color data = numberOfColors * 4 bytes
 const unsigned char ICO_IMAGE_INFO_HEADER = 40;
@@ -266,10 +266,6 @@ bool LoadIcoHeaderHelper( FILE* fp,
       return false;
     }
     int cols = tcols;
-    if (cols <= 0)
-    {
-      cols = 256;
-    }
     if (!read_uchar(&map[0], fsize, &position, &byte))
     {
       return false;
@@ -293,6 +289,14 @@ bool LoadIcoHeaderHelper( FILE* fp,
     {
       bpp = word;
     }
+
+    // 0 colors means 256 for paletized modes.
+    // Note: We must not do this conversion for bpp greater than 8, as there is no palette.
+    if( bpp <= 8 && cols == 0 )
+    {
+      cols = 256;
+    }
+
     //else hot_y = word;
     unsigned int bmoffset, bmsize;
     if (!read_uint(&map[0], fsize, &position, &bmsize))
@@ -420,6 +424,11 @@ bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::
   {
     DALI_LOG_WARNING("Broken ICO file!");
   }
+
+  // Set up the surface as soon as we have the width and height, so we have a black image if there are any further errors.
+  surface.Resize( w * h * 4 );
+  memset( &surface[0], 0, w * h * 4 );
+
   if (!read_ushort(&map[0], fsize, &position, &word))
   {
     return false; // planes
@@ -457,10 +466,6 @@ bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::
   {
     return false; // colors important
   }
-  //colorsimportant = dword;
-  surface.Resize(w * h * 4);
-
-  memset(&surface[0], 0, w * h * 4);
 
   for(int i = 0; i < cols ; i ++)
   {
@@ -482,257 +487,188 @@ bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::
     {
       return false;
     }
-    a = 0xff;
-    pal[i] = ARGB_JOIN(a, r, g, b);
+    pal[i] = ARGB_JOIN( 0xff, b, g, r );
   }
 
-  if (!((bitcount == 1) || (bitcount == 4) || (bitcount == 8) ||
-       (bitcount == 24) || (bitcount == 32)))
-  {
-    return false;
-  }
-  int stride = ((w + 31) / 32);
+  // This is the reference way of calculating the total number of bytes necessary to store one row of pixels.
+  int stride = ( ( ( bitcount * w ) + 31 ) / 32 ) * 4;
+  int bitStride = ( ( w + 31 ) / 32 ) * 4;
 
-  maskbuf.Resize(stride * h);
-  pixbuf.Resize(stride * 32 * 4); // more than enough
+  // Pixbuf only ever contains one scanline worth of data.
+  pixbuf.Resize( stride );
+  maskbuf.Resize( bitStride * h );
 
-  unsigned int none_zero_alpha = 0;
-  if (bitcount == 1)
+  // Handle different bits-per-pixel.
+  // Note: Switch is in order of most common format first.
+  switch( bitcount )
   {
-    int pstride = stride * 4;
-    for (int i = 0; i < h; i++)
+    case 32:
     {
-      pix = &surface[0] + ((h - 1 - i) * w);
+      unsigned char* p = &map[position];
+      pix = &surface[0] + ( ( h - 1 ) * w );
 
-      if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
+      for( int i = 0; i < h; i++ )
       {
-        return false;
+        for( int j = 0; j < w; j++ )
+        {
+          *pix++ = ARGB_JOIN( p[3], p[0], p[1], p[2] );
+          p += 4;
+        }
+        // Move the output up 1 line (we subtract 2 lines because we moved forward one line while copying).
+        pix -= ( w * 2 );
       }
-      unsigned char* p = &pixbuf[0];
-      if (i >= (int)h)
+      break;
+    }
+
+    case 24:
+    {
+      for( int i = 0; i < h; i++ )
       {
-        continue;
+        pix = &surface[0] + ( ( h - 1 - i ) * w );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        {
+          return false;
+        }
+        unsigned char* p = &pixbuf[0];
+        for( int j = 0; j < w; j++ )
+        {
+          *pix++ = ARGB_JOIN( 0xff, p[0], p[1], p[2] );
+          p += 3;
+        }
       }
-      for (int j = 0; j < w; j++)
+      break;
+    }
+
+    case 8:
+    {
+      for( int i = 0; i < h; i++ )
       {
-        if (j >= (int)w)
+        pix = &surface[0] + ( ( h - 1 - i ) * w );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
         {
-          break;
+          return false;
         }
-        if ((j & 0x7) == 0x0)
+        unsigned char* p = &pixbuf[0];
+        for( int j = 0; j < w; j++ )
         {
-          *pix = pal[*p >> 7];
+          *pix++ = pal[*p++];
         }
-        else if ((j & 0x7) == 0x1)
+      }
+      break;
+    }
+
+    case 4:
+    {
+      for( int i = 0; i < h; i++ )
+      {
+        pix = &surface[0] + ( ( h - 1 - i ) * w );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
         {
-          *pix = pal[(*p >> 6) & 0x1];
+          return false;
         }
-        else if ((j & 0x7) == 0x2)
+        unsigned char* p = &pixbuf[0];
+        for( int j = 0; j < w; j++ )
         {
-          *pix = pal[(*p >> 5) & 0x1];
+          if( j & 0x1 )
+          {
+            *pix = pal[*p & 0x0f];
+            p++;
+          }
+          else
+          {
+            *pix = pal[*p >> 4];
+          }
+          pix++;
         }
-        else if ((j & 0x7) == 0x3)
+      }
+      break;
+    }
+
+    case 1:
+    {
+      for( int i = 0; i < h; i++ )
+      {
+        pix = &surface[0] + ( ( h - 1 - i ) * w );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
         {
-          *pix = pal[(*p >> 4) & 0x1];
+          return false;
         }
-        else if ((j & 0x7) == 0x4)
+        unsigned char* p = &pixbuf[0];
+
+        for( int j = 0; j < w; j += 8 )
         {
-          *pix = pal[(*p >> 3) & 0x1];
-        }
-        else if ((j & 0x7) == 0x5)
-        {
-          *pix = pal[(*p >> 2) & 0x1];
-        }
-        else if ((j & 0x7) == 0x6)
-        {
-          *pix = pal[(*p >> 1) & 0x1];
-        }
-        else
-        {
-          *pix = pal[*p & 0x1];
+          *pix++ = pal[ *p >> 7 ];
+          *pix++ = pal[ *p >> 6 & 0x01 ];
+          *pix++ = pal[ *p >> 5 & 0x01 ];
+          *pix++ = pal[ *p >> 4 & 0x01 ];
+          *pix++ = pal[ *p >> 3 & 0x01 ];
+          *pix++ = pal[ *p >> 2 & 0x01 ];
+          *pix++ = pal[ *p >> 1 & 0x01 ];
+          *pix++ = pal[ *p >> 0 & 0x01 ];
+
           p++;
         }
-        pix++;
       }
+      break;
     }
-  }
-  else if (bitcount == 4)
-  {
-    int pstride = ((w + 7) / 8) * 4;
-    for (int i = 0; i < h; i++)
+
+    default:
     {
-      pix = &surface[0] + ((h - 1 - i) * w);
-
-      if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
-      {
-        return false;
-      }
-      unsigned char* p = &pixbuf[0];
-      if (i >= (int)h)
-      {
-        continue;
-      }
-      for (int j = 0; j < w; j++)
-      {
-        if (j >= (int)w)
-        {
-          break;
-        }
-        if ((j & 0x1) == 0x1)
-        {
-          *pix = pal[*p & 0x0f];
-          p++;
-        }
-        else
-        {
-          *pix = pal[*p >> 4];
-        }
-        pix++;
-      }
+      DALI_LOG_WARNING( "Image file contains unsupported bits-per-pixel %d\n", bitcount );
+      return false;
     }
   }
-  else if (bitcount == 8)
-  {
-    int pstride = ((w + 3) / 4) * 4;
-    for (int i = 0; i < h; i++)
-    {
-      pix = &surface[0] + ((h - 1 - i) * w);
 
-      if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
-      {
-        return false;
-      }
-      unsigned char* p = &pixbuf[0];
-      if (i >= (int)h)
-      {
-        continue;
-      }
-      for (int j = 0; j < w; j++)
-      {
-        if (j >= (int)w)
-        {
-          break;
-        }
-        *pix = pal[*p];
-        p++;
-        pix++;
-      }
-    }
-  }
-  else if (bitcount == 24)
+  // From the spec: If bpp is less than 32, there will be a 1bpp mask bitmap also.
+  if( bitcount < 32 )
   {
-    int pstride = w * 3;
-    for (int i = 0; i < h; i++)
-    {
-      pix = &surface[0] + ((h - 1 - i) * w);
-
-      if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
-      {
-        return false;
-      }
-      unsigned char* p = &pixbuf[0];
-      if (i >= (int)h)
-      {
-        continue;
-      }
-      for (int j = 0; j < w; j++)
-      {
-        unsigned char a, r, g, b;
-
-        if (j >= (int)w)
-        {
-          break;
-        }
-        b = p[0];
-        g = p[1];
-        r = p[2];
-        p += 3;
-        a = 0xff;
-        *pix = ARGB_JOIN(a, r, g, b);
-        pix++;
-      }
-    }
-  }
-  else if (bitcount == 32)
-  {
-    int pstride = w * 4;
-    for (int i = 0; i < h; i++)
-    {
-      pix = &surface[0] + ((h - 1 - i) * w);
-
-      if (!read_mem(&map[0], fsize, &position, &pixbuf[0], pstride))
-      {
-        return false;
-      }
-      unsigned char* p = &pixbuf[0];
-      if (i >= (int)h)
-      {
-        continue;
-      }
-      for (int j = 0; j < w; j++)
-      {
-        unsigned char a, r, g, b;
-        if (j >= (int)w)
-        {
-          break;
-        }
-        b = p[0];
-        g = p[1];
-        r = p[2];
-        a = p[3];
-        p += 4;
-        if (a)
-        {
-          none_zero_alpha = 1;
-        }
-        *pix = ARGB_JOIN(a, r, g, b);
-        pix++;
-      }
-    }
-  }
-  if (!none_zero_alpha)
-  {
-    if (!read_mem(&map[0], fsize, &position, &maskbuf[0], stride * 4 * h))
+    if( !read_mem( &map[0], fsize, &position, &maskbuf[0], bitStride * h ) )
     {
       return false;
     }
-    // apply mask
-    for (int i = 0; i < h; i++)
+
+    // Apply mask.
+    // Precalc to save time in the loops.
+    int bytesPerWidth = w / 8;
+    int bytesRemainingPerWidth = w - ( bytesPerWidth << 3 );
+
+    // Loop for each line of the image.
+    for( int i = 0; i < h; ++i )
     {
-      unsigned char *m;
+      unsigned char *m = &maskbuf[0] + ( bitStride * i );
+      pix = &surface[0] + ( ( h - 1 - i ) * w );
 
-      pix = &surface[0] + ((h - 1 - i) * w);
-
-      m = &maskbuf[0] + (stride * i * 4);
-      if (i >= (int)h)
+      // Do chunks of 8 pixels first so mask operations can be unrolled.
+      for( int j = 0; j < bytesPerWidth; ++j )
       {
-        continue;
+        // Unrolled 8 bits of the mask to avoid many conditions and branches.
+        A_VAL( pix++ ) = ( *m & ( 1 << 7 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 6 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 5 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 4 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 3 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 2 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 1 ) ) ? 0x00 : 0xff;
+        A_VAL( pix++ ) = ( *m & ( 1 << 0 ) ) ? 0x00 : 0xff;
+        m++;
       }
-      for (int j = 0; j < w; j++)
+
+      // Handle any remaining width ( < 8 ) or images that are < 8 wide.
+      if( bytesRemainingPerWidth > 0 )
       {
-        if (j >= (int)w)
+        for( int j = 0; j < bytesRemainingPerWidth; ++j )
         {
-          break;
+          // Note: Although we are doing less that a bytes worth of mask, we still always start on the first bit.
+          // If the image is smaller than 8 pixels wide, each mask will still start on a new byte.
+          A_VAL( pix++ ) = ( *m & ( 1 << ( 7 - j ) ) ) ? 0x00 : 0xff;
         }
-        if (*m & (1 << (7 - (j & 0x7))))
-        {
-          A_VAL(pix) = 0x00;
-        }
-        else
-        {
-          A_VAL(pix) = 0xff;
-        }
-        if ((j & 0x7) == 0x7)
-        {
-          m++;
-        }
-        pix++;
+        m++;
       }
     }
   }
-  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGBA8888, w, h);
-  memset(pixels, 0, w * h * 4);
-  memcpy(pixels, (unsigned char*)&surface[0], w * h * 4);
+
+  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h );
+  memcpy( pixels, (unsigned char*)&surface[0], w * h * 4 );
 
   return true;
 }

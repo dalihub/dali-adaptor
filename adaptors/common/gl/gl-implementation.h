@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_GL_IMPLEMENTATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@
 #error "OpenGL ES version not specified"
 #endif
 
-#if DALI_GLES_VERSION >= 30
+#if DALI_GLES_VERSION >= 31
+#include <GLES3/gl31.h>
+#elif DALI_GLES_VERSION >= 30
 #include <GLES3/gl3.h>
 #else
 #include <cstdlib>
