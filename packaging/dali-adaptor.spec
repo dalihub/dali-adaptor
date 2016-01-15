@@ -124,6 +124,10 @@ BuildRequires:  libxkbcommon-devel
 ####### BUILDING FOR ECORE WAYLAND #######
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif
+
+# tpkp-curl (certificate pinning for libcurl functions) is only available in Tizen 3.0
+BuildRequires:  pkgconfig(tpkp-curl)
+
 ####### BUILDING FOR X11#######
 %else
 BuildRequires:  pkgconfig(egl)
