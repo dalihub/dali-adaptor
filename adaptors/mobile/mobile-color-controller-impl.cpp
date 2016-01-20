@@ -34,17 +34,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
-{
-
-BaseHandle Create()
-{
-  return ColorController::Get();
-}
-Dali::TypeRegistration COLOR_CONTROLLER_TYPE( typeid(Dali::ColorController), typeid(Dali::BaseHandle), Create );
-
-}
-
 Dali::ColorController ColorController::Get()
 {
   Dali::ColorController colorController;

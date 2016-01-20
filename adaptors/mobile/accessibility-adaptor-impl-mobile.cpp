@@ -91,39 +91,6 @@ void AccessibilityOnOffNotification(keynode_t* node, void* data)
   }
 }
 
-BaseHandle Create()
-{
-  BaseHandle handle( AccessibilityAdaptor::Get() );
-
-  if ( !handle )
-  {
-    Dali::SingletonService service( SingletonService::Get() );
-    if ( service )
-    {
-      Dali::AccessibilityAdaptor adaptor = Dali::AccessibilityAdaptor( new AccessibilityAdaptorMobile() );
-      AccessibilityAdaptorMobile& adaptorImpl = AccessibilityAdaptorMobile::GetImplementation( adaptor );
-
-      bool isEnabled = GetEnabledVConf();
-
-      if( isEnabled )
-      {
-        adaptorImpl.EnableAccessibility();
-      }
-      DALI_LOG_INFO( gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, isEnabled ? "ENABLED" : "DISABLED" );
-
-      vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, AccessibilityOnOffNotification, &adaptorImpl );
-      vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, AccessibilityOnOffNotification, &adaptorImpl );
-
-      service.Register( typeid( adaptor ), adaptor );
-      handle = adaptor;
-    }
-  }
-
-  return handle;
-}
-
-TypeRegistration ACCESSIBILITY_ADAPTOR_TYPE( typeid(Dali::AccessibilityAdaptor), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
-
 } // unnamed namespace
 
 Dali::AccessibilityAdaptor AccessibilityAdaptor::Get()
@@ -139,6 +106,24 @@ Dali::AccessibilityAdaptor AccessibilityAdaptor::Get()
     {
       // If so, downcast the handle
       adaptor = Dali::AccessibilityAdaptor( dynamic_cast< AccessibilityAdaptor* >( handle.GetObjectPtr() ) );
+    }
+    else
+    {
+      adaptor = Dali::AccessibilityAdaptor( new AccessibilityAdaptorMobile() );
+      AccessibilityAdaptorMobile& adaptorImpl = AccessibilityAdaptorMobile::GetImplementation( adaptor );
+
+      bool isEnabled = GetEnabledVConf();
+
+      if( isEnabled )
+      {
+        adaptorImpl.EnableAccessibility();
+      }
+      DALI_LOG_INFO( gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, isEnabled ? "ENABLED" : "DISABLED" );
+
+      vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, AccessibilityOnOffNotification, &adaptorImpl );
+      vconf_notify_key_changed( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, AccessibilityOnOffNotification, &adaptorImpl );
+
+      service.Register( typeid( adaptor ), adaptor );
     }
   }
 

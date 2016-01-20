@@ -33,29 +33,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
-{
-BaseHandle Create()
-{
-  BaseHandle handle( ClipboardEventNotifier::Get() );
-
-  if ( !handle )
-  {
-    Dali::SingletonService service( SingletonService::Get() );
-    if ( service )
-    {
-      Dali::ClipboardEventNotifier notifier( ClipboardEventNotifier::New() );
-      service.Register( typeid( notifier ), notifier );
-      handle = notifier;
-    }
-  }
-
-  return handle;
-}
-TypeRegistration CLIPBOARD_EVENT_NOTIFIER_TYPE( typeid(Dali::ClipboardEventNotifier), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
-
-} // unnamed namespace
-
 Dali::ClipboardEventNotifier ClipboardEventNotifier::New()
 {
   Dali::ClipboardEventNotifier notifier = Dali::ClipboardEventNotifier(new ClipboardEventNotifier());
@@ -76,6 +53,11 @@ Dali::ClipboardEventNotifier ClipboardEventNotifier::Get()
     {
       // If so, downcast the handle
       notifier = Dali::ClipboardEventNotifier( dynamic_cast< ClipboardEventNotifier* >( handle.GetObjectPtr() ) );
+    }
+    else
+    {
+      notifier = Dali::ClipboardEventNotifier( ClipboardEventNotifier::New() );
+      service.Register( typeid( notifier ), notifier );
     }
   }
 
