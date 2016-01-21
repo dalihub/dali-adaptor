@@ -169,9 +169,9 @@ else
   AC_MSG_NOTICE("build with libuv mainloop == no (Node.JS not supported)");
 fi
 
-# Currently, dali-adaptor-uv requires appfw on Tizen 2.4 (X11)
-# and does not require it on Tizen 3.0 (Wayland) & Ubuntu.
-# So we should be able to enable/disable this option for dali-adaptor.
+# Currently, dali-adaptor-uv requires appfw on Tizen
+# and does not require it on Ubuntu.
+# So we should be able to enable/disable this option for dali-adaptor-uv.
 AC_ARG_ENABLE([appfw],
               [AC_HELP_STRING([--enable-appfw],
                               [Builds with Tizen App framework libraries, off by default])],
