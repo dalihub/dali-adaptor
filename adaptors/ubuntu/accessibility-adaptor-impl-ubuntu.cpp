@@ -33,31 +33,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace // unnamed namespace
-{
-
-BaseHandle Create()
-{
-  BaseHandle handle( AccessibilityAdaptor::Get() );
-
-  if ( !handle )
-  {
-    Dali::SingletonService service( SingletonService::Get() );
-    if ( service )
-    {
-      Dali::AccessibilityAdaptor adaptor = Dali::AccessibilityAdaptor( new AccessibilityAdaptor() );
-      service.Register( typeid( adaptor ), adaptor );
-      handle = adaptor;
-    }
-  }
-
-  return handle;
-}
-
-TypeRegistration ACCESSIBILITY_ADAPTOR_TYPE( typeid(Dali::AccessibilityAdaptor), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
-
-} // unnamed namespace
-
 Dali::AccessibilityAdaptor AccessibilityAdaptor::Get()
 {
   Dali::AccessibilityAdaptor adaptor;
@@ -71,6 +46,11 @@ Dali::AccessibilityAdaptor AccessibilityAdaptor::Get()
     {
       // If so, downcast the handle
       adaptor = Dali::AccessibilityAdaptor( dynamic_cast< AccessibilityAdaptor* >( handle.GetObjectPtr() ) );
+    }
+    else
+    {
+      adaptor = Dali::AccessibilityAdaptor( new AccessibilityAdaptor() );
+      service.Register( typeid( adaptor ), adaptor );
     }
   }
 

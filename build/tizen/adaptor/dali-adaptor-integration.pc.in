@@ -4,9 +4,9 @@ apiversion=@DALI_ADAPTOR_VERSION@
 libdir=@libdir@
 includedir=@devincludepath@
 
-Name: Samsung OpenGLES Adaptor Integration
-Description: Adaptor integration layer for 3D Canvas using OpenGLES
+Name: dali-adaptor-integration
+Description: Integration APIs for dali-adaptor
 Version: ${apiversion}
-Requires: dali
+Requires: dali-adaptor
 Libs: -L${libdir}
 Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptors/

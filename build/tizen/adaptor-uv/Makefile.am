@@ -225,13 +225,12 @@ input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_fil
 endif
 
 
-
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = dali-adaptor.pc dali-adaptor-integration.pc
+pkgconfig_DATA = dali-adaptor-uv.pc
 
-lib_LTLIBRARIES = libdali-adaptor.la
+lib_LTLIBRARIES = libdali-adaptor-uv.la
 
-libdali_adaptor_la_SOURCES = \
+libdali_adaptor_uv_la_SOURCES = \
                      $(base_adaptor_src_files) \
                      $(main_loop_integration_src_files) \
                      $(tizen_platform_abstraction_src_files) \
@@ -243,14 +242,14 @@ libdali_adaptor_la_SOURCES = \
 
 
 if ENABLE_NETWORK_LOGGING
-libdali_adaptor_la_SOURCES += \
+libdali_adaptor_uv_la_SOURCES += \
   $(base_adaptor_networking_src_files)
 endif
 
-libdali_adaptor_la_DEPENDENCIES =
+libdali_adaptor_uv_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (tizen) before portable root:
-libdali_adaptor_la_includes = \
+libdali_adaptor_uv_la_includes = \
                       -I../../.. \
                       -I../../../platform-abstractions/tizen \
                       -I../../../platform-abstractions/tizen/resource-loader \
@@ -267,36 +266,36 @@ libdali_adaptor_la_includes = \
                       -I../../../text/dali/internal/libunibreak
 
 if WAYLAND
-libdali_adaptor_la_includes += -I../../../adaptors/integration-api/wayland
+libdali_adaptor_uv_la_includes += -I../../../adaptors/integration-api/wayland
 if USE_ECORE_WAYLAND
-libdali_adaptor_la_includes += \
+libdali_adaptor_uv_la_includes += \
                       -I../../../adaptors/ecore/common \
                       -I../../../adaptors/ecore/wayland
 else
-libdali_adaptor_la_includes += -I../../../adaptors/wayland \
+libdali_adaptor_uv_la_includes += -I../../../adaptors/wayland \
                                -I../../../adaptors/wayland/imf \
                                -I../../../adaptors/wayland/clipboard \
                                -I../../../adaptors/wayland/native-image
 endif
 else
-libdali_adaptor_la_includes += \
+libdali_adaptor_uv_la_includes += \
                       -I../../../adaptors/ecore/common \
                       -I../../../adaptors/x11 \
                       -I../../../adaptors/integration-api/x11
 endif
 
 if UBUNTU_PROFILE
-libdali_adaptor_la_includes += \
+libdali_adaptor_uv_la_includes += \
                       -I../../../adaptors/ubuntu
 else
-libdali_adaptor_la_includes += \
+libdali_adaptor_uv_la_includes += \
                       -I../../../adaptors/tizen
 endif
 
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
 daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
-libdali_adaptor_la_CXXFLAGS = \
+libdali_adaptor_uv_la_CXXFLAGS = \
                       -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\"" \
                       -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\"" \
                       -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\"" \
@@ -310,7 +309,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \
-                      $(libdali_adaptor_la_includes) \
+                      $(libdali_adaptor_uv_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
                       $(DALICORE_CFLAGS) \
                       $(OPENGLES20_CFLAGS) \
@@ -329,12 +328,12 @@ libdali_adaptor_la_CXXFLAGS = \
 
 # Todo, as soon as common repos are updated on build server remove this.
 if !COMMON_PROFILE
-libdali_adaptor_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
+libdali_adaptor_uv_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
 endif
 
-libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
+libdali_adaptor_uv_la_CFLAGS = $(libdali_adaptor_uv_la_CXXFLAGS)
 
-libdali_adaptor_la_LIBADD = \
+libdali_adaptor_uv_la_LIBADD = \
                       $(DALICORE_LIBS) \
                       $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
@@ -351,12 +350,11 @@ libdali_adaptor_la_LIBADD = \
                       $(TPKP_CURL_LIBS) \
                       -lgif \
                       -lpthread \
-                      -lturbojpeg \
-                      -ljpeg
+                      -lturbojpeg
 
 if USE_EFL
 # EVAS used indicator
-libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS) \
+libdali_adaptor_uv_la_CXXFLAGS += $(ELEMENTARY_CFLAGS) \
                                $(EVAS_CFLAGS) \
                                $(ECORE_CFLAGS) \
                                $(ECORE_IPC_CFLAGS) \
@@ -364,21 +362,28 @@ libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS) \
                                -DUSE_EFL
 
 
-libdali_adaptor_la_LIBADD += $(ELEMENTARY_LIBS) \
+libdali_adaptor_uv_la_LIBADD += $(ELEMENTARY_LIBS) \
                              $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
+
+else
+
+if MOBILE_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
 
 endif
 
 if USE_APPFW
 
-libdali_adaptor_la_CXXFLAGS += $(CAPI_APPFW_APPLICATION_CFLAGS) \
+libdali_adaptor_uv_la_CXXFLAGS += $(CAPI_APPFW_APPLICATION_CFLAGS) \
                                $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
                                $(CAPI_SYSTEM_INFO_CFLAGS) \
                                $(TTS_CFLAGS) \
                                $(SENSOR_CFLAGS)
 
-libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
+libdali_adaptor_uv_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                              $(CAPI_SYSTEM_INFO_LIBS) \
                              $(TTS_LIBS) \
@@ -387,45 +392,45 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
 endif
 if WAYLAND
 # This is to avoid having to include wayland-egl.h everywhere
-libdali_adaptor_la_CXXFLAGS += -DWL_EGL_PLATFORM
-libdali_adaptor_la_CXXFLAGS += $(WAYLAND_CFLAGS)
-libdali_adaptor_la_LIBADD += $(WAYLAND_LIBS)
+libdali_adaptor_uv_la_CXXFLAGS += -DWL_EGL_PLATFORM
+libdali_adaptor_uv_la_CXXFLAGS += $(WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(WAYLAND_LIBS)
 else
-libdali_adaptor_la_CXXFLAGS += $(X11_CFLAGS)
-libdali_adaptor_la_LIBADD += $(X11_LIBS)
-libdali_adaptor_la_LIBADD += $(ECORE_X_LIBS)
+libdali_adaptor_uv_la_CXXFLAGS += $(X11_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(X11_LIBS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_X_LIBS)
 endif
 
 if COMMON_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_uv_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 endif
 
 if MOBILE_PROFILE
-libdali_adaptor_la_CXXFLAGS += \
+libdali_adaptor_uv_la_CXXFLAGS += \
                       $(DEVICED_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
                       $(NATIVE_BUFFER_CFLAGS) \
                       $(NATIVE_BUFFER_POOL_CFLAGS)
 
-libdali_adaptor_la_LIBADD += \
+libdali_adaptor_uv_la_LIBADD += \
                       $(EFL_ASSIST_LIBS) \
                       $(NATIVE_BUFFER_LIBS) \
                       $(NATIVE_BUFFER_POOL_LIBS)
 endif
 
 if WEARABLE_PROFILE
-libdali_adaptor_la_CXXFLAGS += \
+libdali_adaptor_uv_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS)
 endif
 
 if TV_PROFILE
-libdali_adaptor_la_CXXFLAGS += $(HAPTIC_CFLAGS)
-libdali_adaptor_la_LIBADD +=
+libdali_adaptor_uv_la_CXXFLAGS += $(HAPTIC_CFLAGS)
+libdali_adaptor_uv_la_LIBADD +=
 endif
 
 if UBUNTU_PROFILE
-libdali_adaptor_la_LIBADD += -ljpeg
+libdali_adaptor_uv_la_LIBADD += -ljpeg
 CFLAGS += -fPIC
 endif
 
@@ -509,10 +514,10 @@ linker_test_CXXFLAGS += \
 endif
 
 
-linker_test_DEPENDENCIES = libdali-adaptor.la
+linker_test_DEPENDENCIES = libdali-adaptor-uv.la
 linker_test_LDADD = \
   $(DALICORE_LIBS) \
   $(VCONF_LIBS) \
-  libdali-adaptor.la \
+  libdali-adaptor-uv.la \
   $(HARFBUZZ_LIBS) \
   -L${prefix}/lib
