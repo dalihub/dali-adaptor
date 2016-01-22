@@ -44,6 +44,7 @@ class NativeImageSource;
 class NativeImageSource;
 /**
  * @brief Pointer to Dali::NativeImageSource.
+ * @SINCE_1_0.0
  */
 typedef IntrusivePtr<NativeImageSource> NativeImageSourcePtr;
 
@@ -53,7 +54,7 @@ typedef IntrusivePtr<NativeImageSource> NativeImageSourcePtr;
  * The native image source can be created internally or
  * externally by X11 or ECORE-X11.
  *
- * @since DALi 1.1.4
+ * @SINCE_1_1.4
  */
 class DALI_IMPORT_API NativeImageSource : public NativeImageInterface
 {
@@ -61,20 +62,22 @@ public:
 
    /**
     * @brief When creating a native image the color depth has to be specified.
+    * @SINCE_1_0.0
     */
    enum ColorDepth
    {
-     COLOR_DEPTH_DEFAULT,     ///< Uses the current X screen default depth (recommended)
-     COLOR_DEPTH_8,           ///< 8 bits per pixel
-     COLOR_DEPTH_16,          ///< 16 bits per pixel
-     COLOR_DEPTH_24,          ///< 24 bits per pixel
-     COLOR_DEPTH_32           ///< 32 bits per pixel
+     COLOR_DEPTH_DEFAULT,     ///< Uses the current X screen default depth (recommended) @SINCE_1_0.0
+     COLOR_DEPTH_8,           ///< 8 bits per pixel @SINCE_1_0.0
+     COLOR_DEPTH_16,          ///< 16 bits per pixel @SINCE_1_0.0
+     COLOR_DEPTH_24,          ///< 24 bits per pixel @SINCE_1_0.0
+     COLOR_DEPTH_32           ///< 32 bits per pixel @SINCE_1_0.0
    };
 
   /**
    * @brief Create a new NativeImageSource.
    *
    * Depending on hardware the width and height may have to be a power of two.
+   * @SINCE_1_0.0
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the image.
@@ -85,6 +88,7 @@ public:
   /**
    * @brief Create a new NativeImageSource from an existing native image.
    *
+   * @SINCE_1_0.0
    * @param[in] nativeImageSource must be a X11 pixmap or a Ecore_X_Pixmap
    * @return A smart-pointer to a newly allocated image.
    */
@@ -93,6 +97,7 @@ public:
   /**
    * @brief Retrieve the internal native image.
    *
+   * @SINCE_1_0.0
    * @return Any object containing the internal native image.
    */
   Any GetNativeImageSource();
@@ -102,6 +107,7 @@ public:
    *
    * This is only supported for 24 bit RGB and 32 bit RGBA internal formats
    * (COLOR_DEPTH_24 and COLOR_DEPTH_32).
+   * @SINCE_1_0.0
    * @param[out] pixbuf a vector to store the pixels in
    * @param[out] width  width of image
    * @param[out] height height of image
@@ -114,6 +120,7 @@ public:
    * @brief Convert the current pixel contents to either a JPEG or PNG format
    * and write that to the filesytem.
    *
+   * @SINCE_1_0.0
    * @param[in] filename Identify the filesytem location at which to write the
    *                     encoded image. The extension determines the encoding used.
    *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
@@ -162,6 +169,7 @@ private:
 
   /**
    * @brief Private constructor
+   * @SINCE_1_0.0
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the image.
@@ -173,6 +181,7 @@ private:
    * @brief A reference counted object may only be deleted by calling Unreference().
    *
    * The implementation should destroy the NativeImage resources.
+   * @SINCE_1_0.0
    */
   DALI_INTERNAL virtual ~NativeImageSource();
 
@@ -180,6 +189,7 @@ private:
    * @brief Undefined copy constructor
    *
    * This avoids accidental calls to a default copy constructor.
+   * @SINCE_1_0.0
    * @param[in] nativeImageSource A reference to the object to copy.
    */
   DALI_INTERNAL NativeImageSource( const NativeImageSource& nativeImageSource );
@@ -188,6 +198,7 @@ private:
    * @brief Undefined assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.
+   * @SINCE_1_0.0
    * @param[in] rhs A reference to the object to copy.
    */
   DALI_INTERNAL NativeImageSource& operator=(const NativeImageSource& rhs);

@@ -51,6 +51,7 @@ class Orientation;
  *
  * It has an orientation
  * and indicator properties.
+ * @SINCE_1_0.0
  */
 class DALI_IMPORT_API Window : public BaseHandle
 {
@@ -63,6 +64,7 @@ public:
 
   /**
    * @brief Orientation of the window.
+   * @SINCE_1_0.0
    */
   enum WindowOrientation
   {
@@ -74,6 +76,7 @@ public:
 
   /**
    * @brief Opacity of the indicator.
+   * @SINCE_1_0.0
    */
   enum IndicatorBgOpacity
   {
@@ -84,6 +87,7 @@ public:
 
   /**
    * @brief Visible mode of the indicator.
+   * @SINCE_1_0.0
    */
   enum IndicatorVisibleMode
   {
@@ -96,6 +100,7 @@ public:
 
   /**
    * @brief Create an initialized handle to a new Window.
+   * @SINCE_1_0.0
    * @param[in] windowPosition The position and size of the window
    * @param[in] name The window title
    * @param[in] isTransparent Whether window is transparent
@@ -105,6 +110,7 @@ public:
 
   /**
    * @brief Create an initialized handle to a new Window.
+   * @SINCE_1_0.0
    * @param[in] windowPosition The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
@@ -118,6 +124,7 @@ public:
    *
    * This can be initialized using Dali::Application::GetWindow() or
    * Dali::Window::New()
+   * @SINCE_1_0.0
    */
   Window();
 
@@ -125,12 +132,14 @@ public:
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   * @SINCE_1_0.0
    */
   ~Window();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_1_0.0
    * @param [in] handle A reference to the copied handle
    */
   Window(const Window& handle);
@@ -138,6 +147,7 @@ public:
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
    *
+   * @SINCE_1_0.0
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
@@ -145,12 +155,14 @@ public:
 
   /**
    * @brief This sets whether the indicator bar should be shown or not.
+   * @SINCE_1_0.0
    * @param[in] visibleMode visible mode for indicator bar, VISIBLE in default
    */
   void ShowIndicator( IndicatorVisibleMode visibleMode );
 
   /**
    * @brief This sets the opacity mode of indicator bar.
+   * @SINCE_1_0.0
    * @param[in] opacity - The opacity mode
    */
   void SetIndicatorBgOpacity( IndicatorBgOpacity opacity );
@@ -160,12 +172,14 @@ public:
    *
    * It does not implicitly show the indicator if it is currently
    * hidden.
+   * @SINCE_1_0.0
    * @param[in] orientation The orientation
    */
   void RotateIndicator(WindowOrientation orientation);
 
   /**
    * @brief Set the window name and class string.
+   * @SINCE_1_0.0
    * @param[in] name The name of the window
    * @param[in] klass The class of the window
    */
@@ -173,63 +187,74 @@ public:
 
   /**
    * @brief Raise window to top of window stack.
+   * @SINCE_1_0.0
    */
   void Raise();
 
   /**
    * @brief Lower window to bottom of window stack.
+   * @SINCE_1_0.0
    */
   void Lower();
 
   /**
    * @brief Activate window to top of window stack even it is iconified.
+   * @SINCE_1_0.0
    */
   void Activate();
 
   /**
    * @brief Add an orientation to the list of available orientations.
+   * @SINCE_1_0.0
    */
   void AddAvailableOrientation( WindowOrientation orientation );
 
   /**
    * @brief Remove an orientation from the list of available orientations.
+   * @SINCE_1_0.0
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
 
   /**
    * @brief Set a preferred orientation.
-   * @pre orientation is in the list of available orientations
+   * @SINCE_1_0.0
    * @param[in] orientation The preferred orientation
+   * @pre orientation is in the list of available orientations
    */
   void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
    * @brief Get the preferred orientation.
+   * @SINCE_1_0.0
    * @return The preferred orientation if previously set, or none.
    */
   WindowOrientation GetPreferredOrientation();
 
   /**
    * @brief Returns the Drag & drop detector which can be used to receive drag & drop events.
+   * @SINCE_1_0.0
    * @return A handle to the DragAndDropDetector.
    */
   DragAndDropDetector GetDragAndDropDetector() const;
 
   /**
    * @brief Get the native handle of the window.
+   * @SINCE_1_0.0
    * @return The native handle of the window or an empty handle.
    */
   Any GetNativeHandle() const;
 
 public: // Signals
   /**
-   * The user should connect to this signal to get a timing when indicator was shown / hidden.
+   * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
+   * @SINCE_1_0.0
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal();
 
 public: // Not intended for application developers
   /**
    * @brief This constructor is used by Dali::Application::GetWindow().
+   * @SINCE_1_0.0
    * @param[in] window A pointer to the window.
    */
   explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );

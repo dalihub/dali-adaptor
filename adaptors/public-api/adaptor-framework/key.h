@@ -31,6 +31,7 @@ namespace Dali
 
 /**
  * @brief Mapping of keyboard and mouse button event keycodes to platform specific codes.
+ * @SINCE_1_0.0
  */
 
 enum KEY
@@ -82,6 +83,7 @@ enum KEY
 /**
  * @brief Check if a key event is for a specific DALI KEY.
  *
+ * @SINCE_1_0.0
  * @param keyEvent reference to a keyEvent structure
  * @param daliKey dali key enum
  * @return true if the key is matched, false if not
