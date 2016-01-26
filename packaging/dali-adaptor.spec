@@ -25,8 +25,9 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
 
-# Get the profile from tizen_profile_name if it exists.
-%if 0%{?tizen_profile_name:1}
+# Get the profile from tizen_profile_name if tizen version is 2.x and tizen_profile_name exists.
+
+%if "%{tizen_version_major}" == "2" && 0%{?tizen_profile_name:1}
 %define profile %{tizen_profile_name}
 %endif
 
