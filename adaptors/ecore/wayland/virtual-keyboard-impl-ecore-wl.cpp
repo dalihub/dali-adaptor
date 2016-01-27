@@ -46,12 +46,40 @@ namespace VirtualKeyboard
 
 Dali::InputMethod::ActionButton gActionButtonFunction = Dali::InputMethod::ACTION_DEFAULT;
 
+Ecore_IMF_Input_Panel_Return_Key_Type actionButtonMapping(Dali::InputMethod::ActionButton actionButton )
+{
+  switch( actionButton )
+  {
+    case InputMethod::ACTION_DEFAULT:     return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    case InputMethod::ACTION_DONE:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE;
+    case InputMethod::ACTION_GO:          return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO;
+    case InputMethod::ACTION_JOIN:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN;
+    case InputMethod::ACTION_LOGIN:       return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN;
+    case InputMethod::ACTION_NEXT:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT;
+    case InputMethod::ACTION_PREVIOUS:    return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    case InputMethod::ACTION_SEARCH:      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH;
+    case InputMethod::ACTION_SEND:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND;
+    case InputMethod::ACTION_SIGNIN:      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    case InputMethod::ACTION_UNSPECIFIED: return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    case InputMethod::ACTION_NONE:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    default:                              return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+  }
+}
+
 void RotateTo(int angle)
 {
 }
 
 void SetReturnKeyType( const InputMethod::ActionButton type )
 {
+  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when setting values
+  Ecore_IMF_Context* imfContext = ImfManager::GetImplementation( imfManager ).GetContext();
+
+  if( imfContext )
+  {
+    gActionButtonFunction = type;
+    ecore_imf_context_input_panel_return_key_type_set( imfContext, actionButtonMapping( type ) );
+  }
 }
 
 Dali::InputMethod::ActionButton GetReturnKeyType()
