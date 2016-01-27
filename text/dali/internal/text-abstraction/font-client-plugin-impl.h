@@ -237,7 +237,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetFontMetrics()
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize );
 
   /**
    * @copydoc Dali::FontClient::GetGlyphIndex()
@@ -247,7 +247,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()

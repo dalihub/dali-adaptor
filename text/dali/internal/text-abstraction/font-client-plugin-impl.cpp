@@ -649,7 +649,7 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
 
 void FontClient::Plugin::GetFontMetrics( FontId fontId,
                                          FontMetrics& metrics,
-                                         int maxFixedSize )
+                                         int desiredFixedSize )
 {
   if( fontId > 0 &&
       fontId-1 < mFontCache.size() )
@@ -660,10 +660,9 @@ void FontClient::Plugin::GetFontMetrics( FontId fontId,
 
     // Adjust the metrics if the fixed-size font should be down-scaled
     if( font.mIsFixedSizeBitmap &&
-        ( maxFixedSize > 0 ) &&
-        ( font.mFixedHeightPixels > maxFixedSize ) )
+        ( desiredFixedSize > 0 ) )
     {
-      float scaleFactor = static_cast<float>(maxFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+      float scaleFactor = static_cast<float>(desiredFixedSize) / static_cast<float>(font.mFixedHeightPixels);
 
       metrics.ascender           *= scaleFactor;
       metrics.descender          *= scaleFactor;
@@ -697,7 +696,7 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
 bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
                                           uint32_t size,
                                           bool horizontal,
-                                          int maxFixedSize )
+                                          int desiredFixedSize )
 {
   bool success( true );
 
@@ -726,10 +725,9 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
           array[i].yBearing = font.mFixedHeightPixels;
 
           // Adjust the metrics if the fixed-size font should be down-scaled
-          if( ( maxFixedSize > 0 ) &&
-              ( font.mFixedHeightPixels > maxFixedSize ) )
+          if( desiredFixedSize > 0 )
           {
-            float scaleFactor = static_cast<float>(maxFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+            float scaleFactor = static_cast<float>(desiredFixedSize) / static_cast<float>(font.mFixedHeightPixels);
 
             array[i].width    *= scaleFactor;
             array[i].height   *= scaleFactor;
