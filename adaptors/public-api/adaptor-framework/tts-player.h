@@ -39,6 +39,7 @@ class TtsPlayer;
 
 /**
  * @brief The Text-to-speech Player.
+ * @SINCE_1_0.0
  */
 class DALI_IMPORT_API TtsPlayer : public BaseHandle
 {
@@ -46,30 +47,33 @@ public: // ENUMs
 
   /**
    * @brief Enumeration of TTS mode.
+   * @SINCE_1_0.0
    */
   enum Mode
   {
-    DEFAULT = 0,  ///< Default mode for normal application
-    NOTIFICATION, ///< Notification mode
-    SCREEN_READER, ///< Screen reader mode
+    DEFAULT = 0,  ///< Default mode for normal application @SINCE_1_0.0
+    NOTIFICATION, ///< Notification mode @SINCE_1_0.0
+    SCREEN_READER, ///< Screen reader mode @SINCE_1_0.0
     MODE_NUM
   };
 
   /**
    * @brief Enumeration of TTS state.
+   * @SINCE_1_0.0
    */
   enum State
   {
-    UNAVAILABLE = 0,    ///< Player is not available
-    READY,              ///< Player is ready to play
-    PLAYING,            ///< Player is playing
-    PAUSED              ///< Player is paused
+    UNAVAILABLE = 0,    ///< Player is not available @SINCE_1_0.0
+    READY,              ///< Player is ready to play @SINCE_1_0.0
+    PLAYING,            ///< Player is playing @SINCE_1_0.0
+    PAUSED              ///< Player is paused @SINCE_1_0.0
   };
 
 public: // Typedefs
 
   /**
    * @brief Type of signal emitted when the TTS state changes.
+   * @SINCE_1_0.0
    */
   typedef Signal< void ( const Dali::TtsPlayer::State, const Dali::TtsPlayer::State ) > StateChangedSignalType;
 
@@ -79,12 +83,14 @@ public: // API
    * @brief Create an uninitialized handle.
    *
    * This can be initialized by calling TtsPlayer::Get().
+   * @SINCE_1_0.0
    */
   TtsPlayer();
 
   /**
    * @brief Gets the singleton of the TtsPlayer for the given mode.
    *
+   * @SINCE_1_0.0
    * @param mode the mode of tts-player
    * @return A handle of the Ttsplayer for the given mode.
    */
@@ -94,12 +100,14 @@ public: // API
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   * @SINCE_1_0.0
    */
   ~TtsPlayer();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_1_0.0
    * @param [in] handle A reference to the copied handle
    */
   TtsPlayer(const TtsPlayer& handle);
@@ -107,6 +115,7 @@ public: // API
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
    *
+   * @SINCE_1_0.0
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
@@ -115,31 +124,36 @@ public: // API
   /**
    * @brief Start playing the audio data synthesized from the specified text.
    *
-   * @pre The TtsPlayer needs to be initialized.
+   * @SINCE_1_0.0
    * @param[in] text to play.
+   * @pre The TtsPlayer needs to be initialized.
    */
   void Play(const std::string& text);
 
   /**
    * @brief Stops playing the utterance.
+   * @SINCE_1_0.0
    * @pre The TtsPlayer needs to be initialized.
    */
   void Stop();
 
   /**
    * @brief Pauses the currently playing utterance.
+   * @SINCE_1_0.0
    * @pre The TtsPlayer needs to be initialized.
    */
   void Pause();
 
   /**
    * @brief Resumes the previously paused utterance.
+   * @SINCE_1_0.0
    * @pre The TtsPlayer needs to be initialized.
    */
   void Resume();
 
   /**
    * @brief Gets the current state of the player.
+   * @SINCE_1_0.0
    * @pre The TtsPlayer needs to be initialized.
    */
   State GetState();
@@ -147,6 +161,7 @@ public: // API
   /**
    * @brief Allows connection TTS state change signal.
    * Note: Only supported by some adaptor types.
+   * @SINCE_1_0.0
    * @return A reference to the signal for connection.
    */
   Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
@@ -155,6 +170,7 @@ public: // Not intended for application developers
 
   /**
    * @brief This constructor is used by TtsPlayer::Get().
+   * @SINCE_1_0.0
    * @param[in] ttsPlayer A pointer to the TTS player.
    */
   explicit DALI_INTERNAL TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );

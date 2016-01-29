@@ -28,8 +28,8 @@ namespace Configuration
 {
 enum ContextLoss
 {
-  APPLICATION_HANDLES_CONTEXT_LOSS,  ///< Application will tear down and recreate UI on context loss and context regained signals. Dali doesn't need to retain data.
-  APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS, ///< Application expects Dali to retain data ( increased memory footprint )
+  APPLICATION_HANDLES_CONTEXT_LOSS,  ///< Application will tear down and recreate UI on context loss and context regained signals. Dali doesn't need to retain data. @SINCE_1_0.0
+  APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS, ///< Application expects Dali to retain data ( increased memory footprint ) @SINCE_1_0.0
 };
 
 } // Configuration

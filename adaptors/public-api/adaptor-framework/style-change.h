@@ -34,9 +34,9 @@ namespace StyleChange
 
 enum Type
 {
-  DEFAULT_FONT_CHANGE,      ///< Denotes that the default font has changed.
-  DEFAULT_FONT_SIZE_CHANGE, ///< Denotes that the default font size has changed.
-  THEME_CHANGE              ///< Denotes that the theme has changed.
+  DEFAULT_FONT_CHANGE,      ///< Denotes that the default font has changed. @SINCE_1_0.0
+  DEFAULT_FONT_SIZE_CHANGE, ///< Denotes that the default font size has changed. @SINCE_1_0.0
+  THEME_CHANGE              ///< Denotes that the theme has changed. @SINCE_1_0.0
 };
 
 } // namespace StyleChange

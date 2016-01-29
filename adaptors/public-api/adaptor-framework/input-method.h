@@ -38,6 +38,7 @@ namespace InputMethod
  * Not all these actions are supported by all systems
  *
  * Setting a custom label will still require one of these actions to be set.
+ * @SINCE_1_0.0
  */
 enum ActionButton
 {
@@ -59,6 +60,7 @@ enum ActionButton
  * @brief Settings that can be changed in the system Input Method
  *
  * Not all these settings are supported by all systems
+ * @SINCE_1_0.0
  */
 enum Settings
 {
