@@ -112,6 +112,9 @@ BuildRequires:  libxkbcommon-devel
 # dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
 
+# dali-adaptor needs tbm_surface in tizen 3.0 wayland
+BuildRequires:  pkgconfig(libtbm)
+
 # tpkp-curl (certificate pinning for libcurl functions) is only available in Tizen 3.0
 BuildRequires:  pkgconfig(tpkp-curl)
 
