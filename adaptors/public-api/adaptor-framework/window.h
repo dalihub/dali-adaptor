@@ -49,8 +49,8 @@ class Orientation;
 /**
  * @brief The window class is used internally for drawing.
  *
- * It has an orientation
- * and indicator properties.
+ * A Window has an orientation and indicator properties.
+ * You can get a valid Window handle by calling Dali::Application::GetWindow().
  * @SINCE_1_0.0
  */
 class DALI_IMPORT_API Window : public BaseHandle
@@ -68,10 +68,10 @@ public:
    */
   enum WindowOrientation
   {
-    PORTRAIT = 0,
-    LANDSCAPE = 90,
-    PORTRAIT_INVERSE = 180,
-    LANDSCAPE_INVERSE = 270
+    PORTRAIT = 0,  ///< Portrait orientation @SINCE_1_0.0
+    LANDSCAPE = 90,  ///< Landscape orientation @SINCE_1_0.0
+    PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
+    LANDSCAPE_INVERSE = 270  ///< Landscape inverse orientation @SINCE_1_0.0
   };
 
   /**
@@ -80,9 +80,9 @@ public:
    */
   enum IndicatorBgOpacity
   {
-    OPAQUE = 100, // Fully opaque indicator Bg
-    TRANSLUCENT = 50, // Semi translucent indicator Bg
-    TRANSPARENT = 0 // Fully transparent indicator Bg
+    OPAQUE = 100, ///< Fully opaque indicator Bg @SINCE_1_0.0
+    TRANSLUCENT = 50, ///< Semi translucent indicator Bg @SINCE_1_0.0
+    TRANSPARENT = 0 ///< Fully transparent indicator Bg @SINCE_1_0.0
   };
 
   /**
@@ -91,9 +91,9 @@ public:
    */
   enum IndicatorVisibleMode
   {
-    INVISIBLE = 0, // hide indicator
-    VISIBLE = 1, // show indicator
-    AUTO = 2 // hide in default, will show when necessary
+    INVISIBLE = 0, ///< Hide indicator @SINCE_1_0.0
+    VISIBLE = 1, ///< Show indicator @SINCE_1_0.0
+    AUTO = 2 ///< Hide in default, will show when necessary @SINCE_1_0.0
   };
 
   // Methods
@@ -156,14 +156,14 @@ public:
   /**
    * @brief This sets whether the indicator bar should be shown or not.
    * @SINCE_1_0.0
-   * @param[in] visibleMode visible mode for indicator bar, VISIBLE in default
+   * @param[in] visibleMode Visible mode for indicator bar, VISIBLE in default
    */
   void ShowIndicator( IndicatorVisibleMode visibleMode );
 
   /**
    * @brief This sets the opacity mode of indicator bar.
    * @SINCE_1_0.0
-   * @param[in] opacity - The opacity mode
+   * @param[in] opacity The opacity mode
    */
   void SetIndicatorBgOpacity( IndicatorBgOpacity opacity );
 

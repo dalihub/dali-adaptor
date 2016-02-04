@@ -29,6 +29,10 @@ namespace Dali
  * @{
  */
 
+/**
+ * @brief Style change information.
+ * @SINCE_1_0.0
+ */
 namespace StyleChange
 {
 
