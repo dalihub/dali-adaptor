@@ -88,6 +88,8 @@ if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
 fi
 
+PKG_CHECK_MODULES(UTILX, utilX, [ utilx_available=yes ], [ utilx_available=no ] )
+
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DPLATFORM_TIZEN"
 
 AC_ARG_ENABLE(exportall,
@@ -267,7 +269,7 @@ fi
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
 if test "x$enable_efl" = "xyes"; then
 if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
                   [DALI_USE_ECORE_WAYLAND=1],
                   [DALI_USE_ECORE_WAYLAND=0])
 
@@ -293,7 +295,7 @@ fi
 #  wayland-extension-client include xdg-shell-client
 if test "x$enable_efl" = "xno"; then
 if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon],
+PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
                   [DALI_USE_WAYLAND=1],
                   [DALI_USE_WAYLAND=0])
 fi

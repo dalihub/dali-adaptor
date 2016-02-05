@@ -51,8 +51,8 @@ typedef IntrusivePtr<NativeImageSource> NativeImageSourcePtr;
 /**
  * @brief Used for displaying native images.
  *
- * The native image source can be created internally or
- * externally by X11 or ECORE-X11.
+ * NativeImageSource can be created internally or
+ * externally by native image source.
  *
  * @SINCE_1_1.4
  */
@@ -66,7 +66,7 @@ public:
     */
    enum ColorDepth
    {
-     COLOR_DEPTH_DEFAULT,     ///< Uses the current X screen default depth (recommended) @SINCE_1_0.0
+     COLOR_DEPTH_DEFAULT,     ///< Uses the current screen default depth (recommended) @SINCE_1_0.0
      COLOR_DEPTH_8,           ///< 8 bits per pixel @SINCE_1_0.0
      COLOR_DEPTH_16,          ///< 16 bits per pixel @SINCE_1_0.0
      COLOR_DEPTH_24,          ///< 24 bits per pixel @SINCE_1_0.0
@@ -86,10 +86,10 @@ public:
   static NativeImageSourcePtr New( unsigned int width, unsigned int height, ColorDepth depth );
 
   /**
-   * @brief Create a new NativeImageSource from an existing native image.
+   * @brief Create a new NativeImageSource from an existing native image source.
    *
    * @SINCE_1_0.0
-   * @param[in] nativeImageSource must be a X11 pixmap or a Ecore_X_Pixmap
+   * @param[in] nativeImageSource must be a any handle with native image source
    * @return A smart-pointer to a newly allocated image.
    */
   static NativeImageSourcePtr New( Any nativeImageSource );
@@ -98,7 +98,7 @@ public:
    * @brief Retrieve the internal native image.
    *
    * @SINCE_1_0.0
-   * @return Any object containing the internal native image.
+   * @return Any object containing the internal native image source.
    */
   Any GetNativeImageSource();
 
@@ -127,6 +127,14 @@ public:
    * @return    True if the pixels were written, and false otherwise.
    */
   bool EncodeToFile(const std::string& filename) const;
+
+  /**
+   * @brief Set an existing native image source
+   *
+   * @SINCE_1_1.19
+   * @param[in] source Any handle with native image source
+   */
+  void SetNativeImageSource( Any source );
 
 private:   // native image
 
@@ -165,6 +173,11 @@ private:   // native image
    */
   virtual bool RequiresBlending() const;
 
+  /**
+   * @copydoc Dali::NativeImageInterface::GetExtension()
+   */
+  NativeImageInterface::Extension* GetExtension();
+
 private:
 
   /**
@@ -173,7 +186,7 @@ private:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the image.
-   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] nativeImageSource contains either: native image source or is empty
    */
   DALI_INTERNAL NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource );
 

@@ -79,6 +79,7 @@ public:
    * @copydoc Dali::BidirectionalSupport::GetMirroredText()
    */
   bool GetMirroredText( Character* text,
+                        CharacterDirection* directions,
                         Length numberOfCharacters );
 
   /**

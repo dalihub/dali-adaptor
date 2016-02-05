@@ -127,14 +127,19 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                               $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
+
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files) \
                               $(adaptor_ecore_wayland_internal_default_profile_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif
+endif # USE_ECORE_WAYLAND
+
+adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
+                              $(adaptor_tizen_internal_native_image_src_files)
 else
 adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
+                              $(adaptor_common_internal_egl_extension_src_files) \
                               $(adaptor_x11_internal_default_profile_src_files)
 endif # WAYLAND
 endif # COMMON_PROFILE
@@ -148,7 +153,8 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_ubuntu_internal_src_files) \
                              $(adaptor_x11_ubuntu_internal_src_files) \
                              $(adaptor_x11_internal_default_profile_src_files) \
-                             $(static_libraries_libunibreak_src_files)
+                             $(static_libraries_libunibreak_src_files) \
+                             $(adaptor_common_internal_egl_extension_src_files)
 
 endif # UBUNTU_PROFILE
 
@@ -162,13 +168,18 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
+
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif
+endif # USE_ECORE_WAYLAND
+
+adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
+                              $(adaptor_tizen_internal_native_image_src_files)
 else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
+                              $(adaptor_common_internal_egl_extension_src_files)
 endif # WAYLAND
 
 endif # MOBILE_PROFILE
@@ -181,13 +192,18 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
+
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif
+endif # USE_ECORE_WAYLAND
+
+adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
+                              $(adaptor_tizen_internal_native_image_src_files)
 else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
+                              $(adaptor_common_internal_egl_extension_src_files)
 endif # WAYLAND
 
 endif # WEARABLE
@@ -202,14 +218,19 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
+
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif
+endif # USE_ECORE_WAYLAND
+
+adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
+                              $(adaptor_tizen_internal_native_image_src_files)
 else
 adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
-                             $(adaptor_x11_internal_tv_profile_key_src_files)
+                              $(adaptor_x11_internal_tv_profile_key_src_files) \
+                              $(adaptor_common_internal_egl_extension_src_files)
 endif # WAYLAND
 
 endif
@@ -268,6 +289,7 @@ libdali_adaptor_la_includes = \
 
 if WAYLAND
 libdali_adaptor_la_includes += -I../../../adaptors/integration-api/wayland
+
 if USE_ECORE_WAYLAND
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/common \
@@ -275,15 +297,17 @@ libdali_adaptor_la_includes += \
 else
 libdali_adaptor_la_includes += -I../../../adaptors/wayland \
                                -I../../../adaptors/wayland/imf \
-                               -I../../../adaptors/wayland/clipboard \
-                               -I../../../adaptors/wayland/native-image
-endif
+                               -I../../../adaptors/wayland/clipboard
+endif # USE_ECORE_WAYLADN
+
+libdali_adaptor_la_includes += \
+                      -I../../../adaptors/tizen
 else
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/common \
                       -I../../../adaptors/x11 \
                       -I../../../adaptors/integration-api/x11
-endif
+endif # WAYLAND
 
 if UBUNTU_PROFILE
 libdali_adaptor_la_includes += \
@@ -325,7 +349,8 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
-                      $(TPKP_CURL_CFLAGS)
+                      $(TPKP_CURL_CFLAGS) \
+                      $(UTILX_CFLAGS)
 
 # Todo, as soon as common repos are updated on build server remove this.
 if !COMMON_PROFILE
@@ -349,6 +374,7 @@ libdali_adaptor_la_LIBADD = \
                       $(LIBCURL_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
+                      $(UTILX_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \
@@ -455,6 +481,7 @@ tizentextabstractiondevelapidir = $(tizenadaptordevelapidir)/text-abstraction
 tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
+tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_header_files)
 
 if !WAYLAND
 tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)

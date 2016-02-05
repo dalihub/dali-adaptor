@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.19
+Version:    1.1.20
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -111,6 +111,9 @@ BuildRequires:  libxkbcommon-devel
 
 # dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
+
+# dali-adaptor needs tbm_surface in tizen 3.0 wayland
+BuildRequires:  pkgconfig(libtbm)
 
 # tpkp-curl (certificate pinning for libcurl functions) is only available in Tizen 3.0
 BuildRequires:  pkgconfig(tpkp-curl)

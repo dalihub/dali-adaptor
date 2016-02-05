@@ -69,9 +69,11 @@ void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
 }
 
 bool BidirectionalSupport::GetMirroredText( Character* text,
+                                            CharacterDirection* directions,
                                             Length numberOfCharacters )
 {
   return GetImplementation( *this ).GetMirroredText( text,
+                                                     directions,
                                                      numberOfCharacters );
 }
 

@@ -1125,10 +1125,10 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
     else
     {
       error = FT_Set_Char_Size( ftFace,
-                              0,
-                              pointSize,
-                              mDpiHorizontal,
-                              mDpiVertical );
+                                0,
+                                pointSize,
+                                mDpiHorizontal,
+                                mDpiVertical );
 
       if( FT_Err_Ok == error )
       {
