@@ -47,10 +47,15 @@ struct AutoCleanupGif
     if(NULL != gifInfo)
     {
       // clean up GIF resources
-      DGifCloseFile(gifInfo);
+      int errorCode = 0; //D_GIF_SUCCEEDED is 0
+      DGifCloseFile(gifInfo, &errorCode);
+
+      if( errorCode )
+      {
+        DALI_LOG_ERROR( "GIF Loader: DGifCloseFile Error. Code: %d\n", errorCode);
+      }
     }
   }
-
   GifFileType*& gifInfo;
 };
 
@@ -98,10 +103,12 @@ int ReadDataFromGif(GifFileType *gifInfo, GifByteType *data, int length)
 /// Loads the GIF Header.
 bool LoadGifHeader(FILE *fp, unsigned int &width, unsigned int &height, GifFileType** gifInfo)
 {
-  *gifInfo = DGifOpen(reinterpret_cast<void*>(fp), ReadDataFromGif);
+  int errorCode = 0; //D_GIF_SUCCEEDED is 0
+  *gifInfo = DGifOpen(reinterpret_cast<void*>(fp), ReadDataFromGif, &errorCode);
 
-  if ( !(*gifInfo) )
+  if ( !(*gifInfo) || errorCode )
   {
+    DALI_LOG_ERROR( "GIF Loader: DGifOpen Error. Code: %d\n", errorCode);
     return false;
   }
 
@@ -242,7 +249,7 @@ bool HandleExtensionRecordType( GifFileType* gifInfo )
   GifByteType *extensionByte( NULL );
 
   // Not really interested in the extensions so just skip them unless there is an error.
-  for ( int extRetCode = DGifGetExtension( gifInfo, &image.Function, &extensionByte );
+  for ( int extRetCode = DGifGetExtension( gifInfo, &image.ExtensionBlocks->Function, &extensionByte );
         extensionByte != NULL;
         extRetCode = DGifGetExtensionNext( gifInfo, &extensionByte ) )
   {
