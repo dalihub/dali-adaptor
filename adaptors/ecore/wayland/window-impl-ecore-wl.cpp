@@ -63,8 +63,17 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
+    mWindowPropertyHandler( NULL ),
+    mClientMessageHandler( NULL ),
     mEcoreWindow( 0 )
   {
+    // store ecore window handle
+    ECore::WindowRenderSurface* wlWindow( dynamic_cast< ECore::WindowRenderSurface * >( mWindow->mSurface ) );
+    if( wlWindow )
+    {
+      mEcoreWindow = wlWindow->GetWlWindow();
+    }
+    DALI_ASSERT_ALWAYS( mEcoreWindow != 0 && "There is no ecore Wl window");
   }
 
   /**
@@ -76,9 +85,9 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowPropertyHandler );
     }
-    if ( mClientMessagehandler )
+    if ( mClientMessageHandler )
     {
-      ecore_event_handler_del( mClientMessagehandler );
+      ecore_event_handler_del( mClientMessageHandler );
     }
   }
 
@@ -99,7 +108,7 @@ struct Window::EventHandler
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mClientMessagehandler;
+  Ecore_Event_Handler* mClientMessageHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
 

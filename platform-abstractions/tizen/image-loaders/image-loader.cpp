@@ -20,12 +20,13 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 
+#include "loader-astc.h"
 #include "loader-bmp.h"
 #include "loader-gif.h"
-#include "loader-jpeg.h"
-#include "loader-png.h"
 #include "loader-ico.h"
+#include "loader-jpeg.h"
 #include "loader-ktx.h"
+#include "loader-png.h"
 #include "loader-wbmp.h"
 #include "image-operations.h"
 #include "image-loader-input.h"
@@ -74,6 +75,7 @@ enum FileFormats
   FORMAT_BMP,
   FORMAT_GIF,
   FORMAT_KTX,
+  FORMAT_ASTC,
   FORMAT_ICO,
   FORMAT_MAGIC_BYTE_COUNT,
 
@@ -93,6 +95,7 @@ const BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
   { Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
   { Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
   { Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED       },
+  { Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED       },
   { Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
   { 0x0,                0x0,                LoadBitmapFromWbmp, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS },
 };
@@ -115,6 +118,7 @@ const FormatExtension FORMAT_EXTENSIONS[] =
  { ".bmp",  FORMAT_BMP  },
  { ".gif",  FORMAT_GIF  },
  { ".ktx",  FORMAT_KTX  },
+ { ".astc", FORMAT_ASTC },
  { ".ico",  FORMAT_ICO  },
  { ".wbmp", FORMAT_WBMP }
 };

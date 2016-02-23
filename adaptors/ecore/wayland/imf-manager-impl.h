@@ -171,12 +171,19 @@ protected:
 
 private:
   /**
+   * Context created the first time and kept until deleted.
+   * @param[in] ecoreWlwin, The window is created by application.
+   */
+  void CreateContext( Ecore_Wl_Window *ecoreWlwin );
+
+  /**
    * @copydoc Dali::ImfManager::DeleteContext()
    */
   void DeleteContext();
 
 private:
   // Undefined
+  ImfManager( Ecore_Wl_Window *ecoreWlwin );
   ImfManager( const ImfManager& );
   ImfManager& operator=( ImfManager& );
 

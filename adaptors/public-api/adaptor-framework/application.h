@@ -44,7 +44,7 @@ class Application;
 }
 }
 /**
- * An Application class object should be created by every application
+ * @brief An Application class object should be created by every application
  * that wishes to use Dali.  It provides a means for initialising the
  * resources required by the Dali::Core.
  *
@@ -88,6 +88,7 @@ class Application;
  * @endcode
  *
  * When the above options are found, they are stripped from argv, and argc is updated appropriately.
+ * @SINCE_1_0.0
  */
 class DALI_IMPORT_API Application : public BaseHandle
 {
@@ -97,32 +98,36 @@ public:
   typedef Signal< void (Application&, void *) > AppControlSignalType;
 
   /**
-   * Decides whether a Dali application window is opaque or transparent.
+   * @brief Decides whether a Dali application window is opaque or transparent.
+   * @SINCE_1_0.0
    */
   enum WINDOW_MODE
   {
-    OPAQUE = 0,       ///< The window will be opaque
-    TRANSPARENT = 1   ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor()
+    OPAQUE = 0,       ///< The window will be opaque @SINCE_1_0.0
+    TRANSPARENT = 1   ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor() @SINCE_1_0.0
   };
 
 public:
 
   /**
-   * This is the constructor for applications without an argument list.
+   * @brief This is the constructor for applications without an argument list.
+   * @SINCE_1_0.0
    */
   static Application New();
 
   /**
-   * This is the constructor for applications.
+   * @brief This is the constructor for applications.
    *
+   * @SINCE_1_0.0
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    */
   static Application New( int* argc, char **argv[] );
 
   /**
-   * This is the constructor for applications with a name
+   * @brief This is the constructor for applications with a name
    *
+   * @SINCE_1_0.0
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -130,8 +135,9 @@ public:
   static Application New( int* argc, char **argv[], const std::string& stylesheet );
 
   /**
-   * This is the constructor for applications with a name
+   * @brief This is the constructor for applications with a name
    *
+   * @SINCE_1_0.0
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -140,17 +146,20 @@ public:
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
   /**
-   * Construct an empty handle
+   * @brief Construct an empty handle
+   * @SINCE_1_0.0
    */
   Application();
 
   /**
-   * Copy Constructor
+   * @brief Copy Constructor
+   * @SINCE_1_0.0
    */
   Application( const Application& application );
 
   /**
-   * Assignment operator
+   * @brief Assignment operator
+   * @SINCE_1_0.0
    */
   Application& operator=( const Application& applicaton );
 
@@ -158,38 +167,47 @@ public:
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   * @SINCE_1_0.0
    */
   ~Application();
 
 public:
   /**
-   * This starts the application. Choosing this form of main loop indicates that the default
+   * @brief This starts the application. Choosing this form of main loop indicates that the default
    * application configuration of APPLICATION_HANDLES_CONTEXT_LOSS is used. On platforms where
    * context loss can occur, the application is responsible for tearing down and re-loading UI.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
+   * @SINCE_1_0.0
    */
   void MainLoop();
 
   /**
-   * This starts the application, and allows the app to choose a different configuration.
+   * @brief This starts the application, and allows the app to choose a different configuration.
    * If the application plans on using the ReplaceSurface or ReplaceWindow API, then this will
    * trigger context loss & regain.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
+   * @SINCE_1_0.0
    */
   void MainLoop(Configuration::ContextLoss configuration);
 
   /**
-   * This lowers the application to bottom without actually quitting it
+   * @brief This lowers the application to bottom without actually quitting it
+   * @SINCE_1_0.0
    */
   void Lower();
 
   /**
-   * This quits the application.  Tizen applications should use Lower to improve re-start performance unless they need to Quit completely.
+   * @brief This quits the application.  Tizen applications should use Lower to improve re-start performance unless they need to Quit completely.
+   * @SINCE_1_0.0
    */
   void Quit();
 
   /**
-   * Ensures that the function passed in is called from the main loop when it is idle.
+   * @brief Ensures that the function passed in is called from the main loop when it is idle.
+   * @SINCE_1_0.0
+   * @param[in]  callback  The function to call.
+   * @return true if added successfully, false otherwise
+   *
    * @note Function must be called from main event thread only
    *
    * A callback of the following type may be used:
@@ -197,26 +215,25 @@ public:
    *   void MyFunction();
    * @endcode
    *
-   * @param[in]  callback  The function to call.
-   * @return true if added successfully, false otherwise
-   *
    * @note Ownership of the callback is passed onto this class.
    */
   bool AddIdle( CallbackBase* callback );
 
   /**
-   * Retrieves the window used by the Application class.
+   * @brief Retrieves the window used by the Application class.
    * The application writer can use the window to change indicator and orientation
    * properties.
+   * @SINCE_1_0.0
    * @return A handle to the window
    */
   Window GetWindow();
 
   /**
-   * Replace the current window.
+   * @brief Replace the current window.
    * This will force context loss.
    * If you plan on using this API in your application, then you should configure
    * it to prevent discard behaviour when handling the Init signal.
+   * @SINCE_1_0.0
    * @param[in] windowPosition The position and size parameters of the new window
    * @param[in] name The name of the new window
    */
@@ -225,27 +242,31 @@ public:
 public: // Stereoscopy
 
   /**
-   * Set the viewing mode for the application.
+   * @brief Set the viewing mode for the application.
+   * @SINCE_1_0.0
    * @param[in] viewMode The new viewing mode.
    */
   void SetViewMode( ViewMode viewMode );
 
   /**
-   * Get the current viewing mode.
+   * @brief Get the current viewing mode.
+   * @SINCE_1_0.0
    * @return The current viewing mode.
    */
   ViewMode GetViewMode() const;
 
   /**
-   * Set the stereo base (eye separation) for Stereoscopic 3D
+   * @brief Set the stereo base (eye separation) for Stereoscopic 3D
    *
+   * @SINCE_1_0.0
    * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
    */
   void SetStereoBase( float stereoBase );
 
   /**
-   * Get the stereo base (eye separation) for Stereoscopic 3D
+   * @brief Get the stereo base (eye separation) for Stereoscopic 3D
    *
+   * @SINCE_1_0.0
    * @return The stereo base (eye separation) for Stereoscopic 3D
    */
   float GetStereoBase() const;
@@ -253,69 +274,81 @@ public: // Stereoscopy
 public:  // Signals
 
   /**
-   * The user should connect to this signal to determine when they should initialise
+   * @brief The user should connect to this signal to determine when they should initialise
    * their application.
+   * @SINCE_1_0.0
    */
   AppSignalType& InitSignal();
 
   /**
-   * The user should connect to this signal to determine when they should terminate
+   * @brief The user should connect to this signal to determine when they should terminate
    * their application
+   * @SINCE_1_0.0
    */
   AppSignalType& TerminateSignal();
 
   /**
-   * The user should connect to this signal if they need to perform any special
+   * @brief The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
+   * @SINCE_1_0.0
    */
   AppSignalType& PauseSignal();
 
   /**
-   * The user should connect to this signal if they need to perform any special
+   * @brief The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
+   * @SINCE_1_0.0
    */
   AppSignalType& ResumeSignal();
 
   /**
-   * This signal is sent when the system requires the user to reinitialise itself.
+   * @brief This signal is sent when the system requires the user to reinitialise itself.
+   * @SINCE_1_0.0
    */
   AppSignalType& ResetSignal();
 
   /**
-   * This signal is emitted when the window the application is rendering on is resized.
+   * @brief This signal is emitted when the window the application is rendering on is resized.
+   * @SINCE_1_0.0
    */
   AppSignalType& ResizeSignal();
 
   /**
-  * This signal is emitted when another application sends a launch request to the application.
+  * @brief This signal is emitted when another application sends a launch request to the application.
   * When the application is launched, this signal is emitted after the main loop of the application starts up.
   * The passed parameter describes the launch request and contains the information about why the application is launched.
+  * @SINCE_1_0.0
   */
   AppControlSignalType& AppControlSignal();
 
   /**
-   * This signal is emitted when the language is changed on the device.
+   * @brief This signal is emitted when the language is changed on the device.
+   * @SINCE_1_0.0
    */
   AppSignalType& LanguageChangedSignal();
 
   /**
-  * This signal is emitted when the region of the device is changed.
+  * @brief This signal is emitted when the region of the device is changed.
+  * @SINCE_1_0.0
   */
   AppSignalType& RegionChangedSignal();
 
   /**
-  * This signal is emitted when the battery level of the device is low.
+  * @brief This signal is emitted when the battery level of the device is low.
+  * @SINCE_1_0.0
   */
   AppSignalType& BatteryLowSignal();
 
   /**
-  * This signal is emitted when the memory level of the device is low.
+  * @brief This signal is emitted when the memory level of the device is low.
+  * @SINCE_1_0.0
   */
   AppSignalType& MemoryLowSignal();
 
 public: // Not intended for application developers
   /**
-   * Internal constructor
+   * @brief Internal constructor
+   * @SINCE_1_0.0
    */
   explicit DALI_INTERNAL Application(Internal::Adaptor::Application* application);
 };

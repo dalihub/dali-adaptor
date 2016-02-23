@@ -31,17 +31,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace // unnamed namespace
-{
-// Type Registration
-Dali::BaseHandle Create()
-{
-  return Dali::TtsPlayer::Get() ;
-}
-
-Dali::TypeRegistration mType( typeid(Dali::TtsPlayer), typeid(Dali::BaseHandle), Create ) ;
-} // unnamed namespace
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* TtsPlayer::gLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_TTS_PLAYER");
 #endif
@@ -94,4 +83,3 @@ Dali::TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
 } // namespace Internal
 
 } // namespace Dali
-

@@ -36,13 +36,6 @@ namespace Adaptor
 
 namespace // unnamed namespace
 {
-// Type Registration
-Dali::BaseHandle Create()
-{
-  return Dali::TtsPlayer::Get() ;
-}
-
-Dali::TypeRegistration mType( typeid(Dali::TtsPlayer), typeid(Dali::BaseHandle), Create );
 
 /**
  * Helper function to convert Tizen-specific TTS state to external state.

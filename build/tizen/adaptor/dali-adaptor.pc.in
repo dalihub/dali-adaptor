@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+apiversion=@DALI_ADAPTOR_VERSION@
+libdir=@libdir@
+includedir=@devincludepath@
+
+Name: dali-adaptor
+Description: DALi adaptor using ecore
+Version: ${apiversion}
+Requires: dali-core
+Libs: -L${libdir} -ldali-adaptor
+Cflags: -I${includedir}/dali

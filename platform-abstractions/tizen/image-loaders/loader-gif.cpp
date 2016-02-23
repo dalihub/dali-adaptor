@@ -23,6 +23,11 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
 
+// We need to check if giflib has the new open and close API (including error parameter).
+#ifdef GIFLIB_MAJOR
+#define LIBGIF_VERSION_5_1_OR_ABOVE
+#endif
+
 namespace Dali
 {
 using Integration::Bitmap;
@@ -47,7 +52,17 @@ struct AutoCleanupGif
     if(NULL != gifInfo)
     {
       // clean up GIF resources
-      DGifCloseFile(gifInfo);
+#ifdef LIBGIF_VERSION_5_1_OR_ABOVE
+      int errorCode = 0; //D_GIF_SUCCEEDED is 0
+      DGifCloseFile( gifInfo, &errorCode );
+
+      if( errorCode )
+      {
+        DALI_LOG_ERROR( "GIF Loader: DGifCloseFile Error. Code: %d\n", errorCode );
+      }
+#else
+      DGifCloseFile( gifInfo );
+#endif
     }
   }
 
@@ -98,10 +113,17 @@ int ReadDataFromGif(GifFileType *gifInfo, GifByteType *data, int length)
 /// Loads the GIF Header.
 bool LoadGifHeader(FILE *fp, unsigned int &width, unsigned int &height, GifFileType** gifInfo)
 {
-  *gifInfo = DGifOpen(reinterpret_cast<void*>(fp), ReadDataFromGif);
+  int errorCode = 0; //D_GIF_SUCCEEDED is 0
 
-  if ( !(*gifInfo) )
+#ifdef LIBGIF_VERSION_5_1_OR_ABOVE
+  *gifInfo = DGifOpen( reinterpret_cast<void*>(fp), ReadDataFromGif, &errorCode );
+#else
+  *gifInfo = DGifOpen( reinterpret_cast<void*>(fp), ReadDataFromGif );
+#endif
+
+  if ( !(*gifInfo) || errorCode )
   {
+    DALI_LOG_ERROR( "GIF Loader: DGifOpen Error. Code: %d\n", errorCode );
     return false;
   }
 
@@ -241,8 +263,14 @@ bool HandleExtensionRecordType( GifFileType* gifInfo )
   image.ExtensionBlockCount = 0;
   GifByteType *extensionByte( NULL );
 
+#ifdef LIBGIF_VERSION_5_1_OR_ABOVE
+  int *extensionBlockTypePointer = &image.ExtensionBlocks->Function;
+#else
+  int *extensionBlockTypePointer = &image.Function;
+#endif
+
   // Not really interested in the extensions so just skip them unless there is an error.
-  for ( int extRetCode = DGifGetExtension( gifInfo, &image.Function, &extensionByte );
+  for ( int extRetCode = DGifGetExtension( gifInfo, extensionBlockTypePointer, &extensionByte );
         extensionByte != NULL;
         extRetCode = DGifGetExtensionNext( gifInfo, &extensionByte ) )
   {

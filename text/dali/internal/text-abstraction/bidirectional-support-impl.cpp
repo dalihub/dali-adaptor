@@ -240,6 +240,7 @@ struct BidirectionalSupport::Plugin
   }
 
   bool GetMirroredText( Character* text,
+                        CharacterDirection* directions,
                         Length numberOfCharacters ) const
   {
     bool updated = false;
@@ -251,7 +252,11 @@ struct BidirectionalSupport::Plugin
 
       // Retrieve the mirrored character.
       FriBidiChar mirroredCharacter = character;
-      const bool mirrored = fribidi_get_mirror_char( character, &mirroredCharacter );
+      bool mirrored = false;
+      if( *( directions + index ) )
+      {
+        mirrored = fribidi_get_mirror_char( character, &mirroredCharacter );
+      }
       updated = updated || mirrored;
 
       // Update the character inside the text.
@@ -401,11 +406,12 @@ void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
 }
 
 bool BidirectionalSupport::GetMirroredText( Character* text,
+                                            CharacterDirection* directions,
                                             Length numberOfCharacters )
 {
   CreatePlugin();
 
-  return mPlugin->GetMirroredText( text, numberOfCharacters );
+  return mPlugin->GetMirroredText( text, directions, numberOfCharacters );
 }
 
 bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const

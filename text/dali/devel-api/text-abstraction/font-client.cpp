@@ -138,9 +138,9 @@ void FontClient::GetFixedSizes( const FontDescription& fontDescription,
   GetImplementation(*this).GetFixedSizes( fontDescription, sizes );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int maxFixedSize )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize )
 {
-  GetImplementation(*this).GetFontMetrics( fontId, metrics, maxFixedSize );
+  GetImplementation(*this).GetFontMetrics( fontId, metrics, desiredFixedSize );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -148,9 +148,9 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int maxFixedSize )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize )
 {
-  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal, maxFixedSize );
+  return GetImplementation(*this).GetGlyphMetrics( array, size, horizontal, desiredFixedSize );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )

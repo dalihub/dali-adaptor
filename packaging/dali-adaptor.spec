@@ -14,15 +14,20 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.16
+Version:    1.1.22
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
-# Get the profile from tizen_profile_name if it exists.
-%if 0%{?tizen_profile_name:1}
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+Requires:       giflib
+
+# Get the profile from tizen_profile_name if tizen version is 2.x and tizen_profile_name exists.
+
+%if "%{tizen_version_major}" == "2" && 0%{?tizen_profile_name:1}
 %define profile %{tizen_profile_name}
 %endif
 
@@ -30,18 +35,24 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
 %define shaderbincache_flag DISABLE
+BuildRequires:  pkgconfig(gles20)
+%define gles_requirement_setup 1
 %endif
 
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
 %define shaderbincache_flag ENABLE
+BuildRequires:  pkgconfig(glesv2)
+%define gles_requirement_setup 1
 %endif
 
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
 %define shaderbincache_flag DISABLE
+BuildRequires:  pkgconfig(gles20)
+%define gles_requirement_setup 1
 %endif
 
 %if "%{profile}" == "common"
@@ -49,14 +60,13 @@ Source0:    %{name}-%{version}.tar.gz
 %define dali_feedback_plugin 0
 %define tizen_2_2_compatibility 1
 %define shaderbincache_flag DISABLE
+BuildRequires:  pkgconfig(glesv2)
+%define gles_requirement_setup 1
 %endif
 
-# macro is enabled by passing gbs build --define "with_libuv 1"
-%define build_with_libuv 0%{?with_libuv:1}
+# If we have not set a BuildRequires for the gles version, default it here.
+%{!?gles_requirement_setup: BuildRequires:  pkgconfig(glesv2)}
 
-Requires(post): /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
-Requires:       giflib
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  pkgconfig(sensor)
@@ -72,27 +82,20 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpng)
-BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
-
 BuildRequires:  fribidi-devel
-
 
 %if 0%{?tizen_2_2_compatibility} != 1
 BuildRequires:  pkgconfig(capi-system-info)
 %endif
 
-%if 0%{?build_with_libuv}
 # Tizen currently does not have libuv as a separate libuv package
 # So we have to look into the uv headers bundled inside node-js
 BuildRequires:  nodejs-devel
-%endif
 
 
-
-%define dali_needs_efl_libraries 1
-%define dali_needs_appfw_libraries 1
 %if %{with wayland}
 
 ####### BUILDING FOR WAYLAND #######
@@ -103,18 +106,19 @@ BuildRequires:  wayland-devel
 %if "%{profile}" != "common"
 BuildRequires:  wayland-extension-client-devel
 %endif
-%if %{build_with_libuv}
-####### BUILDING FOR PURE WAYLAND #######
-# if we're building with wayland and runnning under node.js then we are using libuv mainloop
-# and DALis own wayland client (it needs wayland-client headers).
-# EFL libraries and APP Framework libraries are not required in this case
-%define dali_needs_efl_libraries 0
-%define dali_needs_appfw_libraries 0
+
+# dali-adaptor-uv uses libuv mainloop and has its own wayland client (it needs wayland-client headers).
 BuildRequires:  libxkbcommon-devel
-%else
-####### BUILDING FOR ECORE WAYLAND #######
+
+# dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
-%endif
+
+# dali-adaptor needs tbm_surface in tizen 3.0 wayland
+BuildRequires:  pkgconfig(libtbm)
+
+# tpkp-curl (certificate pinning for libcurl functions) is only available in Tizen 3.0
+BuildRequires:  pkgconfig(tpkp-curl)
+
 ####### BUILDING FOR X11#######
 %else
 BuildRequires:  pkgconfig(egl)
@@ -125,23 +129,15 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(utilX)
 %endif
 
-###### Building with EFL libraries
-%if 0%{?dali_needs_efl_libraries}
+# for dali-adaptor
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(elementary)
-%endif
-
-###### Build with APP Framework
-%if 0%{?dali_needs_appfw_libraries}
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-system-system-settings)
-%endif
 
 %if 0%{?over_tizen_2_2}
 BuildRequires:  pkgconfig(capi-system-info)
 %endif
-
-
 
 
 
@@ -238,28 +234,31 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}"  ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=20 --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
+# Default to GLES 2.0 if not specified.
+%{!?target_gles_version: %define target_gles_version 20}
+
+#--enable-efl=no \ # only affects dali-adaptor-uv
+#--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
+#--with-libuv=/usr/include/node/ \ # only affects dali-adaptor-uv
+
+# Set up the build via configure.
+%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} --enable-shaderbincache=%{shaderbincache_flag} --enable-profile=%{dali_profile} \
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
-%if 0%{?dali_needs_efl_libraries}
-            --enable-efl=yes \
+%if %{with wayland}
+           --enable-efl=no \
 %else
-            --enable-efl=no \
+           --enable-efl=yes \
 %endif
-%if 0%{?dali_needs_appfw_libraries}
-            --enable-appfw=yes \
-%else
-            --enable-appfw=no \
-%endif
-%if %{?build_with_libuv}
+           --enable-appfw=yes \
            --with-libuv=/usr/include/node/ \
-%endif
            $configure_flags --libdir=%{_libdir}
 
+# Build.
 make %{?jobs:-j%jobs}
 
 ##############################
@@ -338,7 +337,8 @@ exit 0
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
-%{_libdir}/pkgconfig/dali.pc
+%{_libdir}/pkgconfig/dali-adaptor.pc
+%{_libdir}/pkgconfig/dali-adaptor-uv.pc
 
 %files integration-devel
 %defattr(-,root,root,-)

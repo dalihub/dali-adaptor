@@ -14,6 +14,7 @@ SET(TC_SOURCES
     utc-Dali-Application.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-BitmapLoader.cpp
+    #utc-Dali-KeyGrab.cpp
 )
 
 LIST(APPEND TC_SOURCES
@@ -31,7 +32,7 @@ LIST(APPEND TC_SOURCES
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-core
-    dali
+    dali-adaptor
     ecore
 )
 

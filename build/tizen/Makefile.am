@@ -14,14 +14,7 @@
 # limitations under the License.
 #
 
-SUBDIRS = adaptor
-
-if USE_PLUGIN
-SUBDIRS += plugins
-endif
-
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = dali.pc
+SUBDIRS = ${subdirs}
 
 MAINTAINERCLEANFILES = \
     aclocal.m4 \

@@ -281,7 +281,7 @@ void Window::RotationDone( int orientation, int width, int height )
 {
 }
 
-//} // Wayland
+
 } // Adaptor
 } // Internal
 } // Dali

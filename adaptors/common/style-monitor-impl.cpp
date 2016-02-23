@@ -44,26 +44,6 @@ namespace
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_STYLE_MONITOR");
 #endif
 
-BaseHandle Create()
-{
-  BaseHandle handle( StyleMonitor::Get() );
-
-  if ( !handle && Adaptor::IsAvailable() )
-  {
-    Dali::SingletonService service( SingletonService::Get() );
-    if ( service )
-    {
-      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-      Dali::StyleMonitor styleMonitor = Dali::StyleMonitor( new StyleMonitor( adaptorImpl.GetPlatformAbstraction() ) );
-      service.Register( typeid( styleMonitor ), styleMonitor );
-      handle = styleMonitor;
-    }
-  }
-
-  return handle;
-}
-TypeRegistration STYLE_MONITOR_TYPE( typeid(Dali::StyleMonitor), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
-
 /**
  * Use font client to get the system default font family
  * @param[in] fontClient handle to font client
@@ -86,14 +66,20 @@ Dali::StyleMonitor StyleMonitor::Get()
   Dali::StyleMonitor styleMonitor;
 
   Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  if( service )
   {
     // Check whether the singleton is already created
     Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::StyleMonitor ) );
-    if(handle)
+    if( handle )
     {
       // If so, downcast the handle
       styleMonitor = Dali::StyleMonitor( dynamic_cast< StyleMonitor* >( handle.GetObjectPtr() ) );
+    }
+    else
+    {
+      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
+      styleMonitor = Dali::StyleMonitor( new StyleMonitor( adaptorImpl.GetPlatformAbstraction() ) );
+      service.Register( typeid( styleMonitor ), styleMonitor );
     }
   }
 

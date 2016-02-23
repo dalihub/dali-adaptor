@@ -68,7 +68,7 @@ EglImageExtensions::~EglImageExtensions()
 {
 }
 
-void* EglImageExtensions::CreateImageKHR(EGLClientBuffer pixmap)
+void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
 {
   if (mImageKHRInitialized == false)
   {
@@ -90,7 +90,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer pixmap)
   EGLImageKHR eglImage  = eglCreateImageKHR( mEglImplementation->GetDisplay(),
                                              EGL_NO_CONTEXT,
                                              EGL_NATIVE_PIXMAP_KHR,
-                                             pixmap,
+                                             clientBuffer,
                                              attribs );
 
   DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "X11Image::GlExtensionCreate eglCreateImageKHR failed!\n");

@@ -16,9 +16,10 @@ tizen_platform_abstraction_src_files = \
   \
   $(tizen_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \
   \
+  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-astc.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-bmp.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-gif.cpp \
-    $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
+  $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ico.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-jpeg-turbo.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-ktx.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-png.cpp \

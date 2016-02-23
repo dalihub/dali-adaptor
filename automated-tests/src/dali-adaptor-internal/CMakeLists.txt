@@ -7,8 +7,10 @@ SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
     utc-Dali-CommandLineOptions.cpp
+    utc-Dali-CompressedTextures.cpp
     utc-Dali-FontClient.cpp
     utc-Dali-GifLoader.cpp
+    utc-Dali-IcoLoader.cpp
     utc-Dali-ImageOperations.cpp
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-TiltSensor.cpp
@@ -30,7 +32,7 @@ LIST(APPEND TC_SOURCES
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-core
-    dali
+    dali-adaptor
     ecore
 )
 

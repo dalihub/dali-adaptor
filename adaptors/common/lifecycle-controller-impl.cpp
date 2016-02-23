@@ -34,30 +34,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
-{
-
-BaseHandle Create()
-{
-  BaseHandle handle( LifecycleController::Get() );
-
-  if ( !handle && Adaptor::IsAvailable() )
-  {
-    Dali::SingletonService service( SingletonService::Get() );
-    if ( service )
-    {
-      Dali::LifecycleController lifecycleController = Dali::LifecycleController( new LifecycleController() );
-      service.Register( typeid( lifecycleController ), lifecycleController );
-      handle = lifecycleController;
-    }
-  }
-
-  return handle;
-}
-TypeRegistration LIFECYCLE_CONTROLLER_TYPE( typeid(Dali::LifecycleController), typeid(Dali::BaseHandle), Create, true /* Create Instance At Startup */ );
-
-} // unnamed namespace
-
 Dali::LifecycleController LifecycleController::Get()
 {
   Dali::LifecycleController lifecycleController;

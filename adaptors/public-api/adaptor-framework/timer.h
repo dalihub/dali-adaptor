@@ -49,12 +49,13 @@ class Timer;
  *
  * This class is a handle class so it can be stack allocated and used
  * as a member.
+ * @SINCE_1_0.0
  */
 class DALI_IMPORT_API Timer : public BaseHandle
 {
 public: // Signal typedefs
 
-  typedef Signal< bool () > TimerSignalType; ///< Timer finished signal callback type
+  typedef Signal< bool () > TimerSignalType; ///< Timer finished signal callback type @SINCE_1_0.0
 
 public: // API
 
@@ -62,12 +63,14 @@ public: // API
    * @brief Constructor, creates an uninitialized timer.
    *
    * Call New to fully construct a timer.
+   * @SINCE_1_0.0
    */
   Timer();
 
   /**
    * @brief Create an tick Timer that emits periodic signal.
    *
+   * @SINCE_1_0.0
    * @param[in] milliSec Interval in milliseconds.
    * @return a new timer
    */
@@ -76,6 +79,7 @@ public: // API
   /**
    * @brief Copy constructor.
    *
+   * @SINCE_1_0.0
    * @param[in] timer The handle to copy. The copied handle will point at the same implementation
    */
   Timer( const Timer& timer );
@@ -83,6 +87,7 @@ public: // API
   /**
    * @brief Assignment operator.
    *
+   * @SINCE_1_0.0
    * @param[in] timer The handle to copy. This handle will point at the same implementation
    * as the copied handle.
    * @return Reference to this timer handle
@@ -93,6 +98,7 @@ public: // API
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   * @SINCE_1_0.0
    */
   ~Timer();
 
@@ -102,6 +108,7 @@ public: // API
    * If handle points to a Timer object the downcast produces a valid
    * handle. If not the returned handle is left uninitialized.
    *
+   * @SINCE_1_0.0
    * @param[in] handle to An object
    * @return handle to a Timer object or an uninitialized handle
    */
@@ -111,11 +118,13 @@ public: // API
    * @brief Start timer.
    *
    * In case a Timer is already running it's time is reset and timer is restarted.
+   * @SINCE_1_0.0
    */
   void Start();
 
   /**
    * @brief Stop timer.
+   * @SINCE_1_0.0
    */
   void Stop();
 
@@ -123,6 +132,7 @@ public: // API
    * @brief Sets a new interval on the timer and starts the timer.
    *
    * Cancels the previous timer.
+   * @SINCE_1_0.0
    * @param  milliSec Interval in milliseconds.
    */
   void SetInterval( unsigned int milliSec );
@@ -130,11 +140,13 @@ public: // API
   /**
    * @brief Get the interval of timer.
    * @returns  Interval in milliseconds.
+   * @SINCE_1_0.0
    */
   unsigned int GetInterval() const;
 
   /**
    * @brief  Tells whether timer is running.
+   * @SINCE_1_0.0
    * @return Whether Timer is started or not.
    */
   bool IsRunning() const;
@@ -148,6 +160,7 @@ public: // Signals
    * If the callback function returns false emission will stop, if true it will continue
    * This return value is ignored for one-shot events, which will always stop after the first execution.
    * @returns The signal to Connect() with.
+   * @SINCE_1_0.0
    */
   TimerSignalType& TickSignal();
 
