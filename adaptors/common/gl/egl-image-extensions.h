@@ -53,10 +53,10 @@ public:   // EGLImageKHR extension support
   /**
    * If the EGL Image extension is available this function returns a
    * EGLImageKHR
-   * @param clientBuffer Client buffer to use for image creation
+   * @param pixmap The pixmap
    * @return an object that holds a EGLImageKHR
    */
-  void* CreateImageKHR(EGLClientBuffer clientBuffer);
+  void* CreateImageKHR(EGLClientBuffer pixmap);
 
   /**
    * If the EGL Image extension is available this function

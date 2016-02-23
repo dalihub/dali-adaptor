@@ -127,19 +127,14 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                               $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
-
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files) \
                               $(adaptor_ecore_wayland_internal_default_profile_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
+endif
 else
 adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files) \
                               $(adaptor_x11_internal_default_profile_src_files)
 endif # WAYLAND
 endif # COMMON_PROFILE
@@ -153,8 +148,7 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_ubuntu_internal_src_files) \
                              $(adaptor_x11_ubuntu_internal_src_files) \
                              $(adaptor_x11_internal_default_profile_src_files) \
-                             $(static_libraries_libunibreak_src_files) \
-                             $(adaptor_common_internal_egl_extension_src_files)
+                             $(static_libraries_libunibreak_src_files)
 
 endif # UBUNTU_PROFILE
 
@@ -168,18 +162,13 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 
 if WAYLAND
-
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
+endif
 else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files)
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
 endif # WAYLAND
 
 endif # MOBILE_PROFILE
@@ -192,18 +181,13 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_tizen_internal_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
-
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
+endif
 else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files)
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files)
 endif # WAYLAND
 
 endif # WEARABLE
@@ -218,19 +202,14 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_tizen_internal_non_mobile_src_files) \
                              $(static_libraries_libunibreak_src_files)
 if WAYLAND
-
 if USE_ECORE_WAYLAND
 adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
 else
 adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
+endif
 else
 adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
-                              $(adaptor_x11_internal_tv_profile_key_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files)
+                             $(adaptor_x11_internal_tv_profile_key_src_files)
 endif # WAYLAND
 
 endif
@@ -289,7 +268,6 @@ libdali_adaptor_la_includes = \
 
 if WAYLAND
 libdali_adaptor_la_includes += -I../../../adaptors/integration-api/wayland
-
 if USE_ECORE_WAYLAND
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/common \
@@ -297,17 +275,15 @@ libdali_adaptor_la_includes += \
 else
 libdali_adaptor_la_includes += -I../../../adaptors/wayland \
                                -I../../../adaptors/wayland/imf \
-                               -I../../../adaptors/wayland/clipboard
-endif # USE_ECORE_WAYLADN
-
-libdali_adaptor_la_includes += \
-                      -I../../../adaptors/tizen
+                               -I../../../adaptors/wayland/clipboard \
+                               -I../../../adaptors/wayland/native-image
+endif
 else
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/common \
                       -I../../../adaptors/x11 \
                       -I../../../adaptors/integration-api/x11
-endif # WAYLAND
+endif
 
 if UBUNTU_PROFILE
 libdali_adaptor_la_includes += \

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <Ecore_X.h>
 
 // INTERNAL INCLUDES
 #include <native-image-source.h>
@@ -54,6 +53,7 @@ public:
                           unsigned int height,
                           Dali::NativeImageSource::ColorDepth depth,
                           Any nativeImageSource);
+
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
@@ -94,7 +94,7 @@ public:
    */
   unsigned int GetWidth() const
   {
-    return mWidth;
+    return 0;
   }
 
   /**
@@ -102,7 +102,7 @@ public:
    */
   unsigned int GetHeight() const
   {
-    return mHeight;
+    return 0;
   }
 
   /**
@@ -110,58 +110,16 @@ public:
    */
   bool RequiresBlending() const
   {
-    return mBlendingRequired;
+    return false;
   }
 
-private:
+protected:
 
   /**
-   * Private constructor; @see NativeImageSource::New()
-   * @param[in] width The width of the image.
-   * @param[in] height The height of the image.
-   * @param[in] colour depth of the image.
-   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @brief constructor
    */
-  NativeImageSource(unsigned int width,
-              unsigned  int height,
-              Dali::NativeImageSource::ColorDepth depth,
-              Any nativeImageSource);
+  NativeImageSource() {}
 
-  /**
-   * 2nd phase construction.
-   */
-  void Initialize();
-
-  /**
-   * Uses X11 to get the default depth.
-   * @param depth the PixelImage depth enum
-   * @return default x11 pixel depth
-   */
-  int GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const;
-
-  /**
-   * Gets the pixmap from the Any parameter
-   * @param pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
-   * @return pixmap x11 pixmap
-   */
-  Ecore_X_Pixmap GetPixmapFromAny(Any pixmap) const;
-
-  /**
-   * Given an existing pixmap, the function uses X to find out
-   * the width, heigth and depth of that pixmap.
-   */
-  void GetPixmapDetails();
-
-private:
-
-  unsigned int mWidth;                        ///< image width
-  unsigned int mHeight;                       ///< image heights
-  bool mOwnPixmap;                            ///< Whether we created pixmap or not
-  Ecore_X_Pixmap mPixmap;                     ///< From Xlib
-  bool mBlendingRequired;                      ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
-  void* mEglImageKHR;                         ///< From EGL extension
-  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
 };
 
 } // namespace Adaptor

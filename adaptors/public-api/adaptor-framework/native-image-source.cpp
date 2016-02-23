@@ -55,11 +55,6 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return mImpl->EncodeToFile(filename);
 }
 
-void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
-{
-  mImpl->SetNativeImageSource( nativeImageSource );
-}
-
 bool NativeImageSource::GlExtensionCreate()
 {
   return mImpl->GlExtensionCreate();
@@ -93,11 +88,6 @@ unsigned int NativeImageSource::GetHeight() const
 bool NativeImageSource::RequiresBlending() const
 {
   return mImpl->RequiresBlending();
-}
-
-NativeImageInterface::Extension* NativeImageSource::GetExtension()
-{
-  return mImpl->GetNativeImageInterfaceExtension();
 }
 
 NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource )

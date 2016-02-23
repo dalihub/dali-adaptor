@@ -19,8 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <tbm_surface.h>
-#include <dali/devel-api/images/native-image-interface-extension.h>
 
 // INTERNAL INCLUDES
 #include <native-image-source.h>
@@ -38,7 +36,7 @@ class EglImageExtensions;
 /**
  * Dali internal NativeImageSource.
  */
-class NativeImageSource: public NativeImageInterface::Extension
+class NativeImageSource
 {
 public:
 
@@ -70,11 +68,6 @@ public:
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
    */
   bool EncodeToFile(const std::string& filename) const;
-
-  /**
-   * @copydoc Dali::NativeImageSource::SetNativeImageSource( Any nativeImageSource )
-   */
-  void SetNativeImageSource( Any nativeImageSource );
 
   /**
    * destructor
@@ -120,24 +113,6 @@ public:
     return mBlendingRequired;
   }
 
-  /**
-   * @copydoc Dali::NativeImageInterface::GetExtension()
-   */
-  NativeImageInterface::Extension* GetNativeImageInterfaceExtension()
-  {
-    return this;
-  }
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomFragmentPreFix()
-   */
-  const char* GetCustomFragmentPreFix();
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomSamplerTypename()
-   */
-  const char* GetCustomSamplerTypename();
-
 private:
 
   /**
@@ -152,18 +127,22 @@ private:
               Dali::NativeImageSource::ColorDepth depth,
               Any nativeImageSource);
 
+  /**
+   * 2nd phase construction.
+   */
   void Initialize();
 
-  int GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const;
-
-  tbm_surface_h GetSurfaceFromAny( Any source ) const;
+  /**
+   * Decide whether blending is required based on the color depth.
+   * @param depth the PixelImage depth enum
+   */
+  void SetBlending(Dali::NativeImageSource::ColorDepth depth);
 
 private:
 
   unsigned int mWidth;                        ///< image width
   unsigned int mHeight;                       ///< image heights
-  bool mOwnTbmsurface;                            ///< Whether we created pixmap or not
-  tbm_surface_h mTbmsurface;
+  bool mOwnPixmap;                            ///< Whether we created pixmap or not
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension

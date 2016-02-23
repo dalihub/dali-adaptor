@@ -43,6 +43,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/feedback/feedback-plugin-proxy.cpp \
   \
   $(adaptor_common_dir)/gl/egl-factory.cpp \
+  $(adaptor_common_dir)/gl/egl-image-extensions.cpp \
   $(adaptor_common_dir)/gl/egl-implementation.cpp \
   $(adaptor_common_dir)/gl/egl-sync-implementation.cpp \
   $(adaptor_common_dir)/gl/egl-debug.cpp \
@@ -63,6 +64,3 @@ adaptor_common_internal_uv_src_files = \
 adaptor_common_internal_default_profile_src_files = \
   $(adaptor_common_dir)/color-controller-impl.cpp \
   $(adaptor_common_dir)/system-settings.cpp
-
-adaptor_common_internal_egl_extension_src_files = \
-  $(adaptor_common_dir)/gl/egl-image-extensions.cpp
