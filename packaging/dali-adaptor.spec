@@ -47,7 +47,7 @@ Source0:    %{name}-%{version}.tar.gz
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define tizen_2_2_compatibility 0
+%define tizen_2_2_compatibility 1
 %define shaderbincache_flag DISABLE
 %endif
 
