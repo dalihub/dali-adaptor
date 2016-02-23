@@ -81,8 +81,6 @@ public: // API
    */
   virtual Ecore_Wl_Window* GetWlWindow();
 
-  struct wl_surface* GetWlSurface(){ return mWlSurface; }
-
 public: // from Dali::RenderSurface
 
   /**
@@ -161,7 +159,6 @@ private: // Data
 
   Ecore_Wl_Window*   mWlWindow; ///< Wayland-Window
   wl_egl_window*     mEglWindow;
-  struct wl_surface* mWlSurface;
   bool             mNeedToApproveDeiconify; ///< Whether need to send ECORE_X_ATOM_E_DEICONIFY_APPROVE event
 
 }; // class WindowRenderSurface
