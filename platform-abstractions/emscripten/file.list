@@ -1,0 +1,13 @@
+# Add local source files here:
+
+slp_platform_abstraction_src_files = \
+  $(slp_platform_abstraction_src_dir)/emscripten-callbacks.cpp \
+  $(slp_platform_abstraction_src_dir)/emscripten-platform-abstraction.cpp
+
+slp_assimp_src_files =
+
+slp_assimp_stub_src_files =
+
+# Add public headers here:
+
+# platform_abstraction_header_files =
