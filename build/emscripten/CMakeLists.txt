@@ -47,6 +47,24 @@ include_directories(${CMAKE_SOURCE_DIR}/../../adaptors/tizen)
 include_directories(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten)
 include_directories(${CMAKE_SOURCE_DIR}/../../platform-abstractions/slp)
 
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/all.html all.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-page.html dali-page.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-tests.css dali-tests.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-tests.html dali-tests.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/geometry.js geometry.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/properties.js properties.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/signals.js signals.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/math.js math.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/animation.js animation.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/utilities.js utilities.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/shaders.js shaders.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/views.js views.js COPYONLY)
+
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/qunit/qunit-1.21.0.css qunit-1.21.0.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/qunit/qunit-1.21.0.js qunit-1.21.0.js COPYONLY)
+
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/dali-wrapper.js dali-wrapper.js COPYONLY)
+
 set(VENDOR "samsung")
 set(PACKAGE ${PROJECT_NAME})
 set(DESKTOP_PREFIX $ENV{DESKTOP_PREFIX})
@@ -113,3 +131,20 @@ target_link_libraries(${PROJECT_NAME} ${pkgs_LDFLAGS} ${LIBS}) # "-lm"
 
 # Copy dali-wrapper.js to dali-env
 configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/dali-wrapper.js ${EMSCRIPTEN_ENV_DIR}/dali-wrapper.js COPYONLY)
+
+# tests
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/all.html ${EMSCRIPTEN_ENV_DIR}/all.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-page.html ${EMSCRIPTEN_ENV_DIR}/dali-page.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-tests.css ${EMSCRIPTEN_ENV_DIR}/dali-tests.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/dali-tests.html ${EMSCRIPTEN_ENV_DIR}/dali-tests.html COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/geometry.js ${EMSCRIPTEN_ENV_DIR}/geometry.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/properties.js ${EMSCRIPTEN_ENV_DIR}/properties.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/signals.js ${EMSCRIPTEN_ENV_DIR}/signals.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/math.js ${EMSCRIPTEN_ENV_DIR}/math.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/animation.js ${EMSCRIPTEN_ENV_DIR}/animation.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/utilities.js ${EMSCRIPTEN_ENV_DIR}/utilities.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/shaders.js ${EMSCRIPTEN_ENV_DIR}/shaders.js COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/views.js ${EMSCRIPTEN_ENV_DIR}/views.js COPYONLY)
+
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/qunit/qunit-1.21.0.css ${EMSCRIPTEN_ENV_DIR}/qunit-1.21.0.css COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/tests/qunit/qunit-1.21.0.js ${EMSCRIPTEN_ENV_DIR}/qunit-1.21.0.js COPYONLY)

@@ -1,0 +1,19 @@
+div#overall {
+    padding-right: 550px;
+}
+
+iframe#daliframe {
+    position: fixed;
+    top: 2px;
+    right: 2px;
+    border: 1px solid;
+    width: 604px;
+    height: 800px;
+}
+
+#daliframe.qunit-pass {
+    border-color: #C6E746;
+}
+#daliframe.qunit-fail {
+    border-color: #EE5757;
+}
