@@ -33,4 +33,6 @@ mv ./dali-emscripten.js ${DESKTOP_PREFIX}/share/emscripten/
 mv ./dali-emscripten.html ${DESKTOP_PREFIX}/share/emscripten/
 
 # If static memory initialisation code was created in a separate file, copy this too.
-mv ./dali-emscripten.html.mem ${DESKTOP_PREFIX}/share/emscripten/
+if [ -a ./dali-emcripten.html.mem ]; then
+  mv ./dali-emscripten.html.mem ${DESKTOP_PREFIX}/share/emscripten/
+fi
