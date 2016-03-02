@@ -174,6 +174,11 @@ public:
   int GetGlesCallTime() const;
 
   /**
+   * @brief Get whether or not to accumulate gles call statistics
+   */
+  bool GetGlesCallAccumulate() const;
+
+  /**
    * @return true if performance server is required
    */
   bool PerformanceServerRequired() const;
@@ -232,6 +237,7 @@ private: // Data
   unsigned int mWindowHeight;                     ///< height of the window
   ThreadingMode::Type mThreadingMode;             ///< threading mode
   unsigned int mRenderRefreshRate;                ///< render refresh rate
+  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

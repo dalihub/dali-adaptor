@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_GL_PROXY_IMPLEMENTATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,17 +45,17 @@ public:
   /**
    * Increment the counter for this frame
    */
-  void  Increment();
+  void Increment();
 
   /**
    * Reset the counter
    */
-  void  Reset();
+  void Reset();
 
   /**
    * Accumulate the count onto statistics
    */
-  void  Accumulate();
+  void Accumulate();
 
   /**
    * @return the description of the sampler
@@ -82,14 +82,20 @@ public:
    */
   float GetMax() const;
 
+  /**
+   * @return the current count
+   */
+  uint64_t GetCount() const;
+
 private: // Data
 
   const char* mDescription;
-  float mAccumulated;
-  float mAccumulatedSquare;
+
+  uint64_t mAccumulatedSquare;
+  uint64_t mAccumulated;
+  uint64_t mNumSamples;
   float mMin;
   float mMax;
-  unsigned int mNumSamples;
   unsigned int mCurrentFrameCount;
 };
 
@@ -104,7 +110,7 @@ public:
   /**
    * Increment the counter
    */
-  void  Increment();
+  void Increment();
 
   /**
    * Decrement the counter
@@ -144,7 +150,7 @@ public:
    * Constructor
    * @param environmentOptions to check how often to log results
    */
-  GlProxyImplementation(EnvironmentOptions& environmentOptions);
+  GlProxyImplementation( EnvironmentOptions& environmentOptions );
 
   /**
    * Virtual destructor
@@ -164,13 +170,13 @@ public:
   /* OpenGL ES 2.0 API */
   virtual void Clear( GLbitfield mask );
 
-  virtual void GenBuffers (GLsizei n, GLuint* buffers);
-  virtual void DeleteBuffers (GLsizei n, const GLuint* buffers);
+  virtual void GenBuffers( GLsizei n, GLuint* buffers );
+  virtual void DeleteBuffers( GLsizei n, const GLuint* buffers );
   virtual void BindBuffer( GLenum target, GLuint buffer );
 
-  virtual void GenTextures (GLsizei n, GLuint* textures);
-  virtual void DeleteTextures (GLsizei n, const GLuint* textures);
-  virtual void ActiveTexture(GLenum texture);
+  virtual void GenTextures( GLsizei n, GLuint* textures );
+  virtual void DeleteTextures( GLsizei n, const GLuint* textures );
+  virtual void ActiveTexture( GLenum texture );
   virtual void BindTexture( GLenum target, GLuint texture );
 
   virtual void DrawArrays( GLenum mode, GLint first, GLsizei count );
@@ -196,8 +202,8 @@ public:
   virtual void UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
   virtual void UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
 
-  virtual GLuint CreateProgram (void);
-  virtual void DeleteProgram (GLuint program);
+  virtual GLuint CreateProgram( void );
+  virtual void DeleteProgram( GLuint program );
   virtual void UseProgram( GLuint program );
 
 private: // Helpers
@@ -222,8 +228,8 @@ private: // Data
   ObjectCounter mTextureCount;
   ObjectCounter mProgramCount;
 
-  int mFrameCount;
-
+  int mCurrentFrameCount;
+  int mTotalFrameCount;
 };
 
 } // namespace Adaptor
