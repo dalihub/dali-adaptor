@@ -289,7 +289,7 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
+void NativeImageSource::SetSource( Any source )
 {
   if( mOwnTbmsurface && mTbmsurface != NULL )
   {
@@ -301,7 +301,7 @@ void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
     mTbmsurface = NULL;
   }
 
-  mTbmsurface = GetSurfaceFromAny( nativeImageSource );
+  mTbmsurface = GetSurfaceFromAny( source );
   mOwnTbmsurface = false;
 
   if( mTbmsurface != NULL )
