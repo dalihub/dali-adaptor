@@ -384,19 +384,14 @@ struct EventHandler::Impl
    */
   static Eina_Bool EcoreEventKeyUp( void* data, int type, void* event )
   {
-    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT >>EcoreEventKeyUp \n" );
+    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT >>EcoreEventKeyUp\n" );
 
     EventHandler* handler( (EventHandler*)data );
     Ecore_Event_Key *keyEvent( (Ecore_Event_Key*)event );
     bool eventHandled( false );
 
-    // Menu, home, back button must skip ecore_imf_context_filter_event.
-    static const char* menuKeyName = KeyLookup::GetKeyName( DALI_KEY_MENU );
-    static const char* homeKeyName = KeyLookup::GetKeyName( DALI_KEY_HOME );
-    static const char* backKeyName = KeyLookup::GetKeyName( DALI_KEY_BACK );
-    if ( ( menuKeyName && strcmp( keyEvent->keyname, menuKeyName ) != 0 ) &&
-         ( homeKeyName && strcmp( keyEvent->keyname, homeKeyName ) != 0 ) &&
-         ( backKeyName && strcmp( keyEvent->keyname, backKeyName ) != 0 ) )
+    // Device keys like Menu, home, back button must skip ecore_imf_context_filter_event.
+    if ( ! KeyLookup::IsDeviceButton( keyEvent->keyname ) )
     {
       Ecore_IMF_Context* imfContext = NULL;
       Dali::ImfManager imfManager( ImfManager::Get() );

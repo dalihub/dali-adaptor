@@ -73,6 +73,7 @@ KeyLookup TestKeyLookupTable[]=
   { "XF86AudioPlayPause",    DALI_KEY_PLAY_PAUSE,      false },
   { "XF86AudioMute",         DALI_KEY_MUTE,            false },
   { "XF86Menu",              DALI_KEY_MENU,            true  },
+  { "XF86Send",              DALI_KEY_MENU,            true  },
   { "XF86HomePage",          DALI_KEY_HOMEPAGE,        false },
   { "XF86WWW",               DALI_KEY_WEBPAGE,         false },
   { "XF86Mail",              DALI_KEY_MAIL,            false },
