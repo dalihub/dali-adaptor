@@ -1088,21 +1088,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
             if( cacheDescription )
             {
-              FontDescription description;
-              description.path = path;
-              description.family = FontFamily( ftFace->family_name );
-
-              // Note FreeType doesn't give too much info to build a proper font style.
-              if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )
-              {
-                description.slant = FontSlant::ITALIC;
-              }
-              if( ftFace->style_flags & FT_STYLE_FLAG_BOLD )
-              {
-                description.weight = FontWeight::BOLD;
-              }
-
-              mFontDescriptionCache.push_back( description );
+              CacheFontPath( ftFace, id, pointSize, path );
             }
             return id;
           }
@@ -1146,21 +1132,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
         if( cacheDescription )
         {
-          FontDescription description;
-          description.path = path;
-          description.family = FontFamily( ftFace->family_name );
-
-          // Note FreeType doesn't give too much info to build a proper font style.
-          if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )
-          {
-            description.slant = FontSlant::ITALIC;
-          }
-          if( ftFace->style_flags & FT_STYLE_FLAG_BOLD )
-          {
-            description.weight = FontWeight::BOLD;
-          }
-
-          mFontDescriptionCache.push_back( description );
+          CacheFontPath( ftFace, id, pointSize, path );
         }
       }
       else
@@ -1444,6 +1416,48 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
   }
   FcPatternDestroy( match );
   FcPatternDestroy( fontFamilyPattern );
+}
+
+void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 pointSize,  const FontPath& path )
+{
+  FontDescription description;
+  description.path = path;
+  description.family = FontFamily( ftFace->family_name );
+  description.weight = FontWeight::NORMAL;
+  description.width = FontWidth::NORMAL;
+  description.slant = FontSlant::NORMAL;
+
+  // Note FreeType doesn't give too much info to build a proper font style.
+  if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )
+  {
+    description.slant = FontSlant::ITALIC;
+  }
+  if( ftFace->style_flags & FT_STYLE_FLAG_BOLD )
+  {
+    description.weight = FontWeight::BOLD;
+  }
+
+  FontDescriptionId validatedFontId = 0u;
+  if( !FindValidatedFont( description,
+                          validatedFontId ) )
+  {
+    // Set the index to the vector of paths to font file names.
+    validatedFontId = mFontDescriptionCache.size();
+
+    // Add the path to the cache.
+    mFontDescriptionCache.push_back( description );
+
+    // Cache the index and the font's description.
+    FontDescriptionCacheItem item( description,
+                                   validatedFontId );
+
+    mValidatedFontCache.push_back( item );
+
+    // Cache the pair 'validatedFontId, pointSize' to improve the following queries.
+    mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
+                                             pointSize,
+                                             id ) );
+  }
 }
 
 } // namespace Internal

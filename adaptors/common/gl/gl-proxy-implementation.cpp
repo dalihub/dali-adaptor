@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 namespace
 {
-const int NUM_FRAMES_PER_SECOND(60);
+const int NUM_FRAMES_PER_SECOND( 60 );
 }
 
 
@@ -41,12 +41,12 @@ namespace Adaptor
 
 Sampler::Sampler( const char* description )
 : mDescription( description ),
-  mAccumulated(0.0f),
-  mAccumulatedSquare(0.0f),
-  mMin(0.0f),
-  mMax(0.0f),
-  mNumSamples(0),
-  mCurrentFrameCount(0)
+  mAccumulatedSquare( 0 ),
+  mAccumulated( 0 ),
+  mNumSamples( 0 ),
+  mMin( 0.0f ),
+  mMax( 0.0f ),
+  mCurrentFrameCount( 0 )
 {
 }
 
@@ -57,11 +57,11 @@ void Sampler::Increment()
 
 void Sampler::Reset()
 {
-  mAccumulated = 0.0f;
-  mAccumulatedSquare= 0.0f;
+  mAccumulatedSquare = 0;
+  mAccumulated = 0;
+  mNumSamples = 0;
   mMin = 0.0f;
   mMax = 0.0f;
-  mNumSamples = 0;
   mCurrentFrameCount = 0;
 }
 
@@ -74,11 +74,11 @@ void Sampler::Accumulate()
   }
   else
   {
-    if(mCurrentFrameCount < mMin)
+    if( mCurrentFrameCount < mMin )
     {
       mMin = mCurrentFrameCount;
     }
-    if(mCurrentFrameCount > mMax)
+    if( mCurrentFrameCount > mMax )
     {
       mMax = mCurrentFrameCount;
     }
@@ -87,7 +87,7 @@ void Sampler::Accumulate()
   mNumSamples++;
 
   mAccumulated += mCurrentFrameCount;
-  mAccumulatedSquare += (mCurrentFrameCount * mCurrentFrameCount);
+  mAccumulatedSquare += ( mCurrentFrameCount * mCurrentFrameCount );
   mCurrentFrameCount = 0;
 }
 const char* Sampler::GetDescription() const
@@ -100,17 +100,17 @@ float Sampler::GetMeanValue() const
   float meanValue = 0;
   if( mNumSamples > 0 )
   {
-    meanValue = mAccumulated / (float)mNumSamples;
+    meanValue = static_cast<double>( mAccumulated ) / static_cast<double>( mNumSamples );
   }
   return meanValue;
 }
 
 float Sampler::GetStandardDeviation() const
 {
-  float standardDeviation=0.0f;
+  float standardDeviation = 0.0f;
   if( mNumSamples > 0 )
   {
-    standardDeviation = sqrtf( mNumSamples * mAccumulatedSquare - (mAccumulated*mAccumulated)) / mNumSamples;
+    standardDeviation = sqrtf( mNumSamples * mAccumulatedSquare - ( mAccumulated * mAccumulated ) ) / mNumSamples;
   }
   return standardDeviation;
 }
@@ -125,10 +125,15 @@ float Sampler::GetMax() const
   return mMax;
 }
 
+uint64_t Sampler::GetCount() const
+{
+  return mAccumulated;
+}
+
 ObjectCounter::ObjectCounter( const char* description )
-:mDescription(description),
- mCount(0),
- mPeak(0)
+: mDescription( description ),
+  mCount( 0 ),
+  mPeak( 0 )
 {}
 
 void ObjectCounter::Increment()
@@ -159,19 +164,20 @@ const char* ObjectCounter::GetDescription() const
   return mDescription;
 }
 
-GlProxyImplementation::GlProxyImplementation(EnvironmentOptions& environmentOptions)
-: mEnvironmentOptions(environmentOptions),
-  mActiveTextureSampler( "ActiveTexture calls"),
-  mClearSampler("Clear calls"),
-  mBindBufferSampler( "Bind buffers"),
-  mBindTextureSampler( "Bind textures"),
-  mDrawSampler("Draw calls"),
-  mUniformSampler("Uniform sets"),
-  mUseProgramSampler("Used programs"),
-  mBufferCount( "Buffer Count"),
-  mTextureCount("Texture Count"),
-  mProgramCount("Program Count"),
-  mFrameCount(0)
+GlProxyImplementation::GlProxyImplementation( EnvironmentOptions& environmentOptions )
+: mEnvironmentOptions( environmentOptions ),
+  mActiveTextureSampler( "ActiveTexture calls" ),
+  mClearSampler( "Clear calls" ),
+  mBindBufferSampler( "Bind buffers" ),
+  mBindTextureSampler( "Bind textures" ),
+  mDrawSampler( "Draw calls" ),
+  mUniformSampler( "Uniform sets" ),
+  mUseProgramSampler( "Used programs" ),
+  mBufferCount( "Buffer Count" ),
+  mTextureCount( "Texture Count" ),
+  mProgramCount( "Program Count" ),
+  mCurrentFrameCount( 0 ),
+  mTotalFrameCount( 0 )
 {
 }
 
@@ -189,11 +195,18 @@ void GlProxyImplementation::PostRender()
   AccumulateSamples();
 
   // When we reach the desired frame count, output the averages from the samples
-  mFrameCount++;
-  if( mFrameCount >= mEnvironmentOptions.GetGlesCallTime() * NUM_FRAMES_PER_SECOND )
+  mTotalFrameCount++;
+  mCurrentFrameCount++;
+
+  if( mCurrentFrameCount >= mEnvironmentOptions.GetGlesCallTime() * NUM_FRAMES_PER_SECOND )
   {
+    mCurrentFrameCount = 0;
     LogResults();
-    ResetSamplers();
+
+    if( !mEnvironmentOptions.GetGlesCallAccumulate() )
+    {
+      ResetSamplers();
+    }
   }
 }
 
@@ -203,13 +216,13 @@ void GlProxyImplementation::Clear( GLbitfield mask )
   GlImplementation::Clear(mask);
 }
 
-void GlProxyImplementation::GenBuffers (GLsizei n, GLuint* buffers)
+void GlProxyImplementation::GenBuffers(GLsizei n, GLuint* buffers)
 {
   mBufferCount.Increment();
   GlImplementation::GenBuffers( n, buffers );
 }
 
-void GlProxyImplementation::DeleteBuffers (GLsizei n, const GLuint* buffers)
+void GlProxyImplementation::DeleteBuffers( GLsizei n, const GLuint* buffers )
 {
   mBufferCount.Decrement();
   GlImplementation::DeleteBuffers( n, buffers );
@@ -218,16 +231,16 @@ void GlProxyImplementation::DeleteBuffers (GLsizei n, const GLuint* buffers)
 void GlProxyImplementation::BindBuffer( GLenum target, GLuint buffer )
 {
   mBindBufferSampler.Increment();
-  GlImplementation::BindBuffer(target,buffer);
+  GlImplementation::BindBuffer( target, buffer );
 }
 
-void GlProxyImplementation::GenTextures (GLsizei n, GLuint* textures)
+void GlProxyImplementation::GenTextures( GLsizei n, GLuint* textures )
 {
   mTextureCount.Increment();
   GlImplementation::GenTextures( n, textures );
 }
 
-void GlProxyImplementation::DeleteTextures (GLsizei n, const GLuint* textures)
+void GlProxyImplementation::DeleteTextures( GLsizei n, const GLuint* textures )
 {
   mTextureCount.Decrement();
   GlImplementation::DeleteTextures( n, textures );
@@ -236,7 +249,7 @@ void GlProxyImplementation::DeleteTextures (GLsizei n, const GLuint* textures)
 void GlProxyImplementation::ActiveTexture( GLenum texture )
 {
   mActiveTextureSampler.Increment();
-  GlImplementation::ActiveTexture(texture);
+  GlImplementation::ActiveTexture( texture );
 }
 
 void GlProxyImplementation::BindTexture( GLenum target, GLuint texture )
@@ -248,145 +261,145 @@ void GlProxyImplementation::BindTexture( GLenum target, GLuint texture )
 void GlProxyImplementation::DrawArrays( GLenum mode, GLint first, GLsizei count )
 {
   mDrawSampler.Increment();
-  GlImplementation::DrawArrays(mode,first,count);
+  GlImplementation::DrawArrays( mode, first, count );
 }
 
 void GlProxyImplementation::DrawElements( GLenum mode, GLsizei count, GLenum type, const void* indices )
 {
   mDrawSampler.Increment();
-  GlImplementation::DrawElements(mode,count,type,indices);
+  GlImplementation::DrawElements( mode, count, type, indices );
 }
 
 void GlProxyImplementation::Uniform1f( GLint location, GLfloat x )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform1f(location,x);
+  GlImplementation::Uniform1f( location, x );
 }
 
 void GlProxyImplementation::Uniform1fv( GLint location, GLsizei count, const GLfloat* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform1fv(location,count,v);
+  GlImplementation::Uniform1fv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform1i( GLint location, GLint x )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform1i(location,x);
+  GlImplementation::Uniform1i( location, x );
 }
 
 void GlProxyImplementation::Uniform1iv( GLint location, GLsizei count, const GLint* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform1iv(location,count,v);
+  GlImplementation::Uniform1iv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform2f( GLint location, GLfloat x, GLfloat y)
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform2f(location,x,y);
+  GlImplementation::Uniform2f( location, x, y );
 }
 
 void GlProxyImplementation::Uniform2fv( GLint location, GLsizei count, const GLfloat* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform2fv(location,count,v);
+  GlImplementation::Uniform2fv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform2i( GLint location, GLint x, GLint y )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform2i(location,x,y);
+  GlImplementation::Uniform2i( location, x, y );
 }
 
 void GlProxyImplementation::Uniform2iv( GLint location, GLsizei count, const GLint* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform2iv(location,count,v);
+  GlImplementation::Uniform2iv( location, count, v );
 }
 
-void GlProxyImplementation::Uniform3f( GLint location, GLfloat x, GLfloat y, GLfloat z)
+void GlProxyImplementation::Uniform3f( GLint location, GLfloat x, GLfloat y, GLfloat z )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform3f(location,x,y,z);
+  GlImplementation::Uniform3f( location, x, y, z );
 }
 
 void GlProxyImplementation::Uniform3fv( GLint location, GLsizei count, const GLfloat* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform3fv(location,count,v);
+  GlImplementation::Uniform3fv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform3i( GLint location, GLint x, GLint y, GLint z )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform3i(location,x,y,z);
+  GlImplementation::Uniform3i( location, x, y, z );
 }
 
 void GlProxyImplementation::Uniform3iv( GLint location, GLsizei count, const GLint* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform3iv(location,count,v);
+  GlImplementation::Uniform3iv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform4f( GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform4f(location,x,y,z,w);
+  GlImplementation::Uniform4f( location, x, y, z, w );
 }
 
 void GlProxyImplementation::Uniform4fv( GLint location, GLsizei count, const GLfloat* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform4fv(location,count,v);
+  GlImplementation::Uniform4fv( location, count, v );
 }
 
 void GlProxyImplementation::Uniform4i( GLint location, GLint x, GLint y, GLint z, GLint w )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform4i(location,x,y,z,w);
+  GlImplementation::Uniform4i( location, x, y, z, w );
 }
 
 void GlProxyImplementation::Uniform4iv( GLint location, GLsizei count, const GLint* v )
 {
   mUniformSampler.Increment();
-  GlImplementation::Uniform4iv(location,count,v);
+  GlImplementation::Uniform4iv( location, count, v );
 }
 
 void GlProxyImplementation::UniformMatrix2fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value )
 {
   mUniformSampler.Increment();
-  GlImplementation::UniformMatrix2fv(location,count,transpose,value);
+  GlImplementation::UniformMatrix2fv( location, count, transpose, value );
 }
 
 void GlProxyImplementation::UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value )
 {
   mUniformSampler.Increment();
-  GlImplementation::UniformMatrix3fv(location,count,transpose,value);
+  GlImplementation::UniformMatrix3fv( location, count, transpose, value );
 }
 
 void GlProxyImplementation::UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value )
 {
   mUniformSampler.Increment();
-  GlImplementation::UniformMatrix4fv(location,count,transpose,value);
+  GlImplementation::UniformMatrix4fv( location, count, transpose, value);
 }
 
-GLuint GlProxyImplementation::CreateProgram (void)
+GLuint GlProxyImplementation::CreateProgram( void )
 {
   mProgramCount.Increment();
   return GlImplementation::CreateProgram();
 }
 
-void GlProxyImplementation::DeleteProgram (GLuint program)
+void GlProxyImplementation::DeleteProgram( GLuint program )
 {
   mProgramCount.Decrement();
-  GlImplementation::DeleteProgram(program);
+  GlImplementation::DeleteProgram( program );
 }
 
 void GlProxyImplementation::UseProgram( GLuint program )
 {
   mUseProgramSampler.Increment();
-  GlImplementation::UseProgram(program);
+  GlImplementation::UseProgram( program );
 }
 
 void GlProxyImplementation::AccumulateSamples()
@@ -403,7 +416,7 @@ void GlProxyImplementation::AccumulateSamples()
 
 void GlProxyImplementation::LogResults()
 {
-  Debug::LogMessage( Debug::DebugInfo, "OpenGL ES statistics sampled over %d frames) operations per frame:\n", mFrameCount );
+  Debug::LogMessage( Debug::DebugInfo, "OpenGL ES statistics sampled over %d frames) operations per frame:\n", mTotalFrameCount );
   LogCalls( mActiveTextureSampler );
   LogCalls( mClearSampler );
   LogCalls( mBindBufferSampler );
@@ -411,7 +424,7 @@ void GlProxyImplementation::LogResults()
   LogCalls( mDrawSampler );
   LogCalls( mUniformSampler );
   LogCalls( mUseProgramSampler );
-  Debug::LogMessage( Debug::DebugInfo, "OpenGL ES Object Count:\n", mFrameCount );
+  Debug::LogMessage( Debug::DebugInfo, "OpenGL ES Object Count:\n" );
   LogObjectCounter( mBufferCount );
   LogObjectCounter( mTextureCount );
   LogObjectCounter( mProgramCount );
@@ -419,10 +432,11 @@ void GlProxyImplementation::LogResults()
 
 void GlProxyImplementation::LogCalls( const Sampler& sampler )
 {
-  Debug::LogMessage( Debug::DebugInfo, "  %s : Mean %5.2f  (Min:%5.2f, Max:%5.2f, StdDev:%5.2f)\n",
+  Debug::LogMessage( Debug::DebugInfo, "  %s : Mean %5.2f  (Min:%5.2f, Max:%5.2f, StdDev:%5.2f, Actual:%d)\n",
                      sampler.GetDescription(),
                      sampler.GetMeanValue(), sampler.GetMin(), sampler.GetMax(),
-                     sampler.GetStandardDeviation() );
+                     sampler.GetStandardDeviation(),
+                     sampler.GetCount() );
 }
 
 void GlProxyImplementation::LogObjectCounter( const ObjectCounter& sampler )
@@ -442,7 +456,7 @@ void GlProxyImplementation::ResetSamplers()
   mDrawSampler.Reset();
   mUniformSampler.Reset();
   mUseProgramSampler.Reset();
-  mFrameCount = 0;
+  mTotalFrameCount = 0;
 }
 
 } // namespace Adaptor

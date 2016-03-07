@@ -12,4 +12,5 @@ adaptor_wayland_tizen_internal_src_files = \
   $(adaptor_wayland_dir)/input/key-mapping-wl.cpp \
   $(adaptor_wayland_dir)/render-surface/render-surface-wl.cpp \
   $(adaptor_wayland_dir)/clipboard/clipboard-impl-wl.cpp \
-  $(adaptor_wayland_dir)/imf/imf-manager-impl-wl.cpp
+  $(adaptor_wayland_dir)/imf/imf-manager-impl-wl.cpp \
+  $(adaptor_wayland_dir)/compositor-output-region/compositor-output.cpp

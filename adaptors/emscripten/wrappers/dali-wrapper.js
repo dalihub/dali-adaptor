@@ -3397,6 +3397,11 @@ dali.create = function(name) {
   return handle;
 };
 
+dali.updateFrame = function() {
+  dali.__updateOnce();
+  dali.__renderOnce();
+};
+
 /**
  * Creates constructors for objects found in the TypeRegistry. Some objects are
  * individually wrapped. Sets some global objects eg. debug/stage.
@@ -3477,10 +3482,10 @@ dali.init = function() {
     })(t.getTypeName(i));
   }
 
-  dali.__updateOnce();
-  dali.__renderOnce();
+  dali.updateFrame();
 
 }(); // call init
+
 
 //------------------------------------------------------------------------------
 //

@@ -62,6 +62,12 @@ public:
    */
   void AssignWindowEventInterface( WindowEventInterface* eventInterface);
 
+  /**
+   * @brief listen to events on this seat
+   * @param seatInterface[in] output interface
+   */
+  void AddSeatListener( Dali::WlSeat* seatInterface );
+
 
 protected: //InputInterface, pointer events
 

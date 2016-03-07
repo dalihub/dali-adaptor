@@ -410,6 +410,16 @@ private:
    */
   void SetFontList( const FontDescription& fontDescription, FontList& fontList );
 
+  /**
+   * Caches a font path.
+   *
+   * @param[in] ftFace The FreeType face.
+   * @param[in] id The font identifier.
+   * @param[in] pointSize The font point size.
+   * @param[in] path Path to the font file name.
+   */
+  void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 pointSize,  const FontPath& path );
+
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.
 
   unsigned int mDpiHorizontal; ///< Horizontal dpi.

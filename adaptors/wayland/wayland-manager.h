@@ -26,6 +26,7 @@
 #include <file-descriptor-monitor.h>
 #include "input-manager.h"
 #include "wayland-window.h"
+#include "compositor-output-region/compositor-output.h"
 
 namespace Dali
 {
@@ -57,15 +58,8 @@ class PerformanceInterface;
  * In the queue step, the data coming from the display fd is interpreted and
  * added to a queue. On the dispatch step, the handler for the incoming event is called.
  *
- * default queue is dispatched by calling wl_display_dispatch().
- *
- * The compositor sends out the frame event every time it draws a frame.
- * wl_display_frame_callback() to schedule a callback per frame.
- *
- *
- * wl_display_dispatch(). This will dispatch any events queued on the default queue and
- * attempt to read from the display fd if it's empty.
- * Events read are then queued on the appropriate queues according to the proxy assignment.
+ * This class uses the Wayland thread safe API's because the TPL (Tizen Platform Layer) will
+ * be communicating with the Wayland compositor at the same time in the DALi render thread.
  *
  *
  */
@@ -122,6 +116,12 @@ private: // change to private
   void FileDescriptorCallback( FileDescriptorMonitor::EventType eventTypeMask );
 
   /**
+   * @brief Reads and dispatches any events from the Wayland compositor
+   * We have a file descriptor monitor active to decide when to call this function
+   */
+  void ReadAndDispatchEvents();
+
+  /**
    * @brief helper to get wayland interfaces
    */
   void GetWaylandInterfaces();
@@ -130,6 +130,7 @@ public:
 
 
   InputManager  mInputManager;
+  CompositorOutput mCompositorOutput;     ///< handles monitor information and DPI
   WlDisplay* mDisplay;        ///< Wayland display, handles all the data sent from and to the compositor
   WlShell* mShell;            ///< shell
   WlCompositor* mCompositor;  ///< compositor
