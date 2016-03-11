@@ -281,8 +281,8 @@ void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOf
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
   mDefaultFrameDelta                  = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
-  mDefaultFrameDurationMilliseconds   = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
-  mDefaultFrameDurationNanoseconds    = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
+  mDefaultFrameDurationMilliseconds   = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
+  mDefaultFrameDurationNanoseconds    = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
   mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2;
 
   LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
