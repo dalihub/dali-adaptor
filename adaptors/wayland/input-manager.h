@@ -27,6 +27,8 @@
 #include <wl-types.h>
 #include <input/input-interface.h>
 #include <input/seat.h>
+#include <input/text/text-input-manager.h>
+
 
 
 namespace Dali
@@ -63,10 +65,28 @@ public:
   void AssignWindowEventInterface( WindowEventInterface* eventInterface);
 
   /**
+   * @brief Assign the Wayland connection
+   * @param[in] display Wayland display
+   */
+  void AssignDisplay( WlDisplay* display );
+
+  /**
+   * @brief Assign the Wayland surface
+   * @param[in] surface wayland surface
+   */
+  void AssignSurface( WlSurface* surface);
+
+  /**
    * @brief listen to events on this seat
-   * @param seatInterface[in] output interface
+   * @param[in] seatInterface output interface
    */
   void AddSeatListener( Dali::WlSeat* seatInterface );
+
+  /**
+   * @brief add text input manager interface
+   * @param[in] textInputManager text input manager
+   */
+  void AddTextInputManager( Dali::WlTextInputManager* textInputManager );
 
 
 protected: //InputInterface, pointer events
@@ -198,6 +218,8 @@ public:
 private:
 
  Dali::Vector< Seat* > mSeats;
+ TextInputManager mTextInputManger;
+ WlDisplay* mDisplay;
  WindowEventInterface* mWindowEventInterface;
 
 };

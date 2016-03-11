@@ -50,6 +50,8 @@ Seat::Seat( InputInterface* inputInterface,  WlSeat* seatInterface )
  mKeyboard( NULL ),
  mTouch( NULL ),
  mWaylandSeat( seatInterface ),
+ mTextInput( NULL ),
+ mSurface( NULL ),
  mInputInterface( inputInterface ),
  mPointerPosition( 0, 0),
  mDepressedKeyboardModifiers(0),
@@ -63,6 +65,16 @@ Seat::~Seat()
   DestroyPointerInterface();
   DestroyTouchInterface();
   DestroyKeyboardInterface();
+}
+
+void Seat::SetTextInputInterface( WlTextInput* textInput )
+{
+  mTextInput = textInput;
+}
+
+void Seat::SetSurfaceInterface( WlSurface* surface )
+{
+  mSurface = surface;
 }
 
 void Seat::SetPointerInterface( InterfaceStatus status )
@@ -146,6 +158,16 @@ WlKeyboard* Seat::GetKeyboardInterface()
 WlSeat* Seat::GetSeatInterface()
 {
   return mWaylandSeat;
+}
+
+WlTextInput* Seat::GetTextInputInterface()
+{
+  return mTextInput;
+}
+
+WlSurface* Seat::GetSurface()
+{
+  return mSurface;
 }
 
 void Seat::DestroyPointerInterface()
@@ -248,6 +270,48 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
 
 }
 
+Dali::KeyEvent Seat::GetDALiKeyEventFromSymbol( unsigned int serial,
+                                      unsigned int timestamp,
+                                      unsigned int symbol,
+                                      unsigned int state,
+                                      unsigned int modifiers )
+{
+ char key[256] = { 0 };
+ char keyName[256] = { 0 };
+
+ // get its name
+ xkb_keysym_get_name( symbol, key, sizeof(key));
+
+ // copy the keyname
+ memcpy(keyName, key, sizeof(keyName));
+
+ if (keyName[0] == '\0')
+ {
+   snprintf(keyName, sizeof(keyName), "Keycode-%u", symbol);
+ }
+
+ Dali::KeyEvent keyEvent;
+
+ keyEvent.keyCode = symbol; // we don't get the keycode so just the symbol
+ if( state == 1)
+ {
+   keyEvent.state = KeyEvent::Down;
+ }
+ else
+ {
+   keyEvent.state = KeyEvent::Up;
+ }
+
+ keyEvent.keyPressed = keyName;
+ keyEvent.keyPressedName = keyName;
+ keyEvent.time = timestamp;
+ keyEvent.keyModifier =  modifiers;
+
+ return keyEvent;
+
+}
+
+
 Dali::KeyEvent Seat::GetDALiKeyEvent( unsigned int serial, unsigned int timestamp, unsigned int keycode, unsigned int state  )
 {
  unsigned int code( 0 );
@@ -292,6 +356,7 @@ Dali::KeyEvent Seat::GetDALiKeyEvent( unsigned int serial, unsigned int timestam
  {
    keyEvent.state = KeyEvent::Up;
  }
+ keyEvent.keyPressed = keyName;
  keyEvent.keyPressedName = keyName;
  keyEvent.time = timestamp;
  keyEvent.keyModifier =  mDepressedKeyboardModifiers;

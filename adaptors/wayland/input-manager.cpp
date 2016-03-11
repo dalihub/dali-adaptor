@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <input/input-listeners.h>
+#include <input/text/text-input-listeners.h>
+#include <virtual-keyboard.h>
 
 namespace Dali
 {
@@ -39,7 +41,8 @@ const unsigned int TOUCH_DEVICE_ID = 3;
 } // unnamed namespace
 
 InputManager::InputManager()
-:mWindowEventInterface( NULL )
+:mDisplay( NULL ),
+ mWindowEventInterface( NULL )
 {
 
 }
@@ -55,18 +58,53 @@ InputManager::~InputManager()
 void InputManager::AssignWindowEventInterface( WindowEventInterface* eventInterface)
 {
   mWindowEventInterface = eventInterface;
+  mTextInputManger.AssignWindowEventInterface( mWindowEventInterface );
 }
+
+void InputManager::AssignDisplay( WlDisplay* display )
+{
+  mDisplay = display;
+  mTextInputManger.AssignDisplay( mDisplay );
+}
+
+void InputManager::AssignSurface( WlSurface* surface)
+{
+  for( Dali::Vector< Seat* >::Iterator iter = mSeats.Begin(); iter != mSeats.End() ; ++iter )
+  {
+    Seat* seat = (*iter);
+    seat->SetSurfaceInterface( surface );
+  }
+}
+
 
 void InputManager::AddSeatListener( Dali::WlSeat* seatInterface )
 {
   Seat* seat = new Seat( this, seatInterface );
 
   AddSeat( seat );
+  mTextInputManger.AddSeat( seat );
 
   // listen to seat events
   wl_seat_add_listener( seatInterface, Wayland::GetSeatListener(), this );
 
 }
+
+void InputManager::AddTextInputManager( Dali::WlTextInputManager* textInputManager )
+{
+
+  for( Dali::Vector< Seat* >::Iterator iter = mSeats.Begin(); iter != mSeats.End() ; ++iter )
+  {
+    Seat* seat = (*iter);
+
+    // Create a text input object for each seat
+    WlTextInput* textInput = wl_text_input_manager_create_text_input( textInputManager );
+    seat->SetTextInputInterface( textInput );
+
+    wl_text_input_add_listener( textInput, Wayland::GetTextInputListener(), &mTextInputManger );
+  }
+
+}
+
 void InputManager::PointerEnter( Seat* seat, unsigned int serial, WlSurface* surface, float x, float y )
 {
   if( mWindowEventInterface )
