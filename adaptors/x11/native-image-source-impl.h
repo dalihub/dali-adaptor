@@ -100,6 +100,11 @@ public:
   unsigned int TargetTexture();
 
   /**
+   * @copydoc Dali::NativeImageSource::PrepareTexture()
+   */
+  void PrepareTexture();
+
+  /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
   unsigned int GetWidth() const

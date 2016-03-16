@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <tbm_surface.h>
 #include <dali/devel-api/images/native-image-interface-extension.h>
+#include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
 #include <native-image-source.h>
@@ -34,6 +35,11 @@ namespace Internal
 namespace Adaptor
 {
 class EglImageExtensions;
+
+namespace
+{
+  typedef Dali::Vector< void* > EglImageContainer;
+};
 
 /**
  * Dali internal NativeImageSource.
@@ -100,6 +106,11 @@ public:
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
   unsigned int TargetTexture();
+
+  /**
+   * @copydoc Dali::NativeImageSource::PrepareTexture()
+   */
+  void PrepareTexture();
 
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
@@ -173,6 +184,8 @@ private:
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
+  bool mSetSource;
+  EglImageContainer mEglImageKHRContainer;
 };
 
 } // namespace Adaptor

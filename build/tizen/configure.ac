@@ -31,13 +31,19 @@ AC_ARG_ENABLE([feedback],
               [enable_feedback=yes],
               [enable_feedback=no])
 
+AC_ARG_ENABLE([videoplayer],
+              [AC_HELP_STRING([ --enable-videoplayer],
+                              [Enable video player plugin])],
+              [enable_videoplayer=yes],
+              [enable_videoplayer=no])
+
 AC_CONFIG_SUBDIRS(adaptor)
 if test "x$with_libuv" != "xno"; then
   # build dali-adaptor & dali-adaptor-uv
   AC_CONFIG_SUBDIRS(adaptor-uv)
 fi
 
-if test "x$enable_feedback" = "xyes"; then
+if test "x$enable_feedback" = "xyes" || test "x$enable_videoplayer" = "xyes"; then
   # build dali-adaptor & dali-adaptor-uv & plugins
   AC_CONFIG_SUBDIRS(plugins)
 fi
