@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "input-manager.h"
 
+// INTERNAL INCLUDES
+#include <input/input-listeners.h>
+
 namespace Dali
 {
 
@@ -54,7 +57,16 @@ void InputManager::AssignWindowEventInterface( WindowEventInterface* eventInterf
   mWindowEventInterface = eventInterface;
 }
 
+void InputManager::AddSeatListener( Dali::WlSeat* seatInterface )
+{
+  Seat* seat = new Seat( this, seatInterface );
 
+  AddSeat( seat );
+
+  // listen to seat events
+  wl_seat_add_listener( seatInterface, Wayland::GetSeatListener(), this );
+
+}
 void InputManager::PointerEnter( Seat* seat, unsigned int serial, WlSurface* surface, float x, float y )
 {
   if( mWindowEventInterface )

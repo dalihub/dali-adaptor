@@ -31,6 +31,7 @@ namespace Dali
 typedef ::wl_display WlDisplay;
 typedef ::wl_surface WlSurface;
 typedef ::wl_array WlArray;
+typedef ::wl_output WlOutput;
 
 typedef ::wl_shell WlShell;
 typedef ::wl_shell_surface WlShellSurface;

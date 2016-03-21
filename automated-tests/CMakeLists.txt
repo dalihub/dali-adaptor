@@ -1,3 +1,5 @@
+include(CheckIncludeFileCXX)
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(tct_coreapi_utc)
 

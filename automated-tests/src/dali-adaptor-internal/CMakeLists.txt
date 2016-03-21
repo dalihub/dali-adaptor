@@ -35,7 +35,6 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-adaptor
     ecore
 )
-
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror" )
 
 # Shouldn't have to do this!

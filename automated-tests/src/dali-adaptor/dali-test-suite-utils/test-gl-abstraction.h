@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <sstream>
 #include <string>
-#include <cstring>
 #include <map>
 #include <cstdio>
 #include <cstring> // for strcmp

@@ -405,13 +405,13 @@ libdali_adaptor_uv_la_CXXFLAGS += $(CAPI_APPFW_APPLICATION_CFLAGS) \
                                $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
                                $(CAPI_SYSTEM_INFO_CFLAGS) \
                                $(TTS_CFLAGS) \
-                               $(SENSOR_CFLAGS)
+                               $(CAPI_SYSTEM_SENSOR_CFLAGS)
 
 libdali_adaptor_uv_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                              $(CAPI_SYSTEM_INFO_LIBS) \
                              $(TTS_LIBS) \
-                             $(SENSOR_LIBS)
+                             $(CAPI_SYSTEM_SENSOR_LIBS)
 
 endif
 if WAYLAND

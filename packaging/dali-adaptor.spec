@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.22
+Version:    1.1.26
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -69,7 +69,6 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
@@ -89,6 +88,7 @@ BuildRequires:  fribidi-devel
 
 %if 0%{?tizen_2_2_compatibility} != 1
 BuildRequires:  pkgconfig(capi-system-info)
+BuildRequires:  pkgconfig(capi-system-sensor)
 %endif
 
 # Tizen currently does not have libuv as a separate libuv package

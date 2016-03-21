@@ -18,14 +18,13 @@
 #include "wayland-manager.h"
 
 // EXTERNAL INCLUDES
-#include <stdio.h>
 #include <cstring>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/window-event-interface.h>
 #include <base/interfaces/performance-interface.h>
-#include <input/input-listeners.h>
-#include <input/seat.h>
+
 
 namespace Dali
 {
@@ -36,6 +35,9 @@ namespace Adaptor
 
 namespace
 {
+
+const int NO_EVENTS_ALREADY_IN_QUEUE = 0;
+
 
 void ShellSurfacePing( void* data, struct wl_shell_surface* shell_surface, uint32_t serial)
 {
@@ -65,22 +67,7 @@ struct xdg_shell_listener XdgShellListener=
   XdgShellPing,
 };
 
-void RegisterSeatListener( WaylandManager* client,
-                          struct wl_registry *wlRegistry,
-                          uint32_t name,
-                          const char *interface,
-                          uint32_t version)
-{
-  Dali::WlSeat* seatInterface = static_cast<Dali::WlSeat*>( wl_registry_bind( wlRegistry, name,  &wl_seat_interface, version ));
 
-  Seat* seat = new Seat( &client->mInputManager, seatInterface );
-
-  client->mInputManager.AddSeat( seat );
-
-  // listen to seat events
-  wl_seat_add_listener( seatInterface, Wayland::GetSeatListener(), &client->mInputManager );
-
-}
 void RegistryGlobalCallback( void *data,
            struct wl_registry *wlRegistry,
            uint32_t name,
@@ -97,7 +84,15 @@ void RegistryGlobalCallback( void *data,
   else if( strcmp( interface, wl_seat_interface.name) == 0  )
   {
     // register for seat callbacks and add a new seat to the input manager
-    RegisterSeatListener( client, wlRegistry, name, interface, version);
+    Dali::WlSeat* seatInterface = static_cast<Dali::WlSeat*>( wl_registry_bind( wlRegistry, name,  &wl_seat_interface, version ));
+
+    client->mInputManager.AddSeatListener( seatInterface );
+  }
+  else if ( strcmp( interface, wl_output_interface.name ) == 0)
+  {
+    // get the interface and add the listener
+    Dali::WlOutput* output =  static_cast< Dali::WlOutput* >(wl_registry_bind(wlRegistry, name, &wl_output_interface, version));
+    client->mCompositorOutput.AddListener( output );
   }
   else if (strcmp(interface, wl_shell_interface.name) == 0)
   {
@@ -183,7 +178,36 @@ void WaylandManager::Initialise()
   GetWaylandInterfaces();
 
 }
+void WaylandManager::ReadAndDispatchEvents()
+{
+  // Wayland client uses a single file descriptor to communicate with the compositor.
+  // Because DALi can have multiple client threads ( event thread for input, render thread for Tizen buffer management / TPL )
+  // it has to use the Wayland client thread safe API to prevent a dead lock
 
+  // prepare_read announces the calling thread's intention to read from the file descriptor
+  // If there is already events queued up in the default queue, then dispatch those first
+  while( wl_display_prepare_read( mDisplay ) != NO_EVENTS_ALREADY_IN_QUEUE )
+  {
+    // dispatch the event, e.g. a touch event or a clipboard event
+    wl_display_dispatch_pending( mDisplay );
+  }
+
+  // At this point the default queue is empty.
+  // We read data from the file descriptor in their respective queues
+  // This is thread safe. No other threads will read from the fd and queue events during this operation.
+  int ret = wl_display_read_events( mDisplay );
+
+  if( ret == 0 )
+  {
+    // dispatch the events from the default queue
+    wl_display_dispatch_pending( mDisplay );
+  }
+  else
+  {
+    DALI_LOG_ERROR("wl_display_read_events error");
+  }
+
+}
 void WaylandManager::AssignWindowEventInterface( WindowEventInterface* eventInterface)
 {
   mInputManager.AssignWindowEventInterface( eventInterface );
@@ -195,10 +219,16 @@ void WaylandManager::GetWaylandInterfaces()
 
   wl_registry_add_listener( registry, &RegistryListener, this);
 
-  // send and receive, to trigger the registry listener callback
-  wl_display_roundtrip( mDisplay );
-
+  // adaptor wants the DPI instantly, so we have wait for the data
+  while( !mCompositorOutput.DataReady() )
+  {
+    // This is the first and last time we use wl_display_roundtrip as its not thread safe
+    // however at this point we haven't started rendering it is safe.
+    wl_display_flush( mDisplay );
+    wl_display_roundtrip( mDisplay );
+  }
   wl_registry_destroy( registry );
+
 }
 
 void WaylandManager::InstallFileDescriptorMonitor()
@@ -215,14 +245,16 @@ void WaylandManager::InstallFileDescriptorMonitor()
   mFileDescriptorMonitor = new FileDescriptorMonitor( mDisplayFileDescriptor, callback, events );
 
 }
+
 void WaylandManager::FileDescriptorCallback( FileDescriptorMonitor::EventType eventTypeMask )
 {
   if( eventTypeMask & FileDescriptorMonitor::FD_READABLE )
   {
-    // read and dispatch
-    wl_display_dispatch( mDisplay );
+    // read and dispatch events
+    ReadAndDispatchEvents();
   }
 }
+
 
 void WaylandManager::CreateSurface( Dali::Wayland::Window& window )
 {
@@ -270,8 +302,8 @@ void WaylandManager::CreateSurface( Dali::Wayland::Window& window )
     wl_shell_surface_add_listener( mShellSurface , &ShellSurfaceListener, 0);
   }
 
-  // send / receive all commands
-  wl_display_roundtrip( mDisplay );
+  wl_display_flush( mDisplay );
+
 }
 
 WlSurface* WaylandManager::GetSurface()

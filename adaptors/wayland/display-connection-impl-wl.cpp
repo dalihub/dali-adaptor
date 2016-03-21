@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "display-connection-impl.h"
 
+// INTERNAL INCLUDES
+#include "compositor-output-region/compositor-output.h"
+
 
 namespace Dali
 {
@@ -59,15 +62,7 @@ bool DisplayConnection::InitializeEgl(EglInterface& egl)
 
 void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
-  // calculate DPI
-  float xres, yres;
-
-  // 1 inch = 25.4 millimeters
-  xres = 72;// hardcoded for now, @todo use wl_output interface to calculate display dpi
-  yres = 72;// hardcoded for now
-
-  dpiHorizontal = int(xres + 0.5f);  // rounding
-  dpiVertical   = int(yres + 0.5f);
+  CompositorOutput::GetDpi( dpiHorizontal, dpiVertical);
 }
 
 } // namespace Adaptor

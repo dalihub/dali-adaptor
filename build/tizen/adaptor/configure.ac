@@ -232,13 +232,18 @@ else
 
 
 PKG_CHECK_MODULES(DLOG, dlog)
-PKG_CHECK_MODULES(SENSOR, sensor)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 
 if test "x$enable_efl" = "xyes"; then
 if test "x$with_tizen_2_2_compatibility" = "xno"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
+PKG_CHECK_MODULES(CAPI_SYSTEM_SENSOR, capi-system-sensor, [ capi_system_sensor_support=yes ], [ capi_system_sensor_support=no ] )
+
+if test "x$capi_system_sensor_support" = "xyes"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DCAPI_SYSTEM_SENSOR_SUPPORT"
+fi
+
 fi
 fi
 
