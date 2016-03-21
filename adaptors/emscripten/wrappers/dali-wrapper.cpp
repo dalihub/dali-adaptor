@@ -1145,7 +1145,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
 ;
 
   class_<Dali::PropertyBuffer>("PropertyBuffer")
-    .constructor<Dali::Property::Map&, std::size_t>(Dali::PropertyBuffer::New)
+    .constructor<Dali::Property::Map&>(Dali::PropertyBuffer::New)
     .function("setData", &SetPropertyBufferDataRaw)
 ;
 

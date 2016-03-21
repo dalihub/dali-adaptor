@@ -41,7 +41,7 @@ namespace Emscripten
  * @param[in] data The raw byte data
  *
  */
-void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data );
+void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data, std::size_t size );
 
 }; // namespace Emscripten
 }; // namespace Internal

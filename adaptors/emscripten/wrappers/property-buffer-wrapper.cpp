@@ -29,9 +29,9 @@ namespace Internal
 namespace Emscripten
 {
 
-void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data )
+void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data, std::size_t size )
 {
-  self.SetData( reinterpret_cast<void*>( const_cast<char*>(data.c_str()) ) );
+  self.SetData( reinterpret_cast<void*>( const_cast<char*>(data.c_str()) ), size );
 }
 
 
