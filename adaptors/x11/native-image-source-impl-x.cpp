@@ -273,9 +273,9 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-void NativeImageSource::SetSource( Any source )
+void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
 {
-  mPixmap = GetPixmapFromAny( source );
+  mPixmap = GetPixmapFromAny( nativeImageSource );
 
   if (mPixmap)
   {

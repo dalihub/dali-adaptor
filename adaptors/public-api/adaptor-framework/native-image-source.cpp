@@ -55,9 +55,9 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return mImpl->EncodeToFile(filename);
 }
 
-void NativeImageSource::SetSource( Any source )
+void NativeImageSource::SetNativeImageSource( Any nativeImageSource )
 {
-  mImpl->SetSource( source );
+  mImpl->SetNativeImageSource( nativeImageSource );
 }
 
 bool NativeImageSource::GlExtensionCreate()

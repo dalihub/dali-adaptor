@@ -129,12 +129,12 @@ public:
   bool EncodeToFile(const std::string& filename) const;
 
   /**
-   * @brief Set an existing source
+   * @brief Set an existing native image source
    *
    * @SINCE_1_1.19
-   * @param[in] source Any handle with the source
+   * @param[in] source Any handle with native image source
    */
-  void SetSource( Any source );
+  void SetNativeImageSource( Any source );
 
 private:   // native image
 
