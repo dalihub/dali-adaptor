@@ -46,7 +46,7 @@ class NativeImageSource;
  * @brief Pointer to Dali::NativeImageSource.
  * @SINCE_1_0.0
  */
-typedef IntrusivePtr<NativeImageSource> NativeImageSourcePtr;
+typedef Dali::IntrusivePtr<Dali::NativeImageSource> NativeImageSourcePtr;
 
 /**
  * @brief Used for displaying native images.
@@ -109,8 +109,8 @@ public:
    * (COLOR_DEPTH_24 and COLOR_DEPTH_32).
    * @SINCE_1_0.0
    * @param[out] pixbuf a vector to store the pixels in
-   * @param[out] width  width of image
-   * @param[out] height height of image
+   * @param[out] width  The width of image
+   * @param[out] height The height of image
    * @param[out] pixelFormat pixel format used by image
    * @return     True if the pixels were gotten, and false otherwise.
    */

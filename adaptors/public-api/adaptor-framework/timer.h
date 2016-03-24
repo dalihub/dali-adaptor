@@ -103,7 +103,7 @@ public: // API
   ~Timer();
 
   /**
-   * @brief Downcast an Object handle to Timer handle.
+   * @brief Downcast a handle to Timer handle.
    *
    * If handle points to a Timer object the downcast produces a valid
    * handle. If not the returned handle is left uninitialized.
@@ -139,6 +139,7 @@ public: // API
 
   /**
    * @brief Get the interval of timer.
+   *
    * @returns  Interval in milliseconds.
    * @SINCE_1_0.0
    */
@@ -157,7 +158,7 @@ public: // Signals
    * @brief Signal emitted after specified time interval.
    *
    * The return of the callback decides whether signal emission stops or continues.
-   * If the callback function returns false emission will stop, if true it will continue
+   * If the callback function returns false, emission will stop and if true, it will continue.
    * This return value is ignored for one-shot events, which will always stop after the first execution.
    * @returns The signal to Connect() with.
    * @SINCE_1_0.0

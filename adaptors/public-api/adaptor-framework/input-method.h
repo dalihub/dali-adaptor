@@ -28,6 +28,10 @@ namespace Dali
  * @{
  */
 
+/**
+ * @brief Enumerations for input method
+ * @SINCE_1_0.0
+ */
 namespace InputMethod
 {
 /**
@@ -35,39 +39,39 @@ namespace InputMethod
  *
  * The 'Action' button is traditionally the [RETURN] or [DONE] button.
  *
- * Not all these actions are supported by all systems
+ * Not all these actions are supported by all systems.
  *
  * Setting a custom label will still require one of these actions to be set.
  * @SINCE_1_0.0
  */
 enum ActionButton
 {
-  ACTION_DEFAULT,
-  ACTION_DONE,
-  ACTION_GO,
-  ACTION_JOIN,
-  ACTION_LOGIN,
-  ACTION_NEXT,
-  ACTION_PREVIOUS,
-  ACTION_SEARCH,
-  ACTION_SEND,
-  ACTION_SIGNIN,
-  ACTION_UNSPECIFIED,
-  ACTION_NONE
+  ACTION_DEFAULT,       ///< Default action @SINCE_1_0.0
+  ACTION_DONE,          ///< Done @SINCE_1_0.0
+  ACTION_GO,            ///< Go action @SINCE_1_0.0
+  ACTION_JOIN,          ///< Join action @SINCE_1_0.0
+  ACTION_LOGIN,         ///< Login action @SINCE_1_0.0
+  ACTION_NEXT,          ///< Next action @SINCE_1_0.0
+  ACTION_PREVIOUS,      ///< Previous action @SINCE_1_0.0
+  ACTION_SEARCH,        ///< Search action @SINCE_1_0.0
+  ACTION_SEND,          ///< Send action @SINCE_1_0.0
+  ACTION_SIGNIN,        ///< Sign in action @SINCE_1_0.0
+  ACTION_UNSPECIFIED,   ///< Unspecified action @SINCE_1_0.0
+  ACTION_NONE           ///< Nothing to do @SINCE_1_0.0
 };
 
 /**
  * @brief Settings that can be changed in the system Input Method
  *
- * Not all these settings are supported by all systems
+ * Not all these settings are supported by all systems.
  * @SINCE_1_0.0
  */
 enum Settings
 {
-  ACTION_BUTTON,          // ActionButton // Apply the one of the ActionButton functions to the action button (return button)
-  AUTO_CAPITALISE,        // boolean      // Capitalise first letter of each sentence automatically
-  AUTO_COMPLETE,          // boolean      // Suggest words based on the current input
-  AUTO_CORRECT            // boolean      // Automatically correct commonly misspelt words
+  ACTION_BUTTON,          ///< ActionButton. Apply the one of the ActionButton functions to the action button (return button). @SINCE_1_0.0
+  AUTO_CAPITALISE,        ///< boolean.      Capitalise the first letter of each sentence automatically. @SINCE_1_0.0
+  AUTO_COMPLETE,          ///< boolean.      Suggest words based on the current input. @SINCE_1_0.0
+  AUTO_CORRECT            ///< boolean.      Automatically correct commonly misspelt words. @SINCE_1_0.0
 };
 
 } // namespace InputMethod

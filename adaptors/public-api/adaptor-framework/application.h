@@ -45,7 +45,9 @@ class Application;
 }
 /**
  * @brief An Application class object should be created by every application
- * that wishes to use Dali.  It provides a means for initialising the
+ * that wishes to use Dali.
+ *
+ * It provides a means for initialising the
  * resources required by the Dali::Core.
  *
  * The Application class emits several signals which the user can
@@ -56,16 +58,28 @@ class Application;
  * Applications should follow the example below:
  *
  * @code
- * void CreateProgram(Application app)
+ * class ExampleController: public ConnectionTracker
  * {
- *   // Create Dali components...
- *   // Can instantiate here, if required
- * }
+ * public:
+ *   ExampleController( Application& application )
+ *   : mApplication( application )
+ *   {
+ *     mApplication.InitSignal().Connect( this, &ExampleController::Create );
+ *   }
+ *
+ *   void Create( Application& application )
+ *   {
+ *     // Create Dali components...
+ *   }
+ *  ...
+ * private:
+ *   Application& mApplication;
+ * };
  *
  * int main (int argc, char **argv)
  * {
  *   Application app = Application::New(&argc, &argv);
- *   app.InitSignal().Connect(&CreateProgram);
+ *   ExampleController example( app );
  *   app.MainLoop();
  * }
  * @endcode
@@ -94,8 +108,8 @@ class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 
-  typedef Signal< void (Application&) > AppSignalType;
-  typedef Signal< void (Application&, void *) > AppControlSignalType;
+  typedef Signal< void (Application&) > AppSignalType;  ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
+  typedef Signal< void (Application&, void *) > AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
 
   /**
    * @brief Decides whether a Dali application window is opaque or transparent.
@@ -173,7 +187,9 @@ public:
 
 public:
   /**
-   * @brief This starts the application. Choosing this form of main loop indicates that the default
+   * @brief This starts the application.
+   *
+   * Choosing this form of main loop indicates that the default
    * application configuration of APPLICATION_HANDLES_CONTEXT_LOSS is used. On platforms where
    * context loss can occur, the application is responsible for tearing down and re-loading UI.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
@@ -183,6 +199,7 @@ public:
 
   /**
    * @brief This starts the application, and allows the app to choose a different configuration.
+   *
    * If the application plans on using the ReplaceSurface or ReplaceWindow API, then this will
    * trigger context loss & regain.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
@@ -221,6 +238,7 @@ public:
 
   /**
    * @brief Retrieves the window used by the Application class.
+   *
    * The application writer can use the window to change indicator and orientation
    * properties.
    * @SINCE_1_0.0
@@ -230,6 +248,7 @@ public:
 
   /**
    * @brief Replace the current window.
+   *
    * This will force context loss.
    * If you plan on using this API in your application, then you should configure
    * it to prevent discard behaviour when handling the Init signal.
@@ -315,6 +334,7 @@ public:  // Signals
 
   /**
   * @brief This signal is emitted when another application sends a launch request to the application.
+  *
   * When the application is launched, this signal is emitted after the main loop of the application starts up.
   * The passed parameter describes the launch request and contains the information about why the application is launched.
   * @SINCE_1_0.0
