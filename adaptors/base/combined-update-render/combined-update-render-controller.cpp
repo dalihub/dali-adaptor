@@ -374,6 +374,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   {
     LOG_UPDATE_RENDER_TRACE;
 
+    // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
+    AddPerformanceMarker( PerformanceInterface::VSYNC );
+
     uint64_t currentFrameStartTime = 0;
     TimeService::GetNanoseconds( currentFrameStartTime );
 

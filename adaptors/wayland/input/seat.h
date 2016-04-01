@@ -69,8 +69,8 @@ public:
    */
   enum InterfaceStatus
   {
-    INTERFACE_AVAILABLE,
-    INTERFACE_NOT_AVAILABLE,
+    INTERFACE_AVAILABLE,      ///< Occurs when at least 1 device for this device class is plugged in
+    INTERFACE_NOT_AVAILABLE,  ///< Occurs when all devices for a device class are unplugged (e.g. all mice )
   };
 
   /**
@@ -84,6 +84,18 @@ public:
    * @brief non virtual destructor, not intended as base class
    */
   ~Seat();
+
+  /**
+   * @brief set Tizen Wayland Text Input interface
+   * @param[in] textInputManager interface
+   */
+  void SetTextInputInterface( WlTextInput* textInput );
+
+  /**
+   * @brief set the surface
+   * @param[in] surface Wayland surface currently associated with this seat ( for input panel / IMF )
+   */
+  void SetSurfaceInterface( WlSurface* surface );
 
   /**
    * @brief Set the pointer interface
@@ -129,6 +141,18 @@ public:
    * @return Wayland keyboard interface
    */
   WlSeat* GetSeatInterface();
+
+  /**
+   * @brief Get the text input interface
+   * @return Wayland text input interface
+   */
+  WlTextInput* GetTextInputInterface();
+
+  /**
+   * @brief Get the surface
+   * @return Wayland surface
+   */
+  WlSurface* GetSurface();
 
   /**
    * @brief calls wl_pointer_destroy on the pointer interface
@@ -203,8 +227,27 @@ public:
    */
   void SetKeyRepeatInfo( unsigned int rate, unsigned int delay );
 
+
   /**
-   * @brief Key has been pressed or released
+   * @brief Key has been pressed or released.
+   * Used for key events from Tizen Wayland wl_text_input interface.
+   *
+   * @param[in] seat the seat that produced the event
+   * @param[in] timestamp timestamp
+   * @param[in] symbol key symbol
+   * @param[in] state key state
+   * @param[in] modifiers keyboard modifiers
+   * @return Key event
+   */
+
+  Dali::KeyEvent GetDALiKeyEventFromSymbol( unsigned int serial,
+                                        unsigned int timestamp,
+                                        unsigned int symbol,
+                                        unsigned int state,
+                                        unsigned int modifiers );
+
+  /**
+   * @brief Key has been pressed or released. Used
    *
    * @param[in] seat the seat that produced the event
    * @param[in] serial serial number
@@ -248,11 +291,13 @@ private:  // data specific to a single seat
   };
 
   XkbData mXkbData;          ///< Keyboard data. Believe this can vary per seat
-  std::string mName;         ///< Set name
+  std::string mName;         ///< Seat name
   WlPointer* mPointer;       ///< Wayland Pointer interface ( for multiple pointers )
   WlKeyboard* mKeyboard;     ///< Wayland Keyboard interface ( for multiple keyboards )
   WlTouch* mTouch;           ///< Wayland Touch interface ( for multiple touch devices )
   WlSeat* mWaylandSeat;      ///< Wayland Seat interface
+  WlTextInput* mTextInput;   ///< Wayland Tizen Text input interface (Virtual Keyboard / IMF)
+  WlSurface* mSurface;       ///< Surface currently used by this seat
   InputInterface* mInputInterface;  ///< DALi Wayland Input interface
   Vector2 mPointerPosition; ///< Current pointer X,Y position
   unsigned int mDepressedKeyboardModifiers; ///< keyboard modifiers

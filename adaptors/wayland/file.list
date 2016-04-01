@@ -10,6 +10,9 @@ adaptor_wayland_tizen_internal_src_files = \
   $(adaptor_wayland_dir)/input/input-listeners.cpp \
   $(adaptor_wayland_dir)/input/seat.cpp \
   $(adaptor_wayland_dir)/input/key-mapping-wl.cpp \
+  $(adaptor_wayland_dir)/input/text/text-input-listeners.cpp \
+  $(adaptor_wayland_dir)/input/text/text-input-manager.cpp \
+  $(adaptor_wayland_dir)/input/text/virtual-keyboard-impl-wl.cpp \
   $(adaptor_wayland_dir)/render-surface/render-surface-wl.cpp \
   $(adaptor_wayland_dir)/clipboard/clipboard-impl-wl.cpp \
   $(adaptor_wayland_dir)/imf/imf-manager-impl-wl.cpp \
