@@ -1512,9 +1512,9 @@ dali.createPropertyBuffer = function(info) {
     recordOffset += recordSize;
   }
 
-  var propertyBuffer = new dali.PropertyBuffer(format, dataLength);
+  var propertyBuffer = new dali.PropertyBuffer(format);
 
-  propertyBuffer.setData(buffer);
+  propertyBuffer.setData(buffer, dataLength);
 
   format.delete(); //
 

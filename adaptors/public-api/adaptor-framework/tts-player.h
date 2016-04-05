@@ -38,7 +38,7 @@ class TtsPlayer;
 }
 
 /**
- * @brief The Text-to-speech Player.
+ * @brief The Text-to-speech (TTS) Player.
  * @SINCE_1_0.0
  */
 class DALI_IMPORT_API TtsPlayer : public BaseHandle
@@ -160,9 +160,9 @@ public: // API
 
   /**
    * @brief Allows connection TTS state change signal.
-   * Note: Only supported by some adaptor types.
    * @SINCE_1_0.0
    * @return A reference to the signal for connection.
+   * @note Only supported by some adaptor types.
    */
   Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
 

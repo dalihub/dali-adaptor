@@ -1042,13 +1042,13 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
         Dali::Property::Map vertexFormat;
         vertexFormat[ "aPosition" ] = Dali::Property::VECTOR2;
         vertexFormat[ "aAlpha" ] = Dali::Property::FLOAT;
-        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat, numVertices );
-        vertexPropertyBuffer.SetData( vertices );
+        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat );
+        vertexPropertyBuffer.SetData( vertices, numVertices );
 
         Dali::Property::Map indexFormat;
         indexFormat[ "indices" ] = Dali::Property::INTEGER;
-        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat, numIndices );
-        indexPropertyBuffer.SetData( indices );
+        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat );
+        indexPropertyBuffer.SetData( indices, numIndices );
 
         // Create the geometry object
         mTranslucentGeometry = Dali::Geometry::New();
@@ -1077,13 +1077,13 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
         Dali::Property::Map vertexFormat;
         vertexFormat[ "aPosition" ] = Dali::Property::VECTOR2;
         vertexFormat[ "aAlpha" ] = Dali::Property::FLOAT;
-        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat, 4 );
-        vertexPropertyBuffer.SetData( vertices );
+        Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat );
+        vertexPropertyBuffer.SetData( vertices, 4 );
 
         Dali::Property::Map indexFormat;
         indexFormat[ "indices" ] = Dali::Property::INTEGER;
-        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat, 6 );
-        indexPropertyBuffer.SetData( indices );
+        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat );
+        indexPropertyBuffer.SetData( indices, 6 );
 
         // Create the geometry object
         mSolidGeometry = Dali::Geometry::New();

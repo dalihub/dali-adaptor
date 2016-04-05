@@ -334,9 +334,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   {
     std::string errorString = tjGetErrorStr();
 
-    //TurboJPEG API functions will now return an error code if a warning is triggered in the underlying libjpeg API.
-    //So, we need to distinguish return of tjGetErrorStr() is warning or error.
-    //If the return string has 'Corrupt JPEG data' prefix, it means warning.
     if( errorString.find("Corrupt JPEG data") == std::string::npos )
     {
       DALI_LOG_ERROR("%s\n", errorString.c_str());
@@ -346,6 +343,10 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
     {
       DALI_LOG_WARNING("%s\n", errorString.c_str());
     }
+
+    //TurboJPEG API functions will now return an error code if a warning is triggered in the underlying libjpeg API.
+    //So, we need to distinguish return of tjGetErrorStr() is warning or error.
+    //If the return string has 'Corrupt JPEG data' prefix, it means warning.
   }
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );

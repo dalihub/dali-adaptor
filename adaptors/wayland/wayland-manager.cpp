@@ -77,33 +77,39 @@ void RegistryGlobalCallback( void *data,
 
   WaylandManager* client = static_cast<   WaylandManager* >( data );
 
-  if (strcmp( interface, wl_compositor_interface.name) == 0)
+  if( strcmp( interface, wl_compositor_interface.name ) == 0 )
   {
-    client->mCompositor = static_cast<Dali::WlCompositor*>(wl_registry_bind( wlRegistry, name , &wl_compositor_interface, version ));
+    client->mCompositor = static_cast< Dali::WlCompositor* >( wl_registry_bind( wlRegistry, name, &wl_compositor_interface, version ) );
   }
-  else if( strcmp( interface, wl_seat_interface.name) == 0  )
+  else if( strcmp( interface, wl_seat_interface.name ) == 0 )
   {
     // register for seat callbacks and add a new seat to the input manager
-    Dali::WlSeat* seatInterface = static_cast<Dali::WlSeat*>( wl_registry_bind( wlRegistry, name,  &wl_seat_interface, version ));
+    Dali::WlSeat* seatInterface = static_cast< Dali::WlSeat* >( wl_registry_bind( wlRegistry, name, &wl_seat_interface, version ) );
 
     client->mInputManager.AddSeatListener( seatInterface );
   }
-  else if ( strcmp( interface, wl_output_interface.name ) == 0)
+  else if( strcmp( interface, wl_output_interface.name ) == 0 )
   {
     // get the interface and add the listener
-    Dali::WlOutput* output =  static_cast< Dali::WlOutput* >(wl_registry_bind(wlRegistry, name, &wl_output_interface, version));
+    Dali::WlOutput* output = static_cast< Dali::WlOutput* >( wl_registry_bind( wlRegistry, name, &wl_output_interface, version ) );
     client->mCompositorOutput.AddListener( output );
   }
-  else if (strcmp(interface, wl_shell_interface.name) == 0)
+  else if( strcmp( interface, wl_shell_interface.name ) == 0 )
   {
-    client->mShell = static_cast<Dali::WlShell*>(wl_registry_bind( wlRegistry, name , &wl_shell_interface, version));
+    client->mShell = static_cast< Dali::WlShell* >( wl_registry_bind( wlRegistry, name, &wl_shell_interface, version ) );
   }
-  else if ( strcmp( interface, xdg_shell_interface.name ) == 0)
+  else if( strcmp( interface, xdg_shell_interface.name ) == 0 )
   {
-    client->mXdgShell  =  static_cast< struct xdg_shell* >(wl_registry_bind(wlRegistry, name, &xdg_shell_interface, version));
+    client->mXdgShell = static_cast< struct xdg_shell* >( wl_registry_bind( wlRegistry, name, &xdg_shell_interface, version ) );
     // without this line Tizen 3 reports...
     // xdg_shell@7: error 0: Must call use_unstable_version first
-    xdg_shell_use_unstable_version(client->mXdgShell, 5);
+    xdg_shell_use_unstable_version( client->mXdgShell, 5 );
+  }
+  else if( strcmp( interface, wl_text_input_manager_interface.name ) == 0 )
+  {
+    Dali::WlTextInputManager* inputManager = static_cast< Dali::WlTextInputManager* >( wl_registry_bind( wlRegistry, name, &wl_text_input_manager_interface, version ) );
+
+    client->mInputManager.AddTextInputManager( inputManager );
   }
 
 
@@ -173,6 +179,8 @@ void WaylandManager::Initialise()
 
   // Monitor the display file descriptor used to communicate with Wayland server
   InstallFileDescriptorMonitor();
+
+  mInputManager.AssignDisplay( mDisplay );
 
   // Get the interfaces to compositor / shell etc
   GetWaylandInterfaces();
@@ -263,6 +271,9 @@ void WaylandManager::CreateSurface( Dali::Wayland::Window& window )
   // It has a location, size and pixel contents.
 
   mSurface = wl_compositor_create_surface( mCompositor );
+
+  // the Input panel (Virtual keyboard ) needs to know which surface it should display on.
+  mInputManager.AssignSurface( mSurface );
 
   DALI_ASSERT_ALWAYS( mSurface && "wl_compositor_create_surface failed" );
 

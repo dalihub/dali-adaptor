@@ -1,5 +1,5 @@
-#ifndef __DALI_PROPERTYBUFFER_WRAPPER_H__
-#define __DALI_PROPERTYBUFFER_WRAPPER_H__
+#ifndef __DALI_WAYLAND_TEXT_INPUT_LISTENERS_H__
+#define __DALI_WAYLAND_TEXT_INPUT_LISTENERS_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -19,32 +19,35 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/dali-core.h>
-#include <dali/devel-api/object/property-buffer.h>
-#include "emscripten/emscripten.h"
-#include "emscripten/val.h"
-#include "emscripten/bind.h"
-
-// INTERNAL INCLUDES
+#include <wl-types.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
-namespace Emscripten
+
+namespace Adaptor
 {
 
+namespace Wayland
+{
 /**
- * Sets a property buffer from raw data
- *
- * @param[in] self The PropertyBuffer
- * @param[in] data The raw byte data
- *
+ * Function for getting Tizen Wayland TextInput listener object
+ * The listen object contains C callbacks, which currently expect the user data-field
+ * to be a DALi TextInputInterface pointer.
  */
-void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data, std::size_t size );
 
-}; // namespace Emscripten
-}; // namespace Internal
-}; // namespace Dali
+/**
+ * @brief Listeners for input panel ( virtual keyboard ) events.
+ * @return text input listener
+ */
+const WlTextInputListener* GetTextInputListener();
 
-#endif // header
+
+} // Wayland
+} // Internal
+} // Adaptor
+} // Dali
+
+#endif  //__DALI_WAYLAND_INPUT_LISTENERS_H__

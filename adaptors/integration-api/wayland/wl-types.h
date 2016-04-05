@@ -23,6 +23,7 @@
 
 #ifdef WAYLAND_EXTENSIONS_SUPPORTED
 #include <wayland-extension/xdg-shell-client-protocol.h>   // from wayland
+#include <wayland-extension/text-client-protocol.h>
 #endif
 
 namespace Dali
@@ -51,10 +52,16 @@ typedef ::wl_keyboard_listener WlKeyboardListener;
 #ifdef WAYLAND_EXTENSIONS_SUPPORTED
 typedef ::xdg_shell WlXdgShell;
 typedef ::xdg_surface WlXdgShellSurface;
+typedef ::wl_text_input_manager WlTextInputManager;   // See Tizen wayland-extensions/protocol/text.xml
+typedef ::wl_text_input WlTextInput;                  // See Tizen wayland-extensions/protocol/text.xml
+typedef ::wl_text_input_listener WlTextInputListener; // See Tizen wayland-extensions/protocol/text.xml
+
 #else
 typedef void* WlXdgShell;
 typedef void* WlXdgShellSurface;
-
+typedef void* WlTextInputManager;
+typedef void* WlTextInput;
+typedef void* WlTextInputListener;
 
 #endif
 

@@ -24,8 +24,17 @@ namespace Dali
  * @{
  */
 
+/**
+ * @brief Application configuration enumerations
+ * @SINCE_1_0.0
+ */
 namespace Configuration
 {
+
+/**
+ * @brief Enumeration about application context loss policy
+ * @SINCE_1_0.0
+ */
 enum ContextLoss
 {
   APPLICATION_HANDLES_CONTEXT_LOSS,  ///< Application will tear down and recreate UI on context loss and context regained signals. Dali doesn't need to retain data. @SINCE_1_0.0
