@@ -492,13 +492,13 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     }
     else
     {
-      if( !mBackgroundMaterial )
+      if( !mBackgroundShader )
       {
-        Dali::Shader shader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
-        mBackgroundMaterial = Dali::Material::New( shader );
+        mBackgroundShader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
       }
 
-      Dali::Renderer renderer = Dali::Renderer::New( geometry, mBackgroundMaterial );
+
+      Dali::Renderer renderer = Dali::Renderer::New( geometry, mBackgroundShader );
 
       mBackgroundActor.AddRenderer( renderer );
     }

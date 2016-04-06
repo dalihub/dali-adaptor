@@ -24,7 +24,7 @@
 #include <dali/devel-api/rendering/geometry.h>
 #include <dali/devel-api/rendering/shader.h>
 #include <dali/devel-api/rendering/sampler.h>
-#include <dali/devel-api/rendering/material.h>
+#include <dali/devel-api/rendering/texture-set.h>
 #include <dali/devel-api/rendering/renderer.h>
 #include "emscripten/emscripten.h"
 #include "emscripten/bind.h"
@@ -1179,21 +1179,21 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .constructor<>(&Dali::Shader::New)
 ;
 
-  class_<Dali::Material, base<Dali::Handle>>("Material")
-    .constructor<>(&Dali::Material::New)
-    .function("setShader", &Dali::Material::SetShader)
-    .function("getShader", &Dali::Material::GetShader)
-    .function("addTexture", &Dali::Material::AddTexture)
-    .function("getNumberOfTextures", &Dali::Material::GetNumberOfTextures)
-    .function("removeTexture", &Dali::Material::RemoveTexture)
+  class_<Dali::TextureSet, base<Dali::Handle>>("TextureSet")
+    .constructor<>(&Dali::TextureSet::New)
+    .function("setShader", &Dali::TextureSet::SetShader)
+    .function("getShader", &Dali::TextureSet::GetShader)
+    .function("addTexture", &Dali::TextureSet::AddTexture)
+    .function("getNumberOfTextures", &Dali::TextureSet::GetNumberOfTextures)
+    .function("removeTexture", &Dali::TextureSet::RemoveTexture)
 ;
 
   class_<Dali::Renderer, base<Dali::Handle>>("Renderer")
     .constructor<>(&Dali::Renderer::New)
     .function("setGeometry", &Dali::Renderer::SetGeometry)
     .function("getGeometry", &Dali::Renderer::GetGeometry)
-    .function("setMaterial", &Dali::Renderer::SetMaterial)
-    .function("getMaterial", &Dali::Renderer::GetMaterial)
+    .function("SetTextures", &Dali::Renderer::SetTextures)
+    .function("SetTextures", &Dali::Renderer::SetTextures)
 ;
 
   class_<Dali::ShaderEffect, base<Dali::Handle>>("ShaderEffect")

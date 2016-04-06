@@ -172,7 +172,7 @@ int ObjectProfiler::GetMemorySize(const std::string& name, int count)
       { "Renderer", RENDERER_MEMORY_SIZE },
       { "Geometry", GEOMETRY_MEMORY_SIZE },
       { "PropertyBuffer", PROPERTY_BUFFER_MEMORY_SIZE },
-      { "Material", MATERIAL_MEMORY_SIZE },
+      { "TextureSet", TEXTURE_SET_MEMORY_SIZE },
       { "Sampler", SAMPLER_MEMORY_SIZE },
       { "Shader", SHADER_MEMORY_SIZE },
     };
