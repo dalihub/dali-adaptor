@@ -111,7 +111,63 @@ void XInput2::CreateKeyEvent( const XIDeviceEvent* deviceEvent, KeyEvent& keyEve
 
 }
 
-void XInput2::ProcessEvent( XGenericEventCookie* cookie )
+// prototyping implementation
+void XInput2::ProcessKeyEvent( XKeyEvent* xEvent )
+{
+  KeyEvent keyEvent;
+  keyEvent.keyCode = xEvent->keycode;
+  keyEvent.state = KeyEvent::Down;
+
+  KeySym sym = XkbKeycodeToKeysym( mDisplay, xEvent->keycode, 0 /* group */ , keyEvent.IsShiftModifier() );
+  char* keyname = XKeysymToString( sym );
+  keyEvent.keyPressedName = keyname;
+  keyEvent.time = xEvent->time;
+
+  mEventInterface->KeyEvent( keyEvent );
+}
+void XInput2::ProcessClientMessage( XEvent* event )
+{
+  // Format for client message for key event
+  // XEvent xev;
+  // xev.xclient.type = ClientMessage;
+  // xev.xclient.display = keyrouter.disp;
+  // xev.xclient.window = window;
+  // xev.xclient.format = 32;
+  // xev.xclient.message_type = ecore_x_atom_get("VDINPUT_KEYEVENT");
+  // xev.xclient.data.l[0] = ev->time; /* time */
+  // xev.xclient.data.l[1] = ev->state; /* modifier */
+  // xev.xclient.data.l[2] = ev->code; /* keycode */
+  // xev.xclient.data.l[3] = ev->value; /* press/release */
+  // xev.xclient.data.l[4] = ev->device_id; /* deviceId */
+
+  Atom input_atom = XInternAtom( mDisplay, "VDINPUT_KEYEVENT", false);
+  KeyEvent keyEvent;
+
+  keyEvent.state = KeyEvent::Down;
+
+  // if atom is "VDINPUT_KEYEVENT"
+  if( input_atom == event->xclient.message_type )
+  {
+
+    keyEvent.keyModifier = event->xclient.data.l[1];
+    keyEvent.keyCode = event->xclient.data.l[2];
+
+    // only transmit keydown events
+    if( event->xclient.data.l[3] != 2)
+    {
+      return; // 2 = key down, 3 = key release
+    }
+
+    KeySym sym = XkbKeycodeToKeysym( mDisplay,  keyEvent.keyCode, 0 /* group */ , keyEvent.IsShiftModifier() );
+    char* keyname = XKeysymToString( sym );
+    keyEvent.keyPressedName = keyname;
+    keyEvent.time = event->xclient.data.l[0];
+
+    mEventInterface->KeyEvent( keyEvent );
+  }
+}
+
+void XInput2::ProcessGenericEvent( XGenericEventCookie* cookie )
 {
   XIDeviceEvent* deviceEvent = static_cast< XIDeviceEvent* >(cookie->data);
 
@@ -280,7 +336,8 @@ void XInput2::SelectInputEvents()
 
     eventFilter.Clear();
 
-    if( ( device.use == XIFloatingSlave ) || ( device.use == XISlavePointer ))
+    // Floating slave devices also can generate key events. For example, TV remote controllers.
+    if( ( device.use == XIFloatingSlave ) || ( device.use == XISlavePointer ) || ( device.use == XISlaveKeyboard ) )
     {
       if( device.buttonClass )
       {
@@ -294,19 +351,16 @@ void XInput2::SelectInputEvents()
         eventFilter.PushBack( XI_TouchBegin );
         eventFilter.PushBack( XI_TouchEnd );
       }
-      SelectEvents( device.deviceId, eventFilter );
-    }
-    // @todo work out if we should just be listening to MasterKeyboard
-    else if( device.use == XISlaveKeyboard )
-    {
       if( device.keyClass )
       {
         eventFilter.PushBack( XI_KeyPress );
         eventFilter.PushBack( XI_KeyRelease );
-
-        SelectEvents( device.deviceId, eventFilter );
       }
+    }
 
+    if( eventFilter.Count() > 0 )
+    {
+      SelectEvents( device.deviceId, eventFilter );
     }
   }
 }
