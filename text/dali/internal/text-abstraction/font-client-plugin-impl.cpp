@@ -629,11 +629,23 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
     // Add the path to the cache.
     mFontDescriptionCache.push_back( description );
 
-    // Cache the index and the font's description.
+    // Cache the index and the matched font's description.
     FontDescriptionCacheItem item( description,
                                    validatedFontId );
 
     mValidatedFontCache.push_back( item );
+
+    if( ( fontDescription.family != description.family ) ||
+        ( fontDescription.width != description.width )   ||
+        ( fontDescription.weight != description.weight ) ||
+        ( fontDescription.slant != description.slant ) )
+    {
+      // Cache the given font's description if it's different than the matched.
+      FontDescriptionCacheItem item( fontDescription,
+                                     validatedFontId );
+
+      mValidatedFontCache.push_back( item );
+    }
   }
   else
   {
