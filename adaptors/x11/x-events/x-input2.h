@@ -73,11 +73,22 @@ public:
   int GetExtensionId() const;
 
   /**
-   * @brief process an XInput2 event
-   * @param cookie X cookie
+   * @brief process a generic X event
+   * @param[in] cookie X cookie
    */
-  void ProcessEvent( XGenericEventCookie* cookie );
+  void ProcessGenericEvent( XGenericEventCookie* cookie );
 
+  /**
+   * @brief process XKeyEvent
+   * @param[in] XKeyEvent key event
+   */
+   void ProcessKeyEvent( XKeyEvent* xKeyEvent );
+
+   /**
+    * @brief process XKeyEvent
+    * @param[in] event x-event
+    */
+   void ProcessClientMessage( XEvent* event );
 
 private:
 
