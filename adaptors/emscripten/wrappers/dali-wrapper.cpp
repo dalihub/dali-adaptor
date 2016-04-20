@@ -37,6 +37,7 @@
 #include "actor-wrapper.h"
 #include "animation-wrapper.h"
 #include "emscripten-utils.h"
+#include "geometry-wrapper.h"
 #include "handle-wrapper.h"
 #include "image-wrapper.h"
 #include "property-buffer-wrapper.h"
@@ -1043,7 +1044,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .constructor<>(&Dali::Geometry::New)
     .function("addVertexBuffer", &Dali::Geometry::AddVertexBuffer)
     .function("getNumberOfVertexBuffers", &Dali::Geometry::GetNumberOfVertexBuffers)
-    .function("setIndexBuffer", &Dali::Geometry::SetIndexBuffer)
+    .function("setIndexBuffer", &SetIndexBufferDataRaw)
     .function("setGeometryType", &Dali::Geometry::SetGeometryType)
     .function("getGeometryType", &Dali::Geometry::GetGeometryType)
     .function("setRequiresDepthTesting", &Dali::Geometry::SetRequiresDepthTesting)
