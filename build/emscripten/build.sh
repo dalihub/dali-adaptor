@@ -16,11 +16,22 @@ rm CMakeCache.txt
 /usr/bin/cmake .. -DCMAKE_BUILD_TYPE=Debug -DEMSCRIPTEN=1
 
 make -j8
+# On error, exit and return error.
+if [ $? -ne 0 ] ; then
+ exit 1
+fi
+
+
 
 mv dali-emscripten dali-emscripten.bc
 
 # Non-optimised build.
-emcc dali-emscripten.bc -o dali-emscripten.html --memory-init-file 0 -s FULL_ES2=1 -s STB_IMAGE=1 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_NAME=\"dali\" -g4 --bind
+emcc dali-emscripten.bc -o dali-emscripten.html --memory-init-file 0 -s FULL_ES2=1 -s STB_IMAGE=1 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_NAME=\"dali\" -g4 --bind ; make -j8
+# On error, exit and return error.
+if [ $? -ne 0 ] ; then
+ exit 1
+fi
+
 
 # Debug build.
 #emcc dali-emscripten.bc -o dali-emscripten.html --memory-init-file 0 -s FULL_ES2=1 -s STB_IMAGE=1 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=2 -s DEMANGLE_SUPPORT=1 -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_NAME=\"dali\" --js-opts 0 -g4 --bind
