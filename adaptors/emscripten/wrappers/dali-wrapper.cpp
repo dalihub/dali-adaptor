@@ -143,116 +143,6 @@ std::string VersionString()
   return versionString.str();
 }
 
-
-/**
- * String conversions for C++ types. For PropertyValueToString() conversions.
- */
-template <typename T>
-std::string ToString(const T& value)
-{
-  std::stringstream ss;
-  ss << value;
-  return ss.str();
-}
-
-/**
- * Dali Rect to string template specialization
- */
-template <>
-std::string ToString(const Dali::Rect<int>& value)
-{
-  std::stringstream ss;
-  ss << value.x << "," << value.y << "," << value.width << "," << value.height;
-  return ss.str();
-}
-
-/**
- * Converts Dali Property Value to string
- */
-std::string PropertyValueToString( const Dali::Property::Value& value )
-{
-  std::string ret;
-
-  switch( value.GetType() )
-  {
-    case Dali::Property::NONE:
-    {
-      ret = "NONE";
-      break;
-    }            ///< No type
-    case Dali::Property::BOOLEAN:
-    {
-      ret = value.Get<bool>() ? "True" : "False";
-      break;
-    }
-    case Dali::Property::FLOAT:
-    {
-      ret = ToString( value.Get<float>() );
-      break;
-    }
-    case Dali::Property::INTEGER:
-    {
-      ret = ToString( value.Get<int>() );
-      break;
-    }
-    case Dali::Property::VECTOR2:
-    {
-      ret = ToString( value.Get<Dali::Vector2>() );
-      break;
-    }
-    case Dali::Property::VECTOR3:
-    {
-      ret = ToString( value.Get<Dali::Vector3>() );
-      break;
-    }
-    case Dali::Property::VECTOR4:
-    {
-      ret = ToString( value.Get<Dali::Vector4>() );
-      break;
-    }
-    case Dali::Property::MATRIX3:
-    {
-      ret = ToString( value.Get<Dali::Matrix3>() );
-      break;
-    }
-    case Dali::Property::MATRIX:
-    {
-      ret = ToString( value.Get<Dali::Matrix>() );
-      break;
-    }
-    case Dali::Property::RECTANGLE:
-    {
-      ret = ToString( value.Get< Dali::Rect<int> >() );
-      break;
-    }
-    case Dali::Property::ROTATION:
-    {
-      break;
-    }
-    case Dali::Property::STRING:
-    {
-      ret = value.Get<std::string>();
-      break;
-    }
-    case Dali::Property::ARRAY:
-    {
-      Dali::Property::Array *array = value.GetArray();
-      DALI_ASSERT_ALWAYS(array);
-      ret = std::string("Array Size=") + ToString( array->Count() );
-      break;
-    }
-    case Dali::Property::MAP:
-    {
-      Dali::Property::Map *map = value.GetMap();
-      DALI_ASSERT_ALWAYS(map);
-      ret = std::string("Map Size=") + ToString( map->Count() );
-      break;
-    }
-  }
-
-  return ret;
-}
-
 /**
  * Creates an Actor previously registered with the TypeRegistry by name
  * Actors are currently differentiated in the dali-wrapper.js and have accessor functions
@@ -1181,11 +1071,11 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
 
   class_<Dali::TextureSet, base<Dali::Handle>>("TextureSet")
     .constructor<>(&Dali::TextureSet::New)
-    .function("setShader", &Dali::TextureSet::SetShader)
-    .function("getShader", &Dali::TextureSet::GetShader)
-    .function("addTexture", &Dali::TextureSet::AddTexture)
-    .function("getNumberOfTextures", &Dali::TextureSet::GetNumberOfTextures)
-    .function("removeTexture", &Dali::TextureSet::RemoveTexture)
+    .function("setImage", &Dali::TextureSet::SetImage)
+    .function("setSampler", &Dali::TextureSet::SetSampler)
+    .function("getImage", &Dali::TextureSet::GetImage)
+    .function("getSampler", &Dali::TextureSet::GetSampler)
+    .function("getTextureCount", &Dali::TextureSet::GetTextureCount)
 ;
 
   class_<Dali::Renderer, base<Dali::Handle>>("Renderer")
