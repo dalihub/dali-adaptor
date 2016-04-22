@@ -14,8 +14,18 @@ SET(TC_SOURCES
 
 LIST(APPEND TC_SOURCES
     resource-collector.cpp
-    ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
+    ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-application.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-gesture-manager.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
     tct-dali-platform-abstraction-core.cpp
     utc-image-loading-common.cpp
 )

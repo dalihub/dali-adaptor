@@ -1,0 +1,9 @@
+# Add local source files here:
+
+static_libraries_glyphy_src_files = \
+  $(static_libraries_glyphy_src_dir)/glyphy-arcs.cc \
+  $(static_libraries_glyphy_src_dir)/glyphy-blob-impl.cc \
+  $(static_libraries_glyphy_src_dir)/glyphy-extents.cc \
+  $(static_libraries_glyphy_src_dir)/glyphy-outline.cc \
+  $(static_libraries_glyphy_src_dir)/glyphy-sdf.cc \
+  $(static_libraries_glyphy_src_dir)/vector-font-cache.cpp
