@@ -170,6 +170,14 @@ private:  // TextInputInterface
   virtual void InputPanelGeometry( Seat* seat, uint32_t x, uint32_t y, uint32_t width, uint32_t height );
 
   /**
+   * @copydoc TextInputInterface::InputPanelData
+   */
+  virtual void InputPanelData( Seat* seat,
+                                uint32_t serial,
+                                const char* data,
+                                uint32_t dataLength );
+
+  /**
    * @copydoc TextInputInterface::GetSeat
    */
   virtual Seat* GetSeat( const WlTextInput* textInput );
