@@ -1070,7 +1070,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .constructor<>(&Dali::Shader::New)
 ;
 
-  class_<Dali::TextureSet, base<Dali::Handle>>("TextureSet")
+  class_<Dali::TextureSet>("TextureSet")
     .constructor<>(&Dali::TextureSet::New)
     .function("setImage", &Dali::TextureSet::SetImage)
     .function("setSampler", &Dali::TextureSet::SetSampler)
