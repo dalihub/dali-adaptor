@@ -97,7 +97,7 @@ public:
   /**
    * @brief Query whether the image is loaded.
    *
-   * @reture true if the image is loaded, false otherwise.
+   * @return true if the image is loaded, false otherwise.
    */
   bool IsLoaded();
 
