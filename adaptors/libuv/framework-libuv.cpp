@@ -94,7 +94,7 @@ private:
   Impl& operator=( const Impl& impl );
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv )
+Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
 : mObserver(observer),
   mInitialised(false),
   mRunning(false),

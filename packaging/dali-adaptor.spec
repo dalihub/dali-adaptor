@@ -52,6 +52,8 @@ BuildRequires:  pkgconfig(glesv2)
 %define dali_feedback_plugin 0
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(capi-appfw-watch-application)
+BuildRequires:  pkgconfig(appcore-watch)
 %define gles_requirement_setup 1
 %endif
 

@@ -383,6 +383,7 @@ libdali_adaptor_la_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
+                      $(APPCORE_WATCH_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \

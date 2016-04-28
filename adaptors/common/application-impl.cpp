@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,13 +51,15 @@ ApplicationPtr Application::New(
   int* argc,
   char **argv[],
   const std::string& stylesheet,
-  Dali::Application::WINDOW_MODE windowMode)
+  Dali::Application::WINDOW_MODE windowMode,
+  Framework::Type applicationType)
 {
-  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode ) );
+  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, applicationType ) );
   return application;
 }
 
-Application::Application( int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode )
+Application::Application( int* argc, char** argv[], const std::string& stylesheet,
+  Dali::Application::WINDOW_MODE windowMode, Framework::Type applicationType )
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -91,8 +93,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   }
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-
-  mFramework = new Framework( *this, argc, argv );
+  mFramework = new Framework( *this, argc, argv, applicationType );
 }
 
 Application::~Application()
