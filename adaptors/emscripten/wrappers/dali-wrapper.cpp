@@ -877,23 +877,23 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("COMPRESSED_RGB_PVRTC_4BPPV1", Dali::Pixel::Format::COMPRESSED_RGB_PVRTC_4BPPV1)
 ;
 
-  enum_<Dali::Renderer::FaceCullingMode>("FaceCullingMode")
-    .value("CULL_NONE", Dali::Renderer::CULL_NONE)
-    .value("CULL_BACK", Dali::Renderer::CULL_BACK)
-    .value("CULL_FRONT", Dali::Renderer::CULL_FRONT)
-    .value("CULL_BACK_AND_FRONT", Dali::Renderer::CULL_BACK_AND_FRONT)
+  enum_<Dali::FaceCullingMode::Type>("FaceCullingMode")
+    .value("NONE", Dali::FaceCullingMode::NONE)
+    .value("FRONT", Dali::FaceCullingMode::FRONT)
+    .value("BACK", Dali::FaceCullingMode::BACK)
+    .value("FRONT_AND_BACK", Dali::FaceCullingMode::FRONT_AND_BACK)
 ;
 
-  enum_<Dali::Renderer::DepthWriteMode>("DepthWriteMode")
-    .value("DEPTH_WRITE_OFF", Dali::Renderer::DEPTH_WRITE_OFF)
-    .value("DEPTH_WRITE_AUTO", Dali::Renderer::DEPTH_WRITE_AUTO)
-    .value("DEPTH_WRITE_ON", Dali::Renderer::DEPTH_WRITE_ON)
+  enum_<Dali::DepthWriteMode::Type>("DepthWriteMode")
+    .value("OFF", Dali::DepthWriteMode::OFF)
+    .value("AUTO", Dali::DepthWriteMode::AUTO)
+    .value("ON", Dali::DepthWriteMode::ON)
 ;
 
-  enum_<Dali::BlendingMode::Type>("BlendingMode")
-    .value("OFF", Dali::BlendingMode::OFF)
-    .value("AUTO", Dali::BlendingMode::AUTO)
-    .value("ON", Dali::BlendingMode::ON)
+  enum_<Dali::BlendMode::Type>("BlendMode")
+    .value("OFF", Dali::BlendMode::OFF)
+    .value("AUTO", Dali::BlendMode::AUTO)
+    .value("ON", Dali::BlendMode::ON)
 ;
 
   enum_<Dali::AlphaFunction::BuiltinFunction>("AlphaFunction")
