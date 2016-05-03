@@ -492,13 +492,13 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     }
     else
     {
-      if( !mBackgroundMaterial )
+      if( !mBackgroundShader )
       {
-        Dali::Shader shader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
-        mBackgroundMaterial = Dali::Material::New( shader );
+        mBackgroundShader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
       }
 
-      Dali::Renderer renderer = Dali::Renderer::New( geometry, mBackgroundMaterial );
+
+      Dali::Renderer renderer = Dali::Renderer::New( geometry, mBackgroundShader );
 
       mBackgroundActor.AddRenderer( renderer );
     }
@@ -1025,9 +1025,9 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
 
         // Create indices
         unsigned int numIndices = 2 * 3 * NUM_GRADIENT_INTERVALS;
-        unsigned int indices[ numIndices ];
+        unsigned short indices[ numIndices ];
 
-        unsigned int* currentIndex = indices;
+        unsigned short* currentIndex = indices;
         for( int y = 0; y < NUM_GRADIENT_INTERVALS; ++y )
         {
           *currentIndex++ = (2 * y);
@@ -1045,15 +1045,10 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
         Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat );
         vertexPropertyBuffer.SetData( vertices, numVertices );
 
-        Dali::Property::Map indexFormat;
-        indexFormat[ "indices" ] = Dali::Property::INTEGER;
-        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat );
-        indexPropertyBuffer.SetData( indices, numIndices );
-
         // Create the geometry object
         mTranslucentGeometry = Dali::Geometry::New();
         mTranslucentGeometry.AddVertexBuffer( vertexPropertyBuffer );
-        mTranslucentGeometry.SetIndexBuffer( indexPropertyBuffer );
+        mTranslucentGeometry.SetIndexBuffer( &indices[0], numIndices );
       }
 
       return mTranslucentGeometry;
@@ -1072,7 +1067,7 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
                                            { Vector2( -0.5f,  0.5f ), 1.0f }, { Vector2( 0.5f,  0.5f ), 1.0f } };
 
         // Create indices
-        unsigned int indices[ 6 ] = { 0, 3, 1, 0, 2, 3 };
+        unsigned short indices[ 6 ] = { 0, 3, 1, 0, 2, 3 };
 
         Dali::Property::Map vertexFormat;
         vertexFormat[ "aPosition" ] = Dali::Property::VECTOR2;
@@ -1080,15 +1075,11 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
         Dali::PropertyBuffer vertexPropertyBuffer = Dali::PropertyBuffer::New( vertexFormat );
         vertexPropertyBuffer.SetData( vertices, 4 );
 
-        Dali::Property::Map indexFormat;
-        indexFormat[ "indices" ] = Dali::Property::INTEGER;
-        Dali::PropertyBuffer indexPropertyBuffer = Dali::PropertyBuffer::New( indexFormat );
-        indexPropertyBuffer.SetData( indices, 6 );
 
         // Create the geometry object
         mSolidGeometry = Dali::Geometry::New();
         mSolidGeometry.AddVertexBuffer( vertexPropertyBuffer );
-        mSolidGeometry.SetIndexBuffer( indexPropertyBuffer );
+        mSolidGeometry.SetIndexBuffer( &indices[0], 6 );
       }
 
       return mSolidGeometry;

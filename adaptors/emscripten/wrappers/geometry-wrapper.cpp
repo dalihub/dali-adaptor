@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,20 @@
  *
  */
 
-
-#include "test-application.h"
-#include "test-native-image.h"
-
+#include "geometry-wrapper.h"
 
 namespace Dali
 {
-
-TestNativeImagePointer TestNativeImage::New(int width, int height)
+namespace Internal
 {
-  return new TestNativeImage(width, height);
+namespace Emscripten
+{
+
+void SetIndexBufferDataRaw(Dali::Geometry& self, const std::string& data, std::size_t size )
+{
+  self.SetIndexBuffer( reinterpret_cast<unsigned short*>( const_cast<char*>(data.c_str()) ), size );
 }
 
-TestNativeImage::TestNativeImage(int width, int height)
-: mWidth(width), mHeight(height), mExtensionCreateCalls(0), mExtensionDestroyCalls(0), mTargetTextureCalls(0),createResult(true)
-{
-  mExtension = new TestNativeImageExtension();
-}
-
-TestNativeImage::~TestNativeImage()
-{
-}
-
-} // namespace dali
+}; // namespace Emscripten
+}; // namespace Internal
+}; // namespace Dali

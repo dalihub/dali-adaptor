@@ -380,7 +380,7 @@ private:
 
   Dali::Geometry                   mTranslucentGeometry; ///< Geometry used for rendering the translucent background
   Dali::Geometry                   mSolidGeometry;       ///< Geometry used for rendering the opaque background
-  Dali::Material                   mBackgroundMaterial;  ///< Material used for rendering the background
+  Dali::Shader                     mBackgroundShader;    ///< Shader used for rendering the background
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
   PixmapId                         mPixmap;              ///< Pixmap including indicator content

@@ -198,6 +198,9 @@ AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([USE_EFL], [test x$enable_efl = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
 
+# Platforms with highp shader support can use vector based text
+AM_CONDITIONAL([ENABLE_VECTOR_BASED_TEXT_RENDERING], [test x$enable_profile = xUBUNTU])
+
 AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_networklogging = xyes])
 
 # Platforms should either enable features or remove them, they

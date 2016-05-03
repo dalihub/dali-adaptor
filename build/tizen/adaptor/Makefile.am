@@ -101,6 +101,9 @@ include ../../../adaptors/devel-api/file.list
 static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
 include ../../../text/dali/internal/libunibreak/file.list
 
+static_libraries_glyphy_src_dir = ../../../text/dali/internal/glyphy
+include ../../../text/dali/internal/glyphy/file.list
+
 # Package doc
 package_doxy_dir = ../../../doc
 include ../../../doc/file.list
@@ -245,7 +248,10 @@ main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
 input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
 endif
 
-
+if ENABLE_VECTOR_BASED_TEXT_RENDERING
+adaptor_internal_src_files += $(static_libraries_glyphy_src_files)
+DALI_ADAPTOR_CFLAGS += -DENABLE_VECTOR_BASED_TEXT_RENDERING
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = dali-adaptor.pc dali-adaptor-integration.pc

@@ -43,7 +43,6 @@ Integration::Log::Filter* gLogFilter = Integration::Log::Filter::New(Debug::NoLo
 
 const unsigned int DEFAULT_MINIMUM_FRAME_TIME_INTERVAL( 16667u );
 
-const unsigned int MICROSECONDS_PER_SECOND( 1000000u );
 const unsigned int MICROSECONDS_PER_MILLISECOND( 1000u );
 const unsigned int NANOSECONDS_PER_MICROSECOND( 1000u);
 

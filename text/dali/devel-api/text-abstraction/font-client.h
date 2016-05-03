@@ -290,20 +290,39 @@ public:
    * It may contain the advance and an offset set into the bearing from the shaping tool.
    * On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
    * @param[in] size The size of the array.
+   * @param[in] type The type of glyphs used for rendering; either bitmaps or vectors.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
    * @param[in] desiredFixedSize The metrics for fixed-size fonts will be scaled to this desired size (in pixels).
    * @return True if all of the requested metrics were found.
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal = true, int desiredFixedSize = 0 );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true, int desiredFixedSize = 0 );
 
   /**
-   * @brief Render a bitmap representation of a glyph.
+   * @brief Create a bitmap representation of a glyph.
    *
    * @param[in] fontId The ID of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @brief Create a vector representation of a glyph.
+   *
+   * @note This feature requires highp shader support and is not available on all platforms
+   * @param[in] fontId The ID of the font.
+   * @param[in] glyphIndex The index of a glyph within the specified font.
+   * @param[out] blob A blob of data; this is owned by FontClient and should be copied by the caller of CreateVectorData().
+   * @param[out] blobLength The length of the blob data, or zero if the blob creation failed.
+   * @param[out] nominalWidth The width of the blob.
+   * @param[out] nominalHeight The height of the blob.
+   */
+  void CreateVectorBlob( FontId fontId,
+                         GlyphIndex glyphIndex,
+                         VectorBlob*& blob,
+                         unsigned int& blobLength,
+                         unsigned int& nominalWidth,
+                         unsigned int& nominalHeight );
 
   /**
    * @brief Retrieves the ellipsis glyph for a requested point size.

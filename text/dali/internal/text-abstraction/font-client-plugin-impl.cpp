@@ -169,6 +169,7 @@ FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
   mMetrics( metrics ),
   mFixedWidthPixels( 0.0f ),
   mFixedHeightPixels( 0.0f ),
+  mVectorFontId( 0 ),
   mIsFixedSizeBitmap( false )
 {
 }
@@ -187,6 +188,7 @@ FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
   mMetrics( metrics ),
   mFixedWidthPixels( fixedWidth ),
   mFixedHeightPixels( fixedHeight ),
+  mVectorFontId( 0 ),
   mIsFixedSizeBitmap( true )
 {
 }
@@ -203,6 +205,7 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   mValidatedFontCache(),
   mFontDescriptionCache( 1u ),
   mFontIdCache(),
+  mVectorFontCache( NULL ),
   mEllipsisCache(),
   mDefaultFontDescriptionCached( false )
 {
@@ -211,6 +214,10 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   {
     DALI_LOG_ERROR( "FreeType Init error: %d\n", error );
   }
+
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+  mVectorFontCache = new VectorFontCache( mFreeTypeLibrary );
+#endif
 }
 
 FontClient::Plugin::~Plugin()
@@ -227,6 +234,10 @@ FontClient::Plugin::~Plugin()
       item.fallbackFonts = NULL;
     }
   }
+
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+  delete mVectorFontCache;
+#endif
 
   FT_Done_FreeType( mFreeTypeLibrary );
 }
@@ -629,11 +640,23 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
     // Add the path to the cache.
     mFontDescriptionCache.push_back( description );
 
-    // Cache the index and the font's description.
+    // Cache the index and the matched font's description.
     FontDescriptionCacheItem item( description,
                                    validatedFontId );
 
     mValidatedFontCache.push_back( item );
+
+    if( ( fontDescription.family != description.family ) ||
+        ( fontDescription.width != description.width )   ||
+        ( fontDescription.weight != description.weight ) ||
+        ( fontDescription.slant != description.slant ) )
+    {
+      // Cache the given font's description if it's different than the matched.
+      FontDescriptionCacheItem item( fontDescription,
+                                     validatedFontId );
+
+      mValidatedFontCache.push_back( item );
+    }
   }
   else
   {
@@ -695,8 +718,22 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
 
 bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
                                           uint32_t size,
+                                          GlyphType type,
                                           bool horizontal,
                                           int desiredFixedSize )
+{
+  if( VECTOR_GLYPH == type )
+  {
+    return GetVectorMetrics( array, size, horizontal, desiredFixedSize );
+  }
+
+  return GetBitmapMetrics( array, size, horizontal, desiredFixedSize );
+}
+
+bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
+                                           uint32_t size,
+                                           bool horizontal,
+                                           int desiredFixedSize )
 {
   bool success( true );
 
@@ -779,6 +816,50 @@ bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
   return success;
 }
 
+bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
+                                           uint32_t size,
+                                           bool horizontal,
+                                           int desiredFixedSize )
+{
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+  bool success( true );
+
+  for( unsigned int i=0; i<size; ++i )
+  {
+    FontId fontId = array[i].fontId;
+
+    if( fontId > 0 &&
+        fontId-1 < mFontCache.size() )
+    {
+      CacheItem& font = mFontCache[fontId-1];
+
+      if( ! font.mVectorFontId )
+      {
+        font.mVectorFontId = mVectorFontCache->GetFontId( font.mPath );
+      }
+
+      mVectorFontCache->GetGlyphMetrics( font.mVectorFontId, array[i] );
+
+      // Vector metrics are in EMs, convert to pixels
+      float scale = (static_cast<float>(font.mPointSize)/64.0f) * mDpiVertical/72.0f;
+      array[i].width    *= scale;
+      array[i].height   *= scale;
+      array[i].xBearing *= scale;
+      array[i].yBearing *= scale;
+      array[i].advance  *= scale;
+    }
+    else
+    {
+      success = false;
+    }
+  }
+
+  return success;
+#else
+  return false;
+#endif
+}
+
 BufferImage FontClient::Plugin::CreateBitmap( FontId fontId,
                                               GlyphIndex glyphIndex )
 {
@@ -841,6 +922,27 @@ BufferImage FontClient::Plugin::CreateBitmap( FontId fontId,
   return bitmap;
 }
 
+void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
+{
+  blob = NULL;
+  blobLength = 0;
+
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+  if( fontId > 0 &&
+      fontId-1 < mFontCache.size() )
+  {
+    CacheItem& font = mFontCache[fontId-1];
+
+    if( ! font.mVectorFontId )
+    {
+      font.mVectorFontId = mVectorFontCache->GetFontId( font.mPath );
+    }
+
+    mVectorFontCache->GetVectorBlob( font.mVectorFontId, fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
+  }
+#endif
+}
+
 const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize )
 {
   // First look into the cache if there is an ellipsis glyph for the requested point size.
@@ -873,7 +975,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize
   item.glyph.index = FT_Get_Char_Index( mFontCache[item.glyph.fontId-1].mFreeTypeFace,
                                         ELLIPSIS_CHARACTER );
 
-  GetGlyphMetrics( &item.glyph, 1u, true, 0 );
+  GetBitmapMetrics( &item.glyph, 1u, true, 0 );
 
   return item.glyph;
 }

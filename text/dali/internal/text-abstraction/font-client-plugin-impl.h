@@ -23,6 +23,12 @@
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/internal/text-abstraction/font-client-impl.h>
 
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+#include <dali/internal/glyphy/vector-font-cache.h>
+#else
+class VectorFontCache;
+#endif
+
 // EXTERNAL INCLUDES
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -114,6 +120,7 @@ struct FontClient::Plugin
     FontMetrics mMetrics;        ///< The font metrics.
     FT_Short mFixedWidthPixels;  ///< The height in pixels (fixed size bitmaps only)
     FT_Short mFixedHeightPixels; ///< The height in pixels (fixed size bitmaps only)
+    unsigned int mVectorFontId;  ///< The ID of the equivalent vector-based font
     bool mIsFixedSizeBitmap;     ///< Whether the font has fixed size bitmaps.
   };
 
@@ -247,12 +254,27 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize );
+
+  /**
+   * Helper for GetGlyphMetrics when using bitmaps
+   */
+  bool GetBitmapMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
+
+  /**
+   * Helper for GetGlyphMetrics when using vectors
+   */
+  bool GetVectorMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()
    */
   BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @copydoc Dali::FontClient::CreateVectorBlob()
+   */
+  void CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight );
 
   /**
    * @copydoc Dali::FontClient::GetEllipsisGlyph()
@@ -436,6 +458,8 @@ private:
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
   FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
   std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font ids for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+
+  VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
 
   Vector<EllipsisItem> mEllipsisCache;      ///< Caches ellipsis glyphs for a particular point size.
 
