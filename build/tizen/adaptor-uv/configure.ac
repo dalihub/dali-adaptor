@@ -142,7 +142,7 @@ AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
               [enable_gles=$enableval],
-              [enable_gles=30])
+              [enable_gles=20])
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
@@ -192,7 +192,7 @@ AC_ARG_ENABLE([profile],
               [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
-              [enable_profile=COMMON])
+              [enable_profile=UBUNTU])
 
 # Ensure valid profile selected
 if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
@@ -354,7 +354,7 @@ Configuration
 -------------
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
-  Compile flags                     $DALI_ADAPTOR_CFLAGS
+  Compile flags:                    $DALI_ADAPTOR_CFLAGS
   Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
@@ -366,10 +366,11 @@ Configuration
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
   Network logging enabled:          $enable_networklogging
   Font config file:                 $fontConfigurationFile
-  Building with EFL Libraries       $enable_efl
-  Using Tizen APP FW libraries      $enable_appfw
-"
+  Building with EFL Libraries:      $enable_efl
+  Using Tizen APP FW libraries:     $enable_appfw
+  OpenGL ES version:                $enable_gles"
 # optional output of node.js source path if we're building with libuv
 if test "x$build_for_libuv" != "xno"; then
-echo "  LibUV header path         $with_libuv"
+echo "  LibUV header path                 $with_libuv"
 fi
+echo ""
