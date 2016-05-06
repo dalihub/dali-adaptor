@@ -204,6 +204,15 @@ struct VectorFontCache::Impl
     glyphy_arc_accumulator_destroy( mAccumulator );
   }
 
+private:
+
+  // Declared private and left undefined to avoid copies.
+  Impl( const Impl& );
+  // Declared private and left undefined to avoid copies.
+  Impl& operator=( const Impl& );
+
+public:
+
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.
 
   vector<string> mIdLookup;

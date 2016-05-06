@@ -442,6 +442,15 @@ private:
    */
   void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 pointSize,  const FontPath& path );
 
+private:
+
+  // Declared private and left undefined to avoid copies.
+  Plugin( const Plugin& );
+  // Declared private and left undefined to avoid copies.
+  Plugin& operator=( const Plugin& );
+
+private:
+
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.
 
   unsigned int mDpiHorizontal; ///< Horizontal dpi.

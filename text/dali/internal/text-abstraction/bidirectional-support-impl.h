@@ -107,7 +107,7 @@ private:
   BidirectionalSupport( const BidirectionalSupport& );
 
   // Undefined assignment constructor.
-  BidirectionalSupport& operator=( BidirectionalSupport& );
+  BidirectionalSupport& operator=( const BidirectionalSupport& );
 
 private:
 
