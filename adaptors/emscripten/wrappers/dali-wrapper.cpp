@@ -242,7 +242,7 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
 {
   static const unsigned int MAX_BORDER_SIZE( 9 );
 
-  Dali::ImageActor image;
+  Dali::Actor image;
   if( borderSize > MAX_BORDER_SIZE )
   {
     return image;
@@ -325,15 +325,39 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
   }
 
   imageData.Update();
-  image = Dali::ImageActor::New( imageData );
+  image = Dali::Actor::New();
   image.SetAnchorPoint( Dali::AnchorPoint::CENTER );
   image.SetParentOrigin( Dali::ParentOrigin::CENTER );
 
-  // if( border )
-  // {
-  //   image.SetStyle( Dali::ImageActor::STYLE_NINE_PATCH );
-  //   image.SetNinePatchBorder( Dali::Vector4::ONE * (float)borderSize * 2.0f );
-  // }
+  std::string vertexShader(
+    "attribute mediump vec2 aPosition;\n"
+    "varying mediump vec2 vTexCoord;\n"
+    "uniform mediump mat4 uMvpMatrix;\n"
+    "uniform mediump vec3 uSize;\n"
+    "uniform mediump vec4 sTextureRect;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = uMvpMatrix * vec4(aPosition * uSize.xy, 0.0, 1.0);\n"
+    "  vTexCoord = aPosition + vec2(0.5);\n"
+    "}\n");
+
+  std::string fragmentShader(
+    "varying mediump vec2 vTexCoord;\n"
+    "uniform sampler2D sTexture;\n"
+    "uniform lowp vec4 uColor;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_FragColor = texture2D( sTexture, vTexCoord )*uColor;\n"
+    "}\n");
+
+  Dali::Shader shader = Dali::Shader::New( vertexShader, fragmentShader );
+  Dali::Geometry geometry = Dali::Geometry::QUAD();
+  Dali::Renderer renderer = Dali::Renderer::New( geometry, shader );
+  Dali::TextureSet textureSet = Dali::TextureSet::New();
+  textureSet.SetImage( 0u, imageData );
+  renderer.SetTextures( textureSet );
+
+  image.AddRenderer( renderer );
 
   return image;
 }
