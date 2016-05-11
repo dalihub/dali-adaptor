@@ -206,6 +206,29 @@ public:
    */
   void SetReturnKeyType( const InputMethod::ActionButton type );
 
+  /**
+   * @brief reset inputs state
+   * Should be called by an editor widget when the input state should be
+   * reset, for example after the text was changed outside of the normal
+   * input method flow.
+   */
+  void Reset();
+
+  /**
+   * @brief
+   * Set the plain surrounding text around the input position. Text is
+   * UTF-8 encoded. Cursor is the byte offset within the
+   * surrounding text. Anchor is the byte offset of the
+   * selection anchor within the surrounding text. If there is no selected
+   * text anchor is the same as cursor.
+   * @param[in] text the text
+   * @param[in] cursor cursor position
+   * @param[in] anchor anchor position
+   */
+  void SetSurroundingText( std::string text, unsigned int cursor, unsigned int anchor );
+
+
+
 public: // virtual keyboard signals
 
   /**
@@ -277,7 +300,7 @@ public:   ///< Input Panel Signals ( DALi currently doesn't use these, it only u
     *   void YourCallbackName( int index );
     * @endcode
     */
-   PreEditCursorSignalType& PreeditCursorSignal();
+   PreEditCursorSignalType& PreEditCursorSignal();
 
    /**
     * @brief Commit string text
