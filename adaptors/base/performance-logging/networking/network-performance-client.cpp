@@ -170,12 +170,13 @@ bool NetworkPerformanceClient::TransmitMarker( const PerformanceMarker& marker, 
     // write out the time stamp
     char buffer[64];
     int size = snprintf( buffer, sizeof(buffer),"%.6f (seconds), %s\n",
-                                    (float)( marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
-                                    description );
+                         ( (double) marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
+                         description );
 
    return mSocket->Write( buffer, size );
 
   }
+
 
   // todo serialize the data
   return false;
