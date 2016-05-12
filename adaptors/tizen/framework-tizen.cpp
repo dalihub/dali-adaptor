@@ -377,13 +377,6 @@ bool Framework::AppStatusHandler(int type, void *bundleData)
     {
       mInitialised = true;
 
-      // Connect to abnormal exit signals
-      mAbortHandler.AbortOnSignal( SIGINT );
-      mAbortHandler.AbortOnSignal( SIGQUIT );
-      mAbortHandler.AbortOnSignal( SIGKILL );
-      mAbortHandler.AbortOnSignal( SIGTERM );
-      mAbortHandler.AbortOnSignal( SIGHUP );
-
       mObserver.OnInit();
       break;
     }
