@@ -17,12 +17,6 @@
 // CLASS HEADER
 #include "text-input-listeners.h"
 
-/*
-// EXTERNAL INCLUDES
-#include <cctype>
-#include <stdio.h>
-*/
-
 // INTERNAL INCLUDES
 #include <input/text/text-input-interface.h>
 #include <input/seat.h>
@@ -204,6 +198,25 @@ void InputPanelGeometry(void* data,
   input->InputPanelGeometry( seat, x, y, width, height );
 }
 
+void InputPanelData( void* data,
+          WlTextInput* textInput,
+          uint32_t serial,
+          const char* input_panel_data,
+          uint32_t input_panel_data_length)
+{
+  TextInputInterface* input = static_cast< TextInputInterface* >( data );
+  Seat* seat = input->GetSeat( textInput );
+
+  input->InputPanelData( seat, serial, input_panel_data, input_panel_data_length);
+}
+
+
+/**
+ * If when running DALi on target a message like
+ * listener function for opcode 16 of wl_text_input is NULL,
+ * then it means the interface has been updated, and they've added an extra function
+ * to the listener
+ */
 const WlTextInputListener TextInputListener =
 {
   Enter,
@@ -221,7 +234,8 @@ const WlTextInputListener TextInputListener =
   TextDirection,
   SelectionRegion,
   PrivateCommand,
-  InputPanelGeometry
+  InputPanelGeometry,
+  InputPanelData
 };
 
 } // unnamed namespace

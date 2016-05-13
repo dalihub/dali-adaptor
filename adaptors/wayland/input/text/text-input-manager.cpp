@@ -284,6 +284,15 @@ void TextInputManager::InputPanelGeometry( Seat* seat,
   }
 }
 
+void TextInputManager::InputPanelData( Seat* seat,
+                              uint32_t serial,
+                              const char* data,
+                              uint32_t dataLength )
+{
+  mLastActiveSeat = seat;
+  // unsure what this function in the text protocol is used for due to limited documentation
+}
+
 TextInputManager::SeatInfo& TextInputManager::GetLastActiveSeat()
 {
   SeatInfo* currentSeat = &mSeats[ 0 ];
