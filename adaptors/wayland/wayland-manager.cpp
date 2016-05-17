@@ -293,7 +293,8 @@ void WaylandManager::CreateSurface( Dali::Wayland::Window& window )
 
     if( window.mTitle.length() )
     {
-      xdg_surface_set_title(  mXdgSurface, window.mTitle.c_str() );
+      xdg_surface_set_title( mXdgSurface, window.mTitle.c_str() );
+      xdg_surface_set_app_id(mXdgSurface, window.mTitle.c_str() );
     }
     xdg_shell_add_listener( mXdgShell, &XdgShellListener, 0);
   }

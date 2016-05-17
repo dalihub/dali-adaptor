@@ -127,6 +127,11 @@ const char* GetKeyName( Dali::KEY daliKey )
   return globalKeyLookup.GetKeyName( daliKey );
 }
 
+int GetDaliKeyCode( const char* keyName )
+{
+  return globalKeyLookup.GetDaliKeyEnum( keyName );
+}
+
 } // namespace KeyLookup
 
 } // namespace Adaptor
