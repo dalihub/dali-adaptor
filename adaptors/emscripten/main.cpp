@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
 {
   using namespace Dali;
 
-  // need to reference everything as emscripten/llvm will cut it all out so put an ImageActor here
-  Dali::ImageActor ia;
+  // need to reference everything as emscripten/llvm will cut it all out so put a Actor here
+  Dali::Actor actor;
 
   app = new SdlApplication( 0, 0, SdlApplication::DEFAULT_HORIZONTAL_DPI,  SdlApplication::DEFAULT_VERTICAL_DPI );
 
