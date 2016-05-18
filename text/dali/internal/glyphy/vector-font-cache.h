@@ -108,7 +108,7 @@ private:
   VectorFontCache( const VectorFontCache& );
 
   // Undefined assignment constructor.
-  VectorFontCache& operator=( VectorFontCache& );
+  VectorFontCache& operator=( const VectorFontCache& );
 
 private:
 

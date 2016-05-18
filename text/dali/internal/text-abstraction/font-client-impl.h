@@ -179,7 +179,7 @@ private:
   FontClient( const FontClient& );
 
   // Undefined assignment constructor.
-  FontClient& operator=( FontClient& );
+  FontClient& operator=( const FontClient& );
 
 private:
 

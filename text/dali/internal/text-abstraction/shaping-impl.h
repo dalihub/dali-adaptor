@@ -83,7 +83,7 @@ private:
   Shaping( const Shaping& );
 
   // Undefined assignment constructor.
-  Shaping& operator=( Shaping& );
+  Shaping& operator=( const Shaping& );
 
   struct Plugin;
   Plugin* mPlugin;
