@@ -293,7 +293,7 @@ libdali_adaptor_uv_la_includes += \
                       -I../../../adaptors/ecore/wayland
 else
 libdali_adaptor_uv_la_includes += -I../../../adaptors/wayland \
-                               -I../../../adaptors/wayland/imf \
+                               -I../../../adaptors/wayland/input/text/imf \
                                -I../../../adaptors/wayland/clipboard \
                                -I../../../adaptors/wayland/native-image
 endif # USE_ECORE_WAYLAND
@@ -418,7 +418,11 @@ if WAYLAND
 # This is to avoid having to include wayland-egl.h everywhere
 libdali_adaptor_uv_la_CXXFLAGS += -DWL_EGL_PLATFORM
 libdali_adaptor_uv_la_CXXFLAGS += $(WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_CXXFLAGS += $(WAYLAND_EXTENSION_CFLAGS)
+
 libdali_adaptor_uv_la_LIBADD += $(WAYLAND_LIBS)
+libdali_adaptor_uv_la_LIBADD += $(WAYLAND_EXTENSION_LIBS)
+
 else
 libdali_adaptor_uv_la_CXXFLAGS += $(X11_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(X11_LIBS)

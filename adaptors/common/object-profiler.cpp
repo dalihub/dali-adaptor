@@ -76,28 +76,6 @@ void ObjectProfiler::DisplayInstanceCounts()
     }
   }
   LogMessage(Debug::DebugInfo, "\n");
-
-  int quadCount = 0;
-
-  // Count number of quads:
-
-  for( InstanceTypes::iterator iter = mInstanceTypes.begin(), end = mInstanceTypes.end(); iter != end; ++iter )
-  {
-    if( iter->second.compare("ImageActor") == 0 )
-    {
-      BaseHandle handle(iter->first);
-      Dali::ImageActor imageActor = Dali::ImageActor::DownCast(handle);
-      if( imageActor )
-      {
-        if( imageActor.GetStyle() == Dali::ImageActor::STYLE_QUAD )
-        {
-          quadCount++;
-        }
-      }
-    }
-  }
-
-  LogMessage(Debug::DebugInfo, "Number of image actors using Quad style: %d\n", quadCount);
 }
 
 bool ObjectProfiler::OnTimeout()
@@ -167,7 +145,6 @@ int ObjectProfiler::GetMemorySize(const std::string& name, int count)
       { "Actor", ACTOR_MEMORY_SIZE },
       { "Layer", LAYER_MEMORY_SIZE },
       { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
-      { "ImageActor", IMAGE_ACTOR_MEMORY_SIZE },
       { "Image", IMAGE_MEMORY_SIZE },
       { "Renderer", RENDERER_MEMORY_SIZE },
       { "Geometry", GEOMETRY_MEMORY_SIZE },

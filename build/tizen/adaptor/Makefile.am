@@ -302,7 +302,7 @@ libdali_adaptor_la_includes += \
                       -I../../../adaptors/ecore/wayland
 else
 libdali_adaptor_la_includes += -I../../../adaptors/wayland \
-                               -I../../../adaptors/wayland/imf \
+                               -I../../../adaptors/wayland/input/text/imf \
                                -I../../../adaptors/wayland/clipboard
 endif # USE_ECORE_WAYLADN
 
