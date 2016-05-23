@@ -267,7 +267,7 @@ bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsig
     return false;
   }
 
-  if (extractMultiByteInteger(&type, &map[0], fsize, &position) < 0)
+  if (extractMultiByteInteger(&type, &map[0], headerSize, &position) < 0)
   {
     DALI_LOG_ERROR("Error: unable to read type!");
     return false;
@@ -278,12 +278,12 @@ bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsig
     DALI_LOG_ERROR("Error: unknown format!\n");
     return false;
   }
-  if (extractMultiByteInteger(&w, &map[0], fsize, &position) < 0)
+  if (extractMultiByteInteger(&w, &map[0], headerSize, &position) < 0)
   {
     DALI_LOG_ERROR("Error: can not read width!\n");
     return false;
   }
-  if (extractMultiByteInteger(&h, &map[0], fsize, &position) < 0)
+  if (extractMultiByteInteger(&h, &map[0], headerSize, &position) < 0)
   {
     DALI_LOG_ERROR("Error: can not read height!\n");
     return false;
