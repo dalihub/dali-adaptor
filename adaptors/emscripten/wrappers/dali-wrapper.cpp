@@ -816,9 +816,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
 
   enum_<Dali::Shader::ShaderHints>("ShaderHints")
     .value("HINT_NONE",                      Dali::Shader::HINT_NONE)
-    .value("HINT_REQUIRES_SELF_DEPTH_TEST",  Dali::Shader::HINT_REQUIRES_SELF_DEPTH_TEST)
     .value("HINT_OUTPUT_IS_TRANSPARENT",     Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT)
-    .value("HINT_OUTPUT_IS_OPAQUE",          Dali::Shader::HINT_OUTPUT_IS_OPAQUE)
     .value("HINT_MODIFIES_GEOMETRY",         Dali::Shader::HINT_MODIFIES_GEOMETRY)
 ;
 
@@ -879,17 +877,23 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("COMPRESSED_RGB_PVRTC_4BPPV1", Dali::Pixel::Format::COMPRESSED_RGB_PVRTC_4BPPV1)
 ;
 
-  enum_<Dali::Renderer::FaceCullingMode>("FaceCullingMode")
-    .value("NONE", Dali::Renderer::NONE)
-    .value("CULL_BACK", Dali::Renderer::CULL_BACK)
-    .value("CULL_FRONT", Dali::Renderer::CULL_FRONT)
-    .value("CULL_BACK_AND_FRONT", Dali::Renderer::CULL_BACK_AND_FRONT)
+  enum_<Dali::FaceCullingMode::Type>("FaceCullingMode")
+    .value("NONE", Dali::FaceCullingMode::NONE)
+    .value("FRONT", Dali::FaceCullingMode::FRONT)
+    .value("BACK", Dali::FaceCullingMode::BACK)
+    .value("FRONT_AND_BACK", Dali::FaceCullingMode::FRONT_AND_BACK)
 ;
 
-  enum_<Dali::BlendingMode::Type>("BlendingMode")
-    .value("OFF", Dali::BlendingMode::OFF)
-    .value("AUTO", Dali::BlendingMode::AUTO)
-    .value("ON", Dali::BlendingMode::ON)
+  enum_<Dali::DepthWriteMode::Type>("DepthWriteMode")
+    .value("OFF", Dali::DepthWriteMode::OFF)
+    .value("AUTO", Dali::DepthWriteMode::AUTO)
+    .value("ON", Dali::DepthWriteMode::ON)
+;
+
+  enum_<Dali::BlendMode::Type>("BlendMode")
+    .value("OFF", Dali::BlendMode::OFF)
+    .value("AUTO", Dali::BlendMode::AUTO)
+    .value("ON", Dali::BlendMode::ON)
 ;
 
   enum_<Dali::AlphaFunction::BuiltinFunction>("AlphaFunction")
@@ -1047,8 +1051,6 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .function("setIndexBuffer", &SetIndexBufferDataRaw)
     .function("setGeometryType", &Dali::Geometry::SetGeometryType)
     .function("getGeometryType", &Dali::Geometry::GetGeometryType)
-    .function("setRequiresDepthTesting", &Dali::Geometry::SetRequiresDepthTesting)
-    .function("getRequiresDepthTesting", &Dali::Geometry::GetRequiresDepthTesting)
 ;
 
   class_<Dali::Image>("Image")

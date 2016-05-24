@@ -38,7 +38,7 @@ To build the repository enter the 'build/tizen' folder:
 Then run the following commands:
 
  autoreconf --install
- ./configure --prefix=$DESKTOP_PREFIX --enable-profile=UBUNTU --enable-gles=20
+ ./configure --prefix=$DESKTOP_PREFIX
  make install -j8
 
 
@@ -49,7 +49,7 @@ OpenGL ES context:
 
 When building, the OpenGL ES version of the target should be specified.
 
-Valid version options are 20, 30, 31
+Valid version options are 20, 30, 31 for OpenGL ES versions 2.0, 3.0 and 3.1 respectively.
 
 With configure:
 Add: --enable-gles=X

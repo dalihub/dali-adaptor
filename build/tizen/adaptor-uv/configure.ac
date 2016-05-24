@@ -142,7 +142,7 @@ AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
               [enable_gles=$enableval],
-              [enable_gles=30])
+              [enable_gles=20])
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
@@ -189,13 +189,13 @@ AC_ARG_WITH([tizen-2-2-compatibility],
 
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,IVI,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
-              [enable_profile=COMMON])
+              [enable_profile=UBUNTU])
 
 # Ensure valid profile selected
-if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xIVI" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
 fi
 
@@ -210,6 +210,7 @@ AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
+AM_CONDITIONAL([IVI_PROFILE], [test x$enable_profile = xIVI])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([USE_EFL], [test x$enable_efl = xyes])
@@ -239,6 +240,10 @@ PKG_CHECK_MODULES(OPENGLES20, glesv2)
 fi
 
 if test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
+fi
+
+if test "x$enable_profile" = "xIVI"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
 fi
 
@@ -289,6 +294,15 @@ else
 if test "x$enable_profile" = "xMOBILE"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
+if test "x$enable_profile" = "xWEARABLE"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
+if test "x$enable_profile" = "xCOMMON"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
+if test "x$enable_profile" = "xIVI"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
 
 fi
 # Using Wayland API directly  ( main loop agnostic, typically for running on libuv)
@@ -301,13 +315,6 @@ PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon l
 fi
 fi
 
-# remove this when we update common repos
-# common profile currently does not have wayland extensions like xdg-shell
-if test "x$enable_wayland" = "xyes"; then
-if test "x$enable_profile" != "xCOMMON"; then
-PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client)
-fi
-fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
 
 if test x$DALI_DATA_RW_DIR != x; then
@@ -354,7 +361,7 @@ Configuration
 -------------
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
-  Compile flags                     $DALI_ADAPTOR_CFLAGS
+  Compile flags:                    $DALI_ADAPTOR_CFLAGS
   Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
@@ -366,10 +373,11 @@ Configuration
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
   Network logging enabled:          $enable_networklogging
   Font config file:                 $fontConfigurationFile
-  Building with EFL Libraries       $enable_efl
-  Using Tizen APP FW libraries      $enable_appfw
-"
+  Building with EFL Libraries:      $enable_efl
+  Using Tizen APP FW libraries:     $enable_appfw
+  OpenGL ES version:                $enable_gles"
 # optional output of node.js source path if we're building with libuv
 if test "x$build_for_libuv" != "xno"; then
-echo "  LibUV header path         $with_libuv"
+echo "  LibUV header path                 $with_libuv"
 fi
+echo ""

@@ -88,6 +88,10 @@ adaptor_tv_dir = ../../../adaptors/tv
 include ../../../adaptors/tv/file.list
 endif
 
+# IVI
+adaptor_mobile_dir = ../../../adaptors/mobile
+include ../../../adaptors/mobile/file.list
+
 # Public API
 adaptor_public_api_dir = ../../../adaptors/public-api
 include ../../../adaptors/public-api/file.list
@@ -234,6 +238,32 @@ endif # WAYLAND
 
 endif
 
+# IVI
+if IVI_PROFILE
+
+adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
+                             $(adaptor_common_internal_mobile_profile_src_files) \
+                             $(adaptor_tizen_internal_src_files) \
+                             $(static_libraries_libunibreak_src_files)
+
+if WAYLAND
+if USE_ECORE_WAYLAND
+adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
+else
+adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
+endif # USE_ECORE_WAYLAND
+
+adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files)\
+                              $(adaptor_tizen_internal_native_image_src_files)
+
+else
+adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
+                              $(adaptor_common_internal_egl_extension_src_files)
+endif # WAYLAND
+
+endif # IVI_PROFILE
+
+
 # Node JS support for using an external libuv main loop. If not enabled then just use e-core as normal
 # Used for things like callbacks, file-monintors, x input handling
 if LIB_UV_EVENT_LOOP
@@ -332,6 +362,7 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       -DFONT_CONFIGURATION_FILE="\"${fontConfigurationFile}\"" \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
+                      -DWAYLAND_EXTENSIONS_SUPPORTED \
                       -Werror -Wall -lgcc \
                       $(libdali_adaptor_uv_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
@@ -350,10 +381,6 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       $(LIBCURL_CFLAGS) \
                       $(TPKP_CURL_CFLAGS)
 
-# Todo, as soon as common repos are updated on build server remove this.
-if !COMMON_PROFILE
-libdali_adaptor_uv_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
-endif
 
 libdali_adaptor_uv_la_CFLAGS = $(libdali_adaptor_uv_la_CXXFLAGS)
 
@@ -393,6 +420,21 @@ libdali_adaptor_uv_la_LIBADD += $(ELEMENTARY_LIBS) \
 else
 
 if MOBILE_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
+if WEARABLE_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
+if COMMON_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
+if IVI_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
 endif
@@ -451,6 +493,19 @@ endif
 if TV_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(HAPTIC_CFLAGS)
 libdali_adaptor_uv_la_LIBADD +=
+endif
+
+if IVI_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += \
+                      $(DEVICED_CFLAGS) \
+                      $(EFL_ASSIST_CFLAGS) \
+                      $(NATIVE_BUFFER_CFLAGS) \
+                      $(NATIVE_BUFFER_POOL_CFLAGS)
+
+libdali_adaptor_uv_la_LIBADD += \
+                      $(EFL_ASSIST_LIBS) \
+                      $(NATIVE_BUFFER_LIBS) \
+                      $(NATIVE_BUFFER_POOL_LIBS)
 endif
 
 if UBUNTU_PROFILE

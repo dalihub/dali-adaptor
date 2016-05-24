@@ -119,15 +119,22 @@ void NetworkPerformanceServer::Stop()
   {
     return;
   }
-  // close the server thread to prevent any new connections
-  mListeningSocket->ExitSelect();
+
+  if( mListeningSocket )
+  {
+    // close the server thread to prevent any new connections
+    mListeningSocket->ExitSelect();
+  }
 
   // wait for the thread to exit.
   void* exitValue;
   pthread_join( mServerThread, &exitValue );
 
-  // close the socket
-  mListeningSocket->CloseSocket();
+  if( mListeningSocket )
+  {
+    // close the socket
+    mListeningSocket->CloseSocket();
+  }
 
   mSocketFactory.DestroySocket( mListeningSocket );
 
@@ -317,12 +324,6 @@ void NetworkPerformanceServer::StopClients()
     NetworkPerformanceClient* client = (*iter);
     // stop the client from waiting for new commands, and exit from it's thread
     client->ExitSelect();
-
-    void* exitValue;
-    pthread_t* thread = client->GetThread();
-    pthread_join( *thread, &exitValue );
-    delete thread;
-
   }
 }
 
