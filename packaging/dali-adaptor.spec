@@ -254,6 +254,9 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
+           --enable-debug \
+%endif
            --enable-appfw=yes \
            --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
