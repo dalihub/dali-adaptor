@@ -75,7 +75,7 @@ std::string BitmapLoader::GetUrl() const
   return GetImplementation(*this).GetUrl();
 }
 
-PixelDataPtr BitmapLoader::GetPixelData() const
+PixelData BitmapLoader::GetPixelData() const
 {
   return GetImplementation(*this).GetPixelData();
 }
