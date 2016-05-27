@@ -123,7 +123,10 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 
   mImpl = new Impl(this );
 
-  waylandSurface->AssignWindowEventInterface( mImpl );
+  if( waylandSurface )
+  {
+    waylandSurface->AssignWindowEventInterface( mImpl );
+  }
 }
 
 EventHandler::~EventHandler()
