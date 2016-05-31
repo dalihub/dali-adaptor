@@ -23,7 +23,6 @@
 #error "OpenGL ES version not specified"
 #endif
 
-#define GL_GLEXT_PROTOTYPES
 #if DALI_GLES_VERSION >= 31
 #include <GLES3/gl31.h>
 #elif DALI_GLES_VERSION >= 30
