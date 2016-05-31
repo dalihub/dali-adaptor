@@ -180,20 +180,6 @@ void TextInputManager::CommitString( Seat* seat, uint32_t serial, const char *te
   mLastActiveSeat = seat;
   mCommitStringSignal.Emit( serial, text );
 
-  if( KeyLookup::IsDeviceButton( text ) )
-  {
-    // don't commit text like SHIFT_R
-    return;
-  }
-
-  Dali::KeyEvent keyEvent;
-
-  keyEvent.keyPressed = std::string( text );
-  keyEvent.keyPressedName = keyEvent.keyPressed;
-  keyEvent.state = KeyEvent::Down;
-
-  mWindowEventInterface->KeyEvent( keyEvent );
-
   DALI_LOG_INFO( gLogFilter, Debug::Concise, "TextInputManager::CommitString %s \n", text );
 }
 
@@ -218,14 +204,23 @@ void TextInputManager::Keysym( Seat* seat,
                      uint32_t modifiers)
 {
   mLastActiveSeat = seat;
-  SeatInfo& info = GetLastActiveSeat();
 
-  if( info.mInputPanelVisible )
-  {
-    //  use the commit string to get the key
-    return;
-  }
   Dali::KeyEvent keyEvent = seat->GetDALiKeyEventFromSymbol( serial, time, sym, state, modifiers );
+
+  // key.h which is shared between all platforms uses X keycodes
+  // We convert from a Wayland keycode to a DALi key ( if it exists).
+  // For examples Backspace in Wayland is the code 65288, we convert this to 22 = DALI_KEY_BACKSPACE
+
+  int daliKeyCode = KeyLookup::GetDaliKeyCode( keyEvent.keyPressedName.c_str() );
+  if( daliKeyCode != -1 )
+  {
+    // we have a match, the key will be backspace, shift etc.
+    // we have to clear out the keyPressed string, otherwise the toolkit can end up displaying it.
+    keyEvent.keyCode = daliKeyCode;
+    keyEvent.keyPressed ="";
+
+  }
+
 
   mWindowEventInterface->KeyEvent( keyEvent );
 }
@@ -352,8 +347,10 @@ void TextInputManager::HideInputPanel()
 
 bool TextInputManager::IsInputPanelVisible()
 {
-  SeatInfo& info = GetLastActiveSeat();
-  return info.mInputPanelVisible;
+   SeatInfo& info = GetLastActiveSeat();
+
+
+   return info.mInputPanelVisible;
 }
 
 void TextInputManager::SetReturnKeyType( const InputMethod::ActionButton type )
@@ -365,6 +362,60 @@ void TextInputManager::SetReturnKeyType( const InputMethod::ActionButton type )
   wl_text_input_set_return_key_type( info.mSeat->GetTextInputInterface(), returnKey );
 
   wl_display_flush( mDisplay );
+}
+
+void TextInputManager::Reset()
+{
+  TextInputManager::SeatInfo& info = TextInputManager::Get().GetLastActiveSeat();
+
+  wl_text_input_reset( info.mSeat->GetTextInputInterface() );
+
+  wl_display_flush( mDisplay );
+}
+
+void TextInputManager::SetSurroundingText( std::string text, unsigned int cursor, unsigned int anchor )
+{
+  TextInputManager::SeatInfo& info = TextInputManager::Get().GetLastActiveSeat();
+
+  wl_text_input_set_surrounding_text( info.mSeat->GetTextInputInterface(), text.c_str(), cursor, anchor );
+
+  wl_display_flush( mDisplay );
+}
+
+
+TextInputManager::PreEditStringSignalType& TextInputManager::PreEditStringSignal()
+{
+  return mPreEditStringSignal;
+}
+
+
+TextInputManager::PreEditStylingSignalType& TextInputManager::PreEditStylingSignal()
+{
+  return mPreEditStylingSignal;
+}
+TextInputManager::PreEditCursorSignalType& TextInputManager::PreEditCursorSignal()
+{
+  return mPreEditCursorSignal;
+}
+
+TextInputManager::CommitStringSignalType& TextInputManager::CommitStringSignal()
+{
+  return mCommitStringSignal;
+}
+
+TextInputManager::CursorPositionSignalType& TextInputManager::CursorPositionSignal()
+{
+  return mCursorPositionSignal;
+}
+
+TextInputManager::DeleteSurroundingTextSignalType& TextInputManager::DeleteSurroundingTextSignal()
+{
+  return mDeleteSurroundingTextSignal;
+}
+
+TextInputManager::SelectionRegionSignalType& TextInputManager::SelectionRegionSignal()
+{
+  return mSelectionRegionSignal;
 }
 
 Dali::VirtualKeyboard::StatusSignalType& TextInputManager::StatusChangedSignal()

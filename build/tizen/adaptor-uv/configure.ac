@@ -305,7 +305,7 @@ fi
 # common profile currently does not have wayland extensions like xdg-shell
 if test "x$enable_wayland" = "xyes"; then
 if test "x$enable_profile" != "xCOMMON"; then
-PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client)
+PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client text-client input-method-client)
 fi
 fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])

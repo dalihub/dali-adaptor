@@ -196,6 +196,12 @@ private:
   Dali::Geometry CreateBackgroundGeometry();
 
   /**
+   * Set the image to be rendered as indicator foreground
+   * @param[in] image The foreground image.
+   */
+  void SetForegroundImage( Dali::Image image );
+
+  /**
    * Touch event callback.
    * It should pass the valid touch event to indicator server
    *
@@ -384,11 +390,10 @@ private:
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
   PixmapId                         mPixmap;              ///< Pixmap including indicator content
-  Dali::Image                      mImage;               ///< Image created from mIndicatorBuffer
-  Dali::ImageActor                 mIndicatorImageActor; ///< Actor created from mImage
+  Dali::Renderer                   mForegroundRenderer;  ///< Renderer renders the indicator foreground
+  Dali::Renderer                   mBackgroundRenderer;  ///< Renderer renders the indicator background
 
-  Dali::Actor                      mIndicatorImageContainerActor; ///< Actor container for image and background
-  Dali::Actor                      mBackgroundActor;     ///< Actor for background
+  Dali::Actor                      mIndicatorContentActor; ///< Actor container for image and background
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
   Dali::Actor                      mEventActor;          ///< Handle to event
   Dali::PanGestureDetector         mPanDetector;         ///< Pan detector to find flick gesture for hidden indicator
@@ -418,6 +423,8 @@ private:
 
   int                              mCurrentSharedFile;   ///< Current shared file number
   SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
+
+  bool                             mBackgroundVisible;   ///< Indicate whether background is visible
 };
 
 } // Adaptor

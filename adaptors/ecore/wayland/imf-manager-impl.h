@@ -23,6 +23,7 @@
 #include <Ecore.h>
 #include <Ecore_Wayland.h>
 
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/integration-api/events/key-event-integ.h>
 

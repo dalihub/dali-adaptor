@@ -2,6 +2,7 @@ T.O.C.
 ======
 
  1.   GBS Builds
+ 1.1. DEBUG Builds
  2.   Building for Ubuntu desktop
  2.1. Minimum Requirements
  2.2. Building the Repository
@@ -17,6 +18,11 @@ T.O.C.
 =============
 
  gbs build -A [TARGET_ARCH]
+
+1.1. DEBUG Builds
+-----------------
+
+ gbs build -A [TARGET_ARCH] --define "%enable_debug 1"
 
 
 2. Building for Ubuntu desktop

@@ -45,9 +45,9 @@
 namespace
 {
 // function pointers assigned in InitializeEglImageKHR
-PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR = 0;
-PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR = 0;
-PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES = 0;
+PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHRProc = 0;
+PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHRProc = 0;
+PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 } // unnamed namespace
 
 
@@ -91,7 +91,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     EGL_NONE
   };
 
-  EGLImageKHR eglImage  = eglCreateImageKHR( mEglImplementation->GetDisplay(),
+  EGLImageKHR eglImage  = eglCreateImageKHRProc( mEglImplementation->GetDisplay(),
                                              EGL_NO_CONTEXT,
                                              EGL_NATIVE_SURFACE_TIZEN,
                                              clientBuffer,
@@ -162,7 +162,7 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
   EGLImageKHR eglImage = static_cast<EGLImageKHR>(eglImageKHR);
 
-  EGLBoolean result = eglDestroyImageKHR(mEglImplementation->GetDisplay(), eglImage);
+  EGLBoolean result = eglDestroyImageKHRProc(mEglImplementation->GetDisplay(), eglImage);
 
   if( EGL_FALSE == result )
   {
@@ -203,7 +203,7 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     GLint glError = glGetError();
 #endif
 
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, (GLeglImageOES)eglImage);
+    glEGLImageTargetTexture2DOESProc(GL_TEXTURE_EXTERNAL_OES, (GLeglImageOES)eglImage);
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
@@ -220,12 +220,12 @@ void EglImageExtensions::InitializeEglImageKHR()
   // avoid trying to reload extended KHR functions, if it fails the first time
   if( ! mImageKHRInitializeFailed )
   {
-    eglCreateImageKHR  = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
-    eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
-    glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) eglGetProcAddress("glEGLImageTargetTexture2DOES"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
+    eglCreateImageKHRProc  = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
+    eglDestroyImageKHRProc = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
+    glEGLImageTargetTexture2DOESProc = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) eglGetProcAddress("glEGLImageTargetTexture2DOES"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
   }
 
-  if (eglCreateImageKHR && eglDestroyImageKHR && glEGLImageTargetTexture2DOES)
+  if (eglCreateImageKHRProc && eglDestroyImageKHRProc && glEGLImageTargetTexture2DOESProc)
   {
     mImageKHRInitialized = true;
   }

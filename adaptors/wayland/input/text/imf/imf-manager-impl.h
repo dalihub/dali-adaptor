@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_IMF_MANAGER_WL_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <imf-manager.h>
+#include "../text-input-manager.h"
 
 namespace Dali
 {
@@ -37,7 +38,19 @@ namespace Internal
 namespace Adaptor
 {
 
-class ImfManager : public Dali::BaseObject
+/**
+ * @brief ImfManager
+ *
+ * Handles text input editing with the virtual keyboard.
+ * The Tizen 3 Wayland text interface is still in development so some
+ * features are not available to test like text prediction.
+ * When this available we may need to add / test wl_text_input_commit_state
+ *
+ * To debug low level communication to the Wayland Compositor (Enlightenment)  use environment variable
+ * export WAYLAND_DEBUG=1
+ *
+ */
+class ImfManager : public Dali::BaseObject, public ConnectionTracker
 {
 public:
   typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
@@ -46,18 +59,25 @@ public:
 public:
 
   /**
-   * Check whether the ImfManager is available.
+   * @brief Check whether the ImfManager is available.
    * @return true if available, false otherwise
    */
   static bool IsAvailable();
 
   /**
-   * Get the IMF manager instance, it creates the instance if it has not already been created.
+   * @brief Get the IMF manager instance
+   * It creates the instance if it has not already been created.
    * Internally, a check should be made using IsAvailable() before this is called as we do not want
    * to create an instance if not needed by applications.
    * @see IsAvailable()
+   * @return handle to ImfManager
    */
   static Dali::ImfManager Get();
+
+  /**
+   * @brief Constructor
+   */
+  ImfManager();
 
   /**
    * Connect Callbacks required for IMF.
@@ -67,7 +87,7 @@ public:
   void ConnectCallbacks();
 
   /**
-   * Disconnect Callbacks attached to imf context.
+   * @brief Disconnect Callbacks attached to imf context.
    */
   void DisconnectCallbacks();
 
@@ -140,10 +160,41 @@ public:  // Signals
    */
   ImfEventSignalType& EventReceivedSignal() { return mEventSignal; }
 
+  /**
+   * @brief Called when an IMF Pre-Edit change event is received.
+   * We are still predicting what the user is typing.  The latest string is what the IMF module thinks
+   * the user wants to type.
+   *
+   * @param[in] serial event serial
+   * @param[in] text pre-edit string
+   * @param[in] commit commit string
+   */
+  void PreEditStringChange( unsigned int serial, const std::string text, const std::string commit );
+
+  /**
+   * @brief Called when an IMF Pre-Edit cursor event is received.
+   * @param[in] cursor cursor position
+   */
+  void PreEditCursorChange( int cursor );
+
+  /**
+   * @brief called when IMF tell us to commit the text
+   * @param[in] serial event serial
+   * @param[in] commit text to commit
+   */
+  void CommitString( unsigned int serial, const std::string commit );
+
+  /**
+   * @brief called when deleting surround text
+   * @param[in] index character index to start deleting from
+   * @param[in] length number of characters to delete
+   */
+  void DeleteSurroundingText( int index, unsigned int length );
+
 protected:
 
   /**
-   * Destructor.
+   * @brief Destructor.
    */
   virtual ~ImfManager();
 
@@ -158,6 +209,12 @@ private:
   ImfManager& operator=( ImfManager& );
 
 private:
+
+  TextInputManager& mTextInputManager;
+  std::string mSurroundingText;
+  int mPreEditCursorPosition;
+  int mEditCursorPosition;
+  bool mRestoreAfterFocusLost:1;  ///< Whether the keyboard needs to be restored (activated ) after focus regained.
 
 public:
 

@@ -160,9 +160,6 @@ void Application::QuitFromMainLoop()
 {
   mAdaptor->Stop();
 
-  Dali::Application application(this);
-  mTerminateSignal.Emit( application );
-
   mFramework->Quit();
   // This will trigger OnTerminate(), below, after the main loop has completed.
 }
@@ -220,6 +217,9 @@ void Application::OnTerminate()
 {
   // we've been told to quit by AppCore, ecore_x_destroy has been called, need to quit synchronously
   // delete the window as ecore_x has been destroyed by AppCore
+
+  Dali::Application application(this);
+  mTerminateSignal.Emit( application );
 
   if( mAdaptor )
   {
