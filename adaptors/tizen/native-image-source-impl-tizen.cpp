@@ -311,57 +311,6 @@ void NativeImageSource::SetSource( Any source )
   }
 }
 
-bool NativeImageSource::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
-{
-  uint32_t* formats;
-  uint32_t formatNum;
-  tbm_format format = TBM_FORMAT_RGB888;
-
-  switch( colorDepth )
-  {
-    case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
-    {
-      format = TBM_FORMAT_RGBA8888;
-      break;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_8:
-    {
-      format = TBM_FORMAT_C8;
-      break;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_16:
-    {
-      format = TBM_FORMAT_RGB565;
-      break;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_24:
-    {
-      format = TBM_FORMAT_RGB888;
-      break;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_32:
-    {
-      format = TBM_FORMAT_RGBA8888;
-      break;
-    }
-  }
-
-  if( tbm_surface_query_formats( &formats, &formatNum ) )
-  {
-    for( unsigned int i = 0; i < formatNum; i++ )
-    {
-      if( formats[i] == format )
-      {
-        free( formats );
-        return true;
-      }
-    }
-  }
-
-  free( formats );
-  return false;
-}
-
 bool NativeImageSource::GlExtensionCreate()
 {
   if( mEglImageKHR != NULL )

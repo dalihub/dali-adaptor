@@ -60,11 +60,6 @@ void NativeImageSource::SetSource( Any source )
   mImpl->SetSource( source );
 }
 
-bool NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
-{
-  return mImpl->IsColorDepthSupported( colorDepth );
-}
-
 bool NativeImageSource::GlExtensionCreate()
 {
   return mImpl->GlExtensionCreate();
