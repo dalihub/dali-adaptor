@@ -115,7 +115,7 @@ public:
    *
    * @return The pixel data.
    */
-  PixelDataPtr GetPixelData() const;
+  PixelData GetPixelData() const;
 
 public: // Not intended for application developers
 
