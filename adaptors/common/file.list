@@ -28,6 +28,8 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/style-monitor-impl.cpp \
   $(adaptor_common_dir)/trigger-event.cpp \
   $(adaptor_common_dir)/trigger-event-factory.cpp \
+  $(adaptor_common_dir)/watch-application-impl.cpp \
+  $(adaptor_common_dir)/watch-time.cpp \
   $(adaptor_common_dir)/key-impl.cpp \
   \
   $(adaptor_common_dir)/events/gesture-manager.cpp \
