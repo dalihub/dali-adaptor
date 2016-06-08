@@ -90,27 +90,27 @@ class WatchApplication;
  * @endcode
  *
  * When the above options are found, they are stripped from argv, and argc is updated appropriately.
- * @SINCE_1_1.36
+ * @SINCE_1_1.37
  */
 
 class DALI_IMPORT_API WatchApplication : public Application
 {
 public:
-  typedef Signal< void (Application&, const WatchTime &) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.36
-  typedef Signal< void (Application&, bool) > WatchBoolSignal; ///< Watch bool signal callback type @SINCE_1_1.36
+  typedef Signal< void (Application&, const WatchTime &) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37
+  typedef Signal< void (Application&, bool) > WatchBoolSignal; ///< Watch bool signal callback type @SINCE_1_1.37
 
 public:
 
   /**
    * @brief This is the constructor for applications without an argument list.
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   static WatchApplication New();
 
   /**
    * @brief This is the constructor for applications.
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    */
@@ -119,7 +119,7 @@ public:
   /**
    * @brief This is the constructor for applications with a name
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -128,19 +128,19 @@ public:
 
   /**
    * @brief Construct an empty handle
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchApplication();
 
   /**
    * @brief Copy Constructor
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchApplication( const WatchApplication& implementation );
 
   /**
    * @brief Assignment operator
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchApplication& operator=( const WatchApplication& applicaton );
 
@@ -148,7 +148,7 @@ public:
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   ~WatchApplication();
 
@@ -160,7 +160,7 @@ public:
    *   void YourCallbackName(Application& application, WatchTimeSignal &time);
    * @endcode
    * time(watch time handle) will not be available after returning this callback. It will be freed by the framework.
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchTimeSignal& TimeTickSignal();
 
@@ -171,7 +171,7 @@ public:
    *   void YourCallbackName(Application& application, WatchTimeSignal &time);
    * @endcode
    * time(watch time handle) will not be available after returning this callback. It will be freed by the framework.
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchTimeSignal& AmbientTickSignal();
 
@@ -182,14 +182,14 @@ public:
    *   void YourCallbackName(Application& application, bool ambient);
    * @endcode
    * ambient_mode If true the device enters the ambient mode, otherwise false
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchBoolSignal& AmbientChangedSignal();
 
 public: // Not intended for application developers
   /**
    * @brief Internal constructor
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   explicit DALI_INTERNAL WatchApplication(Internal::Adaptor::WatchApplication* implementation);
 };
