@@ -104,21 +104,21 @@ int UtcDaliBitmapLoaderLoadP(void)
   DALI_TEST_CHECK( ! loader1.IsLoaded() );
   loader1.Load();
   DALI_TEST_CHECK( loader1.IsLoaded() );
-  PixelDataPtr pixelData1 = loader1.GetPixelData();
+  PixelData pixelData1 = loader1.GetPixelData();
   DALI_TEST_CHECK( pixelData1 );
-  DALI_TEST_CHECK( pixelData1->GetWidth() == 34u );
-  DALI_TEST_CHECK( pixelData1->GetHeight() == 34u );
-  DALI_TEST_CHECK( pixelData1->GetPixelFormat() == Pixel::RGBA8888 );
+  DALI_TEST_CHECK( pixelData1.GetWidth() == 34u );
+  DALI_TEST_CHECK( pixelData1.GetHeight() == 34u );
+  DALI_TEST_CHECK( pixelData1.GetPixelFormat() == Pixel::RGBA8888 );
 
   BitmapLoader loader2 = BitmapLoader::New( gImage_128_RGB );
   DALI_TEST_CHECK( ! loader2.IsLoaded() );
   loader2.Load();
   DALI_TEST_CHECK( loader2.IsLoaded() );
-  PixelDataPtr pixelData2 = loader2.GetPixelData();
+  PixelData pixelData2 = loader2.GetPixelData();
   DALI_TEST_CHECK( pixelData2 );
-  DALI_TEST_CHECK( pixelData2->GetWidth() == 128u );
-  DALI_TEST_CHECK( pixelData2->GetHeight() == 128u );
-  DALI_TEST_CHECK( pixelData2->GetPixelFormat() == Pixel::RGB888 );
+  DALI_TEST_CHECK( pixelData2.GetWidth() == 128u );
+  DALI_TEST_CHECK( pixelData2.GetHeight() == 128u );
+  DALI_TEST_CHECK( pixelData2.GetPixelFormat() == Pixel::RGB888 );
 
   END_TEST;
 }
@@ -133,7 +133,7 @@ int UtcDaliBitmapLoaderLoadN(void)
 
   // cannot load image that is not exist
   DALI_TEST_CHECK( ! loader.IsLoaded() );
-  PixelDataPtr pixelData = loader.GetPixelData();
+  PixelData pixelData = loader.GetPixelData();
   DALI_TEST_CHECK( !pixelData);
 
   END_TEST;

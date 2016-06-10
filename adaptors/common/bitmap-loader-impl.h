@@ -81,11 +81,11 @@ public:
   /**
    * @copydoc Dali::BitmapLoader::GetPixelData
    */
-  PixelDataPtr GetPixelData() const;
+  Dali::PixelData GetPixelData() const;
 
 private:
   Integration::BitmapResourceType mResourceType;
-  PixelDataPtr mPixelData;
+  Dali::PixelData mPixelData;
   const std::string mUrl;
 };
 

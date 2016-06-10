@@ -35,7 +35,7 @@ namespace Dali
  *
  * A WatchTime has a time handle from watch application framework.
  * You can get time(hour, minute, second) on receiving timeTick signal
- * @SINCE_1_1.36
+ * @SINCE_1_1.37
  */
 class DALI_IMPORT_API WatchTime
 {
@@ -43,20 +43,20 @@ public:
 
   /**
    * @brief Constructor
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   WatchTime();
 
   /**
    * @brief Destructor
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    */
   ~WatchTime();
 
   /**
    * @brief return current hour
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @pre The WatchTime needs to be initialized.
    */
   int GetHour() const;
@@ -64,7 +64,7 @@ public:
   /**
    * @brief return current hour24
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @pre The WatchTime needs to be initialized.
    */
   int GetHour24() const;
@@ -72,7 +72,7 @@ public:
   /**
    * @brief return current minute
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @pre The WatchTime needs to be initialized.
    */
   int GetMinute() const;
@@ -80,7 +80,7 @@ public:
   /**
    * @brief return current second
    *
-   * @SINCE_1_1.36
+   * @SINCE_1_1.37
    * @pre The WatchTime needs to be initialized.
    */
   int GetSecond() const;
