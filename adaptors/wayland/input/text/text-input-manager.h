@@ -220,13 +220,11 @@ public:
    * UTF-8 encoded. Cursor is the byte offset within the
    * surrounding text. Anchor is the byte offset of the
    * selection anchor within the surrounding text. If there is no selected
-   * text anchor is the same as cursor.
+   * @param[in] serial the serial
    * @param[in] text the text
    * @param[in] cursor cursor position
-   * @param[in] anchor anchor position
    */
-  void SetSurroundingText( std::string text, unsigned int cursor, unsigned int anchor );
-
+  void SetSurroundingText( uint32_t serial, std::string text, unsigned int cursor);
 
 
 public: // virtual keyboard signals
