@@ -213,25 +213,25 @@ void SdlApplication::DoRender()
 
 void SdlApplication::SendTouchEvent(double x, double y, int mouseState)
 {
-  TouchPoint::State state = TouchPoint::Up;
+  PointState::Type state = PointState::UP;
   if( 0 == mouseState )
   {
-    state = TouchPoint::Down;
+    state = PointState::DOWN;
   }
   else if( 1 == mouseState )
   {
-    state = TouchPoint::Up;
+    state = PointState::UP;
   }
   else if( 2 == mouseState )
   {
-    state = TouchPoint::Motion;
+    state = PointState::MOTION;
   }
 
   Dali::Integration::TouchEvent e;
-  e.AddPoint( TouchPoint( 0,
-                          state,
-                          static_cast<float>(x),
-                          static_cast<float>(y) ) );
+  Dali::Integration::Point point;
+  point.SetState( state );
+  point.SetScreenPosition( Vector2( static_cast<float>(x), static_cast<float>(y) ) );
+  e.AddPoint( point );
 
   mCore->QueueEvent(e);
 }

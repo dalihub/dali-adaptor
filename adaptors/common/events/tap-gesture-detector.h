@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/tap-gesture-event.h>
 #include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/events/touch-point.h>
+#include <dali/integration-api/events/point.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-detector.h>
@@ -91,7 +91,7 @@ private:
    * @param[in] event registered touch event
    * @param[in] point position touch event occurred
    */
-  void SetupForTouchDown( const Integration::TouchEvent& event, const TouchPoint& point );
+  void SetupForTouchDown( const Integration::TouchEvent& event, const Integration::Point& point );
 
   /**
    * Emit a touch down event for hit testing
@@ -106,7 +106,7 @@ private:
    * @param[in] time time of this latest touch event
    * @param[in] point position touch event occurred
     */
-  void EmitSingleTap( unsigned int time, const TouchPoint& point );
+  void EmitSingleTap( unsigned int time, const Integration::Point& point );
 
   /**
    * Emit a tap event

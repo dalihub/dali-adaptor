@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
 #include <style-monitor.h>
 
@@ -123,7 +124,7 @@ private:
    * @param[in]  point      The touch point information.
    * @param[in]  timeStamp  The time the touch occurred.
    */
-  void SendEvent(TouchPoint& point, unsigned long timeStamp);
+  void SendEvent(Integration::Point& point, unsigned long timeStamp);
 
   /**
    * Send key event to core.

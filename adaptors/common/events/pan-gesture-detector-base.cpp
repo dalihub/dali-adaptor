@@ -86,9 +86,9 @@ PanGestureDetectorBase::~PanGestureDetectorBase()
 
 void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
 {
-  TouchPoint::State primaryPointState(event.points[0].state);
+  PointState::Type primaryPointState(event.points[0].GetState());
 
-  if (primaryPointState == TouchPoint::Interrupted)
+  if (primaryPointState == PointState::INTERRUPTED)
   {
     if ( ( mState == Started ) || ( mState == Possible ) )
     {
@@ -105,9 +105,9 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
     {
       case Clear:
       {
-        if (primaryPointState == TouchPoint::Down)
+        if (primaryPointState == PointState::DOWN)
         {
-          mPrimaryTouchDownLocation = event.points[0].screen;
+          mPrimaryTouchDownLocation = event.points[0].GetScreenPosition();
           mPrimaryTouchDownTime = event.time;
           mMotionEvents = 0;
           if (event.GetPointCount() == mMinimumTouchesRequired)
@@ -127,12 +127,12 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
         unsigned int pointCount(event.GetPointCount());
         if ( (pointCount >= mMinimumTouchesRequired)&&(pointCount <= mMaximumTouchesRequired) )
         {
-          if (primaryPointState == TouchPoint::Motion)
+          if (primaryPointState == PointState::MOTION)
           {
             mTouchEvents.push_back(event);
             mMotionEvents++;
 
-            Vector2 delta(event.points[0].screen - mPrimaryTouchDownLocation);
+            Vector2 delta(event.points[0].GetScreenPosition() - mPrimaryTouchDownLocation);
 
             if ( ( mMotionEvents >= mMinimumMotionEvents ) &&
                  ( delta.LengthSquared() >= mMinimumDistanceSquared ) )
@@ -142,9 +142,9 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
               SendPan(Gesture::Started, event);
             }
           }
-          else if (primaryPointState == TouchPoint::Up)
+          else if (primaryPointState == PointState::UP)
           {
-            Vector2 delta(event.points[0].screen - mPrimaryTouchDownLocation);
+            Vector2 delta(event.points[0].GetScreenPosition() - mPrimaryTouchDownLocation);
             if(delta.LengthSquared() >= mMinimumDistanceSquared)
             {
               SendPan(Gesture::Started, event);
@@ -165,7 +165,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
           // We do not satisfy pan conditions, tell Core our Gesture has been cancelled.
           SendPan(Gesture::Cancelled, event);
 
-          if (pointCount == 1 && primaryPointState == TouchPoint::Up)
+          if (pointCount == 1 && primaryPointState == PointState::UP)
           {
             // If we have lifted the primary touch point, then change our state to Clear...
             mState = Clear;
@@ -189,25 +189,25 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
         {
           switch (primaryPointState)
           {
-            case TouchPoint::Motion:
+            case PointState::MOTION:
               // Pan is continuing, tell Core.
               SendPan(Gesture::Continuing, event);
               break;
 
-            case TouchPoint::Up:
+            case PointState::UP:
               // Pan is finally finished when our primary point is lifted, tell Core and change our state to Clear.
               SendPan(Gesture::Finished, event);
               mState = Clear;
               mTouchEvents.clear();
               break;
 
-            case TouchPoint::Stationary:
+            case PointState::STATIONARY:
               if (pointCount == mMinimumTouchesRequired)
               {
-                std::vector<TouchPoint>::const_iterator iter = event.points.begin() + 1; // We already know the state of the first point
+                Integration::PointContainerConstIterator iter = event.points.begin() + 1; // We already know the state of the first point
                 for(; iter != event.points.end(); ++iter)
                 {
-                  if(iter->state == TouchPoint::Up)
+                  if(iter->GetState() == PointState::UP)
                   {
                     // The number of touch points will be less than the minimum required.  Inform core and change our state to Finished.
                     SendPan(Gesture::Finished, event);
@@ -227,7 +227,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
           // We have gone outside of the pan requirements, inform Core that the gesture is finished.
           SendPan(Gesture::Finished, event);
 
-          if (pointCount == 1 && primaryPointState == TouchPoint::Up)
+          if (pointCount == 1 && primaryPointState == PointState::UP)
           {
             // If this was the primary point being released, then we change our state back to Clear...
             mState = Clear;
@@ -245,7 +245,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
       case Finished:
       case Failed:
       {
-        if (primaryPointState == TouchPoint::Up)
+        if (primaryPointState == PointState::UP)
         {
           // Change our state back to clear when the primary touch point is released.
           mState = Clear;
@@ -268,7 +268,7 @@ void PanGestureDetectorBase::Update(const Integration::GestureRequest& request)
 void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::TouchEvent& currentEvent)
 {
   Integration::PanGestureEvent gesture(state);
-  gesture.currentPosition = currentEvent.points[0].screen;
+  gesture.currentPosition = currentEvent.points[0].GetScreenPosition();
   gesture.numberOfTouches = currentEvent.GetPointCount();
 
   if ( mTouchEvents.size() > 1 )
