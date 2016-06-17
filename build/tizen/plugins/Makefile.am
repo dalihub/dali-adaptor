@@ -29,13 +29,19 @@ if USE_FEEDBACK
 lib_LTLIBRARIES += libdali-feedback-plugin.la
 endif
 
+if WAYLAND
+if USE_VIDEOPLAYER
+lib_LTLIBRARIES += libdali-video-player-plugin.la
+endif
+endif
+
 if USE_FEEDBACK
 dalisounddir = ${dataReadOnlyDir}/plugins/sounds/
 dalisound_DATA = ${dali_plugin_sound_files}
 
 # Feedback
 libdali_feedback_plugin_la_SOURCES = \
-                     $(plugin_src_files)
+                     $(feedback_plugin_src_files)
 
 libdali_feedback_plugin_la_DEPENDENCIES =
 
@@ -87,3 +93,39 @@ libdali_feedback_plugin_la_LIBADD += \
                       $(FEEDBACK_LIBS)
 
 endif
+
+# VideoPlayer
+if WAYLAND
+if USE_VIDEOPLAYER
+
+libdali_video_player_plugin_la_SOURCES = \
+                     $(video_player_plugin_src_files)
+
+libdali_video_player_plugin_la_DEPENDENCIES =
+
+libdali_video_player_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
+                      -DDALI_ADAPTOR_COMPILATION \
+                      $(DLOG_CFLAGS) \
+                      $(DALICORE_CFLAGS) \
+                      $(ECORE_WAYLAND_CFLAGS) \
+                      $(CAPI_MEDIA_PLAYER_CFLAGS) \
+                      $(DALI_PROFILE_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
+                      -I../../../adaptors/public-api \
+                      -I../../../adaptors/devel-api \
+                      -I../../../adaptors/devel-api/adaptor-framework \
+                      -I../../../adaptors/integration-api \
+                      -I../../../adaptors/public-api/adaptor-framework \
+                      -I../../../plugins/video-player \
+                      -Werror -Wall
+
+libdali_video_player_plugin_la_LIBADD = \
+                      $(DLOG_LIBS) \
+                      $(ECORE_WAYLAND_LIBS) \
+                      $(CAPI_MEDIA_PLAYER_LIBS)
+
+libdali_video_player_plugin_la_LDFLAGS = \
+                      -rdynamic
+
+endif # USE_VIDEOPLAYER
+endif # WAYLAND

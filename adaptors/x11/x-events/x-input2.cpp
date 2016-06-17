@@ -180,7 +180,9 @@ void XInput2::ProcessGenericEvent( XGenericEventCookie* cookie )
     return;
   }
 
-  TouchPoint point ( deviceEvent->deviceid, TouchPoint::Last, deviceEvent->event_x, deviceEvent->event_y );
+  Integration::Point point;
+  point.SetDeviceId( deviceEvent->deviceid );
+  point.SetScreenPosition( Vector2( deviceEvent->event_x, deviceEvent->event_y ) );
   Time time( deviceEvent->time ); // X is using uint32 for time field ( see XI2proto.h )
 
   switch( cookie->evtype)
@@ -188,21 +190,21 @@ void XInput2::ProcessGenericEvent( XGenericEventCookie* cookie )
     case XI_TouchUpdate:
     case XI_Motion:
     {
-      point.state = TouchPoint::Motion;
+      point.SetState( PointState::MOTION );
       mEventInterface->TouchEvent( point, time );
       break;
     }
     case XI_TouchBegin:
     case XI_ButtonPress:
     {
-      point.state = TouchPoint::Down;
+      point.SetState( PointState::DOWN );
       mEventInterface->TouchEvent( point, time );
       break;
     }
     case XI_TouchEnd:
     case XI_ButtonRelease:
     {
-      point.state = TouchPoint::Up;
+      point.SetState( PointState::UP );
       mEventInterface->TouchEvent( point, time );
       break;
     }

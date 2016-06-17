@@ -104,6 +104,11 @@ RenderSurface& Adaptor::GetSurface()
   return mImpl->GetSurface();
 }
 
+Any Adaptor::GetNativeWindowHandle()
+{
+  return mImpl->GetNativeWindowHandle();
+}
+
 void Adaptor::ReleaseSurfaceLock()
 {
   mImpl->ReleaseSurfaceLock();

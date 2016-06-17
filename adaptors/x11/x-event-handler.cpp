@@ -141,7 +141,7 @@ struct EventHandler::Impl : public WindowEventInterface
   {
   }
   // @todo Consider allowing the EventHandler class to inherit from WindowEventInterface directly
-  virtual void TouchEvent( Dali::TouchPoint& point, unsigned long timeStamp )
+  virtual void TouchEvent( Dali::Integration::Point& point, unsigned long timeStamp )
   {
     mHandler->SendEvent( point, timeStamp );
   }
@@ -208,7 +208,7 @@ EventHandler::~EventHandler()
   mGestureManager.Stop();
 }
 
-void EventHandler::SendEvent(TouchPoint& point, unsigned long timeStamp)
+void EventHandler::SendEvent(Dali::Integration::Point& point, unsigned long timeStamp)
 {
   if(timeStamp < 1)
   {
@@ -294,7 +294,8 @@ void EventHandler::SendRotationRequestEvent( )
 
 void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
 {
-  SendEvent(point, timeStamp);
+  Integration::Point convertedPoint( point );
+  SendEvent( convertedPoint, timeStamp );
 }
 
 void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
@@ -319,7 +320,8 @@ void EventHandler::Reset()
 
   // Any touch listeners should be told of the interruption.
   Integration::TouchEvent event;
-  TouchPoint point(0, TouchPoint::Interrupted, 0, 0);
+  Integration::Point point;
+  point.SetState( PointState::INTERRUPTED );
   event.AddPoint( point );
 
   // First the touch event & related gesture events are queued

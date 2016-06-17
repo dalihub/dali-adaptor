@@ -323,6 +323,10 @@ unsigned int NativeImageSource::TargetTexture()
   return 0;
 }
 
+void NativeImageSource::PrepareTexture()
+{
+}
+
 int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
 {
   switch (depth)

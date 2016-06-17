@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/integration-api/events/point.h>
 
 namespace Dali
 {
@@ -46,7 +46,7 @@ public:
    * @param[in] point touch point
    * @param[in] timeStamp time stamp
    */
-  virtual void TouchEvent( Dali::TouchPoint& point, unsigned long timeStamp ) = 0;
+  virtual void TouchEvent( Dali::Integration::Point& point, unsigned long timeStamp ) = 0;
 
   /**
    * @brief Key Event callback

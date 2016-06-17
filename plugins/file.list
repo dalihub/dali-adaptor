@@ -1,5 +1,7 @@
 # Add local source files here
 
-plugin_src_files = \
+feedback_plugin_src_files = \
    $(plugin_src_dir)/dali-feedback.cpp
 
+video_player_plugin_src_files = \
+   $(plugin_src_dir)/video-player/tizen-video-player.cpp

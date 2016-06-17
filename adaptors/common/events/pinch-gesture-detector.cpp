@@ -44,22 +44,15 @@ namespace
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED = 4;
 const unsigned int MINIMUM_TOUCH_EVENTS_REQUIRED_AFTER_START = 4;
 
-inline float GetDistance(const TouchPoint& point1, const TouchPoint& point2)
+inline float GetDistance(const Integration::Point& point1, const Integration::Point& point2)
 {
-  Vector2 vector(point1.screen - point2.screen);
+  Vector2 vector(point1.GetScreenPosition() - point2.GetScreenPosition());
   return vector.Length();
 }
 
-inline float GetGradient(const TouchPoint& point1, const TouchPoint& point2)
+inline Vector2 GetCenterPoint(const Integration::Point& point1, const Integration::Point& point2)
 {
-  return (point2.screen.y - point1.screen.y)
-         /
-         (point2.screen.x - point1.screen.x);
-}
-
-inline Vector2 GetCenterPoint(const TouchPoint& point1, const TouchPoint& point2)
-{
-  return Vector2(point1.screen + point2.screen) * 0.5f;
+  return Vector2(point1.GetScreenPosition() + point2.GetScreenPosition()) * 0.5f;
 }
 
 } // unnamed namespace
@@ -110,10 +103,10 @@ void PinchGestureDetector::SendEvent(const Integration::TouchEvent& event)
       }
       else
       {
-        const TouchPoint& currentPoint1 = event.points[0];
-        const TouchPoint& currentPoint2 = event.points[1];
+        const Integration::Point& currentPoint1 = event.points[0];
+        const Integration::Point& currentPoint2 = event.points[1];
 
-        if (currentPoint1.state == TouchPoint::Up || currentPoint2.state == TouchPoint::Up)
+        if (currentPoint1.GetState() == PointState::UP || currentPoint2.GetState() == PointState::UP)
         {
           // One of our touch points has an Up event so change our state back to Clear.
           mState = Clear;
@@ -126,8 +119,8 @@ void PinchGestureDetector::SendEvent(const Integration::TouchEvent& event)
           // We can only determine a pinch after a certain number of touch points have been collected.
           if (mTouchEvents.size() >= MINIMUM_TOUCH_EVENTS_REQUIRED)
           {
-            const TouchPoint& firstPoint1 = mTouchEvents[0].points[0];
-            const TouchPoint& firstPoint2 = mTouchEvents[0].points[1];
+            const Integration::Point& firstPoint1 = mTouchEvents[0].points[0];
+            const Integration::Point& firstPoint2 = mTouchEvents[0].points[1];
 
             float firstDistance = GetDistance(firstPoint1, firstPoint2);
             float currentDistance = GetDistance(currentPoint1, currentPoint2);
@@ -176,10 +169,10 @@ void PinchGestureDetector::SendEvent(const Integration::TouchEvent& event)
       }
       else
       {
-        const TouchPoint& currentPoint1 = event.points[0];
-        const TouchPoint& currentPoint2 = event.points[1];
+        const Integration::Point& currentPoint1 = event.points[0];
+        const Integration::Point& currentPoint2 = event.points[1];
 
-        if (currentPoint1.state == TouchPoint::Up || currentPoint2.state == TouchPoint::Up)
+        if (currentPoint1.GetState() == PointState::UP || currentPoint2.GetState() == PointState::UP)
         {
           mTouchEvents.push_back(event);
           // Send pinch finished event
@@ -230,10 +223,10 @@ void PinchGestureDetector::SendPinch(Gesture::State state, const Integration::To
       event = *mTouchEvents.rbegin();
     }
 
-    const TouchPoint& firstPoint1( firstEvent.points[0] );
-    const TouchPoint& firstPoint2( firstEvent.points[1] );
-    const TouchPoint& currentPoint1( event.points[0] );
-    const TouchPoint& currentPoint2( event.points[1] );
+    const Integration::Point& firstPoint1( firstEvent.points[0] );
+    const Integration::Point& firstPoint2( firstEvent.points[1] );
+    const Integration::Point& currentPoint1( event.points[0] );
+    const Integration::Point& currentPoint2( event.points[1] );
 
     float firstDistance = GetDistance(firstPoint1, firstPoint2);
     float currentDistance = GetDistance(currentPoint1, currentPoint2);

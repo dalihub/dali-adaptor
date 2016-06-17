@@ -179,10 +179,7 @@ void SingleThreadController::RequestUpdateOnce()
     Integration::RenderStatus renderStatus;
     mRenderHelper.PreRender();
     mCore.Render( renderStatus );
-    if( renderStatus.HasRendered() )
-    {
-      mRenderHelper.PostRender();
-    }
+    mRenderHelper.PostRender();
   }
 }
 
@@ -268,10 +265,7 @@ void SingleThreadController::UpdateRender( bool incrementTime )
     mCore.Render( renderStatus );
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
-    if( renderStatus.HasRendered() )
-    {
-      mRenderHelper.PostRender();
-    }
+    mRenderHelper.PostRender();
 
     if( ! keepUpdatingStatus &&
         ! renderStatus.NeedsUpdate() )
