@@ -61,11 +61,11 @@ void BitmapLoader::Load()
 
     // Use bitmap->GetBufferOwnership() to transfer the buffer ownership to pixelData.
     // The destroy of bitmap will not release the buffer, instead, the pixelData is responsible for releasing when its reference count falls to zero.
-    mPixelData = PixelData::New( bitmap->GetBufferOwnership(),
-                                 bitmap->GetImageWidth(),
-                                 bitmap->GetImageHeight(),
-                                 bitmap->GetPixelFormat(),
-                                 PixelData::FREE);
+    mPixelData = Dali::PixelData::New( bitmap->GetBufferOwnership(),
+                                       bitmap->GetImageWidth(),
+                                       bitmap->GetImageHeight(),
+                                       bitmap->GetPixelFormat(),
+                                       Dali::PixelData::FREE);
   }
 }
 
@@ -79,7 +79,7 @@ const std::string& BitmapLoader::GetUrl() const
   return mUrl;
 }
 
-PixelDataPtr BitmapLoader::GetPixelData() const
+Dali::PixelData BitmapLoader::GetPixelData() const
 {
   return mPixelData;
 }

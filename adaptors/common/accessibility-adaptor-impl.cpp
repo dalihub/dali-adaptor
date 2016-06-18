@@ -263,7 +263,7 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsi
 
   Integration::TouchEvent touchEvent;
   Integration::HoverEvent hoverEvent;
-  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
+  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent( Integration::Point( point ), timeStamp, touchEvent, hoverEvent );
   if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth ) // hover event is ignored
   {
     // Process the touch event in accessibility gesture detector

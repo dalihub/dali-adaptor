@@ -76,12 +76,12 @@ void LongPressGestureDetector::SendEvent(const Integration::TouchEvent& event)
     // Clear: Wait till one point touches the screen before starting timer.
     case Clear:
     {
-      const TouchPoint& point = event.points[0];
+      const Integration::Point& point = event.points[0];
 
-      if ( point.state == TouchPoint::Down )
+      if ( point.GetState() == PointState::DOWN )
       {
         mTouchPositions.clear();
-        mTouchPositions[point.deviceId] = point.screen;
+        mTouchPositions[point.GetDeviceId()] = point.GetScreenPosition();
 
         mTouchTime = event.time;
 
@@ -111,21 +111,21 @@ void LongPressGestureDetector::SendEvent(const Integration::TouchEvent& event)
 
       bool endLoop(false);
 
-      for (std::vector<TouchPoint>::const_iterator iter = event.points.begin(), endIter = event.points.end();
+      for ( Integration::PointContainerConstIterator iter = event.points.begin(), endIter = event.points.end();
            iter != endIter && !endLoop; ++iter)
       {
-        switch( iter->state )
+        switch( iter->GetState() )
         {
           // add point.
-          case TouchPoint::Down:
+          case PointState::DOWN:
           {
-            mTouchPositions[iter->deviceId] = iter->screen;
+            mTouchPositions[iter->GetDeviceId()] = iter->GetScreenPosition();
             break;
           }
 
           // remove point.
-          case TouchPoint::Up:
-          case TouchPoint::Interrupted:
+          case PointState::UP:
+          case PointState::INTERRUPTED:
           {
             // System has interrupted us, long press is not possible, inform Core
             EmitGesture( Gesture::Cancelled );
@@ -136,9 +136,9 @@ void LongPressGestureDetector::SendEvent(const Integration::TouchEvent& event)
             break;
           }
 
-          case TouchPoint::Motion:
+          case PointState::MOTION:
           {
-            const Vector2 touchPosition( mTouchPositions[iter->deviceId] - iter->screen );
+            const Vector2 touchPosition( mTouchPositions[iter->GetDeviceId()] - iter->GetScreenPosition() );
             float distanceSquared = touchPosition.LengthSquared();
 
             if (distanceSquared > ( MAXIMUM_MOTION_ALLOWED * MAXIMUM_MOTION_ALLOWED ) )
@@ -152,9 +152,8 @@ void LongPressGestureDetector::SendEvent(const Integration::TouchEvent& event)
             break;
           }
 
-          case TouchPoint::Stationary:
-          case TouchPoint::Leave:
-          case TouchPoint::Last:
+          case PointState::STATIONARY:
+          case PointState::LEAVE:
           {
             break;
           }
@@ -170,9 +169,9 @@ void LongPressGestureDetector::SendEvent(const Integration::TouchEvent& event)
       // eventually the final touch point will be removed, marking the end of this gesture.
       if ( pointCount == 1 )
       {
-        TouchPoint::State primaryPointState = event.points[0].state;
+        PointState::Type primaryPointState = event.points[0].GetState();
 
-        if ( (primaryPointState == TouchPoint::Up) || (primaryPointState == TouchPoint::Interrupted) )
+        if ( (primaryPointState == PointState::UP) || (primaryPointState == PointState::INTERRUPTED) )
         {
           if(mState == Finished)
           {

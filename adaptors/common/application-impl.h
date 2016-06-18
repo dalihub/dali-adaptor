@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_APPLICATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ typedef IntrusivePtr<Application> ApplicationPtr;
 class Application : public BaseObject, public Framework::Observer
 {
 public:
-
   typedef Dali::Application::AppSignalType AppSignalType;
   typedef Dali::Application::AppControlSignalType AppControlSignalType;
   typedef Dali::Application::WINDOW_MODE WINDOW_MODE;
@@ -65,8 +64,10 @@ public:
    * @param[in]  argv        A pointer to the argument list
    * @param[in]  stylesheet  The path to user defined theme file
    * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
+   * @param[in]  applicationType  A member of Dali::Framework::Type
    */
-  static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet,
+    WINDOW_MODE windowMode, Framework::Type applicationType );
 
 public:
 
@@ -245,7 +246,7 @@ public:  // Signals
   */
   Dali::Application::AppSignalType& MemoryLowSignal() { return mMemoryLowSignal; }
 
-private:
+protected:
 
   /**
    * Private Constructor
@@ -254,7 +255,8 @@ private:
    * @param[in]  stylesheet  The path to user defined theme file
    * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
    */
-  Application( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  Application( int* argc, char **argv[], const std::string& stylesheet,
+      WINDOW_MODE windowMode, Framework::Type applicationType );
 
   /**
    * Destructor
@@ -265,7 +267,6 @@ private:
   Application(const Application&);
   Application& operator=(Application&);
 
-private:
   /**
    * Creates the window
    */

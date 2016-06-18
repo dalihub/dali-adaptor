@@ -66,14 +66,14 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
 {
   if (event.GetPointCount() == 1)
   {
-    const TouchPoint& point = event.points[0];
-    TouchPoint::State pointState = point.state;
+    const Integration::Point& point = event.points[0];
+    PointState::Type pointState = point.GetState();
 
     switch (mState)
     {
       case Clear:
       {
-        if (pointState == TouchPoint::Down)
+        if (pointState == PointState::DOWN)
         {
           SetupForTouchDown( event, point );
         }
@@ -84,7 +84,7 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
       {
         unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
 
-        if ( pointState == TouchPoint::Up )
+        if ( pointState == PointState::UP )
         {
           if ( deltaBetweenTouchDownTouchUp < MAXIMUM_TIME_ALLOWED )
           {
@@ -97,7 +97,7 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
             mState = Clear;
           }
         }
-        else if (pointState == TouchPoint::Interrupted)
+        else if (pointState == PointState::INTERRUPTED)
         {
           mState = Clear;
         }
@@ -106,7 +106,7 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
 
       case Registered:
       {
-        if ( pointState == TouchPoint::Up )
+        if ( pointState == PointState::UP )
         {
           unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
 
@@ -132,10 +132,11 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
             mState = Clear;
           }
         }
-        else if (pointState == TouchPoint::Down)
+        else if (pointState == PointState::DOWN)
         {
-          Vector2 distanceDelta(abs(mTouchPosition.x - point.screen.x),
-                                abs(mTouchPosition.y - point.screen.y));
+          const Vector2& screen( point.GetScreenPosition() );
+          Vector2 distanceDelta(abs(mTouchPosition.x - screen.x),
+                                abs(mTouchPosition.y - screen.y));
 
           unsigned long timeDelta = abs( event.time - mLastTapTime );
 
@@ -170,10 +171,9 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
   }
 }
 
-void TapGestureDetector::SetupForTouchDown( const Integration::TouchEvent& event, const TouchPoint& point )
+void TapGestureDetector::SetupForTouchDown( const Integration::TouchEvent& event, const Integration::Point& point )
 {
-  mTouchPosition.x = point.screen.x;
-  mTouchPosition.y = point.screen.y;
+  mTouchPosition = point.GetScreenPosition();
   mTouchTime = event.time;
   mLastTapTime = 0u;
   mTapsRegistered = 0;
@@ -209,11 +209,12 @@ void TapGestureDetector::EmitGesture( Gesture::State state, unsigned int time )
   }
 }
 
-void TapGestureDetector::EmitSingleTap( unsigned int time, const TouchPoint& point )
+void TapGestureDetector::EmitSingleTap( unsigned int time, const Integration::Point& point )
 {
   Integration::TapGestureEvent event( Gesture::Started );
-  Vector2 distanceDelta(abs(mTouchPosition.x - point.screen.x),
-                        abs(mTouchPosition.y - point.screen.y));
+  const Vector2& screen( point.GetScreenPosition() );
+  Vector2 distanceDelta(abs(mTouchPosition.x - screen.x),
+                        abs(mTouchPosition.y - screen.y));
 
   if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
       distanceDelta.y > MAXIMUM_MOTION_ALLOWED )

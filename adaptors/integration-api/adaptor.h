@@ -213,6 +213,13 @@ public:
   RenderSurface& GetSurface();
 
   /**
+   * @brief Gets native window handle
+   *
+   * @return Native window handle
+   */
+  Any GetNativeWindowHandle();
+
+  /**
    * @brief Release any locks the surface may hold.
    *
    * For example, after compositing an offscreen surface, use this method to allow

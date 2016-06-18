@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.36
+Version:    1.1.39
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -34,6 +34,7 @@ Requires:       giflib
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
 %define dali_feedback_plugin 0
+%define dali_videoplayer_plugin 1
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(gles20)
 %define gles_requirement_setup 1
@@ -42,6 +43,7 @@ BuildRequires:  pkgconfig(gles20)
 %if "%{profile}" == "tv"
 %define dali_profile TV
 %define dali_feedback_plugin 0
+%define dali_videoplayer_plugin 1
 %define shaderbincache_flag ENABLE
 BuildRequires:  pkgconfig(glesv2)
 %define gles_requirement_setup 1
@@ -50,14 +52,18 @@ BuildRequires:  pkgconfig(glesv2)
 %if "%{profile}" == "wearable"
 %define dali_profile WEARABLE
 %define dali_feedback_plugin 0
+%define dali_videoplayer_plugin 1
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(capi-appfw-watch-application)
+BuildRequires:  pkgconfig(appcore-watch)
 %define gles_requirement_setup 1
 %endif
 
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
+%define dali_videoplayer_plugin 0
 %define tizen_2_2_compatibility 1
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(glesv2)
@@ -177,12 +183,28 @@ Group:      System/Libraries
 %if 0%{?dali_feedback_plugin}
 #Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
-BuildRequires:  pkgconfig(haptic)
+#BuildRequires:  pkgconfig(haptic)
 BuildRequires:  libfeedback-devel
 %endif
 
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
+
+##############################
+# Dali VideoPlayer Plugin
+##############################
+%if %{with wayland}
+
+%package dali-video-player-plugin
+Summary:    Plugin to play a video file for Dali
+Group:      System/Libraries
+%if 0%{?dali_videoplayer_plugin}
+BuildRequires:  pkgconfig(capi-media-player)
+%endif
+
+%description dali-video-player-plugin
+VideoPlayer plugin to play a video file for Dali
+%endif
 
 ##############################
 # Preparation
@@ -246,6 +268,9 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 %if 0%{?dali_feedback_plugin}
            --enable-feedback \
 %endif
+%if 0%{?dali_videoplayer_plugin}
+           --enable-videoplayer \
+%endif
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -302,6 +327,14 @@ exit 0
 exit 0
 %endif
 
+%if %{with wayland}
+%if 0%{?dali_videoplayer_plugin}
+%post dali-video-player-plugin
+/sbin/ldconfig
+exit 0
+%endif
+%endif
+
 ##############################
 #   Pre Uninstall old package
 ##############################
@@ -319,6 +352,14 @@ exit 0
 %postun dali-feedback-plugin
 /sbin/ldconfig
 exit 0
+%endif
+
+%if %{with wayland}
+%if 0%{?dali_videoplayer_plugin}
+%postun dali-video-player-plugin
+/sbin/ldconfig
+exit 0
+%endif
 %endif
 
 ##############################
@@ -355,3 +396,11 @@ exit 0
 %{dali_plugin_sound_files}/*
 %endif
 
+%if %{with wayland}
+%if 0%{?dali_videoplayer_plugin}
+%files dali-video-player-plugin
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali-video-player-plugin.so*
+%endif
+%endif

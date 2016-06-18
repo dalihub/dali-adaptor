@@ -481,17 +481,23 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == handler->mImpl->mWindow )
     {
-      TouchPoint::State state ( TouchPoint::Down );
+      PointState::Type state ( PointState::DOWN );
 
       // Check if the buttons field is set and ensure it's the primary touch button.
       // If this event was triggered by buttons other than the primary button (used for touch), then
       // just send an interrupted event to Core.
       if ( touchEvent->buttons && (touchEvent->buttons != PRIMARY_TOUCH_BUTTON_ID ) )
       {
-        state = TouchPoint::Interrupted;
+        state = PointState::INTERRUPTED;
       }
 
-      TouchPoint point( touchEvent->multi.device, state, touchEvent->x, touchEvent->y );
+      Integration::Point point;
+      point.SetDeviceId( touchEvent->multi.device );
+      point.SetState( state );
+      point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+      point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+      point.SetPressure( touchEvent->multi.pressure );
+      point.SetAngle( Degree( touchEvent->multi.angle ) );
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -508,7 +514,13 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == handler->mImpl->mWindow )
     {
-      TouchPoint point( touchEvent->multi.device, TouchPoint::Up, touchEvent->x, touchEvent->y );
+      Integration::Point point;
+      point.SetDeviceId( touchEvent->multi.device );
+      point.SetState( PointState::UP );
+      point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+      point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+      point.SetPressure( touchEvent->multi.pressure );
+      point.SetAngle( Degree( touchEvent->multi.angle ) );
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -525,7 +537,13 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == handler->mImpl->mWindow )
     {
-      TouchPoint point( touchEvent->multi.device, TouchPoint::Motion, touchEvent->x, touchEvent->y );
+      Integration::Point point;
+      point.SetDeviceId( touchEvent->multi.device );
+      point.SetState( PointState::MOTION );
+      point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+      point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+      point.SetPressure( touchEvent->multi.pressure );
+      point.SetAngle( Degree( touchEvent->multi.angle ) );
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -1712,7 +1730,7 @@ EventHandler::~EventHandler()
   mGestureManager.Stop();
 }
 
-void EventHandler::SendEvent(TouchPoint& point, unsigned long timeStamp)
+void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
 {
   if(timeStamp < 1)
   {
@@ -1724,7 +1742,7 @@ void EventHandler::SendEvent(TouchPoint& point, unsigned long timeStamp)
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
   if(type != Integration::TouchEventCombiner::DispatchNone )
   {
-    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.deviceId, point.state, point.local.x, point.local.y);
+    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y);
 
     // First the touch and/or hover event & related gesture events are queued
     if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth)
@@ -1798,7 +1816,9 @@ void EventHandler::SendRotationRequestEvent( )
 
 void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
 {
-  SendEvent(point, timeStamp);
+  Integration::Point convertedPoint( point );
+
+  SendEvent(convertedPoint, timeStamp);
 }
 
 void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
@@ -1823,7 +1843,8 @@ void EventHandler::Reset()
 
   // Any touch listeners should be told of the interruption.
   Integration::TouchEvent event;
-  TouchPoint point(0, TouchPoint::Interrupted, 0, 0);
+  Integration::Point point;
+  point.SetState( PointState::INTERRUPTED );
   event.AddPoint( point );
 
   // First the touch event & related gesture events are queued

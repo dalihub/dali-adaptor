@@ -576,7 +576,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
     {
       switch( touchPoint.state )
       {
-        case Dali::TouchPoint::Down:
+        case Dali::PointState::DOWN:
         {
           IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
           IpcDataEvMouseDown ipcDown( touchEvent.time );
@@ -591,14 +591,14 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         }
         break;
 
-        case Dali::TouchPoint::Motion:
+        case Dali::PointState::MOTION:
         {
           IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
           mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
         }
         break;
 
-        case Dali::TouchPoint::Up:
+        case Dali::PointState::UP:
         {
           IpcDataEvMouseUp ipcUp( touchEvent.time );
           mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
@@ -1440,7 +1440,7 @@ void Indicator::OnStageTouched(const Dali::TouchEvent& touchEvent)
   {
     switch( touchPoint.state )
     {
-      case Dali::TouchPoint::Down:
+      case Dali::PointState::DOWN:
       {
         ShowIndicator( HIDE_NOW );
         break;

@@ -34,19 +34,22 @@ Application Application::New()
 
 Application Application::New( int* argc, char **argv[] )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE,
+    Internal::Adaptor::Framework::NORMAL);
   return Application(internal.Get());
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE,
+    Internal::Adaptor::Framework::NORMAL);
   return Application(internal.Get());
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode,
+    Internal::Adaptor::Framework::NORMAL);
   return Application(internal.Get());
 }
 
