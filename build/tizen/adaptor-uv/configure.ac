@@ -189,13 +189,13 @@ AC_ARG_WITH([tizen-2-2-compatibility],
 
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
-              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,UBUNTU],
+              [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,IVI,UBUNTU],
                             [Select the variant of tizen])],
               [enable_profile=$enableval],
               [enable_profile=UBUNTU])
 
 # Ensure valid profile selected
-if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xUBUNTU"; then
+if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xIVI" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
 fi
 
@@ -210,6 +210,7 @@ AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
+AM_CONDITIONAL([IVI_PROFILE], [test x$enable_profile = xIVI])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([USE_EFL], [test x$enable_efl = xyes])
@@ -239,6 +240,10 @@ PKG_CHECK_MODULES(OPENGLES20, glesv2)
 fi
 
 if test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(OPENGLES20, glesv2)
+fi
+
+if test "x$enable_profile" = "xIVI"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
 fi
 
@@ -293,6 +298,9 @@ if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
 if test "x$enable_profile" = "xCOMMON"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
+if test "x$enable_profile" = "xIVI"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
 
