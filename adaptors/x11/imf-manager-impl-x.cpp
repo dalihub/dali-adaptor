@@ -387,15 +387,14 @@ void ImfManager::PreEditChanged( void*, Ecore_IMF_Context* imfContext, void* eve
     Dali::ImfManager::ImfEventData imfEventData( Dali::ImfManager::PREEDIT, preEditString, cursorPosition, 0 );
     Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfEventData );
 
-    if ( callbackData.update )
+    if( callbackData.update )
     {
-      SetCursorPosition( callbackData.cursorPosition );
-      SetSurroundingText( callbackData.currentText );
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
 
       NotifyCursorPosition();
     }
 
-    if ( callbackData.preeditResetRequired )
+    if( callbackData.preeditResetRequired )
     {
       Reset();
     }
@@ -417,8 +416,7 @@ void ImfManager::CommitReceived( void*, Ecore_IMF_Context* imfContext, void* eve
 
     if( callbackData.update )
     {
-      SetCursorPosition( callbackData.cursorPosition );
-      SetSurroundingText( callbackData.currentText );
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
 
       NotifyCursorPosition();
     }
@@ -436,16 +434,20 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
-  mEventSignal.Emit( handle, imfData );
+  Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
 
-  if( text )
+  if( callbackData.update )
   {
-    *text = strdup( mSurroundingText.c_str() );
-  }
+    if( text )
+    {
+      *text = strdup( callbackData.currentText.c_str() );
+    }
 
-  if( cursorPosition )
-  {
-    *cursorPosition = mIMFCursorPosition;
+    if( cursorPosition )
+    {
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      *cursorPosition = mIMFCursorPosition;
+    }
   }
 
   return EINA_TRUE;
@@ -465,7 +467,14 @@ void ImfManager::DeleteSurrounding( void* data, Ecore_IMF_Context* imfContext, v
 
     Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::DELETESURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars );
     Dali::ImfManager handle( this );
-    mEventSignal.Emit( handle, imfData );
+    Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
+
+    if( callbackData.update )
+    {
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+
+      NotifyCursorPosition();
+    }
   }
 }
 
