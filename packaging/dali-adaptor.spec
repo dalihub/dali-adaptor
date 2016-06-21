@@ -71,7 +71,7 @@ BuildRequires:  pkgconfig(glesv2)
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
-%define dali_videoplayer_plugin 0
+%define dali_videoplayer_plugin 1
 %define tizen_2_2_compatibility 0
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(glesv2)
