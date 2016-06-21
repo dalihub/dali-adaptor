@@ -219,9 +219,16 @@ void Seat::SetPointerPosition( Dali::Vector2 position)
 void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
 {
 
-  if(!mXkbData.mContext )
+  if( !mXkbData.mContext )
   {
     mXkbData.mContext = xkb_context_new( XKB_CONTEXT_NO_FLAGS );
+  }
+
+  if( !mXkbData.mContext )
+  {
+    DALI_LOG_ERROR("xkb_context_new failed");
+    close(fd);
+    return;
   }
 
   // current formats defined in wayland-client-protocol.h
