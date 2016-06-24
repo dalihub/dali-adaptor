@@ -252,12 +252,14 @@ public: // Signals
   IndicatorSignalType& IndicatorVisibilityChangedSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief This constructor is used by Dali::Application::GetWindow().
    * @SINCE_1_0.0
    * @param[in] window A pointer to the window.
    */
   explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
+  /// @endcond
 };
 
 /**
