@@ -82,6 +82,12 @@ endif
 adaptor_mobile_dir = ../../../adaptors/mobile
 include ../../../adaptors/mobile/file.list
 
+# WEARABLE
+if WEARABLE_PROFILE
+adaptor_wearable_dir = ../../../adaptors/wearable
+include ../../../adaptors/wearable/file.list
+endif
+
 # TV
 if TV_PROFILE
 adaptor_tv_dir = ../../../adaptors/tv
@@ -519,6 +525,9 @@ endif
 
 tizenadaptorpublicapidir = $(devincludepath)/dali/public-api
 tizenadaptorpublicapi_HEADERS = $(public_api_header_files)
+if WEARABLE_PROFILE
+tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_files)
+endif
 
 tizenadaptordevelapidir= $(devincludepath)/dali/devel-api
 
