@@ -224,6 +224,12 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
     mXkbData.mContext = xkb_context_new( XKB_CONTEXT_NO_FLAGS );
   }
 
+  if( !mXkbData.mContext )
+  {
+    DALI_LOG_ERROR("xkb_context_new failed");
+    close(fd);
+    return;
+  }
   // current formats defined in wayland-client-protocol.h
   // WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP =0, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1=1
 
@@ -243,12 +249,6 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
     return;
   }
 
-  if( !mXkbData.mContext )
-  {
-    DALI_LOG_ERROR("xkb_context_new failed");
-    close(fd);
-    return;
-  }
   mXkbData.mKeymap = xkb_map_new_from_string(mXkbData.mContext, map, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
 
   munmap(map, size);
