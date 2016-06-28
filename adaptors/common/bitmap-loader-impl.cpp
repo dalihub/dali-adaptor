@@ -62,6 +62,7 @@ void BitmapLoader::Load()
     // Use bitmap->GetBufferOwnership() to transfer the buffer ownership to pixelData.
     // The destroy of bitmap will not release the buffer, instead, the pixelData is responsible for releasing when its reference count falls to zero.
     mPixelData = Dali::PixelData::New( bitmap->GetBufferOwnership(),
+                                       bitmap->GetBufferSize(),
                                        bitmap->GetImageWidth(),
                                        bitmap->GetImageHeight(),
                                        bitmap->GetPixelFormat(),
