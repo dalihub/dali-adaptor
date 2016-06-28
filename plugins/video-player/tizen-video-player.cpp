@@ -406,7 +406,6 @@ bool TizenVideoPlayer::IsMuted()
       mPlayerState == PLAYER_STATE_PAUSED
     )
   {
-    bool muted = false;
     int error = player_is_muted( mPlayer, &muted );
     LogPlayerError( error );
   }
