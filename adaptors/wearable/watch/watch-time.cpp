@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <watch-time.h>
+#include <wearable/watch/watch-time.h>
 
 // EXTERNAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
