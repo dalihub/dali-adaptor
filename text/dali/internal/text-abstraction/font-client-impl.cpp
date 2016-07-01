@@ -128,18 +128,18 @@ void FontClient::GetSystemFonts( FontList& systemFonts )
   mPlugin->GetSystemFonts( systemFonts );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor )
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
 {
   CreatePlugin();
 
-  return mPlugin->FindDefaultFont( charcode, pointSize, preferColor );
+  return mPlugin->FindDefaultFont( charcode, requestedPointSize, preferColor );
 }
 
-FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor )
+FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
 {
   CreatePlugin();
 
-  return mPlugin->FindFallbackFont( preferredFont, charcode, pointSize, preferColor );
+  return mPlugin->FindFallbackFont( preferredFont, charcode, requestedPointSize, preferColor );
 }
 
 bool FontClient::IsScalable( const FontPath& path )
@@ -171,29 +171,33 @@ void FontClient::GetFixedSizes( const FontDescription& fontDescription,
   mPlugin->GetFixedSizes( fontDescription, sizes );
 }
 
-FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( path, pointSize, faceIndex );
+  return mPlugin->GetFontId( path,
+                             requestedPointSize,
+                             requestedPointSize,
+                             faceIndex );
 }
 
 FontId FontClient::GetFontId( const FontDescription& fontDescription,
-                              PointSize26Dot6 pointSize,
+                              PointSize26Dot6 requestedPointSize,
                               FaceIndex faceIndex )
 {
   CreatePlugin();
 
   return mPlugin->GetFontId( fontDescription,
-                             pointSize,
+                             requestedPointSize,
+                             requestedPointSize,
                              faceIndex );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontMetrics( fontId, metrics, desiredFixedSize );
+  return mPlugin->GetFontMetrics( fontId, metrics );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -203,11 +207,11 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return mPlugin->GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal )
 {
   CreatePlugin();
 
-  return mPlugin->GetGlyphMetrics( array, size, type, horizontal, desiredFixedSize );
+  return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
 BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
@@ -224,11 +228,11 @@ void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorB
   return mPlugin->CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
 }
 
-const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
 {
   CreatePlugin();
 
-  return mPlugin->GetEllipsisGlyph( pointSize );
+  return mPlugin->GetEllipsisGlyph( requestedPointSize );
 }
 
 void FontClient::CreatePlugin()

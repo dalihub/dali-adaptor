@@ -41,6 +41,7 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
  * Conversion from Fractional26.6 to float
  */
 const float FROM_266 = 1.0f / 64.0f;
+const float POINTS_PER_INCH = 72.f;
 
 const std::string FONT_FORMAT( "TrueType" );
 const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
@@ -149,22 +150,22 @@ FontClient::Plugin::FontDescriptionCacheItem::FontDescriptionCacheItem( const Fo
 }
 
 FontClient::Plugin::FontIdCacheItem::FontIdCacheItem( FontDescriptionId validatedFontId,
-                                                      PointSize26Dot6 pointSize,
+                                                      PointSize26Dot6 requestedPointSize,
                                                       FontId fontId )
 : validatedFontId( validatedFontId ),
-  pointSize( pointSize ),
+  requestedPointSize( requestedPointSize ),
   fontId( fontId )
 {
 }
 
 FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
                                           const FontPath& path,
-                                          PointSize26Dot6 pointSize,
+                                          PointSize26Dot6 requestedPointSize,
                                           FaceIndex face,
                                           const FontMetrics& metrics )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
-  mPointSize( pointSize ),
+  mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
   mFixedWidthPixels( 0.0f ),
@@ -176,14 +177,14 @@ FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
 
 FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
                                           const FontPath& path,
-                                          PointSize26Dot6 pointSize,
+                                          PointSize26Dot6 requestedPointSize,
                                           FaceIndex face,
                                           const FontMetrics& metrics,
                                           float fixedWidth,
                                           float fixedHeight )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
-  mPointSize( pointSize ),
+  mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
   mFixedWidthPixels( fixedWidth ),
@@ -390,7 +391,7 @@ PointSize26Dot6 FontClient::Plugin::GetPointSize( FontId id )
   if( id > 0u &&
       index < mFontCache.size() )
   {
-    return ( *( mFontCache.begin() + index ) ).mPointSize;
+    return ( *( mFontCache.begin() + index ) ).mRequestedPointSize;
   }
   else
   {
@@ -402,7 +403,7 @@ PointSize26Dot6 FontClient::Plugin::GetPointSize( FontId id )
 
 FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
                                                  Character charcode,
-                                                 PointSize26Dot6 requestedSize,
+                                                 PointSize26Dot6 requestedPointSize,
                                                  bool preferColor )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFontForCharacter\n");
@@ -433,24 +434,27 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
       GetFixedSizes( description,
                      fixedSizes );
 
+      PointSize26Dot6 actualPointSize = requestedPointSize;
+
       const Vector< PointSize26Dot6 >::SizeType count = fixedSizes.Count();
+
       if( 0 != count )
       {
-        // If the font is not scalable, pick the largest size <= requestedSize
-        PointSize26Dot6 size = fixedSizes[0];
+        // If the font is not scalable, pick the largest size <= requestedPointSize
+        actualPointSize = fixedSizes[0];
         for( unsigned int i=1; i<count; ++i )
         {
-          if( fixedSizes[i] <= requestedSize &&
-              fixedSizes[i] > size )
+          if( fixedSizes[i] <= requestedPointSize &&
+              fixedSizes[i] > actualPointSize )
           {
-            size = fixedSizes[i];
+            actualPointSize = fixedSizes[i];
           }
         }
-        requestedSize = size;
       }
 
       fontId = GetFontId( description,
-                          requestedSize,
+                          requestedPointSize,
+                          actualPointSize,
                           0u );
 
       if( preferColor )
@@ -480,7 +484,7 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
 }
 
 FontId FontClient::Plugin::FindDefaultFont( Character charcode,
-                                            PointSize26Dot6 requestedSize,
+                                            PointSize26Dot6 requestedPointSize,
                                             bool preferColor )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindDefaultFont DefaultFontsList(%s)\n", (mDefaultFonts.empty()?"empty":"created") );
@@ -500,14 +504,14 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
 
   // Traverse the list of default fonts.
   // Check for each default font if supports the character.
-  fontId = FindFontForCharacter( mDefaultFonts, charcode, requestedSize, preferColor );
+  fontId = FindFontForCharacter( mDefaultFonts, charcode, requestedPointSize, preferColor );
 
   return fontId;
 }
 
 FontId FontClient::Plugin::FindFallbackFont( FontId preferredFont,
                                              Character charcode,
-                                             PointSize26Dot6 requestedSize,
+                                             PointSize26Dot6 requestedPointSize,
                                              bool preferColor )
 {
   // The font id to be returned.
@@ -530,14 +534,15 @@ FontId FontClient::Plugin::FindFallbackFont( FontId preferredFont,
 
   if( fontList )
   {
-    fontId = FindFontForCharacter( *fontList, charcode, requestedSize, preferColor );
+    fontId = FindFontForCharacter( *fontList, charcode, requestedPointSize, preferColor );
   }
 
   return fontId;
 }
 
 FontId FontClient::Plugin::GetFontId( const FontPath& path,
-                                      PointSize26Dot6 pointSize,
+                                      PointSize26Dot6 requestedPointSize,
+                                      PointSize26Dot6 actualPointSize,
                                       FaceIndex faceIndex,
                                       bool cacheDescription )
 {
@@ -548,13 +553,13 @@ FontId FontClient::Plugin::GetFontId( const FontPath& path,
   if( NULL != mFreeTypeLibrary )
   {
     FontId foundId(0);
-    if( FindFont( path, pointSize, faceIndex, foundId ) )
+    if( FindFont( path, requestedPointSize, faceIndex, foundId ) )
     {
       id = foundId;
     }
     else
     {
-      id = CreateFont( path, pointSize, faceIndex, cacheDescription );
+      id = CreateFont( path, requestedPointSize, actualPointSize, faceIndex, cacheDescription );
     }
   }
 
@@ -562,7 +567,8 @@ FontId FontClient::Plugin::GetFontId( const FontPath& path,
 }
 
 FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
-                                      PointSize26Dot6 pointSize,
+                                      PointSize26Dot6 requestedPointSize,
+                                      PointSize26Dot6 actualPointSize,
                                       FaceIndex faceIndex )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId font family(%s)\n", fontDescription.family.c_str() );
@@ -598,21 +604,22 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                   validatedFontId );
   }
 
-  // Check if exists a pair 'validatedFontId, pointSize' in the cache.
-  if( !FindFont( validatedFontId, pointSize, fontId ) )
+  // Check if exists a pair 'validatedFontId, requestedPointSize' in the cache.
+  if( !FindFont( validatedFontId, requestedPointSize, fontId ) )
   {
     // Retrieve the font file name path.
     const FontDescription& description = *( mFontDescriptionCache.begin() + validatedFontId );
 
     // Retrieve the font id. Do not cache the description as it has been already cached.
     fontId = GetFontId( description.path,
-                        pointSize,
+                        requestedPointSize,
+                        actualPointSize,
                         faceIndex,
                         false );
 
-    // Cache the pair 'validatedFontId, pointSize' to improve the following queries.
+    // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
     mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
-                                             pointSize,
+                                             requestedPointSize,
                                              fontId ) );
   }
 
@@ -671,27 +678,30 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
 }
 
 void FontClient::Plugin::GetFontMetrics( FontId fontId,
-                                         FontMetrics& metrics,
-                                         int desiredFixedSize )
+                                         FontMetrics& metrics )
 {
-  if( fontId > 0 &&
-      fontId-1 < mFontCache.size() )
+  if( ( fontId > 0 ) &&
+      ( fontId - 1u < mFontCache.size() ) )
   {
     const CacheItem& font = mFontCache[fontId-1];
 
     metrics = font.mMetrics;
 
     // Adjust the metrics if the fixed-size font should be down-scaled
-    if( font.mIsFixedSizeBitmap &&
-        ( desiredFixedSize > 0 ) )
+    if( font.mIsFixedSizeBitmap )
     {
-      float scaleFactor = static_cast<float>(desiredFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+      const float desiredFixedSize =  static_cast<float>( font.mRequestedPointSize ) * FROM_266 / POINTS_PER_INCH * mDpiVertical;
 
-      metrics.ascender           *= scaleFactor;
-      metrics.descender          *= scaleFactor;
-      metrics.height             *= scaleFactor;
-      metrics.underlinePosition  *= scaleFactor;
-      metrics.underlineThickness *= scaleFactor;
+      if( desiredFixedSize > 0.f )
+      {
+        const float scaleFactor = desiredFixedSize / static_cast<float>( font.mFixedHeightPixels );
+
+        metrics.ascender = floorf( metrics.ascender * scaleFactor );
+        metrics.descender = floorf( metrics.descender * scaleFactor );
+        metrics.height = floorf( metrics.height * scaleFactor );
+        metrics.underlinePosition = floorf( metrics.underlinePosition * scaleFactor );
+        metrics.underlineThickness = floorf( metrics.underlineThickness * scaleFactor );
+      }
     }
   }
   else
@@ -719,27 +729,27 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
 bool FontClient::Plugin::GetGlyphMetrics( GlyphInfo* array,
                                           uint32_t size,
                                           GlyphType type,
-                                          bool horizontal,
-                                          int desiredFixedSize )
+                                          bool horizontal )
 {
   if( VECTOR_GLYPH == type )
   {
-    return GetVectorMetrics( array, size, horizontal, desiredFixedSize );
+    return GetVectorMetrics( array, size, horizontal );
   }
 
-  return GetBitmapMetrics( array, size, horizontal, desiredFixedSize );
+  return GetBitmapMetrics( array, size, horizontal );
 }
 
 bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
                                            uint32_t size,
-                                           bool horizontal,
-                                           int desiredFixedSize )
+                                           bool horizontal )
 {
   bool success( true );
 
   for( unsigned int i=0; i<size; ++i )
   {
-    FontId fontId = array[i].fontId;
+    GlyphInfo& glyph = array[i];
+
+    FontId fontId = glyph.fontId;
 
     if( fontId > 0 &&
         fontId-1 < mFontCache.size() )
@@ -752,27 +762,29 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
       // Check to see if we should be loading a Fixed Size bitmap?
       if ( font.mIsFixedSizeBitmap )
       {
-        int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_COLOR );
+        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_COLOR );
         if ( FT_Err_Ok == error )
         {
-          array[i].width = font.mFixedWidthPixels;
-          array[i].height = font.mFixedHeightPixels;
-          array[i].advance = font.mFixedWidthPixels;
-          array[i].xBearing = 0.0f;
-          array[i].yBearing = font.mFixedHeightPixels;
+          glyph.width = font.mFixedWidthPixels;
+          glyph.height = font.mFixedHeightPixels;
+          glyph.advance = font.mFixedWidthPixels;
+          glyph.xBearing = 0.0f;
+          glyph.yBearing = font.mFixedHeightPixels;
 
           // Adjust the metrics if the fixed-size font should be down-scaled
-          if( desiredFixedSize > 0 )
+          const float desiredFixedSize =  static_cast<float>( font.mRequestedPointSize ) * FROM_266 / POINTS_PER_INCH * mDpiVertical;
+
+          if( desiredFixedSize > 0.f )
           {
-            float scaleFactor = static_cast<float>(desiredFixedSize) / static_cast<float>(font.mFixedHeightPixels);
+            const float scaleFactor = desiredFixedSize / static_cast<float>( font.mFixedHeightPixels );
 
-            array[i].width    *= scaleFactor;
-            array[i].height   *= scaleFactor;
-            array[i].advance  *= scaleFactor;
-            array[i].xBearing *= scaleFactor;
-            array[i].yBearing *= scaleFactor;
+            glyph.width = floorf( glyph.width * scaleFactor );
+            glyph.height = floorf( glyph.height * scaleFactor );
+            glyph.advance = floorf( glyph.advance * scaleFactor );
+            glyph.xBearing = floorf( glyph.xBearing * scaleFactor );
+            glyph.yBearing = floorf( glyph.yBearing * scaleFactor );
 
-            array[i].scaleFactor = scaleFactor;
+            glyph.scaleFactor = scaleFactor;
           }
         }
         else
@@ -784,21 +796,21 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
       else
 #endif
       {
-        int error = FT_Load_Glyph( ftFace, array[i].index, FT_LOAD_DEFAULT );
+        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_DEFAULT );
 
         if( FT_Err_Ok == error )
         {
-          array[i].width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
-          array[i].height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
+          glyph.width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
+          glyph.height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
           if( horizontal )
           {
-            array[i].xBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
-            array[i].yBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
+            glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
+            glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
           }
           else
           {
-            array[i].xBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
-            array[i].yBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
+            glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
+            glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
           }
         }
         else
@@ -818,8 +830,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
 
 bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
                                            uint32_t size,
-                                           bool horizontal,
-                                           int desiredFixedSize )
+                                           bool horizontal )
 {
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   bool success( true );
@@ -841,7 +852,7 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
       mVectorFontCache->GetGlyphMetrics( font.mVectorFontId, array[i] );
 
       // Vector metrics are in EMs, convert to pixels
-      float scale = (static_cast<float>(font.mPointSize)/64.0f) * mDpiVertical/72.0f;
+      const float scale = ( static_cast<float>( font.mRequestedPointSize ) * FROM_266 ) * static_cast<float>( mDpiVertical ) / POINTS_PER_INCH;
       array[i].width    *= scale;
       array[i].height   *= scale;
       array[i].xBearing *= scale;
@@ -943,7 +954,7 @@ void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex,
 #endif
 }
 
-const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
 {
   // First look into the cache if there is an ellipsis glyph for the requested point size.
   for( Vector<EllipsisItem>::ConstIterator it = mEllipsisCache.Begin(),
@@ -953,7 +964,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize
   {
     const EllipsisItem& item = *it;
 
-    if( fabsf( item.size - pointSize ) < Math::MACHINE_EPSILON_1000 )
+    if( fabsf( item.requestedPointSize - requestedPointSize ) < Math::MACHINE_EPSILON_1000 )
     {
       // Use the glyph in the cache.
       return item.glyph;
@@ -964,18 +975,18 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 pointSize
   mEllipsisCache.PushBack( EllipsisItem() );
   EllipsisItem& item = *( mEllipsisCache.End() - 1u );
 
-  item.size = pointSize;
+  item.requestedPointSize = requestedPointSize;
 
   // Find a font for the ellipsis glyph.
   item.glyph.fontId = FindDefaultFont( ELLIPSIS_CHARACTER,
-                                       pointSize,
+                                       requestedPointSize,
                                        false );
 
   // Set the character index to access the glyph inside the font.
   item.glyph.index = FT_Get_Char_Index( mFontCache[item.glyph.fontId-1].mFreeTypeFace,
                                         ELLIPSIS_CHARACTER );
 
-  GetBitmapMetrics( &item.glyph, 1u, true, 0 );
+  GetBitmapMetrics( &item.glyph, 1u, true );
 
   return item.glyph;
 }
@@ -1144,7 +1155,8 @@ bool FontClient::Plugin::GetFcInt( const _FcPattern* const pattern, const char* 
 }
 
 FontId FontClient::Plugin::CreateFont( const FontPath& path,
-                                       PointSize26Dot6 pointSize,
+                                       PointSize26Dot6 requestedPointSize,
+                                       PointSize26Dot6 actualPointSize,
                                        FaceIndex faceIndex,
                                        bool cacheDescription )
 {
@@ -1165,7 +1177,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
       // Ensure this size is available
       for ( int i = 0; i < ftFace->num_fixed_sizes; ++i )
       {
-        if ( static_cast<FT_Pos>(pointSize) == ftFace->available_sizes[ i ].size )
+        if ( static_cast<FT_Pos>( actualPointSize ) == ftFace->available_sizes[ i ].size )
         {
           // Tell Freetype to use this size
           error = FT_Select_Size( ftFace, i );
@@ -1185,13 +1197,14 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                                  0.0f,
                                  0.0f );
 
-            mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
+            mFontCache.push_back( CacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
             id = mFontCache.size();
 
             if( cacheDescription )
             {
-              CacheFontPath( ftFace, id, pointSize, path );
+              CacheFontPath( ftFace, id, requestedPointSize, path );
             }
+
             return id;
           }
         }
@@ -1208,13 +1221,13 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
         sizes << ftFace->available_sizes[ i ].size;
       }
       DALI_LOG_ERROR( "FreeType Font: %s, does not contain Bitmaps of size: %d. Available sizes are: %s\n",
-                       path.c_str(), pointSize, sizes.str().c_str() );
+                       path.c_str(), actualPointSize, sizes.str().c_str() );
     }
     else
     {
       error = FT_Set_Char_Size( ftFace,
                                 0,
-                                pointSize,
+                                actualPointSize,
                                 mDpiHorizontal,
                                 mDpiVertical );
 
@@ -1229,17 +1242,17 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                              static_cast< float >( ftFace->underline_position ) * FROM_266,
                              static_cast< float >( ftFace->underline_thickness ) * FROM_266 );
 
-        mFontCache.push_back( CacheItem( ftFace, path, pointSize, faceIndex, metrics ) );
+        mFontCache.push_back( CacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
         id = mFontCache.size();
 
         if( cacheDescription )
         {
-          CacheFontPath( ftFace, id, pointSize, path );
+          CacheFontPath( ftFace, id, requestedPointSize, path );
         }
       }
       else
       {
-        DALI_LOG_ERROR( "FreeType Set_Char_Size error: %d for pointSize %d\n", error, pointSize );
+        DALI_LOG_ERROR( "FreeType Set_Char_Size error: %d for pointSize %d\n", error, actualPointSize );
       }
     }
   }
@@ -1307,7 +1320,7 @@ void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
 }
 
 bool FontClient::Plugin::FindFont( const FontPath& path,
-                                   PointSize26Dot6 pointSize,
+                                   PointSize26Dot6 requestedPointSize,
                                    FaceIndex faceIndex,
                                    FontId& fontId ) const
 {
@@ -1319,7 +1332,7 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
   {
     const CacheItem& cacheItem = *it;
 
-    if( cacheItem.mPointSize == pointSize &&
+    if( cacheItem.mRequestedPointSize == requestedPointSize &&
         cacheItem.mFaceIndex == faceIndex &&
         cacheItem.mPath == path )
     {
@@ -1397,7 +1410,7 @@ bool FontClient::Plugin::FindFallbackFontList( const FontDescription& fontDescri
 }
 
 bool FontClient::Plugin::FindFont( FontDescriptionId validatedFontId,
-                                   PointSize26Dot6 pointSize,
+                                   PointSize26Dot6 requestedPointSize,
                                    FontId& fontId )
 {
   fontId = 0u;
@@ -1410,7 +1423,7 @@ bool FontClient::Plugin::FindFont( FontDescriptionId validatedFontId,
     const FontIdCacheItem& item = *it;
 
     if( ( validatedFontId == item.validatedFontId ) &&
-        ( pointSize == item.pointSize ) )
+        ( requestedPointSize == item.requestedPointSize ) )
     {
       fontId = item.fontId;
       return true;
@@ -1520,7 +1533,7 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
   FcPatternDestroy( fontFamilyPattern );
 }
 
-void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 pointSize,  const FontPath& path )
+void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize,  const FontPath& path )
 {
   FontDescription description;
   description.path = path;
@@ -1555,9 +1568,9 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
 
     mValidatedFontCache.push_back( item );
 
-    // Cache the pair 'validatedFontId, pointSize' to improve the following queries.
+    // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
     mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
-                                             pointSize,
+                                             requestedPointSize,
                                              id ) );
   }
 }
