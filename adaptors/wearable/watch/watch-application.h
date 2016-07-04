@@ -183,6 +183,8 @@ public:
    * @endcode
    * ambient_mode If true the device enters the ambient mode, otherwise false
    * @SINCE_1_1.37
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_ALARM_SET
    */
   WatchBoolSignal& AmbientChangedSignal();
 
