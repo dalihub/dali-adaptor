@@ -153,7 +153,7 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
-BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
 }

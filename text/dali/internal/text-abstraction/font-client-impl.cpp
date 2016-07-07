@@ -214,7 +214,7 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
-BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   CreatePlugin();
 

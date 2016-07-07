@@ -156,7 +156,7 @@ public:
   /**
    * @copydoc Dali::FontClient::CreateBitmap()
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @copydoc Dali::FontClient::CreateVectorBlob()

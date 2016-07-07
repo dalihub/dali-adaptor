@@ -459,7 +459,7 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
 
       if( preferColor )
       {
-        BufferImage bitmap = CreateBitmap( fontId, GetGlyphIndex(fontId,charcode) );
+        PixelData bitmap = CreateBitmap( fontId, GetGlyphIndex(fontId,charcode) );
         if( bitmap &&
             Pixel::BGRA8888 == bitmap.GetPixelFormat() )
         {
@@ -871,10 +871,10 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 #endif
 }
 
-BufferImage FontClient::Plugin::CreateBitmap( FontId fontId,
+PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
                                               GlyphIndex glyphIndex )
 {
-  BufferImage bitmap;
+  PixelData bitmap;
 
   if( fontId > 0 &&
       fontId-1 < mFontCache.size() )
@@ -1264,7 +1264,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
   return id;
 }
 
-void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
+void FontClient::Plugin::ConvertBitmap( PixelData& destBitmap,
                                         FT_Bitmap srcBitmap )
 {
   if( srcBitmap.width*srcBitmap.rows > 0 )
@@ -1275,17 +1275,10 @@ void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
       {
         if( srcBitmap.pitch == static_cast< int >( srcBitmap.width ) )
         {
-          destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::L8 );
-
-          PixelBuffer* destBuffer = destBitmap.GetBuffer();
-          if( destBuffer )
-          {
-            memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows );
-          }
-          else
-          {
-            DALI_LOG_ERROR( "GetBuffer returns null\n" );
-          }
+          unsigned int bufferSize( srcBitmap.width * srcBitmap.rows );
+          unsigned char* buffer = new unsigned char[bufferSize];
+          memcpy( buffer, srcBitmap.buffer,bufferSize );
+          destBitmap = PixelData::New( buffer, bufferSize, srcBitmap.width, srcBitmap.rows, Pixel::L8, PixelData::DELETE_ARRAY );
         }
         break;
       }
@@ -1295,17 +1288,10 @@ void FontClient::Plugin::ConvertBitmap( BufferImage& destBitmap,
       {
         if ( srcBitmap.pitch == static_cast< int >( srcBitmap.width << 2 ) )
         {
-          destBitmap = BufferImage::New( srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888 );
-
-          PixelBuffer* destBuffer = destBitmap.GetBuffer();
-          if( destBuffer )
-          {
-            memcpy( destBuffer, srcBitmap.buffer, srcBitmap.width*srcBitmap.rows*4 );
-          }
-          else
-          {
-            DALI_LOG_ERROR( "GetBuffer returns null\n" );
-          }
+          unsigned int bufferSize( srcBitmap.width * srcBitmap.rows * 4 );
+          unsigned char* buffer = new unsigned char[bufferSize];
+          memcpy( buffer, srcBitmap.buffer,bufferSize );
+          destBitmap = PixelData::New( buffer, bufferSize, srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888, PixelData::DELETE_ARRAY );
         }
         break;
       }

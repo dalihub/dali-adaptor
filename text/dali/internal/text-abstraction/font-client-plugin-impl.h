@@ -275,7 +275,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::CreateBitmap()
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @copydoc Dali::FontClient::CreateVectorBlob()
@@ -364,7 +364,7 @@ private:
    * @param[in] destBitmap
    * @param[in] srcBitmap
    */
-  void ConvertBitmap( BufferImage& destBitmap, FT_Bitmap srcBitmap );
+  void ConvertBitmap( PixelData& destBitmap, FT_Bitmap srcBitmap );
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
