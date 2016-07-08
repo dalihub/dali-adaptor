@@ -1,0 +1,13 @@
+# wearable profile public files
+
+adaptor_internal_wearable_profile_src_files = \
+  $(adaptor_wearable_dir)/watch-application-impl.cpp \
+  $(adaptor_wearable_dir)/watch/watch-application.cpp \
+  $(adaptor_wearable_dir)/watch/watch-time.cpp
+
+adaptor_dali_wearable_header_file = \
+  $(adaptor_wearable_dir)/dali-wearable.h
+
+public_dali_watch_header_files = \
+  $(adaptor_wearable_dir)/watch/watch-application.h \
+  $(adaptor_wearable_dir)/watch/watch-time.h
