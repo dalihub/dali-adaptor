@@ -470,8 +470,8 @@ void Indicator::Close()
     }
   }
 
-  Dali::Image emptyImage;
-  SetForegroundImage(emptyImage);
+  Dali::Texture emptyTexture;
+  SetForegroundImage( emptyTexture );
 }
 
 void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
@@ -935,10 +935,11 @@ void Indicator::CreateNewPixmapImage()
 
   if( nativeImageSource )
   {
-    SetForegroundImage( Dali::NativeImage::New(*nativeImageSource) );
+    Dali::Texture texture = Dali::Texture::New( *nativeImageSource );
+    SetForegroundImage( texture );
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
-    mEventActor.SetSize(mImageWidth, mImageHeight);
+    mEventActor.SetSize( mImageWidth, mImageHeight );
   }
   else
   {
@@ -957,13 +958,19 @@ void Indicator::CreateNewImage( int bufferNumber )
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mSharedFileInfo[bufferNumber].mImageWidth, mSharedFileInfo[bufferNumber].mImageHeight );
   mIndicatorBuffer = new IndicatorBuffer( mAdaptor, mSharedFileInfo[bufferNumber].mImageWidth, mSharedFileInfo[bufferNumber].mImageHeight, Pixel::BGRA8888 );
-  Dali::Image image = Dali::NativeImage::New( mIndicatorBuffer->GetNativeImage() );
+  bool success = false;
 
   if( CopyToBuffer( bufferNumber ) ) // Only create images if we have valid image buffer
   {
-    SetForegroundImage( image );
+    Dali::Texture texture = Dali::Texture::New( mIndicatorBuffer->GetNativeImage() );
+    if( texture )
+    {
+      SetForegroundImage( texture );
+      success = true;
+    }
   }
-  else
+
+  if( !success )
   {
     DALI_LOG_WARNING("### Cannot create indicator image - disconnecting ###\n");
     Disconnect();
@@ -1087,9 +1094,9 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
   return Dali::Geometry();
 }
 
-void Indicator::SetForegroundImage( Dali::Image image )
+void Indicator::SetForegroundImage( Dali::Texture texture )
 {
-  if( !mForegroundRenderer && image )
+  if( !mForegroundRenderer && texture )
   {
     // Create Shader
     Dali::Shader shader = Dali::Shader::New( FOREGROUND_VERTEX_SHADER, FOREGROUND_FRAGMENT_SHADER );
@@ -1109,7 +1116,7 @@ void Indicator::SetForegroundImage( Dali::Image image )
     // Create a texture-set and add to renderer
 
     Dali::TextureSet textureSet = Dali::TextureSet::New();
-    textureSet.SetImage( 0u, image );
+    textureSet.SetTexture( 0u, texture );
     mForegroundRenderer.SetTextures( textureSet );
 
     mIndicatorContentActor.AddRenderer( mForegroundRenderer );
@@ -1117,12 +1124,12 @@ void Indicator::SetForegroundImage( Dali::Image image )
   else if( mForegroundRenderer )
   {
     Dali::TextureSet textureSet = mForegroundRenderer.GetTextures();
-    textureSet.SetImage( 0u, image );
+    textureSet.SetTexture( 0u, texture );
   }
 
-  if( mImageWidth == 0 && mImageHeight == 0  && image)
+  if( mImageWidth == 0 && mImageHeight == 0  && texture)
   {
-    Resize( image.GetWidth(), image.GetHeight() );
+    Resize( texture.GetWidth(), texture.GetHeight() );
   }
 }
 

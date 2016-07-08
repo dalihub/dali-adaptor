@@ -196,10 +196,10 @@ private:
   Dali::Geometry CreateBackgroundGeometry();
 
   /**
-   * Set the image to be rendered as indicator foreground
-   * @param[in] image The foreground image.
+   * Set the texture to be rendered as indicator foreground
+   * @param[in] texture The foreground texture.
    */
-  void SetForegroundImage( Dali::Image image );
+  void SetForegroundImage( Dali::Texture texture );
 
   /**
    * Touch event callback.
