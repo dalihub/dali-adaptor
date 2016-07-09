@@ -49,6 +49,7 @@
 #include <physical-keyboard-impl.h>
 #include <style-monitor-impl.h>
 #include <base/core-event-interface.h>
+#include <virtual-keyboard.h>
 
 namespace Dali
 {
@@ -376,10 +377,10 @@ struct EventHandler::Impl
       {
         std::string keyName( keyEvent->keyname );
         std::string keyString( "" );
-        int keyCode = 0/*ecore_x_keysym_keycode_get(keyEvent->keyname)*/;
+        int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname);
+        keyCode = (keyCode == -1) ? 0 : keyCode;
         int modifier( keyEvent->modifiers );
         unsigned long time = keyEvent->timestamp;
-
         if (!strncmp(keyEvent->keyname, "Keycode-", 8))
           keyCode = atoi(keyEvent->keyname + 8);
 
@@ -665,10 +666,24 @@ struct EventHandler::Impl
     handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }
 
+  void KeyboardVisibilityOnPause()
+  {
+    mKeyboardVisibilityOnPause = VirtualKeyboard::IsVisible() ? 1 : 0;
+  }
+
+  void KeyboardVisibilityOnResume()
+  {
+    if (mKeyboardVisibilityOnPause)
+    {
+      VirtualKeyboard::Show();
+    }
+  }
+
   // Data
   EventHandler* mHandler;
   std::vector<Ecore_Event_Handler*> mEcoreEventHandler;
   Ecore_Wl_Window* mWindow;
+  bool mKeyboardVisibilityOnPause;
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
@@ -833,12 +848,14 @@ void EventHandler::Pause()
 {
   mPaused = true;
   Reset();
+  mImpl->KeyboardVisibilityOnPause();
 }
 
 void EventHandler::Resume()
 {
   mPaused = false;
   Reset();
+  mImpl->KeyboardVisibilityOnResume();
 }
 
 void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )
