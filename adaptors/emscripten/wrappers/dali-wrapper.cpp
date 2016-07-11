@@ -18,9 +18,9 @@
 
 // EXTERNAL INCLUDES
 #include <sstream>
-
 #include <dali/devel-api/scripting/scripting.h>
 #include <dali/devel-api/events/hit-test-algorithm.h>
+#include <dali/devel-api/images/texture-set-image.h>
 #include <dali/devel-api/rendering/geometry.h>
 #include <dali/devel-api/rendering/shader.h>
 #include <dali/devel-api/rendering/sampler.h>
@@ -354,7 +354,7 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
   Dali::Geometry geometry = Dali::Geometry::QUAD();
   Dali::Renderer renderer = Dali::Renderer::New( geometry, shader );
   Dali::TextureSet textureSet = Dali::TextureSet::New();
-  textureSet.SetImage( 0u, imageData );
+  TextureSetImage( textureSet, 0u, imageData );
   renderer.SetTextures( textureSet );
 
   image.AddRenderer( renderer );
@@ -1098,9 +1098,9 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
 
   class_<Dali::TextureSet>("TextureSet")
     .constructor<>(&Dali::TextureSet::New)
-    .function("setImage", &Dali::TextureSet::SetImage)
+    .function("setTexture", &Dali::TextureSet::SetTexture)
     .function("setSampler", &Dali::TextureSet::SetSampler)
-    .function("getImage", &Dali::TextureSet::GetImage)
+    .function("getTexture", &Dali::TextureSet::GetTexture)
     .function("getSampler", &Dali::TextureSet::GetSampler)
     .function("getTextureCount", &Dali::TextureSet::GetTextureCount)
 ;

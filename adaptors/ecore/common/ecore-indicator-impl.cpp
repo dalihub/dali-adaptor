@@ -527,7 +527,7 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
 
     mVisible = visibleMode;
 
-    if( mForegroundRenderer && mForegroundRenderer.GetTextures().GetImage( 0u ) )
+    if( mForegroundRenderer && mForegroundRenderer.GetTextures().GetTexture( 0u ) )
     {
       if( CheckVisibleState() && mVisible == Dali::Window::AUTO )
       {
