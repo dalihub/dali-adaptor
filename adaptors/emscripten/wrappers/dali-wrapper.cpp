@@ -18,14 +18,14 @@
 
 // EXTERNAL INCLUDES
 #include <sstream>
+#include <dali/public-api/rendering/geometry.h>
+#include <dali/public-api/rendering/sampler.h>
+#include <dali/public-api/rendering/shader.h>
+#include <dali/public-api/rendering/texture-set.h>
+#include <dali/public-api/rendering/renderer.h>
 #include <dali/devel-api/scripting/scripting.h>
 #include <dali/devel-api/events/hit-test-algorithm.h>
 #include <dali/devel-api/images/texture-set-image.h>
-#include <dali/devel-api/rendering/geometry.h>
-#include <dali/devel-api/rendering/shader.h>
-#include <dali/devel-api/rendering/sampler.h>
-#include <dali/devel-api/rendering/texture-set.h>
-#include <dali/devel-api/rendering/renderer.h>
 #include "emscripten/emscripten.h"
 #include "emscripten/bind.h"
 #include "emscripten/val.h"
