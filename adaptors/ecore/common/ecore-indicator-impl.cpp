@@ -119,6 +119,27 @@ const char* FOREGROUND_FRAGMENT_SHADER = DALI_COMPOSE_SHADER(
   }\n
 );
 
+Dali::Geometry CreateQuadGeometry()
+{
+  Dali::Property::Map quadVertexFormat;
+  quadVertexFormat["aPosition"] = Dali::Property::VECTOR2;
+  Dali::PropertyBuffer vertexData = Dali::PropertyBuffer::New( quadVertexFormat );
+
+  const float halfQuadSize = .5f;
+  struct QuadVertex { Dali::Vector2 position; };
+  QuadVertex quadVertexData[4] = {
+      { Dali::Vector2(-halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2(-halfQuadSize, halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, halfQuadSize) } };
+  vertexData.SetData(quadVertexData, 4);
+
+  Dali::Geometry quad = Dali::Geometry::New();
+  quad.AddVertexBuffer( vertexData );
+  quad.SetGeometryType( Dali::Geometry::TRIANGLE_STRIP );
+  return quad;
+}
+
 const float OPAQUE_THRESHOLD(0.99f);
 const float TRANSPARENT_THRESHOLD(0.05f);
 
@@ -1102,7 +1123,7 @@ void Indicator::SetForegroundImage( Dali::Texture texture )
     Dali::Shader shader = Dali::Shader::New( FOREGROUND_VERTEX_SHADER, FOREGROUND_FRAGMENT_SHADER );
 
     // Create renderer from geometry and material
-    Dali::Geometry quad = Dali::Geometry::QUAD();
+    Dali::Geometry quad = CreateQuadGeometry();
     mForegroundRenderer = Dali::Renderer::New( quad, shader );
     // Make sure the foreground stays in front of the background
     mForegroundRenderer.SetProperty( Dali::Renderer::Property::DEPTH_INDEX, 1.f );

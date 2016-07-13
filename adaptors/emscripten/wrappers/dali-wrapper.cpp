@@ -351,8 +351,25 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
     "}\n");
 
   Dali::Shader shader = Dali::Shader::New( vertexShader, fragmentShader );
-  Dali::Geometry geometry = Dali::Geometry::QUAD();
-  Dali::Renderer renderer = Dali::Renderer::New( geometry, shader );
+
+  // Create Quad geometry
+  Dali::Property::Map quadVertexFormat;
+  quadVertexFormat["aPosition"] = Dali::Property::VECTOR2;
+  Dali::PropertyBuffer vertexData = Dali::PropertyBuffer::New( quadVertexFormat );
+  const float halfQuadSize = .5f;
+  struct QuadVertex { Dali::Vector2 position; };
+  QuadVertex quadVertexData[4] = {
+      { Dali::Vector2(-halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2(-halfQuadSize, halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, halfQuadSize) } };
+  vertexData.SetData(quadVertexData, 4);
+
+  Dali::Geometry quad = Dali::Geometry::New();
+  quad.AddVertexBuffer( vertexData );
+  quad.SetGeometryType( Dali::Geometry::TRIANGLE_STRIP );
+
+  Dali::Renderer renderer = Dali::Renderer::New( quad, shader );
   Dali::TextureSet textureSet = Dali::TextureSet::New();
   TextureSetImage( textureSet, 0u, imageData );
   renderer.SetTextures( textureSet );
