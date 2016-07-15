@@ -1,8 +1,8 @@
-#ifndef __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
-#define __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
+#ifndef DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
+#define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/buffer-image.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
@@ -302,7 +303,7 @@ public:
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @brief Create a vector representation of a glyph.
@@ -344,4 +345,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-#endif // __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
+#endif // DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H

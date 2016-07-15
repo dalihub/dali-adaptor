@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_INDICATOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/actors/image-actor.h>
+#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
-#include <dali/devel-api/rendering/renderer.h>
+#include <dali/public-api/rendering/renderer.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/indicator-interface.h>
@@ -196,10 +196,10 @@ private:
   Dali::Geometry CreateBackgroundGeometry();
 
   /**
-   * Set the image to be rendered as indicator foreground
-   * @param[in] image The foreground image.
+   * Set the texture to be rendered as indicator foreground
+   * @param[in] texture The foreground texture.
    */
-  void SetForegroundImage( Dali::Image image );
+  void SetForegroundImage( Dali::Texture texture );
 
   /**
    * Touch event callback.
