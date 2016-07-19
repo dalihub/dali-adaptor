@@ -1,5 +1,5 @@
-#ifndef __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
-#define __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#ifndef __DALI_TIZEN_BUFFER_RENDER_SURFACE_H__
+#define __DALI_TIZEN_BUFFER_RENDER_SURFACE_H__
 
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
@@ -18,45 +18,58 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <tbm_surface.h>
+#include <dali/public-api/common/dali-common.h>
+
 // INTERNAL INCLUDES
-#include <ecore-x-render-surface.h>
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <render-surface.h>
+#include <egl-interface.h>
+#else
+#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/adaptors/egl-interface.h>
+#endif
 
 namespace Dali
 {
 
-namespace ECore
-{
+class TriggerEventInterface;
 
 /**
  * Ecore X11 implementation of render surface.
  */
-class PixmapRenderSurface : public EcoreXRenderSurface
+class DALI_IMPORT_API NativeSourceRenderSurface : public Dali::RenderSurface
 {
 public:
 
   /**
-    * Uses an X11 surface to render to.
+    * Uses an Wayland surface to render to.
     * @param [in] positionSize the position and size of the surface
-    * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
     * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  PixmapRenderSurface( Dali::PositionSize positionSize,
-                       Any surface,
-                       const std::string& name,
-                       bool isTransparent = false);
+  NativeSourceRenderSurface( Dali::PositionSize positionSize,
+                             const std::string& name,
+                             bool isTransparent = false );
 
   /**
    * @copydoc Dali::RenderSurface::~RenderSurface
    */
-  virtual ~PixmapRenderSurface();
+  virtual ~NativeSourceRenderSurface();
 
 public: // API
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::GetDrawable()
+   * @brief Sets the render notification trigger to call when render thread is completed a frame
+   *
+   * @param renderNotification to use
    */
-  virtual Ecore_X_Drawable GetDrawable();
+  void SetRenderNotification( TriggerEventInterface* renderNotification );
+
+  /**
+   */
+  virtual tbm_surface_h GetDrawable();
 
   /**
    * @brief GetSurface
@@ -64,6 +77,8 @@ public: // API
    * @return pixmap
    */
   virtual Any GetSurface();
+
+  virtual void ReleaseNativeSource();
 
 public: // from Dali::RenderSurface
 
@@ -114,6 +129,12 @@ public: // from Dali::RenderSurface
 
   virtual RenderSurface::Type GetSurfaceType();
 
+  virtual PositionSize GetPositionSize() const;
+
+  virtual void MoveResize( Dali::PositionSize positionSize );
+
+  virtual void SetViewMode( ViewMode viewMode );
+
 private:
 
   /**
@@ -124,21 +145,16 @@ private:
   /**
    * Create XPixmap
    */
-  virtual void CreateXRenderable();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::ECore::RenderSurface::UseExistingRenderable
-   */
-  virtual void UseExistingRenderable( unsigned int surfaceId );
+  virtual void CreateWlRenderable();
 
 private: // Data
 
   struct Impl;
-  Impl* mImpl;
-};
 
-} // namespace ECore
+  Impl* mImpl;
+
+};
 
 } // namespace Dali
 
-#endif // __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#endif // __DALI_TIZEN_BUFFER_RENDER_SURFACE_H__

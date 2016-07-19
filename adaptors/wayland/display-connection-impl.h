@@ -80,6 +80,8 @@ public:
    */
   bool InitializeEgl(EglInterface& egl);
 
+  void SetSurfaceType( RenderSurface::Type type );
+
 public:
 
   /**
@@ -88,6 +90,10 @@ public:
   virtual ~DisplayConnection();
 
 protected:
+
+  EGLNativeDisplayType GetNativeSourceDisplay();
+
+  void ReleaseNativeSourceDisplay();
 
   // Undefined
   DisplayConnection(const DisplayConnection&);

@@ -16,6 +16,8 @@ adaptor_tizen_internal_egl_extension_src_files = \
   $(adaptor_tizen_dir)/gl/egl-image-extensions-tizen.cpp
 
 adaptor_tizen_internal_native_image_src_files = \
+  $(adaptor_tizen_dir)/display-connection-impl-tizen.cpp \
+  $(adaptor_tizen_dir)/native-source-render-surface-tizen.cpp \
   $(adaptor_tizen_dir)/native-image-source-impl-tizen.cpp
 
 public_api_adaptor_tizen_header_files = \
