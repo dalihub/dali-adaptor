@@ -44,8 +44,6 @@ DisplayConnection* DisplayConnection::New()
 DisplayConnection::DisplayConnection()
 : mDisplay(NULL)
 {
-  // Because of DDK issue, we need to use separated x display instead of ecore default display
-  mDisplay = XOpenDisplay(0);
 }
 
 DisplayConnection::~DisplayConnection()
@@ -93,6 +91,15 @@ bool DisplayConnection::InitializeEgl(EglInterface& egl)
   }
 
   return true;
+}
+
+void DisplayConnection::SetSurfaceType( RenderSurface::Type type )
+{
+  if( type == RenderSurface::ECORE_RENDER_SURFACE )
+  {
+    // Because of DDK issue, we need to use separated x display instead of ecore default display
+    mDisplay = XOpenDisplay(0);
+  }
 }
 
 void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)

@@ -1,8 +1,8 @@
-#ifndef __DALI_RENDER_SURFACE_WL_H__
-#define __DALI_RENDER_SURFACE_WL_H__
+#ifndef __DALI_NATIVE_RENDER_SURFACE_H__
+#define __DALI_NATIVE_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,80 +19,70 @@
  */
 
 // EXTERNAL INCLUDES
+#include <tbm_surface.h>
 #include <dali/public-api/common/dali-common.h>
-#include <wayland-manager.h>
-#include <wayland-egl.h>
 
 // INTERNAL INCLUDES
-#include <wayland-window.h>
+#ifdef DALI_ADAPTOR_COMPILATION
 #include <render-surface.h>
-#include <egl-interface.h> // for color depth
+#include <egl-interface.h>
+#else
+#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/adaptors/egl-interface.h>
+#endif
 
 namespace Dali
 {
 
 class TriggerEventInterface;
 
-namespace Internal
-{
-namespace Adaptor
-{
-class WaylandManager;
-class WindowEventInterface;
-}
-}
-
-namespace Wayland
-{
-
-
 /**
- * Wayland render surface.
+ * Ecore X11 implementation of render surface.
  */
-class RenderSurface : public Dali::RenderSurface
+class DALI_IMPORT_API NativeRenderSurface : public Dali::RenderSurface
 {
 public:
 
   /**
-   * @brief Constructor.
+    * Uses an Wayland surface to render to.
+    * @param [in] positionSize the position and size of the surface
+    * @param [in] name optional name of surface passed in
+    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+    */
+  NativeRenderSurface( Dali::PositionSize positionSize,
+                             const std::string& name,
+                             bool isTransparent = false );
+
+  /**
+   * @copydoc Dali::RenderSurface::~RenderSurface
+   */
+  virtual ~NativeRenderSurface();
+
+public: // API
+
+  /**
+   * @brief Sets the render notification trigger to call when render thread is completed a frame
    *
-   * @param [in] positionSize the position and size of the surface
-   * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
-   * @param [in] name optional name of surface passed in
-   * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+   * @param renderNotification to use
    */
-  RenderSurface(Dali::PositionSize positionSize,
-                       Any surface,
-                       const std::string& name,
-                       bool isTransparent = false);
+  void SetRenderNotification( TriggerEventInterface* renderNotification );
 
   /**
-   * @brief Destructor
+   * @brief Gets the tbm surface for offscreen rendering
    */
-  virtual ~RenderSurface();
-
-protected:
-
+  virtual tbm_surface_h GetDrawable();
 
   /**
-   * @Create the surface
-   */
-  void CreateSurface();
-
-public:
-
-  /**
-   * @brief Get window handle
+   * @brief Get the surface
    *
-   * @return the wayland window pointer
+   * @return tbm surface
    */
-  Window* GetWindow();
+  virtual Any GetSurface();
 
   /**
-   * Assigns an event interface to the surface for getting
-   * input events / window notifications
+   * @brief Release the surface
    */
-  void AssignWindowEventInterface( Dali::Internal::Adaptor::WindowEventInterface* eventInterface );
+  virtual void ReleaseSurface();
 
 public: // from Dali::RenderSurface
 
@@ -129,7 +119,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::SetViewMode()
    */
-  virtual void SetViewMode( ViewMode viewMode );
+  void SetViewMode( ViewMode viewMode );
 
   /**
    * @copydoc Dali::RenderSurface::StartRender()
@@ -147,17 +137,12 @@ public: // from Dali::RenderSurface
   virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface );
 
   /**
-   * @copydoc Dali::RenderSurface::StopRender();
+   * @copydoc Dali::RenderSurface::StopRender()
    */
   virtual void StopRender();
 
   /**
-   * @copydoc Dali::RenderSurface::ReleaseLock()
-   */
-  virtual void ReleaseLock();
-
-  /**
-   * @copydoc Dali::RenderSurface::SetThreadSynchronization()
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
 
@@ -166,18 +151,26 @@ public: // from Dali::RenderSurface
    */
   virtual RenderSurface::Type GetSurfaceType();
 
-protected: // Data
+private:
 
-  Window                      mWindow;
-  TriggerEventInterface*      mRenderNotification; ///< Render notification trigger
-  Dali::ColorDepth            mColorDepth;         ///< Color depth
-  Dali::Internal::Adaptor::WaylandManager*   mWaylandManager; ///< wayland manager
-  wl_egl_window*              mEglWindow;
+  /**
+   * Release any locks.
+   */
+  void ReleaseLock();
+
+  /**
+   * Create tbm surface
+   */
+  virtual void CreateNativeRenderable();
+
+private: // Data
+
+  struct Impl;
+
+  Impl* mImpl;
 
 };
 
-} // namespace Wayland
-
 } // namespace Dali
 
-#endif // __DALI_RENDER_SURFACE_WL_H__
+#endif // __DALI_NATIVE_RENDER_SURFACE_H__
