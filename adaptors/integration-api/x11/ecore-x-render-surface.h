@@ -154,6 +154,11 @@ public: // from Dali::RenderSurface
    */
   virtual void ReleaseLock() = 0;
 
+  /**
+   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   */
+  virtual RenderSurface::Type GetSurfaceType();
+
 private:
 
   /**
