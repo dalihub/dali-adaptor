@@ -429,6 +429,11 @@ libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
 endif
 
+if TV_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
 if COMMON_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)

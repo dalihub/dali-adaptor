@@ -297,6 +297,9 @@ fi
 if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
+if test "x$enable_profile" = "xTV"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
 if test "x$enable_profile" = "xCOMMON"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
