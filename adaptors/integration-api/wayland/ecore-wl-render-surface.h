@@ -82,7 +82,7 @@ public: // API
    *
    * @return the Ecore X window handle
    */
-  Ecore_Wl_Window* GetWlWindow();
+  virtual Ecore_Wl_Window* GetWlWindow();
 
   /**
    * Get the surface as an Ecore_Wl_Window
