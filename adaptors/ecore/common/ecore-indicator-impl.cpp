@@ -136,7 +136,7 @@ Dali::Geometry CreateQuadGeometry()
 
   Dali::Geometry quad = Dali::Geometry::New();
   quad.AddVertexBuffer( vertexData );
-  quad.SetGeometryType( Dali::Geometry::TRIANGLE_STRIP );
+  quad.SetType( Dali::Geometry::TRIANGLE_STRIP );
   return quad;
 }
 

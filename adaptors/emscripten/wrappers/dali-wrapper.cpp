@@ -367,7 +367,7 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
 
   Dali::Geometry quad = Dali::Geometry::New();
   quad.AddVertexBuffer( vertexData );
-  quad.SetGeometryType( Dali::Geometry::TRIANGLE_STRIP );
+  quad.SetType( Dali::Geometry::TRIANGLE_STRIP );
 
   Dali::Renderer renderer = Dali::Renderer::New( quad, shader );
   Dali::TextureSet textureSet = Dali::TextureSet::New();
@@ -872,7 +872,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("Cubic", Dali::Animation::Interpolation::Cubic)
 ;
 
-  enum_<Dali::Geometry::GeometryType>("GeometryType")
+  enum_<Dali::Geometry::Type>("Type")
     .value("POINTS",          Dali::Geometry::POINTS)
     .value("LINES",           Dali::Geometry::LINES)
     .value("LINE_LOOP",       Dali::Geometry::LINE_LOOP)
@@ -1090,8 +1090,8 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .function("addVertexBuffer", &Dali::Geometry::AddVertexBuffer)
     .function("getNumberOfVertexBuffers", &Dali::Geometry::GetNumberOfVertexBuffers)
     .function("setIndexBuffer", &SetIndexBufferDataRaw)
-    .function("setGeometryType", &Dali::Geometry::SetGeometryType)
-    .function("getGeometryType", &Dali::Geometry::GetGeometryType)
+    .function("setType", &Dali::Geometry::SetType)
+    .function("getType", &Dali::Geometry::GetType)
 ;
 
   class_<Dali::Image>("Image")
