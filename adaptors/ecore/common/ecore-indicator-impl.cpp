@@ -21,6 +21,9 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 #include <Evas.h>
+#ifndef WAYLAND
+#include <Ecore_X.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -148,6 +151,8 @@ const char* INDICATOR_SERVICE_NAME("elm_indicator");
 
 // Copied from ecore_evas_extn_engine.h
 
+#define NBUF 2
+
 enum // opcodes
 {
    OP_RESIZE,
@@ -175,7 +180,8 @@ enum // opcodes
    OP_EV_KEY_DOWN,
    OP_EV_HOLD,
    OP_MSG_PARENT,
-   OP_MSG
+   OP_MSG,
+   OP_PIXMAP_REF,
 };
 
 // Copied from elm_conform.c
@@ -285,6 +291,72 @@ namespace Adaptor
 Debug::Filter* gIndicatorLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_INDICATOR");
 #endif
 
+#ifndef WAYLAND
+// Impl to hide EFL implementation.
+struct Indicator::Impl
+{
+  // Construction & Destruction
+
+  /**
+   * Constructor
+   */
+  Impl(Indicator* indicator)
+  : mIndicator(indicator),
+    mEcoreEventHandler(NULL)
+  {
+    // Register Client message events for quick panel state.
+    mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
+  }
+
+  /**
+   * Destructor
+   */
+  ~Impl()
+  {
+    ecore_event_handler_del(mEcoreEventHandler);
+  }
+
+  /**
+   * Called when the client messages (i.e. quick panel state) are received.
+   */
+  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
+  {
+    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
+    Indicator::Impl* indicatorImpl((Indicator::Impl*)data);
+
+    if (clientMessageEvent == NULL || indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
+    {
+      return ECORE_CALLBACK_PASS_ON;
+    }
+
+#ifndef DALI_PROFILE_UBUNTU
+    if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
+    {
+      // if indicator is not showing, INDICATOR_FLICK_DONE is given
+      if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
+          !indicatorImpl->mIndicator->mIsShowing )
+      {
+        indicatorImpl->mIndicator->ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
+      }
+    }
+    else if( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
+    {
+      if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
+          indicatorImpl->mIndicator->mIsShowing )
+      {
+        indicatorImpl->mIndicator->ShowIndicator( HIDE_NOW );
+      }
+    }
+#endif
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  // Data
+  Indicator*           mIndicator;
+  Ecore_Event_Handler* mEcoreEventHandler;
+};
+#endif
 
 Indicator::LockFile::LockFile(const std::string filename)
 : mFilename(filename),
@@ -392,6 +464,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mIsShowing( true ),
   mIsAnimationPlaying( false ),
   mCurrentSharedFile( 0 ),
+  mSharedBufferType( BUFFER_TYPE_SHM ),
+  mImpl( NULL ),
   mBackgroundVisible( false )
 {
   mIndicatorContentActor = Dali::Actor::New();
@@ -429,10 +503,23 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   }
   // hide the indicator by default
   mIndicatorActor.SetVisible( false );
+
+#ifndef WAYLAND
+  // create impl to handle ecore event
+  mImpl = new Impl(this);
+#endif
 }
 
 Indicator::~Indicator()
 {
+#ifndef WAYLAND
+  if(mImpl)
+  {
+    delete mImpl;
+    mImpl = NULL;
+  }
+#endif
+
   if(mEventActor)
   {
     mEventActor.TouchedSignal().Disconnect( this, &Indicator::OnTouched );
@@ -541,9 +628,22 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
     {
       UpdateImageData( mCurrentSharedFile );
     }
-    if ( visibleMode != Dali::Window::INVISIBLE )
+
+    if ( visibleMode == Dali::Window::INVISIBLE )
+    {
+      if (mServerConnection)
+      {
+        mServerConnection->SendEvent( OP_HIDE, NULL, 0 );
+      }
+    }
+    else
     {
       mIndicatorActor.SetVisible( true );
+
+      if( mServerConnection )
+      {
+         mServerConnection->SendEvent( OP_SHOW, NULL, 0 );
+      }
     }
 
     mVisible = visibleMode;
@@ -814,6 +914,11 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
   // epcEvent->ref_to == sys
   // epcEvent->response == buffer num
 
+  if ( mSharedBufferType != BUFFER_TYPE_SHM )
+  {
+    return ;
+  }
+
   int n = epcEvent->response;
 
   if( n >= 0 && n < SHARED_FILE_NUMBER )
@@ -858,7 +963,7 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
         OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
       }
 
-      SetVisible(mVisible, true);
+      SetVisible(mVisible);
     }
   }
 }
@@ -867,37 +972,33 @@ void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
-  // epcEvent->ref == w
-  // epcEvent->ref_to == h
-  // epcEvent->response == alpha
-  // epcEvent->data = pixmap id
+  // epcEvent->ref == pixmap id
+  // epcEvent->ref_to == type
+  // epcEvent->response == buffer num
 
-  if( ( epcEvent->data ) &&
-      (epcEvent->size >= (int)sizeof(PixmapId)) )
+  if( (epcEvent->ref > 0) && (epcEvent->ref_to > 0) )
   {
+    mSharedBufferType = (BufferType)(epcEvent->ref_to);
+
     ClearSharedFileInfo();
 
-    if( (epcEvent->ref > 0) && (epcEvent->ref_to > 0) )
+    mPixmap = static_cast<PixmapId>(epcEvent->ref);
+    DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "mPixmap [%x]", mPixmap);
+
+    CreateNewPixmapImage();
+
+    if( CheckVisibleState() )
     {
-      mImageWidth  = epcEvent->ref;
-      mImageHeight = epcEvent->ref_to;
-
-      mPixmap = *(static_cast<PixmapId*>(epcEvent->data));
-      CreateNewPixmapImage();
-
-      if( CheckVisibleState() )
-      {
-        // set default indicator type (enable the quick panel)
-        OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
-      }
-      else
-      {
-        // set default indicator type (disable the quick panel)
-        OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
-      }
-
-      SetVisible(mVisible, true);
+      // set default indicator type (enable the quick panel)
+      OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
     }
+    else
+    {
+      // set default indicator type (disable the quick panel)
+      OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
+    }
+
+    SetVisible(mVisible);
   }
 }
 
@@ -1174,7 +1275,7 @@ void Indicator::DataReceived( void* event )
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
       if( mIsShowing )
       {
-        mAdaptor->RequestUpdateOnce();
+        //mAdaptor->RequestUpdateOnce();
       }
       break;
     }
@@ -1182,7 +1283,7 @@ void Indicator::DataReceived( void* event )
     {
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE_DONE [%d]\n", epcEvent->response );
       // epcEvent->response == display buffer #
-      UpdateImageData( epcEvent->response );
+      //UpdateImageData( epcEvent->response );
       break;
     }
     case OP_SHM_REF0:
@@ -1201,6 +1302,12 @@ void Indicator::DataReceived( void* event )
     {
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_SHM_REF2\n" );
       LoadSharedImage( epcEvent );
+      break;
+    }
+    case OP_PIXMAP_REF:
+    {
+      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_PIXMAP_REF\n" );
+      LoadPixmapImage( epcEvent );
       break;
     }
     case OP_RESIZE:
@@ -1281,7 +1388,8 @@ bool Indicator::CheckVisibleState()
 {
   if( mOrientation == Dali::Window::LANDSCAPE
     || mOrientation == Dali::Window::LANDSCAPE_INVERSE
-    || (mVisible != Dali::Window::VISIBLE) )
+    || (mVisible == Dali::Window::INVISIBLE)
+    || (mVisible == Dali::Window::AUTO && !mIsShowing) )
   {
     return false;
   }
@@ -1332,6 +1440,8 @@ void Indicator::ShowIndicator(float duration)
   }
   else
   {
+    mIndicatorAnimation.Clear();
+
     if( EqualsZero(duration) )
     {
       mIndicatorAnimation.AnimateTo( Property( mIndicatorContentActor, Dali::Actor::Property::POSITION ), Vector3(0, -mImageHeight, 0), Dali::AlphaFunction::EASE_OUT );
@@ -1396,17 +1506,16 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
 {
   mIsAnimationPlaying = false;
   // once animation is finished and indicator is hidden, take it off stage
-  if( !mIsShowing )
+  if( mObserver != NULL )
   {
-    if( mObserver != NULL )
-    {
-      mObserver->IndicatorVisibilityChanged( mIsShowing ); // is showing?
-    }
+    mObserver->IndicatorVisibilityChanged( mIsShowing ); // is showing?
   }
 }
 
 void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
 {
+  return ;
+
   if( mServerConnection )
   {
     switch( gesture.state )
@@ -1470,7 +1579,11 @@ void Indicator::OnStageTouched(const Dali::TouchEvent& touchEvent)
     {
       case Dali::PointState::DOWN:
       {
-        ShowIndicator( HIDE_NOW );
+        // if touch point is inside the indicator, indicator is not hidden
+        if( mImageHeight < int(touchPoint.screen.y) )
+        {
+          ShowIndicator( HIDE_NOW );
+        }
         break;
       }
 
