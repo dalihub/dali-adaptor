@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.1.44
+Version:    1.1.45
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -24,6 +24,13 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
+
+#need libtzplatform-config for directory if tizen version is 3.x
+
+%if "%{tizen_version_major}" == "3"
+BuildRequires:  pkgconfig(libtzplatform-config)
+%endif
+
 
 # Get the profile from tizen_profile_name if tizen version is 2.x and tizen_profile_name exists.
 
@@ -211,15 +218,27 @@ VideoPlayer plugin to play a video file for Dali
 ##############################
 %prep
 %setup -q
+
+#Use TZ_PATH when tizen version is 3.x
+
+%if "%{tizen_version_major}" == "2"
 %define dali_data_rw_dir         /usr/share/dali/
 %define dali_data_ro_dir         /usr/share/dali/
-%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define font_preloaded_path      /usr/share/fonts/
 %define font_downloaded_path     /opt/share/fonts/
 %define font_application_path    /usr/share/app_fonts/
 %define font_configuration_file  /opt/etc/fonts/conf.avail/99-slp.conf
-%define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
+%else
+%define dali_data_rw_dir         %TZ_SYS_RO_SHARE/dali/
+%define dali_data_ro_dir         %TZ_SYS_RO_SHARE/dali/
+%define font_preloaded_path      %TZ_SYS_RO_SHARE/fonts/
+%define font_downloaded_path     %TZ_SYS_SHARE/fonts/
+%define font_application_path    %TZ_SYS_RO_SHARE/app_fonts/
+%define font_configuration_file  %TZ_SYS_ETC/fonts/conf.avail/99-slp.conf
+%endif
 
+%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
+%define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
 %define dev_include_path %{_includedir}
 
 ##############################

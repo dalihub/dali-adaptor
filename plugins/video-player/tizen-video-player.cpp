@@ -204,7 +204,8 @@ void LogPlayerError( int error )
 } // unnamed namespace
 
 TizenVideoPlayer::TizenVideoPlayer()
-: mPlayerState( PLAYER_STATE_NONE ),
+: mPlayer( NULL ),
+  mPlayerState( PLAYER_STATE_NONE ),
   mPacket( NULL ),
   mBackgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
   mTargetType( NativeImage )
@@ -217,7 +218,7 @@ TizenVideoPlayer::~TizenVideoPlayer()
 
 void TizenVideoPlayer::GetPlayerState( player_state_e* state )
 {
-  if( player_get_state( mPlayer, state ) != PLAYER_ERROR_NONE )
+  if( mPlayer != NULL && player_get_state( mPlayer, state ) != PLAYER_ERROR_NONE )
   {
     DALI_LOG_ERROR( "player_get_state error: Invalid parameter\n" );
     *state = PLAYER_STATE_NONE;

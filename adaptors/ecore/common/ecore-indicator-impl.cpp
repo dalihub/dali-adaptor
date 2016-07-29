@@ -136,7 +136,7 @@ Dali::Geometry CreateQuadGeometry()
 
   Dali::Geometry quad = Dali::Geometry::New();
   quad.AddVertexBuffer( vertexData );
-  quad.SetGeometryType( Dali::Geometry::TRIANGLE_STRIP );
+  quad.SetType( Dali::Geometry::TRIANGLE_STRIP );
   return quad;
 }
 
@@ -513,7 +513,7 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     {
       if( !mBackgroundShader )
       {
-        mBackgroundShader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT );
+        mBackgroundShader = Dali::Shader::New( BACKGROUND_VERTEX_SHADER, BACKGROUND_FRAGMENT_SHADER, Dali::Shader::Hint::OUTPUT_IS_TRANSPARENT );
       }
 
       mBackgroundRenderer = Dali::Renderer::New( geometry, mBackgroundShader );
