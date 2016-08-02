@@ -82,7 +82,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
     if ((buf & 0x80) == 0)
     {
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "position: %d, readBufCount: %d", *position, readBufCount);
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "position: %d, readBufCount: %d\n", *position, readBufCount);
       break;
     }
   }
@@ -149,7 +149,7 @@ bool LoadBitmapFromWbmp( const ResourceLoadingClient& client, const ImageLoader:
 
   if(fread(&map[0], 1, fsize, fp) != fsize)
   {
-    DALI_LOG_WARNING("image file read opeation error!");
+    DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
   }
 
@@ -263,13 +263,13 @@ bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsig
   map.Resize(headerSize);
   if(fread(&map[0], 1, headerSize, fp) != headerSize)
   {
-    DALI_LOG_WARNING("image file read opeation error!");
+    DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
   }
 
   if (extractMultiByteInteger(&type, &map[0], headerSize, &position) < 0)
   {
-    DALI_LOG_ERROR("Error: unable to read type!");
+    DALI_LOG_ERROR("Error: unable to read type!\n");
     return false;
   }
   position++; /* skipping one byte */

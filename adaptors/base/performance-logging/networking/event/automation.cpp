@@ -74,7 +74,7 @@ public:
     int count = sscanf( mString.c_str(),"%f,%f",&vec2.x,&vec2.y );
     if( count != 2 )
     {
-      DALI_LOG_ERROR("Bad format");
+      DALI_LOG_ERROR("Bad format\n");
     }
     return vec2;
   }
@@ -86,7 +86,7 @@ public:
     int count = sscanf( mString.c_str(),"%f,%f,%f",&vec3.x,&vec3.y,&vec3.z );
     if( count != 3 )
     {
-      DALI_LOG_ERROR("Bad format");
+      DALI_LOG_ERROR("Bad format\n");
     }
     return vec3;
   }
@@ -98,7 +98,7 @@ public:
     int count = sscanf( mString.c_str(),"%f,%f,%f,%f", &vec4.x, &vec4.y, &vec4.z, &vec4.w );
     if( count != 4 )
     {
-      DALI_LOG_ERROR("Bad format");
+      DALI_LOG_ERROR("Bad format\n");
     }
     return vec4;
   }
