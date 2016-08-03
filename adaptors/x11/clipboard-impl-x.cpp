@@ -28,6 +28,7 @@
 #include <adaptor-impl.h>
 #include <ecore-x-window-interface.h>
 #include <singleton-service-impl.h>
+#include <clipboard-event-notifier-impl.h>
 
 namespace //unnamed namespace
 {
@@ -127,15 +128,11 @@ bool Clipboard::SetItem(const std::string &itemData )
 }
 
 /*
- * Get string at given index of clipboard
+ * Request clipboard service to retrieve an item
  */
-std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali::Text object.
+void Clipboard::RequestItem()
 {
-  if ( index >= NumberOfItems() )
-  {
-    return "";
-  }
-
+  int index = 0;
   char sendBuf[20];
   snprintf( sendBuf, 20,  "%s%d", CBHM_ITEM, index );
   Ecore_X_Atom xAtomCbhmItem = ecore_x_atom_get( sendBuf );
@@ -150,10 +147,17 @@ std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali
     Ecore_X_Atom xAtomCbhmError = ecore_x_atom_get( CBHM_ERROR );
     if ( xAtomItemType != xAtomCbhmError )
     {
-      return clipboardString;
+      // Call ClipboardEventNotifier to notify event observe of retrieved string
+      Dali::ClipboardEventNotifier clipboardEventNotifier(ClipboardEventNotifier::Get());
+      if ( clipboardEventNotifier )
+      {
+        ClipboardEventNotifier& notifierImpl( ClipboardEventNotifier::GetImplementation( clipboardEventNotifier ) );
+
+        notifierImpl.SetContent( clipboardString );
+        notifierImpl.EmitContentSelectedSignal();
+      }
     }
   }
-  return "";
 }
 
 /*
@@ -190,7 +194,7 @@ void Clipboard::ShowClipboard()
   ECore::WindowInterface::SendXEvent( ecore_x_display_get(), cbhmWin, False, NoEventMask, atomCbhmMsg, 8, SHOW );
 }
 
-void Clipboard::HideClipboard()
+void Clipboard::HideClipboard(bool skipFirstHide)
 {
   Ecore_X_Window cbhmWin = ECore::WindowInterface::GetWindow();
   // Launch the clipboard window
@@ -201,6 +205,15 @@ void Clipboard::HideClipboard()
   ecore_x_selection_secondary_clear();
 }
 
+bool Clipboard::IsVisible() const
+{
+  return false;
+}
+
+char* Clipboard::ExcuteBuffered( bool type, void *event )
+{
+  return NULL;
+}
 
 } // namespace Adaptor
 
