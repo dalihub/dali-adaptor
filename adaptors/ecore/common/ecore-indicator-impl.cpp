@@ -666,6 +666,10 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
         ShowIndicator( HIDE_NOW );
       }
     }
+    else
+    {
+      mIsShowing = false;
+    }
   }
 }
 
@@ -951,19 +955,7 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
       }
 
       CreateNewImage( n );
-
-      if( CheckVisibleState() )
-      {
-        // set default indicator type (enable the quick panel)
-        OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
-      }
-      else
-      {
-        // set default indicator type (disable the quick panel)
-        OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
-      }
-
-      SetVisible(mVisible);
+      UpdateVisibility();
     }
   }
 }
@@ -986,20 +978,29 @@ void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
     DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "mPixmap [%x]", mPixmap);
 
     CreateNewPixmapImage();
-
-    if( CheckVisibleState() )
-    {
-      // set default indicator type (enable the quick panel)
-      OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
-    }
-    else
-    {
-      // set default indicator type (disable the quick panel)
-      OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
-    }
-
-    SetVisible(mVisible);
+    UpdateVisibility();
   }
+}
+
+void Indicator::UpdateVisibility()
+{
+  if( CheckVisibleState() )
+  {
+    // set default indicator type (enable the quick panel)
+    OnIndicatorTypeChanged( INDICATOR_TYPE_1 );
+  }
+  else
+  {
+    // set default indicator type (disable the quick panel)
+    OnIndicatorTypeChanged( INDICATOR_TYPE_2 );
+  }
+
+  if( !mIsShowing )
+  {
+    mIndicatorContentActor.SetPosition( 0.0f, -mImageHeight, 0.0f );
+  }
+
+  SetVisible(mVisible, true);
 }
 
 void Indicator::UpdateImageData( int bufferNumber )
@@ -1363,7 +1364,6 @@ void Indicator::DataReceived( void* event )
             }
             break;
           }
-
         }
       }
       break;
