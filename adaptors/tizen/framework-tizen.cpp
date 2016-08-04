@@ -325,7 +325,6 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
   if( featureFlag == false )
   {
     set_last_result( TIZEN_ERROR_NOT_SUPPORTED );
-    throw Dali::DaliException( "", "OpenGL ES 2.0 is not supported." );
   }
   InitThreads();
 
