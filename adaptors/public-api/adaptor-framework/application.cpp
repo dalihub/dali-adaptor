@@ -110,6 +110,11 @@ void Application::ReplaceWindow(PositionSize windowPosition, const std::string& 
   Internal::Adaptor::GetImplementation(*this).ReplaceWindow(windowPosition, name);
 }
 
+std::string Application::GetResourcePath()
+{
+  return Internal::Adaptor::Application::GetResourcePath();
+}
+
 void Application::SetViewMode( ViewMode viewMode )
 {
   Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );

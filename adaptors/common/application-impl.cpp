@@ -25,6 +25,7 @@
 #include <style-monitor.h>
 #include <command-line-options.h>
 #include <common/adaptor-impl.h>
+#include <common/framework.h>
 #include <singleton-service-impl.h>
 #include <lifecycle-controller-impl.h>
 
@@ -343,6 +344,11 @@ void Application::ReplaceWindow(PositionSize windowPosition, const std::string& 
   Any nativeWindow = newWindow.GetNativeHandle();
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
   mWindow = newWindow;
+}
+
+std::string Application::GetResourcePath()
+{
+  return Internal::Adaptor::Framework::GetResourcePath();
 }
 
 } // namespace Adaptor

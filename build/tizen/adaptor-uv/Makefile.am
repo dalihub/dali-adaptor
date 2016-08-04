@@ -356,6 +356,7 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\"" \
                       -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\"" \
                       -DFONT_CONFIGURATION_FILE="\"${fontConfigurationFile}\"" \
+                      -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported} \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       -Werror -Wall -lgcc \

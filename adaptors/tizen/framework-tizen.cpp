@@ -30,6 +30,10 @@
 #include <appcore-watch/watch_app.h>
 #endif
 
+#if defined( TIZEN_PLATFORM_CONFIG_SUPPORTED ) && TIZEN_PLATFORM_CONFIG_SUPPORTED
+#include <tzplatform_config.h>
+#endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -389,6 +393,16 @@ void Framework::SetBundleName(const std::string& name)
 std::string Framework::GetBundleId() const
 {
   return mBundleId;
+}
+
+std::string Framework::GetResourcePath()
+{
+  std::string resourcePath = "";
+#if defined( TIZEN_PLATFORM_CONFIG_SUPPORTED ) && TIZEN_PLATFORM_CONFIG_SUPPORTED
+  resourcePath = app_get_resource_path();
+#endif //TIZEN_PLATFORM_CONFIG_SUPPORTED
+
+  return resourcePath;
 }
 
 void Framework::SetBundleId(const std::string& id)

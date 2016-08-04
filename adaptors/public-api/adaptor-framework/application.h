@@ -260,6 +260,15 @@ public:
    */
   void ReplaceWindow(PositionSize windowPosition, const std::string& name);
 
+  /**
+   * @brief Get path application resources are stored at
+   *
+   * @SINCE_1_2.2
+   * @return the full path of the resources
+   */
+  static std::string GetResourcePath();
+
+
 public: // Stereoscopy
 
   /**
