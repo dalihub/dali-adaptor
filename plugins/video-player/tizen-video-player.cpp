@@ -56,7 +56,7 @@ static void MediaPacketVideoDecodedCb( media_packet_h packet, void* user_data )
 
   if( player == NULL )
   {
-    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data." );
+    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data.\n" );
     return;
   }
 
@@ -67,19 +67,19 @@ static void MediaPacketVideoDecodedCb( media_packet_h packet, void* user_data )
 static void EmitPlaybackFinishedSignal( void* user_data )
 {
   TizenVideoPlayer* player = static_cast< TizenVideoPlayer* >( user_data );
-  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.0" );
+  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.\n" );
 
   if( player == NULL )
   {
-    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data." );
+    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data.\n" );
     return;
   }
 
-  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal." );
+  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.\n" );
 
   if( !player->mFinishedSignal.Empty() )
   {
-    DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.3" );
+    DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.3\n" );
     player->mFinishedSignal.Emit();
   }
 
@@ -302,7 +302,7 @@ void TizenVideoPlayer::SetRenderingTarget( Any target )
   }
   else
   {
-    DALI_LOG_ERROR( "Video rendering target is unknown" );
+    DALI_LOG_ERROR( "Video rendering target is unknown\n" );
   }
 }
 

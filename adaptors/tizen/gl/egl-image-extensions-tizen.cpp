@@ -108,32 +108,32 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object" );
+        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object\n" );
         break;
       }
       case EGL_BAD_CONTEXT:
       {
-        DALI_LOG_ERROR( "EGL_BAD_CONTEXT: Invalid EGLContext object" );
+        DALI_LOG_ERROR( "EGL_BAD_CONTEXT: Invalid EGLContext object\n" );
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: Invalid target parameter or attribute in attrib_list" );
+        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: Invalid target parameter or attribute in attrib_list\n" );
         break;
       }
       case EGL_BAD_MATCH:
       {
-        DALI_LOG_ERROR( "EGL_BAD_MATCH: attrib_list does not match target" );
+        DALI_LOG_ERROR( "EGL_BAD_MATCH: attrib_list does not match target\n" );
         break;
       }
       case EGL_BAD_ACCESS:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ACCESS: Previously bound off-screen, or EGLImage sibling error" );
+        DALI_LOG_ERROR( "EGL_BAD_ACCESS: Previously bound off-screen, or EGLImage sibling error\n" );
         break;
       }
       case EGL_BAD_ALLOC:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ALLOC: Insufficient memory is available" );
+        DALI_LOG_ERROR( "EGL_BAD_ALLOC: Insufficient memory is available\n" );
         break;
       }
       default:
@@ -170,17 +170,17 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object" );
+        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object\n" );
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: eglImage is not a valid EGLImageKHR object created with respect to EGLDisplay" );
+        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: eglImage is not a valid EGLImageKHR object created with respect to EGLDisplay\n" );
         break;
       }
       case EGL_BAD_ACCESS:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ACCESS: EGLImage sibling error" );
+        DALI_LOG_ERROR( "EGL_BAD_ACCESS: EGLImage sibling error\n" );
         break;
       }
       default:

@@ -84,7 +84,7 @@ void KernelTrace::Trace( const PerformanceMarker& marker, const std::string& tra
       if( !mLoggedError )
       {
         mLoggedError = true;
-        DALI_LOG_ERROR("Failed to open /sys/kernel/debug/tracing/trace_marker for writing please check file permissions.");
+        DALI_LOG_ERROR("Failed to open /sys/kernel/debug/tracing/trace_marker for writing please check file permissions.\n");
       }
 
     }

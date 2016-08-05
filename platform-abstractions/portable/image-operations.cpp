@@ -119,12 +119,12 @@ void ValidateScalingParameters( const unsigned int inputWidth,
 
   if( desiredWidth == 0u || desiredHeight == 0u )
   {
-    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Downscaling to a zero-area target is pointless." );
+    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Downscaling to a zero-area target is pointless.\n" );
   }
 
   if( inputWidth == 0u || inputHeight == 0u )
   {
-    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Zero area images cannot be scaled" );
+    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Zero area images cannot be scaled\n" );
   }
 }
 

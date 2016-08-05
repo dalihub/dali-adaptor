@@ -62,6 +62,16 @@ public:
     CONNECTED
   };
 
+  /**
+   * copied from ecore_evas_extn_engine.h
+   */
+  enum BufferType
+  {
+    BUFFER_TYPE_SHM = 0,        ///< shared memory-based buffer backend
+    BUFFER_TYPE_DRI2_PIXMAP,    ///< dri2 pixmap-based buffer backend
+    BUFFER_TYPE_EVASGL_PIXMAP,  ///< pixmap backend for Evas GL only (DEPRECATED)
+    BUFFER_TYPE_GL_PIXMAP,      ///< double buffered GL pixmap backend
+  };
 
 protected:
   /**
@@ -280,6 +290,11 @@ private:
   void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
+   * Update the visibility and position of the actors
+   */
+  void UpdateVisibility();
+
+  /**
    * Inform dali that the indicator data has been updated.
    * @param[in] bufferNumber The shared file number
    */
@@ -423,6 +438,11 @@ private:
 
   int                              mCurrentSharedFile;   ///< Current shared file number
   SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
+
+  BufferType                       mSharedBufferType;    ///< Shared buffer type which is used to render indicator
+
+  struct Impl; ///< Contains Ecore specific information
+  Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
   bool                             mBackgroundVisible;   ///< Indicate whether background is visible
 };
