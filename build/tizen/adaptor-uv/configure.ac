@@ -289,11 +289,8 @@ fi
 
 else
 
-# dali-adaptor-uv for MOBILE profile needs ecore-wayland even if enable_efl==no
-# because adaptors/mobile/pixmap-render-surface-factory.cpp uses it.
-if test "x$enable_profile" = "xMOBILE"; then
+# For adaptors/mobile/native-render-surface-factory.cpp
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
-fi
 
 if test "x$enable_profile" = "xIVI"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)

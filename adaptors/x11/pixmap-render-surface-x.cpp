@@ -314,6 +314,11 @@ void PixmapRenderSurface::ReleaseLock()
   }
 }
 
+RenderSurface::Type PixmapRenderSurface::GetSurfaceType()
+{
+  return RenderSurface::ECORE_RENDER_SURFACE;
+}
+
 } // namespace ECore
 
 } // namespace Dali

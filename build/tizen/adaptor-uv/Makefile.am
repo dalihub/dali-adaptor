@@ -418,10 +418,8 @@ libdali_adaptor_uv_la_LIBADD += $(ELEMENTARY_LIBS) \
 
 else
 
-if MOBILE_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
-endif
 
 if IVI_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
