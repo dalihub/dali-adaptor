@@ -172,8 +172,6 @@ public:
    * @endcode
    * time(watch time handle) will not be available after returning this callback. It will be freed by the framework.
    * @SINCE_1_1.37
-   * @remarks http://tizen.org/privilege/alarm.set privilege is needed to receive ambient ticks at each minute.
-   * The AmbientTickSignal() will be ignored if your app doesn't have the privilege
    */
   WatchTimeSignal& AmbientTickSignal();
 
@@ -185,6 +183,8 @@ public:
    * @endcode
    * ambient_mode If true the device enters the ambient mode, otherwise false
    * @SINCE_1_1.37
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_ALARM_SET
    */
   WatchBoolSignal& AmbientChangedSignal();
 
