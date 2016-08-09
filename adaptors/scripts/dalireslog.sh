@@ -1,5 +1,4 @@
 #!/bin/bash
-PATH=/bin:/usr/bin:/sbin:/usr/sbin
 # Log resource analyser tool for Dali
 # Monitors resource usage of last run Dali app
 # Shows memory uploaded to GPU or normal RAM
