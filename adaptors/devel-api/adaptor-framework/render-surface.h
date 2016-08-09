@@ -62,13 +62,6 @@ class RenderSurface
 {
 public:
 
-  enum Type
-  {
-    ECORE_RENDER_SURFACE,
-    WAYLAND_RENDER_SURFACE,
-    NATIVE_SOURCE_RENDER_SURFACE
-  };
-
   /**
    * @brief Constructor
    * Inlined as this is a pure abstract interface
@@ -163,8 +156,6 @@ public:
    * @param threadSynchronization The thread-synchronization implementation.
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) = 0;
-
-  virtual RenderSurface::Type GetSurfaceType() = 0;
 
 private:
 

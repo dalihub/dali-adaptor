@@ -34,14 +34,6 @@ DisplayConnection* DisplayConnection::New()
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( RenderSurface::Type type )
-{
-  Internal::Adaptor::DisplayConnection* internal(Internal::Adaptor::DisplayConnection::New());
-  internal->SetSurfaceType( type );
-
-  return new DisplayConnection(internal);
-}
-
 DisplayConnection::DisplayConnection()
 : mImpl( NULL )
 {

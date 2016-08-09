@@ -19,12 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
-#ifdef DALI_ADAPTOR_COMPILATION
 #include <trigger-event-factory-interface.h>
-#else
-#include <dali/integration-api/adaptors/trigger-event-factory-interface.h>
-#endif
+#include <dali/public-api/common/dali-common.h>
 
 namespace Dali
 {

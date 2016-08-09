@@ -112,8 +112,6 @@ public: // from Dali::RenderSurface
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
 
-  virtual RenderSurface::Type GetSurfaceType();
-
 private:
 
   /**

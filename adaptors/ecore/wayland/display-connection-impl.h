@@ -81,8 +81,6 @@ public:
    */
   bool InitializeEgl(EglInterface& egl);
 
-  void SetSurfaceType( RenderSurface::Type type );
-
 public:
 
   /**
@@ -92,10 +90,6 @@ public:
 
 protected:
 
-  EGLNativeDisplayType GetNativeSourceDisplay();
-
-  void ReleaseNativeSourceDisplay();
-
   // Undefined
   DisplayConnection(const DisplayConnection&);
 
@@ -103,8 +97,7 @@ protected:
   DisplayConnection& operator=(const DisplayConnection& rhs);
 
 private:
-  EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
-  RenderSurface::Type mSurfaceType;
+  WlDisplay*   mDisplay;        ///< Wayland-display for rendering
 };
 
 } // namespace Adaptor

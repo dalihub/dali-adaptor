@@ -43,14 +43,7 @@ RenderHelper::RenderHelper( AdaptorInternalServices& adaptorInterfaces )
   // set the initial values before render thread starts
   mSurface = adaptorInterfaces.GetRenderSurfaceInterface();
 
-  if( mSurface )
-  {
-    mDisplayConnection = Dali::DisplayConnection::New( mSurface->GetSurfaceType() );
-  }
-  else
-  {
-    mDisplayConnection = Dali::DisplayConnection::New();
-  }
+  mDisplayConnection = Dali::DisplayConnection::New();
 }
 
 RenderHelper::~RenderHelper()
