@@ -516,6 +516,14 @@ const std::string& ImfManager::GetSurroundingText() const
   return mSurroundingText;
 }
 
+void ImfManager::NotifyTextInputMultiLine( bool multiLine )
+{
+  Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
+  ecore_imf_context_input_hint_set(mIMFContext, (Ecore_IMF_Input_Hints)(multiLine ?
+    (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
+    (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+}
+
 } // Adaptor
 
 } // Internal
