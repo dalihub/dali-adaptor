@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
-#include <app.h>
 
 // INTERNAL INCLUDES
 #include <wl-types.h>
@@ -261,9 +260,8 @@ void WindowRenderSurface::CreateWlRenderable()
   {
       DALI_ASSERT_ALWAYS(0 && "Failed to create X window");
   }
-  char *app_id = NULL;
-  app_get_id(&app_id);
-  ecore_wl_window_class_name_set(mWlWindow, app_id);
+
+  //FIXME
 }
 
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
