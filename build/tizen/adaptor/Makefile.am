@@ -82,6 +82,12 @@ endif
 adaptor_mobile_dir = ../../../adaptors/mobile
 include ../../../adaptors/mobile/file.list
 
+# WEARABLE
+if WEARABLE_PROFILE
+adaptor_wearable_dir = ../../../adaptors/wearable
+include ../../../adaptors/wearable/file.list
+endif
+
 # TV
 if TV_PROFILE
 adaptor_tv_dir = ../../../adaptors/tv
@@ -203,7 +209,8 @@ adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
 endif # USE_ECORE_WAYLAND
 
 adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
+                              $(adaptor_tizen_internal_native_image_src_files) \
+                              $(adaptor_internal_wearable_profile_src_files)
 else
 adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
                               $(adaptor_common_internal_egl_extension_src_files)
@@ -509,6 +516,13 @@ endif # NOT UBUNTU_PROFILE
 
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
+
+if WEARABLE_PROFILE
+tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
+
+tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
+tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
+endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}

@@ -56,7 +56,7 @@ static void MediaPacketVideoDecodedCb( media_packet_h packet, void* user_data )
 
   if( player == NULL )
   {
-    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data." );
+    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data.\n" );
     return;
   }
 
@@ -67,19 +67,19 @@ static void MediaPacketVideoDecodedCb( media_packet_h packet, void* user_data )
 static void EmitPlaybackFinishedSignal( void* user_data )
 {
   TizenVideoPlayer* player = static_cast< TizenVideoPlayer* >( user_data );
-  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.0" );
+  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.\n" );
 
   if( player == NULL )
   {
-    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data." );
+    DALI_LOG_ERROR( "Decoded callback got Null pointer as user_data.\n" );
     return;
   }
 
-  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal." );
+  DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.\n" );
 
   if( !player->mFinishedSignal.Empty() )
   {
-    DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.3" );
+    DALI_LOG_ERROR( "EmitPlaybackFinishedSignal.3\n" );
     player->mFinishedSignal.Emit();
   }
 
@@ -204,7 +204,8 @@ void LogPlayerError( int error )
 } // unnamed namespace
 
 TizenVideoPlayer::TizenVideoPlayer()
-: mPlayerState( PLAYER_STATE_NONE ),
+: mPlayer( NULL ),
+  mPlayerState( PLAYER_STATE_NONE ),
   mPacket( NULL ),
   mBackgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
   mTargetType( NativeImage )
@@ -217,7 +218,7 @@ TizenVideoPlayer::~TizenVideoPlayer()
 
 void TizenVideoPlayer::GetPlayerState( player_state_e* state )
 {
-  if( player_get_state( mPlayer, state ) != PLAYER_ERROR_NONE )
+  if( mPlayer != NULL && player_get_state( mPlayer, state ) != PLAYER_ERROR_NONE )
   {
     DALI_LOG_ERROR( "player_get_state error: Invalid parameter\n" );
     *state = PLAYER_STATE_NONE;
@@ -301,7 +302,7 @@ void TizenVideoPlayer::SetRenderingTarget( Any target )
   }
   else
   {
-    DALI_LOG_ERROR( "Video rendering target is unknown" );
+    DALI_LOG_ERROR( "Video rendering target is unknown\n" );
   }
 }
 
@@ -406,7 +407,6 @@ bool TizenVideoPlayer::IsMuted()
       mPlayerState == PLAYER_STATE_PAUSED
     )
   {
-    bool muted = false;
     int error = player_is_muted( mPlayer, &muted );
     LogPlayerError( error );
   }
@@ -491,7 +491,7 @@ Dali::VideoPlayerPlugin::DisplayRotation TizenVideoPlayer::GetDisplayRotation()
   }
 
   int error;
-  player_display_rotation_e rotation;
+  player_display_rotation_e rotation = PLAYER_DISPLAY_ROTATION_NONE;
   if( mPlayerState != PLAYER_STATE_NONE )
   {
     error = player_get_display_rotation( mPlayer, &rotation );

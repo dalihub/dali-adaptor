@@ -1,8 +1,8 @@
-#ifndef __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
-#define __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
+#ifndef DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
+#define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/buffer-image.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
@@ -172,12 +173,12 @@ public:
    * This is useful when localised strings are provided for multiple languages
    * i.e. when a single default font does not work for all languages.
    * @param[in] charcode The character for which a font is needed.
-   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] preferColor True if a color font is preferred.
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId FindDefaultFont( Character charcode,
-                          PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                          PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                           bool preferColor = false );
 
   /**
@@ -188,25 +189,25 @@ public:
    * @param[in] preferredFont The preferred font which may not provide a glyph for charcode.
    * The fallback-font will be the closest match to preferredFont, which does support the required glyph.
    * @param[in] charcode The character for which a font is needed.
-   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] preferColor True if a color font is preferred.
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId FindFallbackFont( FontId preferredFont,
                            Character charcode,
-                           PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                           PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                            bool preferColor = false );
 
   /**
    * @brief Retrieve the unique identifier for a font.
    *
    * @param[in] path The path to a font file.
-   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId GetFontId( const FontPath& path,
-                    PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                    PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
   /**
@@ -215,12 +216,12 @@ public:
    * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
    *
    * @param[in] fontDescription A font description.
-   * @param[in] pointSize The point size in 26.6 fractional points; the default point size is 12*64.
+   * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
    * @return A valid font ID, or zero if the font does not exist.
    */
   FontId GetFontId( const FontDescription& fontDescription,
-                    PointSize26Dot6 pointSize = DEFAULT_POINT_SIZE,
+                    PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
   /**
@@ -270,9 +271,8 @@ public:
    *
    * @param[in] fontId The ID of the font for the required glyph.
    * @param[out] metrics The font metrics.
-   * @param[in] desiredFixedSize The metrics for fixed-size fonts will be scaled to this desired size (in pixels).
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize = 0 );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.
@@ -292,10 +292,9 @@ public:
    * @param[in] size The size of the array.
    * @param[in] type The type of glyphs used for rendering; either bitmaps or vectors.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
-   * @param[in] desiredFixedSize The metrics for fixed-size fonts will be scaled to this desired size (in pixels).
    * @return True if all of the requested metrics were found.
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true, int desiredFixedSize = 0 );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true );
 
   /**
    * @brief Create a bitmap representation of a glyph.
@@ -304,7 +303,7 @@ public:
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @brief Create a vector representation of a glyph.
@@ -327,11 +326,11 @@ public:
   /**
    * @brief Retrieves the ellipsis glyph for a requested point size.
    *
-   * @param[in] pointSize The requested point size.
+   * @param[in] requestedPointSize The requested point size.
    *
    * @return The ellipsis glyph.
    */
-  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
 
 public: // Not intended for application developers
   /**
@@ -346,4 +345,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-#endif // __DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H__
+#endif // DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H

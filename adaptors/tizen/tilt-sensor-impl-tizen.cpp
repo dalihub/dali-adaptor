@@ -388,7 +388,7 @@ void TiltSensor::Update(sensor_event_s *event)
   }
   else
   {
-    DALI_LOG_ERROR("Invalid sensor type");
+    DALI_LOG_ERROR("Invalid sensor type\n");
     return;
   }
 

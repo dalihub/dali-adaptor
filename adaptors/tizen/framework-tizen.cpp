@@ -34,8 +34,6 @@
 
 // INTERNAL INCLUDES
 #include <callback-manager.h>
-#include <watch-application-impl.h>
-#include <watch-time.h>
 
 namespace Dali
 {
@@ -359,7 +357,7 @@ void Framework::Run()
   ret = mImpl->AppMain();
   if (ret != APP_ERROR_NONE)
   {
-    DALI_LOG_ERROR("Framework::Run(), ui_app_main() is failed. err = %d", ret);
+    DALI_LOG_ERROR("Framework::Run(), ui_app_main() is failed. err = %d\n", ret);
   }
   mRunning = false;
 }

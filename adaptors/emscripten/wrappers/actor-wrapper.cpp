@@ -88,32 +88,34 @@ struct EmscriptenTouchedSignal : public BaseSignalSlot
   emscripten::val mCallback;
   unsigned int mId;
 
-  bool OnTouched(Dali::Actor actor, const Dali::TouchEvent& event)
+  bool OnTouched(Dali::Actor actor, const Dali::TouchData& touch)
   {
     Dali::Property::Map map;
     Dali::Property::Array points;
 
-    map["pointCount"] = static_cast<int>(event.GetPointCount());
-    map["time"] = static_cast<int>(event.time);
+    const int pointCount = static_cast<int>( touch.GetPointCount() );
 
-    for(TouchPointContainer::const_iterator iter = event.points.begin();
-        iter != event.points.end(); ++iter) {
-      const Dali::TouchPoint& pt = *iter;
+    map["pointCount"] = pointCount;
+    map["time"] = static_cast<int>( touch.GetTime() );
+
+    for( int i = 0; i < pointCount; ++i )
+    {
       Dali::Property::Map pointMap;
-      pointMap["deviceId"] = pt.deviceId;
-      pointMap["hitActorId"] = static_cast<int>(pt.hitActor.GetId());
-      pointMap["local"] = pt.local;
-      pointMap["screen"]= pt.screen;
+      Dali::Actor hitActor = touch.GetHitActor( i );
 
-      switch(pt.state)
+      pointMap["deviceId"] = touch.GetDeviceId( i );
+      pointMap["hitActorId"] = static_cast<int>( hitActor ? hitActor.GetId() : -1 );
+      pointMap["local"] = touch.GetLocalPosition( i );
+      pointMap["screen"]= touch.GetScreenPosition( i );
+
+      switch( touch.GetState( i ) )
       {
-        case TouchPoint::Down:        { pointMap["state"] = "Down"; break; }
-        case TouchPoint::Up:          { pointMap["state"] = "Up"; break; }
-        case TouchPoint::Motion:      { pointMap["state"] = "Motion"; break; }
-        case TouchPoint::Leave:       { pointMap["state"] = "Leave"; break; }
-        case TouchPoint::Stationary:  { pointMap["state"] = "Stationary"; break; }
-        case TouchPoint::Interrupted: { pointMap["state"] = "Interrupted"; break; }
-        case TouchPoint::Last:        { pointMap["state"] = "Last"; break; }
+        case PointState::DOWN:        { pointMap["state"] = "DOWN";         break; }
+        case PointState::UP:          { pointMap["state"] = "UP";           break; }
+        case PointState::MOTION:      { pointMap["state"] = "MOTION";       break; }
+        case PointState::LEAVE:       { pointMap["state"] = "LEAVE";        break; }
+        case PointState::STATIONARY:  { pointMap["state"] = "STATIONARY";   break; }
+        case PointState::INTERRUPTED: { pointMap["state"] = "INTERRUPTED";  break; }
       };
 
       points.PushBack(pointMap);
@@ -200,7 +202,7 @@ bool ConnectSignal( Dali::Actor actor,
   if(0 == signalName.compare("touched"))
   {
     EmscriptenTouchedSignal* slot = new EmscriptenTouchedSignal(javascriptFunction, actor.GetId());
-    actor.TouchedSignal().Connect(slot, &EmscriptenTouchedSignal::OnTouched);
+    actor.TouchSignal().Connect(slot, &EmscriptenTouchedSignal::OnTouched);
     signalHolder.add(slot);
     ret = true;
   }

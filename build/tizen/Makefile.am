@@ -38,12 +38,14 @@ COVERAGE_OUTPUT_DIR=doc/coverage
 # From lcov version 1.10 onwards, branch coverage is off by default and earlier versions do not support the rc option
 LCOV_OPTS=`if [ \`printf "\\\`lcov --version | cut -d' ' -f4\\\`\n1.10\n" | sort -V | head -n 1\` = 1.10 ] ; then echo "--rc lcov_branch_coverage=1" ; fi`
 
-cov_data:
+rename_cov_data:
 	@test -z $(COVERAGE_DIR) || mkdir -p $(COVERAGE_DIR)
 	@rm -f $(COVERAGE_DIR)/*
 	@-cp adaptor/.libs/*.gcda adaptor/.libs/*.gcno  $(COVERAGE_DIR)
 	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_la-*.gcda" -o -name "libdali_adaptor_la-*.gcno"` ;\
 		do mv $$i `echo $$i | sed s/libdali_adaptor_la-//` ; echo $$i ; done
+
+cov_data: rename_cov_data
 	@cd $(COVERAGE_DIR) ; lcov $(LCOV_OPTS) --base-directory . --directory . -c -o dali.info
 	@cd $(COVERAGE_DIR) ; lcov $(LCOV_OPTS) --remove dali.info "*/dali-env/*" "/usr/include/*" -o dali.info
 	@test -z $(COVERAGE_OUTPUT_DIR) || mkdir -p $(COVERAGE_OUTPUT_DIR)

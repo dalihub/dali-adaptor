@@ -1,8 +1,8 @@
-#ifndef __DALI_PROPERTYBUFFER_WRAPPER_H__
-#define __DALI_PROPERTYBUFFER_WRAPPER_H__
+#ifndef DALI_PROPERTYBUFFER_WRAPPER_H
+#define DALI_PROPERTYBUFFER_WRAPPER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-core.h>
-#include <dali/devel-api/object/property-buffer.h>
+#include <dali/public-api/rendering/property-buffer.h>
 #include "emscripten/emscripten.h"
 #include "emscripten/val.h"
 #include "emscripten/bind.h"
@@ -47,4 +47,4 @@ void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& dat
 }; // namespace Internal
 }; // namespace Dali
 
-#endif // header
+#endif // DALI_PROPERTYBUFFER_WRAPPER_H

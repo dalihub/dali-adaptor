@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-core.h>
-#include <dali/devel-api/rendering/geometry.h>
 #include "emscripten/emscripten.h"
 #include "emscripten/val.h"
 #include "emscripten/bind.h"

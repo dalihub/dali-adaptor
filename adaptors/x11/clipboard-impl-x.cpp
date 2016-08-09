@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,23 +136,24 @@ std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali
     return "";
   }
 
-  std::string emptyString( "" );
   char sendBuf[20];
-
   snprintf( sendBuf, 20,  "%s%d", CBHM_ITEM, index );
   Ecore_X_Atom xAtomCbhmItem = ecore_x_atom_get( sendBuf );
   Ecore_X_Atom xAtomItemType = 0;
 
   std::string clipboardString( ECore::WindowInterface::GetWindowProperty(xAtomCbhmItem, &xAtomItemType, index ) );
-  if ( !clipboardString.empty() )
+
+  // Only return the text string if the Atom type is text (Do not return a text string/URL for images).
+  if( !clipboardString.empty() &&
+      ( xAtomItemType == ECORE_X_ATOM_TEXT || xAtomItemType == ECORE_X_ATOM_COMPOUND_TEXT || xAtomItemType == ECORE_X_ATOM_STRING || xAtomItemType == ECORE_X_ATOM_UTF8_STRING ) )
   {
     Ecore_X_Atom xAtomCbhmError = ecore_x_atom_get( CBHM_ERROR );
     if ( xAtomItemType != xAtomCbhmError )
     {
       return clipboardString;
     }
-   }
-   return emptyString;
+  }
+  return "";
 }
 
 /*

@@ -1,5 +1,8 @@
+#ifndef __DALI_WEARABLE_H__
+#define __DALI_WEARABLE_H__
+
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +18,7 @@
  *
  */
 
-// CLASS HEADER
-#include <adaptor-impl.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/watch/watch-application.h>
 
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
-{
-
-void Adaptor::GetDataStoragePath( std::string& path)
-{
-  path = DALI_SHADERBIN_DIR;
-}
-
-void Adaptor::GetAppId( std::string& appId )
-{
-  appId = "";
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+#endif // __DALI_WEARABLE_H__

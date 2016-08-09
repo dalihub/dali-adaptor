@@ -93,27 +93,27 @@ PointSize26Dot6 FontClient::GetPointSize( FontId id )
   return GetImplementation(*this).GetPointSize( id );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor )
+FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
 {
-  return GetImplementation(*this).FindDefaultFont( charcode, pointSize, preferColor );
+  return GetImplementation(*this).FindDefaultFont( charcode, requestedPointSize, preferColor );
 }
 
-FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor )
+FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
 {
-  return GetImplementation(*this).FindFallbackFont( preferredFont, charcode, pointSize, preferColor );
+  return GetImplementation(*this).FindFallbackFont( preferredFont, charcode, requestedPointSize, preferColor );
 }
 
-FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
 {
-  return GetImplementation(*this).GetFontId( path, pointSize, faceIndex );
+  return GetImplementation(*this).GetFontId( path, requestedPointSize, faceIndex );
 }
 
 FontId FontClient::GetFontId( const FontDescription& fontDescription,
-                              PointSize26Dot6 pointSize,
+                              PointSize26Dot6 requestedPointSize,
                               FaceIndex faceIndex )
 {
   return GetImplementation(*this).GetFontId( fontDescription,
-                                             pointSize,
+                                             requestedPointSize,
                                              faceIndex );
 }
 
@@ -138,9 +138,9 @@ void FontClient::GetFixedSizes( const FontDescription& fontDescription,
   GetImplementation(*this).GetFixedSizes( fontDescription, sizes );
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize )
+void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
 {
-  GetImplementation(*this).GetFontMetrics( fontId, metrics, desiredFixedSize );
+  GetImplementation(*this).GetFontMetrics( fontId, metrics );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -148,12 +148,12 @@ GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
   return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize )
+bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal )
 {
-  return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal, desiredFixedSize );
+  return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
-BufferImage FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
 }
@@ -163,9 +163,9 @@ void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorB
   GetImplementation(*this).CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
 }
 
-const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 pointSize )
+const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
 {
-  return GetImplementation(*this).GetEllipsisGlyph( pointSize );
+  return GetImplementation(*this).GetEllipsisGlyph( requestedPointSize );
 }
 
 FontClient::FontClient( Internal::FontClient* internal )

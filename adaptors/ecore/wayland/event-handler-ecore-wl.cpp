@@ -49,6 +49,7 @@
 #include <physical-keyboard-impl.h>
 #include <style-monitor-impl.h>
 #include <base/core-event-interface.h>
+#include <virtual-keyboard.h>
 
 namespace Dali
 {
@@ -183,6 +184,10 @@ struct EventHandler::Impl
 
       // Register Mouse wheel events
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,        EcoreEventMouseWheel,      handler ) );
+
+      // Register Focus events
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN,  EcoreEventWindowFocusIn,   handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut,  handler ) );
 
       // Register Key events
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,           EcoreEventKeyDown,         handler ) );
@@ -376,10 +381,10 @@ struct EventHandler::Impl
       {
         std::string keyName( keyEvent->keyname );
         std::string keyString( "" );
-        int keyCode = 0/*ecore_x_keysym_keycode_get(keyEvent->keyname)*/;
+        int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname);
+        keyCode = (keyCode == -1) ? 0 : keyCode;
         int modifier( keyEvent->modifiers );
         unsigned long time = keyEvent->timestamp;
-
         if (!strncmp(keyEvent->keyname, "Keycode-", 8))
           keyCode = atoi(keyEvent->keyname + 8);
 
@@ -443,10 +448,10 @@ struct EventHandler::Impl
       {
         std::string keyName( keyEvent->keyname );
         std::string keyString( "" );
-        int keyCode = 0/*ecore_x_keysym_keycode_get(keyEvent->keyname)*/;
+        int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname);
+        keyCode = (keyCode == -1) ? 0 : keyCode;
         int modifier( keyEvent->modifiers );
-        unsigned long time( keyEvent->timestamp );
-
+        unsigned long time = keyEvent->timestamp;
         if (!strncmp(keyEvent->keyname, "Keycode-", 8))
           keyCode = atoi(keyEvent->keyname + 8);
 

@@ -98,23 +98,23 @@ public:
   /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
-  FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::FindFallbackFont()
    */
-  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex );
+  FontId GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontDescription& fontDescription,
-                    PointSize26Dot6 pointSize,
+                    PointSize26Dot6 requestedPointSize,
                     FaceIndex faceIndex );
 
   /**
@@ -141,7 +141,7 @@ public:
   /**
    * @copydoc Dali::FontClient::GetFontMetrics()
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
    * @copydoc Dali::FontClient::GetGlyphIndex()
@@ -151,12 +151,12 @@ public:
   /**
    * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @copydoc Dali::FontClient::CreateVectorBlob()
@@ -166,7 +166,7 @@ public:
   /**
    * @copydoc Dali::FontClient::GetEllipsisGlyph()
    */
-  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
 
 private:
 

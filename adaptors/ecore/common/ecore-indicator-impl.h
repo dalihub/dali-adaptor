@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_INDICATOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/actors/image-actor.h>
+#include <dali/public-api/animation/animation.h>
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
-#include <dali/devel-api/rendering/renderer.h>
+#include <dali/public-api/rendering/renderer.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/indicator-interface.h>
@@ -62,6 +62,16 @@ public:
     CONNECTED
   };
 
+  /**
+   * copied from ecore_evas_extn_engine.h
+   */
+  enum BufferType
+  {
+    BUFFER_TYPE_SHM = 0,        ///< shared memory-based buffer backend
+    BUFFER_TYPE_DRI2_PIXMAP,    ///< dri2 pixmap-based buffer backend
+    BUFFER_TYPE_EVASGL_PIXMAP,  ///< pixmap backend for Evas GL only (DEPRECATED)
+    BUFFER_TYPE_GL_PIXMAP,      ///< double buffered GL pixmap backend
+  };
 
 protected:
   /**
@@ -196,10 +206,10 @@ private:
   Dali::Geometry CreateBackgroundGeometry();
 
   /**
-   * Set the image to be rendered as indicator foreground
-   * @param[in] image The foreground image.
+   * Set the texture to be rendered as indicator foreground
+   * @param[in] texture The foreground texture.
    */
-  void SetForegroundImage( Dali::Image image );
+  void SetForegroundImage( Dali::Texture texture );
 
   /**
    * Touch event callback.
@@ -278,6 +288,11 @@ private:
    * @param[in] epcEvent The event containing the image data
    */
   void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
+
+  /**
+   * Update the visibility and position of the actors
+   */
+  void UpdateVisibility();
 
   /**
    * Inform dali that the indicator data has been updated.
@@ -423,6 +438,11 @@ private:
 
   int                              mCurrentSharedFile;   ///< Current shared file number
   SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
+
+  BufferType                       mSharedBufferType;    ///< Shared buffer type which is used to render indicator
+
+  struct Impl; ///< Contains Ecore specific information
+  Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
   bool                             mBackgroundVisible;   ///< Indicate whether background is visible
 };

@@ -587,7 +587,8 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   while( mPostRendering &&
-         ! mNewSurface ) // We should NOT wait if we're replacing the surface
+         ! mNewSurface &&                // We should NOT wait if we're replacing the surface
+         ! mDestroyUpdateRenderThread )
   {
     mUpdateRenderThreadWaitCondition.Wait( lock );
   }

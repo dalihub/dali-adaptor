@@ -18,14 +18,14 @@
 
 // EXTERNAL INCLUDES
 #include <sstream>
-
+#include <dali/public-api/rendering/geometry.h>
+#include <dali/public-api/rendering/sampler.h>
+#include <dali/public-api/rendering/shader.h>
+#include <dali/public-api/rendering/texture-set.h>
+#include <dali/public-api/rendering/renderer.h>
 #include <dali/devel-api/scripting/scripting.h>
 #include <dali/devel-api/events/hit-test-algorithm.h>
-#include <dali/devel-api/rendering/geometry.h>
-#include <dali/devel-api/rendering/shader.h>
-#include <dali/devel-api/rendering/sampler.h>
-#include <dali/devel-api/rendering/texture-set.h>
-#include <dali/devel-api/rendering/renderer.h>
+#include <dali/devel-api/images/texture-set-image.h>
 #include "emscripten/emscripten.h"
 #include "emscripten/bind.h"
 #include "emscripten/val.h"
@@ -351,10 +351,27 @@ Dali::Actor CreateSolidColorActor( const Dali::Vector4& color, bool border, cons
     "}\n");
 
   Dali::Shader shader = Dali::Shader::New( vertexShader, fragmentShader );
-  Dali::Geometry geometry = Dali::Geometry::QUAD();
-  Dali::Renderer renderer = Dali::Renderer::New( geometry, shader );
+
+  // Create Quad geometry
+  Dali::Property::Map quadVertexFormat;
+  quadVertexFormat["aPosition"] = Dali::Property::VECTOR2;
+  Dali::PropertyBuffer vertexData = Dali::PropertyBuffer::New( quadVertexFormat );
+  const float halfQuadSize = .5f;
+  struct QuadVertex { Dali::Vector2 position; };
+  QuadVertex quadVertexData[4] = {
+      { Dali::Vector2(-halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2(-halfQuadSize, halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, -halfQuadSize) },
+      { Dali::Vector2( halfQuadSize, halfQuadSize) } };
+  vertexData.SetData(quadVertexData, 4);
+
+  Dali::Geometry quad = Dali::Geometry::New();
+  quad.AddVertexBuffer( vertexData );
+  quad.SetType( Dali::Geometry::TRIANGLE_STRIP );
+
+  Dali::Renderer renderer = Dali::Renderer::New( quad, shader );
   Dali::TextureSet textureSet = Dali::TextureSet::New();
-  textureSet.SetImage( 0u, imageData );
+  TextureSetImage( textureSet, 0u, imageData );
   renderer.SetTextures( textureSet );
 
   image.AddRenderer( renderer );
@@ -838,10 +855,10 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("HINT_DOESNT_MODIFY_GEOMETRY", Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY)
 ;
 
-  enum_<Dali::Shader::ShaderHints>("ShaderHints")
-    .value("HINT_NONE",                      Dali::Shader::HINT_NONE)
-    .value("HINT_OUTPUT_IS_TRANSPARENT",     Dali::Shader::HINT_OUTPUT_IS_TRANSPARENT)
-    .value("HINT_MODIFIES_GEOMETRY",         Dali::Shader::HINT_MODIFIES_GEOMETRY)
+  enum_<Dali::Shader::Hint::Value>("ShaderHints")
+    .value("NONE",                      Dali::Shader::Hint::NONE)
+    .value("OUTPUT_IS_TRANSPARENT",     Dali::Shader::Hint::OUTPUT_IS_TRANSPARENT)
+    .value("MODIFIES_GEOMETRY",         Dali::Shader::Hint::MODIFIES_GEOMETRY)
 ;
 
   enum_<Dali::Animation::EndAction>("EndAction")
@@ -855,7 +872,7 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("Cubic", Dali::Animation::Interpolation::Cubic)
 ;
 
-  enum_<Dali::Geometry::GeometryType>("GeometryType")
+  enum_<Dali::Geometry::Type>("Type")
     .value("POINTS",          Dali::Geometry::POINTS)
     .value("LINES",           Dali::Geometry::LINES)
     .value("LINE_LOOP",       Dali::Geometry::LINE_LOOP)
@@ -1073,8 +1090,8 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .function("addVertexBuffer", &Dali::Geometry::AddVertexBuffer)
     .function("getNumberOfVertexBuffers", &Dali::Geometry::GetNumberOfVertexBuffers)
     .function("setIndexBuffer", &SetIndexBufferDataRaw)
-    .function("setGeometryType", &Dali::Geometry::SetGeometryType)
-    .function("getGeometryType", &Dali::Geometry::GetGeometryType)
+    .function("setType", &Dali::Geometry::SetType)
+    .function("getType", &Dali::Geometry::GetType)
 ;
 
   class_<Dali::Image>("Image")
@@ -1098,9 +1115,9 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
 
   class_<Dali::TextureSet>("TextureSet")
     .constructor<>(&Dali::TextureSet::New)
-    .function("setImage", &Dali::TextureSet::SetImage)
+    .function("setTexture", &Dali::TextureSet::SetTexture)
     .function("setSampler", &Dali::TextureSet::SetSampler)
-    .function("getImage", &Dali::TextureSet::GetImage)
+    .function("getTexture", &Dali::TextureSet::GetTexture)
     .function("getSampler", &Dali::TextureSet::GetSampler)
     .function("getTextureCount", &Dali::TextureSet::GetTextureCount)
 ;

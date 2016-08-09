@@ -21,7 +21,9 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/signals/callback.h>
-#include <watch-application.h>
+#ifdef APPCORE_WATCH_AVAILABLE
+#include "wearable/watch/watch-application.h"
+#endif
 
 // INTERNAL INCLUDES
 #include <abort-handler.h>
@@ -87,6 +89,7 @@ public:
     */
     virtual void OnAppControl(void *) {}
 
+#ifdef APPCORE_WATCH_AVAILABLE
     /**
      * Invoked at every second
      */
@@ -101,6 +104,7 @@ public:
      * Invoked when the device enters or exits ambient mode
      */
     virtual void OnAmbientChanged(bool ambient) {}
+#endif
 
     /**
      * Invoked when the language of the device is changed.

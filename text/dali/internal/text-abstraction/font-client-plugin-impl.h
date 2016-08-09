@@ -86,12 +86,12 @@ struct FontClient::Plugin
   struct FontIdCacheItem
   {
     FontIdCacheItem( FontDescriptionId validatedFontId,
-                     PointSize26Dot6 pointSize,
+                     PointSize26Dot6 requestedPointSize,
                      FontId fontId );
 
-    FontDescriptionId validatedFontId; ///< Index to the vector with font descriptions.
-    PointSize26Dot6   pointSize;       ///< The font point size.
-    FontId            fontId;          ///< The font id.
+    FontDescriptionId validatedFontId;    ///< Index to the vector with font descriptions.
+    PointSize26Dot6   requestedPointSize; ///< The font point size.
+    FontId            fontId;             ///< The font id.
   };
 
   /**
@@ -101,32 +101,32 @@ struct FontClient::Plugin
   {
     CacheItem( FT_Face ftFace,
                const FontPath& path,
-               PointSize26Dot6 pointSize,
+               PointSize26Dot6 requestedPointSize,
                FaceIndex face,
                const FontMetrics& metrics );
 
     CacheItem( FT_Face ftFace,
                const FontPath& path,
-               PointSize26Dot6 pointSize,
+               PointSize26Dot6 requestedPointSize,
                FaceIndex face,
                const FontMetrics& metrics,
                float fixedWidth,
                float fixedHeight );
 
-    FT_Face mFreeTypeFace;       ///< The FreeType face.
-    FontPath mPath;              ///< The path to the font file name.
-    PointSize26Dot6 mPointSize;  ///< The font point size.
-    FaceIndex mFaceIndex;        ///< The face index.
-    FontMetrics mMetrics;        ///< The font metrics.
-    FT_Short mFixedWidthPixels;  ///< The height in pixels (fixed size bitmaps only)
-    FT_Short mFixedHeightPixels; ///< The height in pixels (fixed size bitmaps only)
-    unsigned int mVectorFontId;  ///< The ID of the equivalent vector-based font
-    bool mIsFixedSizeBitmap;     ///< Whether the font has fixed size bitmaps.
+    FT_Face mFreeTypeFace;               ///< The FreeType face.
+    FontPath mPath;                      ///< The path to the font file name.
+    PointSize26Dot6 mRequestedPointSize; ///< The font point size.
+    FaceIndex mFaceIndex;                ///< The face index.
+    FontMetrics mMetrics;                ///< The font metrics.
+    FT_Short mFixedWidthPixels;          ///< The height in pixels (fixed size bitmaps only)
+    FT_Short mFixedHeightPixels;         ///< The height in pixels (fixed size bitmaps only)
+    unsigned int mVectorFontId;          ///< The ID of the equivalent vector-based font
+    bool mIsFixedSizeBitmap;             ///< Whether the font has fixed size bitmaps.
   };
 
   struct EllipsisItem
   {
-    PointSize26Dot6 size;
+    PointSize26Dot6 requestedPointSize;
     GlyphInfo glyph;
   };
 
@@ -193,31 +193,37 @@ struct FontClient::Plugin
    */
   FontId FindFontForCharacter( const FontList& fontList,
                                Character charcode,
-                               PointSize26Dot6 requestedSize,
+                               PointSize26Dot6 requestedPointSize,
                                bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
-  FontId FindDefaultFont( Character charcode, PointSize26Dot6 pointSize, bool preferColor );
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::FindFallbackFont()
    */
-  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedSize, bool preferColor );
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
-   * @see Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   * @see Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    *
+   * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
    * @param[in] cacheDescription Whether to cache the font description.
    */
-  FontId GetFontId( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex, bool cacheDescription = true );
+  FontId GetFontId( const FontPath& path,
+                    PointSize26Dot6 requestedPointSize,
+                    PointSize26Dot6 actualPointSize,
+                    FaceIndex faceIndex,
+                    bool cacheDescription = true );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 pointSize, FaceIndex faceIndex )
+   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontDescription& fontDescription,
-                    PointSize26Dot6 pointSize,
+                    PointSize26Dot6 requestedPointSize,
+                    PointSize26Dot6 actualPointSize,
                     FaceIndex faceIndex );
 
   /**
@@ -244,7 +250,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetFontMetrics()
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics, int desiredFixedSize );
+  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
    * @copydoc Dali::FontClient::GetGlyphIndex()
@@ -254,22 +260,22 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal, int desiredFixedSize );
+  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
    * Helper for GetGlyphMetrics when using bitmaps
    */
-  bool GetBitmapMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
+  bool GetBitmapMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
   /**
    * Helper for GetGlyphMetrics when using vectors
    */
-  bool GetVectorMetrics( GlyphInfo* array, uint32_t size, bool horizontal, int desiredFixedSize );
+  bool GetVectorMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
   /**
    * @copydoc Dali::FontClient::CreateBitmap()
    */
-  BufferImage CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
    * @copydoc Dali::FontClient::CreateVectorBlob()
@@ -279,7 +285,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::GetEllipsisGlyph()
    */
-  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 pointSize );
+  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
 
 private:
 
@@ -340,45 +346,38 @@ private:
    * @brief Creates a font.
    *
    * @param[in] path The path to the font file name.
-   * @param[in] pointSize The font point size.
+   * @param[in] requestedPointSize The requested point size.
+   * @param[in] actualPointSize The actual point size (for color emojis).
    * @param[in] faceIndex A face index.
    * @param[in] cacheDescription Whether to cache the font description.
    *
    * @return The font id.
    */
-  FontId CreateFont( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex, bool cacheDescription );
-
-  /**
-   * @brief Creates a fixed size font
-   *
-   * @param[in] path The path to the font file name.
-   * @param[in] pointSize The font point size( must be an available size ).
-   * @param[in] faceIndex A face index.
-   * @param[in] cacheDescription Whether to cache the font description.
-   *
-   * @return The font id.
-   */
-  FontId CreateFixedSizeFont( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex, bool cacheDescription );
+  FontId CreateFont( const FontPath& path,
+                     PointSize26Dot6 requestedPointSize,
+                     PointSize26Dot6 actualPointSize,
+                     FaceIndex faceIndex,
+                     bool cacheDescription );
 
   /**
    *
    * @param[in] destBitmap
    * @param[in] srcBitmap
    */
-  void ConvertBitmap( BufferImage& destBitmap, FT_Bitmap srcBitmap );
+  void ConvertBitmap( PixelData& destBitmap, FT_Bitmap srcBitmap );
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
    * If there is one , if writes the font id in the param @p fontId.
    *
    * @param[in] path Path to the font file name.
-   * @param[in] pointSize The font point size.
+   * @param[in] requestedPointSize The font point size.
    * @param[in] faceIndex The face index.
    * @param[out] fontId The font id.
    *
    * @return @e true if there triplet is found.
    */
-  bool FindFont( const FontPath& path, PointSize26Dot6 pointSize, FaceIndex faceIndex, FontId& fontId ) const;
+  bool FindFont( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex, FontId& fontId ) const;
 
   /**
    * @brief Finds in the cache a cluster 'font family, font width, font weight, font slant'
@@ -406,13 +405,13 @@ private:
    * If there is one it writes the font id in the param @p fontId.
    *
    * @param[in] validatedFontId Index to the vector with font descriptions.
-   * @param[in] pointSize The font point size.
+   * @param[in] requestedPointSize The font point size.
    * @param[out] fontId The font id.
    *
    * @return @e true if the pair is found.
    */
   bool FindFont( FontDescriptionId validatedFontId,
-                 PointSize26Dot6 pointSize,
+                 PointSize26Dot6 requestedPointSize,
                  FontId& fontId );
 
   /**
@@ -437,10 +436,10 @@ private:
    *
    * @param[in] ftFace The FreeType face.
    * @param[in] id The font identifier.
-   * @param[in] pointSize The font point size.
+   * @param[in] requestedPointSize The font point size.
    * @param[in] path Path to the font file name.
    */
-  void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 pointSize,  const FontPath& path );
+  void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize,  const FontPath& path );
 
 private:
 

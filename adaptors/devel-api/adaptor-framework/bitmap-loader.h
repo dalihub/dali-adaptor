@@ -1,5 +1,5 @@
-#ifndef __DALI_BITMAP_LOADER_H__
-#define __DALI_BITMAP_LOADER_H__
+#ifndef DALI_BITMAP_LOADER_H
+#define DALI_BITMAP_LOADER_H
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -20,10 +20,10 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/images/pixel.h>
 #include <dali/public-api/images/image-operations.h>
+#include <dali/public-api/images/pixel.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/devel-api/images/pixel-data.h>
 
 namespace Dali
 {
@@ -124,4 +124,4 @@ public: // Not intended for application developers
 
 } // Dali
 
-#endif // __DALI_BITMAP_LOADER_H__
+#endif // DALI_BITMAP_LOADER_H
