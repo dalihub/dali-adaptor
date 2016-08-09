@@ -24,12 +24,21 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <bundle.h>
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 
-#define CLIPBOARD_STR  "CLIPBOARD_STR"
+namespace //unnamed namespace
+{
+const char* const CBHM_WINDOW = "CBHM_XWIN";
+const char* const CBHM_MSG = "CBHM_MSG";
+const char* const CBHM_ITEM = "CBHM_ITEM";
+const char* const CBHM_cCOUNT = "CBHM_cCOUNT";
+const char* const CBHM_ERROR = "CBHM_ERROR";
+const char* const SET_ITEM = "SET_ITEM";
+const char* const SHOW = "show0";
+const char* const HIDE = "cbhm_hide";
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Clipboard
@@ -46,33 +55,7 @@ namespace Adaptor
 
 struct Clipboard::Impl
 {
-  Impl()
-  {
-    mBundle = bundle_create();
-  }
-
-  void SetItem(const char *data)
-  {
-    bundle_add_str(mBundle, CLIPBOARD_STR, data);
-  }
-
-  char *GetItem()
-  {
-    char *data = NULL;
-
-    if ( bundle_get_count(mBundle) )
-    {
-      bundle_get_str(mBundle, CLIPBOARD_STR, &data);
-    }
-    return data;
-  }
-
-  int GetCount()
-  {
-    return bundle_get_count(mBundle);
-  }
-
-  bundle *mBundle;
+  // Put implementation here.
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -111,7 +94,6 @@ Dali::Clipboard Clipboard::Get()
 
 bool Clipboard::SetItem(const std::string &itemData )
 {
-  mImpl->SetItem( const_cast<char*>( itemData.c_str()) );
   return true;
 }
 
@@ -120,8 +102,16 @@ bool Clipboard::SetItem(const std::string &itemData )
  */
 std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali::Text object.
 {
-  std::string clipboardString(mImpl->GetItem());
-  return clipboardString;
+  if ( index >= NumberOfItems() )
+  {
+    return "";
+  }
+
+  std::string emptyString( "" );
+  char sendBuf[20];
+
+  snprintf( sendBuf, 20,  "%s%d", CBHM_ITEM, index );
+  return emptyString;
 }
 
 /*
@@ -129,7 +119,9 @@ std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali
  */
 unsigned int Clipboard::NumberOfItems()
 {
-  return mImpl->GetCount();
+  int count = -1;
+
+  return count;
 }
 
 /**
