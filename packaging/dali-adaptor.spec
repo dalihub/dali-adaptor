@@ -60,14 +60,6 @@ BuildRequires:  pkgconfig(appcore-watch)
 %define gles_requirement_setup 1
 %endif
 
-%if "%{profile}" == "ivi"
-%define dali_profile IVI
-%define dali_feedback_plugin 0
-%define shaderbincache_flag DISABLE
-BuildRequires:  pkgconfig(glesv2)
-%define gles_requirement_setup 1
-%endif
-
 %if "%{profile}" == "common"
 %define dali_profile COMMON
 %define dali_feedback_plugin 0
