@@ -190,7 +190,6 @@ private:   // native image
 private:
 
   /**
-   * @internal
    * @brief Private constructor
    * @SINCE_1_0.0
    * @param[in] width The width of the image.
@@ -201,7 +200,6 @@ private:
   DALI_INTERNAL NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource );
 
   /**
-   * @internal
    * @brief A reference counted object may only be deleted by calling Unreference().
    *
    * The implementation should destroy the NativeImage resources.
@@ -210,7 +208,6 @@ private:
   DALI_INTERNAL virtual ~NativeImageSource();
 
   /**
-   * @internal
    * @brief Undefined copy constructor
    *
    * This avoids accidental calls to a default copy constructor.
@@ -220,7 +217,6 @@ private:
   DALI_INTERNAL NativeImageSource( const NativeImageSource& nativeImageSource );
 
   /**
-   * @internal
    * @brief Undefined assignment operator.
    *
    * This avoids accidental calls to a default assignment operator.
