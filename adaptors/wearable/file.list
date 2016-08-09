@@ -1,4 +1,0 @@
-# wearable profile public files
-
-adaptor_dali_wearable_header_files = \
-  $(adaptor_wearable_dir)/dali-wearable.h

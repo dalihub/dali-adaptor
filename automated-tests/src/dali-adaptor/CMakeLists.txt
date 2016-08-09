@@ -14,7 +14,7 @@ SET(TC_SOURCES
     utc-Dali-Application.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-BitmapLoader.cpp
-    #utc-Dali-Watch.cpp
+    utc-Dali-Watch.cpp
     #utc-Dali-KeyGrab.cpp
 )
 
