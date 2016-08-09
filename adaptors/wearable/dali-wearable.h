@@ -19,6 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/watch/watch-application.h>
+#include <dali/public-api/adaptor-framework/watch-application.h>
 
 #endif // __DALI_WEARABLE_H__

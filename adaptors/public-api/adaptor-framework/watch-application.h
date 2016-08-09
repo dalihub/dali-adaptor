@@ -24,7 +24,7 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <public-api/adaptor-framework/application.h>
+#include "application.h"
 #include "watch-time.h"
 
 namespace Dali

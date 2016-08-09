@@ -16,13 +16,13 @@
  */
 
 // CLASS HEADER
-#include "watch-application.h"
+#include <watch-application.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <wearable/watch-application-impl.h>
+#include <watch-application-impl.h>
 
 namespace Dali
 {

@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <wearable/watch/watch-application.h>
+#include <watch-application.h>
 #include <application-impl.h>
 
 namespace Dali

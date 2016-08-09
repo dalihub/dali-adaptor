@@ -34,6 +34,8 @@
 
 // INTERNAL INCLUDES
 #include <callback-manager.h>
+#include <watch-application-impl.h>
+#include <watch-time.h>
 
 namespace Dali
 {
