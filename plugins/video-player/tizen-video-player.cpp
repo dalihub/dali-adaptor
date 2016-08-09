@@ -491,7 +491,7 @@ Dali::VideoPlayerPlugin::DisplayRotation TizenVideoPlayer::GetDisplayRotation()
   }
 
   int error;
-  player_display_rotation_e rotation = PLAYER_DISPLAY_ROTATION_NONE;
+  player_display_rotation_e rotation;
   if( mPlayerState != PLAYER_STATE_NONE )
   {
     error = player_get_display_rotation( mPlayer, &rotation );
