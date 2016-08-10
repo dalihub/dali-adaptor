@@ -367,6 +367,7 @@ public:  // Signals
 
 public: // Not intended for application developers
   /**
+   * @internal
    * @brief Internal constructor
    * @SINCE_1_0.0
    */
