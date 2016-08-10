@@ -53,6 +53,12 @@ struct Clipboard::Impl
 
   void SetItem(const char *data)
   {
+    char *temp = NULL;
+
+    if (bundle_get_str(mBundle, CLIPBOARD_STR, &temp) == BUNDLE_ERROR_NONE)
+    {
+      bundle_del(mBundle, CLIPBOARD_STR);
+    }
     bundle_add_str(mBundle, CLIPBOARD_STR, data);
   }
 
