@@ -2,7 +2,7 @@
 #define __DALI_INTEGRATION_ADAPTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,6 +196,16 @@ public:
    * @note Ownership of the callback is passed onto this class.
    */
   bool AddIdle( CallbackBase* callback );
+
+  /**
+   * @brief Removes a previously added @p callback.
+   * @note Function must be called from the main event thread only.
+   *
+   * Does nothing if the @p callback doesn't exist.
+   *
+   * @param[in] callback The callback to be removed.
+   */
+  void RemoveIdle( CallbackBase* callback );
 
   /**
    * @brief Replaces the rendering surface
