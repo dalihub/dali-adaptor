@@ -93,14 +93,21 @@ PointSize26Dot6 FontClient::GetPointSize( FontId id )
   return GetImplementation(*this).GetPointSize( id );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
+FontId FontClient::FindDefaultFont( Character charcode,
+                                    PointSize26Dot6 requestedPointSize,
+                                    bool preferColor )
 {
-  return GetImplementation(*this).FindDefaultFont( charcode, requestedPointSize, preferColor );
+  return GetImplementation(*this).FindDefaultFont( charcode,
+                                                   requestedPointSize,
+                                                   preferColor );
 }
 
-FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
+FontId FontClient::FindFallbackFont( Character charcode,
+                                     const FontDescription& preferredFontDescription,
+                                     PointSize26Dot6 requestedPointSize,
+                                     bool preferColor )
 {
-  return GetImplementation(*this).FindFallbackFont( preferredFont, charcode, requestedPointSize, preferColor );
+  return GetImplementation(*this).FindFallbackFont( charcode, preferredFontDescription, requestedPointSize, preferColor );
 }
 
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )

@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.0
+Version:    1.2.1
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -64,6 +64,15 @@ BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
+%define gles_requirement_setup 1
+%endif
+
+%if "%{profile}" == "ivi"
+%define dali_profile IVI
+%define dali_feedback_plugin 0
+%define dali_videoplayer_plugin 1
+%define shaderbincache_flag DISABLE
+BuildRequires:  pkgconfig(glesv2)
 %define gles_requirement_setup 1
 %endif
 

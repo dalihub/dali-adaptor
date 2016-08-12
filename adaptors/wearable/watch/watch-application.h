@@ -187,11 +187,13 @@ public:
   WatchBoolSignal& AmbientChangedSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief Internal constructor
    * @SINCE_1_1.37
    */
   explicit DALI_INTERNAL WatchApplication(Internal::Adaptor::WatchApplication* implementation);
+  /// @endcond
 };
 
 /**

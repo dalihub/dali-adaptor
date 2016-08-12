@@ -366,11 +366,13 @@ public:  // Signals
   AppSignalType& MemoryLowSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief Internal constructor
    * @SINCE_1_0.0
    */
   explicit DALI_INTERNAL Application(Internal::Adaptor::Application* application);
+  /// @endcond
 };
 
 /**

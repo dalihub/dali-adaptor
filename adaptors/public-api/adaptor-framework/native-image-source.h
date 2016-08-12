@@ -189,6 +189,7 @@ private:   // native image
 
 private:
 
+  /// @cond internal
   /**
    * @brief Private constructor
    * @SINCE_1_0.0
@@ -224,10 +225,13 @@ private:
    * @param[in] rhs A reference to the object to copy.
    */
   DALI_INTERNAL NativeImageSource& operator=(const NativeImageSource& rhs);
+  /// @endcond
 
 private:
 
+  /// @cond internal
   Internal::Adaptor::NativeImageSource* mImpl; ///< Implementation pointer
+  /// @endcond
 };
 
 /**
