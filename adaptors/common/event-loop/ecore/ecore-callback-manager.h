@@ -2,7 +2,7 @@
 #define __DALI_ECORE_CALLBACK_MANAGER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,9 +57,14 @@ public:
     }
 
     /**
-     * @copydoc CallbackManager::AddCallback()
+     * @copydoc CallbackManager::AddIdleCallback()
      */
     virtual bool AddIdleCallback( CallbackBase* callback );
+
+    /**
+     * @copydoc CallbackManager::RemoveIdleCallback()
+     */
+    virtual void RemoveIdleCallback( CallbackBase* callback );
 
     /**
      * @copydoc CallbackManager::Start()
