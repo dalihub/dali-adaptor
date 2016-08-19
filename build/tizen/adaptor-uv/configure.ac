@@ -332,11 +332,18 @@ if test x$FONT_CONFIGURATION_FILE != x; then
   fontConfigurationFile=$FONT_CONFIGURATION_FILE
 fi
 
+if test x$TIZEN_PLATFORM_CONFIG_SUPPORTED != x; then
+  tizenPlatformConfigSupported=$TIZEN_PLATFORM_CONFIG_SUPPORTED
+else
+  tizenPlatformConfigSupported=0
+fi
+
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
 AC_SUBST(fontConfigurationFile)
+AC_SUBST(tizenPlatformConfigSupported)
 
 # Specify the include directory for development headers
 #devincludepath=${includedir}/dali/internal
@@ -374,7 +381,9 @@ Configuration
   Font config file:                 $fontConfigurationFile
   Building with EFL Libraries:      $enable_efl
   Using Tizen APP FW libraries:     $enable_appfw
-  OpenGL ES version:                $enable_gles"
+  OpenGL ES version:                $enable_gles
+  Tizen Platform Config supported:  $tizenPlatformConfigSupported
+"
 # optional output of node.js source path if we're building with libuv
 if test "x$build_for_libuv" != "xno"; then
 echo "  LibUV header path                 $with_libuv"

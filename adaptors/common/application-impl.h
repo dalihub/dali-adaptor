@@ -106,6 +106,11 @@ public:
    */
   void ReplaceWindow(PositionSize windowPosition, const std::string& name);
 
+  /**
+   * @copydoc Dali::Application::GetResourcePath();
+   */
+  static std::string GetResourcePath();
+
 public: // Stereoscopy
 
   /**
