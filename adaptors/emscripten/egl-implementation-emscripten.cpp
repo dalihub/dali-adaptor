@@ -237,62 +237,62 @@ void EglImplementation::MakeContextCurrent()
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR("EGL_BAD_DISPLAY : Display is not an EGL display connection\n");
+        DALI_LOG_ERROR("EGL_BAD_DISPLAY : Display is not an EGL display connection");
         break;
       }
       case EGL_NOT_INITIALIZED:
       {
-        DALI_LOG_ERROR("EGL_NOT_INITIALIZED : Display has not been initialized\n");
+        DALI_LOG_ERROR("EGL_NOT_INITIALIZED : Display has not been initialized");
         break;
       }
       case EGL_BAD_SURFACE:
       {
-        DALI_LOG_ERROR("EGL_BAD_SURFACE : Draw or read is not an EGL surface\n");
+        DALI_LOG_ERROR("EGL_BAD_SURFACE : Draw or read is not an EGL surface");
         break;
       }
       case EGL_BAD_CONTEXT:
       {
-        DALI_LOG_ERROR("EGL_BAD_CONTEXT : Context is not an EGL rendering context\n");
+        DALI_LOG_ERROR("EGL_BAD_CONTEXT : Context is not an EGL rendering context");
         break;
       }
       case EGL_BAD_MATCH:
       {
-        DALI_LOG_ERROR("EGL_BAD_MATCH : Draw or read are not compatible with context, or if context is set to EGL_NO_CONTEXT and draw or read are not set to EGL_NO_SURFACE, or if draw or read are set to EGL_NO_SURFACE and context is not set to EGL_NO_CONTEXT\n");
+        DALI_LOG_ERROR("EGL_BAD_MATCH : Draw or read are not compatible with context, or if context is set to EGL_NO_CONTEXT and draw or read are not set to EGL_NO_SURFACE, or if draw or read are set to EGL_NO_SURFACE and context is not set to EGL_NO_CONTEXT");
         break;
       }
       case EGL_BAD_ACCESS:
       {
-        DALI_LOG_ERROR("EGL_BAD_ACCESS : Context is current to some other thread\n");
+        DALI_LOG_ERROR("EGL_BAD_ACCESS : Context is current to some other thread");
         break;
       }
       case EGL_BAD_NATIVE_PIXMAP:
       {
-        DALI_LOG_ERROR("EGL_BAD_NATIVE_PIXMAP : A native pixmap underlying either draw or read is no longer valid.\n");
+        DALI_LOG_ERROR("EGL_BAD_NATIVE_PIXMAP : A native pixmap underlying either draw or read is no longer valid.");
         break;
       }
       case EGL_BAD_NATIVE_WINDOW:
       {
-        DALI_LOG_ERROR("EGL_BAD_NATIVE_WINDOW : A native window underlying either draw or read is no longer valid.\n");
+        DALI_LOG_ERROR("EGL_BAD_NATIVE_WINDOW : A native window underlying either draw or read is no longer valid.");
         break;
       }
       case EGL_BAD_CURRENT_SURFACE:
       {
-        DALI_LOG_ERROR("EGL_BAD_CURRENT_SURFACE : The previous context has unflushed commands and the previous surface is no longer valid.\n");
+        DALI_LOG_ERROR("EGL_BAD_CURRENT_SURFACE : The previous context has unflushed commands and the previous surface is no longer valid.");
         break;
       }
       case EGL_BAD_ALLOC:
       {
-        DALI_LOG_ERROR("EGL_BAD_ALLOC : Allocation of ancillary buffers for draw or read were delayed until eglMakeCurrent is called, and there are not enough resources to allocate them\n");
+        DALI_LOG_ERROR("EGL_BAD_ALLOC : Allocation of ancillary buffers for draw or read were delayed until eglMakeCurrent is called, and there are not enough resources to allocate them");
         break;
       }
       case EGL_CONTEXT_LOST:
       {
-        DALI_LOG_ERROR("EGL_CONTEXT_LOST : If a power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering\n");
+        DALI_LOG_ERROR("EGL_CONTEXT_LOST : If a power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering");
         break;
       }
       default:
       {
-        DALI_LOG_ERROR("Unknown error\n");
+        DALI_LOG_ERROR("Unknown error");
         break;
       }
     }
@@ -430,27 +430,27 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR("Display is not an EGL display connection\n");
+        DALI_LOG_ERROR("Display is not an EGL display connection");
         break;
       }
       case EGL_BAD_ATTRIBUTE:
       {
-        DALI_LOG_ERROR("The parameter confirAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range\n");
+        DALI_LOG_ERROR("The parameter confirAttribs contains an invalid frame buffer configuration attribute or an attribute value that is unrecognized or out of range");
         break;
       }
       case EGL_NOT_INITIALIZED:
       {
-        DALI_LOG_ERROR("Display has not been initialized\n");
+        DALI_LOG_ERROR("Display has not been initialized");
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR("The parameter numConfig is NULL\n");
+        DALI_LOG_ERROR("The parameter numConfig is NULL");
         break;
       }
       default:
       {
-        DALI_LOG_ERROR("Unknown error\n");
+        DALI_LOG_ERROR("Unknown error");
       }
     }
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
@@ -458,7 +458,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if ( numConfigs != 1 )
   {
-    DALI_LOG_ERROR("No configurations found.\n");
+    DALI_LOG_ERROR("No configurations found.");
     TEST_EGL_ERROR("eglChooseConfig");
   }
 }

@@ -49,22 +49,6 @@ void Adaptor::GetDataStoragePath( std::string& path)
 
 }
 
-void Adaptor::GetAppId( std::string& appId )
-{
-#ifdef USE_APPFW
-  char *id;
-  app_get_id(&id);
-  if ( id )
-  {
-    appId = id;
-  }
-  else
-  {
-    appId = "";
-  }
-#endif
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

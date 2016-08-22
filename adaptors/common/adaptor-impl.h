@@ -324,11 +324,6 @@ public:
    */
   void NotifyLanguageChanged();
 
-  /**
-   * Gets AppId of current application
-   */
-  void GetAppId( std::string& appId );
-
 public:  //AdaptorInternalServices
 
   /**

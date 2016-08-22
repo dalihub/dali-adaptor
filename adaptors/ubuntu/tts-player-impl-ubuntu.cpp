@@ -45,7 +45,7 @@ Dali::TtsPlayer TtsPlayer::New(Dali::TtsPlayer::Mode mode)
 TtsPlayer::TtsPlayer(Dali::TtsPlayer::Mode mode)
 : mStateChangedSignal()
 {
-  DALI_LOG_ERROR("TTS is not implemented in UBUNTU profile.\n");
+  DALI_LOG_ERROR("TTS is not implemented in UBUNTU profile.");
 }
 
 TtsPlayer::~TtsPlayer()

@@ -417,7 +417,7 @@ struct EventHandler::Impl
 #ifdef DALI_ELDBUS_AVAILABLE
 
       // Initialize ElDBus.
-      DALI_LOG_INFO( gImfLogging, Debug::General, "Starting DBus Initialization\n" );
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Starting DBus Initialization" );
       eldbus_init();
 
       mSessionConnection = eldbus_connection_get( ELDBUS_CONNECTION_TYPE_SESSION );
@@ -428,7 +428,7 @@ struct EventHandler::Impl
       // Pass in handler in the cb_data field so we can access the accessibility adaptor within the callback.
       eldbus_proxy_call( elDBusManager, A11Y_GET_ADDRESS, EcoreElDBusInitialisation, handler, -1, "" );
 
-      DALI_LOG_INFO( gImfLogging, Debug::General, "Finished DBus Initialization\n" );
+      DALI_LOG_INFO( gImfLogging, Debug::General, "Finished DBus Initialization" );
 
 #endif // DALI_ELDBUS_AVAILABLE
     }

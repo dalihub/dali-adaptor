@@ -255,7 +255,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if( fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
   {
-    DALI_LOG_WARNING("Error on image file read.\n");
+    DALI_LOG_WARNING("Error on image file read.");
     return false;
   }
 
@@ -297,7 +297,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
 
   if(preXformImageWidth == 0 || preXformImageHeight == 0)
   {
-    DALI_LOG_WARNING("Invalid Image!\n");
+    DALI_LOG_WARNING("Invalid Image!");
     return false;
   }
 
@@ -552,7 +552,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
     }
     default:
     {
-      DALI_LOG_ERROR( "Unsupported pixel format for encoding to JPEG.\n" );
+      DALI_LOG_ERROR( "Unsupported pixel format for encoding to JPEG." );
       return false;
     }
   }
@@ -653,7 +653,7 @@ JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
       default:
       {
         // Try to keep loading the file, but let app developer know there was something fishy:
-        DALI_LOG_WARNING( "Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.\n", entry );
+        DALI_LOG_WARNING( "Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.", entry );
         break;
       }
     }
@@ -688,7 +688,7 @@ bool TransformSize( int requiredWidth, int requiredHeight,
   tjscalingfactor* factors = tjGetScalingFactors( &numFactors );
   if( factors == NULL )
   {
-    DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!\n");
+    DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!");
     success = false;
   }
   else

@@ -86,7 +86,7 @@ bool DisplayConnection::InitializeEgl(EglInterface& egl)
 
   if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
   {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
+    DALI_LOG_ERROR("Failed to initialize GLES.");
     return false;
   }
 

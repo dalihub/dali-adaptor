@@ -34,6 +34,7 @@
 #include <ecore-indicator-impl.h>
 #include <window-visibility-observer.h>
 #include <orientation-impl.h>
+
 namespace
 {
 const float INDICATOR_ANIMATION_DURATION( 0.18f ); // 180 milli seconds
@@ -161,34 +162,6 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
   DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "visible : %d\n", visibleMode );
   DALI_ASSERT_DEBUG(mOverlay);
 
-  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  DALI_ASSERT_DEBUG(wlSurface);
-  Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
-
-  mIndicatorVisible = visibleMode;
-
-  if ( mIndicatorVisible == Dali::Window::VISIBLE )
-  {
-    // when the indicator is visible, set proper mode for indicator server according to bg mode
-    if ( mIndicatorOpacityMode == Dali::Window::OPAQUE )
-    {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
-    }
-    else if ( mIndicatorOpacityMode == Dali::Window::TRANSLUCENT )
-    {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSLUCENT);
-    }
-    else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
-    {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
-    }
-  }
-  else
-  {
-    // when the indicator is not visible, set TRANSPARENT mode for indicator server
-    ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSPARENT); // it means hidden indicator
-  }
-
   DoShowIndicator( mIndicatorOrientation );
 }
 
@@ -261,11 +234,6 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
   windowSurface->Map();
 
   mSurface = windowSurface;
-
-  std::string appId;
-  mAdaptor->GetAppId( appId );
-  Ecore_Wl_Window* wlWindow = windowSurface ->GetWlWindow();
-  ecore_wl_window_class_name_set(wlWindow, appId.c_str());
 
   mOrientation = Orientation::New(this);
 

@@ -130,7 +130,7 @@ bool DecodeRle( const unsigned char* input,
 
     if( (runLength + outputIndex) > decodedSize)
     {
-      DALI_LOG_ERROR( "corrupted RLE data\n" );
+      DALI_LOG_ERROR( "corrupted RLE data" );
       // corrupted
       return false;
     }
@@ -140,7 +140,7 @@ bool DecodeRle( const unsigned char* input,
   }
   if( outputIndex != decodedSize)
   {
-    DALI_LOG_ERROR(" RLE data size missmatch\n");
+    DALI_LOG_ERROR(" RLE data size missmatch");
     return false;
   }
 

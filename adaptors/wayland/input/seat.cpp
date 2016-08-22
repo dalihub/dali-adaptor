@@ -226,7 +226,7 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
 
   if( !mXkbData.mContext )
   {
-    DALI_LOG_ERROR("xkb_context_new failed\n");
+    DALI_LOG_ERROR("xkb_context_new failed");
     close(fd);
     return;
   }
@@ -236,7 +236,7 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
 
   if( format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1 )
   {
-    DALI_LOG_ERROR("expected WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1\n");
+    DALI_LOG_ERROR("expected WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1");
     close(fd);
     return;
   }
@@ -245,7 +245,7 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
   char* map =  static_cast<char*> (mmap( NULL, size, PROT_READ, MAP_SHARED, fd, 0));
   if( map == MAP_FAILED)
   {
-    DALI_LOG_ERROR("mmap xkb failed\n");
+    DALI_LOG_ERROR("mmap xkb failed");
     close(fd);
     return;
   }
@@ -257,7 +257,7 @@ void Seat::KeyboardKeymap( unsigned int format, int fd, unsigned int size )
 
   if (! mXkbData.mKeymap )
   {
-    DALI_LOG_ERROR(" xkb_map_new_from_string failed\n");
+    DALI_LOG_ERROR(" xkb_map_new_from_string failed");
     return;
   }
 

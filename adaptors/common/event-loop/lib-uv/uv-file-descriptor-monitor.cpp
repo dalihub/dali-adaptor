@@ -87,7 +87,7 @@ public:
 
        if( status < 0)
        {
-         DALI_LOG_ERROR("LibUV FD_ERROR occurred on %d\n", impl->mFileDescriptor);
+         DALI_LOG_ERROR("LibUV FD_ERROR occurred on %d", impl->mFileDescriptor);
          CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR );
          return;
        }
