@@ -36,11 +36,6 @@ struct WatchTime::Impl
   void *mTimeHandle;
 };
 
-WatchTime::WatchTime()
-  :mImpl(NULL)
-{
-}
-
 WatchTime::WatchTime(void *time_handle)
 {
   mImpl = new Impl(time_handle);
@@ -56,6 +51,14 @@ WatchTime::~WatchTime()
 }
 
 #ifdef APPCORE_WATCH_AVAILABLE
+
+WatchTime::WatchTime()
+{
+  watch_time_h watch_time = {0,};
+
+  watch_time_get_current_time(&watch_time);
+  mImpl = new Impl(watch_time);
+}
 
 int WatchTime::GetHour() const
 {
@@ -91,6 +94,11 @@ int WatchTime::GetSecond() const
 
 #else
 
+WatchTime::WatchTime()
+  :mImpl(NULL)
+{
+}
+
 int WatchTime::GetHour() const
 {
   return 0;
@@ -111,6 +119,6 @@ int WatchTime::GetSecond() const
   return 0;
 }
 
-#endif
+#endif  // APPCORE_WATCH_AVAILABLE
 
 } // namespace Dali
