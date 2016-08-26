@@ -21,7 +21,9 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 #include <Evas.h>
-#ifndef WAYLAND
+#ifdef WAYLAND
+#include <Ecore_Wayland.h>
+#else
 #include <Ecore_X.h>
 #endif
 
@@ -291,11 +293,15 @@ namespace Adaptor
 Debug::Filter* gIndicatorLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_INDICATOR");
 #endif
 
-#ifndef WAYLAND
 // Impl to hide EFL implementation.
+
 struct Indicator::Impl
 {
-  // Construction & Destruction
+  enum // operation mode
+  {
+    INDICATOR_HIDE,
+    INDICATOR_STAY_WITH_DURATION
+  };
 
   /**
    * Constructor
@@ -304,8 +310,11 @@ struct Indicator::Impl
   : mIndicator(indicator),
     mEcoreEventHandler(NULL)
   {
-    // Register Client message events for quick panel state.
+#if defined(WAYLAND) && defined(DALI_PROFILE_MOBILE)
+    mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#elif !defined(DALI_PROFILE_UBUNTU)
     mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
+#endif
   }
 
   /**
@@ -313,24 +322,21 @@ struct Indicator::Impl
    */
   ~Impl()
   {
-    ecore_event_handler_del(mEcoreEventHandler);
+    if ( mEcoreEventHandler )
+    {
+      ecore_event_handler_del(mEcoreEventHandler);
+    }
   }
 
-  /**
-   * Called when the client messages (i.e. quick panel state) are received.
-   */
-  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
+  static void SetIndicatorVisibility( void* data, int operation )
   {
-    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
     Indicator::Impl* indicatorImpl((Indicator::Impl*)data);
 
-    if (clientMessageEvent == NULL || indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
+    if ( indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
     {
-      return ECORE_CALLBACK_PASS_ON;
+      return;
     }
-
-#ifndef DALI_PROFILE_UBUNTU
-    if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
+    if ( operation == INDICATOR_STAY_WITH_DURATION )
     {
       // if indicator is not showing, INDICATOR_FLICK_DONE is given
       if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
@@ -339,7 +345,7 @@ struct Indicator::Impl
         indicatorImpl->mIndicator->ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
       }
     }
-    else if( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
+    else if( operation == INDICATOR_HIDE )
     {
       if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
           indicatorImpl->mIndicator->mIsShowing )
@@ -347,16 +353,45 @@ struct Indicator::Impl
         indicatorImpl->mIndicator->ShowIndicator( HIDE_NOW );
       }
     }
-#endif
+  }
 
+#if defined(WAYLAND) && defined(DALI_PROFILE_MOBILE)
+  /**
+   * Called when the Ecore indicator event is received.
+   */
+  static Eina_Bool EcoreEventIndicator( void* data, int type, void* event )
+  {
+    SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
     return ECORE_CALLBACK_PASS_ON;
   }
+#elif !defined(DALI_PROFILE_UBUNTU)
+  /**
+   * Called when the client messages (i.e. quick panel state) are received.
+   */
+  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
+  {
+    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
+
+    if ( clientMessageEvent != NULL )
+    {
+      if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
+      {
+        SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
+      }
+      else if ( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
+      {
+        SetIndicatorVisibility( data, INDICATOR_HIDE );
+      }
+    }
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+#endif // WAYLAND && DALI_PROFILE_MOBILE
 
   // Data
   Indicator*           mIndicator;
   Ecore_Event_Handler* mEcoreEventHandler;
 };
-#endif
 
 Indicator::LockFile::LockFile(const std::string filename)
 : mFilename(filename),
@@ -504,21 +539,17 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   // hide the indicator by default
   mIndicatorActor.SetVisible( false );
 
-#ifndef WAYLAND
   // create impl to handle ecore event
   mImpl = new Impl(this);
-#endif
 }
 
 Indicator::~Indicator()
 {
-#ifndef WAYLAND
   if(mImpl)
   {
     delete mImpl;
     mImpl = NULL;
   }
-#endif
 
   if(mEventActor)
   {
@@ -724,6 +755,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         break;
 
         case Dali::PointState::UP:
+        case Dali::PointState::INTERRUPTED:
         {
           IpcDataEvMouseUp ipcUp( touchEvent.time );
           mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
