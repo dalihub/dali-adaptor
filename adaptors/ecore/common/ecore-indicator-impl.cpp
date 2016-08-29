@@ -310,11 +310,13 @@ struct Indicator::Impl
   : mIndicator(indicator),
     mEcoreEventHandler(NULL)
   {
-#if defined(WAYLAND) && defined(DALI_PROFILE_MOBILE)
+#if defined(DALI_PROFILE_MOBILE)
+#if defined(WAYLAND)
     mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
-#elif !defined(DALI_PROFILE_UBUNTU)
+#else
     mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
 #endif
+#endif // WAYLAND && DALI_PROFILE_MOBILE
   }
 
   /**
@@ -354,8 +356,8 @@ struct Indicator::Impl
       }
     }
   }
-
-#if defined(WAYLAND) && defined(DALI_PROFILE_MOBILE)
+#if defined(DALI_PROFILE_MOBILE)
+#if defined(WAYLAND)
   /**
    * Called when the Ecore indicator event is received.
    */
@@ -364,7 +366,7 @@ struct Indicator::Impl
     SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
     return ECORE_CALLBACK_PASS_ON;
   }
-#elif !defined(DALI_PROFILE_UBUNTU)
+#else
   /**
    * Called when the client messages (i.e. quick panel state) are received.
    */
@@ -385,7 +387,7 @@ struct Indicator::Impl
     }
     return ECORE_CALLBACK_PASS_ON;
   }
-
+#endif
 #endif // WAYLAND && DALI_PROFILE_MOBILE
 
   // Data
