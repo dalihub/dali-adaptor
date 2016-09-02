@@ -349,6 +349,7 @@ void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientatio
 
 void Window::IndicatorTypeChanged(Indicator::Type type)
 {
+#if defined(DALI_PROFILE_MOBILE)
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
 
   if( wlSurface )
@@ -369,6 +370,7 @@ void Window::IndicatorTypeChanged(Indicator::Type type)
         break;
     }
   }
+#endif //MOBILE
 }
 
 void Window::IndicatorClosed( IndicatorInterface* indicator )
