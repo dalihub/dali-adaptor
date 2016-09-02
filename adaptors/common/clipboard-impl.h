@@ -66,9 +66,9 @@ public:
   bool SetItem(const std::string &itemData);
 
   /**
-   * @copydoc Dali::Clipboard::GetItem()
+   * @copydoc Dali::Clipboard::RequestItem()
    */
-  std::string GetItem( unsigned int index );
+  void RequestItem();
 
   /**
    * @copydoc Dali::Clipboard::NumberOfClipboardItems()
@@ -83,7 +83,21 @@ public:
   /**
    * @copydoc Dali::Clipboard::HideClipboard()
    */
-  void HideClipboard();
+  void HideClipboard(bool skipFirstHide);
+
+  /**
+  * @copydoc Dali::Clipboard::IsVisible()
+  */
+  bool IsVisible() const;
+
+  /**
+  * @brief exchange either sending or receiving buffered data
+  *
+  * @param[in] type true for send buffered data, false for receive data to buffer
+  * @param[in] event information pointer
+  * @return The buffer pointer for send or receive data
+  */
+  char* ExcuteBuffered( bool type, void *event );
 
 private:
 
@@ -95,26 +109,27 @@ private:
 
   Impl* mImpl;
 
-}; // class clipboard
+public:
 
+}; // class clipboard
 
 } // namespace Adaptor
 
 } // namespace Internal
 
-  inline static Internal::Adaptor::Clipboard& GetImplementation(Dali::Clipboard& clipboard)
-  {
-    DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
-    BaseObject& handle = clipboard.GetBaseObject();
-    return static_cast<Internal::Adaptor::Clipboard&>(handle);
-  }
+inline static Internal::Adaptor::Clipboard& GetImplementation(Dali::Clipboard& clipboard)
+{
+  DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
+  BaseObject& handle = clipboard.GetBaseObject();
+  return static_cast<Internal::Adaptor::Clipboard&>(handle);
+}
 
-  inline static const  Internal::Adaptor::Clipboard& GetImplementation(const Dali::Clipboard& clipboard)
-  {
-    DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
-    const BaseObject& handle = clipboard.GetBaseObject();
-    return static_cast<const Internal::Adaptor::Clipboard&>(handle);
-  }
+inline static const  Internal::Adaptor::Clipboard& GetImplementation(const Dali::Clipboard& clipboard)
+{
+  DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
+  const BaseObject& handle = clipboard.GetBaseObject();
+  return static_cast<const Internal::Adaptor::Clipboard&>(handle);
+}
 
 } // namespace Dali
 

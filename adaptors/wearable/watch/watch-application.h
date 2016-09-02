@@ -165,7 +165,7 @@ public:
   WatchTimeSignal& TimeTickSignal();
 
   /**
-   * @brief This signal is emitted at every second in ambient mode
+   * @brief This signal is emitted at each minute in ambient mode
    * A callback of the following type may be connected:
    * @code
    *   void YourCallbackName(Application& application, WatchTimeSignal &time);

@@ -331,10 +331,46 @@ void Window::DoRotateIndicator( Dali::Window::WindowOrientation orientation )
 
 void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
 {
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+
+  if( wlSurface )
+  {
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
+    if ( isShow )
+    {
+      ecore_wl_window_indicator_state_set(wlWindow, ECORE_WL_INDICATOR_STATE_ON);
+    }
+    else
+    {
+      ecore_wl_window_indicator_state_set(wlWindow, ECORE_WL_INDICATOR_STATE_OFF);
+    }
+  }
 }
 
 void Window::IndicatorTypeChanged(Indicator::Type type)
 {
+#if defined(DALI_PROFILE_MOBILE)
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+
+  if( wlSurface )
+  {
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
+    switch(type)
+    {
+      case Indicator::INDICATOR_TYPE_1:
+        ecore_wl_indicator_visible_type_set(wlWindow, ECORE_WL_INDICATOR_VISIBLE_TYPE_SHOWN);
+        break;
+
+      case Indicator::INDICATOR_TYPE_2:
+        ecore_wl_indicator_visible_type_set(wlWindow, ECORE_WL_INDICATOR_VISIBLE_TYPE_HIDDEN);
+        break;
+
+      case Indicator::INDICATOR_TYPE_UNKNOWN:
+      default:
+        break;
+    }
+  }
+#endif //MOBILE
 }
 
 void Window::IndicatorClosed( IndicatorInterface* indicator )
