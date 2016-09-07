@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/gl-defines.h>
 #include <cstring>
 
 // INTERNAL INCLUDES
@@ -447,6 +448,11 @@ const char* NativeImageSource::GetCustomFragmentPreFix()
 const char* NativeImageSource::GetCustomSamplerTypename()
 {
   return SAMPLER_TYPE;
+}
+
+int NativeImageSource::GetEglImageTextureTarget()
+{
+  return GL_TEXTURE_EXTERNAL_OES;
 }
 
 } // namespace Adaptor

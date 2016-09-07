@@ -154,6 +154,11 @@ public:
    */
   const char* GetCustomSamplerTypename();
 
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
+   */
+  int GetEglImageTextureTarget();
+
 private:
 
   /**
