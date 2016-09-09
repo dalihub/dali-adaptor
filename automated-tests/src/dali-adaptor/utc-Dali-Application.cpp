@@ -610,3 +610,14 @@ int UtcDaliApplicationMemoryLowSignalN(void)
 
   END_TEST;
 }
+
+int UtcDaliApplicationGetResourcePathP(void)
+{
+  Application application = Application::New();
+  std::string result ("**invalid path**"); // Calling GetResourcePath should replace this with a system dependent path or "".
+  result = application.GetResourcePath();
+  DALI_TEST_CHECK( result !="**invalid path**" );
+
+  END_TEST;
+}
+
