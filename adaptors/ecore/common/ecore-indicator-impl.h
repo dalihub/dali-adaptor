@@ -289,6 +289,11 @@ private:
   void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
+   * Update top margin of the stage as much as indicator height
+   */
+  void UpdateTopMargin();
+
+  /**
    * Update the visibility and position of the actors
    */
   void UpdateVisibility();
@@ -444,6 +449,7 @@ private:
   Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
   bool                             mBackgroundVisible;   ///< Indicate whether background is visible
+  int                              mTopMargin;   ///< Top margin of the stage for indicator
 };
 
 } // Adaptor
