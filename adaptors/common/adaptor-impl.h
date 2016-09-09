@@ -326,6 +326,11 @@ public:
   void RequestUpdateOnce();
 
   /**
+   * Request adaptor to update indicator's height
+   */
+  void IndicatorSizeChanged(int height);
+
+  /**
    * @copydoc Dali::Adaptor::NotifySceneCreated()
    */
   void NotifySceneCreated();

@@ -757,6 +757,12 @@ void Adaptor::RequestUpdateOnce()
   }
 }
 
+void Adaptor::IndicatorSizeChanged(int height)
+{
+  // let the core know the indicator height is changed
+  mCore->SetTopMargin(height);
+}
+
 void Adaptor::ProcessCoreEventsFromIdle()
 {
   ProcessCoreEvents();

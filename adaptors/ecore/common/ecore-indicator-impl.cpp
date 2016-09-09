@@ -501,7 +501,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mCurrentSharedFile( 0 ),
   mSharedBufferType( BUFFER_TYPE_SHM ),
   mImpl( NULL ),
-  mBackgroundVisible( false )
+  mBackgroundVisible( false ),
+  mTopMargin( 0 )
 {
   mIndicatorContentActor = Dali::Actor::New();
   mIndicatorContentActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
@@ -648,6 +649,7 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     mIndicatorContentActor.RemoveRenderer( mBackgroundRenderer );
     mBackgroundVisible = false;
   }
+  UpdateTopMargin();
 }
 
 void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
@@ -678,6 +680,7 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
     }
 
     mVisible = visibleMode;
+    UpdateTopMargin();
 
     if( mForegroundRenderer && mForegroundRenderer.GetTextures().GetTexture( 0u ) )
     {
@@ -876,6 +879,7 @@ void Indicator::Resize( int width, int height )
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
+    UpdateTopMargin();
   }
 }
 
@@ -1014,6 +1018,16 @@ void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
   }
 }
 
+void Indicator::UpdateTopMargin()
+{
+  int newMargin = (mVisible == Dali::Window::VISIBLE && mOpacityMode == Dali::Window::OPAQUE) ? mImageHeight : 0;
+  if (mTopMargin != newMargin)
+  {
+    mTopMargin = newMargin;
+    mAdaptor->IndicatorSizeChanged( mTopMargin );
+  }
+}
+
 void Indicator::UpdateVisibility()
 {
   if( CheckVisibleState() )
@@ -1095,6 +1109,7 @@ void Indicator::CreateNewPixmapImage()
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize( mImageWidth, mImageHeight );
+    UpdateTopMargin();
   }
   else
   {
