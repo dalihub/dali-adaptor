@@ -882,11 +882,6 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("TRIANGLE_STRIP",  Dali::Geometry::TRIANGLE_STRIP)
 ;
 
-  enum_<Dali::Image::ReleasePolicy>("ReleasePolicy")
-    .value("UNUSED",          Dali::Image::UNUSED)
-    .value("NEVER",           Dali::Image::NEVER)
-;
-
   enum_<Dali::Pixel::Format>("PixelFormat")
     .value("A8", Dali::Pixel::Format::A8)
     .value("L8", Dali::Pixel::Format::L8)
