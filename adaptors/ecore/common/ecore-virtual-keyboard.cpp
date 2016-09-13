@@ -188,7 +188,12 @@ void ApplySettings( const Property::Map& settingsMap )
 
   for ( unsigned int i = 0, count = settingsMap.Count(); i < count; ++i )
   {
-    std::string key = settingsMap.GetKey( i );
+    Property::Key key = settingsMap.GetKeyAt( i );
+    if( key.type == Property::Key::INDEX )
+    {
+      continue;
+    }
+
     Property::Value item = settingsMap.GetValue(i);
 
     if ( key == TOKEN_STRING( ACTION_BUTTON ) )
@@ -203,7 +208,7 @@ void ApplySettings( const Property::Map& settingsMap )
     {
       DALI_LOG_INFO( gLogFilter, Debug::General, "Provided Settings Key not supported\n" );
     }
-   }
+  }
 }
 
 void EnablePrediction(const bool enable)
