@@ -36,6 +36,10 @@ namespace Dali
 namespace StyleChange
 {
 
+/**
+ * @brief The type of StyleChange
+ * @SINCE_1_0.0
+ */
 enum Type
 {
   DEFAULT_FONT_CHANGE,      ///< Denotes that the default font has changed. @SINCE_1_0.0
