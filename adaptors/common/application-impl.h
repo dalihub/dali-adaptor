@@ -133,6 +133,33 @@ public: // Stereoscopy
    */
   float GetStereoBase() const;
 
+public: // Lifecycle functionality
+
+  /**
+   * Called when OnInit is called or the framework is initialised.
+   */
+  void DoInit();
+
+  /**
+   * Called when OnTerminate is called or the framework is terminated.
+   */
+  void DoTerminate();
+
+  /**
+   * Called when OnPause is called or the framework is paused.
+   */
+  void DoPause();
+
+  /**
+   * Called when OnResume is called or the framework resumes from a paused state.
+   */
+  void DoResume();
+
+  /**
+   * Called when OnLanguageChanged is called or the framework informs the application that the language of the device has changed.
+   */
+  void DoLanguageChange();
+
 public: // From Framework::Observer
 
   /**
