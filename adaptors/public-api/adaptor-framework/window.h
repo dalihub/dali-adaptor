@@ -206,12 +206,14 @@ public:
   /**
    * @brief Add an orientation to the list of available orientations.
    * @SINCE_1_0.0
+   * @param[in] orientation The available orientation to add
    */
   void AddAvailableOrientation( WindowOrientation orientation );
 
   /**
    * @brief Remove an orientation from the list of available orientations.
    * @SINCE_1_0.0
+   * @param[in] orientation The available orientation to remove
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
 
@@ -251,6 +253,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal();
 
