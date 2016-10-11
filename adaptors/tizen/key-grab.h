@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/dali-vector.h>
 #include "key.h"
 
 namespace Dali
@@ -108,6 +109,45 @@ DALI_IMPORT_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grab
  * an application doesn't receive the key up event.
  */
 DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
+
+
+/**
+ * @PLATFORM
+ * @brief Grabs the list of keys specified by @Dali::Vector of keys for @a window in @Vector of grabModes.
+ *
+ * @details This function can be used for following example scenarios:
+ * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
+ * - Mobile - When a user presses Home key, the homescreen appears regardless of current foreground app.
+ * - Mobile - Using volume up/down as zoom up/down in camera apps.
+ *
+ * @SINCE_1_2.0
+ * @PRIVLEVEL_PLATFORM
+ * @PRIVILEGE_KEYGRAB
+ * @param[in] window The window to set
+ * @param[in] daliKeyVector The Dali::Vector of key codes to grab (defined in key.h)
+ * @param[in] grabModeVector The Dali::Vector of grab modes for the keys
+ * @param[in] returnVector The Dali::Vector of return boolean values for the results of multiple grab succeeds/fails
+ * @return bool false when error occurs
+ */
+DALI_IMPORT_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector);
+
+
+/**
+ * @PLATFORM
+ * @brief Ungrabs the list of keys specified by @Dali::Vector of keys for @a window.
+ *
+ * @SINCE_1_2.0
+ * @PRIVLEVEL_PLATFORM
+ * @PRIVILEGE_KEYGRAB
+ * @param[in] window The window to set
+ * @param[in] daliKeyVector The Dali::Vector of key codes to ungrab (defined in key.h)
+ * @param[in] returnVector The Dali::Vector of return boolean values for the results of multiple ungrab succeeds/fails
+ * @return bool false when error occurs
+ * @note If this function is called between key down and up events of a grabbed key,
+ * an application doesn't receive the key up event.
+ */
+DALI_IMPORT_API bool UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector);
+
 
 } // namespace KeyGrab
 
