@@ -74,6 +74,7 @@ NativeRenderSurface::NativeRenderSurface(Dali::PositionSize positionSize,
 {
   ecore_wl_init(NULL);
   CreateNativeRenderable();
+  setenv( "EGL_PLATFORM", "tbm", 1 );
 }
 
 NativeRenderSurface::~NativeRenderSurface()
@@ -119,6 +120,7 @@ Any NativeRenderSurface::GetSurface()
 void NativeRenderSurface::InitializeEgl( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  unsetenv( "EGL_PLATFORM" );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
