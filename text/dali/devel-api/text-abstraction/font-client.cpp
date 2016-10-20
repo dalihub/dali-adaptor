@@ -29,6 +29,18 @@ namespace TextAbstraction
 
 const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
 
+FontClient::GlyphBufferData::GlyphBufferData()
+: buffer( NULL ),
+  width( 0u ),
+  height( 0u ),
+  format( Pixel::A8 )
+{
+}
+
+FontClient::GlyphBufferData::~GlyphBufferData()
+{
+}
+
 FontClient FontClient::Get()
 {
   return Internal::FontClient::Get();
@@ -160,6 +172,11 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data )
+{
+  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, data );
+}
+
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
@@ -173,6 +190,11 @@ void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorB
 const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
 {
   return GetImplementation(*this).GetEllipsisGlyph( requestedPointSize );
+}
+
+bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
+{
+  return GetImplementation(*this).IsColorGlyph( fontId, glyphIndex );
 }
 
 FontClient::FontClient( Internal::FontClient* internal )

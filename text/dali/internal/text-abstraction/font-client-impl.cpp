@@ -224,6 +224,13 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+{
+  CreatePlugin();
+
+  mPlugin->CreateBitmap( fontId, glyphIndex, data );
+}
+
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
 {
   CreatePlugin();
@@ -243,6 +250,13 @@ const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSiz
   CreatePlugin();
 
   return mPlugin->GetEllipsisGlyph( requestedPointSize );
+}
+
+bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
+{
+  CreatePlugin();
+
+  return mPlugin->IsColorGlyph( fontId, glyphIndex );
 }
 
 void FontClient::CreatePlugin()

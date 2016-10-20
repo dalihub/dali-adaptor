@@ -149,42 +149,42 @@ struct FontClient::Plugin
   ~Plugin();
 
   /**
-   * @copydoc Dali::FontClient::SetDpi()
+   * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
    */
   void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
 
   /**
-   * @copydoc Dali::FontClient::ResetSystemDefaults()
+   * @copydoc Dali::TextAbstraction::FontClient::ResetSystemDefaults()
    */
   void ResetSystemDefaults();
 
   /**
-   * @copydoc Dali::FontClient::SetDefaultFont()
+   * @copydoc Dali::TextAbstraction::FontClient::SetDefaultFont()
    */
   void SetDefaultFont( const FontDescription& preferredFontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultPlatformFontDescription()
    */
   void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetDefaultFonts()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultFonts()
    */
   void GetDefaultFonts( FontList& defaultFonts );
 
   /**
-   * @copydoc Dali::FontClient::GetSystemFonts()
+   * @copydoc Dali::TextAbstraction::FontClient::GetSystemFonts()
    */
   void GetSystemFonts( FontList& systemFonts );
 
   /**
-   * @copydoc Dali::FontClient::GetDescription()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDescription()
    */
   void GetDescription( FontId id, FontDescription& fontDescription ) const;
 
   /**
-   * @copydoc Dali::FontClient::GetPointSize()
+   * @copydoc Dali::TextAbstraction::FontClient::GetPointSize()
    */
   PointSize26Dot6 GetPointSize( FontId id );
 
@@ -204,14 +204,14 @@ struct FontClient::Plugin
                                bool preferColor );
 
   /**
-   * @copydoc Dali::FontClient::FindDefaultFont()
+   * @copydoc Dali::TextAbstraction::FontClient::FindDefaultFont()
    */
   FontId FindDefaultFont( Character charcode,
                           PointSize26Dot6 requestedPointSize,
                           bool preferColor );
 
   /**
-   * @copydoc Dali::FontClient::FindFallbackFont()
+   * @copydoc Dali::TextAbstraction::FontClient::FindFallbackFont()
    */
   FontId FindFallbackFont( Character charcode,
                            const FontDescription& preferredFontDescription,
@@ -219,7 +219,7 @@ struct FontClient::Plugin
                            bool preferColor );
 
   /**
-   * @see Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @see Dali::TextAbstraction::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    *
    * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
    * @param[in] cacheDescription Whether to cache the font description.
@@ -231,7 +231,7 @@ struct FontClient::Plugin
                     bool cacheDescription = true );
 
   /**
-   * @see Dali::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @see Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    *
    * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
    */
@@ -241,38 +241,38 @@ struct FontClient::Plugin
                     FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable( const FontPath& path )
+   * @copydoc Dali::TextAbstraction::FontClient::IsScalable( const FontPath& path )
    */
   bool IsScalable( const FontPath& path );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable( const FontDescription& fontDescription )
+   * @copydoc Dali::TextAbstraction::FontClient::IsScalable( const FontDescription& fontDescription )
    */
   bool IsScalable( const FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetFixedSizes()
+   * @copydoc Dali::TextAbstraction::FontClient::GetFixedSizes()
    */
   void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
 
   /**
-   * @copydoc Dali::FontClient::GetFixedSizes()
+   * @copydoc Dali::TextAbstraction::FontClient::GetFixedSizes()
    */
   void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   /**
-   * @copydoc Dali::FontClient::GetFontMetrics()
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontMetrics()
    */
   void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
-   * @copydoc Dali::FontClient::GetGlyphIndex()
+   * @copydoc Dali::TextAbstraction::FontClient::GetGlyphIndex()
    */
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
 
   /**
-   * @copydoc Dali::FontClient::GetGlyphMetrics()
+   * @copydoc Dali::TextAbstraction::FontClient::GetGlyphMetrics()
    */
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
@@ -287,19 +287,29 @@ struct FontClient::Plugin
   bool GetVectorMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
   /**
-   * @copydoc Dali::FontClient::CreateBitmap()
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+   */
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data );
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
    */
   PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
-   * @copydoc Dali::FontClient::CreateVectorBlob()
+   * @copydoc Dali::TextAbstraction::FontClient::CreateVectorBlob()
    */
   void CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight );
 
   /**
-   * @copydoc Dali::FontClient::GetEllipsisGlyph()
+   * @copydoc Dali::TextAbstraction::FontClient::GetEllipsisGlyph()
    */
   const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsColorGlyph()
+   */
+  bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
 private:
 
@@ -374,11 +384,12 @@ private:
                      bool cacheDescription );
 
   /**
+   * @brief Copy the FreeType bitmap to the given buffer.
    *
-   * @param[in] destBitmap
-   * @param[in] srcBitmap
+   * @param[out] data The bitmap data.
+   * @param[in] srcBitmap The FreeType bitmap.
    */
-  void ConvertBitmap( PixelData& destBitmap, FT_Bitmap srcBitmap );
+  void ConvertBitmap( TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap );
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
