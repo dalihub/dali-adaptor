@@ -222,12 +222,45 @@ void AppendPropertyNameAndValue( Dali::Handle handle, int propertyIndex, std::os
 {
   // get the property name and the value as a string
   std::string propertyName( handle.GetPropertyName( propertyIndex ) );
-  Dali::Property::Value value = handle.GetProperty( propertyIndex );
 
-  // Apply quotes around the property name and the value.. "color", "1.3, 3.4, 2.6"
+  // Apply quotes around the property name
   outputStream << "\"" << propertyName << "\"" << ",";
-  outputStream << "\"" << value << "\"";
 
+  // Convert value to a string
+  std::ostringstream valueStream;
+  Dali::Property::Value value = handle.GetProperty( propertyIndex );
+  valueStream << value;
+  std::string valueString = valueStream.str();
+
+  if( value.GetType() == Dali::Property::STRING )
+  {
+    // Escape the string (to ensure valid json)
+    // Write out quotes, escapes and control characters using unicode syntax \uXXXX
+    std::ostringstream escapedValue;
+    for( std::string::iterator c = valueString.begin() ; c != valueString.end(); ++c )
+    {
+      if( *c == '"' )
+      {
+        escapedValue << "\\\"";
+      }
+      else if( *c == '\\' )
+      {
+        escapedValue << "\\\\";
+      }
+      else if( '\x00' <= *c && *c <= '\x1f' )
+      {
+        escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+      }
+      else
+      {
+        escapedValue << *c;
+      }
+    }
+
+    valueString = escapedValue.str();
+  }
+
+  outputStream << "\"" << valueString << "\"";
 }
 
 bool ExcludeProperty( int propIndex )
