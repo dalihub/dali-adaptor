@@ -82,7 +82,6 @@ NativeRenderSurface::~NativeRenderSurface()
   // release the surface if we own one
   if( mImpl->mOwnSurface )
   {
-
     if( mImpl->mConsumeSurface )
     {
       tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
@@ -191,16 +190,12 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     mImpl->mThreadSynchronization->PostRenderStarted();
   }
 
+  if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
   {
-    ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
-
-    if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
+    if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
-      if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
-      {
-        DALI_LOG_ERROR( "Failed aquire consume tbm_surface\n" );
-        return;
-      }
+      DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
+      return;
     }
   }
 
@@ -214,7 +209,15 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
 
   if( mImpl->mThreadSynchronization )
   {
+    // wait until the event-thread completed to use the tbm_surface
     mImpl->mThreadSynchronization->PostRenderWaitForCompletion();
+  }
+
+  // release the consumed surface after post render was completed
+  if( mImpl->mConsumeSurface )
+  {
+    tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
+    mImpl->mConsumeSurface = NULL;
   }
 }
 
@@ -260,16 +263,6 @@ void NativeRenderSurface::CreateNativeRenderable()
   else
   {
     mImpl->mOwnSurface = false;
-  }
-}
-
-void NativeRenderSurface::ReleaseSurface()
-{
-  ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
-  if( mImpl->mConsumeSurface )
-  {
-    tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
-    mImpl->mConsumeSurface = NULL;
   }
 }
 

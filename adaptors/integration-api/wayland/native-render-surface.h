@@ -79,11 +79,6 @@ public: // API
    */
   virtual Any GetSurface();
 
-  /**
-   * @brief Release the surface
-   */
-  virtual void ReleaseSurface();
-
 public: // from Dali::RenderSurface
 
   /**
