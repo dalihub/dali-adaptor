@@ -1308,7 +1308,7 @@ void Indicator::DataReceived( void* event )
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
       if( mIsShowing )
       {
-        //mAdaptor->RequestUpdateOnce();
+        mAdaptor->RequestUpdateOnce();
       }
       break;
     }
@@ -1316,7 +1316,7 @@ void Indicator::DataReceived( void* event )
     {
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE_DONE [%d]\n", epcEvent->response );
       // epcEvent->response == display buffer #
-      //UpdateImageData( epcEvent->response );
+      UpdateImageData( epcEvent->response );
       break;
     }
     case OP_SHM_REF0:
