@@ -254,6 +254,7 @@ Window::Window()
   mStarted(false),
   mIsTransparent(false),
   mWMRotationAppSet(false),
+  mEcoreEventHander(true),
   mIndicator(NULL),
   mIndicatorOrientation(Dali::Window::PORTRAIT),
   mNextIndicatorOrientation(Dali::Window::PORTRAIT),
