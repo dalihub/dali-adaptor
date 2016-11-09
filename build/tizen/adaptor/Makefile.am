@@ -535,6 +535,7 @@ tizenadaptorintegrationapi_HEADERS = $(adaptor_integration_api_header_files)
 if WAYLAND
 tizenadaptorintegrationwaylandapidir = $(devincludepath)/dali/integration-api/adaptors
 tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_wayland_api_header_files)
+tizenadaptorintegrationwaylandapi_HEADERS += $(adaptor_integration_ecore_wayland_api_header_files)
 else
 tizenadaptorintegrationx11apidir = $(devincludepath)/dali/integration-api/adaptors
 tizenadaptorintegrationx11api_HEADERS = $(adaptor_integration_x11_api_header_files)
