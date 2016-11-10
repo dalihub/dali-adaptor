@@ -41,7 +41,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class ImfManager : public Dali::BaseObject
+class DALI_IMPORT_API ImfManager : public Dali::BaseObject
 {
 public:
   typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
