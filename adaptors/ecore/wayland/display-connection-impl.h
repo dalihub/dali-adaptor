@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ECORE_WAYLAND_DIPLAY_CONNECTION_H__
-#define __DALI_INTERNAL_ECORE_WAYLAND_DIPLAY_CONNECTION_H__
+#ifndef __DALI_INTERNAL_ECORE_X_DIPLAY_CONNECTION_H__
+#define __DALI_INTERNAL_ECORE_X_DIPLAY_CONNECTION_H__
 
 /*
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
@@ -81,11 +81,6 @@ public:
    */
   bool InitializeEgl(EglInterface& egl);
 
-  /**
-   * @brief Sets surface type
-   */
-  void SetSurfaceType( RenderSurface::Type type );
-
 public:
 
   /**
@@ -95,16 +90,6 @@ public:
 
 protected:
 
-  /**
-   * @brief Gets display connection for native surface
-   */
-  EGLNativeDisplayType GetNativeDisplay();
-
-  /**
-   * @brief Release display connection for native surface
-   */
-  void ReleaseNativeDisplay();
-
   // Undefined
   DisplayConnection(const DisplayConnection&);
 
@@ -112,8 +97,7 @@ protected:
   DisplayConnection& operator=(const DisplayConnection& rhs);
 
 private:
-  EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
-  RenderSurface::Type mSurfaceType;
+  WlDisplay*   mDisplay;        ///< Wayland-display for rendering
 };
 
 } // namespace Adaptor

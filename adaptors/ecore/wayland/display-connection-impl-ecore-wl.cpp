@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <native-render-surface.h>
+#include <pixmap-render-surface.h>
 
 namespace Dali
 {
@@ -42,20 +42,19 @@ DisplayConnection* DisplayConnection::New()
 }
 
 DisplayConnection::DisplayConnection()
+: mDisplay(NULL)
 {
+  mDisplay = ecore_wl_display_get();
 }
 
 DisplayConnection::~DisplayConnection()
 {
-  if( mSurfaceType == RenderSurface::NATIVE_RENDER_SURFACE )
-  {
-    ReleaseNativeDisplay();
-  }
+  //FIXME
 }
 
 Any DisplayConnection::GetDisplay()
 {
-  return Any( mDisplay );
+  return Any(mDisplay);
 }
 
 void DisplayConnection::ConsumeEvents()
@@ -66,27 +65,13 @@ bool DisplayConnection::InitializeEgl(EglInterface& egl)
 {
   EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
 
-  if( !eglImpl.InitializeGles( mDisplay ) )
+  if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
   {
     DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
   }
 
   return true;
-}
-
-void DisplayConnection::SetSurfaceType( RenderSurface::Type type )
-{
-  mSurfaceType = type;
-
-  if( mSurfaceType == RenderSurface::NATIVE_RENDER_SURFACE )
-  {
-    mDisplay = GetNativeDisplay();
-  }
-  else
-  {
-    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
-  }
 }
 
 void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)

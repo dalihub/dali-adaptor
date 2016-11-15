@@ -149,10 +149,7 @@ void RenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& th
 {
 }
 
-RenderSurface::Type RenderSurface::GetSurfaceType()
-{
-  return RenderSurface::WAYLAND_RENDER_SURFACE;
-}
+
 
 } // namespace Wayland
 

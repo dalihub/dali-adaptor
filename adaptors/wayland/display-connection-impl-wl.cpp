@@ -60,10 +60,6 @@ bool DisplayConnection::InitializeEgl(EglInterface& egl)
   return true;
 }
 
-void DisplayConnection::SetSurfaceType( RenderSurface::Type type )
-{
-}
-
 void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
   CompositorOutput::GetDpi( dpiHorizontal, dpiVertical);

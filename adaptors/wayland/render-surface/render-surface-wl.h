@@ -161,11 +161,6 @@ public: // from Dali::RenderSurface
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
 
-  /**
-   * @copydoc Dali::RenderSurface::GetSurfaceType()
-   */
-  virtual RenderSurface::Type GetSurfaceType();
-
 protected: // Data
 
   Window                      mWindow;
