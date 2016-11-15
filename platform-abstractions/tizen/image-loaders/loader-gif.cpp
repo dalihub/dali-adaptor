@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,16 +259,13 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, uns
 bool HandleExtensionRecordType( GifFileType* gifInfo )
 {
   SavedImage image;
+  image.ExtensionBlocks     = NULL;
+  image.ExtensionBlockCount = 0;
   GifByteType *extensionByte( NULL );
 
 #ifdef LIBGIF_VERSION_5_1_OR_ABOVE
-  ExtensionBlock extensionBlocks;
-  image.ExtensionBlocks          = &extensionBlocks;
-  image.ExtensionBlockCount      = 1;
   int *extensionBlockTypePointer = &image.ExtensionBlocks->Function;
 #else
-  image.ExtensionBlocks     = NULL;
-  image.ExtensionBlockCount = 0;
   int *extensionBlockTypePointer = &image.Function;
 #endif
 
