@@ -154,7 +154,6 @@ public: // API
   /**
    * @brief Gets the current state of the player.
    * @SINCE_1_0.0
-   * @return The current TTS state
    * @pre The TtsPlayer needs to be initialized.
    */
   State GetState();
