@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& className,
                                           bool isTransparent)
 : EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
+  mX11Window( 0 ),
   mNeedToApproveDeiconify(false),
   mClassName(className)
 {

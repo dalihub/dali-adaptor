@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -578,7 +578,7 @@ bool DecodeRGB1(FILE *fp,
     }
     for(unsigned int j = 0; j < fillw; j ++)
     {
-      int ctIndex = 0;
+      unsigned int ctIndex = 0;
       if((fillw * index + j ) < (fillw * height))
       {
         ctIndex = colorIndex[ fillw * index + j ];
@@ -648,7 +648,7 @@ bool DecodeRGB4(FILE *fp,
     colorIndex[i] = cmd >> 4;
     colorIndex[i + 1] = cmd & (0x0F);
   }
-  int ctIndex = 0;
+  unsigned int ctIndex = 0;
 
   for(unsigned int index = 0; index < height; index = index + 1)
   {
@@ -722,7 +722,7 @@ bool DecodeRGB8(FILE *fp,
 
     colorIndex[i] = cmd;
   }
-  int ctIndex = 0;
+  unsigned int ctIndex = 0;
   for(unsigned int index = 0; index < height; index = index + 1)
   {
     PixelBuffer *pixelsPtr = NULL;
@@ -776,10 +776,10 @@ bool DecodeRLE4(FILE *fp,
   char colorTable[64];
   std::vector<char> colorIndex(width * height >> 1);
   std::vector<char> run;
-  int x = 0;
-  int y = 0;
-  int dx = 0;
-  int dy = 0;
+  unsigned int x = 0;
+  unsigned int y = 0;
+  unsigned int dx = 0;
+  unsigned int dy = 0;
   width += (width & 1);
   width = width >> 1;
 
@@ -938,8 +938,8 @@ bool DecodeRLE8(FILE *fp,
     return false;
   }
   PixelBuffer *pixelsPtr = pixels;
-  int x = 0;
-  int y = 0;
+  unsigned int x = 0;
+  unsigned int y = 0;
   unsigned int cmdStride = 2;
 
   width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
@@ -958,8 +958,8 @@ bool DecodeRLE8(FILE *fp,
     return false;
   }
 
-  int dx = 0;
-  int dy = 0;
+  unsigned int dx = 0;
+  unsigned int dy = 0;
   bool finish = false;
   unsigned int length = 0;
   unsigned int copylength = 0;

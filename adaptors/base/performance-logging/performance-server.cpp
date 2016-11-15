@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,14 @@ PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
 : mEnvironmentOptions( environmentOptions ),
   mKernelTrace( adaptorServices.GetKernelTraceInterface() ),
   mSystemTrace( adaptorServices.GetSystemTraceInterface() ),
+  mLogMutex(),
 #if defined(NETWORK_LOGGING_ENABLED)
   mNetworkServer( adaptorServices, environmentOptions ),
   mNetworkControlEnabled( mEnvironmentOptions.GetNetworkControlMode()),
 #endif
   mStatContextManager( *this ),
   mStatisticsLogBitmask( 0 ),
+  mPerformanceOutputBitmask( 0 ),
   mLoggingEnabled( false ),
   mLogFunctionInstalled( false )
 {
