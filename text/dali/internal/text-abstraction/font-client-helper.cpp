@@ -42,8 +42,13 @@ int ValueToIndex( int value, const int* const table, unsigned int maxIndex )
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "-->FontClient::Plugin::ValueToIndex value(%d)\n", value);
 
-  if( ( NULL == table ) ||
-      ( value <= table[0] ) )
+  if( NULL == table )
+  {
+    // Return an invalid index if there is no table.
+    return -1;
+  }
+
+  if( value <= table[0] )
   {
     return 0;
   }
@@ -53,14 +58,14 @@ int ValueToIndex( int value, const int* const table, unsigned int maxIndex )
     return maxIndex;
   }
 
-  for( unsigned int index = 0u; index < maxIndex; )
+  for( unsigned int index = 0u; index < maxIndex; ++index )
   {
     const int v1 = table[index];
-    const unsigned int indexPlus = ++index;
+    const unsigned int indexPlus = index + 1u;
     const int v2 = table[indexPlus];
     if( ( v1 < value ) && ( value <= v2 ) )
     {
-      const int result = ( ( value - v1 ) < ( v2 - value ) ) ? index : indexPlus;
+      const int result = ( ( v1 > 0 ) && ( ( value - v1 ) < ( v2 - value ) ) ) ? index : indexPlus;
       DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValueToIndex result(%d)\n",  result );
       return result;
     }

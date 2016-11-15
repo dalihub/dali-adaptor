@@ -128,18 +128,28 @@ void FontClient::GetSystemFonts( FontList& systemFonts )
   mPlugin->GetSystemFonts( systemFonts );
 }
 
-FontId FontClient::FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
+FontId FontClient::FindDefaultFont( Character charcode,
+                                    PointSize26Dot6 requestedPointSize,
+                                    bool preferColor )
 {
   CreatePlugin();
 
-  return mPlugin->FindDefaultFont( charcode, requestedPointSize, preferColor );
+  return mPlugin->FindDefaultFont( charcode,
+                                   requestedPointSize,
+                                   preferColor );
 }
 
-FontId FontClient::FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor )
+FontId FontClient::FindFallbackFont( Character charcode,
+                                     const FontDescription& preferredFontDescription,
+                                     PointSize26Dot6 requestedPointSize,
+                                     bool preferColor )
 {
   CreatePlugin();
 
-  return mPlugin->FindFallbackFont( preferredFont, charcode, requestedPointSize, preferColor );
+  return mPlugin->FindFallbackFont( charcode,
+                                    preferredFontDescription,
+                                    requestedPointSize,
+                                    preferColor );
 }
 
 bool FontClient::IsScalable( const FontPath& path )

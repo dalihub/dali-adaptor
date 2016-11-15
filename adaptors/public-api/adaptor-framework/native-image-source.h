@@ -53,8 +53,11 @@ typedef Dali::IntrusivePtr<Dali::NativeImageSource> NativeImageSourcePtr;
  *
  * NativeImageSource can be created internally or
  * externally by native image source.
+ * NativeImage is a platform specific way of providing pixel data to the GPU for rendering,
+ * for example via an EGL image.
  *
  * @SINCE_1_1.4
+ * @see NativeImage
  */
 class DALI_IMPORT_API NativeImageSource : public NativeImageInterface
 {
@@ -91,6 +94,7 @@ public:
    * @SINCE_1_0.0
    * @param[in] nativeImageSource must be a any handle with native image source
    * @return A smart-pointer to a newly allocated image.
+   * @see NativeImageInterface
    */
   static NativeImageSourcePtr New( Any nativeImageSource );
 
@@ -189,6 +193,7 @@ private:   // native image
 
 private:
 
+  /// @cond internal
   /**
    * @brief Private constructor
    * @SINCE_1_0.0
@@ -224,10 +229,13 @@ private:
    * @param[in] rhs A reference to the object to copy.
    */
   DALI_INTERNAL NativeImageSource& operator=(const NativeImageSource& rhs);
+  /// @endcond
 
 private:
 
+  /// @cond internal
   Internal::Adaptor::NativeImageSource* mImpl; ///< Implementation pointer
+  /// @endcond
 };
 
 /**

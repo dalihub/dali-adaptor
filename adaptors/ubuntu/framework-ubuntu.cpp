@@ -194,6 +194,20 @@ std::string Framework::GetBundleId() const
   return mBundleId;
 }
 
+std::string Framework::GetResourcePath()
+{
+  // "DALI_APPLICATION_PACKAGE" is used by Ubuntu specifically to get the already configured Application package path.
+  const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
+  char* value = getenv( ubuntuEnvironmentVariable );
+  std::string resourcePath;
+  if ( value != NULL )
+  {
+    resourcePath = value;
+  }
+
+  return resourcePath;
+}
+
 void Framework::SetBundleId(const std::string& id)
 {
   mBundleId = id;

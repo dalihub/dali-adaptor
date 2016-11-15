@@ -39,6 +39,7 @@ namespace FontWidth
    */
   enum Type
   {
+    NONE,            ///< Means not defined. Will use what is set as default, currently NORMAL.
     ULTRA_CONDENSED,
     EXTRA_CONDENSED,
     CONDENSED,
@@ -47,7 +48,21 @@ namespace FontWidth
     SEMI_EXPANDED,
     EXPANDED,
     EXTRA_EXPANDED,
-    ULTRA_EXPANDED,
+    ULTRA_EXPANDED
+  };
+
+  const char* const Name[] =
+  {
+    "NONE",
+    "ULTRA_CONDENSED",
+    "EXTRA_CONDENSED",
+    "CONDENSED",
+    "SEMI_CONDENSED",
+    "NORMAL",
+    "SEMI_EXPANDED",
+    "EXPANDED",
+    "EXTRA_EXPANDED",
+    "ULTRA_EXPANDED"
   };
 } // namespace FontWidth
 
@@ -58,6 +73,7 @@ namespace FontWeight
    */
   enum Type
   {
+    NONE,                      ///< Means not defined. Will use what is set as default, currently NORMAL.
     THIN,
     ULTRA_LIGHT,
     EXTRA_LIGHT = ULTRA_LIGHT,
@@ -77,6 +93,22 @@ namespace FontWeight
     HEAVY = BLACK,
     EXTRA_BLACK = BLACK
   };
+
+  const char* const Name[] =
+  {
+    "NONE",
+    "THIN",
+    "ULTRA_LIGHT",
+    "LIGHT",
+    "DEMI_LIGHT",
+    "BOOK",
+    "NORMAL",
+    "MEDIUM",
+    "DEMI_BOLD",
+    "BOLD",
+    "ULTRA_BOLD",
+    "BLACK"
+  };
 }
 
 namespace FontSlant
@@ -86,10 +118,19 @@ namespace FontSlant
    */
   enum Type
   {
+    NONE,           ///< Means not defined. Will use what is set as default, currently NORMAL.
     NORMAL,
     ROMAN = NORMAL,
     ITALIC,
     OBLIQUE
+  };
+
+  const char* const Name[] =
+  {
+    "NONE",
+    "NORMAL",
+    "ITALIC",
+    "OBLIQUE"
   };
 } // namespace FontSlant
 
@@ -98,9 +139,9 @@ struct FontDescription
   FontDescription()
   : path(),
     family(),
-    width( FontWidth::NORMAL ),
-    weight( FontWeight::NORMAL ),
-    slant( FontSlant::NORMAL )
+    width( FontWidth::NONE ),
+    weight( FontWeight::NONE ),
+    slant( FontSlant::NONE )
   {}
 
   ~FontDescription()

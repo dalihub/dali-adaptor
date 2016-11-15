@@ -126,6 +126,9 @@ public:
   /**
    * @brief This is the constructor for applications without an argument list.
    * @SINCE_1_0.0
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   * @return A handle to the Application
    */
   static Application New();
 
@@ -133,8 +136,11 @@ public:
    * @brief This is the constructor for applications.
    *
    * @SINCE_1_0.0
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
+   * @return A handle to the Application
    */
   static Application New( int* argc, char **argv[] );
 
@@ -142,9 +148,13 @@ public:
    * @brief This is the constructor for applications with a name
    *
    * @SINCE_1_0.0
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New( int* argc, char **argv[], const std::string& stylesheet );
 
@@ -152,10 +162,14 @@ public:
    * @brief This is the constructor for applications with a name
    *
    * @SINCE_1_0.0
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
    * @param[in]      windowMode  A member of WINDOW_MODE
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
@@ -168,14 +182,17 @@ public:
   /**
    * @brief Copy Constructor
    * @SINCE_1_0.0
+   * @param[in] application Handle to an object
    */
   Application( const Application& application );
 
   /**
    * @brief Assignment operator
    * @SINCE_1_0.0
+   * @param[in] application Handle to an object
+   * @return A reference to this
    */
-  Application& operator=( const Application& applicaton );
+  Application& operator=( const Application& application );
 
   /**
    * @brief Destructor
@@ -204,6 +221,7 @@ public:
    * trigger context loss & regain.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
    * @SINCE_1_0.0
+   * @param[in] configuration The context loss configuration
    */
   void MainLoop(Configuration::ContextLoss configuration);
 
@@ -258,6 +276,15 @@ public:
    */
   void ReplaceWindow(PositionSize windowPosition, const std::string& name);
 
+  /**
+   * @brief Get path application resources are stored at
+   *
+   * @SINCE_1_2.2
+   * @return the full path of the resources
+   */
+  static std::string GetResourcePath();
+
+
 public: // Stereoscopy
 
   /**
@@ -277,6 +304,8 @@ public: // Stereoscopy
   /**
    * @brief Set the stereo base (eye separation) for Stereoscopic 3D
    *
+   * The stereo base is the distance in millimetres between the eyes. Typical values are
+   * between 50mm and 70mm. The default value is 65mm.
    * @SINCE_1_0.0
    * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
    */
@@ -296,6 +325,7 @@ public:  // Signals
    * @brief The user should connect to this signal to determine when they should initialise
    * their application.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& InitSignal();
 
@@ -303,6 +333,7 @@ public:  // Signals
    * @brief The user should connect to this signal to determine when they should terminate
    * their application
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& TerminateSignal();
 
@@ -310,6 +341,7 @@ public:  // Signals
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& PauseSignal();
 
@@ -317,18 +349,21 @@ public:  // Signals
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& ResumeSignal();
 
   /**
    * @brief This signal is sent when the system requires the user to reinitialise itself.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& ResetSignal();
 
   /**
    * @brief This signal is emitted when the window the application is rendering on is resized.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& ResizeSignal();
 
@@ -338,39 +373,46 @@ public:  // Signals
   * When the application is launched, this signal is emitted after the main loop of the application starts up.
   * The passed parameter describes the launch request and contains the information about why the application is launched.
   * @SINCE_1_0.0
+  * @return The signal to connect to
   */
   AppControlSignalType& AppControlSignal();
 
   /**
    * @brief This signal is emitted when the language is changed on the device.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   AppSignalType& LanguageChangedSignal();
 
   /**
   * @brief This signal is emitted when the region of the device is changed.
   * @SINCE_1_0.0
+  * @return The signal to connect to
   */
   AppSignalType& RegionChangedSignal();
 
   /**
   * @brief This signal is emitted when the battery level of the device is low.
   * @SINCE_1_0.0
+  * @return The signal to connect to
   */
   AppSignalType& BatteryLowSignal();
 
   /**
   * @brief This signal is emitted when the memory level of the device is low.
   * @SINCE_1_0.0
+  * @return The signal to connect to
   */
   AppSignalType& MemoryLowSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief Internal constructor
    * @SINCE_1_0.0
    */
   explicit DALI_INTERNAL Application(Internal::Adaptor::Application* application);
+  /// @endcond
 };
 
 /**

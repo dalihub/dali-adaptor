@@ -158,6 +158,12 @@ std::string Framework::GetBundleId() const
   return "";
 }
 
+std::string Framework::GetResourcePath()
+{
+  // TIZEN_PLATFORM_CONFIG_SUPPORTED not defined for libuv so path not available.
+  return "";
+}
+
 void Framework::SetBundleId(const std::string& id)
 {
 }

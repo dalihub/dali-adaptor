@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
-#include <dali/public-api/actors/image-actor.h>
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>

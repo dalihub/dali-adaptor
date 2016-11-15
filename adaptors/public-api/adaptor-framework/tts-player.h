@@ -52,8 +52,8 @@ public: // ENUMs
   enum Mode
   {
     DEFAULT = 0,  ///< Default mode for normal application @SINCE_1_0.0
-    NOTIFICATION, ///< Notification mode @SINCE_1_0.0
-    SCREEN_READER, ///< Screen reader mode @SINCE_1_0.0
+    NOTIFICATION, ///< Notification mode, such as playing utterance is started or completed @SINCE_1_0.0
+    SCREEN_READER, ///< Screen reader mode. To help visually impaired users interact with their devices, screen reader reads text or graphic elements on the screen using the TTS engine. @SINCE_1_0.0
     MODE_NUM
   };
 
@@ -154,6 +154,7 @@ public: // API
   /**
    * @brief Gets the current state of the player.
    * @SINCE_1_0.0
+   * @return The current TTS state
    * @pre The TtsPlayer needs to be initialized.
    */
   State GetState();
@@ -168,12 +169,14 @@ public: // API
 
 public: // Not intended for application developers
 
+  /// @cond internal
   /**
    * @brief This constructor is used by TtsPlayer::Get().
    * @SINCE_1_0.0
    * @param[in] ttsPlayer A pointer to the TTS player.
    */
   explicit DALI_INTERNAL TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );
+  /// @endcond
 };
 
 /**

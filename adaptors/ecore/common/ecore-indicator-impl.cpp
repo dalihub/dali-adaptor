@@ -21,7 +21,9 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 #include <Evas.h>
-#ifndef WAYLAND
+#ifdef WAYLAND
+#include <Ecore_Wayland.h>
+#else
 #include <Ecore_X.h>
 #endif
 
@@ -30,14 +32,15 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <iomanip>
+#include <fstream>
 
 #include <dali/public-api/images/native-image.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/common/stage.h>
-#include <dali/public-api/actors/blending.h>
-#include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/images/buffer-image.h>
+#include <dali/public-api/images/pixel.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -278,6 +281,59 @@ struct IpcDataEvMouseOut
   }
 };
 
+#ifdef ENABLE_INDICATOR_IMAGE_SAVING
+
+void SaveIndicatorImage( Dali::NativeImageSourcePtr nativeImageSource )
+{
+  // Save image data to disk in BMP form.
+  static int gFilenameCounter = 0;
+  static const char bmpHeader[] = {
+      0x42, 0x4d, 0x0a, 0xcb, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x8a, 0x00, 0x00, 0x00, 0x7c, 0x00,
+      0x00, 0x00,
+      0xe0, 0x01, 0x00, 0x00, // Width  (480)
+      0x1b, 0x00, 0x00, 0x00, // Height ( 27)
+      0x01, 0x00, 0x20, 0x00, 0x03, 0x00,
+      0x00, 0x00, 0x80, 0xca, 0x00, 0x00, 0x13, 0x0b,  0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0xff, 0x00, 0x00, 0xff, 0x00, 0x00, 0xff,
+      0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x42, 0x47,  0x52, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00
+    };
+
+  // This is a BMP header with width & height hard-coded in.
+  // The data was first determined by dumping the raw data and inspecting in GIMP, before creating this header data.
+  std::vector<unsigned char> buffer;
+  unsigned int w = 0;
+  unsigned int h = 0;
+  Dali::Pixel::Format pixelFormat;
+  if( nativeImageSource->GetPixels( buffer, w, h, pixelFormat ) )
+  {
+    int imageSize = w * h * 4;
+    std::stringstream fileName;
+    // Give each file an incremental filename.
+    fileName << "/opt/usr/media/Images/out-" << std::setfill( '0' ) << std::setw( 5 ) << gFilenameCounter << ".bmp";
+
+    std::ofstream outfile( fileName.str().c_str(), std::ofstream::binary );
+    if( outfile.is_open() )
+    {
+      DALI_LOG_WARNING( "Saving Indicator Image w:%d, h:%d, %s\n", w, h, fileName.str().c_str() );
+
+      outfile.write( bmpHeader, sizeof( bmpHeader ) / sizeof( bmpHeader[0] ) ); // Size of the BMP header.
+      outfile.write( (const char*)buffer.data(), imageSize );
+      outfile.close();
+      gFilenameCounter++;
+    }
+    else
+    {
+      DALI_LOG_ERROR( "COULD NOT OPEN FOR SAVING: %s\n", fileName.str().c_str() );
+    }
+  }
+}
+
+#endif
+
 } // anonymous namespace
 
 
@@ -291,11 +347,15 @@ namespace Adaptor
 Debug::Filter* gIndicatorLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_INDICATOR");
 #endif
 
-#ifndef WAYLAND
 // Impl to hide EFL implementation.
+
 struct Indicator::Impl
 {
-  // Construction & Destruction
+  enum // operation mode
+  {
+    INDICATOR_HIDE,
+    INDICATOR_STAY_WITH_DURATION
+  };
 
   /**
    * Constructor
@@ -304,8 +364,13 @@ struct Indicator::Impl
   : mIndicator(indicator),
     mEcoreEventHandler(NULL)
   {
-    // Register Client message events for quick panel state.
+#if defined(DALI_PROFILE_MOBILE)
+#if defined(WAYLAND)
+    mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#else
     mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
+#endif
+#endif // WAYLAND && DALI_PROFILE_MOBILE
   }
 
   /**
@@ -313,24 +378,21 @@ struct Indicator::Impl
    */
   ~Impl()
   {
-    ecore_event_handler_del(mEcoreEventHandler);
+    if ( mEcoreEventHandler )
+    {
+      ecore_event_handler_del(mEcoreEventHandler);
+    }
   }
 
-  /**
-   * Called when the client messages (i.e. quick panel state) are received.
-   */
-  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
+  static void SetIndicatorVisibility( void* data, int operation )
   {
-    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
     Indicator::Impl* indicatorImpl((Indicator::Impl*)data);
 
-    if (clientMessageEvent == NULL || indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
+    if ( indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
     {
-      return ECORE_CALLBACK_PASS_ON;
+      return;
     }
-
-#ifndef DALI_PROFILE_UBUNTU
-    if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
+    if ( operation == INDICATOR_STAY_WITH_DURATION )
     {
       // if indicator is not showing, INDICATOR_FLICK_DONE is given
       if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
@@ -339,7 +401,7 @@ struct Indicator::Impl
         indicatorImpl->mIndicator->ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
       }
     }
-    else if( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
+    else if( operation == INDICATOR_HIDE )
     {
       if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
           indicatorImpl->mIndicator->mIsShowing )
@@ -347,16 +409,45 @@ struct Indicator::Impl
         indicatorImpl->mIndicator->ShowIndicator( HIDE_NOW );
       }
     }
-#endif
-
+  }
+#if defined(DALI_PROFILE_MOBILE)
+#if defined(WAYLAND)
+  /**
+   * Called when the Ecore indicator event is received.
+   */
+  static Eina_Bool EcoreEventIndicator( void* data, int type, void* event )
+  {
+    SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
     return ECORE_CALLBACK_PASS_ON;
   }
+#else
+  /**
+   * Called when the client messages (i.e. quick panel state) are received.
+   */
+  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
+  {
+    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
+
+    if ( clientMessageEvent != NULL )
+    {
+      if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
+      {
+        SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
+      }
+      else if ( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
+      {
+        SetIndicatorVisibility( data, INDICATOR_HIDE );
+      }
+    }
+    return ECORE_CALLBACK_PASS_ON;
+  }
+#endif
+#endif // WAYLAND && DALI_PROFILE_MOBILE
 
   // Data
   Indicator*           mIndicator;
   Ecore_Event_Handler* mEcoreEventHandler;
 };
-#endif
 
 Indicator::LockFile::LockFile(const std::string filename)
 : mFilename(filename),
@@ -466,7 +557,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mCurrentSharedFile( 0 ),
   mSharedBufferType( BUFFER_TYPE_SHM ),
   mImpl( NULL ),
-  mBackgroundVisible( false )
+  mBackgroundVisible( false ),
+  mTopMargin( 0 )
 {
   mIndicatorContentActor = Dali::Actor::New();
   mIndicatorContentActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
@@ -504,21 +596,17 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   // hide the indicator by default
   mIndicatorActor.SetVisible( false );
 
-#ifndef WAYLAND
   // create impl to handle ecore event
   mImpl = new Impl(this);
-#endif
 }
 
 Indicator::~Indicator()
 {
-#ifndef WAYLAND
   if(mImpl)
   {
     delete mImpl;
     mImpl = NULL;
   }
-#endif
 
   if(mEventActor)
   {
@@ -617,6 +705,7 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     mIndicatorContentActor.RemoveRenderer( mBackgroundRenderer );
     mBackgroundVisible = false;
   }
+  UpdateTopMargin();
 }
 
 void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
@@ -647,6 +736,7 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
     }
 
     mVisible = visibleMode;
+    UpdateTopMargin();
 
     if( mForegroundRenderer && mForegroundRenderer.GetTextures().GetTexture( 0u ) )
     {
@@ -724,6 +814,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         break;
 
         case Dali::PointState::UP:
+        case Dali::PointState::INTERRUPTED:
         {
           IpcDataEvMouseUp ipcUp( touchEvent.time );
           mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
@@ -844,6 +935,7 @@ void Indicator::Resize( int width, int height )
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
+    UpdateTopMargin();
   }
 }
 
@@ -982,6 +1074,16 @@ void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
   }
 }
 
+void Indicator::UpdateTopMargin()
+{
+  int newMargin = (mVisible == Dali::Window::VISIBLE && mOpacityMode == Dali::Window::OPAQUE) ? mImageHeight : 0;
+  if (mTopMargin != newMargin)
+  {
+    mTopMargin = newMargin;
+    mAdaptor->IndicatorSizeChanged( mTopMargin );
+  }
+}
+
 void Indicator::UpdateVisibility()
 {
   if( CheckVisibleState() )
@@ -1056,6 +1158,10 @@ void Indicator::CreateNewPixmapImage()
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mImageWidth, mImageHeight );
   Dali::NativeImageSourcePtr nativeImageSource = Dali::NativeImageSource::New( mPixmap );
 
+#ifdef ENABLE_INDICATOR_IMAGE_SAVING
+  SaveIndicatorImage( nativeImageSource );
+#endif
+
   if( nativeImageSource )
   {
     Dali::Texture texture = Dali::Texture::New( *nativeImageSource );
@@ -1063,6 +1169,7 @@ void Indicator::CreateNewPixmapImage()
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize( mImageWidth, mImageHeight );
+    UpdateTopMargin();
   }
   else
   {
@@ -1276,7 +1383,7 @@ void Indicator::DataReceived( void* event )
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE\n" );
       if( mIsShowing )
       {
-        //mAdaptor->RequestUpdateOnce();
+        mAdaptor->RequestUpdateOnce();
       }
       break;
     }
@@ -1284,7 +1391,7 @@ void Indicator::DataReceived( void* event )
     {
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_UPDATE_DONE [%d]\n", epcEvent->response );
       // epcEvent->response == display buffer #
-      //UpdateImageData( epcEvent->response );
+      UpdateImageData( epcEvent->response );
       break;
     }
     case OP_SHM_REF0:

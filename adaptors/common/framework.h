@@ -38,9 +38,12 @@ namespace Adaptor
 {
 
 /**
- * The Framework class is used to register callbacks with the TIZEN platform so that
+ * The Framework class is ideally placed to provide key API required by Applications.
+ *
+ * The class is also used to register callbacks with the TIZEN platform so that
  * we know when any of the application lifecycle events occur.  This includes events
  * like when our application is to be initialised, terminated, paused, resumed etc.
+ *
  */
 class Framework
 {
@@ -178,6 +181,11 @@ public:
    * Gets bundle id which was passed in app_reset callback.
    */
   std::string GetBundleId() const;
+
+  /**
+   *  Gets the path at which application resources are stored.
+   */
+  static std::string GetResourcePath();
 
 private:
 

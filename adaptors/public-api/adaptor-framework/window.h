@@ -63,13 +63,13 @@ public:
   // Enumerations
 
   /**
-   * @brief Orientation of the window.
+   * @brief Orientation of the window is the way in which a rectangular page is oriented for normal viewing.
    * @SINCE_1_0.0
    */
   enum WindowOrientation
   {
-    PORTRAIT = 0,  ///< Portrait orientation @SINCE_1_0.0
-    LANDSCAPE = 90,  ///< Landscape orientation @SINCE_1_0.0
+    PORTRAIT = 0,  ///< Portrait orientation. The height of the display area is greater than the width. @SINCE_1_0.0
+    LANDSCAPE = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
     PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
     LANDSCAPE_INVERSE = 270  ///< Landscape inverse orientation @SINCE_1_0.0
   };
@@ -206,12 +206,14 @@ public:
   /**
    * @brief Add an orientation to the list of available orientations.
    * @SINCE_1_0.0
+   * @param[in] orientation The available orientation to add
    */
   void AddAvailableOrientation( WindowOrientation orientation );
 
   /**
    * @brief Remove an orientation from the list of available orientations.
    * @SINCE_1_0.0
+   * @param[in] orientation The available orientation to remove
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
 
@@ -232,6 +234,7 @@ public:
 
   /**
    * @brief Returns the Drag & drop detector which can be used to receive drag & drop events.
+   * @note  Not intended for application developers.
    * @SINCE_1_0.0
    * @return A handle to the DragAndDropDetector.
    */
@@ -239,6 +242,8 @@ public:
 
   /**
    * @brief Get the native handle of the window.
+   *
+   * When users call this function, it wraps the actual type used by the underlying window system.
    * @SINCE_1_0.0
    * @return The native handle of the window or an empty handle.
    */
@@ -248,16 +253,19 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
    * @SINCE_1_0.0
+   * @return The signal to connect to
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief This constructor is used by Dali::Application::GetWindow().
    * @SINCE_1_0.0
    * @param[in] window A pointer to the window.
    */
   explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
+  /// @endcond
 };
 
 /**

@@ -211,6 +211,13 @@ public:
    */
   const std::string& GetSurroundingText() const;
 
+  /**
+ * @brief Notifies IMF context that text input is set to multi line or not
+ *
+ * @param[in] multiLine True if multiline text input is used
+ */
+  void NotifyTextInputMultiLine( bool multiLine );
+
 public:
 
   // Signals

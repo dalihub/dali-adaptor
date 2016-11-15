@@ -193,6 +193,13 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,           EcoreEventKeyDown,         handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_KEY_UP,             EcoreEventKeyUp,           handler ) );
 
+      // Register Selection event - clipboard selection
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_SELECTION_DATA_READY, EcoreEventDataReceive, handler ) );
+
+      // Register Detent event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_DETENT_ROTATE, EcoreEventDetent, handler) );
+
 #ifndef DALI_PROFILE_UBUNTU
       // Register Vconf notify - font name and size
       vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontNameChanged, handler );
@@ -500,7 +507,8 @@ struct EventHandler::Impl
           }
         }
       }
-      // No need to connect callbacks as KeyboardStatusChanged will be called.
+      Dali::Clipboard clipboard = Clipboard::Get();
+      clipboard.HideClipboard();
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -532,9 +540,13 @@ struct EventHandler::Impl
         }
       }
 
-      // Clipboard don't support that whether clipboard is shown or not. Hide clipboard.
+      // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
       Dali::Clipboard clipboard = Clipboard::Get();
-      clipboard.HideClipboard();
+      if ( clipboard )
+      {
+        Clipboard& clipBoardImpl( GetImplementation( clipboard ) );
+        clipBoardImpl.HideClipboard(true);
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -646,6 +658,65 @@ struct EventHandler::Impl
   static Eina_Bool EcoreEventSelectionNotify( void* data, int type, void* event )
   {
     DALI_LOG_INFO(gSelectionEventLogFilter, Debug::Concise, "EcoreEventSelectionNotify\n" );
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+  * Called when the source window notifies us the content in clipboard is selected.
+  */
+  static Eina_Bool EcoreEventDataSend( void* data, int type, void* event )
+  {
+    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::Concise, "EcoreEventDataSend\n" );
+
+    Dali::Clipboard clipboard = Clipboard::Get();
+    if ( clipboard )
+    {
+      Clipboard& clipBoardImpl( GetImplementation( clipboard ) );
+      clipBoardImpl.ExcuteBuffered( true, event );
+    }
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+   /**
+    * Called when the source window sends us about the selected content.
+    * For example, when item is selected in the clipboard.
+    */
+   static Eina_Bool EcoreEventDataReceive( void* data, int type, void* event )
+   {
+     DALI_LOG_INFO(gSelectionEventLogFilter, Debug::Concise, "EcoreEventDataReceive\n" );
+
+     EventHandler* handler( (EventHandler*)data );
+      Dali::Clipboard clipboard = Clipboard::Get();
+      char *selectionData = NULL;
+      if ( clipboard )
+      {
+        Clipboard& clipBoardImpl( GetImplementation( clipboard ) );
+        selectionData = clipBoardImpl.ExcuteBuffered( false, event );
+      }
+      if ( selectionData && handler->mClipboardEventNotifier )
+      {
+        ClipboardEventNotifier& clipboardEventNotifier( ClipboardEventNotifier::GetImplementation( handler->mClipboardEventNotifier ) );
+        std::string content( selectionData, strlen(selectionData) );
+
+        clipboardEventNotifier.SetContent( content );
+        clipboardEventNotifier.EmitContentSelectedSignal();
+      }
+     return ECORE_CALLBACK_PASS_ON;
+   }
+
+  /*
+  * Called when detent event is recevied
+  */
+  static Eina_Bool EcoreEventDetent( void* data, int type, void* event )
+  {
+    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::Concise, "EcoreEventDetent\n" );
+    EventHandler* handler( (EventHandler*)data );
+    Ecore_Event_Detent_Rotate *e((Ecore_Event_Detent_Rotate *)event);
+    int direction = (e->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
+    int timeStamp = e->timestamp;
+
+    WheelEvent wheelEvent( WheelEvent::CUSTOM_WHEEL, 0, 0, Vector2(0.0f, 0.0f), direction, timeStamp );
+    handler->SendWheelEvent( wheelEvent );
     return ECORE_CALLBACK_PASS_ON;
   }
 

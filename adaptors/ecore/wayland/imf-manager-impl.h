@@ -41,7 +41,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class ImfManager : public Dali::BaseObject
+class DALI_IMPORT_API ImfManager : public Dali::BaseObject
 {
 public:
   typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
@@ -150,6 +150,11 @@ public:
    * @copydoc Dali::ImfManager::GetSurroundingText()
    */
   const std::string& GetSurroundingText() const;
+
+  /**
+  * @copydoc Dali::ImfManager::NotifyTextInputMultiLine()
+  */
+  void NotifyTextInputMultiLine( bool multiLine );
 
 public:  // Signals
 
