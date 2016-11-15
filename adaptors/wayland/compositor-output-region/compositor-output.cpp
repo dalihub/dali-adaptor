@@ -58,7 +58,7 @@ void OutputGeometryCallback( void *data,
   CompositorOutput* output = static_cast< CompositorOutput* >( data );
   output->SetMonitorDimensions( physical_width, physical_height );
 
-  DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor width: %d mm, height: %d mm",physical_width, physical_height  );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor width: %d mm, height: %d mm\n",physical_width, physical_height  );
 }
 
 void OutputModeCallback( void *data,
@@ -74,7 +74,7 @@ void OutputModeCallback( void *data,
     CompositorOutput* output = static_cast< CompositorOutput* >( data );
     output->SetMonitorResolution( width, height );
 
-    DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor refresh rate: %f Hz, resolution: %d x %d", static_cast<float>(refresh)/ 1000.f, width, height );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor refresh rate: %f Hz, resolution: %d x %d\n", static_cast<float>(refresh)/ 1000.f, width, height );
   }
 }
 
@@ -160,7 +160,7 @@ void CompositorOutput::CallbacksDone()
   gDpiHorizontal =  (static_cast<float>( mXresolution) / mMonitorWidth) + 0.5f;
   gDpiVertical =  (static_cast<float>( mYresolution )/ mMonitorHeight) +0.5f;
 
-  DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor DPI %d x %d", gDpiHorizontal, gDpiVertical );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "Monitor DPI %d x %d\n", gDpiHorizontal, gDpiVertical );
 }
 
 

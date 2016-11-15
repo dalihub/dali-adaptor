@@ -84,7 +84,7 @@ void RenderSurface::InitializeEgl( EglInterface& egl )
 
   if (!eglImpl.InitializeGles(static_cast<EGLNativeDisplayType>( mWaylandManager->mDisplay )))
   {
-    DALI_LOG_ERROR("Failed to initialize GLES.");
+    DALI_LOG_ERROR("Failed to initialize GLES.\n");
   }
 
   eglImpl.ChooseConfig( true, mColorDepth );

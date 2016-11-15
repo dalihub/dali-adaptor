@@ -260,8 +260,6 @@ void WindowRenderSurface::CreateWlRenderable()
   {
       DALI_ASSERT_ALWAYS(0 && "Failed to create X window");
   }
-
-  //FIXME
 }
 
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )

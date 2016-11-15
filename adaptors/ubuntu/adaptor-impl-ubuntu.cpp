@@ -32,6 +32,11 @@ void Adaptor::GetDataStoragePath( std::string& path)
   path = DALI_SHADERBIN_DIR;
 }
 
+void Adaptor::GetAppId( std::string& appId )
+{
+  appId = "";
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

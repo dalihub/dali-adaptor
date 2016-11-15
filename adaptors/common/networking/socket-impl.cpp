@@ -61,7 +61,7 @@ Socket::Socket( Protocol protocol , int fileDescriptor )
     mSocketFileDescriptor = socket( addressFamily,type, netProtocol);
     if( mSocketFileDescriptor == -1 )
     {
-      DALI_LOG_ERROR( "Unable to create socket" );
+      DALI_LOG_ERROR( "Unable to create socket\n" );
     }
   }
   else
@@ -100,7 +100,7 @@ bool Socket::CloseSocket()
 
   if( ret == -1 )
   {
-    DALI_LOG_ERROR("Socket close failed");
+    DALI_LOG_ERROR("Socket close failed\n");
     return false;
   }
   return true;
@@ -110,7 +110,7 @@ bool Socket::Bind( uint16_t port )
 {
   if( ! SocketIsOpen() || mBound )
   {
-     DALI_LOG_ERROR("Socket is invalid, or already bound");
+     DALI_LOG_ERROR("Socket is invalid, or already bound\n");
      return false;
   }
   struct sockaddr_in serverAddress;
@@ -140,14 +140,14 @@ bool Socket::Listen( int blacklog)
 {
   if( ! mBound || mListening )
   {
-    DALI_LOG_ERROR("socket is not bound, or already opened for listening");
+    DALI_LOG_ERROR("socket is not bound, or already opened for listening\n");
     return false;
   }
   int ret =  listen( mSocketFileDescriptor, blacklog);
 
   if( ret == -1 )
   {
-    DALI_LOG_ERROR("Listen failed");
+    DALI_LOG_ERROR("Listen failed\n");
     return false;
   }
 
@@ -160,7 +160,7 @@ SocketInterface* Socket::Accept() const
 {
   if( !mListening )
   {
-    DALI_LOG_ERROR("socket is not being listened to");
+    DALI_LOG_ERROR("socket is not being listened to\n");
     return NULL;
   }
 
@@ -171,7 +171,7 @@ SocketInterface* Socket::Accept() const
   int clientFileDescriptor = accept( mSocketFileDescriptor, &clientAddress, &addressLength);
   if( clientFileDescriptor == -1 )
   {
-     DALI_LOG_ERROR("Accept failed");
+     DALI_LOG_ERROR("Accept failed\n");
      return NULL;
   }
 
@@ -190,7 +190,7 @@ bool Socket::CreateQuitPipe()
     int ret = pipe( mQuitPipe );
     if( ret != 0)
     {
-      DALI_LOG_ERROR("Pipe creation failed");
+      DALI_LOG_ERROR("Pipe creation failed\n");
       return false;
     }
     mQuitPipeCreated = true;
@@ -231,7 +231,7 @@ SocketInterface::SelectReturn Socket::Select()
     int ret = select( maxFd+1, &readFileDescriptors, NULL, &exceptFileDescriptors, NULL );
     if( ret == -1 )
     {
-      DALI_LOG_ERROR("select failed");
+      DALI_LOG_ERROR("select failed\n");
       return ERROR;
     }
     else if ( FD_ISSET( mQuitPipe[0] , &readFileDescriptors ))
