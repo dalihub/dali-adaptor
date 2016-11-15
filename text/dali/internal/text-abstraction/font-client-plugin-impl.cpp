@@ -55,7 +55,6 @@ const bool FONT_FIXED_SIZE_BITMAP( true );
 
 // http://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 
-// NONE            -1  --> DEFAULT_FONT_WIDTH (NORMAL) will be used.
 // ULTRA_CONDENSED 50
 // EXTRA_CONDENSED 63
 // CONDENSED       75
@@ -65,10 +64,9 @@ const bool FONT_FIXED_SIZE_BITMAP( true );
 // EXPANDED       125
 // EXTRA_EXPANDED 150
 // ULTRA_EXPANDED 200
-const int FONT_WIDTH_TYPE_TO_INT[] = { -1, 50, 63, 75, 87, 100, 113, 125, 150, 200 };
+const int FONT_WIDTH_TYPE_TO_INT[] = { 50, 63, 75, 87, 100, 113, 125, 150, 200 };
 const unsigned int NUM_FONT_WIDTH_TYPE = sizeof( FONT_WIDTH_TYPE_TO_INT ) / sizeof( int );
 
-// NONE                       -1  --> DEFAULT_FONT_WEIGHT (NORMAL) will be used.
 // THIN                        0
 // ULTRA_LIGHT, EXTRA_LIGHT   40
 // LIGHT                      50
@@ -80,14 +78,13 @@ const unsigned int NUM_FONT_WIDTH_TYPE = sizeof( FONT_WIDTH_TYPE_TO_INT ) / size
 // BOLD                      200
 // ULTRA_BOLD, EXTRA_BOLD    205
 // BLACK, HEAVY, EXTRA_BLACK 210
-const int FONT_WEIGHT_TYPE_TO_INT[] = { -1, 0, 40, 50, 55, 75, 80, 100, 180, 200, 205, 210 };
+const int FONT_WEIGHT_TYPE_TO_INT[] = { 0, 40, 50, 55, 75, 80, 100, 180, 200, 205, 210 };
 const unsigned int NUM_FONT_WEIGHT_TYPE = sizeof( FONT_WEIGHT_TYPE_TO_INT ) / sizeof( int );
 
-// NONE             -1 --> DEFAULT_FONT_SLANT (NORMAL) will be used.
-// NORMAL, ROMAN     0
-// ITALIC          100
-// OBLIQUE         110
-const int FONT_SLANT_TYPE_TO_INT[] = { -1, 0, 100, 110 };
+// NORMAL, ROMAN   0
+// ITALIC        100
+// OBLIQUE       110
+const int FONT_SLANT_TYPE_TO_INT[] = { 0, 100, 110 };
 const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / sizeof( int );
 
 } // namespace
@@ -161,11 +158,11 @@ FontClient::Plugin::FontIdCacheItem::FontIdCacheItem( FontDescriptionId validate
 {
 }
 
-FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
-                                                          const FontPath& path,
-                                                          PointSize26Dot6 requestedPointSize,
-                                                          FaceIndex face,
-                                                          const FontMetrics& metrics )
+FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
+                                          const FontPath& path,
+                                          PointSize26Dot6 requestedPointSize,
+                                          FaceIndex face,
+                                          const FontMetrics& metrics )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
   mRequestedPointSize( requestedPointSize ),
@@ -178,13 +175,13 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
 {
 }
 
-FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
-                                                          const FontPath& path,
-                                                          PointSize26Dot6 requestedPointSize,
-                                                          FaceIndex face,
-                                                          const FontMetrics& metrics,
-                                                          float fixedWidth,
-                                                          float fixedHeight )
+FontClient::Plugin::CacheItem::CacheItem( FT_Face ftFace,
+                                          const FontPath& path,
+                                          PointSize26Dot6 requestedPointSize,
+                                          FaceIndex face,
+                                          const FontMetrics& metrics,
+                                          float fixedWidth,
+                                          float fixedHeight )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
   mRequestedPointSize( requestedPointSize ),
@@ -411,11 +408,12 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
 {
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFontForCharacter\n");
 
-  FontId fontId = 0u;
-  bool foundColor = false;
+  FontId fontId(0);
+  bool foundColor(false);
 
   // Traverse the list of fonts.
-  // Check for each font if supports the character.
+  // Check for each default font if supports the character.
+
   for( FontList::const_iterator it = fontList.begin(), endIt = fontList.end();
        it != endIt;
        ++it )
@@ -469,7 +467,7 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
         }
       }
 
-      // Keep going unless we prefer a different (color) font.
+      // Keep going unless we prefer a different (color) font
       if( !preferColor || foundColor )
       {
         FcPatternDestroy( match );
@@ -501,7 +499,6 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
     fontDescription.width = IntToWidthType( DEFAULT_FONT_WIDTH );
     fontDescription.weight = IntToWeightType( DEFAULT_FONT_WEIGHT );
     fontDescription.slant = IntToSlantType( DEFAULT_FONT_SLANT );
-
     SetFontList( fontDescription, mDefaultFonts );
   }
 
@@ -512,8 +509,8 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
   return fontId;
 }
 
-FontId FontClient::Plugin::FindFallbackFont( Character charcode,
-                                             const FontDescription& preferredFontDescription,
+FontId FontClient::Plugin::FindFallbackFont( FontId preferredFont,
+                                             Character charcode,
                                              PointSize26Dot6 requestedPointSize,
                                              bool preferColor )
 {
@@ -521,12 +518,7 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
   FontId fontId = 0u;
 
   FontDescription fontDescription;
-
-  // Fill the font description with the preferred font description and complete with the defaults.
-  fontDescription.family = preferredFontDescription.family.empty() ? DEFAULT_FONT_FAMILY_NAME : preferredFontDescription.family;
-  fontDescription.weight = ( ( FontWeight::NONE == preferredFontDescription.weight ) ? IntToWeightType( DEFAULT_FONT_WEIGHT ) : preferredFontDescription.weight );
-  fontDescription.width = ( ( FontWidth::NONE == preferredFontDescription.width ) ? IntToWidthType( DEFAULT_FONT_WIDTH ) : preferredFontDescription.width );
-  fontDescription.slant = ( ( FontSlant::NONE == preferredFontDescription.slant ) ? IntToSlantType( DEFAULT_FONT_SLANT ) : preferredFontDescription.slant );
+  GetDescription( preferredFont, fontDescription );
 
   // Check first if the font's description has been queried before.
   FontList* fontList( NULL );
@@ -537,7 +529,7 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
     SetFontList( fontDescription, *fontList );
 
     // Add the font-list to the cache.
-    mFallbackCache.push_back( FallbackCacheItem( fontDescription, fontList ) );
+    mFallbackCache.push_back( FallbackCacheItem(fontDescription, fontList) );
   }
 
   if( fontList )
@@ -691,7 +683,7 @@ void FontClient::Plugin::GetFontMetrics( FontId fontId,
   if( ( fontId > 0 ) &&
       ( fontId - 1u < mFontCache.size() ) )
   {
-    const FontFaceCacheItem& font = mFontCache[fontId-1];
+    const CacheItem& font = mFontCache[fontId-1];
 
     metrics = font.mMetrics;
 
@@ -762,7 +754,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
     if( fontId > 0 &&
         fontId-1 < mFontCache.size() )
     {
-      const FontFaceCacheItem& font = mFontCache[fontId-1];
+      const CacheItem& font = mFontCache[fontId-1];
 
       FT_Face ftFace = font.mFreeTypeFace;
 
@@ -850,7 +842,7 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
     if( fontId > 0 &&
         fontId-1 < mFontCache.size() )
     {
-      FontFaceCacheItem& font = mFontCache[fontId-1];
+      CacheItem& font = mFontCache[fontId-1];
 
       if( ! font.mVectorFontId )
       {
@@ -950,7 +942,7 @@ void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex,
   if( fontId > 0 &&
       fontId-1 < mFontCache.size() )
   {
-    FontFaceCacheItem& font = mFontCache[fontId-1];
+    CacheItem& font = mFontCache[fontId-1];
 
     if( ! font.mVectorFontId )
     {
@@ -1064,7 +1056,6 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
     fontDescription.width = IntToWidthType( width );
     fontDescription.weight = IntToWeightType( weight );
     fontDescription.slant = IntToSlantType( slant );
-
     // destroyed the matched pattern
     FcPatternDestroy( match );
     ret = true;
@@ -1082,30 +1073,9 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   // add a property to the pattern for the font family
   FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( fontDescription.family.c_str() ) );
 
-  int width = FONT_WIDTH_TYPE_TO_INT[fontDescription.width];
-  if( width < 0 )
-  {
-    // Use default.
-    width = DEFAULT_FONT_WIDTH;
-  }
-
-  int weight = FONT_WEIGHT_TYPE_TO_INT[fontDescription.weight];
-  if( weight < 0 )
-  {
-    // Use default.
-    weight = DEFAULT_FONT_WEIGHT;
-  }
-
-  int slant = FONT_SLANT_TYPE_TO_INT[fontDescription.slant];
-  if( slant < 0 )
-  {
-    // Use default.
-    slant = DEFAULT_FONT_SLANT;
-  }
-
-  FcPatternAddInteger( fontFamilyPattern, FC_WIDTH, width );
-  FcPatternAddInteger( fontFamilyPattern, FC_WEIGHT, weight );
-  FcPatternAddInteger( fontFamilyPattern, FC_SLANT, slant );
+  FcPatternAddInteger( fontFamilyPattern, FC_WIDTH, FONT_WIDTH_TYPE_TO_INT[fontDescription.width] );
+  FcPatternAddInteger( fontFamilyPattern, FC_WEIGHT, FONT_WEIGHT_TYPE_TO_INT[fontDescription.weight] );
+  FcPatternAddInteger( fontFamilyPattern, FC_SLANT, FONT_SLANT_TYPE_TO_INT[fontDescription.slant] );
 
   // Add a property of the pattern, to say we want to match TrueType fonts
   FcPatternAddString( fontFamilyPattern , FC_FONTFORMAT, reinterpret_cast<const FcChar8*>( FONT_FORMAT.c_str() ) );
@@ -1227,7 +1197,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                                  0.0f,
                                  0.0f );
 
-            mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
+            mFontCache.push_back( CacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
             id = mFontCache.size();
 
             if( cacheDescription )
@@ -1272,7 +1242,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                              static_cast< float >( ftFace->underline_position ) * FROM_266,
                              static_cast< float >( ftFace->underline_thickness ) * FROM_266 );
 
-        mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
+        mFontCache.push_back( CacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
         id = mFontCache.size();
 
         if( cacheDescription )
@@ -1341,12 +1311,12 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
                                    FontId& fontId ) const
 {
   fontId = 0u;
-  for( std::vector<FontFaceCacheItem>::const_iterator it = mFontCache.begin(),
+  for( std::vector<CacheItem>::const_iterator it = mFontCache.begin(),
          endIt = mFontCache.end();
        it != endIt;
        ++it, ++fontId )
   {
-    const FontFaceCacheItem& cacheItem = *it;
+    const CacheItem& cacheItem = *it;
 
     if( cacheItem.mRequestedPointSize == requestedPointSize &&
         cacheItem.mFaceIndex == faceIndex &&
@@ -1554,9 +1524,9 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
   FontDescription description;
   description.path = path;
   description.family = FontFamily( ftFace->family_name );
-  description.weight = FontWeight::NONE;
-  description.width = FontWidth::NONE;
-  description.slant = FontSlant::NONE;
+  description.weight = FontWeight::NORMAL;
+  description.width = FontWidth::NORMAL;
+  description.slant = FontSlant::NORMAL;
 
   // Note FreeType doesn't give too much info to build a proper font style.
   if( ftFace->style_flags & FT_STYLE_FLAG_ITALIC )

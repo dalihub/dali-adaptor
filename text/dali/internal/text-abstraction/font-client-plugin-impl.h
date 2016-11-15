@@ -91,27 +91,27 @@ struct FontClient::Plugin
 
     FontDescriptionId validatedFontId;    ///< Index to the vector with font descriptions.
     PointSize26Dot6   requestedPointSize; ///< The font point size.
-    FontId            fontId;             ///< The font identifier.
+    FontId            fontId;             ///< The font id.
   };
 
   /**
    * @brief Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
    */
-  struct FontFaceCacheItem
+  struct CacheItem
   {
-    FontFaceCacheItem( FT_Face ftFace,
-                       const FontPath& path,
-                       PointSize26Dot6 requestedPointSize,
-                       FaceIndex face,
-                       const FontMetrics& metrics );
+    CacheItem( FT_Face ftFace,
+               const FontPath& path,
+               PointSize26Dot6 requestedPointSize,
+               FaceIndex face,
+               const FontMetrics& metrics );
 
-    FontFaceCacheItem( FT_Face ftFace,
-                       const FontPath& path,
-                       PointSize26Dot6 requestedPointSize,
-                       FaceIndex face,
-                       const FontMetrics& metrics,
-                       float fixedWidth,
-                       float fixedHeight );
+    CacheItem( FT_Face ftFace,
+               const FontPath& path,
+               PointSize26Dot6 requestedPointSize,
+               FaceIndex face,
+               const FontMetrics& metrics,
+               float fixedWidth,
+               float fixedHeight );
 
     FT_Face mFreeTypeFace;               ///< The FreeType face.
     FontPath mPath;                      ///< The path to the font file name.
@@ -161,7 +161,7 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::SetDefaultFont()
    */
-  void SetDefaultFont( const FontDescription& preferredFontDescription );
+  void SetDefaultFont( const FontDescription& fontDescription );
 
   /**
    * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
@@ -189,14 +189,7 @@ struct FontClient::Plugin
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
-   * @brief Finds within the @p fontList a font which support the @p carcode.
-   *
-   * @param[in] fontList A list of font paths, family, width, weight and slant.
-   * @param[in] charcode The character for which a font is needed.
-   * @param[in] requestedPointSize The point size in 26.6 fractional points.
-   * @param[in] preferColor @e true if a color font is preferred.
-   *
-   * @return A valid font identifier, or zero if no font is found.
+   * @copydoc Dali::FontClient::FindFontForCharacter()
    */
   FontId FindFontForCharacter( const FontList& fontList,
                                Character charcode,
@@ -206,17 +199,12 @@ struct FontClient::Plugin
   /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
-  FontId FindDefaultFont( Character charcode,
-                          PointSize26Dot6 requestedPointSize,
-                          bool preferColor );
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::FindFallbackFont()
    */
-  FontId FindFallbackFont( Character charcode,
-                           const FontDescription& preferredFontDescription,
-                           PointSize26Dot6 requestedPointSize,
-                           bool preferColor );
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @see Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
@@ -231,9 +219,7 @@ struct FontClient::Plugin
                     bool cacheDescription = true );
 
   /**
-   * @see Dali::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
-   *
-   * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
+   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 requestedPointSize,
@@ -365,7 +351,7 @@ private:
    * @param[in] faceIndex A face index.
    * @param[in] cacheDescription Whether to cache the font description.
    *
-   * @return The font identifier.
+   * @return The font id.
    */
   FontId CreateFont( const FontPath& path,
                      PointSize26Dot6 requestedPointSize,
@@ -382,12 +368,12 @@ private:
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
-   * If there is one , if writes the font identifier in the param @p fontId.
+   * If there is one , if writes the font id in the param @p fontId.
    *
    * @param[in] path Path to the font file name.
    * @param[in] requestedPointSize The font point size.
    * @param[in] faceIndex The face index.
-   * @param[out] fontId The font identifier.
+   * @param[out] fontId The font id.
    *
    * @return @e true if there triplet is found.
    */
@@ -415,12 +401,12 @@ private:
                              FontList*& fontList );
 
   /**
-   * @brief Finds in the cache a pair 'validated font identifier and font point size'.
-   * If there is one it writes the font identifier in the param @p fontId.
+   * @brief Finds in the cache a pair 'validated font id and font point size'.
+   * If there is one it writes the font id in the param @p fontId.
    *
    * @param[in] validatedFontId Index to the vector with font descriptions.
    * @param[in] requestedPointSize The font point size.
-   * @param[out] fontId The font identifier.
+   * @param[out] fontId The font id.
    *
    * @return @e true if the pair is found.
    */
@@ -476,10 +462,10 @@ private:
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
-  std::vector<FontFaceCacheItem>        mFontCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
+  std::vector<CacheItem>                mFontCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
   FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
-  std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+  std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font ids for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
   VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
 

@@ -98,17 +98,12 @@ public:
   /**
    * @copydoc Dali::FontClient::FindDefaultFont()
    */
-  FontId FindDefaultFont( Character charcode,
-                          PointSize26Dot6 requestedPointSize,
-                          bool preferColor );
+  FontId FindDefaultFont( Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::FindFallbackFont()
    */
-  FontId FindFallbackFont( Character charcode,
-                           const FontDescription& preferredFontDescription,
-                           PointSize26Dot6 requestedPointSize,
-                           bool preferColor );
+  FontId FindFallbackFont( FontId preferredFont, Character charcode, PointSize26Dot6 requestedPointSize, bool preferColor );
 
   /**
    * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )

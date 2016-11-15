@@ -132,36 +132,36 @@ public:
   /**
    * @brief Retrieve the list of default fonts supported by the system.
    *
-   * @param[out] defaultFonts A list of default font paths, family, width, weight and slant.
+   * @param[out] defaultFonts A list of default font paths, family & style strings.
    */
   void GetDefaultFonts( FontList& defaultFonts );
 
   /**
-   * @brief Retrieve the active default font from the system.
+   * @brief Retrieve the active default font from the system
    *
-   * @param[out] fontDescription font structure describing the default font.
+   * @param[out] fontDescription font structure describing the default font
    */
   void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
 
   /**
    * @brief Retrieve the list of fonts supported by the system.
    *
-   * @param[out] systemFonts A list of font paths, family, width, weight and slant.
+   * @param[out] systemFonts A list of font paths, family & style strings.
    */
   void GetSystemFonts( FontList& systemFonts );
 
   /**
    * @brief Retrieves the font description of a given font @p id.
    *
-   * @param[in] id The font identifier.
-   * @param[out] fontDescription The path, family & style (width, weight and slant) describing the font.
+   * @param[in] id The font id.
+   * @param[out] fontDescription The path, family & style describing the font.
    */
   void GetDescription( FontId id, FontDescription& fontDescription );
 
   /**
    * @brief Retrieves the font point size of a given font @p id.
    *
-   * @param[in] id The font identifier.
+   * @param[in] id The font id.
    *
    * @return The point size in 26.6 fractional points.
    */
@@ -172,12 +172,10 @@ public:
    *
    * This is useful when localised strings are provided for multiple languages
    * i.e. when a single default font does not work for all languages.
-   *
    * @param[in] charcode The character for which a font is needed.
    * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
-   * @param[in] preferColor @e true if a color font is preferred.
-   *
-   * @return A valid font identifier, or zero if the font does not exist.
+   * @param[in] preferColor True if a color font is preferred.
+   * @return A valid font ID, or zero if the font does not exist.
    */
   FontId FindDefaultFont( Character charcode,
                           PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
@@ -188,17 +186,15 @@ public:
    *
    * This is useful when localised strings are provided for multiple languages
    * i.e. when a single default font does not work for all languages.
-   *
+   * @param[in] preferredFont The preferred font which may not provide a glyph for charcode.
+   * The fallback-font will be the closest match to preferredFont, which does support the required glyph.
    * @param[in] charcode The character for which a font is needed.
-   * @param[in] preferredFontDescription Description of the preferred font which may not provide a glyph for @p charcode.
-   *                                     The fallback-font will be the closest match to @p preferredFontDescription, which does support the required glyph.
    * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
-   * @param[in] preferColor @e true if a color font is preferred.
-   *
-   * @return A valid font identifier, or zero if the font does not exist.
+   * @param[in] preferColor True if a color font is preferred.
+   * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId FindFallbackFont( Character charcode,
-                           const FontDescription& preferredFontDescription,
+  FontId FindFallbackFont( FontId preferredFont,
+                           Character charcode,
                            PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                            bool preferColor = false );
 
@@ -208,24 +204,23 @@ public:
    * @param[in] path The path to a font file.
    * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
-   *
-   * @return A valid font identifier, or zero if the font does not exist.
+   * @return A valid font ID, or zero if the font does not exist.
    */
   FontId GetFontId( const FontPath& path,
                     PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
   /**
-   * @brief Retrieves a unique font identifier for a given description.
+   * @brief Retrieve the unique identifier for a font.
    *
-   * @param[in] preferredFontDescription Description of the preferred font.
-   *                                     The font will be the closest match to @p preferredFontDescription.
+   * @note It the font style is not empty, it will be used instead the font weight and font slant slant.
+   *
+   * @param[in] fontDescription A font description.
    * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
-   *
-   * @return A valid font identifier, or zero if no font is found.
+   * @return A valid font ID, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontDescription& preferredFontDescription,
+  FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
                     FaceIndex faceIndex = 0 );
 
@@ -274,7 +269,7 @@ public:
   /**
    * @brief Query the metrics for a font.
    *
-   * @param[in] fontId The identifier of the font for the required glyph.
+   * @param[in] fontId The ID of the font for the required glyph.
    * @param[out] metrics The font metrics.
    */
   void GetFontMetrics( FontId fontId, FontMetrics& metrics );
@@ -282,9 +277,8 @@ public:
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.
    *
-   * @param[in] fontId The identifier of the font for the required glyph.
+   * @param[in] fontId The ID of the font for the required glyph.
    * @param[in] charcode The UTF-32 character code.
-   *
    * @return The glyph index, or zero if the character code is undefined.
    */
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
@@ -293,22 +287,20 @@ public:
    * @brief Retrieve the metrics for a series of glyphs.
    *
    * @param[in,out] array An array of glyph-info structures with initialized FontId & GlyphIndex values.
-   *                      It may contain the advance and an offset set into the bearing from the shaping tool.
-   *                      On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
+   * It may contain the advance and an offset set into the bearing from the shaping tool.
+   * On return, the glyph's size value will be initialized. The bearing value will be updated by adding the font's glyph bearing to the one set by the shaping tool.
    * @param[in] size The size of the array.
    * @param[in] type The type of glyphs used for rendering; either bitmaps or vectors.
    * @param[in] horizontal True for horizontal layouts (set to false for vertical layouting).
-   *
-   * @return @e true if all of the requested metrics were found.
+   * @return True if all of the requested metrics were found.
    */
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true );
 
   /**
    * @brief Create a bitmap representation of a glyph.
    *
-   * @param[in] fontId The identifier of the font.
+   * @param[in] fontId The ID of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
-   *
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
   PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
@@ -317,7 +309,7 @@ public:
    * @brief Create a vector representation of a glyph.
    *
    * @note This feature requires highp shader support and is not available on all platforms
-   * @param[in] fontId The identifier of the font.
+   * @param[in] fontId The ID of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @param[out] blob A blob of data; this is owned by FontClient and should be copied by the caller of CreateVectorData().
    * @param[out] blobLength The length of the blob data, or zero if the blob creation failed.
