@@ -37,6 +37,8 @@
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/common/stage.h>
+#include <dali/public-api/actors/blending.h>
+#include <dali/public-api/shader-effects/shader-effect.h>
 #include <dali/public-api/images/buffer-image.h>
 
 #include <dali/integration-api/debug.h>
