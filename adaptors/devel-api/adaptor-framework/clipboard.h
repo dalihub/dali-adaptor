@@ -2,7 +2,7 @@
 #define  __DALI_CLIPBOARD_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,12 @@ public:
   bool SetItem( const std::string& itemData );
 
   /**
-   * @brief Request clipboard service to retrieve an item
+   * @brief Retreive the string at the given index in the clipboard.
    *
-   * Calling this method will trigger a signal from the clipboard event notifier.
-   * @see Dali::ClipboardEventNotifier::ContentSelectedSignal()
+   * @param[in] index item in clipboard list to retrieve
+   * @return string the text item at the current index.
    */
-  void RequestItem();
+  std::string GetItem( unsigned int index );
 
   /**
    * @brief Returns the number of item currently in the clipboard.
@@ -105,12 +105,6 @@ public:
    * @brief Hide the clipboard window.
    */
   void HideClipboard();
-
-  /**
-  * @brief Retrieves the clipboard's visibility
-  * @return bool true if the clipboard is visible.
-  */
-  bool IsVisible() const;
 
 };
 } // namespace Dali

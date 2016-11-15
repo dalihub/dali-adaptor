@@ -39,15 +39,14 @@ Clipboard Clipboard::Get()
 {
   return Internal::Adaptor::Clipboard::Get();
 }
-
 bool Clipboard::SetItem( const std::string &itemData)
 {
   return GetImplementation(*this).SetItem( itemData );
 }
 
-void Clipboard::RequestItem()
+std::string Clipboard::GetItem( unsigned int index )
 {
-  GetImplementation(*this).RequestItem();
+  return GetImplementation(*this).GetItem( index );
 }
 
 unsigned int Clipboard::NumberOfItems()
@@ -62,12 +61,7 @@ void Clipboard::ShowClipboard()
 
 void Clipboard::HideClipboard()
 {
-  GetImplementation(*this).HideClipboard(false);
-}
-
-bool Clipboard::IsVisible() const
-{
-  return GetImplementation(*this).IsVisible();
+  GetImplementation(*this).HideClipboard();
 }
 
 } // namespace Dali

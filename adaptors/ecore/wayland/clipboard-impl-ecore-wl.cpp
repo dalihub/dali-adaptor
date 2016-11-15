@@ -24,22 +24,12 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <unistd.h>
-
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif // DALI_ELDBUS_AVAILABLE
+#include <bundle.h>
 
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 
-#define CBHM_DBUS_OBJPATH "/org/tizen/cbhm/dbus"
-#ifndef CBHM_DBUS_INTERFACE
-#define CBHM_DBUS_INTERFACE "org.tizen.cbhm.dbus"
-#endif /* CBHM_DBUS_INTERFACE */
-
 #define CLIPBOARD_STR  "CLIPBOARD_STR"
-#define CLIPBOARD_BUFFER_SIZE 512
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Clipboard
@@ -58,166 +48,37 @@ struct Clipboard::Impl
 {
   Impl()
   {
-    Eldbus_Object *eldbus_obj;
-    cbhm_conn = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SESSION);
-    eldbus_obj = eldbus_object_get(cbhm_conn, CBHM_DBUS_INTERFACE, CBHM_DBUS_OBJPATH);
-    eldbus_proxy = eldbus_proxy_get(eldbus_obj, CBHM_DBUS_INTERFACE);
-    eldbus_name_owner_changed_callback_add(cbhm_conn, CBHM_DBUS_INTERFACE, NULL, cbhm_conn, EINA_TRUE);
-    eldbus_proxy_signal_handler_add(eldbus_proxy, "ItemClicked", _on_item_clicked, this);
-    mVisible = false;
-    mIsFirstTimeHidden = true;
+    mBundle = bundle_create();
   }
 
-  ~Impl()
+  void SetItem(const char *data)
   {
-    if (cbhm_conn)
-      eldbus_connection_unref(cbhm_conn);
-  }
+    char *temp = NULL;
 
-  Eldbus_Proxy* cbhm_proxy_get()
-  {
-    return eldbus_proxy;
-  }
-
-  Eldbus_Connection* cbhm_connection_get()
-  {
-    return cbhm_conn;
-  }
-
-  void SetItem( const std::string &itemData )
-  {
-    const char *data = itemData.c_str();
-    const char *types[10] = {0, };
-    int i = -1;
-
-    if (data == NULL)
+    if (bundle_get_str(mBundle, CLIPBOARD_STR, &temp) == BUNDLE_ERROR_NONE)
     {
-      return;
+      bundle_del(mBundle, CLIPBOARD_STR);
     }
-    strcpy(mSendBuf, data);
-
-    // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
-    types[++i] = "CLIPBOARD_BEGIN";
-
-    types[++i] = "application/x-elementary-markup";
-    types[++i] = "text/plain";
-    types[++i] = "text/plain;charset=utf-8";
-
-    // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
-    types[++i] = "CLIPBOARD_END";
-    ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
+    bundle_add_str(mBundle, CLIPBOARD_STR, data);
   }
 
-  void RequestItem()
+  char *GetItem()
   {
-    const char *types[10] = {0, };
-    int i = -1;
+    char *data = NULL;
 
-    types[++i] = "application/x-elementary-markup";
-    types[++i] = "text/plain";
-    types[++i] = "text/plain;charset=utf-8";
-    ecore_wl_dnd_selection_get(ecore_wl_input_get(), *types);
-  }
-
-  char *ExcuteSend( void *event )
-  {
-    Ecore_Wl_Event_Data_Source_Send *ev = (Ecore_Wl_Event_Data_Source_Send *)event;
-    int len_buf = strlen(mSendBuf);
-    int len_remained = len_buf;
-    int len_written = 0, ret;
-    char *buf = mSendBuf;
-
-    while (len_written < len_buf)
+    if ( bundle_get_count(mBundle) )
     {
-       ret = write(ev->fd, buf, len_remained);
-       if (ret == -1) break;
-       buf += ret;
-       len_written += ret;
-       len_remained -= ret;
+      bundle_get_str(mBundle, CLIPBOARD_STR, &data);
     }
-    close(ev->fd);
-    return (char *)mSendBuf;
-  }
-
-  char *ExcuteReceive( void *event )
-  {
-    Ecore_Wl_Event_Selection_Data_Ready *ev = (Ecore_Wl_Event_Selection_Data_Ready *)event;
-
-    strncpy(mReceiveBuf, (char *)ev->data, ev->len);
-    mReceiveBuf[ev->len] = '\0';
-    return (char *)mReceiveBuf;
+    return data;
   }
 
   int GetCount()
   {
-    Eldbus_Message *reply, *req;
-    const char *errname = NULL, *errmsg = NULL;
-    int count = -1;
-
-    if (!(req = eldbus_proxy_method_call_new(eldbus_proxy, "CbhmGetCount")))
-    {
-      DALI_LOG_ERROR("Failed to create method call on org.freedesktop.DBus.Properties.Get");
-      return -1;
-    }
-
-    eldbus_message_ref(req);
-    reply = eldbus_proxy_send_and_block(eldbus_proxy, req, 100);
-    if (!reply || eldbus_message_error_get(reply, &errname, &errmsg))
-    {
-      DALI_LOG_ERROR("Unable to call method org.freedesktop.DBus.Properties.Get: %s %s",
-      errname, errmsg);
-      eldbus_message_unref(req);
-      return -1;
-    }
-
-    if (!eldbus_message_arguments_get(reply, "i", &count))
-    {
-      DALI_LOG_ERROR("Cannot get arguments from eldbus");
-      eldbus_message_unref(req);
-      return -1;
-    }
-
-    eldbus_message_unref(req);
-    DALI_LOG_ERROR("cbhm item count(%d)", count);
-    return count;
+    return bundle_get_count(mBundle);
   }
 
-  void ShowClipboard()
-  {
-    eldbus_proxy_call(cbhm_proxy_get(), "CbhmShow", NULL, NULL, -1, "s", "0");
-    mIsFirstTimeHidden = true;
-    mVisible = true;
-  }
-
-  void HideClipboard( bool skipFirstHide )
-  {
-    if ( skipFirstHide && mIsFirstTimeHidden )
-    {
-      mIsFirstTimeHidden = false;
-      return;
-    }
-    eldbus_proxy_call(cbhm_proxy_get(), "CbhmHide", NULL, NULL, -1, "");
-    mIsFirstTimeHidden = false;
-    mVisible = false;
-  }
-
-  bool IsVisible() const
-  {
-    return mVisible;
-  }
-
-  static void _on_item_clicked(void *data, const Eldbus_Message *msg EINA_UNUSED)
-  {
-    static_cast<Clipboard::Impl*>(data)->RequestItem();
-  }
-
-  Eldbus_Proxy *eldbus_proxy;
-  Eldbus_Connection *cbhm_conn;
-
-  char mSendBuf[CLIPBOARD_BUFFER_SIZE];
-  char mReceiveBuf[CLIPBOARD_BUFFER_SIZE];
-  bool mVisible;
-  bool mIsFirstTimeHidden;
+  bundle *mBundle;
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -256,16 +117,17 @@ Dali::Clipboard Clipboard::Get()
 
 bool Clipboard::SetItem(const std::string &itemData )
 {
-  mImpl->SetItem( itemData );
+  mImpl->SetItem( const_cast<char*>( itemData.c_str()) );
   return true;
 }
 
 /*
- * Request clipboard service to give an item
+ * Get string at given index of clipboard
  */
-void Clipboard::RequestItem()
+std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali::Text object.
 {
-  mImpl->RequestItem();
+  std::string clipboardString(mImpl->GetItem());
+  return clipboardString;
 }
 
 /*
@@ -276,25 +138,19 @@ unsigned int Clipboard::NumberOfItems()
   return mImpl->GetCount();
 }
 
+/**
+ * Show clipboard window
+ * Function to send message to show the Clipboard (cbhm) as no direct API available
+ * Reference elementary/src/modules/ctxpopup_copypasteUI/cbhm_helper.c
+ */
 void Clipboard::ShowClipboard()
 {
-  mImpl->ShowClipboard();
 }
 
-void Clipboard::HideClipboard(bool skipFirstHide)
+void Clipboard::HideClipboard()
 {
-  mImpl->HideClipboard(skipFirstHide);
 }
 
-bool Clipboard::IsVisible() const
-{
-  return mImpl->IsVisible();
-}
-
-char* Clipboard::ExcuteBuffered( bool type, void *event )
-{
-  return (type ?  mImpl->ExcuteSend( event ) : mImpl->ExcuteReceive( event ));
-}
 
 } // namespace Adaptor
 

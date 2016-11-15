@@ -87,10 +87,11 @@ bool Clipboard::SetItem(const std::string &itemData )
 }
 
 /*
- * Request clipboard service to retrieve an item
+ * Get string at given index of clipboard
  */
-void Clipboard::RequestItem()
+std::string Clipboard::GetItem( unsigned int index )  // change string to a Dali::Text object.
 {
+  return "not supported";
 }
 
 /*
@@ -110,19 +111,10 @@ void Clipboard::ShowClipboard()
 {
 }
 
-void Clipboard::HideClipboard(bool skipFirstHide)
+void Clipboard::HideClipboard()
 {
 }
 
-bool Clipboard::IsVisible() const
-{
-  return false;
-}
-
-char* Clipboard::ExcuteBuffered( bool type, void *event )
-{
-  return NULL;
-}
 
 } // namespace Adaptor
 
