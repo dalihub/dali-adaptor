@@ -63,7 +63,7 @@ struct Window::EventHandler
   EventHandler( Window* window )
   : mWindow( window ),
     mWindowPropertyHandler( NULL ),
-    mWindowIconifyStateHandler( NULL ),
+    mClientMessageHandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -73,14 +73,6 @@ struct Window::EventHandler
       mEcoreWindow = wlWindow->GetWlWindow();
     }
     DALI_ASSERT_ALWAYS( mEcoreWindow != 0 && "There is no ecore Wl window");
-
-#ifndef DALI_PROFILE_UBUNTU
-    if( mWindow->mEcoreEventHander )
-    {
-      mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
-    }
-#endif
-
   }
 
   /**
@@ -92,9 +84,9 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowPropertyHandler );
     }
-    if ( mWindowIconifyStateHandler )
+    if ( mClientMessageHandler )
     {
-      ecore_event_handler_del( mWindowIconifyStateHandler );
+      ecore_event_handler_del( mClientMessageHandler );
     }
   }
 
@@ -106,41 +98,16 @@ struct Window::EventHandler
     return EINA_FALSE;
   }
 
-#ifndef DALI_PROFILE_UBUNTU
-  /// Called when the window iconify state is changed.
-  static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
+  /// Called when the window properties are changed.
+  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
   {
-    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( (Ecore_Wl_Event_Window_Iconify_State_Change*)event );
-    EventHandler* handler( (EventHandler*)data );
-    Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
-
-    if ( handler && handler->mWindow )
-    {
-      WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( iconifyChangedEvent->win == (unsigned int) ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
-      {
-        if( iconifyChangedEvent->iconified == EINA_TRUE )
-        {
-          observer->OnWindowHidden();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
-        }
-        else
-        {
-          observer->OnWindowShown();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
-        }
-        handled = ECORE_CALLBACK_DONE;
-      }
-    }
-
-    return handled;
+    return EINA_FALSE;
   }
-#endif
 
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mWindowIconifyStateHandler;
+  Ecore_Event_Handler* mClientMessageHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
 
