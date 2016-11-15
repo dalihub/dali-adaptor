@@ -145,7 +145,6 @@ public:
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New( int* argc, char **argv[], const std::string& stylesheet );
 
@@ -157,7 +156,6 @@ public:
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
    * @param[in]      windowMode  A member of WINDOW_MODE
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
@@ -279,10 +277,7 @@ public: // Stereoscopy
   /**
    * @brief Set the stereo base (eye separation) for Stereoscopic 3D
    *
-   * The stereo base is the distance in millimetres between the eyes. Typical values are
-   * between 50mm and 70mm. The default value is 65mm.
    * @SINCE_1_0.0
-   * @remarks SetStereoBase() is supported in mobile applications only.
    * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
    */
   void SetStereoBase( float stereoBase );
@@ -291,7 +286,6 @@ public: // Stereoscopy
    * @brief Get the stereo base (eye separation) for Stereoscopic 3D
    *
    * @SINCE_1_0.0
-   * @remarks GetStereoBase() is supported in mobile applications only.
    * @return The stereo base (eye separation) for Stereoscopic 3D
    */
   float GetStereoBase() const;

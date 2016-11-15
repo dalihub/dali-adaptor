@@ -52,8 +52,8 @@ public: // ENUMs
   enum Mode
   {
     DEFAULT = 0,  ///< Default mode for normal application @SINCE_1_0.0
-    NOTIFICATION, ///< Notification mode, such as playing utterance is started or completed @SINCE_1_0.0
-    SCREEN_READER, ///< Screen reader mode. To help visually impaired users interact with their devices, screen reader reads text or graphic elements on the screen using the TTS engine. @SINCE_1_0.0
+    NOTIFICATION, ///< Notification mode @SINCE_1_0.0
+    SCREEN_READER, ///< Screen reader mode @SINCE_1_0.0
     MODE_NUM
   };
 
