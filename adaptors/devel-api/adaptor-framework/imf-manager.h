@@ -214,7 +214,7 @@ public:
   /**
  * @brief Notifies IMF context that text input is set to multi line or not
  *
- * @param[in] multiLine True if multiline text input is used
+ * @param[in] true if multiline text input is used
  */
   void NotifyTextInputMultiLine( bool multiLine );
 
