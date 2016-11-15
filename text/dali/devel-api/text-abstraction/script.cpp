@@ -51,87 +51,24 @@ bool IsRightToLeftScript( Script script )
 
 Script GetCharacterScript( Character character )
 {
-  // Latin script:   It contains punctuation characters and symbols which are not part of the latin script. https://en.wikipedia.org/wiki/Latin_script_in_Unicode
+  // Latin script:
   // 0x0000 - 0x007f C0 Controls and Basic Latin
-  //
-  //                 ASCII digits (not part of LATIN script):
-  //                 0x0030 - 0x0039
-  //
-  //                 ASCII punctuation and symbols (not part of LATIN script):
-  //                 0x0020 - 0x002F
-  //                 0x003A - 0x0040
-  //                 0x005B - 0x0060
-  //                 0x007B - 0x007E
-  //
-  //                 Controls (not part of LATIN script):
-  //                 0x007F
-  //
   // 0x0080 - 0x00ff C1 Controls and Latin-1 Supplement
-  //
-  //                 Controls (not part of LATIN script):
-  //                 0x0080 - 0x009F
-  //
-  //                 Punctuations and symbols (not part of LATIN script):
-  //                 0x00A0 - 0x00BF
-  //
-  //                 Mathematical operators (not part of LATIN script):
-  //                 0x00D7
-  //                 0x00F7
-  //
   // 0x0100 - 0x017f Latin Extended-A
   // 0x0180 - 0x024f Latin Extended-B
   // 0x0250 - 0x02af IPA Extensions
   // 0x02b0 - 0x02ff Spacing Modifier Letters
-  //
-  //                 Punctuation (not part of LATIN script):
-  //                 0x02B9 - 0x02BF
-  //
   // 0x1d00 - 0x1d7f Phonetic Extensions
-  //
-  //                 Uralic Phonetic (not part of LATIN script):
-  //                 0x1D26 - 0x1D2B
-  //
-  //                 Subscripts and superscripts
-  //                 0x1D5D - 0x1D61
-  //                 0x1D66 - 0x1D6A
-  //                 0x1D78
-  //
   // 0x1d80 - 0x1dbf Phonetic Extensions Supplement
-  //
-  //                 0x1DBF (subscript or superscript. Not part of LATIN script )
-  //
   // 0x1e00 - 0x1eff Latin Extended Additional
   // 0x2070 - 0x209f Superscripts and Subscripts
-  //
-  //                 0x2070          (not part of LATIN script)
-  //                 0x2074 - 0x207E (not part of LATIN script)
-  //
-  // 0x2100 - 0x214f Letterlike symbols (not part of LATIN script)
-  //
-  //                 0x212A - 0x212B (are part of LATIN script)
-  //                 0x2132          (are part of LATIN script)
-  //                 0x214E          (are part of LATIN script)
-  //
-  // 0x2150 - 0x2189 Number Forms
-  //
-  //                 0x2150 - 0x215F Fractions (not part of LATIN script)
-  //                 0x2189          Fractions (not part of LATIN script)
-  //
+  // 0x2100 - 0x214f Letterlike symbols
+  // 0x2150 - 0x218f Number Forms
   // 0x2c60 - 0x2c7f Latin Extended-C
   // 0xa720 - 0xa7ff Latin Extended-D
-  //
-  //                 0xA720 - 0xA721 Uralic Phonetic (not part of LATIN script)
-  //                 0xA788          (not part of LATIN script)
-  //                 0xA789 - 0xA78A Budu (not part of LATIN script)
-  //
   // 0xab30 - 0xab6f Latin Extended-E
-  //
   // 0xfb00 - 0xfb06 Latin Alphabetic Presentation Forms
   // 0xff00 - 0xffef Halfwidth and Fullwidth Forms
-  //
-  //                 0xFF00 - 0xFF20 HWFW Symbols (not part of LATIN script)
-  //                 0xFF3B - 0xFF40 HWFW Symbols (not part of LATIN script)
-  //                 0xFF5B - 0xFFEF HWFW Symbols (not part of LATIN script)
 
   // Brahmic scripts:
   // 0x0900 - 0x097f Devanagari
@@ -235,19 +172,6 @@ Script GetCharacterScript( Character character )
   // 6b. Additional transport and map symbols ( 1F681 - 1F6C5 )
   // 6c. Other additional symbols ( 1F30D - 1F567 )
 
-  // Symbols. Work around for these symbols.
-  // 0x25cb
-  // 0x25cf
-  // 0x25a1
-  // 0x25a0
-  // 0x2664
-  // 0x2661
-  // 0x2662
-  // 0x2667
-  // 0x2606
-  // 0x25aa
-  // 0x262a
-
   if( IsCommonScript( character ) )
   {
     return COMMON;
@@ -259,63 +183,16 @@ Script GetCharacterScript( Character character )
     {
       if( character <= 0x077f )
       {
-        if( ( 0x0030 <= character ) && ( character <= 0x0039 ) )
+        if( character == 0x00A9 )
         {
-          return ASCII_DIGITS;
+          return EMOJI; // 5. Uncategorized: copyright sign
         }
-        if( character <= 0x007E )
+        if( character == 0x00AE )
         {
-          if( ( 0x0020 <= character ) && ( character <= 0x002F ) )
-          {
-            return ASCII_PS;
-          }
-          if( ( 0x003A <= character ) && ( character <= 0x0040 ) )
-          {
-            return ASCII_PS;
-          }
-          if( ( 0x005B <= character ) && ( character <= 0x0060 ) )
-          {
-            return ASCII_PS;
-          }
-          if( ( 0x007B <= character ) && ( character <= 0x007E ) )
-          {
-            return ASCII_PS;
-          }
-        }
-        if( ( 0x007F <= character ) && ( character <= 0x009F ) )
-        {
-          // 0x007F is actually part of C0 Controls and Basic Latin. However, is the last and only control character of its block
-          // and the following characters of the next block are consecutive.
-          return C1_CONTROLS;
-        }
-        if( ( 0x00A0 <= character ) && ( character <= 0x00BF ) )
-        {
-          if( character == 0x00A9 )
-          {
-            return EMOJI; // 5. Uncategorized: copyright sign
-          }
-          if( character == 0x00AE )
-          {
-            return EMOJI; // 5. Uncategorized: registered sign
-          }
-
-          return C1_PS;
-        }
-        if( character == 0x00D7 )
-        {
-          return C1_MATH;
-        }
-        if( character == 0x00F7 )
-        {
-          return  C1_MATH;
+          return EMOJI; // 5. Uncategorized: registered sign
         }
         if( character <= 0x02ff )
         {
-          if( ( 0x02B9 <= character ) && ( character <= 0x02BF ) )
-          {
-            return SML_P;
-          }
-
           return LATIN;
         }
         if( ( 0x0370 <= character ) && ( character <= 0x03ff ) )
@@ -441,27 +318,6 @@ Script GetCharacterScript( Character character )
         }
         if( ( 0x1d00 <= character ) && ( character <= 0x1eff ) )
         {
-          if( ( 0x1D26 <= character ) && ( character <= 0x1D2B ) )
-          {
-            return PHONETIC_U;
-          }
-          if( ( 0x1D5D <= character ) && ( character <= 0x1D61 ) )
-          {
-            return PHONETIC_SS;
-          }
-          if( ( 0x1D66 <= character ) && ( character <= 0x1D6A ) )
-          {
-            return PHONETIC_SS;
-          }
-          if( character == 0x1D78 )
-          {
-            return PHONETIC_SS;
-          }
-          if( character == 0x1DBF)
-          {
-            return PHONETIC_SS;
-          }
-
           return LATIN;
         }
       }
@@ -481,15 +337,6 @@ Script GetCharacterScript( Character character )
         }
         if( ( 0x2070 <= character ) && ( character <= 0x209f ) )
         {
-          if( character == 0x2070 )
-          {
-            return NUMERIC_SS;
-          }
-          if( ( 0x2074 <= character ) && ( character <= 0x207E ) )
-          {
-            return NUMERIC_SS;
-          }
-
           return LATIN;
         }
         if( character == 0x20e3 )
@@ -504,69 +351,10 @@ Script GetCharacterScript( Character character )
         {
           return EMOJI; // 5. Uncategorized: information source
         }
-        if( ( 0x2100 <= character ) && ( character <= 0x2189 ) )
+        if( ( 0x2100 <= character ) && ( character <= 0x218f ) )
         {
-          if( ( 0x2100 <= character ) && ( character <= 0x214f ) )
-          {
-            if( ( 0x212A <= character ) && ( character <= 0x212B ) )
-            {
-              return LATIN;
-            }
-            if( character == 0x2132 )
-            {
-              return LATIN;
-            }
-            if( character == 0x214E )
-            {
-              return LATIN;
-            }
-
-            return LETTER_LIKE;
-          }
-          if( ( 0x2150 <= character ) && ( character <= 0x215F ) )
-          {
-            return FRACTIONS_NF;
-          }
-          if( character == 0x2189 )
-          {
-            return FRACTIONS_NF;
-          }
-
           return LATIN;
         }
-
-        // Symbols
-        if( ( 0x25cb == character ) ||
-            ( 0x25cf == character ) ||
-            ( 0x25a1 == character ) )
-        {
-          return SYMBOLS1;
-        }
-
-        if( 0x25a0 == character )
-        {
-          return SYMBOLS2;
-        }
-
-        if( ( 0x2664 == character ) ||
-            ( 0x2661 == character ) ||
-            ( 0x2662 == character ) ||
-            ( 0x2667 == character ) )
-        {
-          return SYMBOLS3;
-        }
-
-        if( ( 0x2606 == character ) ||
-            ( 0x25aa == character ) )
-        {
-          return SYMBOLS4;
-        }
-
-        if( 0x262a == character )
-        {
-          return SYMBOLS5;
-        }
-
         // U+2194 5. Uncategorized: left right arrow
         // U+2B55 5. Uncategorized: heavy large circle
         if( ( 0x2194 <= character ) && ( character <= 0x2B55 ) )
@@ -653,27 +441,6 @@ Script GetCharacterScript( Character character )
         }
         if( ( 0xa720 <= character ) && ( character <= 0xa7ff ) )
         {
-          if( character == 0xA720 )
-          {
-            return PHONETIC_U;
-          }
-          if( character == 0xA721 )
-          {
-            return PHONETIC_U;
-          }
-          if( character == 0xA788 )
-          {
-            return NON_LATIN_LED;
-          }
-          if( character == 0xA789 )
-          {
-            return NON_LATIN_LED;
-          }
-          if( character == 0xA78A )
-          {
-            return NON_LATIN_LED;
-          }
-
           return LATIN;
         }
         if( ( 0xa960 <= character ) && ( character <= 0xa97f ) )
@@ -717,19 +484,6 @@ Script GetCharacterScript( Character character )
         }
         if( ( 0xff00 <= character ) && ( character <= 0xffef ) )
         {
-          if( ( 0xFF00 <= character ) && ( character <= 0xFF20 ) )
-          {
-            return HWFW_S;
-          }
-          if( ( 0xFF3B <= character ) && ( character <= 0xFF40 ) )
-          {
-            return HWFW_S;
-          }
-          if( ( 0xFF5B <= character ) && ( character <= 0xFFEF ) )
-          {
-            return HWFW_S;
-          }
-
           return LATIN;
         }
         if( ( 0x1ee00 <= character ) && ( character <= 0x1eeff ) )

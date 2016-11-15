@@ -36,134 +36,84 @@ namespace TextAbstraction
  */
 enum Script
 {
-  COMMON,        ///< Valid for all scripts. i.e white space or '\n'.
+  COMMON,     ///< Valid for all scripts. i.e white space or '\n'.
 
-  ASCII_DIGITS,  ///< ASCII digits.
-  ASCII_PS,      ///< ASCII punctuation and symbols.
+  CYRILLIC,   ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
+  GREEK,      ///< The Greek script. Used by Greek.
+  LATIN,      ///< The latin script. Used by many western languages and others around the world.
 
-  C1_CONTROLS,   ///< Controls of the C1 Controls and Latin-1 Supplement unicode block.
-  C1_PS,         ///< Punctuation and symbols of the C1 Controls and Latin-1 Supplement unicode block.
-  C1_MATH,       ///< Math symbols of the C1 Controls and Latin-1 Supplement unicode block.
+  ARABIC,     ///< The arabic script. Used by Arab and Urdu among others.
+  HEBREW,     ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
 
-  SML_P,         ///< Punctuation symbols of the Spacing Modifier Letters unicode block.
-  PHONETIC_U,    ///< Uralic phonetic symbols of the Phonetic Extensions unicode block.
-  PHONETIC_SS,   ///< Subscripts and superscripts of the Phonetic Extensions unicode block.
+  ARMENIAN,   ///< The Armenian script. Used by Armenian.
+  GEORGIAN,   ///< The Georgian script. Used by Georgian.
 
-  NUMERIC_SS,    ///< Numeric subscripts and superscripts.
+  CJK,        ///< The CJK script. Used by Chinese, Japanese, Korean and Vietnamese(old writing system).
+  HANGUL,     ///< The Hangul jamo script. Used by Korean.
+  HIRAGANA,   ///< The Hiragana script. Used by the Japanese.
+  KATAKANA,   ///< The Katakana script. Used by the Japanese.
+  BOPOMOFO,   ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
 
-  LETTER_LIKE,   ///< Symbols of the Letterlike unicode block.
-  NUMBER_FORMS,  ///< Number Forms unicode block.
-  FRACTIONS_NF,  ///< Numeric fraction symbols of the Number Forms unicode block.
-  NON_LATIN_LED, ///< Non latin symbols within the Latin Extended D unicode block.
-  HWFW_S,        ///< Non latin symbols within the Halfwidth and fullwidth unicode block.
+  BENGALI,    ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
+  BURMESE,    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  DEVANAGARI, ///< The devanagari script. Used by Hindi, Marathi, Sindhi, Nepali and Sanskrit.
+  GUJARATI,   ///< The Gujarati script. Used by Gujarati.
+  GURMUKHI,   ///< The Gurmukhi script. Used by Punjabi.
+  KANNADA,    ///< The Kannada script. Used by Kannada and Tulu.
+  MALAYALAM,  ///< The Malayalam script. Used by Malayalam.
+  ORIYA,      ///< The Oriya script. Used by Oriya (Odia), Khondi, and Santali.
+  SINHALA,    ///< The Sinhala script. Used by Sinhala and Pali.
+  TAMIL,      ///< The Tamil script. Used by Tamil, Badaga, and Saurashtra.
+  TELUGU,     ///< The Telugu script. Used by Telugu, Gondi, and Lambadi.
 
-  CYRILLIC,      ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
-  GREEK,         ///< The Greek script. Used by Greek.
-  LATIN,         ///< The latin script. Used by many western languages and others around the world.
+  LAO,        ///< The Lao script. Used by the Lao language.
+  THAI,       ///< The Thai script. Used by the Thai language
+  KHMER,      ///< The Khmer script. Used by the Khmer language.
 
-  ARABIC,        ///< The arabic script. Used by Arab and Urdu among others.
-  HEBREW,        ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
+  EMOJI,      ///< The Emoji which map to standardized Unicode characters.
 
-  ARMENIAN,      ///< The Armenian script. Used by Armenian.
-  GEORGIAN,      ///< The Georgian script. Used by Georgian.
-
-  CJK,           ///< The CJK script. Used by Chinese, Japanese, Korean and Vietnamese(old writing system).
-  HANGUL,        ///< The Hangul jamo script. Used by Korean.
-  HIRAGANA,      ///< The Hiragana script. Used by the Japanese.
-  KATAKANA,      ///< The Katakana script. Used by the Japanese.
-  BOPOMOFO,      ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
-
-  BENGALI,       ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
-  BURMESE,       ///< The Burmese script. Used by the Burmese (Myanmar) language.
-  DEVANAGARI,    ///< The devanagari script. Used by Hindi, Marathi, Sindhi, Nepali and Sanskrit.
-  GUJARATI,      ///< The Gujarati script. Used by Gujarati.
-  GURMUKHI,      ///< The Gurmukhi script. Used by Punjabi.
-  KANNADA,       ///< The Kannada script. Used by Kannada and Tulu.
-  MALAYALAM,     ///< The Malayalam script. Used by Malayalam.
-  ORIYA,         ///< The Oriya script. Used by Oriya (Odia), Khondi, and Santali.
-  SINHALA,       ///< The Sinhala script. Used by Sinhala and Pali.
-  TAMIL,         ///< The Tamil script. Used by Tamil, Badaga, and Saurashtra.
-  TELUGU,        ///< The Telugu script. Used by Telugu, Gondi, and Lambadi.
-
-  LAO,           ///< The Lao script. Used by the Lao language.
-  THAI,          ///< The Thai script. Used by the Thai language
-  KHMER,         ///< The Khmer script. Used by the Khmer language.
-
-  EMOJI,         ///< The Emoji which map to standardized Unicode characters.
-
-  SYMBOLS1,      ///< Some symbols.
-  SYMBOLS2,      ///< Some symbols.
-  SYMBOLS3,      ///< Some symbols.
-  SYMBOLS4,      ///< Some symbols.
-  SYMBOLS5,      ///< Some symbols.
-
-  UNKNOWN        ///< The script is unknown.
+  UNKNOWN     ///< The script is unknown.
 };
 
 const char* const ScriptName[] =
 {
-  "COMMON",        ///< Valid for all scripts. i.e white space or '\n'.
+  "COMMON",     ///< Valid for all scripts. i.e white space or '\n'.
 
-  "ASCII_DIGITS",  ///< ASCII digits.
-  "ASCII_PS",      ///< ASCII punctuation and symbols.
+  "CYRILLIC",   ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
+  "GREEK",      ///< The Greek script. Used by Greek.
+  "LATIN",      ///< The latin script. Used by many western languages and others around the world.
 
-  "C1_CONTROLS",   ///< Controls of the C1 Controls and Latin-1 Supplement unicode block.
-  "C1_PS",         ///< Punctuation and symbols of the C1 Controls and Latin-1 Supplement unicode block.
-  "C1_MATH",       ///< Math symbols of the C1 Controls and Latin-1 Supplement unicode block.
+  "ARABIC",     ///< The arabic script. Used by Arab and Urdu among others.
+  "HEBREW",     ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
 
-  "SML_P",         ///< Punctuation symbols of the Spacing Modifier Letters unicode block.
-  "PHONETIC_U",    ///< Uralic phonetic symbols of the Phonetic Extensions unicode block.
-  "PHONETIC_SS",   ///< Subscripts and superscripts of the Phonetic Extensions unicode block.
+  "ARMENIAN",   ///< The Armenian script. Used by Armenian.
+  "GEORGIAN",   ///< The Georgian script. Used by Georgian.
 
-  "NUMERIC_SS",    ///< Numeric subscripts and superscripts.
+  "CJK",        ///< The CJK script. Used by Chinese, Japanese, Korean and Vietnamese(old writing system).
+  "HANGUL",     ///< The Hangul jamo script. Used by Korean.
+  "HIRAGANA",   ///< The Hiragana script. Used by the Japanese.
+  "KATAKANA",   ///< The Katakana script. Used by the Japanese.
+  "BOPOMOFO",   ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
 
-  "LETTER_LIKE",   ///< Symbols of the Letterlike unicode block.
-  "NUMBER_FORMS",  ///< Number Forms unicode block.
-  "FRACTIONS_NF",  ///< Numeric fraction symbols of the Number Forms unicode block.
-  "NON_LATIN_LED", ///< Non latin symbols within the Latin Extended D unicode block.
-  "HWFW_S",        ///< Non latin symbols within the Halfwidth and fullwidth unicode block.
+  "BENGALI",    ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
+  "BURMESE",    ///< The Burmese script. Used by the Burmese (Myanmar) language.
+  "DEVANAGARI", ///< The devanagari script. Used by Hindi, Marathi, Sindhi, Nepali and Sanskrit.
+  "GUJARATI",   ///< The Gujarati script. Used by Gujarati.
+  "GURMUKHI",   ///< The Gurmukhi script. Used by Punjabi.
+  "KANNADA",    ///< The Kannada script. Used by Kannada and Tulu.
+  "MALAYALAM",  ///< The Malayalam script. Used by Malayalam.
+  "ORIYA",      ///< The Oriya script. Used by Oriya (Odia), Khondi, and Santali.
+  "SINHALA",    ///< The Sinhala script. Used by Sinhala and Pali.
+  "TAMIL",      ///< The Tamil script. Used by Tamil, Badaga, and Saurashtra.
+  "TELUGU",     ///< The Telugu script. Used by Telugu, Gondi, and Lambadi.
 
-  "CYRILLIC",      ///< The Cyrillic script. Used by Russian, Bulgarian, Ukrainian, Macedonian, ...
-  "GREEK",         ///< The Greek script. Used by Greek.
-  "LATIN",         ///< The latin script. Used by many western languages and others around the world.
+  "LAO",        ///< The Lao script. Used by the Lao language.
+  "THAI",       ///< The Thai script. Used by the Thai language
+  "KHMER",      ///< The Khmer script. Used by the Khmer language.
 
-  "ARABIC",        ///< The arabic script. Used by Arab and Urdu among others.
-  "HEBREW",        ///< The Hebrew script. Used by the Hebrew, Yiddish, Ladino, and Judeo-Arabic.
+  "EMOJI",      ///< The Emoji which map to standardized Unicode characters.
 
-  "ARMENIAN",      ///< The Armenian script. Used by Armenian.
-  "GEORGIAN",      ///< The Georgian script. Used by Georgian.
-
-  "CJK",           ///< The CJK script. Used by Chinese, Japanese, Korean and Vietnamese(old writing system).
-  "HANGUL",        ///< The Hangul jamo script. Used by Korean.
-  "HIRAGANA",      ///< The Hiragana script. Used by the Japanese.
-  "KATAKANA",      ///< The Katakana script. Used by the Japanese.
-  "BOPOMOFO",      ///< The Bopomofo script. Also called Zhuyin fuhao or Zhuyin. A phonetic notation used for the transcription of spoken Chinese.
-
-  "BENGALI",       ///< The Bengali script. Used by Bangla, Assamese, Bishnupriya Manipuri, Daphla, Garo, Hallam, Khasi, Mizo, Munda, Naga, Rian, and Santali.
-  "BURMESE",       ///< The Burmese script. Used by the Burmese (Myanmar) language.
-  "DEVANAGARI",    ///< The devanagari script. Used by Hindi, Marathi, Sindhi, Nepali and Sanskrit.
-  "GUJARATI",      ///< The Gujarati script. Used by Gujarati.
-  "GURMUKHI",      ///< The Gurmukhi script. Used by Punjabi.
-  "KANNADA",       ///< The Kannada script. Used by Kannada and Tulu.
-  "MALAYALAM",     ///< The Malayalam script. Used by Malayalam.
-  "ORIYA",         ///< The Oriya script. Used by Oriya (Odia), Khondi, and Santali.
-  "SINHALA",       ///< The Sinhala script. Used by Sinhala and Pali.
-  "TAMIL",         ///< The Tamil script. Used by Tamil, Badaga, and Saurashtra.
-  "TELUGU",        ///< The Telugu script. Used by Telugu, Gondi, and Lambadi.
-
-  "LAO",           ///< The Lao script. Used by the Lao language.
-  "THAI",          ///< The Thai script. Used by the Thai language
-  "KHMER",         ///< The Khmer script. Used by the Khmer language.
-
-  "EMOJI",         ///< The Emoji which map to standardized Unicode characters.
-
-  "SYMBOLS1",      ///< Some symbols.
-  "SYMBOLS2",      ///< Some symbols.
-  "SYMBOLS3",      ///< Some symbols.
-  "SYMBOLS4",      ///< Some symbols.
-  "SYMBOLS5",      ///< Some symbols.
-
-  "UNKNOWN"        ///< The script is unknown.
+  "UNKNOWN"     ///< The script is unknown.
 };
 
 /**
