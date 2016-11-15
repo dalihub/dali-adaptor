@@ -290,11 +290,6 @@ private:
   void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
-   * Update the visibility and position of the actors
-   */
-  void UpdateVisibility();
-
-  /**
    * Inform dali that the indicator data has been updated.
    * @param[in] bufferNumber The shared file number
    */
