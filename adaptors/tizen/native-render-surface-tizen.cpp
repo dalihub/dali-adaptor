@@ -186,11 +186,6 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
 
-  if( mImpl->mThreadSynchronization )
-  {
-    mImpl->mThreadSynchronization->PostRenderStarted();
-  }
-
   {
     ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
 
@@ -210,11 +205,6 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     // use notification trigger
     // Tell the event-thread to render the tbm_surface
     mImpl->mRenderNotification->Trigger();
-  }
-
-  if( mImpl->mThreadSynchronization )
-  {
-    mImpl->mThreadSynchronization->PostRenderWaitForCompletion();
   }
 }
 
