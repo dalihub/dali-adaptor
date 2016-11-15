@@ -516,10 +516,6 @@ const std::string& ImfManager::GetSurroundingText() const
   return mSurroundingText;
 }
 
-void ImfManager::NotifyTextInputMultiLine( bool multiLine )
-{
-}
-
 } // Adaptor
 
 } // Internal

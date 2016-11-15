@@ -148,11 +148,6 @@ public:
    */
   const std::string& GetSurroundingText() const;
 
-  /**
-  * @copydoc Dali::ImfManager::NotifyTextInputMultiLine()
-  */
-  void NotifyTextInputMultiLine( bool multiLine );
-
 public:  // Signals
 
   /**
