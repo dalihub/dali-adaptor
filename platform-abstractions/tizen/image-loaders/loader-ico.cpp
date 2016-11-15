@@ -212,7 +212,7 @@ bool LoadIcoHeaderHelper( FILE* fp,
 
   if(fread(&map[0], 1, fsize, fp) != fsize)
   {
-    DALI_LOG_WARNING("image file read opeation error!\n");
+    DALI_LOG_WARNING("image file read opeation error!");
     return false;
   }
 
@@ -422,7 +422,7 @@ bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::
   }
   if (diff_size)
   {
-    DALI_LOG_WARNING("Broken ICO file!\n");
+    DALI_LOG_WARNING("Broken ICO file!");
   }
 
   // Set up the surface as soon as we have the width and height, so we have a black image if there are any further errors.

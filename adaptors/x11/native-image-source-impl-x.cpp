@@ -166,7 +166,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   DALI_ASSERT_DEBUG(pXImage && "XImage (from pixmap) could not be retrieved from the server");
   if(!pXImage)
   {
-    DALI_LOG_ERROR("Could not retrieve Ximage.\n");
+    DALI_LOG_ERROR("Could not retrieve Ximage.");
   }
   else
   {
@@ -229,7 +229,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
         }
         else
         {
-          DALI_LOG_ERROR("XImage has null data pointer.\n");
+          DALI_LOG_ERROR("XImage has null data pointer.");
         }
         break;
       }
@@ -242,13 +242,13 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
       }
       default:
       {
-        DALI_LOG_WARNING("Pixmap has unsupported bit-depth for getting pixels: %u\n", pXImage->depth);
+        DALI_LOG_WARNING("Pixmap has unsupported bit-depth for getting pixels: %u", pXImage->depth);
       }
     }
   }
   if(!success)
   {
-    DALI_LOG_ERROR("Failed to get pixels from NativeImageSource.\n");
+    DALI_LOG_ERROR("Failed to get pixels from NativeImageSource.");
     pixbuf.resize(0);
     width = 0;
     height = 0;

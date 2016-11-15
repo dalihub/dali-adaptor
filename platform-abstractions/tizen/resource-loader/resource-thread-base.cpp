@@ -311,14 +311,14 @@ void ResourceThreadBase::UninstallLogging()
 void ResourceThreadBase::Download(const Integration::ResourceRequest& request)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
-  DALI_LOG_WARNING("Resource Downloading from a remote server not supported for this type.\n");
+  DALI_LOG_WARNING("Resource Downloading from a remote server not supported for this type.");
   ///! If you need this for a subclassed thread, look to ResourceThreadImage::Download() for an example implementation.
 }
 
 void ResourceThreadBase::Decode(const Integration::ResourceRequest& request)
 {
   DALI_LOG_TRACE_METHOD(mLogFilter);
-  DALI_LOG_WARNING("Resource Decoding from a memory buffer not supported for this type.\n");
+  DALI_LOG_WARNING("Resource Decoding from a memory buffer not supported for this type.");
   ///! If you need this for a subclassed thread, look to ResourceThreadImage::Decode() for an example implementation.
 }
 

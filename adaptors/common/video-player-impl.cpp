@@ -100,7 +100,7 @@ void VideoPlayer::Initialize()
 
   if( mPlugin == NULL )
   {
-    DALI_LOG_ERROR( "Can't create the VideoPlayerPlugin object\n" );
+    DALI_LOG_ERROR( "Can't create the VideoPlayerPlugin object" );
     return;
   }
 

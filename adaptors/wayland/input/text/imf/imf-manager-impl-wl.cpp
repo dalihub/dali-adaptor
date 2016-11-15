@@ -143,7 +143,7 @@ Dali::ImfManager ImfManager::Get()
   }
   else
   {
-    DALI_LOG_ERROR("Failed to get native window handle\n");
+    DALI_LOG_ERROR("Failed to get native window handle");
   }
   return manager;
 }

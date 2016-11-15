@@ -91,7 +91,7 @@ void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int 
 
 void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, int value )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "VKB InputPanelLanguageChangeCallback\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "VKB InputPanelLanguageChangeCallback" );
 
   // Emit the signal that the language has changed
   gKeyboardLanguageChangedSignal.Emit();

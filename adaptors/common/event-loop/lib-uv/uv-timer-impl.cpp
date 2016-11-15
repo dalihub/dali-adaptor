@@ -113,7 +113,7 @@ struct Timer::Impl
 
 TimerPtr Timer::New( unsigned int milliSec )
 {
-  DALI_LOG_ERROR(" new timer\n");
+  DALI_LOG_ERROR(" new timer");
   TimerPtr timer( new Timer( milliSec ) );
   return timer;
 }

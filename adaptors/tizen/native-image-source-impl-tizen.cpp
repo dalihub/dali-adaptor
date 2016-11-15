@@ -131,7 +131,7 @@ void NativeImageSource::Initialize()
     }
     default:
     {
-      DALI_LOG_WARNING( "Wrong color depth.\n" );
+      DALI_LOG_WARNING( "Wrong color depth." );
       return;
     }
   }
@@ -170,7 +170,7 @@ NativeImageSource::~NativeImageSource()
   {
     if( tbm_surface_destroy( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+      DALI_LOG_ERROR( "Failed to destroy tbm_surface" );
     }
   }
 }
@@ -188,7 +188,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
 
     if( tbm_surface_map( mTbmsurface, TBM_SURF_OPTION_READ, &surface_info) != TBM_SURFACE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Fail to map tbm_surface\n" );
+      DALI_LOG_ERROR( "Fail to map tbm_surface" );
 
       width = 0;
       height = 0;
@@ -251,7 +251,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
       }
       default:
       {
-        DALI_LOG_WARNING( "Tbm surface has unsupported pixel format.\n" );
+        DALI_LOG_WARNING( "Tbm surface has unsupported pixel format." );
 
         pixbuf.resize( 0 );
         width = 0;
@@ -263,13 +263,13 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
 
     if( tbm_surface_unmap( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Fail to unmap tbm_surface\n" );
+      DALI_LOG_ERROR( "Fail to unmap tbm_surface" );
     }
 
     return true;
   }
 
-  DALI_LOG_WARNING( "TBM surface does not exist.\n" );
+  DALI_LOG_WARNING( "TBM surface does not exist." );
 
   width = 0;
   height = 0;
@@ -296,7 +296,7 @@ void NativeImageSource::SetSource( Any source )
   {
     if( tbm_surface_destroy( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+      DALI_LOG_ERROR( "Failed to destroy tbm_surface" );
     }
 
     mTbmsurface = NULL;

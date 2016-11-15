@@ -1244,7 +1244,7 @@ void Indicator::DataReceived( void* event )
 
             if (msgDataSize != (int)sizeof(IpcIndicatorDataAnimation))
             {
-              DALI_LOG_ERROR("Message data is incorrect\n");
+              DALI_LOG_ERROR("Message data is incorrect");
               break;
             }
 

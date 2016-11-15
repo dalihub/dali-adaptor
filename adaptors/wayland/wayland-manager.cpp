@@ -212,7 +212,7 @@ void WaylandManager::ReadAndDispatchEvents()
   }
   else
   {
-    DALI_LOG_ERROR("wl_display_read_events error\n");
+    DALI_LOG_ERROR("wl_display_read_events error");
   }
 
 }

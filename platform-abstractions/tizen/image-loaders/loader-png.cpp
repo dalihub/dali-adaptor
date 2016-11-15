@@ -373,12 +373,12 @@ namespace
       }
       else
       {
-        DALI_LOG_ERROR("PNG buffer for write to memory was passed from libpng as null.\n");
+        DALI_LOG_ERROR("PNG buffer for write to memory was passed from libpng as null.");
       }
     }
     catch(...)
     {
-      DALI_LOG_ERROR("C++ Exception caught\n");
+      DALI_LOG_ERROR("C++ Exception caught");
     }
   }
 
@@ -432,7 +432,7 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>&
     }
     default:
     {
-      DALI_LOG_ERROR( "Unsupported pixel format for encoding to PNG.\n" );
+      DALI_LOG_ERROR( "Unsupported pixel format for encoding to PNG." );
       return false;
     }
   }

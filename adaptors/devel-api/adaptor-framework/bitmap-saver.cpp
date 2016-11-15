@@ -41,7 +41,7 @@ FileFormat GetFormatFromFileName( const std::string& filename )
 {
   if (filename.length() < 5)
   {
-    DALI_LOG_WARNING("Invalid (short) filename.\n");
+    DALI_LOG_WARNING("Invalid (short) filename.");
   }
   FileFormat format(INVALID_FORMAT);
 
@@ -106,7 +106,7 @@ bool EncodeToFormat( const unsigned char* pixelBuffer,
     }
     default:
     {
-      DALI_LOG_ERROR("Format not supported for image encoding (supported formats are PNG and JPEG)\n");
+      DALI_LOG_ERROR("Format not supported for image encoding (supported formats are PNG and JPEG)");
       break;
     }
   }
@@ -127,7 +127,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
   const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat );
   if(!encodeResult)
   {
-    DALI_LOG_ERROR("Encoding pixels failed\n");
+    DALI_LOG_ERROR("Encoding pixels failed");
     return false;
   }
   return TizenPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded.Begin(), pixbufEncoded.Count() );
