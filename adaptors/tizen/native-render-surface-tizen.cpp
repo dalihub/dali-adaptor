@@ -186,9 +186,10 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
 
-  {
-    ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
+  // flush gl instruction queue
+  glAbstraction.Flush();
 
+  {
     if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
     {
       if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
@@ -203,9 +204,14 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   if( mImpl->mRenderNotification )
   {
     // use notification trigger
-    // Tell the event-thread to render the tbm_surface
+    // Tell the event-thread to render the pixmap
     mImpl->mRenderNotification->Trigger();
   }
+  else
+  {
+    // FIXME
+  }
+
 }
 
 void NativeRenderSurface::StopRender()
@@ -255,7 +261,6 @@ void NativeRenderSurface::CreateNativeRenderable()
 
 void NativeRenderSurface::ReleaseSurface()
 {
-  ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
   if( mImpl->mConsumeSurface )
   {
     tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
