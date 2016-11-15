@@ -126,8 +126,6 @@ public:
   /**
    * @brief This is the constructor for applications without an argument list.
    * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
    */
   static Application New();
 
@@ -135,8 +133,6 @@ public:
    * @brief This is the constructor for applications.
    *
    * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    */
@@ -146,8 +142,6 @@ public:
    * @brief This is the constructor for applications with a name
    *
    * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -159,8 +153,6 @@ public:
    * @brief This is the constructor for applications with a name
    *
    * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer the the argument list
    * @param[in]      stylesheet  The path to user defined theme file
