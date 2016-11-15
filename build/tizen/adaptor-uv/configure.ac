@@ -289,9 +289,13 @@ fi
 
 else
 
-# dali-adaptor-uv needs ecore-wayland even if enable_efl==no
-# because NativeRenderSurface uses it.
-if test "x$enable_profile" != "xUBUNTU"; then
+# dali-adaptor-uv for MOBILE profile needs ecore-wayland even if enable_efl==no
+# because adaptors/mobile/pixmap-render-surface-factory.cpp uses it.
+if test "x$enable_profile" = "xMOBILE"; then
+PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+fi
+
+if test "x$enable_profile" = "xIVI"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
 
@@ -306,6 +310,13 @@ PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon l
 fi
 fi
 
+# remove this when we update common repos
+# common profile currently does not have wayland extensions like xdg-shell
+if test "x$enable_wayland" = "xyes"; then
+if test "x$enable_profile" != "xCOMMON"; then
+PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client text-client input-method-client)
+fi
+fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
 
 if test x$DALI_DATA_RW_DIR != x; then
