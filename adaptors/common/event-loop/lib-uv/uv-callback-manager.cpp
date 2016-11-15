@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ bool UvCallbackManager::AddIdleCallback( CallbackBase* callback )
     return false;
   }
 
-  CallbackData *callbackData = new CallbackData( callback );
+  CallbackData *callbackData = new CallbackData(callback );
 
   // To inform the manager a callback has finished, we get it to call RemoveCallbackFromContainer
   callbackData->mRemoveFromContainerFunction =  MakeCallback( this, &UvCallbackManager::RemoveCallbackFromContainer );
@@ -166,25 +166,6 @@ bool UvCallbackManager::AddIdleCallback( CallbackBase* callback )
   callbackData->AddIdle( &IdleCallback );
 
   return true;
-}
-
-void UvCallbackManager::RemoveIdleCallback( CallbackBase* callback )
-{
-  for( CallbackList::iterator it = mCallbackContainer.begin(),
-         endIt = mCallbackContainer.end();
-       it != endIt;
-       ++it )
-  {
-    CallbackData* data = *it;
-
-    if( data->mCallback == callback )
-    {
-      // remove callback data from the container.
-      CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
-
-      delete data;
-    }
-  }
 }
 
 void UvCallbackManager::RemoveCallbackFromContainer(CallbackData *callbackData)

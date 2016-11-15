@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_CALLBACK_MANAGER_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,24 +50,13 @@ public:
     virtual ~CallbackManager() {}
 
     /**
-     * @brief Adds a @p callback to be run on idle.
-     * @note Must be called from the main thread only.
-     *
-     * @param[in] callback custom callback function.
-     *
+     * Adds a call back to be run on idle.
+     * Must be call from main thread only.
+     * @param callback custom call back function
+     * @param priority call back priority
      * @return true on success
      */
     virtual bool AddIdleCallback( CallbackBase* callback ) = 0;
-
-    /**
-     * @brief Removes a previously added @p callback.
-     * @note Must be called from main thread only.
-     *
-     * Does nothing if the @p callback doesn't exist.
-     *
-     * @param[in] callback The callback to be removed.
-     */
-    virtual void RemoveIdleCallback( CallbackBase* callback ) = 0;
 
     /**
      * Starts the callback manager.

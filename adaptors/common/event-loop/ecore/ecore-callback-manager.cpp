@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ bool EcoreCallbackManager::AddIdleCallback( CallbackBase* callback )
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData( callback );
+  CallbackData *callbackData = new CallbackData( callback );
 
   callbackData->mRemoveFromContainerFunction =  MakeCallback( this, &EcoreCallbackManager::RemoveCallbackFromContainer );
 
@@ -133,25 +133,6 @@ bool EcoreCallbackManager::AddIdleCallback( CallbackBase* callback )
   DALI_ASSERT_ALWAYS( ( callbackData->mIdler != NULL ) && "Idle method not created" );
 
   return true;
-}
-
-void EcoreCallbackManager::RemoveIdleCallback( CallbackBase* callback )
-{
-  for( CallbackList::iterator it = mCallbackContainer.begin(),
-         endIt = mCallbackContainer.end();
-       it != endIt;
-       ++it )
-  {
-    CallbackData* data = *it;
-
-    if( data->mCallback == callback )
-    {
-      // remove callback data from the container.
-      CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
-
-      ecore_idler_del( data->mIdler );
-    }
-  }
 }
 
 void EcoreCallbackManager::RemoveCallbackFromContainer(CallbackData *callbackData)
