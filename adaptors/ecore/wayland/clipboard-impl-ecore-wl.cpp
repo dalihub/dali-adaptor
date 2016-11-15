@@ -94,7 +94,7 @@ struct Clipboard::Impl
     {
       return;
     }
-    strncpy(mSendBuf, data, CLIPBOARD_BUFFER_SIZE);
+    strcpy(mSendBuf, data);
 
     // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
     types[++i] = "CLIPBOARD_BEGIN";
