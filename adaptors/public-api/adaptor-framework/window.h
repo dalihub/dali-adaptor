@@ -253,7 +253,6 @@ public: // Signals
 
 public: // Not intended for application developers
   /**
-   * @internal
    * @brief This constructor is used by Dali::Application::GetWindow().
    * @SINCE_1_0.0
    * @param[in] window A pointer to the window.

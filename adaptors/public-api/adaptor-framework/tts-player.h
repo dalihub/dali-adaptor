@@ -169,7 +169,6 @@ public: // API
 public: // Not intended for application developers
 
   /**
-   * @internal
    * @brief This constructor is used by TtsPlayer::Get().
    * @SINCE_1_0.0
    * @param[in] ttsPlayer A pointer to the TTS player.
