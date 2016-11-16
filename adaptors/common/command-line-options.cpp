@@ -60,7 +60,7 @@ Argument EXPECTED_ARGS[] =
   { "width",       "Stage Width"             },
   { "height",      "Stage Height"            },
   { "dpi",         "Emulated DPI"            },
-  { "view",        "Stereocopic 3D view mode ([0]=MONO, 1=STEREO_HORZ, 2=STEREO_VERT, 3=STEREO_INTERLACED)" },
+  { "view",        "Stereocopic 3D view mode ([0]=MONO, 1=STEREO_HORIZONTAL, 2=STEREO_VERTICAL, 3=STEREO_INTERLACED)" },
   { "stereo-base", "Distance in millimeters between left/right cameras [65.0]" },
   { "help",        "Help"                    },
   { NULL,          NULL                      }
