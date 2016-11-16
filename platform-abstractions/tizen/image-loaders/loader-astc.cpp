@@ -202,14 +202,24 @@ bool LoadBitmapFromAstc( const ResourceLoadingClient& client, const ImageLoader:
   }
 
   // Retrieve the file size.
-  fseek( filePointer, 0L, SEEK_END );
+  if( fseek( filePointer, 0L, SEEK_END ) )
+  {
+    DALI_LOG_ERROR( "Could not seek through file.\n" );
+    return false;
+  }
+
   off_t fileSize = ftell( filePointer );
   if( fileSize == -1L )
   {
     DALI_LOG_ERROR( "Could not determine ASTC file size.\n" );
     return false;
   }
-  fseek( filePointer, sizeof( AstcFileHeader ), SEEK_SET );
+
+  if( fseek( filePointer, sizeof( AstcFileHeader ), SEEK_SET ) )
+  {
+    DALI_LOG_ERROR( "Could not seek through file.\n" );
+    return false;
+  }
 
   // Data size is file size - header size.
   size_t imageByteCount = fileSize - sizeof( AstcFileHeader );
