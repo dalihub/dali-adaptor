@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,17 @@ namespace ECoreX
 {
 
 GlExtensions::GlExtensions()
-  : mInitialized( false )
+:
+#if DALI_GLES_VERSION < 30
+#ifdef GL_EXT_discard_framebuffer
+  mGlDiscardFramebuffer( NULL ),
+#endif
+#ifdef GL_OES_get_program_binary
+  mGlGetProgramBinaryOES( NULL ),
+  mGlProgramBinaryOES( NULL ),
+#endif
+#endif // DALI_GLES_VERSION < 30
+  mInitialized( false )
 {
 }
 
