@@ -1199,7 +1199,7 @@ struct EventHandler::Impl
 };
 
 EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
-: mCoreEventInterface(coreEventInterface),
+: mCoreEventInterface( coreEventInterface ),
   mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
@@ -1207,8 +1207,9 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mDragAndDropDetector( dndDetector ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
-  mClipboard(Clipboard::Get()),
-  mImpl( NULL )
+  mClipboard( Clipboard::Get() ),
+  mImpl( NULL ),
+  mPaused( false )
 {
   Ecore_Wl_Window* window = 0;
 
