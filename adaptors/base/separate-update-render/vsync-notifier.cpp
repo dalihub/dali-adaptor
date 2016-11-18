@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,8 @@ void VSyncNotifier::Run()
 
       timespec sleepTime;
       sleepTime.tv_sec = 0;
-      sleepTime.tv_nsec = sleepTimeInMicroseconds * 1000;
+      sleepTime.tv_nsec = sleepTimeInMicroseconds;
+      sleepTime.tv_nsec *= NANOSECONDS_PER_MICROSECOND;
       nanosleep( &sleepTime, NULL );
     }
     mThreadSynchronization.AddPerformanceMarker( PerformanceInterface::VSYNC );
