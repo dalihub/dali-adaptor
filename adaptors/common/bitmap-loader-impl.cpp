@@ -18,8 +18,8 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include "image-loading.h"
 #include "bitmap-loader-impl.h"
-#include "image-loaders/image-loader.h"
 
 namespace Dali
 {
@@ -40,10 +40,13 @@ BitmapLoader::BitmapLoader(const std::string& url,
                            ImageDimensions size,
                            FittingMode::Type fittingMode,
                            SamplingMode::Type samplingMode,
-                           bool orientationCorrection)
-: mResourceType( size, fittingMode, samplingMode, orientationCorrection ),
-  mPixelData(),
-  mUrl(url)
+                           bool orientationCorrection )
+: mPixelData(),
+  mUrl(url),
+  mSize( size ),
+  mFittingMode( fittingMode ),
+  mSamplingMode( samplingMode ),
+  mOrientationCorrection( orientationCorrection )
 {
 }
 
@@ -53,21 +56,7 @@ BitmapLoader::~BitmapLoader()
 
 void BitmapLoader::Load()
 {
-  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( mResourceType, mUrl );
-
-  if( resource )
-  {
-    Integration::Bitmap* bitmap = static_cast<Integration::Bitmap*>(resource.Get());
-
-    // Use bitmap->GetBufferOwnership() to transfer the buffer ownership to pixelData.
-    // The destroy of bitmap will not release the buffer, instead, the pixelData is responsible for releasing when its reference count falls to zero.
-    mPixelData = Dali::PixelData::New( bitmap->GetBufferOwnership(),
-                                       bitmap->GetBufferSize(),
-                                       bitmap->GetImageWidth(),
-                                       bitmap->GetImageHeight(),
-                                       bitmap->GetPixelFormat(),
-                                       Dali::PixelData::FREE);
-  }
+  mPixelData = Dali::LoadImageFromFile( mUrl, mSize, mFittingMode, mSamplingMode, mOrientationCorrection );
 }
 
 bool BitmapLoader::IsLoaded()

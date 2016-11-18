@@ -5,15 +5,16 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 
 SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
+    utc-Dali-Application.cpp
+    utc-Dali-BitmapLoader.cpp
+    utc-Dali-FileLoader.cpp
+    utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
     utc-Dali-SingletonService.cpp
-    utc-Dali-Window.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
-    utc-Dali-Application.cpp
-    utc-Dali-FileLoader.cpp
-    utc-Dali-BitmapLoader.cpp
+    utc-Dali-Window.cpp
     #utc-Dali-Watch.cpp
     #utc-Dali-KeyGrab.cpp
 )
