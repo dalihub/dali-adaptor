@@ -244,6 +244,18 @@ void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode
 
 void Window::SetClass(std::string name, std::string klass)
 {
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+
+  if( wlSurface )
+  {
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
+    ecore_wl_window_title_set( wlWindow, name.c_str() );
+    ecore_wl_window_class_name_set( wlWindow, klass.c_str() );
+  }
+  else
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window has no surface\n" );
+  }
 }
 
 Window::Window()
@@ -291,15 +303,10 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
   // create an Wayland window by default
   Any surface;
   ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
-  SetClass( name, className );
-  windowSurface->Map();
 
   mSurface = windowSurface;
-
-  std::string appId;
-  mAdaptor->GetAppId( appId );
-  Ecore_Wl_Window* wlWindow = windowSurface ->GetWlWindow();
-  ecore_wl_window_class_name_set(wlWindow, appId.c_str());
+  SetClass( name, className );
+  windowSurface->Map();
 
   mOrientation = Orientation::New(this);
 
