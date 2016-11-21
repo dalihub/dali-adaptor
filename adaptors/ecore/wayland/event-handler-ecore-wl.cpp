@@ -197,6 +197,9 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_SELECTION_DATA_READY, EcoreEventDataReceive, handler ) );
 
+      // Register Rotate event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ROTATE, EcoreEventRotate, handler) );
+
       // Register Detent event
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_DETENT_ROTATE, EcoreEventDetent, handler) );
 
@@ -705,6 +708,31 @@ struct EventHandler::Impl
    }
 
   /*
+  * Called when rotate event is recevied
+  */
+  static Eina_Bool EcoreEventRotate( void* data, int type, void* event )
+  {
+    DALI_LOG_INFO( gSelectionEventLogFilter, Debug::Concise, "EcoreEventRotate\n" );
+
+    EventHandler* handler( (EventHandler*)data );
+    Ecore_Wl_Event_Window_Rotate* ev( (Ecore_Wl_Event_Window_Rotate*)event );
+
+    if( ev->win != (unsigned int)ecore_wl_window_id_get( handler->mImpl->mWindow ) )
+    {
+      return ECORE_CALLBACK_PASS_ON;
+    }
+
+    RotationEvent rotationEvent;
+    rotationEvent.angle = ev->angle;
+    rotationEvent.winResize = 0;
+    rotationEvent.width = ev->w;
+    rotationEvent.height = ev->h;
+    handler->SendRotationPrepareEvent( rotationEvent );
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /*
   * Called when detent event is recevied
   */
   static Eina_Bool EcoreEventDetent( void* data, int type, void* event )
@@ -854,15 +882,13 @@ void EventHandler::SendRotationPrepareEvent( const RotationEvent& event )
   if( mRotationObserver != NULL )
   {
     mRotationObserver->OnRotationPrepare( event );
+    mRotationObserver->OnRotationRequest();
   }
 }
 
 void EventHandler::SendRotationRequestEvent( )
 {
-  if( mRotationObserver != NULL )
-  {
-    mRotationObserver->OnRotationRequest( );
-  }
+  // No need to separate event into prepare and request in wayland
 }
 
 void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
