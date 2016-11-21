@@ -466,14 +466,17 @@ void Window::SetIndicatorActorRotation()
 
 void Window::Raise()
 {
+  ecore_wl_window_raise( mEventHandler->mEcoreWindow );
 }
 
 void Window::Lower()
 {
+  ecore_wl_window_lower( mEventHandler->mEcoreWindow );
 }
 
 void Window::Activate()
 {
+  ecore_wl_window_activate( mEventHandler->mEcoreWindow );
 }
 
 Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
@@ -565,7 +568,12 @@ void Window::RemoveAvailableOrientation(Dali::Window::WindowOrientation orientat
 
 void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations)
 {
-  DALI_ASSERT_ALWAYS( mAvailableOrientations.size() <= 4 && "Incorrect number of available orientations" );
+  int rotations[4];
+  for( std::size_t i = 0; i < mAvailableOrientations.size(); ++i )
+  {
+    rotations[i] = static_cast< int >( mAvailableOrientations[i] );
+  }
+  ecore_wl_window_rotation_available_rotations_set( mEventHandler->mEcoreWindow, rotations, mAvailableOrientations.size() );
 }
 
 const std::vector<Dali::Window::WindowOrientation>& Window::GetAvailableOrientations()
@@ -576,6 +584,8 @@ const std::vector<Dali::Window::WindowOrientation>& Window::GetAvailableOrientat
 void Window::SetPreferredOrientation(Dali::Window::WindowOrientation orientation)
 {
   mPreferredOrientation = orientation;
+
+  ecore_wl_window_rotation_preferred_rotation_set( mEventHandler->mEcoreWindow, orientation );
 }
 
 Dali::Window::WindowOrientation Window::GetPreferredOrientation()
@@ -585,6 +595,7 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 
 void Window::RotationDone( int orientation, int width, int height )
 {
+  ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
 }
 
 
