@@ -618,6 +618,11 @@ Any Adaptor::GetNativeWindowHandle()
   return mNativeWindow;
 }
 
+void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)
+{
+  mUseRemoteSurface = useRemoteSurface;
+}
+
 void Adaptor::AddObserver( LifeCycleObserver& observer )
 {
   ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
@@ -731,6 +736,9 @@ void Adaptor::NotifySceneCreated()
 
   // Start thread controller after the scene has been created
   mThreadController->Start();
+
+  // process after surface is created (registering to remote surface provider if required)
+  SurfaceInitialized();
 }
 
 void Adaptor::NotifyLanguageChanged()
@@ -789,7 +797,8 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mTriggerEventFactory(),
   mObjectProfiler( NULL ),
   mSocketFactory(),
-  mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ )
+  mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
+  mUseRemoteSurface( false )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
   gThreadLocalAdaptor = this;

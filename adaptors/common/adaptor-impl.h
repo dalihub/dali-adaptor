@@ -293,6 +293,12 @@ public:
    */
   Any GetNativeWindowHandle();
 
+  /**
+   * Sets use remote surface for eglSurface output
+   * @param[in] useRemoteSurface True if the remote surface is used
+   */
+  void SetUseRemoteSurface(bool useRemoteSurface);
+
 public:
 
   /**
@@ -495,6 +501,11 @@ private:
   void SetSurface(RenderSurface *surface);
 
   /**
+   * called after surface is created
+   */
+  void SurfaceInitialized();
+
+  /**
    * Sends an notification message from main loop idle handler
    */
   void ProcessCoreEventsFromIdle();
@@ -568,6 +579,7 @@ private: // Data
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
+  bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };
