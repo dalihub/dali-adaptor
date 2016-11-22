@@ -317,7 +317,7 @@ void LinearSample3BPP( const unsigned char * __restrict__ inPixels,
 /**
  * @copydoc LinearSample
  *
- * Specialised for four byte per pixel formats like RGBA888.
+ * Specialised for four byte per pixel formats like RGBA8888.
  * @note, If used on RGBA8888, the A component will be blended independently.
  */
 void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
