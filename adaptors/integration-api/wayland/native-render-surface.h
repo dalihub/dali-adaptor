@@ -73,11 +73,17 @@ public: // API
   virtual tbm_surface_h GetDrawable();
 
   /**
-   * @brief Get the surface
+   * @brief Gets the surface
    *
-   * @return tbm surface
+   * @return TBM surface
    */
   virtual Any GetSurface();
+
+  /**
+   * @brief Waits tbm surface after replace surface
+   * After tbm surface is acquired in PostRender, this function is finished.
+   */
+  void WaitDrawableAfterReplaceSurface();
 
 public: // from Dali::RenderSurface
 
@@ -157,6 +163,11 @@ private:
    * Create tbm surface
    */
   virtual void CreateNativeRenderable();
+
+  /**
+   * Release tbm surface
+   */
+  void ReleaseDrawable();
 
 private: // Data
 
