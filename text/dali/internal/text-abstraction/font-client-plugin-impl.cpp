@@ -1323,7 +1323,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
 void FontClient::Plugin::ConvertBitmap( TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap )
 {
-  if( srcBitmap.width*srcBitmap.rows > 0u )
+  if( srcBitmap.width*srcBitmap.rows > 0 )
   {
     switch( srcBitmap.pixel_mode )
     {
