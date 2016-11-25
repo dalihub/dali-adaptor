@@ -43,7 +43,7 @@ arc_endpoint_encode (unsigned int ix, unsigned int iy, double d)
   assert (ix <= MAX_X);
   assert (iy <= MAX_Y);
   unsigned int id;
-  if (isinf (d))
+  if (std::isinf (d))
     id = 0;
   else {
     assert (fabs (d) <= GLYPHY_MAX_D);
@@ -252,7 +252,7 @@ glyphy_arc_list_encode_blob (const glyphy_arc_endpoint_t *endpoints,
       /* If the arclist is two arcs that can be combined in encoding if reordered,
        * do that. */
       if (near_endpoints.size () == 4 &&
-          isinf (near_endpoints[2].d) &&
+          std::isinf (near_endpoints[2].d) &&
           near_endpoints[0].p.x == near_endpoints[3].p.x &&
           near_endpoints[0].p.y == near_endpoints[3].p.y)
       {
