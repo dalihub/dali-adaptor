@@ -1102,43 +1102,6 @@ void MakeSingleColorImageRGBA8888( unsigned int width, unsigned int height, uint
   }
 }
 
-/**
- * @brief Allocate an image buffer with protected pages to top and tail it and
- * SEGV if an operation strays into them.
- */
-void MakeGuardedOutputImageRGBA8888( unsigned int desiredWidth,  unsigned int desiredHeight, uint32_t *& outputBuffer, uint32_t *& outputImage )
-{
-  const size_t outputBufferSize = getpagesize() + sizeof(uint32_t) * desiredWidth * desiredHeight + getpagesize();
-  outputBuffer = (uint32_t *) valloc( outputBufferSize );
-  mprotect( outputBuffer, getpagesize(), PROT_READ );
-  mprotect( ((char*) outputBuffer) + outputBufferSize - getpagesize(), getpagesize(), PROT_READ );
-  outputImage = outputBuffer + getpagesize() / sizeof(outputBuffer[0]);
-}
-
-/**
- * @brief Allocate a buffer of pages that are read-only, that is big enough for the number of pixels passed-in.
- */
-uint32_t* AllocateReadOnlyPagesRGBA( unsigned int numPixels )
-{
-  const unsigned int numWholePages = (numPixels * sizeof(uint32_t)) / getpagesize();
-  bool needExtraPage = (numPixels * sizeof(uint32_t)) % getpagesize() != 0;
-  const size_t outputBufferSize = (numWholePages + (needExtraPage ? 1 : 0)) * getpagesize();
-  uint32_t * outputBuffer = (uint32_t *) valloc( outputBufferSize );
-  mprotect( outputBuffer, outputBufferSize, PROT_READ );
-
-  return outputBuffer;
-}
-
-/**
- * @brief Free a buffer of pages that are read-only.
- */
-void FreeReadOnlyPagesRGBA( uint32_t * pages, unsigned int numPixels )
-{
-  const size_t bufferSize = numPixels * 4;
-  mprotect( pages, bufferSize, PROT_READ | PROT_WRITE );
-  free( pages );
-}
-
 /*
  * @brief Make an image with a checkerboard pattern.
  * @note This is an easy pattern to scan for correctness after a downscaling test.
@@ -1187,37 +1150,6 @@ Dali::IntrusivePtr<Dali::RefCountedVector<uint32_t> > MakeCheckerboardImageRGBA8
   return image;
 }
 
-}
-
-/**
- * @brief Test that a scaling doesn't stray outside the bounds of the destination image.
- *
- * The test allocates a destination buffer that is an exact multiple of the page size
- * with guard pages at either end.
- */
-int UtcDaliImageOperationsPointSampleRGBA888InBounds(void)
-{
-  const unsigned int inputWidth = 163;
-  const unsigned int inputHeight = 691;
-  const unsigned int destinationBufferSize = 4096 * 4;
-  const unsigned int desiredWidth = 64;
-  const unsigned int desiredHeight = destinationBufferSize / desiredWidth; // (256)
-
-  uint32_t inputImage[ inputWidth * inputHeight ];
-
-  // Allocate an output image buffer with read-only guard pages at either end:
-  // The test will segfault if it strays into the guard pages.
-  uint32_t *outputBuffer, *outputImage;
-  MakeGuardedOutputImageRGBA8888( desiredWidth, desiredHeight, outputBuffer, outputImage );
-
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, inputWidth, inputHeight, (unsigned char*) outputImage, desiredWidth, desiredHeight );
-
-  FreeReadOnlyPagesRGBA( outputBuffer, desiredWidth * desiredHeight );
-
-  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
-  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
-
-  END_TEST;
 }
 
 /**
@@ -1295,8 +1227,10 @@ int UtcDaliImageOperationsPointSampleRGBA888PixelsCorrectColor(void)
   uint32_t inputImage[ inputWidth * inputHeight ];
   MakeSingleColorImageRGBA8888( inputWidth, inputHeight, inputImage );
 
-  uint32_t *outputBuffer, *outputImage;
-  MakeGuardedOutputImageRGBA8888( desiredWidth, desiredHeight, outputBuffer, outputImage );
+  const size_t outputBufferSize = desiredWidth * desiredHeight;
+  std::vector< uint32_t > buffer;
+  buffer.resize( outputBufferSize );
+  uint32_t* outputImage = &buffer[0];
 
   Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, inputWidth, inputHeight, (unsigned char*) outputImage, desiredWidth, desiredHeight );
 
@@ -1310,8 +1244,6 @@ int UtcDaliImageOperationsPointSampleRGBA888PixelsCorrectColor(void)
       ++differentColorCount;
     }
   }
-
-  FreeReadOnlyPagesRGBA( outputBuffer, desiredWidth * desiredHeight );
 
   DALI_TEST_EQUALS( 0U, differentColorCount, TEST_LOCATION );
 
@@ -1375,71 +1307,42 @@ int UtcDaliImageOperationsPointSampleRGBA888ScaleToSinglePixel(void)
  * @brief Test that downsampling to 0 - area images is a NOP and does not modify the destination.
  * (edge-case)
  */
-int UtcDaliImageOperationsPointSampleRGBA888ScaleToZeroDims(void)
+int UtcDaliImageOperationsPointSampleRGBA888N(void)
 {
-  uint32_t inputImage[ 1024 * 1024 ];
-  MakeSingleColorImageRGBA8888( 1024, 1024, inputImage );
-  uint32_t* outputImage = AllocateReadOnlyPagesRGBA(1);
+  uint32_t inputImage[ 128 * 128 ];
+  MakeSingleColorImageRGBA8888( 128, 128, inputImage );
+  uint32_t outputImage[ 128 * 128 ];
+  memset( outputImage, 0xaa, 128 * 128 * sizeof(uint32_t) );
 
   // Try several different starting image sizes:
 
   // 1x1 -> 1x1:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1,    1, (unsigned char*) outputImage, 0, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   1,   1, (unsigned char*) outputImage, 0, 0 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
   // Single-pixel wide tall stripe:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    1, 1024, (unsigned char*) outputImage, 0, 33 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   1, 102, (unsigned char*) outputImage, 0, 33 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
   // Single-pixel tall, wide strip:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 1024,    1, (unsigned char*) outputImage, 0, 67 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 102,   1, (unsigned char*) outputImage, 0, 67 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
   // Square mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  103,  103, (unsigned char*) outputImage, 21, 0 );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 103, 103, (unsigned char*) outputImage, 21, 0 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
-  // Wide mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  313,  79, (unsigned char*) outputImage, 99, 0 );
+  // Wide mid-size image to 0 height
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage, 313,  79, (unsigned char*) outputImage, 99, 0 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
-  // Tall mid-size image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   53,  467, (unsigned char*) outputImage, 9999, 0 );
+  // Tall mid-size image to 0 height, over width
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,  53,  46, (unsigned char*) outputImage, 9999, 0 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
   // 0 x 0 input image:
-  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,    0,    0, (unsigned char*) outputImage, 200, 99 );
-
-  FreeReadOnlyPagesRGBA( outputImage, getpagesize() / 4 );
-
-  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
-  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
-
-  END_TEST;
-}
-
-/**
- * @brief Test that a scaling doesn't stray outside the bounds of the destination image.
- *
- * The test allocates a destination buffer that is an exact multiple of the page size
- * with guard pages at either end.
- */
-int UtcDaliImageOperationsPointSampleRGB88InBounds(void)
-{
-  const unsigned int inputWidth = 163;
-  const unsigned int inputHeight = 691;
-  const unsigned int desiredWidth = 32;
-  const unsigned int desiredHeight = 128;
-  const unsigned int outputBuffersizeInWords = desiredWidth * (desiredHeight / 4) * 3;
-
-  uint8_t inputImage[ inputWidth * inputHeight ][3];
-
-  // Allocate an output image buffer with read-only guard pages at either end:
-  // The test will segfault if it strays into the guard pages.
-  uint32_t *outputBuffer, *outputImage;
-
-  MakeGuardedOutputImageRGBA8888( desiredWidth * (desiredHeight / 4), 3, outputBuffer, outputImage );
-
-  Dali::Internal::Platform::PointSample3BPP( &inputImage[0][0], inputWidth, inputHeight, (uint8_t*) outputImage, desiredWidth, desiredHeight );
-
-  FreeReadOnlyPagesRGBA( outputBuffer, outputBuffersizeInWords );
-
-  //! The only real test is whether the above code SEGVs, but do a fake test so we pass if that hasn't happened:
-  DALI_TEST_EQUALS( true, true, TEST_LOCATION );
+  Dali::Internal::Platform::PointSample4BPP( (const unsigned char *) inputImage,   0,   0, (unsigned char*) outputImage, 200, 99 );
+  DALI_TEST_EQUALS( 0xaaaaaaaa, outputImage[0], TEST_LOCATION );
 
   END_TEST;
 }

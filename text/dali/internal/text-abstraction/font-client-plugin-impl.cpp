@@ -461,12 +461,7 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
 
       if( preferColor )
       {
-        PixelData bitmap = CreateBitmap( fontId, GetGlyphIndex(fontId,charcode) );
-        if( bitmap &&
-            Pixel::BGRA8888 == bitmap.GetPixelFormat() )
-        {
-          foundColor = true;
-        }
+        foundColor = IsColorGlyph( fontId, GetGlyphIndex( fontId, charcode ) );
       }
 
       // Keep going unless we prefer a different (color) font.
@@ -879,21 +874,18 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 #endif
 }
 
-PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
-                                              GlyphIndex glyphIndex )
+void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
 {
-  PixelData bitmap;
-
-  if( fontId > 0 &&
-      fontId-1 < mFontCache.size() )
+  if( ( fontId > 0u ) &&
+      ( fontId - 1u < mFontCache.size() ) )
   {
-    FT_Face ftFace = mFontCache[fontId-1].mFreeTypeFace;
+    FT_Face ftFace = mFontCache[fontId - 1u].mFreeTypeFace;
 
     FT_Error error;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
     // Check to see if this is fixed size bitmap
-    if ( mFontCache[fontId-1].mIsFixedSizeBitmap )
+    if ( mFontCache[fontId - 1u].mIsFixedSizeBitmap )
     {
       error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
     }
@@ -916,7 +908,7 @@ PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
           if ( FT_Err_Ok == error )
           {
             FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
-            ConvertBitmap( bitmap, bitmapGlyph->bitmap );
+            ConvertBitmap( data, bitmapGlyph->bitmap );
           }
           else
           {
@@ -925,7 +917,7 @@ PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
         }
         else
         {
-          ConvertBitmap( bitmap, ftFace->glyph->bitmap );
+          ConvertBitmap( data, ftFace->glyph->bitmap );
         }
 
         // Created FT_Glyph object must be released with FT_Done_Glyph
@@ -937,8 +929,21 @@ PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
       DALI_LOG_ERROR( "FT_Load_Glyph Failed with error: %d\n", error );
     }
   }
+}
 
-  return bitmap;
+PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
+                                            GlyphIndex glyphIndex )
+{
+  TextAbstraction::FontClient::GlyphBufferData data;
+
+  CreateBitmap( fontId, glyphIndex, data );
+
+  return PixelData::New( data.buffer,
+                         data.width * data.height * Pixel::GetBytesPerPixel( data.format ),
+                         data.width,
+                         data.height,
+                         data.format,
+                         PixelData::DELETE_ARRAY );
 }
 
 void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
@@ -997,6 +1002,28 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
   GetBitmapMetrics( &item.glyph, 1u, true );
 
   return item.glyph;
+}
+
+bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
+{
+  FT_Error error = -1;
+
+#ifdef FREETYPE_BITMAP_SUPPORT
+  if( ( fontId > 0u ) &&
+      ( fontId - 1u < mFontCache.size() ) )
+  {
+    const FontFaceCacheItem& item = mFontCache[fontId - 1u];
+    FT_Face ftFace = item.mFreeTypeFace;
+
+    // Check to see if this is fixed size bitmap
+    if( item.mIsFixedSizeBitmap )
+    {
+      error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
+    }
+  }
+#endif
+
+  return FT_Err_Ok == error;
 }
 
 void FontClient::Plugin::InitSystemFonts()
@@ -1294,8 +1321,7 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
   return id;
 }
 
-void FontClient::Plugin::ConvertBitmap( PixelData& destBitmap,
-                                        FT_Bitmap srcBitmap )
+void FontClient::Plugin::ConvertBitmap( TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap )
 {
   if( srcBitmap.width*srcBitmap.rows > 0 )
   {
@@ -1303,12 +1329,14 @@ void FontClient::Plugin::ConvertBitmap( PixelData& destBitmap,
     {
       case FT_PIXEL_MODE_GRAY:
       {
-        if( srcBitmap.pitch == static_cast< int >( srcBitmap.width ) )
+        if( srcBitmap.pitch == static_cast<int>( srcBitmap.width ) )
         {
-          unsigned int bufferSize( srcBitmap.width * srcBitmap.rows );
-          unsigned char* buffer = new unsigned char[bufferSize];
-          memcpy( buffer, srcBitmap.buffer,bufferSize );
-          destBitmap = PixelData::New( buffer, bufferSize, srcBitmap.width, srcBitmap.rows, Pixel::L8, PixelData::DELETE_ARRAY );
+          const unsigned int bufferSize = srcBitmap.width * srcBitmap.rows;
+          data.buffer = new unsigned char[bufferSize];
+          data.width = srcBitmap.width;
+          data.height = srcBitmap.rows;
+          data.format = Pixel::L8;
+          memcpy( data.buffer, srcBitmap.buffer, bufferSize );
         }
         break;
       }
@@ -1316,12 +1344,14 @@ void FontClient::Plugin::ConvertBitmap( PixelData& destBitmap,
 #ifdef FREETYPE_BITMAP_SUPPORT
       case FT_PIXEL_MODE_BGRA:
       {
-        if ( srcBitmap.pitch == static_cast< int >( srcBitmap.width << 2 ) )
+        if( srcBitmap.pitch == static_cast<int>( srcBitmap.width << 2u ) )
         {
-          unsigned int bufferSize( srcBitmap.width * srcBitmap.rows * 4 );
-          unsigned char* buffer = new unsigned char[bufferSize];
-          memcpy( buffer, srcBitmap.buffer,bufferSize );
-          destBitmap = PixelData::New( buffer, bufferSize, srcBitmap.width, srcBitmap.rows, Pixel::BGRA8888, PixelData::DELETE_ARRAY );
+          const unsigned int bufferSize = srcBitmap.width * srcBitmap.rows * 4u;
+          data.buffer = new unsigned char[bufferSize];
+          data.width = srcBitmap.width;
+          data.height = srcBitmap.rows;
+          data.format = Pixel::BGRA8888;
+          memcpy( data.buffer, srcBitmap.buffer, bufferSize );
         }
         break;
       }
