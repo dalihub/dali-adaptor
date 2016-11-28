@@ -95,6 +95,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
   mFramework = new Framework( *this, argc, argv, applicationType );
+  mUseRemoteSurface = (applicationType == Framework::WATCH);
 }
 
 Application::~Application()
@@ -136,6 +137,8 @@ void Application::CreateAdaptor()
   mAdaptor = Dali::Internal::Adaptor::Adaptor::New( mWindow, mContextLossConfiguration, &mEnvironmentOptions );
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
+
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetUseRemoteSurface( mUseRemoteSurface );
 }
 
 void Application::MainLoop(Dali::Configuration::ContextLoss configuration)
