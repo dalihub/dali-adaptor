@@ -272,7 +272,11 @@ void ResourceThreadBase::ProcessNextRequest()
   // process request outside of lock
   if ( NULL != request )
   {
-    std::auto_ptr<ResourceRequest> deleter( request );
+#ifdef _CPP11
+    std::unique_ptr< ResourceRequest > deleter( request );
+#else
+    std::auto_ptr< ResourceRequest > deleter( request );
+#endif
     switch( type )
     {
       case RequestLoad:
