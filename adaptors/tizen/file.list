@@ -22,3 +22,6 @@ adaptor_tizen_internal_native_image_src_files = \
 
 public_api_adaptor_tizen_header_files = \
   $(adaptor_tizen_dir)/key-grab.h
+
+adaptor_tizen_internal_indicator_src_files = \
+  $(adaptor_tizen_dir)/ecore-indicator-impl-tizen.cpp

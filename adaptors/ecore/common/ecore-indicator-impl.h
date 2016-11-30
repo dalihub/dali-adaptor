@@ -23,9 +23,12 @@
 #include <dali/public-api/events/pan-gesture.h>
 #include <dali/public-api/events/pan-gesture-detector.h>
 #include <dali/public-api/rendering/renderer.h>
+#include <dali/public-api/images/image.h>
+#include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/indicator-interface.h>
+#include <native-image-source.h>
 #include <indicator-buffer.h>
 #include <ecore-server-connection.h>
 #include <shared-file.h>
@@ -193,6 +196,12 @@ public:  // Dali::Internal::Adaptor::IndicicatorInterface
    */
   virtual bool SendMessage( int messageDomain, int messageId, const void *data, int size );
 
+  /**
+   * Update native indicator image
+   * @param[in] source Native indicator image source
+   */
+  void UpdateIndicatorImage( Dali::Any source );
+
 private:
   /**
    * Initialize the indicator actors
@@ -209,6 +218,12 @@ private:
    * @param[in] texture The foreground texture.
    */
   void SetForegroundImage( Dali::Texture texture );
+
+  /**
+   * Set the texture to be rendered as indicator foreground
+   * @param[in] image The foreground image.
+   */
+  void SetForegroundNativeImage( Dali::Image image );
 
   /**
    * Touch event callback.
@@ -294,6 +309,12 @@ private:
   void UpdateTopMargin();
 
   /**
+   * Setup native indicator image
+   * @param[in] epcEvent The event containing the image data information
+   */
+  void SetupNativeIndicatorImage( Ecore_Ipc_Event_Server_Data *epcEvent );
+
+  /**
    * Update the visibility and position of the actors
    */
   void UpdateVisibility();
@@ -355,6 +376,11 @@ private:
    */
   void OnAnimationFinished( Dali::Animation& animation );
 
+  /**
+   * Set up native indicator image
+   */
+  void SetupNativeIndicatorImage();
+
 private: // Implementation of ServerConnection::Observer
   /**
    * @copydoc Dali::Internal::Adaptor::ServerConnection::Observer::DataReceived()
@@ -409,6 +435,7 @@ private:
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
   PixmapId                         mPixmap;              ///< Pixmap including indicator content
+  Dali::NativeImageSourcePtr       mNativeImageSource;
   Dali::Renderer                   mForegroundRenderer;  ///< Renderer renders the indicator foreground
   Dali::Renderer                   mBackgroundRenderer;  ///< Renderer renders the indicator background
 
