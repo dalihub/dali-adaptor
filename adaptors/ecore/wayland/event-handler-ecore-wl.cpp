@@ -307,10 +307,6 @@ struct EventHandler::Impl
 
 #ifdef DALI_ELDBUS_AVAILABLE
 
-      // Initialize ElDBus.
-      DALI_LOG_INFO( gImfLogging, Debug::General, "Starting DBus Initialization\n" );
-      eldbus_init();
-
       mSessionConnection = eldbus_connection_get( ELDBUS_CONNECTION_TYPE_SESSION );
 
       Eldbus_Object *a11yObject = eldbus_object_get( mSessionConnection, A11Y_BUS, A11Y_PATH );
@@ -341,7 +337,8 @@ struct EventHandler::Impl
     }
 
 #ifdef DALI_ELDBUS_AVAILABLE
-    // Close down ElDBus
+
+    // Close down ElDBus connections.
     if( mA11yConnection )
     {
       eldbus_connection_unref( mA11yConnection );
@@ -352,7 +349,6 @@ struct EventHandler::Impl
       eldbus_connection_unref( mSessionConnection );
     }
 
-    eldbus_shutdown();
 #endif // DALI_ELDBUS_AVAILABLE
   }
 
