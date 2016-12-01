@@ -43,7 +43,6 @@
 #include "property-buffer-wrapper.h"
 #include "property-value-wrapper.h"
 #include "render-task-wrapper.h"
-#include "shader-effect-wrapper.h"
 #include "signal-holder.h"
 #include "type-info-wrapper.h"
 
@@ -845,16 +844,6 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .value("MAP", Dali::Property::MAP)
 ;
 
-  enum_<Dali::ShaderEffect::GeometryHints>("GeometryHints")
-    .value("HINT_NONE", Dali::ShaderEffect::HINT_NONE)
-    .value("HINT_GRID_X", Dali::ShaderEffect::HINT_GRID_X)
-    .value("HINT_GRID_Y", Dali::ShaderEffect::HINT_GRID_Y)
-    .value("HINT_GRID", Dali::ShaderEffect::HINT_GRID)
-    .value("HINT_DEPTH_BUFFER", Dali::ShaderEffect::HINT_DEPTH_BUFFER)
-    .value("HINT_BLENDING", Dali::ShaderEffect::HINT_BLENDING)
-    .value("HINT_DOESNT_MODIFY_GEOMETRY", Dali::ShaderEffect::HINT_DOESNT_MODIFY_GEOMETRY)
-;
-
   enum_<Dali::Shader::Hint::Value>("ShaderHints")
     .value("NONE",                      Dali::Shader::Hint::NONE)
     .value("OUTPUT_IS_TRANSPARENT",     Dali::Shader::Hint::OUTPUT_IS_TRANSPARENT)
@@ -1123,14 +1112,6 @@ EMSCRIPTEN_BINDINGS(dali_wrapper)
     .function("getGeometry", &Dali::Renderer::GetGeometry)
     .function("SetTextures", &Dali::Renderer::SetTextures)
     .function("SetTextures", &Dali::Renderer::SetTextures)
-;
-
-  class_<Dali::ShaderEffect, base<Dali::Handle>>("ShaderEffect")
-    .constructor<const std::string&, const std::string&,
-                 const std::string&, const std::string&,
-                 int >(&CreateShaderEffect)
-    .function("setEffectImage", &Dali::ShaderEffect::SetEffectImage)
-    .function("__setUniform", &SetUniform)
 ;
 
   class_<Dali::Actor, base<Dali::Handle>>("Actor")
