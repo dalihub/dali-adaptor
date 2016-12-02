@@ -254,7 +254,7 @@ inline double Point::squared_distance_to_point (const Point &p) const {
 }
 
 inline bool Point::is_finite (void) const {
-  return isfinite (x) && isfinite (y);
+  return std::isfinite (x) && std::isfinite (y);
 }
 inline const Point Point::lerp (const double &a, const Point &p) const {
   /* The following two cases are special-cased to get better floating

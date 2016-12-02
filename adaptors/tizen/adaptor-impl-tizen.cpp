@@ -19,8 +19,10 @@
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#ifdef  USE_APPFW
 #include <app.h>
+#ifdef APPCORE_WATCH_AVAILABLE
+#include <aul_rsm_provider.h>
+#include <ecore-wl-render-surface.h>
 #endif
 
 namespace Dali
@@ -62,6 +64,21 @@ void Adaptor::GetAppId( std::string& appId )
   {
     appId = "";
   }
+#endif
+}
+
+void Adaptor::SurfaceInitialized()
+{
+#ifdef APPCORE_WATCH_AVAILABLE
+  if ( !mUseRemoteSurface )
+  {
+    return;
+  }
+  char *appId;
+  app_get_id(&appId);
+
+  Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
+  aul_rsm_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
 #endif
 }
 

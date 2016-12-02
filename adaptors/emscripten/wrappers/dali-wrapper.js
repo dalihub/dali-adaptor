@@ -1736,19 +1736,6 @@ dali.Actor = function() {
 
 //------------------------------------------------------------------------------
 //
-// ShaderEffect Module
-//
-//------------------------------------------------------------------------------
-dali.__ShaderEffectConstructor = dali.ShaderEffect;
-dali.ShaderEffect = function() {
-  "use strict";
-  var a = new dali.__PathConstructor();
-  dali.internalSetupProperties(a);
-  return a;
-};
-
-//------------------------------------------------------------------------------
-//
 // New Mesh Module
 //
 //------------------------------------------------------------------------------
@@ -3447,7 +3434,6 @@ dali.init = function() {
                       Path: 1, Animation: 1,
                       Handle: 1, Actor: 1,
                       PropertyMap: 1, PropertyBuffer: 1,
-                      ShaderEffect: 1,
                       Image: 1, BufferImage: 1, EncodedBufferImage: 1,
                       Geometry: 1, Material: 1, Shader: 1, Sampler: 1, Renderer: 1
                     };

@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <cstddef>
+
 /*
  * atomics.h
  *
