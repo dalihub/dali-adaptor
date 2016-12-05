@@ -26,9 +26,14 @@
 #include <system_info.h>
 #include <app_control_internal.h>
 #include <bundle_internal.h>
+
+// CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <appcore-watch/watch_app.h>
 #endif
+#ifdef DALI_ELDBUS_AVAILABLE
+#include <Eldbus.h>
+#endif // DALI_ELDBUS_AVAILABLE
 
 #if defined( TIZEN_PLATFORM_CONFIG_SUPPORTED ) && TIZEN_PLATFORM_CONFIG_SUPPORTED
 #include <tzplatform_config.h>
@@ -47,6 +52,13 @@ namespace Internal
 
 namespace Adaptor
 {
+
+#if defined(DEBUG_ENABLED)
+namespace
+{
+Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New( Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS" );
+} // anonymous namespace
+#endif
 
 /**
  * Impl to hide EFL data members
@@ -330,6 +342,11 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
   {
     set_last_result( TIZEN_ERROR_NOT_SUPPORTED );
   }
+#ifdef DALI_ELDBUS_AVAILABLE
+  // Initialize ElDBus.
+  DALI_LOG_INFO( gDBusLogging, Debug::General, "Starting DBus Initialization\n" );
+  eldbus_init();
+#endif
   InitThreads();
 
   mImpl = new Impl(this, type);
@@ -341,6 +358,12 @@ Framework::~Framework()
   {
     Quit();
   }
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  // Shutdown ELDBus.
+  DALI_LOG_INFO( gDBusLogging, Debug::General, "Shutting down DBus\n" );
+  eldbus_shutdown();
+#endif
 
   delete mImpl;
 }
