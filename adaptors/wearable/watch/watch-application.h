@@ -145,10 +145,10 @@ public:
   /**
    * @brief Assignment operator
    * @SINCE_1_1.37
-   * @param[in] handle Handle to an object
+   * @param[in] application Handle to an object
    * @return A reference to this
    */
-  WatchApplication& operator=( const WatchApplication& applicaton );
+  WatchApplication& operator=( const WatchApplication& application );
 
   /**
    * @brief Destructor
