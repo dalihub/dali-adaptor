@@ -122,6 +122,13 @@ include ../../../doc/file.list
 if USE_EFL
 adaptor_internal_src_files = $(adaptor_tizen_framework_efl_src_files) \
                              $(adaptor_ecore_common_internal_src_files)
+
+if WAYLAND
+adaptor_internal_src_files += $(adaptor_tizen_internal_indicator_src_files)
+else
+adaptor_internal_src_files += $(adaptor_ecore_common_internal_indicator_src_files)
+endif
+
 else
 adaptor_internal_src_files = $(adaptor_tizen_framework_libuv_src_files)
 endif

@@ -270,7 +270,7 @@ fi
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
 if test "x$enable_efl" = "xyes"; then
 if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm wayland-tbm-client tizen-remote-surface-client],
                   [DALI_USE_ECORE_WAYLAND=1],
                   [DALI_USE_ECORE_WAYLAND=0])
 

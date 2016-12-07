@@ -134,6 +134,8 @@ BuildRequires:  libxkbcommon-devel
 
 # dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
+BuildRequires:  pkgconfig(wayland-tbm-client)
+BuildRequires:  pkgconfig(tizen-extension-client)
 
 # dali-adaptor needs tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
