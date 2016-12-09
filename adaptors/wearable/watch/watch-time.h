@@ -57,6 +57,7 @@ public:
    * @brief return current hour
    *
    * @SINCE_1_1.37
+   * @return the current hour
    * @pre The WatchTime needs to be initialized.
    */
   int GetHour() const;
@@ -65,6 +66,7 @@ public:
    * @brief return current hour24
    *
    * @SINCE_1_1.37
+   * @return the current hour(the 24-hour clock)
    * @pre The WatchTime needs to be initialized.
    */
   int GetHour24() const;
@@ -73,6 +75,7 @@ public:
    * @brief return current minute
    *
    * @SINCE_1_1.37
+   * @return the current minute
    * @pre The WatchTime needs to be initialized.
    */
   int GetMinute() const;
@@ -81,6 +84,7 @@ public:
    * @brief return current second
    *
    * @SINCE_1_1.37
+   * @return the current second
    * @pre The WatchTime needs to be initialized.
    */
   int GetSecond() const;
