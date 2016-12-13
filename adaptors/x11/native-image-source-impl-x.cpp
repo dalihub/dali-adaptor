@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,7 +211,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
           pixbuf.resize(width*height*4);
           unsigned * bufPtr = reinterpret_cast<unsigned *>(&pixbuf[0]);
           const unsigned xDataLineSkip = pXImage->bytes_per_line;
-          const size_t copy_count = width * 4;
+          const size_t copy_count = static_cast< size_t >( width ) * 4;
           pixelFormat = Pixel::BGRA8888;
 
           for(unsigned y = height-1; y < height; --y, bufPtr += width)

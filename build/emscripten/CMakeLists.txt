@@ -26,7 +26,6 @@ set(SRCS
   ${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/property-buffer-wrapper.cpp
   ${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/property-value-wrapper.cpp
   ${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/render-task-wrapper.cpp
-  ${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/shader-effect-wrapper.cpp
   ${CMAKE_SOURCE_DIR}/../../adaptors/emscripten/wrappers/type-info-wrapper.cpp
   ${CMAKE_SOURCE_DIR}/../../adaptors/base/separate-update-render/frame-time.cpp
   ${CMAKE_SOURCE_DIR}/../../adaptors/base/time-service.cpp

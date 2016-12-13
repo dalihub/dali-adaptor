@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -242,6 +242,11 @@ struct ResourceLoader::ResourceLoaderImpl
       mStoredRequests.erase( iter );
     }
   }
+
+private:
+
+  ResourceLoaderImpl( const ResourceLoaderImpl& ); ///< Undefined
+  ResourceLoaderImpl& operator=( const ResourceLoaderImpl& ); ///< Undefined
 };
 
 /********************************************************************************/

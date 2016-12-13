@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,9 @@ public:
     void SetLoggingFrequency( unsigned int logFrequency, PerformanceInterface::ContextId contextId  );
 
   private:
+
+    StatContextManager( const StatContextManager& ); ///< Undefined
+    StatContextManager& operator=( const StatContextManager& ); ///< Undefined
 
     typedef Dali::Vector< StatContext* > StatContexts;
 

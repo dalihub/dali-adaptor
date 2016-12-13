@@ -37,6 +37,10 @@ void Adaptor::GetAppId( std::string& appId )
   appId = "";
 }
 
+void Adaptor::SurfaceInitialized()
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

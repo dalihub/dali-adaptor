@@ -84,9 +84,14 @@ public:
   Dali::PixelData GetPixelData() const;
 
 private:
-  Integration::BitmapResourceType mResourceType;
+
   Dali::PixelData mPixelData;
   const std::string mUrl;
+  ImageDimensions mSize;
+  FittingMode::Type mFittingMode;
+  SamplingMode::Type mSamplingMode;
+  bool mOrientationCorrection;
+
 };
 
 } // Internal

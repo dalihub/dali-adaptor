@@ -35,7 +35,7 @@ glyphy_extents_clear (glyphy_extents_t *extents)
 glyphy_bool_t
 glyphy_extents_is_empty (const glyphy_extents_t *extents)
 {
-  return isinf (extents->min_x);
+  return std::isinf (extents->min_x);
 }
 
 void
