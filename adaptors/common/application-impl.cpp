@@ -28,11 +28,6 @@
 #include <singleton-service-impl.h>
 #include <lifecycle-controller-impl.h>
 
-// CONDITIONAL INCLUDES
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif // DALI_ELDBUS_AVAILABLE
-
 namespace Dali
 {
 
@@ -51,13 +46,6 @@ namespace Internal
 
 namespace Adaptor
 {
-
-#if defined(DEBUG_ENABLED)
-namespace
-{
-Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New( Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS" );
-} // anonymous namespace
-#endif
 
 ApplicationPtr Application::New(
   int* argc,
@@ -116,12 +104,6 @@ Application::~Application()
   delete mFramework;
   delete mCommandLineOptions;
   delete mAdaptor;
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  // Shutdown ELDBus.
-  DALI_LOG_INFO( gDBusLogging, Debug::General, "Shutting down DBus\n" );
-  eldbus_shutdown();
-#endif
 
   mWindow.Reset();
 }
@@ -192,12 +174,6 @@ void Application::OnInit()
   mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
 
   CreateWindow();
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  // Initialize ElDBus.
-  DALI_LOG_INFO( gDBusLogging, Debug::General, "Starting DBus Initialization\n" );
-  eldbus_init();
-#endif
 
   // Start the adaptor
   CreateAdaptor();
