@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -507,7 +507,8 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mCurrentSharedFile( 0 ),
   mSharedBufferType( BUFFER_TYPE_SHM ),
   mImpl( NULL ),
-  mBackgroundVisible( false )
+  mBackgroundVisible( false ),
+  mTopMargin( 0 )
 {
   mIndicatorContentActor = Dali::Actor::New();
   mIndicatorContentActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
@@ -654,6 +655,7 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     mIndicatorContentActor.RemoveRenderer( mBackgroundRenderer );
     mBackgroundVisible = false;
   }
+  UpdateTopMargin();
 }
 
 void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
@@ -684,6 +686,7 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
     }
 
     mVisible = visibleMode;
+    UpdateTopMargin();
 
     if( mForegroundRenderer &&
         ( mForegroundRenderer.GetTextures().GetTexture( 0u ) ||
@@ -885,6 +888,7 @@ void Indicator::Resize( int width, int height )
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
+    UpdateTopMargin();
   }
 }
 
@@ -1083,6 +1087,16 @@ void Indicator::UpdateIndicatorImage( Any source )
 
   mNativeImageSource->SetSource( source );
   Dali::Stage::GetCurrent().KeepRendering( 0.0f );
+}
+
+void Indicator::UpdateTopMargin()
+{
+  int newMargin = (mVisible == Dali::Window::VISIBLE && mOpacityMode == Dali::Window::OPAQUE) ? mImageHeight : 0;
+  if (mTopMargin != newMargin)
+  {
+    mTopMargin = newMargin;
+    mAdaptor->IndicatorSizeChanged( mTopMargin );
+  }
 }
 
 void Indicator::UpdateVisibility()
