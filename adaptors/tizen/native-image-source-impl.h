@@ -179,12 +179,15 @@ private:
 
   tbm_surface_h GetSurfaceFromAny( Any source ) const;
 
+  bool CheckBlending( tbm_format format );
+
 private:
 
   unsigned int mWidth;                        ///< image width
   unsigned int mHeight;                       ///< image heights
-  bool mOwnTbmsurface;                            ///< Whether we created pixmap or not
-  tbm_surface_h mTbmsurface;
+  bool mOwnTbmSurface;                            ///< Whether we created pixmap or not
+  tbm_surface_h mTbmSurface;
+  tbm_format mTbmFormat;
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension
