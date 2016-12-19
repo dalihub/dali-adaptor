@@ -289,7 +289,9 @@ struct IpcDataEvMouseOut
   }
 };
 
-static void UpdateIndicatorImage( void* data, struct tizen_remote_surface* remoteSurface, struct wl_buffer* buffer, uint32_t time )
+struct wl_buffer* preBuffer;
+
+static void OnUpdateIndicatorImage( void* data, struct tizen_remote_surface* remoteSurface, struct wl_buffer* buffer, uint32_t time )
 {
   Dali::Internal::Adaptor::Indicator* indicator = static_cast< Dali::Internal::Adaptor::Indicator* >( data );
 
@@ -299,16 +301,23 @@ static void UpdateIndicatorImage( void* data, struct tizen_remote_surface* remot
 
     indicator->UpdateIndicatorImage( tbmSurface );
   }
+
+  if( preBuffer != NULL && tizen_remote_surface_get_version( remoteSurface ) >= TIZEN_REMOTE_SURFACE_RELEASE_SINCE_VERSION )
+  {
+    tizen_remote_surface_release( remoteSurface, preBuffer );
+  }
+
+  preBuffer = buffer;
 }
 
-static void MissingIndicatorImage( void* data, struct tizen_remote_surface* surface )
+static void OnMissingIndicatorImage( void* data, struct tizen_remote_surface* surface )
 {
 }
 
 static const struct tizen_remote_surface_listener remoteSurfaceCallback =
 {
-  UpdateIndicatorImage,
-  MissingIndicatorImage,
+  OnUpdateIndicatorImage,
+  OnMissingIndicatorImage,
 };
 
 } // anonymous namespace
@@ -1029,9 +1038,9 @@ void Indicator::SetupNativeIndicatorImage( Ecore_Ipc_Event_Server_Data *epcEvent
 
     EINA_INLIST_FOREACH(globals, global)
     {
-      if (!strcmp(global->interface, "tizen_remote_surface_manager"))
+      if ( !strcmp( global->interface, "tizen_remote_surface_manager" ) )
       {
-        remoteSurfaceManager = ( struct tizen_remote_surface_manager* )wl_registry_bind(registry, global->id, &tizen_remote_surface_manager_interface, 1);
+        remoteSurfaceManager = ( struct tizen_remote_surface_manager* )wl_registry_bind( registry, global->id, &tizen_remote_surface_manager_interface, ( ( global->version < 2 )? global->version: 2 ) );
       }
     }
   }
