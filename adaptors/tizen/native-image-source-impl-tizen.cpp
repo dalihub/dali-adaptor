@@ -83,6 +83,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   mHeight( height ),
   mOwnTbmSurface( false ),
   mTbmSurface( NULL ),
+  mTbmFormat( 0 ),
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
