@@ -263,7 +263,7 @@ void NativeRenderSurface::ReleaseLock()
   }
 }
 
-void NativeRenderSurface::WaitDrawableAfterReplaceSurface()
+void NativeRenderSurface::WaitUntilSurfaceReplaced()
 {
   ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
   while( !mImpl->mDrawableCompleted )

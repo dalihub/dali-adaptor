@@ -80,10 +80,10 @@ public: // API
   virtual Any GetSurface();
 
   /**
-   * @brief Waits tbm surface after replace surface
+   * @brief Waits until surface is replaced
    * After tbm surface is acquired in PostRender, this function is finished.
    */
-  void WaitDrawableAfterReplaceSurface();
+  void WaitUntilSurfaceReplaced();
 
 public: // from Dali::RenderSurface
 
