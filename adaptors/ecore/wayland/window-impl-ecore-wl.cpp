@@ -196,7 +196,12 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
   DALI_ASSERT_DEBUG(wlSurface);
-  Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
+
+  Ecore_Wl_Window* wlWindow = NULL;
+  if( wlSurface )
+  {
+    wlWindow = wlSurface->GetWlWindow();
+  }
 
   mIndicatorVisible = visibleMode;
 
