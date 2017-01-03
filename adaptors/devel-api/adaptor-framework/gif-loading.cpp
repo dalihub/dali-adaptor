@@ -123,7 +123,7 @@ int DGifSavedExtensionToGCB(GifFileType *GifFile, int ImageIndex, GraphicsContro
       return DGifExtensionToGCB(ep->ByteCount, ep->Bytes, GCB);
   }
 
-  return GIF_OK;
+  return GIF_ERROR;
 }
 
 /******************************************************************************
@@ -363,7 +363,8 @@ unsigned char* DecodeOneFrame( int& delay, GifFileType* gifInfo, const Dali::Vec
 {
   // Fetch the graphics control block
   GraphicsControlBlock graphicsControlBlock;
-  if( int errorCode = DGifSavedExtensionToGCB( gifInfo, frameIndex, &graphicsControlBlock ) != GIF_OK )
+  if( int errorCode = DGifSavedExtensionToGCB( gifInfo, frameIndex, &graphicsControlBlock ) != GIF_OK
+      && gifInfo->ImageCount > 1 ) // for static gif, graphics control block may not been specified
   {
     DALI_LOG_ERROR( "GIF Loader: DGifSavedExtensionToGCB Error. Code: %d\n", errorCode );
   }
