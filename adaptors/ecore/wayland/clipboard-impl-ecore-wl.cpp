@@ -39,7 +39,7 @@
 #endif /* CBHM_DBUS_INTERFACE */
 
 #define CLIPBOARD_STR  "CLIPBOARD_STR"
-#define CLIPBOARD_BUFFER_SIZE 512
+#define CLIPBOARD_BUFFER_SIZE 3000
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Clipboard
@@ -143,9 +143,7 @@ struct Clipboard::Impl
   {
     Ecore_Wl_Event_Selection_Data_Ready *ev = (Ecore_Wl_Event_Selection_Data_Ready *)event;
 
-    strncpy(mReceiveBuf, (char *)ev->data, ev->len);
-    mReceiveBuf[ev->len] = '\0';
-    return (char *)mReceiveBuf;
+    return (char *)ev->data;
   }
 
   int GetCount()
@@ -214,8 +212,7 @@ struct Clipboard::Impl
   Eldbus_Proxy *eldbus_proxy;
   Eldbus_Connection *cbhm_conn;
 
-  char mSendBuf[CLIPBOARD_BUFFER_SIZE];
-  char mReceiveBuf[CLIPBOARD_BUFFER_SIZE];
+  char mSendBuf[CLIPBOARD_BUFFER_SIZE+1];
   bool mVisible;
   bool mIsFirstTimeHidden;
 };
