@@ -61,6 +61,12 @@ public: // API
   virtual Ecore_Wl_Window* GetDrawable();
 
   /**
+   * Request to approve deiconify operation
+   * If it is requested, it will send ECORE_X_ATOM_E_DEICONIFY_APPROVE event to window manager after rendering
+   */
+  void RequestToApproveDeiconify();
+
+  /**
    * Map window
    */
   virtual void Map();
@@ -153,6 +159,7 @@ private: // Data
 
   Ecore_Wl_Window*   mWlWindow; ///< Wayland-Window
   wl_egl_window*     mEglWindow;
+  bool             mNeedToApproveDeiconify; ///< Whether need to send ECORE_X_ATOM_E_DEICONIFY_APPROVE event
 
 }; // class WindowRenderSurface
 
@@ -160,4 +167,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
+#endif // __DALI_INTERNAL_ECORE_X_WINDOW_RENDER_SURFACE_H__

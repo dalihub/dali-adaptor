@@ -50,7 +50,9 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& name,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
-  mEglWindow( NULL )
+  mWlWindow( NULL ),
+  mEglWindow( NULL ),
+  mNeedToApproveDeiconify( false )
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Init( surface );
@@ -85,6 +87,11 @@ Any WindowRenderSurface::GetSurface()
 Ecore_Wl_Window* WindowRenderSurface::GetWlWindow()
 {
   return mWlWindow;
+}
+
+void WindowRenderSurface::RequestToApproveDeiconify()
+{
+  mNeedToApproveDeiconify = true;
 }
 
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
@@ -213,6 +220,17 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   if( mRenderNotification )
   {
     mRenderNotification->Trigger();
+  }
+
+  // When the window is deiconified, it approves the deiconify operation to window manager after rendering
+  if(mNeedToApproveDeiconify)
+  {
+    // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
+    glAbstraction.Finish();
+
+    //FIXME
+
+    mNeedToApproveDeiconify = false;
   }
 }
 
