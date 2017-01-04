@@ -46,6 +46,21 @@ namespace
 {
 const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
 const char* SAMPLER_TYPE = "samplerExternalOES";
+
+tbm_format FORMATS_BLENDING_REQUIRED[] = {
+  TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
+  TBM_FORMAT_RGBA4444, TBM_FORMAT_BGRA4444,
+  TBM_FORMAT_RGBX5551, TBM_FORMAT_BGRX5551,
+  TBM_FORMAT_ARGB1555, TBM_FORMAT_ABGR1555,
+  TBM_FORMAT_RGBA5551, TBM_FORMAT_BGRA5551,
+  TBM_FORMAT_ARGB8888, TBM_FORMAT_ABGR8888,
+  TBM_FORMAT_RGBA8888, TBM_FORMAT_BGRA8888,
+  TBM_FORMAT_ARGB2101010, TBM_FORMAT_ABGR2101010,
+  TBM_FORMAT_RGBA1010102, TBM_FORMAT_BGRA1010102
+};
+
+const int NUM_FORMATS_BLENDING_REQUIRED = 18;
+
 }
 
 using Dali::Integration::PixelBuffer;
@@ -66,8 +81,9 @@ NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int heigh
 NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
-  mOwnTbmsurface( false ),
-  mTbmsurface( NULL ),
+  mOwnTbmSurface( false ),
+  mTbmSurface( NULL ),
+  mTbmFormat( 0 ),
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
@@ -79,18 +95,19 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   mEglImageExtensions = eglFactory.GetImageExtensions();
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
-  mTbmsurface = GetSurfaceFromAny( nativeImageSource );
+  mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
-  if( mTbmsurface != NULL )
+  if( mTbmSurface != NULL )
   {
-    mWidth = tbm_surface_get_width( mTbmsurface );
-    mHeight = tbm_surface_get_height( mTbmsurface );
+    mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
+    mWidth = tbm_surface_get_width( mTbmSurface );
+    mHeight = tbm_surface_get_height( mTbmSurface );
   }
 }
 
 void NativeImageSource::Initialize()
 {
-  if( mTbmsurface != NULL || mWidth == 0 || mHeight == 0 )
+  if( mTbmSurface != NULL || mWidth == 0 || mHeight == 0 )
   {
     return;
   }
@@ -144,8 +161,8 @@ void NativeImageSource::Initialize()
      If depth = 32, Pixel::RGBA8888 */
   mBlendingRequired = ( depth == 32 || depth == 8 );
 
-  mTbmsurface = tbm_surface_create( mWidth, mHeight, format );
-  mOwnTbmsurface = true;
+  mTbmSurface = tbm_surface_create( mWidth, mHeight, format );
+  mOwnTbmSurface = true;
 }
 
 tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
@@ -167,9 +184,9 @@ tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
 
 NativeImageSource::~NativeImageSource()
 {
-  if( mOwnTbmsurface && mTbmsurface != NULL )
+  if( mOwnTbmSurface && mTbmSurface != NULL )
   {
-    if( tbm_surface_destroy( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
+    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
     }
@@ -178,16 +195,16 @@ NativeImageSource::~NativeImageSource()
 
 Any NativeImageSource::GetNativeImageSource() const
 {
-  return Any( mTbmsurface );
+  return Any( mTbmSurface );
 }
 
 bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
-  if( mTbmsurface != NULL )
+  if( mTbmSurface != NULL )
   {
     tbm_surface_info_s surface_info;
 
-    if( tbm_surface_map( mTbmsurface, TBM_SURF_OPTION_READ, &surface_info) != TBM_SURFACE_ERROR_NONE )
+    if( tbm_surface_map( mTbmSurface, TBM_SURF_OPTION_READ, &surface_info) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Fail to map tbm_surface\n" );
 
@@ -262,7 +279,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
       }
     }
 
-    if( tbm_surface_unmap( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
+    if( tbm_surface_unmap( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Fail to unmap tbm_surface\n" );
     }
@@ -293,24 +310,25 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
 
 void NativeImageSource::SetSource( Any source )
 {
-  if( mOwnTbmsurface && mTbmsurface != NULL )
+  if( mOwnTbmSurface && mTbmSurface != NULL )
   {
-    if( tbm_surface_destroy( mTbmsurface ) != TBM_SURFACE_ERROR_NONE )
+    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
     }
 
-    mTbmsurface = NULL;
-    mOwnTbmsurface = false;
+    mTbmSurface = NULL;
+    mOwnTbmSurface = false;
   }
 
-  mTbmsurface = GetSurfaceFromAny( source );
+  mTbmSurface = GetSurfaceFromAny( source );
   mSetSource = true;
 
-  if( mTbmsurface != NULL )
+  if( mTbmSurface != NULL )
   {
-    mWidth = tbm_surface_get_width( mTbmsurface );
-    mHeight = tbm_surface_get_height( mTbmsurface );
+    mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
+    mWidth = tbm_surface_get_width( mTbmSurface );
+    mHeight = tbm_surface_get_height( mTbmSurface );
   }
 
   if( mEglImageKHRContainer.Size() > 2 )
@@ -377,7 +395,7 @@ bool NativeImageSource::GlExtensionCreate()
 {
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer > (mTbmsurface);
+  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer > (mTbmSurface);
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 
@@ -453,6 +471,24 @@ const char* NativeImageSource::GetCustomSamplerTypename()
 int NativeImageSource::GetEglImageTextureTarget()
 {
   return GL_TEXTURE_EXTERNAL_OES;
+}
+
+bool NativeImageSource::CheckBlending( tbm_format format )
+{
+  if( mTbmFormat != format )
+  {
+    for(int i = 0; i < NUM_FORMATS_BLENDING_REQUIRED; ++i)
+    {
+      if( format == FORMATS_BLENDING_REQUIRED[i] )
+      {
+        mBlendingRequired = true;
+        break;
+      }
+    }
+    mTbmFormat = format;
+  }
+
+  return mBlendingRequired;
 }
 
 } // namespace Adaptor
