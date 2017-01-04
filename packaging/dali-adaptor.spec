@@ -239,6 +239,16 @@ Integration development package for the Adaptor - headers for integrating with a
 ##############################
 # Dali Feedback Plugin
 ##############################
+
+%package dali-feedback-plugin
+Summary:    Plugin to play haptic and audio feedback for Dali
+Group:      System/Libraries
+Requires:   %{name} = %{version}-%{release}
+Requires:   %{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Recommends: %{name}-dali-feedback-plugin-profile_common = %{version}-%{release}
+%description dali-feedback-plugin
+eedback plugin to play haptic and audio feedback for Dali
+
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
@@ -246,7 +256,11 @@ Integration development package for the Adaptor - headers for integrating with a
 Summary:    Plugin to play haptic and audio feedback for Dali profile mobile.
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin_mobile}
-Provides:	%{name}-dali-feedback-plugin = %{version}-%{release}
+Provides:	%{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Conflicts:	%{name}-dali-feedback-plugin-profile_ivi
+Conflicts:	%{name}-dali-feedback-plugin-profile_wearable
+Conflicts:	%{name}-dali-feedback-plugin-profile_tv
+Conflicts:	%{name}-dali-feedback-plugin-profile_common
 %endif
 %description dali-feedback-plugin-profile_mobile
 Feedback plugin to play haptic and audio feedback for Dali profile mobile.
@@ -259,7 +273,11 @@ Feedback plugin to play haptic and audio feedback for Dali profile mobile.
 Summary:    Plugin to play haptic and audio feedback for Dali profile tv.
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin_tv}
-Provides:	%{name}-dali-feedback-plugin = %{version}-%{release}
+Provides:	%{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Conflicts:	%{name}-dali-feedback-plugin-profile_ivi
+Conflicts:	%{name}-dali-feedback-plugin-profile_wearable
+Conflicts:	%{name}-dali-feedback-plugin-profile_mobile
+Conflicts:	%{name}-dali-feedback-plugin-profile_common
 %endif
 %description dali-feedback-plugin-profile_tv
 Feedback plugin to play haptic and audio feedback for Dali profile tv.
@@ -272,7 +290,11 @@ Feedback plugin to play haptic and audio feedback for Dali profile tv.
 Summary:    Plugin to play haptic and audio feedback for Dali profile wearable.
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin_wearable}
-Provides:	%{name}-dali-feedback-plugin = %{version}-%{release}
+Provides:	%{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Conflicts:	%{name}-dali-feedback-plugin-profile_ivi
+Conflicts:	%{name}-dali-feedback-plugin-profile_tv
+Conflicts:	%{name}-dali-feedback-plugin-profile_mobile
+Conflicts:	%{name}-dali-feedback-plugin-profile_common
 %endif
 %description dali-feedback-plugin-profile_wearable
 Feedback plugin to play haptic and audio feedback for Dali profile wearable.
@@ -285,7 +307,11 @@ Feedback plugin to play haptic and audio feedback for Dali profile wearable.
 Summary:    Plugin to play haptic and audio feedback for Dali profile ivi.
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin_ivi}
-Provides:	%{name}-dali-feedback-plugin = %{version}-%{release}
+Provides:	%{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Conflicts:	%{name}-dali-feedback-plugin-profile_wearable
+Conflicts:	%{name}-dali-feedback-plugin-profile_tv
+Conflicts:	%{name}-dali-feedback-plugin-profile_mobile
+Conflicts:	%{name}-dali-feedback-plugin-profile_common
 %endif
 %description dali-feedback-plugin-profile_ivi
 Feedback plugin to play haptic and audio feedback for Dali profile ivi.
@@ -298,7 +324,11 @@ Feedback plugin to play haptic and audio feedback for Dali profile ivi.
 Summary:    Plugin to play haptic and audio feedback for Dali profile common.
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin_common}
-Provides:	%{name}-dali-feedback-plugin = %{version}-%{release}
+Provides:	%{name}-dali-feedback-plugin-compat = %{version}-%{release}
+Conflicts:	%{name}-dali-feedback-plugin-profile_wearable
+Conflicts:	%{name}-dali-feedback-plugin-profile_tv
+Conflicts:	%{name}-dali-feedback-plugin-profile_mobile
+Conflicts:	%{name}-dali-feedback-plugin-profile_ivi
 %endif
 %description dali-feedback-plugin-profile_common
 Feedback plugin to play haptic and audio feedback for Dali profile common.
@@ -585,21 +615,8 @@ rm -rf %{buildroot}%{_libdir}/libdali-feedback-plugin.so*
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
-popd
-
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.common"; done
-%if 0%{?dali_feedback_plugin_common}
-for FILE in libdali-feedback-plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.common"; done
 %endif
-popd
 
-rm -rf %{buildroot}%{_libdir}/libdali-adap*.so*
-rm -rf %{buildroot}%{_libdir}/libdali-feedback-plugin.so*
-%endif
 
 ##############################
 # Installation
@@ -610,46 +627,18 @@ rm -rf %{buildroot}
 pushd %{_builddir}/%{name}-%{version}/build/tizen
 %make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 
+# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
+# !unified && (wearable || tv || ivi || mobile)
+%if "%{?profile}" == "wearable" || "%{?profile}" == "tv" || "%{?profile}" == "ivi" || "%{?profile}" == "mobile"
 rm -rf %{buildroot}%{_libdir}/libdali-adap*.so*
 rm -rf %{buildroot}%{_libdir}/libdali-feedback-plugin.so*
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{buildroot}%{_libdir}/$FILE"; done
+%endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if mobile || "undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%if 0%{?dali_feedback_plugin_mobile}
-for FILE in libdali-feedback-plugin.so*.mobile; do mv $FILE" "$FILE"; done
+# wearable || tv || ivi || mobile || unified
+%if "%{?profile}" != "common"
+for FILE in libdali-*.so*; do mv "$FILE" "%{buildroot}%{_libdir}/$FILE"; done
 %endif
-%endif
-
-# if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%if 0%{?dali_feedback_plugin_tv}
-for FILE in libdali-feedback-plugin.so*.tv; do mv $FILE" "$FILE"; done
-%endif
-%endif
-
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%if 0%{?dali_feedback_plugin_wearable}
-for FILE in libdali-feedback-plugin.so*.wearable; do mv $FILE" "$FILE"; done
-%endif
-%endif
-
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%if 0%{?dali_feedback_plugin_ivi}
-for FILE in libdali-feedback-plugin.so*.ivi; do mv $FILE" "$FILE"; done
-%endif
-%endif
-
-# if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%if 0%{?dali_feedback_plugin_common}
-for FILE in libdali-feedback-plugin.so*.common; do mv $FILE" "$FILE"; done
-%endif
-%endif
-
 popd
 
 mkdir -p %{buildroot}/usr/share/license
@@ -822,37 +811,6 @@ exit 0
 %endif
 %endif
 
-##############################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%post profile_common
-pushd %{_libdir}
-for FILE in libdali-adap*.so*.common; do ln -sf "$FILE" "${FILE%.common}"; done
-popd
-/sbin/ldconfig
-exit 0
-
-%postun profile_common
-/sbin/ldconfig
-exit 0
-
-%if 0%{?dali_feedback_plugin_common}
-%post dali-feedback-plugin-profile_common
-pushd %{_libdir}
-for FILE in libdali-feedback-plugin.so*.common; do ln -sf "$FILE" "${FILE%.common}"; done
-popd
-/sbin/ldconfig
-exit 0
-%endif
-
-%if 0%{?dali_feedback_plugin_common}
-%postun dali-feedback-plugin-profile_common
-/sbin/ldconfig
-exit 0
-%endif
-%endif
 
 ##############################
 # Files in Binary Packages
@@ -865,6 +823,54 @@ exit 0
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %{_datadir}/license/%{name}
+# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
+# if common ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%defattr(-,root,root,-)
+%{_libdir}/libdali-adap*.so*
+%exclude %{_libdir}/libdali-adap*.so*.mobile
+%exclude %{_libdir}/libdali-adap*.so*.wearable
+%exclude %{_libdir}/libdali-adap*.so*.tv
+%exclude %{_libdir}/libdali-adap*.so*.ivi
+%endif
+
+%files dali-feedback-plugin
+# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
+# if common ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if 0%{?dali_feedback_plugin_common}
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali-feedback-plugin.so*
+%exclude %{_libdir}/libdali-feedback-plugin.so*.mobile
+%exclude %{_libdir}/libdali-feedback-plugin.so*.wearable
+%exclude %{_libdir}/libdali-feedback-plugin.so*.tv
+%exclude %{_libdir}/libdali-feedback-plugin.so*.ivi
+%endif
+%endif
+
+
+# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
+# if common ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%files profile_common
+# default .so files are housed in the main pkg.
+
+%if 0%{?dali_feedback_plugin_common}
+%files dali-feedback-plugin-profile_common
+# default .so files are housed in the main pkg.
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{dali_plugin_sound_files}/*
+%endif
+
+%if %{with wayland}
+%files dali-video-player-plugin
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali-video-player-plugin.so*
+%endif
+%endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
@@ -934,29 +940,6 @@ exit 0
 %endif
 %endif
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%files profile_common
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-adap*.so*.common
-
-%if 0%{?dali_feedback_plugin_common}
-%files dali-feedback-plugin-profile_common
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-feedback-plugin.so*.common
-%{dali_plugin_sound_files}/*
-%endif
-
-%if %{with wayland}
-%files dali-video-player-plugin
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-video-player-plugin.so*
-%endif
-%endif
 
 %files devel
 %defattr(-,root,root,-)
