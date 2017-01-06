@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -423,6 +423,15 @@ std::string Framework::GetResourcePath()
   std::string resourcePath = "";
 #if defined( TIZEN_PLATFORM_CONFIG_SUPPORTED ) && TIZEN_PLATFORM_CONFIG_SUPPORTED
   resourcePath = app_get_resource_path();
+#else // For backwards compatibility with older Tizen versions
+
+  // "DALI_APPLICATION_PACKAGE" is used to get the already configured Application package path.
+  const char* environmentVariable = "DALI_APPLICATION_PACKAGE";
+  char* value = getenv( environmentVariable );
+  if ( value != NULL )
+  {
+    resourcePath = value;
+  }
 #endif //TIZEN_PLATFORM_CONFIG_SUPPORTED
 
   return resourcePath;
