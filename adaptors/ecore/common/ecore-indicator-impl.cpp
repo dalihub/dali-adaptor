@@ -988,6 +988,8 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
       if( mSharedFileInfo[n].mLock->RetrieveAndClearErrorStatus() )
       {
         DALI_LOG_ERROR( "### Indicator error: Cannot open lock file %s ###\n", mSharedFileInfo[n].mLockFileName.c_str() );
+
+        return;
       }
 
       CreateNewImage( n );
