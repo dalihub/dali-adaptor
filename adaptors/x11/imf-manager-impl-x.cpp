@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,12 +215,12 @@ void ImfManager::CreateContext( Ecore_X_Window ecoreXwin )
     }
     else
     {
-      DALI_LOG_WARNING("IMF Unable to get IMF Context\n");
+      DALI_LOG_INFO( gLogFilter, Debug::General, "IMF Unable to get IMF Context\n");
     }
   }
   else
   {
-    DALI_LOG_WARNING("IMF Unable to get IMF Context\n");
+    DALI_LOG_INFO( gLogFilter, Debug::General, "IMF Unable to get IMF Context\n");
   }
 }
 
