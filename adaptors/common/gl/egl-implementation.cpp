@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -297,7 +297,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
 #else // DALI_GLES_VERSION >= 30
 
-  DALI_LOG_WARNING( "Using OpenGL ES 2 \n" );
+  Integration::Log::LogMessage( Integration::Log::DebugInfo, "Using OpenGL ES 2 \n" );
   configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
 
 #endif //DALI_GLES_VERSION >= 30
