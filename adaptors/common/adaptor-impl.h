@@ -345,6 +345,11 @@ public:
    */
   void GetAppId( std::string& appId );
 
+  /**
+   * Informs core the surface size has changed
+   */
+  void SurfaceSizeChanged( const PositionSize& positionSize );
+
 public:  //AdaptorInternalServices
 
   /**
@@ -493,11 +498,6 @@ private:
   Adaptor& operator=(Adaptor&);
 
 private:
-
-  /**
-   * Informs core the surface size has changed
-   */
-  void SurfaceSizeChanged(const PositionSize& positionSize);
 
   /**
    * Assigns the render surface to the adaptor

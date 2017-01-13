@@ -337,6 +337,11 @@ public:
    */
   void SetStereoBase( float stereoBase );
 
+  /**
+   * @brief Informs core the surface size has changed
+   */
+  void SurfaceSizeChanged( const PositionSize& positionSize );
+
 public:  // Signals
 
   /**

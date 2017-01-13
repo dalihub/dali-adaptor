@@ -26,6 +26,7 @@
 #include <Ecore_Wayland.h>
 #include <tbm_bufmgr.h>
 #include <tbm_surface_queue.h>
+#include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
 #include <trigger-event.h>
@@ -49,6 +50,7 @@ struct NativeRenderSurface::Impl
     mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
     mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
     mOwnSurface( false ),
+    mDrawableCompleted( false ),
     mConsumeSurface( NULL ),
     mThreadSynchronization( NULL )
   {
@@ -60,6 +62,7 @@ struct NativeRenderSurface::Impl
   ColorDepth mColorDepth;
   tbm_format mTbmFormat;
   bool mOwnSurface;
+  bool mDrawableCompleted;
 
   tbm_surface_queue_h mTbmQueue;
   tbm_surface_h mConsumeSurface;
@@ -82,12 +85,7 @@ NativeRenderSurface::~NativeRenderSurface()
   // release the surface if we own one
   if( mImpl->mOwnSurface )
   {
-
-    if( mImpl->mConsumeSurface )
-    {
-      tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
-      mImpl->mConsumeSurface = NULL;
-    }
+    ReleaseDrawable();
 
     if( mImpl->mTbmQueue )
     {
@@ -107,8 +105,6 @@ void NativeRenderSurface::SetRenderNotification( TriggerEventInterface* renderNo
 
 tbm_surface_h NativeRenderSurface::GetDrawable()
 {
-  ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
-
   return mImpl->mConsumeSurface;
 }
 
@@ -148,19 +144,6 @@ bool NativeRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  if( mImpl->mConsumeSurface )
-  {
-    tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
-    mImpl->mConsumeSurface = NULL;
-  }
-
-  if( mImpl->mTbmQueue )
-  {
-    tbm_surface_queue_destroy( mImpl->mTbmQueue );
-  }
-
-  CreateNativeRenderable();
-
   if( !mImpl->mTbmQueue )
   {
     return false;
@@ -191,31 +174,40 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     mImpl->mThreadSynchronization->PostRenderStarted();
   }
 
+  if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
   {
-    ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
-
-    if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
+    if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
-      if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
-      {
-        DALI_LOG_ERROR( "Failed aquire consume tbm_surface\n" );
-        return;
-      }
+      DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
+      return;
     }
   }
 
+  tbm_surface_internal_ref( mImpl->mConsumeSurface );
+
+  if( replacingSurface )
+  {
+    ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
+    mImpl->mDrawableCompleted = true;
+    mImpl->mTbmSurfaceCondition.Notify( lock );
+  }
+
  // create damage for client applications which wish to know the update timing
-  if( mImpl->mRenderNotification )
+  if( !replacingSurface && mImpl->mRenderNotification )
   {
     // use notification trigger
-    // Tell the event-thread to render the pixmap
+    // Tell the event-thread to render the tbm_surface
     mImpl->mRenderNotification->Trigger();
   }
 
   if( mImpl->mThreadSynchronization )
   {
+    // wait until the event-thread completed to use the tbm_surface
     mImpl->mThreadSynchronization->PostRenderWaitForCompletion();
   }
+
+  // release the consumed surface after post render was completed
+  ReleaseDrawable();
 }
 
 void NativeRenderSurface::StopRender()
@@ -249,7 +241,7 @@ RenderSurface::Type NativeRenderSurface::GetSurfaceType()
 void NativeRenderSurface::CreateNativeRenderable()
 {
   // check we're creating one with a valid size
-  DALI_ASSERT_ALWAYS( mImpl->mPosition.width > 0 && mImpl->mPosition.height > 0 && "Pixmap size is invalid" );
+  DALI_ASSERT_ALWAYS( mImpl->mPosition.width > 0 && mImpl->mPosition.height > 0 && "tbm_surface size is invalid" );
 
   mImpl->mTbmQueue = tbm_surface_queue_create( 3, mImpl->mPosition.width, mImpl->mPosition.height, mImpl->mTbmFormat, TBM_BO_DEFAULT );
 
@@ -263,20 +255,36 @@ void NativeRenderSurface::CreateNativeRenderable()
   }
 }
 
-void NativeRenderSurface::ReleaseSurface()
-{
-  if( mImpl->mConsumeSurface )
-  {
-    tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
-    mImpl->mConsumeSurface = NULL;
-  }
-}
-
 void NativeRenderSurface::ReleaseLock()
 {
   if( mImpl->mThreadSynchronization )
   {
     mImpl->mThreadSynchronization->PostRenderComplete();
+  }
+}
+
+void NativeRenderSurface::WaitUntilSurfaceReplaced()
+{
+  ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
+  while( !mImpl->mDrawableCompleted )
+  {
+    mImpl->mTbmSurfaceCondition.Wait( lock );
+  }
+
+  mImpl->mDrawableCompleted = false;
+}
+
+void NativeRenderSurface::ReleaseDrawable()
+{
+  if( mImpl->mConsumeSurface )
+  {
+    tbm_surface_internal_unref( mImpl->mConsumeSurface );
+
+    if( tbm_surface_internal_is_valid( mImpl->mConsumeSurface ) )
+    {
+      tbm_surface_queue_release( mImpl->mTbmQueue, mImpl->mConsumeSurface );
+    }
+    mImpl->mConsumeSurface = NULL;
   }
 }
 
