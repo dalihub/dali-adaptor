@@ -327,7 +327,6 @@ struct AutoPngWrite
   : png(_png),
     info(_info)
   {
-    DALI_ASSERT_DEBUG(&_png != 0 && &_info != 0);
   }
 
   ~AutoPngWrite()
