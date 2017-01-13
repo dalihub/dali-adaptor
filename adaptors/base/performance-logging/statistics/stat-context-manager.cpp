@@ -174,7 +174,7 @@ void StatContextManager::SetLoggingFrequency( unsigned int logFrequency,
     context->SetLogFrequency( logFrequency );
   }
 }
-const char* const StatContextManager::GetContextName(PerformanceInterface::ContextId contextId) const
+const char* StatContextManager::GetContextName(PerformanceInterface::ContextId contextId) const
 {
   StatContext* context = GetContext(contextId);
   if( context )
@@ -184,7 +184,7 @@ const char* const StatContextManager::GetContextName(PerformanceInterface::Conte
   return "context not found";
 }
 
-const char* const StatContextManager::GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const
+const char* StatContextManager::GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const
 {
   StatContext* context = GetContext(contextId);
   if( context )
