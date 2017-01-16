@@ -133,14 +133,14 @@ public: // API
    *
    * Cancels the previous timer.
    * @SINCE_1_0.0
-   * @param  milliSec Interval in milliseconds.
+   * @param[in] milliSec Interval in milliseconds.
    */
   void SetInterval( unsigned int milliSec );
 
   /**
    * @brief Get the interval of timer.
    *
-   * @returns  Interval in milliseconds.
+   * @return Interval in milliseconds.
    * @SINCE_1_0.0
    */
   unsigned int GetInterval() const;
@@ -160,7 +160,7 @@ public: // Signals
    * The return of the callback decides whether signal emission stops or continues.
    * If the callback function returns false, emission will stop and if true, it will continue.
    * This return value is ignored for one-shot events, which will always stop after the first execution.
-   * @returns The signal to Connect() with.
+   * @return The signal to Connect() with.
    * @SINCE_1_0.0
    */
   TimerSignalType& TickSignal();
