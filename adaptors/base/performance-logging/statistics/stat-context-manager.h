@@ -98,7 +98,7 @@ public:
      * @param[in] contextId id of the context to get the name
      * @return context name
      */
-    const char* const GetContextName( PerformanceInterface::ContextId contextId ) const;
+    const char* GetContextName( PerformanceInterface::ContextId contextId ) const;
 
     /**
      * @brief Get the full description of a marker for this context
@@ -106,7 +106,7 @@ public:
      * @param[in] contextId id of the context to get the name
      * @return marker description in relation to this context
      */
-    const char* const GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const;
+    const char* GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const;
 
 
     /**

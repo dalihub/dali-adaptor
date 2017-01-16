@@ -111,7 +111,7 @@ public:
   /**
    * @return marker name
    */
-  const char* const GetName( ) const;
+  const char* GetName( ) const;
 
   /**
    * @param start the start marker
