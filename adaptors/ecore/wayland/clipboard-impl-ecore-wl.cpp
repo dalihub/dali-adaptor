@@ -39,7 +39,6 @@
 #endif /* CBHM_DBUS_INTERFACE */
 
 #define CLIPBOARD_STR  "CLIPBOARD_STR"
-#define CLIPBOARD_BUFFER_SIZE 512
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Clipboard
@@ -86,15 +85,14 @@ struct Clipboard::Impl
 
   void SetItem( const std::string &itemData )
   {
-    const char *data = itemData.c_str();
     const char *types[10] = {0, };
     int i = -1;
 
-    if (data == NULL)
+    if (itemData.length() == 0)
     {
       return;
     }
-    strncpy(mSendBuf, data, CLIPBOARD_BUFFER_SIZE);
+    mSendBuffer = itemData;
 
     // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
     types[++i] = "CLIPBOARD_BEGIN";
@@ -122,10 +120,10 @@ struct Clipboard::Impl
   char *ExcuteSend( void *event )
   {
     Ecore_Wl_Event_Data_Source_Send *ev = (Ecore_Wl_Event_Data_Source_Send *)event;
-    int len_buf = strlen(mSendBuf);
+    int len_buf = mSendBuffer.length();
     int len_remained = len_buf;
     int len_written = 0, ret;
-    char *buf = mSendBuf;
+    const char *buf = mSendBuffer.c_str();
 
     while (len_written < len_buf)
     {
@@ -136,16 +134,14 @@ struct Clipboard::Impl
        len_remained -= ret;
     }
     close(ev->fd);
-    return (char *)mSendBuf;
+    return NULL;
   }
 
   char *ExcuteReceive( void *event )
   {
     Ecore_Wl_Event_Selection_Data_Ready *ev = (Ecore_Wl_Event_Selection_Data_Ready *)event;
 
-    strncpy(mReceiveBuf, (char *)ev->data, ev->len);
-    mReceiveBuf[ev->len] = '\0';
-    return (char *)mReceiveBuf;
+    return (char *)ev->data;
   }
 
   int GetCount()
@@ -214,8 +210,7 @@ struct Clipboard::Impl
   Eldbus_Proxy *eldbus_proxy;
   Eldbus_Connection *cbhm_conn;
 
-  char mSendBuf[CLIPBOARD_BUFFER_SIZE];
-  char mReceiveBuf[CLIPBOARD_BUFFER_SIZE];
+  std::string mSendBuffer;
   bool mVisible;
   bool mIsFirstTimeHidden;
 };

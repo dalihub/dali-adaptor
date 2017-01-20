@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,14 +73,6 @@ void EcoreXRenderSurface::Init( Any surface )
     // XLib should already be initialized so no point in calling XInitThreads
     UseExistingRenderable( surfaceId );
   }
-
-#ifdef DEBUG_ENABLED
-  // prints out 'INFO: DALI: new EcoreXRenderSurface, used existing surface xx
-  // we can not use LOG_INFO because the surface can be created before Dali Core is created.
-  printf( "INFO: DALI: new EcoreXRenderSurface, %s surface %X \n",
-          mOwnSurface?"created":"used existing",
-          AnyCast<Ecore_X_Drawable>( GetSurface() ) );
-#endif
 }
 
 EcoreXRenderSurface::~EcoreXRenderSurface()

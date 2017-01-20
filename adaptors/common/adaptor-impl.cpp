@@ -423,8 +423,6 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
   mNativeWindow = nativeWindow;
   mSurface = &surface;
 
-  SurfaceSizeChanged(mSurface->GetPositionSize());
-
   // flush the event queue to give update and render threads chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
@@ -724,7 +722,7 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate();
 }
 
-void Adaptor::SurfaceSizeChanged(const PositionSize& positionSize)
+void Adaptor::SurfaceSizeChanged( const PositionSize& positionSize )
 {
   // let the core know the surface size has changed
   mCore->SurfaceResized(positionSize.width, positionSize.height);
