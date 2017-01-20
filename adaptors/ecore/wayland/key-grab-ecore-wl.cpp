@@ -27,7 +27,6 @@
 #include <key-impl.h>
 
 #include <iostream>
-#include <string.h>
 using namespace std;
 
 namespace Dali
@@ -80,125 +79,6 @@ bool UngrabKey( Window window, Dali::KEY daliKey )
   return ecore_wl_window_keygrab_unset( AnyCast<Ecore_Wl_Window*>( window.GetNativeHandle() ),
                                       Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKey ),
                                       0, 0 );
-}
-
-Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector, const Dali::Vector<KeyGrabMode> grabModeVector)
-{
-  Dali::Vector<bool> resultVector;
-  Eina_List *keyList = NULL, *grabList = NULL, *l = NULL, *m = NULL;
-  void *listData = NULL, *data = NULL;
-  Dali::Vector<Dali::KEY>::SizeType keyCount = daliKeyVector.Count();
-  Dali::Vector<KeyGrabMode>::SizeType keyGrabModeCount = grabModeVector.Count();
-
-
-  if(keyCount != keyGrabModeCount || keyCount == 0)
-    return resultVector;
-
-  eina_init();
-
-  for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
-  {
-    Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
-
-    switch(grabModeVector[index])
-    {
-      case TOPMOST:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
-        break;
-      case SHARED:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
-        break;
-      case OVERRIDE_EXCLUSIVE:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
-        break;
-      case EXCLUSIVE:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
-        break;
-      default:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
-        break;
-    }
-
-    keyList = eina_list_append(keyList, info);
-  }
-
-  grabList = ecore_wl_window_keygrab_list_set(AnyCast<Ecore_Wl_Window*>( window.GetNativeHandle() ), keyList);
-
-  for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
-  {
-    resultVector.PushBack(true);
-  }
-
-  if( grabList != NULL)
-  {
-    EINA_LIST_FOREACH(grabList, m, data)
-    {
-      Dali::Vector<float>::SizeType index = 0;
-      EINA_LIST_FOREACH(keyList, l, listData)
-      {
-        if(strcmp((char*)data, ((Ecore_Wl_Window_Keygrab_Info*)listData)->key) == 0)
-          resultVector[index] = false;
-
-        ++index;
-      }
-    }
-  }
-
-  eina_list_free(keyList);
-  eina_list_free(grabList);
-  eina_shutdown();
-
-  return resultVector;
-}
-
-Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector )
-{
-  Dali::Vector<bool> resultVector;
-  Eina_List *keyList = NULL, *ungrabList = NULL, *l = NULL, *m = NULL;
-  void *listData = NULL, *data = NULL;
-  Dali::Vector<Dali::KEY>::SizeType keyCount = daliKeyVector.Count();
-
-
-  if(keyCount == 0)
-    return resultVector;
-
-  eina_init();
-
-  for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
-  {
-    Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
-    keyList = eina_list_append(keyList, info);
-  }
-
-  ungrabList = ecore_wl_window_keygrab_list_unset(AnyCast<Ecore_Wl_Window*>( window.GetNativeHandle() ), keyList);
-
-  for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
-  {
-    resultVector.PushBack(true);
-  }
-
-  if( ungrabList != NULL)
-  {
-    EINA_LIST_FOREACH(ungrabList, m, data)
-    {
-      Dali::Vector<float>::SizeType index = 0;
-      EINA_LIST_FOREACH(keyList, l, listData)
-      {
-        if(strcmp((char*)data, ((Ecore_Wl_Window_Keygrab_Info*)listData)->key) == 0)
-          resultVector[index] = false;
-
-        ++index;
-      }
-    }
-  }
-
-  eina_list_free(keyList);
-  eina_list_free(ungrabList);
-  eina_shutdown();
-
-  return resultVector;
 }
 
 } // namespace KeyGrab
