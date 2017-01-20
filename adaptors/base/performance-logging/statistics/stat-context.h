@@ -75,7 +75,7 @@ public:
     /**
      * @return the context name
      */
-    const char* const GetName() const;
+    const char* GetName() const;
 
     /**
      *
@@ -84,7 +84,7 @@ public:
      * @param[in] type marker type, for a customer marker this will be either START or END
      * @return the full description for a marker
      */
-    const char* const GetMarkerDescription( PerformanceInterface::MarkerType type ) const;
+    const char* GetMarkerDescription( PerformanceInterface::MarkerType type ) const;
 
     /**
      * @brief Set the frequency for logging
