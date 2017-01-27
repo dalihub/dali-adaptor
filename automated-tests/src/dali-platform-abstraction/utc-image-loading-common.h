@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,14 +65,6 @@ const char* const VALID_IMAGES[] = {
 };
 const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0]);
 
-/** Returns elapsed milliseconds. */
-double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
-{
-  timespec timeSpec;
-  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
-  return ( timeSpec.tv_sec * 1e3 ) + ( timeSpec.tv_nsec / 1e6 );
-}
-
 } // anon namespace
 
 /** Live platform abstraction recreated for each test case. */
@@ -82,6 +74,7 @@ extern Integration::PlatformAbstraction * gAbstraction;
 typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;
 extern std::vector<ImageParameters> gCancelAttributes;
 
+double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction ); ///< Returns elapsed milliseconds.
 
 void utc_dali_loading_startup(void);
 void utc_dali_loading_cleanup(void);
