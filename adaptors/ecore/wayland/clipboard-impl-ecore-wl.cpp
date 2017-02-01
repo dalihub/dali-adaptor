@@ -37,8 +37,8 @@
 #ifndef CBHM_DBUS_INTERFACE
 #define CBHM_DBUS_INTERFACE "org.tizen.cbhm.dbus"
 #endif /* CBHM_DBUS_INTERFACE */
+#define CBHM_COUNT_ALL 0    // ATOM_INDEX_CBHM_COUNT_ALL
 
-#define CLIPBOARD_STR  "CLIPBOARD_STR"
 #define CLIPBOARD_BUFFER_SIZE 3000
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,6 +159,7 @@ struct Clipboard::Impl
     }
 
     eldbus_message_ref(req);
+    eldbus_message_arguments_append(req, "i", CBHM_COUNT_ALL) ;
     reply = eldbus_proxy_send_and_block(eldbus_proxy, req, 100);
     if (!reply || eldbus_message_error_get(reply, &errname, &errmsg))
     {
