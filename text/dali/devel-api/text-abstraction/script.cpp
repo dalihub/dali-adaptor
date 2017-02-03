@@ -225,6 +225,13 @@ Script GetCharacterScript( Character character )
   // 0x0530 - 0x058f Armenian
   // 0xfb13 - 0xfb17 Armenian subset of Alphabetic prefentation forms
 
+  // Javanese script
+  // 0xa980 - 0xa9fd Javanese
+
+  // Sundanese script
+  // 0x1b80 - 0x1bbf Sundanese
+  // 0x1cc0 - 0x1ccf Sundanese supplement
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -438,6 +445,14 @@ Script GetCharacterScript( Character character )
         if( ( 0x19e0 <= character ) && ( character <= 0x19ff ) )
         {
           return KHMER;
+        }
+        if( ( 0x1b80 <= character ) && ( character <= 0x1bbf ) )
+        {
+          return SUNDANESE;
+        }
+        if( ( 0x1cc0 <= character ) && ( character <= 0x1ccf ) )
+        {
+          return SUNDANESE;
         }
         if( ( 0x1d00 <= character ) && ( character <= 0x1eff ) )
         {
@@ -679,6 +694,10 @@ Script GetCharacterScript( Character character )
         if( ( 0xa960 <= character ) && ( character <= 0xa97f ) )
         {
           return HANGUL;
+        }
+        if( ( 0xa980 <= character ) && ( character <= 0xa9fd ) )
+        {
+          return JAVANESE;
         }
         if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
         {
