@@ -64,7 +64,7 @@ class DALI_IMPORT_API NativeImageSource : public NativeImageInterface
 public:
 
    /**
-    * @brief When creating a native image the color depth has to be specified.
+    * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
     * @SINCE_1_0.0
     */
    enum ColorDepth
@@ -77,63 +77,63 @@ public:
    };
 
   /**
-   * @brief Create a new NativeImageSource.
+   * @brief Creates a new NativeImageSource.
    *
-   * Depending on hardware the width and height may have to be a power of two.
+   * Depending on hardware, the width and height may have to be a power of two.
    * @SINCE_1_0.0
-   * @param[in] width The width of the image.
-   * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
-   * @return A smart-pointer to a newly allocated image.
+   * @param[in] width The width of the image
+   * @param[in] height The height of the image
+   * @param[in] depth color depth of the image
+   * @return A smart-pointer to a newly allocated image
    */
   static NativeImageSourcePtr New( unsigned int width, unsigned int height, ColorDepth depth );
 
   /**
-   * @brief Create a new NativeImageSource from an existing native image source.
+   * @brief Creates a new NativeImageSource from an existing native image source.
    *
    * @SINCE_1_0.0
-   * @param[in] nativeImageSource must be a any handle with native image source
-   * @return A smart-pointer to a newly allocated image.
+   * @param[in] nativeImageSource NativeImageSource must be a any handle with native image source
+   * @return A smart-pointer to a newly allocated image
    * @see NativeImageInterface
    */
   static NativeImageSourcePtr New( Any nativeImageSource );
 
   /**
-   * @brief Retrieve the internal native image.
+   * @brief Retrieves the internal native image.
    *
    * @SINCE_1_0.0
-   * @return Any object containing the internal native image source.
+   * @return Any object containing the internal native image source
    */
   Any GetNativeImageSource();
 
   /**
-   * @brief Get a copy of the pixels used by NativeImageSource.
+   * @brief Gets a copy of the pixels used by NativeImageSource.
    *
    * This is only supported for 24 bit RGB and 32 bit RGBA internal formats
    * (COLOR_DEPTH_24 and COLOR_DEPTH_32).
    * @SINCE_1_0.0
-   * @param[out] pixbuf a vector to store the pixels in
-   * @param[out] width  The width of image
+   * @param[out] pixbuf A vector to store the pixels in
+   * @param[out] width The width of image
    * @param[out] height The height of image
    * @param[out] pixelFormat pixel format used by image
-   * @return     True if the pixels were gotten, and false otherwise.
+   * @return     @c true if the pixels were gotten, and @c false otherwise
    */
   bool GetPixels( std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat ) const;
 
   /**
-   * @brief Convert the current pixel contents to either a JPEG or PNG format
+   * @brief Converts the current pixel contents to either a JPEG or PNG format
    * and write that to the filesytem.
    *
    * @SINCE_1_0.0
-   * @param[in] filename Identify the filesytem location at which to write the
-   *                     encoded image. The extension determines the encoding used.
+   * @param[in] filename Identify the filesytem location at which to write the encoded image.
+   *                     The extension determines the encoding used.
    *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
-   * @return    True if the pixels were written, and false otherwise.
+   * @return    @c true if the pixels were written, and @c false otherwise
    */
   bool EncodeToFile(const std::string& filename) const;
 
   /**
-   * @brief Set an existing source
+   * @brief Sets an existing source.
    *
    * @SINCE_1_1.19
    * @param[in] source Any handle with the source
@@ -141,11 +141,11 @@ public:
   void SetSource( Any source );
 
   /**
-   * @brief Check if the specified color depth is supported.
+   * @brief Checks if the specified color depth is supported.
    *
    * @SINCE_1_1.34
-   * @param[in] colorDepth The color depth to check.
-   * @return true if colorDepth is supported, false otherwise.
+   * @param[in] colorDepth The color depth to check
+   * @return @c true if colorDepth is supported, @c false otherwise
    */
   bool IsColorDepthSupported( ColorDepth colorDepth );
 
@@ -195,11 +195,11 @@ private:
 
   /**
    * @internal
-   * @brief Private constructor
+   * @brief Private constructor.
    * @SINCE_1_0.0
-   * @param[in] width The width of the image.
-   * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
+   * @param[in] width The width of the image
+   * @param[in] height The height of the image
+   * @param[in] depth color depth of the image
    * @param[in] nativeImageSource contains either: native image source or is empty
    */
   DALI_INTERNAL NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource );
@@ -215,11 +215,11 @@ private:
 
   /**
    * @internal
-   * @brief Undefined copy constructor
+   * @brief Undefined copy constructor.
    *
    * This avoids accidental calls to a default copy constructor.
    * @SINCE_1_0.0
-   * @param[in] nativeImageSource A reference to the object to copy.
+   * @param[in] nativeImageSource A reference to the object to copy
    */
   DALI_INTERNAL NativeImageSource( const NativeImageSource& nativeImageSource );
 
@@ -229,7 +229,7 @@ private:
    *
    * This avoids accidental calls to a default assignment operator.
    * @SINCE_1_0.0
-   * @param[in] rhs A reference to the object to copy.
+   * @param[in] rhs A reference to the object to copy
    */
   DALI_INTERNAL NativeImageSource& operator=(const NativeImageSource& rhs);
 

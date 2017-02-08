@@ -40,7 +40,7 @@ namespace KeyGrab
 {
 
 /**
- * @brief Grabs the key specfied by @a key for @a window only when @a window is the topmost window.
+ * @brief Grabs the key specified by @a key for @a window only when @a window is the topmost window.
  *
  * This function can be used for following example scenarios:
  * - Mobile - Using volume up/down as zoom up/down in camera apps.
@@ -48,24 +48,24 @@ namespace KeyGrab
  * @SINCE_1_0.0
  * @param[in] window The window to set
  * @param[in] daliKey The key code to grab (defined in key.h)
- * @return true if the grab succeeds.
+ * @return true if the grab succeeds
  */
 DALI_IMPORT_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
 
 /**
- * @brief Ungrabs the key specfied by @a key for @a window.
+ * @brief Ungrabs the key specified by @a key for @a window.
  *
  * @SINCE_1_0.0
  * @param[in] window The window to set
  * @param[in] daliKey The key code to ungrab (defined in key.h)
- * @return true if the ungrab succeeds.
+ * @return true if the ungrab succeeds
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
 DALI_IMPORT_API bool UngrabKeyTopmost( Window window, Dali::KEY daliKey );
 
 /**
- * @brief Key grab mode for platform-level APIs.
+ * @brief Enumeration for key grab mode for platform-level APIs.
  * @SINCE_1_0.0
  */
 enum KeyGrabMode
@@ -78,7 +78,7 @@ enum KeyGrabMode
 
 /**
  * @PLATFORM
- * @brief Grabs the key specfied by @a key for @a window in @a grabMode.
+ * @brief Grabs the key specified by @a key for @a window in @a grabMode.
  *
  * @details This function can be used for following example scenarios:
  * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
@@ -91,20 +91,20 @@ enum KeyGrabMode
  * @param[in] window The window to set
  * @param[in] daliKey The key code to grab (defined in key.h)
  * @param[in] grabMode The grab mode for the key
- * @return true if the grab succeeds.
+ * @return true if the grab succeeds
  */
 DALI_IMPORT_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grabMode );
 
 /**
  * @PLATFORM
- * @brief Ungrabs the key specfied by @a key for @a window.
+ * @brief Ungrabs the key specified by @a key for @a window.
  *
  * @SINCE_1_0.0
  * @PRIVLEVEL_PLATFORM
  * @PRIVILEGE_KEYGRAB
  * @param[in] window The window to set
  * @param[in] daliKey The key code to ungrab (defined in key.h)
- * @return true if the ungrab succeeds.
+ * @return true if the ungrab succeeds
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
@@ -113,7 +113,7 @@ DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
 
 /**
  * @PLATFORM
- * @brief Grabs the list of keys specfied by Dali::Vector of keys for @a window in Vector of grabModes.
+ * @brief Grabs the list of keys specified by Dali::Vector of keys for @a window in Vector of grabModes.
  *
  * @details This function can be used for following example scenarios:
  * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
@@ -133,7 +133,7 @@ DALI_IMPORT_API Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vecto
 
 /**
  * @PLATFORM
- * @brief Ungrabs the list of keys specfied by Dali::Vector of keys for @a window.
+ * @brief Ungrabs the list of keys specified by Dali::Vector of keys for @a window.
  *
  * @SINCE_1_2.0
  * @PRIVLEVEL_PLATFORM
