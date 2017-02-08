@@ -245,6 +245,12 @@ void CombinedUpdateRenderController::RequestUpdate()
 
 void CombinedUpdateRenderController::RequestUpdateOnce()
 {
+  // Increment the update-request count to the maximum
+  if( mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS )
+  {
+    ++mUpdateRequestCount;
+  }
+
   if( IsUpdateRenderThreadPaused() )
   {
     LOG_EVENT_TRACE;
