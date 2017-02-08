@@ -29,13 +29,13 @@ namespace Dali
  */
 
 /**
- * @brief Enumerations for input method
+ * @brief Enumeration for input method.
  * @SINCE_1_0.0
  */
 namespace InputMethod
 {
 /**
- * @brief Specifies what the Input Method "action" button functionality is set to.
+ * @brief Enumeration for specifying what the Input Method "action" button functionality is set to.
  *
  * The 'Action' button is traditionally the [RETURN] or [DONE] button.
  *
@@ -61,7 +61,7 @@ enum ActionButton
 };
 
 /**
- * @brief Settings that can be changed in the system Input Method
+ * @brief Enumeration for settings that can be changed in the system Input Method.
  *
  * Not all these settings are supported by all systems.
  * @SINCE_1_0.0
@@ -69,7 +69,7 @@ enum ActionButton
 enum Settings
 {
   ACTION_BUTTON,          ///< ActionButton. Apply the one of the ActionButton functions to the action button (return button). @SINCE_1_0.0
-  AUTO_CAPITALISE,        ///< boolean.      Capitalise the first letter of each sentence automatically. @SINCE_1_0.0
+  AUTO_CAPITALISE,        ///< boolean.      Capitalize the first letter of each sentence automatically. @SINCE_1_0.0
   AUTO_COMPLETE,          ///< boolean.      Suggest words based on the current input. @SINCE_1_0.0
   AUTO_CORRECT            ///< boolean.      Automatically correct commonly misspelt words. @SINCE_1_0.0
 };
