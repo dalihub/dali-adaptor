@@ -42,6 +42,8 @@ DisplayConnection* DisplayConnection::New()
 }
 
 DisplayConnection::DisplayConnection()
+: mDisplay( NULL ),
+  mSurfaceType( RenderSurface::ECORE_RENDER_SURFACE )
 {
 }
 
