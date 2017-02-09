@@ -105,6 +105,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mDestroyUpdateRenderThread( FALSE ),
   mUpdateRenderThreadCanSleep( FALSE ),
   mPendingRequestUpdate( FALSE ),
+  mUseElapsedTimeAfterWait( FALSE ),
   mNewSurface( NULL ),
   mPostRendering( FALSE )
 {

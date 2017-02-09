@@ -64,7 +64,8 @@ struct Framework::Impl
 // Constructor
   Impl(void* data, Type type )
   : mAbortCallBack( NULL ),
-    mCallbackManager( NULL )
+    mCallbackManager( NULL ),
+    mEventCallback()
   {
     mFramework = static_cast<Framework*>(data);
 
