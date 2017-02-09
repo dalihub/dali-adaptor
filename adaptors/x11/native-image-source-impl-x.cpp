@@ -61,7 +61,7 @@ namespace
       {
         if( !XDestroyImage(mXImage) )
         {
-          DALI_LOG_ERROR("XImage deallocation failure");
+          DALI_ASSERT_DEBUG("XImage deallocation failure");
         }
       }
     }
