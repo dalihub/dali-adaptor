@@ -77,7 +77,7 @@ PerformanceMarker::PerformanceMarker( PerformanceInterface::MarkerType type, Fra
 {
 }
 
-const char* PerformanceMarker::GetName( ) const
+const char* const PerformanceMarker::GetName( ) const
 {
   return MARKER_LOOKUP[ mType ].name;
 }

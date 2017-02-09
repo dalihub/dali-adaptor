@@ -74,12 +74,12 @@ unsigned int StatContext::GetId() const
   return mId;
 }
 
-const char* StatContext::GetName() const
+const char* const StatContext::GetName() const
 {
   return mName;
 }
 
-const char* StatContext::GetMarkerDescription( PerformanceInterface::MarkerType type ) const
+const char* const StatContext::GetMarkerDescription( PerformanceInterface::MarkerType type ) const
 {
   if( type == PerformanceInterface::START )
   {
