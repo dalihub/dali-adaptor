@@ -114,7 +114,8 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mDragAndDropDetector( dndDetector ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard( Dali::Clipboard::Get()),
-  mImpl( NULL )
+  mImpl( NULL ),
+  mPaused( false )
 {
 
 

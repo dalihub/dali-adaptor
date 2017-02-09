@@ -114,7 +114,8 @@ Window::Window()
   mNextIndicatorOrientation(Dali::Window::PORTRAIT),
   mIndicatorOpacityMode(Dali::Window::OPAQUE),
   mOverlay(NULL),
-  mAdaptor(NULL)
+  mAdaptor(NULL),
+  mPreferredOrientation(Dali::Window::PORTRAIT)
 {
   mEventHandler = NULL;
 }

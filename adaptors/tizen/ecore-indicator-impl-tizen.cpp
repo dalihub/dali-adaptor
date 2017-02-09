@@ -500,6 +500,7 @@ bool Indicator::ScopedLock::IsLocked()
 
 Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
 : mPixmap( 0 ),
+  mGestureDeltaY( 0.0f ),
   mGestureDetected( false ),
   mConnection( this ),
   mOpacityMode( Dali::Window::OPAQUE ),

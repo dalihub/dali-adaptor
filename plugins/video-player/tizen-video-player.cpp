@@ -206,6 +206,7 @@ void LogPlayerError( int error )
 TizenVideoPlayer::TizenVideoPlayer()
 : mPlayer( NULL ),
   mPlayerState( PLAYER_STATE_NONE ),
+  mTbmSurface( NULL ),
   mPacket( NULL ),
   mBackgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
   mTargetType( NativeImage )

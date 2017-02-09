@@ -44,7 +44,8 @@ RenderSurface::RenderSurface(Dali::PositionSize positionSize,
                                            const std::string& name,
                                            bool isTransparent)
 : mRenderNotification(NULL),
-  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24)
+  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mEglWindow(NULL)
 {
   mWindow.mPosition = positionSize;
   mWindow.mTitle = name;
