@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <singleton-service-impl.h>
 #include <adaptor-impl.h>
-
+#include <string.h>
 
 namespace Dali
 {
@@ -240,7 +240,7 @@ void ImfManager::NotifyCursorPosition()
 
 void ImfManager::DeleteSurroundingText( int index, unsigned int length )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::DeleteSurroundingText %d %d \n" index, length );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::DeleteSurroundingText %d %d \n", index, length );
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::DELETESURROUNDING, std::string(),index, length );
   Dali::ImfManager handle( this );
