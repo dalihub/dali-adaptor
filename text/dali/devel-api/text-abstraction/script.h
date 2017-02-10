@@ -88,6 +88,8 @@ enum Script
   LAO,           ///< The Lao script. Used by the Lao language.
   THAI,          ///< The Thai script. Used by the Thai language
   KHMER,         ///< The Khmer script. Used by the Khmer language.
+  JAVANESE,      ///< The Javanese script. Used by the Javanese language.
+  SUNDANESE,     ///< The Sundanese script. Used by the Sundanese language.
 
   EMOJI,         ///< The Emoji which map to standardized Unicode characters.
 
@@ -154,6 +156,8 @@ const char* const ScriptName[] =
   "LAO",           ///< The Lao script. Used by the Lao language.
   "THAI",          ///< The Thai script. Used by the Thai language
   "KHMER",         ///< The Khmer script. Used by the Khmer language.
+  "JAVANESE",      ///< The Javanese script. Used by the Javanese language.
+  "SUNDANESE",     ///< The Sundanese script. Used by the Sundanese language.
 
   "EMOJI",         ///< The Emoji which map to standardized Unicode characters.
 
