@@ -71,10 +71,13 @@ void EcoreWlRenderSurface::Init( Any surface )
 #ifdef DEBUG_ENABLED
   // prints out 'INFO: DALI: new EcoreWlRenderSurface, created display xx, used existing surface xx
   // we can not use LOG_INFO because the surface can be created before Dali Core is created.
+  // TODO: Overy tizen 3.0, we don't use X anymore. Change this for Tizen 3.0
+  /*
   printf( "INFO: DALI: new EcoreWlRenderSurface, %s %s surface %X \n",
           mOwnSurface?"created":"used existing",
           Dali::RenderSurface::PIXMAP==mType?" pixmap" :"window",
           AnyCast<Ecore_X_Drawable>( GetSurface() ) );
+  */
 #endif
 }
 
