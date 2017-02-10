@@ -50,6 +50,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& name,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
+  mWlWindow( NULL ),
   mEglWindow( NULL )
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );

@@ -51,6 +51,7 @@ struct NativeRenderSurface::Impl
     mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
     mOwnSurface( false ),
     mDrawableCompleted( false ),
+    mTbmQueue( NULL ),
     mConsumeSurface( NULL ),
     mThreadSynchronization( NULL )
   {
