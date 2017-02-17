@@ -64,6 +64,29 @@ class DALI_IMPORT_API FontClient : public BaseHandle
 public:
   static const PointSize26Dot6 DEFAULT_POINT_SIZE; ///< The default point size.
 
+  /**
+   * @brief Struct used to retrieve the glyph's bitmap.
+   */
+  struct GlyphBufferData
+  {
+    /**
+     * @brief Constructor.
+     *
+     * Initializes struct members to their defaults.
+     */
+    GlyphBufferData();
+
+    /**
+     * @brief Destructor.
+     */
+    ~GlyphBufferData();
+
+    unsigned char* buffer; ///< The glyph's bitmap buffer data.
+    unsigned int   width;  ///< The width of the bitmap.
+    unsigned int   height; ///< The height of the bitmap.
+    Pixel::Format  format; ///< The pixel's format of the bitmap.
+  };
+
 public:
 
   /**
@@ -306,6 +329,17 @@ public:
   /**
    * @brief Create a bitmap representation of a glyph.
    *
+   * @note The caller is responsible for deallocating the bitmap data @p data.buffer using delete[].
+   *
+   * @param[in] fontId The identifier of the font.
+   * @param[in] glyphIndex The index of a glyph within the specified font.
+   * @param[out] data The bitmap data.
+   */
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data );
+
+  /**
+   * @brief Create a bitmap representation of a glyph.
+   *
    * @param[in] fontId The identifier of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
    *
@@ -339,6 +373,16 @@ public:
    * @return The ellipsis glyph.
    */
   const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
+
+  /**
+   * @brief Whether the given glyph @p glyphIndex is a color glyph.
+   *
+   * @param[in] fontId The font id.
+   * @param[in] glyphIndex The glyph index.
+   *
+   * @return @e true if the glyph is a color one.
+   */
+  bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
 public: // Not intended for application developers
   /**

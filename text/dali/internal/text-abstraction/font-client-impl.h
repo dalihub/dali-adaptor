@@ -51,59 +51,59 @@ public:
   ~FontClient();
 
   /**
-   * @copydoc Dali::FontClient::Get()
+   * @copydoc Dali::TextAbstraction::FontClient::Get()
    */
   static Dali::TextAbstraction::FontClient Get();
 
   /**
-   * @copydoc Dali::FontClient::SetDpi()
+   * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
    */
   void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
 
   /**
-   * @copydoc Dali::FontClient::GetDpi()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDpi()
    */
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
-   * @copydoc Dali::FontClient::ResetSystemDefaults()
+   * @copydoc Dali::TextAbstraction::FontClient::ResetSystemDefaults()
    */
   void ResetSystemDefaults();
 
   /**
-   * @copydoc Dali::FontClient::GetDefaultFonts()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultFonts()
    */
   void GetDefaultFonts( FontList& defaultFonts );
 
   /**
-   * @copydoc Dali::FontClient::GetDefaultPlatformFontDescription()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultPlatformFontDescription()
    */
   void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetSystemFonts()
+   * @copydoc Dali::TextAbstraction::FontClient::GetSystemFonts()
    */
   void GetSystemFonts( FontList& systemFonts );
 
   /**
-   * @copydoc Dali::FontClient::GetDescription()
+   * @copydoc Dali::TextAbstraction::FontClient::GetDescription()
    */
   void GetDescription( FontId id, FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetPointSize()
+   * @copydoc Dali::TextAbstraction::FontClient::GetPointSize()
    */
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
-   * @copydoc Dali::FontClient::FindDefaultFont()
+   * @copydoc Dali::TextAbstraction::FontClient::FindDefaultFont()
    */
   FontId FindDefaultFont( Character charcode,
                           PointSize26Dot6 requestedPointSize,
                           bool preferColor );
 
   /**
-   * @copydoc Dali::FontClient::FindFallbackFont()
+   * @copydoc Dali::TextAbstraction::FontClient::FindFallbackFont()
    */
   FontId FindFallbackFont( Character charcode,
                            const FontDescription& preferredFontDescription,
@@ -111,67 +111,77 @@ public:
                            bool preferColor );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 requestedPointSize,
                     FaceIndex faceIndex );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable( const FontPath& path )
+   * @copydoc Dali::TextAbstraction::FontClient::IsScalable( const FontPath& path )
    */
   bool IsScalable( const FontPath& path );
 
   /**
-   * @copydoc Dali::FontClient::IsScalable( const FontDescription& fontDescription )
+   * @copydoc Dali::TextAbstraction::FontClient::IsScalable( const FontDescription& fontDescription )
    */
   bool IsScalable( const FontDescription& fontDescription );
 
   /**
-   * @copydoc Dali::FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+   * @copydoc Dali::TextAbstraction::FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
    */
   void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
 
   /**
-   * @copydoc Dali::FontClient::GetFixedSizes()
+   * @copydoc Dali::TextAbstraction::FontClient::GetFixedSizes()
    */
   void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   /**
-   * @copydoc Dali::FontClient::GetFontMetrics()
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontMetrics()
    */
   void GetFontMetrics( FontId fontId, FontMetrics& metrics );
 
   /**
-   * @copydoc Dali::FontClient::GetGlyphIndex()
+   * @copydoc Dali::TextAbstraction::FontClient::GetGlyphIndex()
    */
   GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
 
   /**
-   * @copydoc Dali::FontClient::GetGlyphMetrics()
+   * @copydoc Dali::TextAbstraction::FontClient::GetGlyphMetrics()
    */
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
-   * @copydoc Dali::FontClient::CreateBitmap()
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+   */
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data );
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
    */
   PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
 
   /**
-   * @copydoc Dali::FontClient::CreateVectorBlob()
+   * @copydoc Dali::TextAbstraction::FontClient::CreateVectorBlob()
    */
   void CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight );
 
   /**
-   * @copydoc Dali::FontClient::GetEllipsisGlyph()
+   * @copydoc Dali::TextAbstraction::FontClient::GetEllipsisGlyph()
    */
   const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsColorGlyph()
+   */
+  bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
 private:
 
