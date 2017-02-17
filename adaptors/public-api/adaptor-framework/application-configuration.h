@@ -25,14 +25,14 @@ namespace Dali
  */
 
 /**
- * @brief Application configuration enumerations
+ * @brief Enumeration for Application configuration.
  * @SINCE_1_0.0
  */
 namespace Configuration
 {
 
 /**
- * @brief Enumeration about application context loss policy
+ * @brief Enumeration for application context loss policy.
  * @SINCE_1_0.0
  */
 enum ContextLoss
