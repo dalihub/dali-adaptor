@@ -52,8 +52,7 @@ PixmapRenderSurface::~PixmapRenderSurface()
   // release the surface if we own one
   if( mOwnSurface )
   {
-    // if we did create the pixmap, delete the pixmap
-    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::General, "Own pixmap (%x) freed\n", mX11Pixmap );
+    //TODO: if we did create the pixmap, delete the pixmap
   }
 }
 
