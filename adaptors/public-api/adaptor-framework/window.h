@@ -63,7 +63,7 @@ public:
   // Enumerations
 
   /**
-   * @brief Orientation of the window is the way in which a rectangular page is oriented for normal viewing.
+   * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
    * @SINCE_1_0.0
    */
   enum WindowOrientation
@@ -75,7 +75,7 @@ public:
   };
 
   /**
-   * @brief Opacity of the indicator.
+   * @brief Enumeration for opacity of the indicator.
    * @SINCE_1_0.0
    */
   enum IndicatorBgOpacity
@@ -86,7 +86,7 @@ public:
   };
 
   /**
-   * @brief Visible mode of the indicator.
+   * @brief Enumeration for visible mode of the indicator.
    * @SINCE_1_0.0
    */
   enum IndicatorVisibleMode
@@ -99,37 +99,37 @@ public:
   // Methods
 
   /**
-   * @brief Create an initialized handle to a new Window.
+   * @brief Creates an initialized handle to a new Window.
    * @SINCE_1_0.0
-   * @param[in] windowPosition The position and size of the window
-   * @param[in] name The window title
-   * @param[in] isTransparent Whether window is transparent
-   * @return a new window
+   * @param[in] windowPosition The position and size of the Window
+   * @param[in] name The Window title
+   * @param[in] isTransparent Whether Window is transparent
+   * @return A new window
    */
   static Window New(PositionSize windowPosition, const std::string& name, bool isTransparent = false);
 
   /**
-   * @brief Create an initialized handle to a new Window.
+   * @brief Creates an initialized handle to a new Window.
    * @SINCE_1_0.0
-   * @param[in] windowPosition The position and size of the window
-   * @param[in] name The window title
-   * @param[in] className The window class name
-   * @param[in] isTransparent Whether window is transparent
-   * @return a new window
+   * @param[in] windowPosition The position and size of the Window
+   * @param[in] name The Window title
+   * @param[in] className The Window class name
+   * @param[in] isTransparent Whether Window is transparent
+   * @return A new Window
    */
   static Window New(PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
-   * @brief Create an uninitalized handle.
+   * @brief Creates an uninitialized handle.
    *
    * This can be initialized using Dali::Application::GetWindow() or
-   * Dali::Window::New()
+   * Dali::Window::New().
    * @SINCE_1_0.0
    */
   Window();
 
   /**
-   * @brief Destructor
+   * @brief Destructor.
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    * @SINCE_1_0.0
@@ -140,7 +140,7 @@ public:
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
    * @SINCE_1_0.0
-   * @param [in] handle A reference to the copied handle
+   * @param[in] handle A reference to the copied handle
    */
   Window(const Window& handle);
 
@@ -148,7 +148,7 @@ public:
    * @brief This assignment operator is required for (smart) pointer semantics.
    *
    * @SINCE_1_0.0
-   * @param [in] rhs  A reference to the copied handle
+   * @param[in] rhs A reference to the copied handle
    * @return A reference to this
    */
   Window& operator=(const Window& rhs);
@@ -170,15 +170,14 @@ public:
   /**
    * @brief This sets the orientation of indicator bar.
    *
-   * It does not implicitly show the indicator if it is currently
-   * hidden.
+   * It does not implicitly show the indicator if it is currently hidden.
    * @SINCE_1_0.0
    * @param[in] orientation The orientation
    */
   void RotateIndicator(WindowOrientation orientation);
 
   /**
-   * @brief Set the window name and class string.
+   * @brief Sets the window name and class string.
    * @SINCE_1_0.0
    * @param[in] name The name of the window
    * @param[in] klass The class of the window
@@ -186,49 +185,49 @@ public:
   void SetClass(std::string name, std::string klass);
 
   /**
-   * @brief Raise window to top of window stack.
+   * @brief Raises window to the top of Window stack.
    * @SINCE_1_0.0
    */
   void Raise();
 
   /**
-   * @brief Lower window to bottom of window stack.
+   * @brief Lowers window to the bottom of Window stack.
    * @SINCE_1_0.0
    */
   void Lower();
 
   /**
-   * @brief Activate window to top of window stack even it is iconified.
+   * @brief Activates window to the top of Window stack even it is iconified.
    * @SINCE_1_0.0
    */
   void Activate();
 
   /**
-   * @brief Add an orientation to the list of available orientations.
+   * @brief Adds an orientation to the list of available orientations.
    * @SINCE_1_0.0
    * @param[in] orientation The available orientation to add
    */
   void AddAvailableOrientation( WindowOrientation orientation );
 
   /**
-   * @brief Remove an orientation from the list of available orientations.
+   * @brief Removes an orientation from the list of available orientations.
    * @SINCE_1_0.0
    * @param[in] orientation The available orientation to remove
    */
   void RemoveAvailableOrientation( WindowOrientation orientation );
 
   /**
-   * @brief Set a preferred orientation.
+   * @brief Sets a preferred orientation.
    * @SINCE_1_0.0
    * @param[in] orientation The preferred orientation
-   * @pre orientation is in the list of available orientations
+   * @pre Orientation is in the list of available orientations.
    */
   void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
-   * @brief Get the preferred orientation.
+   * @brief Gets the preferred orientation.
    * @SINCE_1_0.0
-   * @return The preferred orientation if previously set, or none.
+   * @return The preferred orientation if previously set, or none
    */
   WindowOrientation GetPreferredOrientation();
 
@@ -236,16 +235,16 @@ public:
    * @brief Returns the Drag & drop detector which can be used to receive drag & drop events.
    * @note  Not intended for application developers.
    * @SINCE_1_0.0
-   * @return A handle to the DragAndDropDetector.
+   * @return A handle to the DragAndDropDetector
    */
   DragAndDropDetector GetDragAndDropDetector() const;
 
   /**
-   * @brief Get the native handle of the window.
+   * @brief Gets the native handle of the window.
    *
    * When users call this function, it wraps the actual type used by the underlying window system.
    * @SINCE_1_0.0
-   * @return The native handle of the window or an empty handle.
+   * @return The native handle of the Window or an empty handle
    */
   Any GetNativeHandle() const;
 
@@ -262,7 +261,7 @@ public: // Not intended for application developers
    * @internal
    * @brief This constructor is used by Dali::Application::GetWindow().
    * @SINCE_1_0.0
-   * @param[in] window A pointer to the window.
+   * @param[in] window A pointer to the Window
    */
   explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
 };

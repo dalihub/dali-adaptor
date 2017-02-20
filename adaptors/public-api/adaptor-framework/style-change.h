@@ -30,14 +30,14 @@ namespace Dali
  */
 
 /**
- * @brief Style change information.
+ * @brief Enumeration for style change information.
  * @SINCE_1_0.0
  */
 namespace StyleChange
 {
 
 /**
- * @brief The type of StyleChange
+ * @brief Enumeration for StyleChange type.
  * @SINCE_1_0.0
  */
 enum Type
