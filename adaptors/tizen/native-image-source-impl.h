@@ -34,12 +34,8 @@ namespace Internal
 
 namespace Adaptor
 {
-class EglImageExtensions;
 
-namespace
-{
-  typedef Dali::Vector< void* > EglImageContainer;
-};
+class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -193,7 +189,6 @@ private:
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
   bool mSetSource;
-  EglImageContainer mEglImageKHRContainer;
 };
 
 } // namespace Adaptor

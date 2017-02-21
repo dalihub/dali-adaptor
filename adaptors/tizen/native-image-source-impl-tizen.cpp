@@ -330,14 +330,6 @@ void NativeImageSource::SetSource( Any source )
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
   }
-
-  if( mEglImageKHRContainer.Size() > 2 )
-  {
-    mEglImageExtensions->DestroyImageKHR(mEglImageKHRContainer[0]);
-    mEglImageKHRContainer.Erase( mEglImageKHRContainer.Begin() );
-  }
-
-  mEglImageKHRContainer.PushBack( mEglImageKHR );
 }
 
 bool NativeImageSource::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
@@ -396,6 +388,10 @@ bool NativeImageSource::GlExtensionCreate()
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer > (mTbmSurface);
+  if( !eglBuffer )
+  {
+    return false;
+  }
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 
@@ -404,9 +400,12 @@ bool NativeImageSource::GlExtensionCreate()
 
 void NativeImageSource::GlExtensionDestroy()
 {
-  mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
+  if( mEglImageKHR )
+  {
+    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
-  mEglImageKHR = NULL;
+    mEglImageKHR = NULL;
+  }
 }
 
 unsigned int NativeImageSource::TargetTexture()
