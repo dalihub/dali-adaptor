@@ -64,6 +64,7 @@ BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
+BuildRequires:  pkgconfig(screen_connector_provider)
 %define gles_requirement_setup 1
 %endif
 
@@ -91,7 +92,6 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(screen_connector_provider)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
