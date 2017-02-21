@@ -19,7 +19,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/images/image-operations.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/bitmap.h>
 
@@ -28,6 +27,11 @@
 
 namespace Dali
 {
+namespace Integration
+{
+typedef IntrusivePtr<Dali::RefObject> ResourcePointer;
+} // Integration
+
 namespace TizenPlatform
 {
 namespace ImageLoader

@@ -70,11 +70,6 @@ void UpdateStatusLogger::Log( unsigned int keepUpdatingStatus )
         oss  +=  "<Animations running> ";
       }
 
-      if ( keepUpdatingStatus & Integration::KeepUpdating::LOADING_RESOURCES )
-      {
-        oss  +=  "<Resources loading> ";
-      }
-
       if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
       {
         oss += "<Monitoring performance> ";

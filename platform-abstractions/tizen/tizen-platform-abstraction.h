@@ -19,7 +19,6 @@
  */
 
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
 
 #include <string>
@@ -58,16 +57,6 @@ public: // Construction & Destruction
 public: // PlatformAbstraction overrides
 
   /**
-   * @copydoc PlatformAbstraction::Suspend()
-   */
-  virtual void Suspend();
-
-  /**
-   * @copydoc PlatformAbstraction::Resume()
-   */
-  virtual void Resume();
-
-  /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
   virtual ImageDimensions GetClosestImageSize( const std::string& filename,
@@ -86,11 +75,6 @@ public: // PlatformAbstraction overrides
                                                bool orientationCorrection );
 
   /**
-   * @copydoc PlatformAbstraction::LoadResource()
-   */
-  virtual void LoadResource(const Integration::ResourceRequest& request);
-
-  /**
    * @copydoc PlatformAbstraction::LoadResourceSynchronously()
    */
   virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
@@ -101,34 +85,9 @@ public: // PlatformAbstraction overrides
   virtual Integration::BitmapPtr DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size );
 
   /**
-   * @copydoc PlatformAbstraction::CancelLoad()
-   */
-  virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
-
-  /**
-   * @copydoc PlatformAbstraction::GetResources()
-   */
-  virtual void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc PlatformAbstraction::JoinLoaderThreads()
-   */
-  virtual void JoinLoaderThreads();
-
-  /**
    * @copydoc PlatformAbstraction::GetDefaultFontSize()
    */
   virtual int GetDefaultFontSize() const;
-
-  /**
-   * @copydoc PlatformAbstraction::LoadFile()
-   */
-  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
-
-  /**
-   * @copydoc PlatformAbstraction::LoadFile()
-   */
-  virtual std::string LoadFile( const std::string& filename );
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()

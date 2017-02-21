@@ -19,6 +19,8 @@
 
 #include "platform-abstractions/portable/image-operations.h"
 
+using Dali::Internal::Platform::ApplyAttributesToBitmap;
+
 #define ANSI_BLACK   "\x1B[0m"
 #define ANSI_RED     "\x1B[31m"
 #define ANSI_GREEN   "\x1B[32m"

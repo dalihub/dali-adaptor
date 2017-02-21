@@ -24,11 +24,9 @@
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
 #include "tizen-platform-abstraction.h"
-#include "resource-collector.h"
 
 using namespace Dali;
 using namespace Dali::Integration;
-using namespace Dali::Internal::Platform;
 
 namespace
 {

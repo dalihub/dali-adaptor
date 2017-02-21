@@ -19,7 +19,6 @@
  */
 
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-vector.h>
 
 #include <string>
@@ -88,32 +87,6 @@ struct LoadedResource
  */
 struct FailedResource
 {
-  FailedResource(Integration::ResourceId resourceId, Integration::ResourceFailure failure):
-    id(resourceId),
-    failureType(failure)
-  {
-  }
-
-  /// Copy constructor
-  FailedResource(const FailedResource& failed)
-  : id(failed.id),
-    failureType(failed.failureType)
-  {
-  }
-
-  /// Assignment operator
-  FailedResource& operator=(const FailedResource& rhs)
-  {
-    if( this != &rhs )
-    {
-      id = rhs.id;
-      failureType = rhs.failureType;
-    }
-    return *this;
-  }
-
-  Integration::ResourceId      id;
-  Integration::ResourceFailure failureType;
 };
 
 /**
@@ -139,16 +112,6 @@ public:
   ~ResourceLoader();
 
   /**
-   * Pause processing of already-queued resource requests.
-   */
-  void Pause();
-
-  /**
-   * Continue processing resource requests.
-   */
-  void Resume();
-
-  /**
    * Check if the ResourceLoader is terminating
    * @return true if terminating else false
    */
@@ -167,21 +130,6 @@ public:
   void AddFailedLoad(FailedResource& resource);
 
   // From PlatformAbstraction
-
-  /**
-   * @copydoc PlatformAbstraction::LoadResource()
-   */
-  void LoadResource(const Integration::ResourceRequest& request);
-
-  /**
-   * @copydoc PlatformAbstraction::CancelLoad()
-   */
-  void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
-
-  /**
-   * @copydoc PlatformAbstraction::GetResources()
-   */
-  void GetResources(Integration::ResourceCache& cache);
 
   /**
    * @copydoc SlpPlatformAbstraction::LoadFile()
