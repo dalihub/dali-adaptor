@@ -314,14 +314,14 @@ struct FontClient::Plugin
 private:
 
   /**
-   * Caches the fonts present in the platform.
+   * @brief Caches the fonts present in the platform.
    *
    * Calls GetFcFontSet() to retrieve the fonts.
    */
   void InitSystemFonts();
 
   /**
-   * Gets the FontDescription which matches the given pattern
+   * @brief Gets the FontDescription which matches the given pattern
    * @param[in] pattern pattern to match against
    * @param[out] fontDescription the resultant fontDescription that matched
    * @return true if match found
