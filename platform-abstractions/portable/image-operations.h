@@ -325,6 +325,21 @@ void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
                        unsigned char * __restrict__ outPixels,
                        ImageDimensions desiredDimensions );
 
+/**
+ * @brief Resamples the input image with the Lanczos algorithm.
+ *
+ * @pre @p inPixels must not alias @p outPixels. The input image should be a totally
+ * separate buffer from the input one.
+ *
+ * @param[in] inPixels Pointer to the input image buffer.
+ * @param[in] inputDimensions The input dimensions of the image.
+ * @param[out] outPixels Pointer to the output image buffer.
+ * @param[in] desiredDimensions The output dimensions of the image.
+ */
+void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
+                        ImageDimensions inputDimensions,
+                        unsigned char * __restrict__ outPixels,
+                        ImageDimensions desiredDimensions );
 /**@}*/
 
 /**
