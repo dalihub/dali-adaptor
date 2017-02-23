@@ -110,6 +110,9 @@ include ../../../text/dali/internal/libunibreak/file.list
 static_libraries_glyphy_src_dir = ../../../text/dali/internal/glyphy
 include ../../../text/dali/internal/glyphy/file.list
 
+static_libraries_image_resampler_src_dir = ../../../third-party/image-resampler
+include ../../../third-party/image-resampler/file.list
+
 # Package doc
 package_doxy_dir = ../../../doc
 include ../../../doc/file.list
@@ -311,7 +314,8 @@ libdali_adaptor_la_SOURCES = \
                      $(devel_api_src_files) \
                      $(public_api_src_files) \
                      $(adaptor_internal_src_files) \
-                     $(input_event_handler_src_files)
+                     $(input_event_handler_src_files) \
+                     $(image_resampler_src_files)
 
 
 if ENABLE_NETWORK_LOGGING
@@ -336,7 +340,8 @@ libdali_adaptor_la_includes = \
                       -I../../../adaptors/base/interfaces \
                       -I../../../adaptors/ \
                       -I../../../text \
-                      -I../../../text/dali/internal/libunibreak
+                      -I../../../text/dali/internal/libunibreak \
+                      -I../../../third-party/image-resampler
 
 if WAYLAND
 libdali_adaptor_la_includes += -I../../../adaptors/integration-api/wayland
