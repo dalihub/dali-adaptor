@@ -29,7 +29,6 @@
 // INTERNAL HEADERS
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/devel-api/common/set-wrapper.h>
 #include <dali/public-api/math/vector2.h>
@@ -47,10 +46,6 @@ namespace TizenPlatform
 
 struct ResourceLoader::ResourceLoaderImpl
 {
-  typedef std::pair<ResourceId, ResourceRequest>  RequestStorePair;
-  typedef std::map<ResourceId, ResourceRequest>   RequestStore;
-  typedef RequestStore::iterator                  RequestStoreIter;
-
   typedef std::queue<LoadedResource> LoadedQueue;
   typedef std::queue<FailedResource> FailedQueue;
 
@@ -63,7 +58,6 @@ struct ResourceLoader::ResourceLoaderImpl
   FailedQueue  mFailedLoads;            ///< Failed load request notifications are stored here until fetched by core
 
   RequestHandlers mRequestHandlers;
-  RequestStore mStoredRequests;         ///< Used to store load requests until loading is completed
 
   ResourceLoaderImpl( ResourceLoader* loader )
   {
@@ -80,32 +74,6 @@ struct ResourceLoader::ResourceLoaderImpl
     }
   }
 
-  void Pause()
-  {
-    // Pause all the request handlers:
-    for( RequestHandlersIter it = mRequestHandlers.begin(), end = mRequestHandlers.end(); it != end;  ++it )
-    {
-      ResourceRequesterBase * const requester = it->second;
-      if( requester )
-      {
-        requester->Pause();
-      }
-    }
-  }
-
-  void Resume()
-  {
-    // Wake up all the request handlers:
-    for( RequestHandlersIter it = mRequestHandlers.begin(), end = mRequestHandlers.end(); it != end;  ++it )
-    {
-      ResourceRequesterBase * const requester = it->second;
-      if( requester )
-      {
-        requester->Resume();
-      }
-    }
-  }
-
   ResourceRequesterBase* GetRequester(ResourceTypeId typeId)
   {
     ResourceRequesterBase* requestHandler = NULL;
@@ -116,87 +84,6 @@ struct ResourceLoader::ResourceLoaderImpl
     }
     DALI_ASSERT_DEBUG(requestHandler && "All resource types should have a requester defined for them.");
     return requestHandler;
-  }
-
-  void LoadResource(const ResourceRequest& request)
-  {
-    // Store resource request for partial loaders. Will get cleaned up after load complete has finished
-    StoreRequest(request);
-
-    ResourceRequesterBase* requester = GetRequester(request.GetType()->id);
-    if( requester )
-    {
-      ResourceRequest* storedRequest = GetRequest(request.GetId());
-      if( storedRequest != NULL )
-      {
-        requester->LoadResource(*storedRequest); // Pass in stored request
-      }
-    }
-    else
-    {
-      DALI_LOG_ERROR( "Unknown resource type (%u) with path \"%s\" in load request.\n", request.GetType()->id, request.GetPath().c_str() );
-      DALI_ASSERT_DEBUG( 0 == "Unknown resource type in load request at " __FILE__ ".\n" );
-    }
-  }
-
-  void CancelLoad(ResourceId id, ResourceTypeId typeId)
-  {
-    ResourceRequesterBase* requester = GetRequester(typeId);
-    if( requester )
-    {
-      requester->CancelLoad( id, typeId );
-    }
-    ClearRequest( id );
-  }
-
-  LoadStatus LoadFurtherResources( LoadedResource partialResource )
-  {
-    LoadStatus loadStatus = RESOURCE_LOADING;
-    RequestStoreIter iter = mStoredRequests.find(partialResource.id);
-
-    if( mStoredRequests.end() != iter ) // else cancelled. Ignore response
-    {
-      ResourceRequest& request = iter->second;
-      ResourceRequesterBase* requester = GetRequester(request.GetType()->id);
-      if( requester )
-      {
-        loadStatus = requester->LoadFurtherResources( request, partialResource );
-      }
-
-      DALI_LOG_INFO(gLoaderFilter, Debug::General, "ResourceLoader::LoadFurtherResources( ID:%u complete: %s)\n",  request.GetId(), loadStatus==RESOURCE_LOADING?"Loading":loadStatus==RESOURCE_PARTIALLY_LOADED?"PARTIAL":"COMPLETE" );
-    }
-
-    if( loadStatus == RESOURCE_COMPLETELY_LOADED )
-    {
-      ClearRequest( partialResource.id );
-    }
-
-    return loadStatus;
-  }
-
-  void GetResources(ResourceCache& cache)
-  {
-    // Fill the resource cache
-
-    Mutex::ScopedLock lock( mQueueMutex );
-
-    // iterate through the successfully loaded resources
-    while (!mLoadedQueue.empty())
-    {
-      LoadedResource loaded( mLoadedQueue.front() );
-      mLoadedQueue.pop();
-      ClearRequest( loaded.id );
-      cache.LoadResponse( loaded.id, loaded.type, loaded.resource, RESOURCE_COMPLETELY_LOADED );
-    }
-
-    // iterate through the resources which failed to load
-    while (!mFailedLoads.empty())
-    {
-      FailedResource failed(mFailedLoads.front());
-      mFailedLoads.pop();
-      ClearRequest(failed.id);
-      cache.LoadFailed(failed.id, failed.failureType);
-    }
   }
 
   void AddLoadedResource(LoadedResource& resource)
@@ -215,33 +102,6 @@ struct ResourceLoader::ResourceLoaderImpl
     mFailedLoads.push(resource);
   }
 
-  void StoreRequest( const ResourceRequest& request )
-  {
-    DALI_LOG_INFO(gLoaderFilter, Debug::Verbose, "ResourceLoader: StoreRequest(id:%u)\n", request.GetId());
-    mStoredRequests.insert( RequestStorePair( request.GetId(), request ) ); // copy request as value type
-  }
-
-  ResourceRequest* GetRequest( ResourceId id )
-  {
-    ResourceRequest* found(NULL);
-    DALI_LOG_INFO(gLoaderFilter, Debug::Verbose, "ResourceLoader: GetRequest(id:%u)\n", id);
-    RequestStoreIter iter = mStoredRequests.find( id );
-    if( mStoredRequests.end() != iter )
-    {
-      found = &iter->second;
-    }
-    return found;
-  }
-
-  void ClearRequest( ResourceId resourceId )
-  {
-    DALI_LOG_INFO(gLoaderFilter, Debug::Verbose, "ResourceLoader: ClearRequest(id:%u)\n", resourceId);
-    RequestStoreIter iter = mStoredRequests.find( resourceId );
-    if( mStoredRequests.end() != iter ) // Can't assert here - cancel load may cross with load failed
-    {
-      mStoredRequests.erase( iter );
-    }
-  }
 
 private:
 
@@ -266,24 +126,9 @@ ResourceLoader::~ResourceLoader()
   delete mImpl;
 }
 
-void ResourceLoader::Pause()
-{
-  mImpl->Pause();
-}
-
-void ResourceLoader::Resume()
-{
-  mImpl->Resume();
-}
-
 bool ResourceLoader::IsTerminating()
 {
   return __sync_fetch_and_or( &mTerminateThread, 0 );
-}
-
-void ResourceLoader::GetResources(ResourceCache& cache)
-{
-  mImpl->GetResources( cache );
 }
 
 /********************************************************************************/
@@ -304,15 +149,6 @@ void ResourceLoader::AddFailedLoad(FailedResource& resource)
 /*********************   CALLED FROM PLATFORM ABSTRACTION  **********************/
 /********************************************************************************/
 
-void ResourceLoader::LoadResource(const ResourceRequest& request)
-{
-  mImpl->LoadResource(request);
-}
-
-void ResourceLoader::CancelLoad(ResourceId id, ResourceTypeId typeId)
-{
-  mImpl->CancelLoad(id, typeId);
-}
 
 bool ResourceLoader::LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const
 {

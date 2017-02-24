@@ -19,7 +19,6 @@
  */
 
 #include "resource-requester-base.h"
-#include "resource-thread-image.h"
 
 namespace Dali
 {
@@ -43,34 +42,7 @@ public:
    */
   virtual ~ResourceBitmapRequester();
 
-  /**
-   * @copydoc ResourceRequester::Pause()
-   */
-  virtual void Pause();
-
-  /**
-   * @copydoc ResourceRequester::Resume()
-   */
-  virtual void Resume();
-
-  /**
-   * @copydoc ResourceRequester::LoadResource()
-   */
-  virtual void LoadResource( Integration::ResourceRequest& request );
-
-  /**
-   * @copydoc ResourceRequester::LoadFurtherResources()
-   */
-  virtual Integration::LoadStatus LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource );
-
-  /**
-   * @copydoc ResourceRequester::CancelLoad()
-   */
-  virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
-
 private:
-  ResourceThreadImage*          mThreadImageLocal;      ///< Image loader thread object to load images in local machine
-  ResourceThreadImage*          mThreadImageRemote;     ///< Image loader thread object to download images in remote http server
 };
 
 } // TizenPlatform

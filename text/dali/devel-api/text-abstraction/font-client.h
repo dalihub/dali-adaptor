@@ -146,6 +146,15 @@ public:
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
+   * @brief Called by Dali to retrieve the default font size for the platform.
+   *
+   * This is an accessibility size, which is mapped to a UI Control specific point-size in stylesheets.
+   * For example if zero the smallest size, this could potentially map to TextLabel point-size 8.
+   * @return The default font size.
+   */
+  int GetDefaultFontSize();
+
+  /**
    * @brief Called when the user changes the system defaults.
    *
    * @post Previously cached system defaults are removed.

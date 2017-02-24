@@ -22,7 +22,6 @@
 #if defined(DEBUG_ENABLED)
 
 #include <platform-abstractions/tizen/resource-loader/resource-loader.h>
-#include <dali/integration-api/resource-cache.h>
 
 
 namespace Dali

@@ -19,16 +19,9 @@
  */
 
 #include <platform-abstractions/tizen/resource-loader/resource-loader.h>
-#include <dali/integration-api/resource-request.h>
-#include <dali/integration-api/resource-cache.h>
 
 namespace Dali
 {
-namespace Integration
-{
-class ResourceRequest;
-}
-
 namespace TizenPlatform
 {
 
@@ -49,36 +42,6 @@ public:
    */
   virtual ~ResourceRequesterBase();
 
-  /**
-   * Pause starting new work on background threads, but keep that work queued.
-   */
-  virtual void Pause() = 0;
-
-  /**
-   * Resume processing tasks on background threads.
-   */
-  virtual void Resume() = 0;
-
-  /**
-   * Load a resource.
-   * @param[in] request The resource request
-   */
-  virtual void LoadResource( Integration::ResourceRequest& request ) = 0;
-
-  /**
-   * Load more resources (for partial loading)
-   * @param[in] request The initial load request
-   * @param[in] partialResource The resources loaded by the last request
-   * @return LOADING or PARTIALLY_LOADED if more resources to come, COMPLETELY_LOADED if complete
-   */
-  virtual Integration::LoadStatus LoadFurtherResources( Integration::ResourceRequest& request, LoadedResource partialResource ) = 0;
-
-  /**
-   * Cancal load requests
-   * @param[in] id The request id of the loading request
-   * @param[in] typeId The resource type id of the loading request
-   */
-  virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId) = 0;
 
 protected:
   ResourceLoader& mResourceLoader; ///< The resource loader to which to send results
