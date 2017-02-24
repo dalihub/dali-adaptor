@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.27
+Version:    1.2.28
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
