@@ -2,7 +2,7 @@
 #define __TEST_NATIVE_IMAGE_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public:
   inline void SetGlExtensionCreateResult(bool result){ createResult = result;}
   inline virtual bool GlExtensionCreate() { ++mExtensionCreateCalls; return createResult;};
   inline virtual void GlExtensionDestroy() { ++mExtensionDestroyCalls; };
-  inline virtual GLenum TargetTexture() { ++mTargetTextureCalls; return 1;};
+  inline virtual GLenum TargetTexture() { ++mTargetTextureCalls; return 0;};
   inline virtual void PrepareTexture() {};
   inline virtual unsigned int GetWidth() const {return mWidth;};
   inline virtual unsigned int GetHeight() const {return mHeight;};

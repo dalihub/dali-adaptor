@@ -96,8 +96,6 @@ struct Clipboard::Impl
     // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
     types[++i] = "CLIPBOARD_BEGIN";
 
-    types[++i] = "application/x-elementary-markup";
-    types[++i] = "text/plain";
     types[++i] = "text/plain;charset=utf-8";
 
     // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
@@ -110,8 +108,6 @@ struct Clipboard::Impl
     const char *types[10] = {0, };
     int i = -1;
 
-    types[++i] = "application/x-elementary-markup";
-    types[++i] = "text/plain";
     types[++i] = "text/plain;charset=utf-8";
     ecore_wl_dnd_selection_get(ecore_wl_input_get(), *types);
   }

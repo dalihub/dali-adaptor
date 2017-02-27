@@ -47,7 +47,7 @@ class Application;
  * @brief An Application class object should be created by every application
  * that wishes to use Dali.
  *
- * It provides a means for initialising the
+ * It provides a means for initializing the
  * resources required by the Dali::Core.
  *
  * The Application class emits several signals which the user can
@@ -112,7 +112,7 @@ public:
   typedef Signal< void (Application&, void *) > AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
 
   /**
-   * @brief Decides whether a Dali application window is opaque or transparent.
+   * @brief Enumeration for deciding whether a Dali application window is opaque or transparent.
    * @SINCE_1_0.0
    */
   enum WINDOW_MODE
@@ -139,19 +139,19 @@ public:
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
-   * @param[in,out]  argv        A pointer the the argument list
+   * @param[in,out]  argv        A pointer to the argument list
    * @return A handle to the Application
    */
   static Application New( int* argc, char **argv[] );
 
   /**
-   * @brief This is the constructor for applications with a name
+   * @brief This is the constructor for applications with a name.
    *
    * @SINCE_1_0.0
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
-   * @param[in,out]  argv        A pointer the the argument list
+   * @param[in,out]  argv        A pointer to the argument list
    * @param[in]      stylesheet  The path to user defined theme file
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
@@ -159,13 +159,13 @@ public:
   static Application New( int* argc, char **argv[], const std::string& stylesheet );
 
   /**
-   * @brief This is the constructor for applications with a name
+   * @brief This is the constructor for applications with a name.
    *
    * @SINCE_1_0.0
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
-   * @param[in,out]  argv        A pointer the the argument list
+   * @param[in,out]  argv        A pointer to the argument list
    * @param[in]      stylesheet  The path to user defined theme file
    * @param[in]      windowMode  A member of WINDOW_MODE
    * @return A handle to the Application
@@ -174,20 +174,20 @@ public:
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
   /**
-   * @brief Construct an empty handle
+   * @brief Constructs an empty handle.
    * @SINCE_1_0.0
    */
   Application();
 
   /**
-   * @brief Copy Constructor
+   * @brief Copy Constructor.
    * @SINCE_1_0.0
    * @param[in] application Handle to an object
    */
   Application( const Application& application );
 
   /**
-   * @brief Assignment operator
+   * @brief Assignment operator.
    * @SINCE_1_0.0
    * @param[in] application Handle to an object
    * @return A reference to this
@@ -195,7 +195,7 @@ public:
   Application& operator=( const Application& application );
 
   /**
-   * @brief Destructor
+   * @brief Destructor.
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    * @SINCE_1_0.0
@@ -226,7 +226,7 @@ public:
   void MainLoop(Configuration::ContextLoss configuration);
 
   /**
-   * @brief This lowers the application to bottom without actually quitting it
+   * @brief This lowers the application to bottom without actually quitting it.
    * @SINCE_1_0.0
    */
   void Lower();
@@ -240,8 +240,8 @@ public:
   /**
    * @brief Ensures that the function passed in is called from the main loop when it is idle.
    * @SINCE_1_0.0
-   * @param[in]  callback  The function to call.
-   * @return true if added successfully, false otherwise
+   * @param[in] callback The function to call
+   * @return @c true if added successfully, @c false otherwise
    *
    * @note Function must be called from main event thread only
    *
@@ -265,11 +265,11 @@ public:
   Window GetWindow();
 
   /**
-   * @brief Replace the current window.
+   * @brief Replaces the current window.
    *
    * This will force context loss.
    * If you plan on using this API in your application, then you should configure
-   * it to prevent discard behaviour when handling the Init signal.
+   * it to prevent discard behavior when handling the Init signal.
    * @SINCE_1_0.0
    * @param[in] windowPosition The position and size parameters of the new window
    * @param[in] name The name of the new window
@@ -288,21 +288,21 @@ public:
 public: // Stereoscopy
 
   /**
-   * @brief Set the viewing mode for the application.
+   * @brief Sets the viewing mode for the application.
    * @SINCE_1_0.0
-   * @param[in] viewMode The new viewing mode.
+   * @param[in] viewMode The new viewing mode
    */
   void SetViewMode( ViewMode viewMode );
 
   /**
-   * @brief Get the current viewing mode.
+   * @brief Gets the current viewing mode.
    * @SINCE_1_0.0
-   * @return The current viewing mode.
+   * @return The current viewing mode
    */
   ViewMode GetViewMode() const;
 
   /**
-   * @brief Set the stereo base (eye separation) for Stereoscopic 3D
+   * @brief Sets the stereo base (eye separation) for Stereoscopic 3D.
    *
    * The stereo base is the distance in millimetres between the eyes. Typical values are
    * between 50mm and 70mm. The default value is 65mm.
@@ -312,7 +312,7 @@ public: // Stereoscopy
   void SetStereoBase( float stereoBase );
 
   /**
-   * @brief Get the stereo base (eye separation) for Stereoscopic 3D
+   * @brief Gets the stereo base (eye separation) for Stereoscopic 3D.
    *
    * @SINCE_1_0.0
    * @return The stereo base (eye separation) for Stereoscopic 3D
@@ -322,7 +322,7 @@ public: // Stereoscopy
 public:  // Signals
 
   /**
-   * @brief The user should connect to this signal to determine when they should initialise
+   * @brief The user should connect to this signal to determine when they should initialize
    * their application.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -331,7 +331,7 @@ public:  // Signals
 
   /**
    * @brief The user should connect to this signal to determine when they should terminate
-   * their application
+   * their application.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -354,14 +354,14 @@ public:  // Signals
   AppSignalType& ResumeSignal();
 
   /**
-   * @brief This signal is sent when the system requires the user to reinitialise itself.
+   * @brief This signal is sent when the system requires the user to reinitialize itself.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
   AppSignalType& ResetSignal();
 
   /**
-   * @brief This signal is emitted when the window the application is rendering on is resized.
+   * @brief This signal is emitted when the window application rendering on is resized.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -408,7 +408,7 @@ public:  // Signals
 public: // Not intended for application developers
   /// @cond internal
   /**
-   * @brief Internal constructor
+   * @brief Internal constructor.
    * @SINCE_1_0.0
    */
   explicit DALI_INTERNAL Application(Internal::Adaptor::Application* application);
