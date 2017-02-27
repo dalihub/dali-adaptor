@@ -394,7 +394,6 @@ libdali_adaptor_la_CXXFLAGS = \
                       $(CAPI_SYSTEM_SENSOR_CFLAGS) \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
-                      $(SCREENCONNECTORPROVIDER_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
                       $(TPKP_CURL_CFLAGS) \
                       $(UTILX_CFLAGS)
@@ -419,7 +418,6 @@ libdali_adaptor_la_LIBADD = \
                       $(CAPI_SYSTEM_SENSOR_LIBS) \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
-                      $(SCREENCONNECTORPROVIDER_LIBS) \
                       $(LIBCURL_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
@@ -492,7 +490,10 @@ endif
 if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
-                      $(EFL_ASSIST_CFLAGS)
+                      $(EFL_ASSIST_CFLAGS) \
+                      $(SCREENCONNECTORPROVIDER_CFLAGS)
+libdali_adaptor_la_LIBADD += \
+                      $(SCREENCONNECTORPROVIDER_LIBS)
 endif
 
 if TV_PROFILE
