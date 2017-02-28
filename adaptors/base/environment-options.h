@@ -149,6 +149,48 @@ public:
   float GetPanGestureSmoothingAmount() const;
 
   /**
+   * @return pan-gesture use actual times is true if real gesture and frame times are to be used.
+   */
+  int GetPanGestureUseActualTimes() const;
+
+  /**
+   * @return pan-gesture interpolation time range is the time range (ms) of past points to use (with weights) when interpolating.
+   */
+  int GetPanGestureInterpolationTimeRange() const;
+
+  /**
+   * @return pan-gesture scalar only prediction, when enabled, ignores acceleration.
+   */
+  int GetPanGestureScalarOnlyPredictionEnabled() const;
+
+  /**
+   * @return pan-gesture two point prediction combines two interpolated points to get more steady acceleration and velocity values.
+   */
+  int GetPanGestureTwoPointPredictionEnabled() const;
+
+  /**
+   * @return pan-gesture two point interpolate past time is the time delta (ms) in the past to interpolate the second point.
+   */
+  int GetPanGestureTwoPointInterpolatePastTime() const;
+
+  /**
+   * @return pan-gesture two point velocity bias is the ratio of first and second points to use for velocity.
+   * 0.0f = 100% of first point. 1.0f = 100% of second point.
+   */
+  float GetPanGestureTwoPointVelocityBias() const;
+
+  /**
+   * @return pan-gesture two point acceleration bias is the ratio of first and second points to use for acceleration.
+   * 0.0f = 100% of first point. 1.0f = 100% of second point.
+   */
+  float GetPanGestureTwoPointAccelerationBias() const;
+
+  /**
+   * @return pan-gesture multitap smoothing range is the range in time (ms) of points in the history to smooth the final output against.
+   */
+  int GetPanGestureMultitapSmoothingRange() const;
+
+  /**
    * @return The minimum distance before a pan can be started (-1 means it's not set)
    */
   int GetMinimumPanDistance() const;
@@ -230,6 +272,14 @@ private: // Data
   int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
   int mPanGestureSmoothingMode;                   ///< prediction mode for pan gestures
   float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
+  int mPanGestureUseActualTimes;                  ///< Disable to optionally override actual times if they make results worse.
+  int mPanGestureInterpolationTimeRange;          ///< Time into past history (ms) to use points to interpolate the first point.
+  int mPanGestureScalarOnlyPredictionEnabled;     ///< If enabled, prediction is done using velocity alone (no integration or acceleration).
+  int mPanGestureTwoPointPredictionEnabled;       ///< If enabled, a second interpolated point is predicted and combined with the first to get more stable values.
+  int mPanGestureTwoPointInterpolatePastTime;     ///< The target time in the past to generate the second interpolated point.
+  float mPanGestureTwoPointVelocityBias;          ///< The ratio of first and second interpolated points to use for velocity. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  float mPanGestureTwoPointAccelerationBias;      ///< The ratio of first and second interpolated points to use for acceleration. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  int mPanGestureMultitapSmoothingRange;          ///< The range in time (ms) of points in the history to smooth the final output against.
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
   int mGlesCallTime;                              ///< time in seconds between status updates
