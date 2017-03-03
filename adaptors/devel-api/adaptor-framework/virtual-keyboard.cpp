@@ -52,7 +52,7 @@ void SetReturnKeyType( const InputMethod::ActionButton type )
   Internal::Adaptor::VirtualKeyboard::SetReturnKeyType( type );
 }
 
-InputMethod::ActionButton  GetReturnKeyType()
+InputMethod::ActionButton GetReturnKeyType()
 {
   return Internal::Adaptor::VirtualKeyboard::GetReturnKeyType();
 }

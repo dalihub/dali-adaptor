@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_LOCALE_UTILS_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <virtual-keyboard.h>
+#include <imf-manager.h>
 
 namespace Dali
 {
@@ -36,7 +36,7 @@ namespace Adaptor
 namespace Locale
 {
 
-Dali::VirtualKeyboard::TextDirection GetTextDirection( std::string locale );
+Dali::ImfManager::TextDirection GetTextDirection( std::string locale );
 
 } // namespace Locale
 
