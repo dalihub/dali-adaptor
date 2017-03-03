@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_WINDOW_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include <orientation.h>
 #include <render-surface.h>
 #include <drag-and-drop-detector.h>
+#include <window-devel.h>
 
 namespace Dali
 {
@@ -58,6 +59,7 @@ class Window : public Dali::BaseObject, public IndicatorInterface::Observer, pub
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
+  typedef Dali::DevelWindow::FocusSignalType FocusSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -158,6 +160,21 @@ public:
   Dali::Any GetNativeHandle() const;
 
   /**
+   * @brief Sets whether window accepts focus or not.
+   *
+   * @param[in] accept If focus is accepted or not. Default is true.
+   */
+  void SetAcceptFocus( bool accept );
+
+  /**
+   * @brief Returns whether window accepts focus or not.
+   *
+   * @param[in] window The window to accept focus
+   * @return True if the window accept focus, false otherwise
+   */
+  bool IsFocusAcceptable();
+
+  /**
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
@@ -253,6 +270,11 @@ public: // Signals
   IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
 
   /**
+   * The user should connect to this signal to get a timing when window gains focus or loses focus.
+   */
+  FocusSignalType& FocusChangedSignal() { return mFocusChangedSignal; }
+
+  /**
    * This signal is emitted when the window is requesting to be deleted
    */
   SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
@@ -269,6 +291,7 @@ private:
   bool                             mIsTransparent:1;
   bool                             mWMRotationAppSet:1;
   bool                             mEcoreEventHander:1;
+  bool                             mIsFocusAcceptable:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
@@ -286,6 +309,7 @@ private:
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
+  FocusSignalType     mFocusChangedSignal;
   SignalType          mDeleteRequestSignal;
 };
 
