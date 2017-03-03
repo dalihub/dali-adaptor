@@ -54,22 +54,6 @@ TizenPlatformAbstraction::~TizenPlatformAbstraction()
   delete mResourceLoader;
 }
 
-void TizenPlatformAbstraction::Suspend()
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->Pause();
-  }
-}
-
-void TizenPlatformAbstraction::Resume()
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->Resume();
-  }
-}
-
 int TizenPlatformAbstraction::GetDefaultFontSize() const
 {
   int fontSize( -1 );
@@ -99,14 +83,6 @@ ImageDimensions TizenPlatformAbstraction::GetClosestImageSize( Integration::Reso
   return ImageLoader::GetClosestImageSize( resourceBuffer, size, fittingMode, samplingMode, orientationCorrection );
 }
 
-void TizenPlatformAbstraction::LoadResource(const Integration::ResourceRequest& request)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->LoadResource(request);
-  }
-}
-
 Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
 {
   return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
@@ -129,51 +105,6 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
   }
 
   return bitmap;
-}
-
-void TizenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->CancelLoad(id, typeId);
-  }
-}
-
-void TizenPlatformAbstraction::GetResources(Integration::ResourceCache& cache)
-{
-  if (mResourceLoader)
-  {
-    mResourceLoader->GetResources(cache);
-  }
-}
-
-bool TizenPlatformAbstraction::LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
-{
-  bool result = false;
-
-  if( mResourceLoader )
-  {
-    result = mResourceLoader->LoadFile( filename, buffer );
-  }
-
-  return result;
-}
-
-std::string TizenPlatformAbstraction::LoadFile( const std::string& filename )
-{
-  std::string result;
-  if (mResourceLoader)
-  {
-    result = mResourceLoader->LoadFile(filename);
-  }
-
-  return result;
-}
-
-void TizenPlatformAbstraction::JoinLoaderThreads()
-{
-  delete mResourceLoader;
-  mResourceLoader = NULL;
 }
 
 bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const

@@ -25,6 +25,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/text-abstraction/font-client-helper.h>
+#include <platform-abstractions/portable/image-operations.h>
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
@@ -876,7 +877,7 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 
 void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
 {
-  if( ( fontId > 0u ) &&
+  if( ( fontId > 0 ) &&
       ( fontId - 1u < mFontCache.size() ) )
   {
     FT_Face ftFace = mFontCache[fontId - 1u].mFreeTypeFace;
@@ -1009,7 +1010,7 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   FT_Error error = -1;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
-  if( ( fontId > 0u ) &&
+  if( ( fontId > 0 ) &&
       ( fontId - 1u < mFontCache.size() ) )
   {
     const FontFaceCacheItem& item = mFontCache[fontId - 1u];
@@ -1346,12 +1347,33 @@ void FontClient::Plugin::ConvertBitmap( TextAbstraction::FontClient::GlyphBuffer
       {
         if( srcBitmap.pitch == static_cast<int>( srcBitmap.width << 2u ) )
         {
-          const unsigned int bufferSize = srcBitmap.width * srcBitmap.rows * 4u;
-          data.buffer = new unsigned char[bufferSize];
-          data.width = srcBitmap.width;
-          data.height = srcBitmap.rows;
+          // Set the input dimensions.
+          const ImageDimensions inputDimensions( srcBitmap.width, srcBitmap.rows );
+
+          // Set the output dimensions.
+          // If the output dimension is not given, the input dimension is set
+          // and won't be downscaling.
+          data.width = ( data.width == 0 ) ? srcBitmap.width : data.width;
+          data.height = ( data.height == 0 ) ? srcBitmap.rows : data.height;
+          const ImageDimensions desiredDimensions( data.width, data.height );
+
+          // Creates the output buffer
+          const unsigned int bufferSize = data.width * data.height * 4u;
+          data.buffer = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
+
+          if( inputDimensions == desiredDimensions )
+          {
+            // There isn't downscaling.
+            memcpy( data.buffer, srcBitmap.buffer, bufferSize );
+          }
+          else
+          {
+            Dali::Internal::Platform::LanczosSample4BPP( srcBitmap.buffer,
+                                                         inputDimensions,
+                                                         data.buffer,
+                                                         desiredDimensions );
+          }
           data.format = Pixel::BGRA8888;
-          memcpy( data.buffer, srcBitmap.buffer, bufferSize );
         }
         break;
       }

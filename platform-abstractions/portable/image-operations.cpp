@@ -21,8 +21,11 @@
 #include <cstring>
 #include <stddef.h>
 #include <cmath>
+#include <limits>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
+#include <resampler.h>
 
 // INTERNAL INCLUDES
 
@@ -42,6 +45,11 @@ namespace
 const uint8_t BORDER_FILL_VALUE( 0x00 );
 // A maximum size limit for newly created bitmaps. ( 1u << 16 ) - 1 is chosen as we are using 16bit words for dimensions.
 const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
+
+// Constants used by the ImageResampler.
+const float DEFAULT_SOURCE_GAMMA = 1.75f;   ///< Default source gamma value used in the Resampler() function. Partial gamma correction looks better on mips. Set to 1.0 to disable gamma correction.
+const float FILTER_SCALE = 1.f;             ///< Default filter scale value used in the Resampler() function. Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
+const char* const FILTER_TYPE = "lanczos4"; ///< Default filter used in the Resampler() function. Possible Lanczos filters are: lanczos3, lanczos4, lanczos6, lanczos12
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -1507,6 +1515,177 @@ void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
                        ImageDimensions desiredDimensions )
 {
   LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
+}
+
+void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
+                        ImageDimensions inputDimensions,
+                        unsigned char * __restrict__ outPixels,
+                        ImageDimensions desiredDimensions )
+{
+  // Got from the test.cpp of the ImageResampler lib.
+  const float ONE_DIV_255 = 1.0f / 255.0f;
+  const int MAX_UNSIGNED_CHAR = std::numeric_limits<uint8_t>::max();
+  const int LINEAR_TO_SRGB_TABLE_SIZE = 4096;
+  const int ALPHA_CHANNEL = 3;
+  const int NUMBER_OF_CHANNELS = 4;
+
+  float srgbToLinear[MAX_UNSIGNED_CHAR + 1];
+  for( int i = 0; i <= MAX_UNSIGNED_CHAR; ++i )
+  {
+    srgbToLinear[i] = pow( static_cast<float>( i ) * ONE_DIV_255, DEFAULT_SOURCE_GAMMA );
+  }
+
+  unsigned char linearToSrgb[LINEAR_TO_SRGB_TABLE_SIZE];
+
+  const float invLinearToSrgbTableSize = 1.0f / static_cast<float>( LINEAR_TO_SRGB_TABLE_SIZE );
+  const float invSourceGamma = 1.0f / DEFAULT_SOURCE_GAMMA;
+
+  for( int i = 0; i < LINEAR_TO_SRGB_TABLE_SIZE; ++i )
+  {
+    int k = static_cast<int>( 255.0f * pow( static_cast<float>( i ) * invLinearToSrgbTableSize, invSourceGamma ) + 0.5f );
+    if( k < 0 )
+    {
+      k = 0;
+    }
+    else if( k > MAX_UNSIGNED_CHAR )
+    {
+      k = MAX_UNSIGNED_CHAR;
+    }
+    linearToSrgb[i] = static_cast<unsigned char>( k );
+  }
+
+  Resampler* resamplers[NUMBER_OF_CHANNELS] = { 0 };
+  Vector<float> samples[NUMBER_OF_CHANNELS];
+
+  const int srcWidth = inputDimensions.GetWidth();
+  const int srcHeight = inputDimensions.GetHeight();
+  const int dstWidth = desiredDimensions.GetWidth();
+  const int dstHeight = desiredDimensions.GetHeight();
+
+  // Now create a Resampler instance for each component to process. The first instance will create new contributor tables, which are shared by the resamplers
+  // used for the other components (a memory and slight cache efficiency optimization).
+  resamplers[0] = new Resampler( srcWidth,
+                                 srcHeight,
+                                 dstWidth,
+                                 dstHeight,
+                                 Resampler::BOUNDARY_CLAMP,
+                                 0.0f,           // sample_low,
+                                 1.0f,           // sample_high. Clamp output samples to specified range, or disable clamping if sample_low >= sample_high.
+                                 FILTER_TYPE,    // The type of filter. Currently Lanczos.
+                                 NULL,           // Pclist_x,
+                                 NULL,           // Pclist_y. Optional pointers to contributor lists from another instance of a Resampler.
+                                 FILTER_SCALE,   // src_x_ofs,
+                                 FILTER_SCALE ); // src_y_ofs. Offset input image by specified amount (fractional values okay).
+  samples[0].Resize( srcWidth );
+  for( int i = 1; i < NUMBER_OF_CHANNELS; ++i )
+  {
+    resamplers[i] = new Resampler( srcWidth,
+                                   srcHeight,
+                                   dstWidth,
+                                   dstHeight,
+                                   Resampler::BOUNDARY_CLAMP,
+                                   0.0f,
+                                   1.0f,
+                                   FILTER_TYPE,
+                                   resamplers[0]->get_clist_x(),
+                                   resamplers[0]->get_clist_y(),
+                                   FILTER_SCALE,
+                                   FILTER_SCALE );
+    samples[i].Resize( srcWidth );
+  }
+
+  const int srcPitch = srcWidth * NUMBER_OF_CHANNELS;
+  const int dstPitch = dstWidth * NUMBER_OF_CHANNELS;
+  int dstY = 0;
+
+  for( int srcY = 0; srcY < srcHeight; ++srcY )
+  {
+    const unsigned char* pSrc = &inPixels[srcY * srcPitch];
+
+    for( int x = 0; x < srcWidth; ++x )
+    {
+      for( int c = 0; c < NUMBER_OF_CHANNELS; ++c )
+      {
+        if( c == ALPHA_CHANNEL )
+        {
+          samples[c][x] = *pSrc++ * ONE_DIV_255;
+        }
+        else
+        {
+          samples[c][x] = srgbToLinear[*pSrc++];
+        }
+      }
+    }
+
+    for( int c = 0; c < NUMBER_OF_CHANNELS; ++c )
+    {
+      if( !resamplers[c]->put_line( &samples[c][0] ) )
+      {
+        DALI_ASSERT_DEBUG( !"Out of memory" );
+      }
+    }
+
+    for(;;)
+    {
+      int compIndex;
+      for( compIndex = 0; compIndex < NUMBER_OF_CHANNELS; ++compIndex )
+      {
+        const float* pOutputSamples = resamplers[compIndex]->get_line();
+        if( !pOutputSamples )
+        {
+          break;
+        }
+
+        const bool isAlphaChannel = ( compIndex == ALPHA_CHANNEL );
+        DALI_ASSERT_DEBUG( dstY < dstHeight );
+        unsigned char* pDst = &outPixels[dstY * dstPitch + compIndex];
+
+        for( int x = 0; x < dstWidth; ++x )
+        {
+          if( isAlphaChannel )
+          {
+            int c = static_cast<int>( 255.0f * pOutputSamples[x] + 0.5f );
+            if( c < 0 )
+            {
+              c = 0;
+            }
+            else if( c > MAX_UNSIGNED_CHAR )
+            {
+              c = MAX_UNSIGNED_CHAR;
+            }
+            *pDst = static_cast<unsigned char>( c );
+          }
+          else
+          {
+            int j = static_cast<int>( LINEAR_TO_SRGB_TABLE_SIZE * pOutputSamples[x] + 0.5f );
+            if( j < 0 )
+            {
+              j = 0;
+            }
+            else if( j >= LINEAR_TO_SRGB_TABLE_SIZE )
+            {
+              j = LINEAR_TO_SRGB_TABLE_SIZE - 1;
+            }
+            *pDst = linearToSrgb[j];
+          }
+
+          pDst += NUMBER_OF_CHANNELS;
+        }
+      }
+      if( compIndex < NUMBER_OF_CHANNELS )
+      {
+        break;
+      }
+
+      ++dstY;
+    }
+  }
+
+  // Delete the resamplers.
+  for( int i = 0; i < NUMBER_OF_CHANNELS; ++i )
+  {
+    delete resamplers[i];
+  }
 }
 
 // Dispatch to a format-appropriate linear sampling function:
