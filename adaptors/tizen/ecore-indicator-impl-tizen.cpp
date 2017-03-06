@@ -434,20 +434,26 @@ bool Indicator::LockFile::Lock()
   bool locked = false;
   if( mFileDescriptor > 0 )
   {
-    if( lockf( mFileDescriptor, F_LOCK, 0 ) == 0 ) // Note, operation may block.
+    struct flock filelock;
+
+    filelock.l_type = F_RDLCK;
+    filelock.l_whence = SEEK_SET;
+    filelock.l_start = 0;
+    filelock.l_len = 0;
+    if( fcntl( mFileDescriptor, F_SETLKW, &filelock ) == -1 )
     {
-      locked = true;
+      mErrorThrown = true;
+      DALI_LOG_ERROR( "### Failed to lock with fd : %s ###\n", mFilename.c_str() );
     }
     else
     {
-      if( errno == EBADF )
-      {
-        // file descriptor is no longer valid or not writable
-        mFileDescriptor = 0;
-        mErrorThrown = true;
-        DALI_LOG_ERROR( "### Cannot lock indicator: bad file descriptor for %s ###\n", mFilename.c_str() );
-      }
+      locked = true;
     }
+  }
+  else
+  {
+    mErrorThrown = true;
+    DALI_LOG_ERROR( "### Invalid fd ###\n" );
   }
 
   return locked;
@@ -456,15 +462,17 @@ bool Indicator::LockFile::Lock()
 void Indicator::LockFile::Unlock()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
-  if( lockf( mFileDescriptor, F_ULOCK, 0 ) != 0 )
+
+  struct flock filelock;
+
+  filelock.l_type = F_UNLCK;
+  filelock.l_whence = SEEK_SET;
+  filelock.l_start = 0;
+  filelock.l_len = 0;
+  if (fcntl(mFileDescriptor, F_SETLKW, &filelock) == -1)
   {
-    if( errno == EBADF )
-    {
-      // file descriptor is no longer valid or not writable
-      mFileDescriptor = 0;
-      mErrorThrown = true;
-      DALI_LOG_ERROR( "### Cannot unlock indicator: bad file descriptor for %s\n", mFilename.c_str() );
-    }
+    mErrorThrown = true;
+    DALI_LOG_ERROR( "### Failed to lock with fd : %s ###\n", mFilename.c_str() );
   }
 }
 
