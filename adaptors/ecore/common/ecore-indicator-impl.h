@@ -227,12 +227,12 @@ private:
 
   /**
    * Touch event callback.
-   * It should pass the valid touch event to indicator server
+   * It should pass the valid touch data to indicator server
    *
    * @param[in] indicator  The indicator actor that was touched
-   * @param[in] touchEvent The touch event
+   * @param[in] touchData The touch data
    */
-  bool OnTouched(Dali::Actor indicator, const TouchEvent& touchEvent);
+  bool OnTouched(Dali::Actor indicator, const TouchData& touchData);
 
   /**
    * Pan gesture callback.
@@ -247,9 +247,9 @@ private:
    * Touch event callback on stage.
    * If stage is touched, hide showing indicator image
    *
-   * @param[in] touchEvent The touch event
+   * @param[in] touchEvent The touch data
    */
-  void OnStageTouched(const Dali::TouchEvent& touchEvent);
+  void OnStageTouched(const Dali::TouchData& touchData);
 
   /**
    * Connect to the indicator service
