@@ -387,7 +387,7 @@ bool NativeImageSource::GlExtensionCreate()
 {
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer > (mTbmSurface);
+  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
   if( !eglBuffer )
   {
     return false;
@@ -417,9 +417,17 @@ unsigned int NativeImageSource::TargetTexture()
 
 void NativeImageSource::PrepareTexture()
 {
-  if( mSetSource && GlExtensionCreate() )
+  if( mSetSource )
   {
-    TargetTexture();
+    void* eglImage = mEglImageKHR;
+
+    if( GlExtensionCreate() )
+    {
+      TargetTexture();
+    }
+
+    mEglImageExtensions->DestroyImageKHR( eglImage );
+
     mSetSource = false;
   }
 }
