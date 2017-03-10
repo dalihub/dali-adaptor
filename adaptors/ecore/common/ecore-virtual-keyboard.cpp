@@ -133,6 +133,8 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
 
 void Show()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Show() is deprecated and will be removed from next release. Use ImfManager.Activate() instead.\n" );
+
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) to show the keyboard
 
   if( imfManager )
@@ -148,6 +150,8 @@ void Show()
 
 void Hide()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Hide() is deprecated and will be removed from next release. Use ImfManager.Deactivate() instead.\n" );
+
   if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance*/ )
   {
     Dali::ImfManager imfManager = ImfManager::Get();
@@ -162,6 +166,8 @@ void Hide()
 
 bool IsVisible()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: IsVisible() is deprecated and will be removed from next release.\n" );
+
   if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance */ )
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "IMF IsVisible\n" );
@@ -250,6 +256,8 @@ Rect<int> GetSizeAndPosition()
 {
   int xPos, yPos, width, height;
 
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetSizeAndPosition() is deprecated and will be removed from next release. Use ImfManager.GetInputMethodArea() instead.\n" );
+
   width = height = xPos = yPos = 0;
   Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) as we may need to do some size related setup in the application
 
@@ -273,17 +281,26 @@ Rect<int> GetSizeAndPosition()
 
 Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal()
 {
-  return gKeyboardStatusSignal;
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: StatusChangedSignal() is deprecated and will be removed from next release. Use ImfManager.StatusChangedSignal() instead.\n" );
+
+  Dali::ImfManager imfManager = ImfManager::Get();
+  return imfManager.StatusChangedSignal();
 }
 
 Dali::VirtualKeyboard::VoidSignalType& ResizedSignal()
 {
-  return gKeyboardResizeSignal;
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal() is deprecated and will be removed from next release. Use ImfManager.ResizedSignal() instead.\n" );
+
+  Dali::ImfManager imfManager = ImfManager::Get();
+  return imfManager.ResizedSignal();
 }
 
 Dali::VirtualKeyboard::VoidSignalType& LanguageChangedSignal()
 {
-  return gKeyboardLanguageChangedSignal;
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: LanguageChangedSignal() is deprecated and will be removed from next release. Use ImfManager.LanguageChangedSignal() instead.\n" );
+
+  Dali::ImfManager imfManager = ImfManager::Get();
+  return imfManager.LanguageChangedSignal();
 }
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()
@@ -305,7 +322,7 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 
         if ( locale )
         {
-          direction = Locale::GetTextDirection( std::string( locale ) );
+          direction = (Dali::VirtualKeyboard::TextDirection)Locale::GetTextDirection( std::string( locale ) );
           free( locale );
         }
       }
