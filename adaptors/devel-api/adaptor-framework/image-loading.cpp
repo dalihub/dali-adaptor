@@ -19,9 +19,18 @@
 
 // INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
+#include <resource-loader/network/file-download.h>
+#include <platform-abstractions/portable/file-closer.h>
+#include <platform-abstractions/tizen/resource-loader/resource-loading-client.h>
 
 namespace Dali
 {
+
+namespace
+{
+// limit maximum image down load size to 50 MB
+const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+}
 
 PixelData LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
@@ -43,5 +52,69 @@ PixelData LoadImageFromFile( const std::string& url, ImageDimensions size, Fitti
   }
   return Dali::PixelData();
 }
+
+ImageDimensions GetClosestImageSize( const std::string& filename,
+                                     ImageDimensions size,
+                                     FittingMode::Type fittingMode,
+                                     SamplingMode::Type samplingMode,
+                                     bool orientationCorrection )
+{
+  return TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+}
+
+
+PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+{
+  Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
+
+  bool succeeded;
+  Dali::Vector<uint8_t> dataBuffer;
+  size_t dataSize;
+
+  succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory( url, dataBuffer, dataSize,
+                                                                    MAXIMUM_DOWNLOAD_IMAGE_SIZE );
+  if( succeeded )
+  {
+    void *blobBytes = static_cast<void*>(&dataBuffer[0]);
+    size_t blobSize = dataBuffer.Size();
+
+    DALI_ASSERT_DEBUG( blobSize > 0U );
+    DALI_ASSERT_DEBUG( blobBytes != 0U );
+
+    if( blobBytes != 0 && blobSize > 0U )
+    {
+      // Open a file handle on the memory buffer:
+      Dali::Internal::Platform::FileCloser fileCloser( blobBytes, blobSize, "rb" );
+      FILE * const fp = fileCloser.GetFile();
+      if ( NULL != fp )
+      {
+        Integration::BitmapPtr bitmap;
+        bool result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
+          resourceType,
+          url,
+          fp,
+          TizenPlatform::StubbedResourceLoadingClient(),
+          bitmap );
+
+        if ( result && bitmap )
+        {
+          return Dali::PixelData::New( bitmap->GetBufferOwnership(),
+                                       bitmap->GetBufferSize(),
+                                       bitmap->GetImageWidth(),
+                                       bitmap->GetImageHeight(),
+                                       bitmap->GetPixelFormat(),
+                                       Dali::PixelData::FREE );
+        }
+        else
+        {
+          DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+        }
+      }
+    }
+
+  }
+  return Dali::PixelData();
+}
+
 
 } // namespace Dali
