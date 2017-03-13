@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,7 @@ Window::Window()
   mIsTransparent( false ),
   mWMRotationAppSet( false ),
   mIsFocusAcceptable( true ),
+  mVisible( true ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
@@ -288,6 +289,22 @@ bool Window::IsFocusAcceptable()
 {
   return mIsFocusAcceptable;
 }
+
+void Window::Show()
+{
+  mVisible = true;
+}
+
+void Window::Hide()
+{
+  mVisible = false;
+}
+
+bool Window::IsVisible() const
+{
+  return mVisible;
+}
+
 
 void Window::RotationDone( int orientation, int width, int height )
 {
