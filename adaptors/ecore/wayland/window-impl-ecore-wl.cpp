@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "window-impl.h"
+#include <window-impl.h>
 
 // EXTERNAL HEADERS
 #include <Ecore.h>
@@ -34,6 +34,7 @@
 #include <ecore-indicator-impl.h>
 #include <window-visibility-observer.h>
 #include <orientation-impl.h>
+
 namespace
 {
 const float INDICATOR_ANIMATION_DURATION( 0.18f ); // 180 milli seconds
@@ -64,6 +65,8 @@ struct Window::EventHandler
   : mWindow( window ),
     mWindowPropertyHandler( NULL ),
     mWindowIconifyStateHandler( NULL ),
+    mWindowFocusInHandler( NULL ),
+    mWindowFocusOutHandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -77,8 +80,9 @@ struct Window::EventHandler
     if( mWindow->mEcoreEventHander )
     {
       mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
+      mWindowFocusInHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this );
+      mWindowFocusOutHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this );
     }
-
   }
 
   /**
@@ -94,6 +98,14 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowIconifyStateHandler );
     }
+    if( mWindowFocusInHandler )
+    {
+      ecore_event_handler_del( mWindowFocusInHandler );
+    }
+    if( mWindowFocusOutHandler )
+    {
+      ecore_event_handler_del( mWindowFocusOutHandler );
+    }
   }
 
   // Static methods
@@ -107,14 +119,14 @@ struct Window::EventHandler
   /// Called when the window iconify state is changed.
   static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
   {
-    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( (Ecore_Wl_Event_Window_Iconify_State_Change*)event );
-    EventHandler* handler( (EventHandler*)data );
+    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( static_cast< Ecore_Wl_Event_Window_Iconify_State_Change* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
     Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
 
     if ( handler && handler->mWindow )
     {
       WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( iconifyChangedEvent->win == (unsigned int) ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
+      if ( observer && ( iconifyChangedEvent->win == static_cast< unsigned int> ( ecore_wl_window_id_get( handler->mEcoreWindow ) ) ) )
       {
         if( iconifyChangedEvent->iconified == EINA_TRUE )
         {
@@ -133,13 +145,46 @@ struct Window::EventHandler
     return handled;
   }
 
+  /// Called when the window gains focus
+  static Eina_Bool EcoreEventWindowFocusIn( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Focus_In* focusInEvent( static_cast< Ecore_Wl_Event_Focus_In* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && focusInEvent->win == static_cast< unsigned int >( ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n" );
+
+      handler->mWindow->mFocusChangedSignal.Emit( true );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the window loses focus
+  static Eina_Bool EcoreEventWindowFocusOut( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Focus_Out* focusOutEvent( static_cast< Ecore_Wl_Event_Focus_Out* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && focusOutEvent->win == static_cast< unsigned int >(ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n" );
+
+      handler->mWindow->mFocusChangedSignal.Emit( false );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
   Ecore_Event_Handler* mWindowIconifyStateHandler;
+  Ecore_Event_Handler* mWindowFocusInHandler;
+  Ecore_Event_Handler* mWindowFocusOutHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
-
 
 Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
@@ -221,7 +266,7 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
   DoShowIndicator( mIndicatorOrientation );
 }
 
-void Window::RotateIndicator(Dali::Window::WindowOrientation orientation)
+void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
 {
   DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "Orientation: %d\n", orientation );
 
@@ -255,22 +300,23 @@ void Window::SetClass(std::string name, std::string klass)
 }
 
 Window::Window()
-: mSurface(NULL),
-  mIndicatorVisible(Dali::Window::VISIBLE),
-  mIndicatorIsShown(false),
-  mShowRotatedIndicatorOnClose(false),
-  mStarted(false),
-  mIsTransparent(false),
-  mWMRotationAppSet(false),
-  mEcoreEventHander(true),
-  mIndicator(NULL),
-  mIndicatorOrientation(Dali::Window::PORTRAIT),
-  mNextIndicatorOrientation(Dali::Window::PORTRAIT),
-  mIndicatorOpacityMode(Dali::Window::OPAQUE),
-  mOverlay(NULL),
-  mAdaptor(NULL),
-  mEventHandler(NULL),
-  mPreferredOrientation(Dali::Window::PORTRAIT)
+: mSurface( NULL ),
+  mIndicatorVisible( Dali::Window::VISIBLE ),
+  mIndicatorIsShown( false ),
+  mShowRotatedIndicatorOnClose( false ),
+  mStarted( false ),
+  mIsTransparent( false ),
+  mWMRotationAppSet( false ),
+  mEcoreEventHander( true ),
+  mIsFocusAcceptable( true ),
+  mIndicator( NULL ),
+  mIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
+  mOverlay( NULL ),
+  mAdaptor( NULL ),
+  mEventHandler( NULL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT )
 {
 }
 
@@ -589,11 +635,22 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
   return mPreferredOrientation;
 }
 
+void Window::SetAcceptFocus( bool accept )
+{
+  mIsFocusAcceptable = accept;
+
+  ecore_wl_window_focus_skip_set( mEventHandler->mEcoreWindow, !accept );
+}
+
+bool Window::IsFocusAcceptable()
+{
+  return mIsFocusAcceptable;
+}
+
 void Window::RotationDone( int orientation, int width, int height )
 {
   ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
 }
-
 
 } // Adaptor
 } // Internal
