@@ -19,7 +19,6 @@
  */
 
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-vector.h>
 
 #include <string>
@@ -88,32 +87,6 @@ struct LoadedResource
  */
 struct FailedResource
 {
-  FailedResource(Integration::ResourceId resourceId, Integration::ResourceFailure failure):
-    id(resourceId),
-    failureType(failure)
-  {
-  }
-
-  /// Copy constructor
-  FailedResource(const FailedResource& failed)
-  : id(failed.id),
-    failureType(failed.failureType)
-  {
-  }
-
-  /// Assignment operator
-  FailedResource& operator=(const FailedResource& rhs)
-  {
-    if( this != &rhs )
-    {
-      id = rhs.id;
-      failureType = rhs.failureType;
-    }
-    return *this;
-  }
-
-  Integration::ResourceId      id;
-  Integration::ResourceFailure failureType;
 };
 
 /**
@@ -138,61 +111,7 @@ public:
    */
   ~ResourceLoader();
 
-  /**
-   * Pause processing of already-queued resource requests.
-   */
-  void Pause();
-
-  /**
-   * Continue processing resource requests.
-   */
-  void Resume();
-
-  /**
-   * Check if the ResourceLoader is terminating
-   * @return true if terminating else false
-   */
-  bool IsTerminating();
-
-  /**
-   * Add a completely loaded resource to the LoadedResource queue
-   * @param[in] resource The resource's information and data
-   */
-  void AddLoadedResource(LoadedResource& resource);
-
-  /**
-   * Add information about a failed resource load to the FailedLoads queue
-   * @param[in] resource The failed resource's information
-   */
-  void AddFailedLoad(FailedResource& resource);
-
   // From PlatformAbstraction
-
-  /**
-   * @copydoc PlatformAbstraction::LoadResource()
-   */
-  void LoadResource(const Integration::ResourceRequest& request);
-
-  /**
-   * @copydoc PlatformAbstraction::CancelLoad()
-   */
-  void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
-
-  /**
-   * @copydoc PlatformAbstraction::GetResources()
-   */
-  void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc SlpPlatformAbstraction::LoadFile()
-   */
-  bool LoadFile( const std::string& filename, std::vector< unsigned char >& buffer ) const;
-  bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
-
-  /**
-   * @copydoc TizenPlatformAbstraction::LoadFile()
-   */
-  std::string LoadFile(const std::string& filename) const;
 
   /**
    * @copydoc TizenPlatformAbstraction::SaveFile()
@@ -200,7 +119,6 @@ public:
   static bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
 
 private:
-
   // Undefined
   ResourceLoader( const ResourceLoader& resourceLoader );
 
@@ -208,10 +126,6 @@ private:
   ResourceLoader& operator=( const ResourceLoader& resourceLoader );
 
 private:
-  struct ResourceLoaderImpl;
-  ResourceLoaderImpl* mImpl;
-
-  volatile int mTerminateThread;        ///< Set to <> 0 in destructor, signals threads to exit their controlling loops
 
 };
 

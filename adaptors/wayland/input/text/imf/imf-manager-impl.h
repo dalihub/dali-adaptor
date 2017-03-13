@@ -55,6 +55,8 @@ class ImfManager : public Dali::BaseObject, public ConnectionTracker
 public:
   typedef Dali::ImfManager::ImfManagerSignalType ImfManagerSignalType;
   typedef Dali::ImfManager::ImfEventSignalType ImfEventSignalType;
+  typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
+  typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
 
 public:
 
@@ -153,6 +155,21 @@ public:
   */
   void NotifyTextInputMultiLine( bool multiLine );
 
+  /**
+  * @copydoc Dali::ImfManager::GetTextDirection()
+  */
+  Dali::ImfManager::TextDirection GetTextDirection();
+
+  /**
+  * @copydoc Dali::ImfManager::GetInputMethodArea()
+  */
+  Dali::Rect<int> GetInputMethodArea();
+
+  /**
+  * @copydoc Dali::ImfManager::ApplyOptions()
+  */
+  void ApplyOptions( const InputMethodOptions& options );
+
 public:  // Signals
 
   /**
@@ -164,6 +181,22 @@ public:  // Signals
    * @copydoc Dali::ImfManager::EventReceivedSignal()
    */
   ImfEventSignalType& EventReceivedSignal() { return mEventSignal; }
+
+  /**
+   * @copydoc Dali::ImfManager::StatusChangedSignal()
+   */
+  ImfStatusSignalType& StatusChangedSignal() { return mKeyboardStatusSignal; }
+
+  /**
+   * @copydoc Dali::ImfManager::ResizedSignal()
+   */
+  ImfVoidSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
+
+  /**
+   * @copydoc Dali::ImfManager::LanguageChangedSignal()
+   */
+  ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
+
 
   /**
    * @brief Called when an IMF Pre-Edit change event is received.
@@ -208,6 +241,9 @@ private:
 
   ImfManagerSignalType      mActivatedSignal;
   ImfEventSignalType        mEventSignal;
+  ImfStatusSignalType       mKeyboardStatusSignal;
+  ImfVoidSignalType         mKeyboardResizeSignal;
+  ImfVoidSignalType         mKeyboardLanguageChangedSignal;
 
   // Undefined
   ImfManager( const ImfManager& );

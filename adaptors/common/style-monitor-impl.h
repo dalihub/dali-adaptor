@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/integration-api/platform-abstraction.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
@@ -48,9 +47,8 @@ public:
 
   /**
    * Constructor.
-   * @param[in]  platformAbstraction  The platform abstraction.
    */
-  StyleMonitor(Integration::PlatformAbstraction& platformAbstraction);
+  StyleMonitor();
 
   /**
    * Retrieve the initialized instance of the StyleMonitor.
@@ -123,8 +121,6 @@ private:
 private:
 
   Dali::StyleMonitor::StyleChangeSignalType mStyleChangeSignal; ///< Emitted when the style changes
-
-  Integration::PlatformAbstraction& mPlatformAbstraction; ///< Reference to the PlatformAbstraction (for retrieving defaults)
 
   TextAbstraction::FontClient mFontClient;
   std::string mDefaultFontFamily;        ///< The system default font family

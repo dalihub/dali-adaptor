@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/resource-cache.h>
 #include <dali/public-api/common/dali-common.h>
 
 // INTERNAL INCLUDES

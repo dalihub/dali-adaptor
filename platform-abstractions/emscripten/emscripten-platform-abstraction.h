@@ -31,6 +31,12 @@
 namespace Dali
 {
 
+namespace Integration
+{
+
+typedef IntrusivePtr<Dali::RefObject> ResourcePointer;
+} // namespace Integration
+
 /**
  * An Dali Platform abstraction using libSDL for Emscripten.
  *
@@ -41,26 +47,6 @@ class DALI_IMPORT_API EmscriptenPlatformAbstraction : public Dali::Integration::
 {
 
 public:
-
-  struct Resources
-  {
-    bool                         loaded;
-    Integration::ResourceId      loadedId;
-    Integration::ResourceTypeId  loadedType;
-    Integration::ResourcePointer loadedResource;
-
-    bool                         loadFailed;
-    Integration::ResourceId      loadFailedId;
-    Integration::ResourceFailure loadFailure;
-
-    bool                         saved;
-    Integration::ResourceId      savedId;
-    Integration::ResourceTypeId  savedType;
-
-    bool                         saveFailed;
-    Integration::ResourceId      saveFailedId;
-    Integration::ResourceFailure saveFailure;
-  };
 
   struct LoadFileResult
   {
@@ -94,16 +80,6 @@ public:
   void IncrementGetTimeResult(size_t milliseconds);
 
   /**
-   * @copydoc PlatformAbstraction::Suspend()
-   */
-  virtual void Suspend();
-
-  /**
-   * @copydoc PlatformAbstraction::Resume()
-   */
-  virtual void Resume();
-
-  /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
   virtual ImageDimensions GetClosestImageSize( const std::string& filename,
@@ -121,68 +97,14 @@ public:
                                                bool orientationCorrection );
 
   /**
-   * @copydoc PlatformAbstraction::LoadResource()
+   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
    */
-  virtual void LoadResource(const Integration::ResourceRequest& request);
-
   virtual Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
-
-  /**
-   * @copydoc PlatformAbstraction::SaveResource()
-   */
-  virtual void SaveResource(const Integration::ResourceRequest& request);
 
   /**
    * @copydoc PlatformAbstraction::DecodeBuffer()
    */
   virtual Integration::BitmapPtr DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t bufferSize );
-
-  /**
-   * @copydoc PlatformAbstraction::CancelLoad()
-   */
-  virtual void CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId);
-
-  /**
-   * @copydoc PlatformAbstraction::GetResources()
-   */
-  virtual void GetResources(Integration::ResourceCache& cache);
-
-  /**
-   * @copydoc PlatformAbstraction::IsLoading()
-   */
-  virtual bool IsLoading();
-
-  /**
-   * @copydoc PlatformAbstraction::GetDefaultFontFamily()
-   */
-  virtual const std::string& GetDefaultFontFamily() const;
-
-  /**
-   * @copydoc PlatformAbstraction::GetDefaultFontSize()
-   */
-  virtual int GetDefaultFontSize() const;
-
-  /**
-   * Sets horizontal and vertical pixels per inch value that is used by the display
-   * @param[in] dpiHorizontal horizontal dpi value
-   * @param[in] dpiVertical   vertical dpi value
-   */
-  virtual void SetDpi (unsigned int dpiHorizontal, unsigned int dpiVertical);
-
-  /**
-   * @copydoc PlatformAbstraction::LoadFile()
-   */
-  virtual bool LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
-
-  /**
-   * @copydoc PlatformAbstraction::SaveFile()
-   */
-  virtual bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
-
-  /**
-   * @copydoc PlatformAbstraction::JoinLoaderThreads()
-   */
-  virtual void JoinLoaderThreads();
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
@@ -201,7 +123,6 @@ public:
 
 private:
   std::string                   mGetDefaultFontFamilyResult;
-  Resources                     mResources;
   Vector2                       mSize;
 
   LoadFileResult                mLoadFileResult;

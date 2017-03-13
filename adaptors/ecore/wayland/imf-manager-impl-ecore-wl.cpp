@@ -24,12 +24,53 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <input-method-devel.h>
 #include <adaptor.h>
+#include <locale-utils.h>
 #include <window-render-surface.h>
 #include <adaptor-impl.h>
 #include <singleton-service-impl.h>
-#include <virtual-keyboard-impl.h>
-#include "ecore-virtual-keyboard.h"
+
+#define TOKEN_STRING(x) #x
+
+Ecore_IMF_Input_Panel_Layout panelLayoutMap[] =
+{
+   ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBER,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_EMAIL,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_URL,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_IP,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_HEX,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_TERMINAL,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON,
+   ECORE_IMF_INPUT_PANEL_LAYOUT_VOICE
+};
+
+Ecore_IMF_Autocapital_Type autoCapitalMap[] =
+{
+   ECORE_IMF_AUTOCAPITAL_TYPE_NONE,
+   ECORE_IMF_AUTOCAPITAL_TYPE_WORD,
+   ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE,
+   ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER,
+};
+
+Ecore_IMF_Input_Panel_Return_Key_Type returnKeyTypeMap[] =
+{
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND,
+   ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN
+};
 
 namespace Dali
 {
@@ -101,6 +142,58 @@ Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char
   {
     return false;
   }
+}
+
+void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int value )
+{
+  if (!data)
+  {
+    return;
+  }
+  ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+  switch (value)
+  {
+    case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
+    {
+      imfManager->StatusChangedSignal().Emit( true );
+      break;
+    }
+
+    case ECORE_IMF_INPUT_PANEL_STATE_HIDE:
+    {
+      imfManager->StatusChangedSignal().Emit( false );
+      break;
+    }
+
+    case ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
+    default:
+    {
+      // Do nothing
+      break;
+    }
+  }
+}
+
+void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, int value )
+{
+  if (!data)
+  {
+    return;
+  }
+  ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+  // Emit the signal that the language has changed
+  imfManager->LanguageChangedSignal().Emit();
+}
+
+void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
+{
+  if (!data)
+  {
+    return;
+  }
+  ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+  // Emit signal that the keyboard is resized
+  imfManager->ResizedSignal().Emit();
 }
 
 /**
@@ -192,12 +285,10 @@ ImfManager::ImfManager( Ecore_Wl_Window *ecoreWlwin )
   CreateContext( ecoreWlwin );
 
   ConnectCallbacks();
-  VirtualKeyboard::ConnectCallbacks( mIMFContext );
 }
 
 ImfManager::~ImfManager()
 {
-  VirtualKeyboard::DisconnectCallbacks( mIMFContext );
   DisconnectCallbacks();
 
   DeleteContext();
@@ -254,6 +345,10 @@ void ImfManager::ConnectCallbacks()
     ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit,     this );
     ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this );
 
+    ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback, this );
+    ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this );
+    ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback, this );
+
     ecore_imf_context_retrieve_surrounding_callback_set( mIMFContext, ImfRetrieveSurrounding, this);
   }
 }
@@ -267,6 +362,10 @@ void ImfManager::DisconnectCallbacks()
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,    PreEdit );
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit );
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding );
+
+    ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback     );
+    ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback  );
+    ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback );
 
     // We do not need to unset the retrieve surrounding callback.
   }
@@ -522,6 +621,76 @@ void ImfManager::NotifyTextInputMultiLine( bool multiLine )
   ecore_imf_context_input_hint_set(mIMFContext, (Ecore_IMF_Input_Hints)(multiLine ?
     (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
     (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+}
+
+Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
+{
+  Dali::ImfManager::TextDirection direction ( Dali::ImfManager::LeftToRight );
+
+  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManager */ )
+  {
+    if ( mIMFContext )
+    {
+      char* locale( NULL );
+      ecore_imf_context_input_panel_language_locale_get( mIMFContext, &locale );
+
+      if ( locale )
+      {
+        direction = Locale::GetTextDirection( std::string( locale ) );
+        free( locale );
+      }
+    }
+  }
+  return direction;
+}
+
+Rect<int> ImfManager::GetInputMethodArea()
+{
+  int xPos, yPos, width, height;
+
+  width = height = xPos = yPos = 0;
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_geometry_get( mIMFContext, &xPos, &yPos, &width, &height );
+  }
+  else
+  {
+    DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
+  // return 0 as real size unknown.
+  }
+
+  return Rect<int>(xPos,yPos,width,height);
+}
+
+void ImfManager::ApplyOptions( const InputMethodOptions& options )
+{
+  using namespace Dali::InputMethod::Category;
+
+  int index;
+
+  if (mIMFContext == NULL)
+  {
+    DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
+    return;
+  }
+
+  if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
+  {
+    ecore_imf_context_input_panel_layout_set( mIMFContext, panelLayoutMap[index] );
+  }
+  if ( mOptions.CompareAndSet(AUTO_CAPITALISE, options, index) )
+  {
+    ecore_imf_context_autocapital_type_set( mIMFContext, autoCapitalMap[index] );
+  }
+  if ( mOptions.CompareAndSet(ACTION_BUTTON_TITLE, options, index) )
+  {
+    ecore_imf_context_input_panel_return_key_type_set( mIMFContext, returnKeyTypeMap[index] );
+  }
+  if ( mOptions.CompareAndSet(VARIATION, options, index) )
+  {
+    ecore_imf_context_input_panel_layout_variation_set( mIMFContext, index );
+  }
 }
 
 } // Adaptor

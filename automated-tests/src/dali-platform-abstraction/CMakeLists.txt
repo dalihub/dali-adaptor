@@ -7,13 +7,9 @@ SET(CAPI_LIB "dali-platform-abstraction")
 
 SET(TC_SOURCES
     utc-image-fitting-modes.cpp
-    utc-image-loading-cancel-all-loads.cpp
-    utc-image-loading-cancel-some-loads.cpp
-    utc-image-loading-load-completion.cpp
 )
 
 LIST(APPEND TC_SOURCES
-    resource-collector.cpp
     ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
     ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp

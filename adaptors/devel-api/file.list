@@ -15,6 +15,7 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.cpp \
@@ -47,6 +48,8 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/input-method-devel.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.h \

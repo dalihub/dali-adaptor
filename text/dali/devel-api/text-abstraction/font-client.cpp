@@ -75,6 +75,11 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
   GetImplementation(*this).GetDpi( horizontalDpi, verticalDpi );
 }
 
+int FontClient::GetDefaultFontSize()
+{
+  return GetImplementation(*this).GetDefaultFontSize();
+}
+
 void FontClient::ResetSystemDefaults()
 {
   GetImplementation(*this).ResetSystemDefaults();

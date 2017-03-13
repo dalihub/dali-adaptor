@@ -66,6 +66,11 @@ public:
   void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultFontSize()
+   */
+  int GetDefaultFontSize();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::ResetSystemDefaults()
    */
   void ResetSystemDefaults();

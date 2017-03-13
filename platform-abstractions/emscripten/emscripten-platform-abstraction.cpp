@@ -192,16 +192,6 @@ void EmscriptenPlatformAbstraction::GetTimeMicroseconds(unsigned int &seconds, u
   microSeconds    = (static_cast<unsigned int>(current) - seconds*1000.0) * 1000;
 }
 
-void EmscriptenPlatformAbstraction::Suspend()
-{
-  DALI_ASSERT_ALWAYS("!Not Implemented");
-}
-
-void EmscriptenPlatformAbstraction::Resume()
-{
-  DALI_ASSERT_ALWAYS("!Not Implemented");
-}
-
 ImageDimensions EmscriptenPlatformAbstraction::GetClosestImageSize( const std::string& filename,
                                                              ImageDimensions size,
                                                              FittingMode::Type fittingMode,
@@ -240,83 +230,9 @@ Integration::ResourcePointer EmscriptenPlatformAbstraction::LoadResourceSynchron
       ret = bitmapPtr;
     }
     break;
-    case Integration::ResourceNativeImage:
-    {
-    }
-    break;
-    case Integration::ResourceTargetImage:
-    {
-    }
-    break;
   } // switch(resourceType->id)
 
   return ret;
-}
-
-void EmscriptenPlatformAbstraction::LoadResource(const Integration::ResourceRequest& request)
-{
-  std::string path = request.GetPath();
-
-  Integration::ResourceType *type            = request.GetType();
-  Integration::ResourceId   resourceId       = request.GetId();
-  Integration::ResourcePointer resourcePtr   = request.GetResource();
-
-  if( type )
-  {
-    switch(type->id)
-    {
-      case Integration::ResourceBitmap:
-      {
-        Integration::BitmapPtr bitmapPtr = NULL;
-
-        if( NULL == request.GetResource().Get()  )
-        {
-          const Integration::BitmapResourceType& bitmapResource( static_cast<const Integration::BitmapResourceType&>(*type) );
-
-          Integration::BitmapPtr bitmapPtr = Dali::Internal::Emscripten::GetImage( bitmapResource.size,
-                                                                                   bitmapResource.scalingMode,
-                                                                                   bitmapResource.samplingMode,
-                                                                                   bitmapResource.orientationCorrection,
-                                                                                   path );
-
-
-
-        }
-        else
-        {
-          // 2) load it (usually on worker thread)
-          // DALI_LOG_TRACE_METHOD( mLogFilter );
-          // DALI_LOG_INFO(mLogFilter, Debug::Verbose, "%s(%s)\n", __FUNCTION__, request.GetPath().c_str());
-
-          bitmapPtr = LoadResourceEncodedImage( reinterpret_cast<Dali::RefCountedVector<uint8_t>*>( request.GetResource().Get() ) );
-        }
-
-        if( bitmapPtr )
-        {
-          mResourceQueue.push( ResourceIdBitmapPair( resourceId, bitmapPtr ) );
-        }
-
-      }
-      break;
-      case Integration::ResourceNativeImage:
-      {
-        printf("EmscriptenPlatformAbstraction::LoadResource ResourceNativeImage\n");
-      }
-      break;
-      case Integration::ResourceTargetImage:
-      {
-        printf("EmscriptenPlatformAbstraction::LoadResource ResourceTargetImage\n");
-      }
-      break;
-    } // switch(id)
-
-  } // if(type)
-
-}
-
-void EmscriptenPlatformAbstraction::SaveResource(const Integration::ResourceRequest& request)
-{
-  DALI_ASSERT_ALWAYS("!Not Implemented");
 }
 
 Integration::BitmapPtr EmscriptenPlatformAbstraction::DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t bufferSize )
@@ -324,82 +240,11 @@ Integration::BitmapPtr EmscriptenPlatformAbstraction::DecodeBuffer( const Integr
   return Integration::BitmapPtr();
 }
 
-void EmscriptenPlatformAbstraction::CancelLoad(Integration::ResourceId id, Integration::ResourceTypeId typeId)
-{
-  DALI_ASSERT_ALWAYS("!Not Implemented");
-}
-
-void EmscriptenPlatformAbstraction::GetResources(Integration::ResourceCache& cache)
-{
-  while( !mResourceQueue.empty() )
-  {
-    Integration::ResourceId    resourceId  = mResourceQueue.front().first;
-    Integration::BitmapPtr     bitmapPtr   = mResourceQueue.front().second;
-
-    cache.LoadResponse( resourceId,
-                        Integration::ResourceBitmap,
-                        bitmapPtr,
-                        Integration::RESOURCE_COMPLETELY_LOADED );
-    mResourceQueue.pop();
-  }
-}
-
-bool EmscriptenPlatformAbstraction::IsLoading()
-{
-  EM_LOG("EmscriptenPlatformAbstraction::IsLoading");
-  return false;
-}
-
-const std::string& EmscriptenPlatformAbstraction::GetDefaultFontFamily() const
-{
-  EM_LOG("EmscriptenPlatformAbstraction::GetDefaultFontFamily");
-  DALI_ASSERT_ALWAYS("!Not Implemented");
-  return mGetDefaultFontFamilyResult;
-}
-
-int EmscriptenPlatformAbstraction::GetDefaultFontSize() const
-{
-  EM_LOG("EmscriptenPlatformAbstraction::GetDefaultFontSize");
-  return 12;
-}
-
-void EmscriptenPlatformAbstraction::SetDpi (unsigned int /* dpiHorizontal*/, unsigned int /* dpiVertical */)
-{
-
-}
-
-
-bool EmscriptenPlatformAbstraction::LoadFile( const std::string& filename, Dali::Vector< unsigned char >& buffer )  const
-{
-  EM_LOG("EmscriptenPlatformAbstraction::LoadFile");
-  return false;
-}
-
-bool EmscriptenPlatformAbstraction::SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
-{
-  EM_LOG("EmscriptenPlatformAbstraction::SaveFile");
-
-  DALI_ASSERT_ALWAYS("!Unimplemented");
-  return false;
-}
 
 bool EmscriptenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
   EM_LOG("EmscriptenPlatformAbstraction::LoadShaderBinaryFile");
   return false;
-}
-
-bool EmscriptenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
-{
-  EM_LOG("EmscriptenPlatformAbstraction::SaveShaderBinaryFile");
-
-  DALI_ASSERT_ALWAYS("!Unimplemented");
-  return false;
-}
-
-void EmscriptenPlatformAbstraction::JoinLoaderThreads()
-{
-  DALI_ASSERT_ALWAYS("!Unimplemented");
 }
 
 void EmscriptenPlatformAbstraction::UpdateDefaultsFromDevice()

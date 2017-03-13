@@ -18,6 +18,11 @@
 // CLASS HEADER
 #include <dali/internal/text-abstraction/font-client-impl.h>
 
+// EXTERNAL INCLUDES
+#ifndef DALI_PROFILE_UBUNTU
+#include <vconf.h>
+#endif
+
 // INTERNAL INCLUDES
 #include <singleton-service.h>
 #include <dali/internal/text-abstraction/font-client-plugin-impl.h>
@@ -84,6 +89,17 @@ void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi 
 {
   horizontalDpi = mDpiHorizontal;
   verticalDpi = mDpiVertical;
+}
+
+int FontClient::GetDefaultFontSize()
+{
+  int fontSize( -1 );
+
+#ifndef DALI_PROFILE_UBUNTU
+  vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
+#endif // DALI_PROFILE_UBUNTU
+
+  return fontSize;
 }
 
 void FontClient::ResetSystemDefaults()
