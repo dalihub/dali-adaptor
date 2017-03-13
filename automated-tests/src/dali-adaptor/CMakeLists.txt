@@ -17,6 +17,7 @@ SET(TC_SOURCES
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Window.cpp
     #utc-Dali-Watch.cpp
+    #utc-Dali-Watch-Time.cpp
     #utc-Dali-KeyGrab.cpp
 )
 
