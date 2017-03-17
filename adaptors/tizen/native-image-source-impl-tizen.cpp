@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
 #include <cstring>
+#include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
 #include <gl/egl-image-extensions.h>
@@ -99,6 +100,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
 
   if( mTbmSurface != NULL )
   {
+    tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
@@ -184,11 +186,18 @@ tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
 
 NativeImageSource::~NativeImageSource()
 {
-  if( mOwnTbmSurface && mTbmSurface != NULL )
+  if( mOwnTbmSurface )
   {
-    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+    }
+  }
+  else
+  {
+    if( mTbmSurface != NULL )
+    {
+      tbm_surface_internal_unref( mTbmSurface );
     }
   }
 }
@@ -310,9 +319,9 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
 
 void NativeImageSource::SetSource( Any source )
 {
-  if( mOwnTbmSurface && mTbmSurface != NULL )
+  if( mOwnTbmSurface )
   {
-    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
     }
@@ -320,12 +329,21 @@ void NativeImageSource::SetSource( Any source )
     mTbmSurface = NULL;
     mOwnTbmSurface = false;
   }
+  else
+  {
+    if( mTbmSurface != NULL )
+    {
+      tbm_surface_internal_unref( mTbmSurface );
+      mTbmSurface = NULL;
+    }
+  }
 
   mTbmSurface = GetSurfaceFromAny( source );
-  mSetSource = true;
 
   if( mTbmSurface != NULL )
   {
+    mSetSource = true;
+    tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
