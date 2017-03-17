@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <dali/dali.h>
 #include <Ecore_X.h>
 #include <devel-api/adaptor-framework/drag-and-drop-detector.h>
+#include <devel-api/adaptor-framework/window-devel.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;
@@ -345,6 +346,38 @@ int UtcDaliWindowGetNativeHandleN(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetAcceptFocusN(void)
+{
+  Dali::Window window;
+  try
+  {
+    DevelWindow::SetAcceptFocus( window, true );
+    DALI_TEST_CHECK( false ); // Should not reach here!
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowIsFocusAcceptableN(void)
+{
+  Dali::Window window;
+  try
+  {
+    DevelWindow::IsFocusAcceptable( window );
+    DALI_TEST_CHECK( false ); // Should not reach here!
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowIndicatorVisibilityChangedSignalN(void)
 {
   Dali::Window window;
@@ -361,6 +394,18 @@ int UtcDaliWindowIndicatorVisibilityChangedSignalN(void)
   END_TEST;
 }
 
+int UtcDaliWindowFocusChangedSignalN(void)
+{
+  Dali::Window window;
+  try
+  {
+    DevelWindow::FocusChangedSignal( window );
+    DALI_TEST_CHECK( false ); // Should not reach here!
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
 
-
-
+  END_TEST;
+}

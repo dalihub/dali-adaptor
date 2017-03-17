@@ -2,7 +2,7 @@
 #define __DALI_WINDOW_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class Orientation;
 class DALI_IMPORT_API Window : public BaseHandle
 {
 public:
-  typedef Signal< void (bool) > IndicatorSignalType;
+  typedef Signal< void (bool) > IndicatorSignalType;  ///< Indicator state signal type @SINCE_1_0.0
 
 public:
 
