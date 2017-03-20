@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ namespace Dali
 
 const unsigned int ADAPTOR_MAJOR_VERSION = 1;
 const unsigned int ADAPTOR_MINOR_VERSION = 2;
-const unsigned int ADAPTOR_MICRO_VERSION = 30;
+const unsigned int ADAPTOR_MICRO_VERSION = 31;
 const char * const ADAPTOR_BUILD_DATE    = __DATE__ " " __TIME__;
 
 #ifdef DEBUG_ENABLED

@@ -102,20 +102,21 @@ void Window::SetClass(std::string name, std::string klass)
 }
 
 Window::Window()
-: mSurface(NULL),
-  mIndicatorVisible(Dali::Window::VISIBLE),
-  mIndicatorIsShown(false),
-  mShowRotatedIndicatorOnClose(false),
-  mStarted(false),
-  mIsTransparent(false),
-  mWMRotationAppSet(false),
-  mIndicator(NULL),
-  mIndicatorOrientation(Dali::Window::PORTRAIT),
-  mNextIndicatorOrientation(Dali::Window::PORTRAIT),
-  mIndicatorOpacityMode(Dali::Window::OPAQUE),
-  mOverlay(NULL),
-  mAdaptor(NULL),
-  mPreferredOrientation(Dali::Window::PORTRAIT)
+: mSurface( NULL ),
+  mIndicatorVisible( Dali::Window::VISIBLE ),
+  mIndicatorIsShown( false ),
+  mShowRotatedIndicatorOnClose( false ),
+  mStarted( false ),
+  mIsTransparent( false ),
+  mWMRotationAppSet( false ),
+  mIsFocusAcceptable( true ),
+  mIndicator( NULL ),
+  mIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
+  mOverlay( NULL ),
+  mAdaptor( NULL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT )
 {
   mEventHandler = NULL;
 }
@@ -278,10 +279,19 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
   return mPreferredOrientation;
 }
 
+void Window::SetAcceptFocus( bool accept )
+{
+  mIsFocusAcceptable = accept;
+}
+
+bool Window::IsFocusAcceptable()
+{
+  return mIsFocusAcceptable;
+}
+
 void Window::RotationDone( int orientation, int width, int height )
 {
 }
-
 
 } // Adaptor
 } // Internal
