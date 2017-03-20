@@ -27,6 +27,7 @@
 #include <adaptor.h>
 #include <window-render-surface.h>
 #include <adaptor-impl.h>
+#include <locale-utils.h>
 #include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
 #include "ecore-virtual-keyboard.h"
@@ -518,6 +519,71 @@ const std::string& ImfManager::GetSurroundingText() const
 
 void ImfManager::NotifyTextInputMultiLine( bool multiLine )
 {
+}
+
+Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
+{
+  Dali::ImfManager::TextDirection direction ( Dali::ImfManager::LeftToRight );
+
+  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManager */ )
+  {
+    if ( mIMFContext )
+    {
+      char* locale( NULL );
+      ecore_imf_context_input_panel_language_locale_get( mIMFContext, &locale );
+
+      if ( locale )
+      {
+        direction = Locale::GetTextDirection( std::string( locale ) );
+        free( locale );
+      }
+    }
+  }
+  return direction;
+}
+
+Rect<int> ImfManager::GetInputMethodArea()
+{
+  int xPos, yPos, width, height;
+
+  width = height = xPos = yPos = 0;
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_geometry_get( mIMFContext, &xPos, &yPos, &width, &height );
+  }
+  else
+  {
+    DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
+  }
+
+  return Rect<int>(xPos,yPos,width,height);
+}
+
+void ImfManager::ApplyOptions( const InputMethodOptions& options )
+{
+  using namespace Dali::InputMethod::Category;
+
+  int index;
+
+  if (mIMFContext == NULL)
+  {
+    DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
+    return;
+  }
+
+  if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
+  {
+  }
+  if ( mOptions.CompareAndSet(AUTO_CAPITALISE, options, index) )
+  {
+  }
+  if ( mOptions.CompareAndSet(ACTION_BUTTON_TITLE, options, index) )
+  {
+  }
+  if ( mOptions.CompareAndSet(VARIATION, options, index) )
+  {
+  }
 }
 
 } // Adaptor

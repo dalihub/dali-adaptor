@@ -93,6 +93,21 @@ void ImfManager::NotifyTextInputMultiLine( bool multiLine )
   Internal::Adaptor::ImfManager::GetImplementation(*this).NotifyTextInputMultiLine( multiLine );
 }
 
+ImfManager::TextDirection ImfManager::GetTextDirection()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetTextDirection();
+}
+
+Rect<int> ImfManager::GetInputMethodArea()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputMethodArea();
+}
+
+void ImfManager::ApplyOptions( const InputMethodOptions& options )
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).ApplyOptions( options );
+}
+
 ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ActivatedSignal();
@@ -101,6 +116,21 @@ ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 ImfManager::ImfEventSignalType& ImfManager::EventReceivedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).EventReceivedSignal();
+}
+
+ImfManager::StatusSignalType& ImfManager::StatusChangedSignal()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).StatusChangedSignal();
+}
+
+ImfManager::VoidSignalType& ImfManager::ResizedSignal()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).ResizedSignal();
+}
+
+ImfManager::VoidSignalType& ImfManager::LanguageChangedSignal()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).LanguageChangedSignal();
 }
 
 ImfManager::ImfManager(Internal::Adaptor::ImfManager *impl)

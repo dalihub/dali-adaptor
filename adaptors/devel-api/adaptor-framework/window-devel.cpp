@@ -1,6 +1,3 @@
-#ifndef __DALI_INTERNAL_LOCALE_UTILS_H__
-#define __DALI_INTERNAL_LOCALE_UTILS_H__
-
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
@@ -18,32 +15,31 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
-
 // INTERNAL INCLUDES
-#include <imf-manager.h>
+#include <adaptors/devel-api/adaptor-framework/window-devel.h>
+#include <adaptors/common/window-impl.h>
 
 namespace Dali
 {
 
-namespace Internal
+namespace DevelWindow
 {
 
-namespace Adaptor
+FocusSignalType& FocusChangedSignal( Window window )
 {
+  return GetImplementation( window ).FocusChangedSignal();
+}
 
-namespace Locale
+void SetAcceptFocus( Window window, bool accept )
 {
+  GetImplementation( window ).SetAcceptFocus( accept );
+}
 
-Dali::ImfManager::TextDirection GetTextDirection( std::string locale );
+bool IsFocusAcceptable( Window window )
+{
+  return GetImplementation( window ).IsFocusAcceptable();
+}
 
-} // namespace Locale
-
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace DevelWindow
 
 } // namespace Dali
-
-#endif // __DALI_INTERNAL_LOCALE_UTILS_H__
