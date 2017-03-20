@@ -70,6 +70,9 @@ struct Framework::Impl
   : mAbortCallBack( NULL ),
     mCallbackManager( NULL ),
     mEventCallback()
+#ifdef APPCORE_WATCH_AVAILABLE
+    , mWatchCallback()
+#endif
   {
     mFramework = static_cast<Framework*>(data);
 
