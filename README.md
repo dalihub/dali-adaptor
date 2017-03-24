@@ -33,7 +33,7 @@ To build the repository enter the 'build/tizen' folder:
 Then run the following commands:
 
          $ autoreconf --install
-         $ /configure --prefix=$DESKTOP_PREFIX
+         $ ./configure --prefix=$DESKTOP_PREFIX
          $ make install -j8
 
 ### Build target options

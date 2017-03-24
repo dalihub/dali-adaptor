@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -344,6 +344,7 @@ Window::Window()
   mWMRotationAppSet( false ),
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
+  mVisible( true ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
@@ -741,6 +742,45 @@ void Window::SetAcceptFocus( bool accept )
 bool Window::IsFocusAcceptable()
 {
   return mIsFocusAcceptable;
+}
+
+void Window::Show()
+{
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    ecore_x_window_show( win );
+
+    // Need an update request
+    if( mAdaptor )
+    {
+      mAdaptor->RequestUpdateOnce();
+    }
+  }
+}
+
+void Window::Hide()
+{
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    ecore_x_window_hide( win );
+  }
+}
+
+bool Window::IsVisible() const
+{
+  bool visible = false;
+
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    visible = static_cast< bool >( ecore_x_window_visible_get( win ) );
+  }
+  return visible;
 }
 
 void Window::RotationDone( int orientation, int width, int height )

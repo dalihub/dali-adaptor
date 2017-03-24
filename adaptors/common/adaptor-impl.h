@@ -563,7 +563,7 @@ private: // Data
 
   Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
-  TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;         ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks

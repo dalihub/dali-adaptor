@@ -309,6 +309,7 @@ Window::Window()
   mWMRotationAppSet( false ),
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
+  mVisible( true ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
@@ -645,6 +646,29 @@ void Window::SetAcceptFocus( bool accept )
 bool Window::IsFocusAcceptable()
 {
   return mIsFocusAcceptable;
+}
+
+void Window::Show()
+{
+  mVisible = true;
+  ecore_wl_window_show( mEventHandler->mEcoreWindow );
+
+  // Need an update request
+  if( mAdaptor )
+  {
+    mAdaptor->RequestUpdateOnce();
+  }
+}
+
+void Window::Hide()
+{
+  mVisible = false;
+  ecore_wl_window_hide( mEventHandler->mEcoreWindow );
+}
+
+bool Window::IsVisible() const
+{
+  return mVisible;
 }
 
 void Window::RotationDone( int orientation, int width, int height )

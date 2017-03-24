@@ -45,7 +45,7 @@ typedef Signal< void (bool) > FocusSignalType;      ///< Window focus signal typ
  * @param[in] window The window to get a signal
  * @return The signal to connect to
  */
-FocusSignalType& FocusChangedSignal( Window window );
+DALI_IMPORT_API FocusSignalType& FocusChangedSignal( Window window );
 
 /**
  * @brief Sets whether window accepts focus or not.
@@ -53,7 +53,7 @@ FocusSignalType& FocusChangedSignal( Window window );
  * @param[in] window The window to accept focus
  * @param[in] accept If focus is accepted or not. Default is true.
  */
-void SetAcceptFocus( Window window, bool accept );
+DALI_IMPORT_API void SetAcceptFocus( Window window, bool accept );
 
 /**
  * @brief Returns whether window accepts focus or not.
@@ -61,7 +61,26 @@ void SetAcceptFocus( Window window, bool accept );
  * @param[in] window The window to accept focus
  * @return True if the window accept focus, false otherwise
  */
-bool IsFocusAcceptable( Window window );
+DALI_IMPORT_API bool IsFocusAcceptable( Window window );
+
+/**
+ * @brief Shows the window if it is hidden.
+ * @param[in] window The window to show
+ */
+DALI_IMPORT_API void Show( Window window );
+
+/**
+ * @brief Hides the window if it is showing.
+ * @param[in] window The window to hide
+ */
+DALI_IMPORT_API void Hide( Window window );
+
+/**
+ * @brief Returns whether the window is visible or not.
+ * @param[in] window The window to query
+ * @return True if the window is visible, false otherwise.
+ */
+DALI_IMPORT_API bool IsVisible( Window window );
 
 } // namespace DevelWindow
 
