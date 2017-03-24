@@ -52,7 +52,7 @@ BuildRequires:  pkgconfig(gles20)
 %define dali_profile TV
 %define dali_feedback_plugin 0
 %define dali_videoplayer_plugin 1
-%define shaderbincache_flag ENABLE
+%define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(glesv2)
 %define gles_requirement_setup 1
 %endif
@@ -329,9 +329,6 @@ rm -rf %{buildroot}
 cd build/tizen
 %make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 
-# LICENSE
-mkdir -p %{buildroot}/usr/share/license
-cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{name}
 
 ##############################
 # Upgrade order:
@@ -405,7 +402,7 @@ exit 0
 %defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
-%{_datadir}/license/%{name}
+%license LICENSE
 
 %files devel
 %defattr(-,root,root,-)
