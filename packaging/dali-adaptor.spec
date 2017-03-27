@@ -49,7 +49,6 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
-BuildRequires:  pkgconfig(screen_connector_provider)
 %endif
 
 BuildRequires:  pkgconfig(gles20)
@@ -57,6 +56,7 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
+BuildRequires:  pkgconfig(screen_connector_provider)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
