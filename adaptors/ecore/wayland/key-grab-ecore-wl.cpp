@@ -82,7 +82,7 @@ bool UngrabKey( Window window, Dali::KEY daliKey )
                                       0, 0 );
 }
 
-Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector)
+Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector, const Dali::Vector<KeyGrabMode> grabModeVector)
 {
   Dali::Vector<bool> resultVector;
   Eina_List *keyList = NULL, *grabList = NULL, *l = NULL, *m = NULL;
@@ -152,7 +152,7 @@ Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& da
   return resultVector;
 }
 
-Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector )
+Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector )
 {
   Dali::Vector<bool> resultVector;
   Eina_List *keyList = NULL, *ungrabList = NULL, *l = NULL, *m = NULL;
