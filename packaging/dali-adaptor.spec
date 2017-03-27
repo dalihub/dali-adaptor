@@ -262,7 +262,7 @@ VideoPlayer plugin to play a video file for Dali
 
 #Use TZ_PATH when tizen version is 3.x or greater
 
-%if 0%{?tizen_version_major} >= 3
+%if "%{tizen_version_major}" >= "3"
 %define dali_data_rw_dir         %TZ_SYS_RO_SHARE/dali/
 %define dali_data_ro_dir         %TZ_SYS_RO_SHARE/dali/
 %define font_preloaded_path      %TZ_SYS_RO_SHARE/fonts/
