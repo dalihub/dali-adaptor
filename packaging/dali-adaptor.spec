@@ -327,9 +327,6 @@ rm -rf %{buildroot}
 cd build/tizen
 %make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 
-# LICENSE
-mkdir -p %{buildroot}/usr/share/license
-cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{name}
 
 ##############################
 # Upgrade order:
@@ -403,7 +400,8 @@ exit 0
 %defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
-%{_datadir}/license/%{name}
+%license LICENSE
+#%{_datadir}/license/%{name}
 
 %files devel
 %defattr(-,root,root,-)
