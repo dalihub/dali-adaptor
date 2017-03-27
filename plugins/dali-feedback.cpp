@@ -29,7 +29,7 @@
 
 #include <dlog.h>
 
-#define DEBUG_PRINTF(fmt, arg...)  LOGD(" " fmt, ##arg)
+#define DEBUG_PRINTF(fmt, arg...)  LOGD(" "fmt, ##arg)
 
 using std::string;
 using namespace Dali;
