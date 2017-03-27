@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,38 @@ int UtcDaliLoadImageP(void)
 int UtcDaliLoadImageN(void)
 {
   PixelData pixelData = Dali::LoadImageFromFile( gImageNonExist );
+  DALI_TEST_CHECK( !pixelData );
+
+  END_TEST;
+}
+
+
+int UtcDaliDownloadImageP(void)
+{
+  std::string url("file://");
+  url.append( gImage_34_RGBA );
+
+  std::string url2("file://");
+  url2.append( gImage_128_RGB );
+
+  PixelData pixelData = Dali::DownloadImageSynchronously( url );
+  DALI_TEST_CHECK( pixelData );
+  DALI_TEST_EQUALS( pixelData.GetWidth(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelData.GetHeight(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
+
+  PixelData pixelData2 = Dali::DownloadImageSynchronously( url2 );
+  DALI_TEST_CHECK( pixelData2 );
+  DALI_TEST_EQUALS( pixelData2.GetWidth(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelData2.GetHeight(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelData2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION  );
+
+  END_TEST;
+}
+
+int UtcDaliDownloadImageN(void)
+{
+  PixelData pixelData = Dali::DownloadImageSynchronously( gImageNonExist );
   DALI_TEST_CHECK( !pixelData );
 
   END_TEST;

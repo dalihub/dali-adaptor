@@ -40,6 +40,21 @@ bool IsFocusAcceptable( Window window )
   return GetImplementation( window ).IsFocusAcceptable();
 }
 
+void Show( Window window )
+{
+  GetImplementation( window ).Show();
+}
+
+void Hide( Window window )
+{
+  GetImplementation( window ).Hide();
+}
+
+bool IsVisible( Window window )
+{
+  return GetImplementation( window ).IsVisible();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

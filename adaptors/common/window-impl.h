@@ -175,6 +175,22 @@ public:
   bool IsFocusAcceptable();
 
   /**
+   * @brief Shows the window if it is hidden.
+   */
+  void Show();
+
+  /**
+   * @brief Hides the window if it is showing.
+   */
+  void Hide();
+
+  /**
+   * @brief Returns whether the window is showing or not.
+   * @return True if the window is showing, false otherwise.
+   */
+  bool IsVisible() const;
+
+  /**
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
@@ -292,6 +308,7 @@ private:
   bool                             mWMRotationAppSet:1;
   bool                             mEcoreEventHander:1;
   bool                             mIsFocusAcceptable:1;
+  bool                             mVisible:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
