@@ -430,5 +430,6 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-video-player-plugin.so*
+%license LICENSE
 %endif
 %endif
