@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
-#include <watch_app.h>
-#include <watch_app_extension.h>
+#include <appcore-watch/watch_app.h>
+#include <appcore-watch/watch_app_extension.h>
 #endif
 
 namespace Dali
