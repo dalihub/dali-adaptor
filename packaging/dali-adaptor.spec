@@ -14,7 +14,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.32
+Version:    1.2.33
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-2-Clause and MIT
@@ -27,7 +27,7 @@ Requires:       giflib
 
 #need libtzplatform-config for directory if tizen version is 3.x
 
-%if "%{tizen_version_major}" >= "3"
+%if 0%{?tizen_version_major} >= 3
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
 %endif
@@ -52,7 +52,7 @@ BuildRequires:  pkgconfig(gles20)
 %define dali_profile TV
 %define dali_feedback_plugin 0
 %define dali_videoplayer_plugin 1
-%define shaderbincache_flag ENABLE
+%define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(glesv2)
 %define gles_requirement_setup 1
 %endif
@@ -231,7 +231,7 @@ VideoPlayer plugin to play a video file for Dali
 
 #Use TZ_PATH when tizen version is 3.x or greater
 
-%if "%{tizen_version_major}" >= "3"
+%if 0%{?tizen_version_major} >= 3
 %define dali_data_rw_dir         %TZ_SYS_RO_SHARE/dali/
 %define dali_data_ro_dir         %TZ_SYS_RO_SHARE/dali/
 %define font_preloaded_path      %TZ_SYS_RO_SHARE/fonts/
@@ -329,9 +329,6 @@ rm -rf %{buildroot}
 cd build/tizen
 %make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 
-# LICENSE
-mkdir -p %{buildroot}/usr/share/license
-cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{name}
 
 ##############################
 # Upgrade order:
@@ -405,7 +402,7 @@ exit 0
 %defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
-%{_datadir}/license/%{name}
+%license LICENSE
 
 %files devel
 %defattr(-,root,root,-)
@@ -434,5 +431,6 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-video-player-plugin.so*
+%license LICENSE
 %endif
 %endif
