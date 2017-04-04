@@ -40,7 +40,7 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 
 %if "%{profile}" == "mobile"
 %define dali_profile MOBILE
-%define dali_feedback_plugin 0
+%define dali_feedback_plugin 1
 %define dali_videoplayer_plugin 1
 %define shaderbincache_flag DISABLE
 BuildRequires:  pkgconfig(gles20)
@@ -199,10 +199,8 @@ Integration development package for the Adaptor - headers for integrating with a
 Summary:    Plugin to play haptic and audio feedback for Dali
 Group:      System/Libraries
 %if 0%{?dali_feedback_plugin}
-#Requires:       libdeviced
 BuildRequires:  pkgconfig(mm-sound)
-#BuildRequires:  pkgconfig(haptic)
-BuildRequires:  libfeedback-devel
+BuildRequires:  pkgconfig(feedback)
 %endif
 
 %description dali-feedback-plugin
@@ -249,7 +247,7 @@ VideoPlayer plugin to play a video file for Dali
 %endif
 
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
-%define dali_plugin_sound_files  %{dali_data_ro_dir}/plugins/sounds/
+%define dali_plugin_sound_files  /plugins/sounds/
 %define dev_include_path %{_includedir}
 
 ##############################

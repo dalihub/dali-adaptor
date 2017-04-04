@@ -47,86 +47,25 @@ namespace Plugin
 {
 
 DaliFeedback::DaliFeedback()
-: mHapticInitialized( false )
 {
   feedback_initialize();
-
-  if( 0 == haptic_open( HAPTIC_DEVICE_0, &mDeviceHandle ) )
-  {
-    mHapticInitialized = true;
-  }
-  else
-  {
-    DEBUG_PRINTF( "Haptic feedback controller failed to initialize\n" );
-  }
 }
 
 DaliFeedback::~DaliFeedback()
 {
-  if( mHapticInitialized )
-  {
-    int errorCode = haptic_close( mDeviceHandle );
-    if( errorCode < 0 )
-    {
-      DEBUG_PRINTF( "device_haptic_close() failed with error code: %d\n", errorCode );
-    }
-  }
-
   feedback_deinitialize();
 }
 
 void DaliFeedback::PlayHaptic( const std::string& filePath )
 {
-  if( mHapticInitialized )
-  {
-    if ( filePath.size() == 0 )
-    {
-      DEBUG_PRINTF( "File Path can't be NULL!\n" );
-      return;
-    }
-
-    int errorCode = haptic_vibrate_file_with_detail( mDeviceHandle, filePath.c_str(), HAPTIC_ITERATION_ONCE, HAPTIC_FEEDBACK_AUTO, HAPTIC_PRIORITY_MIN, NULL );
-    if( errorCode != 0 )
-    {
-      DEBUG_PRINTF( "PlayHaptic() failed with error code: %d\n", errorCode );
-    }
-  }
-  else
-  {
-    DEBUG_PRINTF( "HapticPlayer is not Initialized\n" );
-  }
 }
 
 void DaliFeedback::PlayHapticMonotone( unsigned int duration )
 {
-  if( mHapticInitialized )
-  {
-    int errorCode = haptic_vibrate_monotone_with_detail( mDeviceHandle, duration, HAPTIC_FEEDBACK_AUTO, HAPTIC_PRIORITY_MIN, NULL );
-    if( errorCode != 0 )
-    {
-      DEBUG_PRINTF( "PlayHapticMonotone() failed with error code: %d\n", errorCode );
-    }
-  }
-  else
-  {
-    DEBUG_PRINTF( "HapticPlayer is not Initialized\n" );
-  }
 }
 
 void DaliFeedback::StopHaptic()
 {
-  if( mHapticInitialized )
-  {
-    int errorCode = haptic_stop_all_effects( mDeviceHandle );
-    if( errorCode != 0 )
-    {
-      DEBUG_PRINTF( "StopHaptic() failed with error code: %d\n", errorCode );
-    }
-  }
-  else
-  {
-    DEBUG_PRINTF( "HapticPlayer is not Initialized\n" );
-  }
 }
 
 int DaliFeedback::PlaySound( const std::string& fileName )
