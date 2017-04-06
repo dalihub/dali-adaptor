@@ -77,6 +77,11 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
   return GetImplementation(*this).LoadThemeFile( filename, output );
 }
 
+std::string StyleMonitor::GetAppResourcePath()
+{
+  return GetImplementation(*this).GetAppResourcePath();
+}
+
 StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 {
   return GetImplementation(*this).StyleChangeSignal();

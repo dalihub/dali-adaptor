@@ -19,6 +19,7 @@
 #include "style-monitor-impl.h"
 
 // EXTERNAL INCLUDES
+#include <app.h>
 #include <dali/public-api/object/type-registry.h>
 #include <fstream>
 #include <sstream>
@@ -154,6 +155,13 @@ void StyleMonitor::SetTheme(const std::string& path)
 {
   mUserDefinedThemeFilePath = path;
   EmitStyleChangeSignal( StyleChange::THEME_CHANGE );
+}
+
+std::string StyleMonitor::GetAppResourcePath()
+{
+  std::string resourcePath = "";
+  resourcePath = app_get_resource_path();
+  return resourcePath;
 }
 
 bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )

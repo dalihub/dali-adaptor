@@ -98,6 +98,11 @@ public:
    */
   bool LoadThemeFile( const std::string& filename, std::string& output );
 
+  /**
+   * @copydoc Dali::StyleMonitor::GetResourcePath()
+   */
+  std::string GetAppResourcePath();
+
   // Signals
 
   /**

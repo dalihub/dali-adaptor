@@ -142,6 +142,12 @@ public: // Style Information
    */
   bool LoadThemeFile( const std::string& filename, std::string& output );
 
+  /**
+   * @brief Retrieves the app resource path.
+   * @return app resource path.
+   */
+  std::string GetAppResourcePath();
+
 public: // Signals
 
   /**
