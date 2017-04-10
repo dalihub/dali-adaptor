@@ -707,7 +707,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Down);
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down );
         handler->SendEvent( keyEvent );
       }
     }
@@ -774,9 +774,9 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Up);
-        handler->SendEvent( keyEvent );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up );
 
+        handler->SendEvent( keyEvent );
       }
     }
 
@@ -1763,21 +1763,19 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
   }
 }
 
-void EventHandler::SendEvent(KeyEvent& keyEvent)
+void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
 {
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if ( physicalKeyboard )
   {
-    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ) )
+    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
     {
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
 
-  // Create KeyEvent and send to Core.
-  Integration::KeyEvent event(keyEvent.keyPressedName, keyEvent.keyPressed, keyEvent.keyCode,
-  keyEvent.keyModifier, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
-  mCoreEventInterface.QueueCoreEvent( event );
+  // Send to KeyEvent Core.
+  mCoreEventInterface.QueueCoreEvent( keyEvent );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -1830,7 +1828,8 @@ void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )
 {
-  SendEvent( event );
+  Integration::KeyEvent convertedEvent( event );
+  SendEvent( convertedEvent );
 }
 
 void EventHandler::FeedEvent( Integration::Event& event )
