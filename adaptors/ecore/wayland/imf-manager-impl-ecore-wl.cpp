@@ -209,6 +209,18 @@ void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *even
   }
 }
 
+/**
+ * Called when the input method sends a private command.
+ */
+void PrivateCommand( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+{
+  if ( data )
+  {
+    ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+    imfManager->SendPrivateCommand( data, imfContext, event_info );
+  }
+}
+
 BaseHandle Create()
 {
   return ImfManager::Get();
@@ -330,6 +342,7 @@ void ImfManager::DeleteContext()
 
   if ( mIMFContext )
   {
+    ecore_imf_context_del( mIMFContext );
     mIMFContext = NULL;
   }
 }
@@ -341,9 +354,10 @@ void ImfManager::ConnectCallbacks()
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::ConnectCallbacks\n" );
 
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,    PreEdit,    this );
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit,     this );
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this );
+    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,      PreEdit,    this );
+    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,               Commit,     this );
+    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING,   ImfDeleteSurrounding, this );
+    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this );
 
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this );
@@ -359,9 +373,10 @@ void ImfManager::DisconnectCallbacks()
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::DisconnectCallbacks\n" );
 
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,    PreEdit );
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit );
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding );
+    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,      PreEdit );
+    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,               Commit );
+    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING,   ImfDeleteSurrounding );
+    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand );
 
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback     );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback  );
@@ -578,6 +593,23 @@ void ImfManager::DeleteSurrounding( void* data, Ecore_IMF_Context* imfContext, v
   }
 }
 
+/**
+ * Called when the input method sends a private command.
+ */
+void ImfManager::SendPrivateCommand( void* data, Ecore_IMF_Context* imfContext, void* event_info )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SendPrivateCommand\n" );
+
+  if( Dali::Adaptor::IsAvailable() )
+  {
+    const char* privateCommandSendEvent = static_cast<const char*>( event_info );
+
+    Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::PRIVATECOMMAND, privateCommandSendEvent, 0, 0 );
+    Dali::ImfManager handle( this );
+    mEventSignal.Emit( handle, imfData );
+  }
+}
+
 void ImfManager::NotifyCursorPosition()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::NotifyCursorPosition\n" );
@@ -691,6 +723,107 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   if ( mOptions.CompareAndSet(VARIATION, options, index) )
   {
     ecore_imf_context_input_panel_layout_variation_set( mIMFContext, index );
+  }
+}
+
+void ImfManager::SetInputPanelUserData( const std::string& data )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+
+  if( mIMFContext )
+  {
+    int length = data.length();
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+  }
+}
+
+void ImfManager::GetInputPanelUserData( std::string& data )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+
+  if( mIMFContext )
+  {
+    int* length = NULL;
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+  }
+}
+
+Dali::ImfManager::State ImfManager::GetInputPanelState()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelState\n" );
+
+  if( mIMFContext )
+  {
+    int value;
+    value = ecore_imf_context_input_panel_state_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
+      {
+        return Dali::ImfManager::SHOW;
+        break;
+      }
+
+      case ECORE_IMF_INPUT_PANEL_STATE_HIDE:
+      {
+        return Dali::ImfManager::HIDE;
+        break;
+      }
+
+      case ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
+      {
+        return Dali::ImfManager::WILL_SHOW;
+        break;
+      }
+
+      default:
+      {
+        return Dali::ImfManager::DEFAULT;
+      }
+    }
+  }
+  return Dali::ImfManager::DEFAULT;
+}
+
+void ImfManager::SetReturnKeyState( bool visible )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetReturnKeyState\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_return_key_disabled_set( mIMFContext, !visible );
+  }
+}
+
+void ImfManager::AutoEnableInputPanel( bool enabled )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::AutoEnableInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_enabled_set( mIMFContext, enabled );
+  }
+}
+
+void ImfManager::ShowInputPanel()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::ShowInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_show( mIMFContext );
+  }
+}
+
+void ImfManager::HideInputPanel()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::HideInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_focus_out( mIMFContext );
+    ecore_imf_context_input_panel_hide( mIMFContext );
   }
 }
 
