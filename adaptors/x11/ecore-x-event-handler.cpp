@@ -84,7 +84,7 @@ namespace
 {
 
 const char * DETENT_DEVICE_NAME = "tizen_detent";
-
+const std::string DEFAULT_DEVICE_NAME = "";
 // DBUS accessibility
 #define A11Y_BUS "org.a11y.Bus"
 #define A11Y_INTERFACE "org.a11y.Bus"
@@ -707,7 +707,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, DEFAULT_DEVICE_NAME );
         handler->SendEvent( keyEvent );
       }
     }
@@ -774,7 +774,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, DEFAULT_DEVICE_NAME );
 
         handler->SendEvent( keyEvent );
       }

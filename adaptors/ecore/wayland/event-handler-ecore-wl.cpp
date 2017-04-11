@@ -167,6 +167,20 @@ static unsigned int GetCurrentMilliSeconds(void)
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessibility/font_name";  // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
 
+/**
+ * Get the device name from the provided ecore key event
+ */
+void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
+{
+  const char* ecoreDeviceName = ecore_device_name_get( keyEvent->dev );
+
+  if ( ecoreDeviceName )
+  {
+    result = ecoreDeviceName;
+  }
+}
+
+
 } // unnamed namespace
 
 // Impl to hide EFL implementation.
@@ -439,7 +453,12 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down );
+        std::string deviceName;
+        GetDeviceName( keyEvent, deviceName );
+
+        DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s)\n", deviceName.c_str() );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName );
         handler->SendEvent( keyEvent );
       }
     }
@@ -510,7 +529,11 @@ struct EventHandler::Impl
         {
           keyString = keyEvent->string;
         }
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up );
+
+        std::string deviceName;
+        GetDeviceName( keyEvent, deviceName );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName );
         handler->SendEvent( keyEvent );
       }
     }
