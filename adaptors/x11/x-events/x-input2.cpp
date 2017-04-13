@@ -123,7 +123,9 @@ void XInput2::ProcessKeyEvent( XKeyEvent* xEvent )
   keyEvent.keyPressedName = keyname;
   keyEvent.time = xEvent->time;
 
-  mEventInterface->KeyEvent( keyEvent );
+  Integration::KeyEvent convertedEvent( keyEvent );
+
+  mEventInterface->KeyEvent( convertedEvent );
 }
 void XInput2::ProcessClientMessage( XEvent* event )
 {
@@ -163,7 +165,9 @@ void XInput2::ProcessClientMessage( XEvent* event )
     keyEvent.keyPressedName = keyname;
     keyEvent.time = event->xclient.data.l[0];
 
-    mEventInterface->KeyEvent( keyEvent );
+    Integration::KeyEvent convertedEvent( keyEvent );
+
+    mEventInterface->KeyEvent( convertedEvent );
   }
 }
 
@@ -222,7 +226,8 @@ void XInput2::ProcessGenericEvent( XGenericEventCookie* cookie )
     {
       KeyEvent keyEvent;
       CreateKeyEvent( deviceEvent, keyEvent );
-      mEventInterface->KeyEvent( keyEvent );
+      Integration::KeyEvent convertedEvent( keyEvent );
+      mEventInterface->KeyEvent( convertedEvent );
       break;
     }
     default:

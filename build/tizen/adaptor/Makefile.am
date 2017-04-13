@@ -83,16 +83,12 @@ adaptor_mobile_dir = ../../../adaptors/mobile
 include ../../../adaptors/mobile/file.list
 
 # WEARABLE
-if WEARABLE_PROFILE
 adaptor_wearable_dir = ../../../adaptors/wearable
 include ../../../adaptors/wearable/file.list
-endif
 
 # TV
-if TV_PROFILE
 adaptor_tv_dir = ../../../adaptors/tv
 include ../../../adaptors/tv/file.list
-endif
 
 # Public API
 adaptor_public_api_dir = ../../../adaptors/public-api
@@ -562,12 +558,10 @@ endif # NOT UBUNTU_PROFILE
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
-if WEARABLE_PROFILE
 tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
-endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
