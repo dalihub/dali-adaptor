@@ -256,9 +256,9 @@ struct IpcDataEvMouseMove
   unsigned int       timestamp;
   Evas_Event_Flags   event_flags;
 
-  IpcDataEvMouseMove(const Dali::TouchPoint& touchPoint, unsigned long timestamp)
-  : x(static_cast<Evas_Coord>(touchPoint.local.x)),
-    y(static_cast<Evas_Coord>(touchPoint.local.y)),
+  IpcDataEvMouseMove(const Dali::Vector2& touchPoint, unsigned long timestamp)
+  : x(static_cast<Evas_Coord>(touchPoint.x)),
+    y(static_cast<Evas_Coord>(touchPoint.y)),
     flags(EVAS_BUTTON_NONE),
     mask(0),
     timestamp(static_cast<unsigned int>(timestamp)),
@@ -575,7 +575,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
 
   // Indicator image handles the touch event including "leave"
   mIndicatorContentActor.SetLeaveRequired( true );
-  mIndicatorContentActor.TouchedSignal().Connect( this, &Indicator::OnTouched );
+  mIndicatorContentActor.TouchSignal().Connect( this, &Indicator::OnTouch );
   mIndicatorContentActor.SetColor( Color::BLACK );
 
   mIndicatorActor = Dali::Actor::New();
@@ -619,7 +619,7 @@ Indicator::~Indicator()
 
   if(mEventActor)
   {
-    mEventActor.TouchedSignal().Disconnect( this, &Indicator::OnTouched );
+    mEventActor.TouchSignal().Disconnect( this, &Indicator::OnTouch );
   }
   Disconnect();
 }
@@ -789,21 +789,19 @@ bool Indicator::SendMessage( int messageDomain, int messageId, const void *data,
  }
 }
 
-bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEvent)
+bool Indicator::OnTouch(Dali::Actor indicator, const Dali::TouchData& touchData)
 {
   if( mServerConnection )
   {
-    const TouchPoint& touchPoint = touchEvent.GetPoint( 0 );
-
     // Send touch event to indicator server when indicator is showing
     if( CheckVisibleState() || mIsShowing )
     {
-      switch( touchPoint.state )
+      switch( touchData.GetState(0) )
       {
         case Dali::PointState::DOWN:
         {
-          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
-          IpcDataEvMouseDown ipcDown( touchEvent.time );
+          IpcDataEvMouseMove ipcMove( touchData.GetLocalPosition(0), touchData.GetTime() );
+          IpcDataEvMouseDown ipcDown( touchData.GetTime() );
           mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
           mServerConnection->SendEvent( OP_EV_MOUSE_DOWN, &ipcDown, sizeof(ipcDown) );
 
@@ -817,7 +815,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
 
         case Dali::PointState::MOTION:
         {
-          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
+          IpcDataEvMouseMove ipcMove( touchData.GetLocalPosition(0), touchData.GetTime() );
           mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
         }
         break;
@@ -825,7 +823,7 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
         case Dali::PointState::UP:
         case Dali::PointState::INTERRUPTED:
         {
-          IpcDataEvMouseUp ipcUp( touchEvent.time );
+          IpcDataEvMouseUp ipcUp( touchData.GetTime() );
           mServerConnection->SendEvent( OP_EV_MOUSE_UP, &ipcUp, sizeof(ipcUp) );
 
           if( mVisible == Dali::Window::AUTO )
@@ -838,9 +836,9 @@ bool Indicator::OnTouched(Dali::Actor indicator, const Dali::TouchEvent& touchEv
 
         case Dali::TouchPoint::Leave:
         {
-          IpcDataEvMouseMove ipcMove( touchPoint, touchEvent.time );
+          IpcDataEvMouseMove ipcMove( touchData.GetLocalPosition(0), touchData.GetTime() );
           mServerConnection->SendEvent( OP_EV_MOUSE_MOVE, &ipcMove, sizeof(ipcMove) );
-          IpcDataEvMouseUp ipcOut( touchEvent.time );
+          IpcDataEvMouseUp ipcOut( touchData.GetTime() );
           mServerConnection->SendEvent( OP_EV_MOUSE_OUT, &ipcOut, sizeof(ipcOut) );
         }
         break;
@@ -1592,7 +1590,7 @@ void Indicator::ShowIndicator(float duration)
     if( mVisible == Dali::Window::AUTO )
     {
       // check the stage touch
-      Dali::Stage::GetCurrent().TouchedSignal().Connect( this, &Indicator::OnStageTouched );
+      Dali::Stage::GetCurrent().TouchSignal().Connect( this, &Indicator::OnStageTouch );
     }
   }
   else
@@ -1605,7 +1603,7 @@ void Indicator::ShowIndicator(float duration)
     if( mVisible == Dali::Window::AUTO )
     {
       // check the stage touch
-      Dali::Stage::GetCurrent().TouchedSignal().Disconnect( this, &Indicator::OnStageTouched );
+      Dali::Stage::GetCurrent().TouchSignal().Disconnect( this, &Indicator::OnStageTouch );
     }
   }
 }
@@ -1633,19 +1631,17 @@ void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
   // Nothing to do, but we still want to consume pan
 }
 
-void Indicator::OnStageTouched(const Dali::TouchEvent& touchEvent)
+void Indicator::OnStageTouch(const Dali::TouchData& touchData)
 {
-  const TouchPoint& touchPoint = touchEvent.GetPoint( 0 );
-
   // when stage is touched while indicator is showing temporary, hide it
   if( mIsShowing && ( CheckVisibleState() == false || mVisible == Dali::Window::AUTO ) )
   {
-    switch( touchPoint.state )
+    switch( touchData.GetState(0) )
     {
       case Dali::PointState::DOWN:
       {
         // if touch point is inside the indicator, indicator is not hidden
-        if( mImageHeight < int(touchPoint.screen.y) )
+        if( mImageHeight < int( touchData.GetScreenPosition(0).y ) )
         {
           ShowIndicator( HIDE_NOW );
         }
