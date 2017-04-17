@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/events/key-event.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/window-event-interface.h>

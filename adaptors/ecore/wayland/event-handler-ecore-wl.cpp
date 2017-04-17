@@ -244,6 +244,20 @@ static unsigned int GetCurrentMilliSeconds(void)
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessibility/font_name";  // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
 
+/**
+ * Get the device name from the provided ecore key event
+ */
+void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
+{
+  const char* ecoreDeviceName = ecore_device_name_get( keyEvent->dev );
+
+  if ( ecoreDeviceName )
+  {
+    result = ecoreDeviceName;
+  }
+}
+
+
 } // unnamed namespace
 
 // Impl to hide EFL implementation.
@@ -516,7 +530,12 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Down);
+        std::string deviceName;
+        GetDeviceName( keyEvent, deviceName );
+
+        DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s)\n", deviceName.c_str() );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName );
         handler->SendEvent( keyEvent );
       }
     }
@@ -556,6 +575,11 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+#ifdef ECORE_IMF_1_13
+        ecoreKeyUpEvent.dev_name  = "";
+        ecoreKeyUpEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+        ecoreKeyUpEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
@@ -583,7 +607,10 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Up);
+        std::string deviceName;
+        GetDeviceName( keyEvent, deviceName );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName );
         handler->SendEvent( keyEvent );
       }
     }
@@ -1261,21 +1288,19 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
   }
 }
 
-void EventHandler::SendEvent(KeyEvent& keyEvent)
+void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
 {
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if ( physicalKeyboard )
   {
-    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ) )
+    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
     {
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
 
-  // Create KeyEvent and send to Core.
-  Integration::KeyEvent event(keyEvent.keyPressedName, keyEvent.keyPressed, keyEvent.keyCode,
-  keyEvent.keyModifier, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
-  mCoreEventInterface.QueueCoreEvent( event );
+  // Create send KeyEvent to Core.
+  mCoreEventInterface.QueueCoreEvent( keyEvent );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -1325,7 +1350,8 @@ void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )
 {
-  SendEvent( event );
+  Integration::KeyEvent convertedEvent( event );
+  SendEvent( convertedEvent );
 }
 
 void EventHandler::FeedEvent( Integration::Event& event )

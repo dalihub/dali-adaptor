@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 
 namespace Dali
@@ -52,7 +53,7 @@ public:
    * @brief Key Event callback
    * @param[in] keyEvent key event
    */
-  virtual void KeyEvent( Dali::KeyEvent& keyEvent ) = 0;
+  virtual void KeyEvent( Dali::Integration::KeyEvent& keyEvent ) = 0;
 
   /**
    * @brief Wheel Event callback
