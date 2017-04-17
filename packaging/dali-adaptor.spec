@@ -466,7 +466,7 @@ popd
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
-           --enable-shaderbincache=ENABLE --enable-profile=TV \
+           --enable-shaderbincache=DISABLE --enable-profile=TV \
 %if 0%{?dali_feedback_plugin_tv}
            --enable-feedback \
 %endif
