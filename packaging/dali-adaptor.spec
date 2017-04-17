@@ -92,7 +92,7 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(aul)
+BuildRequires:  pkgconfig(screen_connector_provider)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
