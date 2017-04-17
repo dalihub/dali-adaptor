@@ -49,6 +49,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -85,6 +86,8 @@ namespace
 
 const char * DETENT_DEVICE_NAME = "tizen_detent";
 const std::string DEFAULT_DEVICE_NAME = "";
+const DevelKeyEvent::DeviceClass::Type DEFAULT_DEVICE_CLASS = DevelKeyEvent::DeviceClass::NONE;
+
 // DBUS accessibility
 #define A11Y_BUS "org.a11y.Bus"
 #define A11Y_INTERFACE "org.a11y.Bus"
@@ -707,7 +710,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, DEFAULT_DEVICE_NAME );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS );
         handler->SendEvent( keyEvent );
       }
     }
@@ -774,7 +777,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, DEFAULT_DEVICE_NAME );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS );
 
         handler->SendEvent( keyEvent );
       }
