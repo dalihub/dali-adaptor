@@ -44,6 +44,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -257,6 +258,48 @@ void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
   }
 }
 
+/**
+ * Get the device class from the provided ecore key event
+ */
+void GetDeviceClass(  Ecore_Event_Key* keyEvent, DevelKeyEvent::DeviceClass::Type& deviceClass )
+{
+  Ecore_Device_Class ecoreDeviceClass = ecore_device_class_get( keyEvent->dev );
+
+  switch( ecoreDeviceClass )
+  {
+  case ECORE_DEVICE_CLASS_SEAT:
+    deviceClass = DevelKeyEvent::DeviceClass::SEAT;
+    break;
+
+  case ECORE_DEVICE_CLASS_KEYBOARD:
+    deviceClass = DevelKeyEvent::DeviceClass::KEYBOARD;
+    break;
+
+  case ECORE_DEVICE_CLASS_MOUSE:
+    deviceClass = DevelKeyEvent::DeviceClass::MOUSE;
+    break;
+
+  case ECORE_DEVICE_CLASS_TOUCH:
+    deviceClass = DevelKeyEvent::DeviceClass::TOUCH;
+    break;
+
+  case ECORE_DEVICE_CLASS_PEN:
+    deviceClass = DevelKeyEvent::DeviceClass::PEN;
+    break;
+
+  case ECORE_DEVICE_CLASS_POINTER:
+    deviceClass = DevelKeyEvent::DeviceClass::POINTER;
+    break;
+
+  case ECORE_DEVICE_CLASS_GAMEPAD:
+    deviceClass = DevelKeyEvent::DeviceClass::GAMEPAD;
+    break;
+
+  default:
+    deviceClass = DevelKeyEvent::DeviceClass::NONE;
+    break;
+  }
+}
 
 } // unnamed namespace
 
@@ -531,11 +574,14 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
+        DevelKeyEvent::DeviceClass::Type deviceClass;
+
         GetDeviceName( keyEvent, deviceName );
+        GetDeviceClass( keyEvent, deviceClass );
 
-        DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s)\n", deviceName.c_str() );
+        DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s) deviceClass(%d)\n", deviceName.c_str(), deviceClass );
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName, deviceClass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -608,9 +654,12 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
-        GetDeviceName( keyEvent, deviceName );
+        DevelKeyEvent::DeviceClass::Type deviceClass;
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName );
+        GetDeviceName( keyEvent, deviceName );
+        GetDeviceClass( keyEvent, deviceClass );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName, deviceClass );
         handler->SendEvent( keyEvent );
       }
     }
