@@ -96,7 +96,7 @@ class WatchApplication;
 class DALI_IMPORT_API WatchApplication : public Application
 {
 public:
-  typedef Signal< void (Application&, const WatchTime &) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37
+  typedef Signal< void (Application&, const WatchTime&) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37
   typedef Signal< void (Application&, bool) > WatchBoolSignal; ///< Watch bool signal callback type @SINCE_1_1.37
 
 public:
@@ -163,7 +163,7 @@ public:
    * @brief This signal is emitted at every second
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(Application& application, WatchTimeSignal &time);
+   *   void YourCallbackName(Application& application, const WatchTime& time);
    * @endcode
    * time(watch time handle) will not be available after returning this callback. It will be freed by the framework.
    * @SINCE_1_1.37
@@ -175,7 +175,7 @@ public:
    * @brief This signal is emitted at each minute in ambient mode
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(Application& application, WatchTimeSignal &time);
+   *   void YourCallbackName(Application& application, const WatchTime& time);
    * @endcode
    * time(watch time handle) will not be available after returning this callback. It will be freed by the framework.
    * @SINCE_1_1.37
