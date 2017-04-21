@@ -55,6 +55,11 @@ bool IsVisible( Window window )
   return GetImplementation( window ).IsVisible();
 }
 
+void * GetNativeWindowHandler( Window window )
+{
+  return GetImplementation( window ).GetNativeWindowHandler();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
