@@ -17,7 +17,7 @@ Summary:    The DALi Tizen Adaptor
 Version:    1.2.36
 Release:    1
 Group:      System/Libraries
-License:    Apache-2.0 and BSD-2-Clause and MIT
+License:    Apache-2.0 and BSD-3-Clause and MIT
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
