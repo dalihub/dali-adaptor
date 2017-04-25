@@ -117,7 +117,9 @@ Window::Window()
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
-  mPreferredOrientation( Dali::Window::PORTRAIT )
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
   mEventHandler = NULL;
 }
@@ -307,6 +309,45 @@ bool Window::IsVisible() const
 
 
 void Window::RotationDone( int orientation, int width, int height )
+{
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount()
+{
+  return 0;
+}
+
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+{
+  return std::string();
+}
+
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  return -1;
+}
+
+bool Window::RemoveAuxiliaryHint( unsigned int id )
+{
+  return false;
+}
+
+bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+{
+  return false;
+}
+
+std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+{
+  return std::string();
+}
+
+unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+{
+  return -1;
+}
+
+void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 

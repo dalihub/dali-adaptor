@@ -195,6 +195,69 @@ public:
    */
   void RotationDone( int orientation, int width, int height );
 
+  /**
+   * @brief Gets the count of supported auxiliary hints of the window.
+   * @return The number of supported auxiliary hints.
+   *
+   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+   */
+   unsigned int GetSupportedAuxiliaryHintCount();
+
+  /**
+   * @brief Gets the supported auxiliary hint string of the window.
+   * @param[in] index The index of the supported auxiliary hint lists
+   * @return The auxiliary hint string of the index.
+   *
+   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+   */
+  std::string GetSupportedAuxiliaryHint( unsigned int index );
+
+  /**
+   * @brief Creates an auxiliary hint of the window.
+   * @param[in] hint The auxiliary hint string.
+   * @param[in] value The value string.
+   * @return The ID of created auxiliary hint, or @c 0 on failure.
+   */
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+
+  /**
+   * @brief Removes an auxiliary hint of the window.
+   * @param[in] id The ID of the auxiliary hint.
+   * @return True if no error occurred, false otherwise.
+   */
+  bool RemoveAuxiliaryHint( unsigned int id );
+
+  /**
+   * @brief Changes a value of the auxiliary hint.
+   * @param[in] id The auxiliary hint ID.
+   * @param[in] value The value string to be set.
+   * @return True if no error occurred, false otherwise.
+   */
+  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+
+  /**
+   * @brief Gets a value of the auxiliary hint.
+   * @param[in] id The auxiliary hint ID.
+   * @return The string value of the auxiliary hint ID, or an empty string if none exists.
+   */
+  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+
+  /**
+   * @brief Gets a ID of the auxiliary hint string.
+   * @param[in] hint The auxiliary hint string.
+   * @return The ID of the auxiliary hint string, or @c 0 if none exists.
+   */
+  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+
+  /**
+   * @brief Sets a region to get input events.
+   * @param[in] inputRegion The rectangle region to get input events.
+   * @note To set an empty region, pass width and height as 0. An empty input region means the entire window will accept input events.
+   */
+  void SetInputRegion( const Rect< int >& inputRegion );
+
 private:
   /**
    * Private constructor.
@@ -297,7 +360,7 @@ public: // Signals
 
 private:
 
-  typedef std::vector< IndicatorInterface * > DiscardedIndicators;
+  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
 
   RenderSurface*                   mSurface;
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
@@ -323,6 +386,9 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
+
+  std::vector< std::string >        mSupportedAuxiliaryHints;
+  AuxiliaryHints                    mAuxiliaryHints;
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;

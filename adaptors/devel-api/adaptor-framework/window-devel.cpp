@@ -55,6 +55,46 @@ bool IsVisible( Window window )
   return GetImplementation( window ).IsVisible();
 }
 
+unsigned int GetSupportedAuxiliaryHintCount( Window window )
+{
+  return GetImplementation( window ).GetSupportedAuxiliaryHintCount();
+}
+
+std::string GetSupportedAuxiliaryHint( Window window, unsigned int index )
+{
+  return GetImplementation( window ).GetSupportedAuxiliaryHint( index );
+}
+
+unsigned int AddAuxiliaryHint( Window window, const std::string& hint, const std::string& value )
+{
+  return GetImplementation( window ).AddAuxiliaryHint( hint, value );
+}
+
+bool RemoveAuxiliaryHint( Window window, unsigned int id )
+{
+  return GetImplementation( window ).RemoveAuxiliaryHint( id );
+}
+
+bool SetAuxiliaryHintValue( Window window, unsigned int id, const std::string& value )
+{
+  return GetImplementation( window ).SetAuxiliaryHintValue( id, value );
+}
+
+std::string GetAuxiliaryHintValue( Window window, unsigned int id )
+{
+  return GetImplementation( window ).GetAuxiliaryHintValue( id );
+}
+
+unsigned int GetAuxiliaryHintId( Window window, const std::string& hint )
+{
+  return GetImplementation( window ).GetAuxiliaryHintId( hint );
+}
+
+void SetInputRegion( Window window, const Rect< int >& inputRegion )
+{
+  return GetImplementation( window ).SetInputRegion( inputRegion );
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

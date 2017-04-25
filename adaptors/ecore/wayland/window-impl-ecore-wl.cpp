@@ -49,7 +49,7 @@ namespace Internal
 namespace Adaptor
 {
 #if defined(DEBUG_ENABLED)
-Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_WINDOW");
+Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW");
 #endif
 
 /**
@@ -321,7 +321,9 @@ Window::Window()
   mOverlay( NULL ),
   mAdaptor( NULL ),
   mEventHandler( NULL ),
-  mPreferredOrientation( Dali::Window::PORTRAIT )
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
 }
 
@@ -343,6 +345,9 @@ Window::~Window()
   }
 
   delete mSurface;
+
+  mSupportedAuxiliaryHints.clear();
+  mAuxiliaryHints.clear();
 }
 
 void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
@@ -359,6 +364,21 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
 
   // create event handler for Wayland window
   mEventHandler = new EventHandler( this );
+
+  // get auxiliary hint
+  Eina_List* hints = ecore_wl_window_aux_hints_supported_get( mEventHandler->mEcoreWindow );
+  if( hints )
+  {
+    Eina_List* l = NULL;
+    char* hint = NULL;
+
+    for( l = hints, ( hint =  static_cast< char* >( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( hint = static_cast< char* >( eina_list_data_get(l) ) ) )
+    {
+      mSupportedAuxiliaryHints.push_back( hint );
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::Initialize: %s\n", hint );
+    }
+  }
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -678,6 +698,137 @@ bool Window::IsVisible() const
 void Window::RotationDone( int orientation, int width, int height )
 {
   ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount()
+{
+  return mSupportedAuxiliaryHints.size();
+}
+
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+{
+  if( index >= GetSupportedAuxiliaryHintCount() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetSupportedAuxiliaryHint: Invalid index! [%d]\n", index );
+  }
+
+  return mSupportedAuxiliaryHints[index];
+}
+
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  bool supported = false;
+
+  // Check if the hint is suppported
+  for( std::vector< std::string >::iterator iter = mSupportedAuxiliaryHints.begin(); iter != mSupportedAuxiliaryHints.end(); ++iter )
+  {
+    if( *iter == hint )
+    {
+      supported = true;
+      break;
+    }
+  }
+
+  if( !supported )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::AddAuxiliaryHint: Not supported auxiliary hint [%s]\n", hint.c_str() );
+    return 0;
+  }
+
+  // Check if the hint is already added
+  for( unsigned int i = 0; i < mAuxiliaryHints.size(); i++ )
+  {
+    if( mAuxiliaryHints[i].first == hint )
+    {
+      // Just change the value
+      mAuxiliaryHints[i].second = value;
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: Change! hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), i + 1 );
+
+      return i + 1;   // id is index + 1
+    }
+  }
+
+  // Add the hint
+  mAuxiliaryHints.push_back( std::pair< std::string, std::string >( hint, value ) );
+
+  unsigned int id = mAuxiliaryHints.size();
+
+  ecore_wl_window_aux_hint_add( mEventHandler->mEcoreWindow, static_cast< int >( id ), hint.c_str(), value.c_str() );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id );
+
+  return id;
+}
+
+bool Window::RemoveAuxiliaryHint( unsigned int id )
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::RemoveAuxiliaryHint: Invalid id [%d]\n", id );
+    return false;
+  }
+
+  mAuxiliaryHints[id - 1].second = std::string();
+
+  ecore_wl_window_aux_hint_del( mEventHandler->mEcoreWindow, static_cast< int >( id ) );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::RemoveAuxiliaryHint: id = %d, hint = %s\n", id, mAuxiliaryHints[id - 1].first.c_str() );
+
+  return true;
+}
+
+bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::SetAuxiliaryHintValue: Invalid id [%d]\n", id );
+    return false;
+  }
+
+  mAuxiliaryHints[id - 1].second = value;
+
+  ecore_wl_window_aux_hint_change( mEventHandler->mEcoreWindow, static_cast< int >( id ), value.c_str() );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str() );
+
+  return true;
+}
+
+std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::GetAuxiliaryHintValue: Invalid id [%d]\n", id );
+    return std::string();
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str() );
+
+  return mAuxiliaryHints[id - 1].second;
+}
+
+unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+{
+  for( unsigned int i = 0; i < mAuxiliaryHints.size(); i++ )
+  {
+    if( mAuxiliaryHints[i].first == hint )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintId: hint = %s, id = %d\n", hint.c_str(), i + 1 );
+      return i + 1;
+    }
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintId: Invalid hint! [%s]\n", hint.c_str() );
+
+  return 0;
+}
+
+void Window::SetInputRegion( const Rect< int >& inputRegion )
+{
+  ecore_wl_window_input_region_set( mEventHandler->mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
 
 } // Adaptor

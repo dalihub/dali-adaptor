@@ -18,6 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+#include <dali/public-api/math/rect.h>
+
 // INTERNAL INCLUDES
 #ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
 #include <window.h>
@@ -81,6 +85,76 @@ DALI_IMPORT_API void Hide( Window window );
  * @return True if the window is visible, false otherwise.
  */
 DALI_IMPORT_API bool IsVisible( Window window );
+
+/**
+ * @brief Gets the count of supported auxiliary hints of the window.
+ * @param[in] window The window to get the hint count
+ * @return The number of supported auxiliary hints.
+ *
+ * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+ * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+ */
+DALI_IMPORT_API unsigned int GetSupportedAuxiliaryHintCount( Window window );
+
+/**
+ * @brief Gets the supported auxiliary hint string of the window.
+ * @param[in] window The window to get the hint
+ * @param[in] index The index of the supported auxiliary hint lists
+ * @return The auxiliary hint string of the index.
+ *
+ * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+ * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+ */
+DALI_IMPORT_API std::string GetSupportedAuxiliaryHint( Window window, unsigned int index );
+
+/**
+ * @brief Creates an auxiliary hint of the window.
+ * @param[in] window The window to create a hint
+ * @param[in] hint The auxiliary hint string.
+ * @param[in] value The value string.
+ * @return The ID of created auxiliary hint, or @c 0 on failure.
+ */
+DALI_IMPORT_API unsigned int AddAuxiliaryHint( Window window, const std::string& hint, const std::string& value );
+
+/**
+ * @brief Removes an auxiliary hint of the window.
+ * @param[in] window The window to remove a hint
+ * @param[in] id The ID of the auxiliary hint.
+ * @return True if no error occurred, false otherwise.
+ */
+DALI_IMPORT_API bool RemoveAuxiliaryHint( Window window, unsigned int id );
+
+/**
+ * @brief Changes a value of the auxiliary hint.
+ * @param[in] window The window to set a value
+ * @param[in] id The auxiliary hint ID.
+ * @param[in] value The value string to be set.
+ * @return True if no error occurred, false otherwise.
+ */
+DALI_IMPORT_API bool SetAuxiliaryHintValue( Window window, unsigned int id, const std::string& value );
+
+/**
+ * @brief Gets a value of the auxiliary hint.
+ * @param[in] window The window to get a value
+ * @param[in] id The auxiliary hint ID.
+ * @return The string value of the auxiliary hint ID, or an empty string if none exists.
+ */
+DALI_IMPORT_API std::string GetAuxiliaryHintValue( Window window, unsigned int id );
+
+/**
+ * @brief Gets a ID of the auxiliary hint string.
+ * @param[in] window The window to get an ID
+ * @param[in] hint The auxiliary hint string.
+ * @return The ID of the auxiliary hint string, or @c 0 if none exists.
+ */
+DALI_IMPORT_API unsigned int GetAuxiliaryHintId( Window window, const std::string& hint );
+
+/**
+ * @brief Sets a region to accept input events.
+ * @param[in] window The window to set a region
+ * @param[in] inputRegion The region to accept input events.
+ */
+DALI_IMPORT_API void SetInputRegion( Window window, const Rect< int >& inputRegion );
 
 } // namespace DevelWindow
 
