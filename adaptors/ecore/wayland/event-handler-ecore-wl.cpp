@@ -255,10 +255,11 @@ struct EventHandler::Impl
     if ( window != 0 )
     {
       // Register Touch events
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,  EcoreEventMouseButtonDown, handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,    EcoreEventMouseButtonUp,   handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,         EcoreEventMouseButtonMove, handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,          EcoreEventMouseButtonUp,   handler ) ); // process mouse out event like up event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,   EcoreEventMouseButtonDown,   handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,     EcoreEventMouseButtonUp,     handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,          EcoreEventMouseButtonMove,   handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,           EcoreEventMouseButtonUp,     handler ) ); // process mouse out event like up event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, handler ) );
 
       // Register Mouse wheel events
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,        EcoreEventMouseWheel,      handler ) );
@@ -386,24 +387,6 @@ struct EventHandler::Impl
   }
 
   /**
-   * Called when a touch up is received.
-   */
-  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
-  {
-    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
-
-    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
-
-    EventHandler* handler( (EventHandler*)data );
-    if ( mouseWheelEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
-    {
-      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
-      handler->SendWheelEvent( wheelEvent );
-    }
-    return ECORE_CALLBACK_PASS_ON;
-  }
-
-  /**
    * Called when a touch motion is received.
    */
   static Eina_Bool EcoreEventMouseButtonMove( void* data, int type, void* event )
@@ -423,6 +406,46 @@ struct EventHandler::Impl
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+   * Called when a touch is canceled.
+   */
+  static Eina_Bool EcoreEventMouseButtonCancel( void* data, int type, void* event )
+  {
+    Ecore_Event_Mouse_Button *touchEvent( (Ecore_Event_Mouse_Button*)event );
+    EventHandler* handler( (EventHandler*)data );
+
+    if( touchEvent->window == (unsigned int)ecore_wl_window_id_get( handler->mImpl->mWindow ) )
+    {
+      Integration::Point point;
+      point.SetDeviceId( touchEvent->multi.device );
+      point.SetState( PointState::INTERRUPTED );
+      point.SetScreenPosition( Vector2( 0.0f, 0.0f ) );
+      handler->SendEvent( point, touchEvent->timestamp );
+
+      DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventMouseButtonCancel\n" );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+   * Called when a mouse wheel is received.
+   */
+  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
+  {
+    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
+
+    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
+
+    EventHandler* handler( (EventHandler*)data );
+    if ( mouseWheelEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
+    {
+      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+      handler->SendWheelEvent( wheelEvent );
+    }
     return ECORE_CALLBACK_PASS_ON;
   }
 
