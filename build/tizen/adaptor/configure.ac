@@ -42,6 +42,7 @@ PKG_CHECK_MODULES(FREETYPE_BITMAP_SUPPORT, [freetype2 >= $FREETYPE_BITMAP_SUPPOR
 PKG_CHECK_MODULES(FONTCONFIG, fontconfig)
 PKG_CHECK_MODULES(PNG, libpng)
 PKG_CHECK_MODULES(LIBEXIF, libexif)
+PKG_CHECK_MODULES(SCREENCONNECTORPROVIDER, screen_connector_provider)
 PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
@@ -222,7 +223,6 @@ fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
-PKG_CHECK_MODULES(SCREENCONNECTORPROVIDER, screen_connector_provider)
 PKG_CHECK_MODULES(APPFW_WATCH, capi-appfw-watch-application,
    [watch_available=yes], [watch_available=no] )
 PKG_CHECK_MODULES(APPCORE_WATCH, appcore-watch)
