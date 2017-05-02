@@ -176,6 +176,41 @@ public:
   */
   void ApplyOptions( const InputMethodOptions& options );
 
+  /**
+   * @copydoc Dali::ImfManager::SetInputPanelUserData()
+   */
+  void SetInputPanelUserData( const std::string& data );
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelUserData()
+   */
+  void GetInputPanelUserData( std::string& data );
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelState()
+   */
+  Dali::ImfManager::State GetInputPanelState();
+
+  /**
+   * @copydoc Dali::ImfManager::SetReturnKeyState()
+   */
+  void SetReturnKeyState( bool visible );
+
+  /**
+   * @copydoc Dali::ImfManager::AutoEnableInputPanel()
+   */
+  void AutoEnableInputPanel( bool enabled );
+
+  /**
+   * @copydoc Dali::ImfManager::ShowInputPanel()
+   */
+  void ShowInputPanel();
+
+  /**
+   * @copydoc Dali::ImfManager::HideInputPanel()
+   */
+  void HideInputPanel();
+
 public:  // Signals
 
   /**

@@ -68,7 +68,7 @@ public:
   /**
    * Connect Callbacks required for IMF.
    * If you don't connect imf callbacks, you can't get the key events.
-   * The events are PreeditChanged, Commit and DeleteSurrounding.
+   * The events are PreeditChanged, Commit, DeleteSurrounding and PrivateCommand.
    */
   void ConnectCallbacks();
 
@@ -127,6 +127,11 @@ public:
    */
   void DeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *event_info );
 
+ /**
+  * @copydoc Dali::ImfManager::SendPrivateCommand()
+  */
+  void SendPrivateCommand( void* data, Ecore_IMF_Context* imfContext, void* event_info );
+
   // Cursor related
   /**
    * @copydoc Dali::ImfManager::NotifyCursorPosition()
@@ -172,6 +177,41 @@ public:
   * @copydoc Dali::ImfManager::ApplyOptions()
   */
   void ApplyOptions( const InputMethodOptions& options );
+
+  /**
+   * @copydoc Dali::ImfManager::SetInputPanelUserData()
+   */
+  void SetInputPanelUserData( const std::string& data );
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelUserData()
+   */
+  void GetInputPanelUserData( std::string& data );
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelState()
+   */
+  Dali::ImfManager::State GetInputPanelState();
+
+  /**
+   * @copydoc Dali::ImfManager::SetReturnKeyState()
+   */
+  void SetReturnKeyState( bool visible );
+
+  /**
+   * @copydoc Dali::ImfManager::AutoEnableInputPanel()
+   */
+  void AutoEnableInputPanel( bool enabled );
+
+  /**
+   * @copydoc Dali::ImfManager::ShowInputPanel()
+   */
+  void ShowInputPanel();
+
+  /**
+   * @copydoc Dali::ImfManager::HideInputPanel()
+   */
+  void HideInputPanel();
 
 public:  // Signals
 
