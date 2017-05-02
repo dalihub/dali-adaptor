@@ -676,12 +676,6 @@ void Window::RotationDone( int orientation, int width, int height )
   ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
 }
 
-void* Window::GetNativeWindowHandler()
-{
-  return mEventHandler->mEcoreWindow;
-}
-
-
 } // Adaptor
 } // Internal
 } // Dali
