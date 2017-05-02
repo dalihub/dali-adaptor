@@ -128,7 +128,7 @@ DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
  * @param[in] grabModeVector The Dali::Vector of grab modes for the keys
  * @return Dali::Vector Size is zero when error occurs, true/false if the grab succeeds/fails.
  */
-DALI_IMPORT_API Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector);
+DALI_IMPORT_API Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector, const Dali::Vector<KeyGrabMode> grabModeVector);
 
 
 /**
@@ -144,7 +144,7 @@ DALI_IMPORT_API Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vecto
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_IMPORT_API Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector );
+DALI_IMPORT_API Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY> daliKeyVector );
 
 
 } // namespace KeyGrab
