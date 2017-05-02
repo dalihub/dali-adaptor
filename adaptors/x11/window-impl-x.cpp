@@ -345,12 +345,14 @@ Window::Window()
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mOpaqueState( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
+  mType( Dali::DevelWindow::NORMAL ),
   mEventHandler( NULL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
@@ -850,6 +852,56 @@ unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
 
 void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
+}
+
+void Window::SetType( Dali::DevelWindow::Type type )
+{
+  mType = type;
+}
+
+Dali::DevelWindow::Type Window::GetType() const
+{
+  return mType;
+}
+
+bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+{
+  return false;
+}
+
+Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+{
+  return Dali::DevelWindow::NotificationLevel::NONE;
+}
+
+void Window::SetOpaqueState( bool opaque )
+{
+  mOpaqueState = opaque;
+}
+
+bool Window::IsOpaqueState()
+{
+  return mOpaqueState;
+}
+
+bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+{
+  return false;
+}
+
+Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+{
+  return Dali::DevelWindow::ScreenMode::DEFAULT;
+}
+
+bool Window::SetBrightness( int brightness )
+{
+  return false;
+}
+
+int Window::GetBrightness()
+{
+  return 0;
 }
 
 } // Adaptor

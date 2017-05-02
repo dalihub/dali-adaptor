@@ -95,6 +95,56 @@ void SetInputRegion( Window window, const Rect< int >& inputRegion )
   return GetImplementation( window ).SetInputRegion( inputRegion );
 }
 
+void SetType( Window window, Type type )
+{
+  GetImplementation( window ).SetType( type );
+}
+
+Type GetType( Window window )
+{
+  return GetImplementation( window ).GetType();
+}
+
+bool SetNotificationLevel( Window window, NotificationLevel::Type level )
+{
+  return GetImplementation( window ).SetNotificationLevel( level );
+}
+
+NotificationLevel::Type GetNotificationLevel( Window window )
+{
+  return GetImplementation( window ).GetNotificationLevel();
+}
+
+void SetOpaqueState( Window window, bool opaque )
+{
+  GetImplementation( window ).SetOpaqueState( opaque );
+}
+
+bool IsOpaqueState( Window window )
+{
+  return GetImplementation( window ).IsOpaqueState();
+}
+
+bool SetScreenMode( Window window, ScreenMode::Type screenMode )
+{
+  return GetImplementation( window ).SetScreenMode( screenMode );
+}
+
+ScreenMode::Type GetScreenMode( Window window )
+{
+  return GetImplementation( window ).GetScreenMode();
+}
+
+bool SetBrightness( Window window, int brightness )
+{
+  return GetImplementation( window ).SetBrightness( brightness );
+}
+
+int GetBrightness( Window window )
+{
+  return GetImplementation( window ).GetBrightness();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

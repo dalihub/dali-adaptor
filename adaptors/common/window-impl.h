@@ -160,103 +160,124 @@ public:
   Dali::Any GetNativeHandle() const;
 
   /**
-   * @brief Sets whether window accepts focus or not.
-   *
-   * @param[in] accept If focus is accepted or not. Default is true.
+   * @copydoc Dali::DevelWindow::SetAcceptFocus()
    */
   void SetAcceptFocus( bool accept );
 
   /**
-   * @brief Returns whether window accepts focus or not.
-   *
-   * @param[in] window The window to accept focus
-   * @return True if the window accept focus, false otherwise
+   * @copydoc Dali::DevelWindow::IsFocusAcceptable()
    */
   bool IsFocusAcceptable();
 
   /**
-   * @brief Shows the window if it is hidden.
+   * @copydoc Dali::DevelWindow::Show()
    */
   void Show();
 
   /**
-   * @brief Hides the window if it is showing.
+   * @copydoc Dali::DevelWindow::Hide()
    */
   void Hide();
 
   /**
-   * @brief Returns whether the window is showing or not.
-   * @return True if the window is showing, false otherwise.
+   * @copydoc Dali::DevelWindow::IsVisible() const
    */
   bool IsVisible() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHintCount()
+   */
+   unsigned int GetSupportedAuxiliaryHintCount();
+
+   /**
+    * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHint()
+    */
+  std::string GetSupportedAuxiliaryHint( unsigned int index );
+
+  /**
+   * @copydoc Dali::DevelWindow::AddAuxiliaryHint()
+   */
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+
+  /**
+   * @copydoc Dali::DevelWindow::RemoveAuxiliaryHint()
+   */
+  bool RemoveAuxiliaryHint( unsigned int id );
+
+  /**
+   * @copydoc Dali::DevelWindow::SetAuxiliaryHintValue()
+   */
+  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetAuxiliaryHintValue()
+   */
+  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+
+  /**
+   * @copydoc Dali::DevelWindow::GetAuxiliaryHintId()
+   */
+  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetInputRegion()
+   */
+  void SetInputRegion( const Rect< int >& inputRegion );
+
+  /**
+   * @copydoc Dali::DevelWindow::SetType()
+   */
+  void SetType( Dali::DevelWindow::Type type );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetType() const
+   */
+  Dali::DevelWindow::Type GetType() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetNotificationLevel()
+   */
+  bool SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetNotificationLevel()
+   */
+  Dali::DevelWindow::NotificationLevel::Type GetNotificationLevel();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetOpaqueState()
+   */
+  void SetOpaqueState( bool opaque );
+
+  /**
+   * @copydoc Dali::DevelWindow::IsOpaqueState()
+   */
+  bool IsOpaqueState();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetScreenMode()
+   */
+  bool SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetScreenMode()
+   */
+  Dali::DevelWindow::ScreenMode::Type GetScreenMode();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetBrightness()
+   */
+  bool SetBrightness( int brightness );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetBrightness()
+   */
+  int GetBrightness();
 
   /**
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
-
-  /**
-   * @brief Gets the count of supported auxiliary hints of the window.
-   * @return The number of supported auxiliary hints.
-   *
-   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
-   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
-   */
-   unsigned int GetSupportedAuxiliaryHintCount();
-
-  /**
-   * @brief Gets the supported auxiliary hint string of the window.
-   * @param[in] index The index of the supported auxiliary hint lists
-   * @return The auxiliary hint string of the index.
-   *
-   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
-   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
-   */
-  std::string GetSupportedAuxiliaryHint( unsigned int index );
-
-  /**
-   * @brief Creates an auxiliary hint of the window.
-   * @param[in] hint The auxiliary hint string.
-   * @param[in] value The value string.
-   * @return The ID of created auxiliary hint, or @c 0 on failure.
-   */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
-
-  /**
-   * @brief Removes an auxiliary hint of the window.
-   * @param[in] id The ID of the auxiliary hint.
-   * @return True if no error occurred, false otherwise.
-   */
-  bool RemoveAuxiliaryHint( unsigned int id );
-
-  /**
-   * @brief Changes a value of the auxiliary hint.
-   * @param[in] id The auxiliary hint ID.
-   * @param[in] value The value string to be set.
-   * @return True if no error occurred, false otherwise.
-   */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
-
-  /**
-   * @brief Gets a value of the auxiliary hint.
-   * @param[in] id The auxiliary hint ID.
-   * @return The string value of the auxiliary hint ID, or an empty string if none exists.
-   */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const;
-
-  /**
-   * @brief Gets a ID of the auxiliary hint string.
-   * @param[in] hint The auxiliary hint string.
-   * @return The ID of the auxiliary hint string, or @c 0 if none exists.
-   */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
-
-  /**
-   * @brief Sets a region to get input events.
-   * @param[in] inputRegion The rectangle region to get input events.
-   * @note To set an empty region, pass width and height as 0. An empty input region means the entire window will accept input events.
-   */
-  void SetInputRegion( const Rect< int >& inputRegion );
 
 private:
   /**
@@ -372,6 +393,7 @@ private:
   bool                             mEcoreEventHander:1;
   bool                             mIsFocusAcceptable:1;
   bool                             mVisible:1;
+  bool                             mOpaqueState:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
@@ -379,6 +401,7 @@ private:
   Integration::SystemOverlay*      mOverlay;
   Adaptor*                         mAdaptor;
   Dali::DragAndDropDetector        mDragAndDropDetector;
+  Dali::DevelWindow::Type          mType;
 
   struct EventHandler;
   EventHandler*                    mEventHandler;
