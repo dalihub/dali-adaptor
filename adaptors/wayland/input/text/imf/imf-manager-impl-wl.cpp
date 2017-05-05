@@ -317,6 +317,35 @@ void ImfManager::ApplyOptions(const InputMethodOptions& options)
 {
 }
 
+void ImfManager::SetInputPanelUserData( const std::string& data )
+{
+}
+
+void ImfManager::GetInputPanelUserData( std::string& data )
+{
+}
+
+Dali::ImfManager::State ImfManager::GetInputPanelState()
+{
+  return Dali::ImfManager::DEFAULT;
+}
+
+void ImfManager::SetReturnKeyState( bool visible )
+{
+}
+
+void ImfManager::AutoEnableInputPanel( bool enabled )
+{
+}
+
+void ImfManager::ShowInputPanel()
+{
+}
+
+void ImfManager::HideInputPanel()
+{
+}
+
 Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
 {
   TextInputManager::SeatInfo& info = mTextInputManager.GetLastActiveSeat();

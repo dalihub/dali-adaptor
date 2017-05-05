@@ -61,7 +61,19 @@ public:
     PREEDIT,             ///< Pre-Edit changed
     COMMIT,              ///< Commit recieved
     DELETESURROUNDING,   ///< Event to delete a range of characters from the string
-    GETSURROUNDING       ///< Event to query string and cursor position
+    GETSURROUNDING,      ///< Event to query string and cursor position
+    PRIVATECOMMAND       ///< Private command sent from the input panel
+  };
+
+  /**
+   * @brief Enumeration for state of the input panel.
+   */
+  enum State
+  {
+    DEFAULT = 0,   ///< Unknown state
+    SHOW,          ///< Input panel is shown
+    HIDE,          ///< Input panel is hidden
+    WILL_SHOW      ///< Input panel in process of being shown
   };
 
   /**
@@ -253,6 +265,47 @@ public:
    */
   void ApplyOptions( const InputMethodOptions& options );
 
+  /**
+   * @brief Sets up the input-panel specific data.
+   * @param[in] data The specific data to be set to the input panel
+   */
+  void SetInputPanelUserData( const std::string& data );
+
+  /**
+   * @brief Gets the specific data of the current active input panel.
+   * @param[in] data The specific data to be got from the input panel
+   */
+  void GetInputPanelUserData( std::string& data );
+
+  /**
+   * @brief Gets the state of the current active input panel.
+   * @return The state of the input panel.
+   */
+  State GetInputPanelState();
+
+  /**
+   * @brief Sets the return key on the input panel to be visible or invisible.
+   *
+   * The default is true.
+   * @param[in] visible True if the return key is visible(enabled), false otherwise.
+   */
+  void SetReturnKeyState( bool visible );
+
+  /**
+   * @brief Enable to show the input panel automatically when focused.
+   * @param[in] enabled If true, the input panel will be shown when focused
+   */
+  void AutoEnableInputPanel( bool enabled );
+
+  /**
+   * @brief Shows the input panel.
+   */
+  void ShowInputPanel();
+
+  /**
+   * @brief Hides the input panel.
+   */
+  void HideInputPanel();
 
 public:
 
