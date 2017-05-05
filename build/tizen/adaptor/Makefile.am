@@ -404,7 +404,10 @@ if !COMMON_PROFILE
 libdali_adaptor_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
 endif
 
-libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
+libdali_adaptor_la_CFLAGS = \
+                      -Werror -Wall \
+                      -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
+                      $(DALI_ADAPTOR_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
