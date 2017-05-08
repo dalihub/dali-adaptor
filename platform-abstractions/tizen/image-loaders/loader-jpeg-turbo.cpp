@@ -93,6 +93,21 @@ namespace
     /* Stop libjpeg from printing to stderr - Do Nothing */
   }
 
+  /**
+   * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
+   * the JPEG to be displayed and fatal errors.
+   */
+  bool IsJpegErrorFatal( const std::string& errorMessage )
+  {
+    if( ( errorMessage.find("Corrupt JPEG data") != std::string::npos ) ||
+        ( errorMessage.find("Invalid SOS parameters") != std::string::npos ) )
+    {
+      return false;
+    }
+    return true;
+  }
+
+
   /** Simple struct to ensure xif data is deleted. */
   struct ExifAutoPtr
   {
@@ -334,7 +349,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   {
     std::string errorString = tjGetErrorStr();
 
-    if( errorString.find("Corrupt JPEG data") == std::string::npos )
+    if( IsJpegErrorFatal( errorString ) )
     {
       DALI_LOG_ERROR("%s\n", errorString.c_str());
       return false;
@@ -343,10 +358,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
     {
       DALI_LOG_WARNING("%s\n", errorString.c_str());
     }
-
-    //TurboJPEG API functions will now return an error code if a warning is triggered in the underlying libjpeg API.
-    //So, we need to distinguish return of tjGetErrorStr() is warning or error.
-    //If the return string has 'Corrupt JPEG data' prefix, it means warning.
   }
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
