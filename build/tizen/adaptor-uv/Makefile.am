@@ -364,7 +364,6 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported} \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
-                      -DWAYLAND_EXTENSIONS_SUPPORTED \
                       -Werror -Wall -lgcc \
                       $(libdali_adaptor_uv_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
@@ -382,6 +381,11 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
                       $(TPKP_CURL_CFLAGS)
+
+# Todo, as soon as common repos are updated on build server remove this.
+if !COMMON_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
+endif
 
 libdali_adaptor_uv_la_CFLAGS = $(libdali_adaptor_uv_la_CXXFLAGS)
 
@@ -420,12 +424,15 @@ libdali_adaptor_uv_la_LIBADD += $(ELEMENTARY_LIBS) \
 
 else
 
-if !UBUNTU_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
-endif # !UBUNTU_PROFILE
 
-endif # USE_EFL
+if IVI_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
+endif
 
 if USE_APPFW
 
