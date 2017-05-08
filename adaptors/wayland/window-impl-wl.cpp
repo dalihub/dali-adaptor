@@ -305,15 +305,10 @@ bool Window::IsVisible() const
   return mVisible;
 }
 
+
 void Window::RotationDone( int orientation, int width, int height )
 {
 }
-
-void* Window::GetNativeWindowHandler()
-{
-  return NULL;
-}
-
 
 } // Adaptor
 } // Internal
