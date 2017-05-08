@@ -613,6 +613,7 @@ endif
 linker_test_DEPENDENCIES = libdali-adaptor.la
 linker_test_LDADD = \
   $(DALICORE_LIBS) \
+  $(DALI_ADAPTOR_LDFLAGS) \
   $(VCONF_LIBS) \
   libdali-adaptor.la \
   $(HARFBUZZ_LIBS) \
