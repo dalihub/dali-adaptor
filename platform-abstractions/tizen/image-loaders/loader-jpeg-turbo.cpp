@@ -258,7 +258,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.Reserve( jpegBufferSize );
+    jpegBuffer.Resize( jpegBufferSize );
   }
   catch(...)
   {
@@ -415,7 +415,7 @@ bool JpegRotate90(unsigned char *buffer, int width, int height, int bpp)
   iw = width;
   ih = height;
   Vector<unsigned char> data;
-  data.Reserve(width * height * bpp);
+  data.Resize(width * height * bpp);
   unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
@@ -492,7 +492,7 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
   iw = width;
   ih = height;
   Vector<unsigned char> data;
-  data.Reserve(width * height * bpp);
+  data.Resize(width * height * bpp);
   unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
@@ -533,6 +533,7 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
 bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char >& encodedPixels,
                    const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality )
 {
+
   if( !pixelBuffer )
   {
     DALI_LOG_ERROR("Null input buffer\n");
@@ -604,7 +605,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
     // save the pixels to a persistent buffer that we own and let our cleaner
     // class clean up the buffer as it goes out of scope:
     AutoJpgMem cleaner( dstBuffer );
-    encodedPixels.Reserve( dstBufferSize );
+    encodedPixels.Resize( dstBufferSize );
     memcpy( encodedPixels.Begin(), dstBuffer, dstBufferSize );
   }
   return true;

@@ -367,7 +367,7 @@ namespace
       if(encoded_img)
       {
         const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
-        encoded_img->Reserve( bufferSize + length ); //< Can throw OOM.
+        encoded_img->Resize( bufferSize + length ); //< Can throw OOM.
         unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
         memcpy(bufferBack, data, length);
       }
