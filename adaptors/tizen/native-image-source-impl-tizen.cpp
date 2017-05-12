@@ -248,7 +248,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
           {
             cOffset = c*3;
             offset = cOffset + r*stride;
-            *(bufptr) = ptr[offset+2];
+            *(bufptr+cOffset) = ptr[offset+2];
             *(bufptr+cOffset+1) = ptr[offset+1];
             *(bufptr+cOffset+2) = ptr[offset];
           }
@@ -268,7 +268,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
           {
             cOffset = c*4;
             offset = cOffset + r*stride;
-            *(bufptr) = ptr[offset+3];
+            *(bufptr+cOffset) = ptr[offset+3];
             *(bufptr+cOffset+1) = ptr[offset+2];
             *(bufptr+cOffset+2) = ptr[offset+1];
             *(bufptr+cOffset+3) = ptr[offset];
@@ -278,11 +278,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
       }
       default:
       {
-        DALI_LOG_WARNING( "Tbm surface has unsupported pixel format.\n" );
-
-        pixbuf.resize( 0 );
-        width = 0;
-        height = 0;
+        DALI_ASSERT_ALWAYS( 0 && "Tbm surface has unsupported pixel format.\n" );
 
         return false;
       }
