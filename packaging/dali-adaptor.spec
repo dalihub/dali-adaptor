@@ -320,7 +320,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %endif
 
 # Default to GLES 2.0 if not specified.
-%{!?target_gles_version: %define target_gles_version 20}
+%define target_gles_version 20
 
 #--enable-efl=no \ # only affects dali-adaptor-uv
 #--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
@@ -331,6 +331,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
            --enable-feedback \
@@ -361,12 +362,15 @@ pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.mobile"; done
 popd
 
+make clean
+
 %endif
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
            --enable-feedback \
@@ -397,12 +401,14 @@ pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.tv"; done
 popd
 
+make clean
 %endif
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
            --enable-feedback \
@@ -433,12 +439,14 @@ pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.wearable"; done
 popd
 
+make clean
 %endif
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
+
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
            --enable-feedback \
@@ -469,6 +477,7 @@ pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.ivi"; done
 popd
 
+make clean
 %endif
 
 #######################################################################
@@ -476,6 +485,7 @@ popd
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
            --enable-feedback \
@@ -497,6 +507,7 @@ popd
 
 # Build.
 make %{?jobs:-j%jobs}
+
 %endif
 
 
