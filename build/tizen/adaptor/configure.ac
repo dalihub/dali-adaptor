@@ -47,7 +47,7 @@ PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
-                  [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
+                  [ AC_MSG_NOTICE([Tizen Trace not available]) ]
                   )
 
 # Currently, dali-adaptor always requires EFL on all platforms.
@@ -132,6 +132,12 @@ AC_ARG_ENABLE([gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
               [enable_gles=$enableval],
               [enable_gles=20])
+
+AC_ARG_ENABLE([vulkan],
+              [AC_HELP_STRING([--enable-vulkan],
+                              [Enable Vulkan support])],
+              [enable_vulkan=$enableval],
+              [enable_vulkan=no])
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
@@ -242,8 +248,6 @@ if test "x$enable_profile" = "xUBUNTU"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 else
 
-
-
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
@@ -324,9 +328,22 @@ if test x$FONT_CONFIGURATION_FILE != x; then
   fontConfigurationFile=$FONT_CONFIGURATION_FILE
 fi
 
+# vulkan support, includes xlib platform dependency
+if test "x$enable_vulkan" != "xno"; then
+    PKG_CHECK_MODULES(VULKAN, vulkan-${enable_vulkan}, AC_DEFINE(ENABLE_VULKAN, 1, [Vulkan available as package]),
+                  [ AC_MSG_ERROR([Vulkan not available as a package]) ]
+                  )
+
+    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVK_USE_PLATFORM_XLIB_KHR -DVULKAN_HPP_NO_EXCEPTIONS"
+    DALI_ADAPTOR_LDFLAGS+=" ${VULKAN_LIBS}"
+fi
+
+AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan = xyes])
+
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
+AC_SUBST(DALI_ADAPTOR_LDFLAGS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
 AC_SUBST(fontConfigurationFile)
 AC_SUBST(tizenPlatformConfigSupported)
@@ -370,8 +387,13 @@ Configuration
   Using Tizen APP FW libraries:     $enable_appfw
   OpenGL ES version:                $enable_gles
   Tizen Platform Config supported   $tizenPlatformConfigSupported
-"
+  Vulkan Support:                   ${enable_vulkan}"
+
 # optional output of node.js source path if we're building with libuv
 if test "x$build_for_libuv" != "xno"; then
 echo "  LibUV header path         $with_libuv"
 fi
+if test "x$VULKAN_SDK" != "x"; then
+    echo "  VulkanSDK:                        ${VULKAN_SDK}"
+fi
+echo ""
