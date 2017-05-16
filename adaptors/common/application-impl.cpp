@@ -102,10 +102,10 @@ Application::~Application()
 {
   mSingletonService.UnregisterAll();
 
-  delete mFramework;
-  delete mCommandLineOptions;
-  delete mAdaptor;
   mWindow.Reset();
+  delete mAdaptor;
+  delete mCommandLineOptions;
+  delete mFramework;
 }
 
 void Application::CreateWindow()

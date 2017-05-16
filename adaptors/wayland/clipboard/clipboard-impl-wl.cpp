@@ -55,6 +55,7 @@ Clipboard::Clipboard(Impl* impl)
 
 Clipboard::~Clipboard()
 {
+  delete mImpl;
 }
 
 Dali::Clipboard Clipboard::Get()
