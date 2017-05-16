@@ -91,6 +91,8 @@ enum Script
   JAVANESE,      ///< The Javanese script. Used by the Javanese language.
   SUNDANESE,     ///< The Sundanese script. Used by the Sundanese language.
 
+  GEEZ,          ///< The Ge'ez script. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
+
   EMOJI,         ///< The Emoji which map to standardized Unicode characters.
 
   SYMBOLS1,      ///< Some symbols.
@@ -158,6 +160,8 @@ const char* const ScriptName[] =
   "KHMER",         ///< The Khmer script. Used by the Khmer language.
   "JAVANESE",      ///< The Javanese script. Used by the Javanese language.
   "SUNDANESE",     ///< The Sundanese script. Used by the Sundanese language.
+
+  "GEEZ",          ///< The Ge'ez script also known as Ethiopic. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
 
   "EMOJI",         ///< The Emoji which map to standardized Unicode characters.
 

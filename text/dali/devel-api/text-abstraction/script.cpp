@@ -232,6 +232,12 @@ Script GetCharacterScript( Character character )
   // 0x1b80 - 0x1bbf Sundanese
   // 0x1cc0 - 0x1ccf Sundanese supplement
 
+  // Ge'ez script (Ethiopic)
+  // 0x1200 - 0x137f Ethiopic
+  // 0x1380 - 0x139f Ethiopic supplement
+  // 0x2d80 - 0x2ddf Ethiopic Extended
+  // 0xab00 - 0xab2f Ethiopic Extended-A
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -438,6 +444,14 @@ Script GetCharacterScript( Character character )
         {
           return HANGUL;
         }
+        if( ( 0x1200 <= character ) && ( character <= 0x137f ) )
+        {
+          return GEEZ;
+        }
+        if( ( 0x1380 <= character ) && ( character <= 0x139f ) )
+        {
+          return GEEZ;
+        }
         if( ( 0x1780 <= character ) && ( character <= 0x17ff ) )
         {
           return KHMER;
@@ -602,6 +616,10 @@ Script GetCharacterScript( Character character )
         {
           return GEORGIAN;
         }
+        if( ( 0x2d80 <= character ) && ( character <= 0x2ddf ) )
+        {
+          return GEEZ;
+        }
         if( ( 0x2de0 <= character ) && ( character <= 0x2dff ) )
         {
           return CYRILLIC;
@@ -698,6 +716,10 @@ Script GetCharacterScript( Character character )
         if( ( 0xa980 <= character ) && ( character <= 0xa9fd ) )
         {
           return JAVANESE;
+        }
+        if( ( 0xab00 <= character ) && ( character <= 0xab2f ) )
+        {
+          return GEEZ;
         }
         if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
         {
