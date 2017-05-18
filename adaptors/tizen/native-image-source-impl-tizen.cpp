@@ -31,7 +31,6 @@
 #include <render-surface.h>
 
 // Allow this to be encoded and saved:
-#include <platform-abstractions/tizen/resource-loader/resource-loader.h>
 #include <bitmap-saver.h>
 
 namespace Dali

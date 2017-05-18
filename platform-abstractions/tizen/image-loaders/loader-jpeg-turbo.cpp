@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 
 // INTERNAL HEADERS
 #include "loader-jpeg.h"
-#include "resource-loading-client.h"
 #include <dali/integration-api/bitmap.h>
-#include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
 #include "image-operations.h"
 
@@ -226,7 +224,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   const int flags= 0;
   FILE* const fp = input.file;
@@ -278,9 +276,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
-
-  // Allow early cancellation between the load and the decompress:
-  client.InterruptionPoint();
 
   AutoJpg autoJpg(tjInitDecompress());
 
@@ -342,9 +337,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
 
   unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
 
-  // Allow early cancellation before decoding:
-  client.InterruptionPoint();
-
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
     std::string errorString = tjGetErrorStr();
@@ -362,12 +354,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );
-
-  if( transform != JPGFORM_NONE )
-  {
-    // Allow early cancellation before shuffling pixels around on the CPU:
-    client.InterruptionPoint();
-  }
 
   bool result = false;
   switch(transform)

@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_IMAGE_LOADER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,6 @@
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/bitmap.h>
 
-// INTERNAL INCLUDES
-#include "resource-loading-client.h"
-
 namespace Dali
 {
 namespace Integration
@@ -38,14 +35,13 @@ namespace ImageLoader
 {
 /**
  * Convert a file stream into a bitmap.
- * @param[in] resourceType The type of resource to convert.
+ * @param[in] resource The resource to convert.
  * @param[in] path The path to the resource.
  * @param[in] fp File Pointer. Closed on exit.
- * @param[in] client The component that is initiating the conversion.
  * @param[out] bitmap Pointer to write bitmap to
  * @return true on success, false on failure
  */
-bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType, std::string path, FILE * const fp, const ResourceLoadingClient& client, Integration::BitmapPtr& ptr);
+bool ConvertStreamToBitmap( const Integration::BitmapResourceType& resource, std::string path, FILE * const fp, Integration::BitmapPtr& ptr );
 
 /**
  * Convert a bitmap and write to a file stream.
@@ -56,15 +52,26 @@ bool ConvertStreamToBitmap( const Integration::ResourceType& resourceType, std::
  */
 bool ConvertBitmapToStream( std::string path, FILE * const fp, Integration::BitmapPtr& ptr );
 
+/**
+ * Loads an image synchronously
+ * @param resource details of the image
+ * @param path to the image
+ * @return bitmap
+ */
+Integration::ResourcePointer LoadImageSynchronously( const Integration::BitmapResourceType& resource, const std::string& path );
 
-Integration::ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath );
-
+/**
+ * @returns the closest image size
+ */
 ImageDimensions  GetClosestImageSize( const std::string& filename,
                           ImageDimensions size,
                           FittingMode::Type fittingMode,
                           SamplingMode::Type samplingMode,
                           bool orientationCorrection );
 
+/**
+ * @returns the closest image size
+ */
 ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
                           ImageDimensions size,
                           FittingMode::Type fittingMode,

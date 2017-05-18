@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1051,7 +1051,7 @@ bool LoadBmpHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return ret;
 }
 
-bool LoadBitmapFromBmp( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromBmp( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   DALI_ASSERT_DEBUG( bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into." );
   FILE* const fp = input.file;

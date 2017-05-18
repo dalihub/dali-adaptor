@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   FILE* const fp = input.file;
   if(fp == NULL)

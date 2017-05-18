@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -515,7 +515,7 @@ bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsign
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);

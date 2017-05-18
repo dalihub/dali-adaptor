@@ -21,7 +21,6 @@
 #include "image-loaders/image-loader.h"
 #include <resource-loader/network/file-download.h>
 #include <platform-abstractions/portable/file-closer.h>
-#include <platform-abstractions/tizen/resource-loader/resource-loading-client.h>
 
 namespace Dali
 {
@@ -35,7 +34,7 @@ const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
 PixelData LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
   Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
-  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadResourceSynchronously( resourceType, url );
+  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadImageSynchronously( resourceType, url );
 
   if( resource )
   {
@@ -93,7 +92,6 @@ PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions si
           resourceType,
           url,
           fp,
-          TizenPlatform::StubbedResourceLoadingClient(),
           bitmap );
 
         if ( result && bitmap )
