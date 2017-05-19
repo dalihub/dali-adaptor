@@ -1107,6 +1107,11 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   // a pattern holds a set of names, each name refers to a property of the font
   FcPattern* fontFamilyPattern = FcPatternCreate();
 
+  if( !fontFamilyPattern )
+  {
+    return NULL;
+  }
+
   // add a property to the pattern for the font family
   FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( fontDescription.family.c_str() ) );
 

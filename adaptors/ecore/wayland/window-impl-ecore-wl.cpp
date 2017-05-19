@@ -21,6 +21,7 @@
 // EXTERNAL HEADERS
 #include <Ecore.h>
 #include <Ecore_Wayland.h>
+#include <tizen-extension-client-protocol.h>
 
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/system-overlay.h>
@@ -48,8 +49,9 @@ namespace Internal
 {
 namespace Adaptor
 {
+
 #if defined(DEBUG_ENABLED)
-Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_WINDOW");
+Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW");
 #endif
 
 /**
@@ -67,7 +69,20 @@ struct Window::EventHandler
     mWindowIconifyStateHandler( NULL ),
     mWindowFocusInHandler( NULL ),
     mWindowFocusOutHandler( NULL ),
-    mEcoreWindow( 0 )
+    mEcoreWindow( 0 ),
+    mDisplay( NULL ),
+    mEventQueue( NULL ),
+    mTizenPolicy( NULL ),
+    mTizenDisplayPolicy( NULL ),
+    mNotificationLevel( -1 ),
+    mNotificationChangeState( 0 ),
+    mNotificationLevelChangeDone( true ),
+    mScreenMode( 0 ),
+    mScreenModeChangeState( 0 ),
+    mScreenModeChangeDone( true ),
+    mBrightness( 0 ),
+    mBrightnessChangeState( 0 ),
+    mBrightnessChangeDone( true )
   {
     // store ecore window handle
     ECore::WindowRenderSurface* wlWindow( dynamic_cast< ECore::WindowRenderSurface * >( mWindow->mSurface ) );
@@ -82,6 +97,23 @@ struct Window::EventHandler
       mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
       mWindowFocusInHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this );
       mWindowFocusOutHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this );
+    }
+
+    mDisplay = ecore_wl_display_get();
+
+    wl_display* displayWrapper = static_cast< wl_display* >( wl_proxy_create_wrapper( mDisplay ) );
+    if( displayWrapper )
+    {
+      mEventQueue = wl_display_create_queue( mDisplay );
+      if( mEventQueue )
+      {
+        wl_proxy_set_queue( reinterpret_cast< wl_proxy* >( displayWrapper ), mEventQueue );
+
+        wl_registry* registry = wl_display_get_registry( displayWrapper );
+        wl_registry_add_listener( registry, &mRegistryListener, this );
+      }
+
+      wl_proxy_wrapper_destroy( displayWrapper );
     }
   }
 
@@ -105,6 +137,10 @@ struct Window::EventHandler
     if( mWindowFocusOutHandler )
     {
       ecore_event_handler_del( mWindowFocusOutHandler );
+    }
+    if( mEventQueue )
+    {
+      wl_event_queue_destroy( mEventQueue );
     }
   }
 
@@ -177,6 +213,102 @@ struct Window::EventHandler
     return ECORE_CALLBACK_PASS_ON;
   }
 
+  static void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version )
+  {
+    Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
+
+    if( strcmp( interface, tizen_policy_interface.name ) == 0 )
+    {
+      eventHandler->mTizenPolicy = static_cast< tizen_policy* >( wl_registry_bind( registry, name, &tizen_policy_interface, version ) );
+      if( !eventHandler->mTizenPolicy )
+      {
+        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::RegistryGlobalCallback: wl_registry_bind(tizen_policy_interface) is failed.\n" );
+        return;
+      }
+
+      tizen_policy_add_listener( eventHandler->mTizenPolicy, &eventHandler->mTizenPolicyListener, data );
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::RegistryGlobalCallback: tizen_policy_add_listener is called.\n" );
+    }
+    else if( strcmp( interface, tizen_display_policy_interface.name ) == 0 )
+    {
+      eventHandler->mTizenDisplayPolicy = static_cast< tizen_display_policy* >( wl_registry_bind( registry, name, &tizen_display_policy_interface, version ) );
+      if( !eventHandler->mTizenDisplayPolicy )
+      {
+        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::RegistryGlobalCallback: wl_registry_bind(tizen_display_policy_interface) is failed.\n" );
+        return;
+      }
+
+      tizen_display_policy_add_listener( eventHandler->mTizenDisplayPolicy, &eventHandler->mTizenDisplayPolicyListener, data );
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::RegistryGlobalCallback: tizen_display_policy_add_listener is called.\n" );
+    }
+  }
+
+  static void RegistryGlobalCallbackRemove( void* data, struct wl_registry* registry, uint32_t id )
+  {
+    Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
+    eventHandler->mTizenPolicy = NULL;
+    eventHandler->mTizenDisplayPolicy = NULL;
+  }
+
+  static void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state )
+  {
+    Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
+
+    eventHandler->mNotificationLevel = level;
+    eventHandler->mNotificationChangeState = state;
+    eventHandler->mNotificationLevelChangeDone = true;
+
+    DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::TizenPolicyNotificationChangeDone: level = %d, state = %d\n", level, state );
+  }
+
+  static void TizenPolicyScreenModeChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t mode, uint32_t state )
+  {
+    Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
+
+    eventHandler->mScreenMode = mode;
+    eventHandler->mScreenModeChangeState = state;
+    eventHandler->mScreenModeChangeDone = true;
+
+    DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::TizenPolicyScreenModeChangeDone: mode = %d, state = %d\n", mode, state );
+  }
+
+  static void DisplayPolicyBrightnessChangeDone(void* data, struct tizen_display_policy *displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state )
+  {
+    Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
+
+    eventHandler->mBrightness = brightness;
+    eventHandler->mBrightnessChangeState = state;
+    eventHandler->mBrightnessChangeDone = true;
+
+    DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::DisplayPolicyBrightnessChangeDone: brightness = %d, state = %d\n", brightness, state );
+  }
+
+  const struct wl_registry_listener mRegistryListener =
+  {
+     RegistryGlobalCallback,
+     RegistryGlobalCallbackRemove
+  };
+
+  const struct tizen_policy_listener mTizenPolicyListener =
+  {
+     NULL,
+     NULL,
+     TizenPolicyNotificationChangeDone,
+     NULL,
+     TizenPolicyScreenModeChangeDone,
+     NULL,
+     NULL,
+     NULL,
+     NULL
+  };
+
+  const struct tizen_display_policy_listener mTizenDisplayPolicyListener =
+  {
+    DisplayPolicyBrightnessChangeDone
+  };
+
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
@@ -184,6 +316,23 @@ struct Window::EventHandler
   Ecore_Event_Handler* mWindowFocusInHandler;
   Ecore_Event_Handler* mWindowFocusOutHandler;
   Ecore_Wl_Window* mEcoreWindow;
+
+  wl_display* mDisplay;
+  wl_event_queue* mEventQueue;
+  tizen_policy* mTizenPolicy;
+  tizen_display_policy* mTizenDisplayPolicy;
+
+  int mNotificationLevel;
+  uint32_t mNotificationChangeState;
+  bool mNotificationLevelChangeDone;
+
+  int mScreenMode;
+  uint32_t mScreenModeChangeState;
+  bool mScreenModeChangeDone;
+
+  int mBrightness;
+  uint32_t mBrightnessChangeState;
+  bool mBrightnessChangeDone;
 };
 
 Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
@@ -237,30 +386,34 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
   DALI_ASSERT_DEBUG(wlSurface);
-  Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
 
-  mIndicatorVisible = visibleMode;
+  if( wlSurface )
+  {
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
 
-  if ( mIndicatorVisible == Dali::Window::VISIBLE )
-  {
-    // when the indicator is visible, set proper mode for indicator server according to bg mode
-    if ( mIndicatorOpacityMode == Dali::Window::OPAQUE )
+    mIndicatorVisible = visibleMode;
+
+    if ( mIndicatorVisible == Dali::Window::VISIBLE )
     {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
+      // when the indicator is visible, set proper mode for indicator server according to bg mode
+      if ( mIndicatorOpacityMode == Dali::Window::OPAQUE )
+      {
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
+      }
+      else if ( mIndicatorOpacityMode == Dali::Window::TRANSLUCENT )
+      {
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSLUCENT);
+      }
+      else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
+      {
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
+      }
     }
-    else if ( mIndicatorOpacityMode == Dali::Window::TRANSLUCENT )
+    else
     {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSLUCENT);
+      // when the indicator is not visible, set TRANSPARENT mode for indicator server
+      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSPARENT); // it means hidden indicator
     }
-    else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
-    {
-      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
-    }
-  }
-  else
-  {
-    // when the indicator is not visible, set TRANSPARENT mode for indicator server
-    ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSPARENT); // it means hidden indicator
   }
 
   DoShowIndicator( mIndicatorOrientation );
@@ -310,14 +463,18 @@ Window::Window()
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mOpaqueState( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
+  mType( Dali::DevelWindow::NORMAL ),
   mEventHandler( NULL ),
-  mPreferredOrientation( Dali::Window::PORTRAIT )
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
 }
 
@@ -339,6 +496,9 @@ Window::~Window()
   }
 
   delete mSurface;
+
+  mSupportedAuxiliaryHints.clear();
+  mAuxiliaryHints.clear();
 }
 
 void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
@@ -355,6 +515,21 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
 
   // create event handler for Wayland window
   mEventHandler = new EventHandler( this );
+
+  // get auxiliary hint
+  Eina_List* hints = ecore_wl_window_aux_hints_supported_get( mEventHandler->mEcoreWindow );
+  if( hints )
+  {
+    Eina_List* l = NULL;
+    char* hint = NULL;
+
+    for( l = hints, ( hint =  static_cast< char* >( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( hint = static_cast< char* >( eina_list_data_get(l) ) ) )
+    {
+      mSupportedAuxiliaryHints.push_back( hint );
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::Initialize: %s\n", hint );
+    }
+  }
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -674,6 +849,518 @@ bool Window::IsVisible() const
 void Window::RotationDone( int orientation, int width, int height )
 {
   ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount()
+{
+  return mSupportedAuxiliaryHints.size();
+}
+
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+{
+  if( index >= GetSupportedAuxiliaryHintCount() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetSupportedAuxiliaryHint: Invalid index! [%d]\n", index );
+  }
+
+  return mSupportedAuxiliaryHints[index];
+}
+
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  bool supported = false;
+
+  // Check if the hint is suppported
+  for( std::vector< std::string >::iterator iter = mSupportedAuxiliaryHints.begin(); iter != mSupportedAuxiliaryHints.end(); ++iter )
+  {
+    if( *iter == hint )
+    {
+      supported = true;
+      break;
+    }
+  }
+
+  if( !supported )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::AddAuxiliaryHint: Not supported auxiliary hint [%s]\n", hint.c_str() );
+    return 0;
+  }
+
+  // Check if the hint is already added
+  for( unsigned int i = 0; i < mAuxiliaryHints.size(); i++ )
+  {
+    if( mAuxiliaryHints[i].first == hint )
+    {
+      // Just change the value
+      mAuxiliaryHints[i].second = value;
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: Change! hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), i + 1 );
+
+      return i + 1;   // id is index + 1
+    }
+  }
+
+  // Add the hint
+  mAuxiliaryHints.push_back( std::pair< std::string, std::string >( hint, value ) );
+
+  unsigned int id = mAuxiliaryHints.size();
+
+  ecore_wl_window_aux_hint_add( mEventHandler->mEcoreWindow, static_cast< int >( id ), hint.c_str(), value.c_str() );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id );
+
+  return id;
+}
+
+bool Window::RemoveAuxiliaryHint( unsigned int id )
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::RemoveAuxiliaryHint: Invalid id [%d]\n", id );
+    return false;
+  }
+
+  mAuxiliaryHints[id - 1].second = std::string();
+
+  ecore_wl_window_aux_hint_del( mEventHandler->mEcoreWindow, static_cast< int >( id ) );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::RemoveAuxiliaryHint: id = %d, hint = %s\n", id, mAuxiliaryHints[id - 1].first.c_str() );
+
+  return true;
+}
+
+bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::SetAuxiliaryHintValue: Invalid id [%d]\n", id );
+    return false;
+  }
+
+  mAuxiliaryHints[id - 1].second = value;
+
+  ecore_wl_window_aux_hint_change( mEventHandler->mEcoreWindow, static_cast< int >( id ), value.c_str() );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str() );
+
+  return true;
+}
+
+std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+{
+  if( id == 0 || id > mAuxiliaryHints.size() )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::GetAuxiliaryHintValue: Invalid id [%d]\n", id );
+    return std::string();
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str() );
+
+  return mAuxiliaryHints[id - 1].second;
+}
+
+unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+{
+  for( unsigned int i = 0; i < mAuxiliaryHints.size(); i++ )
+  {
+    if( mAuxiliaryHints[i].first == hint )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintId: hint = %s, id = %d\n", hint.c_str(), i + 1 );
+      return i + 1;
+    }
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetAuxiliaryHintId: Invalid hint! [%s]\n", hint.c_str() );
+
+  return 0;
+}
+
+void Window::SetInputRegion( const Rect< int >& inputRegion )
+{
+  ecore_wl_window_input_region_set( mEventHandler->mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
+}
+
+void Window::SetType( Dali::DevelWindow::Type type )
+{
+  Ecore_Wl_Window_Type windowType;
+
+  if( type != mType )
+  {
+    switch( type )
+    {
+      case Dali::DevelWindow::NORMAL:
+      {
+        windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+        break;
+      }
+      case Dali::DevelWindow::NOTIFICATION:
+      {
+        windowType = ECORE_WL_WINDOW_TYPE_NOTIFICATION;
+        break;
+      }
+      case Dali::DevelWindow::UTILITY:
+      {
+        windowType = ECORE_WL_WINDOW_TYPE_UTILITY;
+        break;
+      }
+      case Dali::DevelWindow::DIALOG:
+      {
+        windowType = ECORE_WL_WINDOW_TYPE_DIALOG;
+        break;
+      }
+      default:
+      {
+        windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+        break;
+      }
+    }
+
+    ecore_wl_window_type_set( mEventHandler->mEcoreWindow, windowType );
+  }
+
+  mType = type;
+}
+
+Dali::DevelWindow::Type Window::GetType() const
+{
+  return mType;
+}
+
+bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+{
+  if( mType != Dali::DevelWindow::NOTIFICATION )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType );
+    return false;
+  }
+
+  while( !mEventHandler->mTizenPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  int notificationLevel;
+
+  switch( level )
+  {
+    case Dali::DevelWindow::NotificationLevel::NONE:
+    {
+      notificationLevel = TIZEN_POLICY_LEVEL_NONE;
+      break;
+    }
+    case Dali::DevelWindow::NotificationLevel::BASE:
+    {
+      notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
+      break;
+    }
+    case Dali::DevelWindow::NotificationLevel::MEDIUM:
+    {
+      notificationLevel = TIZEN_POLICY_LEVEL_MEDIUM;
+      break;
+    }
+    case Dali::DevelWindow::NotificationLevel::HIGH:
+    {
+      notificationLevel = TIZEN_POLICY_LEVEL_HIGH;
+      break;
+    }
+    case Dali::DevelWindow::NotificationLevel::TOP:
+    {
+      notificationLevel = TIZEN_POLICY_LEVEL_TOP;
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: invalid level [%d]\n", level );
+      notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
+      break;
+    }
+  }
+
+  mEventHandler->mNotificationLevelChangeDone = false;
+  mEventHandler->mNotificationChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
+
+  tizen_policy_set_notification_level( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), notificationLevel );
+
+  int count = 0;
+
+  while( !mEventHandler->mNotificationLevelChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mNotificationLevelChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Level change is failed [%d, %d]\n", level, mEventHandler->mNotificationChangeState );
+    return false;
+  }
+  else if( mEventHandler->mNotificationChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Permission denied! [%d]\n", level );
+    return false;
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Level is changed [%d]\n", mEventHandler->mNotificationLevel );
+
+  return true;
+}
+
+Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+{
+  if( mType != Dali::DevelWindow::NOTIFICATION )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", mType );
+    return Dali::DevelWindow::NotificationLevel::NONE;
+  }
+
+  while( !mEventHandler->mTizenPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  int count = 0;
+
+  while( !mEventHandler->mNotificationLevelChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mNotificationLevelChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Error! [%d]\n", mEventHandler->mNotificationChangeState );
+    return Dali::DevelWindow::NotificationLevel::NONE;
+  }
+
+  Dali::DevelWindow::NotificationLevel::Type level;
+
+  switch( mEventHandler->mNotificationLevel )
+  {
+    case TIZEN_POLICY_LEVEL_NONE:
+    {
+      level = Dali::DevelWindow::NotificationLevel::NONE;
+      break;
+    }
+    case TIZEN_POLICY_LEVEL_DEFAULT:
+    {
+      level = Dali::DevelWindow::NotificationLevel::BASE;
+      break;
+    }
+    case TIZEN_POLICY_LEVEL_MEDIUM:
+    {
+      level = Dali::DevelWindow::NotificationLevel::MEDIUM;
+      break;
+    }
+    case TIZEN_POLICY_LEVEL_HIGH:
+    {
+      level = Dali::DevelWindow::NotificationLevel::HIGH;
+      break;
+    }
+    case TIZEN_POLICY_LEVEL_TOP:
+    {
+      level = Dali::DevelWindow::NotificationLevel::TOP;
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: invalid level [%d]\n", mEventHandler->mNotificationLevel );
+      level = Dali::DevelWindow::NotificationLevel::NONE;
+      break;
+    }
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: level [%d]\n", mEventHandler->mNotificationLevel );
+
+  return level;
+}
+
+void Window::SetOpaqueState( bool opaque )
+{
+  while( !mEventHandler->mTizenPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  tizen_policy_set_opaque_state( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), ( opaque ? 1 : 0 ) );
+
+  mOpaqueState = opaque;
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetOpaqueState: opaque = %d\n", opaque );
+}
+
+bool Window::IsOpaqueState()
+{
+  return mOpaqueState;
+}
+
+bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+{
+  while( !mEventHandler->mTizenPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  mEventHandler->mScreenModeChangeDone = false;
+  mEventHandler->mScreenModeChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
+
+  unsigned int mode = 0;
+
+  switch( screenMode )
+  {
+    case Dali::DevelWindow::ScreenMode::DEFAULT:
+    {
+      mode = 0;
+      break;
+    }
+    case Dali::DevelWindow::ScreenMode::ALWAYS_ON:
+    {
+      mode = 1;
+      break;
+    }
+  }
+
+  tizen_policy_set_window_screen_mode( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), mode );
+
+  int count = 0;
+
+  while( !mEventHandler->mScreenModeChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mScreenModeChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Screen mode change is failed [%d, %d]\n", screenMode, mEventHandler->mScreenModeChangeState );
+    return false;
+  }
+  else if( mEventHandler->mScreenModeChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Permission denied! [%d]\n", screenMode );
+    return false;
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Screen mode is changed [%d]\n", mEventHandler->mScreenMode );
+
+  return true;
+}
+
+Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+{
+  while( !mEventHandler->mTizenPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  int count = 0;
+
+  while( !mEventHandler->mScreenModeChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mScreenModeChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenMode: Error! [%d]\n", mEventHandler->mScreenModeChangeState );
+    return Dali::DevelWindow::ScreenMode::DEFAULT;
+  }
+
+  Dali::DevelWindow::ScreenMode::Type screenMode = Dali::DevelWindow::ScreenMode::DEFAULT;
+
+  switch( mEventHandler->mScreenMode )
+  {
+    case 0:
+    {
+      screenMode = Dali::DevelWindow::ScreenMode::DEFAULT;
+      break;
+    }
+    case 1:
+    {
+      screenMode = Dali::DevelWindow::ScreenMode::ALWAYS_ON;
+      break;
+    }
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenMode: screen mode [%d]\n", mEventHandler->mScreenMode );
+
+  return screenMode;
+}
+
+bool Window::SetBrightness( int brightness )
+{
+  if( brightness < 0 || brightness > 100 )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Invalid brightness value [%d]\n", brightness );
+    return false;
+  }
+
+  while( !mEventHandler->mTizenDisplayPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  mEventHandler->mBrightnessChangeDone = false;
+  mEventHandler->mBrightnessChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
+
+  tizen_display_policy_set_window_brightness( mEventHandler->mTizenDisplayPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), brightness );
+
+  int count = 0;
+
+  while( !mEventHandler->mBrightnessChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mBrightnessChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Brightness change is failed [%d, %d]\n", brightness, mEventHandler->mBrightnessChangeState );
+    return false;
+  }
+  else if( mEventHandler->mBrightnessChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Permission denied! [%d]\n", brightness );
+    return false;
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Brightness is changed [%d]\n", mEventHandler->mBrightness );
+
+  return true;
+}
+
+int Window::GetBrightness()
+{
+  while( !mEventHandler->mTizenDisplayPolicy )
+  {
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+  }
+
+  int count = 0;
+
+  while( !mEventHandler->mBrightnessChangeDone && count < 3 )
+  {
+    ecore_wl_flush();
+    wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
+    count++;
+  }
+
+  if( !mEventHandler->mBrightnessChangeDone )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetBrightness: Error! [%d]\n", mEventHandler->mBrightnessChangeState );
+    return 0;
+  }
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetBrightness: Brightness [%d]\n", mEventHandler->mBrightness );
+
+  return mEventHandler->mBrightness;
 }
 
 } // Adaptor

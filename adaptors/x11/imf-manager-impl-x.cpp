@@ -683,7 +683,6 @@ void ImfManager::HideInputPanel()
 
   if( mIMFContext )
   {
-    ecore_imf_context_focus_out( mIMFContext );
     ecore_imf_context_input_panel_hide( mIMFContext );
   }
 }
