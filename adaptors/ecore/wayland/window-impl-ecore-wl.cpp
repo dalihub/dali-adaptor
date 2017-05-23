@@ -67,6 +67,7 @@ struct Window::EventHandler
   : mWindow( window ),
     mWindowPropertyHandler( NULL ),
     mWindowIconifyStateHandler( NULL ),
+    mWindowVisibilityStateHandler( NULL ),
     mWindowFocusInHandler( NULL ),
     mWindowFocusOutHandler( NULL ),
     mEcoreWindow( 0 ),
@@ -95,6 +96,7 @@ struct Window::EventHandler
     if( mWindow->mEcoreEventHander )
     {
       mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
+      mWindowVisibilityStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE, EcoreEventWindowVisibilityChanged, this );
       mWindowFocusInHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this );
       mWindowFocusOutHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this );
     }
@@ -129,18 +131,27 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowPropertyHandler );
     }
+
     if ( mWindowIconifyStateHandler )
     {
       ecore_event_handler_del( mWindowIconifyStateHandler );
     }
+
+    if ( mWindowVisibilityStateHandler )
+    {
+      ecore_event_handler_del( mWindowVisibilityStateHandler );
+    }
+
     if( mWindowFocusInHandler )
     {
       ecore_event_handler_del( mWindowFocusInHandler );
     }
+
     if( mWindowFocusOutHandler )
     {
       ecore_event_handler_del( mWindowFocusOutHandler );
     }
+
     if( mEventQueue )
     {
       wl_event_queue_destroy( mEventQueue );
@@ -171,6 +182,35 @@ struct Window::EventHandler
         {
           observer->OnWindowHidden();
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
+        }
+        else
+        {
+          observer->OnWindowShown();
+          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
+        }
+        handled = ECORE_CALLBACK_DONE;
+      }
+    }
+
+    return handled;
+  }
+
+  /// Called when the window visibility is changed.
+  static Eina_Bool EcoreEventWindowVisibilityChanged( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Window_Visibility_Change* visibilityChangedEvent( static_cast< Ecore_Wl_Event_Window_Visibility_Change* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+    Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
+
+    if ( handler && handler->mWindow )
+    {
+      WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
+      if ( observer && ( visibilityChangedEvent->win == static_cast< unsigned int >( ecore_wl_window_id_get( handler->mEcoreWindow ) ) ) )
+      {
+        if( visibilityChangedEvent->fully_obscured == 1 )
+        {
+          observer->OnWindowHidden();
+          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) full obscured\n", handler->mEcoreWindow );
         }
         else
         {
@@ -316,6 +356,7 @@ struct Window::EventHandler
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
   Ecore_Event_Handler* mWindowIconifyStateHandler;
+  Ecore_Event_Handler* mWindowVisibilityStateHandler;
   Ecore_Event_Handler* mWindowFocusInHandler;
   Ecore_Event_Handler* mWindowFocusOutHandler;
   Ecore_Wl_Window* mEcoreWindow;
