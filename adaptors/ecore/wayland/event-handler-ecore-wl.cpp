@@ -485,15 +485,27 @@ struct EventHandler::Impl
         ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
         ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-#ifdef ECORE_IMF_1_13
         ecoreKeyDownEvent.dev_name  = "";
         ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
         ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
 
-        eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                       ECORE_IMF_EVENT_KEY_DOWN,
-                                                       (Ecore_IMF_Event *) &ecoreKeyDownEvent );
+        std::string checkDevice;
+        GetDeviceName( keyEvent, checkDevice );
+
+        // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
+        if( ( checkDevice == "ime" ) && ( ( !strncmp( keyEvent->keyname, "Left",  4 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Right", 5 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Up",    2 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Down",  4 ) ) ) )
+        {
+          eventHandled = 0;
+        }
+        else
+        {
+          eventHandled = ecore_imf_context_filter_event( imfContext,
+                                                         ECORE_IMF_EVENT_KEY_DOWN,
+                                                         (Ecore_IMF_Event *) &ecoreKeyDownEvent );
+        }
 
         // If the event has not been handled by IMF then check if we should reset our IMF context
         if( !eventHandled )
@@ -576,11 +588,9 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-#ifdef ECORE_IMF_1_13
         ecoreKeyUpEvent.dev_name  = "";
         ecoreKeyUpEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
         ecoreKeyUpEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
