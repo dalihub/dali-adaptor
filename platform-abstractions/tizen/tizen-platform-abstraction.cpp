@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,54 +15,33 @@
  *
  */
 
+// CLASS HEADER
 #include "tizen-platform-abstraction.h"
 
-#ifndef DALI_PROFILE_UBUNTU
-#include <vconf.h>
-#endif // DALI_PROFILE_UBUNTU
+// EXTERNAL INCLUDES
 #include <dirent.h>
-
+#include <fstream>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 
 // INTERNAL INCLUDES
-#include "resource-loader/resource-loader.h"
 #include "image-loaders/image-loader.h"
 #include "portable/file-closer.h"
 
 namespace Dali
 {
 
-Integration::PlatformAbstraction* CreatePlatformAbstraction()
-{
-  return new TizenPlatform::TizenPlatformAbstraction();
-}
-
-
 namespace TizenPlatform
 {
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()
-: mResourceLoader(new ResourceLoader),
-  mDataStoragePath( "" )
+: mDataStoragePath( "" )
 {
 }
 
 TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
-  delete mResourceLoader;
-}
-
-int TizenPlatformAbstraction::GetDefaultFontSize() const
-{
-  int fontSize( -1 );
-
-#ifndef DALI_PROFILE_UBUNTU
-  vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
-#endif // DALI_PROFILE_UBUNTU
-
-  return fontSize;
 }
 
 ImageDimensions TizenPlatformAbstraction::GetClosestImageSize( const std::string& filename,
@@ -83,12 +62,12 @@ ImageDimensions TizenPlatformAbstraction::GetClosestImageSize( Integration::Reso
   return ImageLoader::GetClosestImageSize( resourceBuffer, size, fittingMode, samplingMode, orientationCorrection );
 }
 
-Integration::ResourcePointer TizenPlatformAbstraction::LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath)
+Integration::ResourcePointer TizenPlatformAbstraction::LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath)
 {
-  return ImageLoader::LoadResourceSynchronously( resourceType, resourcePath );
+  return ImageLoader::LoadImageSynchronously( resource, resourcePath );
 }
 
-Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size )
+Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size )
 {
   Integration::BitmapPtr bitmap = 0;
 
@@ -96,7 +75,7 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
   FILE * const fp = fileCloser.GetFile();
   if( fp )
   {
-    bool result = ImageLoader::ConvertStreamToBitmap( resourceType, "", fp, StubbedResourceLoadingClient(), bitmap );
+    bool result = ImageLoader::ConvertStreamToBitmap( resource, "", fp, bitmap );
     if ( !result || !bitmap )
     {
       bitmap.Reset();
@@ -115,12 +94,9 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
   std::string path;
 
   // First check the system location where shaders are stored at install time:
-  if( mResourceLoader )
-  {
-    path = DALI_SHADERBIN_DIR;
-    path += filename;
-    result = mResourceLoader->LoadFile( path, buffer );
-  }
+  path = DALI_SHADERBIN_DIR;
+  path += filename;
+  result = LoadFile( path, buffer );
 
   // Fallback to the cache of shaders stored after previous runtime compilations:
   // On desktop this looks in the current working directory that the app was launched from.
@@ -128,7 +104,7 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
   {
     path = mDataStoragePath;
     path += filename;
-    result = mResourceLoader->LoadFile( path, buffer );
+    result = LoadFile( path, buffer );
   }
 #endif
 
@@ -141,14 +117,12 @@ bool TizenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename
 
 #ifdef SHADERBIN_CACHE_ENABLED
 
-    // Fallback to the cache of shaders stored after previous runtime compilations:
-    // On desktop this looks in the current working directory that the app was launched from.
-    if( mResourceLoader )
-    {
-      std::string path = mDataStoragePath;
-      path += filename;
-      result = mResourceLoader->SaveFile( path, buffer, numBytes );
-    }
+  // Use the cache of shaders stored after previous runtime compilations:
+  // On desktop this looks in the current working directory that the app was launched from.
+  std::string path = mDataStoragePath;
+  path += filename;
+  result = SaveFile( path, buffer, numBytes );
+
 #endif
 
   return result;
@@ -157,6 +131,38 @@ bool TizenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename
 void TizenPlatformAbstraction::SetDataStoragePath( const std::string& path )
 {
   mDataStoragePath = path;
+}
+
+TizenPlatformAbstraction* CreatePlatformAbstraction()
+{
+  return new TizenPlatformAbstraction();
+}
+
+bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes )
+{
+  DALI_ASSERT_DEBUG( 0 != filename.length());
+
+  bool result = false;
+
+  std::filebuf buf;
+  buf.open(filename.c_str(), std::ios::out | std::ios_base::trunc | std::ios::binary);
+  if( buf.is_open() )
+  {
+    std::ostream stream(&buf);
+
+    // determine size of buffer
+    int length = static_cast<int>(numBytes);
+
+    // write contents of buffer to the file
+    stream.write(reinterpret_cast<const char*>(buffer), length);
+
+    if( !stream.bad() )
+    {
+      result = true;
+    }
+  }
+
+  return result;
 }
 
 }  // namespace TizenPlatform

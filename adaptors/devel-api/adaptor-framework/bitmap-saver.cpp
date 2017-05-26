@@ -22,10 +22,11 @@
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
-#include <platform-abstractions/tizen/resource-loader/resource-loader.h>
 #include <platform-abstractions/tizen/image-loaders/loader-jpeg.h>
 #include <platform-abstractions/tizen/image-loaders/loader-png.h>
+#include <platform-abstractions/tizen/tizen-platform-abstraction.h>
 #include <image-encoder.h>
+
 
 namespace Dali
 {
@@ -130,7 +131,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
     DALI_LOG_ERROR("Encoding pixels failed\n");
     return false;
   }
-  return TizenPlatform::ResourceLoader::SaveFile( filename, pixbufEncoded.Begin(), pixbufEncoded.Count() );
+  return TizenPlatform::SaveFile( filename, pixbufEncoded.Begin(), pixbufEncoded.Count() );
 }
 
 } // namespace Dali

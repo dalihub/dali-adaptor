@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return success;
 }
 
-bool LoadBitmapFromPng( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   png_structp png = NULL;
   png_infop info = NULL;

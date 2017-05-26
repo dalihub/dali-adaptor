@@ -26,11 +26,6 @@
 namespace Dali
 {
 
-/**
- * Construct a platform abstraction and return it.
- */
-Integration::PlatformAbstraction* CreatePlatformAbstraction();
-
 namespace TizenPlatform
 {
 
@@ -75,19 +70,14 @@ public: // PlatformAbstraction overrides
                                                bool orientationCorrection );
 
   /**
-   * @copydoc PlatformAbstraction::LoadResourceSynchronously()
+   * @copydoc PlatformAbstraction::LoadImageSynchronously()
    */
-  virtual Integration::ResourcePointer LoadResourceSynchronously(const Integration::ResourceType& resourceType, const std::string& resourcePath);
+  virtual Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath);
 
   /**
    * @copydoc PlatformAbstraction::DecodeBuffer()
    */
-  virtual Integration::BitmapPtr DecodeBuffer( const Integration::ResourceType& resourceType, uint8_t * buffer, size_t size );
-
-  /**
-   * @copydoc PlatformAbstraction::GetDefaultFontSize()
-   */
-  virtual int GetDefaultFontSize() const;
+  virtual Integration::BitmapPtr DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size );
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
@@ -110,11 +100,27 @@ private:
   TizenPlatformAbstraction( const TizenPlatformAbstraction& ); ///< Undefined
   TizenPlatformAbstraction& operator=( const TizenPlatformAbstraction& ); ///< Undefined
 
-  ResourceLoader* mResourceLoader;
   std::string mDataStoragePath;
+
 };
 
+/**
+ * Construct a platform abstraction and return it.
+ * @return TizenPlatformAbstraction instance
+ */
+TizenPlatformAbstraction* CreatePlatformAbstraction();
+
+/**
+ * Save a file to disk
+ * @param filename to create
+ * @param buffer to store
+ * @param numBytes to store
+ * @return true if successful, false otherwise
+ */
+bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
+
 }  // namespace TizenPlatform
+
 }  // namespace Dali
 
 #endif // __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
