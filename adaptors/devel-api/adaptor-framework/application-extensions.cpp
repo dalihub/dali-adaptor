@@ -47,6 +47,11 @@ void ApplicationExtensions::Init()
   Internal::Adaptor::GetImplementation(*mApplication).DoInit();
 }
 
+void ApplicationExtensions::Start()
+{
+  Internal::Adaptor::GetImplementation(*mApplication).DoStart();
+}
+
 void ApplicationExtensions::Terminate()
 {
   Internal::Adaptor::GetImplementation(*mApplication).DoTerminate();

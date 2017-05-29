@@ -141,6 +141,11 @@ public: // Lifecycle functionality
   void DoInit();
 
   /**
+   * Called after OnInit is called or the framework is started.
+   */
+  void DoStart();
+
+  /**
    * Called when OnTerminate is called or the framework is terminated.
    */
   void DoTerminate();

@@ -56,10 +56,15 @@ public:
 
 
  /**
-   * @brief Called wwhen the framework is initialised.
+   * @brief Called when the framework is initialised.
    * @SINCE_1_2.7
    */
   void Init();
+
+  /**
+    * @brief Called when the framework is started.
+    */
+   void Start();
 
  /**
    * @brief Called when the framework is terminated.
