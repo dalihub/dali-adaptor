@@ -56,7 +56,6 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       -I../../../adaptors/public-api \
                       -I../../../adaptors/integration-api \
                       -I../../../adaptors/public-api/adaptor-framework \
-                      -I../../../adaptors/devel-api/adaptor-framework \
                       -Werror -Wall
 
 libdali_feedback_plugin_la_LIBADD = \
@@ -65,6 +64,30 @@ libdali_feedback_plugin_la_LIBADD = \
 
 libdali_feedback_plugin_la_LDFLAGS = \
                       -rdynamic
+
+if MOBILE_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(DEVICED_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(DEVICED_LIBS)
+endif
+
+if TV_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(HAPTIC_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(HAPTIC_LIBS)
+endif
+
+if COMMON_PROFILE
+libdali_feedback_plugin_la_CXXFLAGS += \
+                      $(HAPTIC_CFLAGS)
+
+libdali_feedback_plugin_la_LIBADD += \
+                      $(HAPTIC_LIBS)
+endif
 
 libdali_feedback_plugin_la_LIBADD += \
                       $(FEEDBACK_LIBS)
