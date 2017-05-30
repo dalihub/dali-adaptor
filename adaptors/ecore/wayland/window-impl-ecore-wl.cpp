@@ -101,19 +101,22 @@ struct Window::EventHandler
 
     mDisplay = ecore_wl_display_get();
 
-    wl_display* displayWrapper = static_cast< wl_display* >( wl_proxy_create_wrapper( mDisplay ) );
-    if( displayWrapper )
+    if( mDisplay )
     {
-      mEventQueue = wl_display_create_queue( mDisplay );
-      if( mEventQueue )
+      wl_display* displayWrapper = static_cast< wl_display* >( wl_proxy_create_wrapper( mDisplay ) );
+      if( displayWrapper )
       {
-        wl_proxy_set_queue( reinterpret_cast< wl_proxy* >( displayWrapper ), mEventQueue );
+        mEventQueue = wl_display_create_queue( mDisplay );
+        if( mEventQueue )
+        {
+          wl_proxy_set_queue( reinterpret_cast< wl_proxy* >( displayWrapper ), mEventQueue );
 
-        wl_registry* registry = wl_display_get_registry( displayWrapper );
-        wl_registry_add_listener( registry, &mRegistryListener, this );
+          wl_registry* registry = wl_display_get_registry( displayWrapper );
+          wl_registry_add_listener( registry, &mRegistryListener, this );
+        }
+
+        wl_proxy_wrapper_destroy( displayWrapper );
       }
-
-      wl_proxy_wrapper_destroy( displayWrapper );
     }
   }
 
