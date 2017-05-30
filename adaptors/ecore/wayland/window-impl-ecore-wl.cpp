@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1358,11 +1358,6 @@ int Window::GetBrightness()
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetBrightness: Brightness [%d]\n", mEventHandler->mBrightness );
 
   return mEventHandler->mBrightness;
-}
-
-void* Window::GetNativeWindowHandler()
-{
-  return mEventHandler->mEcoreWindow;
 }
 
 } // Adaptor
