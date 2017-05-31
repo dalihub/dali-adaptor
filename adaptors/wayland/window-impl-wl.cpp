@@ -309,7 +309,6 @@ bool Window::IsVisible() const
   return mVisible;
 }
 
-
 void Window::RotationDone( int orientation, int width, int height )
 {
 }
@@ -401,6 +400,11 @@ bool Window::SetBrightness( int brightness )
 int Window::GetBrightness()
 {
   return 0;
+}
+
+void* Window::GetNativeWindowHandler()
+{
+  return NULL;
 }
 
 } // Adaptor
