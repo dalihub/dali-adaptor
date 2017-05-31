@@ -79,10 +79,7 @@ struct Window::EventHandler
     mNotificationLevelChangeDone( true ),
     mScreenMode( 0 ),
     mScreenModeChangeState( 0 ),
-    mScreenModeChangeDone( true ),
-    mBrightness( 0 ),
-    mBrightnessChangeState( 0 ),
-    mBrightnessChangeDone( true )
+    mScreenModeChangeDone( true )
   {
     // store ecore window handle
     ECore::WindowRenderSurface* wlWindow( dynamic_cast< ECore::WindowRenderSurface * >( mWindow->mSurface ) );
