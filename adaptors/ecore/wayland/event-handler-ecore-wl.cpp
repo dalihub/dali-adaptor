@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
 #include <events/event-handler.h>
 
 // EXTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <ecore-wl-render-surface.h>
@@ -1409,3 +1412,5 @@ void EventHandler::SetRotationObserver( RotationObserver* observer )
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,8 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   // create the EGL surface
   ecore_wl_window_surface_create(mWlWindow);
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
-  eglImpl.CreateSurfaceWindow( (EGLNativeWindowType)mEglWindow, mColorDepth ); // reinterpret_cast does not compile
+  EGLNativeWindowType windowType( mEglWindow );
+  eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
 }
 
 void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
@@ -156,7 +157,8 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-  return eglImpl.ReplaceSurfaceWindow( (EGLNativeWindowType)mEglWindow ); // reinterpret_cast does not compile
+  EGLNativeWindowType windowType( mEglWindow );
+  return eglImpl.ReplaceSurfaceWindow( windowType );
 }
 
 void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
@@ -242,7 +244,7 @@ void WindowRenderSurface::CreateWlRenderable()
 
   if ( mWlWindow == 0 )
   {
-      DALI_ASSERT_ALWAYS(0 && "Failed to create X window");
+    DALI_ASSERT_ALWAYS(0 && "Failed to create Wayland window");
   }
 }
 

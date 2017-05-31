@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@
 #include "system-settings.h"
 
 #ifndef WAYLAND
-#define MSG_DOMAIN_CONTROL_ACCESS (int)ECORE_X_ATOM_E_ILLUME_ACCESS_CONTROL
+#define MSG_DOMAIN_CONTROL_ACCESS static_cast< int >( ECORE_X_ATOM_E_ILLUME_ACCESS_CONTROL )
 #endif
 
 namespace Dali
@@ -69,7 +69,7 @@ bool GetEnabledVConf()
     vconf_get_bool( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &isEnabled );
   }
 
-  return (bool)isEnabled;
+  return bool( isEnabled );
 }
 
 

@@ -14,6 +14,11 @@
 #include <float.h>
 #include <assert.h>
 #include <string.h>
+
+// resampler is written using C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 #include "resampler.h"
 
 #define resampler_assert assert
@@ -1213,3 +1218,4 @@ char* Resampler::get_filter_name(int filter_num)
       return g_filters[filter_num].name;
 }
 
+#pragma GCC diagnostic pop

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ WindowRenderSurface::~WindowRenderSurface()
 Ecore_X_Drawable WindowRenderSurface::GetDrawable()
 {
   // already an e-core type
-  return (Ecore_X_Drawable)mX11Window;
+  return static_cast< Ecore_X_Drawable >( mX11Window );
 }
 
 Any WindowRenderSurface::GetSurface()
@@ -113,9 +113,9 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
   // create the EGL surface
-  // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XWindow window = static_cast< XWindow>( mX11Window );
-  eglImpl.CreateSurfaceWindow( (EGLNativeWindowType)window, mColorDepth ); // reinterpret_cast does not compile
+  // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
+  XWindow window( mX11Window );
+  eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( window ), mColorDepth );
 }
 
 void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
@@ -130,11 +130,11 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
 
-  // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
-  XWindow window = static_cast< XWindow >( mX11Window );
+  // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
+  XWindow window( mX11Window );
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
-  return eglImpl.ReplaceSurfaceWindow( (EGLNativeWindowType)window ); // reinterpret_cast does not compile
+  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( window ) );
 }
 
 void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )

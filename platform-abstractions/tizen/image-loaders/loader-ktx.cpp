@@ -183,18 +183,17 @@ struct KtxFileHeader
 // so we can be sure of reading the whole thing from file in one call to fread.
 
 /**
- * Template function to read from the file directly into our structure.
+ * Function to read from the file directly into our structure.
  * @param[in]  fp     The file to read from
  * @param[out] header The structure we want to store our information in
  * @return true, if read successful, false otherwise
  */
-template<typename T>
-inline bool ReadHeader(FILE* fp, T& header)
+inline bool ReadHeader( FILE* filePointer, KtxFileHeader& header )
 {
-  unsigned int readLength = sizeof(T);
+  const unsigned int readLength = sizeof( KtxFileHeader );
 
   // Load the information directly into our structure
-  if (fread((void*)&header, 1, readLength, fp) != readLength)
+  if( fread( &header, 1, readLength, filePointer ) != readLength )
   {
     return false;
   }
@@ -454,10 +453,10 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
   return true;
 }
 
-bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height, KtxFileHeader &fileHeader)
+bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, KtxFileHeader& fileHeader )
 {
   // Pull the bytes of the file header in as a block:
-  if ( !ReadHeader(fp, fileHeader) )
+  if ( !ReadHeader( fp, fileHeader ) )
   {
     return false;
   }
@@ -546,7 +545,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   // Load the size of the image data:
   uint32_t imageByteCount = 0;
-  if (fread((void*)&imageByteCount, 1, 4, fp) != 4)
+  if ( fread( &imageByteCount, 1, 4, fp ) != 4 )
   {
     DALI_LOG_ERROR( "Read of image size failed.\n" );
     return false;
@@ -569,7 +568,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
 
   // Load up the image bytes:
-  PixelBuffer * const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, (size_t) imageByteCount );
+  PixelBuffer* const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, imageByteCount );
   if(!pixels)
   {
     DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );
