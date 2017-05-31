@@ -342,6 +342,7 @@ private:
   std::string                           mStylesheet;
   EnvironmentOptions                    mEnvironmentOptions;
   bool                                  mUseRemoteSurface;
+  bool                                  mInitialized;
 
   SlotDelegate< Application >           mSlotDelegate;
 };
