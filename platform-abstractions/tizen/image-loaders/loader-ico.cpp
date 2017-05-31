@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -360,7 +360,7 @@ bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return true;
 }
 
-bool LoadBitmapFromIco( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;

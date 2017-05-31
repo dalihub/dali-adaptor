@@ -4,12 +4,8 @@ tizen_platform_abstraction_src_files = \
   $(tizen_platform_abstraction_src_dir)/tizen-platform-abstraction.cpp \
   $(tizen_platform_abstraction_src_dir)/tizen-logging.cpp \
   \
-  $(tizen_platform_abstraction_src_dir)/resource-loader/resource-loader.cpp \
-  \
   $(tizen_platform_abstraction_src_dir)/resource-loader/network/file-download.cpp \
   $(tizen_platform_abstraction_src_dir)/resource-loader/network/http-utils.cpp \
-  \
-  $(tizen_platform_abstraction_src_dir)/resource-loader/debug/resource-loader-debug.cpp \
   \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-astc.cpp \
   $(tizen_platform_abstraction_src_dir)/image-loaders/loader-bmp.cpp \

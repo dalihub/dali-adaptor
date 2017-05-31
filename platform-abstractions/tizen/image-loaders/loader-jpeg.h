@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_LOADER_JPEG_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,12 +46,11 @@ const unsigned char MAGIC_BYTE_2 = 0xD8;
 /**
  * Loads the bitmap from an JPEG file.  This function checks the header first
  * and if it is not a JPEG file, then it returns straight away.
- * @param[in]  fp      Pointer to the Image file
- * @param[in]  bitmap  The bitmap class where the decoded image will be stored
- * @param[in]  attributes  Describes the dimensions, pixel format and other details for loading the image data
+ * @param[in]  input  Information about the input image (including file pointer)
+ * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.

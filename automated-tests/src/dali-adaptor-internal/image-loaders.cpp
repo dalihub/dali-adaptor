@@ -19,15 +19,6 @@
 #include <dali-test-suite-utils.h>
 
 
-class StubImageLoaderClient : public Dali::TizenPlatform::ResourceLoadingClient
-{
-public:
-  StubImageLoaderClient() {}
-  ~StubImageLoaderClient() {}
-
-  virtual void InterruptionPoint() const {}
-};
-
 AutoCloseFile::AutoCloseFile( FILE *fp )
 : filePtr( fp )
 {
@@ -115,7 +106,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
   DALI_TEST_EQUALS( image.width,  bitmap->GetImageWidth(),  TEST_LOCATION );
   DALI_TEST_EQUALS( image.height, bitmap->GetImageHeight(), TEST_LOCATION );
 
@@ -155,7 +146,7 @@ void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& fun
   Dali::Integration::BitmapPtr bitmapPointer( bitmap );
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
   DALI_TEST_EQUALS( image.width,  bitmap->GetImageWidth(),  TEST_LOCATION );
   DALI_TEST_EQUALS( image.height, bitmap->GetImageHeight(), TEST_LOCATION );
 
@@ -191,7 +182,7 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   Dali::Integration::BitmapPtr bitmapPtr( bitmap );
   const Dali::TizenPlatform::ImageLoader::Input input( fp );
 
-  DALI_TEST_CHECK( functions.loader( StubImageLoaderClient(), input, *bitmap ) );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
 
   Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
 

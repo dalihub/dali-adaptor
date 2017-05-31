@@ -66,7 +66,7 @@ const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0])
 } // anon namespace
 
 /** Live platform abstraction recreated for each test case. */
-extern Integration::PlatformAbstraction * gAbstraction;
+extern TizenPlatform::TizenPlatformAbstraction* gAbstraction;
 
 /** A variety of parameters to reach different code paths in the image loading. */
 typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;

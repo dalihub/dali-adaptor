@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ void SingletonService::Register( const std::type_info& info, BaseHandle singleto
   if( singleton )
   {
     DALI_LOG_SINGLETON_SERVICE( Debug::General, "Singleton Added: %s\n", info.name() );
-    mSingletonContainer.insert( SingletonPair( info.name(), singleton ) );
+    mSingletonContainer.push_back( SingletonPair( info.name(), singleton ) );
   }
 }
 
@@ -88,10 +88,14 @@ BaseHandle SingletonService::GetSingleton( const std::type_info& info ) const
 {
   BaseHandle object;
 
-  SingletonConstIter iter = mSingletonContainer.find(info.name());
-  if( iter != mSingletonContainer.end() )
+  const SingletonContainer::const_iterator end = mSingletonContainer.end();
+  for( SingletonContainer::const_iterator iter = mSingletonContainer.begin(); iter != end; ++iter )
   {
-    object = ( *iter ).second;
+    // comparing the addresses as these are allocated statically per library
+    if( ( *iter ).first == info.name() )
+    {
+      object = ( *iter ).second;
+    }
   }
 
   return object;
