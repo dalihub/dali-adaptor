@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ void NativeRenderSurface::CreateEglSurface( EglInterface& egl )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
-  eglImpl.CreateSurfaceWindow( (EGLNativeWindowType)mImpl->mTbmQueue, mImpl->mColorDepth );
+  eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mImpl->mTbmQueue ), mImpl->mColorDepth );
 }
 
 void NativeRenderSurface::DestroyEglSurface( EglInterface& egl )
@@ -152,7 +152,7 @@ bool NativeRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
-  return eglImpl.ReplaceSurfaceWindow( (EGLNativeWindowType)mImpl->mTbmQueue ); // reinterpret_cast does not compile
+  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mImpl->mTbmQueue ) );
 }
 
 void NativeRenderSurface::StartRender()

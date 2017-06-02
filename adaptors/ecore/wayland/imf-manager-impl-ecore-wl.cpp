@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  */
 
 // CLASS HEADER
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <imf-manager-impl.h>
 
 // EXTERNAL INCLUDES
@@ -650,9 +653,10 @@ const std::string& ImfManager::GetSurroundingText() const
 void ImfManager::NotifyTextInputMultiLine( bool multiLine )
 {
   Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
-  ecore_imf_context_input_hint_set(mIMFContext, (Ecore_IMF_Input_Hints)(multiLine ?
-    (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
-    (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+  ecore_imf_context_input_hint_set( mIMFContext,
+                                    static_cast< Ecore_IMF_Input_Hints >( multiLine ?
+                                      (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
+                                      (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
 }
 
 Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
@@ -830,3 +834,5 @@ void ImfManager::HideInputPanel()
 } // Internal
 
 } // Dali
+
+#pragma GCC diagnostic pop

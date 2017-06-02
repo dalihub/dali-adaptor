@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include "ecore-virtual-keyboard.h"
 #include <adaptor.h>
 #include <locale-utils.h>
@@ -338,3 +341,5 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

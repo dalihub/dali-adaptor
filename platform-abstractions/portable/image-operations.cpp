@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ inline void DebugAssertDualScanlineParameters( const uint8_t * const scanline1,
   DALI_ASSERT_DEBUG( scanline2 && "Null pointer." );
   DALI_ASSERT_DEBUG( outputScanline && "Null pointer." );
   DALI_ASSERT_DEBUG( ((scanline1 >= scanline2 + widthInComponents) || (scanline2 >= scanline1 + widthInComponents )) && "Scanlines alias." );
-  DALI_ASSERT_DEBUG( ((((void*)outputScanline) >= (void*)(scanline2 + widthInComponents)) || (((void*)scanline2) >= (void*)(scanline1 + widthInComponents))) && "Scanline 2 aliases output." );
+  DALI_ASSERT_DEBUG( ((outputScanline >= (scanline2 + widthInComponents)) || (scanline2 >= (scanline1 + widthInComponents))) && "Scanline 2 aliases output." );
 }
 
 /**
@@ -1177,8 +1177,8 @@ inline void PointSampleAddressablePixels( const uint8_t * inPixels,
   DALI_ASSERT_DEBUG( ((desiredWidth <= inputWidth && desiredHeight <= inputHeight) ||
       outPixels >= inPixels + inputWidth * inputHeight * sizeof(PIXEL) || outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL)) &&
       "The input and output buffers must not overlap for an upscaling.");
-  DALI_ASSERT_DEBUG( ((uint64_t) inPixels)  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
-  DALI_ASSERT_DEBUG( ((uint64_t) outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+  DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( inPixels )  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+  DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( outPixels ) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
 
   if( inputWidth < 1u || inputHeight < 1u || desiredWidth < 1u || desiredHeight < 1u )
   {
@@ -1420,8 +1420,8 @@ inline void LinearSampleGeneric( const unsigned char * __restrict__ inPixels,
                      "Input and output buffers cannot overlap.");
   if( DEBUG_ASSERT_ALIGNMENT )
   {
-    DALI_ASSERT_DEBUG( ((uint64_t) inPixels)  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
-    DALI_ASSERT_DEBUG( ((uint64_t) outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+    DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( inPixels )  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+    DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
   }
 
   if( inputWidth < 1u || inputHeight < 1u || desiredWidth < 1u || desiredHeight < 1u )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,8 @@ int DGifExtensionToGCB(const size_t GifExtensionLength,
                        char *GifExtension,
                        GraphicsControlBlock *GCB)
 {
-  if (GifExtensionLength != 4) {
+  if (GifExtensionLength != 4)
+  {
     return GIF_ERROR;
   }
 
@@ -95,9 +96,13 @@ int DGifExtensionToGCB(const size_t GifExtensionLength,
   GCB->UserInputFlag = (GifExtension[0] & 0x02) != 0;
   GCB->DelayTime = UNSIGNED_LITTLE_ENDIAN(GifExtension[1], GifExtension[2]);
   if (GifExtension[0] & 0x01)
-    GCB->TransparentColor = ((int)GifExtension[3]+256)%256;
+  {
+    GCB->TransparentColor = reinterpret_cast< int >( GifExtension[3]+256 ) % 256;
+  }
   else
+  {
     GCB->TransparentColor = NO_TRANSPARENT_COLOR;
+  }
 
   return GIF_OK;
 }
