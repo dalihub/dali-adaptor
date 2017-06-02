@@ -106,10 +106,14 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
     mSize = size;
     mAddress = mmap( NULL, mSize, PROT_READ, MAP_SHARED, mFileDescriptor, 0 );
 
+// MAP_FAILED is a macro with C cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
     if( mAddress != MAP_FAILED )
     {
       opened = true;
     }
+#pragma GCC diagnostic pop
   }
   return opened;
 }
