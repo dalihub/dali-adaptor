@@ -340,11 +340,15 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
     FcInitReinitialize(); // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
 
     FcPattern* matchPattern = FcPatternCreate();
-    FcConfigSubstitute(NULL, matchPattern, FcMatchPattern);
-    FcDefaultSubstitute( matchPattern );
 
-    MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription );
-    FcPatternDestroy( matchPattern );
+    if( matchPattern )
+    {
+      FcConfigSubstitute( NULL, matchPattern, FcMatchPattern );
+      FcDefaultSubstitute( matchPattern );
+
+      MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription );
+      FcPatternDestroy( matchPattern );
+    }
 
     mDefaultFontDescriptionCached = true;
   }
