@@ -82,7 +82,7 @@ const char* const helpMsg =
     "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" NORMAL
     GREEN " list_metrics " NORMAL " - list available metrics\n"
     GREEN " enable_metric " PARAM " metricId" NORMAL " - enable a metric \n"
-    GREEN " disable_metric "PARAM " metricId" NORMAL " - disable a metric\n\n"
+    GREEN " disable_metric " PARAM " metricId" NORMAL " - disable a metric\n\n"
     GREEN " set_marker " PARAM " value " NORMAL "-output Dali markers\n"
     "            : Bit 0  = V_SYNC (1)\n"
     "            : Bit 1  = Update task (2)\n"
@@ -92,9 +92,9 @@ const char* const helpMsg =
     "            : Bit 5  = Life cycle events  (32)\n"
     "            : Bit 6  = Resource event (64)\n"
     "\n"
-    GREEN" set_properties "NORMAL " - set an actor property command. Format:\n\n"
-    GREEN" set_properties "PARAM"|ActorIndex;Property;Value|" NORMAL ", e.g: \n"
-    GREEN" set_properties " PARAM "|178;Size;[ 144.0, 144.0, 144.0 ]|178;Color;[ 1.0, 1,0, 1.0 ]|\n"
+    GREEN " set_properties " NORMAL " - set an actor property command. Format:\n\n"
+    GREEN " set_properties " PARAM "|ActorIndex;Property;Value|" NORMAL ", e.g: \n"
+    GREEN " set_properties " PARAM "|178;Size;[ 144.0, 144.0, 144.0 ]|178;Color;[ 1.0, 1,0, 1.0 ]|\n"
     "\n"
     GREEN " dump_scene" NORMAL " - dump the current scene in json format\n";
 
