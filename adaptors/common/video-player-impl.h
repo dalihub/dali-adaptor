@@ -125,6 +125,11 @@ public:
   int GetPlayPosition();
 
   /**
+   * @copydoc Dali::VideoPlayer::SetDisplayArea()
+   */
+  void SetDisplayArea( DisplayArea area );
+
+  /**
    * @copydoc Dali::VideoPlayer::SetSetDisplayRotation()
    */
   void SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation );
@@ -143,6 +148,16 @@ public:
    * @brief Initializes member data.
    */
   void Initialize();
+
+  /**
+   * @brief Dali::VideoPlayer::Forward()
+   */
+  void Forward( int millisecond );
+
+  /**
+   * @brief Dali::VideoPlayer::Backward()
+   */
+  void Backward( int millisecond );
 
 private:
 
