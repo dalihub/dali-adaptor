@@ -198,7 +198,10 @@ void Application::DoInit()
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
+}
 
+void Application::DoStart()
+{
   mAdaptor->NotifySceneCreated();
 }
 
@@ -247,6 +250,8 @@ void Application::OnInit()
 
   Dali::Application application(this);
   mInitSignal.Emit( application );
+
+  DoStart();
 }
 
 void Application::OnTerminate()
