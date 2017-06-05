@@ -52,7 +52,11 @@ Ecore_X_Window GetWindow()
   Ecore_X_Window xCbhmWin = 0;
   unsigned char *buf = NULL;
   int num = 0;
+// XA_WINDOW is a macro with C cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
   int ret = ecore_x_window_prop_property_get( 0, xAtomCbhm, XA_WINDOW, 0, &buf, &num );
+#pragma GCC diagnostic pop
 
   if ( ret && num )
   {

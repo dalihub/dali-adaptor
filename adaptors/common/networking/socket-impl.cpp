@@ -27,6 +27,9 @@
 #include <unistd.h>
 #include <dali/integration-api/debug.h>
 
+// Sockets enums like INADDR_ANY use C-Casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 namespace Dali
 {
@@ -359,6 +362,9 @@ bool Socket::Write( const void* buffer, unsigned int bufferSizeInBytes )
 }
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
 
+#pragma GCC diagnostic pop
