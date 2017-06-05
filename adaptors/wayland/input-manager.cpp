@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "input-manager.h"
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/events/key-event-integ.h>
+
 // INTERNAL INCLUDES
 #include <input/input-listeners.h>
 #include <input/text/text-input-listeners.h>
@@ -191,7 +194,7 @@ void InputManager::KeyFocusLeave( Seat* seat, unsigned int serial, WlSurface* su
 
 void InputManager::KeyEvent( Seat* seat, unsigned int serial, unsigned int timestamp, unsigned int keycode, unsigned int state )
 {
-  Dali::KeyEvent keyEvent = seat->GetDALiKeyEvent( serial, timestamp, keycode, state );
+  Integration::KeyEvent keyEvent( seat->GetDALiKeyEvent( serial, timestamp, keycode, state ) );
 
   mWindowEventInterface->KeyEvent( keyEvent);
 

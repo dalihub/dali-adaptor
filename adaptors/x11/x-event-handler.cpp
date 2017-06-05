@@ -145,7 +145,7 @@ struct EventHandler::Impl : public WindowEventInterface
   {
     mHandler->SendEvent( point, timeStamp );
   }
-  virtual void KeyEvent( Dali::KeyEvent& keyEvent )
+  virtual void KeyEvent( Integration::KeyEvent& keyEvent )
   {
     mHandler->SendEvent( keyEvent );
   }
@@ -239,21 +239,19 @@ void EventHandler::SendEvent(Dali::Integration::Point& point, unsigned long time
   }
 }
 
-void EventHandler::SendEvent(KeyEvent& keyEvent)
+void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
 {
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if ( physicalKeyboard )
   {
-    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ) )
+    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
     {
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
 
-  // Create KeyEvent and send to Core.
-  Integration::KeyEvent event(keyEvent.keyPressedName, keyEvent.keyPressed, keyEvent.keyCode,
-  keyEvent.keyModifier, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
-  mCoreEventInterface.QueueCoreEvent( event );
+  // Create send KeyEvent to Core.
+  mCoreEventInterface.QueueCoreEvent( keyEvent );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -305,7 +303,8 @@ void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )
 {
-  SendEvent( event );
+  Integration::KeyEvent convertedEvent( event );
+  SendEvent( convertedEvent );
 }
 
 void EventHandler::FeedEvent( Integration::Event& event )

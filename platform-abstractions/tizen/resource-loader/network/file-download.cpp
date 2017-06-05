@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,13 @@ const long EXCLUDE_HEADER = 0L;
 const long INCLUDE_HEADER = 1L;
 const long INCLUDE_BODY = 0L;
 const long EXCLUDE_BODY = 1L;
+
+/**
+ * Curl library environment. Direct initialize ensures it's constructed before adaptor
+ * or application creates any threads.
+ */
+static Dali::TizenPlatform::Network::CurlEnvironment gCurlEnvironment;
+
 
 void ConfigureCurlOptions( CURL* curl_handle, const std::string& url )
 {
@@ -138,14 +145,31 @@ bool DownloadFile( CURL* curl_handle,
   }
   return true;
 }
+
+
 } // unnamed namespace
 
 
+namespace Network
+{
 
-bool Network::DownloadRemoteFileIntoMemory( const std::string& url,
-                                            Dali::Vector<uint8_t>& dataBuffer,
-                                            size_t& dataSize,
-                                            size_t maximumAllowedSizeBytes )
+CurlEnvironment::CurlEnvironment()
+{
+  // Must be called before we attempt any loads. e.g. by using curl_easy_init()
+  // and before we start any threads.
+  curl_global_init(CURL_GLOBAL_ALL);
+}
+
+CurlEnvironment::~CurlEnvironment()
+{
+  curl_global_cleanup();
+}
+
+
+bool DownloadRemoteFileIntoMemory( const std::string& url,
+                                   Dali::Vector<uint8_t>& dataBuffer,
+                                   size_t& dataSize,
+                                   size_t maximumAllowedSizeBytes )
 {
   if( url.empty() )
   {
@@ -171,6 +195,7 @@ bool Network::DownloadRemoteFileIntoMemory( const std::string& url,
   return result;
 }
 
+} // namespace Network
 
 } // namespace TizenPlatform
 

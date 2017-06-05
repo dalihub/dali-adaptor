@@ -160,19 +160,119 @@ public:
   Dali::Any GetNativeHandle() const;
 
   /**
-   * @brief Sets whether window accepts focus or not.
-   *
-   * @param[in] accept If focus is accepted or not. Default is true.
+   * @copydoc Dali::DevelWindow::SetAcceptFocus()
    */
   void SetAcceptFocus( bool accept );
 
   /**
-   * @brief Returns whether window accepts focus or not.
-   *
-   * @param[in] window The window to accept focus
-   * @return True if the window accept focus, false otherwise
+   * @copydoc Dali::DevelWindow::IsFocusAcceptable()
    */
   bool IsFocusAcceptable();
+
+  /**
+   * @copydoc Dali::DevelWindow::Show()
+   */
+  void Show();
+
+  /**
+   * @copydoc Dali::DevelWindow::Hide()
+   */
+  void Hide();
+
+  /**
+   * @copydoc Dali::DevelWindow::IsVisible() const
+   */
+  bool IsVisible() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHintCount()
+   */
+   unsigned int GetSupportedAuxiliaryHintCount();
+
+   /**
+    * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHint()
+    */
+  std::string GetSupportedAuxiliaryHint( unsigned int index );
+
+  /**
+   * @copydoc Dali::DevelWindow::AddAuxiliaryHint()
+   */
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+
+  /**
+   * @copydoc Dali::DevelWindow::RemoveAuxiliaryHint()
+   */
+  bool RemoveAuxiliaryHint( unsigned int id );
+
+  /**
+   * @copydoc Dali::DevelWindow::SetAuxiliaryHintValue()
+   */
+  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetAuxiliaryHintValue()
+   */
+  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+
+  /**
+   * @copydoc Dali::DevelWindow::GetAuxiliaryHintId()
+   */
+  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetInputRegion()
+   */
+  void SetInputRegion( const Rect< int >& inputRegion );
+
+  /**
+   * @copydoc Dali::DevelWindow::SetType()
+   */
+  void SetType( Dali::DevelWindow::Type type );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetType() const
+   */
+  Dali::DevelWindow::Type GetType() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetNotificationLevel()
+   */
+  bool SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetNotificationLevel()
+   */
+  Dali::DevelWindow::NotificationLevel::Type GetNotificationLevel();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetOpaqueState()
+   */
+  void SetOpaqueState( bool opaque );
+
+  /**
+   * @copydoc Dali::DevelWindow::IsOpaqueState()
+   */
+  bool IsOpaqueState();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetScreenMode()
+   */
+  bool SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetScreenMode()
+   */
+  Dali::DevelWindow::ScreenMode::Type GetScreenMode();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetBrightness()
+   */
+  bool SetBrightness( int brightness );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetBrightness()
+   */
+  int GetBrightness();
 
   /**
    * Called from Orientation after the Change signal has been sent
@@ -281,7 +381,7 @@ public: // Signals
 
 private:
 
-  typedef std::vector< IndicatorInterface * > DiscardedIndicators;
+  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
 
   RenderSurface*                   mSurface;
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
@@ -292,6 +392,8 @@ private:
   bool                             mWMRotationAppSet:1;
   bool                             mEcoreEventHander:1;
   bool                             mIsFocusAcceptable:1;
+  bool                             mVisible:1;
+  bool                             mOpaqueState:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
@@ -299,6 +401,7 @@ private:
   Integration::SystemOverlay*      mOverlay;
   Adaptor*                         mAdaptor;
   Dali::DragAndDropDetector        mDragAndDropDetector;
+  Dali::DevelWindow::Type          mType;
 
   struct EventHandler;
   EventHandler*                    mEventHandler;
@@ -306,6 +409,9 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
+
+  std::vector< std::string >        mSupportedAuxiliaryHints;
+  AuxiliaryHints                    mAuxiliaryHints;
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;

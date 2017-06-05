@@ -221,8 +221,8 @@ void TextInputManager::Keysym( Seat* seat,
 
   }
 
-
-  mWindowEventInterface->KeyEvent( keyEvent );
+  Integration::KeyEvent convertedEvent( keyEvent );
+  mWindowEventInterface->KeyEvent( convertedEvent );
 }
 
 void TextInputManager::Language( Seat* seat, uint32_t serial, const char *language )

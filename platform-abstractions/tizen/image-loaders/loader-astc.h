@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_LOADER_ASTC_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,11 @@ const unsigned char MAGIC_BYTE_2 = 0xAB;
  * Loads a compressed bitmap image from a ASTC file without decoding it.
  * This function checks the header first
  * and if it is not a ASTC file, or the header contents are invalid, it will return a failure.
- * @param[in]     client todor
- * @param[in]     input  Information about the input image (including file pointer)
- * @param[in/out] bitmap The bitmap class where the decoded image will be stored
- * @return               True if file loaded successfully, false otherwise
+ * @param[in]  input  Information about the input image (including file pointer)
+ * @param[out] bitmap The bitmap class where the decoded image will be stored
+ * @return True if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromAstc( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+bool LoadBitmapFromAstc( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a ASTC file and fills in the width and height appropriately.

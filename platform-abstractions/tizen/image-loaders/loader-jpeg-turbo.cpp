@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 
 // INTERNAL HEADERS
 #include "loader-jpeg.h"
-#include "resource-loading-client.h"
 #include <dali/integration-api/bitmap.h>
-#include <resource-loader/debug/resource-loader-debug.h>
 #include "platform-capabilities.h"
 #include "image-operations.h"
 
@@ -92,6 +90,21 @@ namespace
   {
     /* Stop libjpeg from printing to stderr - Do Nothing */
   }
+
+  /**
+   * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
+   * the JPEG to be displayed and fatal errors.
+   */
+  bool IsJpegErrorFatal( const std::string& errorMessage )
+  {
+    if( ( errorMessage.find("Corrupt JPEG data") != std::string::npos ) ||
+        ( errorMessage.find("Invalid SOS parameters") != std::string::npos ) )
+    {
+      return false;
+    }
+    return true;
+  }
+
 
   /** Simple struct to ensure xif data is deleted. */
   struct ExifAutoPtr
@@ -211,7 +224,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   const int flags= 0;
   FILE* const fp = input.file;
@@ -243,7 +256,7 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.Reserve( jpegBufferSize );
+    jpegBuffer.Resize( jpegBufferSize );
   }
   catch(...)
   {
@@ -263,9 +276,6 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
-
-  // Allow early cancellation between the load and the decompress:
-  client.InterruptionPoint();
 
   AutoJpg autoJpg(tjInitDecompress());
 
@@ -327,14 +337,11 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
 
   unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
 
-  // Allow early cancellation before decoding:
-  client.InterruptionPoint();
-
   if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
     std::string errorString = tjGetErrorStr();
 
-    if( errorString.find("Corrupt JPEG data") == std::string::npos )
+    if( IsJpegErrorFatal( errorString ) )
     {
         DALI_LOG_ERROR("%s\n", errorString.c_str());
         return false;
@@ -343,20 +350,10 @@ bool LoadBitmapFromJpeg( const ResourceLoadingClient& client, const ImageLoader:
     {
         DALI_LOG_WARNING("%s\n", errorString.c_str());
     }
-
-    //TurboJPEG API functions will now return an error code if a warning is triggered in the underlying libjpeg API.
-    //So, we need to distinguish return of tjGetErrorStr() is warning or error.
-    //If the return string has 'Corrupt JPEG data' prefix, it means warning.
   }
 
   const unsigned int  bufferWidth  = GetTextureDimension( scaledPreXformWidth );
   const unsigned int  bufferHeight = GetTextureDimension( scaledPreXformHeight );
-
-  if( transform != JPGFORM_NONE )
-  {
-    // Allow early cancellation before shuffling pixels around on the CPU:
-    client.InterruptionPoint();
-  }
 
   bool result = false;
   switch(transform)
@@ -404,7 +401,7 @@ bool JpegRotate90(unsigned char *buffer, int width, int height, int bpp)
   iw = width;
   ih = height;
   Vector<unsigned char> data;
-  data.Reserve(width * height * bpp);
+  data.Resize(width * height * bpp);
   unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
@@ -481,7 +478,7 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
   iw = width;
   ih = height;
   Vector<unsigned char> data;
-  data.Reserve(width * height * bpp);
+  data.Resize(width * height * bpp);
   unsigned char *dataPtr = data.Begin();
   memcpy(dataPtr, buffer, width * height * bpp);
   w = ih;
@@ -522,6 +519,7 @@ bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
 bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char >& encodedPixels,
                    const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality )
 {
+
   if( !pixelBuffer )
   {
     DALI_LOG_ERROR("Null input buffer\n");
@@ -593,7 +591,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
     // save the pixels to a persistent buffer that we own and let our cleaner
     // class clean up the buffer as it goes out of scope:
     AutoJpgMem cleaner( dstBuffer );
-    encodedPixels.Reserve( dstBufferSize );
+    encodedPixels.Resize( dstBufferSize );
     memcpy( encodedPixels.Begin(), dstBuffer, dstBufferSize );
   }
   return true;

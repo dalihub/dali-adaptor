@@ -108,6 +108,41 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   Internal::Adaptor::ImfManager::GetImplementation(*this).ApplyOptions( options );
 }
 
+void ImfManager::SetInputPanelUserData( const std::string& data )
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).SetInputPanelUserData( data );
+}
+
+void ImfManager::GetInputPanelUserData( std::string& data )
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelUserData( data );
+}
+
+Dali::ImfManager::State ImfManager::GetInputPanelState()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelState();
+}
+
+void ImfManager::SetReturnKeyState( bool visible )
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).SetReturnKeyState( visible );
+}
+
+void ImfManager::AutoEnableInputPanel( bool enabled )
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).AutoEnableInputPanel( enabled );
+}
+
+void ImfManager::ShowInputPanel()
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).ShowInputPanel();
+}
+
+void ImfManager::HideInputPanel()
+{
+  Internal::Adaptor::ImfManager::GetImplementation(*this).HideInputPanel();
+}
+
 ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ActivatedSignal();

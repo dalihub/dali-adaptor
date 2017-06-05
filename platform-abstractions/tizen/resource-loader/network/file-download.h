@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,30 @@ namespace Network
 {
 
 /**
+ * Set up the cURL environment - this will ensure curl_global_init is called on startup
+ * and curl_global_cleanup is called on shutdown.
+ * Having this environment enables curl to be used in a single or multi-threaded
+ * program safely.
+ */
+class CurlEnvironment
+{
+public:
+  /**
+   * Constructor calls curl_global_init()
+   */
+  CurlEnvironment();
+
+  /**
+   * Destructor calls curl_global_cleanup()
+   */
+  ~CurlEnvironment();
+};
+
+
+/**
  * Download a requested file into a memory buffer.
- * Threading notes: This function can be called from multiple threads, however l
+ *
+ * @note Threading notes: This function can be called from multiple threads, however
  * we must explicitly call curl_global_init() from a single thread before using curl
  * as the global function calls are not thread safe.
  *

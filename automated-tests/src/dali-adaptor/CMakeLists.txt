@@ -17,6 +17,7 @@ SET(TC_SOURCES
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Window.cpp
     #utc-Dali-Watch.cpp
+    #utc-Dali-Watch-Time.cpp
     #utc-Dali-KeyGrab.cpp
 )
 
@@ -39,6 +40,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-core
     dali-adaptor
     ecore
+    ecore-x
 )
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror")
