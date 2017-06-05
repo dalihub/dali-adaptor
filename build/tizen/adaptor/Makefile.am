@@ -83,16 +83,12 @@ adaptor_mobile_dir = ../../../adaptors/mobile
 include ../../../adaptors/mobile/file.list
 
 # WEARABLE
-if WEARABLE_PROFILE
 adaptor_wearable_dir = ../../../adaptors/wearable
 include ../../../adaptors/wearable/file.list
-endif
 
 # TV
-if TV_PROFILE
 adaptor_tv_dir = ../../../adaptors/tv
 include ../../../adaptors/tv/file.list
-endif
 
 # Public API
 adaptor_public_api_dir = ../../../adaptors/public-api
@@ -408,7 +404,10 @@ if !COMMON_PROFILE
 libdali_adaptor_la_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
 endif
 
-libdali_adaptor_la_CFLAGS = $(libdali_adaptor_la_CXXFLAGS)
+libdali_adaptor_la_CFLAGS = \
+                      -Werror -Wall \
+                      -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
+                      $(DALI_ADAPTOR_CFLAGS)
 
 libdali_adaptor_la_LIBADD = \
                       $(DALICORE_LIBS) \
@@ -427,7 +426,6 @@ libdali_adaptor_la_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
-                      $(APPCORE_WATCH_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \
@@ -496,6 +494,10 @@ if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS)
+                      $(APPCORE_WATCH_CFLAGS)
+
+libdali_adaptor_la_LIBADD += \
+                      $(APPCORE_WATCH_LIBS)
 endif
 
 if TV_PROFILE
@@ -559,12 +561,10 @@ endif # NOT UBUNTU_PROFILE
 tizenadaptordaliheaderdir = $(devincludepath)/dali
 tizenadaptordaliheader_HEADERS = $(adaptor_dali_header_file)
 
-if WEARABLE_PROFILE
 tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
-endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}

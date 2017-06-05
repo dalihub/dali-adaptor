@@ -102,10 +102,10 @@ Application::~Application()
 {
   mSingletonService.UnregisterAll();
 
-  delete mFramework;
-  delete mCommandLineOptions;
-  delete mAdaptor;
   mWindow.Reset();
+  delete mAdaptor;
+  delete mCommandLineOptions;
+  delete mFramework;
 }
 
 void Application::CreateWindow()
@@ -262,7 +262,9 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
-  DoPause();
+  // A DALi app should handle Pause/Resume events.
+  // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
+  // Pausing DALi core only occurs on the Window Hidden framework event
   Dali::Application application(this);
   mPauseSignal.Emit( application );
 }
@@ -273,7 +275,9 @@ void Application::OnResume()
   // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
   mResumeSignal.Emit( application );
-  DoResume();
+
+  // DALi just delivers the framework Resume event to the application.
+  // Resuming DALi core only occurs on the Window Show framework event
 }
 
 void Application::OnReset()

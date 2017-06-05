@@ -20,7 +20,8 @@
 
 // EXTERNAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
-#include <appcore-watch/watch_app.h>
+#include <watch_app.h>
+#include <watch_app_extension.h>
 #endif
 
 namespace Dali
@@ -92,8 +93,79 @@ int WatchTime::GetSecond() const
   return second;
 }
 
-#else
+int WatchTime::GetMillisecond() const
+{
+  int millisecond;
 
+  watch_time_get_millisecond(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &millisecond);
+  return millisecond;
+}
+
+int WatchTime::GetYear() const
+{
+  int year;
+
+  watch_time_get_year(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &year);
+  return year;
+}
+
+int WatchTime::GetMonth() const
+{
+  int month;
+
+  watch_time_get_month(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &month);
+  return month;
+}
+
+int WatchTime::GetDay() const
+{
+  int day;
+
+  watch_time_get_day(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &day);
+  return day;
+}
+
+int WatchTime::GetDayOfWeek() const
+{
+  int dayOfWeek;
+
+  watch_time_get_day_of_week(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &dayOfWeek);
+  return dayOfWeek;
+}
+
+struct tm WatchTime::GetUtcTime() const
+{
+  struct tm UtcTime;
+
+  watch_time_get_utc_time(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &UtcTime);
+  return UtcTime;
+}
+
+time_t WatchTime::GetUtcTimeStamp() const
+{
+  time_t UtcTimeStamp;
+
+  watch_time_get_utc_timestamp(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &UtcTimeStamp);
+  return UtcTimeStamp;
+}
+
+const char* WatchTime::GetTimeZone() const
+{
+  char* timeZone;
+
+  watch_time_get_time_zone(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &timeZone);
+  return timeZone;
+}
+
+bool WatchTime::GetDaylightSavingTimeStatus() const
+{
+  bool daylight;
+
+  watch_time_get_daylight_time_status(reinterpret_cast<watch_time_h>(mImpl->mTimeHandle), &daylight);
+  return daylight;
+}
+
+#else
 WatchTime::WatchTime()
   :mImpl(NULL)
 {
@@ -119,6 +191,52 @@ int WatchTime::GetSecond() const
   return 0;
 }
 
-#endif  // APPCORE_WATCH_AVAILABLE
+int WatchTime::GetMillisecond() const
+{
+  return 0;
+}
+
+int WatchTime::GetYear() const
+{
+  return 0;
+}
+
+int WatchTime::GetMonth() const
+{
+  return 0;
+}
+
+int WatchTime::GetDay() const
+{
+  return 0;
+}
+
+int WatchTime::GetDayOfWeek() const
+{
+  return 0;
+}
+
+struct tm WatchTime::GetUtcTime() const
+{
+  time_t zero = time(0);
+  return *localtime(&zero);
+}
+
+time_t WatchTime::GetUtcTimeStamp() const
+{
+  return 0;
+}
+
+const char* WatchTime::GetTimeZone() const
+{
+  return 0;
+}
+
+bool WatchTime::GetDaylightSavingTimeStatus() const
+{
+  return 0;
+}
+
+#endif
 
 } // namespace Dali

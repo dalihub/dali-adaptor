@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
 #include <style-monitor.h>
@@ -130,7 +131,7 @@ private:
    * Send key event to core.
    * @param[in]  keyEvent The KeyEvent to send.
    */
-  void SendEvent(KeyEvent& keyEvent);
+  void SendEvent(Integration::KeyEvent& keyEvent);
 
   /**
    * Send wheel event to core.

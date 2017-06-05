@@ -231,6 +231,7 @@ void ImfManager::DeleteContext()
 
   if ( mIMFContext )
   {
+    ecore_imf_context_del( mIMFContext );
     mIMFContext = NULL;
   }
 }
@@ -583,6 +584,106 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   }
   if ( mOptions.CompareAndSet(VARIATION, options, index) )
   {
+  }
+}
+
+void ImfManager::SetInputPanelUserData( const std::string& data )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+
+  if( mIMFContext )
+  {
+    int length = data.length();
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+  }
+}
+
+void ImfManager::GetInputPanelUserData( std::string& data )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+
+  if( mIMFContext )
+  {
+    int* length = NULL;
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+  }
+}
+
+Dali::ImfManager::State ImfManager::GetInputPanelState()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelState\n" );
+
+  if( mIMFContext )
+  {
+    int value;
+    value = ecore_imf_context_input_panel_state_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
+      {
+        return Dali::ImfManager::SHOW;
+        break;
+      }
+
+      case ECORE_IMF_INPUT_PANEL_STATE_HIDE:
+      {
+        return Dali::ImfManager::HIDE;
+        break;
+      }
+
+      case ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
+      {
+        return Dali::ImfManager::WILL_SHOW;
+        break;
+      }
+
+      default:
+      {
+        return Dali::ImfManager::DEFAULT;
+      }
+    }
+  }
+  return Dali::ImfManager::DEFAULT;
+}
+
+void ImfManager::SetReturnKeyState( bool visible )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetReturnKeyState\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_return_key_disabled_set( mIMFContext, !visible );
+  }
+}
+
+void ImfManager::AutoEnableInputPanel( bool enabled )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::AutoEnableInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_enabled_set( mIMFContext, enabled );
+  }
+}
+
+void ImfManager::ShowInputPanel()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::ShowInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_show( mIMFContext );
+  }
+}
+
+void ImfManager::HideInputPanel()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::HideInputPanel\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_hide( mIMFContext );
   }
 }
 

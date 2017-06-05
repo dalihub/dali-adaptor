@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -344,14 +344,19 @@ Window::Window()
   mWMRotationAppSet( false ),
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
+  mVisible( true ),
+  mOpaqueState( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
+  mType( Dali::DevelWindow::NORMAL ),
   mEventHandler( NULL ),
-  mPreferredOrientation( Dali::Window::PORTRAIT )
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
 
   // Detect if we're not running in a ecore main loop (e.g. libuv).
@@ -743,6 +748,45 @@ bool Window::IsFocusAcceptable()
   return mIsFocusAcceptable;
 }
 
+void Window::Show()
+{
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    ecore_x_window_show( win );
+
+    // Need an update request
+    if( mAdaptor )
+    {
+      mAdaptor->RequestUpdateOnce();
+    }
+  }
+}
+
+void Window::Hide()
+{
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    ecore_x_window_hide( win );
+  }
+}
+
+bool Window::IsVisible() const
+{
+  bool visible = false;
+
+  ECore::WindowRenderSurface* x11Window = dynamic_cast< ECore::WindowRenderSurface * >( mSurface );
+  if( x11Window )
+  {
+    Ecore_X_Window win = x11Window->GetXWindow();
+    visible = static_cast< bool >( ecore_x_window_visible_get( win ) );
+  }
+  return visible;
+}
+
 void Window::RotationDone( int orientation, int width, int height )
 {
   // Tell window manager we're done
@@ -771,6 +815,94 @@ void Window::RotationDone( int orientation, int width, int height )
   }
 }
 
+unsigned int Window::GetSupportedAuxiliaryHintCount()
+{
+  return 0;
+}
+
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+{
+  return std::string();
+}
+
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  return -1;
+}
+
+bool Window::RemoveAuxiliaryHint( unsigned int id )
+{
+  return false;
+}
+
+bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+{
+  return false;
+}
+
+std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+{
+  return std::string();
+}
+
+unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+{
+  return -1;
+}
+
+void Window::SetInputRegion( const Rect< int >& inputRegion )
+{
+}
+
+void Window::SetType( Dali::DevelWindow::Type type )
+{
+  mType = type;
+}
+
+Dali::DevelWindow::Type Window::GetType() const
+{
+  return mType;
+}
+
+bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+{
+  return false;
+}
+
+Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+{
+  return Dali::DevelWindow::NotificationLevel::NONE;
+}
+
+void Window::SetOpaqueState( bool opaque )
+{
+  mOpaqueState = opaque;
+}
+
+bool Window::IsOpaqueState()
+{
+  return mOpaqueState;
+}
+
+bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+{
+  return false;
+}
+
+Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+{
+  return Dali::DevelWindow::ScreenMode::DEFAULT;
+}
+
+bool Window::SetBrightness( int brightness )
+{
+  return false;
+}
+
+int Window::GetBrightness()
+{
+  return 0;
+}
 
 } // Adaptor
 } // Internal

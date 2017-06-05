@@ -44,6 +44,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -167,6 +168,71 @@ static unsigned int GetCurrentMilliSeconds(void)
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessibility/font_name";  // It will be update at vconf-key.h and replaced.
 #endif // DALI_PROFILE_UBUNTU
 
+/**
+ * Get the device name from the provided ecore key event
+ */
+void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
+{
+  const char* ecoreDeviceName = ecore_device_name_get( keyEvent->dev );
+
+  if ( ecoreDeviceName )
+  {
+    result = ecoreDeviceName;
+  }
+}
+
+/**
+ * Get the device class from the provided ecore key event
+ */
+void GetDeviceClass(  Ecore_Event_Key* keyEvent, DevelKeyEvent::DeviceClass::Type& deviceClass )
+{
+  Ecore_Device_Class ecoreDeviceClass = ecore_device_class_get( keyEvent->dev );
+
+  switch( ecoreDeviceClass )
+  {
+    case ECORE_DEVICE_CLASS_SEAT:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::USER;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_KEYBOARD:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::KEYBOARD;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_MOUSE:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::MOUSE;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_TOUCH:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::TOUCH;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_PEN:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::PEN;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_POINTER:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::POINTER;
+      break;
+    }
+    case ECORE_DEVICE_CLASS_GAMEPAD:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::GAMEPAD;
+      break;
+    }
+    default:
+    {
+      deviceClass = DevelKeyEvent::DeviceClass::NONE;
+      break;
+    }
+  }
+}
+
 } // unnamed namespace
 
 // Impl to hide EFL implementation.
@@ -189,10 +255,11 @@ struct EventHandler::Impl
     if ( window != 0 )
     {
       // Register Touch events
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,  EcoreEventMouseButtonDown, handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,    EcoreEventMouseButtonUp,   handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,         EcoreEventMouseButtonMove, handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,          EcoreEventMouseButtonUp,   handler ) ); // process mouse out event like up event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,   EcoreEventMouseButtonDown,   handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,     EcoreEventMouseButtonUp,     handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,          EcoreEventMouseButtonMove,   handler ) );
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,           EcoreEventMouseButtonUp,     handler ) ); // process mouse out event like up event
+      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, handler ) );
 
       // Register Mouse wheel events
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,        EcoreEventMouseWheel,      handler ) );
@@ -320,24 +387,6 @@ struct EventHandler::Impl
   }
 
   /**
-   * Called when a touch up is received.
-   */
-  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
-  {
-    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
-
-    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
-
-    EventHandler* handler( (EventHandler*)data );
-    if ( mouseWheelEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
-    {
-      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
-      handler->SendWheelEvent( wheelEvent );
-    }
-    return ECORE_CALLBACK_PASS_ON;
-  }
-
-  /**
    * Called when a touch motion is received.
    */
   static Eina_Bool EcoreEventMouseButtonMove( void* data, int type, void* event )
@@ -357,6 +406,46 @@ struct EventHandler::Impl
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+   * Called when a touch is canceled.
+   */
+  static Eina_Bool EcoreEventMouseButtonCancel( void* data, int type, void* event )
+  {
+    Ecore_Event_Mouse_Button *touchEvent( (Ecore_Event_Mouse_Button*)event );
+    EventHandler* handler( (EventHandler*)data );
+
+    if( touchEvent->window == (unsigned int)ecore_wl_window_id_get( handler->mImpl->mWindow ) )
+    {
+      Integration::Point point;
+      point.SetDeviceId( touchEvent->multi.device );
+      point.SetState( PointState::INTERRUPTED );
+      point.SetScreenPosition( Vector2( 0.0f, 0.0f ) );
+      handler->SendEvent( point, touchEvent->timestamp );
+
+      DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventMouseButtonCancel\n" );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /**
+   * Called when a mouse wheel is received.
+   */
+  static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
+  {
+    Ecore_Event_Mouse_Wheel *mouseWheelEvent( (Ecore_Event_Mouse_Wheel*)event );
+
+    DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT Ecore_Event_Mouse_Wheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
+
+    EventHandler* handler( (EventHandler*)data );
+    if ( mouseWheelEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
+    {
+      WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+      handler->SendWheelEvent( wheelEvent );
+    }
     return ECORE_CALLBACK_PASS_ON;
   }
 
@@ -439,7 +528,15 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Down);
+        std::string deviceName;
+        DevelKeyEvent::DeviceClass::Type deviceClass;
+
+        GetDeviceName( keyEvent, deviceName );
+        GetDeviceClass( keyEvent, deviceClass );
+
+        DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s) deviceClass(%d)\n", deviceName.c_str(), deviceClass );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName, deviceClass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -479,6 +576,11 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+#ifdef ECORE_IMF_1_13
+        ecoreKeyUpEvent.dev_name  = "";
+        ecoreKeyUpEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+        ecoreKeyUpEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
@@ -506,7 +608,13 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, KeyEvent::Up);
+        std::string deviceName;
+        DevelKeyEvent::DeviceClass::Type deviceClass;
+
+        GetDeviceName( keyEvent, deviceName );
+        GetDeviceClass( keyEvent, deviceClass );
+
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName, deviceClass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -1184,21 +1292,19 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
   }
 }
 
-void EventHandler::SendEvent(KeyEvent& keyEvent)
+void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
 {
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if ( physicalKeyboard )
   {
-    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ) )
+    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
     {
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
 
-  // Create KeyEvent and send to Core.
-  Integration::KeyEvent event(keyEvent.keyPressedName, keyEvent.keyPressed, keyEvent.keyCode,
-  keyEvent.keyModifier, keyEvent.time, static_cast<Integration::KeyEvent::State>(keyEvent.state));
-  mCoreEventInterface.QueueCoreEvent( event );
+  // Create send KeyEvent to Core.
+  mCoreEventInterface.QueueCoreEvent( keyEvent );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -1248,7 +1354,8 @@ void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
 
 void EventHandler::FeedKeyEvent( KeyEvent& event )
 {
-  SendEvent( event );
+  Integration::KeyEvent convertedEvent( event );
+  SendEvent( convertedEvent );
 }
 
 void EventHandler::FeedEvent( Integration::Event& event )

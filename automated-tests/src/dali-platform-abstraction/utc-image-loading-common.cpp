@@ -25,7 +25,7 @@ double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
 }
 
 /** Live platform abstraction recreated for each test case. */
-Integration::PlatformAbstraction * gAbstraction = 0;
+TizenPlatform::TizenPlatformAbstraction* gAbstraction = 0;
 
 /** A variety of parameters to reach different code paths in image loading code. */
 std::vector<ImageParameters> gCancelAttributes;
@@ -33,7 +33,7 @@ std::vector<ImageParameters> gCancelAttributes;
 void utc_dali_loading_startup(void)
 {
   test_return_value = TET_UNDEF;
-  gAbstraction = CreatePlatformAbstraction();
+  gAbstraction = TizenPlatform::CreatePlatformAbstraction();
 
   // Setup some loading parameters to engage post-processing stages:
 

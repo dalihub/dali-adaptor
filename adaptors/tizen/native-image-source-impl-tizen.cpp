@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
 #include <cstring>
+#include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
 #include <gl/egl-image-extensions.h>
@@ -30,7 +31,6 @@
 #include <render-surface.h>
 
 // Allow this to be encoded and saved:
-#include <platform-abstractions/tizen/resource-loader/resource-loader.h>
 #include <bitmap-saver.h>
 
 namespace Dali
@@ -99,6 +99,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
 
   if( mTbmSurface != NULL )
   {
+    tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
@@ -184,11 +185,18 @@ tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
 
 NativeImageSource::~NativeImageSource()
 {
-  if( mOwnTbmSurface && mTbmSurface != NULL )
+  if( mOwnTbmSurface )
   {
-    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+    }
+  }
+  else
+  {
+    if( mTbmSurface != NULL )
+    {
+      tbm_surface_internal_unref( mTbmSurface );
     }
   }
 }
@@ -239,7 +247,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
           {
             cOffset = c*3;
             offset = cOffset + r*stride;
-            *(bufptr) = ptr[offset+2];
+            *(bufptr+cOffset) = ptr[offset+2];
             *(bufptr+cOffset+1) = ptr[offset+1];
             *(bufptr+cOffset+2) = ptr[offset];
           }
@@ -259,7 +267,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
           {
             cOffset = c*4;
             offset = cOffset + r*stride;
-            *(bufptr) = ptr[offset+3];
+            *(bufptr+cOffset) = ptr[offset+3];
             *(bufptr+cOffset+1) = ptr[offset+2];
             *(bufptr+cOffset+2) = ptr[offset+1];
             *(bufptr+cOffset+3) = ptr[offset];
@@ -269,11 +277,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
       }
       default:
       {
-        DALI_LOG_WARNING( "Tbm surface has unsupported pixel format.\n" );
-
-        pixbuf.resize( 0 );
-        width = 0;
-        height = 0;
+        DALI_ASSERT_ALWAYS( 0 && "Tbm surface has unsupported pixel format.\n" );
 
         return false;
       }
@@ -310,9 +314,9 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
 
 void NativeImageSource::SetSource( Any source )
 {
-  if( mOwnTbmSurface && mTbmSurface != NULL )
+  if( mOwnTbmSurface )
   {
-    if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
     }
@@ -320,12 +324,21 @@ void NativeImageSource::SetSource( Any source )
     mTbmSurface = NULL;
     mOwnTbmSurface = false;
   }
+  else
+  {
+    if( mTbmSurface != NULL )
+    {
+      tbm_surface_internal_unref( mTbmSurface );
+      mTbmSurface = NULL;
+    }
+  }
 
   mTbmSurface = GetSurfaceFromAny( source );
-  mSetSource = true;
 
   if( mTbmSurface != NULL )
   {
+    mSetSource = true;
+    tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );

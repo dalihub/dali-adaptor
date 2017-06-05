@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace TizenPlatform
 
 namespace
 {
-typedef bool (*LoadBitmapFunction)( const ResourceLoadingClient& client, const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+typedef bool (*LoadBitmapFunction)( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 typedef bool (*LoadBitmapHeaderFunction)( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 #if defined(DEBUG_ENABLED)
@@ -252,10 +252,9 @@ bool GetBitmapLoaderFunctions( FILE *fp,
 namespace ImageLoader
 {
 
-bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, FILE * const fp, const ResourceLoadingClient& client, BitmapPtr& ptr )
+bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path, FILE * const fp, BitmapPtr& ptr )
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
-  DALI_ASSERT_DEBUG( ResourceBitmap == resourceType.id );
 
   bool result = false;
   BitmapPtr bitmap = 0;
@@ -275,16 +274,11 @@ bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, 
       bitmap = Bitmap::New( profile, ResourcePolicy::OWNED_DISCARD );
 
       DALI_LOG_SET_OBJECT_STRING( bitmap, path );
-      const BitmapResourceType& resType = static_cast<const BitmapResourceType&>( resourceType );
-      const ScalingParameters scalingParameters( resType.size, resType.scalingMode, resType.samplingMode );
-      const ImageLoader::Input input( fp, scalingParameters, resType.orientationCorrection );
-
-      // Check for cancellation now we have hit the filesystem, done some allocation, and burned some cycles:
-      // This won't do anything from synchronous API, it's only useful when called from another thread.
-      client.InterruptionPoint(); // Note: By design, this can throw an exception
+      const ScalingParameters scalingParameters( resource.size, resource.scalingMode, resource.samplingMode );
+      const ImageLoader::Input input( fp, scalingParameters, resource.orientationCorrection );
 
       // Run the image type decoder:
-      result = function( client, input, *bitmap );
+      result = function( input, *bitmap );
 
       if (!result)
       {
@@ -292,9 +286,7 @@ bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, 
         bitmap = 0;
       }
 
-      // Apply the requested image attributes if not interrupted:
-      client.InterruptionPoint(); // Note: By design, this can throw an exception
-      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, resType.size, resType.scalingMode, resType.samplingMode );
+      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, resource.size, resource.scalingMode, resource.samplingMode );
     }
     else
     {
@@ -306,22 +298,22 @@ bool ConvertStreamToBitmap( const ResourceType& resourceType, std::string path, 
   return result;
 }
 
-ResourcePointer LoadResourceSynchronously( const Integration::ResourceType& resourceType, const std::string& resourcePath )
+ResourcePointer LoadImageSynchronously( const Integration::BitmapResourceType& resource, const std::string& path )
 {
-  ResourcePointer resource;
+  ResourcePointer result;
   BitmapPtr bitmap = 0;
 
-  Internal::Platform::FileCloser fc( resourcePath.c_str(), "rb");
+  Internal::Platform::FileCloser fc( path.c_str(), "rb");
   FILE * const fp = fc.GetFile();
   if( fp != NULL )
   {
-    bool result = ConvertStreamToBitmap( resourceType, resourcePath, fp, StubbedResourceLoadingClient(), bitmap );
-    if( result && bitmap )
+    bool success = ConvertStreamToBitmap( resource, path, fp, bitmap );
+    if( success && bitmap )
     {
-      resource.Reset(bitmap.Get());
+      result.Reset(bitmap.Get());
     }
   }
-  return resource;
+  return result;
 }
 
 ///@ToDo: Rename GetClosestImageSize() functions. Make them use the orientation correction and scaling information. Requires jpeg loader to tell us about reorientation. [Is there still a requirement for this functionality at all?]

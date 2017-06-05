@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,13 +110,18 @@ Window::Window()
   mIsTransparent( false ),
   mWMRotationAppSet( false ),
   mIsFocusAcceptable( true ),
+  mVisible( true ),
+  mOpaqueState( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
-  mPreferredOrientation( Dali::Window::PORTRAIT )
+  mType( Dali::DevelWindow::NORMAL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
   mEventHandler = NULL;
 }
@@ -289,8 +294,113 @@ bool Window::IsFocusAcceptable()
   return mIsFocusAcceptable;
 }
 
+void Window::Show()
+{
+  mVisible = true;
+}
+
+void Window::Hide()
+{
+  mVisible = false;
+}
+
+bool Window::IsVisible() const
+{
+  return mVisible;
+}
+
+
 void Window::RotationDone( int orientation, int width, int height )
 {
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount()
+{
+  return 0;
+}
+
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+{
+  return std::string();
+}
+
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  return -1;
+}
+
+bool Window::RemoveAuxiliaryHint( unsigned int id )
+{
+  return false;
+}
+
+bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+{
+  return false;
+}
+
+std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+{
+  return std::string();
+}
+
+unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+{
+  return -1;
+}
+
+void Window::SetInputRegion( const Rect< int >& inputRegion )
+{
+}
+
+void Window::SetType( Dali::DevelWindow::Type type )
+{
+  mType = type;
+}
+
+Dali::DevelWindow::Type Window::GetType() const
+{
+  return mType;
+}
+
+bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+{
+  return false;
+}
+
+Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+{
+  return Dali::DevelWindow::NotificationLevel::NONE;
+}
+
+void Window::SetOpaqueState( bool opaque )
+{
+  mOpaqueState = opaque;
+}
+
+bool Window::IsOpaqueState()
+{
+  return mOpaqueState;
+}
+
+bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+{
+  return false;
+}
+
+Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+{
+  return Dali::DevelWindow::ScreenMode::DEFAULT;
+}
+
+bool Window::SetBrightness( int brightness )
+{
+  return false;
+}
+
+int Window::GetBrightness()
+{
+  return 0;
 }
 
 } // Adaptor

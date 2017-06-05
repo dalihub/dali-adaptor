@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_SINGLETON_SERVICE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
-#include <dali/devel-api/common/map-wrapper.h>
+#include <dali/public-api/common/vector-wrapper.h>
 
 // INTERNAL INCLUDES
 #include <singleton-service.h>
@@ -84,8 +84,10 @@ private:
 
 private:
 
-  typedef std::pair<std::string, BaseHandle> SingletonPair;
-  typedef std::map<std::string, BaseHandle>  SingletonContainer;
+  // using the address of the type name string as compiler will allocate these once per library
+  // and we don't support un/re-loading of dali libraries while singleton service is alive
+  typedef std::pair< const char*, BaseHandle> SingletonPair;
+  typedef std::vector< SingletonPair >  SingletonContainer;
   typedef SingletonContainer::const_iterator SingletonConstIter;
 
   SingletonContainer mSingletonContainer; ///< The container to look up singleton by its type name
