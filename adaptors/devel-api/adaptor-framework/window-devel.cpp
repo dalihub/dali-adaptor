@@ -145,6 +145,11 @@ int GetBrightness( Window window )
   return GetImplementation( window ).GetBrightness();
 }
 
+ResizedSignalType& ResizedSignal( Window window )
+{
+  return GetImplementation( window ).ResizedSignal();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

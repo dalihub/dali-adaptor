@@ -249,7 +249,10 @@ struct EventHandler::Impl
   Impl( EventHandler* handler, Ecore_Wl_Window* window )
   : mHandler( handler ),
     mEcoreEventHandler(),
-    mWindow( window )
+    mWindow( window ),
+    mRotationAngle( 0 ),
+    mWindowWidth( 0 ),
+    mWindowHeight( 0 )
 #ifdef DALI_ELDBUS_AVAILABLE
   , mSystemConnection( NULL )
 #endif // DALI_ELDBUS_AVAILABLE
@@ -1186,8 +1189,18 @@ struct EventHandler::Impl
     RotationEvent rotationEvent;
     rotationEvent.angle = ev->angle;
     rotationEvent.winResize = 0;
-    rotationEvent.width = ev->w;
-    rotationEvent.height = ev->h;
+
+    if( ev->angle == 0 || ev->angle == 180 )
+    {
+      rotationEvent.width = ev->w;
+      rotationEvent.height = ev->h;
+    }
+    else
+    {
+      rotationEvent.width = ev->h;
+      rotationEvent.height = ev->w;
+    }
+
     handler->SendRotationPrepareEvent( rotationEvent );
 
     return ECORE_CALLBACK_PASS_ON;
@@ -1230,10 +1243,48 @@ struct EventHandler::Impl
     handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }
 
+  void ConvertTouchPosition( Integration::Point& point )
+  {
+    Vector2 position = point.GetScreenPosition();
+    Vector2 convertedPosition;
+
+    switch( mRotationAngle )
+    {
+      case 90:
+      {
+        convertedPosition.x = mWindowWidth - position.y;
+        convertedPosition.y = position.x;
+        break;
+      }
+      case 180:
+      {
+        convertedPosition.x = mWindowWidth - position.x;
+        convertedPosition.y = mWindowHeight - position.y;
+        break;
+      }
+      case 270:
+      {
+        convertedPosition.x = position.y;
+        convertedPosition.y = mWindowHeight - position.x;
+        break;
+      }
+      default:
+      {
+        convertedPosition = position;
+        break;
+      }
+    }
+
+    point.SetScreenPosition( convertedPosition );
+  }
+
   // Data
   EventHandler* mHandler;
   std::vector<Ecore_Event_Handler*> mEcoreEventHandler;
   Ecore_Wl_Window* mWindow;
+  int mRotationAngle;
+  int mWindowWidth;
+  int mWindowHeight;
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection* mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
@@ -1281,12 +1332,14 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
     timeStamp = GetCurrentMilliSeconds();
   }
 
+  mImpl->ConvertTouchPosition( point );
+
   Integration::TouchEvent touchEvent;
   Integration::HoverEvent hoverEvent;
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
   if(type != Integration::TouchEventCombiner::DispatchNone )
   {
-    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetLocalPosition().x, point.GetLocalPosition().y);
+    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y);
 
     // First the touch and/or hover event & related gesture events are queued
     if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth)
@@ -1344,6 +1397,10 @@ void EventHandler::SendRotationPrepareEvent( const RotationEvent& event )
 {
   if( mRotationObserver != NULL )
   {
+    mImpl->mRotationAngle = event.angle;
+    mImpl->mWindowWidth = event.width;
+    mImpl->mWindowHeight = event.height;
+
     mRotationObserver->OnRotationPrepare( event );
     mRotationObserver->OnRotationRequest();
   }

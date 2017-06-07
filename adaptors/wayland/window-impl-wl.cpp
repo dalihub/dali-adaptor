@@ -121,7 +121,11 @@ Window::Window()
   mType( Dali::DevelWindow::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints()
+  mAuxiliaryHints(),
+  mIndicatorVisibilityChangedSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
+  mDeleteRequestSignal()
 {
   mEventHandler = NULL;
 }
