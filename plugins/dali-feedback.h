@@ -18,6 +18,13 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#if defined(DALI_PROFILE_MOBILE)
+#include <dd-haptic.h>
+#else
+#include <haptic.h>
+#endif
+
 // INTERNAL INCLUDES
 #include <feedback-plugin.h>
 
@@ -76,6 +83,12 @@ public: // FeedbackPlugin overrides
    * @copydoc Dali::FeedbackPlugin::PlayFeedbackPattern()
    */
   void PlayFeedbackPattern( int type, int pattern );
+
+private:
+
+  haptic_device_h mDeviceHandle;
+
+  bool mHapticInitialized;
 };
 
 }  // namespace Plugin
