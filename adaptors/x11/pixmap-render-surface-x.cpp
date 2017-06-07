@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,7 +248,8 @@ void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
       // make a fixes region as updated area
       region = XFixesCreateRegion( display, &rect, 1 );
       // add damage event to updated drawable
-      XDamageAdd( display, (Drawable)drawable, region );
+      Drawable xdrawable( drawable ); // ecore type is unsigned int whereas in 64bit linux Drawable is long unsigned int
+      XDamageAdd( display, xdrawable, region );
       XFixesDestroyRegion( display, region );
 
       XFlush( display );

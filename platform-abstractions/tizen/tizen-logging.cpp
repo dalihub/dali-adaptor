@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #ifndef DALI_PROFILE_UBUNTU
+// Dlog uses C style casts internally
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <dlog.h>
 #else // DALI_PROFILE_UBUNTU
 #include <cstdio>
@@ -51,6 +54,7 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
       LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
       break;
   }
+#pragma GCC diagnostic pop
 #else // DALI_PROFILE_UBUNTU
   const char *format = NULL;
   switch(level)

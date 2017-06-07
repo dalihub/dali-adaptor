@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@ const unsigned int NANOSECONDS_PER_MILLISECOND( 1e+6 );
 
 // The following values will get calculated at compile time
 const float        DEFAULT_FRAME_DURATION_IN_SECONDS( 1.0f / 60.0f );
-const unsigned int DEFAULT_FRAME_DURATION_IN_MILLISECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * MILLISECONDS_PER_SECOND );
-const unsigned int DEFAULT_FRAME_DURATION_IN_NANOSECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * NANOSECONDS_PER_SECOND );
+const uint64_t DEFAULT_FRAME_DURATION_IN_MILLISECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * MILLISECONDS_PER_SECOND );
+const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * NANOSECONDS_PER_SECOND );
 
 /**
  * Handles the use case when an update-request is received JUST before we process a sleep-request. If we did not have an update-request count then
@@ -288,9 +288,9 @@ void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOf
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
   mDefaultFrameDelta                  = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
-  mDefaultFrameDurationMilliseconds   = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
-  mDefaultFrameDurationNanoseconds    = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
-  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2;
+  mDefaultFrameDurationMilliseconds   = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
+  mDefaultFrameDurationNanoseconds    = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
+  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2u;
 
   LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
 }

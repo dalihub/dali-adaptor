@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,11 @@ Ecore_X_Window GetWindow()
   Ecore_X_Window xCbhmWin = 0;
   unsigned char *buf = NULL;
   int num = 0;
+// XA_WINDOW is a macro with C cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
   int ret = ecore_x_window_prop_property_get( 0, xAtomCbhm, XA_WINDOW, 0, &buf, &num );
+#pragma GCC diagnostic pop
 
   if ( ret && num )
   {
@@ -91,7 +95,7 @@ std::string GetWindowProperty( Ecore_X_Atom property, Ecore_X_Atom *xDataType, u
                              LONG_MAX,                                     // long length of data to retrieve
                              False,                                        // Bool flag to delete data
                              ecore_x_window_prop_any_type(),               // Atom atom id associated to property type
-                             (Atom *)&typeRet,                             // Atom actual_type_return, atom id property type
+                             reinterpret_cast< Atom * >( &typeRet ),       // Atom actual_type_return, atom id property type
                              &sizeRet,                                     // int* format of property
                              &numRet,                                      // unsigned long*  number of items being returned in prop_return
                              &bytes,                                       // unsigned long* remaining bytes if partial retrieval
@@ -124,7 +128,7 @@ std::string GetWindowProperty( Ecore_X_Atom property, Ecore_X_Atom *xDataType, u
    {
      for ( i = 0; i < numRet; i++ )
      {
-       data +=  ( ( unsigned short * )propRet )[i];
+       data += ( propRet )[i];
      }
    }
    break;
@@ -133,7 +137,7 @@ std::string GetWindowProperty( Ecore_X_Atom property, Ecore_X_Atom *xDataType, u
    {
      for ( i = 0; i < numRet; i++ )
      {
-       data += ( ( unsigned long * )propRet )[i];
+       data += ( propRet )[i];
      }
    }
    break;
@@ -161,7 +165,7 @@ void SendXEvent(Ecore_X_Display* display, Ecore_X_Window window, bool propagate,
   message.window = window;
   snprintf(message.data.b, 20, "%s", msg);
 
-  XSendEvent( static_cast<Display*>( display ), window, propagate, eventMask,( XEvent* )&message );
+  XSendEvent( static_cast<Display*>( display ), window, propagate, eventMask, reinterpret_cast< XEvent* >( &message ) );
 }
 
 

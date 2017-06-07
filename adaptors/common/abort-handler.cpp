@@ -64,13 +64,17 @@ bool AbortHandler::AbortOnSignal( int signum )
   {
     SignalHandlerFuncPtr signalHandlerPrevious = signal( signum, &AbortHandler::SignalHandler );
 
-    if ( SIG_ERR != signalHandlerPrevious )
+// SIG_ERR is a macro with C cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+  if ( SIG_ERR != signalHandlerPrevious )
     {
       mSignalOldHandlers[signum-1] = signalHandlerPrevious;
       mSignalMask |= ( 1 << (signum-1) );
       status = true;
     }
   }
+#pragma GCC diagnostic pop
   return status;
 }
 

@@ -306,10 +306,10 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bi
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
 
   DALI_ASSERT_DEBUG(pixels);
-  rows = (png_bytep*) malloc(sizeof(png_bytep) * height);
+  rows = reinterpret_cast< png_bytep* >( malloc(sizeof(png_bytep) * height) );
   for(y=0; y<height; y++)
   {
-    rows[y] = (png_byte*) (pixels + y * stride);
+    rows[y] = pixels + y * stride;
   }
 
   // decode image

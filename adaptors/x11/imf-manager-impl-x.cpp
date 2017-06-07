@@ -30,6 +30,9 @@
 #include <locale-utils.h>
 #include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include "ecore-virtual-keyboard.h"
 
 namespace Dali
@@ -692,3 +695,5 @@ void ImfManager::HideInputPanel()
 } // Internal
 
 } // Dali
+
+#pragma GCC diagnostic pop

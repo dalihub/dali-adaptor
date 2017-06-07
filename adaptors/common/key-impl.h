@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <key.h>
+#include <key-extension-plugin.h>
 
 namespace Dali
 {

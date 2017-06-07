@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ void FrameTime::SetSyncTime( unsigned int frameNumber )
 
     mLastSyncFrameNumber = frameNumber;
 
-    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: SetSyncTime(): Frame: %u: Time: %u\n", mLastSyncFrameNumber, (unsigned int) ( mLastSyncTime / MICROSECONDS_PER_MILLISECOND ) );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FrameTime: SetSyncTime(): Frame: %u: Time: %u\n", mLastSyncFrameNumber, static_cast<unsigned int>( mLastSyncTime / MICROSECONDS_PER_MILLISECOND ) );
   }
 }
 

@@ -379,7 +379,7 @@ libdali_adaptor_la_CXXFLAGS = \
                       -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported} \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
-                      -Werror -Wall -lgcc \
+                      -Werror -Wall -lgcc -Wold-style-cast\
                       $(libdali_adaptor_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
                       $(DALICORE_CFLAGS) \

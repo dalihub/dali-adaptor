@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
 #include "ecore-server-connection.h"
 
 // EXTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 
 #include <dali/integration-api/debug.h>
@@ -211,5 +214,9 @@ void ServerConnection::CloseConnection()
 }
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
+
+#pragma GCC diagnostic pop

@@ -249,7 +249,7 @@ void AppendPropertyNameAndValue( Dali::Handle handle, int propertyIndex, std::os
       }
       else if( '\x00' <= *c && *c <= '\x1f' )
       {
-        escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
+        escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(*c);
       }
       else
       {

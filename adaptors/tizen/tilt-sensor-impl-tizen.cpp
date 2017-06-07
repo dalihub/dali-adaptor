@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ namespace Adaptor
 #ifdef SENSOR_ENABLED
 static void sensor_changed_cb (sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-  TiltSensor* tiltSensor = (TiltSensor*)user_data;
+  TiltSensor* tiltSensor = reinterpret_cast< TiltSensor* >( user_data );
 
   if(tiltSensor)
   {
