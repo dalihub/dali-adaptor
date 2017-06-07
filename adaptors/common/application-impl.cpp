@@ -83,7 +83,6 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mName(),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
-  mInitialized( false ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -199,12 +198,6 @@ void Application::DoInit()
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
-
-  if( !mInitialized )
-  {
-    mAdaptor->NotifySceneCreated();
-    mInitialized = true;
-  }
 }
 
 void Application::DoTerminate()
@@ -236,8 +229,6 @@ void Application::DoLanguageChange()
 void Application::OnInit()
 {
   mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
-
-  mInitialized = true;
 
   DoInit();
 
