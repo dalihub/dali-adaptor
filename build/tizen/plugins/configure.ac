@@ -35,18 +35,12 @@ fi # enable_videoplayer
 fi # enable_wayland
 
 if test "x$enable_feedback" = "xyes"; then
-
-if test "x$enable_profile" = "xCOMMON" || test "x$enable_profile" = "xTV"; then
-PKG_CHECK_MODULES(HAPTIC, haptic)
-fi
-
-if test "x$enable_profile" = "xMOBILE"; then
-PKG_CHECK_MODULES(DEVICED, deviced)
-fi
+if test "x$enable_profile" != "xUBUNTU"; then
 
 PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 
+fi # check UNBUNTU
 fi # enable_feedback
 
 AC_CONFIG_FILES(Makefile)
