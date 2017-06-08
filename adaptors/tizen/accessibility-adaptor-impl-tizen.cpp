@@ -52,7 +52,7 @@ bool GetEnabledVConf()
     vconf_get_bool( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &isEnabled );
   }
 
-  return (bool)isEnabled;
+  return static_cast<bool>(isEnabled);
 }
 
 #if defined(DEBUG_ENABLED)
