@@ -42,8 +42,9 @@ class EglImplementation : public EglInterface
 public:
   /**
    * Constructor
+   * @param environmentOptions To check the envirionment options
    */
-  EglImplementation();
+  EglImplementation( unsigned int multiSamplingLevel );
 
   /**
    * Destructor
@@ -193,6 +194,8 @@ private:
   bool                 mContextCurrent;
   bool                 mIsWindow;
   ColorDepth           mColorDepth;
+
+  unsigned int         mMultiSamplingLevel;
 };
 
 } // namespace Adaptor

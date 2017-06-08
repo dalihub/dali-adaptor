@@ -203,6 +203,11 @@ public:
    */
   unsigned int GetRenderRefreshRate() const;
 
+  /**
+   * @return The number of samples required in multisample buffers
+   */
+  unsigned int GetMultiSamplingLevel() const;
+
 private: // Internal
 
   /**
@@ -238,6 +243,7 @@ private: // Data
   ThreadingMode::Type mThreadingMode;             ///< threading mode
   unsigned int mRenderRefreshRate;                ///< render refresh rate
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
+  unsigned int mMultiSamplingLevel;               ///< The number of samples required in multisample buffers
 
   Dali::Integration::Log::LogFunction mLogFunction;
 
