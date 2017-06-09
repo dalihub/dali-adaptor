@@ -84,10 +84,10 @@ struct BmpInfoHeader
 template<typename T>
 inline bool ReadHeader(FILE* fp, T& header)
 {
-  unsigned int readLength = sizeof(T);
+  const unsigned int readLength = sizeof(T);
 
   // Load the information directly into our structure
-  if (fread((void*)&header, 1, readLength, fp) != readLength)
+  if ( fread( &header, 1, readLength, fp ) != readLength )
   {
     return false;
   }

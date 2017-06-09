@@ -28,6 +28,10 @@
 #include <gl/gl-implementation.h>
 #include <gl/egl-debug.h>
 
+// EGL constants use C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 namespace Dali
 {
 
@@ -460,3 +464,5 @@ EGLDisplay EglImplementation::GetContext() const
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

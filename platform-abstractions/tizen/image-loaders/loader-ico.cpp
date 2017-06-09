@@ -76,16 +76,13 @@ const unsigned char ICO_FILE_HEADER = 22;
 const unsigned char ICO_IMAGE_INFO_HEADER = 40;
 
 typedef unsigned char  DATA8;
-#define A_VAL(p) (((DATA8 *)(p))[3])
+#define A_VAL(p) (reinterpret_cast< DATA8 * >( p )[3])
 
 #define RGB_JOIN(r,g,b) \
                 (((r) << 16) + ((g) << 8) + (b))
 
 #define ARGB_JOIN(a,r,g,b) \
                 (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
-#define IMG_TOO_BIG(w, h) \
-       ((((unsigned long long)w) * ((unsigned long long)h)) >= \
-           ((1ULL << (29 * (sizeof(void *) / 4))) - 2048))
 
 bool read_ushort(unsigned char *map, size_t length, size_t *position, unsigned short *ret)
 {
@@ -387,9 +384,9 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   size_t position = chosen.bmoffset;//22 == position
 
-  int w = chosen.w;
-  int h = chosen.h;
-  int cols = chosen.cols;
+  unsigned int w = chosen.w;
+  unsigned int h = chosen.h;
+  unsigned int cols = chosen.cols;
 
   // read bmp header time... let's do some checking
   if (!read_uint(&map[0], fsize, &position, &dword))
@@ -402,7 +399,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
   if (dword > 0)
   {
-    if ((int)dword != w)
+    if (dword != w)
     {
       w = dword;
       diff_size = 1;
@@ -414,7 +411,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
   if (dword > 0)
   {
-    if ((int)dword != (h * 2))
+    if (dword != (h * 2))
     {
       h = dword / 2;
       diff_size = 1;
@@ -467,7 +464,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
     return false; // colors important
   }
 
-  for(int i = 0; i < cols ; i ++)
+  for( unsigned int i = 0; i < cols ; i ++ )
   {
     unsigned char a, r, g, b;
 
@@ -491,8 +488,8 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
 
   // This is the reference way of calculating the total number of bytes necessary to store one row of pixels.
-  int stride = ( ( ( bitcount * w ) + 31 ) / 32 ) * 4;
-  int bitStride = ( ( w + 31 ) / 32 ) * 4;
+  unsigned int stride = ( ( ( bitcount * w ) + 31 ) / 32 ) * 4;
+  unsigned int bitStride = ( ( w + 31 ) / 32 ) * 4;
 
   // Pixbuf only ever contains one scanline worth of data.
   pixbuf.Resize( stride );
@@ -507,9 +504,9 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
       unsigned char* p = &map[position];
       pix = &surface[0] + ( ( h - 1 ) * w );
 
-      for( int i = 0; i < h; i++ )
+      for( unsigned int i = 0; i < h; i++ )
       {
-        for( int j = 0; j < w; j++ )
+        for( unsigned int j = 0; j < w; j++ )
         {
           *pix++ = ARGB_JOIN( p[3], p[0], p[1], p[2] );
           p += 4;
@@ -522,7 +519,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
     case 24:
     {
-      for( int i = 0; i < h; i++ )
+      for( unsigned int i = 0; i < h; i++ )
       {
         pix = &surface[0] + ( ( h - 1 - i ) * w );
         if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
@@ -530,7 +527,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( int j = 0; j < w; j++ )
+        for( unsigned int j = 0; j < w; j++ )
         {
           *pix++ = ARGB_JOIN( 0xff, p[0], p[1], p[2] );
           p += 3;
@@ -541,7 +538,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
     case 8:
     {
-      for( int i = 0; i < h; i++ )
+      for( unsigned int i = 0; i < h; i++ )
       {
         pix = &surface[0] + ( ( h - 1 - i ) * w );
         if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
@@ -549,7 +546,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( int j = 0; j < w; j++ )
+        for( unsigned int j = 0; j < w; j++ )
         {
           *pix++ = pal[*p++];
         }
@@ -559,7 +556,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
     case 4:
     {
-      for( int i = 0; i < h; i++ )
+      for( unsigned int i = 0; i < h; i++ )
       {
         pix = &surface[0] + ( ( h - 1 - i ) * w );
         if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
@@ -567,7 +564,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( int j = 0; j < w; j++ )
+        for( unsigned int j = 0; j < w; j++ )
         {
           if( j & 0x1 )
           {
@@ -586,7 +583,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
     case 1:
     {
-      for( int i = 0; i < h; i++ )
+      for( unsigned int i = 0; i < h; i++ )
       {
         pix = &surface[0] + ( ( h - 1 - i ) * w );
         if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
@@ -595,7 +592,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
         }
         unsigned char* p = &pixbuf[0];
 
-        for( int j = 0; j < w; j += 8 )
+        for( unsigned int j = 0; j < w; j += 8 )
         {
           *pix++ = pal[ *p >> 7 ];
           *pix++ = pal[ *p >> 6 & 0x01 ];
@@ -629,17 +626,17 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
     // Apply mask.
     // Precalc to save time in the loops.
-    int bytesPerWidth = w / 8;
-    int bytesRemainingPerWidth = w - ( bytesPerWidth << 3 );
+    unsigned int bytesPerWidth = w / 8;
+    unsigned int bytesRemainingPerWidth = w - ( bytesPerWidth << 3 );
 
     // Loop for each line of the image.
-    for( int i = 0; i < h; ++i )
+    for( unsigned int i = 0; i < h; ++i )
     {
       unsigned char *m = &maskbuf[0] + ( bitStride * i );
       pix = &surface[0] + ( ( h - 1 - i ) * w );
 
       // Do chunks of 8 pixels first so mask operations can be unrolled.
-      for( int j = 0; j < bytesPerWidth; ++j )
+      for( unsigned int j = 0; j < bytesPerWidth; ++j )
       {
         // Unrolled 8 bits of the mask to avoid many conditions and branches.
         A_VAL( pix++ ) = ( *m & ( 1 << 7 ) ) ? 0x00 : 0xff;
@@ -656,7 +653,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
       // Handle any remaining width ( < 8 ) or images that are < 8 wide.
       if( bytesRemainingPerWidth > 0 )
       {
-        for( int j = 0; j < bytesRemainingPerWidth; ++j )
+        for( unsigned int j = 0; j < bytesRemainingPerWidth; ++j )
         {
           // Note: Although we are doing less that a bytes worth of mask, we still always start on the first bit.
           // If the image is smaller than 8 pixels wide, each mask will still start on a new byte.
@@ -668,7 +665,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
 
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h );
-  memcpy( pixels, (unsigned char*)&surface[0], w * h * 4 );
+  memcpy( pixels, &surface[0], w * h * 4 );
 
   return true;
 }

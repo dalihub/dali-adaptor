@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ void EnableEffect( Window window, bool enable )
   nativeWindow.Get(ecoreWindow);
   ecore_x_window_prop_property_set( ecoreWindow, ECORE_X_ATOM_E_WINDOW_AUX_HINT,
                                     ECORE_X_ATOM_STRING, 8,
-                                    (void*)ss.str().c_str(), ss.str().size() + 1 );
+                                    ss.str().c_str(), ss.str().size() + 1 );
 }
 
 bool IsEffectEnabled( Window window )

@@ -19,6 +19,9 @@
 #include "window-impl.h"
 
 // EXTERNAL HEADERS
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Ecore_X.h>
 
@@ -905,5 +908,9 @@ int Window::GetBrightness()
 }
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
+
+#pragma GCC diagnostic pop
