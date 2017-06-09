@@ -44,6 +44,8 @@
 #include <trigger-event-factory.h>
 #include <networking/socket-factory.h>
 
+#include <memory>
+
 namespace Dali
 {
 
@@ -54,6 +56,10 @@ namespace Integration
 {
 class Core;
 class GlAbstraction;
+namespace Graphics
+{
+class Graphics;
+}
 }
 
 namespace Internal
@@ -585,6 +591,9 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+
+  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;
+
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

@@ -334,11 +334,11 @@ if test "x$enable_vulkan" != "xno"; then
                   [ AC_MSG_ERROR([Vulkan not available as a package]) ]
                   )
 
-    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVK_USE_PLATFORM_XLIB_KHR -DVULKAN_HPP_NO_EXCEPTIONS"
+    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
     DALI_ADAPTOR_LDFLAGS+=" ${VULKAN_LIBS}"
 fi
 
-AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan = xyes])
+AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan != xno])
 
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)

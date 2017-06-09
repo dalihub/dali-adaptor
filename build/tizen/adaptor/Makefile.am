@@ -98,6 +98,9 @@ include ../../../adaptors/public-api/file.list
 adaptor_devel_api_dir = ../../../adaptors/devel-api
 include ../../../adaptors/devel-api/file.list
 
+# Surface
+adaptor_surface_dir = ../../../adaptors/surface
+include ../../../adaptors/surface/file.list
 
 # Static libraries
 static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
@@ -163,6 +166,11 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_x11_internal_default_profile_src_files) \
                              $(static_libraries_libunibreak_src_files) \
                              $(adaptor_common_internal_egl_extension_src_files)
+
+# if VULKAN support include vulkan surfaces
+if VULKAN_ENABLED
+adaptor_internal_src_files += $(surface_vulkan_ubuntu_src_files)
+endif # VULKAN_ENABLED
 
 endif # UBUNTU_PROFILE
 

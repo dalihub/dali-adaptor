@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include "adaptor-impl.h"
+#include <dali/integration-api/graphics/graphics.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -136,6 +137,12 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
+  // todo: add somewhere MakeUnique to make it cleaner
+  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
+    new Dali::Integration::Graphics::Graphics()
+  );
+
+  new Dali::Integration::Graphics::Graphics();
   mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
