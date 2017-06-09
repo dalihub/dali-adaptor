@@ -1,0 +1,9 @@
+# surface vulkan
+
+surface_vulkan_ubuntu_src_files = \
+  $(adaptor_surface_dir)/vk-surface-xcb.cpp \
+  $(adaptor_surface_dir)/vk-surface-xlib.cpp \
+  $(adaptor_surface_dir)/vk-surface-xlib2xcb.cpp
+
+# add code for wayland in the future
+# surface_vulkan_wayland_src_files =
