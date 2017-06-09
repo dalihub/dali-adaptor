@@ -417,10 +417,6 @@ private:
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
   FocusSignalType     mFocusChangedSignal;
   SignalType          mDeleteRequestSignal;
-
-public:
-
-  void* GetNativeWindowHandler();
 };
 
 } // namespace Adaptor

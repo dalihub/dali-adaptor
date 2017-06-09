@@ -145,11 +145,6 @@ int GetBrightness( Window window )
   return GetImplementation( window ).GetBrightness();
 }
 
-void * GetNativeWindowHandler( Window window )
-{
-  return GetImplementation( window ).GetNativeWindowHandler();
-}
-
 } // namespace DevelWindow
 
 } // namespace Dali
