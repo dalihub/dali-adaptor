@@ -364,7 +364,6 @@ libdali_adaptor_uv_la_CXXFLAGS = \
                       -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported} \
                       -DNON_POWER_OF_TWO_TEXTURES \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
-                      -DWAYLAND_EXTENSIONS_SUPPORTED \
                       -Werror -Wall -lgcc \
                       $(libdali_adaptor_uv_la_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
@@ -428,12 +427,15 @@ libdali_adaptor_uv_la_LIBADD += $(ELEMENTARY_LIBS) \
 
 else
 
-if !UBUNTU_PROFILE
 libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
 libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
-endif # !UBUNTU_PROFILE
 
-endif # USE_EFL
+if IVI_PROFILE
+libdali_adaptor_uv_la_CXXFLAGS += $(ECORE_WAYLAND_CFLAGS)
+libdali_adaptor_uv_la_LIBADD += $(ECORE_WAYLAND_LIBS)
+endif
+
+endif
 
 if USE_APPFW
 
