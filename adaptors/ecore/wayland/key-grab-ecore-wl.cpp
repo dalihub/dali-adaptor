@@ -98,8 +98,8 @@ Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& da
 
   for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
   {
-    Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
+    Ecore_Wl_Window_Keygrab_Info *info = static_cast<Ecore_Wl_Window_Keygrab_Info*>(malloc(sizeof(Ecore_Wl_Window_Keygrab_Info)));
+    info->key = const_cast<char*>(Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] ));
 
     switch(grabModeVector[index])
     {
@@ -137,7 +137,7 @@ Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& da
       Dali::Vector<float>::SizeType index = 0;
       EINA_LIST_FOREACH(keyList, l, listData)
       {
-        if(strcmp((char*)data, ((Ecore_Wl_Window_Keygrab_Info*)listData)->key) == 0)
+        if(strcmp(static_cast<char*>(data), (static_cast<Ecore_Wl_Window_Keygrab_Info*>(listData))->key) == 0)
           resultVector[index] = false;
 
         ++index;
@@ -167,8 +167,8 @@ Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& 
 
   for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
   {
-    Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
+    Ecore_Wl_Window_Keygrab_Info *info = static_cast<Ecore_Wl_Window_Keygrab_Info*>(malloc(sizeof(Ecore_Wl_Window_Keygrab_Info)));
+    info->key = const_cast<char*>(Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] ));
     keyList = eina_list_append(keyList, info);
   }
 
@@ -186,7 +186,7 @@ Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& 
       Dali::Vector<float>::SizeType index = 0;
       EINA_LIST_FOREACH(keyList, l, listData)
       {
-        if(strcmp((char*)data, ((Ecore_Wl_Window_Keygrab_Info*)listData)->key) == 0)
+        if(strcmp(static_cast<char*>(data), (static_cast<Ecore_Wl_Window_Keygrab_Info*>(listData))->key) == 0)
           resultVector[index] = false;
 
         ++index;
