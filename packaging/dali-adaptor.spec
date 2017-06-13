@@ -522,6 +522,9 @@ for FILE in libdali-*.so*; do mv "$FILE" "%{buildroot}%{_libdir}/$FILE"; done
 %endif
 popd
 
+mkdir -p %{buildroot}/usr/share/license
+cp -af %{_builddir}/%{name}-%{version}/LICENSE %{buildroot}/usr/share/license/%{name}
+
 ##############################
 # Upgrade order:
 # 1 - Pre Install new package
@@ -640,7 +643,7 @@ exit 0
 %defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
-%license LICENSE
+%{_datadir}/license/%{name}
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
@@ -657,7 +660,6 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-video-player-plugin.so*
-%license LICENSE
 %endif
 
 %files dali-feedback-plugin
