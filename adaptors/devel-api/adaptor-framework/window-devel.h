@@ -78,6 +78,7 @@ enum Type
 };
 
 typedef Signal< void (bool) > FocusSignalType;      ///< Window focus signal type
+typedef Signal< void (int, int) > ResizedSignalType; ///< Window resized signal type
 
 /**
  * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
@@ -292,6 +293,20 @@ DALI_IMPORT_API bool SetBrightness( Window window, int brightness );
  * @return The preffered brightness.
  */
 DALI_IMPORT_API int GetBrightness( Window window );
+
+/**
+ * @brief This signal is emitted when the window is resized.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( int width, int height );
+ * @endcode
+ * The parameters are the resized width and height.
+ *
+ * @param[in] window The window to get a signal
+ * @return The signal to connect to
+ */
+DALI_IMPORT_API ResizedSignalType& ResizedSignal( Window window );
 
 } // namespace DevelWindow
 

@@ -60,6 +60,7 @@ class Window : public Dali::BaseObject, public IndicatorInterface::Observer, pub
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
   typedef Dali::DevelWindow::FocusSignalType FocusSignalType;
+  typedef Dali::DevelWindow::ResizedSignalType ResizedSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -370,9 +371,14 @@ public: // Signals
   IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
 
   /**
-   * The user should connect to this signal to get a timing when window gains focus or loses focus.
+   * @copydoc Dali::DevelWindow::FocusChangedSignal()
    */
   FocusSignalType& FocusChangedSignal() { return mFocusChangedSignal; }
+
+  /**
+   * @copydoc Dali::DevelWindow::ResizedSignal()
+   */
+  ResizedSignalType& ResizedSignal() { return mResizedSignal; }
 
   /**
    * This signal is emitted when the window is requesting to be deleted
@@ -416,6 +422,7 @@ private:
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
   FocusSignalType     mFocusChangedSignal;
+  ResizedSignalType   mResizedSignal;
   SignalType          mDeleteRequestSignal;
 };
 
