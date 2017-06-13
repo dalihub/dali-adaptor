@@ -107,6 +107,7 @@ EnvironmentOptions::EnvironmentOptions()
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mRenderRefreshRate( 1 ),
   mGlesCallAccumulate( false ),
+  mMultiSamplingLevel( 0 ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -253,6 +254,11 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
   return mRenderRefreshRate;
 }
 
+unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
+{
+  return mMultiSamplingLevel;
+}
+
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
   return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
@@ -394,6 +400,15 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( renderRefreshRate > 1 )
     {
       mRenderRefreshRate = renderRefreshRate;
+    }
+  }
+
+  int multiSamplingLevel( 0 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_MULTI_SAMPLING_LEVEL, multiSamplingLevel ) )
+  {
+    if( multiSamplingLevel > 0 )
+    {
+      mMultiSamplingLevel = multiSamplingLevel;
     }
   }
 }

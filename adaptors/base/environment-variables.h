@@ -93,6 +93,8 @@ namespace Adaptor
 
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 
+#define DALI_ENV_MULTI_SAMPLING_LEVEL "DALI_MULTI_SAMPLING_LEVEL"
+
 } // namespace Adaptor
 
 } // namespace Internal
