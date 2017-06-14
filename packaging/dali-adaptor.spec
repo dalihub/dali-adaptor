@@ -288,8 +288,8 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TIZEN_PLATFORM_CONFIG_SUPPORTED
 %endif
 
-# Default to GLES 2.0 if not specified.
-%{!?target_gles_version: %define target_gles_version 20}
+# Default to GLES 3.0 if not specified.
+%{!?target_gles_version: %define target_gles_version 30}
 
 #--enable-efl=no \ # only affects dali-adaptor-uv
 #--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
