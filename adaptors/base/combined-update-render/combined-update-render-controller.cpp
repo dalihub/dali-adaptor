@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -376,8 +376,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   bool useElapsedTime = true;
   bool updateRequired = true;
+  uint64_t timeToSleepUntil = 0;
+  int extraFramesDropped = 0;
 
-  while( UpdateRenderReady( useElapsedTime, updateRequired ) )
+  while( UpdateRenderReady( useElapsedTime, updateRequired, timeToSleepUntil ) )
   {
     LOG_UPDATE_RENDER_TRACE;
 
@@ -422,8 +424,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( useElapsedTime )
     {
       // If using the elapsed time, then calculate frameDelta as a multiple of mDefaultFrameDelta
-      // Round up if remainder is more than half the default frame time
-      noOfFramesSinceLastUpdate = ( timeSinceLastFrame + mDefaultHalfFrameNanoseconds) / mDefaultFrameDurationNanoseconds;
+      noOfFramesSinceLastUpdate += extraFramesDropped;
+
       frameDelta = mDefaultFrameDelta * noOfFramesSinceLastUpdate;
     }
     LOG_UPDATE_RENDER( "timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta );
@@ -478,8 +480,40 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // FRAME TIME
     //////////////////////////////
 
+    extraFramesDropped = 0;
+
+    if (timeToSleepUntil == 0)
+    {
+      // If this is the first frame after the thread is initialized or resumed, we
+      // use the actual time the current frame starts from to calculate the time to
+      // sleep until the next frame.
+      timeToSleepUntil = currentFrameStartTime + mDefaultFrameDurationNanoseconds;
+    }
+    else
+    {
+      // Otherwise, always use the sleep-until time calculated in the last frame to
+      // calculate the time to sleep until the next frame. In this way, if there is
+      // any time gap between the current frame and the next frame, or if update or
+      // rendering in the current frame takes too much time so that the specified
+      // sleep-until time has already passed, it will try to keep the frames syncing
+      // by shortening the duration of the next frame.
+      timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+
+      // Check the current time at the end of the frame
+      uint64_t currentFrameEndTime = 0;
+      TimeService::GetNanoseconds( currentFrameEndTime );
+      while ( currentFrameEndTime > timeToSleepUntil + mDefaultFrameDurationNanoseconds )
+      {
+         // We are more than one frame behind already, so just drop the next frames
+         // until the sleep-until time is later than the current time so that we can
+         // catch up.
+         timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+         extraFramesDropped++;
+      }
+    }
+
     // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
-    TimeService::SleepUntil( currentFrameStartTime + mDefaultFrameDurationNanoseconds );
+    TimeService::SleepUntil( timeToSleepUntil );
   }
 
   // Inform core of context destruction & shutdown EGL
@@ -492,7 +526,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   mEnvironmentOptions.UnInstallLogFunction();
 }
 
-bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired )
+bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil )
 {
   useElapsedTime = true;
 
@@ -506,6 +540,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
     LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
     LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
     LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
+
+    // Reset the time when the thread is waiting, so the sleep-until time for
+    // the first frame after resuming should be based on the actual start time
+    // of the first frame.
+    timeToSleepUntil = 0;
 
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
 
