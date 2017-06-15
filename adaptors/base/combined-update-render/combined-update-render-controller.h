@@ -192,12 +192,13 @@ private:
   /**
    * Called by the Update/Render Thread which ensures a wait if required.
    *
-   * @param[out] useElapsedTime  If true when returned, then the actual elapsed time will be used for animation.
-   *                             If false when returned, then there should NOT be any animation progression in the next Update.
-   * @param[in]  updateRequired  Whether another update is required.
+   * @param[out] useElapsedTime    If true when returned, then the actual elapsed time will be used for animation.
+   *                               If false when returned, then there should NOT be any animation progression in the next Update.
+   * @param[in]  updateRequired    Whether another update is required.
+   * @param[out] timeToSleepUntil  The time in nanoseconds to put the thread to sleep until.
    * @return false, if the thread should stop.
    */
-  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired );
+  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil );
 
   /**
    * Checks to see if the surface needs to be replaced.
