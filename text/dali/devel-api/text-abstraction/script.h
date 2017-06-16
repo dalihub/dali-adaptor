@@ -92,6 +92,8 @@ enum Script
   SUNDANESE,     ///< The Sundanese script. Used by the Sundanese language.
 
   GEEZ,          ///< The Ge'ez script. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
+  OL_CHIKI,      ///< The Ol Chiki script. Used by the Santali.
+  BAYBAYIN,      ///< The Baybayin script. Used by the Tagalog, Bikol languages, Ilocano, Pangasinan, Visayan and other languages in Philippines.
 
   EMOJI,         ///< The Emoji which map to standardized Unicode characters.
 
@@ -162,6 +164,8 @@ const char* const ScriptName[] =
   "SUNDANESE",     ///< The Sundanese script. Used by the Sundanese language.
 
   "GEEZ",          ///< The Ge'ez script also known as Ethiopic. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
+  "OL_CHIKI",      ///< The Ol Chiki script. Used by the Santali.
+  "BAYBAYIN",      ///< The Baybayin script. Used by the Tagalog, Bikol languages, Ilocano, Pangasinan, Visayan and other languages in Philippines.
 
   "EMOJI",         ///< The Emoji which map to standardized Unicode characters.
 

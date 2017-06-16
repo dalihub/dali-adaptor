@@ -238,6 +238,12 @@ Script GetCharacterScript( Character character )
   // 0x2d80 - 0x2ddf Ethiopic Extended
   // 0xab00 - 0xab2f Ethiopic Extended-A
 
+  // Baybayin Script
+  // 0x1700 - 0x171f Baybayin
+
+  // Ol Chiki Script
+  // 0x1c50 - 0x1c7f Ol Chiki
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -452,6 +458,10 @@ Script GetCharacterScript( Character character )
         {
           return GEEZ;
         }
+        if( ( 0x1700 <= character ) && ( character <= 0x171f ) )
+        {
+          return BAYBAYIN;
+        }
         if( ( 0x1780 <= character ) && ( character <= 0x17ff ) )
         {
           return KHMER;
@@ -463,6 +473,10 @@ Script GetCharacterScript( Character character )
         if( ( 0x1b80 <= character ) && ( character <= 0x1bbf ) )
         {
           return SUNDANESE;
+        }
+        if( ( 0x1c50 <= character ) && ( character <= 0x1c7f ) )
+        {
+          return OL_CHIKI;
         }
         if( ( 0x1cc0 <= character ) && ( character <= 0x1ccf ) )
         {
