@@ -52,7 +52,7 @@ namespace Adaptor
   } \
 }
 
-EglImplementation::EglImplementation()
+EglImplementation::EglImplementation( unsigned int multiSamplingLevel )
   : mEglNativeDisplay(0),
     mEglNativeWindow(0),
     mCurrentEglNativePixmap(0),
@@ -64,7 +64,8 @@ EglImplementation::EglImplementation()
     mIsOwnSurface(true),
     mContextCurrent(false),
     mIsWindow(true),
-    mColorDepth(COLOR_DEPTH_24)
+    mColorDepth(COLOR_DEPTH_24),
+    mMultiSamplingLevel( multiSamplingLevel )
 {
 }
 
@@ -334,7 +335,7 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( 8 );
 #ifndef DALI_PROFILE_UBUNTU
   configAttribs.PushBack( EGL_SAMPLES );
-  configAttribs.PushBack( 4 );
+  configAttribs.PushBack( mMultiSamplingLevel );
   configAttribs.PushBack( EGL_SAMPLE_BUFFERS );
   configAttribs.PushBack( 1 );
 #endif // DALI_PROFILE_UBUNTU

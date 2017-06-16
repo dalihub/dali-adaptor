@@ -16,17 +16,19 @@
  */
 
 // CLASS HEADER
-#include "window-render-surface.h"
+#include <window-render-surface.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
 #include <wl-types.h>
-#include <trigger-event.h>
 #include <gl/egl-implementation.h>
 #include <base/display-connection.h>
+#include <adaptors/common/adaptor-impl.h>
+#include <integration-api/trigger-event-factory-interface.h>
 
 namespace Dali
 {
@@ -51,7 +53,11 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
   mWlWindow( NULL ),
-  mEglWindow( NULL )
+  mEglWindow( NULL ),
+  mThreadSynchronization( NULL ),
+  mRotationTrigger( NULL ),
+  mRotationSupported( false ),
+  mRotated( false )
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Init( surface );
@@ -68,6 +74,11 @@ WindowRenderSurface::~WindowRenderSurface()
   if( mOwnSurface )
   {
     ecore_wl_window_free( mWlWindow );
+  }
+
+  if( mRotationTrigger )
+  {
+    delete mRotationTrigger;
   }
 }
 
@@ -86,6 +97,69 @@ Any WindowRenderSurface::GetSurface()
 Ecore_Wl_Window* WindowRenderSurface::GetWlWindow()
 {
   return mWlWindow;
+}
+
+void WindowRenderSurface::RequestRotation( Dali::Window::WindowOrientation orientation, int width, int height )
+{
+  if( !mRotationSupported )
+  {
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: Rotation is not supported!\n" );
+    return;
+  }
+
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: orientation = %d\n", orientation );
+
+  if( !mRotationTrigger )
+  {
+    TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
+    mRotationTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+  }
+
+  mPosition.width = width;
+  mPosition.height = height;
+
+  mRotated = true;
+
+  int angle;
+  wl_egl_window_rotation rotation;
+
+  switch( orientation )
+  {
+    case Dali::Window::PORTRAIT:
+    {
+      angle = 0;
+      rotation = ROTATION_0;
+      break;
+    }
+    case Dali::Window::LANDSCAPE:
+    {
+      angle = 90;
+      rotation = ROTATION_270;
+      break;
+    }
+    case Dali::Window::PORTRAIT_INVERSE:
+    {
+      angle = 180;
+      rotation = ROTATION_180;
+      break;
+    }
+    case Dali::Window::LANDSCAPE_INVERSE:
+    {
+      angle = 270;
+      rotation = ROTATION_90;
+      break;
+    }
+    default:
+    {
+      angle = 0;
+      rotation = ROTATION_0;
+      break;
+    }
+  }
+
+  ecore_wl_window_rotation_set( mWlWindow, angle );
+
+  wl_egl_window_set_rotation( mEglWindow, rotation );
 }
 
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
@@ -118,6 +192,14 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
   EGLNativeWindowType windowType( mEglWindow );
   eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
+
+  // Check capability
+  wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
+  if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
+  {
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
+    mRotationSupported = true;
+  }
 }
 
 void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
@@ -210,6 +292,28 @@ bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& 
 
 void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
 {
+  if( mRotated )
+  {
+    // Check viewport size
+    Dali::Vector< GLint > viewportSize;
+    viewportSize.Resize( 4 );
+
+    glAbstraction.GetIntegerv( GL_VIEWPORT, &viewportSize[0] );
+
+    if( viewportSize[2] == mPosition.width && viewportSize[3] == mPosition.height )
+    {
+      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+
+      mRotationTrigger->Trigger();
+
+      if( mThreadSynchronization )
+      {
+        // Wait until the event-thread complete the rotation event processing
+        mThreadSynchronization->PostRenderWaitForCompletion();
+      }
+    }
+  }
+
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
 
@@ -253,14 +357,30 @@ void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
   mWlWindow = AnyCast< Ecore_Wl_Window* >( surfaceId );
 }
 
-void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& /* threadSynchronization */ )
+void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
 {
-  // Nothing to do.
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::SetThreadSynchronization: called\n" );
+
+  mThreadSynchronization = &threadSynchronization;
 }
 
 void WindowRenderSurface::ReleaseLock()
 {
   // Nothing to do.
+}
+
+void WindowRenderSurface::ProcessRotationRequest()
+{
+  mRotated = false;
+
+  ecore_wl_window_rotation_change_done_send( mWlWindow );
+
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n" );
+
+  if( mThreadSynchronization )
+  {
+    mThreadSynchronization->PostRenderComplete();
+  }
 }
 
 } // namespace ECore

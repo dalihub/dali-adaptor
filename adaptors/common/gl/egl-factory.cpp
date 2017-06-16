@@ -30,11 +30,16 @@ namespace Internal
 namespace Adaptor
 {
 
-EglFactory::EglFactory()
+EglFactory::EglFactory( unsigned int multiSamplingLevel )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
-  mEglSync(new EglSyncImplementation) // Created early, as needed by Core constructor
+  mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
+  mMultiSamplingLevel( 4 )
 {
+  if( multiSamplingLevel > 0 )
+  {
+    mMultiSamplingLevel = multiSamplingLevel;
+  }
 }
 
 EglFactory::~EglFactory()
@@ -48,8 +53,8 @@ EglFactory::~EglFactory()
 EglInterface* EglFactory::Create()
 {
   // Created by RenderThread (After Core construction)
-  mEglImplementation = new EglImplementation();
-  mEglImageExtensions = new EglImageExtensions(mEglImplementation);
+  mEglImplementation = new EglImplementation( mMultiSamplingLevel );
+  mEglImageExtensions = new EglImageExtensions( mEglImplementation );
 
   mEglSync->Initialize(mEglImplementation); // The sync impl needs the EglDisplay
   return mEglImplementation;

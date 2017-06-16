@@ -31,7 +31,7 @@ namespace Dali
 {
 
 #if defined(DEBUG_ENABLED)
-Debug::Filter* gRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_ECORE_X_RENDER_SURFACE");
+Debug::Filter* gRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_ECORE_WL_RENDER_SURFACE");
 #endif
 
 namespace ECore

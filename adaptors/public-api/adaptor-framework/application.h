@@ -361,6 +361,7 @@ public:  // Signals
   AppSignalType& ResetSignal();
 
   /**
+   * @DEPRECATED_1_1.43 Use Window::ResizedSignal() instead.
    * @brief This signal is emitted when the window application rendering on is resized.
    * @SINCE_1_0.0
    * @return The signal to connect to

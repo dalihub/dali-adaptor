@@ -521,7 +521,11 @@ Window::Window()
   mEventHandler( NULL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints()
+  mAuxiliaryHints(),
+  mIndicatorVisibilityChangedSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
+  mDeleteRequestSignal()
 {
 }
 
@@ -895,7 +899,45 @@ bool Window::IsVisible() const
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
+  PositionSize positionSize( 0, 0, width, height );
+
+  mAdaptor->SurfaceSizeChanged( positionSize );
+
+  // Emit signal
+  mResizedSignal.Emit( positionSize.width, positionSize.height );
+
+  Dali::Window::WindowOrientation windowOrientation;
+  switch( orientation )
+  {
+    case 0:
+    {
+      windowOrientation = Dali::Window::PORTRAIT;
+      break;
+    }
+    case 90:
+    {
+      windowOrientation = Dali::Window::LANDSCAPE;
+      break;
+    }
+    case 180:
+    {
+      windowOrientation = Dali::Window::PORTRAIT_INVERSE;
+      break;
+    }
+    case 270:
+    {
+      windowOrientation = Dali::Window::LANDSCAPE_INVERSE;
+      break;
+    }
+    default:
+    {
+      windowOrientation = Dali::Window::PORTRAIT;
+      break;
+    }
+  }
+
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  wlSurface->RequestRotation( windowOrientation, positionSize.width, positionSize.height );
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount()

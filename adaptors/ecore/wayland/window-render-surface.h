@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,13 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <wayland-egl.h>
+
 // INTERNAL INCLUDES
 #include <ecore-wl-render-surface.h>
-#include <wayland-egl.h>
+#include <window.h>
+#include <integration-api/thread-synchronization-interface.h>
 
 namespace Dali
 {
@@ -74,6 +78,14 @@ public: // API
    * @copydoc Dali::ECore::EcoreWlRenderSurface::GetWlWindow()
    */
   virtual Ecore_Wl_Window* GetWlWindow();
+
+  /**
+   * Request surface rotation
+   * @param[in] orientation A new orientation of the surface
+   * @param[in] width A new width of the surface
+   * @param[in] height A new height of the surface
+   */
+  void RequestRotation( Dali::Window::WindowOrientation orientation, int width, int height );
 
 public: // from Dali::RenderSurface
 
@@ -149,10 +161,21 @@ protected:
    */
   virtual void UseExistingRenderable( unsigned int surfaceId );
 
+private:
+
+  /**
+   * Used as the callback for the rotation-trigger.
+   */
+  void ProcessRotationRequest();
+
 private: // Data
 
-  Ecore_Wl_Window*   mWlWindow; ///< Wayland-Window
-  wl_egl_window*     mEglWindow;
+  Ecore_Wl_Window*                mWlWindow; ///< Wayland-Window
+  wl_egl_window*                  mEglWindow;
+  ThreadSynchronizationInterface* mThreadSynchronization;
+  TriggerEventInterface*          mRotationTrigger;
+  bool                            mRotationSupported;
+  bool                            mRotated;
 
 }; // class WindowRenderSurface
 

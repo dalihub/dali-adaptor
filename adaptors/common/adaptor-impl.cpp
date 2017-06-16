@@ -132,7 +132,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     mGLES = new GlImplementation();
   }
 
-  mEglFactory = new EglFactory();
+  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel() );
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
