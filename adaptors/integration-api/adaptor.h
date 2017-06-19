@@ -2,7 +2,7 @@
 #define __DALI_INTEGRATION_ADAPTOR_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/common/view-mode.h>
+#include <dali/public-api/math/uint-16-pair.h>
 
 // INTERNAL INCLUDES
-
 
 #ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
 // @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
@@ -114,6 +114,8 @@ class DALI_IMPORT_API Adaptor
 public:
 
   typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
+
+  typedef Uint16Pair SurfaceSize;          ///< Surface size type
 
 public:
   /**
@@ -340,7 +342,7 @@ public:
   /**
    * @brief Informs core the surface size has changed
    */
-  void SurfaceSizeChanged( const PositionSize& positionSize );
+  void SurfaceSizeChanged( SurfaceSize surfaceSize );
 
 public:  // Signals
 

@@ -178,6 +178,7 @@ private: // Data
 
   void*                           mLibHandle; ///< Handle for the loaded library
   Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
+  wl_surface*                     mWlSurface;
   wl_egl_window*                  mEglWindow;
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRotationTrigger;

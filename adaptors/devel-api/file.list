@@ -1,5 +1,6 @@
 devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/application-devel.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/application-extensions.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-loader.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.cpp \
@@ -33,6 +34,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.h \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-action-handler.h \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/application-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/application-extensions.h \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-loader.h \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.h \

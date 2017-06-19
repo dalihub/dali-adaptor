@@ -58,6 +58,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
   mEglWinSetRotationPtr( NULL ),
   mLibHandle( NULL ),
   mWlWindow( NULL ),
+  mWlSurface( NULL ),
   mEglWindow( NULL ),
   mThreadSynchronization( NULL ),
   mRotationTrigger( NULL ),
@@ -200,9 +201,8 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
     ecore_wl_window_alpha_set( mWlWindow, false );
   }
 
-  // create the EGL surface
-  ecore_wl_window_surface_create(mWlWindow);
-  mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
+  // create the EGL window
+  mEglWindow = wl_egl_window_create( mWlSurface, mPosition.width, mPosition.height );
   EGLNativeWindowType windowType( mEglWindow );
   eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
 
@@ -278,7 +278,7 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
     ecore_wl_window_alpha_set( mWlWindow, false );
   }
 
-  mEglWindow = wl_egl_window_create(ecore_wl_window_surface_get(mWlWindow), mPosition.width, mPosition.height);
+  mEglWindow = wl_egl_window_create( mWlSurface, mPosition.width, mPosition.height );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   EGLNativeWindowType windowType( mEglWindow );
@@ -306,15 +306,18 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
 
   if(needToMove)
   {
-    ecore_wl_window_move(mWlWindow, positionSize.x, positionSize.y);
-    mPosition = positionSize;
+    ecore_wl_window_position_set( mWlWindow, positionSize.x, positionSize.y );
   }
   if (needToResize)
   {
-    ecore_wl_window_resize(mWlWindow, positionSize.width, positionSize.height, 0);
-    mPosition = positionSize;
+    ecore_wl_window_update_size( mWlWindow, positionSize.width, positionSize.height );
   }
 
+  mPosition = positionSize;
+
+  wl_egl_window_resize( mEglWindow, mPosition.width, mPosition.height, mPosition.x, mPosition.y );
+
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPosition.x, mPosition.y, mPosition.width, mPosition.height );
 }
 
 void WindowRenderSurface::Map()
@@ -392,6 +395,8 @@ void WindowRenderSurface::CreateWlRenderable()
   {
     DALI_ASSERT_ALWAYS(0 && "Failed to create Wayland window");
   }
+
+  mWlSurface = ecore_wl_window_surface_create( mWlWindow );
 }
 
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
