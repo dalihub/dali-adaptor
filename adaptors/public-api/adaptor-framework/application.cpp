@@ -162,6 +162,8 @@ Application::AppSignalType& Application::ResetSignal()
 
 Application::AppSignalType& Application::ResizeSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: ResizeSignal() is deprecated and will be removed from next release. Use Window::ResizedSignal() instead.\n" );
+
   return Internal::Adaptor::GetImplementation(*this).ResizeSignal();
 }
 

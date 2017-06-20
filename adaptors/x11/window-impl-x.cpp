@@ -359,7 +359,11 @@ Window::Window()
   mEventHandler( NULL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints()
+  mAuxiliaryHints(),
+  mIndicatorVisibilityChangedSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
+  mDeleteRequestSignal()
 {
 
   // Detect if we're not running in a ecore main loop (e.g. libuv).
