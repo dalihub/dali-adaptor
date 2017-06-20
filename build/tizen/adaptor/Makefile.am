@@ -493,10 +493,12 @@ endif
 if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
-                      $(EFL_ASSIST_CFLAGS)
+                      $(EFL_ASSIST_CFLAGS) \
+                      $(SCREENCONNECTORPROVIDER_CFLAGS) \
                       $(APPCORE_WATCH_CFLAGS)
 
 libdali_adaptor_la_LIBADD += \
+                      $(SCREENCONNECTORPROVIDER_LIBS) \
                       $(APPCORE_WATCH_LIBS)
 endif
 
