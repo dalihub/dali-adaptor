@@ -293,6 +293,13 @@ DALI_IMPORT_API bool SetBrightness( Window window, int brightness );
  */
 DALI_IMPORT_API int GetBrightness( Window window );
 
+/**
+ * @brief Returns native Ecore Wayland Window handle only for c# binding
+ * @param[in] window The window where Ecore Wayland window handle is extracted
+ * @return void * of native Ecore Wayland Window
+ */
+DALI_IMPORT_API void * GetNativeWindowHandler( Window window );
+
 } // namespace DevelWindow
 
 } // namespace Dali

@@ -907,6 +907,11 @@ int Window::GetBrightness()
   return 0;
 }
 
+void* Window::GetNativeWindowHandler()
+{
+  return &(mEventHandler->mEcoreWindow);
+}
+
 } // Adaptor
 
 } // Internal
