@@ -244,6 +244,10 @@ Script GetCharacterScript( Character character )
   // Ol Chiki Script
   // 0x1c50 - 0x1c7f Ol Chiki
 
+  // Meitei Script
+  // 0xabc0 - 0xabff Meetei Mayek
+  // 0xaae0 - 0xaaff Meetei Mayek Extensions
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -738,6 +742,14 @@ Script GetCharacterScript( Character character )
         if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
         {
           return LATIN;
+        }
+        if( ( 0xaae0 <= character ) && ( character <= 0xaaff ) )
+        {
+          return MEITEI;
+        }
+        if( ( 0xabc0 <= character ) && ( character <= 0xabff ) )
+        {
+          return MEITEI;
         }
         if( ( 0xac00 <= character ) && ( character <= 0xd7af ) )
         {
