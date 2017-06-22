@@ -176,6 +176,13 @@ AC_ARG_ENABLE([profile],
               [enable_profile=$enableval],
               [enable_profile=UBUNTU])
 
+# Tizen Major version
+AC_ARG_ENABLE([tizen-major-version],
+              [AC_HELP_STRING([--enable-tizen-major-version],
+                              [Specify the Tizen Major version for backwards compatibility])],
+              [enable-tizen-major-version=$enableval],
+              [enable-tizen-major-version=0])
+
 # Ensure valid profile selected
 if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xIVI" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
@@ -197,6 +204,7 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([USE_EFL], [test x$enable_efl = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
+AM_CONDITIONAL([USE_APPFW_EFL_BASE], [test x$enable_tizen_major_version = x3])
 
 # Platforms with highp shader support can use vector based text
 AM_CONDITIONAL([ENABLE_VECTOR_BASED_TEXT_RENDERING], [test x$enable_profile = xUBUNTU])
@@ -263,8 +271,14 @@ fi
 fi # ubuntu profile test
 
 if test "x$enable_appfw" = "xyes"; then
-PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+if test "x$enable_tizen_major_version" = "x3"; then
+PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
+else
+PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, appcore-ui)
+PKG_CHECK_MODULES(CAPI_APPFW_COMMON, capi-appfw-app-common)
+PKG_CHECK_MODULES(CAPI_APPFW_CONTROL, capi-appfw-app-control)
+fi
 fi
 
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
