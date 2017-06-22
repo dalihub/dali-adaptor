@@ -170,7 +170,14 @@ private:
 
 private: // Data
 
-  Ecore_Wl_Window*                mWlWindow; ///< Wayland-Window
+  typedef int (*EglWinGetCapabilitiesFunction)( wl_egl_window* eglWindow );
+  typedef int (*EglWinSetRotationFunction)( wl_egl_window* eglWindow, int rotation );
+
+  EglWinGetCapabilitiesFunction  mEglWinGetCapabilitiesPtr;
+  EglWinSetRotationFunction      mEglWinSetRotationPtr;
+
+  void*                           mLibHandle; ///< Handle for the loaded library
+  Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
   wl_egl_window*                  mEglWindow;
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRotationTrigger;
