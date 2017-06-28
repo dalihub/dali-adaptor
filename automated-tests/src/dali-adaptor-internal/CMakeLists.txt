@@ -12,6 +12,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoader.cpp
     utc-Dali-IcoLoader.cpp
     utc-Dali-ImageOperations.cpp
+    utc-Dali-Internal-PixelBuffer.cpp
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-TiltSensor.cpp
 )
