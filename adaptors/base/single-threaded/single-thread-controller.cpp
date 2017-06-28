@@ -176,10 +176,7 @@ void SingleThreadController::RequestUpdateOnce()
     Integration::UpdateStatus status;
     mCore.Update( 0.0f, mLastUpdateRenderTime, mLastUpdateRenderTime + mRefreshRate * MILLISECONDS_PER_FRAME, status );
 
-    Integration::RenderStatus renderStatus;
-    mRenderHelper.PreRender();
-    mCore.Render( renderStatus );
-    mRenderHelper.PostRender();
+    Render();
   }
 }
 
@@ -258,17 +255,10 @@ void SingleThreadController::UpdateRender( bool incrementTime )
   if( mState != State::STOPPED )
   {
     mRenderHelper.ConsumeEvents();
-    mRenderHelper.PreRender();
 
-    Integration::RenderStatus renderStatus;
-    AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    mCore.Render( renderStatus );
-    AddPerformanceMarker( PerformanceInterface::RENDER_END );
+    const bool needsUpdate = Render();
 
-    mRenderHelper.PostRender();
-
-    if( ! keepUpdatingStatus &&
-        ! renderStatus.NeedsUpdate() )
+    if( !keepUpdatingStatus && !needsUpdate )
     {
       ChangeState( State::SLEEPING );
     }
@@ -335,6 +325,23 @@ void SingleThreadController::StopRendering()
   // Inform core of context destruction & shutdown EGL
   mCore.ContextDestroyed();
   mRenderHelper.ShutdownEgl();
+}
+
+bool SingleThreadController::Render()
+{
+  mRenderHelper.PreRender();
+
+  Integration::RenderStatus renderStatus;
+  AddPerformanceMarker( PerformanceInterface::RENDER_START );
+  mCore.Render( renderStatus );
+  AddPerformanceMarker( PerformanceInterface::RENDER_END );
+
+  if( renderStatus.NeedsPostRender() )
+  {
+    mRenderHelper.PostRender();
+  }
+
+  return renderStatus.NeedsUpdate();
 }
 
 } // namespace Adaptor

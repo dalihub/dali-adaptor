@@ -166,6 +166,12 @@ private:
    */
   void StopRendering();
 
+  /**
+   * Runs render (along with pre & post steps as required).
+   * @return True if an update is required.
+   */
+  bool Render();
+
 private:
 
   Dali::Timer                       mTimer;                           ///< Ensures an update & render is run every frame.

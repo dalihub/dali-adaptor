@@ -459,7 +459,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mCore.Render( renderStatus );
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
-    mRenderHelper.PostRender();
+    if( renderStatus.NeedsPostRender() )
+    {
+      mRenderHelper.PostRender();
+    }
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) &&
