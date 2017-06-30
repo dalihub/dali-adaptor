@@ -362,27 +362,27 @@ static Resample_Real kaiser_filter(Resample_Real t)
 // filters[] is a list of all the available filter functions.
 static struct
 {
-   char name[32];
+   Resampler::Filter name;
    Resample_Real (*func)(Resample_Real t);
    Resample_Real support;
 } g_filters[] =
 {
-   { "box",              box_filter,              BOX_FILTER_SUPPORT },
-   { "tent",             tent_filter,             TENT_FILTER_SUPPORT },
-   { "bell",             bell_filter,             BELL_SUPPORT },
-   { "b-spline",         B_spline_filter,         B_SPLINE_SUPPORT },
-   { "mitchell",         mitchell_filter,         MITCHELL_SUPPORT },
-   { "lanczos3",         lanczos3_filter,         LANCZOS3_SUPPORT },
-   { "blackman",         blackman_filter,         BLACKMAN_SUPPORT },
-   { "lanczos4",         lanczos4_filter,         LANCZOS4_SUPPORT },
-   { "lanczos6",         lanczos6_filter,         LANCZOS6_SUPPORT },
-   { "lanczos12",        lanczos12_filter,        LANCZOS12_SUPPORT },
-   { "kaiser",           kaiser_filter,           KAISER_SUPPORT },
-   { "gaussian",         gaussian_filter,         GAUSSIAN_SUPPORT },
-   { "catmullrom",       catmull_rom_filter,      CATMULL_ROM_SUPPORT },
-   { "quadratic_interp", quadratic_interp_filter, QUADRATIC_SUPPORT },
-   { "quadratic_approx", quadratic_approx_filter, QUADRATIC_SUPPORT },
-   { "quadratic_mix",    quadratic_mix_filter,    QUADRATIC_SUPPORT },
+   { Resampler::BOX,              box_filter,              BOX_FILTER_SUPPORT },
+   { Resampler::TENT,             tent_filter,             TENT_FILTER_SUPPORT },
+   { Resampler::BELL,             bell_filter,             BELL_SUPPORT },
+   { Resampler::B_SPLINE,         B_spline_filter,         B_SPLINE_SUPPORT },
+   { Resampler::MITCHELL,         mitchell_filter,         MITCHELL_SUPPORT },
+   { Resampler::LANCZOS3,         lanczos3_filter,         LANCZOS3_SUPPORT },
+   { Resampler::BLACKMAN,         blackman_filter,         BLACKMAN_SUPPORT },
+   { Resampler::LANCZOS4,         lanczos4_filter,         LANCZOS4_SUPPORT },
+   { Resampler::LANCZOS6,         lanczos6_filter,         LANCZOS6_SUPPORT },
+   { Resampler::LANCZOS12,        lanczos12_filter,        LANCZOS12_SUPPORT },
+   { Resampler::KAISER,           kaiser_filter,           KAISER_SUPPORT },
+   { Resampler::GAUSSIAN,         gaussian_filter,         GAUSSIAN_SUPPORT },
+   { Resampler::CATMULLROM,       catmull_rom_filter,      CATMULL_ROM_SUPPORT },
+   { Resampler::QUADRATIC_INTERPOLATION, quadratic_interp_filter, QUADRATIC_SUPPORT },
+   { Resampler::QUADRATIC_APPROXIMATION, quadratic_approx_filter, QUADRATIC_SUPPORT },
+   { Resampler::QUADRATIC_MIX,    quadratic_mix_filter,    QUADRATIC_SUPPORT },
 };
 
 static const int NUM_FILTERS = sizeof(g_filters) / sizeof(g_filters[0]);
@@ -1012,7 +1012,7 @@ Resampler::Resampler(int src_x, int src_y,
                      int dst_x, int dst_y,
                      Boundary_Op boundary_op,
                      Resample_Real sample_low, Resample_Real sample_high,
-                     const char* Pfilter_name,
+                     Resampler::Filter filter,
                      Contrib_List* Pclist_x,
                      Contrib_List* Pclist_y,
                      Resample_Real filter_x_scale,
@@ -1062,17 +1062,13 @@ Resampler::Resampler(int src_x, int src_y,
    }
 
    // Find the specified filter.
-
-   if (Pfilter_name == NULL)
-      Pfilter_name = RESAMPLER_DEFAULT_FILTER;
-
    for (i = 0; i < NUM_FILTERS; i++)
-      if (strcmp(Pfilter_name, g_filters[i].name) == 0)
+      if ( filter ==  g_filters[i].name )
          break;
 
    if (i == NUM_FILTERS)
    {
-      m_status = STATUS_BAD_FILTER_NAME;
+      m_status = STATUS_BAD_FILTER_TYPE;
       return;
    }
 
@@ -1203,19 +1199,6 @@ void Resampler::get_clists(Contrib_List** ptr_clist_x, Contrib_List** ptr_clist_
 
    if (ptr_clist_y)
       *ptr_clist_y = m_Pclist_y;
-}
-
-int Resampler::get_filter_num()
-{
-   return NUM_FILTERS;
-}
-
-char* Resampler::get_filter_name(int filter_num)
-{
-   if ((filter_num < 0) || (filter_num >= NUM_FILTERS))
-      return NULL;
-   else
-      return g_filters[filter_num].name;
 }
 
 #pragma GCC diagnostic pop

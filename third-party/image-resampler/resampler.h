@@ -1,10 +1,10 @@
 // resampler.h, Separable filtering image rescaler v2.21, Rich Geldreich - richgel99@gmail.com
 // See unlicense.org text at the bottom of this file.
+// Modified to specify filters as enum rather than char *
 #ifndef __RESAMPLER_H__
 #define __RESAMPLER_H__
 
 #define RESAMPLER_DEBUG_OPS 0
-#define RESAMPLER_DEFAULT_FILTER "lanczos4"
 
 #define RESAMPLER_MAX_DIMENSION 16384
 
@@ -15,6 +15,29 @@ class Resampler
 {
 public:
    typedef Resample_Real Sample;
+
+   /**
+    * Supported filter types
+    */
+   enum Filter
+   {
+     BOX,
+     TENT,
+     BELL,
+     B_SPLINE,
+     MITCHELL,
+     LANCZOS3,
+     BLACKMAN,
+     LANCZOS4,
+     LANCZOS6,
+     LANCZOS12,
+     KAISER,
+     GAUSSIAN,
+     CATMULLROM,
+     QUADRATIC_INTERPOLATION,
+     QUADRATIC_APPROXIMATION,
+     QUADRATIC_MIX,
+   };
 
    struct Contrib
    {
@@ -39,7 +62,7 @@ public:
    {
       STATUS_OKAY = 0,
       STATUS_OUT_OF_MEMORY = 1,
-      STATUS_BAD_FILTER_NAME = 2,
+      STATUS_BAD_FILTER_TYPE = 2,
       STATUS_SCAN_BUFFER_FULL = 3
    };
 
@@ -54,7 +77,7 @@ public:
       int dst_x, int dst_y,
       Boundary_Op boundary_op = BOUNDARY_CLAMP,
       Resample_Real sample_low = 0.0f, Resample_Real sample_high = 0.0f,
-      const char* Pfilter_name = RESAMPLER_DEFAULT_FILTER,
+      Resampler::Filter = Resampler::LANCZOS3,
       Contrib_List* Pclist_x = NULL,
       Contrib_List* Pclist_y = NULL,
       Resample_Real filter_x_scale = 1.0f,
@@ -79,10 +102,6 @@ public:
    void get_clists(Contrib_List** ptr_clist_x, Contrib_List** ptr_clist_y);
    Contrib_List* get_clist_x() const {	return m_Pclist_x; }
    Contrib_List* get_clist_y() const {	return m_Pclist_y; }
-
-   // Filter accessors.
-   static int get_filter_num();
-   static char* get_filter_name(int filter_num);
 
 private:
    Resampler();

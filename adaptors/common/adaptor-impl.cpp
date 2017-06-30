@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -385,39 +385,6 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
   mEventHandler->FeedKeyEvent( keyEvent );
 }
 
-bool Adaptor::MoveResize( const PositionSize& positionSize )
-{
-  PositionSize old = mSurface->GetPositionSize();
-
-  // just resize the surface. The driver should automatically resize the egl Surface (untested)
-  // EGL Spec says : EGL window surfaces need to be resized when their corresponding native window
-  // is resized. Implementations typically use hooks into the OS and native window
-  // system to perform this resizing on demand, transparently to the client.
-  mSurface->MoveResize( positionSize );
-
-  if(old.width != positionSize.width || old.height != positionSize.height)
-  {
-    SurfaceSizeChanged(positionSize);
-  }
-
-  return true;
-}
-
-void Adaptor::SurfaceResized( const PositionSize& positionSize )
-{
-  PositionSize old = mSurface->GetPositionSize();
-
-  // Called by an application, when it has resized a window outside of Dali.
-  // The EGL driver automatically detects X Window resize calls, and resizes
-  // the EGL surface for us.
-  mSurface->MoveResize( positionSize );
-
-  if(old.width != positionSize.width || old.height != positionSize.height)
-  {
-    SurfaceSizeChanged(positionSize);
-  }
-}
-
 void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
 {
   mNativeWindow = nativeWindow;
@@ -722,10 +689,10 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate();
 }
 
-void Adaptor::SurfaceSizeChanged( const PositionSize& positionSize )
+void Adaptor::SurfaceSizeChanged( Dali::Adaptor::SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
-  mCore->SurfaceResized(positionSize.width, positionSize.height);
+  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
 
   mResizedSignal.Emit( mAdaptor );
 }

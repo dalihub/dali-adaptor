@@ -150,6 +150,26 @@ ResizedSignalType& ResizedSignal( Window window )
   return GetImplementation( window ).ResizedSignal();
 }
 
+void SetSize( Window window, WindowSize size )
+{
+  GetImplementation( window ).SetSize( size );
+}
+
+WindowSize GetSize( Window window )
+{
+  return GetImplementation( window ).GetSize();
+}
+
+void SetPosition( Window window, WindowPosition position )
+{
+  GetImplementation( window ).SetPosition( position );
+}
+
+WindowPosition GetPosition( Window window )
+{
+  return GetImplementation( window ).GetPosition();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

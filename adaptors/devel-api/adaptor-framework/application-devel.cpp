@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,22 @@
  *
  */
 
-
-// CLASS HEADER
-#include "property-buffer-wrapper.h"
-
 // INTERNAL INCLUDES
-#include "property-value-wrapper.h"
+#include <adaptors/devel-api/adaptor-framework/application-devel.h>
+#include <adaptors/common/application-impl.h>
 
 namespace Dali
 {
-namespace Internal
-{
-namespace Emscripten
+
+namespace DevelApplication
 {
 
-void SetPropertyBufferDataRaw(Dali::PropertyBuffer& self, const std::string& data, std::size_t size )
+Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
 {
-  self.SetData( reinterpret_cast<void*>( const_cast<char*>(data.c_str()) ), size );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
+  return Application( internal.Get() );
 }
 
+} // namespace DevelApplication
 
-}; // namespace Emscripten
-}; // namespace Internal
-}; // namespace Dali
+} // namespace Dali

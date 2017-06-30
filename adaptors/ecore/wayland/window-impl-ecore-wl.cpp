@@ -382,11 +382,11 @@ struct Window::EventHandler
   bool mBrightnessChangeDone;
 };
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -511,6 +511,7 @@ Window::Window()
   mIsFocusAcceptable( true ),
   mVisible( true ),
   mOpaqueState( false ),
+  mResizeEnabled( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
@@ -552,17 +553,13 @@ Window::~Window()
   mAuxiliaryHints.clear();
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
-  SetClass( name, className );
-  windowSurface->Map();
-
-  mOrientation = Orientation::New(this);
 
   // create event handler for Wayland window
   mEventHandler = new EventHandler( this );
@@ -581,6 +578,17 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
       DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::Initialize: %s\n", hint );
     }
   }
+
+  if( !positionSize.IsEmpty() )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  SetClass( name, className );
+  windowSurface->Map();
+
+  mOrientation = Orientation::New(this);
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -899,12 +907,10 @@ bool Window::IsVisible() const
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  PositionSize positionSize( 0, 0, width, height );
-
-  mAdaptor->SurfaceSizeChanged( positionSize );
+  mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( width, height ) );
 
   // Emit signal
-  mResizedSignal.Emit( positionSize.width, positionSize.height );
+  mResizedSignal.Emit( Dali::DevelWindow::WindowSize( width, height ) );
 
   Dali::Window::WindowOrientation windowOrientation;
   switch( orientation )
@@ -937,7 +943,7 @@ void Window::RotationDone( int orientation, int width, int height )
   }
 
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->RequestRotation( windowOrientation, positionSize.width, positionSize.height );
+  wlSurface->RequestRotation( windowOrientation, width, height );
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount()
@@ -1450,6 +1456,63 @@ int Window::GetBrightness()
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetBrightness: Brightness [%d]\n", mEventHandler->mBrightness );
 
   return mEventHandler->mBrightness;
+}
+
+void Window::SetSize( Dali::DevelWindow::WindowSize size )
+{
+  if( !mResizeEnabled )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.width != size.GetWidth() || positionSize.height != size.GetHeight() )
+  {
+    positionSize.width = size.GetWidth();
+    positionSize.height = size.GetHeight();
+
+    mSurface->MoveResize( positionSize );
+
+    mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+    // Emit signal
+    mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+  }
+}
+
+Dali::DevelWindow::WindowSize Window::GetSize()
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height );
+}
+
+void Window::SetPosition( Dali::DevelWindow::WindowPosition position )
+{
+  if( !mResizeEnabled )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.x != position.GetX() || positionSize.y != position.GetY() )
+  {
+    positionSize.x = position.GetX();
+    positionSize.y = position.GetY();
+
+    mSurface->MoveResize( positionSize );
+  }
+}
+
+Dali::DevelWindow::WindowPosition Window::GetPosition()
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::DevelWindow::WindowPosition( positionSize.x, positionSize.y );
 }
 
 } // Adaptor

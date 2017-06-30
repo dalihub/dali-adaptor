@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_APPLICATION_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,14 +60,15 @@ public:
 
   /**
    * Create a new application
-   * @param[in]  argc        A pointer to the number of arguments
-   * @param[in]  argv        A pointer to the argument list
-   * @param[in]  stylesheet  The path to user defined theme file
-   * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
+   * @param[in]  argc         A pointer to the number of arguments
+   * @param[in]  argv         A pointer to the argument list
+   * @param[in]  stylesheet   The path to user defined theme file
+   * @param[in]  windowMode   A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize A position and a size of the window
    * @param[in]  applicationType  A member of Dali::Framework::Type
    */
   static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet,
-    WINDOW_MODE windowMode, Framework::Type applicationType );
+    WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType );
 
 public:
 
@@ -104,7 +105,7 @@ public:
   /**
    * @copydoc Dali::Application::ReplaceWindow();
    */
-  void ReplaceWindow(PositionSize windowPosition, const std::string& name);
+  void ReplaceWindow( const PositionSize& positionSize, const std::string& name);
 
   /**
    * @copydoc Dali::Application::GetResourcePath();
@@ -287,13 +288,15 @@ protected:
 
   /**
    * Private Constructor
-   * @param[in]  argc        A pointer to the number of arguments
-   * @param[in]  argv        A pointer to the argument list
-   * @param[in]  stylesheet  The path to user defined theme file
-   * @param[in]  windowMode  A member of Dali::Application::WINDOW_MODE
+   * @param[in]  argc         A pointer to the number of arguments
+   * @param[in]  argv         A pointer to the argument list
+   * @param[in]  stylesheet   The path to user defined theme file
+   * @param[in]  windowMode   A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize A position and a size of the window
+   * @param[in]  applicationType  A member of Dali::Framework::Type
    */
   Application( int* argc, char **argv[], const std::string& stylesheet,
-      WINDOW_MODE windowMode, Framework::Type applicationType );
+      WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType );
 
   /**
    * Destructor
@@ -346,6 +349,7 @@ private:
   std::string                           mName;
   std::string                           mStylesheet;
   EnvironmentOptions                    mEnvironmentOptions;
+  PositionSize                          mWindowPositionSize;
   bool                                  mUseRemoteSurface;
 
   SlotDelegate< Application >           mSlotDelegate;
