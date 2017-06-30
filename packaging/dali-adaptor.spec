@@ -308,6 +308,11 @@ CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
 %endif
 
+# Use this conditional when Tizen version is 4.x or greater
+%if 0%{?tizen_version_major} >= 4
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_4"
+%endif
+
 %if 0%{?tizen_2_2_compatibility}
 CFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
 CXXFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
