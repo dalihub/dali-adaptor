@@ -92,6 +92,19 @@ DALI_IMPORT_API Devel::PixelBuffer DownloadImageSynchronously(
   SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR,
   bool orientationCorrection = true );
 
+/**
+ * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
+ *
+ * @param [in] size The maximum texture size to set
+ */
+void SetMaxTextureSize( unsigned int size );
+
+/**
+ * @brief get the maximum texture size.
+ *
+ * @return The maximum texture size
+ */
+unsigned int GetMaxTextureSize();
 
 } // Dali
 

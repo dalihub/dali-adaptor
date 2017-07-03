@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,8 @@ namespace Adaptor
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 
 #define DALI_ENV_MULTI_SAMPLING_LEVEL "DALI_MULTI_SAMPLING_LEVEL"
+
+#define DALI_ENV_MAX_TEXTURE_SIZE "DALI_MAX_TEXTURE_SIZE"
 
 } // namespace Adaptor
 
