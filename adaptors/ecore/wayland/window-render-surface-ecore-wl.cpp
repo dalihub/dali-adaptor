@@ -19,7 +19,6 @@
 #include <window-render-surface.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
@@ -45,7 +44,6 @@ namespace
 {
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
-const char* WAYLAND_EGL_SO( "libwayland-egl.so" );
 
 } // unnamed namespace
 
@@ -54,9 +52,6 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& name,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
-  mEglWinGetCapabilitiesPtr( NULL ),
-  mEglWinSetRotationPtr( NULL ),
-  mLibHandle( NULL ),
   mWlWindow( NULL ),
   mEglWindow( NULL ),
   mThreadSynchronization( NULL ),
@@ -84,11 +79,6 @@ WindowRenderSurface::~WindowRenderSurface()
   if( mRotationTrigger )
   {
     delete mRotationTrigger;
-  }
-
-  if( mLibHandle != NULL )
-  {
-    dlclose( mLibHandle );
   }
 }
 
@@ -169,10 +159,7 @@ void WindowRenderSurface::RequestRotation( Dali::Window::WindowOrientation orien
 
   ecore_wl_window_rotation_set( mWlWindow, angle );
 
-  if( mEglWinSetRotationPtr )
-  {
-    mEglWinSetRotationPtr( mEglWindow, rotation );
-  }
+  wl_egl_window_set_rotation( mEglWindow, rotation );
 }
 
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
@@ -207,40 +194,11 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
 
   // Check capability
-  if( !mLibHandle )
+  wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
+  if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
   {
-    mLibHandle = dlopen( WAYLAND_EGL_SO, RTLD_LAZY );
-
-    char* error = dlerror();
-    if( mLibHandle == NULL || error != NULL )
-    {
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: dlopen error: %s\n", error );
-      return;
-    }
-
-    mEglWinGetCapabilitiesPtr = reinterpret_cast< EglWinGetCapabilitiesFunction >( dlsym( mLibHandle, "wl_egl_window_get_capabilities" ) );
-    if( !mEglWinGetCapabilitiesPtr )
-    {
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: Can't load wl_egl_window_get_capabilities\n" );
-      return;
-    }
-
-    mEglWinSetRotationPtr = reinterpret_cast< EglWinSetRotationFunction >( dlsym( mLibHandle, "wl_egl_window_set_rotation" ) );
-    if( !mEglWinSetRotationPtr )
-    {
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: Can't load wl_egl_window_set_rotation\n" );
-      return;
-    }
-  }
-
-  if( mEglWinGetCapabilitiesPtr )
-  {
-    wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( mEglWinGetCapabilitiesPtr( mEglWindow ) );
-    if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
-    {
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
-      mRotationSupported = true;
-    }
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
+    mRotationSupported = true;
   }
 }
 
