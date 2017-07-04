@@ -232,6 +232,14 @@ int VideoPlayer::GetPlayPosition()
   return 0;
 }
 
+void VideoPlayer::SetDisplayArea( DisplayArea area )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->SetDisplayArea( area );
+  }
+}
+
 void VideoPlayer::SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation )
 {
   if( mPlugin != NULL )
@@ -258,6 +266,22 @@ Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
   }
 
   return mFinishedSignal;
+}
+
+void VideoPlayer::Forward( int millisecond )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->Forward( millisecond );
+  }
+}
+
+void VideoPlayer::Backward( int millisecond )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->Backward( millisecond );
+  }
 }
 
 } // namespace Adaptor;

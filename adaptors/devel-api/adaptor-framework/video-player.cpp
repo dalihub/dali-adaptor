@@ -141,6 +141,11 @@ int VideoPlayer::GetPlayPosition()
   return GetImplementation( *this ).GetPlayPosition();
 }
 
+void VideoPlayer::SetDisplayArea( DisplayArea area )
+{
+  GetImplementation( *this ).SetDisplayArea( area );
+}
+
 void VideoPlayer::SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation )
 {
   GetImplementation( *this ).SetDisplayRotation( rotation );
@@ -154,6 +159,16 @@ Dali::VideoPlayerPlugin::DisplayRotation VideoPlayer::GetDisplayRotation()
 Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
 {
   return GetImplementation( *this ).FinishedSignal();
+}
+
+void VideoPlayer::Forward( int millisecond )
+{
+  GetImplementation( *this ).Forward( millisecond );
+}
+
+void VideoPlayer::Backward( int millisecond )
+{
+  GetImplementation( *this ).Backward( millisecond );
 }
 
 } // namespace Dali;

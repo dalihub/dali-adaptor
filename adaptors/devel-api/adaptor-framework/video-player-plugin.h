@@ -20,11 +20,13 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/math/rect.h>
 
 namespace Dali
 {
 
 class Any;
+typedef Dali::Rect< int > DisplayArea;
 
 /**
  * @brief VideoPlayerPlugin is an abstract interface, used by dali-adaptor to access video player plugin.
@@ -165,6 +167,13 @@ public:
   virtual int GetPlayPosition() = 0;
 
   /**
+   * @brief Sets the area of video display.
+   * @SINCE_1_2.46
+   * param[in] area The left-top position and size of the video display area
+   */
+  virtual void SetDisplayArea( DisplayArea area ) = 0;
+
+  /**
    * @brief Sets video display rotation
    * @SINCE_1_1.38
    * @param[in] rotation The rotation of display
@@ -185,6 +194,22 @@ public:
    * @return A signal object to connect with.
    */
   virtual VideoPlayerSignalType& FinishedSignal() = 0;
+
+  /**
+   * @brief Seeks forward by the specified number of milliseconds.
+   *
+   * @SINCE_1_2.46
+   * @param[in] millisecond The position for forward playback
+   */
+  virtual void Forward( int millisecond ) = 0;
+
+  /**
+   * @brief Seeks backward by the specified number of milliseconds.
+   *
+   * @SINCE_1_2.46
+   * @param[in] millisecond The position for backward playback
+   */
+  virtual void Backward( int millisecond ) = 0;
 
 };
 

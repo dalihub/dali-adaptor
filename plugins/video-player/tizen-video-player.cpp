@@ -208,8 +208,8 @@ TizenVideoPlayer::TizenVideoPlayer()
   mPlayerState( PLAYER_STATE_NONE ),
   mTbmSurface( NULL ),
   mPacket( NULL ),
-  mBackgroundColor( Dali::Stage::DEFAULT_BACKGROUND_COLOR ),
-  mTargetType( NativeImage )
+  mTargetType( NativeImage ),
+  mAlphaBitChanged( false )
 {
 }
 
@@ -279,13 +279,10 @@ void TizenVideoPlayer::SetRenderingTarget( Any target )
   }
 
   mNativeImageSourcePtr = NULL;
+  mEcoreWlWindow = NULL;
 
   if( target.GetType() == typeid( Dali::NativeImageSourcePtr ) )
   {
-    if( mTargetType == TizenVideoPlayer::WindowSurface )
-    {
-      Stage::GetCurrent().SetBackgroundColor( mBackgroundColor );
-    }
     mTargetType = TizenVideoPlayer::NativeImage;
 
     Dali::NativeImageSourcePtr nativeImageSourcePtr = AnyCast< Dali::NativeImageSourcePtr >( target );
@@ -295,8 +292,6 @@ void TizenVideoPlayer::SetRenderingTarget( Any target )
   else if( target.GetType() == typeid( Ecore_Wl_Window* ) )
   {
     mTargetType = TizenVideoPlayer::WindowSurface;
-    mBackgroundColor = Stage::GetCurrent().GetBackgroundColor();
-    Stage::GetCurrent().SetBackgroundColor( Color::TRANSPARENT );
 
     Ecore_Wl_Window* nativeWindow = Dali::AnyCast< Ecore_Wl_Window* >( target );
     InitializeUnderlayMode( nativeWindow );
@@ -512,6 +507,12 @@ void TizenVideoPlayer::InitializeTextureStreamMode( Dali::NativeImageSourcePtr n
 
   mNativeImageSourcePtr = nativeImageSourcePtr;
 
+  if( mAlphaBitChanged )
+  {
+    ecore_wl_window_alpha_set( mEcoreWlWindow, false );
+    mAlphaBitChanged = false;
+  }
+
   if( mPlayerState == PLAYER_STATE_NONE )
   {
     error = player_create( &mPlayer );
@@ -555,6 +556,7 @@ void TizenVideoPlayer::InitializeUnderlayMode( Ecore_Wl_Window* ecoreWlWindow )
   }
 
   GetPlayerState( &mPlayerState );
+  mEcoreWlWindow = ecoreWlWindow;
 
   if( mPlayerState == PLAYER_STATE_IDLE )
   {
@@ -564,12 +566,20 @@ void TizenVideoPlayer::InitializeUnderlayMode( Ecore_Wl_Window* ecoreWlWindow )
     error = player_set_sound_type( mPlayer, SOUND_TYPE_MEDIA );
     LogPlayerError( error );
 
-    error = player_set_display_mode( mPlayer, PLAYER_DISPLAY_MODE_FULL_SCREEN );
+    error = player_set_display_mode( mPlayer, PLAYER_DISPLAY_MODE_DST_ROI );
     LogPlayerError( error );
 
+    error = player_set_display_roi_area( mPlayer, 0, 0, 1, 1 );
+
     int width, height;
+    mAlphaBitChanged = ( ecore_wl_window_alpha_get( mEcoreWlWindow ) )? false: true;
     ecore_wl_screen_size_get( &width, &height );
-    error = player_set_ecore_wl_display( mPlayer, PLAYER_DISPLAY_TYPE_OVERLAY, ecoreWlWindow, 0, 0, width, height );
+
+    if( mAlphaBitChanged )
+    {
+      ecore_wl_window_alpha_set( mEcoreWlWindow, true );
+    }
+    error = player_set_ecore_wl_display( mPlayer, PLAYER_DISPLAY_TYPE_OVERLAY, mEcoreWlWindow, 0, 0, width, height );
     LogPlayerError( error );
 
     error = player_set_display_visible( mPlayer, true );
@@ -644,6 +654,77 @@ void TizenVideoPlayer::PushPacket( media_packet_h packet )
 {
   Dali::Mutex::ScopedLock lock( mPacketMutex );
   mPacketVector.PushBack( packet );
+}
+
+void TizenVideoPlayer::SetDisplayArea( DisplayArea area )
+{
+  GetPlayerState( &mPlayerState );
+
+  if( mNativeImageSourcePtr != NULL )
+  {
+    DALI_LOG_ERROR( "SetDisplayArea is only for window surface target.\n" );
+    return;
+  }
+
+  if( mPlayerState == PLAYER_STATE_IDLE ||
+      mPlayerState == PLAYER_STATE_READY ||
+      mPlayerState == PLAYER_STATE_PLAYING ||
+      mPlayerState == PLAYER_STATE_PAUSED
+
+  )
+  {
+    int error = player_set_display_roi_area( mPlayer, area.x, area.y, area.width, area.height );
+    LogPlayerError( error );
+  }
+}
+
+void TizenVideoPlayer::Forward( int millisecond )
+{
+  int error;
+
+  GetPlayerState( &mPlayerState );
+
+  if( mPlayerState == PLAYER_STATE_READY ||
+      mPlayerState == PLAYER_STATE_PLAYING ||
+      mPlayerState == PLAYER_STATE_PAUSED
+  )
+  {
+    int currentPosition = 0;
+    int nextPosition = 0;
+
+    error = player_get_play_position( mPlayer, &currentPosition );
+    LogPlayerError( error );
+
+    nextPosition = currentPosition + millisecond;
+
+    error = player_set_play_position( mPlayer, nextPosition, true, NULL, NULL );
+    LogPlayerError( error );
+  }
+}
+
+void TizenVideoPlayer::Backward( int millisecond )
+{
+  int error;
+
+  GetPlayerState( &mPlayerState );
+
+  if( mPlayerState == PLAYER_STATE_READY ||
+      mPlayerState == PLAYER_STATE_PLAYING ||
+      mPlayerState == PLAYER_STATE_PAUSED
+  )
+  {
+    int currentPosition = 0;
+    int nextPosition = 0;
+
+    error = player_get_play_position( mPlayer, &currentPosition );
+    LogPlayerError( error );
+
+    nextPosition = currentPosition - millisecond;
+    nextPosition = ( nextPosition < 0 )? 0 : nextPosition;
+
+    error = player_set_play_position( mPlayer, nextPosition, true, NULL, NULL );
+    LogPlayerError( error );
+  }
 }
 
 } // namespace Plugin
