@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/common/dali-vector.h>
 #include "key.h"
 
 namespace Dali
@@ -109,43 +108,6 @@ DALI_IMPORT_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grab
  * an application doesn't receive the key up event.
  */
 DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
-
-
-/**
- * @PLATFORM
- * @brief Grabs the list of keys specfied by @Dali::Vector of keys for @a window in @Vector of grabModes.
- *
- * @details This function can be used for following example scenarios:
- * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
- * - Mobile - When a user presses Home key, the homescreen appears regardless of current foreground app.
- * - Mobile - Using volume up/down as zoom up/down in camera apps.
- *
- * @SINCE_1_2.0
- * @PRIVLEVEL_PLATFORM
- * @PRIVILEGE_KEYGRAB
- * @param[in] window The window to set
- * @param[in] daliKeyVector The Dali::Vector of key codes to grab (defined in key.h)
- * @param[in] grabModeVector The Dali::Vector of grab modes for the keys
- * @return Dali::Vector Size is zero when error occurs, true/false if the grab succeeds/fails.
- */
-DALI_IMPORT_API Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector);
-
-
-/**
- * @PLATFORM
- * @brief Ungrabs the list of keys specfied by @Dali::Vector of keys for @a window.
- *
- * @SINCE_1_2.0
- * @PRIVLEVEL_PLATFORM
- * @PRIVILEGE_KEYGRAB
- * @param[in] window The window to set
- * @param[in] daliKeyVector The Dali::Vector of key codes to ungrab (defined in key.h)
- * @return Dali::Vector Size is zero when error occurs, true/false if the ungrab succeeds/fails.
- * @note If this function is called between key down and up events of a grabbed key,
- * an application doesn't receive the key up event.
- */
-DALI_IMPORT_API Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector );
-
 
 } // namespace KeyGrab
 
