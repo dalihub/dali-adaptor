@@ -26,6 +26,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
 #include <resampler.h>
+#include <image-loading.h>
 
 // INTERNAL INCLUDES
 
@@ -49,7 +50,7 @@ const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
 // Constants used by the ImageResampler.
 const float DEFAULT_SOURCE_GAMMA = 1.75f;   ///< Default source gamma value used in the Resampler() function. Partial gamma correction looks better on mips. Set to 1.0 to disable gamma correction.
 const float FILTER_SCALE = 1.f;             ///< Default filter scale value used in the Resampler() function. Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
-const char* const FILTER_TYPE = "lanczos4"; ///< Default filter used in the Resampler() function. Possible Lanczos filters are: lanczos3, lanczos4, lanczos6, lanczos12
+const Resampler::Filter FILTER_TYPE = Resampler::LANCZOS4; ///< Default filter used in the Resampler() function. Possible Lanczos filters are: lanczos3, lanczos4, lanczos6, lanczos12
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -449,24 +450,29 @@ BitmapPtr MakeBitmap( const uint8_t * const pixels, Pixel::Format pixelFormat, u
  */
 ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned int bitmapHeight, unsigned int requestedWidth, unsigned int requestedHeight )
 {
+  unsigned int maxSize = Dali::GetMaxTextureSize();
+
   // If no dimensions have been requested, default to the source ones:
   if( requestedWidth == 0 && requestedHeight == 0 )
   {
-    return ImageDimensions( bitmapWidth, bitmapHeight );
+    return ImageDimensions( std::min( bitmapWidth, maxSize ), std::min( bitmapHeight, maxSize ) );
   }
 
   // If both dimensions have values requested, use them both:
   if( requestedWidth != 0 && requestedHeight != 0 )
   {
-    return ImageDimensions( requestedWidth, requestedHeight );
+    return ImageDimensions( std::min( requestedWidth, maxSize ), std::min( requestedHeight, maxSize ) );
   }
 
   // Only one of the dimensions has been requested. Calculate the other from
   // the requested one and the source image aspect ratio:
   if( requestedWidth != 0 )
   {
+    requestedWidth = std::min( requestedWidth, maxSize );
     return ImageDimensions( requestedWidth, bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f );
   }
+
+  requestedHeight = std::min( requestedHeight, maxSize );
   return ImageDimensions( bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight );
 }
 

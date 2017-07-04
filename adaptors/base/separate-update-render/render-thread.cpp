@@ -139,8 +139,11 @@ bool RenderThread::Run()
         mThreadSynchronization.RenderFinished();
 
         // Perform any post-render operations
-        DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - PostRender()\n");
-        mRenderHelper.PostRender();
+        if( renderStatus.NeedsPostRender() )
+        {
+          DALI_LOG_INFO( gRenderLogFilter, Debug::Verbose, "RenderThread::Run. 4 - PostRender()\n");
+          mRenderHelper.PostRender();
+        }
       }
     }
 

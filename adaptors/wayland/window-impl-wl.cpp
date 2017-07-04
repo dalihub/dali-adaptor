@@ -48,11 +48,11 @@ struct Window::EventHandler
   // place holder
 };
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -112,6 +112,7 @@ Window::Window()
   mIsFocusAcceptable( true ),
   mVisible( true ),
   mOpaqueState( false ),
+  mResizeEnabled( true ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
@@ -144,16 +145,15 @@ Window::~Window()
   delete mSurface;
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( windowPosition, surface, name, mIsTransparent );
+  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
 
   mOrientation = Orientation::New(this);
-
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -405,6 +405,51 @@ bool Window::SetBrightness( int brightness )
 int Window::GetBrightness()
 {
   return 0;
+}
+
+void Window::SetSize( Dali::DevelWindow::WindowSize size )
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.width != size.GetWidth() || positionSize.height != size.GetHeight() )
+  {
+    positionSize.width = size.GetWidth();
+    positionSize.height = size.GetHeight();
+
+    mSurface->MoveResize( positionSize );
+
+    mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+    // Emit signal
+    mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+  }
+}
+
+Dali::DevelWindow::WindowSize Window::GetSize()
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height );
+}
+
+void Window::SetPosition( Dali::DevelWindow::WindowPosition position )
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.x != position.GetX() || positionSize.y != position.GetY() )
+  {
+    positionSize.x = position.GetX();
+    positionSize.y = position.GetY();
+
+    mSurface->MoveResize( positionSize );
+  }
+}
+
+Dali::DevelWindow::WindowPosition Window::GetPosition()
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::DevelWindow::WindowPosition( positionSize.x, positionSize.y );
 }
 
 } // Adaptor

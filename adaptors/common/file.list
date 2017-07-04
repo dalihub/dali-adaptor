@@ -7,7 +7,6 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/adaptor.cpp \
   $(adaptor_common_dir)/adaptor-impl.cpp \
   $(adaptor_common_dir)/application-impl.cpp \
-  $(adaptor_common_dir)/bitmap-loader-impl.cpp \
   $(adaptor_common_dir)/clipboard-event-notifier-impl.cpp \
   $(adaptor_common_dir)/command-line-options.cpp \
   $(adaptor_common_dir)/drag-and-drop-detector-impl.cpp \
@@ -22,6 +21,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/orientation-impl.cpp  \
   $(adaptor_common_dir)/performance-logger-impl.cpp \
   $(adaptor_common_dir)/physical-keyboard-impl.cpp \
+  $(adaptor_common_dir)/pixel-buffer-impl.cpp \
   $(adaptor_common_dir)/shared-file.cpp \
   $(adaptor_common_dir)/singleton-service-impl.cpp \
   $(adaptor_common_dir)/sound-player-impl.cpp \

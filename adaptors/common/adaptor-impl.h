@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_IMPL_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,16 +184,6 @@ public: // AdaptorInternalServices implementation
   virtual void FeedKeyEvent( KeyEvent& keyEvent );
 
   /**
-   * @copydoc AdaptorInterface::MoveResize()
-   */
-  virtual bool MoveResize( const PositionSize& positionSize );
-
-  /**
-   * @copydoc AdaptorInterface::SurfaceResized()
-   */
-  virtual void SurfaceResized( const PositionSize& positionSize );
-
-  /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
   virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
@@ -348,7 +338,7 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceSizeChanged( const PositionSize& positionSize );
+  void SurfaceSizeChanged( Dali::Adaptor::SurfaceSize surfaceSize );
 
 public:  //AdaptorInternalServices
 

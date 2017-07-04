@@ -197,6 +197,13 @@ public:
   int GetPlayPosition();
 
   /**
+   * @brief Sets the area of video display.
+   * @SINCE_1_2.46
+   * param[in] area The left-top position and size of the video display area
+   */
+  void SetDisplayArea( DisplayArea area );
+
+  /**
    * @brief Sets video display rotation
    * @SINCE_1_1.38
    * @param[in] rotation The rotation of display
@@ -217,6 +224,22 @@ public:
    * @return A signal object to connect with.
    */
   Dali::VideoPlayerPlugin::VideoPlayerSignalType& FinishedSignal();
+
+  /**
+   * @brief Seeks forward by the specified number of milliseconds.
+   *
+   * @SINCE_1_2.46
+   * @param[in] millisecond The position for forward playback
+   */
+  void Forward( int millisecond );
+
+  /**
+   * @brief Seeks backward by the specified number of milliseconds.
+   *
+   * @SINCE_1_2.46
+   * @param[in] millisecond The position for backward playback
+   */
+  void Backward( int millisecond );
 
 private: // Not intended for application developers
 

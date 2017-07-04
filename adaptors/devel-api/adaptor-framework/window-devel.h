@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/math/uint-16-pair.h>
 
 // INTERNAL INCLUDES
 #ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
@@ -77,8 +78,11 @@ enum Type
   DIALOG            ///< Used for simple dialog windows.
 };
 
-typedef Signal< void (bool) > FocusSignalType;      ///< Window focus signal type
-typedef Signal< void (int, int) > ResizedSignalType; ///< Window resized signal type
+typedef Uint16Pair WindowSize;          ///< Window size type
+typedef Uint16Pair WindowPosition;      ///< Window position type
+
+typedef Signal< void ( bool ) > FocusSignalType;         ///< Window focus signal type
+typedef Signal< void ( WindowSize ) > ResizedSignalType; ///< Window resized signal type
 
 /**
  * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
@@ -307,6 +311,38 @@ DALI_IMPORT_API int GetBrightness( Window window );
  * @return The signal to connect to
  */
 DALI_IMPORT_API ResizedSignalType& ResizedSignal( Window window );
+
+/**
+ * @brief Sets a size of the window.
+ *
+ * @param[in] window The window to set a size
+ * @param[in] size The new window size
+ */
+DALI_IMPORT_API void SetSize( Window window, WindowSize size );
+
+/**
+ * @brief Gets a size of the window.
+ *
+ * @param[in] window The window to get a size
+ * @return The size of the window
+ */
+DALI_IMPORT_API WindowSize GetSize( Window window );
+
+/**
+ * @brief Sets a position of the window.
+ *
+ * @param[in] window The window to set a position
+ * @param[in] position The new window position
+ */
+DALI_IMPORT_API void SetPosition( Window window, WindowPosition position );
+
+/**
+ * @brief Gets a position of the window.
+ *
+ * @param[in] window The window to get a position
+ * @return The position of the window
+ */
+DALI_IMPORT_API WindowPosition GetPosition( Window window );
 
 } // namespace DevelWindow
 

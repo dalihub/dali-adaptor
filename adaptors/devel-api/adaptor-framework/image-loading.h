@@ -21,7 +21,13 @@
 #include <string>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/images/image-operations.h>
-#include <dali/public-api/images/pixel-data.h>
+
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+// @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
+#include <pixel-buffer.h>
+#else
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#endif
 
 namespace Dali
 {
@@ -36,9 +42,9 @@ namespace Dali
  * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
- * @return handle to the loaded PixelData object or an empty handle in case loading failed.
+ * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
  */
-DALI_IMPORT_API PixelData LoadImageFromFile(
+DALI_IMPORT_API Devel::PixelBuffer LoadImageFromFile(
   const std::string& url,
   ImageDimensions size = ImageDimensions( 0, 0 ),
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
@@ -77,15 +83,28 @@ DALI_IMPORT_API ImageDimensions GetClosestImageSize(
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  *
- * @return handle to the loaded PixelData object or an empty handle in case downloading or decoding failed.
+ * @return handle to the loaded PixelBuffer object or an empty handle in case downloading or decoding failed.
  */
-DALI_IMPORT_API PixelData DownloadImageSynchronously(
+DALI_IMPORT_API Devel::PixelBuffer DownloadImageSynchronously(
   const std::string& url,
   ImageDimensions size = ImageDimensions( 0, 0 ),
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR,
   bool orientationCorrection = true );
 
+/**
+ * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
+ *
+ * @param [in] size The maximum texture size to set
+ */
+void SetMaxTextureSize( unsigned int size );
+
+/**
+ * @brief get the maximum texture size.
+ *
+ * @return The maximum texture size
+ */
+unsigned int GetMaxTextureSize();
 
 } // Dali
 

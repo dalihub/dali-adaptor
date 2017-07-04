@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,14 +53,15 @@ ApplicationPtr Application::New(
   char **argv[],
   const std::string& stylesheet,
   Dali::Application::WINDOW_MODE windowMode,
+  const PositionSize& positionSize,
   Framework::Type applicationType)
 {
-  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, applicationType ) );
+  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, positionSize, applicationType ) );
   return application;
 }
 
 Application::Application( int* argc, char** argv[], const std::string& stylesheet,
-  Dali::Application::WINDOW_MODE windowMode, Framework::Type applicationType )
+  Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType )
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -83,6 +84,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mName(),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
+  mWindowPositionSize( positionSize ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -110,21 +112,24 @@ Application::~Application()
 
 void Application::CreateWindow()
 {
-  PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
-
-  if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
+  if( mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0 )
   {
-    // Command line options override environment options and full screen
-    windowPosition = PositionSize( 0, 0, mCommandLineOptions->stageWidth, mCommandLineOptions->stageHeight );
-  }
-  else if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
-  {
-    // Environment options override full screen functionality if command line arguments not provided
-    windowPosition = PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() );
+    if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
+    {
+      // Command line options override environment options and full screen
+      mWindowPositionSize.width = mCommandLineOptions->stageWidth;
+      mWindowPositionSize.height = mCommandLineOptions->stageHeight;
+    }
+    else if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+    {
+      // Environment options override full screen functionality if command line arguments not provided
+      mWindowPositionSize.width = mEnvironmentOptions.GetWindowWidth();
+      mWindowPositionSize.height = mEnvironmentOptions.GetWindowHeight();
+    }
   }
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
-  mWindow = Dali::Window::New( windowPosition, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
+  mWindow = Dali::Window::New( mWindowPositionSize, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
 
   // Quit the application when the window is closed
   GetImplementation( mWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
@@ -370,18 +375,19 @@ float Application::GetStereoBase() const
 }
 
 
-void Application::ReplaceWindow(PositionSize windowPosition, const std::string& name)
+void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
-  Dali::Window newWindow = Dali::Window::New( windowPosition, name, mWindowMode == Dali::Application::TRANSPARENT );
+  Dali::Window newWindow = Dali::Window::New( positionSize, name, mWindowMode == Dali::Application::TRANSPARENT );
   Window& windowImpl = GetImplementation(newWindow);
   windowImpl.SetAdaptor(*mAdaptor);
   newWindow.ShowIndicator(Dali::Window::INVISIBLE);
   Dali::RenderSurface* renderSurface = windowImpl.GetSurface();
 
   Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SurfaceSizeChanged( windowPosition );
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
   mWindow = newWindow;
+  mWindowPositionSize = positionSize;
 }
 
 std::string Application::GetResourcePath()

@@ -45,25 +45,25 @@ void utc_dali_load_image_cleanup(void)
 
 int UtcDaliLoadImageP(void)
 {
-  PixelData pixelData = Dali::LoadImageFromFile( gImage_34_RGBA );
-  DALI_TEST_CHECK( pixelData );
-  DALI_TEST_EQUALS( pixelData.GetWidth(), 34u, TEST_LOCATION );
-  DALI_TEST_EQUALS( pixelData.GetHeight(), 34u, TEST_LOCATION );
-  DALI_TEST_EQUALS( pixelData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
+  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile( gImage_34_RGBA );
+  DALI_TEST_CHECK( pixelBuffer );
+  DALI_TEST_EQUALS( pixelBuffer.GetWidth(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetHeight(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
 
-  PixelData pixelData2 = Dali::LoadImageFromFile( gImage_128_RGB );
-  DALI_TEST_CHECK( pixelData2 );
-  DALI_TEST_EQUALS( pixelData2.GetWidth(), 128u, TEST_LOCATION  );
-  DALI_TEST_EQUALS( pixelData2.GetHeight(), 128u, TEST_LOCATION  );
-  DALI_TEST_EQUALS( pixelData2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION  );
+  Devel::PixelBuffer pixelBuffer2 = Dali::LoadImageFromFile( gImage_128_RGB );
+  DALI_TEST_CHECK( pixelBuffer2 );
+  DALI_TEST_EQUALS( pixelBuffer2.GetWidth(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelBuffer2.GetHeight(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelBuffer2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION  );
 
   END_TEST;
 }
 
 int UtcDaliLoadImageN(void)
 {
-  PixelData pixelData = Dali::LoadImageFromFile( gImageNonExist );
-  DALI_TEST_CHECK( !pixelData );
+  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile( gImageNonExist );
+  DALI_TEST_CHECK( !pixelBuffer );
 
   END_TEST;
 }
@@ -77,25 +77,25 @@ int UtcDaliDownloadImageP(void)
   std::string url2("file://");
   url2.append( gImage_128_RGB );
 
-  PixelData pixelData = Dali::DownloadImageSynchronously( url );
-  DALI_TEST_CHECK( pixelData );
-  DALI_TEST_EQUALS( pixelData.GetWidth(), 34u, TEST_LOCATION );
-  DALI_TEST_EQUALS( pixelData.GetHeight(), 34u, TEST_LOCATION );
-  DALI_TEST_EQUALS( pixelData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
+  Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously( url );
+  DALI_TEST_CHECK( pixelBuffer );
+  DALI_TEST_EQUALS( pixelBuffer.GetWidth(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetHeight(), 34u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
 
-  PixelData pixelData2 = Dali::DownloadImageSynchronously( url2 );
-  DALI_TEST_CHECK( pixelData2 );
-  DALI_TEST_EQUALS( pixelData2.GetWidth(), 128u, TEST_LOCATION  );
-  DALI_TEST_EQUALS( pixelData2.GetHeight(), 128u, TEST_LOCATION  );
-  DALI_TEST_EQUALS( pixelData2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION  );
+  Devel::PixelBuffer pixelBuffer2 = Dali::DownloadImageSynchronously( url2 );
+  DALI_TEST_CHECK( pixelBuffer2 );
+  DALI_TEST_EQUALS( pixelBuffer2.GetWidth(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelBuffer2.GetHeight(), 128u, TEST_LOCATION  );
+  DALI_TEST_EQUALS( pixelBuffer2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION  );
 
   END_TEST;
 }
 
 int UtcDaliDownloadImageN(void)
 {
-  PixelData pixelData = Dali::DownloadImageSynchronously( gImageNonExist );
-  DALI_TEST_CHECK( !pixelData );
+  Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously( gImageNonExist );
+  DALI_TEST_CHECK( !pixelBuffer );
 
   END_TEST;
 }

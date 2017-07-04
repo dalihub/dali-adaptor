@@ -65,13 +65,13 @@ public:
 
   /**
    * Create a new Window. This should only be called once by the Application class
-   * @param[in] windowPosition The position and size of the window
+   * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent = false);
+  static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * Pass the adaptor back to the overlay. This allows the window to access Core's overlay.
@@ -276,6 +276,26 @@ public:
   int GetBrightness();
 
   /**
+   * @copydoc Dali::DevelWindow::SetSize()
+   */
+  void SetSize( Dali::DevelWindow::WindowSize size );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetSize()
+   */
+  Dali::DevelWindow::WindowSize GetSize();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetPosition()
+   */
+  void SetPosition( Dali::DevelWindow::WindowPosition position );
+
+  /**
+   * @copydoc Dali::DevelWindow::GetPosition()
+   */
+  Dali::DevelWindow::WindowPosition GetPosition();
+
+  /**
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
@@ -295,7 +315,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(const PositionSize& posSize, const std::string& name, const std::string& className);
+  void Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className);
 
   /**
    * Shows / hides the indicator bar.
@@ -400,6 +420,7 @@ private:
   bool                             mIsFocusAcceptable:1;
   bool                             mVisible:1;
   bool                             mOpaqueState:1;
+  bool                             mResizeEnabled:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
