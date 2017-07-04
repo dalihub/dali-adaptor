@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <app.h>
 #ifdef APPCORE_WATCH_AVAILABLE
-#include <screen_connector_provider.h>
+#include <aul_rsm_provider.h>
 #include <ecore-wl-render-surface.h>
 #endif
 
@@ -78,7 +78,7 @@ void Adaptor::SurfaceInitialized()
   app_get_id(&appId);
 
   Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
-  screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
+  aul_rsm_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
 #endif
 }
 
