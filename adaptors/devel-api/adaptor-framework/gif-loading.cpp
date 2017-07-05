@@ -486,6 +486,181 @@ unsigned char* DecodeOneFrame( int& delay, GifFileType* gifInfo, const Dali::Vec
 namespace Dali
 {
 
+#ifdef GIF_LIB_VERSION
+#else
+/*************************************************
+ * GIFLIB major version 5
+ *************************************************/
+#include <limits.h>
+#include <gif_lib.h>
+
+int ReadGifSlurp(GifFileType *GifFile)
+{
+  size_t ImageSize;
+  GifRecordType RecordType;
+  SavedImage *sp;
+  GifByteType *ExtData;
+  int ExtFunction;
+  GifFile->ExtensionBlocks = NULL;
+  GifFile->ExtensionBlockCount = 0;
+  DALI_LOG_ERROR("DGifSlurp_dali() start!");
+  bool isEofTooSoonErr = false;
+
+  do
+  {
+    if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
+    {
+      DALI_LOG_ERROR("DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR");
+      return (GIF_ERROR);
+    }
+    switch (RecordType)
+    {
+      case IMAGE_DESC_RECORD_TYPE:
+      {
+        if (DGifGetImageDesc(GifFile) == GIF_ERROR)
+        {
+          DALI_LOG_ERROR("DGifGetImageDesc(GifFile) == GIF_ERROR");
+          return (GIF_ERROR);
+        }
+        sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
+        /* Allocate memory for the image */
+        if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 &&
+          sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height))
+        {
+          DALI_LOG_ERROR("sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 ... GIF_ERROR");
+          return GIF_ERROR;
+        }
+        ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
+        /* SVACE error : This statement in the source code might be unreachable during program execution.
+        if (ImageSize > (SIZE_MAX / sizeof(GifPixelType)))
+        {
+          DALI_LOG_ERROR("ImageSize > (SIZE_MAX / sizeof(GifPixelType)) GIF_ERROR");
+          return GIF_ERROR;
+        }
+        */
+        sp->RasterBits = static_cast<unsigned char *>(reallocarray(NULL, ImageSize, sizeof(GifPixelType)));
+        if (sp->RasterBits == NULL)
+        {
+          DALI_LOG_ERROR("sp->RasterBits == NULL GIF_ERROR");
+          return GIF_ERROR;
+        }
+        if (sp->ImageDesc.Interlace)
+        {
+          int i, j;
+          /*
+          * The way an interlaced image should be read -
+          * offsets and jumps...
+          */
+          int InterlacedOffset[] = { 0, 4, 2, 1 };
+          int InterlacedJumps[] = { 8, 8, 4, 2 };
+          /* Need to perform 4 passes on the image */
+          for (i = 0; i < 4; i++)
+          {
+            for (j = InterlacedOffset[i]; j < sp->ImageDesc.Height; j += InterlacedJumps[i])
+            {
+              if (DGifGetLine(GifFile, sp->RasterBits+j*sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR)
+              {
+                DALI_LOG_ERROR("DGifGetLine(GifFile, sp->RasterBits+j*sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR");
+                if(GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON  && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT)
+                {
+                  DALI_LOG_ERROR("GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON  && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT GIF_ERROR");
+                  return GIF_ERROR;
+                }
+                else if (GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON)
+                {
+                  DALI_LOG_ERROR("GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON");
+                  isEofTooSoonErr = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        else
+        {
+          if (DGifGetLine(GifFile,sp->RasterBits,ImageSize)==GIF_ERROR)
+          {
+            DALI_LOG_ERROR("DGifGetLine(GifFile,sp->RasterBits,ImageSize)==GIF_ERROR");
+            if(GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT)
+            {
+              DALI_LOG_ERROR("GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT GIF_ERROR");
+              return GIF_ERROR;
+            }
+            else if (GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON)
+            {
+              DALI_LOG_ERROR("GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON");
+              isEofTooSoonErr = true;
+              break;
+            }
+          }
+        }
+        if (GifFile->ExtensionBlocks)
+        {
+          sp->ExtensionBlocks = GifFile->ExtensionBlocks;
+          sp->ExtensionBlockCount = GifFile->ExtensionBlockCount;
+          GifFile->ExtensionBlocks = NULL;
+          GifFile->ExtensionBlockCount = 0;
+        }
+      }
+      break;
+      case EXTENSION_RECORD_TYPE:
+      {
+        if (DGifGetExtension(GifFile,&ExtFunction,&ExtData) == GIF_ERROR)
+        {
+          DALI_LOG_ERROR("DGifGetExtension(GifFile,&ExtFunction,&ExtData) == GIF_ERROR");
+          return (GIF_ERROR);
+        }
+        /* Create an extension block with our data */
+        if (ExtData != NULL)
+        {
+          if (GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, ExtFunction, ExtData[0], &ExtData[1]) == GIF_ERROR)
+          {
+            DALI_LOG_ERROR("GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, ExtFunction, ExtData[0], &ExtData[1]) == GIF_ERROR");
+            return (GIF_ERROR);
+          }
+        }
+        while (ExtData != NULL)
+        {
+          if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR)
+          {
+            DALI_LOG_ERROR("DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR");
+            return (GIF_ERROR);
+          }
+          /* Continue the extension block */
+          if (ExtData != NULL)
+          {
+            if (GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, CONTINUE_EXT_FUNC_CODE, ExtData[0], &ExtData[1]) == GIF_ERROR)
+            {
+              DALI_LOG_ERROR("GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, CONTINUE_EXT_FUNC_CODE, ExtData[0], &ExtData[1]) == GIF_ERROR");
+              return (GIF_ERROR);
+            }
+          }
+        }
+      }
+      break;
+      case TERMINATE_RECORD_TYPE:
+        break;
+      default:   /* Should be trapped by DGifGetRecordType */
+        break;
+    }
+    if ( isEofTooSoonErr == true)
+    {
+      DALI_LOG_ERROR("isEofTooSoonErr == true");
+      break;
+    }
+  } while (RecordType != TERMINATE_RECORD_TYPE);
+  /* Sanity check for corrupted file */
+  if (GifFile->ImageCount == 0)
+  {
+    DALI_LOG_ERROR("GifFile->ImageCount == 0 GIF_ERROR");
+    GifFile->Error = D_GIF_ERR_NO_IMAG_DSCR;
+    return(GIF_ERROR);
+  }
+  return (GIF_OK);
+}
+
+#endif
+
 bool LoadAnimatedGifFromFile( const std::string& url, std::vector<Dali::PixelData>& pixelData, Dali::Vector<uint32_t>& frameDelays )
 {
   // open GIF file
@@ -497,12 +672,21 @@ bool LoadAnimatedGifFromFile( const std::string& url, std::vector<Dali::PixelDat
     return false;
   }
 
+#ifdef GIF_LIB_VERSION
   // read GIF file
   if( DGifSlurp( gifInfo ) != GIF_OK )
   {
     DALI_LOG_ERROR( "GIF Loader: DGifSlurp failed. \n" );
     return false;
   }
+#else
+  // read GIF file
+  if( ReadGifSlurp( gifInfo ) != GIF_OK )
+  {
+    DALI_LOG_ERROR( "GIF Loader: DGifSlurp failed. \n" );
+    return false;
+  }
+#endif
 
   // validate attributes
   if( gifInfo->ImageCount < 1 )
