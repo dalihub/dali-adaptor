@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,6 +208,11 @@ public:
    */
   unsigned int GetMultiSamplingLevel() const;
 
+  /**
+   * @return The maximum texture size
+   */
+  unsigned int GetMaxTextureSize() const;
+
 private: // Internal
 
   /**
@@ -244,6 +249,7 @@ private: // Data
   unsigned int mRenderRefreshRate;                ///< render refresh rate
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   unsigned int mMultiSamplingLevel;               ///< The number of samples required in multisample buffers
+  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

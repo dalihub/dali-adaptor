@@ -195,7 +195,7 @@ private:
    * @param[out] useElapsedTime    If true when returned, then the actual elapsed time will be used for animation.
    *                               If false when returned, then there should NOT be any animation progression in the next Update.
    * @param[in]  updateRequired    Whether another update is required.
-   * @param[out] timeToSleepUntil  The time in nanoseconds to put the thread to sleep until.
+   * @param[out] timeToSleepUntil  The time remaining in nanoseconds to keep the thread sleeping before resuming.
    * @return false, if the thread should stop.
    */
   bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil );

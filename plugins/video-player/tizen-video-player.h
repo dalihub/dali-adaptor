@@ -140,6 +140,11 @@ public:
   virtual int GetPlayPosition();
 
   /**
+   * @copydoc Dali::VideoPlayerPlugin::SetDisplayArea()
+   */
+  virtual void SetDisplayArea( DisplayArea area );
+
+  /**
    * @copydoc Dali::VideoPlayerPlugin::SetDisplayRotation()
    */
   virtual void SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation );
@@ -158,6 +163,16 @@ public:
    * @brief Push media packet with video frame image
    */
   void PushPacket( media_packet_h packet );
+
+  /**
+   * @brief Dali::VideoPlayer::Forward()
+   */
+  void Forward( int millisecond );
+
+  /**
+   * @brief Dali::VideoPlayer::Backward()
+   */
+  void Backward( int millisecond );
 
 private:
 
@@ -200,6 +215,10 @@ private:
 
   Dali::Mutex mPacketMutex;
   Dali::Vector< media_packet_h > mPacketVector; ///< Container for media packet handle from Tizen player callback
+
+  Ecore_Wl_Window* mEcoreWlWindow;
+
+  bool mAlphaBitChanged; ///< True if underlay rendering initialization changes window alpha
 
 public:
 

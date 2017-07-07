@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,7 @@ EnvironmentOptions::EnvironmentOptions()
   mRenderRefreshRate( 1 ),
   mGlesCallAccumulate( false ),
   mMultiSamplingLevel( 0 ),
+  mMaxTextureSize( 0 ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -257,6 +258,11 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
 unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
 {
   return mMultiSamplingLevel;
+}
+
+unsigned int EnvironmentOptions::GetMaxTextureSize() const
+{
+  return mMaxTextureSize;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const
@@ -409,6 +415,15 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( multiSamplingLevel > 0 )
     {
       mMultiSamplingLevel = multiSamplingLevel;
+    }
+  }
+
+  int maxTextureSize( 0 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_MAX_TEXTURE_SIZE, maxTextureSize ) )
+  {
+    if( maxTextureSize > 0 )
+    {
+      mMaxTextureSize = maxTextureSize;
     }
   }
 }

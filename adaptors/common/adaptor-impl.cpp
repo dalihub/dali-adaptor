@@ -29,7 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <base/thread-controller.h>
-#  include <base/performance-logging/performance-interface-factory.h>
+#include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -53,6 +53,7 @@
 #include <window-impl.h>
 
 #include <tizen-logging.h>
+#include <image-loading.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -182,6 +183,12 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   if( mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f )
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
+  }
+
+  // Set max texture size
+  if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
+  {
+    Dali::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
 }
 

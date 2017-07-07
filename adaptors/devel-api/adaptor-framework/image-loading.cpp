@@ -28,8 +28,12 @@ namespace Dali
 
 namespace
 {
+
 // limit maximum image down load size to 50 MB
 const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+
+static unsigned int gMaxTextureSize = 4096;
+
 }
 
 Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
@@ -68,7 +72,12 @@ ImageDimensions GetClosestImageSize( const std::string& filename,
                                      SamplingMode::Type samplingMode,
                                      bool orientationCorrection )
 {
-  return TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+
+  dimension.SetWidth( std::min( dimension.GetWidth(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
+  dimension.SetHeight( std::min( dimension.GetHeight(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
+
+  return dimension;
 }
 
 
@@ -126,5 +135,14 @@ Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDime
   return Dali::Devel::PixelBuffer();
 }
 
+void SetMaxTextureSize( unsigned int size )
+{
+  gMaxTextureSize = size;
+}
+
+unsigned int GetMaxTextureSize()
+{
+  return gMaxTextureSize;
+}
 
 } // namespace Dali
