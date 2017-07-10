@@ -46,6 +46,15 @@ namespace DevelApplication
  */
 DALI_IMPORT_API Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize );
 
+/**
+ * @brief This is used to improve application launch performance.
+ * It preloads so files, initializes some functions in advance and makes a window in advance.
+ *
+ * @param[in,out]  argc         A pointer to the number of arguments
+ * @param[in,out]  argv         A pointer to the argument list
+ */
+DALI_IMPORT_API void PreInitialize( int* argc, char** argv[] );
+
 } // namespace DevelApplication
 
 } // namespace Dali

@@ -17,6 +17,7 @@
 
 // INTERNAL INCLUDES
 #include <adaptors/devel-api/adaptor-framework/application-devel.h>
+#include <adaptors/devel-api/adaptor-framework/window-devel.h>
 #include <adaptors/common/application-impl.h>
 
 namespace Dali
@@ -27,8 +28,31 @@ namespace DevelApplication
 
 Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
-  return Application( internal.Get() );
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    DevelWindow::SetTransparency( internal->GetWindow(), ( windowMode == Application::OPAQUE ? false : true ) );
+    DevelWindow::SetSize( internal->GetWindow(), DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+    DevelWindow::SetPosition( internal->GetWindow(), DevelWindow::WindowPosition( positionSize.x, positionSize.y ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
+    return Application( internal.Get() );
+  }
+}
+
+void PreInitialize( int* argc, char** argv[] )
+{
+  Internal::Adaptor::Application::PreInitialize( argc, argv );
 }
 
 } // namespace DevelApplication

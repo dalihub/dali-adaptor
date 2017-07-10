@@ -48,6 +48,8 @@ namespace Internal
 namespace Adaptor
 {
 
+ApplicationPtr Application::gPreInitializedApplication( NULL );
+
 ApplicationPtr Application::New(
   int* argc,
   char **argv[],
@@ -58,6 +60,16 @@ ApplicationPtr Application::New(
 {
   ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, positionSize, applicationType ) );
   return application;
+}
+
+void Application::PreInitialize( int* argc, char** argv[] )
+{
+  if( !gPreInitializedApplication )
+  {
+    gPreInitializedApplication = new Application ( argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL );
+
+    gPreInitializedApplication->CreateWindow();    // Only create window
+  }
 }
 
 Application::Application( int* argc, char** argv[], const std::string& stylesheet,
@@ -85,6 +97,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
   mWindowPositionSize( positionSize ),
+  mLaunchpadState( Launchpad::NONE ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -176,7 +189,12 @@ void Application::QuitFromMainLoop()
 
 void Application::DoInit()
 {
-  CreateWindow();
+  // If an application was pre-initialized, a window was made in advance
+  if( mLaunchpadState == Launchpad::NONE )
+  {
+    CreateWindow();
+  }
+
   CreateAdaptor();
 
   // Run the adaptor
@@ -393,6 +411,17 @@ void Application::ReplaceWindow( const PositionSize& positionSize, const std::st
 std::string Application::GetResourcePath()
 {
   return Internal::Adaptor::Framework::GetResourcePath();
+}
+
+void Application::SetStyleSheet( const std::string& stylesheet )
+{
+  mStylesheet = stylesheet;
+}
+
+
+ApplicationPtr Application::GetPreInitializedApplication()
+{
+  return gPreInitializedApplication;
 }
 
 } // namespace Adaptor

@@ -34,23 +34,66 @@ Application Application::New()
 
 Application Application::New( int* argc, char **argv[] )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE, PositionSize(),
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE, PositionSize(),
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    DevelWindow::SetTransparency( internal->GetWindow(), ( windowMode == Application::OPAQUE ? false : true ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
 }
 
 Application::~Application()
