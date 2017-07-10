@@ -284,8 +284,8 @@ FONT_DOWNLOADED_PATH="%{font_downloaded_path}" ; export FONT_DOWNLOADED_PATH
 FONT_APPLICATION_PATH="%{font_application_path}"  ; export FONT_APPLICATION_PATH
 FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION_FILE
 
-# Default to GLES 3.0 if not specified.
-%{!?target_gles_version: %define target_gles_version 30}
+# Default to GLES 2.0 if not specified.
+%{!?target_gles_version: %define target_gles_version 20}
 
 #--enable-efl=no \ # only affects dali-adaptor-uv
 #--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
