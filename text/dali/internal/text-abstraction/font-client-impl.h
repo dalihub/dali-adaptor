@@ -196,7 +196,7 @@ public:
   /**
    * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
    */
-  bool AddCustomFontDirectory( const char* path );
+  bool AddCustomFontDirectory( const FontPath& path );
 
 private:
 
