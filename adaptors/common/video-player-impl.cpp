@@ -38,7 +38,12 @@ namespace Adaptor
 
 namespace // unnamed namespace
 {
+
+#if _GLIBCXX_USE_CXX11_ABI
 const char* VIDEO_PLUGIN_SO( "libdali-video-player-plugin.so" );
+#else
+const char* VIDEO_PLUGIN_SO( "libdali-video-player-plugin-cxx03.so" );
+#endif
 
 Dali::BaseHandle Create()
 {
