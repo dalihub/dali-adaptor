@@ -230,6 +230,7 @@ fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
+PKG_CHECK_MODULES(SCREENCONNECTORPROVIDER, screen_connector_provider)
 PKG_CHECK_MODULES(APPFW_WATCH, capi-appfw-watch-application,
    [watch_available=yes], [watch_available=no] )
 PKG_CHECK_MODULES(APPCORE_WATCH, appcore-watch)

@@ -199,6 +199,31 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   imfManager->ResizedSignal().Emit();
 }
 
+void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *context, int value )
+{
+  if( !data )
+  {
+    return;
+  }
+
+  ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+  switch (value)
+  {
+    case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
+    {
+      // Emit Signal that the keyboard type is changed to Software Keyboard
+      imfManager->KeyboardTypeChangedSignal().Emit( Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD );
+      break;
+    }
+    case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
+    {
+      // Emit Signal that the keyboard type is changed to Hardware Keyboard
+      imfManager->KeyboardTypeChangedSignal().Emit( Dali::ImfManager::KeyboardType::HARDWARE_KEYBOARD );
+      break;
+    }
+  }
+}
+
 /**
  * Called when an IMF delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
@@ -365,6 +390,7 @@ void ImfManager::ConnectCallbacks()
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback, this );
+    ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_KEYBOARD_MODE_EVENT, InputPanelKeyboardTypeChangedCallback, this );
 
     ecore_imf_context_retrieve_surrounding_callback_set( mIMFContext, ImfRetrieveSurrounding, this);
   }
@@ -384,6 +410,7 @@ void ImfManager::DisconnectCallbacks()
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback     );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback  );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback );
+    ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_KEYBOARD_MODE_EVENT, InputPanelKeyboardTypeChangedCallback );
 
     // We do not need to unset the retrieve surrounding callback.
   }
@@ -827,6 +854,57 @@ void ImfManager::HideInputPanel()
   {
     ecore_imf_context_input_panel_hide( mIMFContext );
   }
+}
+
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetKeyboardType\n" );
+
+#ifdef OVER_TIZEN_VERSION_4
+  if( mIMFContext )
+  {
+    int value;
+    value = ecore_imf_context_keyboard_mode_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
+      {
+        return Dali::ImfManager::SOFTWARE_KEYBOARD;
+        break;
+      }
+      case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
+      {
+        return Dali::ImfManager::HARDWARE_KEYBOARD;
+        break;
+      }
+    }
+  }
+#endif // OVER_TIZEN_VERSION_4
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelLocale\n" );
+
+  std::string locale = "";
+
+  if( mIMFContext )
+  {
+    char* value = NULL;
+    ecore_imf_context_input_panel_language_locale_get( mIMFContext, &value );
+
+    if( value )
+    {
+      std::string valueCopy( value );
+      locale = valueCopy;
+
+      // The locale string retrieved must be freed with free().
+      free( value );
+    }
+  }
+  return locale;
 }
 
 } // Adaptor

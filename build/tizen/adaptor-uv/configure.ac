@@ -303,10 +303,9 @@ fi
 
 else
 
-# For adaptors/mobile/native-render-surface-factory.cpp
-PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
-
-if test "x$enable_profile" = "xIVI"; then
+# dali-adaptor-uv needs ecore-wayland even if enable_efl==no
+# because NativeRenderSurface uses it.
+if test "x$enable_profile" != "xUBUNTU"; then
 PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
 fi
 
@@ -321,13 +320,6 @@ PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon l
 fi
 fi
 
-# remove this when we update common repos
-# common profile currently does not have wayland extensions like xdg-shell
-if test "x$enable_wayland" = "xyes"; then
-if test "x$enable_profile" != "xCOMMON"; then
-PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client text-client input-method-client)
-fi
-fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
 
 if test x$DALI_DATA_RW_DIR != x; then

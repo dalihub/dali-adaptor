@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.47
+Version:    1.2.48
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -48,6 +48,7 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
+BuildRequires:  pkgconfig(screen_connector_provider)
 %endif
 
 BuildRequires:  pkgconfig(gles20)
@@ -55,7 +56,6 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(aul)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
@@ -306,6 +306,11 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
+%endif
+
+# Use this conditional when Tizen version is 4.x or greater
+%if 0%{?tizen_version_major} >= 4
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_4"
 %endif
 
 %if 0%{?tizen_2_2_compatibility}

@@ -690,6 +690,34 @@ void ImfManager::HideInputPanel()
   }
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelLocale\n" );
+
+  std::string locale = "";
+
+  if( mIMFContext )
+  {
+    char* value = NULL;
+    ecore_imf_context_input_panel_language_locale_get( mIMFContext, &value );
+
+    if( value )
+    {
+      std::string valueCopy( value );
+      locale = valueCopy;
+
+      // The locale string retrieved must be freed with free().
+      free( value );
+    }
+  }
+  return locale;
+}
+
 } // Adaptor
 
 } // Internal

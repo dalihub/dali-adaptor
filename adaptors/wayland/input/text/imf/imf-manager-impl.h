@@ -57,6 +57,7 @@ public:
   typedef Dali::ImfManager::ImfEventSignalType ImfEventSignalType;
   typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
   typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
+  typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
 
 public:
 
@@ -205,6 +206,16 @@ public:
    */
   void HideInputPanel();
 
+  /**
+   * @copydoc Dali::ImfManager::GetKeyboardType()
+   */
+  Dali::ImfManager::KeyboardType GetKeyboardType();
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelLocale()
+   */
+  std::string GetInputPanelLocale();
+
 public:  // Signals
 
   /**
@@ -232,6 +243,10 @@ public:  // Signals
    */
   ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
 
+  /**
+   * @copydoc Dali::ImfManager::KeyboardTypeChangedSignal()
+   */
+  ImfKeyboardTypeSignalType& KeyboardTypeChangedSignal() { return mKeyboardTypeChangedSignal; }
 
   /**
    * @brief Called when an IMF Pre-Edit change event is received.
@@ -274,11 +289,12 @@ protected:
 
 private:
 
-  ImfManagerSignalType      mActivatedSignal;
-  ImfEventSignalType        mEventSignal;
-  ImfStatusSignalType       mKeyboardStatusSignal;
-  ImfVoidSignalType         mKeyboardResizeSignal;
-  ImfVoidSignalType         mKeyboardLanguageChangedSignal;
+  ImfManagerSignalType       mActivatedSignal;
+  ImfEventSignalType         mEventSignal;
+  ImfStatusSignalType        mKeyboardStatusSignal;
+  ImfVoidSignalType          mKeyboardResizeSignal;
+  ImfVoidSignalType          mKeyboardLanguageChangedSignal;
+  ImfKeyboardTypeSignalType  mKeyboardTypeChangedSignal;
 
   // Undefined
   ImfManager( const ImfManager& );
