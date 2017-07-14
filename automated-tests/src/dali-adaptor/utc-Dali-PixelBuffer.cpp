@@ -326,11 +326,11 @@ int UtcDaliPixelBufferMask03(void)
   DALI_TEST_EQUALS( buffer[3], 0x00u, TEST_LOCATION );
   DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
 
-  // Test that an odd pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[23], 0xffu, TEST_LOCATION );
+  // Test that an odd pixel in the fourth quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[(6*10+7)*4+3], 0xffu, TEST_LOCATION );
 
-  // Test that an even pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[27], 0xffu, TEST_LOCATION );
+  // Test that an even pixel in the fourth quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[(6*10+8)*4+3], 0xffu, TEST_LOCATION );
 
   END_TEST;
 }
@@ -377,7 +377,7 @@ int UtcDaliPixelBufferMask05(void)
 
   unsigned int width = 20u;
   unsigned int height = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::L8 );
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
   Mask1stQuadrant(maskData);
 
   width = 10u;
@@ -396,7 +396,41 @@ int UtcDaliPixelBufferMask05(void)
   DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
 
   // Test that an odd pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[23], 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[39], 0xffu, TEST_LOCATION );
+
+  // Test that an even pixel in the second quadrant has no alpha value
+  DALI_TEST_EQUALS( buffer[27], 0x00u, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMask06(void)
+{
+  TestApplication application;
+  tet_infoline("Test application of alpha mask to same size RGBA8888 image");
+
+  unsigned int width = 10u;
+  unsigned int height = 10u;
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  Mask1stQuadrant(maskData);
+
+  width = 10u;
+  height = 10u;
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  FillCheckerboard(imageData);
+
+  imageData.ApplyMask( maskData );
+
+  // Test that the pixel format has been promoted to RGBA8888
+  DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
+
+  // Test that a pixel in the first quadrant has no alpha value
+  unsigned char* buffer = imageData.GetBuffer();
+  DALI_TEST_EQUALS( buffer[3], 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
+
+  // Test that an odd pixel in the second quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[39], 0xffu, TEST_LOCATION );
 
   // Test that an even pixel in the second quadrant has no alpha value
   DALI_TEST_EQUALS( buffer[27], 0x00u, TEST_LOCATION );
