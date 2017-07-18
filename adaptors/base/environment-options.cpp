@@ -389,9 +389,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   {
     switch( threadingMode )
     {
-      case ThreadingMode::SEPARATE_UPDATE_RENDER:
       case ThreadingMode::COMBINED_UPDATE_RENDER:
-      case ThreadingMode::SINGLE_THREADED:
       {
         mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
         break;
