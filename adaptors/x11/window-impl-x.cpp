@@ -366,17 +366,6 @@ Window::Window()
   mResizedSignal(),
   mDeleteRequestSignal()
 {
-
-  // Detect if we're not running in a ecore main loop (e.g. libuv).
-  // Typically ecore_x_init is called by app_efl_main->elm_init
-  // but if we're not using app_efl_main then we have to call it ourselves
-  // This is a hack until we create a pure X Window class
-  if( ecore_x_display_get() == NULL )
-  {
-    mEcoreEventHander = false;
-    ecore_x_init (NULL); //  internally calls _ecore_x_input_init
-  }
-
 }
 
 Window::~Window()
