@@ -27,40 +27,11 @@ namespace Internal
 namespace Adaptor
 {
 
-PixelBufferPtr ResizeMask( const PixelBuffer& inMask, ImageDimensions outDimensions )
-{
-  PixelBufferPtr mask;
-
-  if( inMask.GetWidth() != outDimensions.GetWidth() || inMask.GetHeight() != outDimensions.GetHeight() )
-  {
-    mask = PixelBuffer::New( outDimensions.GetWidth(), outDimensions.GetHeight(), inMask.GetPixelFormat() );
-    ImageDimensions inDimensions( inMask.GetWidth(), inMask.GetHeight() );
-
-    if( Pixel::GetBytesPerPixel( inMask.GetPixelFormat() ) == 4 )
-    {
-      Dali::Internal::Platform::LanczosSample4BPP( inMask.GetBuffer(), inDimensions,
-                                                   mask->GetBuffer(), outDimensions );
-    }
-    else if( inMask.GetPixelFormat() == Pixel::L8 )
-    {
-      Dali::Internal::Platform::LanczosSample1BPP( inMask.GetBuffer(), inDimensions,
-                                                   mask->GetBuffer(), outDimensions );
-    }
-  }
-  else
-  {
-    mask = const_cast<PixelBuffer*>(&inMask);
-  }
-  return mask;
-}
-
-void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& inMask )
+void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask )
 {
   int srcAlphaByteOffset=0;
   int srcAlphaMask=0;
-  Dali::Pixel::Format srcPixelFormat = inMask.GetPixelFormat();
-
-  PixelBufferPtr mask = ResizeMask( inMask, ImageDimensions( buffer.GetWidth(), buffer.GetHeight() ) );
+  Dali::Pixel::Format srcPixelFormat = mask.GetPixelFormat();
 
   if( Pixel::HasAlpha(srcPixelFormat) )
   {
@@ -76,7 +47,7 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& inMask )
   Dali::Pixel::GetAlphaOffsetAndMask( buffer.GetPixelFormat(), destAlphaByteOffset, destAlphaMask );
 
   unsigned int srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel( srcPixelFormat );
-  unsigned char* srcBuffer = mask->GetBuffer();
+  unsigned char* srcBuffer = mask.GetBuffer();
   unsigned char* destBuffer = buffer.GetBuffer();
 
   unsigned int destBytesPerPixel = Dali::Pixel::GetBytesPerPixel( buffer.GetPixelFormat() );
@@ -105,14 +76,13 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& inMask )
   }
 }
 
-PixelBufferPtr CreateNewMaskedBuffer( const PixelBuffer& buffer, const PixelBuffer& inMask )
+PixelBufferPtr CreateNewMaskedBuffer( const PixelBuffer& buffer, const PixelBuffer& mask )
 {
   // Set up source alpha offsets
   int srcAlphaByteOffset=0;
   int srcAlphaMask=0;
-  Dali::Pixel::Format srcPixelFormat = inMask.GetPixelFormat();
+  Dali::Pixel::Format srcPixelFormat = mask.GetPixelFormat();
 
-  PixelBufferPtr mask = ResizeMask( inMask, ImageDimensions( buffer.GetWidth(), buffer.GetHeight() ) );
   if( Pixel::HasAlpha(srcPixelFormat) )
   {
     Dali::Pixel::GetAlphaOffsetAndMask( srcPixelFormat, srcAlphaByteOffset, srcAlphaMask );
@@ -123,7 +93,7 @@ PixelBufferPtr CreateNewMaskedBuffer( const PixelBuffer& buffer, const PixelBuff
   }
 
   unsigned int srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel( srcPixelFormat );
-  unsigned char* srcBuffer = mask->GetBuffer();
+  unsigned char* srcBuffer = mask.GetBuffer();
 
   // Set up source color offsets
   Dali::Pixel::Format srcColorPixelFormat = buffer.GetPixelFormat();

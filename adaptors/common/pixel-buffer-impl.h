@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <pixel-buffer.h>
+#include <dali/public-api/images/image-operations.h> // For ImageDimensions
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 
@@ -143,8 +144,11 @@ public:
    * internal object - e.g. the new buffer may have a different pixel
    * format - as an alpha channel may be added.
    * @param[in] mask The mask to apply to this pixel buffer
+   * @param[in] contentScale The scaling factor to apply to the content
+   * @param[in] cropToMask Whether to crop the output to the mask size (true) or scale the
+   * mask to the content size (false)
    */
-  void ApplyMask( const PixelBuffer& mask );
+  void ApplyMask( const PixelBuffer& mask, float contentScale, bool cropToMask );
 
 private:
   /*
@@ -158,9 +162,62 @@ private:
   PixelBuffer& operator= (const PixelBuffer& other);
 
   /**
+   * Internal method to apply the mask to this buffer. Expects that they are the same size.
+   */
+  void ApplyMaskInternal( const PixelBuffer& mask );
+
+  /**
+   * Takes ownership of the other object's pixel buffer.
+   */
+  void TakeOwnershipOfBuffer( PixelBuffer& pixelBuffer );
+
+  /**
    * Release the buffer
    */
   void ReleaseBuffer();
+
+  /**
+   * Scales this buffer buffer by the given factor, and crops at the center to the
+   * given dimensions.
+   */
+  void ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions );
+
+  /**
+   * Creates a new buffer which is a crop of the passed in buffer,
+   * using the given crop rectangle. Assumes the crop rectangle is
+   * within the bounds of this size.
+   * @param[in] inBuffer The source buffer
+   * @param[in] x The top left corner's X
+   * @param[in] y The top left corner's y
+   * @param[in] cropDimensions The dimensions of the crop
+   * @return the new pixel buffer
+   */
+  static PixelBufferPtr NewCrop( const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions );
+
+  /**
+   * Creates a new buffer which is a resized version of the passed in buffer.
+   * Uses either Lanczos4 for downscaling, or Mitchell for upscaling.
+   * @param[in] inBuffer The source buffer
+   * @param[in] outDimensions The new dimensions
+   * @return a new buffer of the given size.
+   */
+  static PixelBufferPtr NewResize( const PixelBuffer& inBuffer, ImageDimensions outDimensions );
+
+  /**
+   * Crops this buffer to the given crop rectangle. Assumes the crop rectangle
+   * is within the bounds of this size.
+   * @param[in] x The top left corner's X
+   * @param[in] y The top left corner's y
+   * @param[in] cropDimensions The dimensions of the crop
+   */
+  void Crop( uint16_t x, uint16_t y, ImageDimensions cropDimensions );
+
+  /**
+   * Resizes the buffer to the given dimensions. Uses either Lanczos4 for downscaling
+   * or Mitchell for upscaling
+   * @param[in] outDimensions The new dimensions
+   */
+  void Resize( ImageDimensions outDimensions );
 
 private:
 

@@ -65,6 +65,7 @@ INCLUDE_DIRECTORIES(
     ../../../adaptors/tizen
     ../../../adaptors/ubuntu
     ../../../text
+    ../../../third-party/image-resampler
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
 )

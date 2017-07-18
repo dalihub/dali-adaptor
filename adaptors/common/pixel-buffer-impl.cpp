@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include "pixel-manipulation.h"
 #include "alpha-mask.h"
+#include <platform-abstractions/portable/image-operations.h>
 
 namespace Dali
 {
@@ -133,13 +134,40 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
   return pixelData;
 }
 
-void PixelBuffer::ApplyMask( const PixelBuffer& mask )
+void PixelBuffer::ApplyMask( const PixelBuffer& inMask, float contentScale, bool cropToMask )
+{
+  if( cropToMask )
+  {
+    // First scale this buffer by the contentScale, and crop to the mask size
+    // If it's too small, then scale the mask to match the image size
+    // Then apply the mask
+    ScaleAndCrop( contentScale, ImageDimensions( inMask.GetWidth(), inMask.GetHeight() ) );
+
+    if( inMask.mWidth > mWidth || inMask.mHeight > mHeight )
+    {
+      PixelBufferPtr mask = NewResize( inMask, ImageDimensions( mWidth, mHeight ) );
+      ApplyMaskInternal( *mask );
+    }
+    else
+    {
+      ApplyMaskInternal( inMask );
+    }
+  }
+  else
+  {
+    // First, scale the mask to match the image size,
+    // then apply the mask.
+    PixelBufferPtr mask = NewResize( inMask, ImageDimensions( mWidth, mHeight ) );
+    ApplyMaskInternal( *mask );
+  }
+}
+
+void PixelBuffer::ApplyMaskInternal( const PixelBuffer& mask )
 {
   int byteOffset=0;
   int bitMask=0;
 
   Dali::Pixel::GetAlphaOffsetAndMask(mPixelFormat, byteOffset, bitMask);
-
   if( Dali::Pixel::HasAlpha( mPixelFormat ) && bitMask == 255 )
   {
     ApplyMaskToAlphaChannel( *this, mask );
@@ -147,16 +175,22 @@ void PixelBuffer::ApplyMask( const PixelBuffer& mask )
   else
   {
     PixelBufferPtr newPixelBuffer = CreateNewMaskedBuffer( *this, mask );
-    ReleaseBuffer();
-
-    // Take ownership of new buffer
-    mBuffer = newPixelBuffer->mBuffer;
-    newPixelBuffer->mBuffer = NULL;
-    mPixelFormat = newPixelBuffer->mPixelFormat;
-    mBufferSize = newPixelBuffer->mBufferSize;
-
+    TakeOwnershipOfBuffer( *newPixelBuffer );
     // On leaving scope, newPixelBuffer will get destroyed.
   }
+}
+
+void PixelBuffer::TakeOwnershipOfBuffer( PixelBuffer& pixelBuffer )
+{
+  ReleaseBuffer();
+
+  // Take ownership of new buffer
+  mBuffer = pixelBuffer.mBuffer;
+  pixelBuffer.mBuffer = NULL;
+  mBufferSize = pixelBuffer.mBufferSize;
+  mWidth = pixelBuffer.mWidth;
+  mHeight = pixelBuffer.mHeight;
+  mPixelFormat = pixelBuffer.mPixelFormat;
 }
 
 void PixelBuffer::ReleaseBuffer()
@@ -167,6 +201,113 @@ void PixelBuffer::ReleaseBuffer()
   }
 }
 
+void PixelBuffer::ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions )
+{
+  ImageDimensions outDimensions( float(mWidth) * scaleFactor,
+                                 float(mHeight) * scaleFactor );
+
+  if( outDimensions.GetWidth() != mWidth || outDimensions.GetHeight() != mHeight )
+  {
+    Resize( outDimensions );
+  }
+
+  ImageDimensions postCropDimensions(
+    std::min(cropDimensions.GetWidth(), outDimensions.GetWidth()),
+    std::min(cropDimensions.GetHeight(), outDimensions.GetHeight()));
+
+  if( postCropDimensions.GetWidth() < outDimensions.GetWidth() ||
+      postCropDimensions.GetHeight() < outDimensions.GetHeight() )
+  {
+    uint16_t x = ( outDimensions.GetWidth()  - postCropDimensions.GetWidth() ) / 2;
+    uint16_t y = ( outDimensions.GetHeight() - postCropDimensions.GetHeight() ) / 2;
+    Crop( x, y, postCropDimensions );
+  }
+}
+
+void PixelBuffer::Crop( uint16_t x, uint16_t y, ImageDimensions cropDimensions )
+{
+  PixelBufferPtr outBuffer = NewCrop( *this, x, y, cropDimensions );
+  TakeOwnershipOfBuffer( *outBuffer );
+}
+
+PixelBufferPtr PixelBuffer::NewCrop( const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions )
+{
+  PixelBufferPtr outBuffer = PixelBuffer::New( cropDimensions.GetWidth(), cropDimensions.GetHeight(), inBuffer.GetPixelFormat() );
+  int bytesPerPixel = Pixel::GetBytesPerPixel( inBuffer.mPixelFormat );
+  int srcStride = inBuffer.mWidth * bytesPerPixel;
+  int destStride = cropDimensions.GetWidth() * bytesPerPixel;
+
+  // Clamp crop to right edge
+  if( x + cropDimensions.GetWidth() > inBuffer.mWidth )
+  {
+    destStride = ( inBuffer.mWidth - x ) * bytesPerPixel;
+  }
+
+  int srcOffset = x * bytesPerPixel + y * srcStride;
+  int destOffset = 0;
+  unsigned char* destBuffer = outBuffer->mBuffer;
+
+  // Clamp crop to last row
+  unsigned int endRow = y + cropDimensions.GetHeight();
+  if( endRow > inBuffer.mHeight )
+  {
+    endRow = inBuffer.mHeight - 1 ;
+  }
+  for( uint16_t row = y; row < endRow; ++row )
+  {
+    memcpy(destBuffer + destOffset, inBuffer.mBuffer + srcOffset, destStride );
+    srcOffset += srcStride;
+    destOffset += destStride;
+  }
+  return outBuffer;
+
+}
+
+void PixelBuffer::Resize( ImageDimensions outDimensions )
+{
+  if( mWidth != outDimensions.GetWidth() || mHeight != outDimensions.GetHeight() )
+  {
+    PixelBufferPtr outBuffer = NewResize( *this, outDimensions );
+    TakeOwnershipOfBuffer( *outBuffer );
+  }
+}
+
+PixelBufferPtr PixelBuffer::NewResize( const PixelBuffer& inBuffer, ImageDimensions outDimensions )
+{
+  PixelBufferPtr outBuffer = PixelBuffer::New( outDimensions.GetWidth(), outDimensions.GetHeight(), inBuffer.GetPixelFormat() );
+  ImageDimensions inDimensions( inBuffer.mWidth, inBuffer.mHeight );
+
+  bool hasAlpha = Pixel::HasAlpha( inBuffer.mPixelFormat );
+  int bytesPerPixel = Pixel::GetBytesPerPixel( inBuffer.mPixelFormat );
+
+  Resampler::Filter filterType = Resampler::LANCZOS4;
+  if( inDimensions.GetWidth() < outDimensions.GetWidth() && inDimensions.GetHeight() < outDimensions.GetHeight() )
+  {
+    filterType = Resampler::MITCHELL;
+  }
+
+  // This method only really works for 8 bit wide channels.
+  // (But could be expanded to work)
+  if( inBuffer.mPixelFormat == Pixel::A8 ||
+      inBuffer.mPixelFormat == Pixel::L8 ||
+      inBuffer.mPixelFormat == Pixel::LA88 ||
+      inBuffer.mPixelFormat == Pixel::RGB888 ||
+      inBuffer.mPixelFormat == Pixel::RGB8888 ||
+      inBuffer.mPixelFormat == Pixel::BGR8888 ||
+      inBuffer.mPixelFormat == Pixel::RGBA8888 ||
+      inBuffer.mPixelFormat == Pixel::BGRA8888 )
+  {
+    Dali::Internal::Platform::Resample( inBuffer.mBuffer, inDimensions,
+                                        outBuffer->GetBuffer(), outDimensions,
+                                        filterType, bytesPerPixel, hasAlpha );
+  }
+  else
+  {
+    DALI_LOG_ERROR( "Trying to resize an image with too narrow a channel width" );
+  }
+
+  return outBuffer;
+}
 
 }// namespace Adaptor
 }// namespace Internal
