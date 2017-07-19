@@ -19,14 +19,26 @@
 #include "framework.h"
 
 // EXTERNAL INCLUDES
+#include <aul.h>
+#include <aul_app_com.h>
 #include <appcore_ui_base.h>
+#include <appcore_multiwindow_base.h>
 #include <app_control_internal.h>
 #include <app_common.h>
 #include <bundle.h>
-#include <Ecore.h>
-
-#include <system_info.h>
 #include <bundle_internal.h>
+#include <Ecore.h>
+#include <screen_connector_provider.h>
+#include <system_info.h>
+#include <string.h>
+#include <unistd.h>
+#include <vconf.h>
+#include <vconf-internal-keys.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#include <glib.h>
+#pragma GCC diagnostic pop
 
 // CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
@@ -44,6 +56,9 @@
 
 // INTERNAL INCLUDES
 #include <callback-manager.h>
+#include <window.h>
+#include <widget-impl.h>
+#include <widget-data.h>
 
 namespace Dali
 {
@@ -54,12 +69,19 @@ namespace Internal
 namespace Adaptor
 {
 
-#if defined(DEBUG_ENABLED)
 namespace
 {
+#if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New( Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS" );
-} // anonymous namespace
 #endif
+
+// TODO: remove these global variables
+static bool gForegroundState;
+static char* gAppId;
+static char* gPackageId;
+static char* gViewerEndpoint;
+
+} // anonymous namespace
 
 namespace AppCore
 {
@@ -159,6 +181,7 @@ struct Framework::Impl
 #endif
   {
     mFramework = static_cast<Framework*>(data);
+    gForegroundState = false;
 
 #ifndef APPCORE_WATCH_AVAILABLE
     if ( type == WATCH )
@@ -188,6 +211,10 @@ struct Framework::Impl
     {
       ret = AppNormalMain();
     }
+    else if(mApplicationType == WIDGET)
+    {
+      ret = AppWidgetMain();
+    }
     else
     {
       ret = AppWatchMain();
@@ -200,6 +227,10 @@ struct Framework::Impl
     if (mApplicationType == NORMAL)
     {
       AppNormalExit();
+    }
+    else if(mApplicationType == WIDGET)
+    {
+      AppWidgetExit();
     }
     else
     {
@@ -215,6 +246,7 @@ struct Framework::Impl
 
   Framework* mFramework;
   AppCore::AppEventHandlerPtr handlers[5];
+
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
   app_event_handler_h watchHandlers[5];
@@ -424,6 +456,619 @@ struct Framework::Impl
     appcore_ui_base_exit();
   }
 
+  void AppWidgetExit()
+  {
+    if( !IsWidgetFeatureEnabled() )
+    {
+      DALI_LOG_ERROR("widget feature is not supported");
+      return;
+    }
+
+    appcore_multiwindow_base_exit();
+    aul_widget_notify_exit();
+  }
+
+  int AppWidgetMain()
+  {
+    if( !IsWidgetFeatureEnabled() )
+    {
+      DALI_LOG_ERROR("widget feature is not supported");
+      return 0;
+    }
+
+    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::DEVICE_ORIENTATION_CHANGED], AppCore::DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
+
+    appcore_multiwindow_base_ops ops = appcore_multiwindow_base_get_default_ops();
+
+    /* override methods */
+    ops.base.create = WidgetAppCreate;
+    ops.base.control = WidgetAppControl;
+    ops.base.terminate = WidgetAppTerminate;
+    ops.base.receive = WidgetAppReceive;
+    ops.base.init = AppInit;
+    ops.base.finish = AppFinish;
+    ops.base.run = AppRun;
+    ops.base.exit = AppExit;
+
+    bundle *bundleFromArgv = bundle_import_from_argv(*mFramework->mArgc, *mFramework->mArgv);
+
+    char* viewerEndpoint = NULL;
+
+    if (bundleFromArgv)
+    {
+      bundle_get_str(bundleFromArgv, "__WIDGET_ENDPOINT__", &viewerEndpoint);
+      if (viewerEndpoint)
+      {
+        gViewerEndpoint = strdup(viewerEndpoint);
+      }
+      else
+      {
+        DALI_LOG_ERROR("endpoint is missing");
+        return 0;
+      }
+
+      bundle_free(bundleFromArgv);
+    }
+    else
+    {
+      DALI_LOG_ERROR("failed to get launch argv");
+      return 0;
+    }
+
+    appcore_multiwindow_base_init(ops, *mFramework->mArgc, *mFramework->mArgv, mFramework);
+    appcore_multiwindow_base_fini();
+    return TIZEN_ERROR_NONE;
+  }
+
+  static void WidgetAppPoweroff(keynode_t *key, void *data)
+  {
+    int val;
+
+    val = vconf_keynode_get_int(key);
+    switch (val) {
+      case VCONFKEY_SYSMAN_POWER_OFF_DIRECT:
+      case VCONFKEY_SYSMAN_POWER_OFF_RESTART:
+      {
+        static_cast<Internal::Adaptor::Framework::Impl*>(data)->AppWidgetExit();
+        break;
+      }
+      case VCONFKEY_SYSMAN_POWER_OFF_NONE:
+      case VCONFKEY_SYSMAN_POWER_OFF_POPUP:
+      default:
+        break;
+    }
+  }
+
+  static int WidgetAppCreate(void *data)
+  {
+    char pkgid[256] = {0, };
+
+    appcore_multiwindow_base_on_create();
+    app_get_id(&gAppId);
+
+    if(aul_app_get_pkgid_bypid(getpid(), pkgid, sizeof(pkgid)) == 0)
+    {
+      gPackageId = strdup(pkgid);
+    }
+
+    if(!gPackageId || !gAppId)
+    {
+      DALI_LOG_ERROR("package_id is NULL");
+      return -1;
+    }
+
+    screen_connector_provider_init();
+    vconf_notify_key_changed(VCONFKEY_SYSMAN_POWER_OFF_STATUS, WidgetAppPoweroff, data);
+
+    return static_cast<int>( static_cast<Framework*>(data)->Create() );
+  }
+
+  static int WidgetAppTerminate(void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnTerminate();
+
+    vconf_ignore_key_changed(VCONFKEY_SYSMAN_POWER_OFF_STATUS, WidgetAppPoweroff);
+    screen_connector_provider_fini();
+
+    appcore_multiwindow_base_on_terminate();
+    return 0;
+  }
+
+  static void WidgetAppInstResume(const char* classId, const char* id, appcore_multiwindow_base_instance_h context, void* data)
+  {
+    WidgetInstanceResume(classId, id, static_cast<bundle*>(data));
+  }
+
+  static void WidgetInstanceResume(const char* classId, const char* id, bundle* bundleData)
+  {
+    appcore_multiwindow_base_instance_h context;
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("context not found: %s", id);
+      return;
+    }
+
+    appcore_multiwindow_base_instance_resume(context);
+
+    SendUpdateStatus(classId, id, AUL_WIDGET_INSTANCE_EVENT_RESUME, NULL);
+
+    if(!gForegroundState)
+    {
+      aul_send_app_status_change_signal( getpid(), gAppId, gPackageId, "fg", "widgetapp" );
+      gForegroundState = true;
+    }
+
+    return;
+  }
+
+  static int SendUpdateStatus(const char* classId, const char* instanceId, int status, bundle* extra )
+  {
+    bundle* bundleData;
+    int lifecycle = -1;
+    bundle_raw *raw = NULL;
+    int length;
+
+    bundleData = bundle_create();
+    if(!bundleData)
+    {
+      DALI_LOG_ERROR("out of memory");
+      return -1;
+    }
+
+    bundle_add_str(bundleData, AUL_K_WIDGET_ID, classId);
+    bundle_add_str(bundleData, AUL_K_WIDGET_INSTANCE_ID, instanceId);
+    bundle_add_byte(bundleData, AUL_K_WIDGET_STATUS, &status, sizeof(int));
+
+    if(extra)
+    {
+      bundle_encode(extra, &raw, &length);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+      bundle_add_str(bundleData, "__WIDGET_CONTENT_INFO__", (const char*)raw);
+#pragma GCC diagnostic pop
+
+      aul_widget_instance_add(classId, instanceId);
+    }
+
+    aul_app_com_send(gViewerEndpoint, bundleData);
+
+    switch(status)
+    {
+      case AUL_WIDGET_INSTANCE_EVENT_CREATE:
+        lifecycle = Dali::Widget::WidgetLifecycleEventType::CREATE;
+        break;
+      case AUL_WIDGET_INSTANCE_EVENT_DESTROY:
+        lifecycle = Dali::Widget::WidgetLifecycleEventType::DESTROY;
+        break;
+      case AUL_WIDGET_INSTANCE_EVENT_PAUSE:
+        lifecycle = Dali::Widget::WidgetLifecycleEventType::PAUSE;
+        break;
+      case AUL_WIDGET_INSTANCE_EVENT_RESUME:
+        lifecycle = Dali::Widget::WidgetLifecycleEventType::RESUME;
+        break;
+    }
+
+    if (lifecycle > -1)
+      SendLifecycleEvent(classId, instanceId, lifecycle);
+
+    bundle_free(bundleData);
+    if (raw)
+      free(raw);
+
+    return 0;
+  }
+
+  static int SendLifecycleEvent(const char* classId, const char* instanceId, int status)
+  {
+    bundle* bundleData = bundle_create();
+    int ret;
+
+    if (bundleData == NULL)
+    {
+      DALI_LOG_ERROR("out of memory");
+      return -1;
+    }
+
+    bundle_add_str(bundleData, AUL_K_WIDGET_ID, classId);
+    bundle_add_str(bundleData, AUL_K_WIDGET_INSTANCE_ID, instanceId);
+    bundle_add_byte(bundleData, AUL_K_WIDGET_STATUS, &status, sizeof(int));
+    bundle_add_str(bundleData, AUL_K_PKGID, gPackageId);
+
+    ret = aul_app_com_send("widget.status", bundleData);
+
+    if (ret < 0)
+      DALI_LOG_ERROR("send lifecycle error:%d", ret);
+
+    bundle_free(bundleData);
+
+    return ret;
+  }
+
+  static int WidgetAppReceive(aul_type type, bundle *bundleData, void *data)
+  {
+    appcore_multiwindow_base_on_receive(type, bundleData);
+
+    switch(type)
+    {
+      case AUL_RESUME:
+      {
+        appcore_multiwindow_base_instance_foreach_full(WidgetAppInstResume, bundleData);
+        break;
+      }
+      case AUL_TERMINATE:
+      {
+        static_cast<Internal::Adaptor::Framework::Impl*>(data)->AppWidgetExit();
+        break;
+      }
+      case AUL_WIDGET_CONTENT:
+      {
+        GetContent(bundleData);
+        break;
+      }
+      default:
+        break;
+    }
+    return 0;
+  }
+
+  static void GetContent( bundle* bundleData )
+  {
+    char* instanceId = NULL;
+    appcore_multiwindow_base_instance_h context;
+    const appcore_multiwindow_base_class *cls;
+    Internal::Adaptor::Widget *widgetInstance;
+
+    bundle_get_str(bundleData, AUL_K_WIDGET_INSTANCE_ID, &instanceId);
+    if(!instanceId)
+    {
+      DALI_LOG_ERROR("instance id is NULL");
+      return;
+    }
+
+    context = static_cast<appcore_multiwindow_base_instance_h>(appcore_multiwindow_base_instance_find(instanceId));
+    if(!context)
+    {
+      DALI_LOG_ERROR("could not find widget obj: %s", instanceId);
+      return;
+    }
+
+    cls = appcore_multiwindow_base_instance_get_class(context);
+    if(!cls)
+    {
+      DALI_LOG_ERROR("widget class is NULL");
+      return;
+    }
+
+    widgetInstance = static_cast<Internal::Adaptor::Widget*>(cls->data);
+    if(!widgetInstance)
+    {
+      DALI_LOG_ERROR("widget instance is NULL");
+      return;
+    }
+
+    Dali::WidgetData *widgetData = widgetInstance->FindWidgetData( instanceId );
+    if(!widgetData)
+    {
+      DALI_LOG_ERROR("widget extra is NULL");
+      return;
+    }
+
+    char* widgetContent = widgetData->GetContent();
+    if(widgetContent)
+    {
+      bundle_add_str(bundleData, AUL_K_WIDGET_CONTENT_INFO, widgetContent);
+    }
+    else
+    {
+      bundle_add_str(bundleData, AUL_K_WIDGET_CONTENT_INFO, "");
+    }
+  }
+
+  /**
+   * Called by AppCore when the application is launched from another module (e.g. homescreen).
+   * @param[in] b the bundle data which the launcher module sent
+   */
+  static int WidgetAppControl(bundle* bundleData, void *data)
+  {
+    char *classId = NULL;
+    char *id = NULL;
+    char *operation = NULL;
+
+    appcore_multiwindow_base_on_control(bundleData);
+
+    bundle_get_str(bundleData, AUL_K_WIDGET_ID, &classId);
+    bundle_get_str(bundleData, AUL_K_WIDGET_INSTANCE_ID, &id);
+    bundle_get_str(bundleData, "__WIDGET_OP__", &operation);
+
+    if(!operation)
+    {
+      DALI_LOG_ERROR("operation is NULL");
+      return 0;
+    }
+
+    if(strcmp(operation, "create") == 0)
+    {
+      InstanceCreate( classId, id, bundleData );
+    }
+    else if (strcmp(operation, "resize") == 0)
+    {
+      InstanceResize( classId, id, bundleData );
+    }
+    else if (strcmp(operation, "update") == 0)
+    {
+      InstanceUpdate( classId, id, bundleData );
+    }
+    else if (strcmp(operation, "destroy") == 0)
+    {
+      InstanceDestroy( classId, id, bundleData, data );
+    }
+    else if (strcmp(operation, "resume") == 0)
+    {
+      InstanceResume( classId, id, bundleData );
+    }
+    else if (strcmp(operation, "pause") == 0)
+    {
+      InstancePause( classId, id, bundleData );
+    }
+    else if (strcmp(operation, "terminate") == 0)
+    {
+      InstanceDestroy( classId, id, bundleData, data );
+    }
+
+    return 0;
+  }
+
+  static void InstanceCreate(const char* classId, const char* id, bundle* bundleData)
+  {
+    appcore_multiwindow_base_instance_run(classId, id, bundle_dup(bundleData));
+  }
+
+  static void InstanceResize(const char *classId, const char *id, bundle *bundleData)
+  {
+    appcore_multiwindow_base_instance_h context;
+    Internal::Adaptor::Widget *widgetInstance;
+    const appcore_multiwindow_base_class *cls;
+    char *remain = NULL;
+    char *widthStr = NULL;
+    char *heightStr = NULL;
+    uint32_t width = 0;
+    uint32_t height = 0;
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("context not found: %s", id);
+      return;
+    }
+
+    cls = appcore_multiwindow_base_instance_get_class(context);
+    if(!cls)
+    {
+      DALI_LOG_ERROR("widget class is NULL");
+      return;
+    }
+
+    widgetInstance = static_cast<Internal::Adaptor::Widget*>(cls->data);
+    if(!widgetInstance)
+    {
+      DALI_LOG_ERROR("widget instance is NULL");
+      return;
+    }
+
+    bundle_get_str(bundleData, "__WIDGET_WIDTH__", &widthStr);
+    bundle_get_str(bundleData, "__WIDGET_HEIGHT__", &heightStr);
+
+    if(widthStr)
+      width = static_cast<uint32_t>(g_ascii_strtoll(widthStr, &remain, 10));
+
+    if(heightStr)
+      height = static_cast<uint32_t>(g_ascii_strtoll(heightStr, &remain, 10));
+
+    widgetInstance->OnResize( context, Dali::Widget::WindowSize(width,height) );
+  }
+
+  static void InstanceUpdate(const char* classId, const char* id, bundle* bundleData)
+  {
+    appcore_multiwindow_base_instance_h context;
+
+    if(!id)
+    {
+      appcore_multiwindow_base_instance_foreach(classId, UpdateCallback, bundleData);
+      return;
+    }
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("context not found: %s", id);
+      return;
+    }
+
+    UpdateCallback(classId, id, context, bundleData);
+  }
+
+  static void UpdateCallback(const char* classId, const char* id, appcore_multiwindow_base_instance_h context, void* data)
+  {
+    Internal::Adaptor::Widget *widgetInstance;
+    const appcore_multiwindow_base_class *cls;
+    bundle* content = NULL;
+    char* contentRaw = NULL;
+    char* forceStr = NULL;
+    int force;
+    bundle* bundleData = static_cast<bundle*>(data);
+
+    if(!bundleData)
+    {
+      DALI_LOG_ERROR("bundle is NULL");
+      return;
+    }
+
+    cls = appcore_multiwindow_base_instance_get_class(context);
+    if(!cls)
+    {
+      DALI_LOG_ERROR("class is NULL");
+      return;
+    }
+
+    widgetInstance = static_cast<Internal::Adaptor::Widget*>(cls->data);
+    if(!widgetInstance)
+    {
+      DALI_LOG_ERROR("widget instance is NULL");
+      return;
+    }
+
+    bundle_get_str(bundleData, "__WIDGET_FORCE__", &forceStr);
+
+    if(forceStr && strcmp(forceStr, "true") == 0)
+    {
+      force = 1;
+    }
+    else
+    {
+      force = 0;
+    }
+
+    bundle_get_str(bundleData, "__WIDGET_CONTENT_INFO__", &contentRaw);
+
+    if(contentRaw)
+    {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+      content = bundle_decode((const bundle_raw *)contentRaw, strlen(contentRaw));
+#pragma GCC diagnostic pop
+
+    }
+
+    widgetInstance->OnUpdate(context, content, force);
+
+    if(content)
+    {
+      bundle_free(content);
+    }
+  }
+
+  static void InstanceDestroy(const char* classId, const char* id, bundle* bundleData, void* data)
+  {
+    appcore_multiwindow_base_instance_h context;
+
+    Internal::Adaptor::Widget *widgetInstance;
+    const appcore_multiwindow_base_class *cls;
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("could not find widget obj: %s, clear amd info", id);
+      aul_widget_instance_del(classId, id);
+      return;
+    }
+
+    cls = appcore_multiwindow_base_instance_get_class(context);
+    if(!cls)
+    {
+      DALI_LOG_ERROR("widget class is NULL");
+      return;
+    }
+
+    widgetInstance = static_cast<Internal::Adaptor::Widget*>(cls->data);
+    if(!widgetInstance)
+    {
+      DALI_LOG_ERROR("widget instance is NULL");
+      return;
+    }
+
+    Dali::WidgetData *widgetData  = widgetInstance->FindWidgetData(id);
+
+    widgetData->SetArgs( bundleData );
+    appcore_multiwindow_base_instance_exit(context);
+    CheckEmptyInstance(data);
+  }
+
+  static void CheckEmptyInstance(void* data)
+  {
+    int cnt = appcore_multiwindow_base_instance_get_cnt();
+
+    if(cnt == 0)
+    {
+      static_cast<Internal::Adaptor::Framework::Impl*>(data)->AppWidgetExit();
+    }
+  }
+
+  static void InstanceResume(const char* classId, const char* id, bundle* bundleData)
+  {
+    appcore_multiwindow_base_instance_h context;
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("context not found: %s", id);
+      return;
+    }
+
+    appcore_multiwindow_base_instance_resume(context);
+
+    SendUpdateStatus(classId, id, AUL_WIDGET_INSTANCE_EVENT_RESUME, NULL);
+    if(!gForegroundState)
+    {
+      aul_send_app_status_change_signal(getpid(), gAppId, gPackageId, "fg", "widgetapp" );
+      gForegroundState = true;
+    }
+  }
+
+  static void InstancePause(const char* classId, const char* id, bundle* bundleData)
+  {
+    appcore_multiwindow_base_instance_h context;
+
+    context = appcore_multiwindow_base_instance_find(id);
+
+    if(!context)
+    {
+      DALI_LOG_ERROR("context not found: %s", id);
+      return;
+    }
+
+    appcore_multiwindow_base_instance_pause(context);
+
+    if(gForegroundState)
+    {
+      aul_send_app_status_change_signal(getpid(), gAppId, gPackageId, "bg", "widgetapp" );
+      gForegroundState = false;
+    }
+  }
+
+  static bool IsWidgetFeatureEnabled()
+  {
+    static bool feature = false;
+    static bool retrieved = false;
+    int ret;
+
+    if(retrieved == true)
+      return feature;
+
+    ret = system_info_get_platform_bool("http://tizen.org/feature/shell.appwidget", &feature);
+    if(ret != SYSTEM_INFO_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("failed to get system info"); /* LCOV_EXCL_LINE */
+      return false; /* LCOV_EXCL_LINE */
+    }
+
+    retrieved = true;
+    return feature;
+  }
+
+
 #ifdef APPCORE_WATCH_AVAILABLE
   static bool WatchAppCreate(int width, int height, void *data)
   {
@@ -514,7 +1159,6 @@ struct Framework::Impl
 
     observer->OnResume();
   }
-
 #endif
 
   int AppWatchMain()
@@ -577,7 +1221,6 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
   }
 #ifdef DALI_ELDBUS_AVAILABLE
   // Initialize ElDBus.
-  DALI_LOG_INFO( gDBusLogging, Debug::General, "Starting DBus Initialization\n" );
   eldbus_init();
 #endif
   InitThreads();
@@ -594,7 +1237,6 @@ Framework::~Framework()
 
 #ifdef DALI_ELDBUS_AVAILABLE
   // Shutdown ELDBus.
-  DALI_LOG_INFO( gDBusLogging, Debug::General, "Shutting down DBus\n" );
   eldbus_shutdown();
 #endif
 
