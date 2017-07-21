@@ -25,7 +25,6 @@ namespace Internal
 namespace Adaptor
 {
 
-
 /**
  * Apply the mask to a buffer's alpha channel
  * @param[in] buffer The buffer to apply the mask to
@@ -44,20 +43,6 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask );
  * @return A new pixel buffer containing the masked image
  */
 PixelBufferPtr CreateNewMaskedBuffer( const PixelBuffer& buffer, const PixelBuffer& mask );
-
-/**
- * Read a weighted sample from the given channel for a given coordinate
- * @param[in] buffer The buffer to read from
- * @param[in] pixelFormat The pixel format of the buffer
- * @param[in] stride The stride across the buffer
- * @param[in] x The x coordinate to sample from
- * @param[in] y The y coordinate to sample from
- * @param[in] width The width of the buffer in pixels
- * @param[in] height  The height of the buffer in pixels
- * @param[in] channel The channel to read from
- * @return An averaged value from the 4 pixels around the given coordinate
- */
-float ReadWeightedSample( unsigned char* buffer, Pixel::Format pixelFormat, int stride, float x, float y, int width, int height, Channel channel );
 
 } //namespace Adaptor
 } //namespace Internal

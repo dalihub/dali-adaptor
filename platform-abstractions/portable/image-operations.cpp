@@ -50,7 +50,6 @@ const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
 // Constants used by the ImageResampler.
 const float DEFAULT_SOURCE_GAMMA = 1.75f;   ///< Default source gamma value used in the Resampler() function. Partial gamma correction looks better on mips. Set to 1.0 to disable gamma correction.
 const float FILTER_SCALE = 1.f;             ///< Default filter scale value used in the Resampler() function. Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
-const Resampler::Filter FILTER_TYPE = Resampler::LANCZOS4; ///< Default filter used in the Resampler() function. Possible Lanczos filters are: lanczos3, lanczos4, lanczos6, lanczos12
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -1523,11 +1522,13 @@ void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
   LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
 }
 
-void LanczosSample( const unsigned char * __restrict__ inPixels,
-                    ImageDimensions inputDimensions,
-                    unsigned char * __restrict__ outPixels,
-                    ImageDimensions desiredDimensions,
-                    int numChannels, bool hasAlpha )
+
+void Resample( const unsigned char * __restrict__ inPixels,
+               ImageDimensions inputDimensions,
+               unsigned char * __restrict__ outPixels,
+               ImageDimensions desiredDimensions,
+               Resampler::Filter filterType,
+               int numChannels, bool hasAlpha )
 {
   // Got from the test.cpp of the ImageResampler lib.
   const float ONE_DIV_255 = 1.0f / 255.0f;
@@ -1583,7 +1584,7 @@ void LanczosSample( const unsigned char * __restrict__ inPixels,
                                  Resampler::BOUNDARY_CLAMP,
                                  0.0f,           // sample_low,
                                  1.0f,           // sample_high. Clamp output samples to specified range, or disable clamping if sample_low >= sample_high.
-                                 FILTER_TYPE,    // The type of filter. Currently Lanczos.
+                                 filterType,    // The type of filter.
                                  NULL,           // Pclist_x,
                                  NULL,           // Pclist_y. Optional pointers to contributor lists from another instance of a Resampler.
                                  FILTER_SCALE,   // src_x_ofs,
@@ -1598,7 +1599,7 @@ void LanczosSample( const unsigned char * __restrict__ inPixels,
                                    Resampler::BOUNDARY_CLAMP,
                                    0.0f,
                                    1.0f,
-                                   FILTER_TYPE,
+                                   filterType,
                                    resamplers[0]->get_clist_x(),
                                    resamplers[0]->get_clist_y(),
                                    FILTER_SCALE,
@@ -1705,7 +1706,7 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
                         unsigned char * __restrict__ outPixels,
                         ImageDimensions desiredDimensions )
 {
-  LanczosSample( inPixels, inputDimensions, outPixels, desiredDimensions, 4, true );
+  Resample( inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true );
 }
 
 void LanczosSample1BPP( const unsigned char * __restrict__ inPixels,
@@ -1714,7 +1715,7 @@ void LanczosSample1BPP( const unsigned char * __restrict__ inPixels,
                         ImageDimensions desiredDimensions )
 {
   // For L8 images
-  LanczosSample( inPixels, inputDimensions, outPixels, desiredDimensions, 1, false );
+  Resample( inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 1, false );
 }
 
 // Dispatch to a format-appropriate linear sampling function:

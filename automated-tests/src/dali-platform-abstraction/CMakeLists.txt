@@ -47,6 +47,7 @@ INCLUDE_DIRECTORIES(
     ../../../
     ../../../adaptors/tizen
     ../../../platform-abstractions/tizen
+    ../../../third-party/image-resampler
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
     /usr/include/freetype2
