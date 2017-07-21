@@ -31,9 +31,7 @@ struct ThreadingMode
 {
   enum Type
   {
-    SEPARATE_UPDATE_RENDER = 0,  ///< Event, V-Sync, Update & Render on Separate threads.
-    COMBINED_UPDATE_RENDER,      ///< Three threads: Event, V-Sync & a Joint Update/Render thread.
-    SINGLE_THREADED,             ///< ALL functionality on the SAME thread.
+    COMBINED_UPDATE_RENDER = 1,      ///< Three threads: Event, V-Sync & a Joint Update/Render thread.
   };
 };
 

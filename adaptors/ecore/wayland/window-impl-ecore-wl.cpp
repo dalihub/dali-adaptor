@@ -1515,6 +1515,12 @@ Dali::DevelWindow::WindowPosition Window::GetPosition()
   return Dali::DevelWindow::WindowPosition( positionSize.x, positionSize.y );
 }
 
+void Window::SetTransparency( bool transparent )
+{
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  wlSurface->SetTransparency( transparent );
+}
+
 } // Adaptor
 
 } // Internal

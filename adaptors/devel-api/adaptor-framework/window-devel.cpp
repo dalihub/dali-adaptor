@@ -170,6 +170,11 @@ WindowPosition GetPosition( Window window )
   return GetImplementation( window ).GetPosition();
 }
 
+void SetTransparency( Window window, bool transparent )
+{
+  GetImplementation( window ).SetTransparency( transparent );
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

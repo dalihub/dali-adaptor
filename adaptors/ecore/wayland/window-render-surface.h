@@ -87,6 +87,13 @@ public: // API
    */
   void RequestRotation( Dali::Window::WindowOrientation orientation, int width, int height );
 
+  /**
+   * @brief Sets whether the surface is transparent or not.
+   *
+   * @param[in] transparent Whether the surface is transparent
+   */
+  void SetTransparency( bool transparent );
+
 public: // from Dali::RenderSurface
 
   /**

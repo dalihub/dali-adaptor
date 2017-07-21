@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -329,7 +329,7 @@ void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
  * @brief Resamples the input image with the Lanczos algorithm.
  *
  * @pre @p inPixels must not alias @p outPixels. The input image should be a totally
- * separate buffer from the input one.
+ * separate buffer from the output buffer.
  *
  * @param[in] inPixels Pointer to the input image buffer.
  * @param[in] inputDimensions The input dimensions of the image.
@@ -340,6 +340,23 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
                         ImageDimensions inputDimensions,
                         unsigned char * __restrict__ outPixels,
                         ImageDimensions desiredDimensions );
+
+/**
+ * @brief Resamples the input image with the Lanczos algorithm.
+ *
+ * @pre @p inPixels must not alias @p outPixels. The input image should be a totally
+ * separate buffer from the output buffer.
+ *
+ * @param[in] inPixels Pointer to the input image buffer.
+ * @param[in] inputDimensions The input dimensions of the image.
+ * @param[out] outPixels Pointer to the output image buffer.
+ * @param[in] desiredDimensions The output dimensions of the image.
+ */
+void LanczosSample1BPP( const unsigned char * __restrict__ inPixels,
+                        ImageDimensions inputDimensions,
+                        unsigned char * __restrict__ outPixels,
+                        ImageDimensions desiredDimensions );
+
 /**@}*/
 
 /**

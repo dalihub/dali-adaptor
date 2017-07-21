@@ -957,6 +957,10 @@ Dali::DevelWindow::WindowPosition Window::GetPosition()
   return Dali::DevelWindow::WindowPosition( positionSize.x, positionSize.y );
 }
 
+void Window::SetTransparency( bool transparent )
+{
+}
+
 } // Adaptor
 
 } // Internal

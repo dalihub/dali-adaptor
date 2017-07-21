@@ -26,7 +26,6 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-#include <base/separate-update-render/thread-synchronization.h>
 #include <gl/egl-implementation.h>
 #include <trigger-event.h>
 #include <base/interfaces/window-event-interface.h>
