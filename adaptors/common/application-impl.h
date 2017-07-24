@@ -40,6 +40,22 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace Launchpad
+{
+
+/**
+ * @brief Launchpad is used to improve application launch performance.
+ * When an application is pre-initialized, so files are preloaded, some functions are initialized and a window is made in advance.
+ */
+enum State
+{
+  NONE,              ///< The default state
+  PRE_INITIALIZED    ///< Application is pre-initialized.
+};
+
+} // namespace Launchpad
+
 class CommandLineOptions;
 class EventLoop;
 
@@ -54,6 +70,7 @@ typedef IntrusivePtr<Application> ApplicationPtr;
 class Application : public BaseObject, public Framework::Observer
 {
 public:
+
   typedef Dali::Application::AppSignalType AppSignalType;
   typedef Dali::Application::AppControlSignalType AppControlSignalType;
   typedef Dali::Application::WINDOW_MODE WINDOW_MODE;
@@ -69,6 +86,11 @@ public:
    */
   static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet,
     WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType );
+
+  /**
+   * @copydoc Dali::DevelApplication::PreInitialize()
+   */
+  static void PreInitialize( int* argc, char** argv[] );
 
 public:
 
@@ -111,6 +133,13 @@ public:
    * @copydoc Dali::Application::GetResourcePath();
    */
   static std::string GetResourcePath();
+
+  /**
+   * Retrieves the pre-initialized application.
+   *
+   * @return A pointer to the pre-initialized application
+   */
+  static ApplicationPtr GetPreInitializedApplication();
 
 public: // Stereoscopy
 
@@ -226,6 +255,13 @@ public:
    * @param[in]  adaptor  The adaptor
    */
   void OnResize(Dali::Adaptor& adaptor);
+
+  /**
+   * Sets a user defined theme file.
+   * This should be called before initialization.
+   * @param[in] stylesheet The path to user defined theme file
+   */
+  void SetStyleSheet( const std::string& stylesheet );
 
 public:  // Signals
 
@@ -350,9 +386,12 @@ private:
   std::string                           mStylesheet;
   EnvironmentOptions                    mEnvironmentOptions;
   PositionSize                          mWindowPositionSize;
+  Launchpad::State                      mLaunchpadState;
   bool                                  mUseRemoteSurface;
 
   SlotDelegate< Application >           mSlotDelegate;
+
+  static ApplicationPtr                 gPreInitializedApplication;
 };
 
 inline Application& GetImplementation(Dali::Application& application)

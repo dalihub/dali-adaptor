@@ -96,9 +96,9 @@ unsigned char* PixelBuffer::GetBuffer()
   return GetImplementation(*this).GetBuffer();
 }
 
-void PixelBuffer::ApplyMask( PixelBuffer mask )
+void PixelBuffer::ApplyMask( PixelBuffer mask, float contentScale, bool cropToMask )
 {
-  GetImplementation(*this).ApplyMask( GetImplementation( mask ) );
+  GetImplementation(*this).ApplyMask( GetImplementation( mask ), contentScale, cropToMask );
 }
 
 } // namespace Devel

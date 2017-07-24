@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.46
+Version:    1.2.49
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -37,7 +37,6 @@ Requires:       giflib
 BuildRequires:  pkgconfig(libtzplatform-config)
 %endif
 
-
 # Get the profile from tizen_profile_name if tizen version is 2.x and tizen_profile_name exists.
 
 %if "%{tizen_version_major}" == "2" && 0%{?tizen_profile_name:1}
@@ -49,6 +48,7 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
+BuildRequires:  pkgconfig(screen_connector_provider)
 %endif
 
 BuildRequires:  pkgconfig(gles20)
@@ -56,7 +56,6 @@ BuildRequires:  pkgconfig(glesv2)
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
-BuildRequires:  pkgconfig(aul)
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
@@ -76,11 +75,6 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
-# Tizen currently does not have libuv as a separate libuv package
-# So we have to look into the uv headers bundled inside node-js
-BuildRequires:  nodejs-devel
-
-
 %if %{with wayland}
 
 ####### BUILDING FOR WAYLAND #######
@@ -88,9 +82,6 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
-
-# dali-adaptor-uv uses libuv mainloop and has its own wayland client (it needs wayland-client headers).
-BuildRequires:  libxkbcommon-devel
 
 # dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
@@ -114,7 +105,14 @@ BuildRequires:  pkgconfig(utilX)
 # for dali-adaptor
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(elementary)
+
+%if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
+%else
+BuildRequires:  pkgconfig(appcore-ui)
+BuildRequires:  pkgconfig(capi-appfw-app-common)
+BuildRequires:  pkgconfig(capi-appfw-app-control)
+%endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
 # for feedback plugin
@@ -302,6 +300,11 @@ CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
 %endif
 
+# Use this conditional when Tizen version is 4.x or greater
+%if 0%{?tizen_version_major} >= 4
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_4"
+%endif
+
 %if 0%{?tizen_2_2_compatibility}
 CFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
 CXXFLAGS+=" -DTIZEN_SDK_2_2_COMPATIBILITY"
@@ -324,11 +327,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 # Default to GLES 2.0 if not specified.
 %{!?target_gles_version: %define target_gles_version 20}
 
-#--enable-efl=no \ # only affects dali-adaptor-uv
-#--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
-#--with-libuv=/usr/include/node/ \ # only affects dali-adaptor-uv
-
-
 # Set up the build via configure.
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -336,6 +334,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
+           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -352,7 +351,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -374,6 +372,7 @@ popd
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
+           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -390,7 +389,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -412,6 +410,7 @@ popd
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
+           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -428,7 +427,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -450,6 +448,7 @@ popd
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
+           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -466,7 +465,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -489,6 +487,7 @@ popd
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
+           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -505,7 +504,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -741,7 +739,6 @@ exit 0
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
 %{_libdir}/pkgconfig/dali-adaptor.pc
-%{_libdir}/pkgconfig/dali-adaptor-uv.pc
 
 %files integration-devel
 %defattr(-,root,root,-)

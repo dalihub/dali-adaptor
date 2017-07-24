@@ -77,6 +77,15 @@ public:
   };
 
   /**
+   * @brief Enumeration for the type of Keyboard.
+   */
+  enum KeyboardType
+  {
+    SOFTWARE_KEYBOARD,  ///< Software keyboard (Virtual keyboard) is default
+    HARDWARE_KEYBOARD   ///< Hardware keyboard
+  };
+
+  /**
    * @brief This structure is used to pass on data from the IMF regarding predictive text.
    */
   struct ImfEventData
@@ -156,6 +165,7 @@ public:
   typedef Signal< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalType; ///< keyboard events
   typedef Signal< void () > VoidSignalType;
   typedef Signal< void (bool) > StatusSignalType;
+  typedef Signal< void (KeyboardType) > KeyboardTypeSignalType; ///< keyboard type
 
 public:
 
@@ -307,6 +317,22 @@ public:
    */
   void HideInputPanel();
 
+  /**
+   * @brief Gets the keyboard type.
+   *
+   * The default keyboard type is SOFTWARE_KEYBOARD.
+   * @return The keyboard type
+   */
+  KeyboardType GetKeyboardType();
+
+  /**
+   * @brief Gets the current language locale of the input panel.
+   *
+   * ex) en_US, en_GB, en_PH, fr_FR, ...
+   * @return The current language locale of the input panel
+   */
+  std::string GetInputPanelLocale();
+
 public:
 
   // Signals
@@ -361,6 +387,18 @@ public:
    * @return The signal to connect to.
    */
   VoidSignalType& LanguageChangedSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when the keyboard type is changed.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( KeyboardType keyboard );
+   * @endcode
+   *
+   * @return The signal to connect to.
+   */
+  KeyboardTypeSignalType& KeyboardTypeChangedSignal();
 
   // Construction & Destruction
 

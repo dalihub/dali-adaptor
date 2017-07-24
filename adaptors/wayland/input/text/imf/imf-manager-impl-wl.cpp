@@ -346,6 +346,16 @@ void ImfManager::HideInputPanel()
 {
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  return NULL;
+}
+
 Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
 {
   TextInputManager::SeatInfo& info = mTextInputManager.GetLastActiveSeat();

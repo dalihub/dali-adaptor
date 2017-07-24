@@ -143,6 +143,16 @@ void ImfManager::HideInputPanel()
   Internal::Adaptor::ImfManager::GetImplementation(*this).HideInputPanel();
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetKeyboardType();
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelLocale();
+}
+
 ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ActivatedSignal();
@@ -166,6 +176,11 @@ ImfManager::VoidSignalType& ImfManager::ResizedSignal()
 ImfManager::VoidSignalType& ImfManager::LanguageChangedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).LanguageChangedSignal();
+}
+
+ImfManager::KeyboardTypeSignalType& ImfManager::KeyboardTypeChangedSignal()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).KeyboardTypeChangedSignal();
 }
 
 ImfManager::ImfManager(Internal::Adaptor::ImfManager *impl)

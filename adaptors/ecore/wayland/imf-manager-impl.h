@@ -48,6 +48,7 @@ public:
   typedef Dali::ImfManager::ImfEventSignalType ImfEventSignalType;
   typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
   typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
+  typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
 
 public:
 
@@ -213,6 +214,16 @@ public:
    */
   void HideInputPanel();
 
+  /**
+   * @copydoc Dali::ImfManager::GetKeyboardType()
+   */
+  Dali::ImfManager::KeyboardType GetKeyboardType();
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelLocale()
+   */
+  std::string GetInputPanelLocale();
+
 public:  // Signals
 
   /**
@@ -240,6 +251,10 @@ public:  // Signals
    */
   ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
 
+  /**
+   * @copydoc Dali::ImfManager::KeyboardTypeChangedSignal()
+   */
+  ImfKeyboardTypeSignalType& KeyboardTypeChangedSignal() { return mKeyboardTypeChangedSignal; }
 
 protected:
 
@@ -277,11 +292,12 @@ private:
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
   InputMethodOptions        mOptions;
 
-  ImfManagerSignalType      mActivatedSignal;
-  ImfEventSignalType        mEventSignal;
-  ImfStatusSignalType       mKeyboardStatusSignal;
-  ImfVoidSignalType         mKeyboardResizeSignal;
-  ImfVoidSignalType         mKeyboardLanguageChangedSignal;
+  ImfManagerSignalType       mActivatedSignal;
+  ImfEventSignalType         mEventSignal;
+  ImfStatusSignalType        mKeyboardStatusSignal;
+  ImfVoidSignalType          mKeyboardResizeSignal;
+  ImfVoidSignalType          mKeyboardLanguageChangedSignal;
+  ImfKeyboardTypeSignalType  mKeyboardTypeChangedSignal;
 
 public:
 

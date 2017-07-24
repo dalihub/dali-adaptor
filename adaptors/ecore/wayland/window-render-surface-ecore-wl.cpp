@@ -176,6 +176,11 @@ void WindowRenderSurface::RequestRotation( Dali::Window::WindowOrientation orien
   }
 }
 
+void WindowRenderSurface::SetTransparency( bool transparent )
+{
+  ecore_wl_window_alpha_set( mWlWindow, transparent );
+}
+
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );

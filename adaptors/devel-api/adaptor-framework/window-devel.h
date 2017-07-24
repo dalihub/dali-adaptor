@@ -344,6 +344,14 @@ DALI_IMPORT_API void SetPosition( Window window, WindowPosition position );
  */
 DALI_IMPORT_API WindowPosition GetPosition( Window window );
 
+/**
+ * @brief Sets whether the window is transparent or not.
+ *
+ * @param[in] window The window to set transparency
+ * @param[in] transparent Whether the window is transparent
+ */
+DALI_IMPORT_API void SetTransparency( Window window, bool transparent );
+
 } // namespace DevelWindow
 
 } // namespace Dali

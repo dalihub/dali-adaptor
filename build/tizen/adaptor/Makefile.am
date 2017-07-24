@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Samsung Electronics Co., Ltd.
+# Copyright (c) 2017 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,28 +40,15 @@ include ../../../adaptors/integration-api/file.list
 adaptor_common_dir = ../../../adaptors/common
 include ../../../adaptors/common/file.list
 
-if USE_EFL
 # ECore Common
 adaptor_ecore_common_dir = ../../../adaptors/ecore/common
 include ../../../adaptors/ecore/common/file.list
-else
-# If we're not using any EFL, then we need to use libuv mainloop
-# for the frame work
-adaptor_libuv_dir = ../../../adaptors/libuv
-include ../../../adaptors/libuv/file.list
-endif
 
 # Wayland
 if WAYLAND
-if USE_EFL
 ## Use ecore_wayland
 adaptor_ecore_wayland_dir = ../../../adaptors/ecore/wayland
 include ../../../adaptors/ecore/wayland/file.list
-else
-## Use wayland
-adaptor_wayland_dir = ../../../adaptors/wayland
-include ../../../adaptors/wayland/file.list
-endif
 else
 # X11
 adaptor_x11_dir = ../../../adaptors/x11
@@ -73,9 +60,14 @@ if UBUNTU_PROFILE
 adaptor_ubuntu_dir = ../../../adaptors/ubuntu
 include ../../../adaptors/ubuntu/file.list
 else
+
 # Tizen
 adaptor_tizen_dir = ../../../adaptors/tizen
+if USE_APPFW_EFL_BASE
+include ../../../adaptors/tizen/file-3.list
+else
 include ../../../adaptors/tizen/file.list
+endif
 endif
 
 # Mobile
@@ -114,16 +106,8 @@ package_doxy_dir = ../../../doc
 include ../../../doc/file.list
 
 ############# source files #############
-
-# FRAMEWORK FILES for adaptor
-# Either use ecore mainloop +  appcore / uiman
-# Or libuv main loop with no appcore / uimain
-if USE_EFL
 adaptor_internal_src_files = $(adaptor_tizen_framework_efl_src_files) \
                              $(adaptor_ecore_common_internal_src_files)
-else
-adaptor_internal_src_files = $(adaptor_tizen_framework_libuv_src_files)
-endif
 
 # COMMON
 if COMMON_PROFILE
@@ -273,17 +257,8 @@ endif # WAYLAND
 
 endif # IVI_PROFILE
 
-
-
-# Node JS support for using an external libuv main loop. If not enabled then just use e-core as normal
-# Used for things like callbacks, file-monintors, x input handling
-if LIB_UV_EVENT_LOOP
-main_loop_integration_src_files = $(adaptor_common_internal_uv_src_files)
-input_event_handler_src_files = $(adaptor_uv_x_event_handler_internal_src_files)
-else
 main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
 input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
-endif
 
 if ENABLE_VECTOR_BASED_TEXT_RENDERING
 adaptor_internal_src_files += $(static_libraries_glyphy_src_files)
@@ -431,21 +406,17 @@ libdali_adaptor_la_LIBADD = \
                       -lturbojpeg \
                       -ljpeg
 
-if USE_EFL
 # EVAS used indicator
 libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS) \
                                $(EVAS_CFLAGS) \
                                $(ECORE_CFLAGS) \
                                $(ECORE_IPC_CFLAGS) \
-                               $(ELDBUS_CFLAGS) \
-                               -DUSE_EFL
+                               $(ELDBUS_CFLAGS)
 
 
 libdali_adaptor_la_LIBADD += $(ELEMENTARY_LIBS) \
                              $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
-
-endif
 
 if USE_APPFW
 
@@ -460,8 +431,18 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(CAPI_SYSTEM_INFO_LIBS) \
                              $(TTS_LIBS) \
                              $(SENSOR_LIBS)
+if USE_APPFW_EFL_BASE
+else
+libdali_adaptor_la_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+                               $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(FRIBIDI_CFLAGS)
 
+libdali_adaptor_la_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+                             $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(FRIBIDI_LIBS)
 endif
+endif
+
 if WAYLAND
 # This is to avoid having to include wayland-egl.h everywhere
 libdali_adaptor_la_CXXFLAGS += -DWL_EGL_PLATFORM
@@ -494,9 +475,11 @@ if WEARABLE_PROFILE
 libdali_adaptor_la_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
+                      $(SCREENCONNECTORPROVIDER_CFLAGS) \
                       $(APPCORE_WATCH_CFLAGS)
 
 libdali_adaptor_la_LIBADD += \
+                      $(SCREENCONNECTORPROVIDER_LIBS) \
                       $(APPCORE_WATCH_LIBS)
 endif
 
@@ -586,12 +569,7 @@ packagedoxydir = $(devincludepath)/dali/doc
 packagedoxy_HEADERS = $(package_doxy_files)
 
 # linking test
-
-# turn off the linker test if were building for libuv
-# We can't link to LibUV becase it is statically linked to Node.JS (by default)
-if !LIB_UV_EVENT_LOOP
 noinst_PROGRAMS = linker.test
-endif # NOT LIB_UV_EVENT_LOOP
 
 linker_test_SOURCES = linker-test.cpp
 

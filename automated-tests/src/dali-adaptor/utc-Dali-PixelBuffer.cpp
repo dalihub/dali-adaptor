@@ -72,6 +72,61 @@ void Mask1stQuadrant( Devel::PixelBuffer maskData )
   }
 }
 
+void MaskCenterSquare( Devel::PixelBuffer maskData )
+{
+  int width = maskData.GetWidth();
+  int height = maskData.GetHeight();
+  Pixel::Format pixelFormat = maskData.GetPixelFormat();
+  int bpp = Pixel::GetBytesPerPixel(pixelFormat);
+
+  unsigned char* maskBuffer = maskData.GetBuffer();
+  memset( maskBuffer, 0, width*height*bpp );
+  int offset=0;
+  for( int y=0; y<height; ++y)
+  {
+    for( int x=0; x<width; ++x)
+    {
+      if(x>=width/4 && x<3*width/4 &&
+         y>=height/4 && y<3*height/4 )
+      {
+        for(int b=0;b<bpp;++b)
+        {
+          maskBuffer[offset+b] = 0xff;
+        }
+      }
+      offset+=bpp;
+    }
+  }
+}
+
+void AlternateQuadrants( Devel::PixelBuffer buffer )
+{
+  int width = buffer.GetWidth();
+  int height = buffer.GetHeight();
+  Pixel::Format pixelFormat = buffer.GetPixelFormat();
+  int bpp = Pixel::GetBytesPerPixel(pixelFormat);
+  int stride=width*bpp;
+
+  unsigned char* pixels = buffer.GetBuffer();
+  memset( pixels, 0, width*height*bpp );
+
+  for( int x=0; x<width; ++x)
+  {
+    for( int y=0; y<height; ++y)
+    {
+      if( ( x < width/2 && y >= height/2 ) ||
+          ( x >= width/2 && y < height/2 ) )
+      {
+        for(int b=0;b<bpp;++b)
+        {
+          pixels[y*stride+x*bpp+b] = 0xff;
+        }
+      }
+    }
+  }
+}
+
+
 void FillCheckerboard( Devel::PixelBuffer imageData )
 {
   int width = imageData.GetWidth();
@@ -121,6 +176,17 @@ void FillCheckerboard( Devel::PixelBuffer imageData )
       offset+=bpp;
     }
   }
+}
+
+int GetAlphaAt( Devel::PixelBuffer buffer, int x, int y )
+{
+  unsigned char* pixels = buffer.GetBuffer();
+  int bpp = Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
+  int stride = buffer.GetWidth() * bpp;
+  int byteOffset;
+  int bitMask;
+  GetAlphaOffsetAndMask( buffer.GetPixelFormat(), byteOffset, bitMask );
+  return int(pixels[stride * y + x*bpp + byteOffset])  & bitMask;
 }
 
 int UtcDaliPixelBufferNew01P(void)
@@ -243,7 +309,7 @@ int UtcDaliPixelBufferMask01(void)
   Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, pixelFormat );
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask( maskData );
+  imageData.ApplyMask( maskData, 1.0f, false );
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
@@ -281,7 +347,7 @@ int UtcDaliPixelBufferMask02(void)
   Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, pixelFormat );
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask( maskData );
+  imageData.ApplyMask( maskData, 1.0f, false );
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
@@ -316,7 +382,7 @@ int UtcDaliPixelBufferMask03(void)
   Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, format );
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask( maskData );
+  imageData.ApplyMask( maskData, 1.0f, false );
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
@@ -326,11 +392,11 @@ int UtcDaliPixelBufferMask03(void)
   DALI_TEST_EQUALS( buffer[3], 0x00u, TEST_LOCATION );
   DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
 
-  // Test that an odd pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[23], 0xffu, TEST_LOCATION );
+  // Test that an odd pixel in the fourth quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[(6*10+7)*4+3], 0xffu, TEST_LOCATION );
 
-  // Test that an even pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[27], 0xffu, TEST_LOCATION );
+  // Test that an even pixel in the fourth quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[(6*10+8)*4+3], 0xffu, TEST_LOCATION );
 
   END_TEST;
 }
@@ -351,7 +417,7 @@ int UtcDaliPixelBufferMask04(void)
   Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask( maskData );
+  imageData.ApplyMask( maskData, 1.0f, false );
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
@@ -377,7 +443,7 @@ int UtcDaliPixelBufferMask05(void)
 
   unsigned int width = 20u;
   unsigned int height = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::L8 );
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
   Mask1stQuadrant(maskData);
 
   width = 10u;
@@ -385,7 +451,7 @@ int UtcDaliPixelBufferMask05(void)
   Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask( maskData );
+  imageData.ApplyMask( maskData, 1.0f, false );
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
@@ -396,10 +462,258 @@ int UtcDaliPixelBufferMask05(void)
   DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
 
   // Test that an odd pixel in the second quadrant has full alpha value
-  DALI_TEST_EQUALS( buffer[23], 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[39], 0xffu, TEST_LOCATION );
 
   // Test that an even pixel in the second quadrant has no alpha value
   DALI_TEST_EQUALS( buffer[27], 0x00u, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMask06(void)
+{
+  TestApplication application;
+  tet_infoline("Test application of alpha mask to same size RGBA8888 image");
+
+  unsigned int width = 10u;
+  unsigned int height = 10u;
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  Mask1stQuadrant(maskData);
+
+  width = 10u;
+  height = 10u;
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  FillCheckerboard(imageData);
+
+  imageData.ApplyMask( maskData, 1.0f, false );
+
+  // Test that the pixel format has been promoted to RGBA8888
+  DALI_TEST_EQUALS( imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION );
+
+  // Test that a pixel in the first quadrant has no alpha value
+  unsigned char* buffer = imageData.GetBuffer();
+  DALI_TEST_EQUALS( buffer[3], 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[7], 0x00u, TEST_LOCATION );
+
+  // Test that an odd pixel in the second quadrant has full alpha value
+  DALI_TEST_EQUALS( buffer[39], 0xffu, TEST_LOCATION );
+
+  // Test that an even pixel in the second quadrant has no alpha value
+  DALI_TEST_EQUALS( buffer[27], 0x00u, TEST_LOCATION );
+
+  END_TEST;
+}
+
+
+int UtcDaliPixelBufferMask07(void)
+{
+  TestApplication application;
+  tet_infoline("Test scaling of source image to match alpha mask" );
+
+  unsigned int width = 20u;
+  unsigned int height = 20u;
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  MaskCenterSquare(maskData);
+
+  // +----------+
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // *----------+
+
+  width = 10u;
+  height = 10u;
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  AlternateQuadrants( imageData );
+
+  // +-----XXXXX+
+  // |     XXXXX|
+  // |     XXXXX|
+  // |XXXXX     |
+  // |XXXXX     |
+  // *XXXXX-----+
+
+  imageData.ApplyMask( maskData, 2.0f, true );
+
+  // +----------+
+  // |     XXX  |
+  // |     XXX  |
+  // |  XXX     |
+  // |  XXX     |
+  // *----------+
+
+  tet_infoline("Test that the image has been scaled to match the alpha mask" );
+  DALI_TEST_EQUALS( imageData.GetWidth(), 20, TEST_LOCATION );
+  DALI_TEST_EQUALS( imageData.GetHeight(), 20, TEST_LOCATION );
+
+  tet_infoline( "Test that pixels in the outer eighths have no alpha\n" );
+
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 0, 0), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 9, 4), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 15, 4), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 19, 4), 0x00u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 0, 19), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 8, 18), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 15,17), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 19,16), 0x00u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 0, 1), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 1, 7), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 2, 10), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 3, 19), 0x00u, TEST_LOCATION );
+
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 19, 1), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 7), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 17, 10), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 16, 19), 0x00u, TEST_LOCATION );
+
+  tet_infoline( "Test that pixels in the center have full alpha\n" );
+
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 12, 8), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData,  8, 12), 0xffu, TEST_LOCATION );
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMask08(void)
+{
+  TestApplication application;
+  tet_infoline("Test scaling of source image to larger than the alpha mask" );
+
+  unsigned int width = 32u;
+  unsigned int height = 20u;
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  AlternateQuadrants( maskData );
+
+  // +-----XXXXX+
+  // |     XXXXX|
+  // |     XXXXX|
+  // |XXXXX     |
+  // |XXXXX     |
+  // *XXXXX-----+
+
+  width = 20u;
+  height = 16u;
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  MaskCenterSquare(imageData);
+
+  // +----------+
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // *----------+
+
+  imageData.ApplyMask( maskData, 4.0f, true );
+
+  // +-----XXXXX+   quadrant
+  // |     XXXXX|    1    2
+  // |     XXXXX|
+  // |XXXXX     |    4    3
+  // |XXXXX     |
+  // *XXXXX-----+
+
+  tet_infoline("Test that the image has been scaled and cropped to match the alpha mask" );
+  DALI_TEST_EQUALS( imageData.GetWidth(), 32, TEST_LOCATION );
+  DALI_TEST_EQUALS( imageData.GetHeight(), 20, TEST_LOCATION );
+
+  tet_infoline( "Test that the image has been resized (the center square should now fill the image)\n");
+  tet_infoline( "Test that the first quadrant has no alpha");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 0, 0), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 5, 4), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 5, 8), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 14, 8), 0x00u, TEST_LOCATION );
+
+  tet_infoline( "Test that the second quadrant has alpha and data");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 0), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 30, 1), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 30, 8), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 19, 8), 0xffu, TEST_LOCATION );
+
+  tet_infoline( "Test that the third quadrant has no alpha");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 12), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 31, 12), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 31, 19), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 19), 0x00u, TEST_LOCATION );
+
+  tet_infoline( "Test that the fourth quadrant has alpha and data");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 1, 12), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 7, 12), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 7, 19), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 1, 19), 0xffu, TEST_LOCATION );
+
+  END_TEST;
+}
+
+
+int UtcDaliPixelBufferMask09(void)
+{
+  TestApplication application;
+  tet_infoline("Test scaling of large source image to larger than the alpha mask" );
+
+  unsigned int width = 32u;
+  unsigned int height = 20u;
+  Devel::PixelBuffer maskData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  AlternateQuadrants( maskData );
+
+  // +-----XXXXX+
+  // |     XXXXX|
+  // |     XXXXX|
+  // |XXXXX     |
+  // |XXXXX     |
+  // *XXXXX-----+
+
+  width = 40u;
+  height = 50u;
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( width, height, Pixel::RGBA8888 );
+  MaskCenterSquare(imageData);
+
+  // +----------+
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // |  XXXXXX  |
+  // *----------+
+
+  imageData.ApplyMask( maskData, 1.6f, true );
+
+  // +-----XXXXX+   quadrant
+  // |     XXXXX|    1    2
+  // |     XXXXX|
+  // |XXXXX     |    4    3
+  // |XXXXX     |
+  // *XXXXX-----+
+
+  tet_infoline("Test that the image has been scaled and cropped to match the alpha mask" );
+  DALI_TEST_EQUALS( imageData.GetWidth(), 32, TEST_LOCATION );
+  DALI_TEST_EQUALS( imageData.GetHeight(), 20, TEST_LOCATION );
+
+  tet_infoline( "Test that the image has been resized (the center square should now fill the image)\n");
+  tet_infoline( "Test that the first quadrant has no alpha");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 0, 0), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 5, 4), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 5, 8), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 14, 8), 0x00u, TEST_LOCATION );
+
+  tet_infoline( "Test that the second quadrant has alpha and data");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 0), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 30, 1), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 30, 8), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 19, 8), 0xffu, TEST_LOCATION );
+
+  tet_infoline( "Test that the third quadrant has no alpha");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 12), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 31, 12), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 31, 19), 0x00u, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 18, 19), 0x00u, TEST_LOCATION );
+
+  tet_infoline( "Test that the fourth quadrant has alpha and data");
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 1, 12), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 7, 12), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 7, 19), 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( GetAlphaAt(imageData, 1, 19), 0xffu, TEST_LOCATION );
 
   END_TEST;
 }

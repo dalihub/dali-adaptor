@@ -22,8 +22,6 @@
 #include <base/environment-options.h>
 #include <base/thread-controller-interface.h>
 #include <base/combined-update-render/combined-update-render-controller.h>
-#include <base/separate-update-render/separate-update-render-controller.h>
-#include <base/single-threaded/single-thread-controller.h>
 
 namespace Dali
 {
@@ -39,21 +37,9 @@ ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, 
 {
   switch( environmentOptions.GetThreadingMode() )
   {
-    case ThreadingMode::SEPARATE_UPDATE_RENDER:
-    {
-      mThreadControllerInterface = new SeparateUpdateRenderController( adaptorInterfaces, environmentOptions );
-      break;
-    }
-
     case ThreadingMode::COMBINED_UPDATE_RENDER:
     {
       mThreadControllerInterface = new CombinedUpdateRenderController( adaptorInterfaces, environmentOptions );
-      break;
-    }
-
-    case ThreadingMode::SINGLE_THREADED:
-    {
-      mThreadControllerInterface = new SingleThreadController( adaptorInterfaces, environmentOptions );
       break;
     }
   }

@@ -296,6 +296,11 @@ public:
   Dali::DevelWindow::WindowPosition GetPosition();
 
   /**
+   * @copydoc Dali::DevelWindow::SetTransparency()
+   */
+  void SetTransparency( bool transparent );
+
+  /**
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
