@@ -170,6 +170,11 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
 
+  if( mImpl->mThreadSynchronization )
+  {
+    mImpl->mThreadSynchronization->PostRenderStarted();
+  }
+
   if( tbm_surface_queue_can_acquire( mImpl->mTbmQueue, 1 ) )
   {
     if( tbm_surface_queue_acquire( mImpl->mTbmQueue, &mImpl->mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
@@ -194,6 +199,12 @@ void NativeRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
     // use notification trigger
     // Tell the event-thread to render the tbm_surface
     mImpl->mRenderNotification->Trigger();
+  }
+
+  if( mImpl->mThreadSynchronization )
+  {
+    // wait until the event-thread completed to use the tbm_surface
+    mImpl->mThreadSynchronization->PostRenderWaitForCompletion();
   }
 
   // release the consumed surface after post render was completed
@@ -247,8 +258,7 @@ void NativeRenderSurface::CreateNativeRenderable()
 
 void NativeRenderSurface::ReleaseLock()
 {
-  ConditionalWait::ScopedLock lock( mImpl->mTbmSurfaceCondition );
-  if( mImpl->mConsumeSurface )
+  if( mImpl->mThreadSynchronization )
   {
     mImpl->mThreadSynchronization->PostRenderComplete();
   }
