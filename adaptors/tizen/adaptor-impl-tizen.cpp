@@ -19,7 +19,7 @@
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#include <app_common.h>
+#include <app.h>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <screen_connector_provider.h>
 #include <ecore-wl-render-surface.h>

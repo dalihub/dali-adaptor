@@ -37,6 +37,7 @@ Requires:       giflib
 BuildRequires:  pkgconfig(libtzplatform-config)
 %endif
 
+
 # Get the profile from tizen_profile_name if tizen version is 2.x and tizen_profile_name exists.
 
 %if "%{tizen_version_major}" == "2" && 0%{?tizen_profile_name:1}
@@ -105,14 +106,7 @@ BuildRequires:  pkgconfig(utilX)
 # for dali-adaptor
 BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(elementary)
-
-%if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
-%else
-BuildRequires:  pkgconfig(appcore-ui)
-BuildRequires:  pkgconfig(capi-appfw-app-common)
-BuildRequires:  pkgconfig(capi-appfw-app-control)
-%endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
 # for feedback plugin
@@ -335,7 +329,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
-           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -376,7 +369,6 @@ make clean
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
-           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -416,7 +408,6 @@ make clean
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
-           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -456,7 +447,6 @@ make clean
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
-           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
@@ -497,7 +487,6 @@ make clean
 
 %configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
-           --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif

@@ -19,13 +19,12 @@
 #include "framework.h"
 
 // EXTERNAL INCLUDES
-#include <appcore_ui_base.h>
-#include <app_control_internal.h>
-#include <app_common.h>
+#include <app.h>
 #include <bundle.h>
 #include <Ecore.h>
 
 #include <system_info.h>
+#include <app_control_internal.h>
 #include <bundle_internal.h>
 
 // CONDITIONAL INCLUDES
@@ -61,90 +60,6 @@ Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New( Debug::N
 } // anonymous namespace
 #endif
 
-namespace AppCore
-{
-
-typedef enum
-{
-  LOW_MEMORY,                 //< The low memory event
-  LOW_BATTERY,                //< The low battery event
-  LANGUAGE_CHANGED,           //< The system language changed event
-  DEVICE_ORIENTATION_CHANGED, //< The device orientation changed event
-  REGION_FORMAT_CHANGED,      //< The region format changed event
-  SUSPENDED_STATE_CHANGED,    //< The suspended state changed event of the application
-  UPDATE_REQUESTED,           //< The update requested event. This event can occur when an app needs to be updated. It is dependent on target devices.
-} AppEventType;
-
-static int AppEventConverter[APPCORE_BASE_EVENT_MAX] =
-{
-  [LOW_MEMORY] = APPCORE_BASE_EVENT_LOW_MEMORY,
-  [LOW_BATTERY] = APPCORE_BASE_EVENT_LOW_BATTERY,
-  [LANGUAGE_CHANGED] = APPCORE_BASE_EVENT_LANG_CHANGE,
-  [DEVICE_ORIENTATION_CHANGED] = APPCORE_BASE_EVENT_DEVICE_ORIENTATION_CHANGED,
-  [REGION_FORMAT_CHANGED] = APPCORE_BASE_EVENT_REGION_CHANGE,
-  [SUSPENDED_STATE_CHANGED] = APPCORE_BASE_EVENT_SUSPENDED_STATE_CHANGE,
-};
-
-struct AppEventInfo
-{
-  AppEventType type;
-  void *value;
-};
-
-typedef struct AppEventInfo *AppEventInfoPtr;
-
-typedef void (*AppEventCallback)(AppEventInfoPtr eventInfo, void *userData);
-
-struct AppEventHandler
-{
-  AppEventType type;
-  AppEventCallback cb;
-  void *data;
-  void *raw;
-};
-
-typedef struct AppEventHandler *AppEventHandlerPtr;
-
-int EventCallback(void *event, void *data)
-{
-  AppEventHandlerPtr handler = static_cast<AppEventHandlerPtr>(data);
-
-  struct AppEventInfo appEvent;
-
-  appEvent.type = handler->type;
-  appEvent.value = event;
-
-  if (handler->cb)
-    handler->cb(&appEvent, handler->data);
-
-  return 0;
-}
-
-int AppAddEventHandler(AppEventHandlerPtr *eventHandler, AppEventType eventType, AppEventCallback callback, void *userData)
-{
-  AppEventHandlerPtr handler;
-
-  handler = static_cast<AppEventHandlerPtr>( calloc(1, sizeof(struct AppEventHandler)) );
-  if (!handler)
-  {
-    DALI_LOG_ERROR( "failed to create handler" );
-    return TIZEN_ERROR_UNKNOWN;
-  }
-  else
-  {
-    handler->type = eventType;
-    handler->cb = callback;
-    handler->data = userData;
-    handler->raw = appcore_base_add_event( static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
-
-    *eventHandler = handler;
-
-    return TIZEN_ERROR_NONE;
-  }
-}
-
-} // namespace Appcore
-
 /**
  * Impl to hide EFL data members
  */
@@ -153,7 +68,8 @@ struct Framework::Impl
 // Constructor
   Impl(void* data, Type type )
   : mAbortCallBack( NULL ),
-    mCallbackManager( NULL )
+    mCallbackManager( NULL ),
+    mEventCallback()
 #ifdef APPCORE_WATCH_AVAILABLE
     , mWatchCallback()
 #endif
@@ -214,46 +130,36 @@ struct Framework::Impl
   CallbackManager *mCallbackManager;
 
   Framework* mFramework;
-  AppCore::AppEventHandlerPtr handlers[5];
+  app_event_handler_h handlers[5];
+  ui_app_lifecycle_callback_s mEventCallback;
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
-  app_event_handler_h watchHandlers[5];
 #endif
 
-  static int AppCreate(void *data)
+  static bool AppCreate(void *data)
   {
-    appcore_ui_base_on_create();
-    return static_cast<int>( static_cast<Framework*>(data)->Create() );
+    return static_cast<Framework*>(data)->Create();
   }
 
-  static int AppTerminate(void *data)
+  static void AppTerminate(void *data)
   {
-    appcore_ui_base_on_terminate();
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
 
     observer->OnTerminate();
-
-    return 0;
   }
 
-  static int AppPause(void *data)
+  static void AppPause(void *data)
   {
-    appcore_ui_base_on_pause();
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
 
     observer->OnPause();
-
-    return 0;
   }
 
-  static int AppResume(void *data)
+  static void AppResume(void *data)
   {
-    appcore_ui_base_on_resume();
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
 
     observer->OnResume();
-
-    return 0;
   }
 
   static void ProcessBundle(Framework* framework, bundle *bundleData)
@@ -270,7 +176,7 @@ struct Framework::Impl
       framework->SetBundleName(bundleName);
     }
 
-    // get bundle? id
+    // get bundle id
     char* bundleId = const_cast<char*>(bundle_get_val(bundleData, "id"));
     if(bundleId != NULL)
     {
@@ -282,206 +188,7 @@ struct Framework::Impl
    * Called by AppCore when the application is launched from another module (e.g. homescreen).
    * @param[in] b the bundle data which the launcher module sent
    */
-  static int AppControl(bundle* bundleData, void *data)
-  {
-    app_control_h appControl = NULL;
-
-    appcore_ui_base_on_control(bundleData);
-
-    if (bundleData)
-    {
-      if (app_control_create_event(bundleData, &appControl) != TIZEN_ERROR_NONE)
-      {
-        DALI_LOG_ERROR("Failed to create an app_control handle");
-      }
-    }
-    else
-    {
-      if (app_control_create(&appControl) != TIZEN_ERROR_NONE)
-      {
-        DALI_LOG_ERROR("Failed to create an app_control handle");
-      }
-    }
-
-    Framework* framework = static_cast<Framework*>(data);
-    Observer *observer = &framework->mObserver;
-
-    ProcessBundle(framework, bundleData);
-
-    observer->OnReset();
-    observer->OnAppControl(appControl);
-
-    app_control_destroy(appControl);
-
-    return 0;
-  }
-
-  static int AppInit(int argc, char **argv, void *data)
-  {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-
-    ecore_init();
-    ecore_app_args_set( argc, (const char **)argv );
-
-#pragma GCC diagnostic pop
-    return 0;
-  }
-
-  static void AppFinish(void)
-  {
-    ecore_shutdown();
-
-    if(getenv("AUL_LOADER_INIT"))
-    {
-      unsetenv("AUL_LOADER_INIT");
-      ecore_shutdown();
-    }
-  }
-
-  static void AppRun(void *data)
-  {
-    ecore_main_loop_begin();
-  }
-
-  static void AppExit(void *data)
-  {
-    ecore_main_loop_quit();
-  }
-
-  static void AppLanguageChanged(AppCore::AppEventInfoPtr event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnLanguageChanged();
-  }
-
-  static void AppDeviceRotated(AppCore::AppEventInfoPtr event_info, void *data)
-  {
-  }
-
-  static void AppRegionChanged(AppCore::AppEventInfoPtr event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnRegionChanged();
-  }
-
-  static void AppBatteryLow(AppCore::AppEventInfoPtr event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnBatteryLow();
-  }
-
-  static void AppMemoryLow(AppCore::AppEventInfoPtr event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnMemoryLow();
-  }
-
-
-  int AppNormalMain()
-  {
-    int ret;
-
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::DEVICE_ORIENTATION_CHANGED], AppCore::DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
-
-    appcore_ui_base_ops ops = appcore_ui_base_get_default_ops();
-
-    /* override methods */
-    ops.base.create = AppCreate;
-    ops.base.control = AppControl;
-    ops.base.terminate = AppTerminate;
-    ops.pause = AppPause;
-    ops.resume = AppResume;
-    ops.base.init = AppInit;
-    ops.base.finish = AppFinish;
-    ops.base.run = AppRun;
-    ops.base.exit = AppExit;
-
-    ret = appcore_ui_base_init(ops, *mFramework->mArgc, *mFramework->mArgv, mFramework, APPCORE_UI_BASE_HINT_WINDOW_GROUP_CONTROL |
-                                                                                        APPCORE_UI_BASE_HINT_WINDOW_STACK_CONTROL |
-                                                                                        APPCORE_UI_BASE_HINT_BG_LAUNCH_CONTROL |
-                                                                                        APPCORE_UI_BASE_HINT_HW_ACC_CONTROL |
-                                                                                        APPCORE_UI_BASE_HINT_WINDOW_AUTO_CONTROL );
-
-    if (ret != TIZEN_ERROR_NONE)
-      return ret;
-
-    appcore_ui_base_fini();
-
-    return TIZEN_ERROR_NONE;
-  }
-
-  void AppNormalExit()
-  {
-    appcore_ui_base_exit();
-  }
-
-#ifdef APPCORE_WATCH_AVAILABLE
-  static bool WatchAppCreate(int width, int height, void *data)
-  {
-    return static_cast<Framework*>(data)->Create();
-  }
-
-  static void WatchAppTimeTick(watch_time_h time, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    WatchTime curTime(time);
-
-    observer->OnTimeTick(curTime);
-  }
-
-  static void WatchAppAmbientTick(watch_time_h time, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    WatchTime curTime(time);
-
-    observer->OnAmbientTick(curTime);
-  }
-
-  static void WatchAppAmbientChanged(bool ambient, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnAmbientChanged(ambient);
-  }
-
-  static void WatchAppLanguageChanged(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnLanguageChanged();
-  }
-
-  static void WatchAppRegionChanged(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnRegionChanged();
-  }
-
-  static void WatchAppBatteryLow(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnBatteryLow();
-  }
-
-  static void WatchAppMemoryLow(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnMemoryLow();
-  }
-
-  static void WatchAppControl(app_control_h app_control, void *data)
+  static void AppControl(app_control_h app_control, void *data)
   {
     Framework* framework = static_cast<Framework*>(data);
     Observer *observer = &framework->mObserver;
@@ -494,27 +201,60 @@ struct Framework::Impl
     observer->OnAppControl(app_control);
   }
 
-  static void WatchAppTerminate(void *data)
+  int AppNormalMain()
+  {
+    int ret;
+
+    mEventCallback.create = AppCreate;
+    mEventCallback.terminate = AppTerminate;
+    mEventCallback.pause = AppPause;
+    mEventCallback.resume = AppResume;
+    mEventCallback.app_control = AppControl;
+
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, AppBatteryLow, mFramework);
+    ui_app_add_event_handler(&handlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, AppMemoryLow, mFramework);
+    ui_app_add_event_handler(&handlers[APP_EVENT_DEVICE_ORIENTATION_CHANGED], APP_EVENT_DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, mFramework);
+    ui_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
+    ui_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
+
+    ret = ui_app_main(*mFramework->mArgc, *mFramework->mArgv, &mEventCallback, mFramework);
+
+    return ret;
+  }
+
+  void AppNormalExit()
+  {
+      ui_app_exit();
+  }
+
+#ifdef APPCORE_WATCH_AVAILABLE
+  static bool AppCreateWatch(int width, int height, void *data)
+  {
+    return static_cast<Framework*>(data)->Create();
+  }
+
+  static void AppTimeTick(watch_time_h time, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    WatchTime curTime(time);
+
+    observer->OnTimeTick(curTime);
+  }
+
+  static void AppAmbientTick(watch_time_h time, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    WatchTime curTime(time);
+
+    observer->OnAmbientTick(curTime);
+  }
+
+  static void AppAmbientChanged(bool ambient, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
 
-    observer->OnTerminate();
+    observer->OnAmbientChanged(ambient);
   }
-
-  static void WatchAppPause(void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnPause();
-  }
-
-  static void WatchAppResume(void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnResume();
-  }
-
 #endif
 
   int AppWatchMain()
@@ -522,19 +262,19 @@ struct Framework::Impl
     int ret = true;
 
 #ifdef APPCORE_WATCH_AVAILABLE
-    mWatchCallback.create = WatchAppCreate;
-    mWatchCallback.app_control = WatchAppControl;
-    mWatchCallback.terminate = WatchAppTerminate;
-    mWatchCallback.pause = WatchAppPause;
-    mWatchCallback.resume = WatchAppResume;
-    mWatchCallback.time_tick = WatchAppTimeTick;
-    mWatchCallback.ambient_tick = WatchAppAmbientTick;
-    mWatchCallback.ambient_changed = WatchAppAmbientChanged;
+    mWatchCallback.create = AppCreateWatch;
+    mWatchCallback.app_control = AppControl;
+    mWatchCallback.terminate = AppTerminate;
+    mWatchCallback.pause = AppPause;
+    mWatchCallback.resume = AppResume;
+    mWatchCallback.time_tick = AppTimeTick;
+    mWatchCallback.ambient_tick = AppAmbientTick;
+    mWatchCallback.ambient_changed = AppAmbientChanged;
 
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, WatchAppBatteryLow, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, WatchAppMemoryLow, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, WatchAppLanguageChanged, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, WatchAppRegionChanged, mFramework);
+    watch_app_add_event_handler(&handlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, AppBatteryLow, mFramework);
+    watch_app_add_event_handler(&handlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, AppMemoryLow, mFramework);
+    watch_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
+    watch_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
 
     ret = watch_app_main(*mFramework->mArgc, *mFramework->mArgv, &mWatchCallback, mFramework);
 #endif
@@ -548,6 +288,37 @@ struct Framework::Impl
 #endif
   }
 
+  static void AppLanguageChanged(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnLanguageChanged();
+  }
+
+  static void AppDeviceRotated(app_event_info_h event_info, void *data)
+  {
+  }
+
+  static void AppRegionChanged(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnRegionChanged();
+  }
+
+  static void AppBatteryLow(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnBatteryLow();
+  }
+
+  static void AppMemoryLow(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnMemoryLow();
+  }
 
 private:
   // Undefined
