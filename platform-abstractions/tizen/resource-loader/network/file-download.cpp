@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <curl/curl.h>
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include "portable/file-closer.h"
@@ -55,20 +56,20 @@ const long EXCLUDE_BODY = 1L;
 static Dali::TizenPlatform::Network::CurlEnvironment gCurlEnvironment;
 
 
-void ConfigureCurlOptions( CURL* curl_handle, const std::string& url )
+void ConfigureCurlOptions( CURL* curlHandle, const std::string& url )
 {
-  curl_easy_setopt( curl_handle, CURLOPT_URL, url.c_str() );
-  curl_easy_setopt( curl_handle, CURLOPT_VERBOSE, VERBOSE_MODE );
+  curl_easy_setopt( curlHandle, CURLOPT_URL, url.c_str() );
+  curl_easy_setopt( curlHandle, CURLOPT_VERBOSE, VERBOSE_MODE );
 
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
-  curl_easy_setopt( curl_handle, CURLOPT_FAILONERROR, CLOSE_CONNECTION_ON_ERROR );
-  curl_easy_setopt( curl_handle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
-  curl_easy_setopt( curl_handle, CURLOPT_HEADER, INCLUDE_HEADER );
-  curl_easy_setopt( curl_handle, CURLOPT_NOBODY, EXCLUDE_BODY );
+  curl_easy_setopt( curlHandle, CURLOPT_FAILONERROR, CLOSE_CONNECTION_ON_ERROR );
+  curl_easy_setopt( curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
+  curl_easy_setopt( curlHandle, CURLOPT_HEADER, INCLUDE_HEADER );
+  curl_easy_setopt( curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY );
 
 #ifdef TPK_CURL_ENABLED
   // Apply certificate pinning on Tizen
-  curl_easy_setopt( curl_handle, CURLOPT_SSL_CTX_FUNCTION, tpkp_curl_ssl_ctx_callback );
+  curl_easy_setopt( curlHandle, CURLOPT_SSL_CTX_FUNCTION, tpkp_curl_ssl_ctx_callback );
 #endif // TPK_CURL_ENABLED
 }
 
@@ -79,46 +80,26 @@ size_t DummyWrite(char *ptr, size_t size, size_t nmemb, void *userdata)
   return size * nmemb;
 }
 
-
-bool DownloadFile( CURL* curl_handle,
-                   const std::string& url,
-                   Dali::Vector<uint8_t>& dataBuffer,
-                   size_t& dataSize,
-                   size_t maximumAllowedSizeBytes )
+struct ChunkData
 {
-  CURLcode res( CURLE_OK );
-  double size(0);
+  std::vector< uint8_t > data;
+};
 
-  // setup curl to download just the header so we can extract the content length
-  ConfigureCurlOptions( curl_handle, url );
+size_t ChunkLoader(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+  std::vector<ChunkData>* chunks = static_cast<std::vector<ChunkData>*>( userdata );
+  int numBytes = size*nmemb;
+  chunks->push_back( ChunkData() );
+  ChunkData& chunkData = (*chunks)[chunks->size()-1];
+  chunkData.data.reserve( numBytes );
+  memcpy( &chunkData.data[0], ptr, numBytes );
+  return numBytes;
+}
 
-  curl_easy_setopt( curl_handle, CURLOPT_WRITEFUNCTION, DummyWrite);
 
-  // perform the request to get the header
-  res = curl_easy_perform( curl_handle );
-
-  if( res != CURLE_OK)
-  {
-    DALI_LOG_WARNING( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), res );
-    return false;
-  }
-
-  // get the content length, -1 == size is not known
-  curl_easy_getinfo( curl_handle,CURLINFO_CONTENT_LENGTH_DOWNLOAD , &size );
-
-  if( size < 1 )
-  {
-    DALI_LOG_WARNING( "Header missing content length \"%s\" \n", url.c_str() );
-    return false;
-  }
-  if( size >= maximumAllowedSizeBytes )
-  {
-    DALI_LOG_WARNING( "File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str() );
-    return false;
-  }
-
-  dataSize = static_cast<size_t>( size );
-
+CURLcode DownloadFileDataWithSize( CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize )
+{
+  CURLcode result( CURLE_OK );
   dataBuffer.Resize( dataSize );
 
   // create
@@ -127,21 +108,99 @@ bool DownloadFile( CURL* curl_handle,
   if( NULL != dataBufferFilePointer )
   {
     // we only want the body which contains the file data
-    curl_easy_setopt( curl_handle, CURLOPT_HEADER, EXCLUDE_HEADER );
-    curl_easy_setopt( curl_handle, CURLOPT_NOBODY, INCLUDE_BODY );
+    curl_easy_setopt( curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER );
+    curl_easy_setopt( curlHandle, CURLOPT_NOBODY, INCLUDE_BODY );
 
     // disable the write callback, and get curl to write directly into our data buffer
-    curl_easy_setopt( curl_handle, CURLOPT_WRITEFUNCTION, NULL );
-    curl_easy_setopt( curl_handle, CURLOPT_WRITEDATA, dataBufferFilePointer );
+    curl_easy_setopt( curlHandle, CURLOPT_WRITEFUNCTION, NULL );
+    curl_easy_setopt( curlHandle, CURLOPT_WRITEDATA, dataBufferFilePointer );
 
     // synchronous request of the body data
-    res = curl_easy_perform( curl_handle );
+    result = curl_easy_perform( curlHandle );
+  }
+  return result;
+}
 
-    if( CURLE_OK != res )
-    {
-      DALI_LOG_WARNING( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), res );
-      return false;
-    }
+CURLcode DownloadFileDataByChunk( CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize )
+{
+  // create
+  std::vector< ChunkData > chunks;
+
+  // we only want the body which contains the file data
+  curl_easy_setopt( curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER );
+  curl_easy_setopt( curlHandle, CURLOPT_NOBODY, INCLUDE_BODY );
+
+  // Enable the write callback.
+  curl_easy_setopt( curlHandle, CURLOPT_WRITEFUNCTION, ChunkLoader );
+  curl_easy_setopt( curlHandle, CURLOPT_WRITEDATA, &chunks );
+
+  // synchronous request of the body data
+  CURLcode result = curl_easy_perform( curlHandle );
+
+  // chunks should now contain all of the chunked data. Reassemble into a single vector
+  dataSize = 0;
+  for( size_t i=0; i<chunks.size() ; ++i )
+  {
+    dataSize += chunks[i].data.capacity();
+  }
+  dataBuffer.Resize(dataSize);
+
+  size_t offset = 0;
+  for( size_t i=0; i<chunks.size() ; ++i )
+  {
+    memcpy( &dataBuffer[offset], &chunks[i].data[0], chunks[i].data.capacity() );
+    offset += chunks[i].data.capacity();
+  }
+
+  return result;
+}
+
+bool DownloadFile( CURL* curlHandle,
+                   const std::string& url,
+                   Dali::Vector<uint8_t>& dataBuffer,
+                   size_t& dataSize,
+                   size_t maximumAllowedSizeBytes )
+{
+  CURLcode result( CURLE_OK );
+  double size(0);
+
+  // setup curl to download just the header so we can extract the content length
+  ConfigureCurlOptions( curlHandle, url );
+
+  curl_easy_setopt( curlHandle, CURLOPT_WRITEFUNCTION, DummyWrite);
+
+  // perform the request to get the header
+  result = curl_easy_perform( curlHandle );
+
+  if( result != CURLE_OK)
+  {
+    DALI_LOG_WARNING( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result );
+    return false;
+  }
+
+  // get the content length, -1 == size is not known
+  curl_easy_getinfo( curlHandle,CURLINFO_CONTENT_LENGTH_DOWNLOAD , &size );
+
+
+  if( size >= maximumAllowedSizeBytes )
+  {
+    DALI_LOG_WARNING( "File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str() );
+    return false;
+  }
+  else if( size > 0 )
+  {
+    dataSize = static_cast<size_t>( size );
+    result = DownloadFileDataWithSize( curlHandle, dataBuffer, dataSize );
+  }
+  else
+  {
+    result = DownloadFileDataByChunk( curlHandle, dataBuffer, dataSize );
+  }
+
+  if( result != CURLE_OK )
+  {
+    DALI_LOG_WARNING( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), result );
+    return false;
   }
   return true;
 }
@@ -180,12 +239,12 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
   // start a libcurl easy session, this internally calls curl_global_init, if we ever have more than one download
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
-  CURL* curl_handle = curl_easy_init();
+  CURL* curlHandle = curl_easy_init();
 
-  bool result = DownloadFile( curl_handle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
+  bool result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
 
   // clean up session
-  curl_easy_cleanup( curl_handle );
+  curl_easy_cleanup( curlHandle );
 
 #ifdef TPK_CURL_ENABLED
   // Clean up tpkp(the module for certificate pinning) resources on Tizen
