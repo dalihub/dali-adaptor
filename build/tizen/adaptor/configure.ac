@@ -245,17 +245,13 @@ fi
 fi # ubuntu profile test
 
 if test "x$enable_appfw" = "xyes"; then
-DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DWIDGET_AVAILABLE"
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
 if test "x$enable_tizen_major_version" = "x3"; then
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 else
-PKG_CHECK_MODULES(CAPI_AUL, aul)
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, appcore-ui)
-PKG_CHECK_MODULES(CAPI_APPFW_WIDGET_APPLICATION, appcore-multiwindow)
 PKG_CHECK_MODULES(CAPI_APPFW_COMMON, capi-appfw-app-common)
 PKG_CHECK_MODULES(CAPI_APPFW_CONTROL, capi-appfw-app-control)
-PKG_CHECK_MODULES(CAPI_SCREEN_CONNECTOR_PROVIDER, screen_connector_provider)
 fi
 fi
 

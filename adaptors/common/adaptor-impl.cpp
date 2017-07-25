@@ -85,6 +85,7 @@ Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Con
 Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Any winId = window.GetNativeHandle();
+
   Window& windowImpl = Dali::GetImplementation(window);
   Dali::Adaptor* adaptor = New( winId, windowImpl.GetSurface(), configuration, environmentOptions );
   windowImpl.SetAdaptor(*adaptor);
