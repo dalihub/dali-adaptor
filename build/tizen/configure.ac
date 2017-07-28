@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Samsung Electronics Co., Ltd.
+# Copyright (c) 2017 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,13 +18,6 @@ m4_define([dali_version],[0.1.0])
 AC_INIT([dali], [dali_version])
 AM_INIT_AUTOMAKE([-Wall foreign])
 
-AC_ARG_WITH([libuv],
-              [AC_HELP_STRING([--with-libuv],
-                              [Path that contains libuv headers. Setting this configures DALi to work with LibUV mainloop used in Node.JS.
-                              For example /usr/tmp/downloads/node/deps/uv/include/ ])],
-              [with_libuv=$withval],
-              [with_libuv=no])
-
 AC_ARG_ENABLE([feedback],
               [AC_HELP_STRING([ --enable-feedback],
                               [Enable feedback plugin])],
@@ -38,13 +31,9 @@ AC_ARG_ENABLE([videoplayer],
               [enable_videoplayer=no])
 
 AC_CONFIG_SUBDIRS(adaptor)
-if test "x$with_libuv" != "xno"; then
-  # build dali-adaptor & dali-adaptor-uv
-  AC_CONFIG_SUBDIRS(adaptor-uv)
-fi
 
 if test "x$enable_feedback" = "xyes" || test "x$enable_videoplayer" = "xyes"; then
-  # build dali-adaptor & dali-adaptor-uv & plugins
+  # build dali-adaptor & plugins
   AC_CONFIG_SUBDIRS(plugins)
 fi
 #else

@@ -63,7 +63,6 @@ static void MediaPacketVideoDecodedCb( media_packet_h packet, void* user_data )
   player->PushPacket( packet );
 }
 
-
 static void EmitPlaybackFinishedSignal( void* user_data )
 {
   TizenVideoPlayer* player = static_cast< TizenVideoPlayer* >( user_data );
@@ -84,6 +83,12 @@ static void EmitPlaybackFinishedSignal( void* user_data )
   }
 
   player->Stop();
+}
+
+// ToDo: VD player_set_play_position() doesn't work when callback pointer is NULL.
+// We should check whether this callback is needed in platform.
+static void PlayerSeekCompletedCb( void* data )
+{
 }
 
 void LogPlayerError( int error )
@@ -437,7 +442,7 @@ void TizenVideoPlayer::SetPlayPosition( int millisecond )
       mPlayerState == PLAYER_STATE_PAUSED
   )
   {
-    error = player_set_play_position( mPlayer, millisecond, true, NULL, NULL );
+    error = player_set_play_position( mPlayer, millisecond, false, PlayerSeekCompletedCb, NULL );
     LogPlayerError( error );
   }
 }
@@ -697,7 +702,7 @@ void TizenVideoPlayer::Forward( int millisecond )
 
     nextPosition = currentPosition + millisecond;
 
-    error = player_set_play_position( mPlayer, nextPosition, true, NULL, NULL );
+    error = player_set_play_position( mPlayer, nextPosition, false, PlayerSeekCompletedCb, NULL );
     LogPlayerError( error );
   }
 }
@@ -722,7 +727,7 @@ void TizenVideoPlayer::Backward( int millisecond )
     nextPosition = currentPosition - millisecond;
     nextPosition = ( nextPosition < 0 )? 0 : nextPosition;
 
-    error = player_set_play_position( mPlayer, nextPosition, true, NULL, NULL );
+    error = player_set_play_position( mPlayer, nextPosition, false, PlayerSeekCompletedCb, NULL );
     LogPlayerError( error );
   }
 }

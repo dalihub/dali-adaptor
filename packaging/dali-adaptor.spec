@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.49
+Version:    1.2.50
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -75,11 +75,6 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
-# Tizen currently does not have libuv as a separate libuv package
-# So we have to look into the uv headers bundled inside node-js
-BuildRequires:  nodejs-devel
-
-
 %if %{with wayland}
 
 ####### BUILDING FOR WAYLAND #######
@@ -87,9 +82,6 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
-
-# dali-adaptor-uv uses libuv mainloop and has its own wayland client (it needs wayland-client headers).
-BuildRequires:  libxkbcommon-devel
 
 # dali-adaptor uses ecore mainloop
 BuildRequires:  pkgconfig(ecore-wayland)
@@ -335,11 +327,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 # Default to GLES 2.0 if not specified.
 %{!?target_gles_version: %define target_gles_version 20}
 
-#--enable-efl=no \ # only affects dali-adaptor-uv
-#--enable-appfw=yes \ # affects both dali-adaptor & dali-adaptor-uv
-#--with-libuv=/usr/include/node/ \ # only affects dali-adaptor-uv
-
-
 # Set up the build via configure.
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -364,7 +351,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -403,7 +389,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -442,7 +427,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -481,7 +465,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -521,7 +504,6 @@ popd
            --enable-debug \
 %endif
            --enable-appfw=yes \
-           --with-libuv=/usr/include/node/ \
            $configure_flags --libdir=%{_libdir}
 
 # Build.
@@ -757,7 +739,6 @@ exit 0
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
 %{_libdir}/pkgconfig/dali-adaptor.pc
-%{_libdir}/pkgconfig/dali-adaptor-uv.pc
 
 %files integration-devel
 %defattr(-,root,root,-)

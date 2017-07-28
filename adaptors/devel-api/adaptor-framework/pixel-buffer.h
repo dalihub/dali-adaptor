@@ -153,14 +153,22 @@ public:
   Pixel::Format GetPixelFormat() const;
 
   /**
-   * Apply the mask to this pixel data, and return a new pixel data
-   * containing the masked image. If this PixelBuffer doesn't have an alpha channel,
-   * then the resultant PixelBuffer will be converted to a format that
-   * supports at least the width of the color channels and the alpha channel
-   * from the mask.
+   * Apply the mask to this pixel data, and return a new pixel data containing
+   * the masked image. If this PixelBuffer doesn't have an alpha channel, then
+   * the resultant PixelBuffer will be converted to a format that supports at
+   * least the width of the color channels and the alpha channel from the mask.
+   *
+   * If cropToMask is set to true, then the contentScale is applied first to
+   * this buffer, and the target buffer is cropped to the size of the mask. If
+   * it's set to false, then the mask is scaled to match this buffer's size
+   * before the mask is applied.
+   *
    * @param[in] mask The mask to apply.
+   * @param[in] contentScale The scaling factor to apply to the content
+   * @param[in] cropToMask Whether to crop the output to the mask size (true)
+   * or scale the mask to the content size (false)
    */
-  void ApplyMask( PixelBuffer mask );
+  void ApplyMask( PixelBuffer mask, float contentScale=1.0f, bool cropToMask=false );
 
 public:
 

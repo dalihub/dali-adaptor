@@ -99,3 +99,17 @@ int UtcDaliDownloadImageN(void)
 
   END_TEST;
 }
+
+
+int UtcDaliDownloadRemoteChunkedImage(void)
+{
+  std::string url("http://d2k43l0oslhof9.cloudfront.net/platform/image/contents/vc/20/01/58/20170629100630071189_0bf6b911-a847-cba4-e518-be40fe2f579420170629192203240.jpg");
+
+  Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously( url );
+  DALI_TEST_CHECK( pixelBuffer );
+  DALI_TEST_EQUALS( pixelBuffer.GetWidth(), 279u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetHeight(), 156u, TEST_LOCATION );
+  DALI_TEST_EQUALS( pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION  );
+
+  END_TEST;
+}
