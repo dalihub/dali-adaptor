@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,21 +57,18 @@ ObjectProfiler::~ObjectProfiler()
 
 void ObjectProfiler::DisplayInstanceCounts()
 {
-  InstanceCountMapIterator iter = mInstanceCountMap.begin();
-  InstanceCountMapIterator end = mInstanceCountMap.end();
-
-  for( ; iter != end; iter++ )
+  for( auto&& element : mInstanceCountContainer )
   {
-    int memorySize = GetMemorySize(iter->first, iter->second);
+    int memorySize = GetMemorySize( element.first, element.second );
     if( memorySize > 0 )
     {
       LogMessage( Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n",
-                  iter->first.c_str(), iter->second, memorySize / 1024.0f );
+                  element.first.c_str(), element.second, memorySize / 1024.0f );
     }
     else
     {
       LogMessage( Debug::DebugInfo, "%-30s: % 4d\n",
-                  iter->first.c_str(), iter->second );
+                  element.first.c_str(), element.second );
     }
   }
   LogMessage(Debug::DebugInfo, "\n");
@@ -94,15 +91,19 @@ void ObjectProfiler::OnObjectCreated(BaseHandle handle)
 
   mInstanceTypes.push_back(InstanceTypePair(&handle.GetBaseObject(), theType));
 
-  InstanceCountMapIterator iter = mInstanceCountMap.find(theType);
-  if( iter == mInstanceCountMap.end() )
+  bool found = false;
+  for( auto&& element : mInstanceCountContainer )
   {
-    InstanceCountPair instanceCount(theType, 1);
-    mInstanceCountMap.insert(instanceCount);
+    if( element.first == theType )
+    {
+      element.second++;
+      found = true;
+    }
   }
-  else
+  if( !found )
   {
-    iter->second++;
+    InstanceCountPair instanceCount( theType, 1 );
+    mInstanceCountContainer.emplace_back( instanceCount );
   }
 }
 
@@ -110,22 +111,25 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
 {
   const BaseObject* baseObject = static_cast<const BaseObject*>(object);
 
-  InstanceTypes::iterator end = mInstanceTypes.end();
-  for( InstanceTypes::iterator iter = mInstanceTypes.begin(); iter != end; iter++)
+  const auto end = mInstanceTypes.end();
+  for( auto iter = mInstanceTypes.begin(); iter != end; ++iter )
   {
     if( iter->first == baseObject )
     {
-      const std::string& theType = iter->second;
+      const auto& theType = iter->second;
       if( !theType.empty() )
       {
-        InstanceCountMapIterator countIter = mInstanceCountMap.find(theType);
-        if( countIter != mInstanceCountMap.end() )
+        auto&& countIter = std::find_if( mInstanceCountContainer.begin(),
+                                         mInstanceCountContainer.end(),
+                                         [theType] ( const InstanceCountPair& instance )
+                                                   { return instance.first == theType; } );
+        if( countIter != mInstanceCountContainer.end() )
         {
-          countIter->second--;
+          (*countIter).second--;
         }
       }
       mInstanceTypes.erase( iter );
-      break;
+      return;
     }
   }
 }
