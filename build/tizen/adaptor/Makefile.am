@@ -90,6 +90,9 @@ include ../../../adaptors/public-api/file.list
 adaptor_devel_api_dir = ../../../adaptors/devel-api
 include ../../../adaptors/devel-api/file.list
 
+# Widget API
+adaptor_widget_api_dir = ../../../adaptors/widget
+include ../../../adaptors/widget/file.list
 
 # Static libraries
 static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
@@ -257,6 +260,13 @@ endif # WAYLAND
 
 endif # IVI_PROFILE
 
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else # over Tizen 3.0
+adaptor_internal_src_files += $(adaptor_internal_widget_src_files)
+endif
+endif
+
 main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
 input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
 
@@ -285,6 +295,14 @@ libdali_adaptor_la_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 libdali_adaptor_la_SOURCES += \
   $(base_adaptor_networking_src_files)
+endif
+
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else # over Tizen 3.0
+libdali_adaptor_la_SOURCES += \
+                     $(adaptor_widget_src_files)
+endif
 endif
 
 libdali_adaptor_la_DEPENDENCIES =
@@ -335,6 +353,15 @@ libdali_adaptor_la_includes += \
 else
 libdali_adaptor_la_includes += \
                       -I../../../adaptors/tizen
+endif
+
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else # over Tizen 3.0
+libdali_adaptor_la_includes += \
+                      -I../../../adaptors/widget \
+                      -I../../../adaptors/widget/internal
+endif
 endif
 
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
@@ -433,12 +460,18 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(SENSOR_LIBS)
 if USE_APPFW_EFL_BASE
 else
-libdali_adaptor_la_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += $(CAPI_AUL_CFLAGS) \
+                               $(CAPI_APPFW_COMMON_CFLAGS) \
+                               $(CAPI_APPFW_WIDGET_APPLICATION_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(CAPI_SCREEN_CONNECTOR_PROVIDER_CFLAGS) \
                                $(FRIBIDI_CFLAGS)
 
-libdali_adaptor_la_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+libdali_adaptor_la_LIBADD += $(CAPI_AUL_LIBS) \
+                             $(CAPI_APPFW_COMMON_LIBS) \
+                             $(CAPI_APPFW_WIDGET_APPLICATION_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(CAPI_SCREEN_CONNECTOR_PROVIDER_LIBS) \
                              $(FRIBIDI_LIBS)
 endif
 endif
@@ -557,6 +590,14 @@ tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
+
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else # over Tizen 3.0
+tizenwidgetdevelapidir = $(tizenadaptordevelapidir)/widget
+tizenwidgetdevelapi_HEADERS = $(adaptor_widget_header_files)
+endif
+endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
