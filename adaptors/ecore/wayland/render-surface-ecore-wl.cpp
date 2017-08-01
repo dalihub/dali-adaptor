@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,11 @@ EcoreWlRenderSurface::EcoreWlRenderSurface(Dali::PositionSize positionSize,
                                            Any surface,
                                            const std::string& name,
                                            bool isTransparent)
-: mPositionSize( positionSize ),
-  mTitle( name ),
-  mRenderNotification( NULL ),
-  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
-  mOwnSurface( false )
+: mPosition(positionSize),
+  mTitle(name),
+  mRenderNotification(NULL),
+  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
+  mOwnSurface(false)
 {
 }
 
@@ -102,7 +102,7 @@ Ecore_Wl_Window* EcoreWlRenderSurface::GetDrawable()
 
 PositionSize EcoreWlRenderSurface::GetPositionSize() const
 {
-  return mPositionSize;
+  return mPosition;
 }
 
 void EcoreWlRenderSurface::MoveResize( Dali::PositionSize positionSize )

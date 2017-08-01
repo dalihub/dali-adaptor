@@ -27,6 +27,7 @@
 // INTERNAL INCLUDES
 #include <wl-types.h>
 #include <gl/egl-implementation.h>
+#include <base/display-connection.h>
 #include <adaptors/common/adaptor-impl.h>
 #include <integration-api/trigger-event-factory-interface.h>
 
@@ -44,6 +45,7 @@ namespace
 {
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
+const char* WAYLAND_EGL_SO( "libwayland-egl.so" );
 
 } // unnamed namespace
 
@@ -52,17 +54,16 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           const std::string& name,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
+  mEglWinGetCapabilitiesPtr( NULL ),
+  mEglWinSetRotationPtr( NULL ),
+  mLibHandle( NULL ),
   mWlWindow( NULL ),
   mWlSurface( NULL ),
   mEglWindow( NULL ),
   mThreadSynchronization( NULL ),
   mRotationTrigger( NULL ),
-  mRotationAngle( 0 ),
-  mScreenRotationAngle( 0 ),
   mRotationSupported( false ),
-  mRotationFinished( true ),
-  mScreenRotationFinished( true ),
-  mResizeFinished( true )
+  mRotated( false )
 {
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Init( surface );
@@ -86,6 +87,10 @@ WindowRenderSurface::~WindowRenderSurface()
     delete mRotationTrigger;
   }
 
+  if( mLibHandle != NULL )
+  {
+    dlclose( mLibHandle );
+  }
 }
 
 Ecore_Wl_Window* WindowRenderSurface::GetDrawable()
@@ -105,7 +110,7 @@ Ecore_Wl_Window* WindowRenderSurface::GetWlWindow()
   return mWlWindow;
 }
 
-void WindowRenderSurface::RequestRotation( int angle, int width, int height )
+void WindowRenderSurface::RequestRotation( Dali::Window::WindowOrientation orientation, int width, int height )
 {
   if( !mRotationSupported )
   {
@@ -113,42 +118,62 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
     return;
   }
 
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: orientation = %d\n", orientation );
+
   if( !mRotationTrigger )
   {
     TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
     mRotationTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
   }
 
-  mPositionSize.width = width;
-  mPositionSize.height = height;
+  mPosition.width = width;
+  mPosition.height = height;
 
-  mRotationAngle = angle;
-  mRotationFinished = false;
+  mRotated = true;
 
-  ecore_wl_window_rotation_set( mWlWindow, mRotationAngle );
+  int angle;
+  wl_egl_window_rotation rotation;
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
-}
-
-void WindowRenderSurface::OutputTransformed()
-{
-  int transform;
-
-  if( ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
+  switch( orientation )
   {
-    transform = 0;
+    case Dali::Window::PORTRAIT:
+    {
+      angle = 0;
+      rotation = ROTATION_0;
+      break;
+    }
+    case Dali::Window::LANDSCAPE:
+    {
+      angle = 90;
+      rotation = ROTATION_270;
+      break;
+    }
+    case Dali::Window::PORTRAIT_INVERSE:
+    {
+      angle = 180;
+      rotation = ROTATION_180;
+      break;
+    }
+    case Dali::Window::LANDSCAPE_INVERSE:
+    {
+      angle = 270;
+      rotation = ROTATION_90;
+      break;
+    }
+    default:
+    {
+      angle = 0;
+      rotation = ROTATION_0;
+      break;
+    }
   }
-  else
+
+  ecore_wl_window_rotation_set( mWlWindow, angle );
+
+  if( mEglWinSetRotationPtr )
   {
-    transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mWlWindow ) );
+    mEglWinSetRotationPtr( mEglWindow, rotation );
   }
-
-  ecore_wl_window_buffer_transform_set( mWlWindow, transform );
-
-  mScreenRotationAngle = transform * 90;
-  mScreenRotationFinished = false;
-
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
 }
 
 void WindowRenderSurface::SetTransparency( bool transparent )
@@ -171,28 +196,57 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
-  // create the EGL window
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  // Temporary code for opaque window. We have to modify it after wayland team finish the work.
+  if( mColorDepth == COLOR_DEPTH_32 )
   {
-    mEglWindow = wl_egl_window_create( mWlSurface, mPositionSize.width, mPositionSize.height );
+    ecore_wl_window_alpha_set( mWlWindow, true );
   }
   else
   {
-    mEglWindow = wl_egl_window_create( mWlSurface, mPositionSize.height, mPositionSize.width );
+    ecore_wl_window_alpha_set( mWlWindow, false );
   }
 
+  // create the EGL window
+  mEglWindow = wl_egl_window_create( mWlSurface, mPosition.width, mPosition.height );
   EGLNativeWindowType windowType( mEglWindow );
   eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
 
   // Check capability
-  wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
-  if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
+  if( !mLibHandle )
   {
-    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
-    mRotationSupported = true;
+    mLibHandle = dlopen( WAYLAND_EGL_SO, RTLD_LAZY );
+
+    char* error = dlerror();
+    if( mLibHandle == NULL || error != NULL )
+    {
+      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: dlopen error: %s\n", error );
+      return;
+    }
+
+    mEglWinGetCapabilitiesPtr = reinterpret_cast< EglWinGetCapabilitiesFunction >( dlsym( mLibHandle, "wl_egl_window_get_capabilities" ) );
+    if( !mEglWinGetCapabilitiesPtr )
+    {
+      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: Can't load wl_egl_window_get_capabilities\n" );
+      return;
+    }
+
+    mEglWinSetRotationPtr = reinterpret_cast< EglWinSetRotationFunction >( dlsym( mLibHandle, "wl_egl_window_set_rotation" ) );
+    if( !mEglWinSetRotationPtr )
+    {
+      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: Can't load wl_egl_window_set_rotation\n" );
+      return;
+    }
   }
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+  if( mEglWinGetCapabilitiesPtr )
+  {
+    wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( mEglWinGetCapabilitiesPtr( mEglWindow ) );
+    if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
+    {
+      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
+      mRotationSupported = true;
+    }
+  }
 }
 
 void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
@@ -219,17 +273,17 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
     mEglWindow = NULL;
   }
 
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  // Temporary code for opaque window. We have to modify it after wayland team finish the work.
+  if( mColorDepth == COLOR_DEPTH_32 )
   {
-    mEglWindow = wl_egl_window_create( mWlSurface, mPositionSize.width, mPositionSize.height );
+    ecore_wl_window_alpha_set( mWlWindow, true );
   }
   else
   {
-    mEglWindow = wl_egl_window_create( mWlSurface, mPositionSize.height, mPositionSize.width );
+    ecore_wl_window_alpha_set( mWlWindow, false );
   }
 
-  // Set screen rotation
-  mScreenRotationFinished = false;
+  mEglWindow = wl_egl_window_create( mWlSurface, mPosition.width, mPosition.height );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   EGLNativeWindowType windowType( mEglWindow );
@@ -242,32 +296,33 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
   bool needToResize = false;
 
   // check moving
-  if( (fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
-      (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE) )
+  if( (fabs(positionSize.x - mPosition.x) > MINIMUM_DIMENSION_CHANGE) ||
+      (fabs(positionSize.y - mPosition.y) > MINIMUM_DIMENSION_CHANGE) )
   {
     needToMove = true;
   }
 
   // check resizing
-  if( (fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
-      (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE) )
+  if( (fabs(positionSize.width - mPosition.width) > MINIMUM_DIMENSION_CHANGE) ||
+      (fabs(positionSize.height - mPosition.height) > MINIMUM_DIMENSION_CHANGE) )
   {
     needToResize = true;
   }
 
-  if( needToMove )
+  if(needToMove)
   {
     ecore_wl_window_position_set( mWlWindow, positionSize.x, positionSize.y );
   }
-  if( needToResize )
+  if (needToResize)
   {
     ecore_wl_window_update_size( mWlWindow, positionSize.width, positionSize.height );
-    mResizeFinished = false;
   }
 
-  mPositionSize = positionSize;
+  mPosition = positionSize;
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
+  wl_egl_window_resize( mEglWindow, mPosition.width, mPosition.height, mPosition.x, mPosition.y );
+
+  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPosition.x, mPosition.y, mPosition.width, mPosition.height );
 }
 
 void WindowRenderSurface::Map()
@@ -279,118 +334,23 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
+bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
-  if( resizingSurface )
-  {
-#ifdef OVER_TIZEN_VERSION_4
-    // Window rotate or screen rotate
-    if( !mRotationFinished || !mScreenRotationFinished )
-    {
-      wl_egl_window_rotation rotation;
-      wl_output_transform bufferTransform;
-      int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
-
-      switch( totalAngle )
-      {
-        case 0:
-        {
-          rotation = ROTATION_0;
-          bufferTransform = WL_OUTPUT_TRANSFORM_NORMAL;
-          break;
-        }
-        case 90:
-        {
-          rotation = ROTATION_270;
-          bufferTransform = WL_OUTPUT_TRANSFORM_90;
-          break;
-        }
-        case 180:
-        {
-          rotation = ROTATION_180;
-          bufferTransform = WL_OUTPUT_TRANSFORM_180;
-          break;
-        }
-        case 270:
-        {
-          rotation = ROTATION_90;
-          bufferTransform = WL_OUTPUT_TRANSFORM_270;
-          break;
-        }
-        default:
-        {
-          rotation = ROTATION_0;
-          bufferTransform = WL_OUTPUT_TRANSFORM_NORMAL;
-          break;
-        }
-      }
-
-      wl_egl_window_set_rotation( mEglWindow, rotation );
-
-      wl_egl_window_set_buffer_transform( mEglWindow, bufferTransform );
-
-      // Reset only screen rotation flag
-      mScreenRotationFinished = true;
-
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
-    }
-
-    // Only window rotate
-    if( !mRotationFinished )
-    {
-      wl_output_transform windowTransform;
-
-      switch( mRotationAngle )
-      {
-        case 0:
-        {
-          windowTransform = WL_OUTPUT_TRANSFORM_NORMAL;
-          break;
-        }
-        case 90:
-        {
-          windowTransform = WL_OUTPUT_TRANSFORM_90;
-          break;
-        }
-        case 180:
-        {
-          windowTransform = WL_OUTPUT_TRANSFORM_180;
-          break;
-        }
-        case 270:
-        {
-          windowTransform = WL_OUTPUT_TRANSFORM_270;
-          break;
-        }
-        default:
-        {
-          windowTransform = WL_OUTPUT_TRANSFORM_NORMAL;
-          break;
-        }
-      }
-
-      wl_egl_window_set_window_transform( mEglWindow, windowTransform );
-    }
-#endif
-
-    // Resize case
-    if( !mResizeFinished )
-    {
-      wl_egl_window_resize( mEglWindow, mPositionSize.width, mPositionSize.height, mPositionSize.x, mPositionSize.y );
-      mResizeFinished = true;
-
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
-    }
-  }
-
+  // nothing to do for windows
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
 {
-  if( resizingSurface )
+  if( mRotated )
   {
-    if( !mRotationFinished )
+    // Check viewport size
+    Dali::Vector< GLint > viewportSize;
+    viewportSize.Resize( 4 );
+
+    glAbstraction.GetIntegerv( GL_VIEWPORT, &viewportSize[0] );
+
+    if( viewportSize[2] == mPosition.width && viewportSize[3] == mPosition.height )
     {
       DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
 
@@ -425,16 +385,16 @@ void WindowRenderSurface::SetViewMode( ViewMode viewMode )
 void WindowRenderSurface::CreateWlRenderable()
 {
    // if width or height are zero, go full screen.
-  if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
+  if ( (mPosition.width == 0) || (mPosition.height == 0) )
   {
     // Default window size == screen size
-    mPositionSize.x = 0;
-    mPositionSize.y = 0;
+    mPosition.x = 0;
+    mPosition.y = 0;
 
-    ecore_wl_screen_size_get( &mPositionSize.width, &mPositionSize.height );
+    ecore_wl_screen_size_get( &mPosition.width, &mPosition.height );
   }
 
-  mWlWindow = ecore_wl_window_new( 0, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW );
+  mWlWindow = ecore_wl_window_new( 0, mPosition.x, mPosition.y, mPosition.width, mPosition.height, ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW );
 
   if ( mWlWindow == 0 )
   {
@@ -442,27 +402,6 @@ void WindowRenderSurface::CreateWlRenderable()
   }
 
   mWlSurface = ecore_wl_window_surface_create( mWlWindow );
-
-  if( mColorDepth == COLOR_DEPTH_32 )
-  {
-    ecore_wl_window_alpha_set( mWlWindow, true );
-  }
-  else
-  {
-    ecore_wl_window_alpha_set( mWlWindow, false );
-  }
-
-  // Get output transform
-  if( !ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
-  {
-    Ecore_Wl_Output* output = ecore_wl_window_output_find( mWlWindow );
-
-    int transform = ecore_wl_output_transform_get( output );
-    ecore_wl_window_buffer_transform_set( mWlWindow, transform );
-
-    mScreenRotationAngle = transform * 90;
-    mScreenRotationFinished = false;
-  }
 }
 
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
@@ -484,7 +423,7 @@ void WindowRenderSurface::ReleaseLock()
 
 void WindowRenderSurface::ProcessRotationRequest()
 {
-  mRotationFinished = true;
+  mRotated = false;
 
   ecore_wl_window_rotation_change_done_send( mWlWindow );
 

@@ -127,12 +127,12 @@ void RenderSurface::StartRender()
 {
 }
 
-bool RenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool RenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
   return true;
 }
 
-void RenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void RenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
