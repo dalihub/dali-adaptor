@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_RENDER_HELPER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,13 @@ public:
   void ReplaceSurface( RenderSurface* newSurface );
 
   /**
+   * Resize the rendering surface.
+   *
+   * @note Called from render thread
+   */
+  void ResizeSurface();
+
+  /**
    * Shuts down EGL.
    *
    * @note Called from render thread
@@ -140,6 +147,7 @@ private: // Data
   RenderSurface*                mSurface;                ///< Current surface
   Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialized.
+  bool                          mSurfaceResized;         ///< True when the surface is resized.
 };
 
 } // namespace Adaptor

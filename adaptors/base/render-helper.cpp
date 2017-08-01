@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ RenderHelper::RenderHelper( AdaptorInternalServices& adaptorInterfaces )
 : mGLES( adaptorInterfaces.GetGlesInterface() ),
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
-  mSurfaceReplaced( false )
+  mSurfaceReplaced( false ),
+  mSurfaceResized( false )
 {
   // set the initial values before render thread starts
   mSurface = adaptorInterfaces.GetRenderSurfaceInterface();
@@ -128,6 +129,11 @@ void RenderHelper::ReplaceSurface( RenderSurface* newSurface )
   mSurfaceReplaced = true;
 }
 
+void RenderHelper::ResizeSurface()
+{
+  mSurfaceResized = true;
+}
+
 void RenderHelper::ShutdownEgl()
 {
   if( mSurface )
@@ -144,7 +150,7 @@ bool RenderHelper::PreRender()
 {
   if( mSurface )
   {
-    mSurface->PreRender( *mEGL, mGLES );
+    mSurface->PreRender( *mEGL, mGLES, mSurfaceResized );
   }
   mGLES.PreRender();
   return true;
@@ -158,9 +164,10 @@ void RenderHelper::PostRender()
   if( mSurface )
   {
     // Inform the surface that rendering this frame has finished.
-    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced );
+    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
   }
   mSurfaceReplaced = false;
+  mSurfaceResized = false;
 }
 
 } // namespace Adaptor
