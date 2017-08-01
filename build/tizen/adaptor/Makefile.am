@@ -60,9 +60,14 @@ if UBUNTU_PROFILE
 adaptor_ubuntu_dir = ../../../adaptors/ubuntu
 include ../../../adaptors/ubuntu/file.list
 else
+
 # Tizen
 adaptor_tizen_dir = ../../../adaptors/tizen
+if USE_APPFW_EFL_BASE
+include ../../../adaptors/tizen/file-3.list
+else
 include ../../../adaptors/tizen/file.list
+endif
 endif
 
 # Mobile
@@ -426,8 +431,18 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(CAPI_SYSTEM_INFO_LIBS) \
                              $(TTS_LIBS) \
                              $(SENSOR_LIBS)
+if USE_APPFW_EFL_BASE
+else
+libdali_adaptor_la_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+                               $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(FRIBIDI_CFLAGS)
 
+libdali_adaptor_la_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+                             $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(FRIBIDI_LIBS)
 endif
+endif
+
 if WAYLAND
 # This is to avoid having to include wayland-egl.h everywhere
 libdali_adaptor_la_CXXFLAGS += -DWL_EGL_PLATFORM
