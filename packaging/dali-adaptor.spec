@@ -110,10 +110,8 @@ BuildRequires:  pkgconfig(elementary)
 BuildRequires:  pkgconfig(capi-appfw-application)
 %else
 BuildRequires:  pkgconfig(appcore-ui)
-BuildRequires:  pkgconfig(appcore-multiwindow)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
-BuildRequires:  pkgconfig(screen_connector_provider)
 %endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
