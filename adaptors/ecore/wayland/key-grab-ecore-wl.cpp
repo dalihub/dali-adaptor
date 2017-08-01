@@ -99,28 +99,31 @@ Dali::Vector<bool> GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& da
   for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
   {
     Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
-
-    switch(grabModeVector[index])
+    if( info )
     {
-      case TOPMOST:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
-        break;
-      case SHARED:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
-        break;
-      case OVERRIDE_EXCLUSIVE:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
-        break;
-      case EXCLUSIVE:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
-        break;
-      default:
-        info->mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
-        break;
-    }
+      info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
 
-    keyList = eina_list_append(keyList, info);
+      switch(grabModeVector[index])
+      {
+        case TOPMOST:
+          info->mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
+          break;
+        case SHARED:
+          info->mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
+          break;
+        case OVERRIDE_EXCLUSIVE:
+          info->mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
+          break;
+        case EXCLUSIVE:
+          info->mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
+          break;
+        default:
+          info->mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
+          break;
+      }
+
+      keyList = eina_list_append(keyList, info);
+    }
   }
 
   grabList = ecore_wl_window_keygrab_list_set(AnyCast<Ecore_Wl_Window*>( window.GetNativeHandle() ), keyList);
@@ -168,8 +171,11 @@ Dali::Vector<bool> UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& 
   for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
   {
     Ecore_Wl_Window_Keygrab_Info *info = (Ecore_Wl_Window_Keygrab_Info*)malloc(sizeof(Ecore_Wl_Window_Keygrab_Info));
-    info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
-    keyList = eina_list_append(keyList, info);
+    if( info )
+    {
+      info->key = (char*)Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] );
+      keyList = eina_list_append(keyList, info);
+    }
   }
 
   ungrabList = ecore_wl_window_keygrab_list_unset(AnyCast<Ecore_Wl_Window*>( window.GetNativeHandle() ), keyList);

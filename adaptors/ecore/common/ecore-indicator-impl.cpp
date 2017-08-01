@@ -1568,58 +1568,7 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
 
 void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
 {
-  return ;
-
-  if( mServerConnection )
-  {
-    switch( gesture.state )
-    {
-      case Gesture::Started:
-      {
-        mGestureDetected = false;
-
-        // The gesture position is the current position after it has moved by the displacement.
-        // We want to reference the original position.
-        mGestureDeltaY = gesture.position.y - gesture.displacement.y;
-      }
-
-      // No break, Fall through
-      case Gesture::Continuing:
-      {
-        if( mVisible == Dali::Window::AUTO && !mIsShowing )
-        {
-          // Only take one touch point
-          if( gesture.numberOfTouches == 1 && mGestureDetected == false )
-          {
-            mGestureDeltaY += gesture.displacement.y;
-
-            if( mGestureDeltaY >= mImageHeight * SHOWING_DISTANCE_HEIGHT_RATE )
-            {
-              ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
-              mGestureDetected = true;
-            }
-          }
-        }
-
-        break;
-      }
-
-      case Gesture::Finished:
-      case Gesture::Cancelled:
-      {
-        // if indicator is showing, hide again when touching is finished (Since touch leave is activated, checking it in gesture::finish instead of touch::up)
-        if( mVisible == Dali::Window::AUTO && mIsShowing )
-        {
-          ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
-        }
-        break;
-      }
-
-
-      default:
-        break;
-    }
-  }
+  // Nothing to do, but we still want to consume pan
 }
 
 void Indicator::OnStageTouched(const Dali::TouchData& touchData)
