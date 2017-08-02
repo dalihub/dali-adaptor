@@ -100,10 +100,10 @@ size_t ChunkLoader(char *ptr, size_t size, size_t nmemb, void *userdata)
 CURLcode DownloadFileDataWithSize( CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize )
 {
   CURLcode result( CURLE_OK );
-  dataBuffer.Resize( dataSize );
+  dataBuffer.Resize( dataSize+4);
 
   // create
-  Dali::Internal::Platform::FileCloser fileCloser( static_cast<void*>(&dataBuffer[0]), dataSize, "wb" );
+  Dali::Internal::Platform::FileCloser fileCloser( static_cast<void*>(&dataBuffer[0]), dataSize+4, "wb" );
   FILE* dataBufferFilePointer = fileCloser.GetFile();
   if( NULL != dataBufferFilePointer )
   {
