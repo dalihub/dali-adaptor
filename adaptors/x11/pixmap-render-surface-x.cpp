@@ -194,13 +194,13 @@ void PixmapRenderSurface::StartRender()
 {
 }
 
-bool PixmapRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& )
+bool PixmapRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction&, bool )
 {
   // Nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();

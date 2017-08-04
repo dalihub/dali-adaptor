@@ -394,10 +394,17 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 
 void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
 {
+  PositionSize positionSize = surface.GetPositionSize();
+
+  // let the core know the surface size has changed
+  mCore->SurfaceResized( positionSize.width, positionSize.height );
+
+  mResizedSignal.Emit( mAdaptor );
+
   mNativeWindow = nativeWindow;
   mSurface = &surface;
 
-  // flush the event queue to give update and render threads chance
+  // flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
@@ -696,12 +703,22 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate();
 }
 
-void Adaptor::SurfaceSizeChanged( Dali::Adaptor::SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
   mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
 
   mResizedSignal.Emit( mAdaptor );
+}
+
+void Adaptor::SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize )
+{
+  // flush the event queue to give the update-render thread chance
+  // to start processing messages for new camera setup etc as soon as possible
+  ProcessCoreEvents();
+
+  // this method blocks until the render thread has completed the resizing.
+  mThreadController->ResizeSurface();
 }
 
 void Adaptor::NotifySceneCreated()

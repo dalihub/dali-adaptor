@@ -68,11 +68,7 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
-    mWindowPropertyHandler( NULL ),
-    mWindowIconifyStateHandler( NULL ),
-    mWindowVisibilityStateHandler( NULL ),
-    mWindowFocusInHandler( NULL ),
-    mWindowFocusOutHandler( NULL ),
+    mEcoreEventHandler(),
     mEcoreWindow( 0 ),
     mDisplay( NULL ),
     mEventQueue( NULL ),
@@ -98,10 +94,12 @@ struct Window::EventHandler
 
     if( mWindow->mEcoreEventHander )
     {
-      mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
-      mWindowVisibilityStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE, EcoreEventWindowVisibilityChanged, this );
-      mWindowFocusInHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this );
-      mWindowFocusOutHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE, EcoreEventWindowVisibilityChanged, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_IGNORE_OUTPUT_TRANSFORM, EcoreEventIgnoreOutputTransform, this) );
     }
 
     mDisplay = ecore_wl_display_get();
@@ -130,30 +128,11 @@ struct Window::EventHandler
    */
   ~EventHandler()
   {
-    if ( mWindowPropertyHandler )
+    for( Dali::Vector< Ecore_Event_Handler* >::Iterator iter = mEcoreEventHandler.Begin(), endIter = mEcoreEventHandler.End(); iter != endIter; ++iter )
     {
-      ecore_event_handler_del( mWindowPropertyHandler );
+      ecore_event_handler_del( *iter );
     }
-
-    if ( mWindowIconifyStateHandler )
-    {
-      ecore_event_handler_del( mWindowIconifyStateHandler );
-    }
-
-    if ( mWindowVisibilityStateHandler )
-    {
-      ecore_event_handler_del( mWindowVisibilityStateHandler );
-    }
-
-    if( mWindowFocusInHandler )
-    {
-      ecore_event_handler_del( mWindowFocusInHandler );
-    }
-
-    if( mWindowFocusOutHandler )
-    {
-      ecore_event_handler_del( mWindowFocusOutHandler );
-    }
+    mEcoreEventHandler.Clear();
 
     if( mEventQueue )
     {
@@ -162,12 +141,6 @@ struct Window::EventHandler
   }
 
   // Static methods
-
-  /// Called when the window properties are changed.
-  static Eina_Bool EcoreEventWindowPropertyChanged( void* data, int type, void* event )
-  {
-    return EINA_FALSE;
-  }
 
   /// Called when the window iconify state is changed.
   static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
@@ -254,6 +227,36 @@ struct Window::EventHandler
       DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n" );
 
       handler->mWindow->mFocusChangedSignal.Emit( false );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the output is transformed
+  static Eina_Bool EcoreEventOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Output_Transform* transformEvent( static_cast< Ecore_Wl_Event_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
+    {
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      wlSurface->OutputTransformed();
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the output transform should be ignored
+  static Eina_Bool EcoreEventIgnoreOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Ignore_Output_Transform* ignoreTransformEvent( static_cast< Ecore_Wl_Event_Ignore_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
+    {
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      wlSurface->OutputTransformed();
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -357,11 +360,7 @@ struct Window::EventHandler
 
   // Data
   Window* mWindow;
-  Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mWindowIconifyStateHandler;
-  Ecore_Event_Handler* mWindowVisibilityStateHandler;
-  Ecore_Event_Handler* mWindowFocusInHandler;
-  Ecore_Event_Handler* mWindowFocusOutHandler;
+  Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
   Ecore_Wl_Window* mEcoreWindow;
 
   wl_display* mDisplay;
@@ -907,43 +906,15 @@ bool Window::IsVisible() const
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( width, height ) );
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  wlSurface->RequestRotation( orientation, width, height );
+
+  mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( width, height ) );
 
   // Emit signal
   mResizedSignal.Emit( Dali::DevelWindow::WindowSize( width, height ) );
 
-  Dali::Window::WindowOrientation windowOrientation;
-  switch( orientation )
-  {
-    case 0:
-    {
-      windowOrientation = Dali::Window::PORTRAIT;
-      break;
-    }
-    case 90:
-    {
-      windowOrientation = Dali::Window::LANDSCAPE;
-      break;
-    }
-    case 180:
-    {
-      windowOrientation = Dali::Window::PORTRAIT_INVERSE;
-      break;
-    }
-    case 270:
-    {
-      windowOrientation = Dali::Window::LANDSCAPE_INVERSE;
-      break;
-    }
-    default:
-    {
-      windowOrientation = Dali::Window::PORTRAIT;
-      break;
-    }
-  }
-
-  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->RequestRotation( windowOrientation, width, height );
+  mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( width, height ) );
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount()
@@ -1475,10 +1446,12 @@ void Window::SetSize( Dali::DevelWindow::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 
     // Emit signal
     mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+
+    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   }
 }
 
