@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_WINDOW_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,13 +62,13 @@ public:
 
   /**
    * Create a new Window. This should only be called once by the Application class
-   * @param[in] windowPosition The position and size of the window
+   * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent = false);
+  static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * Pass the adaptor back to the overlay. This allows the window to access Core's overlay.
@@ -157,6 +157,8 @@ public:
    */
   Dali::Any GetNativeHandle() const;
 
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+
   /**
    * Called from Orientation after the Change signal has been sent
    */
@@ -177,7 +179,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(const PositionSize& posSize, const std::string& name, const std::string& className);
+  void Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className);
 
   /**
    * Shows / hides the indicator bar.
@@ -259,7 +261,7 @@ public: // Signals
 
 private:
 
-  typedef std::vector< IndicatorInterface * > DiscardedIndicators;
+  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
 
   RenderSurface*                   mSurface;
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
@@ -269,6 +271,7 @@ private:
   bool                             mIsTransparent:1;
   bool                             mWMRotationAppSet:1;
   bool                             mEcoreEventHander:1;
+  bool                             mResizeEnabled:1;
   IndicatorInterface*              mIndicator;
   Dali::Window::WindowOrientation  mIndicatorOrientation;
   Dali::Window::WindowOrientation  mNextIndicatorOrientation;
@@ -283,6 +286,9 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
+
+  std::vector< std::string >        mSupportedAuxiliaryHints;
+  AuxiliaryHints                    mAuxiliaryHints;
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;

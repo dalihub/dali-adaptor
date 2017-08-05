@@ -107,7 +107,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mPendingRequestUpdate( FALSE ),
   mUseElapsedTimeAfterWait( FALSE ),
   mNewSurface( NULL ),
-  mPostRendering( FALSE )
+  mPostRendering( FALSE ),
+  mSurfaceResized( FALSE )
 {
   LOG_EVENT_TRACE;
 
@@ -284,6 +285,26 @@ void CombinedUpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
   LOG_EVENT( "Surface replaced, event-thread continuing" );
 }
 
+void CombinedUpdateRenderController::ResizeSurface()
+{
+  LOG_EVENT_TRACE;
+
+  LOG_EVENT( "Starting to resize the surface, event-thread blocked" );
+
+  // Start resizing the surface.
+  {
+    ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
+    mSurfaceResized = TRUE;
+    mUpdateRenderThreadWaitCondition.Notify( lock );
+  }
+
+  // Wait until the surface has been resized
+  sem_wait( &mEventThreadSemaphore );
+
+  LOG_EVENT( "Surface resized, event-thread continuing" );
+}
+
 void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOfFramesPerRender )
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
@@ -413,6 +434,19 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     //////////////////////////////
+    // RESIZE SURFACE
+    //////////////////////////////
+
+    // The resizing will be applied in the next loop
+    bool surfaceResized = ShouldSurfaceBeResized();
+    if( DALI_UNLIKELY( surfaceResized ) )
+    {
+      LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
+      mRenderHelper.ResizeSurface();
+      SurfaceResized();
+    }
+
+    //////////////////////////////
     // UPDATE
     //////////////////////////////
 
@@ -534,12 +568,14 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   while( ( ! mUpdateRenderRunCount || // Should try to wait if event-thread has paused the Update/Render thread
            ( mUpdateRenderThreadCanSleep && ! updateRequired && ! mPendingRequestUpdate ) ) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
          ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
-         ! mNewSurface ) // Ensure we don't wait if we need to replace the surface
+         ! mNewSurface &&  // Ensure we don't wait if we need to replace the surface
+         ! mSurfaceResized ) // Ensure we don't wait if we need to resize the surface
   {
     LOG_UPDATE_RENDER( "WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
     LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
     LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
     LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
+    LOG_UPDATE_RENDER( "      mSurfaceResized:             %d", mSurfaceResized );
 
     // Reset the time when the thread is waiting, so the sleep-until time for
     // the first frame after resuming should be based on the actual start time
@@ -558,6 +594,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
   LOG_COUNTER_UPDATE_RENDER( "mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
   LOG_COUNTER_UPDATE_RENDER( "mNewSurface:                 %d", mNewSurface );
+  LOG_COUNTER_UPDATE_RENDER( "mSurfaceResized:             %d", mSurfaceResized );
 
   mUseElapsedTimeAfterWait = FALSE;
   mUpdateRenderThreadCanSleep = FALSE;
@@ -585,6 +622,22 @@ RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 }
 
 void CombinedUpdateRenderController::SurfaceReplaced()
+{
+  // Just increment the semaphore
+  sem_post( &mEventThreadSemaphore );
+}
+
+bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
+{
+  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+
+  bool surfaceSized = mSurfaceResized;
+  mSurfaceResized = FALSE;
+
+  return surfaceSized;
+}
+
+void CombinedUpdateRenderController::SurfaceResized()
 {
   // Just increment the semaphore
   sem_post( &mEventThreadSemaphore );
@@ -634,6 +687,7 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   while( mPostRendering &&
          ! mNewSurface &&                // We should NOT wait if we're replacing the surface
+         ! mSurfaceResized &&            // We should NOT wait if we're resizing the surface
          ! mDestroyUpdateRenderThread )
   {
     mUpdateRenderThreadWaitCondition.Wait( lock );

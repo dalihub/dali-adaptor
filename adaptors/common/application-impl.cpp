@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,11 +101,10 @@ Application::~Application()
 {
   mSingletonService.UnregisterAll();
 
-  delete mFramework;
-  delete mCommandLineOptions;
-  delete mAdaptor;
-
   mWindow.Reset();
+  delete mAdaptor;
+  delete mCommandLineOptions;
+  delete mFramework;
 }
 
 void Application::CreateWindow()
@@ -349,7 +348,6 @@ void Application::ReplaceWindow(PositionSize windowPosition, const std::string& 
   Dali::RenderSurface* renderSurface = windowImpl.GetSurface();
 
   Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SurfaceSizeChanged( windowPosition );
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
   mWindow = newWindow;
 }

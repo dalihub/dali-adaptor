@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,13 +194,13 @@ void PixmapRenderSurface::StartRender()
 {
 }
 
-bool PixmapRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& )
+bool PixmapRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction&, bool )
 {
   // Nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();

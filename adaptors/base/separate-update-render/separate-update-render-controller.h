@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_MULTI_THREAD_CONTROLLER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,11 @@ public:
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
   void ReplaceSurface( RenderSurface* surface );
+
+  /**
+   * @copydoc ThreadControllerInterface::ResizeSurface()
+   */
+  virtual void ResizeSurface();
 
   /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <wayland-egl.h>
+
 // INTERNAL INCLUDES
 #include <ecore-wl-render-surface.h>
-#include <wayland-egl.h>
+#include <integration-api/thread-synchronization-interface.h>
 
 namespace Dali
 {
@@ -75,6 +78,19 @@ public: // API
    */
   virtual Ecore_Wl_Window* GetWlWindow();
 
+  /**
+   * Request surface rotation
+   * @param[in] angle A new angle of the surface
+   * @param[in] width A new width of the surface
+   * @param[in] height A new height of the surface
+   */
+  void RequestRotation( int angle, int width, int height );
+
+  /**
+   * Notify output is transformed.
+   */
+  void OutputTransformed();
+
 public: // from Dali::RenderSurface
 
   /**
@@ -115,12 +131,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
@@ -149,10 +165,25 @@ protected:
    */
   virtual void UseExistingRenderable( unsigned int surfaceId );
 
+private:
+
+  /**
+   * Used as the callback for the rotation-trigger.
+   */
+  void ProcessRotationRequest();
+
 private: // Data
 
-  Ecore_Wl_Window*   mWlWindow; ///< Wayland-Window
-  wl_egl_window*     mEglWindow;
+  Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
+  wl_surface*                     mWlSurface;
+  wl_egl_window*                  mEglWindow;
+  ThreadSynchronizationInterface* mThreadSynchronization;
+  TriggerEventInterface*          mRotationTrigger;
+  int                             mRotationAngle;
+  int                             mScreenRotationAngle;
+  bool                            mRotationSupported;
+  bool                            mRotationFinished;
+  bool                            mScreenRotationFinished;
 
 }; // class WindowRenderSurface
 

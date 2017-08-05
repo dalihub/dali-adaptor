@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,11 +222,11 @@ struct Window::EventHandler
 };
 
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -335,22 +335,25 @@ void Window::SetClass(std::string name, std::string klass)
 }
 
 Window::Window()
-: mSurface(NULL),
-  mIndicatorVisible(Dali::Window::INVISIBLE),
-  mIndicatorIsShown(false),
-  mShowRotatedIndicatorOnClose(false),
-  mStarted(false),
-  mIsTransparent(false),
-  mWMRotationAppSet(false),
-  mEcoreEventHander(true),
-  mIndicator(NULL),
-  mIndicatorOrientation(Dali::Window::PORTRAIT),
-  mNextIndicatorOrientation(Dali::Window::PORTRAIT),
-  mIndicatorOpacityMode(Dali::Window::OPAQUE),
-  mOverlay(NULL),
-  mAdaptor(NULL),
-  mEventHandler(NULL),
-  mPreferredOrientation(Dali::Window::PORTRAIT)
+: mSurface( NULL ),
+  mIndicatorVisible( Dali::Window::INVISIBLE ),
+  mIndicatorIsShown( false ),
+  mShowRotatedIndicatorOnClose( false ),
+  mStarted( false ),
+  mIsTransparent( false ),
+  mWMRotationAppSet( false ),
+  mEcoreEventHander( true ),
+  mResizeEnabled( true ),
+  mIndicator( NULL ),
+  mIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
+  mOverlay( NULL ),
+  mAdaptor( NULL ),
+  mEventHandler( NULL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
 
   // Detect if we're not running in a ecore main loop (e.g. libuv).
@@ -389,11 +392,11 @@ Window::~Window()
   delete mSurface;
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an X11 window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, className, mIsTransparent );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( positionSize, surface, name, className, mIsTransparent );
   windowSurface->Map();
 
   mSurface = windowSurface;
@@ -756,10 +759,18 @@ void Window::RotationDone( int orientation, int width, int height )
     ecore_x_window_prop_property_set( ecoreWindow,
                                      ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
                                      ECORE_X_ATOM_CARDINAL, 32, &angles, 2 );
+
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 #endif // DALI_PROFILE_UBUNTU
   }
 }
 
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  return -1;
+}
 
 } // Adaptor
 } // Internal

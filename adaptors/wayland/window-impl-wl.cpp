@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,11 @@ struct Window::EventHandler
   // place holder
 };
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -102,20 +102,23 @@ void Window::SetClass(std::string name, std::string klass)
 }
 
 Window::Window()
-: mSurface(NULL),
-  mIndicatorVisible(Dali::Window::VISIBLE),
-  mIndicatorIsShown(false),
-  mShowRotatedIndicatorOnClose(false),
-  mStarted(false),
-  mIsTransparent(false),
-  mWMRotationAppSet(false),
-  mIndicator(NULL),
-  mIndicatorOrientation(Dali::Window::PORTRAIT),
-  mNextIndicatorOrientation(Dali::Window::PORTRAIT),
-  mIndicatorOpacityMode(Dali::Window::OPAQUE),
-  mOverlay(NULL),
-  mAdaptor(NULL),
-  mPreferredOrientation(Dali::Window::PORTRAIT)
+: mSurface( NULL ),
+  mIndicatorVisible( Dali::Window::VISIBLE ),
+  mIndicatorIsShown( false ),
+  mShowRotatedIndicatorOnClose( false ),
+  mStarted( false ),
+  mIsTransparent( false ),
+  mWMRotationAppSet( false ),
+  mResizeEnabled( true ),
+  mIndicator( NULL ),
+  mIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
+  mOverlay( NULL ),
+  mAdaptor( NULL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
   mEventHandler = NULL;
 }
@@ -134,16 +137,15 @@ Window::~Window()
   delete mSurface;
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( windowPosition, surface, name, mIsTransparent );
+  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
 
   mOrientation = Orientation::New(this);
-
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -282,6 +284,10 @@ void Window::RotationDone( int orientation, int width, int height )
 {
 }
 
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  return -1;
+}
 
 } // Adaptor
 } // Internal

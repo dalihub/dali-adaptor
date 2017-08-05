@@ -130,6 +130,11 @@ void SeparateUpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
   mThreadSync->ReplaceSurface( newSurface );
 }
 
+void SeparateUpdateRenderController::ResizeSurface()
+{
+  DALI_LOG_ERROR( "SeparateUpdateRenderController::ResizeSurface: Not supported\n" );
+}
+
 void SeparateUpdateRenderController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
 {
   mNumberOfVSyncsPerRender = numberOfVSyncsPerRender;

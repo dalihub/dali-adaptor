@@ -189,6 +189,11 @@ void SingleThreadController::ReplaceSurface( RenderSurface* newSurface )
   mRenderHelper.ReplaceSurface( newSurface );
 }
 
+void SingleThreadController::ResizeSurface()
+{
+  DALI_LOG_ERROR( "SingleThreadController::ResizeSurface: Not supported\n" );
+}
+
 void SingleThreadController::SetRenderRefreshRate( unsigned int refreshRate )
 {
   if ( refreshRate != mRefreshRate )

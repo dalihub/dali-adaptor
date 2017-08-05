@@ -104,6 +104,11 @@ public:
   void ReplaceSurface( RenderSurface* surface );
 
   /**
+   * @copydoc ThreadControllerInterface::ResizeSurface()
+   */
+  virtual void ResizeSurface();
+
+  /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int refreshRate );

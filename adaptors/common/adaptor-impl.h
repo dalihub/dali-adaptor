@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_IMPL_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/callback.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
@@ -89,6 +90,8 @@ class Adaptor : public Integration::RenderController,
 public:
 
   typedef Dali::Adaptor::AdaptorSignalType AdaptorSignalType;
+
+  typedef Uint16Pair SurfaceSize;          ///< Surface size type
 
   /**
    * Creates a New Adaptor
@@ -182,16 +185,6 @@ public: // AdaptorInternalServices implementation
    * @copydoc Dali::EventFeeder::FeedKeyEvent()
    */
   virtual void FeedKeyEvent( KeyEvent& keyEvent );
-
-  /**
-   * @copydoc AdaptorInterface::MoveResize()
-   */
-  virtual bool MoveResize( const PositionSize& positionSize );
-
-  /**
-   * @copydoc AdaptorInterface::SurfaceResized()
-   */
-  virtual void SurfaceResized( const PositionSize& positionSize );
 
   /**
    * @copydoc AdaptorInterface::ReplaceSurface()
@@ -349,6 +342,16 @@ public:
    * Informs core the surface size has changed
    */
   void SurfaceSizeChanged( const PositionSize& positionSize );
+
+  /**
+   * Informs core the surface size has changed
+   */
+  void SurfaceResizePrepare( SurfaceSize surfaceSize );
+
+  /**
+   * Informs ThreadController the surface size has changed
+   */
+  void SurfaceResizeComplete( SurfaceSize surfaceSize );
 
 public:  //AdaptorInternalServices
 
@@ -563,7 +566,7 @@ private: // Data
 
   Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
-  TizenPlatform::TizenPlatformAbstraction*  mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;         ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks

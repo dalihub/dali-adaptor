@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "window-impl.h"
+#include <window-impl.h>
 
 // EXTERNAL HEADERS
 #include <Ecore.h>
@@ -34,6 +34,7 @@
 #include <ecore-indicator-impl.h>
 #include <window-visibility-observer.h>
 #include <orientation-impl.h>
+
 namespace
 {
 const float INDICATOR_ANIMATION_DURATION( 0.18f ); // 180 milli seconds
@@ -62,8 +63,7 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
-    mWindowPropertyHandler( NULL ),
-    mWindowIconifyStateHandler( NULL ),
+    mEcoreEventHandler(),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -77,7 +77,9 @@ struct Window::EventHandler
 #ifndef DALI_PROFILE_UBUNTU
     if( mWindow->mEcoreEventHander )
     {
-      mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_IGNORE_OUTPUT_TRANSFORM, EcoreEventIgnoreOutputTransform, this) );
     }
 #endif
 
@@ -88,36 +90,27 @@ struct Window::EventHandler
    */
   ~EventHandler()
   {
-    if ( mWindowPropertyHandler )
+    for( Dali::Vector< Ecore_Event_Handler* >::Iterator iter = mEcoreEventHandler.Begin(), endIter = mEcoreEventHandler.End(); iter != endIter; ++iter )
     {
-      ecore_event_handler_del( mWindowPropertyHandler );
+      ecore_event_handler_del( *iter );
     }
-    if ( mWindowIconifyStateHandler )
-    {
-      ecore_event_handler_del( mWindowIconifyStateHandler );
-    }
+    mEcoreEventHandler.Clear();
   }
 
   // Static methods
-
-  /// Called when the window properties are changed.
-  static Eina_Bool EcoreEventWindowPropertyChanged( void* data, int type, void* event )
-  {
-    return EINA_FALSE;
-  }
 
 #ifndef DALI_PROFILE_UBUNTU
   /// Called when the window iconify state is changed.
   static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
   {
-    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( (Ecore_Wl_Event_Window_Iconify_State_Change*)event );
-    EventHandler* handler( (EventHandler*)data );
+    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( static_cast< Ecore_Wl_Event_Window_Iconify_State_Change* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
     Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
 
     if ( handler && handler->mWindow )
     {
       WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( iconifyChangedEvent->win == (unsigned int) ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
+      if ( observer && ( iconifyChangedEvent->win == static_cast< unsigned int> ( ecore_wl_window_id_get( handler->mEcoreWindow ) ) ) )
       {
         if( iconifyChangedEvent->iconified == EINA_TRUE )
         {
@@ -135,21 +128,68 @@ struct Window::EventHandler
 
     return handled;
   }
+
+  /// Called when the output is transformed
+  static Eina_Bool EcoreEventOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Output_Transform* transformEvent( static_cast< Ecore_Wl_Event_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventOutputTransform\n", handler->mEcoreWindow );
+
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the output transform should be ignored
+  static Eina_Bool EcoreEventIgnoreOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Ignore_Output_Transform* ignoreTransformEvent( static_cast< Ecore_Wl_Event_Ignore_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
+
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
 #endif
 
   // Data
   Window* mWindow;
-  Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mWindowIconifyStateHandler;
+  Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
 
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -264,22 +304,25 @@ void Window::SetClass(std::string name, std::string klass)
 }
 
 Window::Window()
-: mSurface(NULL),
-  mIndicatorVisible(Dali::Window::VISIBLE),
-  mIndicatorIsShown(false),
-  mShowRotatedIndicatorOnClose(false),
-  mStarted(false),
-  mIsTransparent(false),
-  mWMRotationAppSet(false),
-  mEcoreEventHander(true),
-  mIndicator(NULL),
-  mIndicatorOrientation(Dali::Window::PORTRAIT),
-  mNextIndicatorOrientation(Dali::Window::PORTRAIT),
-  mIndicatorOpacityMode(Dali::Window::OPAQUE),
-  mOverlay(NULL),
-  mAdaptor(NULL),
-  mEventHandler(NULL),
-  mPreferredOrientation(Dali::Window::PORTRAIT)
+: mSurface( NULL ),
+  mIndicatorVisible( Dali::Window::VISIBLE ),
+  mIndicatorIsShown( false ),
+  mShowRotatedIndicatorOnClose( false ),
+  mStarted( false ),
+  mIsTransparent( false ),
+  mWMRotationAppSet( false ),
+  mEcoreEventHander( true ),
+  mResizeEnabled( false ),
+  mIndicator( NULL ),
+  mIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
+  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
+  mOverlay( NULL ),
+  mAdaptor( NULL ),
+  mEventHandler( NULL ),
+  mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mSupportedAuxiliaryHints(),
+  mAuxiliaryHints()
 {
 }
 
@@ -301,22 +344,47 @@ Window::~Window()
   }
 
   delete mSurface;
+
+  mSupportedAuxiliaryHints.clear();
+  mAuxiliaryHints.clear();
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
+
+  // create event handler for Wayland window
+  mEventHandler = new EventHandler( this );
+
+  // get auxiliary hint
+  Eina_List* hints = ecore_wl_window_aux_hints_supported_get( mEventHandler->mEcoreWindow );
+  if( hints )
+  {
+    Eina_List* l = NULL;
+    char* hint = NULL;
+
+    for( l = hints, ( hint =  static_cast< char* >( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( hint = static_cast< char* >( eina_list_data_get(l) ) ) )
+    {
+      mSupportedAuxiliaryHints.push_back( hint );
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::Initialize: %s\n", hint );
+    }
+  }
+
+  if( !positionSize.IsEmpty() )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
   SetClass( name, className );
   windowSurface->Map();
 
   mOrientation = Orientation::New(this);
-
-  // create event handler for Wayland window
-  mEventHandler = new EventHandler( this );
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -600,10 +668,65 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  if( wlSurface )
+  {
+    wlSurface->RequestRotation( orientation, width, height );
+  }
+
+  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+
+  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 }
 
+unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+{
+  bool supported = false;
+
+  // Check if the hint is suppported
+  for( std::vector< std::string >::iterator iter = mSupportedAuxiliaryHints.begin(); iter != mSupportedAuxiliaryHints.end(); ++iter )
+  {
+    if( *iter == hint )
+    {
+      supported = true;
+      break;
+    }
+  }
+
+  if( !supported )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Concise, "Window::AddAuxiliaryHint: Not supported auxiliary hint [%s]\n", hint.c_str() );
+    return 0;
+  }
+
+  // Check if the hint is already added
+  for( unsigned int i = 0; i < mAuxiliaryHints.size(); i++ )
+  {
+    if( mAuxiliaryHints[i].first == hint )
+    {
+      // Just change the value
+      mAuxiliaryHints[i].second = value;
+
+      DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: Change! hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), i + 1 );
+
+      return i + 1;   // id is index + 1
+    }
+  }
+
+  // Add the hint
+  mAuxiliaryHints.push_back( std::pair< std::string, std::string >( hint, value ) );
+
+  unsigned int id = mAuxiliaryHints.size();
+
+  ecore_wl_window_aux_hint_add( mEventHandler->mEcoreWindow, static_cast< int >( id ), hint.c_str(), value.c_str() );
+
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id );
+
+  return id;
+}
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
