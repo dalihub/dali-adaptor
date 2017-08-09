@@ -83,6 +83,10 @@ void EcoreWlRenderSurface::Init( Any surface )
 
 EcoreWlRenderSurface::~EcoreWlRenderSurface()
 {
+  if( mOwnSurface )
+  {
+    ecore_wl_shutdown();
+  }
 }
 
 void EcoreWlRenderSurface::SetRenderNotification(TriggerEventInterface* renderNotification)

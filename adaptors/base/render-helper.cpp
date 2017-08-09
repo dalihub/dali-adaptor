@@ -79,9 +79,6 @@ void RenderHelper::Stop()
   {
     // Tell surface we have stopped rendering
     mSurface->StopRender();
-
-    // The surface will be destroyed soon; this pointer will become invalid
-    mSurface = NULL;
   }
 }
 
@@ -140,6 +137,8 @@ void RenderHelper::ShutdownEgl()
   {
     // give a chance to destroy the OpenGL surface that created externally
     mSurface->DestroyEglSurface( *mEGL );
+
+    mSurface = NULL;
   }
 
   // delete the GL context / egl surface
