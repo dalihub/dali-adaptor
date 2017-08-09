@@ -64,7 +64,6 @@ struct Window::EventHandler
   : mWindow( window ),
     mWindowPropertyHandler( NULL ),
     mWindowIconifyStateHandler( NULL ),
-    mWindowVisibilityStateHandler( NULL ),
     mEcoreWindow( 0 )
   {
     // store ecore window handle
@@ -79,7 +78,6 @@ struct Window::EventHandler
     if( mWindow->mEcoreEventHander )
     {
       mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
-      mWindowVisibilityStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE, EcoreEventWindowVisibilityChanged, this );
     }
 #endif
 
@@ -94,15 +92,9 @@ struct Window::EventHandler
     {
       ecore_event_handler_del( mWindowPropertyHandler );
     }
-
     if ( mWindowIconifyStateHandler )
     {
       ecore_event_handler_del( mWindowIconifyStateHandler );
-    }
-
-    if ( mWindowVisibilityStateHandler )
-    {
-      ecore_event_handler_del( mWindowVisibilityStateHandler );
     }
   }
 
@@ -143,43 +135,12 @@ struct Window::EventHandler
 
     return handled;
   }
-
-  /// Called when the window visibility is changed.
-  static Eina_Bool EcoreEventWindowVisibilityChanged( void* data, int type, void* event )
-  {
-    Ecore_Wl_Event_Window_Visibility_Change* visibilityChangedEvent( (Ecore_Wl_Event_Window_Visibility_Change*)event );
-    EventHandler* handler( (EventHandler*)data );
-    Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
-
-    if ( handler && handler->mWindow )
-    {
-      WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( visibilityChangedEvent->win == (unsigned int) ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
-      {
-        if( visibilityChangedEvent->fully_obscured == 1 )
-        {
-          observer->OnWindowHidden();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) full obscured\n", handler->mEcoreWindow );
-        }
-        else
-        {
-          observer->OnWindowShown();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
-        }
-        handled = ECORE_CALLBACK_DONE;
-      }
-    }
-
-    return handled;
-  }
-
 #endif
 
   // Data
   Window* mWindow;
   Ecore_Event_Handler* mWindowPropertyHandler;
   Ecore_Event_Handler* mWindowIconifyStateHandler;
-  Ecore_Event_Handler* mWindowVisibilityStateHandler;
   Ecore_Wl_Window* mEcoreWindow;
 };
 
