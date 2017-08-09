@@ -43,18 +43,18 @@ class TiltSensor;
  *  {
  *    TiltSensor sensor = TiltSensor::Get();
  *
- *    // Try to enable the sensor
- *    if ( sensor.Enable() )
+ *    // Try to start the tilt sensor
+ *    if ( sensor.Start() )
  *    {
  *      // Query the current values
  *      std::cout << "Roll = " << sensor.GetRoll() << ", Pitch = " << sensor.GetPitch() << std::endl;
  *
  *      // Get notifications when the device is tilted
- *      sensor.SignalTilted().Connect( &OnTilted );
+ *      sensor.TiltedSignal().Connect( &OnTilted );
  *    }
  *  }
  *
- *  void OnTilted()
+ *  void OnTilted( const TiltSensor& sensor )
  *  {
  *    // Query the new values
  *    std::cout << "Roll = " << sensor.GetRoll() << ", Pitch = " << sensor.GetPitch() << std::endl;
@@ -62,15 +62,15 @@ class TiltSensor;
  *
  * @endcode
  *
- * While the tilt sensor is enabled, it will periodically poll for the latest pitch & roll values.
+ * While the tilt sensor is started, it will periodically poll for the latest pitch & roll values.
  * For performance & power-saving, applications should disable this polling when no longer needed:
  *
  * @code
  *
  *  void EndExample()
  *  {
- *    // Disable the sensor when no longer needed
- *    TiltSensor::Get().Disable();
+ *    // Stop the sensor when no longer needed
+ *    TiltSensor::Get().Stop();
  *  }
  *
  * @endcode
@@ -103,30 +103,30 @@ public:
   ~TiltSensor();
 
   /**
-   * Attempt to enable the tilt-sensor. This will fail if the underlying sensor hardware is powered-down,
+   * Attempt to start the tilt-sensor. This will fail if the underlying sensor hardware is powered-down,
    * typically this occurs when the device is set to "sleep" mode.
-   * @return True if the tilt-sensor is enabled.
+   * @return True if the tilt-sensor is started.
    */
-  bool Enable();
+  bool Start();
 
   /**
-   * Disable the tilt-sensor.
+   * Stop the tilt-sensor.
    */
-  void Disable();
+  void Stop();
 
   /**
-   * Query whether the tilt-sensor is disabled.
+   * Query whether the tilt-sensor is started.
    * The sensor may be disabled automatically; typically this occurs when the device is set to "sleep" mode.
-   * @return True if the tilt-sensor is enabled.
+   * @return True if the tilt-sensor is started.
    */
-  bool IsEnabled() const;
+  bool IsStarted() const;
 
   /**
    * Query the roll value. This is in the range -1 to 1.
    * When the device is lying face-up on a flat surface, this method will return a value close to zero.
    * A value close to 1 indicates that the right-side of the device is pointing upwards.
    * A value close to -1 indicates that the right-side of the device is pointing downwards.
-   * @pre The tilt-sensor is enabled.
+   * @pre The tilt-sensor is started.
    * @return The roll value.
    */
   float GetRoll() const;
@@ -136,7 +136,7 @@ public:
    * When the device is lying face-up on a flat surface, this method will return a value close to zero.
    * A value close to 1 indicates that the top of the device is pointing upwards.
    * A value close to -1 indicates that the top of the device is pointing downwards.
-   * @pre The tilt-sensor is enabled.
+   * @pre The tilt-sensor is started.
    * @return The pitch value.
    */
   float GetPitch() const;
@@ -145,13 +145,13 @@ public:
    * Retrieve the rotation of the device.
    * When the device is lying face-up on a flat surface, the rotation angle will be approximately zero.
    * The roll & pitch of the device is considered to be a rotation around the Y and X axes respectively.
-   * @pre The tilt-sensor is enabled.
+   * @pre The tilt-sensor is started.
    * @return The rotation in quaternion format.
    */
   Quaternion GetRotation() const;
 
   /**
-   * This signal will be emitted when the device is tilted, if the tilt-sensor is enabled.
+   * This signal will be emitted when the device is tilted, if the tilt-sensor is started.
    * The frequency of the signals can be controlled using SetUpdateFrequency().
    * @return The signal to connect to.
    *
