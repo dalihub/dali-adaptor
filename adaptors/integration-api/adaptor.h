@@ -24,7 +24,6 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/common/view-mode.h>
-#include <dali/public-api/math/uint-16-pair.h>
 
 // INTERNAL INCLUDES
 
@@ -114,8 +113,6 @@ class DALI_IMPORT_API Adaptor
 public:
 
   typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
-
-  typedef Uint16Pair SurfaceSize;          ///< Surface size type
 
 public:
   /**

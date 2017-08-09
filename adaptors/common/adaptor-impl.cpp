@@ -710,7 +710,7 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate();
 }
 
-void Adaptor::SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
   mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
@@ -718,7 +718,7 @@ void Adaptor::SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize )
   mResizedSignal.Emit( mAdaptor );
 }
 
-void Adaptor::SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
 {
   // flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
