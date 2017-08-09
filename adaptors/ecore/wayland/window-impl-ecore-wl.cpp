@@ -95,7 +95,6 @@ struct Window::EventHandler
     if( mWindow->mEcoreEventHander )
     {
       mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE, EcoreEventWindowVisibilityChanged, this ) );
       mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this ) );
       mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this ) );
       mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
@@ -158,35 +157,6 @@ struct Window::EventHandler
         {
           observer->OnWindowHidden();
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
-        }
-        else
-        {
-          observer->OnWindowShown();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
-        }
-        handled = ECORE_CALLBACK_DONE;
-      }
-    }
-
-    return handled;
-  }
-
-  /// Called when the window visibility is changed.
-  static Eina_Bool EcoreEventWindowVisibilityChanged( void* data, int type, void* event )
-  {
-    Ecore_Wl_Event_Window_Visibility_Change* visibilityChangedEvent( static_cast< Ecore_Wl_Event_Window_Visibility_Change* >( event ) );
-    EventHandler* handler( static_cast< EventHandler* >( data ) );
-    Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
-
-    if ( handler && handler->mWindow )
-    {
-      WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( visibilityChangedEvent->win == static_cast< unsigned int >( ecore_wl_window_id_get( handler->mEcoreWindow ) ) ) )
-      {
-        if( visibilityChangedEvent->fully_obscured == 1 )
-        {
-          observer->OnWindowHidden();
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) full obscured\n", handler->mEcoreWindow );
         }
         else
         {
