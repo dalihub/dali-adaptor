@@ -34,13 +34,13 @@ namespace Platform
  */
 class FileCloser
 {
-public:
+protected: // prevent this class being directly instantiated
 
   /**
    * @brief Construct a FileCloser guarding a new FILE* for accessing the path passed in.
    */
-  FileCloser( const char * const filename, const char * const mode ) :
-    mFile(fopen(filename, mode))
+  FileCloser( const char * const filename, const char * const mode )
+  : mFile(fopen(filename, mode))
   {
     DALI_ASSERT_DEBUG( filename != 0 && "Cant open a null filename." );
     DALI_ASSERT_DEBUG( mode != 0 && "Null mode is undefined behaviour in spec." );
@@ -54,16 +54,32 @@ public:
   /**
    * @brief Construct a FileCloser guarding a FILE* for reading out of the memory buffer passed in.
    */
-  FileCloser( void * const buffer, const size_t bufferSize, const char * const mode ) :
-    mFile( fmemopen( buffer, bufferSize, mode ) )
+  FileCloser( uint8_t* buffer, size_t dataSize, const char * const mode )
+  : mFile( fmemopen( buffer, dataSize, mode) )
   {
+  }
+
+  FileCloser( Dali::Vector<uint8_t>& vector, size_t dataSize, const char * const mode )
+  {
+    // Resize the buffer to ensure any null that gets written by
+    // fmemopen is written past the end of any data that is written to the buffer.
+    // (Workaround for a bug in Ubuntu that overwrites null to the last byte of the
+    // data block regardless of whether binary mode was specified. Tizen doesn't write
+    // null if binary mode is specified).
+    size_t bufferSize = dataSize;
+    ++bufferSize;
+    vector.Resize( bufferSize );
+
+    void * const buffer = &vector[0];
+    mFile = fmemopen( buffer, bufferSize, mode );
+
     DALI_ASSERT_DEBUG( buffer != 0 && "Cant open file on null buffer." );
-    DALI_ASSERT_DEBUG( bufferSize > 0 && "Pointless to open file on empty buffer." );
+    DALI_ASSERT_DEBUG( dataSize > 0 && "Pointless to open file on empty buffer." );
     DALI_ASSERT_DEBUG( mode != 0 && "Null mode is undefined behaviour in spec." );
 
     if( mFile == 0 )
     {
-      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n", static_cast<void*>(buffer), static_cast<unsigned>(bufferSize), mode );
+      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n", static_cast<void*>(buffer), static_cast<unsigned>(dataSize), mode );
     }
   }
 
@@ -84,6 +100,7 @@ public:
     }
   }
 
+public:
   /**
    * @return The FILE* guarded by this object.
    */

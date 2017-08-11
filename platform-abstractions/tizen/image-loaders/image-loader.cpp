@@ -30,7 +30,7 @@
 #include "loader-wbmp.h"
 #include "image-operations.h"
 #include "image-loader-input.h"
-#include "portable/file-closer.h"
+#include "portable/file-reader.h"
 
 using namespace Dali::Integration;
 
@@ -303,8 +303,8 @@ ResourcePointer LoadImageSynchronously( const Integration::BitmapResourceType& r
   ResourcePointer result;
   BitmapPtr bitmap = 0;
 
-  Internal::Platform::FileCloser fc( path.c_str(), "rb");
-  FILE * const fp = fc.GetFile();
+  Internal::Platform::FileReader fileReader( path );
+  FILE * const fp = fileReader.GetFile();
   if( fp != NULL )
   {
     bool success = ConvertStreamToBitmap( resource, path, fp, bitmap );
@@ -326,8 +326,8 @@ ImageDimensions  GetClosestImageSize( const std::string& filename,
   unsigned int width = 0;
   unsigned int height = 0;
 
-  Internal::Platform::FileCloser fc(filename.c_str(), "rb");
-  FILE *fp = fc.GetFile();
+  Internal::Platform::FileReader fileReader( filename );
+  FILE *fp = fileReader.GetFile();
   if (fp != NULL)
   {
     LoadBitmapFunction loaderFunction;
@@ -356,8 +356,6 @@ ImageDimensions  GetClosestImageSize( const std::string& filename,
   return ImageDimensions( width, height );
 }
 
-
-
 ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
                                      ImageDimensions size,
                                      FittingMode::Type fittingMode,
@@ -373,16 +371,11 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
 
   if( encodedBlob != 0 )
   {
-    const size_t blobSize     = encodedBlob->GetVector().Size();
-    uint8_t * const blobBytes = &(encodedBlob->GetVector()[0]);
-    DALI_ASSERT_DEBUG( blobSize > 0U );
-    DALI_ASSERT_DEBUG( blobBytes != 0U );
-
-    if( blobBytes != 0 && blobSize > 0U )
+    if( encodedBlob->GetVector().Size() )
     {
       // Open a file handle on the memory buffer:
-      Internal::Platform::FileCloser fc( blobBytes, blobSize, "rb" );
-      FILE *fp = fc.GetFile();
+      Internal::Platform::FileReader fileReader( encodedBlob->GetVector() );
+      FILE *fp = fileReader.GetFile();
       if ( fp != NULL )
       {
         LoadBitmapFunction loaderFunction;

@@ -24,7 +24,7 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include "portable/file-closer.h"
+#include "portable/file-writer.h"
 
 #ifdef TPK_CURL_ENABLED
 #include <tpkp_curl.h>
@@ -100,11 +100,10 @@ size_t ChunkLoader(char *ptr, size_t size, size_t nmemb, void *userdata)
 CURLcode DownloadFileDataWithSize( CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize )
 {
   CURLcode result( CURLE_OK );
-  dataBuffer.Resize( dataSize );
 
   // create
-  Dali::Internal::Platform::FileCloser fileCloser( static_cast<void*>(&dataBuffer[0]), dataSize, "wb" );
-  FILE* dataBufferFilePointer = fileCloser.GetFile();
+  Dali::Internal::Platform::FileWriter fileWriter( dataBuffer, dataSize );
+  FILE* dataBufferFilePointer = fileWriter.GetFile();
   if( NULL != dataBufferFilePointer )
   {
     // we only want the body which contains the file data
@@ -189,6 +188,7 @@ bool DownloadFile( CURL* curlHandle,
   }
   else if( size > 0 )
   {
+    // If we know the size up front, allocate once and avoid chunk copies.
     dataSize = static_cast<size_t>( size );
     result = DownloadFileDataWithSize( curlHandle, dataBuffer, dataSize );
   }

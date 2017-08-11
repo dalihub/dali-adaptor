@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
 #include <resource-loader/network/file-download.h>
-#include <platform-abstractions/portable/file-closer.h>
+#include <platform-abstractions/portable/file-reader.h>
 #include "pixel-buffer-impl.h"
 
 namespace Dali
@@ -40,8 +40,8 @@ Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions si
 {
   Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
 
-  Internal::Platform::FileCloser fc( url.c_str(), "rb");
-  FILE * const fp = fc.GetFile();
+  Internal::Platform::FileReader fileReader( url );
+  FILE * const fp = fileReader.GetFile();
   if( fp != NULL )
   {
     Integration::BitmapPtr bitmap;
@@ -93,17 +93,15 @@ Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDime
                                                                     MAXIMUM_DOWNLOAD_IMAGE_SIZE );
   if( succeeded )
   {
-    void *blobBytes = static_cast<void*>(&dataBuffer[0]);
     size_t blobSize = dataBuffer.Size();
 
     DALI_ASSERT_DEBUG( blobSize > 0U );
-    DALI_ASSERT_DEBUG( blobBytes != 0U );
 
-    if( blobBytes != 0 && blobSize > 0U )
+    if( blobSize > 0U )
     {
       // Open a file handle on the memory buffer:
-      Dali::Internal::Platform::FileCloser fileCloser( blobBytes, blobSize, "rb" );
-      FILE * const fp = fileCloser.GetFile();
+      Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
+      FILE * const fp = fileReader.GetFile();
       if ( NULL != fp )
       {
         Integration::BitmapPtr bitmap;

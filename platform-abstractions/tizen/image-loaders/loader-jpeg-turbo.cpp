@@ -58,9 +58,9 @@ namespace
 
   struct RGB888Type
   {
-     char R;
-     char G;
-     char B;
+     unsigned char R;
+     unsigned char G;
+     unsigned char B;
   };
 
   /**
@@ -176,10 +176,13 @@ namespace
   const int MAX_TEXTURE_HEIGHT = 4096;
 
 } // namespace
-
-bool JpegRotate90 (unsigned char *buffer, int width, int height, int bpp);
-bool JpegRotate180(unsigned char *buffer, int width, int height, int bpp);
-bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp);
+bool JpegFlipV( RGB888Type *buffer, int width, int height );
+bool JpegFlipH( RGB888Type *buffer, int width, int height );
+bool JpegTranspose( RGB888Type *buffer, int width, int height );
+bool JpegTransverse( RGB888Type *buffer, int width, int height );
+bool JpegRotate90 ( RGB888Type *buffer, int width, int height );
+bool JpegRotate180( RGB888Type *buffer, int width, int height );
+bool JpegRotate270( RGB888Type *buffer, int width, int height );
 JPGFORM_CODE ConvertExifOrientation(ExifData* exifData);
 bool TransformSize( int requiredWidth, int requiredHeight,
                     FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
@@ -339,20 +342,20 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
 
   // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
 
-  unsigned char * const bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight);
+  RGB888Type * bitmapPixelBuffer =  reinterpret_cast<RGB888Type*>( bitmap.GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight ) );
 
-  if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, bitmapPixelBuffer, scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
+  if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>( bitmapPixelBuffer ), scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
   {
     std::string errorString = tjGetErrorStr();
 
     if( IsJpegErrorFatal( errorString ) )
     {
-        DALI_LOG_ERROR("%s\n", errorString.c_str());
+        DALI_LOG_ERROR("%s\n", errorString.c_str() );
         return false;
     }
     else
     {
-        DALI_LOG_WARNING("%s\n", errorString.c_str());
+        DALI_LOG_WARNING("%s\n", errorString.c_str() );
     }
   }
 
@@ -370,25 +373,42 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
     // 3 orientation changes for a camera held perpendicular to the ground or upside-down:
     case JPGFORM_ROT_180:
     {
-      result = JpegRotate180(bitmapPixelBuffer, bufferWidth, bufferHeight, DECODED_PIXEL_SIZE);
+      result = JpegRotate180( bitmapPixelBuffer, bufferWidth, bufferHeight );
       break;
     }
     case JPGFORM_ROT_270:
     {
-      result = JpegRotate270(bitmapPixelBuffer, bufferWidth, bufferHeight, DECODED_PIXEL_SIZE);
+      result = JpegRotate270( bitmapPixelBuffer, bufferWidth, bufferHeight );
       break;
     }
     case JPGFORM_ROT_90:
     {
-      result = JpegRotate90(bitmapPixelBuffer, bufferWidth, bufferHeight, DECODED_PIXEL_SIZE);
+      result = JpegRotate90( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      break;
+    }
+    case JPGFORM_FLIP_V:
+    {
+      result = JpegFlipV( bitmapPixelBuffer, bufferWidth, bufferHeight );
       break;
     }
     /// Less-common orientation changes, since they don't correspond to a camera's
     // physical orientation:
     case JPGFORM_FLIP_H:
-    case JPGFORM_FLIP_V:
+    {
+      result = JpegFlipH( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      break;
+    }
     case JPGFORM_TRANSPOSE:
+    {
+      result = JpegTranspose( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      break;
+    }
     case JPGFORM_TRANSVERSE:
+    {
+      result = JpegTransverse( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      break;
+    }
+    default:
     {
       DALI_LOG_WARNING( "Unsupported JPEG Orientation transformation: %x.\n", transform );
       break;
@@ -397,124 +417,190 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
   return result;
 }
 
+bool JpegFlipV(RGB888Type *buffer, int width, int height )
+{
+  int bwidth = width;
+  int bheight = height;
+  //Destination pixel, set as the first pixel of screen
+  RGB888Type* to = buffer;
+  //Source pixel, as the image is flipped horizontally and vertically,
+  //the source pixel is the end of the buffer of size bwidth * bheight
+  RGB888Type* from = buffer + bwidth * bheight - 1;
+  RGB888Type temp;
+  unsigned int endLoop = ( bwidth * bheight ) / 2;
+
+  for(unsigned ix = 0; ix < endLoop; ++ ix, ++ to, -- from )
+  {
+    temp = *from;
+    *from = *to;
+    *to = temp;
+  }
+
+  return true;
+}
+
+bool JpegFlipH(RGB888Type *buffer, int width, int height )
+{
+  int ix, iy;
+  int bwidth = width;
+  int bheight = height;
+
+  RGB888Type* to;
+  RGB888Type* from;
+  RGB888Type temp;
+
+  for(iy = 0; iy < bheight; iy ++)
+  {
+    //Set the destination pixel as the beginning of the row
+    to = buffer + bwidth * iy;
+    //Set the source pixel as the end of the row to flip in X axis
+    from = buffer + bwidth * (iy + 1) - 1;
+    for(ix = 0; ix < bwidth / 2; ix ++ , ++ to, -- from )
+    {
+      temp = *from;
+      *from = *to;
+      *to = temp;
+    }
+  }
+  return true;
+}
+
+bool JpegTranspose( RGB888Type *buffer, int width, int height )
+{
+  int ix, iy;
+  int bwidth = width;
+  int bheight = height;
+
+  RGB888Type* to;
+  RGB888Type* from;
+  RGB888Type temp;
+  //Flip vertically only
+  for(iy = 0; iy < bheight / 2; iy ++)
+  {
+    for(ix = 0; ix < bwidth; ix ++)
+    {
+      to = buffer + iy * bwidth + ix;
+      from = buffer + (bheight - 1 - iy) * bwidth + ix;
+      temp = *from;
+      *from = *to;
+      *to = temp;
+    }
+  }
+
+  return true;
+}
+
+bool JpegTransverse( RGB888Type *buffer, int width, int height )
+{
+  int bwidth = width;
+  int bheight = height;
+  Vector<RGB888Type> data;
+  data.Resize( bwidth * bheight );
+  RGB888Type *dataPtr = data.Begin();
+  memcpy(dataPtr, buffer, bwidth * bheight * DECODED_PIXEL_SIZE );
+
+  RGB888Type* to = buffer;
+  RGB888Type* from;
+  for( int iy = 0; iy < bwidth; iy++ )
+  {
+    for( int ix = 0; ix < bheight; ix++ )
+    {
+      from = dataPtr + ix * bwidth + iy;
+      *to = *from;
+      to ++;
+    }
+  }
+
+  return true;
+}
+
 ///@Todo: Move all these rotation functions to portable/image-operations and take "Jpeg" out of their names.
-bool JpegRotate90(unsigned char *buffer, int width, int height, int bpp)
+bool JpegRotate90(RGB888Type *buffer, int width, int height )
 {
-  int  w, iw, ih, hw = 0;
+  int w, hw = 0;
   int ix, iy = 0;
-  iw = width;
-  ih = height;
-  Vector<unsigned char> data;
-  data.Resize(width * height * bpp);
-  unsigned char *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, width * height * bpp);
-  w = ih;
-  ih = iw;
-  iw = w;
-  hw = iw * ih;
+  int bwidth = width;
+  int bheight = height;
+  Vector<RGB888Type> data;
+  data.Resize(width * height);
+  RGB888Type *dataPtr = data.Begin();
+  memcpy(dataPtr, buffer, width * height * DECODED_PIXEL_SIZE );
+  w = bheight;
+  bheight = bwidth;
+  bwidth = w;
+  hw = bwidth * bheight;
   hw = - hw - 1;
-  switch(bpp)
+
+  RGB888Type* to = buffer + bwidth - 1;
+  RGB888Type* from = dataPtr;
+
+  for(ix = bwidth; -- ix >= 0;)
   {
-    case 3:
+    for(iy = bheight; -- iy >= 0; ++from )
     {
-      RGB888Type* to = reinterpret_cast<RGB888Type*>(buffer) + iw - 1;
-      RGB888Type* from = reinterpret_cast<RGB888Type*>( dataPtr );
-
-      for(ix = iw; -- ix >= 0;)
-      {
-        for(iy = ih; -- iy >= 0; ++from )
-        {
-          *to = *from;
-          to += iw;
-        }
-        to += hw;
-      }
-      break;
+      *to = *from;
+      to += bwidth;
     }
+    to += hw;
+  }
 
-    default:
+  return true;
+}
+
+bool JpegRotate180( RGB888Type *buffer, int width, int height )
+{
+  int bwidth = width;
+  int bheight = height;
+  Vector<RGB888Type> data;
+  data.Resize( bwidth * bheight );
+  RGB888Type *dataPtr = data.Begin();
+  memcpy(dataPtr, buffer, bwidth * bheight * DECODED_PIXEL_SIZE );
+
+  RGB888Type* to = buffer;
+  RGB888Type* from;
+  for( int iy = 0; iy < bwidth; iy++ )
+  {
+    for( int ix = 0; ix < bheight; ix++ )
     {
-      return false;
+      from = dataPtr + ( bheight - ix) * bwidth - 1 - iy;
+      *to = *from;
+      to ++;
     }
   }
 
   return true;
 }
 
-bool JpegRotate180(unsigned char *buffer, int width, int height, int bpp)
+bool JpegRotate270( RGB888Type *buffer, int width, int height )
 {
-  int  ix, iw, ih, hw = 0;
-  iw = width;
-  ih = height;
-  hw = iw * ih;
-  ix = hw;
-
-  switch(bpp)
-  {
-    case 3:
-    {
-      RGB888Type tmp;
-      RGB888Type* to = reinterpret_cast<RGB888Type*>(buffer) ;
-      RGB888Type* from = reinterpret_cast<RGB888Type*>( buffer ) + hw - 1;
-      for(; --ix >= (hw / 2); ++to, --from)
-      {
-        tmp = *to;
-        *to = *from;
-        *from = tmp;
-      }
-      break;
-    }
-
-    default:
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool JpegRotate270(unsigned char *buffer, int width, int height, int bpp)
-{
-  int  w, iw, ih, hw = 0;
+  int  w, hw = 0;
   int ix, iy = 0;
 
-  iw = width;
-  ih = height;
-  Vector<unsigned char> data;
-  data.Resize(width * height * bpp);
-  unsigned char *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, width * height * bpp);
-  w = ih;
-  ih = iw;
-  iw = w;
-  hw = iw * ih;
+  int bwidth = width;
+  int bheight = height;
+  Vector<RGB888Type> data;
+  data.Resize( width * height );
+  RGB888Type *dataPtr = data.Begin();
+  memcpy(dataPtr, buffer, width * height * DECODED_PIXEL_SIZE );
+  w = bheight;
+  bheight = bwidth;
+  bwidth = w;
+  hw = bwidth * bheight;
 
-  switch(bpp)
+  RGB888Type* to = buffer + hw  - bwidth;
+  RGB888Type* from = dataPtr;
+
+  w = -w;
+  hw =  hw + 1;
+  for(ix = bwidth; -- ix >= 0;)
   {
-    case 3:
+    for(iy = bheight; -- iy >= 0;)
     {
-      RGB888Type* to = reinterpret_cast<RGB888Type*>(buffer) + hw  - iw;
-      RGB888Type* from = reinterpret_cast<RGB888Type*>( dataPtr );
-
-      w = -w;
-      hw =  hw + 1;
-      for(ix = iw; -- ix >= 0;)
-      {
-        for(iy = ih; -- iy >= 0;)
-        {
-          *to = *from;
-          from += 1;
-          to += w;
-        }
-        to += hw;
-      }
-      break;
+      *to = *from;
+      from ++;
+      to += w;
     }
-    default:
-    {
-      return false;
-    }
+    to += hw;
   }
 
   return true;
@@ -671,7 +757,7 @@ bool TransformSize( int requiredWidth, int requiredHeight,
 {
   bool success = true;
 
-  if( transform == JPGFORM_ROT_90 || transform == JPGFORM_ROT_270 )
+  if( transform == JPGFORM_ROT_90 || transform == JPGFORM_ROT_270 || transform == JPGFORM_ROT_180 || transform == JPGFORM_TRANSVERSE)
   {
     std::swap( requiredWidth, requiredHeight );
     std::swap( postXformImageWidth, postXformImageHeight );
