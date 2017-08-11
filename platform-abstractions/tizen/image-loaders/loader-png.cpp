@@ -299,7 +299,20 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bi
   if( rowBytes > stride )
   {
     stride = GetTextureDimension(rowBytes);
-    bufferWidth = stride / bpp;
+
+    bpp = stride / bufferWidth;
+    switch(bpp)
+    {
+      case 3:
+        pixelFormat = Pixel::RGB888;
+        break;
+      case 4:
+        pixelFormat = Pixel::RGBA8888;
+        break;
+      default:
+        break;
+    }
+
   }
 
   // decode the whole image into bitmap buffer
