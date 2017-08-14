@@ -107,13 +107,13 @@ void PixmapRenderSurface::StartRender()
   // FIXME
 }
 
-bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
@@ -147,7 +147,7 @@ void PixmapRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterfa
 void PixmapRenderSurface::CreateWlRenderable()
 {
   // check we're creating one with a valid size
-  DALI_ASSERT_ALWAYS( mPositionSize.width > 0 && mPositionSize.height > 0 && "Pixmap size is invalid" );
+  DALI_ASSERT_ALWAYS( mPosition.width > 0 && mPosition.height > 0 && "Pixmap size is invalid" );
 
   // FIXME
 }
