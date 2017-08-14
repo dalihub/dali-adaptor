@@ -259,7 +259,11 @@ CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffun
 LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
-CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
+CXXFLAGS+=" -D_ARCH_ARM_ -lgcc -DSCREEN_ROTATION_ENABLED"
+%endif
+
+%if "%{?_with_emulator}" == "1"
+CXXFLAGS+=" -DSCREEN_ROTATION_ENABLED"
 %endif
 
 %if %{with wayland}

@@ -174,6 +174,7 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   EGLNativeWindowType windowType( mEglWindow );
   eglImpl.CreateSurfaceWindow( windowType, mColorDepth );
 
+#ifdef SCREEN_ROTATION_ENABLED
   // Check capability
   wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
   if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
@@ -183,6 +184,7 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   }
 
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+#endif
 }
 
 void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
@@ -269,6 +271,7 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
 {
+#ifdef SCREEN_ROTATION_ENABLED
   if( resizingSurface )
   {
     // Window rotate or screen rotate
@@ -359,12 +362,14 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
       wl_egl_window_set_window_transform( mEglWindow, windowTransform );
     }
   }
+#endif
 
   return true;
 }
 
 void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
+#ifdef SCREEN_ROTATION_ENABLED
   if( resizingSurface )
   {
     if( !mRotationFinished )
@@ -380,6 +385,7 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
       }
     }
   }
+#endif
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -460,6 +466,7 @@ void WindowRenderSurface::ReleaseLock()
 
 void WindowRenderSurface::ProcessRotationRequest()
 {
+#ifdef SCREEN_ROTATION_ENABLED
   mRotationFinished = true;
 
   ecore_wl_window_rotation_change_done_send( mWlWindow );
@@ -470,6 +477,7 @@ void WindowRenderSurface::ProcessRotationRequest()
   {
     mThreadSynchronization->PostRenderComplete();
   }
+#endif
 }
 
 } // namespace ECore
