@@ -109,7 +109,6 @@ BuildRequires:  pkgconfig(elementary)
 %if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
 %else
-BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(appcore-multiwindow)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
