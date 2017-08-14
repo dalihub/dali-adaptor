@@ -110,6 +110,11 @@ bool LoadBmpHeader(FILE *fp, unsigned int &width, unsigned int &height, BmpFileH
   width = infoHeader.width;
   height = abs(infoHeader.height);
 
+  if( infoHeader.width == 0 )
+  {
+    return false;
+  }
+
   return true;
 }
 
@@ -1254,7 +1259,7 @@ bool LoadBitmapFromBmp( const ImageLoader::Input& input, Integration::Bitmap& bi
     }
     case BMP_RGB4:
     {
-      decodeResult = DecodeRGB4(fp, pixels, infoHeader.width, infoHeader.height, 14 + infoHeader.infoHeaderSize, topDown);
+      decodeResult = DecodeRGB4(fp, pixels, infoHeader.width, abs(infoHeader.height), 14 + infoHeader.infoHeaderSize, topDown);
       break;
     }
     case BMP_RLE4:
