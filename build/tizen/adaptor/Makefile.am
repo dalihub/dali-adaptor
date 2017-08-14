@@ -460,14 +460,16 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(SENSOR_LIBS)
 if USE_APPFW_EFL_BASE
 else
-libdali_adaptor_la_CXXFLAGS += $(CAPI_AUL_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += $(BUNDLE_CFLAGS) \
+                               $(CAPI_AUL_CFLAGS) \
                                $(CAPI_APPFW_COMMON_CFLAGS) \
                                $(CAPI_APPFW_WIDGET_APPLICATION_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
                                $(CAPI_SCREEN_CONNECTOR_PROVIDER_CFLAGS) \
                                $(FRIBIDI_CFLAGS)
 
-libdali_adaptor_la_LIBADD += $(CAPI_AUL_LIBS) \
+libdali_adaptor_la_LIBADD += $(BUNDLE_LIBS) \
+                             $(CAPI_AUL_LIBS) \
                              $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_WIDGET_APPLICATION_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
