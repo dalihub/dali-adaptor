@@ -23,7 +23,6 @@
 
 // INTERNAL INCLUDES
 #include <ecore-wl-render-surface.h>
-#include <window.h>
 #include <integration-api/thread-synchronization-interface.h>
 
 namespace Dali
@@ -81,11 +80,16 @@ public: // API
 
   /**
    * Request surface rotation
-   * @param[in] orientation A new orientation of the surface
+   * @param[in] angle A new angle of the surface
    * @param[in] width A new width of the surface
    * @param[in] height A new height of the surface
    */
-  void RequestRotation( Dali::Window::WindowOrientation orientation, int width, int height );
+  void RequestRotation( int angle, int width, int height );
+
+  /**
+   * Notify output is transformed.
+   */
+  void OutputTransformed();
 
   /**
    * @brief Sets whether the surface is transparent or not.
@@ -134,12 +138,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
@@ -177,20 +181,17 @@ private:
 
 private: // Data
 
-  typedef int (*EglWinGetCapabilitiesFunction)( wl_egl_window* eglWindow );
-  typedef int (*EglWinSetRotationFunction)( wl_egl_window* eglWindow, int rotation );
-
-  EglWinGetCapabilitiesFunction  mEglWinGetCapabilitiesPtr;
-  EglWinSetRotationFunction      mEglWinSetRotationPtr;
-
-  void*                           mLibHandle; ///< Handle for the loaded library
   Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
   wl_surface*                     mWlSurface;
   wl_egl_window*                  mEglWindow;
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRotationTrigger;
+  int                             mRotationAngle;
+  int                             mScreenRotationAngle;
   bool                            mRotationSupported;
-  bool                            mRotated;
+  bool                            mRotationFinished;
+  bool                            mScreenRotationFinished;
+  bool                            mResizeFinished;
 
 }; // class WindowRenderSurface
 
