@@ -268,7 +268,7 @@ void FontClient::Plugin::ResetSystemDefaults()
   mDefaultFontDescriptionCached = false;
 }
 
-  void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, FontList& fontList, CharacterSetList& characterSetList )
+void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, FontList& fontList, CharacterSetList& characterSetList )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::SetFontList\n" );
   DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
@@ -369,7 +369,27 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 
   if( !mDefaultFontDescriptionCached )
   {
-    FcInitReinitialize(); // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
+    // Clear any font config stored info in the caches.
+    mDefaultFontCharacterSets.Clear();
+    mCharacterSetCache.Clear();
+
+    for( std::vector<FallbackCacheItem>::iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end(); it != endIt; ++it )
+    {
+      FallbackCacheItem& item = *it;
+
+      item.characterSets->Clear();
+    }
+
+    for( std::vector<FontFaceCacheItem>::iterator it = mFontCache.begin(), endIt = mFontCache.end(); it != endIt; ++it )
+    {
+      FontFaceCacheItem& item = *it;
+
+      // Set the character set pointer as null. Will be created again the next time IsCharacterSupportedByFont()
+      item.mCharacterSet = NULL;
+    }
+
+    // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
+    FcInitReinitialize();
 
     FcPattern* matchPattern = FcPatternCreate();
 
@@ -381,6 +401,41 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
       FcCharSet* characterSet = NULL;
       MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription, &characterSet );
       FcPatternDestroy( matchPattern );
+    }
+
+    // Create again the character sets as they are not valid after FcInitReinitialize()
+
+    for( FontList::const_iterator it = mDefaultFonts.begin(), endIt = mDefaultFonts.end(); it != endIt; ++it )
+    {
+      const FontDescription& description = *it;
+
+      mDefaultFontCharacterSets.PushBack( CreateCharacterSetFromDescription( description ) );
+    }
+
+    for( FontList::const_iterator it = mFontDescriptionCache.begin(), endIt = mFontDescriptionCache.end(); it != endIt; ++it )
+    {
+      const FontDescription& description = *it;
+
+      mCharacterSetCache.PushBack( CreateCharacterSetFromDescription( description ) );
+    }
+
+    for( std::vector<FallbackCacheItem>::iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end(); it != endIt; ++it )
+    {
+      FallbackCacheItem& item = *it;
+
+      if( NULL != item.fallbackFonts )
+      {
+        if( NULL == item.characterSets )
+        {
+          item.characterSets = new CharacterSetList;
+        }
+
+        for( FontList::const_iterator flIt = item.fallbackFonts->begin(), flEndIt = item.fallbackFonts->end(); flIt != flEndIt; ++flIt )
+        {
+          const FontDescription& description = *flIt;
+          item.characterSets->PushBack( CreateCharacterSetFromDescription( description ) );
+        }
+      }
     }
 
     mDefaultFontDescriptionCached = true;
@@ -485,7 +540,32 @@ bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character ch
 
   bool isSupported = false;
 
-  const FontFaceCacheItem& cacheItem = mFontCache[fontId];
+  FontFaceCacheItem& cacheItem = mFontCache[fontId];
+
+  if( NULL == cacheItem.mCharacterSet )
+  {
+    // Create again the character set.
+    // It can be null if the ResetSystemDefaults() method has been called.
+
+    FontDescription description;
+    description.path = cacheItem.mPath;
+    description.family = FontFamily( cacheItem.mFreeTypeFace->family_name );
+    description.weight = FontWeight::NONE;
+    description.width = FontWidth::NONE;
+    description.slant = FontSlant::NONE;
+
+    // Note FreeType doesn't give too much info to build a proper font style.
+    if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_ITALIC )
+    {
+      description.slant = FontSlant::ITALIC;
+    }
+    if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_BOLD )
+    {
+      description.weight = FontWeight::BOLD;
+    }
+
+    cacheItem.mCharacterSet = CreateCharacterSetFromDescription( description );
+  }
 
   isSupported = FcCharSetHasChar( cacheItem.mCharacterSet, character );
 
@@ -596,6 +676,7 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
 
   DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
   DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindDefaultFont\n" );
+
   return fontId;
 }
 
@@ -1098,6 +1179,9 @@ void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex,
 
 const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetEllipsisGlyph\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize %d.\n", requestedPointSize );
+
   // First look into the cache if there is an ellipsis glyph for the requested point size.
   for( Vector<EllipsisItem>::ConstIterator it = mEllipsisCache.Begin(),
          endIt = mEllipsisCache.End();
@@ -1109,6 +1193,11 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
     if( fabsf( item.requestedPointSize - requestedPointSize ) < Math::MACHINE_EPSILON_1000 )
     {
       // Use the glyph in the cache.
+
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  glyph id %d found in the cache.\n", item.glyph.index );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "      font %d.\n", item.glyph.fontId );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetEllipsisGlyph\n" );
+
       return item.glyph;
     }
   }
@@ -1129,6 +1218,10 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
                                         ELLIPSIS_CHARACTER );
 
   GetBitmapMetrics( &item.glyph, 1u, true );
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  glyph id %d found in the cache.\n", item.glyph.index );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "      font %d.\n", item.glyph.fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetEllipsisGlyph\n" );
 
   return item.glyph;
 }
@@ -1177,11 +1270,6 @@ void FontClient::Plugin::InitSystemFonts()
       // Skip fonts with no path
       if( GetFcString( fontPattern, FC_FILE, path ) )
       {
-        FcCharSet* characterSet = NULL;
-        FcPatternGetCharSet( fontPattern, FC_CHARSET, 0u, &characterSet );
-
-        mSystemFontCharacterSets.PushBack( characterSet );
-
         mSystemFonts.push_back( FontDescription() );
         FontDescription& fontDescription = mSystemFonts.back();
 
@@ -1252,7 +1340,7 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
   return matched;
 }
 
-FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& fontDescription )
+FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& fontDescription ) const
 {
   // create the cached font family lookup pattern
   // a pattern holds a set of names, each name refers to a property of the font
@@ -1859,6 +1947,26 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
                                              requestedPointSize,
                                              id ) );
   }
+}
+
+FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description ) const
+{
+  FcCharSet* characterSet = NULL;
+
+  FcPattern* pattern = CreateFontFamilyPattern( description );
+
+  if( NULL != pattern )
+  {
+    FcResult result = FcResultMatch;
+    FcPattern* match = FcFontMatch( NULL, pattern, &result );
+
+    FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
+
+    FcPatternDestroy( match );
+    FcPatternDestroy( pattern );
+  }
+
+  return characterSet;
 }
 
 } // namespace Internal

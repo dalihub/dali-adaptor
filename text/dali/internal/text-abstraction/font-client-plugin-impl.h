@@ -344,7 +344,7 @@ private:
    *
    * @return The pattern.
    */
-  _FcPattern* CreateFontFamilyPattern( const FontDescription& fontDescription );
+  _FcPattern* CreateFontFamilyPattern( const FontDescription& fontDescription ) const;
 
   /**
    * Retrieves the fonts present in the platform.
@@ -476,6 +476,15 @@ private:
    */
   void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize,  const FontPath& path );
 
+  /**
+   * @brief Creates a character set from a given font's @p description.
+   *
+   * @param[in] description The font's description.
+   *
+   * @return A character set.
+   */
+  _FcCharSet* CreateCharacterSetFromDescription( const FontDescription& description ) const;
+
 private:
 
   // Declared private and left undefined to avoid copies.
@@ -494,7 +503,6 @@ private:
 
   FontList mSystemFonts;       ///< Cached system fonts.
   FontList mDefaultFonts;      ///< Cached default fonts.
-  CharacterSetList mSystemFontCharacterSets;
   CharacterSetList mDefaultFontCharacterSets;
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
