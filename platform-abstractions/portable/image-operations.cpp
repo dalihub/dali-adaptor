@@ -454,13 +454,43 @@ ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned i
   // If no dimensions have been requested, default to the source ones:
   if( requestedWidth == 0 && requestedHeight == 0 )
   {
-    return ImageDimensions( std::min( bitmapWidth, maxSize ), std::min( bitmapHeight, maxSize ) );
+    if( bitmapWidth <= maxSize && bitmapHeight <= maxSize )
+    {
+      return ImageDimensions( bitmapWidth, bitmapHeight );
+    }
+    else
+    {
+      // Calculate the size from the max texture size and the source image aspect ratio
+      if( bitmapWidth > bitmapHeight )
+      {
+        return ImageDimensions( maxSize, bitmapHeight * maxSize / static_cast< float >( bitmapWidth ) + 0.5f );
+      }
+      else
+      {
+        return ImageDimensions( bitmapWidth * maxSize / static_cast< float >( bitmapHeight ) + 0.5f, maxSize );
+      }
+    }
   }
 
   // If both dimensions have values requested, use them both:
   if( requestedWidth != 0 && requestedHeight != 0 )
   {
-    return ImageDimensions( std::min( requestedWidth, maxSize ), std::min( requestedHeight, maxSize ) );
+    if( requestedWidth <= maxSize && requestedWidth <= maxSize )
+    {
+      return ImageDimensions( requestedWidth, requestedHeight );
+    }
+    else
+    {
+      // Calculate the size from the max texture size and the source image aspect ratio
+      if( requestedWidth > requestedHeight )
+      {
+        return ImageDimensions( maxSize, requestedHeight * maxSize / static_cast< float >( requestedWidth ) + 0.5f );
+      }
+      else
+      {
+        return ImageDimensions( requestedWidth * maxSize / static_cast< float >( requestedHeight ) + 0.5f, maxSize );
+      }
+    }
   }
 
   // Only one of the dimensions has been requested. Calculate the other from

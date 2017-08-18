@@ -52,8 +52,6 @@ const int DEFAULT_FONT_SLANT  =   0; // normal
 
 const uint32_t ELLIPSIS_CHARACTER = 0x2026;
 
-const bool FONT_FIXED_SIZE_BITMAP( true );
-
 // http://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 
 // NONE            -1  --> DEFAULT_FONT_WIDTH (NORMAL) will be used.
@@ -140,9 +138,10 @@ FontSlant::Type IntToSlantType( int slant )
   return static_cast<FontSlant::Type>( ValueToIndex( slant, FONT_SLANT_TYPE_TO_INT, NUM_FONT_SLANT_TYPE - 1u ) );
 }
 
-FontClient::Plugin::FallbackCacheItem::FallbackCacheItem( const FontDescription& font, FontList* list )
+  FontClient::Plugin::FallbackCacheItem::FallbackCacheItem( const FontDescription& font, FontList* fallbackFonts, CharacterSetList* characterSets )
 : fontDescription( font ),
-  fallbackFonts( list )
+  fallbackFonts( fallbackFonts ),
+  characterSets( characterSets )
 {
 }
 
@@ -172,10 +171,12 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
   mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
+  mCharacterSet( NULL ),
   mFixedWidthPixels( 0.0f ),
   mFixedHeightPixels( 0.0f ),
   mVectorFontId( 0 ),
-  mIsFixedSizeBitmap( false )
+  mIsFixedSizeBitmap( false ),
+  mHasColorTables( false )
 {
 }
 
@@ -185,16 +186,19 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
                                                           FaceIndex face,
                                                           const FontMetrics& metrics,
                                                           float fixedWidth,
-                                                          float fixedHeight )
+                                                          float fixedHeight,
+                                                          bool hasColorTables )
 : mFreeTypeFace( ftFace ),
   mPath( path ),
   mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
+  mCharacterSet( NULL ),
   mFixedWidthPixels( fixedWidth ),
   mFixedHeightPixels( fixedHeight ),
   mVectorFontId( 0 ),
-  mIsFixedSizeBitmap( true )
+  mIsFixedSizeBitmap( true ),
+  mHasColorTables( hasColorTables )
 {
 }
 
@@ -209,15 +213,18 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   mFontCache(),
   mValidatedFontCache(),
   mFontDescriptionCache( 1u ),
+  mCharacterSetCache(),
   mFontIdCache(),
   mVectorFontCache( NULL ),
   mEllipsisCache(),
   mDefaultFontDescriptionCached( false )
 {
+  mCharacterSetCache.Resize( 1u );
+
   int error = FT_Init_FreeType( &mFreeTypeLibrary );
   if( FT_Err_Ok != error )
   {
-    DALI_LOG_ERROR( "FreeType Init error: %d\n", error );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FreeType Init error: %d\n", error );
   }
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
@@ -236,7 +243,9 @@ FontClient::Plugin::~Plugin()
     if( item.fallbackFonts )
     {
       delete item.fallbackFonts;
+      delete item.characterSets;
       item.fallbackFonts = NULL;
+      item.characterSets = NULL;
     }
   }
 
@@ -259,9 +268,13 @@ void FontClient::Plugin::ResetSystemDefaults()
   mDefaultFontDescriptionCached = false;
 }
 
-void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, FontList& fontList )
+  void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, FontList& fontList, CharacterSetList& characterSetList )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::SetFontList family(%s)\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::SetFontList\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
 
   fontList.clear();
 
@@ -278,6 +291,7 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
 
   if( NULL != fontSet )
   {
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  number of fonts found : [%d]\n", fontSet->nfont );
     // Reserve some space to avoid reallocations.
     fontList.reserve( fontSet->nfont );
 
@@ -290,6 +304,10 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
       // Skip fonts with no path
       if( GetFcString( fontPattern, FC_FILE, path ) )
       {
+        FcCharSet* characterSet = NULL;
+        FcPatternGetCharSet( fontPattern, FC_CHARSET, 0u, &characterSet );
+
+        characterSetList.PushBack( characterSet );
         fontList.push_back( FontDescription() );
         FontDescription& newFontDescription = fontList.back();
 
@@ -305,18 +323,29 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
         newFontDescription.width = IntToWidthType( width );
         newFontDescription.weight = IntToWeightType( weight );
         newFontDescription.slant = IntToSlantType( slant );
+
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  description; family : [%s]\n", newFontDescription.family.c_str() );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", newFontDescription.path.c_str() );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[newFontDescription.width] );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[newFontDescription.weight] );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[newFontDescription.slant] );
       }
     }
 
     FcFontSetDestroy( fontSet );
   }
+  else
+  {
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  No fonts found.\n" );
+  }
 
   FcPatternDestroy( fontFamilyPattern );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::SetFontList\n" );
 }
 
 void FontClient::Plugin::GetDefaultFonts( FontList& defaultFonts )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultFonts mDefaultFonts(%s)\n", ( mDefaultFonts.empty()?"empty":"valid" ) );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetDefaultFonts\n" );
 
   if( mDefaultFonts.empty() )
   {
@@ -325,15 +354,18 @@ void FontClient::Plugin::GetDefaultFonts( FontList& defaultFonts )
     fontDescription.width = IntToWidthType( DEFAULT_FONT_WIDTH );
     fontDescription.weight = IntToWeightType( DEFAULT_FONT_WEIGHT );
     fontDescription.slant = IntToSlantType( DEFAULT_FONT_SLANT );
-    SetFontList( fontDescription, mDefaultFonts );
+    SetFontList( fontDescription, mDefaultFonts, mDefaultFontCharacterSets );
   }
 
   defaultFonts = mDefaultFonts;
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  number of default fonts : [%d]\n", mDefaultFonts.size() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetDefaultFonts\n" );
 }
 
 void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetDefaultPlatformFontDescription\n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetDefaultPlatformFontDescription\n");
 
   if( !mDefaultFontDescriptionCached )
   {
@@ -346,7 +378,8 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
       FcConfigSubstitute( NULL, matchPattern, FcMatchPattern );
       FcDefaultSubstitute( matchPattern );
 
-      MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription );
+      FcCharSet* characterSet = NULL;
+      MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription, &characterSet );
       FcPatternDestroy( matchPattern );
     }
 
@@ -358,11 +391,18 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
   fontDescription.width  = mDefaultFontDescription.width;
   fontDescription.weight = mDefaultFontDescription.weight;
   fontDescription.slant  = mDefaultFontDescription.slant;
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetDefaultPlatformFontDescription\n");
 }
 
 void FontClient::Plugin::GetSystemFonts( FontList& systemFonts )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetSystemFonts\n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetSystemFonts\n");
 
   if( mSystemFonts.empty() )
   {
@@ -370,11 +410,16 @@ void FontClient::Plugin::GetSystemFonts( FontList& systemFonts )
   }
 
   systemFonts = mSystemFonts;
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  number of system fonts : [%d]\n", mSystemFonts.size() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetSystemFonts\n");
 }
 
 void FontClient::Plugin::GetDescription( FontId id,
                                          FontDescription& fontDescription ) const
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetDescription\n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", id );
+
   for( std::vector<FontIdCacheItem>::const_iterator it = mFontIdCache.begin(),
          endIt = mFontIdCache.end();
        it != endIt;
@@ -385,103 +430,138 @@ void FontClient::Plugin::GetDescription( FontId id,
     if( item.fontId == id )
     {
       fontDescription = *( mFontDescriptionCache.begin() + item.validatedFontId );
+
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetDescription\n");
       return;
     }
   }
 
-  DALI_LOG_ERROR( "FontClient::Plugin::GetDescription. No description found for the font ID %d\n", id );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  No description found for the font ID %d\n", id );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetDescription\n");
 }
 
 PointSize26Dot6 FontClient::Plugin::GetPointSize( FontId id )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetPointSize\n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", id );
   const FontId index = id - 1u;
 
-  if( id > 0u &&
-      index < mFontCache.size() )
+  if( ( id > 0u ) &&
+      ( index < mFontCache.size() ) )
   {
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  point size : %d\n", ( *( mFontCache.begin() + index ) ).mRequestedPointSize );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetPointSize\n");
     return ( *( mFontCache.begin() + index ) ).mRequestedPointSize;
   }
   else
   {
-    DALI_LOG_ERROR( "FontClient::Plugin::GetPointSize. Invalid font ID %d\n", id );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font ID %d\n", id );
   }
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  default point size : %d\n", TextAbstraction::FontClient::DEFAULT_POINT_SIZE );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetPointSize\n");
   return TextAbstraction::FontClient::DEFAULT_POINT_SIZE;
 }
 
+bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character character )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::IsCharacterSupportedByFont\n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "    font id : %d\n", fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  character : %p\n", character );
+
+  if( ( fontId < 1u ) || ( fontId > mFontCache.size() ) )
+  {
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font id. Number of items in the cache: %d\n",mFontCache.size());
+    DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::IsCharacterSupportedByFont\n");
+    return false;
+  }
+
+  --fontId;
+
+  bool isSupported = false;
+
+  const FontFaceCacheItem& cacheItem = mFontCache[fontId];
+
+  isSupported = FcCharSetHasChar( cacheItem.mCharacterSet, character );
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  is supported : %s\n", (isSupported ? "true" : "false") );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::IsCharacterSupportedByFont\n");
+  return isSupported;
+}
+
 FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
-                                                 Character charcode,
+                                                 const CharacterSetList& characterSetList,
+                                                 Character character,
                                                  PointSize26Dot6 requestedPointSize,
                                                  bool preferColor )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFontForCharacter\n");
+  DALI_ASSERT_DEBUG( ( fontList.size() == characterSetList.Count() ) && "FontClient::Plugin::FindFontForCharacter. Different number of fonts and character sets." );
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFontForCharacter\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "           character : %p\n", character );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "         preferColor : %s\n", ( preferColor ? "true" : "false" ) );
 
   FontId fontId = 0u;
   bool foundColor = false;
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  number of fonts : %d\n", fontList.size() );
+
   // Traverse the list of fonts.
   // Check for each font if supports the character.
-  for( FontList::const_iterator it = fontList.begin(), endIt = fontList.end();
-       it != endIt;
-       ++it )
+  for( unsigned int index = 0u, numberOfFonts = fontList.size(); index < numberOfFonts; ++index )
   {
-    const FontDescription& description = *it;
+    const FontDescription& description = fontList[index];
+    const FcCharSet* const characterSet = characterSetList[index];
 
-    FcPattern* pattern = CreateFontFamilyPattern( description );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  description; family : [%s]\n", description.family.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", description.path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[description.width] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[description.weight] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[description.slant] );
 
-    FcResult result = FcResultMatch;
-    FcPattern* match = FcFontMatch( NULL /* use default configure */, pattern, &result );
-
-    FcCharSet* charSet = NULL;
-    FcPatternGetCharSet( match, FC_CHARSET, 0u, &charSet );
-
-    if( FcCharSetHasChar( charSet, charcode ) )
+    bool foundInRanges = false;
+    if( NULL != characterSet )
     {
-      Vector< PointSize26Dot6 > fixedSizes;
-      GetFixedSizes( description,
-                     fixedSizes );
+      foundInRanges = FcCharSetHasChar( characterSet, character );
+    }
 
-      PointSize26Dot6 actualPointSize = requestedPointSize;
-
-      const Vector< PointSize26Dot6 >::SizeType count = fixedSizes.Count();
-
-      if( 0 != count )
-      {
-        // If the font is not scalable, pick the largest size <= requestedPointSize
-        actualPointSize = fixedSizes[0];
-        for( unsigned int i=1; i<count; ++i )
-        {
-          if( fixedSizes[i] <= requestedPointSize &&
-              fixedSizes[i] > actualPointSize )
-          {
-            actualPointSize = fixedSizes[i];
-          }
-        }
-      }
-
+    if( foundInRanges )
+    {
       fontId = GetFontId( description,
                           requestedPointSize,
-                          actualPointSize,
                           0u );
+
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "     font id : %d\n", fontId );
 
       if( preferColor )
       {
-        foundColor = IsColorGlyph( fontId, GetGlyphIndex( fontId, charcode ) );
+        if( ( fontId > 0 ) &&
+            ( fontId - 1u < mFontCache.size() ) )
+        {
+          const FontFaceCacheItem& item = mFontCache[fontId - 1u];
+
+          foundColor = item.mHasColorTables;
+        }
+
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  foundColor : %s\n", ( foundColor ? "true" : "false" ) );
       }
 
       // Keep going unless we prefer a different (color) font.
       if( !preferColor || foundColor )
       {
-        FcPatternDestroy( match );
-        FcPatternDestroy( pattern );
         break;
       }
     }
-
-    FcPatternDestroy( match );
-    FcPatternDestroy( pattern );
   }
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFontForCharacter\n" );
   return fontId;
 }
 
@@ -489,7 +569,10 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
                                             PointSize26Dot6 requestedPointSize,
                                             bool preferColor )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindDefaultFont DefaultFontsList(%s)\n", (mDefaultFonts.empty()?"empty":"created") );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindDefaultFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "           character : %p\n", charcode );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "         preferColor : %s\n", ( preferColor ? "true" : "false" ) );
 
   FontId fontId(0);
 
@@ -502,13 +585,17 @@ FontId FontClient::Plugin::FindDefaultFont( Character charcode,
     fontDescription.weight = IntToWeightType( DEFAULT_FONT_WEIGHT );
     fontDescription.slant = IntToSlantType( DEFAULT_FONT_SLANT );
 
-    SetFontList( fontDescription, mDefaultFonts );
+    SetFontList( fontDescription, mDefaultFonts, mDefaultFontCharacterSets );
   }
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of default fonts : %d\n", mDefaultFonts.size() );
+
 
   // Traverse the list of default fonts.
   // Check for each default font if supports the character.
-  fontId = FindFontForCharacter( mDefaultFonts, charcode, requestedPointSize, preferColor );
+  fontId = FindFontForCharacter( mDefaultFonts, mDefaultFontCharacterSets, charcode, requestedPointSize, preferColor );
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindDefaultFont\n" );
   return fontId;
 }
 
@@ -517,6 +604,11 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
                                              PointSize26Dot6 requestedPointSize,
                                              bool preferColor )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFallbackFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "           character : %p\n", charcode );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "         preferColor : %s\n", ( preferColor ? "true" : "false" ) );
+
   // The font id to be returned.
   FontId fontId = 0u;
 
@@ -528,33 +620,45 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
   fontDescription.width = ( ( FontWidth::NONE == preferredFontDescription.width ) ? IntToWidthType( DEFAULT_FONT_WIDTH ) : preferredFontDescription.width );
   fontDescription.slant = ( ( FontSlant::NONE == preferredFontDescription.slant ) ? IntToSlantType( DEFAULT_FONT_SLANT ) : preferredFontDescription.slant );
 
-  // Check first if the font's description has been queried before.
-  FontList* fontList( NULL );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  preferredFontDescription --> fontDescription\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  [%s] --> [%s]\n", preferredFontDescription.family.c_str(), fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontWeight::Name[preferredFontDescription.weight], FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontWidth::Name[preferredFontDescription.width], FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontSlant::Name[preferredFontDescription.slant], FontSlant::Name[fontDescription.slant] );
 
-  if( !FindFallbackFontList( fontDescription, fontList ) )
+  // Check first if the font's description has been queried before.
+  FontList* fontList = NULL;
+  CharacterSetList* characterSetList = NULL;
+
+  if( !FindFallbackFontList( fontDescription, fontList, characterSetList ) )
   {
     fontList = new FontList;
-    SetFontList( fontDescription, *fontList );
+    characterSetList = new CharacterSetList;
+
+    SetFontList( fontDescription, *fontList, *characterSetList );
 
     // Add the font-list to the cache.
-    mFallbackCache.push_back( FallbackCacheItem( fontDescription, fontList ) );
+    mFallbackCache.push_back( FallbackCacheItem( fontDescription, fontList, characterSetList ) );
   }
 
-  if( fontList )
+  if( fontList && characterSetList )
   {
-    fontId = FindFontForCharacter( *fontList, charcode, requestedPointSize, preferColor );
+    fontId = FindFontForCharacter( *fontList, *characterSetList, charcode, requestedPointSize, preferColor );
   }
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFallbackFont\n");
   return fontId;
 }
 
 FontId FontClient::Plugin::GetFontId( const FontPath& path,
                                       PointSize26Dot6 requestedPointSize,
-                                      PointSize26Dot6 actualPointSize,
                                       FaceIndex faceIndex,
                                       bool cacheDescription )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId fontPatch:%s\n", path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetFontId\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "                path : [%s]\n", path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
 
   FontId id( 0 );
 
@@ -567,19 +671,27 @@ FontId FontClient::Plugin::GetFontId( const FontPath& path,
     }
     else
     {
-      id = CreateFont( path, requestedPointSize, actualPointSize, faceIndex, cacheDescription );
+      id = CreateFont( path, requestedPointSize, faceIndex, cacheDescription );
     }
   }
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", id );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetFontId\n" );
 
   return id;
 }
 
 FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                                       PointSize26Dot6 requestedPointSize,
-                                      PointSize26Dot6 actualPointSize,
                                       FaceIndex faceIndex )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId font family(%s)\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetFontId\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "   requestedPointSize : %d\n", requestedPointSize );
 
   // This method uses three vectors which caches:
   // * Pairs of non validated font descriptions and an index to a vector with paths to font file names.
@@ -605,8 +717,6 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
   if( !FindValidatedFont( fontDescription,
                           validatedFontId ) )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::GetFontId Validating Font\n");
-
     // Use font config to validate the font's description.
     ValidateFont( fontDescription,
                   validatedFontId );
@@ -621,9 +731,10 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
     // Retrieve the font id. Do not cache the description as it has been already cached.
     fontId = GetFontId( description.path,
                         requestedPointSize,
-                        actualPointSize,
                         faceIndex,
                         false );
+
+    mFontCache[fontId-1u].mCharacterSet = mCharacterSetCache[validatedFontId];
 
     // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
     mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
@@ -631,29 +742,46 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                                              fontId ) );
   }
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetFontId\n" );
+
   return fontId;
 }
 
 void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
                                        FontDescriptionId& validatedFontId )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValidateFont Validating Font family(%s) \n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::ValidateFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
 
   // Create a font pattern.
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
 
   FontDescription description;
 
-  bool matched = MatchFontDescriptionToPattern( fontFamilyPattern, description );
+  FcCharSet* characterSet = NULL;
+  bool matched = MatchFontDescriptionToPattern( fontFamilyPattern, description, &characterSet );
   FcPatternDestroy( fontFamilyPattern );
 
-  if( matched )
+  if( matched && ( NULL != characterSet ) )
   {
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
 
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  matched description; family : [%s]\n", description.family.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                         path : [%s]\n", description.path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                        width : [%s]\n", FontWidth::Name[description.width] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                       weight : [%s]\n", FontWeight::Name[description.weight] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                        slant : [%s]\n\n", FontSlant::Name[description.slant] );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  validatedFontId : %d\n", validatedFontId );
+
     // Add the path to the cache.
     mFontDescriptionCache.push_back( description );
+    mCharacterSetCache.PushBack( characterSet );
 
     // Cache the index and the matched font's description.
     FontDescriptionCacheItem item( description,
@@ -675,14 +803,10 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
   }
   else
   {
-    DALI_LOG_ERROR( "FontClient::Plugin::ValidateFont failed for font %s %d %d %d\n",
-                    fontDescription.family.c_str(),
-                    fontDescription.width,
-                    fontDescription.weight,
-                    fontDescription.slant );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  font validation failed for font [%s]\n", fontDescription.family.c_str() );
   }
 
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::ValidateFont validatedFontId(%u) font family(%s)\n", validatedFontId, fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::ValidateFont\n" );
 }
 
 void FontClient::Plugin::GetFontMetrics( FontId fontId,
@@ -714,19 +838,19 @@ void FontClient::Plugin::GetFontMetrics( FontId fontId,
   }
   else
   {
-    DALI_LOG_ERROR( "Invalid font ID %d\n", fontId );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetFontMetrics. Invalid font id : %d\n", fontId );
   }
 }
 
 GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
                                               Character charcode )
 {
-  GlyphIndex index( 0 );
+  GlyphIndex index = 0u;
 
-  if( fontId > 0 &&
-      fontId-1 < mFontCache.size() )
+  if( ( fontId > 0u ) &&
+      ( fontId - 1u < mFontCache.size() ) )
   {
-    FT_Face ftFace = mFontCache[fontId-1].mFreeTypeFace;
+    FT_Face ftFace = mFontCache[fontId-1u].mFreeTypeFace;
 
     index = FT_Get_Char_Index( ftFace, charcode );
   }
@@ -797,7 +921,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
         }
         else
         {
-          DALI_LOG_ERROR( "FreeType Bitmap Load_Glyph error %d\n", error );
+          DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetBitmapMetrics. FreeType Bitmap Load_Glyph error %d\n", error );
           success = false;
         }
       }
@@ -917,7 +1041,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
           }
           else
           {
-            DALI_LOG_ERROR( "FT_Get_Glyph Failed with error: %d\n", error );
+            DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Get_Glyph Failed with error: %d\n", error );
           }
         }
         else
@@ -931,7 +1055,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
     }
     else
     {
-      DALI_LOG_ERROR( "FT_Load_Glyph Failed with error: %d\n", error );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Load_Glyph Failed with error: %d\n", error );
     }
   }
 }
@@ -1021,7 +1145,7 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
     FT_Face ftFace = item.mFreeTypeFace;
 
     // Check to see if this is fixed size bitmap
-    if( item.mIsFixedSizeBitmap )
+    if( item.mHasColorTables )
     {
       error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
     }
@@ -1033,12 +1157,14 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 
 void FontClient::Plugin::InitSystemFonts()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::InitSystemFonts \n");
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );
 
   FcFontSet* fontSet = GetFcFontSet();
 
   if( fontSet )
   {
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  number of system fonts : %d\n", fontSet->nfont );
+
     // Reserve some space to avoid reallocations.
     mSystemFonts.reserve( fontSet->nfont );
 
@@ -1051,6 +1177,11 @@ void FontClient::Plugin::InitSystemFonts()
       // Skip fonts with no path
       if( GetFcString( fontPattern, FC_FILE, path ) )
       {
+        FcCharSet* characterSet = NULL;
+        FcPatternGetCharSet( fontPattern, FC_CHARSET, 0u, &characterSet );
+
+        mSystemFontCharacterSets.PushBack( characterSet );
+
         mSystemFonts.push_back( FontDescription() );
         FontDescription& fontDescription = mSystemFonts.back();
 
@@ -1066,30 +1197,37 @@ void FontClient::Plugin::InitSystemFonts()
         fontDescription.width = IntToWidthType( width );
         fontDescription.weight = IntToWeightType( weight );
         fontDescription.slant = IntToSlantType( slant );
-        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::InitSystemFonts font family(%s)\n", fontDescription.family.c_str() );
 
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  description; family : [%s]\n", fontDescription.family.c_str() );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
       }
     }
 
     FcFontSetDestroy( fontSet );
   }
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::InitSystemFonts\n" );
 }
 
-bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription )
+bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::MatchFontDescriptionToPattern\n" );
+
   FcResult result = FcResultMatch;
   FcPattern* match = FcFontMatch( NULL /* use default configure */, pattern, &result );
 
-  bool ret = false;
+  const bool matched = NULL != match;
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  pattern matched : %s\n", ( matched ? "true" : "false" ) );
 
-  if( match )
+  if( matched )
   {
     int width = 0;
     int weight = 0;
     int slant = 0;
     GetFcString( match, FC_FILE, fontDescription.path );
     GetFcString( match, FC_FAMILY, fontDescription.family );
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::MatchFontDescriptionToPattern matched:%s \n", fontDescription.family.c_str());
     GetFcInt( match, FC_WIDTH, width );
     GetFcInt( match, FC_WEIGHT, weight );
     GetFcInt( match, FC_SLANT, slant );
@@ -1097,13 +1235,22 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
     fontDescription.weight = IntToWeightType( weight );
     fontDescription.slant = IntToSlantType( slant );
 
+    // Cache the character ranges.
+    FcPatternGetCharSet( match, FC_CHARSET, 0u, characterSet );
+
     // destroyed the matched pattern
     FcPatternDestroy( match );
-    ret = true;
-  }
-  return ret;
-}
 
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+  }
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::MatchFontDescriptionToPattern\n" );
+  return matched;
+}
 
 FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& fontDescription )
 {
@@ -1223,11 +1370,14 @@ bool FontClient::Plugin::GetFcInt( const _FcPattern* const pattern, const char* 
 
 FontId FontClient::Plugin::CreateFont( const FontPath& path,
                                        PointSize26Dot6 requestedPointSize,
-                                       PointSize26Dot6 actualPointSize,
                                        FaceIndex faceIndex,
                                        bool cacheDescription )
 {
-  FontId id( 0 );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::CreateFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "                path : [%s]\n", path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+
+  FontId id = 0u;
 
   // Create & cache new font face
   FT_Face ftFace;
@@ -1238,63 +1388,68 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
   if( FT_Err_Ok == error )
   {
+    // Check if a font is scalable.
+    const bool isScalable = ( 0 != ( ftFace->face_flags & FT_FACE_FLAG_SCALABLE ) );
+    const bool hasFixedSizedBitmaps = ( 0 != ( ftFace->face_flags & FT_FACE_FLAG_FIXED_SIZES ) ) && ( 0 != ftFace->num_fixed_sizes );
+    const bool hasColorTables = ( 0 != ( ftFace->face_flags & FT_FACE_FLAG_COLOR ) );
+
+    DALI_LOG_INFO( gLogFilter, Debug::General, "            isScalable : [%s]\n", ( isScalable ? "true" : "false" ) );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  hasFixedSizedBitmaps : [%s]\n", ( hasFixedSizedBitmaps ? "true" : "false" ) );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "        hasColorTables : [%s]\n", ( hasColorTables ? "true" : "false" ) );
+
     // Check to see if the font contains fixed sizes?
-    if ( ftFace->num_fixed_sizes && ftFace->available_sizes )
+    if( !isScalable && hasFixedSizedBitmaps )
     {
-      // Ensure this size is available
-      for ( int i = 0; i < ftFace->num_fixed_sizes; ++i )
+      PointSize26Dot6 actualPointSize = 0u;
+      int fixedSizeIndex = 0;
+      for( ; fixedSizeIndex < ftFace->num_fixed_sizes; ++fixedSizeIndex )
       {
-        if ( static_cast<FT_Pos>( actualPointSize ) == ftFace->available_sizes[ i ].size )
+        const PointSize26Dot6 fixedSize = ftFace->available_sizes[fixedSizeIndex].size;
+        DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  size index : %d, size : %d\n", fixedSizeIndex, fixedSize );
+
+        if( fixedSize >= requestedPointSize )
         {
-          // Tell Freetype to use this size
-          error = FT_Select_Size( ftFace, i );
-          if ( FT_Err_Ok != error )
-          {
-            DALI_LOG_ERROR( "FreeType Select_Size error: %d\n", error );
-          }
-          else
-          {
-            float fixedWidth  = static_cast< float >( ftFace->available_sizes[ i ].width );
-            float fixedHeight = static_cast< float >( ftFace->available_sizes[ i ].height );
-
-            // Indicate that the font is a fixed sized bitmap
-            FontMetrics metrics( fixedHeight, // The ascender in pixels.
-                                 0.0f,
-                                 fixedHeight, // The height in pixels.
-                                 0.0f,
-                                 0.0f );
-
-            mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight ) );
-            id = mFontCache.size();
-
-            if( cacheDescription )
-            {
-              CacheFontPath( ftFace, id, requestedPointSize, path );
-            }
-
-            return id;
-          }
+          actualPointSize = fixedSize;
+          break;
         }
       }
 
-      // Can't find this size
-      std::stringstream sizes;
-      for ( int i = 0; i < ftFace->num_fixed_sizes; ++i )
+      if( 0u == actualPointSize )
       {
-        if ( i )
-        {
-          sizes << ", ";
-        }
-        sizes << ftFace->available_sizes[ i ].size;
+        // The requested point size is bigger than the bigest fixed size.
+        fixedSizeIndex = ftFace->num_fixed_sizes - 1;
+        actualPointSize = ftFace->available_sizes[fixedSizeIndex].size;
       }
-      DALI_LOG_ERROR( "FreeType Font: %s, does not contain Bitmaps of size: %d. Available sizes are: %s\n",
-                       path.c_str(), actualPointSize, sizes.str().c_str() );
+
+      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  size index : %d, actual size : %d\n", fixedSizeIndex, actualPointSize );
+
+      // Tell Freetype to use this size
+      error = FT_Select_Size( ftFace, fixedSizeIndex );
+      if ( FT_Err_Ok != error )
+      {
+        DALI_LOG_INFO( gLogFilter, Debug::General, "FreeType Select_Size error: %d\n", error );
+      }
+      else
+      {
+        float fixedWidth  = static_cast< float >( ftFace->available_sizes[ fixedSizeIndex ].width );
+        float fixedHeight = static_cast< float >( ftFace->available_sizes[ fixedSizeIndex ].height );
+
+        // Indicate that the font is a fixed sized bitmap
+        FontMetrics metrics( fixedHeight, // The ascender in pixels.
+                             0.0f,
+                             fixedHeight, // The height in pixels.
+                             0.0f,
+                             0.0f );
+
+        mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight, hasColorTables ) );
+        id = mFontCache.size();
+      }
     }
     else
     {
       error = FT_Set_Char_Size( ftFace,
                                 0,
-                                actualPointSize,
+                                requestedPointSize,
                                 mDpiHorizontal,
                                 mDpiVertical );
 
@@ -1311,22 +1466,28 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
 
         mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
         id = mFontCache.size();
-
-        if( cacheDescription )
-        {
-          CacheFontPath( ftFace, id, requestedPointSize, path );
-        }
       }
       else
       {
-        DALI_LOG_ERROR( "FreeType Set_Char_Size error: %d for pointSize %d\n", error, actualPointSize );
+        DALI_LOG_INFO( gLogFilter, Debug::General, "  FreeType Set_Char_Size error: %d for pointSize %d\n", error, requestedPointSize );
+      }
+    }
+
+    if( 0u != id )
+    {
+      if( cacheDescription )
+      {
+        CacheFontPath( ftFace, id, requestedPointSize, path );
       }
     }
   }
   else
   {
-    DALI_LOG_ERROR( "FreeType New_Face error: %d for %s\n", error, path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  FreeType New_Face error: %d for [%s]\n", error, path.c_str() );
   }
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", id );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::CreateFont\n" );
 
   return id;
 }
@@ -1342,7 +1503,7 @@ void FontClient::Plugin::ConvertBitmap( TextAbstraction::FontClient::GlyphBuffer
         if( srcBitmap.pitch == static_cast<int>( srcBitmap.width ) )
         {
           const unsigned int bufferSize = srcBitmap.width * srcBitmap.rows;
-          data.buffer = new unsigned char[bufferSize];
+          data.buffer = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
           data.width = srcBitmap.width;
           data.height = srcBitmap.rows;
           data.format = Pixel::L8;
@@ -1389,7 +1550,7 @@ void FontClient::Plugin::ConvertBitmap( TextAbstraction::FontClient::GlyphBuffer
 #endif
       default:
       {
-        DALI_LOG_ERROR( "FontClient Unable to create Bitmap of this PixelType\n" );
+        DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::ConvertBitmap. FontClient Unable to create Bitmap of this PixelType\n" );
         break;
       }
     }
@@ -1401,6 +1562,11 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
                                    FaceIndex faceIndex,
                                    FontId& fontId ) const
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "                path : [%s]\n", path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of fonts in the cache : %d\n", mFontCache.size() );
+
   fontId = 0u;
   for( std::vector<FontFaceCacheItem>::const_iterator it = mFontCache.begin(),
          endIt = mFontCache.end();
@@ -1414,9 +1580,16 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
         cacheItem.mPath == path )
     {
       ++fontId;
+
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  font found, id : %d\n", fontId );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
+
       return true;
     }
   }
+
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font not found\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
 
   return false;
 }
@@ -1424,7 +1597,13 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
 bool FontClient::Plugin::FindValidatedFont( const FontDescription& fontDescription,
                                             FontDescriptionId& validatedFontId )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont fontDescription family(%s)\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindValidatedFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of validated fonts in the cache : %d\n", mValidatedFontCache.size() );
 
   validatedFontId = 0u;
 
@@ -1443,21 +1622,28 @@ bool FontClient::Plugin::FindValidatedFont( const FontDescription& fontDescripti
     {
       validatedFontId = item.index;
 
-      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont validated font family(%s) font id (%u) \n", fontDescription.family.c_str(), validatedFontId );
-
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  validated font found, id : %d\n", validatedFontId );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindValidatedFont\n" );
       return true;
     }
   }
 
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindValidatedFont NOT VALIDATED return false\n" );
-
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  validated font not found\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindValidatedFont\n" );
   return false;
 }
 
 bool FontClient::Plugin::FindFallbackFontList( const FontDescription& fontDescription,
-                                               FontList*& fontList )
+                                               FontList*& fontList,
+                                               CharacterSetList*& characterSetList )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFallbackFontList fontDescription family(%s)\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFallbackFontList\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                width : [%s]\n", FontWidth::Name[fontDescription.width] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "               weight : [%s]\n", FontWeight::Name[fontDescription.weight] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of fallback font lists in the cache : %d\n", mFallbackCache.size() );
 
   fontList = NULL;
 
@@ -1474,15 +1660,16 @@ bool FontClient::Plugin::FindFallbackFontList( const FontDescription& fontDescri
         ( fontDescription.slant == item.fontDescription.slant ) )
     {
       fontList = item.fallbackFonts;
+      characterSetList = item.characterSets;
 
-      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFallbackFontList font family(%s) font-list (%p) \n", fontDescription.family.c_str(), fontList );
-
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  fallback font list found.\n" );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFallbackFontList\n" );
       return true;
     }
   }
 
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "FontClient::Plugin::FindFallbackFontList NOT FOUND return false\n" );
-
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  fallback font list not found.\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFallbackFontList\n" );
   return false;
 }
 
@@ -1490,6 +1677,10 @@ bool FontClient::Plugin::FindFont( FontDescriptionId validatedFontId,
                                    PointSize26Dot6 requestedPointSize,
                                    FontId& fontId )
 {
+  DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFont\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "    validatedFontId  : %d\n", validatedFontId );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
+
   fontId = 0u;
 
   for( std::vector<FontIdCacheItem>::const_iterator it = mFontIdCache.begin(),
@@ -1503,15 +1694,22 @@ bool FontClient::Plugin::FindFont( FontDescriptionId validatedFontId,
         ( requestedPointSize == item.requestedPointSize ) )
     {
       fontId = item.fontId;
+
+      DALI_LOG_INFO( gLogFilter, Debug::General, "  font found, id : %d\n", fontId );
+      DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
       return true;
     }
   }
 
+  DALI_LOG_INFO( gLogFilter, Debug::General, "  font not found.\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
   return false;
 }
 
 bool FontClient::Plugin::IsScalable( const FontPath& path )
 {
+  bool isScalable = false;
+
   FT_Face ftFace;
   int error = FT_New_Face( mFreeTypeLibrary,
                            path.c_str(),
@@ -1519,9 +1717,14 @@ bool FontClient::Plugin::IsScalable( const FontPath& path )
                            &ftFace );
   if( FT_Err_Ok != error )
   {
-    DALI_LOG_ERROR( "FreeType Cannot check font: %s\n", path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::IsScalable. FreeType Cannot check font: %s\n", path.c_str() );
   }
-  return ( ftFace->num_fixed_sizes == 0 );
+  else
+  {
+    isScalable = ftFace->face_flags & FT_FACE_FLAG_SCALABLE;
+  }
+
+  return isScalable;
 }
 
 bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
@@ -1533,7 +1736,7 @@ bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
 
   // match the pattern
   FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
-  bool isScalable = true;
+  bool isScalable = false;
 
   if( match )
   {
@@ -1544,11 +1747,7 @@ bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
   }
   else
   {
-    DALI_LOG_ERROR( "FreeType Cannot check font: %s %d %d %d\n",
-                    fontDescription.family.c_str(),
-                    fontDescription.width,
-                    fontDescription.weight,
-                    fontDescription.slant );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::IsScalable. FreeType Cannot check font: [%s]\n", fontDescription.family.c_str() );
   }
   FcPatternDestroy( fontFamilyPattern );
   FcPatternDestroy( match );
@@ -1567,7 +1766,7 @@ void FontClient::Plugin::GetFixedSizes( const FontPath& path, Vector< PointSize2
                            &ftFace );
   if( FT_Err_Ok != error )
   {
-    DALI_LOG_ERROR( "FreeType Cannot check font: %s\n", path.c_str() );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetFixedSizes. FreeType Cannot check font path : [%s]\n", path.c_str() );
   }
 
   // Fetch the number of fixed sizes available
@@ -1600,11 +1799,7 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
   }
   else
   {
-    DALI_LOG_ERROR( "FreeType Cannot check font: %s %d %d %d\n",
-                    fontDescription.family.c_str(),
-                    fontDescription.width,
-                    fontDescription.weight,
-                    fontDescription.slant );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetFixedSizes. FreeType Cannot check font: [%s]\n", fontDescription.family.c_str() );
   }
   FcPatternDestroy( match );
   FcPatternDestroy( fontFamilyPattern );
@@ -1636,8 +1831,22 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
 
+    FcPattern* pattern = CreateFontFamilyPattern( description );
+
+    FcResult result = FcResultMatch;
+    FcPattern* match = FcFontMatch( NULL, pattern, &result );
+
+    FcCharSet* characterSet = NULL;
+    FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
+
+    FcPatternDestroy( match );
+    FcPatternDestroy( pattern );
+
+    mFontCache[id-1u].mCharacterSet = characterSet;
+
     // Add the path to the cache.
     mFontDescriptionCache.push_back( description );
+    mCharacterSetCache.PushBack( characterSet );
 
     // Cache the index and the font's description.
     FontDescriptionCacheItem item( description,

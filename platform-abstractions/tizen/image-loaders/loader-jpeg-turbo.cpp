@@ -20,6 +20,7 @@
 #include <dali/integration-api/bitmap.h>
 #include "platform-capabilities.h"
 #include "image-operations.h"
+#include <image-loading.h>
 
 // EXTERNAL HEADERS
 #include <libexif/exif-data.h>
@@ -170,10 +171,6 @@ namespace
 
     unsigned char * const mTjMem;
   };
-
-  // Workaround to avoid exceeding the maximum texture size
-  const int MAX_TEXTURE_WIDTH  = 4096;
-  const int MAX_TEXTURE_HEIGHT = 4096;
 
 } // namespace
 bool JpegFlipV( RGB888Type *buffer, int width, int height );
@@ -843,8 +840,8 @@ bool TransformSize( int requiredWidth, int requiredHeight,
       // Continue downscaling to below maximum texture size (if possible)
       scaleFactorIndex = i;
 
-      if( TJSCALED(postXformImageWidth,  (factors[i])) < MAX_TEXTURE_WIDTH &&
-          TJSCALED(postXformImageHeight, (factors[i])) < MAX_TEXTURE_HEIGHT )
+      if( TJSCALED(postXformImageWidth,  (factors[i])) < static_cast< int >( Dali::GetMaxTextureSize() ) &&
+          TJSCALED(postXformImageHeight, (factors[i])) < static_cast< int >( Dali::GetMaxTextureSize() ) )
       {
         // Current scale-factor downscales to below maximum texture size
         break;

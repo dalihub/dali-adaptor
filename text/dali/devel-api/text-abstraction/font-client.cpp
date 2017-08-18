@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,11 @@ void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
 PointSize26Dot6 FontClient::GetPointSize( FontId id )
 {
   return GetImplementation(*this).GetPointSize( id );
+}
+
+bool FontClient::IsCharacterSupportedByFont( FontId fontId, Character character )
+{
+  return GetImplementation(*this).IsCharacterSupportedByFont( fontId, character );
 }
 
 FontId FontClient::FindDefaultFont( Character charcode,
