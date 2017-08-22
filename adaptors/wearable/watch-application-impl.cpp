@@ -50,12 +50,22 @@ void WatchApplication::OnTimeTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
   mTickSignal.Emit( watch, time );
+
+  // A watch application will queue messages to update the UI in the signal emitted above
+  // Process these immediately to avoid a blinking issue where the old time is briefly visible
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
   mAmbientTickSignal.Emit( watch, time );
+
+  // A watch application will queue messages to update the UI in the signal emitted above
+  // Process these immediately to avoid a blinking issue where the old time is briefly visible
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientChanged(bool ambient)
