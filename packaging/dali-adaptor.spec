@@ -351,7 +351,9 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
            --enable-debug \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir}
 
@@ -390,7 +392,9 @@ make clean
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
            --enable-debug \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir}
 
@@ -428,7 +432,9 @@ make clean
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
            --enable-debug \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir}
 
@@ -466,7 +472,9 @@ make clean
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
            --enable-debug \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir}
 
@@ -505,7 +513,9 @@ make clean
 %else
            --enable-efl=yes \
 %endif
+%if 0%{?enable_debug}
            --enable-debug \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir}
 

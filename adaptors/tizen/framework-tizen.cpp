@@ -410,7 +410,6 @@ struct Framework::Impl
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
 
-    DALI_LOG_ERROR( "Memory Low occured.\n" );
     observer->OnMemoryLow();
   }
 
