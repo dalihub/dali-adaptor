@@ -46,7 +46,7 @@ const LocaleDirection LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "am", "Amharic",            Dali::ImfManager::LeftToRight },
   { "ar", "Arabic",             Dali::ImfManager::RightToLeft },
   { "as", "Assamese",           Dali::ImfManager::LeftToRight },
-  { "az", "Azeri",              Dali::ImfManager::LeftToRight },
+  { "az", "Azerbaijani",        Dali::ImfManager::RightToLeft },
   { "be", "Belarusian",         Dali::ImfManager::LeftToRight },
   { "bg", "Bulgarian",          Dali::ImfManager::LeftToRight },
   { "bn", "Bengali",            Dali::ImfManager::LeftToRight },
@@ -160,6 +160,22 @@ Dali::ImfManager::TextDirection GetTextDirection( std::string locale )
         break;
       }
     }
+  }
+
+  return direction;
+}
+
+// ToDo: ImfManager enum should be removed from this function or locale-util should be modified.
+DevelActor::LayoutDirection::Type GetLayoutDirection( std::string locale )
+{
+  Dali::ImfManager::TextDirection textDirection( Dali::ImfManager::LeftToRight );
+  DevelActor::LayoutDirection::Type direction( DevelActor::LayoutDirection::LTR );
+
+  textDirection = GetTextDirection( locale );
+
+  if( textDirection == Dali::ImfManager::RightToLeft )
+  {
+    direction = DevelActor::LayoutDirection::RTL;
   }
 
   return direction;

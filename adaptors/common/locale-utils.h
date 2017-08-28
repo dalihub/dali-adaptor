@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <dali/devel-api/actors/actor-devel.h>
 
 // INTERNAL INCLUDES
 #include <imf-manager.h>
@@ -37,6 +38,8 @@ namespace Locale
 {
 
 Dali::ImfManager::TextDirection GetTextDirection( std::string locale );
+
+DevelActor::LayoutDirection::Type GetLayoutDirection( std::string locale );
 
 } // namespace Locale
 

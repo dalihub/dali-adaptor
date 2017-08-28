@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/stage.h>
+#include <dali/public-api/actors/layer.h>
+#include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/context-notifier.h>
@@ -54,6 +57,8 @@
 
 #include <tizen-logging.h>
 #include <image-loading.h>
+
+#include <locale-utils.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -189,6 +194,8 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   {
     Dali::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
+
+  SetupSystemInformation();
 }
 
 Adaptor::~Adaptor()
@@ -821,6 +828,13 @@ void Adaptor::SetStereoBase( float stereoBase )
 float Adaptor::GetStereoBase() const
 {
   return mCore->GetStereoBase();
+}
+
+void Adaptor::SetRootLayoutDirection( std::string locale )
+{
+  Dali::Stage stage = Dali::Stage::GetCurrent();
+
+  stage.GetRootLayer().SetProperty( DevelActor::Property::LAYOUT_DIRECTION, Internal::Adaptor::Locale::GetLayoutDirection( locale ) );
 }
 
 } // namespace Adaptor
