@@ -325,7 +325,7 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 
         if ( locale )
         {
-          direction = (Dali::VirtualKeyboard::TextDirection)Locale::GetTextDirection( std::string( locale ) );
+          direction = static_cast< Dali::VirtualKeyboard::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
           free( locale );
         }
       }

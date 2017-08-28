@@ -114,6 +114,7 @@ BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
 BuildRequires:  pkgconfig(ecore-imf)
 %endif
+
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
 # for feedback plugin
