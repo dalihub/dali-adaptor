@@ -407,15 +407,13 @@ libdali_adaptor_la_LIBADD = \
                       -ljpeg
 
 # EVAS used indicator
-libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS) \
-                               $(EVAS_CFLAGS) \
+libdali_adaptor_la_CXXFLAGS += $(EVAS_CFLAGS) \
                                $(ECORE_CFLAGS) \
                                $(ECORE_IPC_CFLAGS) \
                                $(ELDBUS_CFLAGS)
 
 
-libdali_adaptor_la_LIBADD += $(ELEMENTARY_LIBS) \
-                             $(ECORE_IPC_LIBS) \
+libdali_adaptor_la_LIBADD += $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
 
 if USE_APPFW
@@ -432,15 +430,25 @@ libdali_adaptor_la_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(TTS_LIBS) \
                              $(SENSOR_LIBS)
 if USE_APPFW_EFL_BASE
+libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS)
+
+libdali_adaptor_la_LIBADD += $(ELEMENTARY_LIBS)
+
 else
 libdali_adaptor_la_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(ECORE_IMF_CFLAGS) \
                                $(FRIBIDI_CFLAGS)
 
 libdali_adaptor_la_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(ECORE_IMF_LIBS) \
                              $(FRIBIDI_LIBS)
 endif
+else
+libdali_adaptor_la_CXXFLAGS += $(ELEMENTARY_CFLAGS)
+
+libdali_adaptor_la_LIBADD += $(ELEMENTARY_LIBS)
 endif
 
 if WAYLAND

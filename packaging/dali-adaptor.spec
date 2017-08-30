@@ -104,14 +104,15 @@ BuildRequires:  pkgconfig(utilX)
 
 # for dali-adaptor
 BuildRequires:  pkgconfig(evas)
-BuildRequires:  pkgconfig(elementary)
 
 %if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
+BuildRequires:  pkgconfig(elementary)
 %else
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
+BuildRequires:  pkgconfig(ecore-imf)
 %endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
 

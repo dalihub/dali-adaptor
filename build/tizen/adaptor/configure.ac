@@ -46,6 +46,7 @@ PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
+PKG_CHECK_MODULES(EVAS, evas)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
                   )
@@ -55,7 +56,6 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(ECORE_IMF, [ecore-imf >= 1.13], [ecore_imf_1_13=yes], [ecore_imf_1_13=no])
-PKG_CHECK_MODULES(ELEMENTARY, elementary)
 # Check for EldBus.h in ECore
 PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
 
@@ -248,11 +248,14 @@ if test "x$enable_appfw" = "xyes"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
 if test "x$enable_tizen_major_version" = "x3"; then
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
 else
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, appcore-ui)
 PKG_CHECK_MODULES(CAPI_APPFW_COMMON, capi-appfw-app-common)
 PKG_CHECK_MODULES(CAPI_APPFW_CONTROL, capi-appfw-app-control)
 fi
+else
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
 fi
 
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
