@@ -172,14 +172,14 @@ public:
   void ApplyOptions( const InputMethodOptions& options );
 
   /**
-   * @copydoc Dali::ImfManager::SetInputPanelUserData()
+   * @copydoc Dali::ImfManager::SetInputPanelData()
    */
-  void SetInputPanelUserData( const std::string& data );
+  void SetInputPanelData( const std::string& data );
 
   /**
-   * @copydoc Dali::ImfManager::GetInputPanelUserData()
+   * @copydoc Dali::ImfManager::GetInputPanelData()
    */
-  void GetInputPanelUserData( std::string& data );
+  void GetInputPanelData( std::string& data );
 
   /**
    * @copydoc Dali::ImfManager::GetInputPanelState()

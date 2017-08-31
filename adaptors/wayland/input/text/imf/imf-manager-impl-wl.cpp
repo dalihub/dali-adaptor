@@ -317,11 +317,11 @@ void ImfManager::ApplyOptions(const InputMethodOptions& options)
 {
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
 }
 
