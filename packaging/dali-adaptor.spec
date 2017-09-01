@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.54
+Version:    1.2.55
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -104,14 +104,15 @@ BuildRequires:  pkgconfig(utilX)
 
 # for dali-adaptor
 BuildRequires:  pkgconfig(evas)
-BuildRequires:  pkgconfig(elementary)
 
 %if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
+BuildRequires:  pkgconfig(elementary)
 %else
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
+BuildRequires:  pkgconfig(ecore-imf)
 %endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
