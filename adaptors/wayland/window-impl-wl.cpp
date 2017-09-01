@@ -418,10 +418,12 @@ void Window::SetSize( Dali::DevelWindow::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceSizeChanged( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 
     // Emit signal
     mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+
+    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   }
 }
 

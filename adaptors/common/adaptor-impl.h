@@ -338,7 +338,12 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceSizeChanged( Dali::Adaptor::SurfaceSize surfaceSize );
+  void SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize );
+
+  /**
+   * Informs ThreadController the surface size has changed
+   */
+  void SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize );
 
 public:  //AdaptorInternalServices
 
