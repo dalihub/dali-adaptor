@@ -109,9 +109,12 @@ BuildRequires:  pkgconfig(evas)
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(elementary)
 %else
+BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(appcore-ui)
+BuildRequires:  pkgconfig(appcore-multiwindow)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
+BuildRequires:  pkgconfig(screen_connector_provider)
 BuildRequires:  pkgconfig(ecore-imf)
 %endif
 BuildRequires:  pkgconfig(capi-system-system-settings)
