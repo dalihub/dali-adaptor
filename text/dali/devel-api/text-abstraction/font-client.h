@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,16 @@ public:
    * @return The point size in 26.6 fractional points.
    */
   PointSize26Dot6 GetPointSize( FontId id );
+
+  /**
+   * @brief Whether the given @p character is supported by the font.
+   *
+   * @param[in] fontId The id of the font.
+   * @param[in] character The character.
+   *
+   * @return @e true if the character is supported by the font.
+   */
+  bool IsCharacterSupportedByFont( FontId fontId, Character character );
 
   /**
    * @brief Find the default font for displaying a UTF-32 character.

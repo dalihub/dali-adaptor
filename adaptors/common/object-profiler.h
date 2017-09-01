@@ -2,7 +2,7 @@
 #define __DALI_ADAPTOR_OBJECT_PROFILER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-registry.h>
-#include <dali/devel-api/common/map-wrapper.h>
 #include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
@@ -81,16 +81,14 @@ private:
   int GetMemorySize(const std::string& name, int count);
 
 private:
-  typedef std::map<std::string, int> InstanceCountMap;
-  typedef std::pair<const std::string, int> InstanceCountPair;
-  typedef InstanceCountMap::iterator InstanceCountMapIterator;
-  typedef std::pair<BaseObject*, std::string> InstanceTypePair;
-  typedef std::vector<InstanceTypePair> InstanceTypes;
+
+  using InstanceCountPair = std::pair< const std::string, int >;
+  using InstanceTypePair = std::pair< BaseObject*, std::string >;
 
   Dali::ObjectRegistry    mObjectRegistry;
   Dali::Timer             mTimer;
-  InstanceCountMap        mInstanceCountMap;
-  InstanceTypes           mInstanceTypes;
+  std::vector< InstanceCountPair > mInstanceCountContainer;
+  std::vector< InstanceTypePair >  mInstanceTypes;
 };
 
 } // Adaptor

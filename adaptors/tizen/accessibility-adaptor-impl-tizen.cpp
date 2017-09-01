@@ -42,14 +42,15 @@ namespace
 
 const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS = "db/setting/accessibility/atspi";
 
+// Disabled Accessibility temporarily in Tizen platform
 bool GetEnabledVConf()
 {
   int isEnabled = 0;
-  vconf_get_bool( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, &isEnabled );
+  //vconf_get_bool( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_DBUS_TTS, &isEnabled );
 
   if( isEnabled == 0 )
   {
-    vconf_get_bool( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &isEnabled );
+    //vconf_get_bool( VCONFKEY_SETAPPL_ACCESSIBILITY_TTS, &isEnabled );
   }
 
   return static_cast<bool>(isEnabled);
