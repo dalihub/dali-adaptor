@@ -353,18 +353,20 @@ public:
    * @param[in] fontId The identifier of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @param[out] data The bitmap data.
+   * @param[in] outlineWidth The width of the glyph outline in pixels.
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data, int outlineWidth );
 
   /**
    * @brief Create a bitmap representation of a glyph.
    *
    * @param[in] fontId The identifier of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
+   * @param[in] outlineWidth The width of the glyph outline in pixels.
    *
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
-  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth );
 
   /**
    * @brief Create a vector representation of a glyph.
