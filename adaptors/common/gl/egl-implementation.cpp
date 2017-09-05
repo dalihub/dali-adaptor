@@ -155,6 +155,8 @@ void EglImplementation::DestroySurface()
 {
   if(mIsOwnSurface && mCurrentEglSurface)
   {
+    // Make context null to prevent crash in driver side
+    MakeContextNull();
     eglDestroySurface( mEglDisplay, mCurrentEglSurface );
     mCurrentEglSurface = 0;
   }
@@ -221,9 +223,7 @@ void EglImplementation::TerminateGles()
 {
   if ( mGlesInitialized )
   {
-    // in latest Mali DDK (r2p3 ~ r3p0 in April, 2012),
-    // MakeContextNull should be called before eglDestroy surface
-    // to prevent crash in _mali_surface_destroy_callback
+    // Make context null to prevent crash in driver side
     MakeContextNull();
 
     if(mIsOwnSurface && mCurrentEglSurface)
