@@ -351,6 +351,11 @@ public:
    */
   void SetRootLayoutDirection( std::string locale );
 
+  /**
+   * @copydoc Dali::Adaptor::RenderOnce
+   */
+  void RenderOnce();
+
 public:  //AdaptorInternalServices
 
   /**

@@ -184,6 +184,11 @@ void Adaptor::SetStereoBase(  float stereoBase )
   mImpl->SetStereoBase( stereoBase );
 }
 
+void Adaptor::RenderOnce()
+{
+  mImpl->RenderOnce();
+}
+
 Adaptor::Adaptor()
 : mImpl( NULL )
 {

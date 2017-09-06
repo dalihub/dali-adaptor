@@ -744,6 +744,11 @@ void Adaptor::NotifyLanguageChanged()
   mLanguageChangedSignal.Emit( mAdaptor );
 }
 
+void Adaptor::RenderOnce()
+{
+  RequestUpdateOnce();
+}
+
 void Adaptor::RequestUpdateOnce()
 {
   if( PAUSED_WHILE_HIDDEN != mState )

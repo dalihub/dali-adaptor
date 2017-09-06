@@ -339,6 +339,12 @@ public:
    */
   void SetStereoBase( float stereoBase );
 
+  /**
+   * @brief Renders once more even if we're paused
+   * @note Will not work if the window is hidden.
+   */
+  void RenderOnce();
+
 public:  // Signals
 
   /**
