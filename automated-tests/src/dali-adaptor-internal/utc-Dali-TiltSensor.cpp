@@ -22,6 +22,7 @@
 #include <Ecore.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <adaptor-test-application.h>
 #include <tilt-sensor-impl.h>
 
 using namespace Dali;
@@ -112,7 +113,7 @@ void tilt_sensor_cleanup(void)
 
 int UtcDaliTiltSensorStart(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorStart");
 
@@ -127,7 +128,7 @@ int UtcDaliTiltSensorStart(void)
 
 int UtcDaliTiltSensorStop(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorStop");
 
@@ -144,7 +145,7 @@ int UtcDaliTiltSensorStop(void)
 
 int UtcDaliTiltSensorIsStarted(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorIsStarted");
 
@@ -158,7 +159,7 @@ int UtcDaliTiltSensorIsStarted(void)
 
 int UtcDaliTiltSensorGetRoll(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetRoll");
 
@@ -172,7 +173,7 @@ int UtcDaliTiltSensorGetRoll(void)
 
 int UtcDaliTiltSensorGetPitch(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetPitch");
 
@@ -186,7 +187,7 @@ int UtcDaliTiltSensorGetPitch(void)
 
 int UtcDaliTiltSensorGetRotation(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetRotation");
 
@@ -208,7 +209,7 @@ int UtcDaliTiltSensorGetRotation(void)
 
 int UtcDaliTiltSensorSignalTilted(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSignalTilted");
 
@@ -225,7 +226,7 @@ int UtcDaliTiltSensorSignalTilted(void)
 
 int UtcDaliTiltSensorSetUpdateFrequency(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSetUpdateFrequency");
 
@@ -243,7 +244,7 @@ int UtcDaliTiltSensorSetUpdateFrequency(void)
 
 int UtcDaliTiltSensorSetRotationThreshold01(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSetRotationThreshold01");
 
