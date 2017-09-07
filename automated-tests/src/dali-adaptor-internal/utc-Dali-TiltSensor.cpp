@@ -110,49 +110,49 @@ void tilt_sensor_cleanup(void)
 }
 
 
-int UtcDaliTiltSensorEnable(void)
+int UtcDaliTiltSensorStart(void)
 {
   TestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorEnable");
+  tet_infoline("UtcDaliTiltSensorStart");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
-  sensor.Enable();
-  DALI_TEST_CHECK( sensor.IsEnabled() );
+  sensor.Start();
+  DALI_TEST_CHECK( sensor.IsStarted() );
 
   END_TEST;
 }
 
-int UtcDaliTiltSensorDisable(void)
+int UtcDaliTiltSensorStop(void)
 {
   TestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorDisable");
+  tet_infoline("UtcDaliTiltSensorStop");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
-  sensor.Enable();
-  DALI_TEST_CHECK( sensor.IsEnabled() );
+  sensor.Start();
+  DALI_TEST_CHECK( sensor.IsStarted() );
 
-  sensor.Disable();
-  DALI_TEST_CHECK( !sensor.IsEnabled() );
+  sensor.Stop();
+  DALI_TEST_CHECK( !sensor.IsStarted() );
   END_TEST;
 }
 
-int UtcDaliTiltSensorIsEnabled(void)
+int UtcDaliTiltSensorIsStarted(void)
 {
   TestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorIsEnabled");
+  tet_infoline("UtcDaliTiltSensorIsStarted");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
   // Should be disabled by default
-  DALI_TEST_CHECK( !sensor.IsEnabled() );
+  DALI_TEST_CHECK( !sensor.IsStarted() );
   END_TEST;
 }
 
@@ -214,7 +214,7 @@ int UtcDaliTiltSensorSignalTilted(void)
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
-  sensor.Enable();
+  sensor.Start();
 
   Radian angle(Degree(-45));
   //Setting a negative threshold for testing purpose
@@ -249,7 +249,7 @@ int UtcDaliTiltSensorSetRotationThreshold01(void)
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
-  sensor.Enable();
+  sensor.Start();
 
   Radian angle(Degree(-45));
   sensor.SetRotationThreshold( angle );
