@@ -345,6 +345,12 @@ public:
    */
   void SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize );
 
+  /**
+   * Sets layout direction of root by system language
+   * @param[in] locale System locale
+   */
+  void SetRootLayoutDirection( std::string locale );
+
 public:  //AdaptorInternalServices
 
   /**
@@ -515,6 +521,11 @@ private:
    * @param[out] path Path for data/resource storage
    */
   void GetDataStoragePath(std::string& path);
+
+  /**
+   * Sets up system information if needs
+   */
+  void SetupSystemInformation();
 
 private:
 

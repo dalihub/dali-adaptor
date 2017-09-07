@@ -41,6 +41,10 @@ void Adaptor::SurfaceInitialized()
 {
 }
 
+void Adaptor::SetupSystemInformation()
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
