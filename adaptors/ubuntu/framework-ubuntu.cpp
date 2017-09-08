@@ -62,7 +62,9 @@ struct Framework::Impl
 
   Impl(void* data)
   : mAbortCallBack( NULL ),
-    mCallbackManager( CallbackManager::New() )
+    mCallbackManager( CallbackManager::New() ),
+    mLanguage( "NOT_SUPPORTED" ),
+    mRegion( "NOT_SUPPORTED" )
   {
   }
 
@@ -76,10 +78,22 @@ struct Framework::Impl
     delete mCallbackManager;
   }
 
-  // Data
+  std::string GetLanguage() const
+  {
+    return mLanguage;
+  }
 
+  std::string GetRegion() const
+  {
+    return mRegion;
+  }
+
+  // Data
   CallbackBase* mAbortCallBack;
   CallbackManager *mCallbackManager;
+  std::string mLanguage;
+  std::string mRegion;
+
   // Static methods
 
   /**
@@ -268,6 +282,16 @@ bool Framework::AppStatusHandler(int type, void *bundleData)
 void Framework::InitThreads()
 {
   XInitThreads();
+}
+
+std::string Framework::GetLanguage() const
+{
+  return mImpl->GetLanguage();
+}
+
+std::string Framework::GetRegion() const
+{
+  return mImpl->GetRegion();
 }
 
 } // namespace Adaptor

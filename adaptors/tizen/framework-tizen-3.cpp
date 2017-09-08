@@ -24,6 +24,7 @@
 #include <Ecore.h>
 
 #include <system_info.h>
+#include <system_settings.h>
 #include <app_control_internal.h>
 #include <bundle_internal.h>
 
@@ -84,6 +85,13 @@ struct Framework::Impl
 #endif
     mApplicationType = type;
     mCallbackManager = CallbackManager::New();
+
+    char* region;
+    char* language;
+    system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region );
+    system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language );
+    mRegion = std::string( region );
+    mLanguage = std::string( language );
   }
 
   ~Impl()
@@ -123,11 +131,22 @@ struct Framework::Impl
     }
   }
 
+  std::string GetLanguage() const
+  {
+    return mLanguage;
+  }
+
+  std::string GetRegion() const
+  {
+    return mRegion;
+  }
 
   // Data
   Type mApplicationType;
   CallbackBase* mAbortCallBack;
   CallbackManager *mCallbackManager;
+  std::string mLanguage;
+  std::string mRegion;
 
   Framework* mFramework;
   app_event_handler_h handlers[5];
@@ -291,7 +310,6 @@ struct Framework::Impl
   static void AppLanguageChanged(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
     observer->OnLanguageChanged();
   }
 
@@ -302,22 +320,19 @@ struct Framework::Impl
   static void AppRegionChanged(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
     observer->OnRegionChanged();
   }
 
   static void AppBatteryLow(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnBatteryLow();
+    observer->OnBatteryLow(Dali::DeviceStatus::Battery::NORMAL);
   }
 
   static void AppMemoryLow(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnMemoryLow();
+    observer->OnMemoryLow(Dali::DeviceStatus::Memory::NORMAL);
   }
 
 private:
@@ -457,6 +472,16 @@ void Framework::AbortCallback( )
   {
     Quit();
   }
+}
+
+std::string Framework::GetLanguage() const
+{
+  return mImpl->GetLanguage();
+}
+
+std::string Framework::GetRegion() const
+{
+  return mImpl->GetRegion();
 }
 
 } // namespace Adaptor
