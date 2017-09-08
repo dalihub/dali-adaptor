@@ -108,6 +108,7 @@ class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 
+
   typedef Signal< void (Application&) > AppSignalType;  ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
   typedef Signal< void (Application&, void *) > AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
 
@@ -284,7 +285,6 @@ public:
    */
   static std::string GetResourcePath();
 
-
 public: // Stereoscopy
 
   /**
@@ -393,18 +393,20 @@ public:  // Signals
   AppSignalType& RegionChangedSignal();
 
   /**
+  * @DEPRECATED_1_2.58 Use LowBatterySignal() instead.
   * @brief This signal is emitted when the battery level of the device is low.
   * @SINCE_1_0.0
   * @return The signal to connect to
   */
-  AppSignalType& BatteryLowSignal();
+  AppSignalType& BatteryLowSignal() DALI_DEPRECATED_API;
 
   /**
+  * @DEPRECATED_1_2.58 Use LowMemorySignal() instead.
   * @brief This signal is emitted when the memory level of the device is low.
   * @SINCE_1_0.0
   * @return The signal to connect to
   */
-  AppSignalType& MemoryLowSignal();
+  AppSignalType& MemoryLowSignal() DALI_DEPRECATED_API;
 
 public: // Not intended for application developers
   /// @cond internal

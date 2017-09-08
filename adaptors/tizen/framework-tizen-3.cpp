@@ -291,8 +291,7 @@ struct Framework::Impl
   static void AppLanguageChanged(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnLanguageChanged();
+    observer->OnLanguageChanged("");
   }
 
   static void AppDeviceRotated(app_event_info_h event_info, void *data)
@@ -302,22 +301,19 @@ struct Framework::Impl
   static void AppRegionChanged(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnRegionChanged();
+    observer->OnRegionChanged("");
   }
 
   static void AppBatteryLow(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnBatteryLow();
+    observer->OnBatteryLow(Dali::DevelApplication::BatteryStatus::NORMAL);
   }
 
   static void AppMemoryLow(app_event_info_h event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnMemoryLow();
+    observer->OnMemoryLow(Dali::DevelApplication::MemoryStatus::NORMAL);
   }
 
 private:

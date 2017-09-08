@@ -55,6 +55,26 @@ void PreInitialize( int* argc, char** argv[] )
   Internal::Adaptor::Application::PreInitialize( argc, argv );
 }
 
+std::string GetRegion( Application application )
+{
+  return Internal::Adaptor::GetImplementation( application ).GetRegion();
+}
+
+std::string GetLanguage( Application application )
+{
+  return Internal::Adaptor::GetImplementation( application ).GetLanguage();
+}
+
+LowBatterySignalType& LowBatterySignal( Application application )
+{
+  return Internal::Adaptor::GetImplementation( application ).LowBatterySignal();
+}
+
+LowMemorySignalType& LowMemorySignal( Application application )
+{
+  return Internal::Adaptor::GetImplementation( application ).LowMemorySignal();
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

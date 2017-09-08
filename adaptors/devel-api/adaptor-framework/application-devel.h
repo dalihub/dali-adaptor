@@ -31,6 +31,59 @@ namespace Dali
 namespace DevelApplication
 {
 
+/*
+ * @brief An enum of memory status.
+ */
+struct MemoryStatus
+{
+  enum Type
+  {
+    /*
+     * Normal status.
+     */
+    NORMAL,
+
+    /*
+     * Soft warning status.
+     */
+    SOFT_WARNING,
+
+    /*
+     * Hard warning status.
+     */
+    HARD_WARNING
+  };
+};
+
+/*
+ * @brief An enum of battery status.
+ */
+struct BatteryStatus
+{
+  enum Type
+  {
+    /*
+     * Normal status.
+     * Battery status is over 5%.
+     */
+    NORMAL,
+
+    /*
+     * Battery status is under 5%.
+     */
+    CRITICAL_LOW,
+
+    /*
+     * Device can be turned off anytime.
+     * Battery status is under 1%.
+     */
+    POWER_OFF
+  };
+};
+
+typedef Signal< void (BatteryStatus::Type) > LowBatterySignalType;
+typedef Signal< void (MemoryStatus::Type) > LowMemorySignalType;
+
 /**
  * @brief This is the constructor for applications.
  *
@@ -54,6 +107,35 @@ DALI_IMPORT_API Application New( int* argc, char **argv[], const std::string& st
  * @param[in,out]  argv         A pointer to the argument list
  */
 DALI_IMPORT_API void PreInitialize( int* argc, char** argv[] );
+
+/**
+ * @brief This is used to get region information from device.
+ *
+ * @return Region information
+ */
+DALI_IMPORT_API std::string GetRegion( Application application );
+
+/**
+ * @brief This is used to get language information from device.
+ *
+ * @return Language information
+ */
+DALI_IMPORT_API std::string GetLanguage( Application application );
+
+/**
+ * @brief This signal is emitted when the battery level of the device is low.
+ * @SINCE_1_0.0
+ * @return The signal to connect to
+ */
+DALI_IMPORT_API LowBatterySignalType& LowBatterySignal( Application application );
+
+/**
+ * @brief This signal is emitted when the memory level of the device is low.
+ * @SINCE_1_0.0
+ * @return The signal to connect to
+ */
+DALI_IMPORT_API LowMemorySignalType& LowMemorySignal( Application application );
+
 
 } // namespace DevelApplication
 
