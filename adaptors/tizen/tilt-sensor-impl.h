@@ -63,19 +63,19 @@ public:
   static Dali::TiltSensor Get();
 
   /**
-   * @copydoc Dali::TiltSensor::Enable()
+   * @copydoc Dali::TiltSensor::Start()
    */
-  bool Enable();
+  bool Start();
 
   /**
-   * @copydoc Dali::TiltSensor::Disable()
+   * @copydoc Dali::TiltSensor::Stop()
    */
-  void Disable();
+  void Stop();
 
   /**
-   * @copydoc Dali::TiltSensor::IsEnabled()
+   * @copydoc Dali::TiltSensor::IsStarted()
    */
-  bool IsEnabled() const;
+  bool IsStarted() const;
 
   /**
    * @copydoc Dali::TiltSensor::GetRoll()
@@ -165,15 +165,6 @@ private:
    * Disconnect sensor device
    */
   void Disconnect();
-
-  /**
-   * Start sensor operation
-   */
-  bool Start();
-  /**
-   * Stop sensor operation
-   */
-  void Stop();
 
   // Undefined
   TiltSensor(const TiltSensor&);
