@@ -877,7 +877,10 @@ bool Window::IsVisible() const
 void Window::RotationDone( int orientation, int width, int height )
 {
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->RequestRotation( orientation, width, height );
+  if( wlSurface )
+  {
+    wlSurface->RequestRotation( orientation, width, height );
+  }
 
   mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( width, height ) );
 
@@ -1461,7 +1464,10 @@ Dali::DevelWindow::WindowPosition Window::GetPosition()
 void Window::SetTransparency( bool transparent )
 {
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->SetTransparency( transparent );
+  if( wlSurface )
+  {
+    wlSurface->SetTransparency( transparent );
+  }
 }
 
 } // Adaptor
