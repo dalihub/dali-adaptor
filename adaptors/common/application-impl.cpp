@@ -345,18 +345,21 @@ void Application::OnRegionChanged()
   mRegionChangedSignal.Emit( application );
 }
 
-void Application::OnBatteryLow()
+void Application::OnBatteryLow( Dali::DeviceStatus::Battery::Status status )
 {
   Dali::Application application(this);
   mBatteryLowSignal.Emit( application );
+
+  mLowBatterySignal.Emit( status );
 }
 
-void Application::OnMemoryLow()
+void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
 {
   Dali::Application application(this);
   mMemoryLowSignal.Emit( application );
-}
 
+  mLowMemorySignal.Emit( status );
+}
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
   Dali::Application application(this);
@@ -366,6 +369,16 @@ void Application::OnResize(Dali::Adaptor& adaptor)
 bool Application::AddIdle( CallbackBase* callback )
 {
   return mAdaptor->AddIdle( callback );
+}
+
+std::string Application::GetRegion() const
+{
+  return mFramework->GetRegion();
+}
+
+std::string Application::GetLanguage() const
+{
+  return mFramework->GetLanguage();
 }
 
 Dali::Adaptor& Application::GetAdaptor()

@@ -71,6 +71,8 @@ class Application : public BaseObject, public Framework::Observer
 {
 public:
 
+  typedef Dali::Application::LowBatterySignalType LowBatterySignalType;
+  typedef Dali::Application::LowMemorySignalType LowMemorySignalType;
   typedef Dali::Application::AppSignalType AppSignalType;
   typedef Dali::Application::AppControlSignalType AppControlSignalType;
   typedef Dali::Application::WINDOW_MODE WINDOW_MODE;
@@ -123,6 +125,16 @@ public:
    * @copydoc Dali::Application::GetWindow();
    */
   Dali::Window GetWindow();
+
+  /**
+   * @copydoc Dali::Application::GetRegion();
+   */
+  std::string GetRegion() const;
+
+  /**
+   * @copydoc Dali::Application::GetLanguage();
+   */
+  std::string GetLanguage() const;
 
   /**
    * @copydoc Dali::Application::ReplaceWindow();
@@ -241,12 +253,12 @@ public: // From Framework::Observer
   /**
   * Called when the framework informs the application that the battery level of the device is low.
   */
-  virtual void OnBatteryLow();
+  virtual void OnBatteryLow( Dali::DeviceStatus::Battery::Status status );
 
   /**
   * Called when the framework informs the application that the memory level of the device is low.
   */
-  virtual void OnMemoryLow();
+  virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status );
 
 public:
 
@@ -320,6 +332,16 @@ public:  // Signals
   */
   Dali::Application::AppSignalType& MemoryLowSignal() { return mMemoryLowSignal; }
 
+  /**
+  * @copydoc Dali::Application::LowBatterySignal()
+  */
+  Dali::Application::LowBatterySignalType& LowBatterySignal() { return mLowBatterySignal; }
+
+  /**
+  * @copydoc Dali::Application:::LowMemorySignal()
+  */
+  Dali::Application::LowMemorySignalType& LowMemorySignal() { return mLowMemorySignal; }
+
 protected:
 
   /**
@@ -360,17 +382,19 @@ protected:
 
 private:
 
-  AppSignalType                           mInitSignal;
-  AppSignalType                           mTerminateSignal;
-  AppSignalType                           mPauseSignal;
-  AppSignalType                           mResumeSignal;
-  AppSignalType                           mResetSignal;
-  AppSignalType                           mResizeSignal;
-  AppControlSignalType                    mAppControlSignal;
-  AppSignalType                           mLanguageChangedSignal;
-  AppSignalType                           mRegionChangedSignal;
-  AppSignalType                           mBatteryLowSignal;
-  AppSignalType                           mMemoryLowSignal;
+  AppSignalType                         mInitSignal;
+  AppSignalType                         mTerminateSignal;
+  AppSignalType                         mPauseSignal;
+  AppSignalType                         mResumeSignal;
+  AppSignalType                         mResetSignal;
+  AppSignalType                         mResizeSignal;
+  AppControlSignalType                  mAppControlSignal;
+  AppSignalType                         mLanguageChangedSignal;
+  AppSignalType                         mRegionChangedSignal;
+  AppSignalType                         mBatteryLowSignal;
+  AppSignalType                         mMemoryLowSignal;
+  LowBatterySignalType                  mLowBatterySignal;
+  LowMemorySignalType                   mLowMemorySignal;
 
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;

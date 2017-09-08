@@ -27,6 +27,7 @@
 
 // INTERNAL INCLUDES
 #include <abort-handler.h>
+#include <device-status.h>
 
 namespace Dali
 {
@@ -48,6 +49,7 @@ namespace Adaptor
 class Framework
 {
 public:
+
   enum Type
   {
     NORMAL,       ///<  normal appFramework
@@ -122,12 +124,12 @@ public:
     /**
     * Invoked when the battery level of the device is low.
     */
-    virtual void OnBatteryLow() {}
+    virtual void OnBatteryLow( Dali::DeviceStatus::Battery::Status status ) {}
 
     /**
     * Invoked when the memory level of the device is low.
     */
-    virtual void OnMemoryLow() {}
+    virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) {}
   };
 
 public:
@@ -186,6 +188,26 @@ public:
    *  Gets the path at which application resources are stored.
    */
   static std::string GetResourcePath();
+
+  /**
+   * Sets system language.
+   */
+  void SetLanguage( const std::string& language );
+
+  /**
+   * Sets system region.
+   */
+  void SetRegion( const std::string& region );
+
+  /**
+   * Gets system language.
+   */
+  std::string GetLanguage() const;
+
+  /**
+   * Gets system region.
+   */
+  std::string GetRegion() const;
 
 private:
 
