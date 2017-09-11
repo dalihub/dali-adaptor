@@ -521,8 +521,8 @@ if !UBUNTU_PROFILE
 if WAYLAND
 else
 # X11
-libdali_adaptor_la_CXXFLAGS += $(UTILX_CFLAGS)
-libdali_adaptor_la_LIBADD += $(UTILX_LIBS)
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(UTILX_CFLAGS)
+LIBDALI_ADAPTOR_LA_LIBADD += $(UTILX_LIBS)
 endif
 endif
 
