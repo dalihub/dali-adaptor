@@ -155,7 +155,6 @@ void EglImplementation::DestroySurface()
 {
   if(mIsOwnSurface && mCurrentEglSurface)
   {
-    MakeContextNull();
     eglDestroySurface( mEglDisplay, mCurrentEglSurface );
     mCurrentEglSurface = 0;
   }
