@@ -1272,7 +1272,7 @@ exit 0
 %license LICENSE
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+#%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.0*
 %{_libdir}/libdali-adaptor-cxx03.so
@@ -1280,7 +1280,7 @@ exit 0
 %exclude %{_libdir}/libdali-adap*.so*.wearable
 %exclude %{_libdir}/libdali-adap*.so*.tv
 %exclude %{_libdir}/libdali-adap*.so*.ivi
-%endif
+#%endif
 
 %if %{with wayland}
 %files dali-video-player-plugin-cxx03
