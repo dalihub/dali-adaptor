@@ -29,37 +29,6 @@ if USE_FEEDBACK
 lib_LTLIBRARIES += libdali-feedback-plugin.la
 endif
 
-if USE_WEBENGINELITE
-lib_LTLIBRARIES += libdali-web_engine_lite-plugin.la
-endif
-
-if USE_WEBENGINELITE
-libdali_web_engine_lite_plugin_la_SOURCES = \
-                     $(web_engine_lite_plugin_src_files)
-
-libdali_web_engine_lite_plugin_la_DEPENDENCIES =
-
-libdali_web_engine_lite_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
-                      $(DLOG_CFLAGS) \
-                      $(DALICORE_CFLAGS) \
-                      $(WEB_ENGINE_LITE_CFLAGS) \
-                      $(DALI_PROFILE_CFLAGS) \
-                      $(DALI_ADAPTOR_CFLAGS) \
-                      -I../../../adaptors/public-api \
-                      -I../../../adaptors/integration-api \
-                      -I../../../adaptors/public-api/adaptor-framework \
-                      -I../../../adaptors/devel-api/adaptor-framework \
-                      -Werror -Wall
-
-libdali_web_engine_lite_plugin_la_LIBADD = \
-                      $(DLOG_LIBS) \
-                      -llightweight-web-engine
-
-libdali_web_engine_lite_plugin_la_LDFLAGS = \
-                      -rdynamic
-
-endif # WEB_ENGINE_LITE
-
 if WAYLAND
 if USE_VIDEOPLAYER
 lib_LTLIBRARIES += libdali-video-player-plugin.la

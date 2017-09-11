@@ -30,7 +30,6 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/trigger-event-factory.cpp \
   $(adaptor_common_dir)/key-impl.cpp \
   $(adaptor_common_dir)/video-player-impl.cpp \
-  $(adaptor_common_dir)/web-engine-lite-impl.cpp \
   $(adaptor_common_dir)/events/gesture-manager.cpp \
   $(adaptor_common_dir)/events/long-press-gesture-detector.cpp \
   $(adaptor_common_dir)/events/pan-gesture-detector-base.cpp \
