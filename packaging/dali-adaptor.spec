@@ -117,7 +117,6 @@ BuildRequires:  pkgconfig(capi-appfw-app-control)
 BuildRequires:  pkgconfig(screen_connector_provider)
 BuildRequires:  pkgconfig(ecore-imf)
 %endif
-
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
 # for feedback plugin
