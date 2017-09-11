@@ -5,3 +5,6 @@ feedback_plugin_src_files = \
 
 video_player_plugin_src_files = \
    $(plugin_src_dir)/video-player/tizen-video-player.cpp
+
+web_engine_lite_plugin_src_files = \
+   $(plugin_src_dir)/tizen-web-engine-lite.cpp
