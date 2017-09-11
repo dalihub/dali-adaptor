@@ -763,7 +763,7 @@ void ImfManager::SetInputPanelUserData( const std::string& data )
   if( mIMFContext )
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
   }
 }
 
@@ -773,14 +773,8 @@ void ImfManager::GetInputPanelUserData( std::string& data )
 
   if( mIMFContext )
   {
-    int length = 256;
-    char* buffer = reinterpret_cast< char* >( calloc ( 1, length * sizeof ( char ) ) );
-    if( buffer != NULL )
-    {
-      ecore_imf_context_input_panel_imdata_get( mIMFContext, buffer, &length );
-      data = buffer;
-      free( buffer );
-    }
+    int* length = NULL;
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
   }
 }
 
