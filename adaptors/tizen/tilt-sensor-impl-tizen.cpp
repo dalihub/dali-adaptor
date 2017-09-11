@@ -229,7 +229,7 @@ void TiltSensor::Disconnect()
 
 bool TiltSensor::Start()
 {
-  if(mSensorListener && mState == CONNECTED)
+  if( mSensorListener && ( mState == CONNECTED || mState == STOPPED ) )
   {
 #ifdef SENSOR_ENABLED
     int ret = 0;
@@ -247,9 +247,14 @@ bool TiltSensor::Start()
   }
   else
   {
-    if(mState != CONNECTED)
+    if( mState == STARTED )
     {
-      DALI_LOG_ERROR("Wrong state [%d]\n", mState);
+      DALI_LOG_ERROR("TiltSensor is already started. Current state [%d]\n", mState);
+    }
+    else
+    {
+      // mState is DISCONNECTED
+      DALI_LOG_ERROR("TiltSensor is disconnected. Current state [%d]\n", mState);
     }
     return false;
   }
@@ -267,19 +272,7 @@ void TiltSensor::Stop()
 #endif
 }
 
-bool TiltSensor::Enable()
-{
-  // start sensor callback
-  return Start();
-}
-
-void TiltSensor::Disable()
-{
-  // stop sensor callback
-  Stop();
-}
-
-bool TiltSensor::IsEnabled() const
+bool TiltSensor::IsStarted() const
 {
   return ( mSensorListener && mState == STARTED );
 }

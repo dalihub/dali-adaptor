@@ -45,7 +45,11 @@ Debug::Filter* gKeyExtensionLogFilter = Debug::Filter::New(Debug::NoLogging, fal
 #endif
 
 // Path for loading extension keys
+#if _GLIBCXX_USE_CXX11_ABI
 const char* KEY_EXTENSION_PLUGIN_SO( "libdali-key-extension.so" );
+#else
+const char* KEY_EXTENSION_PLUGIN_SO( "libdali-key-extension-cxx03.so" );
+#endif
 
 class KeyMap
 {

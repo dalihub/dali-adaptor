@@ -21,9 +21,6 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-// INTERNAL INCLUDES
-#include <imf-manager.h>
-
 namespace Dali
 {
 
@@ -36,7 +33,13 @@ namespace Adaptor
 namespace Locale
 {
 
-Dali::ImfManager::TextDirection GetTextDirection( std::string locale );
+enum Direction
+{
+  LeftToRight,
+  RightToLeft,
+};
+
+Locale::Direction GetDirection( const std::string& locale );
 
 } // namespace Locale
 
