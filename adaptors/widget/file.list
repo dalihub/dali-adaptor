@@ -1,0 +1,21 @@
+# widget files
+
+adaptor_internal_widget_src_files = \
+  $(adaptor_widget_api_dir)/internal/widget-data-impl.cpp \
+  $(adaptor_widget_api_dir)/internal/widget-impl.cpp \
+  $(adaptor_widget_api_dir)/internal/widget-application-impl.cpp
+
+adaptor_widget_src_files = \
+  $(adaptor_widget_api_dir)/widget-data.cpp \
+  $(adaptor_widget_api_dir)/widget.cpp \
+  $(adaptor_widget_api_dir)/widget-application.cpp
+
+adaptor_internal_widget_header_files = \
+  $(adaptor_widget_api_dir)/internal/widget-data-impl.h \
+  $(adaptor_widget_api_dir)/internal/widget-impl.h \
+  $(adaptor_widget_api_dir)/internal/widget-application-impl.h
+
+adaptor_widget_header_files = \
+  $(adaptor_widget_api_dir)/widget-data.h \
+  $(adaptor_widget_api_dir)/widget.h \
+  $(adaptor_widget_api_dir)/widget-application.h
