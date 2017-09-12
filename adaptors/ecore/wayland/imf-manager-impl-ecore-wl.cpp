@@ -699,7 +699,7 @@ Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
 
       if ( locale )
       {
-        direction = Locale::GetTextDirection( std::string( locale ) );
+        direction = static_cast< Dali::ImfManager::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
         free( locale );
       }
     }

@@ -25,6 +25,8 @@
 #include <ecore-wl-render-surface.h>
 #endif
 
+#include <system_settings.h>
+
 namespace Dali
 {
 
@@ -33,6 +35,30 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace
+{
+
+static void OnSystemLanguageChanged( system_settings_key_e key, void* data )
+{
+  char* locale = NULL;
+  if( system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale ) != SYSTEM_SETTINGS_ERROR_NONE ||
+      locale == NULL )
+  {
+    DALI_LOG_ERROR( "DALI OnSystemLanguageChanged failed " );
+    return;
+  }
+
+  Adaptor* adaptor = static_cast< Adaptor* >( data );
+  if( adaptor != NULL )
+  {
+    adaptor->SetRootLayoutDirection( locale );
+  }
+
+  free( locale );
+}
+
+} // namesapce
 
 void Adaptor::GetDataStoragePath( std::string& path)
 {
@@ -80,6 +106,28 @@ void Adaptor::SurfaceInitialized()
   Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
   screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
 #endif
+}
+
+void Adaptor::SetupSystemInformation()
+{
+  if( system_settings_set_changed_cb( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this ) != SYSTEM_SETTINGS_ERROR_NONE )
+  {
+    DALI_LOG_ERROR( "DALI system_settings_set_changed_cb failed.\n" );
+    return;
+  }
+
+  char* locale = NULL;
+  if( system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale ) != SYSTEM_SETTINGS_ERROR_NONE ||
+      locale == NULL )
+  {
+    DALI_LOG_ERROR( "DALI OnSystemLanguageChanged failed " );
+    return;
+  }
+
+  SetRootLayoutDirection( locale );
+
+  free( locale );
+
 }
 
 } // namespace Adaptor

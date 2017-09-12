@@ -35,7 +35,6 @@ FREETYPE_REQUIRED=9.16.3
 # 17.1.11 = Freetype version 2.5.2
 FREETYPE_BITMAP_SUPPORT_VERSION=17.1.11
 
-PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
 PKG_CHECK_MODULES(FREETYPE_BITMAP_SUPPORT, [freetype2 >= $FREETYPE_BITMAP_SUPPORT_VERSION], [ freetype_bitmap_support=yes  ], [ freetype_bitmap_support=no ] )
@@ -46,6 +45,7 @@ PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
+PKG_CHECK_MODULES(EVAS, evas)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
                   )
@@ -55,7 +55,6 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(ECORE_IMF, [ecore-imf >= 1.13], [ecore_imf_1_13=yes], [ecore_imf_1_13=no])
-PKG_CHECK_MODULES(ELEMENTARY, elementary)
 # Check for EldBus.h in ECore
 PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
 
@@ -67,7 +66,11 @@ fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
 
+if test "x$enable_cxx03_abi" = "xyes"; then
+PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl-deprecated, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
+else
 PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
+fi
 
 if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
@@ -171,6 +174,18 @@ AC_ARG_ENABLE(wayland,
               enable_wayland=yes,
               enable_wayland=no)
 
+AC_ARG_ENABLE([cxx03_abi],
+              [AC_HELP_STRING([--enable-cxx03-abi],
+                              [Specify abi for the build])],
+              [enable_cxx03_abi=$enableval],
+              [enable_cxx03_abi=no])
+
+AC_ARG_ENABLE([rename_so],
+              [AC_HELP_STRING([--enable-rename-so],
+                              [Specify whether so file is renamed or not])],
+              [enable_rename_so=$enableval],
+              [enable_rename_so=yes])
+
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
 DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
 AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
@@ -182,6 +197,8 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
 AM_CONDITIONAL([USE_APPFW_EFL_BASE], [test x$enable_tizen_major_version = x3])
+AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
+AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
 
 # Platforms with highp shader support can use vector based text
 AM_CONDITIONAL([ENABLE_VECTOR_BASED_TEXT_RENDERING], [test x$enable_profile = xUBUNTU])
@@ -203,6 +220,12 @@ fi
 
 if test "x$enable_profile" = "xLITE"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
+fi
+
+if test "x$enable_cxx03_abi" = "xyes"; then
+PKG_CHECK_MODULES(DALICORE, dali-core-cxx03)
+else
+PKG_CHECK_MODULES(DALICORE, dali-core)
 fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
@@ -228,6 +251,10 @@ if test "x$enable_profile" = "xUBUNTU"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 else
 
+if test "x$enable_cxx03_abi" = "xyes"; then
+ DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
+fi
+
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
@@ -248,11 +275,14 @@ if test "x$enable_appfw" = "xyes"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
 if test "x$enable_tizen_major_version" = "x3"; then
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
 else
 PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, appcore-ui)
 PKG_CHECK_MODULES(CAPI_APPFW_COMMON, capi-appfw-app-common)
 PKG_CHECK_MODULES(CAPI_APPFW_CONTROL, capi-appfw-app-control)
 fi
+else
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
 fi
 
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
@@ -313,11 +343,13 @@ AC_SUBST(tizenPlatformConfigSupported)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
-AC_CONFIG_FILES([
- Makefile
- dali-adaptor.pc
- dali-adaptor-integration.pc
-])
+AC_CONFIG_FILES([Makefile])
+
+if test "x$enable_cxx03_abi" = "xyes"; then
+AC_CONFIG_FILES([dali-adaptor-cxx03.pc dali-adaptor-integration-cxx03.pc])
+else
+AC_CONFIG_FILES([dali-adaptor.pc dali-adaptor-integration.pc])
+fi
 
 if test "x$freetype_bitmap_support" = "xyes"; then
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DFREETYPE_BITMAP_SUPPORT"

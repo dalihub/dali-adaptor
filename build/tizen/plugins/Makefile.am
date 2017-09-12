@@ -25,6 +25,8 @@ plugin_sounds_dir = ../../../plugins/sounds
 
 lib_LTLIBRARIES =
 
+if ENABLE_CXX03_ABI
+
 if USE_FEEDBACK
 lib_LTLIBRARIES += libdali-feedback-plugin.la
 endif
@@ -35,17 +37,32 @@ lib_LTLIBRARIES += libdali-video-player-plugin.la
 endif
 endif
 
+else
+
+if USE_FEEDBACK
+lib_LTLIBRARIES += libdali-feedback-plugin-cxx11.la
+endif
+
+if WAYLAND
+
+if USE_VIDEOPLAYER
+lib_LTLIBRARIES += libdali-video-player-plugin-cxx11.la
+endif
+endif
+endif
+
 if USE_FEEDBACK
 dalisounddir = ${dataReadOnlyDir}/plugins/sounds/
 dalisound_DATA = ${dali_plugin_sound_files}
 
 # Feedback
-libdali_feedback_plugin_la_SOURCES = \
+LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES = \
                      $(feedback_plugin_src_files)
+
 
 libdali_feedback_plugin_la_DEPENDENCIES =
 
-libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
+LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
                       -DDALI_SOUND_DIR="\"${dalisounddir}\"" \
                       $(DLOG_CFLAGS) \
                       $(DALICORE_CFLAGS) \
@@ -59,14 +76,14 @@ libdali_feedback_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       -I../../../adaptors/devel-api/adaptor-framework \
                       -Werror -Wall
 
-libdali_feedback_plugin_la_LIBADD = \
+LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD = \
                       $(DLOG_LIBS) \
                       $(MMFSOUND_LIBS)
 
-libdali_feedback_plugin_la_LDFLAGS = \
+LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS = \
                       -rdynamic
 
-libdali_feedback_plugin_la_LIBADD += \
+LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD += \
                       $(FEEDBACK_LIBS)
 
 endif
@@ -75,12 +92,12 @@ endif
 if WAYLAND
 if USE_VIDEOPLAYER
 
-libdali_video_player_plugin_la_SOURCES = \
+LIBDALI_VIDEO_PLAYER_PLUGIN_LA_SOURCES = \
                      $(video_player_plugin_src_files)
 
-libdali_video_player_plugin_la_DEPENDENCIES =
+libdali_video_player_plugin_la__DEPENDENCIES =
 
-libdali_video_player_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
+LIBDALI_VIDEO_PLAYER_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
                       -DDALI_ADAPTOR_COMPILATION \
                       $(DLOG_CFLAGS) \
                       $(DALICORE_CFLAGS) \
@@ -96,13 +113,83 @@ libdali_video_player_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
                       -I../../../plugins/video-player \
                       -Werror -Wall
 
-libdali_video_player_plugin_la_LIBADD = \
+LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LIBADD = \
                       $(DLOG_LIBS) \
                       $(ECORE_WAYLAND_LIBS) \
                       $(CAPI_MEDIA_PLAYER_LIBS)
 
-libdali_video_player_plugin_la_LDFLAGS = \
+LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LDFLAGS = \
                       -rdynamic
 
 endif # USE_VIDEOPLAYER
 endif # WAYLAND
+
+if ENABLE_CXX03_ABI
+
+if USE_FEEDBACK
+libdali_feedback_plugin_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
+libdali_feedback_plugin_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
+libdali_feedback_plugin_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
+libdali_feedback_plugin_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_feedback_plugin.so
+	rm -rf $(libdir)/libdali_feedback_plugin-cxx03.so
+	ln -s $(libdir)/libdali_feedback_plugin.so.0.0.* $(libdir)/libdali_feedback_plugin-cxx03.so
+endif
+endif
+
+if WAYLAND
+if USE_VIDEOPLAYER
+libdali_video_player_plugin_la_SOURCES = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_SOURCES)
+libdali_video_player_plugin_la_CXXFLAGS = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_CXXFLAGS)
+libdali_video_player_plygin_la_LIBADD = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LIBADD)
+libdali_video_player_plugin_la_LDFLAGS = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_video_player_plugin.so
+	rm -rf $(libdir)/libdali_video_player_plugin-cxx03.so
+	ln -s $(libdir)/libdali_video_player_plugin.so.0.0.* $(libdir)/libdali_video_player_plugin-cxx03.so
+endif
+endif
+endif
+
+else # CXX03
+
+if USE_FEEDBACK
+libdali_feedback_plugin_cxx11_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
+libdali_feedback_plugin_cxx11_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
+libdali_feedback_plugin_cxx11_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
+libdali_feedback_plugin_cxx11_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_feedback_plugin-cxx11.so
+	rm -rf $(libdir)/libdali_feedback_plugin.so
+	ln -s $(libdir)/libdali_feedback_plugin-cxx11.so.0.0.* $(libdir)/libdali_feedback_plugin.so
+endif
+endif
+
+if WAYLAND
+if USE_VIDEOPLAYER
+libdali_video_player_plugin_cxx11_la_SOURCES = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_SOURCES)
+libdali_video_player_plugin_cxx11_la_CXXFLAGS = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_CXXFLAGS)
+libdali_video_player_plygin_cxx11_la_LIBADD = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LIBADD)
+libdali_video_player_plugin_cxx11_la_LDFLAGS = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_video_player_plugin-cxx11.so
+	rm -rf $(libdir)/libdali_video_player_plugin.so
+	ln -s $(libdir)/libdali_video_player_plugin-cxx11.so.0.0.* $(libdir)/libdali_video_player_plugin.so
+endif
+endif
+endif
+
+endif # CXX03

@@ -1,5 +1,8 @@
+#ifndef DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H
+#define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H
+
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +17,6 @@
  * limitations under the License.
  *
  */
-
-#ifndef __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__
-#define __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__
 
 namespace Dali
 {
@@ -44,4 +44,4 @@ int ValueToIndex( int value, const int* const table, unsigned int maxIndex );
 
 } // Dali
 
-#endif // __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H__
+#endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H

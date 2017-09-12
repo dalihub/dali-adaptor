@@ -48,10 +48,9 @@ namespace Internal
 namespace Adaptor
 {
 
-// @todo Start using pthread_key_create if we want to avoid leaking the SingletonService on shutdown
 namespace
 {
-__thread SingletonService * gSingletonService = 0;
+thread_local SingletonService * gSingletonService = 0;
 } // unnamed namespace
 
 Dali::SingletonService SingletonService::New()

@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H__
-#define __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H__
+#ifndef DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
+#define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ class VectorFontCache;
 #include FT_GLYPH_H
 
 // forward declarations of font config types.
+struct _FcCharSet;
 struct _FcFontSet;
 struct _FcPattern;
 
@@ -51,6 +52,7 @@ namespace Internal
  *@brief Type used for indices addressing the vector with front descriptions of validated fonts.
  */
 typedef uint32_t FontDescriptionId;
+typedef Vector<_FcCharSet*> CharacterSetList;
 
 /**
  * @brief FontClient implementation.
@@ -62,10 +64,11 @@ struct FontClient::Plugin
    */
   struct FallbackCacheItem
   {
-    FallbackCacheItem( const FontDescription& fontDescription, FontList* fallbackFonts );
+    FallbackCacheItem( const FontDescription& fontDescription, FontList* fallbackFonts, CharacterSetList* characterSets );
 
     FontDescription fontDescription; ///< The font description.
     FontList* fallbackFonts;         ///< The list of fallback fonts for the given font-description.
+    CharacterSetList* characterSets; ///< The list of character sets for the given font-description.
   };
 
   /**
@@ -111,17 +114,20 @@ struct FontClient::Plugin
                        FaceIndex face,
                        const FontMetrics& metrics,
                        float fixedWidth,
-                       float fixedHeight );
+                       float fixedHeight,
+                       bool hasColorTables );
 
     FT_Face mFreeTypeFace;               ///< The FreeType face.
     FontPath mPath;                      ///< The path to the font file name.
     PointSize26Dot6 mRequestedPointSize; ///< The font point size.
     FaceIndex mFaceIndex;                ///< The face index.
     FontMetrics mMetrics;                ///< The font metrics.
+    _FcCharSet* mCharacterSet;           ///< Pointer with the range of characters.
     FT_Short mFixedWidthPixels;          ///< The height in pixels (fixed size bitmaps only)
     FT_Short mFixedHeightPixels;         ///< The height in pixels (fixed size bitmaps only)
     unsigned int mVectorFontId;          ///< The ID of the equivalent vector-based font
-    bool mIsFixedSizeBitmap;             ///< Whether the font has fixed size bitmaps.
+    bool mIsFixedSizeBitmap : 1;         ///< Whether the font has fixed size bitmaps.
+    bool mHasColorTables    : 1;         ///< Whether the font has color tables.
   };
 
   struct EllipsisItem
@@ -189,9 +195,15 @@ struct FontClient::Plugin
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsCharacterSupportedByFont()
+   */
+  bool IsCharacterSupportedByFont( FontId fontId, Character character );
+
+  /**
    * @brief Finds within the @p fontList a font which support the @p carcode.
    *
    * @param[in] fontList A list of font paths, family, width, weight and slant.
+   * @param[in] characterSetList A list that contains a character set for each description of the font list.
    * @param[in] charcode The character for which a font is needed.
    * @param[in] requestedPointSize The point size in 26.6 fractional points.
    * @param[in] preferColor @e true if a color font is preferred.
@@ -199,6 +211,7 @@ struct FontClient::Plugin
    * @return A valid font identifier, or zero if no font is found.
    */
   FontId FindFontForCharacter( const FontList& fontList,
+                               const CharacterSetList& characterSetList,
                                Character charcode,
                                PointSize26Dot6 requestedPointSize,
                                bool preferColor );
@@ -221,23 +234,18 @@ struct FontClient::Plugin
   /**
    * @see Dali::TextAbstraction::FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    *
-   * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
    * @param[in] cacheDescription Whether to cache the font description.
    */
   FontId GetFontId( const FontPath& path,
                     PointSize26Dot6 requestedPointSize,
-                    PointSize26Dot6 actualPointSize,
                     FaceIndex faceIndex,
-                    bool cacheDescription = true );
+                    bool cacheDescription );
 
   /**
-   * @see Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
-   *
-   * @param[in] actualPointSize The actual point size. In case of emojis the @p requestedPointSize is used to build the metrics and cache the font and the @p actualPointSize is used to load the glyph.
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
    */
   FontId GetFontId( const FontDescription& fontDescription,
                     PointSize26Dot6 requestedPointSize,
-                    PointSize26Dot6 actualPointSize,
                     FaceIndex faceIndex );
 
   /**
@@ -321,12 +329,13 @@ private:
   void InitSystemFonts();
 
   /**
-   * @brief Gets the FontDescription which matches the given pattern
-   * @param[in] pattern pattern to match against
-   * @param[out] fontDescription the resultant fontDescription that matched
-   * @return true if match found
+   * @brief Gets the FontDescription which matches the given pattern.
+   * @param[in] pattern pattern to match against.
+   * @param[out] fontDescription the resultant fontDescription that matched.
+   * @param[out] characterSet The character set for that pattern.
+   * @return true if match found.
    */
-  bool MatchFontDescriptionToPattern( _FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription );
+  bool MatchFontDescriptionToPattern( _FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, _FcCharSet** characterSet );
 
   /**
    * @brief Creates a font family pattern used to match fonts.
@@ -335,7 +344,7 @@ private:
    *
    * @return The pattern.
    */
-  _FcPattern* CreateFontFamilyPattern( const FontDescription& fontDescription );
+  _FcPattern* CreateFontFamilyPattern( const FontDescription& fontDescription ) const;
 
   /**
    * Retrieves the fonts present in the platform.
@@ -371,7 +380,6 @@ private:
    *
    * @param[in] path The path to the font file name.
    * @param[in] requestedPointSize The requested point size.
-   * @param[in] actualPointSize The actual point size (for color emojis).
    * @param[in] faceIndex A face index.
    * @param[in] cacheDescription Whether to cache the font description.
    *
@@ -379,7 +387,6 @@ private:
    */
   FontId CreateFont( const FontPath& path,
                      PointSize26Dot6 requestedPointSize,
-                     PointSize26Dot6 actualPointSize,
                      FaceIndex faceIndex,
                      bool cacheDescription );
 
@@ -421,9 +428,11 @@ private:
    *
    * @param[in] fontDescription The font to validate.
    * @param[out] A valid pointer to a font list, or NULL if not found.
+   * @param[out] characterSetList A valid pointer to a character set list, or NULL if not found.
    */
   bool FindFallbackFontList( const FontDescription& fontDescription,
-                             FontList*& fontList );
+                             FontList*& fontList,
+                             CharacterSetList*& characterSetList );
 
   /**
    * @brief Finds in the cache a pair 'validated font identifier and font point size'.
@@ -453,8 +462,9 @@ private:
    *
    * @param[in] fontDescription A font description.
    * @param[out] fontList A list of the fonts which are a close match for fontDescription.
+   * @param[out] characterSetList A list of the character sets which are a close match for fontDescription.
    */
-  void SetFontList( const FontDescription& fontDescription, FontList& fontList );
+  void SetFontList( const FontDescription& fontDescription, FontList& fontList, CharacterSetList& characterSetList );
 
   /**
    * Caches a font path.
@@ -465,6 +475,15 @@ private:
    * @param[in] path Path to the font file name.
    */
   void CacheFontPath( FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize,  const FontPath& path );
+
+  /**
+   * @brief Creates a character set from a given font's @p description.
+   *
+   * @param[in] description The font's description.
+   *
+   * @return A character set.
+   */
+  _FcCharSet* CreateCharacterSetFromDescription( const FontDescription& description ) const;
 
 private:
 
@@ -484,12 +503,14 @@ private:
 
   FontList mSystemFonts;       ///< Cached system fonts.
   FontList mDefaultFonts;      ///< Cached default fonts.
+  CharacterSetList mDefaultFontCharacterSets;
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
   std::vector<FontFaceCacheItem>        mFontCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
   FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
+  CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
   std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
   VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
@@ -505,4 +526,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H__
+#endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
