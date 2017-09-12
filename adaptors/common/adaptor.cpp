@@ -184,11 +184,6 @@ void Adaptor::SetStereoBase(  float stereoBase )
   mImpl->SetStereoBase( stereoBase );
 }
 
-void Adaptor::SurfaceSizeChanged( SurfaceSize surfaceSize )
-{
-  mImpl->SurfaceSizeChanged( surfaceSize );
-}
-
 Adaptor::Adaptor()
 : mImpl( NULL )
 {

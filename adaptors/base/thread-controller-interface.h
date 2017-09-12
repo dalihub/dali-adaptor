@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,11 @@ public:
    * @param surface new surface
    */
   virtual void ReplaceSurface( RenderSurface* surface ) = 0;
+
+  /**
+   * Resize the surface.
+   */
+  virtual void ResizeSurface() = 0;
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
