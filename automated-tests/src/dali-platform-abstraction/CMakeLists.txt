@@ -33,7 +33,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 )
 
 ADD_COMPILE_OPTIONS(-O0 -ggdb --coverage -Wall -Werror)
-
+ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
 # Shouldn't have to do this!
 # But CMake's new auto-escape quote policy doesn't work right.
