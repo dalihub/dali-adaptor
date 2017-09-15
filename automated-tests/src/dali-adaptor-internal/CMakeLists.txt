@@ -31,6 +31,7 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
     ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
+    ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
@@ -40,6 +41,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 )
 
 ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
+ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
 # Shouldn't have to do this!
 # But CMake's new auto-escape quote policy doesn't work right.

@@ -18,7 +18,12 @@
 // CLASS HEADER
 #include "timer-impl.h"
 
+// INTERNAL INCLUDES
+#include <adaptor-impl.h>
+
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 // Ecore is littered with C style cast
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -82,6 +87,9 @@ Timer::~Timer()
 
 void Timer::Start()
 {
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
   if(mImpl->mId != NULL)
   {
     Stop();
@@ -91,6 +99,9 @@ void Timer::Start()
 
 void Timer::Stop()
 {
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
   if (mImpl->mId != NULL)
   {
     ecore_timer_del(mImpl->mId);
