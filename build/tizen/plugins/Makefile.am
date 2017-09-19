@@ -32,35 +32,8 @@ lib_LTLIBRARIES += libdali-feedback-plugin.la
 endif
 
 if USE_WEBENGINELITE
-lib_LTLIBRARIES += libdali-web_engine_lite-plugin.la
+lib_LTLIBRARIES += libdali-web-engine-lite-plugin.la
 endif
-
-if USE_WEBENGINELITE
-libdali_web_engine_lite_plugin_la_SOURCES = \
-                     $(web_engine_lite_plugin_src_files)
-
-libdali_web_engine_lite_plugin_la_DEPENDENCIES =
-
-libdali_web_engine_lite_plugin_la_CXXFLAGS = -DDALI_COMPILATION \
-                      $(DLOG_CFLAGS) \
-                      $(DALICORE_CFLAGS) \
-                      $(WEB_ENGINE_LITE_CFLAGS) \
-                      $(DALI_PROFILE_CFLAGS) \
-                      $(DALI_ADAPTOR_CFLAGS) \
-                      -I../../../adaptors/public-api \
-                      -I../../../adaptors/integration-api \
-                      -I../../../adaptors/public-api/adaptor-framework \
-                      -I../../../adaptors/devel-api/adaptor-framework \
-                      -Werror -Wall
-
-libdali_web_engine_lite_plugin_la_LIBADD = \
-                      $(DLOG_LIBS) \
-                      -llightweight-web-engine
-
-libdali_web_engine_lite_plugin_la_LDFLAGS = \
-                      -rdynamic
-
-endif # WEB_ENGINE_LITE
 
 if WAYLAND
 if USE_VIDEOPLAYER
@@ -72,6 +45,10 @@ else
 
 if USE_FEEDBACK
 lib_LTLIBRARIES += libdali-feedback-plugin-cxx11.la
+endif
+
+if USE_WEBENGINELITE
+lib_LTLIBRARIES += libdali-web-engine-lite-plugin-cxx11.la
 endif
 
 if WAYLAND
@@ -118,6 +95,33 @@ LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD += \
                       $(FEEDBACK_LIBS)
 
 endif
+
+if USE_WEBENGINELITE
+LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_SOURCES = \
+                     $(web_engine_lite_plugin_src_files)
+
+libdali_web_engine_lite_plugin_la_DEPENDENCIES =
+
+LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
+                      $(DLOG_CFLAGS) \
+                      $(DALICORE_CFLAGS) \
+                      $(WEB_ENGINE_LITE_CFLAGS) \
+                      $(DALI_PROFILE_CFLAGS) \
+                      $(DALI_ADAPTOR_CFLAGS) \
+                      -I../../../adaptors/public-api \
+                      -I../../../adaptors/integration-api \
+                      -I../../../adaptors/public-api/adaptor-framework \
+                      -I../../../adaptors/devel-api/adaptor-framework \
+                      -Werror -Wall
+
+LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LIBADD = \
+                      $(DLOG_LIBS) \
+                      -llightweight-web-engine
+
+LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LDFLAGS = \
+                      -rdynamic
+
+endif # WEB_ENGINE_LITE
 
 # VideoPlayer
 if WAYLAND
@@ -172,6 +176,21 @@ install: install-am
 endif
 endif
 
+if USE_WEBENGINELITE
+libdali_web_engine_lite_plugin_la_SOURCES = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_SOURCES)
+libdali_web_engine_lite_plugin_la_LIBADD = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LIBADD)
+libdali_web_engine_lite_plugin_la_CXXFLAGS = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_CXXFLAGS)
+libdali_web_engine_lite_plugin_la_LDFLAGS = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_web_engine_lite_plugin.so
+	rm -rf $(libdir)/libdali_web_engine_lite_plugin-cxx03.so
+	ln -s $(libdir)/libdali_web_engine_lite_plugin.so.0.0.* $(libdir)/libdali_web_engine_lite_plugin-cxx03.so
+endif
+endif
+
 if WAYLAND
 if USE_VIDEOPLAYER
 libdali_video_player_plugin_la_SOURCES = $(LIBDALI_VIDEO_PLAYER_PLUGIN_LA_SOURCES)
@@ -203,6 +222,21 @@ install: install-am
 	rm -rf $(libdir)/libdali_feedback_plugin-cxx11.so
 	rm -rf $(libdir)/libdali_feedback_plugin.so
 	ln -s $(libdir)/libdali_feedback_plugin-cxx11.so.0.0.* $(libdir)/libdali_feedback_plugin.so
+endif
+endif
+
+if USE_WEBENGINELITE
+libdali_web_engine_lite_plugin_cxx11_la_SOURCES = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_SOURCES)
+libdali_web_engine_lite_plugin_cxx11_la_LIBADD = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LIBADD)
+libdali_web_engine_lite_plugin_cxx11_la_CXXFLAGS = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_CXXFLAGS)
+libdali_web_engine_lite_plugin_cxx11_la_LDFLAGS = $(LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LDFLAGS)
+
+if ENABLE_RENAME_SO
+#rename
+install: install-am
+	rm -rf $(libdir)/libdali_web_engine_lite_plugin-cxx11.so
+	rm -rf $(libdir)/libdali_web_engine_lite_plugin.so
+	ln -s $(libdir)/libdali_web_engine_lite_plugin-cxx11.so.0.0.* $(libdir)/libdali_web_engine_lite_plugin.so
 endif
 endif
 
