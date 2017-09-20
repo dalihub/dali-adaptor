@@ -211,7 +211,10 @@ struct Window::EventHandler
     if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
     {
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
-      wlSurface->OutputTransformed();
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -226,7 +229,10 @@ struct Window::EventHandler
     if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
     {
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
-      wlSurface->OutputTransformed();
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;

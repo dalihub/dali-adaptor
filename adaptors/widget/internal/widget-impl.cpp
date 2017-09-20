@@ -58,7 +58,7 @@ static bool IsWidgetFeatureEnabled()
   int ret;
 
   if(retrieved == true)
-	  return feature;
+    return feature;
 
   ret = system_info_get_platform_bool("http://tizen.org/feature/shell.appwidget", &feature);
   if(ret != SYSTEM_INFO_ERROR_NONE)
@@ -79,26 +79,26 @@ static int SendLifecycleEvent(const char* classId, const char* instanceId, int s
 
   if (bundleData == NULL)
   {
-	  DALI_LOG_ERROR("out of memory");
-	  return -1;
+    DALI_LOG_ERROR("out of memory");
+    return -1;
   }
 
   bundle_add_str(bundleData, AUL_K_WIDGET_ID, classId);
   bundle_add_str(bundleData, AUL_K_WIDGET_INSTANCE_ID, instanceId);
   bundle_add_byte(bundleData, AUL_K_WIDGET_STATUS, &status, sizeof(int));
 
-
   char temp[256] = {0, };
   char *packageId = NULL;
   if(aul_app_get_pkgid_bypid(getpid(), temp, sizeof(temp)) == 0)
   {
-	  packageId = strdup(temp);
+    packageId = strdup(temp);
   }
 
   if(!packageId)
   {
-	  DALI_LOG_ERROR("package_id is NULL");
-	  return -1;
+    DALI_LOG_ERROR("package_id is NULL");
+    bundle_free(bundleData);
+    return -1;
   }
   bundle_add_str(bundleData, AUL_K_PKGID, packageId);
 
@@ -107,6 +107,7 @@ static int SendLifecycleEvent(const char* classId, const char* instanceId, int s
   if (ret < 0)
     DALI_LOG_ERROR("send lifecycle error:%d\n", ret);
 
+  free(packageId);
   bundle_free(bundleData);
 
   return ret;
