@@ -144,6 +144,7 @@ BuildRequires:  pkgconfig(capi-media-player)
 # for Web Engine Lite Plugin
 %if 0%{?enable_web_engine_lite}
 BuildRequires: lightweight-web-engine
+BuildRequires: lightweight-web-engine-devel
 %endif
 
 # for multiprofile
