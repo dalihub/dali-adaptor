@@ -79,9 +79,7 @@ Timer::Timer( unsigned int milliSec )
 
 Timer::~Timer()
 {
-  // stop timers
-  Stop();
-
+  ResetTimerData();
   delete mImpl;
 }
 
@@ -102,11 +100,7 @@ void Timer::Stop()
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
 
-  if (mImpl->mId != NULL)
-  {
-    ecore_timer_del(mImpl->mId);
-    mImpl->mId = NULL;
-  }
+  ResetTimerData();
 }
 
 void Timer::SetInterval( unsigned int interval )
@@ -157,6 +151,15 @@ bool Timer::Tick()
 Dali::Timer::TimerSignalType& Timer::TickSignal()
 {
   return mTickSignal;
+}
+
+void Timer::ResetTimerData()
+{
+  if (mImpl->mId != NULL)
+  {
+    ecore_timer_del(mImpl->mId);
+    mImpl->mId = NULL;
+  }
 }
 
 bool Timer::IsRunning() const

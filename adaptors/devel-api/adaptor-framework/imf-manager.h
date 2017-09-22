@@ -279,13 +279,17 @@ public:
    * @brief Sets up the input-panel specific data.
    * @param[in] data The specific data to be set to the input panel
    */
-  void SetInputPanelUserData( const std::string& data );
+  void SetInputPanelData( const std::string& data );
 
   /**
    * @brief Gets the specific data of the current active input panel.
+   *
+   * Input Panel Data is not always the data which is set by SetInputPanelData().
+   * Data can be changed internally in the input panel.
+   * It is just used to get a specific data from the input panel to an application.
    * @param[in] data The specific data to be got from the input panel
    */
-  void GetInputPanelUserData( std::string& data );
+  void GetInputPanelData( std::string& data );
 
   /**
    * @brief Gets the state of the current active input panel.

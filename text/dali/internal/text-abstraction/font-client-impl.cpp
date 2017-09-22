@@ -246,18 +246,18 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   CreatePlugin();
 
-  mPlugin->CreateBitmap( fontId, glyphIndex, data );
+  mPlugin->CreateBitmap( fontId, glyphIndex, data, outlineWidth );
 }
 
-PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
 {
   CreatePlugin();
 
-  return mPlugin->CreateBitmap( fontId, glyphIndex );
+  return mPlugin->CreateBitmap( fontId, glyphIndex, outlineWidth );
 }
 
 void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )

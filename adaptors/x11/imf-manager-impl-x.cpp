@@ -590,25 +590,28 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   }
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelData\n" );
 
   if( mIMFContext )
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelData\n" );
 
   if( mIMFContext )
   {
-    int* length = NULL;
-    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+    int length = 4096; // The max length is 4096 bytes
+    Dali::Vector< char > buffer;
+    buffer.Resize( length );
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &buffer[0], &length );
+    data = std::string( buffer.Begin(), buffer.End() );
   }
 }
 
