@@ -212,7 +212,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::AddIdle()
    */
-  virtual bool AddIdle( CallbackBase* callback );
+  virtual bool AddIdle( CallbackBase* callback, bool forceAdd );
 
   /**
    * @copydoc Dali::Adaptor::RemoveIdle()
@@ -482,15 +482,14 @@ private: // From Dali::Internal::Adaptor::CoreEventInterface
 private: // From Dali::Integration::RenderController
 
   /**
-   * Called by the Dali core when it requires another update
+   * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */
-  virtual void RequestUpdate();
+  virtual void RequestUpdate( bool forceUpdate );
 
   /**
-   * Called by Dali core when it requires an notification event being sent on idle.
-   * Multi-threading note: this method must be called from the main thread only.
+   * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
-  virtual void RequestProcessEventsOnIdle();
+  virtual void RequestProcessEventsOnIdle( bool forceProcess );
 
 private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
@@ -588,7 +587,7 @@ private: // Data
 
   Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
-  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;      ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks

@@ -305,7 +305,6 @@ void Adaptor::Pause()
     }
 
     mThreadController->Pause();
-    mCore->Suspend();
     mState = PAUSED;
 
     // Process remained events and rendering in the update thread
@@ -333,8 +332,8 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    // Resume core so it processes any requests as well
-    mCore->Resume();
+    // trigger processing of events queued up while paused
+    mCore->ProcessEvents();
 
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
@@ -353,7 +352,6 @@ void Adaptor::Stop()
     }
 
     mThreadController->Stop();
-    mCore->Suspend();
 
     // Delete the TTS player
     for(int i =0; i < Dali::TtsPlayer::MODE_NUM; i++)
@@ -445,12 +443,12 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback )
+bool Adaptor::AddIdle( CallbackBase* callback, bool forceAdd )
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState )
+  if( RUNNING == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleCallback( callback );
   }
@@ -662,24 +660,41 @@ void Adaptor::ProcessCoreEvents()
   }
 }
 
-void Adaptor::RequestUpdate()
+void Adaptor::RequestUpdate( bool forceUpdate )
 {
-  // When Dali applications are partially visible behind the lock-screen,
-  // the indicator must be updated (therefore allow updates in the PAUSED state)
-  if ( PAUSED  == mState ||
-       RUNNING == mState )
+  switch( mState )
   {
-    mThreadController->RequestUpdate();
+    case RUNNING:
+    {
+      mThreadController->RequestUpdate();
+      break;
+    }
+    case PAUSED:
+    case PAUSED_WHILE_HIDDEN:
+    {
+      // When Dali applications are partially visible behind the lock-screen,
+      // the indicator must be updated (therefore allow updates in the PAUSED state)
+      if( forceUpdate )
+      {
+        mThreadController->RequestUpdateOnce();
+      }
+      break;
+    }
+    default:
+    {
+      // Do nothing
+      break;
+    }
   }
 }
 
-void Adaptor::RequestProcessEventsOnIdle()
+void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState ) )
+  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || forceProcess ) )
   {
-    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ) );
+    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
   }
 }
 
@@ -712,7 +727,7 @@ void Adaptor::OnWindowHidden()
 void Adaptor::OnDamaged( const DamageArea& area )
 {
   // This is needed for the case where Dali window is partially obscured
-  RequestUpdate();
+  RequestUpdate( false );
 }
 
 void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
@@ -756,12 +771,9 @@ void Adaptor::RenderOnce()
 
 void Adaptor::RequestUpdateOnce()
 {
-  if( PAUSED_WHILE_HIDDEN != mState )
+  if( mThreadController )
   {
-    if( mThreadController )
-    {
-      mThreadController->RequestUpdateOnce();
-    }
+    mThreadController->RequestUpdateOnce();
   }
 }
 
