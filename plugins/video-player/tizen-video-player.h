@@ -27,6 +27,7 @@
 #define HAVE_WAYLAND
 #endif
 #include <player_internal.h>
+#include <Ecore_Wayland.h>
 
 // INTERNAL INCLUDES
 #include <native-image-source.h>
