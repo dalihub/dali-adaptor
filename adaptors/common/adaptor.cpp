@@ -81,7 +81,7 @@ void Adaptor::Stop()
 
 bool Adaptor::AddIdle( CallbackBase* callback )
 {
-  return mImpl->AddIdle( callback );
+  return mImpl->AddIdle( callback, false );
 }
 
 void Adaptor::RemoveIdle( CallbackBase* callback )
