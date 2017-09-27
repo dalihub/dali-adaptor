@@ -258,6 +258,18 @@ TypeRegistration IMF_MANAGER_TYPE( typeid(Dali::ImfManager), typeid(Dali::BaseHa
 
 } // unnamed namespace
 
+void ImfManager::Finalize()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::Finalize\n" );
+  if ( mInited )
+  {
+    DisconnectCallbacks();
+    DeleteContext();
+    ecore_imf_shutdown();
+    mInited = false;
+  }
+}
+
 bool ImfManager::IsAvailable()
 {
   bool available( false );
@@ -274,6 +286,7 @@ bool ImfManager::IsAvailable()
 Dali::ImfManager ImfManager::Get()
 {
   Dali::ImfManager manager;
+  ImfManager *imfManager = NULL;
 
   Dali::SingletonService service( SingletonService::Get() );
   if ( service )
@@ -283,12 +296,12 @@ Dali::ImfManager ImfManager::Get()
     if( handle )
     {
       // If so, downcast the handle
-      manager = Dali::ImfManager( dynamic_cast< ImfManager* >( handle.GetObjectPtr() ) );
+      imfManager = dynamic_cast< ImfManager* >( handle.GetObjectPtr() );
+      manager = Dali::ImfManager( imfManager );
     }
     else if ( Adaptor::IsAvailable() )
     {
       // Create instance and register singleton only if the adaptor is available
-
       Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
 
@@ -300,8 +313,8 @@ Dali::ImfManager ImfManager::Get()
         // If we fail to get Ecore_Wl_Window, we can't use the ImfManager correctly.
         // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
         // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-
-        manager = Dali::ImfManager( new ImfManager( ecoreWwin ) );
+        imfManager = new ImfManager( ecoreWwin );
+        manager = Dali::ImfManager( imfManager );
         service.Register( typeid( manager ), manager );
       }
       else
@@ -311,35 +324,37 @@ Dali::ImfManager ImfManager::Get()
     }
   }
 
+  if ( ( imfManager != NULL ) && !imfManager->mInited )
+  {
+    ecore_imf_init();
+    imfManager->CreateContext( imfManager->mEcoreWlwin );
+
+    imfManager->ConnectCallbacks();
+    imfManager->mInited = true;
+  }
+
   return manager;
 }
 
 ImfManager::ImfManager( Ecore_Wl_Window *ecoreWlwin )
 : mIMFContext(),
+  mEcoreWlwin( ecoreWlwin ),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
+  mInited( false ),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
-  ecore_imf_init();
-  CreateContext( ecoreWlwin );
-
-  ConnectCallbacks();
 }
 
 ImfManager::~ImfManager()
 {
-  DisconnectCallbacks();
-
-  DeleteContext();
-  ecore_imf_shutdown();
+  Finalize();
 }
-
 
 void ImfManager::CreateContext( Ecore_Wl_Window *ecoreWlwin )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::CreateContext\n" );
-
   const char *contextId = ecore_imf_context_default_id_get();
   if( contextId )
   {

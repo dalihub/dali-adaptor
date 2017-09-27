@@ -60,6 +60,10 @@ public:
   typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
 
 public:
+  /**
+   * @copydoc Dali::ImfManager::Finalize()
+   */
+  void Finalize();
 
   /**
    * @brief Check whether the ImfManager is available.
@@ -306,6 +310,7 @@ private:
   std::string mSurroundingText;
   int mPreEditCursorPosition;
   int mEditCursorPosition;
+  bool mInited:1;                 ///< Whether the imf is already inited.
   bool mRestoreAfterFocusLost:1;  ///< Whether the keyboard needs to be restored (activated ) after focus regained.
 
 public:
