@@ -288,6 +288,18 @@ void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcl
       deviceSubclass = Device::Subclass::TRACKBALL;
       break;
     }
+#ifdef OVER_TIZEN_VERSION_4
+    case ECORE_DEVICE_SUBCLASS_REMOCON:
+    {
+      deviceSubclass = Device::Subclass::REMOCON;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_VIRTUAL_KEYBOARD:
+    {
+      deviceSubclass = Device::Subclass::VIRTUAL_KEYBOARD;
+      break;
+    }
+#endif
     default:
     {
       deviceSubclass = Device::Subclass::NONE;
