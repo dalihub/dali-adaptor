@@ -305,6 +305,11 @@ public:
    */
   void RotationDone( int orientation, int width, int height );
 
+  /**
+   * Set the indicator visible mode
+   */
+  void SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode );
+
 private:
   /**
    * Private constructor.
