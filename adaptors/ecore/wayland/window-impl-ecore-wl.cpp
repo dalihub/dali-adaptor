@@ -210,8 +210,17 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
     {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventOutputTransform\n", handler->mEcoreWindow );
+
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
-      wlSurface->OutputTransformed();
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -225,8 +234,17 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
     {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
+
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
-      wlSurface->OutputTransformed();
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -877,14 +895,17 @@ bool Window::IsVisible() const
 void Window::RotationDone( int orientation, int width, int height )
 {
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->RequestRotation( orientation, width, height );
+  if( wlSurface )
+  {
+    wlSurface->RequestRotation( orientation, width, height );
+  }
 
-  mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( width, height ) );
+  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
 
   // Emit signal
   mResizedSignal.Emit( Dali::DevelWindow::WindowSize( width, height ) );
 
-  mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( width, height ) );
+  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount()
@@ -1416,12 +1437,12 @@ void Window::SetSize( Dali::DevelWindow::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 
     // Emit signal
     mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
 
-    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   }
 }
 
@@ -1461,7 +1482,10 @@ Dali::DevelWindow::WindowPosition Window::GetPosition()
 void Window::SetTransparency( bool transparent )
 {
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
-  wlSurface->SetTransparency( transparent );
+  if( wlSurface )
+  {
+    wlSurface->SetTransparency( transparent );
+  }
 }
 
 } // Adaptor

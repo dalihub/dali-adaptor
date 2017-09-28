@@ -809,12 +809,12 @@ void Window::RotationDone( int orientation, int width, int height )
                                      ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
                                      ECORE_X_ATOM_CARDINAL, 32, &angles, 2 );
 
-    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( width, height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
 
     // Emit signal
     mResizedSignal.Emit( Dali::DevelWindow::WindowSize( width, height ) );
 
-    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( width, height ) );
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 #endif // DALI_PROFILE_UBUNTU
   }
 }
@@ -919,12 +919,12 @@ void Window::SetSize( Dali::DevelWindow::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 
     // Emit signal
     mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
 
-    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   }
 }
 

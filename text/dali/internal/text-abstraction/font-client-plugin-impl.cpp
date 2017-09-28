@@ -1084,7 +1084,7 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 #endif
 }
 
-void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   if( ( fontId > 0 ) &&
       ( fontId - 1u < mFontCache.size() ) )
@@ -1114,6 +1114,33 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
       {
         if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
         {
+          // Check whether we should create a bitmap for the outline
+          if( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 )
+          {
+            // Set up a stroker
+            FT_Stroker stroker;
+            error = FT_Stroker_New(mFreeTypeLibrary, &stroker );
+
+            if ( FT_Err_Ok == error )
+            {
+              FT_Stroker_Set( stroker, outlineWidth * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0 );
+              error = FT_Glyph_StrokeBorder( &glyph, stroker, 0, 1 );
+
+              if ( FT_Err_Ok == error )
+              {
+                FT_Stroker_Done( stroker );
+              }
+              else
+              {
+                DALI_LOG_ERROR( "FT_Glyph_StrokeBorder Failed with error: %d\n", error );
+              }
+            }
+            else
+            {
+              DALI_LOG_ERROR( "FT_Stroker_New Failed with error: %d\n", error );
+            }
+          }
+
           error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, 0, 1 );
           if ( FT_Err_Ok == error )
           {
@@ -1141,12 +1168,11 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
   }
 }
 
-PixelData FontClient::Plugin::CreateBitmap( FontId fontId,
-                                            GlyphIndex glyphIndex )
+PixelData FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
 {
   TextAbstraction::FontClient::GlyphBufferData data;
 
-  CreateBitmap( fontId, glyphIndex, data );
+  CreateBitmap( fontId, glyphIndex, data, outlineWidth );
 
   return PixelData::New( data.buffer,
                          data.width * data.height * Pixel::GetBytesPerPixel( data.format ),

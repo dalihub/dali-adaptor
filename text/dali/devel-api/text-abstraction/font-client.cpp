@@ -182,14 +182,14 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data, int outlineWidth )
 {
-  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, data );
+  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, data, outlineWidth );
 }
 
-PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
 {
-  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex );
+  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex, outlineWidth );
 }
 
 void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
