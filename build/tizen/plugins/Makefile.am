@@ -112,11 +112,9 @@ LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
                       -I../../../adaptors/integration-api \
                       -I../../../adaptors/public-api/adaptor-framework \
                       -I../../../adaptors/devel-api/adaptor-framework \
-                      -I/usr/include/lightweight-web-engine \
                       -Werror -Wall
 
 LIBDALI_WEB_ENGINE_LITE_PLUGIN_LA_LIBADD = \
-                      $(DALICORE_LIBS) \
                       $(DLOG_LIBS) \
                       -llightweight-web-engine
 
