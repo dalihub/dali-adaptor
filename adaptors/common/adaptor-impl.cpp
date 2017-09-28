@@ -304,9 +304,6 @@ void Adaptor::Pause()
     mThreadController->Pause();
     mCore->Suspend();
     mState = PAUSED;
-
-    // Process remained events and rendering in the update thread
-    RequestUpdateOnce();
   }
 }
 
