@@ -464,7 +464,7 @@ struct Framework::Impl
     }
 
     appcore_multiwindow_base_exit();
-    aul_notify_exit();
+    aul_widget_notify_exit();
   }
 
   int AppWidgetMain()
