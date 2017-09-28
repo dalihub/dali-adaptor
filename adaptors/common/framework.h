@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-#include <application-devel.h>
 #include <dali/public-api/signals/callback.h>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include "wearable/watch/watch-application.h"
@@ -114,22 +113,22 @@ public:
     /**
      * Invoked when the language of the device is changed.
      */
-    virtual void OnLanguageChanged( const std::string& language ) {}
+    virtual void OnLanguageChanged() {}
 
     /**
     * Invoked when the region is changed.
     */
-    virtual void OnRegionChanged( const std::string& region ) {}
+    virtual void OnRegionChanged() {}
 
     /**
     * Invoked when the battery level of the device is low.
     */
-    virtual void OnBatteryLow( Dali::DevelApplication::BatteryStatus::Type status ) {}
+    virtual void OnBatteryLow() {}
 
     /**
     * Invoked when the memory level of the device is low.
     */
-    virtual void OnMemoryLow( Dali::DevelApplication::MemoryStatus::Type status ) {}
+    virtual void OnMemoryLow() {}
   };
 
 public:

@@ -326,34 +326,31 @@ void Application::OnAppControl(void *data)
   mAppControlSignal.Emit( application , data );
 }
 
-void Application::OnLanguageChanged( const std::string& language )
+void Application::OnLanguageChanged()
 {
-  mLanguage = language;
   DoLanguageChange();
   Dali::Application application(this);
   mLanguageChangedSignal.Emit( application );
 }
 
-void Application::OnRegionChanged( const std::string& region )
+void Application::OnRegionChanged()
 {
-  mRegion = region;
   Dali::Application application(this);
   mRegionChangedSignal.Emit( application );
 }
 
-void Application::OnBatteryLow( Dali::DevelApplication::BatteryStatus::Type status )
+void Application::OnBatteryLow()
 {
   Dali::Application application(this);
   mBatteryLowSignal.Emit( application );
-  mLowBatterySignal.Emit( status );
 }
 
-void Application::OnMemoryLow( Dali::DevelApplication::MemoryStatus::Type status )
+void Application::OnMemoryLow()
 {
   Dali::Application application(this);
   mMemoryLowSignal.Emit( application );
-  mLowMemorySignal.Emit( status );
 }
+
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
   Dali::Application application(this);
@@ -363,16 +360,6 @@ void Application::OnResize(Dali::Adaptor& adaptor)
 bool Application::AddIdle( CallbackBase* callback )
 {
   return mAdaptor->AddIdle( callback );
-}
-
-std::string Application::GetRegion()
-{
-  return mRegion;
-}
-
-std::string Application::GetLanguage()
-{
-  return mLanguage;
 }
 
 Dali::Adaptor& Application::GetAdaptor()

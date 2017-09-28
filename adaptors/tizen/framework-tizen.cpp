@@ -383,8 +383,8 @@ struct Framework::Impl
   static void AppLanguageChanged(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    std::string language( static_cast<const char *>(event->value) );
-    observer->OnLanguageChanged(language);
+
+    observer->OnLanguageChanged();
   }
 
   static void AppDeviceRotated(AppCore::AppEventInfoPtr event_info, void *data)
@@ -394,62 +394,22 @@ struct Framework::Impl
   static void AppRegionChanged(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    std::string region( static_cast<const char *>(event->value) );
-    observer->OnRegionChanged(region);
+
+    observer->OnRegionChanged();
   }
 
   static void AppBatteryLow(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    int status = *static_cast<int *>(event->value);
-    Dali::DevelApplication::BatteryStatus::Type result = Dali::DevelApplication::BatteryStatus::NORMAL;
 
-    // convert to dali battery status
-    switch( status )
-    {
-      case 1:
-      {
-        result = Dali::DevelApplication::BatteryStatus::POWER_OFF;
-        break;
-      }
-      case 2:
-      {
-        result = Dali::DevelApplication::BatteryStatus::CRITICAL_LOW;
-        break;
-      }
-      default :
-        break;
-    }
-    observer->OnBatteryLow(result);
+    observer->OnBatteryLow();
   }
 
   static void AppMemoryLow(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    int status = *static_cast<int *>(event->value);
-    Dali::DevelApplication::MemoryStatus::Type result = Dali::DevelApplication::MemoryStatus::NORMAL;
-    // convert to dali memmory status
-    switch( status )
-    {
-      case 1:
-      {
-        result = Dali::DevelApplication::MemoryStatus::NORMAL;
-        break;
-      }
-      case 2:
-      {
-        result = Dali::DevelApplication::MemoryStatus::SOFT_WARNING;
-        break;
-      }
-      case 4:
-      {
-        result = Dali::DevelApplication::MemoryStatus::HARD_WARNING;
-        break;
-      }
-      default :
-        break;
-    }
-    observer->OnMemoryLow(result);
+
+    observer->OnMemoryLow();
   }
 
 
@@ -1137,6 +1097,34 @@ struct Framework::Impl
     observer->OnAmbientChanged(ambient);
   }
 
+  static void WatchAppLanguageChanged(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnLanguageChanged();
+  }
+
+  static void WatchAppRegionChanged(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnRegionChanged();
+  }
+
+  static void WatchAppBatteryLow(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnBatteryLow();
+  }
+
+  static void WatchAppMemoryLow(app_event_info_h event, void *data)
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+
+    observer->OnMemoryLow();
+  }
+
   static void WatchAppControl(app_control_h app_control, void *data)
   {
     Framework* framework = static_cast<Framework*>(data);
@@ -1186,10 +1174,10 @@ struct Framework::Impl
     mWatchCallback.ambient_tick = WatchAppAmbientTick;
     mWatchCallback.ambient_changed = WatchAppAmbientChanged;
 
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
+    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, WatchAppBatteryLow, mFramework);
+    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, WatchAppMemoryLow, mFramework);
+    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, WatchAppLanguageChanged, mFramework);
+    watch_app_add_event_handler(&watchHandlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, WatchAppRegionChanged, mFramework);
 
     ret = watch_app_main(*mFramework->mArgc, *mFramework->mArgv, &mWatchCallback, mFramework);
 #endif
