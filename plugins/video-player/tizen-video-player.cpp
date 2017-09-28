@@ -209,18 +209,11 @@ void LogPlayerError( int error )
 } // unnamed namespace
 
 TizenVideoPlayer::TizenVideoPlayer()
-: mUrl(),
-  mPlayer( NULL ),
+: mPlayer( NULL ),
   mPlayerState( PLAYER_STATE_NONE ),
   mTbmSurface( NULL ),
   mPacket( NULL ),
-  mNativeImageSourcePtr( NULL ),
-  mTimer( NULL ),
-  mBackgroundColor( Vector4( 1.0f, 1.0f, 1.0f, 0.0f ) ),
   mTargetType( NativeImage ),
-  mPacketMutex(),
-  mPacketVector(),
-  mEcoreWlWindow( NULL ),
   mAlphaBitChanged( false )
 {
 }

@@ -133,7 +133,7 @@ std::string VideoPlayer::GetUrl()
     return mPlugin->GetUrl();
   }
 
-  return std::string();
+  return std::string( NULL );
 }
 
 void VideoPlayer::SetLooping(bool looping)

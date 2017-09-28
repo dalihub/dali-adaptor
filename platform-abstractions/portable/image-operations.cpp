@@ -475,7 +475,7 @@ ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned i
   // If both dimensions have values requested, use them both:
   if( requestedWidth != 0 && requestedHeight != 0 )
   {
-    if( requestedWidth <= maxSize && requestedHeight <= maxSize )
+    if( requestedWidth <= maxSize && requestedWidth <= maxSize )
     {
       return ImageDimensions( requestedWidth, requestedHeight );
     }
