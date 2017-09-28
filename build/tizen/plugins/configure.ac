@@ -24,7 +24,6 @@ AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
 AM_CONDITIONAL([USE_VIDEOPLAYER], [test x$enable_videoplayer = xyes])
-AM_CONDITIONAL([USE_WEBENGINELITE], [test x$enable_web_engine_lite = xyes])
 
 AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
 AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
@@ -50,16 +49,6 @@ PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 
 fi # check UNBUNTU
 fi # enable_feedback
-
-if test "x$enable_web_engine_lite" = "xyes"; then
-if test "x$enable_profile" != "xUBUNTU"; then
-
-PKG_CHECK_MODULES(FEEDBACK, feedback)
-PKG_CHECK_MODULES(WEBENGINELITE, lightweight-web-engine)
-#PKG_CHECK_MODULES(MMFSOUND, mm-sound)
-
-fi # check UNBUNTU
-fi # enable_web_engine_lite
 
 AC_CONFIG_FILES(Makefile)
 
