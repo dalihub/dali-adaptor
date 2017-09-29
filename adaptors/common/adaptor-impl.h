@@ -23,6 +23,7 @@
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/callback.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
@@ -89,6 +90,8 @@ class Adaptor : public Integration::RenderController,
 public:
 
   typedef Dali::Adaptor::AdaptorSignalType AdaptorSignalType;
+
+  typedef Uint16Pair SurfaceSize;          ///< Surface size type
 
   /**
    * Creates a New Adaptor
@@ -338,12 +341,12 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize );
+  void SurfaceResizePrepare( SurfaceSize surfaceSize );
 
   /**
    * Informs ThreadController the surface size has changed
    */
-  void SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize );
+  void SurfaceResizeComplete( SurfaceSize surfaceSize );
 
   /**
    * Sets layout direction of root by system language

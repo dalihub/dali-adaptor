@@ -19,10 +19,8 @@
 #include <window-render-surface.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
 #include <wl-types.h>
@@ -142,8 +140,6 @@ void WindowRenderSurface::OutputTransformed()
   {
     transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mWlWindow ) );
   }
-
-  ecore_wl_window_buffer_transform_set( mWlWindow, transform );
 
   mScreenRotationAngle = transform * 90;
   mScreenRotationFinished = false;
@@ -458,7 +454,6 @@ void WindowRenderSurface::CreateWlRenderable()
     Ecore_Wl_Output* output = ecore_wl_window_output_find( mWlWindow );
 
     int transform = ecore_wl_output_transform_get( output );
-    ecore_wl_window_buffer_transform_set( mWlWindow, transform );
 
     mScreenRotationAngle = transform * 90;
     mScreenRotationFinished = false;
