@@ -840,8 +840,8 @@ void Adaptor::SetRootLayoutDirection( std::string locale )
 {
   Dali::Stage stage = Dali::Stage::GetCurrent();
 
-  stage.GetRootLayer().SetProperty( DevelActor::Property::LAYOUT_DIRECTION,
-                                    static_cast< DevelActor::LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+  stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
+                                    static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
 }
 
 } // namespace Adaptor
