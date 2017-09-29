@@ -52,7 +52,6 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
-#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -89,8 +88,8 @@ namespace
 
 const char * DETENT_DEVICE_NAME = "tizen_detent";
 const std::string DEFAULT_DEVICE_NAME = "";
-const DevelDevice::Class::Type DEFAULT_DEVICE_CLASS = DevelDevice::Class::NONE;
-const DevelDevice::Subclass::Type DEFAULT_DEVICE_SUBCLASS = DevelDevice::Subclass::NONE;
+const Device::Class::Type DEFAULT_DEVICE_CLASS = Device::Class::NONE;
+const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
 // DBUS accessibility
 #define A11Y_BUS "org.a11y.Bus"
