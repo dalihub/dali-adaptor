@@ -174,6 +174,22 @@ public:
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
 
   /**
+   * @brief This is the constructor for applications.
+   *
+   * @SINCE_1_2.60
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   * @param[in,out]  argc         A pointer to the number of arguments
+   * @param[in,out]  argv         A pointer to the argument list
+   * @param[in]      stylesheet   The path to user defined theme file
+   * @param[in]      windowMode   A member of WINDOW_MODE
+   * @param[in]      positionSize A position and a size of the window
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
+   */
+  static Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize );
+
+  /**
    * @brief Constructs an empty handle.
    * @SINCE_1_0.0
    */

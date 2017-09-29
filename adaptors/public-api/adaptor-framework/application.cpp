@@ -84,7 +84,7 @@ Application Application::New( int* argc, char **argv[], const std::string& style
     }
     internal->SetStyleSheet( stylesheet );
 
-    DevelWindow::SetTransparency( internal->GetWindow(), ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
 
     return Application( internal.Get() );
   }
@@ -93,6 +93,30 @@ Application Application::New( int* argc, char **argv[], const std::string& style
     internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
       Internal::Adaptor::Framework::NORMAL);
     return Application(internal.Get());
+  }
+}
+
+Application Application::New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetSize( Window::WindowSize( positionSize.width, positionSize.height ) );
+    internal->GetWindow().SetPosition( Window::WindowPosition( positionSize.x, positionSize.y ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
+    return Application( internal.Get() );
   }
 }
 
