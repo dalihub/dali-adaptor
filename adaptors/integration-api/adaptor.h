@@ -229,6 +229,13 @@ public:
   Any GetNativeWindowHandle();
 
   /**
+   * @brief Gets Window handle
+   *
+   * @return Window handle
+   */
+  Window GetWindow();
+
+  /**
    * @brief Release any locks the surface may hold.
    *
    * For example, after compositing an offscreen surface, use this method to allow
