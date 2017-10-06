@@ -66,6 +66,8 @@ bool HasChannel( Dali::Pixel::Format pixelFormat, Channel channel )
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     case Dali::Pixel::BGR8888:
+    case Dali::Pixel::RGB16F:
+    case Dali::Pixel::RGB32F:
     {
       return ( channel == RED || channel == GREEN || channel == BLUE );
     }

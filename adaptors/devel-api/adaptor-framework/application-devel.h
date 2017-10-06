@@ -30,22 +30,6 @@ namespace Dali
 
 namespace DevelApplication
 {
-
-/**
- * @brief This is the constructor for applications.
- *
- * @PRIVLEVEL_PUBLIC
- * @PRIVILEGE_DISPLAY
- * @param[in,out]  argc         A pointer to the number of arguments
- * @param[in,out]  argv         A pointer to the argument list
- * @param[in]      stylesheet   The path to user defined theme file
- * @param[in]      windowMode   A member of WINDOW_MODE
- * @param[in]      positionSize A position and a size of the window
- * @return A handle to the Application
- * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
- */
-DALI_IMPORT_API Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize );
-
 /**
  * @brief This is used to improve application launch performance.
  * It preloads so files, initializes some functions in advance and makes a window in advance.

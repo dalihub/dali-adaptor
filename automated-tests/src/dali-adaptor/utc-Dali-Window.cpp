@@ -18,7 +18,6 @@
 #include <dali/dali.h>
 #include <Ecore_X.h>
 #include <devel-api/adaptor-framework/drag-and-drop-detector.h>
-#include <devel-api/adaptor-framework/window-devel.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;
@@ -351,7 +350,7 @@ int UtcDaliWindowSetAcceptFocusN(void)
   Dali::Window window;
   try
   {
-    DevelWindow::SetAcceptFocus( window, true );
+    window.SetAcceptFocus( true );
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )
@@ -367,7 +366,7 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   Dali::Window window;
   try
   {
-    DevelWindow::IsFocusAcceptable( window );
+    window.IsFocusAcceptable();
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )
@@ -399,7 +398,7 @@ int UtcDaliWindowFocusChangedSignalN(void)
   Dali::Window window;
   try
   {
-    DevelWindow::FocusChangedSignal( window );
+    window.FocusChangedSignal();
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )
