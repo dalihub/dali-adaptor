@@ -213,11 +213,6 @@ public:
    */
   unsigned int GetMaxTextureSize() const;
 
-  /**
-   * @return The maximum texture size
-   */
-  int GetIndicatorVisibleMode() const;
-
 private: // Internal
 
   /**
@@ -255,7 +250,6 @@ private: // Data
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   unsigned int mMultiSamplingLevel;               ///< The number of samples required in multisample buffers
   unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
-  int mIndicatorVisibleMode;                      ///< Indicator visible mode
 
   Dali::Integration::Log::LogFunction mLogFunction;
 

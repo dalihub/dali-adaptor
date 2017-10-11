@@ -908,11 +908,6 @@ void Window::RotationDone( int orientation, int width, int height )
   mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 }
 
-void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
-{
-  mIndicatorVisible = mode;
-}
-
 unsigned int Window::GetSupportedAuxiliaryHintCount()
 {
   return mSupportedAuxiliaryHints.size();

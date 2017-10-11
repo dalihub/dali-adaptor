@@ -318,11 +318,6 @@ void Window::RotationDone( int orientation, int width, int height )
 {
 }
 
-void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
-{
-  mIndicatorVisible = mode;
-}
-
 unsigned int Window::GetSupportedAuxiliaryHintCount()
 {
   return 0;

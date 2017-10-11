@@ -97,8 +97,6 @@ namespace Adaptor
 
 #define DALI_ENV_MAX_TEXTURE_SIZE "DALI_MAX_TEXTURE_SIZE"
 
-#define DALI_ENV_INDICATOR_VISIBLE_MODE "DALI_INDICATOR_VISIBLE_MODE"
-
 } // namespace Adaptor
 
 } // namespace Internal
