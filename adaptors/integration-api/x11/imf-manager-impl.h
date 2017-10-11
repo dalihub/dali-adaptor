@@ -46,6 +46,8 @@ public:
   typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
   typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
   typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
+  typedef Dali::ImfManager::KeyboardResizedSignalType KeyboardResizedSignalType;
+  typedef Dali::ImfManager::LanguageChangedSignalType LanguageChangedSignalType;
 
 public:
 
@@ -247,12 +249,12 @@ public:  // Signals
   /**
    * @copydoc Dali::ImfManager::ResizedSignal()
    */
-  ImfVoidSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
+  KeyboardResizedSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
 
   /**
    * @copydoc Dali::ImfManager::LanguageChangedSignal()
    */
-  ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
+  LanguageChangedSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
 
   /**
    * @copydoc Dali::ImfManager::KeyboardTypeChangedSignal()
@@ -296,8 +298,8 @@ private:
   ImfManagerSignalType       mActivatedSignal;
   ImfEventSignalType         mEventSignal;
   ImfStatusSignalType        mKeyboardStatusSignal;
-  ImfVoidSignalType          mKeyboardResizeSignal;
-  ImfVoidSignalType          mKeyboardLanguageChangedSignal;
+  KeyboardResizedSignalType  mKeyboardResizeSignal;
+  LanguageChangedSignalType  mKeyboardLanguageChangedSignal;
   ImfKeyboardTypeSignalType  mKeyboardTypeChangedSignal;
 
 public:
