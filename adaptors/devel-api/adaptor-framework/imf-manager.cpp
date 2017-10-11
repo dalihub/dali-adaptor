@@ -33,11 +33,6 @@ ImfManager::~ImfManager()
 {
 }
 
-void ImfManager::Finalize()
-{
-  Internal::Adaptor::ImfManager::GetImplementation(*this).Finalize();
-}
-
 ImfManager ImfManager::Get()
 {
   return Internal::Adaptor::ImfManager::Get();

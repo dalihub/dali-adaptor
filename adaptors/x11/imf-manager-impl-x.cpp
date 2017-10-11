@@ -122,19 +122,6 @@ void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *even
 
 } // unnamed namespace
 
-void ImfManager::Finalize()
-{
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::Finalize\n" );
-  if ( mInited )
-  {
-    VirtualKeyboard::DisconnectCallbacks( mIMFContext );
-    DisconnectCallbacks();
-    DeleteContext();
-    ecore_imf_shutdown();
-    mInited = false;
-  }
-}
-
 bool ImfManager::IsAvailable()
 {
   bool available( false );
@@ -151,7 +138,6 @@ bool ImfManager::IsAvailable()
 Dali::ImfManager ImfManager::Get()
 {
   Dali::ImfManager manager;
-  ImfManager *imfManager = NULL;
 
   Dali::SingletonService service( SingletonService::Get() );
   if ( service )
@@ -161,8 +147,7 @@ Dali::ImfManager ImfManager::Get()
     if( handle )
     {
       // If so, downcast the handle
-      imfManager = dynamic_cast< ImfManager* >( handle.GetObjectPtr() );
-      manager = Dali::ImfManager( imfManager );
+      manager = Dali::ImfManager( dynamic_cast< ImfManager* >( handle.GetObjectPtr() ) );
     }
     else if ( Adaptor::IsAvailable() )
     {
@@ -173,14 +158,14 @@ Dali::ImfManager ImfManager::Get()
 
       // The Ecore_X_Window needs to use the ImfManager.
       // Only when the render surface is window, we can get the Ecore_X_Window.
-      Ecore_X_Window *ecoreXwin( AnyCast< Ecore_X_Window* >( nativeWindow ) );
-      if ( ecoreXwin )
+      Ecore_X_Window ecoreXwin( AnyCast<Ecore_X_Window>(nativeWindow) );
+      if (ecoreXwin)
       {
         // If we fail to get Ecore_X_Window, we can't use the ImfManager correctly.
         // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
         // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-        imfManager = new ImfManager( ecoreXwin );
-        manager = Dali::ImfManager( imfManager );
+
+        manager = Dali::ImfManager( new ImfManager( ecoreXwin ) );
         service.Register( typeid( manager ), manager );
       }
       else
@@ -190,36 +175,33 @@ Dali::ImfManager ImfManager::Get()
     }
   }
 
-  if ( ( imfManager != NULL ) !imfManager->mInited )
-  {
-    ecore_imf_init();
-    imfManager->CreateContext( imfManager->mEcoreXWin );
-
-    imfManager->ConnectCallbacks();
-    VirtualKeyboard::ConnectCallbacks( mIMFContext );
-    imfManager->mInited = true;
-  }
-
   return manager;
 }
 
-ImfManager::ImfManager( Ecore_X_Window* ecoreXwin )
+ImfManager::ImfManager( Ecore_X_Window ecoreXwin )
 : mIMFContext(),
-  mEcoreXWin( ecoreXwin ),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
-  mInited( false ),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
+  ecore_imf_init();
+  CreateContext( ecoreXwin );
+
+  ConnectCallbacks();
+  VirtualKeyboard::ConnectCallbacks( mIMFContext );
 }
 
 ImfManager::~ImfManager()
 {
-  Finalize();
+  VirtualKeyboard::DisconnectCallbacks( mIMFContext );
+  DisconnectCallbacks();
+
+  DeleteContext();
+  ecore_imf_shutdown();
 }
 
-void ImfManager::CreateContext( Ecore_X_Window* ecoreXwin )
+void ImfManager::CreateContext( Ecore_X_Window ecoreXwin )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::CreateContext\n" );
 

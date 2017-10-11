@@ -50,11 +50,6 @@ public:
 public:
 
   /**
-   * @copydoc Dali::ImfManager::Finalize()
-   */
-  void Finalize();
-
-  /**
    * Check whether the ImfManager is available.
    * @return true if available, false otherwise
    */
@@ -72,7 +67,7 @@ public:
    * Constructor
    * @param[in] ecoreXwin, The window is created by application.
    */
-  ImfManager( Ecore_X_Window* ecoreXwin );
+  ImfManager( Ecore_X_Window ecoreXwin );
 
   /**
    * Connect Callbacks required for IMF.
@@ -270,7 +265,7 @@ private:
    * Context created the first time and kept until deleted.
    * @param[in] ecoreXwin, The window is created by application.
    */
-  void CreateContext( Ecore_X_Window* ecoreXwin );
+  void CreateContext( Ecore_X_Window ecoreXwin );
 
   /**
    * @copydoc Dali::ImfManager::DeleteContext()
@@ -284,11 +279,9 @@ private:
 
 private:
   Ecore_IMF_Context* mIMFContext;
-  Ecore_X_Window* mEcoreXWin;
   int mIMFCursorPosition;
   std::string mSurroundingText;
 
-  bool mInited:1;                            ///< Whether the imf is already inited.
   bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
   InputMethodOptions        mOptions;

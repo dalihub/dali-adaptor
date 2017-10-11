@@ -53,11 +53,6 @@ public:
 public:
 
   /**
-   * @copydoc Dali::ImfManager::Finalize()
-   */
-  void Finalize();
-
-  /**
    * Check whether the ImfManager is available.
    * @return true if available, false otherwise
    */
@@ -288,11 +283,9 @@ private:
 
 private:
   Ecore_IMF_Context* mIMFContext;
-  Ecore_Wl_Window *mEcoreWlwin;
   int mIMFCursorPosition;
   std::string mSurroundingText;
 
-  bool mInited:1;                            ///< Whether the imf is already inited.
   bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
 

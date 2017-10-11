@@ -104,18 +104,8 @@ BaseHandle Create()
 
 TypeRegistration IMF_MANAGER_TYPE( typeid(Dali::ImfManager), typeid(Dali::BaseHandle), Create );
 
-}
 
-void ImfManager::Finalize()
-{
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::Finalize\n" );
-  if ( mInited )
-  {
-    DisconnectCallbacks();
-    mInited = false;
-  }
 }
-
 bool ImfManager::IsAvailable()
 {
   bool available( false );
@@ -131,7 +121,6 @@ bool ImfManager::IsAvailable()
 Dali::ImfManager ImfManager::Get()
 {
   Dali::ImfManager manager;
-  ImfManager *imfManager = NULL;
 
   Dali::SingletonService service( SingletonService::Get() );
   if (! service )
@@ -144,42 +133,31 @@ Dali::ImfManager ImfManager::Get()
   if( handle )
   {
     // If so, downcast the handle
-    imfManager = dynamic_cast< ImfManager* >( handle.GetObjectPtr() );
-    manager = Dali::ImfManager( imfManager );
+    manager = Dali::ImfManager( dynamic_cast< ImfManager* >( handle.GetObjectPtr() ) );
   }
   else if ( Adaptor::IsAvailable() )
   {
     // Create instance and register singleton only if the adaptor is available
-    imfManager = new ImfManager();
-    manager = Dali::ImfManager( imfManager );
+    manager = Dali::ImfManager( new ImfManager() );
     service.Register( typeid( manager ), manager );
   }
   else
   {
     DALI_LOG_ERROR("Failed to get native window handle\n");
   }
-
-  if ( ( imfManager != NULL ) && !imfManager->mInited )
-  {
-    imfManager->ConnectCallbacks();
-    imfManager->mInited = true;
-  }
-
   return manager;
 }
-
 ImfManager::ImfManager()
 : mTextInputManager( TextInputManager::Get() ),
   mPreEditCursorPosition( 0 ),
   mEditCursorPosition( 0 ),
-  mInited( false ),
   mRestoreAfterFocusLost( false )
 {
+  ConnectCallbacks();
 }
-
 ImfManager::~ImfManager()
 {
-  Finalize();
+  DisconnectCallbacks();
 }
 
 void ImfManager::ConnectCallbacks()
