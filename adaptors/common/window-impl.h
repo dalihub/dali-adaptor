@@ -30,7 +30,6 @@
 #include <orientation.h>
 #include <render-surface.h>
 #include <drag-and-drop-detector.h>
-#include <window-devel.h>
 
 namespace Dali
 {
@@ -59,8 +58,8 @@ class Window : public Dali::BaseObject, public IndicatorInterface::Observer, pub
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
-  typedef Dali::DevelWindow::FocusSignalType FocusSignalType;
-  typedef Dali::DevelWindow::ResizedSignalType ResizedSignalType;
+  typedef Dali::Window::FocusSignalType FocusSignalType;
+  typedef Dali::Window::ResizedSignalType ResizedSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -161,142 +160,142 @@ public:
   Dali::Any GetNativeHandle() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetAcceptFocus()
+   * @copydoc Dali::Window::SetAcceptFocus()
    */
   void SetAcceptFocus( bool accept );
 
   /**
-   * @copydoc Dali::DevelWindow::IsFocusAcceptable()
+   * @copydoc Dali::Window::IsFocusAcceptable()
    */
-  bool IsFocusAcceptable();
+  bool IsFocusAcceptable() const;
 
   /**
-   * @copydoc Dali::DevelWindow::Show()
+   * @copydoc Dali::Window::Show()
    */
   void Show();
 
   /**
-   * @copydoc Dali::DevelWindow::Hide()
+   * @copydoc Dali::Window::Hide()
    */
   void Hide();
 
   /**
-   * @copydoc Dali::DevelWindow::IsVisible() const
+   * @copydoc Dali::Window::IsVisible() const
    */
   bool IsVisible() const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHintCount()
+   * @copydoc Dali::Window::GetSupportedAuxiliaryHintCount()
    */
-   unsigned int GetSupportedAuxiliaryHintCount();
+   unsigned int GetSupportedAuxiliaryHintCount() const;
 
    /**
-    * @copydoc Dali::DevelWindow::GetSupportedAuxiliaryHint()
+    * @copydoc Dali::Window::GetSupportedAuxiliaryHint()
     */
-  std::string GetSupportedAuxiliaryHint( unsigned int index );
+  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
 
   /**
-   * @copydoc Dali::DevelWindow::AddAuxiliaryHint()
+   * @copydoc Dali::Window::AddAuxiliaryHint()
    */
   unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
 
   /**
-   * @copydoc Dali::DevelWindow::RemoveAuxiliaryHint()
+   * @copydoc Dali::Window::RemoveAuxiliaryHint()
    */
   bool RemoveAuxiliaryHint( unsigned int id );
 
   /**
-   * @copydoc Dali::DevelWindow::SetAuxiliaryHintValue()
+   * @copydoc Dali::Window::SetAuxiliaryHintValue()
    */
   bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
 
   /**
-   * @copydoc Dali::DevelWindow::GetAuxiliaryHintValue()
+   * @copydoc Dali::Window::GetAuxiliaryHintValue()
    */
   std::string GetAuxiliaryHintValue( unsigned int id ) const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetAuxiliaryHintId()
+   * @copydoc Dali::Window::GetAuxiliaryHintId()
    */
   unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetInputRegion()
+   * @copydoc Dali::Window::SetInputRegion()
    */
   void SetInputRegion( const Rect< int >& inputRegion );
 
   /**
-   * @copydoc Dali::DevelWindow::SetType()
+   * @copydoc Dali::Window::SetType()
    */
-  void SetType( Dali::DevelWindow::Type type );
+  void SetType( Dali::Window::Type type );
 
   /**
-   * @copydoc Dali::DevelWindow::GetType() const
+   * @copydoc Dali::Window::GetType() const
    */
-  Dali::DevelWindow::Type GetType() const;
+  Dali::Window::Type GetType() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetNotificationLevel()
+   * @copydoc Dali::Window::SetNotificationLevel()
    */
-  bool SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level );
+  bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level );
 
   /**
-   * @copydoc Dali::DevelWindow::GetNotificationLevel()
+   * @copydoc Dali::Window::GetNotificationLevel()
    */
-  Dali::DevelWindow::NotificationLevel::Type GetNotificationLevel();
+  Dali::Window::NotificationLevel::Type GetNotificationLevel() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetOpaqueState()
+   * @copydoc Dali::Window::SetOpaqueState()
    */
   void SetOpaqueState( bool opaque );
 
   /**
-   * @copydoc Dali::DevelWindow::IsOpaqueState()
+   * @copydoc Dali::Window::IsOpaqueState()
    */
-  bool IsOpaqueState();
+  bool IsOpaqueState() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetScreenMode()
+   * @copydoc Dali::Window::SetScreenOffMode()
    */
-  bool SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode );
+  bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode);
 
   /**
-   * @copydoc Dali::DevelWindow::GetScreenMode()
+   * @copydoc Dali::Window::GetScreenOffMode()
    */
-  Dali::DevelWindow::ScreenMode::Type GetScreenMode();
+  Dali::Window::ScreenOffMode::Type GetScreenOffMode() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetBrightness()
+   * @copydoc Dali::Window::SetBrightness()
    */
   bool SetBrightness( int brightness );
 
   /**
-   * @copydoc Dali::DevelWindow::GetBrightness()
+   * @copydoc Dali::Window::GetBrightness()
    */
-  int GetBrightness();
+  int GetBrightness() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetSize()
+   * @copydoc Dali::Window::SetSize()
    */
-  void SetSize( Dali::DevelWindow::WindowSize size );
+  void SetSize( Dali::Window::WindowSize size );
 
   /**
-   * @copydoc Dali::DevelWindow::GetSize()
+   * @copydoc Dali::Window::GetSize()
    */
-  Dali::DevelWindow::WindowSize GetSize();
+  Dali::Window::WindowSize GetSize() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetPosition()
+   * @copydoc Dali::Window::SetPosition()
    */
-  void SetPosition( Dali::DevelWindow::WindowPosition position );
+  void SetPosition( Dali::Window::WindowPosition position );
 
   /**
-   * @copydoc Dali::DevelWindow::GetPosition()
+   * @copydoc Dali::Window::GetPosition()
    */
-  Dali::DevelWindow::WindowPosition GetPosition();
+  Dali::Window::WindowPosition GetPosition() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetTransparency()
+   * @copydoc Dali::Window::SetTransparency()
    */
   void SetTransparency( bool transparent );
 
@@ -304,6 +303,11 @@ public:
    * Called from Orientation after the Change signal has been sent
    */
   void RotationDone( int orientation, int width, int height );
+
+  /**
+   * Set the indicator visible mode
+   */
+  void SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode );
 
 private:
   /**
@@ -396,12 +400,12 @@ public: // Signals
   IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
 
   /**
-   * @copydoc Dali::DevelWindow::FocusChangedSignal()
+   * @copydoc Dali::Window::FocusChangedSignal()
    */
   FocusSignalType& FocusChangedSignal() { return mFocusChangedSignal; }
 
   /**
-   * @copydoc Dali::DevelWindow::ResizedSignal()
+   * @copydoc Dali::Window::ResizedSignal()
    */
   ResizedSignalType& ResizedSignal() { return mResizedSignal; }
 
@@ -433,7 +437,7 @@ private:
   Integration::SystemOverlay*      mOverlay;
   Adaptor*                         mAdaptor;
   Dali::DragAndDropDetector        mDragAndDropDetector;
-  Dali::DevelWindow::Type          mType;
+  Dali::Window::Type          mType;
 
   struct EventHandler;
   EventHandler*                    mEventHandler;

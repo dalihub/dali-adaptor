@@ -109,6 +109,7 @@ EnvironmentOptions::EnvironmentOptions()
   mGlesCallAccumulate( false ),
   mMultiSamplingLevel( 0 ),
   mMaxTextureSize( 0 ),
+  mIndicatorVisibleMode( -1 ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -263,6 +264,11 @@ unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
 unsigned int EnvironmentOptions::GetMaxTextureSize() const
 {
   return mMaxTextureSize;
+}
+
+int EnvironmentOptions::GetIndicatorVisibleMode() const
+{
+  return mIndicatorVisibleMode;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const
@@ -422,6 +428,15 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( maxTextureSize > 0 )
     {
       mMaxTextureSize = maxTextureSize;
+    }
+  }
+
+  int indicatorVisibleMode( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_INDICATOR_VISIBLE_MODE, indicatorVisibleMode ) )
+  {
+    if( indicatorVisibleMode > -1 )
+    {
+      mIndicatorVisibleMode = indicatorVisibleMode;
     }
   }
 }
