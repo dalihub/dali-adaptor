@@ -1274,12 +1274,6 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return FT_Err_Ok == error;
 }
 
-bool FontClient::Plugin::AddCustomFontDirectory( const char* path )
-{
-  // NULL as first parameter means the current configuration is used.
-  return FcConfigAppFontAddDir( NULL, reinterpret_cast<const FcChar8 *>( path ) );
-}
-
 void FontClient::Plugin::InitSystemFonts()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );
