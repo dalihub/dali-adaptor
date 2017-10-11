@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,12 @@ StatusSignalType& StatusChangedSignal()
   return Internal::Adaptor::VirtualKeyboard::StatusChangedSignal();
 }
 
-VoidSignalType& ResizedSignal()
+KeyboardResizedSignalType& ResizedSignal()
 {
   return Internal::Adaptor::VirtualKeyboard::ResizedSignal();
 }
 
-VoidSignalType& LanguageChangedSignal()
+LanguageChangedSignalType& LanguageChangedSignal()
 {
   return Internal::Adaptor::VirtualKeyboard::LanguageChangedSignal();
 }

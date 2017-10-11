@@ -2,7 +2,7 @@
 #define __DALI_VIRTUAL_KEYBOARD_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,9 @@ namespace VirtualKeyboard
 // Types
 
 typedef Signal< void () > VoidSignalType;
-typedef Signal< void (bool) > StatusSignalType;
+typedef Signal< void ( bool ) > StatusSignalType;
+typedef Signal< void ( int ) > KeyboardResizedSignalType;
+typedef Signal< void ( int ) > LanguageChangedSignalType;
 
 // Enumerations
 
@@ -168,24 +170,28 @@ DALI_IMPORT_API StatusSignalType& StatusChangedSignal();
  *
  * A callback of the following type may be connected:
  * @code
- *   void YourCallbackName();
+ *   void YourCallbackName( int resolvedResize );
  * @endcode
+ * The parameter sends the resolved resize defined by the IMF.
+ *
  * User can get changed size by using GetSizeAndPosition() in the callback
  * @return The signal to connect to.
  */
-DALI_IMPORT_API VoidSignalType& ResizedSignal();
+DALI_IMPORT_API KeyboardResizedSignalType& ResizedSignal();
 
 /**
  * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
  *
  * A callback of the following type may be connected:
  * @code
- *   void YourCallbackName();
+ *   void YourCallbackName( int resolvedLanguage );
  * @endcode
+ * The parameter sends the resolved language defined by the IMF.
+ *
  * User can get the text direction of the language by calling GetTextDirection() in the callback.
  * @return The signal to connect to.
  */
-DALI_IMPORT_API VoidSignalType& LanguageChangedSignal();
+DALI_IMPORT_API LanguageChangedSignalType& LanguageChangedSignal();
 
 } // namespace VirtualKeyboard
 
