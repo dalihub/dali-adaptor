@@ -29,8 +29,6 @@
 #include <gl/egl-factory.h>
 #include <adaptor-impl.h>
 #include <render-surface.h>
-#include <trigger-event-factory.h>
-
 
 // Allow this to be encoded and saved:
 #include <bitmap-saver.h>
@@ -90,8 +88,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
   mEglImageExtensions( NULL ),
-  mSetSource( false ),
-  mNotification( NULL )
+  mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
   EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
@@ -200,11 +197,6 @@ NativeImageSource::~NativeImageSource()
     if( mTbmSurface != NULL )
     {
       tbm_surface_internal_unref( mTbmSurface );
-
-      if (mNotification != NULL) {
-          TriggerEventInterface* triggerEvent = static_cast<TriggerEventInterface* >(mNotification);
-          triggerEvent->Trigger();
-      }
     }
   }
 }
@@ -212,12 +204,6 @@ NativeImageSource::~NativeImageSource()
 Any NativeImageSource::GetNativeImageSource() const
 {
   return Any( mTbmSurface );
-}
-
-
-void NativeImageSource::SetDestructorNotification(void* notification)
-{
-  mNotification = notification;
 }
 
 bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const

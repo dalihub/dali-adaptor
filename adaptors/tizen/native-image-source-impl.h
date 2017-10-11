@@ -63,7 +63,6 @@ public:
    */
   Any GetNativeImageSource() const;
 
-
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
@@ -156,11 +155,6 @@ public:
    */
   int GetEglImageTextureTarget();
 
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::SetDestructorNotification((void *notification)
-   */
-  void SetDestructorNotification(void* notification);
-
 private:
 
   /**
@@ -195,7 +189,6 @@ private:
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
   bool mSetSource;
-  void *mNotification;
 };
 
 } // namespace Adaptor
