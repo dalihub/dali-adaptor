@@ -24,7 +24,6 @@
 
 // INTERNAL INCLUDES
 #include <application.h>
-#include <application-devel.h>
 #include <singleton-service.h>
 
 #include <framework.h>
@@ -124,16 +123,6 @@ public:
    * @copydoc Dali::Application::GetWindow();
    */
   Dali::Window GetWindow();
-
-  /**
-   * @copydoc Dali::DevelApplication::GetRegion();
-   */
-  std::string GetRegion();
-
-  /**
-   * @copydoc Dali::DevelApplication::GetLanguage();
-   */
-  std::string GetLanguage();
 
   /**
    * @copydoc Dali::Application::ReplaceWindow();
@@ -242,22 +231,22 @@ public: // From Framework::Observer
   /**
    * Called when the framework informs the application that the language of the device has changed.
    */
-  virtual void OnLanguageChanged( const std::string& language );
+  virtual void OnLanguageChanged();
 
   /**
   * Called when the framework informs the application that the region of the device has changed.
   */
-  virtual void OnRegionChanged( const std::string& region );
+  virtual void OnRegionChanged();
 
   /**
   * Called when the framework informs the application that the battery level of the device is low.
   */
-  virtual void OnBatteryLow( Dali::DevelApplication::BatteryStatus::Type status );
+  virtual void OnBatteryLow();
 
   /**
   * Called when the framework informs the application that the memory level of the device is low.
   */
-  virtual void OnMemoryLow( Dali::DevelApplication::MemoryStatus::Type status );
+  virtual void OnMemoryLow();
 
 public:
 
@@ -331,16 +320,6 @@ public:  // Signals
   */
   Dali::Application::AppSignalType& MemoryLowSignal() { return mMemoryLowSignal; }
 
-  /**
-  * @copydoc Dali::DevelApplication::LowBatterySignal()
-  */
-  Dali::DevelApplication::LowBatterySignalType& LowBatterySignal() { return mLowBatterySignal; }
-
-  /**
-  * @copydoc Dali::DevelApplication:::LowMemorySignal()
-  */
-  Dali::DevelApplication::LowMemorySignalType& LowMemorySignal() { return mLowMemorySignal; }
-
 protected:
 
   /**
@@ -381,19 +360,17 @@ protected:
 
 private:
 
-  AppSignalType                                 mInitSignal;
-  AppSignalType                                 mTerminateSignal;
-  AppSignalType                                 mPauseSignal;
-  AppSignalType                                 mResumeSignal;
-  AppSignalType                                 mResetSignal;
-  AppSignalType                                 mResizeSignal;
-  AppControlSignalType                          mAppControlSignal;
-  AppSignalType                                 mLanguageChangedSignal;
-  AppSignalType                                 mRegionChangedSignal;
-  AppSignalType                                 mBatteryLowSignal;
-  AppSignalType                                 mMemoryLowSignal;
-  Dali::DevelApplication::LowBatterySignalType  mLowBatterySignal;
-  Dali::DevelApplication::LowMemorySignalType   mLowMemorySignal;
+  AppSignalType                           mInitSignal;
+  AppSignalType                           mTerminateSignal;
+  AppSignalType                           mPauseSignal;
+  AppSignalType                           mResumeSignal;
+  AppSignalType                           mResetSignal;
+  AppSignalType                           mResizeSignal;
+  AppControlSignalType                    mAppControlSignal;
+  AppSignalType                           mLanguageChangedSignal;
+  AppSignalType                           mRegionChangedSignal;
+  AppSignalType                           mBatteryLowSignal;
+  AppSignalType                           mMemoryLowSignal;
 
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;
@@ -401,18 +378,16 @@ private:
   Dali::Configuration::ContextLoss      mContextLossConfiguration;
   CommandLineOptions*                   mCommandLineOptions;
 
-  Dali::SingletonService                        mSingletonService;
-  Dali::Adaptor*                                mAdaptor;
-  Dali::Window                                  mWindow;
-  Dali::Application::WINDOW_MODE                mWindowMode;
-  std::string                                   mName;
-  std::string                                   mStylesheet;
-  std::string                                   mLanguage;
-  std::string                                   mRegion;
-  EnvironmentOptions                            mEnvironmentOptions;
-  PositionSize                                  mWindowPositionSize;
-  Launchpad::State                              mLaunchpadState;
-  bool                                          mUseRemoteSurface;
+  Dali::SingletonService                mSingletonService;
+  Dali::Adaptor*                        mAdaptor;
+  Dali::Window                          mWindow;
+  Dali::Application::WINDOW_MODE        mWindowMode;
+  std::string                           mName;
+  std::string                           mStylesheet;
+  EnvironmentOptions                    mEnvironmentOptions;
+  PositionSize                          mWindowPositionSize;
+  Launchpad::State                      mLaunchpadState;
+  bool                                  mUseRemoteSurface;
 
   SlotDelegate< Application >           mSlotDelegate;
 

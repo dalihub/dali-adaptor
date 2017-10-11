@@ -255,7 +255,7 @@ bool Framework::AppStatusHandler(int type, void *bundleData)
       break;
 
     case APP_LANGUAGE_CHANGE:
-      mObserver.OnLanguageChanged("");
+      mObserver.OnLanguageChanged();
       break;
 
     default:
