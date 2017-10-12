@@ -400,6 +400,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   uint64_t timeToSleepUntil = 0;
   int extraFramesDropped = 0;
 
+  const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
+  const bool renderToFboEnabled = 0u != renderToFboInterval;
+  unsigned int frameCount = 0u;
+
   while( UpdateRenderReady( useElapsedTime, updateRequired, timeToSleepUntil ) )
   {
     LOG_UPDATE_RENDER_TRACE;
@@ -437,6 +441,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // RESIZE SURFACE
     //////////////////////////////
 
+    const bool isRenderingToFbo = renderToFboEnabled && ( ( 0u == frameCount ) || ( 0u != frameCount % renderToFboInterval ) );
+    ++frameCount;
+
     // The resizing will be applied in the next loop
     bool surfaceResized = ShouldSurfaceBeResized();
     if( DALI_UNLIKELY( surfaceResized ) )
@@ -467,7 +474,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
-    mCore.Update( frameDelta, currentTime, nextFrameTime, updateStatus );
+    mCore.Update( frameDelta,
+                  currentTime,
+                  nextFrameTime,
+                  updateStatus,
+                  renderToFboEnabled,
+                  isRenderingToFbo );
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -497,7 +509,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     if( renderStatus.NeedsPostRender() )
     {
-      mRenderHelper.PostRender();
+      mRenderHelper.PostRender( isRenderingToFbo );
     }
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
@@ -549,8 +561,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
-    TimeService::SleepUntil( timeToSleepUntil );
+    // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
+    if( 0u == renderToFboInterval )
+    {
+      // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
+      TimeService::SleepUntil( timeToSleepUntil );
+    }
   }
 
   // Inform core of context destruction & shutdown EGL

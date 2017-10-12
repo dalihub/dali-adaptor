@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_RENDER_HELPER_H__
-#define __DALI_INTERNAL_RENDER_HELPER_H__
+#ifndef DALI_INTERNAL_RENDER_HELPER_H
+#define DALI_INTERNAL_RENDER_HELPER_H
 
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
@@ -128,8 +128,10 @@ public:
    * Called after core has rendered the scene
    *
    * @note Called from render thread
+   *
+   * @param[in] renderToFbo Whether to render to a Frame Buffer Object.
    */
-  void PostRender();
+  void PostRender( bool renderToFbo );
 
 private:
 
@@ -156,4 +158,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_RENDER_HELPER_H__
+#endif // DALI_INTERNAL_RENDER_HELPER_H

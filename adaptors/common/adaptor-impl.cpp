@@ -142,7 +142,13 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
+  mCore = Integration::Core::New( *this,
+                                  *mPlatformAbstraction,
+                                  *mGLES,
+                                  *eglSyncImpl,
+                                  *mGestureManager,
+                                  dataRetentionPolicy ,
+                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
