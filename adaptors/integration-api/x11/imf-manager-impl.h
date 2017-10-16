@@ -72,7 +72,7 @@ public:
    * Constructor
    * @param[in] ecoreXwin, The window is created by application.
    */
-  ImfManager( Ecore_X_Window* ecoreXwin );
+  ImfManager( Ecore_X_Window ecoreXwin );
 
   /**
    * Connect Callbacks required for IMF.
@@ -270,7 +270,7 @@ private:
    * Context created the first time and kept until deleted.
    * @param[in] ecoreXwin, The window is created by application.
    */
-  void CreateContext( Ecore_X_Window* ecoreXwin );
+  void CreateContext( Ecore_X_Window ecoreXwin );
 
   /**
    * @copydoc Dali::ImfManager::DeleteContext()
@@ -284,7 +284,7 @@ private:
 
 private:
   Ecore_IMF_Context* mIMFContext;
-  Ecore_X_Window* mEcoreXWin;
+  Ecore_X_Window mEcoreXWin;
   int mIMFCursorPosition;
   std::string mSurroundingText;
 

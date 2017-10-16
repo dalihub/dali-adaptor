@@ -173,7 +173,7 @@ Dali::ImfManager ImfManager::Get()
 
       // The Ecore_X_Window needs to use the ImfManager.
       // Only when the render surface is window, we can get the Ecore_X_Window.
-      Ecore_X_Window *ecoreXwin( AnyCast< Ecore_X_Window* >( nativeWindow ) );
+      Ecore_X_Window ecoreXwin( AnyCast< Ecore_X_Window >( nativeWindow ) );
       if ( ecoreXwin )
       {
         // If we fail to get Ecore_X_Window, we can't use the ImfManager correctly.
@@ -190,20 +190,20 @@ Dali::ImfManager ImfManager::Get()
     }
   }
 
-  if ( ( imfManager != NULL ) !imfManager->mInited )
+  if ( ( imfManager != NULL ) &&!imfManager->mInited )
   {
     ecore_imf_init();
     imfManager->CreateContext( imfManager->mEcoreXWin );
 
     imfManager->ConnectCallbacks();
-    VirtualKeyboard::ConnectCallbacks( mIMFContext );
+    VirtualKeyboard::ConnectCallbacks( imfManager->mIMFContext );
     imfManager->mInited = true;
   }
 
   return manager;
 }
 
-ImfManager::ImfManager( Ecore_X_Window* ecoreXwin )
+ImfManager::ImfManager(Ecore_X_Window ecoreXwin )
 : mIMFContext(),
   mEcoreXWin( ecoreXwin ),
   mIMFCursorPosition( 0 ),
@@ -219,7 +219,7 @@ ImfManager::~ImfManager()
   Finalize();
 }
 
-void ImfManager::CreateContext( Ecore_X_Window* ecoreXwin )
+void ImfManager::CreateContext( Ecore_X_Window ecoreXwin )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::CreateContext\n" );
 
