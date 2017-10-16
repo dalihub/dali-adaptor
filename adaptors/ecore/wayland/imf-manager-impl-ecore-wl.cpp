@@ -589,20 +589,16 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
-  Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
+  mEventSignal.Emit( handle, imfData );
 
-  if( callbackData.update )
+  if( text )
   {
-    if( text )
-    {
-      *text = strdup( callbackData.currentText.c_str() );
-    }
+    *text = strdup( mSurroundingText.c_str() );
+  }
 
-    if( cursorPosition )
-    {
-      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
-      *cursorPosition = mIMFCursorPosition;
-    }
+  if( cursorPosition )
+  {
+    *cursorPosition = mIMFCursorPosition;
   }
 
   return EINA_TRUE;
