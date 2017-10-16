@@ -207,11 +207,6 @@ bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return GetImplementation(*this).IsColorGlyph( fontId, glyphIndex );
 }
 
-bool FontClient::AddCustomFontDirectory( const char* path )
-{
-  return GetImplementation(*this).AddCustomFontDirectory( path );
-}
-
 FontClient::FontClient( Internal::FontClient* internal )
 : BaseHandle( internal )
 {

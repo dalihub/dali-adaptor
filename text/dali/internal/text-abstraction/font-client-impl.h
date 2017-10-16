@@ -193,11 +193,6 @@ public:
    */
   bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
-   */
-  bool AddCustomFontDirectory( const char* path );
-
 private:
 
   /**
