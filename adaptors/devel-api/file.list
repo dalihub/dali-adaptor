@@ -26,11 +26,8 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp
-  $(adaptor_devel_api_dir)/adaptor-framework/web-engine-lite.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.cpp
-
+  $(adaptor_devel_api_dir)/adaptor-framework/web-engine-lite.cpp
 
 devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.h \
