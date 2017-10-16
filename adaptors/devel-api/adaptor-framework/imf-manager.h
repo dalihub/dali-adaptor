@@ -164,8 +164,10 @@ public:
   typedef Signal< void (ImfManager&) > ImfManagerSignalType; ///< Keyboard actived signal
   typedef Signal< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalType; ///< keyboard events
   typedef Signal< void () > VoidSignalType;
-  typedef Signal< void (bool) > StatusSignalType;
-  typedef Signal< void (KeyboardType) > KeyboardTypeSignalType; ///< keyboard type
+  typedef Signal< void ( bool ) > StatusSignalType;
+  typedef Signal< void ( KeyboardType ) > KeyboardTypeSignalType; ///< keyboard type
+  typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
+  typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
 
 public:
 
@@ -373,24 +375,28 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName();
+   *   void YourCallbackName( int resolvedResize );
    * @endcode
+   * The parameter sends the resolved resize defined by the IMF.
+   *
    * User can get changed size by using GetInputMethodArea() in the callback
    * @return The signal to connect to.
    */
-  VoidSignalType& ResizedSignal();
+  KeyboardResizedSignalType& ResizedSignal();
 
   /**
    * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName();
+   *   void YourCallbackName( int resolvedLanguage );
    * @endcode
+   * The parameter sends the resolved language defined by the IMF.
+   *
    * User can get the text direction of the language by calling GetTextDirection() in the callback.
    * @return The signal to connect to.
    */
-  VoidSignalType& LanguageChangedSignal();
+  LanguageChangedSignalType& LanguageChangedSignal();
 
   /**
    * @brief Connect to this signal to be notified when the keyboard type is changed.

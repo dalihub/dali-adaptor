@@ -185,7 +185,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit the signal that the language has changed
-  imfManager->LanguageChangedSignal().Emit();
+  imfManager->LanguageChangedSignal().Emit( value );
 }
 
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
@@ -196,7 +196,7 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit signal that the keyboard is resized
-  imfManager->ResizedSignal().Emit();
+  imfManager->ResizedSignal().Emit( value );
 }
 
 void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *context, int value )

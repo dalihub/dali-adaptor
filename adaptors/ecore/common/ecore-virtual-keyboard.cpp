@@ -290,7 +290,7 @@ Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal()
   return imfManager.StatusChangedSignal();
 }
 
-Dali::VirtualKeyboard::VoidSignalType& ResizedSignal()
+Dali::VirtualKeyboard::KeyboardResizedSignalType& ResizedSignal()
 {
   DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal() is deprecated and will be removed from next release. Use ImfManager.ResizedSignal() instead.\n" );
 
@@ -298,7 +298,7 @@ Dali::VirtualKeyboard::VoidSignalType& ResizedSignal()
   return imfManager.ResizedSignal();
 }
 
-Dali::VirtualKeyboard::VoidSignalType& LanguageChangedSignal()
+Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal()
 {
   DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: LanguageChangedSignal() is deprecated and will be removed from next release. Use ImfManager.LanguageChangedSignal() instead.\n" );
 
