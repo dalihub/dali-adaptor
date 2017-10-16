@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_VIRTUAL_KEYBOARD_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,12 +94,12 @@ Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal();
 /**
  * @copydox Dali::VirtualKeyboard::ResizedSignal()
  */
-Dali::VirtualKeyboard::VoidSignalType& ResizedSignal();
+Dali::VirtualKeyboard::KeyboardResizedSignalType& ResizedSignal();
 
 /**
  * @copydox Dali::VirtualKeyboard::LanguageChangedSignal()
  */
-Dali::VirtualKeyboard::VoidSignalType& LanguageChangedSignal();
+Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal();
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetTextDirection

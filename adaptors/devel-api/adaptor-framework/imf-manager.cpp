@@ -173,12 +173,12 @@ ImfManager::StatusSignalType& ImfManager::StatusChangedSignal()
   return Internal::Adaptor::ImfManager::GetImplementation(*this).StatusChangedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::ResizedSignal()
+ImfManager::KeyboardResizedSignalType& ImfManager::ResizedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ResizedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::LanguageChangedSignal()
+ImfManager::LanguageChangedSignalType& ImfManager::LanguageChangedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).LanguageChangedSignal();
 }
