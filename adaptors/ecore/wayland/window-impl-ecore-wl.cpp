@@ -730,7 +730,8 @@ void Window::SetIndicatorActorRotation()
 
 void Window::Raise()
 {
-  ecore_wl_window_raise( mEventHandler->mEcoreWindow );
+  // Use ecore_wl_window_activate to prevent the window shown without rendering
+  ecore_wl_window_activate( mEventHandler->mEcoreWindow );
 }
 
 void Window::Lower()
