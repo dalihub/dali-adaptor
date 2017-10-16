@@ -104,7 +104,7 @@ void SetMaxTextureSize( unsigned int size );
  *
  * @return The maximum texture size
  */
-unsigned int GetMaxTextureSize();
+DALI_IMPORT_API unsigned int GetMaxTextureSize();
 
 } // Dali
 
