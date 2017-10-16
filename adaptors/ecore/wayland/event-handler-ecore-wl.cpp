@@ -601,9 +601,8 @@ struct EventHandler::Impl
     if( touchEvent->window == (unsigned int)ecore_wl_window_id_get( handler->mImpl->mWindow ) )
     {
       Integration::Point point;
-      point.SetDeviceId( touchEvent->multi.device );
       point.SetState( PointState::INTERRUPTED );
-      point.SetScreenPosition( Vector2( 0.0f, 0.0f ) );
+      point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
       handler->SendEvent( point, touchEvent->timestamp );
 
       DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventMouseButtonCancel\n" );
