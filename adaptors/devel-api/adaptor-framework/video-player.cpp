@@ -171,10 +171,5 @@ void VideoPlayer::Backward( int millisecond )
   GetImplementation( *this ).Backward( millisecond );
 }
 
-bool VideoPlayer::IsVideoTextureSupported()
-{
-  return GetImplementation( *this ).IsVideoTextureSupported();
-}
-
 } // namespace Dali;
 

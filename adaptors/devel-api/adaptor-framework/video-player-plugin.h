@@ -211,12 +211,6 @@ public:
    */
   virtual void Backward( int millisecond ) = 0;
 
-  /**
-   * @brief Checks whether the video texture is supported
-   * @return True if supported, otherwise false.
-   */
-  virtual bool IsVideoTextureSupported() = 0;
-
 };
 
 } // namespace Dali;

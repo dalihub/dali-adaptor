@@ -159,11 +159,6 @@ public:
    */
   void Backward( int millisecond );
 
-  /**
-   * @brief Dali::VideoPlayer::IsVideoTextureSupported()
-   */
-  bool IsVideoTextureSupported();
-
 private:
 
   /**
