@@ -170,6 +170,13 @@ public:
 public:
 
   /**
+   * @brief Finalize the IMF.
+   *
+   * It means that the context will be deleted.
+   */
+  void Finalize();
+
+  /**
    * @brief Retrieve a handle to the instance of ImfManager.
    * @return A handle to the ImfManager.
    */
