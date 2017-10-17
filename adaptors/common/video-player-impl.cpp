@@ -289,6 +289,16 @@ void VideoPlayer::Backward( int millisecond )
   }
 }
 
+bool VideoPlayer::IsVideoTextureSupported() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->IsVideoTextureSupported();
+  }
+
+  return false;
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
