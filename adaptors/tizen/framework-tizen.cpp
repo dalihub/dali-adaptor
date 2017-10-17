@@ -26,6 +26,7 @@
 #include <Ecore.h>
 
 #include <system_info.h>
+#include <system_settings.h>
 #include <bundle_internal.h>
 
 // CONDITIONAL INCLUDES
@@ -168,6 +169,13 @@ struct Framework::Impl
 #endif
     mApplicationType = type;
     mCallbackManager = CallbackManager::New();
+
+    char* region;
+    char* language;
+    system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region );
+    system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language );
+    mRegion = std::string( region );
+    mLanguage = std::string( language );
   }
 
   ~Impl()
@@ -207,11 +215,32 @@ struct Framework::Impl
     }
   }
 
+  void SetLanguage( const std::string& language )
+  {
+    mLanguage = language;
+  }
+
+  void SetRegion( const std::string& region )
+  {
+    mRegion = region;
+  }
+
+  std::string GetLanguage() const
+  {
+    return mLanguage;
+  }
+
+  std::string GetRegion() const
+  {
+    return mRegion;
+  }
 
   // Data
   Type mApplicationType;
   CallbackBase* mAbortCallBack;
   CallbackManager *mCallbackManager;
+  std::string mLanguage;
+  std::string mRegion;
 
   Framework* mFramework;
   AppCore::AppEventHandlerPtr handlers[5];
@@ -350,8 +379,9 @@ struct Framework::Impl
 
   static void AppLanguageChanged(AppCore::AppEventInfoPtr event, void *data)
   {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
+    Framework* framework = static_cast<Framework*>(data);
+    Observer *observer = &framework->mObserver;
+    framework->SetLanguage( std::string( static_cast<const char *>(event->value) ) );
     observer->OnLanguageChanged();
   }
 
@@ -361,23 +391,65 @@ struct Framework::Impl
 
   static void AppRegionChanged(AppCore::AppEventInfoPtr event, void *data)
   {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
+    Framework* framework = static_cast<Framework*>(data);
+    Observer *observer = &framework->mObserver;
+    framework->SetRegion( std::string( static_cast<const char *>(event->value) ) );
     observer->OnRegionChanged();
   }
 
   static void AppBatteryLow(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    int status = *static_cast<int *>(event->value);
+    Dali::DeviceStatus::Battery::Status result = Dali::DeviceStatus::Battery::NORMAL;
 
-    observer->OnBatteryLow();
+    // convert to dali battery status
+    switch( status )
+    {
+      case 1:
+      {
+        result = Dali::DeviceStatus::Battery::POWER_OFF;
+        break;
+      }
+      case 2:
+      {
+        result = Dali::DeviceStatus::Battery::CRITICALLY_LOW;
+        break;
+      }
+      default :
+        break;
+    }
+    observer->OnBatteryLow(result);
   }
 
   static void AppMemoryLow(AppCore::AppEventInfoPtr event, void *data)
   {
     Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    int status = *static_cast<int *>(event->value);
+    Dali::DeviceStatus::Memory::Status result = Dali::DeviceStatus::Memory::NORMAL;
 
-    observer->OnMemoryLow();
+    // convert to dali memmory status
+    switch( status )
+    {
+      case 1:
+      {
+        result = Dali::DeviceStatus::Memory::NORMAL;
+        break;
+      }
+      case 2:
+      {
+        result = Dali::DeviceStatus::Memory::LOW;
+        break;
+      }
+      case 4:
+      {
+        result = Dali::DeviceStatus::Memory::CRITICALLY_LOW;
+        break;
+      }
+      default :
+        break;
+    }
+    observer->OnMemoryLow(result);
   }
 
 
@@ -452,34 +524,6 @@ struct Framework::Impl
     observer->OnAmbientChanged(ambient);
   }
 
-  static void WatchAppLanguageChanged(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnLanguageChanged();
-  }
-
-  static void WatchAppRegionChanged(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnRegionChanged();
-  }
-
-  static void WatchAppBatteryLow(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnBatteryLow();
-  }
-
-  static void WatchAppMemoryLow(app_event_info_h event, void *data)
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-
-    observer->OnMemoryLow();
-  }
-
   static void WatchAppControl(app_control_h app_control, void *data)
   {
     Framework* framework = static_cast<Framework*>(data);
@@ -530,10 +574,10 @@ struct Framework::Impl
     mWatchCallback.ambient_tick = WatchAppAmbientTick;
     mWatchCallback.ambient_changed = WatchAppAmbientChanged;
 
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_BATTERY], APP_EVENT_LOW_BATTERY, WatchAppBatteryLow, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LOW_MEMORY], APP_EVENT_LOW_MEMORY, WatchAppMemoryLow, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_LANGUAGE_CHANGED], APP_EVENT_LANGUAGE_CHANGED, WatchAppLanguageChanged, mFramework);
-    watch_app_add_event_handler(&watchHandlers[APP_EVENT_REGION_FORMAT_CHANGED], APP_EVENT_REGION_FORMAT_CHANGED, WatchAppRegionChanged, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
 
     ret = watch_app_main(*mFramework->mArgc, *mFramework->mArgv, &mWatchCallback, mFramework);
 #endif
@@ -546,7 +590,6 @@ struct Framework::Impl
     watch_app_exit();
 #endif
   }
-
 
 private:
   // Undefined
@@ -685,6 +728,26 @@ void Framework::AbortCallback( )
   {
     Quit();
   }
+}
+
+void Framework::SetLanguage( const std::string& language )
+{
+  mImpl->SetLanguage( language );
+}
+
+void Framework::SetRegion( const std::string& region )
+{
+  mImpl->SetRegion( region );
+}
+
+std::string Framework::GetLanguage() const
+{
+  return mImpl->GetLanguage();
+}
+
+std::string Framework::GetRegion() const
+{
+  return mImpl->GetRegion();
 }
 
 } // namespace Adaptor
