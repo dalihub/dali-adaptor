@@ -735,7 +735,7 @@ void Framework::SetLanguage( const std::string& language )
   mImpl->SetLanguage( language );
 }
 
-void Framework::SetRegion( const std::string& region ) const
+void Framework::SetRegion( const std::string& region )
 {
   mImpl->SetRegion( region );
 }
@@ -745,7 +745,7 @@ std::string Framework::GetLanguage() const
   return mImpl->GetLanguage();
 }
 
-std::string Framework::GetRegion()
+std::string Framework::GetRegion() const
 {
   return mImpl->GetRegion();
 }
