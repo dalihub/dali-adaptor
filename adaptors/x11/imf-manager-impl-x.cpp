@@ -445,6 +445,7 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
   {
     if( text )
     {
+      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
       *text = strdup( callbackData.currentText.c_str() );
     }
 

@@ -182,6 +182,16 @@ std::string Application::GetResourcePath()
   return Internal::Adaptor::Application::GetResourcePath();
 }
 
+std::string Application::GetRegion() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetRegion();
+}
+
+std::string Application::GetLanguage() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetLanguage();
+}
+
 void Application::SetViewMode( ViewMode viewMode )
 {
   Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
@@ -251,12 +261,24 @@ Application::AppSignalType& Application::RegionChangedSignal()
 
 Application::AppSignalType& Application::BatteryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: BatteryLowSignal() is deprecated and will be removed from next release. Use Application::LowBatterySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).BatteryLowSignal();
 }
 
 Application::AppSignalType& Application::MemoryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: MemoryLowSignal() is deprecated and will be removed from next release. Use Application::LowMemorySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).MemoryLowSignal();
+}
+
+Application::LowBatterySignalType& Application::LowBatterySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowBatterySignal();
+}
+
+Application::LowMemorySignalType& Application::LowMemorySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

@@ -185,7 +185,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit the signal that the language has changed
-  imfManager->LanguageChangedSignal().Emit();
+  imfManager->LanguageChangedSignal().Emit( value );
 }
 
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
@@ -196,7 +196,7 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit signal that the keyboard is resized
-  imfManager->ResizedSignal().Emit();
+  imfManager->ResizedSignal().Emit( value );
 }
 
 void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *context, int value )
@@ -589,16 +589,21 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
-  mEventSignal.Emit( handle, imfData );
+  Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
 
-  if( text )
+  if( callbackData.update )
   {
-    *text = strdup( mSurroundingText.c_str() );
-  }
+    if( text )
+    {
+      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
+      *text = strdup( callbackData.currentText.c_str() );
+    }
 
-  if( cursorPosition )
-  {
-    *cursorPosition = mIMFCursorPosition;
+    if( cursorPosition )
+    {
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      *cursorPosition = mIMFCursorPosition;
+    }
   }
 
   return EINA_TRUE;
