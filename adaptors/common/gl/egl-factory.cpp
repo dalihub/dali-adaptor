@@ -30,16 +30,12 @@ namespace Internal
 namespace Adaptor
 {
 
-EglFactory::EglFactory( unsigned int multiSamplingLevel )
+EglFactory::EglFactory( int multiSamplingLevel )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
   mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
-  mMultiSamplingLevel( 4 )
+  mMultiSamplingLevel( multiSamplingLevel )
 {
-  if( multiSamplingLevel > 0 )
-  {
-    mMultiSamplingLevel = multiSamplingLevel;
-  }
 }
 
 EglFactory::~EglFactory()
