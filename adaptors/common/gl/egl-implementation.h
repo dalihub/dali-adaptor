@@ -44,7 +44,7 @@ public:
    * Constructor
    * @param environmentOptions To check the envirionment options
    */
-  EglImplementation( unsigned int multiSamplingLevel );
+  EglImplementation( int multiSamplingLevel );
 
   /**
    * Destructor
@@ -195,7 +195,7 @@ private:
   bool                 mIsWindow;
   ColorDepth           mColorDepth;
 
-  unsigned int         mMultiSamplingLevel;
+  int                  mMultiSamplingLevel;
 };
 
 } // namespace Adaptor
