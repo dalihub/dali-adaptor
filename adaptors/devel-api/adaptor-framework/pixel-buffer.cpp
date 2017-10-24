@@ -101,6 +101,11 @@ void PixelBuffer::ApplyMask( PixelBuffer mask, float contentScale, bool cropToMa
   GetImplementation(*this).ApplyMask( GetImplementation( mask ), contentScale, cropToMask );
 }
 
+void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
+{
+  GetImplementation(*this).ApplyGaussianBlur( blurRadius );
+}
+
 } // namespace Devel
 
 } // namespace Dali

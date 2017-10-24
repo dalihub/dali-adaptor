@@ -19,7 +19,8 @@ tizen_platform_abstraction_src_files = \
   \
   $(portable_platform_abstraction_src_dir)/image-operations.cpp \
   $(portable_platform_abstraction_src_dir)/pixel-manipulation.cpp \
-  $(portable_platform_abstraction_src_dir)/alpha-mask.cpp
+  $(portable_platform_abstraction_src_dir)/alpha-mask.cpp \
+  $(portable_platform_abstraction_src_dir)/gaussian-blur.cpp
 
 # Add public headers here:
 

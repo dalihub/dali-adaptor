@@ -717,3 +717,36 @@ int UtcDaliPixelBufferMask09(void)
 
   END_TEST;
 }
+
+int UtcDaliPixelBufferGaussianBlur(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New( 10, 10, Pixel::RGBA8888 );
+  FillCheckerboard(imageData);
+
+  DALI_TEST_EQUALS( imageData.GetWidth(), 10, TEST_LOCATION ) ;
+  DALI_TEST_EQUALS( imageData.GetHeight(), 10, TEST_LOCATION ) ;
+
+  unsigned char* buffer = imageData.GetBuffer();
+
+  // Test that an even pixel in the odd row has full alpha value
+  DALI_TEST_EQUALS( buffer[43], 0xffu, TEST_LOCATION );
+
+  // Test that an even pixel in the even row has no alpha value
+  DALI_TEST_EQUALS( buffer[55], 0x00u, TEST_LOCATION );
+
+  imageData.ApplyGaussianBlur( 0.0f );
+
+  // Test that the pixels' alpha values are not changed because there is no blur
+  DALI_TEST_EQUALS( buffer[43], 0xffu, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[55], 0x00u, TEST_LOCATION );
+
+  imageData.ApplyGaussianBlur( 1.0f );
+
+  // Test that the pixels' alpha values are changed after applying gaussian blur
+  DALI_TEST_EQUALS( buffer[43], 0x7Au, TEST_LOCATION );
+  DALI_TEST_EQUALS( buffer[55], 0x7Eu, TEST_LOCATION );
+
+  END_TEST;
+}
