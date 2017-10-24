@@ -170,6 +170,15 @@ public:
    */
   void ApplyMask( PixelBuffer mask, float contentScale=1.0f, bool cropToMask=false );
 
+  /**
+   * Apply a Gaussian blur to this pixel data with the given radius.
+   *
+   * @note A bigger radius will yield a blurrier image. Only works for pixel data in RGBA format.
+   *
+   * @param[in] blurRadius The radius for Gaussian blur. A value of 0 or negative value indicates no blur.
+   */
+  void ApplyGaussianBlur( const float blurRadius );
+
 public:
 
   /**

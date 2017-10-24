@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include "pixel-manipulation.h"
 #include "alpha-mask.h"
+#include "gaussian-blur.h"
 #include <platform-abstractions/portable/image-operations.h>
 
 namespace Dali
@@ -307,6 +308,22 @@ PixelBufferPtr PixelBuffer::NewResize( const PixelBuffer& inBuffer, ImageDimensi
   }
 
   return outBuffer;
+}
+
+void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
+{
+  // This method only works for pixel buffer in RGBA format.
+  if( mWidth > 0 && mHeight > 0 && mPixelFormat == Pixel::RGBA8888 )
+  {
+    if ( blurRadius > Math::MACHINE_EPSILON_1 )
+    {
+      PerformGaussianBlurRGBA( *this, blurRadius );
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR( "Trying to apply gaussian blur to an empty pixel buffer or a pixel buffer not in RGBA format" );
+  }
 }
 
 }// namespace Adaptor
