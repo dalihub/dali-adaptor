@@ -171,7 +171,7 @@ void VideoPlayer::Backward( int millisecond )
   GetImplementation( *this ).Backward( millisecond );
 }
 
-bool VideoPlayer::IsVideoTextureSupported()
+bool VideoPlayer::IsVideoTextureSupported() const
 {
   return GetImplementation( *this ).IsVideoTextureSupported();
 }
