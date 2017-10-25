@@ -428,6 +428,7 @@ private:
   bool                             mEcoreEventHander:1;
   bool                             mIsFocusAcceptable:1;
   bool                             mVisible:1;
+  bool                             mIconified:1;
   bool                             mOpaqueState:1;
   bool                             mResizeEnabled:1;
   IndicatorInterface*              mIndicator;
