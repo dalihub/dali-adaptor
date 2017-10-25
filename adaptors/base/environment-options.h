@@ -38,7 +38,6 @@ namespace Adaptor
  */
 class EnvironmentOptions
 {
-
 public:
 
   /**
@@ -206,7 +205,7 @@ public:
   /**
    * @return The number of samples required in multisample buffers
    */
-  unsigned int GetMultiSamplingLevel() const;
+  int GetMultiSamplingLevel() const;
 
   /**
    * @return The maximum texture size
@@ -253,7 +252,7 @@ private: // Data
   ThreadingMode::Type mThreadingMode;             ///< threading mode
   unsigned int mRenderRefreshRate;                ///< render refresh rate
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
-  unsigned int mMultiSamplingLevel;               ///< The number of samples required in multisample buffers
+  int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
   unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
   int mIndicatorVisibleMode;                      ///< Indicator visible mode
 

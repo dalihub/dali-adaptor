@@ -39,7 +39,7 @@ public:
   /**
    * Constructor
    */
-  EglFactory( unsigned int multiSamplingLevel );
+  EglFactory( int multiSamplingLevel );
 
   /**
    * Destructor
@@ -84,7 +84,7 @@ private:
   EglImageExtensions* mEglImageExtensions;
   EglSyncImplementation* mEglSync;
 
-  unsigned int mMultiSamplingLevel;
+  int mMultiSamplingLevel;
 };
 
 }

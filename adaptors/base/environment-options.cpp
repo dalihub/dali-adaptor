@@ -38,6 +38,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+const int DEFAULT_MULTI_SAMPLING_LEVEL = 4;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
@@ -107,7 +108,7 @@ EnvironmentOptions::EnvironmentOptions()
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mRenderRefreshRate( 1 ),
   mGlesCallAccumulate( false ),
-  mMultiSamplingLevel( 0 ),
+  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mMaxTextureSize( 0 ),
   mIndicatorVisibleMode( -1 ),
   mLogFunction( NULL )
@@ -256,7 +257,7 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
   return mRenderRefreshRate;
 }
 
-unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
+int EnvironmentOptions::GetMultiSamplingLevel() const
 {
   return mMultiSamplingLevel;
 }
@@ -416,10 +417,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   int multiSamplingLevel( 0 );
   if( GetIntegerEnvironmentVariable( DALI_ENV_MULTI_SAMPLING_LEVEL, multiSamplingLevel ) )
   {
-    if( multiSamplingLevel > 0 )
-    {
-      mMultiSamplingLevel = multiSamplingLevel;
-    }
+    mMultiSamplingLevel = multiSamplingLevel;
   }
 
   int maxTextureSize( 0 );
