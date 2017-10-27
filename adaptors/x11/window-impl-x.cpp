@@ -348,6 +348,7 @@ Window::Window()
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( true ),
   mIndicator( NULL ),

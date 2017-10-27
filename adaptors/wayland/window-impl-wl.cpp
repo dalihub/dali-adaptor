@@ -111,6 +111,7 @@ Window::Window()
   mWMRotationAppSet( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( true ),
   mIndicator( NULL ),

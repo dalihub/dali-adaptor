@@ -155,12 +155,20 @@ struct Window::EventHandler
       {
         if( iconifyChangedEvent->iconified == EINA_TRUE )
         {
-          observer->OnWindowHidden();
+          handler->mWindow->mIconified = true;
+          if( handler->mWindow->mVisible )
+          {
+            observer->OnWindowHidden();
+          }
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
         }
         else
         {
-          observer->OnWindowShown();
+          handler->mWindow->mIconified = false;
+          if( handler->mWindow->mVisible )
+          {
+            observer->OnWindowShown();
+          }
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
         }
         handled = ECORE_CALLBACK_DONE;
@@ -497,6 +505,7 @@ Window::Window()
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( false ),
   mIndicator( NULL ),
@@ -875,10 +884,13 @@ void Window::Show()
   mVisible = true;
   ecore_wl_window_show( mEventHandler->mEcoreWindow );
 
-  // Need an update request
-  if( mAdaptor )
+  if( !mIconified )
   {
-    mAdaptor->RequestUpdateOnce();
+    if( mAdaptor )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowShown();
+    }
   }
 }
 
@@ -886,6 +898,15 @@ void Window::Hide()
 {
   mVisible = false;
   ecore_wl_window_hide( mEventHandler->mEcoreWindow );
+
+  if( !mIconified )
+  {
+    if( mAdaptor )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowHidden();
+    }
+  }
 }
 
 bool Window::IsVisible() const
