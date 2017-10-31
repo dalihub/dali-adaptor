@@ -162,37 +162,30 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   png_byte colortype = png_get_color_type(png, info);
 
-  if(colortype == PNG_COLOR_TYPE_GRAY)
+  if( colortype == PNG_COLOR_TYPE_GRAY ||
+      colortype == PNG_COLOR_TYPE_GRAY_ALPHA )
   {
-    switch( colordepth )
+    if( png_get_valid(png, info, PNG_INFO_tRNS) )
     {
-      case 8:
-      {
-        pixelFormat = Pixel::L8;
-        valid = true;
-        break;
-      }
-      default:
-      {
-        break;
-      }
+      colortype = PNG_COLOR_TYPE_GRAY_ALPHA;
+      /* expand transparency entry -> alpha channel if present */
+      png_set_tRNS_to_alpha(png);
+      pixelFormat = Pixel::LA88;
     }
-  }
-  else if(colortype == PNG_COLOR_TYPE_GRAY_ALPHA)
-  {
-    switch(colordepth)
+    else
     {
-      case 8:
-      {
-        pixelFormat = Pixel::LA88;
-        valid = true;
-        break;
-      }
-      default:
-      {
-        break;
-      }
+      colortype = PNG_COLOR_TYPE_GRAY;
+      pixelFormat = Pixel::L8;
     }
+
+    if( colordepth < 8 )
+    {
+      /* expand gray (w/reduced bits) -> 8-bit RGB if necessary */
+      png_set_expand_gray_1_2_4_to_8(png);
+      /* pack all pixels to byte boundaries */
+      png_set_packing(png);
+    }
+    valid = true;
   }
   else if(colortype == PNG_COLOR_TYPE_RGB )
   {
