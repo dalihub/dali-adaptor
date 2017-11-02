@@ -15,14 +15,14 @@
  *
  */
 
-// INTERNAL HEADERS
+ // CLASS HEADER
 #include "loader-jpeg.h"
-#include <dali/integration-api/bitmap.h>
-#include "platform-capabilities.h"
-#include "image-operations.h"
-#include <image-loading.h>
 
 // EXTERNAL HEADERS
+#include <functional>
+#include <array>
+#include <utility>
+#include <memory>
 #include <libexif/exif-data.h>
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
@@ -31,159 +31,373 @@
 #include <cstring>
 #include <setjmp.h>
 
+#include <dali/integration-api/bitmap.h>
+
+// INTERNAL HEADERS
+#include "platform-capabilities.h"
+#include "image-operations.h"
+#include <image-loading.h>
+
+namespace
+{
+using Dali::Integration::Bitmap;
+using Dali::Integration::PixelBuffer;
+using Dali::Vector;
+namespace Pixel = Dali::Pixel;
+
+
+const unsigned int DECODED_L8 = 1;
+const unsigned int DECODED_RGB888 = 3;
+const unsigned int DECODED_RGBA8888 = 4;
+
+/** Transformations that can be applied to decoded pixels to respect exif orientation
+  *  codes in image headers */
+enum class JpegTransform
+{
+  NONE,             //< no transformation 0th-Row = top & 0th-Column = left
+  FLIP_HORIZONTAL,  //< horizontal flip 0th-Row = top & 0th-Column = right
+  FLIP_VERTICAL,    //< vertical flip   0th-Row = bottom & 0th-Column = right
+  TRANSPOSE,        //< transpose across UL-to-LR axis  0th-Row = bottom & 0th-Column = left
+  TRANSVERSE,       //< transpose across UR-to-LL axis  0th-Row = left   & 0th-Column = top
+  ROTATE_90,        //< 90-degree clockwise rotation  0th-Row = right  & 0th-Column = top
+  ROTATE_180,       //< 180-degree rotation  0th-Row = right  & 0th-Column = bottom
+  ROTATE_270,       //< 270-degree clockwise (or 90 ccw) 0th-Row = left  & 0th-Column = bottom
+};
+
+/**
+  * @brief Error handling bookeeping for the JPEG Turbo library's
+  * setjmp/longjmp simulated exceptions.
+  */
+struct JpegErrorState
+{
+  struct jpeg_error_mgr errorManager;
+  jmp_buf jumpBuffer;
+};
+
+/**
+  * @brief Called by the JPEG library when it hits an error.
+  * We jump out of the library so our loader code can return an error.
+  */
+void  JpegErrorHandler ( j_common_ptr cinfo )
+{
+  DALI_LOG_ERROR( "JpegErrorHandler(): libjpeg-turbo fatal error in JPEG decoding.\n" );
+  /* cinfo->err really points to a JpegErrorState struct, so coerce pointer */
+  JpegErrorState * myerr = reinterpret_cast<JpegErrorState *>( cinfo->err );
+
+  /* Return control to the setjmp point */
+  longjmp( myerr->jumpBuffer, 1 );
+}
+
+void JpegOutputMessageHandler( j_common_ptr cinfo )
+{
+  /* Stop libjpeg from printing to stderr - Do Nothing */
+}
+
+/**
+  * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
+  * the JPEG to be displayed and fatal errors.
+  */
+bool IsJpegErrorFatal( const std::string& errorMessage )
+{
+  if( ( errorMessage.find("Corrupt JPEG data") != std::string::npos ) ||
+      ( errorMessage.find("Invalid SOS parameters") != std::string::npos ) ||
+      ( errorMessage.find("Invalid JPEG file structure") != std::string::npos ) ||
+      ( errorMessage.find("Unsupported JPEG process") != std::string::npos ) ||
+      ( errorMessage.find("Unsupported marker type") != std::string::npos ) ||
+      ( errorMessage.find("Bogus marker length") != std::string::npos ) ||
+      ( errorMessage.find("Bogus DQT index") != std::string::npos ) ||
+      ( errorMessage.find("Bogus Huffman table definition") != std::string::npos ))
+  {
+    return false;
+  }
+  return true;
+}
+
+// helpers for safe exif memory handling
+using ExifHandle = std::unique_ptr<ExifData, decltype(exif_data_free)*>;
+
+ExifHandle MakeNullExifData()
+{
+  return ExifHandle{nullptr, exif_data_free};
+}
+
+ExifHandle MakeExifDataFromData(unsigned char* data, unsigned int size)
+{
+  return ExifHandle{exif_data_new_from_data(data, size), exif_data_free};
+}
+
+// Helpers for safe Jpeg memory handling
+using JpegHandle = std::unique_ptr<void /*tjhandle*/, decltype(tjDestroy)*>;
+
+JpegHandle MakeJpegCompressor()
+{
+  return JpegHandle{tjInitCompress(), tjDestroy};
+}
+
+JpegHandle MakeJpegDecompressor()
+{
+  return JpegHandle{tjInitDecompress(), tjDestroy};
+}
+
+using JpegMemoryHandle = std::unique_ptr<unsigned char, decltype(tjFree)*>;
+
+JpegMemoryHandle MakeJpegMemory()
+{
+  return JpegMemoryHandle{nullptr, tjFree};
+}
+
+template<class T, class Deleter>
+class UniquePointerSetter final
+{
+public:
+  UniquePointerSetter(std::unique_ptr<T, Deleter>& uniquePointer)
+  : mUniquePointer(uniquePointer),
+    mRawPointer(nullptr)
+  {}
+
+  /// @brief Pointer to Pointer cast operator
+  operator T** () { return &mRawPointer; }
+
+  /// @brief Destructor, reset the unique_ptr
+  ~UniquePointerSetter() { mUniquePointer.reset(mRawPointer); }
+
+private:
+  std::unique_ptr<T, Deleter>& mUniquePointer;
+  T* mRawPointer;
+};
+
+template<typename T, typename Deleter>
+UniquePointerSetter<T, Deleter> SetPointer(std::unique_ptr<T, Deleter>& uniquePointer)
+{
+  return UniquePointerSetter<T, Deleter>{uniquePointer};
+}
+
+using TransformFunction = std::function<void(PixelBuffer*,unsigned, unsigned)>;
+using TransformFunctionArray = std::array<TransformFunction, 3>; // 1, 3 and 4 bytes per pixel
+
+/// @brief Select the transform function depending on the pixel format
+TransformFunction GetTransformFunction(const TransformFunctionArray& functions,
+                                       Pixel::Format pixelFormat)
+{
+  auto function = TransformFunction{};
+
+  int decodedPixelSize = Pixel::GetBytesPerPixel(pixelFormat);
+  switch( decodedPixelSize )
+  {
+    case DECODED_L8:
+    {
+      function = functions[0];
+      break;
+    }
+    case DECODED_RGB888:
+    {
+      function = functions[1];
+      break;
+    }
+    case DECODED_RGBA8888:
+    {
+      function = functions[2];
+      break;
+    }
+    default:
+    {
+      DALI_LOG_ERROR("Transform operation not supported on this Pixel::Format!");
+      function = functions[1];
+      break;
+    }
+  }
+  return function;
+}
+
+/// @brief Apply a transform to a buffer
+bool Transform(const TransformFunctionArray& transformFunctions,
+               PixelBuffer *buffer,
+               int width,
+               int height,
+               Pixel::Format pixelFormat )
+{
+  auto transformFunction = GetTransformFunction(transformFunctions, pixelFormat);
+  if(transformFunction)
+  {
+    transformFunction(buffer, width, height);
+  }
+  return bool(transformFunction);
+}
+
+/// @brief Auxiliar type to represent pixel data with different number of bytes
+template<size_t N>
+struct PixelType
+{
+  char _[N];
+};
+
+template<size_t N>
+void FlipVertical(PixelBuffer* buffer, int width, int height)
+{
+  // Destination pixel, set as the first pixel of screen
+  auto to = reinterpret_cast<PixelType<N>*>( buffer );
+
+  // Source pixel, as the image is flipped horizontally and vertically,
+  // the source pixel is the end of the buffer of size width * height
+  auto from = reinterpret_cast<PixelType<N>*>(buffer) + width * height - 1;
+
+  for (auto ix = 0, endLoop = (width * height) / 2; ix < endLoop; ++ix, ++to, --from)
+  {
+    std::swap(*from, *to);
+  }
+}
+
+template<size_t N>
+void FlipHorizontal(PixelBuffer* buffer, int width, int height)
+{
+  for(auto iy = 0; iy < height; ++iy)
+  {
+    //Set the destination pixel as the beginning of the row
+    auto to = reinterpret_cast<PixelType<N>*>(buffer) + width * iy;
+    //Set the source pixel as the end of the row to flip in X axis
+    auto from = reinterpret_cast<PixelType<N>*>(buffer) + width * (iy + 1) - 1;
+    for(auto ix = 0; ix < width / 2; ++ix, ++to, --from)
+    {
+      std::swap(*from, *to);
+    }
+  }
+}
+
+template<size_t N>
+void Transpose(PixelBuffer* buffer, int width, int height)
+{
+  //Transform vertically only
+  for(auto iy = 0; iy < height / 2; ++iy)
+  {
+    for(auto ix = 0; ix < width; ++ix)
+    {
+      auto to = reinterpret_cast<PixelType<N>*>(buffer) + iy * width + ix;
+      auto from = reinterpret_cast<PixelType<N>*>(buffer) + (height - 1 - iy) * width + ix;
+      std::swap(*from, *to);
+    }
+  }
+}
+
+template<size_t N>
+void Transverse(PixelBuffer* buffer, int width, int height)
+{
+  using PixelT = PixelType<N>;
+  Vector<PixelT> data;
+  data.Resize( width * height );
+  auto dataPtr = data.Begin();
+
+  auto original = reinterpret_cast<PixelT*>(buffer);
+  std::copy(original, original + width * height, dataPtr);
+
+  auto to = original;
+  for( auto iy = 0; iy < width; ++iy )
+  {
+    for( auto ix = 0; ix < height; ++ix, ++to )
+    {
+      auto from = dataPtr + ix * width + iy;
+      *to = *from;
+    }
+  }
+}
+
+
+template<size_t N>
+void Rotate90(PixelBuffer* buffer, int width, int height)
+{
+  using PixelT = PixelType<N>;
+  Vector<PixelT> data;
+  data.Resize(width * height);
+  auto dataPtr = data.Begin();
+
+  auto original = reinterpret_cast<PixelT*>(buffer);
+  std::copy(original, original + width * height, dataPtr);
+
+  std::swap(width, height);
+  auto hw = width * height;
+  hw = - hw - 1;
+
+  auto to = original + width - 1;
+  auto from = dataPtr;
+
+  for(auto ix = width; --ix >= 0;)
+  {
+    for(auto iy = height; --iy >= 0; ++from)
+    {
+      *to = *from;
+      to += width;
+    }
+    to += hw;
+  }
+}
+
+template<size_t N>
+void Rotate180(PixelBuffer* buffer, int width, int height)
+{
+  using PixelT = PixelType<N>;
+  Vector<PixelT> data;
+  data.Resize(width * height);
+  auto dataPtr = data.Begin();
+
+  auto original = reinterpret_cast<PixelT*>(buffer);
+  std::copy(original, original + width * height, dataPtr);
+
+  auto to = original;
+  for( auto iy = 0; iy < width; iy++ )
+  {
+    for( auto ix = 0; ix < height; ix++ )
+    {
+      auto from = dataPtr + (height - ix) * width - 1 - iy;
+      *to = *from;
+      ++to;
+    }
+  }
+}
+
+
+template<size_t N>
+void Rotate270(PixelBuffer* buffer, int width, int height)
+{
+  using PixelT = PixelType<N>;
+  Vector<PixelT> data;
+  data.Resize(width * height);
+  auto dataPtr = data.Begin();
+
+  auto original = reinterpret_cast<PixelT*>(buffer);
+  std::copy(original, original + width * height, dataPtr);
+
+  auto w = height;
+  std::swap(width, height);
+  auto hw = width * height;
+
+  auto* to = original + hw  - width;
+  auto* from = dataPtr;
+
+  w = -w;
+  hw =  hw + 1;
+  for(auto ix = width; --ix >= 0;)
+  {
+    for(auto iy = height; --iy >= 0;)
+    {
+      *to = *from;
+      ++from;
+      to += w;
+    }
+    to += hw;
+  }
+}
+
+} // namespace
+
 namespace Dali
 {
-using Integration::Bitmap;
 
 namespace TizenPlatform
 {
 
-namespace
-{
-  const unsigned DECODED_PIXEL_SIZE = 3;
-  const TJPF DECODED_PIXEL_LIBJPEG_TYPE = TJPF_RGB;
-
-  /** Transformations that can be applied to decoded pixels to respect exif orientation
-   *  codes in image headers */
-  enum JPGFORM_CODE
-  {
-    JPGFORM_NONE = 1, /* no transformation 0th-Row = top & 0th-Column = left */
-    JPGFORM_FLIP_H,   /* horizontal flip 0th-Row = top & 0th-Column = right */
-    JPGFORM_FLIP_V,   /* vertical flip   0th-Row = bottom & 0th-Column = right*/
-    JPGFORM_TRANSPOSE, /* transpose across UL-to-LR axis  0th-Row = bottom & 0th-Column = left*/
-    JPGFORM_TRANSVERSE,/* transpose across UR-to-LL axis  0th-Row = left   & 0th-Column = top*/
-    JPGFORM_ROT_90,    /* 90-degree clockwise rotation  0th-Row = right  & 0th-Column = top*/
-    JPGFORM_ROT_180,   /* 180-degree rotation  0th-Row = right  & 0th-Column = bottom*/
-    JPGFORM_ROT_270    /* 270-degree clockwise (or 90 ccw) 0th-Row = left  & 0th-Column = bottom*/
-  };
-
-  struct RGB888Type
-  {
-     unsigned char R;
-     unsigned char G;
-     unsigned char B;
-  };
-
-  /**
-   * @brief Error handling bookeeping for the JPEG Turbo library's
-   * setjmp/longjmp simulated exceptions.
-   */
-  struct JpegErrorState {
-    struct jpeg_error_mgr errorManager;
-    jmp_buf jumpBuffer;
-  };
-
-  /**
-   * @brief Called by the JPEG library when it hits an error.
-   * We jump out of the library so our loader code can return an error.
-   */
-  void  JpegErrorHandler ( j_common_ptr cinfo )
-  {
-    DALI_LOG_ERROR( "JpegErrorHandler(): libjpeg-turbo fatal error in JPEG decoding.\n" );
-    /* cinfo->err really points to a JpegErrorState struct, so coerce pointer */
-    JpegErrorState * myerr = reinterpret_cast<JpegErrorState *>( cinfo->err );
-
-    /* Return control to the setjmp point */
-    longjmp( myerr->jumpBuffer, 1 );
-  }
-
-  void JpegOutputMessageHandler( j_common_ptr cinfo )
-  {
-    /* Stop libjpeg from printing to stderr - Do Nothing */
-  }
-
-  /**
-   * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
-   * the JPEG to be displayed and fatal errors.
-   */
-  bool IsJpegErrorFatal( const std::string& errorMessage )
-  {
-    if( ( errorMessage.find("Corrupt JPEG data") != std::string::npos ) ||
-        ( errorMessage.find("Invalid SOS parameters") != std::string::npos ) )
-    {
-      return false;
-    }
-    return true;
-  }
-
-
-  /** Simple struct to ensure xif data is deleted. */
-  struct ExifAutoPtr
-  {
-    ExifAutoPtr( ExifData* data)
-    :mData( data )
-    {}
-
-    ~ExifAutoPtr()
-    {
-      exif_data_free( mData);
-    }
-    ExifData *mData;
-  };
-
-  /** simple class to enforce clean-up of JPEG structures. */
-  struct AutoJpg
-  {
-    AutoJpg(const tjhandle jpgHandle)
-    : mHnd(jpgHandle)
-    {
-    }
-
-    ~AutoJpg()
-    {
-      // clean up JPG resources
-      tjDestroy( mHnd );
-    }
-
-    tjhandle GetHandle() const
-    {
-      return mHnd ;
-    }
-
-  private:
-    AutoJpg( const AutoJpg& ); //< not defined
-    AutoJpg& operator= ( const AutoJpg& ); //< not defined
-
-    tjhandle mHnd;
-  }; // struct AutoJpg;
-
-  /** RAII wrapper to free memory allocated by the jpeg-turbo library. */
-  struct AutoJpgMem
-  {
-    AutoJpgMem(unsigned char * const tjMem)
-    : mTjMem(tjMem)
-    {
-    }
-
-    ~AutoJpgMem()
-    {
-      tjFree(mTjMem);
-    }
-
-    unsigned char * Get() const
-    {
-      return mTjMem;
-    }
-
-  private:
-    AutoJpgMem( const AutoJpgMem& ); //< not defined
-    AutoJpgMem& operator= ( const AutoJpgMem& ); //< not defined
-
-    unsigned char * const mTjMem;
-  };
-
-} // namespace
-bool JpegFlipV( RGB888Type *buffer, int width, int height );
-bool JpegFlipH( RGB888Type *buffer, int width, int height );
-bool JpegTranspose( RGB888Type *buffer, int width, int height );
-bool JpegTransverse( RGB888Type *buffer, int width, int height );
-bool JpegRotate90 ( RGB888Type *buffer, int width, int height );
-bool JpegRotate180( RGB888Type *buffer, int width, int height );
-bool JpegRotate270( RGB888Type *buffer, int width, int height );
-JPGFORM_CODE ConvertExifOrientation(ExifData* exifData);
+JpegTransform ConvertExifOrientation(ExifData* exifData);
 bool TransformSize( int requiredWidth, int requiredHeight,
                     FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
-                    JPGFORM_CODE transform,
+                    JpegTransform transform,
                     int& preXformImageWidth, int& preXformImageHeight,
                     int& postXformImageWidth, int& postXformImageHeight );
 
@@ -281,33 +495,45 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
 
-  AutoJpg autoJpg(tjInitDecompress());
+  auto jpeg = MakeJpegDecompressor();
 
-  if(autoJpg.GetHandle() == NULL)
+  if(!jpeg)
   {
     DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     return false;
   }
 
-  JPGFORM_CODE transform = JPGFORM_NONE;
+  auto transform = JpegTransform::NONE;
 
   if( input.reorientationRequested )
   {
-    ExifAutoPtr exifData( exif_data_new_from_data(jpegBufferPtr, jpegBufferSize) );
-    if( exifData.mData )
+    auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
+    if( exifData )
     {
-      transform = ConvertExifOrientation(exifData.mData);
+      transform = ConvertExifOrientation(exifData.get());
     }
   }
 
   // Push jpeg data in memory buffer through TurboJPEG decoder to make a raw pixel array:
   int chrominanceSubsampling = -1;
   int preXformImageWidth = 0, preXformImageHeight = 0;
-  if( tjDecompressHeader2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling ) == -1 )
+
+  // In Ubuntu, the turbojpeg version is not correct. so build error occurs.
+  // Temporarily separate Ubuntu and other profiles.
+#ifndef DALI_PROFILE_UBUNTU
+  int jpegColorspace = -1;
+  if( tjDecompressHeader3( jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling, &jpegColorspace ) == -1 )
   {
     DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
   }
+#else
+  if( tjDecompressHeader2( jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling ) == -1 )
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
+  }
+#endif
 
   if(preXformImageWidth == 0 || preXformImageHeight == 0)
   {
@@ -337,11 +563,47 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
                  scaledPreXformWidth, scaledPreXformHeight,
                  scaledPostXformWidth, scaledPostXformHeight );
 
+
+  // Colorspace conversion options
+  TJPF pixelLibJpegType = TJPF_RGB;
+  Pixel::Format pixelFormat = Pixel::RGB888;
+#ifndef DALI_PROFILE_UBUNTU
+  switch (jpegColorspace)
+  {
+    case TJCS_RGB:
+    // YCbCr is not an absolute colorspace but rather a mathematical transformation of RGB designed solely for storage and transmission.
+    // YCbCr images must be converted to RGB before they can actually be displayed.
+    case TJCS_YCbCr:
+    {
+      pixelLibJpegType = TJPF_RGB;
+      pixelFormat = Pixel::RGB888;
+      break;
+    }
+    case TJCS_GRAY:
+    {
+      pixelLibJpegType = TJPF_GRAY;
+      pixelFormat = Pixel::L8;
+      break;
+    }
+    case TJCS_CMYK:
+    case TJCS_YCCK:
+    {
+      pixelLibJpegType = TJPF_CMYK;
+      pixelFormat = Pixel::RGBA8888;
+      break;
+    }
+    default:
+    {
+      pixelLibJpegType = TJPF_RGB;
+      pixelFormat = Pixel::RGB888;
+      break;
+    }
+  }
+#endif
   // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
+  PixelBuffer* bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, scaledPostXformWidth, scaledPostXformHeight ) ;
 
-  RGB888Type * bitmapPixelBuffer =  reinterpret_cast<RGB888Type*>( bitmap.GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGB888, scaledPostXformWidth, scaledPostXformHeight ) );
-
-  if( tjDecompress2( autoJpg.GetHandle(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>( bitmapPixelBuffer ), scaledPreXformWidth, 0, scaledPreXformHeight, DECODED_PIXEL_LIBJPEG_TYPE, flags ) == -1 )
+  if( tjDecompress2( jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>( bitmapPixelBuffer ), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags ) == -1 )
   {
     std::string errorString = tjGetErrorStr();
 
@@ -362,245 +624,90 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
   bool result = false;
   switch(transform)
   {
-    case JPGFORM_NONE:
+    case JpegTransform::NONE:
     {
       result = true;
       break;
     }
     // 3 orientation changes for a camera held perpendicular to the ground or upside-down:
-    case JPGFORM_ROT_180:
+    case JpegTransform::ROTATE_180:
     {
-      result = JpegRotate180( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto rotate180Functions = TransformFunctionArray {
+        &Rotate180<1>,
+        &Rotate180<3>,
+        &Rotate180<4>,
+      };
+      result = Transform(rotate180Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    case JPGFORM_ROT_270:
+    case JpegTransform::ROTATE_270:
     {
-      result = JpegRotate270( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto rotate270Functions = TransformFunctionArray {
+        &Rotate270<1>,
+        &Rotate270<3>,
+        &Rotate270<4>,
+      };
+      result = Transform(rotate270Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    case JPGFORM_ROT_90:
+    case JpegTransform::ROTATE_90:
     {
-      result = JpegRotate90( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto rotate90Functions = TransformFunctionArray {
+        &Rotate90<1>,
+        &Rotate90<3>,
+        &Rotate90<4>,
+      };
+      result = Transform(rotate90Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    case JPGFORM_FLIP_V:
+    case JpegTransform::FLIP_VERTICAL:
     {
-      result = JpegFlipV( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto flipVerticalFunctions = TransformFunctionArray {
+        &FlipVertical<1>,
+        &FlipVertical<3>,
+        &FlipVertical<4>,
+      };
+      result = Transform(flipVerticalFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    /// Less-common orientation changes, since they don't correspond to a camera's
-    // physical orientation:
-    case JPGFORM_FLIP_H:
+    // Less-common orientation changes, since they don't correspond to a camera's physical orientation:
+    case JpegTransform::FLIP_HORIZONTAL:
     {
-      result = JpegFlipH( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto flipHorizontalFunctions = TransformFunctionArray {
+        &FlipHorizontal<1>,
+        &FlipHorizontal<3>,
+        &FlipHorizontal<4>,
+      };
+      result = Transform(flipHorizontalFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    case JPGFORM_TRANSPOSE:
+    case JpegTransform::TRANSPOSE:
     {
-      result = JpegTranspose( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto transposeFunctions = TransformFunctionArray {
+        &Transpose<1>,
+        &Transpose<3>,
+        &Transpose<4>,
+      };
+      result = Transform(transposeFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
-    case JPGFORM_TRANSVERSE:
+    case JpegTransform::TRANSVERSE:
     {
-      result = JpegTransverse( bitmapPixelBuffer, bufferWidth, bufferHeight );
+      static auto transverseFunctions = TransformFunctionArray {
+        &Transverse<1>,
+        &Transverse<3>,
+        &Transverse<4>,
+      };
+      result = Transform(transverseFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat );
       break;
     }
     default:
     {
-      DALI_LOG_WARNING( "Unsupported JPEG Orientation transformation: %x.\n", transform );
+      DALI_LOG_ERROR( "Unsupported JPEG Orientation transformation: %x.\n", transform );
       break;
     }
   }
   return result;
-}
-
-bool JpegFlipV(RGB888Type *buffer, int width, int height )
-{
-  int bwidth = width;
-  int bheight = height;
-  //Destination pixel, set as the first pixel of screen
-  RGB888Type* to = buffer;
-  //Source pixel, as the image is flipped horizontally and vertically,
-  //the source pixel is the end of the buffer of size bwidth * bheight
-  RGB888Type* from = buffer + bwidth * bheight - 1;
-  RGB888Type temp;
-  unsigned int endLoop = ( bwidth * bheight ) / 2;
-
-  for(unsigned ix = 0; ix < endLoop; ++ ix, ++ to, -- from )
-  {
-    temp = *from;
-    *from = *to;
-    *to = temp;
-  }
-
-  return true;
-}
-
-bool JpegFlipH(RGB888Type *buffer, int width, int height )
-{
-  int ix, iy;
-  int bwidth = width;
-  int bheight = height;
-
-  RGB888Type* to;
-  RGB888Type* from;
-  RGB888Type temp;
-
-  for(iy = 0; iy < bheight; iy ++)
-  {
-    //Set the destination pixel as the beginning of the row
-    to = buffer + bwidth * iy;
-    //Set the source pixel as the end of the row to flip in X axis
-    from = buffer + bwidth * (iy + 1) - 1;
-    for(ix = 0; ix < bwidth / 2; ix ++ , ++ to, -- from )
-    {
-      temp = *from;
-      *from = *to;
-      *to = temp;
-    }
-  }
-  return true;
-}
-
-bool JpegTranspose( RGB888Type *buffer, int width, int height )
-{
-  int ix, iy;
-  int bwidth = width;
-  int bheight = height;
-
-  RGB888Type* to;
-  RGB888Type* from;
-  RGB888Type temp;
-  //Flip vertically only
-  for(iy = 0; iy < bheight / 2; iy ++)
-  {
-    for(ix = 0; ix < bwidth; ix ++)
-    {
-      to = buffer + iy * bwidth + ix;
-      from = buffer + (bheight - 1 - iy) * bwidth + ix;
-      temp = *from;
-      *from = *to;
-      *to = temp;
-    }
-  }
-
-  return true;
-}
-
-bool JpegTransverse( RGB888Type *buffer, int width, int height )
-{
-  int bwidth = width;
-  int bheight = height;
-  Vector<RGB888Type> data;
-  data.Resize( bwidth * bheight );
-  RGB888Type *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, bwidth * bheight * DECODED_PIXEL_SIZE );
-
-  RGB888Type* to = buffer;
-  RGB888Type* from;
-  for( int iy = 0; iy < bwidth; iy++ )
-  {
-    for( int ix = 0; ix < bheight; ix++ )
-    {
-      from = dataPtr + ix * bwidth + iy;
-      *to = *from;
-      to ++;
-    }
-  }
-
-  return true;
-}
-
-///@Todo: Move all these rotation functions to portable/image-operations and take "Jpeg" out of their names.
-bool JpegRotate90(RGB888Type *buffer, int width, int height )
-{
-  int w, hw = 0;
-  int ix, iy = 0;
-  int bwidth = width;
-  int bheight = height;
-  Vector<RGB888Type> data;
-  data.Resize(width * height);
-  RGB888Type *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, width * height * DECODED_PIXEL_SIZE );
-  w = bheight;
-  bheight = bwidth;
-  bwidth = w;
-  hw = bwidth * bheight;
-  hw = - hw - 1;
-
-  RGB888Type* to = buffer + bwidth - 1;
-  RGB888Type* from = dataPtr;
-
-  for(ix = bwidth; -- ix >= 0;)
-  {
-    for(iy = bheight; -- iy >= 0; ++from )
-    {
-      *to = *from;
-      to += bwidth;
-    }
-    to += hw;
-  }
-
-  return true;
-}
-
-bool JpegRotate180( RGB888Type *buffer, int width, int height )
-{
-  int bwidth = width;
-  int bheight = height;
-  Vector<RGB888Type> data;
-  data.Resize( bwidth * bheight );
-  RGB888Type *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, bwidth * bheight * DECODED_PIXEL_SIZE );
-
-  RGB888Type* to = buffer;
-  RGB888Type* from;
-  for( int iy = 0; iy < bwidth; iy++ )
-  {
-    for( int ix = 0; ix < bheight; ix++ )
-    {
-      from = dataPtr + ( bheight - ix) * bwidth - 1 - iy;
-      *to = *from;
-      to ++;
-    }
-  }
-
-  return true;
-}
-
-bool JpegRotate270( RGB888Type *buffer, int width, int height )
-{
-  int  w, hw = 0;
-  int ix, iy = 0;
-
-  int bwidth = width;
-  int bheight = height;
-  Vector<RGB888Type> data;
-  data.Resize( width * height );
-  RGB888Type *dataPtr = data.Begin();
-  memcpy(dataPtr, buffer, width * height * DECODED_PIXEL_SIZE );
-  w = bheight;
-  bheight = bwidth;
-  bwidth = w;
-  hw = bwidth * bheight;
-
-  RGB888Type* to = buffer + hw  - bwidth;
-  RGB888Type* from = dataPtr;
-
-  w = -w;
-  hw =  hw + 1;
-  for(ix = bwidth; -- ix >= 0;)
-  {
-    for(iy = bheight; -- iy >= 0;)
-    {
-      *to = *from;
-      from ++;
-      to += w;
-    }
-    to += hw;
-  }
-
-  return true;
 }
 
 bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char >& encodedPixels,
@@ -655,39 +762,44 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
   }
 
   // Initialise a JPEG codec:
-  AutoJpg autoJpg( tjInitCompress() );
   {
-    if( autoJpg.GetHandle() == NULL )
+    auto jpeg = MakeJpegCompressor();
+    if( jpeg )
     {
       DALI_LOG_ERROR( "JPEG Compressor init failed: %s\n", tjGetErrorStr() );
       return false;
     }
 
+
+    // Safely wrap the jpeg codec's buffer in case we are about to throw, then
+    // save the pixels to a persistent buffer that we own and let our cleaner
+    // class clean up the buffer as it goes out of scope:
+    auto dstBuffer = MakeJpegMemory();
+
     // Run the compressor:
-    unsigned char* dstBuffer = NULL;
     unsigned long dstBufferSize = 0;
     const int flags = 0;
 
-    if( tjCompress2( autoJpg.GetHandle(), const_cast<unsigned char*>(pixelBuffer), width, 0, height, jpegPixelFormat, &dstBuffer, &dstBufferSize, TJSAMP_444, quality, flags ) )
+    if( tjCompress2( jpeg.get(),
+                     const_cast<unsigned char*>(pixelBuffer),
+                     width, 0, height,
+                     jpegPixelFormat, SetPointer(dstBuffer), &dstBufferSize,
+                     TJSAMP_444, quality, flags ) )
     {
       DALI_LOG_ERROR("JPEG Compression failed: %s\n", tjGetErrorStr());
       return false;
     }
 
-    // Safely wrap the jpeg codec's buffer in case we are about to throw, then
-    // save the pixels to a persistent buffer that we own and let our cleaner
-    // class clean up the buffer as it goes out of scope:
-    AutoJpgMem cleaner( dstBuffer );
     encodedPixels.Resize( dstBufferSize );
-    memcpy( encodedPixels.Begin(), dstBuffer, dstBufferSize );
+    memcpy( encodedPixels.Begin(), dstBuffer.get(), dstBufferSize );
   }
   return true;
 }
 
 
-JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
+JpegTransform ConvertExifOrientation(ExifData* exifData)
 {
-  JPGFORM_CODE transform = JPGFORM_NONE;
+  auto transform = JpegTransform::NONE;
   ExifEntry * const entry = exif_data_get_entry(exifData, EXIF_TAG_ORIENTATION);
   int orientation = 0;
   if( entry )
@@ -697,42 +809,42 @@ JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
     {
       case 1:
       {
-        transform = JPGFORM_NONE;
+        transform = JpegTransform::NONE;
         break;
       }
       case 2:
       {
-        transform = JPGFORM_FLIP_H;
+        transform = JpegTransform::FLIP_HORIZONTAL;
         break;
       }
       case 3:
       {
-        transform = JPGFORM_FLIP_V;
+        transform = JpegTransform::FLIP_VERTICAL;
         break;
       }
       case 4:
       {
-        transform = JPGFORM_TRANSPOSE;
+        transform = JpegTransform::TRANSPOSE;
         break;
       }
       case 5:
       {
-        transform = JPGFORM_TRANSVERSE;
+        transform = JpegTransform::TRANSVERSE;
         break;
       }
       case 6:
       {
-        transform = JPGFORM_ROT_90;
+        transform = JpegTransform::ROTATE_90;
         break;
       }
       case 7:
       {
-        transform = JPGFORM_ROT_180;
+        transform = JpegTransform::ROTATE_180;
         break;
       }
       case 8:
       {
-        transform = JPGFORM_ROT_270;
+        transform = JpegTransform::ROTATE_270;
         break;
       }
       default:
@@ -748,13 +860,13 @@ JPGFORM_CODE ConvertExifOrientation(ExifData* exifData)
 
 bool TransformSize( int requiredWidth, int requiredHeight,
                     FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
-                    JPGFORM_CODE transform,
+                    JpegTransform transform,
                     int& preXformImageWidth, int& preXformImageHeight,
                     int& postXformImageWidth, int& postXformImageHeight )
 {
   bool success = true;
 
-  if( transform == JPGFORM_ROT_90 || transform == JPGFORM_ROT_270 || transform == JPGFORM_ROT_180 || transform == JPGFORM_TRANSVERSE)
+  if( transform == JpegTransform::ROTATE_90 || transform == JpegTransform::ROTATE_270 || transform == JpegTransform::ROTATE_180 || transform == JpegTransform::TRANSVERSE)
   {
     std::swap( requiredWidth, requiredHeight );
     std::swap( postXformImageWidth, postXformImageHeight );
@@ -861,10 +973,9 @@ bool TransformSize( int requiredWidth, int requiredHeight,
   return success;
 }
 
-ExifData* LoadExifData( FILE* fp )
+ExifHandle LoadExifData( FILE* fp )
 {
-  ExifData*     exifData=NULL;
-  ExifLoader*   exifLoader;
+  auto exifData = MakeNullExifData();
   unsigned char dataBuffer[1024];
 
   if( fseek( fp, 0, SEEK_SET ) )
@@ -873,7 +984,8 @@ ExifData* LoadExifData( FILE* fp )
   }
   else
   {
-    exifLoader = exif_loader_new ();
+    auto exifLoader = std::unique_ptr<ExifLoader, decltype(exif_loader_unref)*>{
+        exif_loader_new(), exif_loader_unref };
 
     while( !feof(fp) )
     {
@@ -882,14 +994,13 @@ ExifData* LoadExifData( FILE* fp )
       {
         break;
       }
-      if( ! exif_loader_write( exifLoader, dataBuffer, size ) )
+      if( ! exif_loader_write( exifLoader.get(), dataBuffer, size ) )
       {
         break;
       }
     }
 
-    exifData = exif_loader_get_data( exifLoader );
-    exif_loader_unref( exifLoader );
+    exifData.reset( exif_loader_get_data( exifLoader.get() ) );
   }
 
   return exifData;
@@ -913,14 +1024,14 @@ bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsig
     unsigned int headerHeight;
     if( LoadJpegHeader( fp, headerWidth, headerHeight ) )
     {
-      JPGFORM_CODE transform = JPGFORM_NONE;
+      auto transform = JpegTransform::NONE;
 
       if( input.reorientationRequested )
       {
-        ExifAutoPtr exifData( LoadExifData( fp ) );
-        if( exifData.mData )
+        auto exifData = LoadExifData( fp );
+        if( exifData )
         {
-          transform = ConvertExifOrientation(exifData.mData);
+          transform = ConvertExifOrientation(exifData.get());
         }
 
         int preXformImageWidth = headerWidth;
