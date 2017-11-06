@@ -38,7 +38,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
-const int DEFAULT_MULTI_SAMPLING_LEVEL = 4;
+const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
