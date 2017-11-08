@@ -276,8 +276,6 @@ void Adaptor::Start()
   // Initialize the thread controller
   mThreadController->Initialize();
 
-  mState = RUNNING;
-
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
@@ -714,7 +712,7 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  if ( STOPPED != mState )
+  if ( RUNNING == mState )
   {
     Pause();
 
@@ -757,6 +755,8 @@ void Adaptor::NotifySceneCreated()
 
   // process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
+
+  mState = RUNNING;
 }
 
 void Adaptor::NotifyLanguageChanged()
