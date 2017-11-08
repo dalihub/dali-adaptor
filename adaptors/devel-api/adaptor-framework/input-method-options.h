@@ -19,6 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory>
+
 #include <dali/public-api/object/property-map.h>
 
 // INTERNAL INCLUDES
@@ -38,6 +40,11 @@ public:
    * Constructor
    */
   InputMethodOptions();   /// Default InputMethodOptions options
+
+  /**
+   * Destructor
+   */
+  ~InputMethodOptions();
 
   /**
    * @brief Returns whether panel layout type is password or not
@@ -70,7 +77,7 @@ public: // Intended for internal use
 private:
 
   struct Impl;
-  Impl* mImpl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 } // namespace Dali
