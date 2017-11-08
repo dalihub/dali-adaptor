@@ -47,7 +47,13 @@ struct InputMethodOptions::Impl
 
 InputMethodOptions::InputMethodOptions()
 {
-  mImpl = new Impl( );
+  mImpl.reset(new Impl());
+}
+
+InputMethodOptions::~InputMethodOptions()
+{
+  // destructor cannot be inlined and must be in a unit
+  // for unique_ptr to work with forward declaration
 }
 
 bool InputMethodOptions::IsPassword()
