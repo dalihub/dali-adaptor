@@ -224,6 +224,28 @@ public:
    */
   unsigned int GetRenderToFboInterval() const;
 
+  /**
+   * @return Whether the depth buffer is required.
+   */
+  bool DepthBufferRequired() const;
+
+  /**
+   * @return Whether the stencil buffer is required.
+   */
+  bool StencilBufferRequired() const;
+
+  /// Deleted copy constructor.
+  EnvironmentOptions( const EnvironmentOptions& ) = delete;
+
+  /// Deleted move constructor.
+  EnvironmentOptions( const EnvironmentOptions&& ) = delete;
+
+  /// Deleted assignment operator.
+  EnvironmentOptions& operator=( const EnvironmentOptions& ) = delete;
+
+  /// Deleted move assignment operator.
+  EnvironmentOptions& operator=( const EnvironmentOptions&& ) = delete;
+
 private: // Internal
 
   /**
@@ -234,8 +256,11 @@ private: // Internal
 
 private: // Data
 
+  Dali::Integration::Log::LogFunction mLogFunction;
+
   std::string mWindowName;                        ///< name of the window
   std::string mWindowClassName;                   ///< name of the class the window belongs to
+  float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
   unsigned int mNetworkControl;                   ///< whether network control is enabled
   unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
@@ -244,34 +269,26 @@ private: // Data
   unsigned int mPerformanceStatsFrequency;        ///< performance statistics logging frequency (seconds)
   unsigned int mPerformanceTimeStampOutput;       ///< performance time stamp output ( bitmask)
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
+  unsigned int mWindowWidth;                      ///< width of the window
+  unsigned int mWindowHeight;                     ///< height of the window
+  unsigned int mRenderRefreshRate;                ///< render refresh rate
+  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
+  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
   int mPanGesturePredictionAmount;                ///< prediction amount for pan gestures
   int mPanGestureMaxPredictionAmount;             ///< maximum prediction amount for pan gestures
   int mPanGestureMinPredictionAmount;             ///< minimum prediction amount for pan gestures
   int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
   int mPanGestureSmoothingMode;                   ///< prediction mode for pan gestures
-  float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
   int mGlesCallTime;                              ///< time in seconds between status updates
-  unsigned int mWindowWidth;                      ///< width of the window
-  unsigned int mWindowHeight;                     ///< height of the window
-  ThreadingMode::Type mThreadingMode;             ///< threading mode
-  unsigned int mRenderRefreshRate;                ///< render refresh rate
-  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
-  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
   int mIndicatorVisibleMode;                      ///< Indicator visible mode
-  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
-
-  Dali::Integration::Log::LogFunction mLogFunction;
-
-  // Undefined copy constructor.
-  EnvironmentOptions( const EnvironmentOptions& );
-
-  // Undefined assignment operator.
-  EnvironmentOptions& operator=( const EnvironmentOptions& );
-
+  ThreadingMode::Type mThreadingMode;             ///< threading mode
+  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
+  bool mDepthBufferRequired;                      ///< Whether the depth buffer is required
+  bool mStencilBufferRequired;                    ///< Whether the stencil buffer is required
 };
 
 } // Adaptor

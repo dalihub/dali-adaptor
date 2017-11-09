@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H__
-#define __DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H__
+#ifndef DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H
+#define DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <base/interfaces/egl-factory-interface.h>
@@ -36,10 +37,16 @@ class EglSyncImplementation;
 class EglFactory : public EglFactoryInterface
 {
 public:
+
   /**
    * Constructor
+   * @param[in] multiSamplingLevel The Multi-sampling level required
+   * @param[in] depthBufferRequired Whether the depth buffer is required
+   * @param[in] stencilBufferRequired Whether the stencil buffer is required
    */
-  EglFactory( int multiSamplingLevel );
+  EglFactory( int multiSamplingLevel,
+              Integration::DepthBufferAvailable depthBufferRequired,
+              Integration::StencilBufferAvailable stencilBufferRequired );
 
   /**
    * Destructor
@@ -85,10 +92,12 @@ private:
   EglSyncImplementation* mEglSync;
 
   int mMultiSamplingLevel;
+  Integration::DepthBufferAvailable mDepthBufferRequired;
+  Integration::StencilBufferAvailable mStencilBufferRequired;
 };
 
-}
-}
-}
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
-#endif //__DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H__
+#endif // DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H
