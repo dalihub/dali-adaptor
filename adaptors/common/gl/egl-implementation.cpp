@@ -52,20 +52,25 @@ namespace Adaptor
   } \
 }
 
-EglImplementation::EglImplementation( int multiSamplingLevel )
-  : mEglNativeDisplay(0),
-    mEglNativeWindow(0),
-    mCurrentEglNativePixmap(0),
-    mEglDisplay(0),
-    mEglConfig(0),
-    mEglContext(0),
-    mCurrentEglSurface(0),
-    mGlesInitialized(false),
-    mIsOwnSurface(true),
-    mContextCurrent(false),
-    mIsWindow(true),
-    mColorDepth(COLOR_DEPTH_24),
-    mMultiSamplingLevel( multiSamplingLevel )
+EglImplementation::EglImplementation( int multiSamplingLevel,
+                                      Integration::DepthBufferAvailable depthBufferRequired,
+                                      Integration::StencilBufferAvailable stencilBufferRequired )
+: mContextAttribs(),
+  mEglNativeDisplay( 0 ),
+  mEglNativeWindow( 0 ),
+  mCurrentEglNativePixmap( 0 ),
+  mEglDisplay( 0 ),
+  mEglConfig( 0 ),
+  mEglContext( 0 ),
+  mCurrentEglSurface( 0 ),
+  mMultiSamplingLevel( multiSamplingLevel ),
+  mColorDepth( COLOR_DEPTH_24 ),
+  mGlesInitialized( false ),
+  mIsOwnSurface( true ),
+  mContextCurrent( false ),
+  mIsWindow( true ),
+  mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
+  mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE )
 {
 }
 
@@ -330,9 +335,10 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 #endif // _ARCH_ARM_
 
   configAttribs.PushBack( EGL_DEPTH_SIZE );
-  configAttribs.PushBack( 24 );
+  configAttribs.PushBack( mDepthBufferRequired ? 24 : 0 );
   configAttribs.PushBack( EGL_STENCIL_SIZE );
-  configAttribs.PushBack( 8 );
+  configAttribs.PushBack( mStencilBufferRequired ? 8 : 0 );
+
 #ifndef DALI_PROFILE_UBUNTU
   if( mMultiSamplingLevel != EGL_DONT_CARE )
   {

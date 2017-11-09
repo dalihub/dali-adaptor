@@ -140,7 +140,10 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     mGLES = new GlImplementation();
   }
 
-  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel() );
+  const Integration::DepthBufferAvailable depthBufferAvailable = static_cast< Integration::DepthBufferAvailable >( mEnvironmentOptions->DepthBufferRequired() );
+  const Integration::StencilBufferAvailable stencilBufferAvailable = static_cast< Integration::StencilBufferAvailable >( mEnvironmentOptions->StencilBufferRequired() );
+
+  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel(), depthBufferAvailable, stencilBufferAvailable );
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
@@ -150,7 +153,9 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
                                   *eglSyncImpl,
                                   *mGestureManager,
                                   dataRetentionPolicy ,
-                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
+                                  ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
+                                  depthBufferAvailable,
+                                  stencilBufferAvailable );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )

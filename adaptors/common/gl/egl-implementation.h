@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_EGL_IMPLEMENTATION_H__
-#define __DALI_INTERNAL_EGL_IMPLEMENTATION_H__
+#ifndef DALI_INTERNAL_EGL_IMPLEMENTATION_H
+#define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
@@ -22,6 +22,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <adaptors/integration-api/egl-interface.h>
@@ -40,11 +41,16 @@ namespace Adaptor
 class EglImplementation : public EglInterface
 {
 public:
+
   /**
    * Constructor
-   * @param environmentOptions To check the envirionment options
+   * @param[in] multiSamplingLevel The Multi-sampling level required
+   * @param[in] depthBufferRequired Whether the depth buffer is required
+   * @param[in] stencilBufferRequired Whether the stencil buffer is required
    */
-  EglImplementation( int multiSamplingLevel );
+  EglImplementation( int multiSamplingLevel,
+                     Integration::DepthBufferAvailable depthBufferRequired,
+                     Integration::StencilBufferAvailable stencilBufferRequired );
 
   /**
    * Destructor
@@ -189,13 +195,16 @@ private:
   EGLContext           mEglContext;
   EGLSurface           mCurrentEglSurface;
 
+  int                  mMultiSamplingLevel;
+
+  ColorDepth           mColorDepth;
+
   bool                 mGlesInitialized;
   bool                 mIsOwnSurface;
   bool                 mContextCurrent;
   bool                 mIsWindow;
-  ColorDepth           mColorDepth;
-
-  int                  mMultiSamplingLevel;
+  bool                 mDepthBufferRequired;
+  bool                 mStencilBufferRequired;
 };
 
 } // namespace Adaptor
@@ -204,4 +213,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_EGL_IMPLEMENTATION_H__
+#endif // DALI_INTERNAL_EGL_IMPLEMENTATION_H

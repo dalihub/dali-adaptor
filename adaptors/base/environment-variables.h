@@ -101,6 +101,10 @@ namespace Adaptor
 
 #define DALI_RENDER_TO_FBO "DALI_RENDER_TO_FBO"
 
+#define DALI_ENV_DISABLE_DEPTH_BUFFER "DALI_DISABLE_DEPTH_BUFFER"
+
+#define DALI_ENV_DISABLE_STENCIL_BUFFER "DALI_DISABLE_STENCIL_BUFFER"
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,15 @@ namespace Internal
 namespace Adaptor
 {
 
-EglFactory::EglFactory( int multiSamplingLevel )
+EglFactory::EglFactory( int multiSamplingLevel,
+                        Integration::DepthBufferAvailable depthBufferRequired,
+                        Integration::StencilBufferAvailable stencilBufferRequired )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
   mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
-  mMultiSamplingLevel( multiSamplingLevel )
+  mMultiSamplingLevel( multiSamplingLevel ),
+  mDepthBufferRequired( depthBufferRequired ),
+  mStencilBufferRequired( stencilBufferRequired )
 {
 }
 
@@ -49,7 +53,7 @@ EglFactory::~EglFactory()
 EglInterface* EglFactory::Create()
 {
   // Created by RenderThread (After Core construction)
-  mEglImplementation = new EglImplementation( mMultiSamplingLevel );
+  mEglImplementation = new EglImplementation( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired );
   mEglImageExtensions = new EglImageExtensions( mEglImplementation );
 
   mEglSync->Initialize(mEglImplementation); // The sync impl needs the EglDisplay
