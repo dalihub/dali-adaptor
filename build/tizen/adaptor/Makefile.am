@@ -255,6 +255,13 @@ endif # WAYLAND
 
 endif # IVI_PROFILE
 
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else
+adaptor_internal_src_files += $(adaptor_tizen_internal_widget_src_files)
+endif
+endif
+
 main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
 input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
 
@@ -286,6 +293,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
   $(base_adaptor_networking_src_files)
+endif
+
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else # over Tizen 3.0
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                     $(adaptor_widget_src_files)
+endif
 endif
 
 libdali_adaptor_la_DEPENDENCIES =
@@ -436,13 +451,17 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(ELEMENTARY_LIBS)
 
 else
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(BUNDLE_CFLAGS) \
+                               $(CAPI_APPFW_COMMON_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(CAPI_APPFW_WIDGET_BASE_CFLAGS) \
                                $(ECORE_IMF_CFLAGS) \
                                $(FRIBIDI_CFLAGS)
 
-LIBDALI_ADAPTOR_LA_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+LIBDALI_ADAPTOR_LA_LIBADD += $(BUNDLE_LIBS) \
+                             $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(CAPI_APPFW_WIDGET_BASE_LIBS) \
                              $(ECORE_IMF_LIBS) \
                              $(FRIBIDI_LIBS)
 endif
@@ -566,6 +585,13 @@ tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
+
+if USE_APPFW
+if USE_APPFW_EFL_BASE
+else
+tizenadaptorframeworkdevelapi_HEADERS += $(adaptor_widget_header_files)
+endif
+endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
