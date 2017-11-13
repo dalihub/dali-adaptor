@@ -445,13 +445,18 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(ELEMENTARY_LIBS)
 
 else
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(BUNDLE_CFLAGS) \
+                               $(CAPI_APPFW_COMMON_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(CAPI_APPFW_WIDGET_BASE_CFLAGS) \
                                $(ECORE_IMF_CFLAGS) \
-                               $(FRIBIDI_CFLAGS)
+                               $(FRIBIDI_CFLAGS) \
+                               -DWIDGET_SUPPOERTED
 
-LIBDALI_ADAPTOR_LA_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+LIBDALI_ADAPTOR_LA_LIBADD += $(BUNDLE_LIBS) \
+                             $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(CAPI_APPFW_WIDGET_BASE_LIBS) \
                              $(ECORE_IMF_LIBS) \
                              $(FRIBIDI_LIBS)
 endif
@@ -569,13 +574,6 @@ tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
 
 tizencapturepublicapidir = $(tizenadaptorpublicapidir)/capture
 tizencapturepublicapi_HEADERS = $(public_dali_capture_header_files)
-
-if USE_APPFW
-if USE_APPFW_EFL_BASE
-else
-tizenadaptorframeworkdevelapi_HEADERS += $(adaptor_widget_header_files)
-endif
-endif
 
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
