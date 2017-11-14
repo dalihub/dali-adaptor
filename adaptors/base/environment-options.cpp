@@ -38,6 +38,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
@@ -102,13 +103,15 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
   mGlesCallTime( 0 ),
-  mWindowWidth( 0 ),
-  mWindowHeight( 0 ),
+  mWindowWidth( 0u ),
+  mWindowHeight( 0u ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
-  mRenderRefreshRate( 1 ),
+  mRenderRefreshRate( 1u ),
   mGlesCallAccumulate( false ),
-  mMultiSamplingLevel( 0 ),
+  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mMaxTextureSize( 0 ),
+  mIndicatorVisibleMode( -1 ),
+  mRenderToFboInterval( 0u ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -255,7 +258,7 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
   return mRenderRefreshRate;
 }
 
-unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
+int EnvironmentOptions::GetMultiSamplingLevel() const
 {
   return mMultiSamplingLevel;
 }
@@ -263,6 +266,16 @@ unsigned int EnvironmentOptions::GetMultiSamplingLevel() const
 unsigned int EnvironmentOptions::GetMaxTextureSize() const
 {
   return mMaxTextureSize;
+}
+
+int EnvironmentOptions::GetIndicatorVisibleMode() const
+{
+  return mIndicatorVisibleMode;
+}
+
+unsigned int EnvironmentOptions::GetRenderToFboInterval() const
+{
+  return mRenderToFboInterval;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const
@@ -410,10 +423,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   int multiSamplingLevel( 0 );
   if( GetIntegerEnvironmentVariable( DALI_ENV_MULTI_SAMPLING_LEVEL, multiSamplingLevel ) )
   {
-    if( multiSamplingLevel > 0 )
-    {
-      mMultiSamplingLevel = multiSamplingLevel;
-    }
+    mMultiSamplingLevel = multiSamplingLevel;
   }
 
   int maxTextureSize( 0 );
@@ -424,6 +434,17 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       mMaxTextureSize = maxTextureSize;
     }
   }
+
+  int indicatorVisibleMode( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_INDICATOR_VISIBLE_MODE, indicatorVisibleMode ) )
+  {
+    if( indicatorVisibleMode > -1 )
+    {
+      mIndicatorVisibleMode = indicatorVisibleMode;
+    }
+  }
+
+  mRenderToFboInterval = GetIntegerEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
 }
 
 } // Adaptor

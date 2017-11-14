@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
@@ -56,7 +57,13 @@ class Orientation;
 class DALI_IMPORT_API Window : public BaseHandle
 {
 public:
+
+  typedef Uint16Pair WindowSize;          ///< Window size type @SINCE_1_2.60
+  typedef Uint16Pair WindowPosition;      ///< Window position type @SINCE_1_2.60
+
   typedef Signal< void (bool) > IndicatorSignalType;  ///< Indicator state signal type @SINCE_1_0.0
+  typedef Signal< void (bool) > FocusSignalType;         ///< Window focus signal type @SINCE_1_2.60
+  typedef Signal< void (WindowSize) > ResizedSignalType; ///< Window resized signal type @SINCE_1_2.60
 
 public:
 
@@ -94,6 +101,57 @@ public:
     INVISIBLE = 0, ///< Hide indicator @SINCE_1_0.0
     VISIBLE = 1, ///< Show indicator @SINCE_1_0.0
     AUTO = 2 ///< Hide in default, will show when necessary @SINCE_1_0.0
+  };
+
+  /**
+   * @brief An enum of Window types.
+   * @SINCE_1_2.60
+   */
+  enum Type
+  {
+    NORMAL,           ///< A default window type. Indicates a normal, top-level window. Almost every window will be created with this type. @SINCE_1_2.60
+    NOTIFICATION,     ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_1_2.60
+    UTILITY,          ///< A persistent utility window, like a toolbox or palette. @SINCE_1_2.60
+    DIALOG            ///< Used for simple dialog windows. @SINCE_1_2.60
+  };
+
+  /**
+   * @brief An enum of screen mode.
+   * @SINCE_1_2.60
+   */
+  struct NotificationLevel
+  {
+    /**
+     * @brief An enum of screen mode.
+     * @SINCE_1_2.60
+     */
+    enum Type
+    {
+      NONE   = -1,    ///< No notification level. Default level. This value makes the notification window place in the layer of the normal window. @SINCE_1_2.60
+      BASE   = 10,    ///< Base notification level. @SINCE_1_2.60
+      MEDIUM = 20,    ///< Higher notification level than base. @SINCE_1_2.60
+      HIGH   = 30,    ///< Higher notification level than medium. @SINCE_1_2.60
+      TOP    = 40     ///< The highest notification level. @SINCE_1_2.60
+    };
+  };
+
+  /**
+   * @brief An enum of screen mode.
+   * @SINCE_1_2.60
+   */
+  struct ScreenOffMode
+  {
+    /**
+     * @brief An enum of screen mode.
+     * @SINCE_1_2.60
+     */
+    enum Type
+    {
+      TIMEOUT,              ///< The mode which turns the screen off after a timeout. @SINCE_1_2.60
+      NEVER,                ///< The mode which keeps the screen turned on. @SINCE_1_2.60
+    };
+
+    static constexpr Type DEFAULT { TIMEOUT }; ///< The default mode. @SINCE_1_2.60
   };
 
   // Methods
@@ -248,6 +306,245 @@ public:
    */
   Any GetNativeHandle() const;
 
+  /**
+   * @brief Sets whether window accepts focus or not.
+   *
+   * @SINCE_1_2.60
+   * @param[in] accept If focus is accepted or not. Default is true.
+   */
+  void SetAcceptFocus( bool accept );
+
+  /**
+   * @brief Returns whether window accepts focus or not.
+   *
+   * @SINCE_1_2.60
+   * @return True if the window accept focus, false otherwise
+   */
+  bool IsFocusAcceptable() const;
+
+  /**
+   * @brief Shows the window if it is hidden.
+   * @SINCE_1_2.60
+   */
+  void Show();
+
+  /**
+   * @brief Hides the window if it is showing.
+   * @SINCE_1_2.60
+   */
+  void Hide();
+
+  /**
+   * @brief Returns whether the window is visible or not.
+   * @SINCE_1_2.60
+   * @return True if the window is visible, false otherwise.
+   */
+  bool IsVisible() const;
+
+  /**
+   * @brief Gets the count of supported auxiliary hints of the window.
+   * @SINCE_1_2.60
+   * @return The number of supported auxiliary hints.
+   *
+   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+   */
+  unsigned int GetSupportedAuxiliaryHintCount() const;
+
+  /**
+   * @brief Gets the supported auxiliary hint string of the window.
+   * @SINCE_1_2.60
+   * @param[in] index The index of the supported auxiliary hint lists
+   * @return The auxiliary hint string of the index.
+   *
+   * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
+   * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
+   */
+  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
+
+  /**
+   * @brief Creates an auxiliary hint of the window.
+   * @SINCE_1_2.60
+   * @param[in] hint The auxiliary hint string.
+   * @param[in] value The value string.
+   * @return The ID of created auxiliary hint, or @c 0 on failure.
+   */
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+
+  /**
+   * @brief Removes an auxiliary hint of the window.
+   * @SINCE_1_2.60
+   * @param[in] id The ID of the auxiliary hint.
+   * @return True if no error occurred, false otherwise.
+   */
+  bool RemoveAuxiliaryHint( unsigned int id );
+
+  /**
+   * @brief Changes a value of the auxiliary hint.
+   * @SINCE_1_2.60
+   * @param[in] id The auxiliary hint ID.
+   * @param[in] value The value string to be set.
+   * @return True if no error occurred, false otherwise.
+   */
+  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+
+  /**
+   * @brief Gets a value of the auxiliary hint.
+   * @SINCE_1_2.60
+   * @param[in] id The auxiliary hint ID.
+   * @return The string value of the auxiliary hint ID, or an empty string if none exists.
+   */
+  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+
+  /**
+   * @brief Gets a ID of the auxiliary hint string.
+   * @SINCE_1_2.60
+   * @param[in] hint The auxiliary hint string.
+   * @return The ID of the auxiliary hint string, or @c 0 if none exists.
+   */
+  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+
+  /**
+   * @brief Sets a region to accept input events.
+   * @SINCE_1_2.60
+   * @param[in] inputRegion The region to accept input events.
+   */
+  void SetInputRegion( const Rect< int >& inputRegion );
+
+  /**
+   * @brief Sets a window type.
+   * @SINCE_1_2.60
+   * @param[in] type The window type.
+   * @remarks The default window type is NORMAL.
+   */
+  void SetType( Type type );
+
+  /**
+   * @brief Gets a window type.
+   * @SINCE_1_2.60
+   * @return A window type.
+   */
+  Type GetType() const;
+
+  /**
+   * @brief Sets a priority level for the specified notification window.
+   * @SINCE_1_2.60
+   * @param[in] level The notification window level.
+   * @return True if no error occurred, false otherwise.
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_WINDOW_PRIORITY
+   * @remarks This can be used for a notification type window only. The default level is NotificationLevel::NONE.
+   */
+  bool SetNotificationLevel( NotificationLevel::Type level );
+
+  /**
+   * @brief Gets a priority level for the specified notification window.
+   * @SINCE_1_2.60
+   * @return The notification window level.
+   * @remarks This can be used for a notification type window only.
+   */
+  NotificationLevel::Type GetNotificationLevel() const;
+
+  /**
+   * @brief Sets a transparent window's visual state to opaque.
+   * @details If a visual state of a transparent window is opaque,
+   * then the window manager could handle it as an opaque window when calculating visibility.
+   * @SINCE_1_2.60
+   * @param[in] opaque Whether the window's visual state is opaque.
+   * @remarks This will have no effect on an opaque window.
+   * It doesn't change transparent window to opaque window but lets the window manager know the visual state of the window.
+   */
+  void SetOpaqueState( bool opaque );
+
+  /**
+   * @brief Returns whether a transparent window's visual state is opaque or not.
+   * @SINCE_1_2.60
+   * @return True if the window's visual state is opaque, false otherwise.
+   * @remarks The return value has no meaning on an opaque window.
+   */
+  bool IsOpaqueState() const;
+
+  /**
+   * @brief Sets a window's screen off mode.
+   * @details This API is useful when the application needs to keep the display turned on.
+   * If the application sets the screen mode to #::Dali::Window::ScreenOffMode::NEVER to its window and the window is shown,
+   * the window manager requests the display system to keep the display on as long as the window is shown.
+   * If the window is no longer shown, then the window manager requests the display system to go back to normal operation.
+   * @SINCE_1_2.60
+   * @param[in] screenOffMode The screen mode.
+   * @return True if no error occurred, false otherwise.
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   */
+  bool SetScreenOffMode(ScreenOffMode::Type screenOffMode);
+
+  /**
+   * @brief Gets a screen off mode of the window.
+   * @SINCE_1_2.60
+   * @return The screen off mode.
+   */
+  ScreenOffMode::Type GetScreenOffMode() const;
+
+  /**
+   * @brief Sets preferred brightness of the window.
+   * @details This API is useful when the application needs to change the brightness of the screen when it is appeared on the screen.
+   * If the brightness has been set and the window is shown, the window manager requests the display system to change the brightness to the provided value.
+   * If the window is no longer shown, then the window manager requests the display system to go back to default brightness.
+   * A value less than 0 results in default brightness and a value greater than 100 results in maximum brightness.
+   * @SINCE_1_2.60
+   * @param[in] brightness The preferred brightness (0 to 100).
+   * @return True if no error occurred, false otherwise.
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   */
+  bool SetBrightness( int brightness );
+
+  /**
+   * @brief Gets preffered brightness of the window.
+   * @return The preffered brightness.
+   */
+  int GetBrightness() const;
+
+  /**
+   * @brief Sets a size of the window.
+   *
+   * @SINCE_1_2.60
+   * @param[in] size The new window size
+   */
+  void SetSize( WindowSize size );
+
+  /**
+   * @brief Gets a size of the window.
+   *
+   * @SINCE_1_2.60
+   * @return The size of the window
+   */
+  WindowSize GetSize() const;
+
+  /**
+   * @brief Sets a position of the window.
+   *
+   * @SINCE_1_2.60
+   * @param[in] position The new window position
+   */
+  void SetPosition( WindowPosition position );
+
+  /**
+   * @brief Gets a position of the window.
+   *
+   * @SINCE_1_2.60
+   * @return The position of the window
+   */
+  WindowPosition GetPosition() const;
+
+  /**
+   * @brief Sets whether the window is transparent or not.
+   *
+   * @SINCE_1_2.60
+   * @param[in] transparent Whether the window is transparent
+   */
+  void SetTransparency( bool transparent );
+
 public: // Signals
   /**
    * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
@@ -255,6 +552,34 @@ public: // Signals
    * @return The signal to connect to
    */
   IndicatorSignalType& IndicatorVisibilityChangedSignal();
+
+  /**
+   * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( bool focusIn );
+   * @endcode
+   * The parameter is true if window gains focus, otherwise false.
+   *
+   * @SINCE_1_2.60
+   * @return The signal to connect to
+   */
+  FocusSignalType& FocusChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the window is resized.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( int width, int height );
+   * @endcode
+   * The parameters are the resized width and height.
+   *
+   * @SINCE_1_2.60
+   * @return The signal to connect to
+   */
+  ResizedSignalType& ResizedSignal();
 
 public: // Not intended for application developers
   /// @cond internal

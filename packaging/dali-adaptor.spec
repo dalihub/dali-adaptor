@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.56
+Version:    1.2.65
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -115,8 +115,6 @@ BuildRequires:  pkgconfig(utilX)
 %endif
 
 # for dali-adaptor
-BuildRequires:  pkgconfig(evas)
-
 %if 0%{?tizen_version_major} == 3
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(elementary)
@@ -134,10 +132,6 @@ BuildRequires:  pkgconfig(mm-sound)
 %if 0%{?tizen_version_major} >= 3
 BuildRequires:  pkgconfig(feedback)
 %endif
-
-# for videoplayer Plugin
-BuildRequires:  pkgconfig(capi-media-player)
-
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -369,18 +363,6 @@ Requires:   %{name} = %{version}-%{release}
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
 
-##############################
-# Dali VideoPlayer Plugin
-##############################
-%if %{with wayland}
-
-%package dali-video-player-plugin
-Summary:    Plugin to play a video file for Dali
-Group:      System/Libraries
-%description dali-video-player-plugin
-VideoPlayer plugin to play a video file for Dali
-%endif
-
 %if !0%{?disable_cxx03_build}
 ##############################
 # Dali Feedback Plugin cxx03
@@ -393,17 +375,6 @@ Requires:   %{name}-cxx03 = %{version}-%{release}
 %description dali-feedback-plugin-cxx03
 Feedback plugin to play haptic and audio feedback for Dali
 
-##############################
-# Dali VideoPlayer Plugin
-##############################
-%if %{with wayland}
-
-%package dali-video-player-plugin-cxx03
-Summary:    Plugin to play a video file for Dali with cxx03 abi
-Group:      System/Libraries
-%description dali-video-player-plugin-cxx03
-VideoPlayer plugin to play a video file for Dali
-%endif
 %endif
 
 ##############################
@@ -492,7 +463,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -535,7 +505,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -577,7 +546,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -619,7 +587,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -653,7 +620,7 @@ make clean
 %endif
 
 #######################################################################
-# common ( build dali_videoplayer_plugin for common uses )
+# common
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
@@ -663,7 +630,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
 %endif
@@ -714,7 +680,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
            --enable-cxx03-abi=yes  \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
@@ -758,7 +723,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
            --enable-cxx03-abi=yes  \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
@@ -801,7 +765,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
            --enable-cxx03-abi=yes \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
@@ -844,7 +807,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
            --enable-cxx03-abi=yes  \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
@@ -877,7 +839,7 @@ make clean
 %endif
 
 #######################################################################
-# common ( build dali_videoplayer_plugin for common uses )
+# common
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
@@ -888,7 +850,6 @@ make clean
 %if 0%{?tizen_version_major} >= 3
            --enable-feedback \
 %endif
-           --enable-videoplayer \
            --enable-cxx03-abi=yes  \
 %if 0%{?tizen_2_2_compatibility}
            --with-tizen-2-2-compatibility \
@@ -1023,19 +984,6 @@ exit 0
 %postun
 /sbin/ldconfig
 exit 0
-
-%if %{with wayland}
-%post dali-video-player-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
-%if %{with wayland}
-%postun dali-video-player-plugin
-/sbin/ldconfig
-exit 0
-%endif
-
 
 ##############################
 
@@ -1210,7 +1158,7 @@ exit 0
 %license LICENSE
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+#%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.0*
 %{_libdir}/libdali-adaptor-cxx03.so
@@ -1218,15 +1166,7 @@ exit 0
 %exclude %{_libdir}/libdali-adap*.so*.wearable
 %exclude %{_libdir}/libdali-adap*.so*.tv
 %exclude %{_libdir}/libdali-adap*.so*.ivi
-%endif
-
-%if %{with wayland}
-%files dali-video-player-plugin-cxx03
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-video-player-plugin.so*
-%license LICENSE
-%endif
+#%endif
 
 %if 0%{?tizen_version_major} >= 3
 %files dali-feedback-plugin-cxx03
@@ -1238,14 +1178,6 @@ exit 0
 %endif
 
 #################################################
-
-%if %{with wayland}
-%files dali-video-player-plugin
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-video-player-plugin-cxx11.so*
-%license LICENSE
-%endif
 
 %if 0%{?tizen_version_major} >= 3
 %files dali-feedback-plugin

@@ -185,7 +185,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit the signal that the language has changed
-  imfManager->LanguageChangedSignal().Emit();
+  imfManager->LanguageChangedSignal().Emit( value );
 }
 
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
@@ -196,7 +196,7 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit signal that the keyboard is resized
-  imfManager->ResizedSignal().Emit();
+  imfManager->ResizedSignal().Emit( value );
 }
 
 void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *context, int value )
@@ -589,16 +589,21 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
-  mEventSignal.Emit( handle, imfData );
+  Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
 
-  if( text )
+  if( callbackData.update )
   {
-    *text = strdup( mSurroundingText.c_str() );
-  }
+    if( text )
+    {
+      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
+      *text = strdup( callbackData.currentText.c_str() );
+    }
 
-  if( cursorPosition )
-  {
-    *cursorPosition = mIMFCursorPosition;
+    if( cursorPosition )
+    {
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      *cursorPosition = mIMFCursorPosition;
+    }
   }
 
   return EINA_TRUE;
@@ -756,25 +761,28 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   }
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelData\n" );
 
   if( mIMFContext )
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelData\n" );
 
   if( mIMFContext )
   {
-    int* length = NULL;
-    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+    int length = 4096; // The max length is 4096 bytes
+    Dali::Vector< char > buffer;
+    buffer.Resize( length );
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &buffer[0], &length );
+    data = std::string( buffer.Begin(), buffer.End() );
   }
 }
 

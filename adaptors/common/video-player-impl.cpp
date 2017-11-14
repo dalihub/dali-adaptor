@@ -133,7 +133,7 @@ std::string VideoPlayer::GetUrl()
     return mPlugin->GetUrl();
   }
 
-  return std::string( NULL );
+  return std::string();
 }
 
 void VideoPlayer::SetLooping(bool looping)
@@ -287,6 +287,16 @@ void VideoPlayer::Backward( int millisecond )
   {
     mPlugin->Backward( millisecond );
   }
+}
+
+bool VideoPlayer::IsVideoTextureSupported() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->IsVideoTextureSupported();
+  }
+
+  return false;
 }
 
 } // namespace Adaptor;

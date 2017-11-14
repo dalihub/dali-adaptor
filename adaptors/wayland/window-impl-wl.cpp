@@ -111,6 +111,7 @@ Window::Window()
   mWMRotationAppSet( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( true ),
   mIndicator( NULL ),
@@ -119,7 +120,7 @@ Window::Window()
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
-  mType( Dali::DevelWindow::NORMAL ),
+  mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
   mAuxiliaryHints(),
@@ -293,7 +294,7 @@ void Window::SetAcceptFocus( bool accept )
   mIsFocusAcceptable = accept;
 }
 
-bool Window::IsFocusAcceptable()
+bool Window::IsFocusAcceptable() const
 {
   return mIsFocusAcceptable;
 }
@@ -318,12 +319,17 @@ void Window::RotationDone( int orientation, int width, int height )
 {
 }
 
-unsigned int Window::GetSupportedAuxiliaryHintCount()
+void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
+{
+  mIndicatorVisible = mode;
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount() const
 {
   return 0;
 }
 
-std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index ) const
 {
   return std::string();
 }
@@ -357,24 +363,24 @@ void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 
-void Window::SetType( Dali::DevelWindow::Type type )
+void Window::SetType( Dali::Window::Type type )
 {
   mType = type;
 }
 
-Dali::DevelWindow::Type Window::GetType() const
+Dali::Window::Type Window::GetType() const
 {
   return mType;
 }
 
-bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
 {
   return false;
 }
 
-Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+Dali::Window::NotificationLevel::Type Window::GetNotificationLevel() const
 {
-  return Dali::DevelWindow::NotificationLevel::NONE;
+  return Dali::Window::NotificationLevel::NONE;
 }
 
 void Window::SetOpaqueState( bool opaque )
@@ -382,19 +388,19 @@ void Window::SetOpaqueState( bool opaque )
   mOpaqueState = opaque;
 }
 
-bool Window::IsOpaqueState()
+bool Window::IsOpaqueState() const
 {
   return mOpaqueState;
 }
 
-bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+bool Window::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
 {
   return false;
 }
 
-Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+Dali::Window::ScreenOffMode::Type Window::GetScreenOffMode() const
 {
-  return Dali::DevelWindow::ScreenMode::DEFAULT;
+  return Dali::Window::ScreenOffMode::TIMEOUT;
 }
 
 bool Window::SetBrightness( int brightness )
@@ -402,12 +408,12 @@ bool Window::SetBrightness( int brightness )
   return false;
 }
 
-int Window::GetBrightness()
+int Window::GetBrightness() const
 {
   return 0;
 }
 
-void Window::SetSize( Dali::DevelWindow::WindowSize size )
+void Window::SetSize( Dali::Window::WindowSize size )
 {
   PositionSize positionSize = mSurface->GetPositionSize();
 
@@ -418,23 +424,23 @@ void Window::SetSize( Dali::DevelWindow::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceResizePrepare( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 
     // Emit signal
-    mResizedSignal.Emit( Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height ) );
+    mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );
 
-    mAdaptor->SurfaceResizeComplete( Dali::Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   }
 }
 
-Dali::DevelWindow::WindowSize Window::GetSize()
+Dali::Window::WindowSize Window::GetSize() const
 {
   PositionSize positionSize = mSurface->GetPositionSize();
 
-  return Dali::DevelWindow::WindowSize( positionSize.width, positionSize.height );
+  return Dali::Window::WindowSize( positionSize.width, positionSize.height );
 }
 
-void Window::SetPosition( Dali::DevelWindow::WindowPosition position )
+void Window::SetPosition( Dali::Window::WindowPosition position )
 {
   PositionSize positionSize = mSurface->GetPositionSize();
 
@@ -447,11 +453,11 @@ void Window::SetPosition( Dali::DevelWindow::WindowPosition position )
   }
 }
 
-Dali::DevelWindow::WindowPosition Window::GetPosition()
+Dali::Window::WindowPosition Window::GetPosition() const
 {
   PositionSize positionSize = mSurface->GetPositionSize();
 
-  return Dali::DevelWindow::WindowPosition( positionSize.x, positionSize.y );
+  return Dali::Window::WindowPosition( positionSize.x, positionSize.y );
 }
 
 void Window::SetTransparency( bool transparent )

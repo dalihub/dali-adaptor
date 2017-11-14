@@ -46,6 +46,8 @@ public:
   typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
   typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
   typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
+  typedef Dali::ImfManager::KeyboardResizedSignalType KeyboardResizedSignalType;
+  typedef Dali::ImfManager::LanguageChangedSignalType LanguageChangedSignalType;
 
 public:
 
@@ -178,14 +180,14 @@ public:
   void ApplyOptions( const InputMethodOptions& options );
 
   /**
-   * @copydoc Dali::ImfManager::SetInputPanelUserData()
+   * @copydoc Dali::ImfManager::SetInputPanelData()
    */
-  void SetInputPanelUserData( const std::string& data );
+  void SetInputPanelData( const std::string& data );
 
   /**
-   * @copydoc Dali::ImfManager::GetInputPanelUserData()
+   * @copydoc Dali::ImfManager::GetInputPanelData()
    */
-  void GetInputPanelUserData( std::string& data );
+  void GetInputPanelData( std::string& data );
 
   /**
    * @copydoc Dali::ImfManager::GetInputPanelState()
@@ -242,12 +244,12 @@ public:  // Signals
   /**
    * @copydoc Dali::ImfManager::ResizedSignal()
    */
-  ImfVoidSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
+  KeyboardResizedSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
 
   /**
    * @copydoc Dali::ImfManager::LanguageChangedSignal()
    */
-  ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
+  LanguageChangedSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
 
   /**
    * @copydoc Dali::ImfManager::KeyboardTypeChangedSignal()
@@ -289,8 +291,8 @@ private:
   ImfManagerSignalType       mActivatedSignal;
   ImfEventSignalType         mEventSignal;
   ImfStatusSignalType        mKeyboardStatusSignal;
-  ImfVoidSignalType          mKeyboardResizeSignal;
-  ImfVoidSignalType          mKeyboardLanguageChangedSignal;
+  KeyboardResizedSignalType  mKeyboardResizeSignal;
+  LanguageChangedSignalType  mKeyboardLanguageChangedSignal;
   ImfKeyboardTypeSignalType  mKeyboardTypeChangedSignal;
 
 public:

@@ -108,14 +108,14 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   Internal::Adaptor::ImfManager::GetImplementation(*this).ApplyOptions( options );
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  Internal::Adaptor::ImfManager::GetImplementation(*this).SetInputPanelUserData( data );
+  Internal::Adaptor::ImfManager::GetImplementation(*this).SetInputPanelData( data );
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelUserData( data );
+  Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelData( data );
 }
 
 Dali::ImfManager::State ImfManager::GetInputPanelState()
@@ -168,12 +168,12 @@ ImfManager::StatusSignalType& ImfManager::StatusChangedSignal()
   return Internal::Adaptor::ImfManager::GetImplementation(*this).StatusChangedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::ResizedSignal()
+ImfManager::KeyboardResizedSignalType& ImfManager::ResizedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ResizedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::LanguageChangedSignal()
+ImfManager::LanguageChangedSignalType& ImfManager::LanguageChangedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).LanguageChangedSignal();
 }

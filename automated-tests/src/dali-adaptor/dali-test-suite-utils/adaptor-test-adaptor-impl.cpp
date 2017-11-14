@@ -15,21 +15,31 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <adaptors/devel-api/adaptor-framework/application-devel.h>
-#include <adaptors/common/application-impl.h>
+#include "adaptor-test-adaptor-impl.h"
 
 namespace Dali
 {
 
-namespace DevelApplication
+namespace Internal
 {
 
-void PreInitialize( int* argc, char** argv[] )
+namespace Adaptor
 {
-  Internal::Adaptor::Application::PreInitialize( argc, argv );
+
+bool Adaptor::mAvailable = false;
+
+bool Adaptor::IsAvailable()
+{
+  return mAvailable;
 }
 
-} // namespace DevelApplication
+void Adaptor::SetAvailable()
+{
+  mAvailable = true;
+}
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali

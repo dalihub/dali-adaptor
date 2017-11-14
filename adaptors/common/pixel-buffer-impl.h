@@ -150,6 +150,13 @@ public:
    */
   void ApplyMask( const PixelBuffer& mask, float contentScale, bool cropToMask );
 
+  /**
+   * Apply a Gaussian blur to the current buffer with the given radius.
+   *
+   * @param[in] blurRadius The radius for Gaussian blur
+   */
+  void ApplyGaussianBlur( const float blurRadius );
+
 private:
   /*
    * Undefined copy constructor.

@@ -84,7 +84,7 @@ Application Application::New( int* argc, char **argv[], const std::string& style
     }
     internal->SetStyleSheet( stylesheet );
 
-    DevelWindow::SetTransparency( internal->GetWindow(), ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
 
     return Application( internal.Get() );
   }
@@ -93,6 +93,30 @@ Application Application::New( int* argc, char **argv[], const std::string& style
     internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
       Internal::Adaptor::Framework::NORMAL);
     return Application(internal.Get());
+  }
+}
+
+Application Application::New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetSize( Window::WindowSize( positionSize.width, positionSize.height ) );
+    internal->GetWindow().SetPosition( Window::WindowPosition( positionSize.x, positionSize.y ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
+    return Application( internal.Get() );
   }
 }
 
@@ -156,6 +180,16 @@ void Application::ReplaceWindow(PositionSize windowPosition, const std::string& 
 std::string Application::GetResourcePath()
 {
   return Internal::Adaptor::Application::GetResourcePath();
+}
+
+std::string Application::GetRegion() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetRegion();
+}
+
+std::string Application::GetLanguage() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetLanguage();
 }
 
 void Application::SetViewMode( ViewMode viewMode )
@@ -227,12 +261,24 @@ Application::AppSignalType& Application::RegionChangedSignal()
 
 Application::AppSignalType& Application::BatteryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: BatteryLowSignal() is deprecated and will be removed from next release. Use Application::LowBatterySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).BatteryLowSignal();
 }
 
 Application::AppSignalType& Application::MemoryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: MemoryLowSignal() is deprecated and will be removed from next release. Use Application::LowMemorySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).MemoryLowSignal();
+}
+
+Application::LowBatterySignalType& Application::LowBatterySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowBatterySignal();
+}
+
+Application::LowMemorySignalType& Application::LowMemorySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

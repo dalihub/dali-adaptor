@@ -24,9 +24,9 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 
-
 // INTERNAL INCLUDES
 #include "application-configuration.h"
+#include "device-status.h"
 #include "window.h"
 
 namespace Dali
@@ -108,6 +108,8 @@ class DALI_IMPORT_API Application : public BaseHandle
 {
 public:
 
+  typedef Signal< void (DeviceStatus::Battery::Status) > LowBatterySignalType; ///< Application device signal type @SINCE_1_2.62
+  typedef Signal< void (DeviceStatus::Memory::Status) > LowMemorySignalType;   ///< Application device signal type @SINCE_1_2.62
   typedef Signal< void (Application&) > AppSignalType;  ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
   typedef Signal< void (Application&, void *) > AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
 
@@ -172,6 +174,22 @@ public:
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+
+  /**
+   * @brief This is the constructor for applications.
+   *
+   * @SINCE_1_2.60
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   * @param[in,out]  argc         A pointer to the number of arguments
+   * @param[in,out]  argv         A pointer to the argument list
+   * @param[in]      stylesheet   The path to user defined theme file
+   * @param[in]      windowMode   A member of WINDOW_MODE
+   * @param[in]      positionSize A position and a size of the window
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
+   */
+  static Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize );
 
   /**
    * @brief Constructs an empty handle.
@@ -284,6 +302,21 @@ public:
    */
   static std::string GetResourcePath();
 
+  /**
+   * @brief This is used to get region information from device.
+   *
+   * @SINCE_1_2.62
+   * @return Region information
+   */
+  std::string GetRegion() const;
+
+  /**
+   * @brief This is used to get language information from device.
+   *
+   * @SINCE_1_2.62
+   * @return Language information
+   */
+  std::string GetLanguage() const;
 
 public: // Stereoscopy
 
@@ -366,7 +399,7 @@ public:  // Signals
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
-  AppSignalType& ResizeSignal();
+  AppSignalType& ResizeSignal() DALI_DEPRECATED_API;
 
   /**
   * @brief This signal is emitted when another application sends a launch request to the application.
@@ -393,18 +426,34 @@ public:  // Signals
   AppSignalType& RegionChangedSignal();
 
   /**
+  * @DEPRECATED_1_2.62 Use LowBatterySignal() instead.
   * @brief This signal is emitted when the battery level of the device is low.
   * @SINCE_1_0.0
   * @return The signal to connect to
   */
-  AppSignalType& BatteryLowSignal();
+  AppSignalType& BatteryLowSignal() DALI_DEPRECATED_API;
 
   /**
+  * @DEPRECATED_1_2.62 Use LowMemorySignal() instead.
   * @brief This signal is emitted when the memory level of the device is low.
   * @SINCE_1_0.0
   * @return The signal to connect to
   */
-  AppSignalType& MemoryLowSignal();
+  AppSignalType& MemoryLowSignal() DALI_DEPRECATED_API;
+
+  /**
+   * @brief This signal is emitted when the battery level of the device is low.
+   * @SINCE_1_2.62
+   * @return The signal to connect to
+   */
+  LowBatterySignalType& LowBatterySignal();
+
+  /**
+   * @brief This signal is emitted when the memory level of the device is low.
+   * @SINCE_1_2.62
+   * @return The signal to connect to
+   */
+  LowMemorySignalType& LowMemorySignal();
 
 public: // Not intended for application developers
   /// @cond internal

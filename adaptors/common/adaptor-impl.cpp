@@ -142,7 +142,13 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
+  mCore = Integration::Core::New( *this,
+                                  *mPlatformAbstraction,
+                                  *mGLES,
+                                  *eglSyncImpl,
+                                  *mGestureManager,
+                                  dataRetentionPolicy ,
+                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -274,8 +280,6 @@ void Adaptor::Start()
   // Initialize the thread controller
   mThreadController->Initialize();
 
-  mState = RUNNING;
-
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
@@ -303,7 +307,6 @@ void Adaptor::Pause()
     }
 
     mThreadController->Pause();
-    mCore->Suspend();
     mState = PAUSED;
   }
 }
@@ -328,8 +331,8 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    // Resume core so it processes any requests as well
-    mCore->Resume();
+    // trigger processing of events queued up while paused
+    mCore->ProcessEvents();
 
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
@@ -348,7 +351,6 @@ void Adaptor::Stop()
     }
 
     mThreadController->Stop();
-    mCore->Suspend();
 
     // Delete the TTS player
     for(int i =0; i < Dali::TtsPlayer::MODE_NUM; i++)
@@ -440,12 +442,12 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback )
+bool Adaptor::AddIdle( CallbackBase* callback, bool forceAdd )
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState )
+  if( RUNNING == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleCallback( callback );
   }
@@ -657,24 +659,41 @@ void Adaptor::ProcessCoreEvents()
   }
 }
 
-void Adaptor::RequestUpdate()
+void Adaptor::RequestUpdate( bool forceUpdate )
 {
-  // When Dali applications are partially visible behind the lock-screen,
-  // the indicator must be updated (therefore allow updates in the PAUSED state)
-  if ( PAUSED  == mState ||
-       RUNNING == mState )
+  switch( mState )
   {
-    mThreadController->RequestUpdate();
+    case RUNNING:
+    {
+      mThreadController->RequestUpdate();
+      break;
+    }
+    case PAUSED:
+    case PAUSED_WHILE_HIDDEN:
+    {
+      // When Dali applications are partially visible behind the lock-screen,
+      // the indicator must be updated (therefore allow updates in the PAUSED state)
+      if( forceUpdate )
+      {
+        mThreadController->RequestUpdateOnce();
+      }
+      break;
+    }
+    default:
+    {
+      // Do nothing
+      break;
+    }
   }
 }
 
-void Adaptor::RequestProcessEventsOnIdle()
+void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState ) )
+  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || forceProcess ) )
   {
-    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ) );
+    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
   }
 }
 
@@ -694,7 +713,7 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  if ( STOPPED != mState )
+  if ( RUNNING == mState )
   {
     Pause();
 
@@ -707,10 +726,10 @@ void Adaptor::OnWindowHidden()
 void Adaptor::OnDamaged( const DamageArea& area )
 {
   // This is needed for the case where Dali window is partially obscured
-  RequestUpdate();
+  RequestUpdate( false );
 }
 
-void Adaptor::SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
   mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
@@ -718,7 +737,7 @@ void Adaptor::SurfaceResizePrepare( Dali::Adaptor::SurfaceSize surfaceSize )
   mResizedSignal.Emit( mAdaptor );
 }
 
-void Adaptor::SurfaceResizeComplete( Dali::Adaptor::SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
 {
   // flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
@@ -737,6 +756,8 @@ void Adaptor::NotifySceneCreated()
 
   // process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
+
+  mState = RUNNING;
 }
 
 void Adaptor::NotifyLanguageChanged()
@@ -751,12 +772,9 @@ void Adaptor::RenderOnce()
 
 void Adaptor::RequestUpdateOnce()
 {
-  if( PAUSED_WHILE_HIDDEN != mState )
+  if( mThreadController )
   {
-    if( mThreadController )
-    {
-      mThreadController->RequestUpdateOnce();
-    }
+    mThreadController->RequestUpdateOnce();
   }
 }
 
@@ -840,8 +858,8 @@ void Adaptor::SetRootLayoutDirection( std::string locale )
 {
   Dali::Stage stage = Dali::Stage::GetCurrent();
 
-  stage.GetRootLayer().SetProperty( DevelActor::Property::LAYOUT_DIRECTION,
-                                    static_cast< DevelActor::LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+  stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
+                                    static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
 }
 
 } // namespace Adaptor

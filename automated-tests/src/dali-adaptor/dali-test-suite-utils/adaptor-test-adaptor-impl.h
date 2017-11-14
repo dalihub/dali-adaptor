@@ -1,3 +1,6 @@
+#ifndef __DALI_ADAPTOR_TEST_ADAPTOR_IMPL_H__
+#define __DALI_ADAPTOR_TEST_ADAPTOR_IMPL_H__
+
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
@@ -15,21 +18,32 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <adaptors/devel-api/adaptor-framework/application-devel.h>
-#include <adaptors/common/application-impl.h>
-
 namespace Dali
 {
 
-namespace DevelApplication
+namespace Internal
 {
 
-void PreInitialize( int* argc, char** argv[] )
+namespace Adaptor
 {
-  Internal::Adaptor::Application::PreInitialize( argc, argv );
-}
 
-} // namespace DevelApplication
+class Adaptor
+{
+public:
+  static bool IsAvailable();
+  static void SetAvailable();
 
-} // namespace Dali
+  Adaptor() {}
+  ~Adaptor() {}
+
+public:
+  static bool mAvailable;
+};
+
+} // Adaptor
+
+} // Internal
+
+} // Dali
+
+#endif  // __DALI_ADAPTOR_TEST_ADAPTOR_IMPL_H__

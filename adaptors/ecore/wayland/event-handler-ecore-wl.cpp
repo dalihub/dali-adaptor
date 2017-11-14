@@ -39,6 +39,7 @@
 #endif // DALI_ELDBUS_AVAILABLE
 
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/events/device.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
@@ -47,7 +48,6 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
-#include <dali/devel-api/events/device.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -264,110 +264,122 @@ void GetDeviceName( Ecore_Event_Key* keyEvent, std::string& result )
 /**
  * Get the device class from the provided ecore event
  */
-void GetDeviceClass( Ecore_Device_Class ecoreDeviceClass, DevelDevice::Class::Type& deviceClass )
+void GetDeviceClass( Ecore_Device_Class ecoreDeviceClass, Device::Class::Type& deviceClass )
 {
   switch( ecoreDeviceClass )
   {
     case ECORE_DEVICE_CLASS_SEAT:
     {
-      deviceClass = DevelDevice::Class::USER;
+      deviceClass = Device::Class::USER;
       break;
     }
     case ECORE_DEVICE_CLASS_KEYBOARD:
     {
-      deviceClass = DevelDevice::Class::KEYBOARD;
+      deviceClass = Device::Class::KEYBOARD;
       break;
     }
     case ECORE_DEVICE_CLASS_MOUSE:
     {
-      deviceClass = DevelDevice::Class::MOUSE;
+      deviceClass = Device::Class::MOUSE;
       break;
     }
     case ECORE_DEVICE_CLASS_TOUCH:
     {
-      deviceClass = DevelDevice::Class::TOUCH;
+      deviceClass = Device::Class::TOUCH;
       break;
     }
     case ECORE_DEVICE_CLASS_PEN:
     {
-      deviceClass = DevelDevice::Class::PEN;
+      deviceClass = Device::Class::PEN;
       break;
     }
     case ECORE_DEVICE_CLASS_POINTER:
     {
-      deviceClass = DevelDevice::Class::POINTER;
+      deviceClass = Device::Class::POINTER;
       break;
     }
     case ECORE_DEVICE_CLASS_GAMEPAD:
     {
-      deviceClass = DevelDevice::Class::GAMEPAD;
+      deviceClass = Device::Class::GAMEPAD;
       break;
     }
     default:
     {
-      deviceClass = DevelDevice::Class::NONE;
+      deviceClass = Device::Class::NONE;
       break;
     }
   }
 }
 
-void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, DevelDevice::Subclass::Type& deviceSubclass )
+void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subclass::Type& deviceSubclass )
 {
   switch( ecoreDeviceSubclass )
   {
     case ECORE_DEVICE_SUBCLASS_FINGER:
     {
-      deviceSubclass = DevelDevice::Subclass::FINGER;
+      deviceSubclass = Device::Subclass::FINGER;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_FINGERNAIL:
     {
-      deviceSubclass = DevelDevice::Subclass::FINGERNAIL;
+      deviceSubclass = Device::Subclass::FINGERNAIL;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_KNUCKLE:
     {
-      deviceSubclass = DevelDevice::Subclass::KNUCKLE;
+      deviceSubclass = Device::Subclass::KNUCKLE;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_PALM:
     {
-      deviceSubclass = DevelDevice::Subclass::PALM;
+      deviceSubclass = Device::Subclass::PALM;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_HAND_SIZE:
     {
-      deviceSubclass = DevelDevice::Subclass::HAND_SIDE;
+      deviceSubclass = Device::Subclass::HAND_SIDE;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_HAND_FLAT:
     {
-      deviceSubclass = DevelDevice::Subclass::HAND_FLAT;
+      deviceSubclass = Device::Subclass::HAND_FLAT;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_PEN_TIP:
     {
-      deviceSubclass = DevelDevice::Subclass::PEN_TIP;
+      deviceSubclass = Device::Subclass::PEN_TIP;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_TRACKPAD:
     {
-      deviceSubclass = DevelDevice::Subclass::TRACKPAD;
+      deviceSubclass = Device::Subclass::TRACKPAD;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_TRACKPOINT:
     {
-      deviceSubclass = DevelDevice::Subclass::TRACKPOINT;
+      deviceSubclass = Device::Subclass::TRACKPOINT;
       break;
     }
     case ECORE_DEVICE_SUBCLASS_TRACKBALL:
     {
-      deviceSubclass = DevelDevice::Subclass::TRACKBALL;
+      deviceSubclass = Device::Subclass::TRACKBALL;
       break;
     }
+#ifdef OVER_TIZEN_VERSION_4
+    case ECORE_DEVICE_SUBCLASS_REMOCON:
+    {
+      deviceSubclass = Device::Subclass::REMOCON;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_VIRTUAL_KEYBOARD:
+    {
+      deviceSubclass = Device::Subclass::VIRTUAL_KEYBOARD;
+      break;
+    }
+#endif
     default:
     {
-      deviceSubclass = DevelDevice::Subclass::NONE;
+      deviceSubclass = Device::Subclass::NONE;
       break;
     }
   }
@@ -492,8 +504,8 @@ struct EventHandler::Impl
         state = PointState::INTERRUPTED;
       }
 
-      DevelDevice::Class::Type deviceClass;
-      DevelDevice::Subclass::Type deviceSubclass;
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
 
       GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
       GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
@@ -524,8 +536,8 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
-      DevelDevice::Class::Type deviceClass;
-      DevelDevice::Subclass::Type deviceSubclass;
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
 
       GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
       GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
@@ -556,8 +568,8 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
-      DevelDevice::Class::Type deviceClass;
-      DevelDevice::Subclass::Type deviceSubclass;
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
 
       GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
       GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
@@ -710,8 +722,8 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
-        DevelDevice::Class::Type deviceClass;
-        DevelDevice::Subclass::Type deviceSubclass;
+        Device::Class::Type deviceClass;
+        Device::Subclass::Type deviceSubclass;
 
         GetDeviceName( keyEvent, deviceName );
         GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
@@ -790,8 +802,8 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
-        DevelDevice::Class::Type deviceClass;
-        DevelDevice::Subclass::Type deviceSubclass;
+        Device::Class::Type deviceClass;
+        Device::Subclass::Type deviceSubclass;
 
         GetDeviceName( keyEvent, deviceName );
         GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
