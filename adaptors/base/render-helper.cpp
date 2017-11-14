@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ RenderHelper::RenderHelper( AdaptorInternalServices& adaptorInterfaces )
 : mGLES( adaptorInterfaces.GetGlesInterface() ),
   mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
-  mSurfaceReplaced( false )
+  mSurfaceReplaced( false ),
+  mSurfaceResized( false )
 {
   // set the initial values before render thread starts
   mSurface = adaptorInterfaces.GetRenderSurfaceInterface();
@@ -78,9 +79,6 @@ void RenderHelper::Stop()
   {
     // Tell surface we have stopped rendering
     mSurface->StopRender();
-
-    // The surface will be destroyed soon; this pointer will become invalid
-    mSurface = NULL;
   }
 }
 
@@ -128,12 +126,19 @@ void RenderHelper::ReplaceSurface( RenderSurface* newSurface )
   mSurfaceReplaced = true;
 }
 
+void RenderHelper::ResizeSurface()
+{
+  mSurfaceResized = true;
+}
+
 void RenderHelper::ShutdownEgl()
 {
   if( mSurface )
   {
     // give a chance to destroy the OpenGL surface that created externally
     mSurface->DestroyEglSurface( *mEGL );
+
+    mSurface = NULL;
   }
 
   // delete the GL context / egl surface
@@ -144,23 +149,32 @@ bool RenderHelper::PreRender()
 {
   if( mSurface )
   {
-    mSurface->PreRender( *mEGL, mGLES );
+    mSurface->PreRender( *mEGL, mGLES, mSurfaceResized );
   }
   mGLES.PreRender();
   return true;
 }
 
-void RenderHelper::PostRender()
+void RenderHelper::PostRender( bool renderToFbo )
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   mGLES.PostRender();
 
-  if( mSurface )
+  if( renderToFbo )
   {
-    // Inform the surface that rendering this frame has finished.
-    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced );
+    mGLES.Flush();
+    mGLES.Finish();
+  }
+  else
+  {
+    if( mSurface )
+    {
+      // Inform the surface that rendering this frame has finished.
+      mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
+    }
   }
   mSurfaceReplaced = false;
+  mSurfaceResized = false;
 }
 
 } // namespace Adaptor

@@ -108,6 +108,9 @@ enum KtxInternalFormat
   KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR      = 0x93DC,
   KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR      = 0x93DD,
 
+  // Uncompressed Alpha format
+  KTX_UNCOMPRESSED_ALPHA8                         = 0x1906,
+
   KTX_SENTINEL = ~0u
 };
 
@@ -159,6 +162,9 @@ const unsigned KtxInternalFormats[] =
   KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
   KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
 
+  // Uncompressed Alpha format
+  KTX_UNCOMPRESSED_ALPHA8,
+
   KTX_SENTINEL
 };
 
@@ -183,18 +189,17 @@ struct KtxFileHeader
 // so we can be sure of reading the whole thing from file in one call to fread.
 
 /**
- * Template function to read from the file directly into our structure.
+ * Function to read from the file directly into our structure.
  * @param[in]  fp     The file to read from
  * @param[out] header The structure we want to store our information in
  * @return true, if read successful, false otherwise
  */
-template<typename T>
-inline bool ReadHeader(FILE* fp, T& header)
+inline bool ReadHeader( FILE* filePointer, KtxFileHeader& header )
 {
-  unsigned int readLength = sizeof(T);
+  const unsigned int readLength = sizeof( KtxFileHeader );
 
   // Load the information directly into our structure
-  if (fread((void*)&header, 1, readLength, fp) != readLength)
+  if( fread( &header, 1, readLength, filePointer ) != readLength )
   {
     return false;
   }
@@ -446,6 +451,13 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
       break;
     }
 
+    // Uncompressed Alpha format
+    case KTX_UNCOMPRESSED_ALPHA8:
+    {
+      format = A8;
+      break;
+    }
+
     default:
     {
        return false;
@@ -454,10 +466,10 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
   return true;
 }
 
-bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height, KtxFileHeader &fileHeader)
+bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, KtxFileHeader& fileHeader )
 {
   // Pull the bytes of the file header in as a block:
-  if ( !ReadHeader(fp, fileHeader) )
+  if ( !ReadHeader( fp, fileHeader ) )
   {
     return false;
   }
@@ -483,10 +495,21 @@ bool LoadKtxHeader(FILE * const fp, unsigned int &width, unsigned int &height, K
   const bool textureHasNoMipmapLevels                 = fileHeader.numberOfMipmapLevels == 0 || fileHeader.numberOfMipmapLevels == 1;
   const bool keyValueDataNotTooLarge                  = fileHeader.bytesOfKeyValueData <= MAX_BYTES_OF_KEYVALUE_DATA;
 
-  const bool headerIsValid = signatureGood && fileEndiannessMatchesSystemEndianness && glTypeIsCompressed &&
-                           glTypeSizeCompatibleWithCompressedTex && glFormatCompatibleWithCompressedTex &&
-                           textureIsNot3D && textureIsNotAnArray && textureIsNotACubemap && textureHasNoMipmapLevels &&
-                           glInternalFormatIsSupportedCompressedTex & keyValueDataNotTooLarge;
+  bool headerIsValid = signatureGood && fileEndiannessMatchesSystemEndianness &&
+                     glTypeSizeCompatibleWithCompressedTex && textureIsNot3D && textureIsNotAnArray &&
+                     textureIsNotACubemap && textureHasNoMipmapLevels && keyValueDataNotTooLarge;
+
+  if( !glTypeIsCompressed )  // check for uncompressed Alpha
+  {
+    const bool isAlpha = ( ( fileHeader.glBaseInternalFormat == KTX_UNCOMPRESSED_ALPHA8 ) && ( fileHeader.glFormat == KTX_UNCOMPRESSED_ALPHA8 ) &&
+                         ( fileHeader.glInternalFormat == KTX_UNCOMPRESSED_ALPHA8 ) );
+    headerIsValid = headerIsValid && isAlpha;
+  }
+  else
+  {
+    headerIsValid = headerIsValid && glFormatCompatibleWithCompressedTex && glInternalFormatIsSupportedCompressedTex;
+  }
+
   if( !headerIsValid )
   {
      DALI_LOG_ERROR( "KTX file invalid or using unsupported features. Header tests: sig: %d, endian: %d, gl_type: %d, gl_type_size: %d, gl_format: %d, internal_format: %d, depth: %d, array: %d, faces: %d, mipmap: %d, vey-vals: %d.\n", 0+signatureGood, 0+fileEndiannessMatchesSystemEndianness, 0+glTypeIsCompressed, 0+glTypeSizeCompatibleWithCompressedTex, 0+glFormatCompatibleWithCompressedTex, 0+glInternalFormatIsSupportedCompressedTex, 0+textureIsNot3D, 0+textureIsNotAnArray, 0+textureIsNotACubemap, 0+textureHasNoMipmapLevels, 0+keyValueDataNotTooLarge);
@@ -546,7 +569,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   // Load the size of the image data:
   uint32_t imageByteCount = 0;
-  if (fread((void*)&imageByteCount, 1, 4, fp) != 4)
+  if ( fread( &imageByteCount, 1, 4, fp ) != 4 )
   {
     DALI_LOG_ERROR( "Read of image size failed.\n" );
     return false;
@@ -569,7 +592,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
 
   // Load up the image bytes:
-  PixelBuffer * const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, (size_t) imageByteCount );
+  PixelBuffer* const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, imageByteCount );
   if(!pixels)
   {
     DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,19 +48,34 @@ namespace Internal
 namespace Adaptor
 {
 
+ApplicationPtr Application::gPreInitializedApplication( NULL );
+
 ApplicationPtr Application::New(
   int* argc,
   char **argv[],
   const std::string& stylesheet,
   Dali::Application::WINDOW_MODE windowMode,
+  const PositionSize& positionSize,
   Framework::Type applicationType)
 {
-  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, applicationType ) );
+  ApplicationPtr application ( new Application (argc, argv, stylesheet, windowMode, positionSize, applicationType ) );
   return application;
 }
 
+void Application::PreInitialize( int* argc, char** argv[] )
+{
+  if( !gPreInitializedApplication )
+  {
+    gPreInitializedApplication = new Application ( argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL );
+
+    gPreInitializedApplication->CreateWindow();    // Only create window
+
+    gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
+  }
+}
+
 Application::Application( int* argc, char** argv[], const std::string& stylesheet,
-  Dali::Application::WINDOW_MODE windowMode, Framework::Type applicationType )
+  Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType )
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -83,6 +98,8 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mName(),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
+  mWindowPositionSize( positionSize ),
+  mLaunchpadState( Launchpad::NONE ),
   mSlotDelegate( this )
 {
   // Get mName from environment options
@@ -110,21 +127,30 @@ Application::~Application()
 
 void Application::CreateWindow()
 {
-  PositionSize windowPosition(0, 0, 0, 0);  // this will use full screen
-
-  if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
+  if( mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0 )
   {
-    // Command line options override environment options and full screen
-    windowPosition = PositionSize( 0, 0, mCommandLineOptions->stageWidth, mCommandLineOptions->stageHeight );
-  }
-  else if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
-  {
-    // Environment options override full screen functionality if command line arguments not provided
-    windowPosition = PositionSize( 0, 0, mEnvironmentOptions.GetWindowWidth(), mEnvironmentOptions.GetWindowHeight() );
+    if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
+    {
+      // Command line options override environment options and full screen
+      mWindowPositionSize.width = mCommandLineOptions->stageWidth;
+      mWindowPositionSize.height = mCommandLineOptions->stageHeight;
+    }
+    else if( mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight() )
+    {
+      // Environment options override full screen functionality if command line arguments not provided
+      mWindowPositionSize.width = mEnvironmentOptions.GetWindowWidth();
+      mWindowPositionSize.height = mEnvironmentOptions.GetWindowHeight();
+    }
   }
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
-  mWindow = Dali::Window::New( windowPosition, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
+  mWindow = Dali::Window::New( mWindowPositionSize, mName, windowClassName, mWindowMode == Dali::Application::TRANSPARENT );
+
+  int indicatorVisibleMode = mEnvironmentOptions.GetIndicatorVisibleMode();
+  if( indicatorVisibleMode >= Dali::Window::INVISIBLE && indicatorVisibleMode <= Dali::Window::AUTO )
+  {
+    GetImplementation( mWindow ).SetIndicatorVisibleMode( static_cast< Dali::Window::IndicatorVisibleMode >( indicatorVisibleMode ) );
+  }
 
   // Quit the application when the window is closed
   GetImplementation( mWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
@@ -171,7 +197,12 @@ void Application::QuitFromMainLoop()
 
 void Application::DoInit()
 {
-  CreateWindow();
+  // If an application was pre-initialized, a window was made in advance
+  if( mLaunchpadState == Launchpad::NONE )
+  {
+    CreateWindow();
+  }
+
   CreateAdaptor();
 
   // Run the adaptor
@@ -198,7 +229,10 @@ void Application::DoInit()
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
+}
 
+void Application::DoStart()
+{
   mAdaptor->NotifySceneCreated();
 }
 
@@ -247,6 +281,8 @@ void Application::OnInit()
 
   Dali::Application application(this);
   mInitSignal.Emit( application );
+
+  DoStart();
 }
 
 void Application::OnTerminate()
@@ -309,18 +345,21 @@ void Application::OnRegionChanged()
   mRegionChangedSignal.Emit( application );
 }
 
-void Application::OnBatteryLow()
+void Application::OnBatteryLow( Dali::DeviceStatus::Battery::Status status )
 {
   Dali::Application application(this);
   mBatteryLowSignal.Emit( application );
+
+  mLowBatterySignal.Emit( status );
 }
 
-void Application::OnMemoryLow()
+void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
 {
   Dali::Application application(this);
   mMemoryLowSignal.Emit( application );
-}
 
+  mLowMemorySignal.Emit( status );
+}
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
   Dali::Application application(this);
@@ -330,6 +369,16 @@ void Application::OnResize(Dali::Adaptor& adaptor)
 bool Application::AddIdle( CallbackBase* callback )
 {
   return mAdaptor->AddIdle( callback );
+}
+
+std::string Application::GetRegion() const
+{
+  return mFramework->GetRegion();
+}
+
+std::string Application::GetLanguage() const
+{
+  return mFramework->GetLanguage();
 }
 
 Dali::Adaptor& Application::GetAdaptor()
@@ -365,23 +414,40 @@ float Application::GetStereoBase() const
 }
 
 
-void Application::ReplaceWindow(PositionSize windowPosition, const std::string& name)
+void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
-  Dali::Window newWindow = Dali::Window::New( windowPosition, name, mWindowMode == Dali::Application::TRANSPARENT );
+  Dali::Window newWindow = Dali::Window::New( positionSize, name, mWindowMode == Dali::Application::TRANSPARENT );
   Window& windowImpl = GetImplementation(newWindow);
   windowImpl.SetAdaptor(*mAdaptor);
-  newWindow.ShowIndicator(Dali::Window::INVISIBLE);
+
+  int indicatorVisibleMode = mEnvironmentOptions.GetIndicatorVisibleMode();
+  if( indicatorVisibleMode >= Dali::Window::INVISIBLE && indicatorVisibleMode <= Dali::Window::AUTO )
+  {
+    GetImplementation( newWindow ).SetIndicatorVisibleMode( static_cast< Dali::Window::IndicatorVisibleMode >( indicatorVisibleMode ) );
+  }
+
   Dali::RenderSurface* renderSurface = windowImpl.GetSurface();
 
   Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SurfaceSizeChanged( windowPosition );
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
   mWindow = newWindow;
+  mWindowPositionSize = positionSize;
 }
 
 std::string Application::GetResourcePath()
 {
   return Internal::Adaptor::Framework::GetResourcePath();
+}
+
+void Application::SetStyleSheet( const std::string& stylesheet )
+{
+  mStylesheet = stylesheet;
+}
+
+
+ApplicationPtr Application::GetPreInitializedApplication()
+{
+  return gPreInitializedApplication;
 }
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ void Adaptor::Stop()
 
 bool Adaptor::AddIdle( CallbackBase* callback )
 {
-  return mImpl->AddIdle( callback );
+  return mImpl->AddIdle( callback, false );
 }
 
 void Adaptor::RemoveIdle( CallbackBase* callback )
@@ -184,9 +184,9 @@ void Adaptor::SetStereoBase(  float stereoBase )
   mImpl->SetStereoBase( stereoBase );
 }
 
-void Adaptor::SurfaceSizeChanged( const PositionSize& positionSize )
+void Adaptor::RenderOnce()
 {
-  mImpl->SurfaceSizeChanged( positionSize );
+  mImpl->RenderOnce();
 }
 
 Adaptor::Adaptor()

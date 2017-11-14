@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,10 +92,10 @@ Dali::TiltSensor TiltSensor::Get()
 
 TiltSensor::~TiltSensor()
 {
-  Disable();
+  Stop();
 }
 
-bool TiltSensor::Enable()
+bool TiltSensor::Start()
 {
   // Make sure sensor API is responding
   bool success = Update();
@@ -118,7 +118,7 @@ bool TiltSensor::Enable()
   return success;
 }
 
-void TiltSensor::Disable()
+void TiltSensor::Stop()
 {
   if ( mTimer )
   {
@@ -127,7 +127,7 @@ void TiltSensor::Disable()
   }
 }
 
-bool TiltSensor::IsEnabled() const
+bool TiltSensor::IsStarted() const
 {
   return ( mTimer && mTimer.IsRunning() );
 }

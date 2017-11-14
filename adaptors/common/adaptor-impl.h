@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_IMPL_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/callback.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
@@ -89,6 +90,8 @@ class Adaptor : public Integration::RenderController,
 public:
 
   typedef Dali::Adaptor::AdaptorSignalType AdaptorSignalType;
+
+  typedef Uint16Pair SurfaceSize;          ///< Surface size type
 
   /**
    * Creates a New Adaptor
@@ -184,16 +187,6 @@ public: // AdaptorInternalServices implementation
   virtual void FeedKeyEvent( KeyEvent& keyEvent );
 
   /**
-   * @copydoc AdaptorInterface::MoveResize()
-   */
-  virtual bool MoveResize( const PositionSize& positionSize );
-
-  /**
-   * @copydoc AdaptorInterface::SurfaceResized()
-   */
-  virtual void SurfaceResized( const PositionSize& positionSize );
-
-  /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
   virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
@@ -218,7 +211,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::AddIdle()
    */
-  virtual bool AddIdle( CallbackBase* callback );
+  virtual bool AddIdle( CallbackBase* callback, bool forceAdd );
 
   /**
    * @copydoc Dali::Adaptor::RemoveIdle()
@@ -348,7 +341,23 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceSizeChanged( const PositionSize& positionSize );
+  void SurfaceResizePrepare( SurfaceSize surfaceSize );
+
+  /**
+   * Informs ThreadController the surface size has changed
+   */
+  void SurfaceResizeComplete( SurfaceSize surfaceSize );
+
+  /**
+   * Sets layout direction of root by system language
+   * @param[in] locale System locale
+   */
+  void SetRootLayoutDirection( std::string locale );
+
+  /**
+   * @copydoc Dali::Adaptor::RenderOnce
+   */
+  void RenderOnce();
 
 public:  //AdaptorInternalServices
 
@@ -462,15 +471,14 @@ private: // From Dali::Internal::Adaptor::CoreEventInterface
 private: // From Dali::Integration::RenderController
 
   /**
-   * Called by the Dali core when it requires another update
+   * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */
-  virtual void RequestUpdate();
+  virtual void RequestUpdate( bool forceUpdate );
 
   /**
-   * Called by Dali core when it requires an notification event being sent on idle.
-   * Multi-threading note: this method must be called from the main thread only.
+   * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
-  virtual void RequestProcessEventsOnIdle();
+  virtual void RequestProcessEventsOnIdle( bool forceProcess );
 
 private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
@@ -521,6 +529,11 @@ private:
    */
   void GetDataStoragePath(std::string& path);
 
+  /**
+   * Sets up system information if needs
+   */
+  void SetupSystemInformation();
+
 private:
 
   /**
@@ -563,7 +576,7 @@ private: // Data
 
   Any                                   mNativeWindow;                ///< window identifier
   RenderSurface*                        mSurface;                     ///< Current surface
-  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;         ///< Platform abstraction
+  TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;      ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks

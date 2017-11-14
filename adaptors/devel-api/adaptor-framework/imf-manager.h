@@ -2,7 +2,7 @@
 #define __DALI_IMF_MANAGER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,15 @@ public:
     SHOW,          ///< Input panel is shown
     HIDE,          ///< Input panel is hidden
     WILL_SHOW      ///< Input panel in process of being shown
+  };
+
+  /**
+   * @brief Enumeration for the type of Keyboard.
+   */
+  enum KeyboardType
+  {
+    SOFTWARE_KEYBOARD,  ///< Software keyboard (Virtual keyboard) is default
+    HARDWARE_KEYBOARD   ///< Hardware keyboard
   };
 
   /**
@@ -155,7 +164,10 @@ public:
   typedef Signal< void (ImfManager&) > ImfManagerSignalType; ///< Keyboard actived signal
   typedef Signal< ImfCallbackData ( ImfManager&, const ImfEventData& ) > ImfEventSignalType; ///< keyboard events
   typedef Signal< void () > VoidSignalType;
-  typedef Signal< void (bool) > StatusSignalType;
+  typedef Signal< void ( bool ) > StatusSignalType;
+  typedef Signal< void ( KeyboardType ) > KeyboardTypeSignalType; ///< keyboard type
+  typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
+  typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
 
 public:
 
@@ -269,13 +281,17 @@ public:
    * @brief Sets up the input-panel specific data.
    * @param[in] data The specific data to be set to the input panel
    */
-  void SetInputPanelUserData( const std::string& data );
+  void SetInputPanelData( const std::string& data );
 
   /**
    * @brief Gets the specific data of the current active input panel.
+   *
+   * Input Panel Data is not always the data which is set by SetInputPanelData().
+   * Data can be changed internally in the input panel.
+   * It is just used to get a specific data from the input panel to an application.
    * @param[in] data The specific data to be got from the input panel
    */
-  void GetInputPanelUserData( std::string& data );
+  void GetInputPanelData( std::string& data );
 
   /**
    * @brief Gets the state of the current active input panel.
@@ -306,6 +322,22 @@ public:
    * @brief Hides the input panel.
    */
   void HideInputPanel();
+
+  /**
+   * @brief Gets the keyboard type.
+   *
+   * The default keyboard type is SOFTWARE_KEYBOARD.
+   * @return The keyboard type
+   */
+  KeyboardType GetKeyboardType();
+
+  /**
+   * @brief Gets the current language locale of the input panel.
+   *
+   * ex) en_US, en_GB, en_PH, fr_FR, ...
+   * @return The current language locale of the input panel
+   */
+  std::string GetInputPanelLocale();
 
 public:
 
@@ -343,24 +375,40 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName();
+   *   void YourCallbackName( int resolvedResize );
    * @endcode
+   * The parameter sends the resolved resize defined by the IMF.
+   *
    * User can get changed size by using GetInputMethodArea() in the callback
    * @return The signal to connect to.
    */
-  VoidSignalType& ResizedSignal();
+  KeyboardResizedSignalType& ResizedSignal();
 
   /**
    * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName();
+   *   void YourCallbackName( int resolvedLanguage );
    * @endcode
+   * The parameter sends the resolved language defined by the IMF.
+   *
    * User can get the text direction of the language by calling GetTextDirection() in the callback.
    * @return The signal to connect to.
    */
-  VoidSignalType& LanguageChangedSignal();
+  LanguageChangedSignalType& LanguageChangedSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when the keyboard type is changed.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( KeyboardType keyboard );
+   * @endcode
+   *
+   * @return The signal to connect to.
+   */
+  KeyboardTypeSignalType& KeyboardTypeChangedSignal();
 
   // Construction & Destruction
 

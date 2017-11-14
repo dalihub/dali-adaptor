@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,12 +127,12 @@ void GlExtensions::Initialize()
   mInitialized = true;
 
 #ifdef GL_EXT_discard_framebuffer
-  mGlDiscardFramebuffer = (PFNGLDISCARDFRAMEBUFFEREXTPROC) eglGetProcAddress("glDiscardFramebufferEXT");
+  mGlDiscardFramebuffer = reinterpret_cast< PFNGLDISCARDFRAMEBUFFEREXTPROC >( eglGetProcAddress("glDiscardFramebufferEXT") );
 #endif
 
 #ifdef GL_OES_get_program_binary
-  mGlGetProgramBinaryOES = (PFNGLGETPROGRAMBINARYOESPROC) eglGetProcAddress("glGetProgramBinaryOES");
-  mGlProgramBinaryOES = (PFNGLPROGRAMBINARYOESPROC) eglGetProcAddress("glProgramBinaryOES");
+  mGlGetProgramBinaryOES = reinterpret_cast< PFNGLGETPROGRAMBINARYOESPROC >( eglGetProcAddress("glGetProgramBinaryOES") );
+  mGlProgramBinaryOES = reinterpret_cast< PFNGLPROGRAMBINARYOESPROC >( eglGetProcAddress("glProgramBinaryOES") );
 #endif
 }
 

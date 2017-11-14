@@ -27,7 +27,7 @@
 
 // INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
-#include "portable/file-closer.h"
+#include "portable/file-reader.h"
 
 namespace Dali
 {
@@ -71,8 +71,8 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
 {
   Integration::BitmapPtr bitmap = 0;
 
-  Dali::Internal::Platform::FileCloser fileCloser( buffer, size, "rb" );
-  FILE * const fp = fileCloser.GetFile();
+  Dali::Internal::Platform::FileReader fileReader( buffer, size );
+  FILE * const fp = fileReader.GetFile();
   if( fp )
   {
     bool result = ImageLoader::ConvertStreamToBitmap( resource, "", fp, bitmap );

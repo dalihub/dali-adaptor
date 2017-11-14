@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,12 @@ namespace Adaptor
 
 namespace // unnamed namespace
 {
+
+#if _GLIBCXX_USE_CXX11_ABI
 const char* VIDEO_PLUGIN_SO( "libdali-video-player-plugin.so" );
+#else
+const char* VIDEO_PLUGIN_SO( "libdali-video-player-plugin-cxx03.so" );
+#endif
 
 Dali::BaseHandle Create()
 {
@@ -128,7 +133,7 @@ std::string VideoPlayer::GetUrl()
     return mPlugin->GetUrl();
   }
 
-  return std::string( NULL );
+  return std::string();
 }
 
 void VideoPlayer::SetLooping(bool looping)
@@ -232,6 +237,14 @@ int VideoPlayer::GetPlayPosition()
   return 0;
 }
 
+void VideoPlayer::SetDisplayArea( DisplayArea area )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->SetDisplayArea( area );
+  }
+}
+
 void VideoPlayer::SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation )
 {
   if( mPlugin != NULL )
@@ -258,6 +271,32 @@ Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
   }
 
   return mFinishedSignal;
+}
+
+void VideoPlayer::Forward( int millisecond )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->Forward( millisecond );
+  }
+}
+
+void VideoPlayer::Backward( int millisecond )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->Backward( millisecond );
+  }
+}
+
+bool VideoPlayer::IsVideoTextureSupported() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->IsVideoTextureSupported();
+  }
+
+  return false;
 }
 
 } // namespace Adaptor;

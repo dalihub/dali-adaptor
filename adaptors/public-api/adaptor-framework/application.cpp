@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,23 +34,90 @@ Application Application::New()
 
 Application Application::New( int* argc, char **argv[] )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE,
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE,
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
 }
 
 Application Application::New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode )
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode,
-    Internal::Adaptor::Framework::NORMAL);
-  return Application(internal.Get());
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
+      Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
+  }
+}
+
+Application Application::New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if( internal )
+  {
+    if( argc && ( *argc > 0 ) )
+    {
+      internal->GetWindow().SetClass( (*argv)[0], "" );
+    }
+    internal->SetStyleSheet( stylesheet );
+
+    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetSize( Window::WindowSize( positionSize.width, positionSize.height ) );
+    internal->GetWindow().SetPosition( Window::WindowPosition( positionSize.x, positionSize.y ) );
+
+    return Application( internal.Get() );
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
+    return Application( internal.Get() );
+  }
 }
 
 Application::~Application()
@@ -115,6 +182,16 @@ std::string Application::GetResourcePath()
   return Internal::Adaptor::Application::GetResourcePath();
 }
 
+std::string Application::GetRegion() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetRegion();
+}
+
+std::string Application::GetLanguage() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetLanguage();
+}
+
 void Application::SetViewMode( ViewMode viewMode )
 {
   Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
@@ -162,6 +239,8 @@ Application::AppSignalType& Application::ResetSignal()
 
 Application::AppSignalType& Application::ResizeSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: ResizeSignal() is deprecated and will be removed from next release. Use Window::ResizedSignal() instead.\n" );
+
   return Internal::Adaptor::GetImplementation(*this).ResizeSignal();
 }
 
@@ -182,12 +261,24 @@ Application::AppSignalType& Application::RegionChangedSignal()
 
 Application::AppSignalType& Application::BatteryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: BatteryLowSignal() is deprecated and will be removed from next release. Use Application::LowBatterySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).BatteryLowSignal();
 }
 
 Application::AppSignalType& Application::MemoryLowSignal()
 {
+  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: MemoryLowSignal() is deprecated and will be removed from next release. Use Application::LowMemorySignal() instead.\n" );
   return Internal::Adaptor::GetImplementation(*this).MemoryLowSignal();
+}
+
+Application::LowBatterySignalType& Application::LowBatterySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowBatterySignal();
+}
+
+Application::LowMemorySignalType& Application::LowMemorySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,8 +169,9 @@ bool NetworkPerformanceClient::TransmitMarker( const PerformanceMarker& marker, 
   {
     // write out the time stamp
     char buffer[64];
+    double usec = marker.GetTimeStamp().microseconds;
     int size = snprintf( buffer, sizeof(buffer),"%.6f (seconds), %s\n",
-                         ( (double) marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
+                         usec * MICROSECONDS_TO_SECOND,
                          description );
 
    return mSocket->Write( buffer, size );

@@ -317,11 +317,11 @@ void ImfManager::ApplyOptions(const InputMethodOptions& options)
 {
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
 }
 
@@ -344,6 +344,16 @@ void ImfManager::ShowInputPanel()
 
 void ImfManager::HideInputPanel()
 {
+}
+
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  return NULL;
 }
 
 Dali::ImfManager::TextDirection ImfManager::GetTextDirection()

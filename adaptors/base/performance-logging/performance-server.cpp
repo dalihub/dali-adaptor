@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,8 +225,8 @@ void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* 
   {
     Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo,
                                     "%.6f (seconds), %s\n",
-                                    (float)( marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND ),
-                                    description);
+                                    float( marker.GetTimeStamp().microseconds ) * MICROSECONDS_TO_SECOND,
+                                    description );
 
   }
 }

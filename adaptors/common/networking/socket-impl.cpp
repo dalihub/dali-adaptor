@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@
 #include <unistd.h>
 #include <dali/integration-api/debug.h>
 
+// Sockets enums like INADDR_ANY use C-Casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 namespace Dali
 {
@@ -121,7 +124,7 @@ bool Socket::Bind( uint16_t port )
   serverAddress.sin_addr.s_addr = htonl( INADDR_ANY ); //  binds the socket to all available interfaces
 
   int ret = bind( mSocketFileDescriptor,
-                  (struct sockaddr* ) &serverAddress,
+                  reinterpret_cast< struct sockaddr* >( &serverAddress ),
                   sizeof(serverAddress));
 
   if( ret == -1 )
@@ -359,6 +362,9 @@ bool Socket::Write( const void* buffer, unsigned int bufferSizeInBytes )
 }
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
 
+#pragma GCC diagnostic pop

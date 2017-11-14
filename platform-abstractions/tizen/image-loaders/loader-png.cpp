@@ -162,37 +162,33 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   png_byte colortype = png_get_color_type(png, info);
 
-  if(colortype == PNG_COLOR_TYPE_GRAY)
+  if( colortype == PNG_COLOR_TYPE_GRAY ||
+      colortype == PNG_COLOR_TYPE_GRAY_ALPHA )
   {
-    switch( colordepth )
+    if( colortype == PNG_COLOR_TYPE_GRAY )
     {
-      case 8:
+      pixelFormat = Pixel::L8;
+      if( png_get_valid(png, info, PNG_INFO_tRNS) )
       {
-        pixelFormat = Pixel::L8;
-        valid = true;
-        break;
-      }
-      default:
-      {
-        break;
-      }
-    }
-  }
-  else if(colortype == PNG_COLOR_TYPE_GRAY_ALPHA)
-  {
-    switch(colordepth)
-    {
-      case 8:
-      {
+        colortype = PNG_COLOR_TYPE_GRAY_ALPHA;
+        /* expand transparency entry -> alpha channel if present */
+        png_set_tRNS_to_alpha(png);
         pixelFormat = Pixel::LA88;
-        valid = true;
-        break;
-      }
-      default:
-      {
-        break;
       }
     }
+    else
+    {
+      pixelFormat = Pixel::LA88;
+    }
+
+    if( colordepth < 8 )
+    {
+      /* expand gray (w/reduced bits) -> 8-bit RGB if necessary */
+      png_set_expand_gray_1_2_4_to_8(png);
+      /* pack all pixels to byte boundaries */
+      png_set_packing(png);
+    }
+    valid = true;
   }
   else if(colortype == PNG_COLOR_TYPE_RGB )
   {
@@ -299,17 +295,30 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bi
   if( rowBytes > stride )
   {
     stride = GetTextureDimension(rowBytes);
-    bufferWidth = stride / bpp;
+
+    bpp = stride / bufferWidth;
+    switch(bpp)
+    {
+      case 3:
+        pixelFormat = Pixel::RGB888;
+        break;
+      case 4:
+        pixelFormat = Pixel::RGBA8888;
+        break;
+      default:
+        break;
+    }
+
   }
 
   // decode the whole image into bitmap buffer
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
 
   DALI_ASSERT_DEBUG(pixels);
-  rows = (png_bytep*) malloc(sizeof(png_bytep) * height);
+  rows = reinterpret_cast< png_bytep* >( malloc(sizeof(png_bytep) * height) );
   for(y=0; y<height; y++)
   {
-    rows[y] = (png_byte*) (pixels + y * stride);
+    rows[y] = pixels + y * stride;
   }
 
   // decode image

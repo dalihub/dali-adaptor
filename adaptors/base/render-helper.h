@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_RENDER_HELPER_H__
-#define __DALI_INTERNAL_RENDER_HELPER_H__
+#ifndef DALI_INTERNAL_RENDER_HELPER_H
+#define DALI_INTERNAL_RENDER_HELPER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,13 @@ public:
   void ReplaceSurface( RenderSurface* newSurface );
 
   /**
+   * Resize the rendering surface.
+   *
+   * @note Called from render thread
+   */
+  void ResizeSurface();
+
+  /**
    * Shuts down EGL.
    *
    * @note Called from render thread
@@ -121,8 +128,10 @@ public:
    * Called after core has rendered the scene
    *
    * @note Called from render thread
+   *
+   * @param[in] renderToFbo Whether to render to a Frame Buffer Object.
    */
-  void PostRender();
+  void PostRender( bool renderToFbo );
 
 private:
 
@@ -140,6 +149,7 @@ private: // Data
   RenderSurface*                mSurface;                ///< Current surface
   Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialized.
+  bool                          mSurfaceResized;         ///< True when the surface is resized.
 };
 
 } // namespace Adaptor
@@ -148,4 +158,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_RENDER_HELPER_H__
+#endif // DALI_INTERNAL_RENDER_HELPER_H

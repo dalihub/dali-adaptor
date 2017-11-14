@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  */
 
 // CLASS HEADER
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <imf-manager-impl.h>
 
 // EXTERNAL INCLUDES
@@ -182,7 +185,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit the signal that the language has changed
-  imfManager->LanguageChangedSignal().Emit();
+  imfManager->LanguageChangedSignal().Emit( value );
 }
 
 void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context, int value )
@@ -193,7 +196,32 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   }
   ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
   // Emit signal that the keyboard is resized
-  imfManager->ResizedSignal().Emit();
+  imfManager->ResizedSignal().Emit( value );
+}
+
+void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *context, int value )
+{
+  if( !data )
+  {
+    return;
+  }
+
+  ImfManager* imfManager = reinterpret_cast< ImfManager* > ( data );
+  switch (value)
+  {
+    case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
+    {
+      // Emit Signal that the keyboard type is changed to Software Keyboard
+      imfManager->KeyboardTypeChangedSignal().Emit( Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD );
+      break;
+    }
+    case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
+    {
+      // Emit Signal that the keyboard type is changed to Hardware Keyboard
+      imfManager->KeyboardTypeChangedSignal().Emit( Dali::ImfManager::KeyboardType::HARDWARE_KEYBOARD );
+      break;
+    }
+  }
 }
 
 /**
@@ -362,6 +390,7 @@ void ImfManager::ConnectCallbacks()
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback, this );
+    ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_KEYBOARD_MODE_EVENT, InputPanelKeyboardTypeChangedCallback, this );
 
     ecore_imf_context_retrieve_surrounding_callback_set( mIMFContext, ImfRetrieveSurrounding, this);
   }
@@ -381,6 +410,7 @@ void ImfManager::DisconnectCallbacks()
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback     );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback  );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, InputPanelGeometryChangedCallback );
+    ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_KEYBOARD_MODE_EVENT, InputPanelKeyboardTypeChangedCallback );
 
     // We do not need to unset the retrieve surrounding callback.
   }
@@ -559,16 +589,21 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
 
   Dali::ImfManager::ImfEventData imfData( Dali::ImfManager::GETSURROUNDING, std::string(), 0, 0 );
   Dali::ImfManager handle( this );
-  mEventSignal.Emit( handle, imfData );
+  Dali::ImfManager::ImfCallbackData callbackData = mEventSignal.Emit( handle, imfData );
 
-  if( text )
+  if( callbackData.update )
   {
-    *text = strdup( mSurroundingText.c_str() );
-  }
+    if( text )
+    {
+      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
+      *text = strdup( callbackData.currentText.c_str() );
+    }
 
-  if( cursorPosition )
-  {
-    *cursorPosition = mIMFCursorPosition;
+    if( cursorPosition )
+    {
+      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      *cursorPosition = mIMFCursorPosition;
+    }
   }
 
   return EINA_TRUE;
@@ -650,9 +685,10 @@ const std::string& ImfManager::GetSurroundingText() const
 void ImfManager::NotifyTextInputMultiLine( bool multiLine )
 {
   Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
-  ecore_imf_context_input_hint_set(mIMFContext, (Ecore_IMF_Input_Hints)(multiLine ?
-    (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
-    (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+  ecore_imf_context_input_hint_set( mIMFContext,
+                                    static_cast< Ecore_IMF_Input_Hints >( multiLine ?
+                                      (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
+                                      (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
 }
 
 Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
@@ -668,7 +704,7 @@ Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
 
       if ( locale )
       {
-        direction = Locale::GetTextDirection( std::string( locale ) );
+        direction = static_cast< Dali::ImfManager::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
         free( locale );
       }
     }
@@ -725,25 +761,28 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   }
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelData\n" );
 
   if( mIMFContext )
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelData\n" );
 
   if( mIMFContext )
   {
-    int* length = NULL;
-    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+    int length = 4096; // The max length is 4096 bytes
+    Dali::Vector< char > buffer;
+    buffer.Resize( length );
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &buffer[0], &length );
+    data = std::string( buffer.Begin(), buffer.End() );
   }
 }
 
@@ -825,8 +864,61 @@ void ImfManager::HideInputPanel()
   }
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetKeyboardType\n" );
+
+#ifdef OVER_TIZEN_VERSION_4
+  if( mIMFContext )
+  {
+    int value;
+    value = ecore_imf_context_keyboard_mode_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
+      {
+        return Dali::ImfManager::SOFTWARE_KEYBOARD;
+        break;
+      }
+      case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
+      {
+        return Dali::ImfManager::HARDWARE_KEYBOARD;
+        break;
+      }
+    }
+  }
+#endif // OVER_TIZEN_VERSION_4
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelLocale\n" );
+
+  std::string locale = "";
+
+  if( mIMFContext )
+  {
+    char* value = NULL;
+    ecore_imf_context_input_panel_language_locale_get( mIMFContext, &value );
+
+    if( value )
+    {
+      std::string valueCopy( value );
+      locale = valueCopy;
+
+      // The locale string retrieved must be freed with free().
+      free( value );
+    }
+  }
+  return locale;
+}
+
 } // Adaptor
 
 } // Internal
 
 } // Dali
+
+#pragma GCC diagnostic pop

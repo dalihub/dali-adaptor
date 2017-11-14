@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
 #include <events/event-handler.h>
 
 // EXTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <ecore-wl-render-surface.h>
@@ -36,6 +39,7 @@
 #endif // DALI_ELDBUS_AVAILABLE
 
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/events/device.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
@@ -44,7 +48,6 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
-#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -171,7 +174,7 @@ const char * DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE = "db/setting/accessi
 /**
  * Get the device name from the provided ecore key event
  */
-void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
+void GetDeviceName( Ecore_Event_Key* keyEvent, std::string& result )
 {
   const char* ecoreDeviceName = ecore_device_name_get( keyEvent->dev );
 
@@ -182,52 +185,124 @@ void GetDeviceName(  Ecore_Event_Key* keyEvent, std::string& result )
 }
 
 /**
- * Get the device class from the provided ecore key event
+ * Get the device class from the provided ecore event
  */
-void GetDeviceClass(  Ecore_Event_Key* keyEvent, DevelKeyEvent::DeviceClass::Type& deviceClass )
+void GetDeviceClass( Ecore_Device_Class ecoreDeviceClass, Device::Class::Type& deviceClass )
 {
-  Ecore_Device_Class ecoreDeviceClass = ecore_device_class_get( keyEvent->dev );
-
   switch( ecoreDeviceClass )
   {
     case ECORE_DEVICE_CLASS_SEAT:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::USER;
+      deviceClass = Device::Class::USER;
       break;
     }
     case ECORE_DEVICE_CLASS_KEYBOARD:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::KEYBOARD;
+      deviceClass = Device::Class::KEYBOARD;
       break;
     }
     case ECORE_DEVICE_CLASS_MOUSE:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::MOUSE;
+      deviceClass = Device::Class::MOUSE;
       break;
     }
     case ECORE_DEVICE_CLASS_TOUCH:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::TOUCH;
+      deviceClass = Device::Class::TOUCH;
       break;
     }
     case ECORE_DEVICE_CLASS_PEN:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::PEN;
+      deviceClass = Device::Class::PEN;
       break;
     }
     case ECORE_DEVICE_CLASS_POINTER:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::POINTER;
+      deviceClass = Device::Class::POINTER;
       break;
     }
     case ECORE_DEVICE_CLASS_GAMEPAD:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::GAMEPAD;
+      deviceClass = Device::Class::GAMEPAD;
       break;
     }
     default:
     {
-      deviceClass = DevelKeyEvent::DeviceClass::NONE;
+      deviceClass = Device::Class::NONE;
+      break;
+    }
+  }
+}
+
+void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subclass::Type& deviceSubclass )
+{
+  switch( ecoreDeviceSubclass )
+  {
+    case ECORE_DEVICE_SUBCLASS_FINGER:
+    {
+      deviceSubclass = Device::Subclass::FINGER;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_FINGERNAIL:
+    {
+      deviceSubclass = Device::Subclass::FINGERNAIL;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_KNUCKLE:
+    {
+      deviceSubclass = Device::Subclass::KNUCKLE;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_PALM:
+    {
+      deviceSubclass = Device::Subclass::PALM;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_HAND_SIZE:
+    {
+      deviceSubclass = Device::Subclass::HAND_SIDE;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_HAND_FLAT:
+    {
+      deviceSubclass = Device::Subclass::HAND_FLAT;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_PEN_TIP:
+    {
+      deviceSubclass = Device::Subclass::PEN_TIP;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_TRACKPAD:
+    {
+      deviceSubclass = Device::Subclass::TRACKPAD;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_TRACKPOINT:
+    {
+      deviceSubclass = Device::Subclass::TRACKPOINT;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_TRACKBALL:
+    {
+      deviceSubclass = Device::Subclass::TRACKBALL;
+      break;
+    }
+#ifdef OVER_TIZEN_VERSION_4
+    case ECORE_DEVICE_SUBCLASS_REMOCON:
+    {
+      deviceSubclass = Device::Subclass::REMOCON;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_VIRTUAL_KEYBOARD:
+    {
+      deviceSubclass = Device::Subclass::VIRTUAL_KEYBOARD;
+      break;
+    }
+#endif
+    default:
+    {
+      deviceSubclass = Device::Subclass::NONE;
       break;
     }
   }
@@ -246,7 +321,10 @@ struct EventHandler::Impl
   Impl( EventHandler* handler, Ecore_Wl_Window* window )
   : mHandler( handler ),
     mEcoreEventHandler(),
-    mWindow( window )
+    mWindow( window ),
+    mRotationAngle( 0 ),
+    mWindowWidth( 0 ),
+    mWindowHeight( 0 )
 #ifdef DALI_ELDBUS_AVAILABLE
   , mSystemConnection( NULL )
 #endif // DALI_ELDBUS_AVAILABLE
@@ -258,7 +336,6 @@ struct EventHandler::Impl
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,   EcoreEventMouseButtonDown,   handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,     EcoreEventMouseButtonUp,     handler ) );
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,          EcoreEventMouseButtonMove,   handler ) );
-      mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,           EcoreEventMouseButtonUp,     handler ) ); // process mouse out event like up event
       mEcoreEventHandler.push_back( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, handler ) );
 
       // Register Mouse wheel events
@@ -350,6 +427,12 @@ struct EventHandler::Impl
         state = PointState::INTERRUPTED;
       }
 
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
+
+      GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
+      GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
+
       Integration::Point point;
       point.SetDeviceId( touchEvent->multi.device );
       point.SetState( state );
@@ -357,6 +440,9 @@ struct EventHandler::Impl
       point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
       point.SetPressure( touchEvent->multi.pressure );
       point.SetAngle( Degree( touchEvent->multi.angle ) );
+      point.SetDeviceClass( deviceClass );
+      point.SetDeviceSubclass( deviceSubclass );
+
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -373,6 +459,12 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
+
+      GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
+      GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
+
       Integration::Point point;
       point.SetDeviceId( touchEvent->multi.device );
       point.SetState( PointState::UP );
@@ -380,6 +472,9 @@ struct EventHandler::Impl
       point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
       point.SetPressure( touchEvent->multi.pressure );
       point.SetAngle( Degree( touchEvent->multi.angle ) );
+      point.SetDeviceClass( deviceClass );
+      point.SetDeviceSubclass( deviceSubclass );
+
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -396,6 +491,12 @@ struct EventHandler::Impl
 
     if ( touchEvent->window == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
+      Device::Class::Type deviceClass;
+      Device::Subclass::Type deviceSubclass;
+
+      GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
+      GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
+
       Integration::Point point;
       point.SetDeviceId( touchEvent->multi.device );
       point.SetState( PointState::MOTION );
@@ -403,6 +504,9 @@ struct EventHandler::Impl
       point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
       point.SetPressure( touchEvent->multi.pressure );
       point.SetAngle( Degree( touchEvent->multi.angle ) );
+      point.SetDeviceClass( deviceClass );
+      point.SetDeviceSubclass( deviceSubclass );
+
       handler->SendEvent( point, touchEvent->timestamp );
     }
 
@@ -485,15 +589,27 @@ struct EventHandler::Impl
         ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
         ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-#ifdef ECORE_IMF_1_13
         ecoreKeyDownEvent.dev_name  = "";
         ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
         ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
 
-        eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                       ECORE_IMF_EVENT_KEY_DOWN,
-                                                       (Ecore_IMF_Event *) &ecoreKeyDownEvent );
+        std::string checkDevice;
+        GetDeviceName( keyEvent, checkDevice );
+
+        // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
+        if( ( checkDevice == "ime" ) && ( ( !strncmp( keyEvent->keyname, "Left",  4 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Right", 5 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Up",    2 ) ) ||
+                                          ( !strncmp( keyEvent->keyname, "Down",  4 ) ) ) )
+        {
+          eventHandled = 0;
+        }
+        else
+        {
+          eventHandled = ecore_imf_context_filter_event( imfContext,
+                                                         ECORE_IMF_EVENT_KEY_DOWN,
+                                                         (Ecore_IMF_Event *) &ecoreKeyDownEvent );
+        }
 
         // If the event has not been handled by IMF then check if we should reset our IMF context
         if( !eventHandled )
@@ -529,14 +645,16 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
-        DevelKeyEvent::DeviceClass::Type deviceClass;
+        Device::Class::Type deviceClass;
+        Device::Subclass::Type deviceSubclass;
 
         GetDeviceName( keyEvent, deviceName );
-        GetDeviceClass( keyEvent, deviceClass );
+        GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
+        GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
         DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s) deviceClass(%d)\n", deviceName.c_str(), deviceClass );
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName, deviceClass );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName, deviceClass, deviceSubclass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -576,11 +694,9 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-#ifdef ECORE_IMF_1_13
         ecoreKeyUpEvent.dev_name  = "";
         ecoreKeyUpEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
         ecoreKeyUpEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
@@ -609,12 +725,14 @@ struct EventHandler::Impl
         }
 
         std::string deviceName;
-        DevelKeyEvent::DeviceClass::Type deviceClass;
+        Device::Class::Type deviceClass;
+        Device::Subclass::Type deviceSubclass;
 
         GetDeviceName( keyEvent, deviceName );
-        GetDeviceClass( keyEvent, deviceClass );
+        GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
+        GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName, deviceClass );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName, deviceClass, deviceSubclass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -1173,8 +1291,18 @@ struct EventHandler::Impl
     RotationEvent rotationEvent;
     rotationEvent.angle = ev->angle;
     rotationEvent.winResize = 0;
-    rotationEvent.width = ev->w;
-    rotationEvent.height = ev->h;
+
+    if( ev->angle == 0 || ev->angle == 180 )
+    {
+      rotationEvent.width = ev->w;
+      rotationEvent.height = ev->h;
+    }
+    else
+    {
+      rotationEvent.width = ev->h;
+      rotationEvent.height = ev->w;
+    }
+
     handler->SendRotationPrepareEvent( rotationEvent );
 
     return ECORE_CALLBACK_PASS_ON;
@@ -1217,10 +1345,48 @@ struct EventHandler::Impl
     handler->SendEvent( StyleChange::DEFAULT_FONT_SIZE_CHANGE );
   }
 
+  void ConvertTouchPosition( Integration::Point& point )
+  {
+    Vector2 position = point.GetScreenPosition();
+    Vector2 convertedPosition;
+
+    switch( mRotationAngle )
+    {
+      case 90:
+      {
+        convertedPosition.x = mWindowWidth - position.y;
+        convertedPosition.y = position.x;
+        break;
+      }
+      case 180:
+      {
+        convertedPosition.x = mWindowWidth - position.x;
+        convertedPosition.y = mWindowHeight - position.y;
+        break;
+      }
+      case 270:
+      {
+        convertedPosition.x = position.y;
+        convertedPosition.y = mWindowHeight - position.x;
+        break;
+      }
+      default:
+      {
+        convertedPosition = position;
+        break;
+      }
+    }
+
+    point.SetScreenPosition( convertedPosition );
+  }
+
   // Data
   EventHandler* mHandler;
   std::vector<Ecore_Event_Handler*> mEcoreEventHandler;
   Ecore_Wl_Window* mWindow;
+  int mRotationAngle;
+  int mWindowWidth;
+  int mWindowHeight;
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection* mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
@@ -1268,12 +1434,14 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
     timeStamp = GetCurrentMilliSeconds();
   }
 
+  mImpl->ConvertTouchPosition( point );
+
   Integration::TouchEvent touchEvent;
   Integration::HoverEvent hoverEvent;
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
   if(type != Integration::TouchEventCombiner::DispatchNone )
   {
-    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetLocalPosition().x, point.GetLocalPosition().y);
+    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y);
 
     // First the touch and/or hover event & related gesture events are queued
     if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth)
@@ -1331,6 +1499,10 @@ void EventHandler::SendRotationPrepareEvent( const RotationEvent& event )
 {
   if( mRotationObserver != NULL )
   {
+    mImpl->mRotationAngle = event.angle;
+    mImpl->mWindowWidth = event.width;
+    mImpl->mWindowHeight = event.height;
+
     mRotationObserver->OnRotationPrepare( event );
     mRotationObserver->OnRotationRequest();
   }
@@ -1409,3 +1581,5 @@ void EventHandler::SetRotationObserver( RotationObserver* observer )
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

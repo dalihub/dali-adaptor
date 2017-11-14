@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ namespace Adaptor
 #ifdef SENSOR_ENABLED
 static void sensor_changed_cb (sensor_h sensor, sensor_event_s *event, void *user_data)
 {
-  TiltSensor* tiltSensor = (TiltSensor*)user_data;
+  TiltSensor* tiltSensor = reinterpret_cast< TiltSensor* >( user_data );
 
   if(tiltSensor)
   {
@@ -229,7 +229,7 @@ void TiltSensor::Disconnect()
 
 bool TiltSensor::Start()
 {
-  if(mSensorListener && mState == CONNECTED)
+  if( mSensorListener && ( mState == CONNECTED || mState == STOPPED ) )
   {
 #ifdef SENSOR_ENABLED
     int ret = 0;
@@ -247,9 +247,14 @@ bool TiltSensor::Start()
   }
   else
   {
-    if(mState != CONNECTED)
+    if( mState == STARTED )
     {
-      DALI_LOG_ERROR("Wrong state [%d]\n", mState);
+      DALI_LOG_ERROR("TiltSensor is already started. Current state [%d]\n", mState);
+    }
+    else
+    {
+      // mState is DISCONNECTED
+      DALI_LOG_ERROR("TiltSensor is disconnected. Current state [%d]\n", mState);
     }
     return false;
   }
@@ -267,19 +272,7 @@ void TiltSensor::Stop()
 #endif
 }
 
-bool TiltSensor::Enable()
-{
-  // start sensor callback
-  return Start();
-}
-
-void TiltSensor::Disable()
-{
-  // stop sensor callback
-  Stop();
-}
-
-bool TiltSensor::IsEnabled() const
+bool TiltSensor::IsStarted() const
 {
   return ( mSensorListener && mState == STARTED );
 }

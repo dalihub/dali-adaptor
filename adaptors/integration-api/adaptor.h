@@ -2,7 +2,7 @@
 #define __DALI_INTEGRATION_ADAPTOR_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <dali/public-api/common/view-mode.h>
 
 // INTERNAL INCLUDES
-
 
 #ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
 // @todo Make dali-adaptor code folder structure mirror the folder structure installed to dali-env
@@ -338,9 +337,10 @@ public:
   void SetStereoBase( float stereoBase );
 
   /**
-   * @brief Informs core the surface size has changed
+   * @brief Renders once more even if we're paused
+   * @note Will not work if the window is hidden.
    */
-  void SurfaceSizeChanged( const PositionSize& positionSize );
+  void RenderOnce();
 
 public:  // Signals
 

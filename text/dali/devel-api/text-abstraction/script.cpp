@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,6 +232,22 @@ Script GetCharacterScript( Character character )
   // 0x1b80 - 0x1bbf Sundanese
   // 0x1cc0 - 0x1ccf Sundanese supplement
 
+  // Ge'ez script (Ethiopic)
+  // 0x1200 - 0x137f Ethiopic
+  // 0x1380 - 0x139f Ethiopic supplement
+  // 0x2d80 - 0x2ddf Ethiopic Extended
+  // 0xab00 - 0xab2f Ethiopic Extended-A
+
+  // Baybayin Script
+  // 0x1700 - 0x171f Baybayin
+
+  // Ol Chiki Script
+  // 0x1c50 - 0x1c7f Ol Chiki
+
+  // Meitei Script
+  // 0xabc0 - 0xabff Meetei Mayek
+  // 0xaae0 - 0xaaff Meetei Mayek Extensions
+
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
   // 2. Dingbats ( 2702 - 27B0 )
@@ -438,6 +454,18 @@ Script GetCharacterScript( Character character )
         {
           return HANGUL;
         }
+        if( ( 0x1200 <= character ) && ( character <= 0x137f ) )
+        {
+          return GEEZ;
+        }
+        if( ( 0x1380 <= character ) && ( character <= 0x139f ) )
+        {
+          return GEEZ;
+        }
+        if( ( 0x1700 <= character ) && ( character <= 0x171f ) )
+        {
+          return BAYBAYIN;
+        }
         if( ( 0x1780 <= character ) && ( character <= 0x17ff ) )
         {
           return KHMER;
@@ -449,6 +477,10 @@ Script GetCharacterScript( Character character )
         if( ( 0x1b80 <= character ) && ( character <= 0x1bbf ) )
         {
           return SUNDANESE;
+        }
+        if( ( 0x1c50 <= character ) && ( character <= 0x1c7f ) )
+        {
+          return OL_CHIKI;
         }
         if( ( 0x1cc0 <= character ) && ( character <= 0x1ccf ) )
         {
@@ -602,6 +634,10 @@ Script GetCharacterScript( Character character )
         {
           return GEORGIAN;
         }
+        if( ( 0x2d80 <= character ) && ( character <= 0x2ddf ) )
+        {
+          return GEEZ;
+        }
         if( ( 0x2de0 <= character ) && ( character <= 0x2dff ) )
         {
           return CYRILLIC;
@@ -699,9 +735,21 @@ Script GetCharacterScript( Character character )
         {
           return JAVANESE;
         }
+        if( ( 0xab00 <= character ) && ( character <= 0xab2f ) )
+        {
+          return GEEZ;
+        }
         if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
         {
           return LATIN;
+        }
+        if( ( 0xaae0 <= character ) && ( character <= 0xaaff ) )
+        {
+          return MEITEI;
+        }
+        if( ( 0xabc0 <= character ) && ( character <= 0xabff ) )
+        {
+          return MEITEI;
         }
         if( ( 0xac00 <= character ) && ( character <= 0xd7af ) )
         {

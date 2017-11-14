@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,9 +152,9 @@ void EglSyncImplementation::InitializeEglSync()
 {
   if( ! mSyncInitializeFailed )
   {
-    eglCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC)eglGetProcAddress("eglCreateSyncKHR");
-    eglClientWaitSyncKHR = (PFNEGLCLIENTWAITSYNCKHRPROC)eglGetProcAddress("eglClientWaitSyncKHR");
-    eglDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC)eglGetProcAddress("eglDestroySyncKHR");
+    eglCreateSyncKHR = reinterpret_cast< PFNEGLCREATESYNCKHRPROC >( eglGetProcAddress("eglCreateSyncKHR") );
+    eglClientWaitSyncKHR = reinterpret_cast< PFNEGLCLIENTWAITSYNCKHRPROC >( eglGetProcAddress("eglClientWaitSyncKHR") );
+    eglDestroySyncKHR = reinterpret_cast< PFNEGLDESTROYSYNCKHRPROC >( eglGetProcAddress("eglDestroySyncKHR") );
   }
 
   if( eglCreateSyncKHR && eglClientWaitSyncKHR && eglDestroySyncKHR )

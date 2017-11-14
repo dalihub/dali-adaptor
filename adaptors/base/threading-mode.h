@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_THREADING_MODE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,7 @@ struct ThreadingMode
 {
   enum Type
   {
-    SEPARATE_UPDATE_RENDER = 0,  ///< Event, V-Sync, Update & Render on Separate threads.
-    COMBINED_UPDATE_RENDER,      ///< Three threads: Event, V-Sync & a Joint Update/Render thread.
-    SINGLE_THREADED,             ///< ALL functionality on the SAME thread.
+    COMBINED_UPDATE_RENDER = 1,      ///< Three threads: Event, V-Sync & a Joint Update/Render thread.
   };
 };
 

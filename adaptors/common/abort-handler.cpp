@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,13 +64,17 @@ bool AbortHandler::AbortOnSignal( int signum )
   {
     SignalHandlerFuncPtr signalHandlerPrevious = signal( signum, &AbortHandler::SignalHandler );
 
-    if ( SIG_ERR != signalHandlerPrevious )
+// SIG_ERR is a macro with C cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+  if ( SIG_ERR != signalHandlerPrevious )
     {
       mSignalOldHandlers[signum-1] = signalHandlerPrevious;
       mSignalMask |= ( 1 << (signum-1) );
       status = true;
     }
   }
+#pragma GCC diagnostic pop
   return status;
 }
 

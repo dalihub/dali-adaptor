@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -387,7 +387,7 @@ void NativeImageSource::GetPixmapDetails()
   int x, y;
 
   // get the width, height and depth
-  ecore_x_pixmap_geometry_get(mPixmap, &x, &y, (int*)&mWidth, (int*)&mHeight);
+  ecore_x_pixmap_geometry_get( mPixmap, &x, &y, reinterpret_cast< int* >( &mWidth ), reinterpret_cast< int* >( &mHeight ) );
 
   // set whether blending is required according to pixel format based on the depth
   /* default pixel format is RGB888

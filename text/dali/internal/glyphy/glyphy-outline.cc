@@ -20,6 +20,10 @@
 #include <config.h>
 #endif
 
+// Glyphy is written using C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 #include "glyphy-common.hh"
 #include "glyphy-geometry.hh"
 
@@ -366,3 +370,5 @@ glyphy_outline_winding_from_even_odd (glyphy_arc_endpoint_t *endpoints,
   ret = ret | process_contour (endpoints + start, num_endpoints - start, endpoints, num_endpoints, bool (inverse));
   return ret;
 }
+
+#pragma GCC diagnostic pop

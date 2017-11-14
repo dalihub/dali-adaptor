@@ -122,11 +122,11 @@ Pixel::Format GetAstcPixelFormat( AstcFileHeader& header )
  * @param[out] fileHeader  This will be populated with the header data
  * @return                 True if the file is valid, false otherwise
  */
-bool LoadAstcHeader( FILE * const filePointer, unsigned int &width, unsigned int &height, AstcFileHeader &fileHeader )
+bool LoadAstcHeader( FILE * const filePointer, unsigned int& width, unsigned int& height, AstcFileHeader& fileHeader )
 {
   // Pull the bytes of the file header in as a block:
-  unsigned int readLength = sizeof( AstcFileHeader );
-  if( fread( (void*)&fileHeader, 1, readLength, filePointer ) != readLength )
+  const unsigned int readLength = sizeof( AstcFileHeader );
+  if( fread( &fileHeader, 1, readLength, filePointer ) != readLength )
   {
     return false;
   }

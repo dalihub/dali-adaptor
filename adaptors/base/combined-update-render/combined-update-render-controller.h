@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,6 +126,11 @@ public:
   virtual void ReplaceSurface( RenderSurface* surface );
 
   /**
+   * @copydoc ThreadControllerInterface::ResizeSurface()
+   */
+  virtual void ResizeSurface();
+
+  /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()
    */
   virtual void SetRenderRefreshRate( unsigned int numberOfFramesPerRender );
@@ -192,12 +197,13 @@ private:
   /**
    * Called by the Update/Render Thread which ensures a wait if required.
    *
-   * @param[out] useElapsedTime  If true when returned, then the actual elapsed time will be used for animation.
-   *                             If false when returned, then there should NOT be any animation progression in the next Update.
-   * @param[in]  updateRequired  Whether another update is required.
+   * @param[out] useElapsedTime    If true when returned, then the actual elapsed time will be used for animation.
+   *                               If false when returned, then there should NOT be any animation progression in the next Update.
+   * @param[in]  updateRequired    Whether another update is required.
+   * @param[out] timeToSleepUntil  The time remaining in nanoseconds to keep the thread sleeping before resuming.
    * @return false, if the thread should stop.
    */
-  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired );
+  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil );
 
   /**
    * Checks to see if the surface needs to be replaced.
@@ -213,6 +219,21 @@ private:
    * This will lock the mutex in mEventThreadWaitCondition
    */
   void SurfaceReplaced();
+
+  /**
+   * Checks to see if the surface needs to be resized.
+   * This will lock the mutex in mUpdateRenderThreadWaitCondition.
+   *
+   * @return true if the surface should be resized, false otherwise
+   */
+  bool ShouldSurfaceBeResized();
+
+  /**
+   * Called by the Update/Render thread after a surface has been resized.
+   *
+   * This will lock the mutex in mEventThreadWaitCondition
+   */
+  void SurfaceResized();
 
   /**
    * Helper for the thread calling the entry function
@@ -311,6 +332,7 @@ private:
   RenderSurface* volatile           mNewSurface;                       ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
+  volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
 };
 
 } // namespace Adaptor

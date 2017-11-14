@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,19 +40,19 @@ TiltSensor::~TiltSensor()
 {
 }
 
-bool TiltSensor::Enable()
+bool TiltSensor::Start()
 {
-  return GetImplementation(*this).Enable();
+  return GetImplementation(*this).Start();
 }
 
-void TiltSensor::Disable()
+void TiltSensor::Stop()
 {
-  GetImplementation(*this).Disable();
+  GetImplementation(*this).Stop();
 }
 
-bool TiltSensor::IsEnabled() const
+bool TiltSensor::IsStarted() const
 {
-  return GetImplementation(*this).IsEnabled();
+  return GetImplementation(*this).IsStarted();
 }
 
 float TiltSensor::GetRoll() const

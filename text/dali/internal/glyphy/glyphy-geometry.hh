@@ -19,6 +19,10 @@
 #ifndef GLYPHY_GEOMETRY_HH
 #define GLYPHY_GEOMETRY_HH
 
+// Glyphy is written using C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 #include "glyphy-common.hh"
 
 namespace GLyphy {
@@ -709,5 +713,7 @@ inline const Bezier Bezier::segment (const double &t0, const double &t1) const
 
 } /* namespace Geometry */
 } /* namespace GLyphy */
+
+#pragma GCC diagnostic pop
 
 #endif /* GLYPHY_GEOMETRY_HH */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,13 +107,13 @@ void PixmapRenderSurface::StartRender()
   // FIXME
 }
 
-bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
+bool PixmapRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   // flush gl instruction queue
   glAbstraction.Flush();
@@ -147,7 +147,7 @@ void PixmapRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterfa
 void PixmapRenderSurface::CreateWlRenderable()
 {
   // check we're creating one with a valid size
-  DALI_ASSERT_ALWAYS( mPosition.width > 0 && mPosition.height > 0 && "Pixmap size is invalid" );
+  DALI_ASSERT_ALWAYS( mPositionSize.width > 0 && mPositionSize.height > 0 && "Pixmap size is invalid" );
 
   // FIXME
 }

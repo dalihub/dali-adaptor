@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,6 +200,16 @@ public:
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
+   * @brief Whether the given @p character is supported by the font.
+   *
+   * @param[in] fontId The id of the font.
+   * @param[in] character The character.
+   *
+   * @return @e true if the character is supported by the font.
+   */
+  bool IsCharacterSupportedByFont( FontId fontId, Character character );
+
+  /**
    * @brief Find the default font for displaying a UTF-32 character.
    *
    * This is useful when localised strings are provided for multiple languages
@@ -343,18 +353,20 @@ public:
    * @param[in] fontId The identifier of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @param[out] data The bitmap data.
+   * @param[in] outlineWidth The width of the glyph outline in pixels.
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data, int outlineWidth );
 
   /**
    * @brief Create a bitmap representation of a glyph.
    *
    * @param[in] fontId The identifier of the font.
    * @param[in] glyphIndex The index of a glyph within the specified font.
+   * @param[in] outlineWidth The width of the glyph outline in pixels.
    *
    * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
    */
-  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth );
 
   /**
    * @brief Create a vector representation of a glyph.

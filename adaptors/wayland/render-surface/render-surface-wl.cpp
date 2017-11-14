@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-#include <base/separate-update-render/thread-synchronization.h>
 #include <gl/egl-implementation.h>
 #include <trigger-event.h>
 #include <base/interfaces/window-event-interface.h>
@@ -128,12 +127,12 @@ void RenderSurface::StartRender()
 {
 }
 
-bool RenderSurface::PreRender( EglInterface&, Integration::GlAbstraction& )
+bool RenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
 {
   return true;
 }
 
-void RenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface )
+void RenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();

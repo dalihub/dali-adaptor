@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
-#define __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
+#ifndef DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
+#define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ namespace Adaptor
  */
 class EnvironmentOptions
 {
-
 public:
 
   /**
@@ -203,6 +202,28 @@ public:
    */
   unsigned int GetRenderRefreshRate() const;
 
+  /**
+   * @return The number of samples required in multisample buffers
+   */
+  int GetMultiSamplingLevel() const;
+
+  /**
+   * @return The maximum texture size
+   */
+  unsigned int GetMaxTextureSize() const;
+
+  /**
+   * @return The maximum texture size
+   */
+  int GetIndicatorVisibleMode() const;
+
+  /**
+   * @brief Retrieves the interval of frames to be rendered into the Frame Buffer Object and the Frame Buffer.
+   *
+   * @return The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
+   */
+  unsigned int GetRenderToFboInterval() const;
+
 private: // Internal
 
   /**
@@ -238,6 +259,10 @@ private: // Data
   ThreadingMode::Type mThreadingMode;             ///< threading mode
   unsigned int mRenderRefreshRate;                ///< render refresh rate
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
+  int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
+  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
+  int mIndicatorVisibleMode;                      ///< Indicator visible mode
+  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
 
   Dali::Integration::Log::LogFunction mLogFunction;
 
@@ -253,4 +278,4 @@ private: // Data
 } // Internal
 } // Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H__
+#endif // DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H

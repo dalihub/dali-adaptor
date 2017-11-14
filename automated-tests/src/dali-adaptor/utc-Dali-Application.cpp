@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,14 @@ void ApplicationControlSignalCallback(Application&, void *)
 }
 
 } // unnamed namespace
+
+void LowBatterySignalCallback( Dali::DeviceStatus::Battery::Status status )
+{
+}
+
+void LowMemorySignalCallback( Dali::DeviceStatus::Memory::Status status )
+{
+}
 
 int UtcDaliApplicationNew01(void)
 {
@@ -611,6 +619,58 @@ int UtcDaliApplicationMemoryLowSignalN(void)
   END_TEST;
 }
 
+int UtcDaliApplicationLowBatterySignalP(void)
+{
+  Application application = Application::New();
+  application.LowBatterySignal().Connect( &LowBatterySignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationLowBatterySignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.LowBatterySignal().Connect( &LowBatterySignalCallback );
+    DALI_TEST_CHECK( false ); // Should not get here
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationLowMemorySignalP(void)
+{
+  Application application = Application::New();
+  application.LowMemorySignal().Connect( &LowMemorySignalCallback );
+  DALI_TEST_CHECK( application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationLowMemorySignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.LowMemorySignal().Connect( &LowMemorySignalCallback );
+    DALI_TEST_CHECK( false ); // Should not get here
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
 int UtcDaliApplicationGetResourcePathP(void)
 {
   Application application = Application::New();
@@ -621,3 +681,22 @@ int UtcDaliApplicationGetResourcePathP(void)
   END_TEST;
 }
 
+int UtcDaliApplicationGetRegionP(void)
+{
+  Application application = Application::New();
+  std::string result;
+  result = application.GetRegion();
+  DALI_TEST_CHECK( result == "NOT_SUPPORTED" ); // Not supported in UBUNTU
+
+  END_TEST;
+}
+
+int UtcDaliApplicationGetLanguageP(void)
+{
+  Application application = Application::New();
+  std::string result;
+  result = application.GetLanguage();
+  DALI_TEST_CHECK( result == "NOT_SUPPORTED" ); // Not supported in UBUNTU
+
+  END_TEST;
+}

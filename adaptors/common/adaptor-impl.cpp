@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/stage.h>
+#include <dali/public-api/actors/layer.h>
+#include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/context-notifier.h>
@@ -29,7 +32,7 @@
 
 // INTERNAL INCLUDES
 #include <base/thread-controller.h>
-#  include <base/performance-logging/performance-interface-factory.h>
+#include <base/performance-logging/performance-interface-factory.h>
 #include <base/lifecycle-observer.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -53,6 +56,9 @@
 #include <window-impl.h>
 
 #include <tizen-logging.h>
+#include <image-loading.h>
+
+#include <locale-utils.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -67,7 +73,7 @@ namespace Adaptor
 
 namespace
 {
-__thread Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
+thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
@@ -132,11 +138,17 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     mGLES = new GlImplementation();
   }
 
-  mEglFactory = new EglFactory();
+  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel() );
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy );
+  mCore = Integration::Core::New( *this,
+                                  *mPlatformAbstraction,
+                                  *mGLES,
+                                  *eglSyncImpl,
+                                  *mGestureManager,
+                                  dataRetentionPolicy ,
+                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -183,6 +195,14 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
   }
+
+  // Set max texture size
+  if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
+  {
+    Dali::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
+  }
+
+  SetupSystemInformation();
 }
 
 Adaptor::~Adaptor()
@@ -260,8 +280,6 @@ void Adaptor::Start()
   // Initialize the thread controller
   mThreadController->Initialize();
 
-  mState = RUNNING;
-
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
@@ -289,7 +307,6 @@ void Adaptor::Pause()
     }
 
     mThreadController->Pause();
-    mCore->Suspend();
     mState = PAUSED;
   }
 }
@@ -314,8 +331,8 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    // Resume core so it processes any requests as well
-    mCore->Resume();
+    // trigger processing of events queued up while paused
+    mCore->ProcessEvents();
 
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
@@ -334,7 +351,6 @@ void Adaptor::Stop()
     }
 
     mThreadController->Stop();
-    mCore->Suspend();
 
     // Delete the TTS player
     for(int i =0; i < Dali::TtsPlayer::MODE_NUM; i++)
@@ -385,45 +401,19 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
   mEventHandler->FeedKeyEvent( keyEvent );
 }
 
-bool Adaptor::MoveResize( const PositionSize& positionSize )
-{
-  PositionSize old = mSurface->GetPositionSize();
-
-  // just resize the surface. The driver should automatically resize the egl Surface (untested)
-  // EGL Spec says : EGL window surfaces need to be resized when their corresponding native window
-  // is resized. Implementations typically use hooks into the OS and native window
-  // system to perform this resizing on demand, transparently to the client.
-  mSurface->MoveResize( positionSize );
-
-  if(old.width != positionSize.width || old.height != positionSize.height)
-  {
-    SurfaceSizeChanged(positionSize);
-  }
-
-  return true;
-}
-
-void Adaptor::SurfaceResized( const PositionSize& positionSize )
-{
-  PositionSize old = mSurface->GetPositionSize();
-
-  // Called by an application, when it has resized a window outside of Dali.
-  // The EGL driver automatically detects X Window resize calls, and resizes
-  // the EGL surface for us.
-  mSurface->MoveResize( positionSize );
-
-  if(old.width != positionSize.width || old.height != positionSize.height)
-  {
-    SurfaceSizeChanged(positionSize);
-  }
-}
-
 void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
 {
+  PositionSize positionSize = surface.GetPositionSize();
+
+  // let the core know the surface size has changed
+  mCore->SurfaceResized( positionSize.width, positionSize.height );
+
+  mResizedSignal.Emit( mAdaptor );
+
   mNativeWindow = nativeWindow;
   mSurface = &surface;
 
-  // flush the event queue to give update and render threads chance
+  // flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
@@ -452,12 +442,12 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback )
+bool Adaptor::AddIdle( CallbackBase* callback, bool forceAdd )
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState )
+  if( RUNNING == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleCallback( callback );
   }
@@ -669,24 +659,41 @@ void Adaptor::ProcessCoreEvents()
   }
 }
 
-void Adaptor::RequestUpdate()
+void Adaptor::RequestUpdate( bool forceUpdate )
 {
-  // When Dali applications are partially visible behind the lock-screen,
-  // the indicator must be updated (therefore allow updates in the PAUSED state)
-  if ( PAUSED  == mState ||
-       RUNNING == mState )
+  switch( mState )
   {
-    mThreadController->RequestUpdate();
+    case RUNNING:
+    {
+      mThreadController->RequestUpdate();
+      break;
+    }
+    case PAUSED:
+    case PAUSED_WHILE_HIDDEN:
+    {
+      // When Dali applications are partially visible behind the lock-screen,
+      // the indicator must be updated (therefore allow updates in the PAUSED state)
+      if( forceUpdate )
+      {
+        mThreadController->RequestUpdateOnce();
+      }
+      break;
+    }
+    default:
+    {
+      // Do nothing
+      break;
+    }
   }
 }
 
-void Adaptor::RequestProcessEventsOnIdle()
+void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState ) )
+  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || forceProcess ) )
   {
-    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ) );
+    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
   }
 }
 
@@ -706,7 +713,7 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  if ( STOPPED != mState )
+  if ( RUNNING == mState )
   {
     Pause();
 
@@ -719,15 +726,25 @@ void Adaptor::OnWindowHidden()
 void Adaptor::OnDamaged( const DamageArea& area )
 {
   // This is needed for the case where Dali window is partially obscured
-  RequestUpdate();
+  RequestUpdate( false );
 }
 
-void Adaptor::SurfaceSizeChanged( const PositionSize& positionSize )
+void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
-  mCore->SurfaceResized(positionSize.width, positionSize.height);
+  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
 
   mResizedSignal.Emit( mAdaptor );
+}
+
+void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
+{
+  // flush the event queue to give the update-render thread chance
+  // to start processing messages for new camera setup etc as soon as possible
+  ProcessCoreEvents();
+
+  // this method blocks until the render thread has completed the resizing.
+  mThreadController->ResizeSurface();
 }
 
 void Adaptor::NotifySceneCreated()
@@ -739,6 +756,8 @@ void Adaptor::NotifySceneCreated()
 
   // process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
+
+  mState = RUNNING;
 }
 
 void Adaptor::NotifyLanguageChanged()
@@ -746,14 +765,16 @@ void Adaptor::NotifyLanguageChanged()
   mLanguageChangedSignal.Emit( mAdaptor );
 }
 
+void Adaptor::RenderOnce()
+{
+  RequestUpdateOnce();
+}
+
 void Adaptor::RequestUpdateOnce()
 {
-  if( PAUSED_WHILE_HIDDEN != mState )
+  if( mThreadController )
   {
-    if( mThreadController )
-    {
-      mThreadController->RequestUpdateOnce();
-    }
+    mThreadController->RequestUpdateOnce();
   }
 }
 
@@ -831,6 +852,14 @@ void Adaptor::SetStereoBase( float stereoBase )
 float Adaptor::GetStereoBase() const
 {
   return mCore->GetStereoBase();
+}
+
+void Adaptor::SetRootLayoutDirection( std::string locale )
+{
+  Dali::Stage stage = Dali::Stage::GetCurrent();
+
+  stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
+                                    static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
 }
 
 } // namespace Adaptor

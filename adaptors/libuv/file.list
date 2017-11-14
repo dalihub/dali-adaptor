@@ -1,2 +1,0 @@
-# libuv
-adaptor_tizen_framework_libuv_src_files = $(adaptor_libuv_dir)/framework-libuv.cpp

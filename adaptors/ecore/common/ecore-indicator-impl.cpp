@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
 #include "ecore-indicator-impl.h"
 
 // EXTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Evas.h>
 #ifdef WAYLAND
@@ -465,7 +468,10 @@ Indicator::LockFile::LockFile(const std::string filename)
 Indicator::LockFile::~LockFile()
 {
   // Closing file descriptor also unlocks file.
-  close( mFileDescriptor );
+  if( mFileDescriptor > 0 )
+  {
+    close( mFileDescriptor );
+  }
 }
 
 bool Indicator::LockFile::Lock()
@@ -504,16 +510,19 @@ void Indicator::LockFile::Unlock()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
-  struct flock filelock;
-
-  filelock.l_type = F_UNLCK;
-  filelock.l_whence = SEEK_SET;
-  filelock.l_start = 0;
-  filelock.l_len = 0;
-  if (fcntl(mFileDescriptor, F_SETLKW, &filelock) == -1)
+  if( mFileDescriptor > 0 )
   {
-    mErrorThrown = true;
-    DALI_LOG_ERROR( "### Failed to lock with fd : %s ###\n", mFilename.c_str() );
+    struct flock filelock;
+
+    filelock.l_type = F_UNLCK;
+    filelock.l_whence = SEEK_SET;
+    filelock.l_start = 0;
+    filelock.l_len = 0;
+    if (fcntl(mFileDescriptor, F_SETLKW, &filelock) == -1)
+    {
+      mErrorThrown = true;
+      DALI_LOG_ERROR( "### Failed to lock with fd : %s ###\n", mFilename.c_str() );
+    }
   }
 }
 
@@ -1052,9 +1061,11 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
       {
         DALI_LOG_ERROR( "### Indicator error: Cannot open lock file %s ###\n", mSharedFileInfo[n].mLockFileName.c_str() );
       }
-
-      CreateNewImage( n );
-      UpdateVisibility();
+      else
+      {
+        CreateNewImage( n );
+        UpdateVisibility();
+      }
     }
   }
 }
@@ -1209,14 +1220,7 @@ void Indicator::CreateNewImage( int bufferNumber )
 
   if( !success )
   {
-    DALI_LOG_WARNING("### Cannot create indicator image - disconnecting ###\n");
-    Disconnect();
-    if( mObserver != NULL )
-    {
-      mObserver->IndicatorClosed( this );
-    }
-    // Don't do connection in this callback - strange things happen!
-    StartReconnectionTimer();
+    DALI_LOG_WARNING("### Cannot create indicator image ###\n");
   }
 }
 
@@ -1655,5 +1659,9 @@ void Indicator::OnStageTouch(const Dali::TouchData& touchData)
 }
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
+
+#pragma GCC diagnostic pop

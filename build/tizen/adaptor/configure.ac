@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Samsung Electronics Co., Ltd.
+# Copyright (c) 2017 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ FREETYPE_REQUIRED=9.16.3
 # 17.1.11 = Freetype version 2.5.2
 FREETYPE_BITMAP_SUPPORT_VERSION=17.1.11
 
-PKG_CHECK_MODULES(DALICORE, dali-core)
 PKG_CHECK_MODULES(EXIF, libexif)
 PKG_CHECK_MODULES(FREETYPE, [freetype2 >= $FREETYPE_REQUIRED])
 PKG_CHECK_MODULES(FREETYPE_BITMAP_SUPPORT, [freetype2 >= $FREETYPE_BITMAP_SUPPORT_VERSION], [ freetype_bitmap_support=yes  ], [ freetype_bitmap_support=no ] )
@@ -46,22 +45,18 @@ PKG_CHECK_MODULES(LIBDRM, libdrm)
 PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
+PKG_CHECK_MODULES(EVAS, evas)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not available]) ]
                   )
 
 # Currently, dali-adaptor always requires EFL on all platforms.
 # (on Wayland & X11, on Tizen devices & Ubuntu PC).
-enable_efl=yes
-if test "x$enable_efl" = "xyes"; then
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(ECORE_IMF, [ecore-imf >= 1.13], [ecore_imf_1_13=yes], [ecore_imf_1_13=no])
-PKG_CHECK_MODULES(ELEMENTARY, elementary)
 # Check for EldBus.h in ECore
 PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
-fi
-
 
 DALI_ELDBUS_AVAILABLE=
 if test "x$eldbus_available" = "xyes"; then
@@ -71,7 +66,11 @@ fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
 
+if test "x$enable_cxx03_abi" = "xyes"; then
+PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl-deprecated, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
+else
 PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
+fi
 
 if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
@@ -141,24 +140,6 @@ AC_ARG_ENABLE([vulkan],
 
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
-# Currently, dali-adaptor always does not require libuv because it runs on ecore on all platforms.
-# (on Wayland & X11, on Tizen devices & Ubuntu PC).
-with_libuv=no
-
-# Node.JS already has a libuv main loop running,so we have to integrate with it
-AM_CONDITIONAL(LIB_UV_EVENT_LOOP, test x$with_libuv != xno)
-
-
-build_for_libuv=no
-if test "x$with_libuv" != "xno"; then
-  AC_MSG_NOTICE("build with libuv mainloop (Node.JS support) == yes");
-  [build_for_libuv=yes]
-  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DNODE_JS_SUPPORT  -I${with_libuv}"
-else
- #not using libuv build
-  AC_MSG_NOTICE("build with libuv mainloop == no (Node.JS not supported)");
-fi
-
 # Currently, dali-adaptor requires appfw on Tizen
 # and does not require it on Ubuntu.
 # So we should be able to enable/disable this option for dali-adaptor.
@@ -182,6 +163,13 @@ AC_ARG_ENABLE([profile],
               [enable_profile=$enableval],
               [enable_profile=UBUNTU])
 
+# Tizen Major version
+AC_ARG_ENABLE([tizen-major-version],
+              [AC_HELP_STRING([--enable-tizen-major-version],
+                              [Specify the Tizen Major version for backwards compatibility])],
+              [enable-tizen-major-version=$enableval],
+              [enable-tizen-major-version=0])
+
 # Ensure valid profile selected
 if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xIVI" -a "x$enable_profile" != "xUBUNTU"; then
   AC_MSG_ERROR([$enable_profile is an invalid profile])
@@ -192,6 +180,18 @@ AC_ARG_ENABLE(wayland,
               enable_wayland=yes,
               enable_wayland=no)
 
+AC_ARG_ENABLE([cxx03_abi],
+              [AC_HELP_STRING([--enable-cxx03-abi],
+                              [Specify abi for the build])],
+              [enable_cxx03_abi=$enableval],
+              [enable_cxx03_abi=no])
+
+AC_ARG_ENABLE([rename_so],
+              [AC_HELP_STRING([--enable-rename-so],
+                              [Specify whether so file is renamed or not])],
+              [enable_rename_so=$enableval],
+              [enable_rename_so=yes])
+
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_PROFILE_${enable_profile}"
 DALI_PROFILE_CFLAGS=" -DDALI_PROFILE_${enable_profile}"
 AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
@@ -201,8 +201,10 @@ AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([IVI_PROFILE], [test x$enable_profile = xIVI])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
-AM_CONDITIONAL([USE_EFL], [test x$enable_efl = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
+AM_CONDITIONAL([USE_APPFW_EFL_BASE], [test x$enable_tizen_major_version = x3])
+AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
+AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
 
 # Platforms with highp shader support can use vector based text
 AM_CONDITIONAL([ENABLE_VECTOR_BASED_TEXT_RENDERING], [test x$enable_profile = xUBUNTU])
@@ -226,8 +228,15 @@ if test "x$enable_profile" = "xLITE"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
+if test "x$enable_cxx03_abi" = "xyes"; then
+PKG_CHECK_MODULES(DALICORE, dali-core-cxx03)
+else
+PKG_CHECK_MODULES(DALICORE, dali-core)
+fi
+
 if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
+PKG_CHECK_MODULES(SCREENCONNECTORPROVIDER, screen_connector_provider)
 PKG_CHECK_MODULES(APPFW_WATCH, capi-appfw-watch-application,
    [watch_available=yes], [watch_available=no] )
 PKG_CHECK_MODULES(APPCORE_WATCH, appcore-watch)
@@ -248,11 +257,14 @@ if test "x$enable_profile" = "xUBUNTU"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 else
 
+if test "x$enable_cxx03_abi" = "xyes"; then
+ DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
+fi
+
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
 
-if test "x$enable_efl" = "xyes"; then
 if test "x$with_tizen_2_2_compatibility" = "xno"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SENSOR, capi-system-sensor, [ capi_system_sensor_support=yes ], [ capi_system_sensor_support=no ] )
@@ -262,17 +274,24 @@ if test "x$capi_system_sensor_support" = "xyes"; then
 fi
 
 fi
-fi
 
 fi # ubuntu profile test
 
 if test "x$enable_appfw" = "xyes"; then
-PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SYSTEM_SETTINGS, capi-system-system-settings)
+if test "x$enable_tizen_major_version" = "x3"; then
+PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, capi-appfw-application)
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
+else
+PKG_CHECK_MODULES(CAPI_APPFW_APPLICATION, appcore-ui)
+PKG_CHECK_MODULES(CAPI_APPFW_COMMON, capi-appfw-app-common)
+PKG_CHECK_MODULES(CAPI_APPFW_CONTROL, capi-appfw-app-control)
+fi
+else
+PKG_CHECK_MODULES(ELEMENTARY, elementary)
 fi
 
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
-if test "x$enable_efl" = "xyes"; then
 if test "x$enable_wayland" = "xyes"; then
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
                   [DALI_USE_ECORE_WAYLAND=1],
@@ -285,16 +304,6 @@ PKG_CHECK_MODULES(ECORE_X, [ecore-x],
 PKG_CHECK_MODULES(X11, [x11],
                   [DALI_USE_X11=1],
                   [DALI_USE_X11=0])
-fi
-fi
-# Using Wayland API directly  ( main loop agnostic, typically for running on libuv)
-#  wayland-extension-client include xdg-shell-client
-if test "x$enable_efl" = "xno"; then
-if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
-                  [DALI_USE_WAYLAND=1],
-                  [DALI_USE_WAYLAND=0])
-fi
 fi
 
 # remove this when we update common repos
@@ -353,11 +362,13 @@ AC_SUBST(tizenPlatformConfigSupported)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
-AC_CONFIG_FILES([
- Makefile
- dali-adaptor.pc
- dali-adaptor-integration.pc
-])
+AC_CONFIG_FILES([Makefile])
+
+if test "x$enable_cxx03_abi" = "xyes"; then
+AC_CONFIG_FILES([dali-adaptor-cxx03.pc dali-adaptor-integration-cxx03.pc])
+else
+AC_CONFIG_FILES([dali-adaptor.pc dali-adaptor-integration.pc])
+fi
 
 if test "x$freetype_bitmap_support" = "xyes"; then
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DFREETYPE_BITMAP_SUPPORT"
@@ -379,20 +390,15 @@ Configuration
   Tizen SDK 2.2 compatibility:      $with_tizen_2_2_compatibility
   EldBus:                           $eldbus_available
   Shader Binary Cache:              $enable_shaderbincache
-  Using LibUV mainloop (Node.JS)    $build_for_libuv
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
   Network logging enabled:          $enable_networklogging
   Font config file:                 $fontConfigurationFile
-  Building with EFL Libraries:      $enable_efl
   Using Tizen APP FW libraries:     $enable_appfw
   OpenGL ES version:                $enable_gles
   Tizen Platform Config supported   $tizenPlatformConfigSupported
-  Vulkan Support:                   ${enable_vulkan}"
+  Vulkan Support:                   ${enable_vulkan}
+"
 
-# optional output of node.js source path if we're building with libuv
-if test "x$build_for_libuv" != "xno"; then
-echo "  LibUV header path         $with_libuv"
-fi
 if test "x$VULKAN_SDK" != "x"; then
     echo "  VulkanSDK:                        ${VULKAN_SDK}"
 fi

@@ -2,7 +2,7 @@
 #define __FEEDBACK_PLUGIN_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,6 @@
  * limitations under the License.
  *
  */
-
-// EXTERNAL INCLUDES
-#if defined(DALI_PROFILE_MOBILE)
-#include <dd-haptic.h>
-#else
-#include <haptic.h>
-#endif
 
 // INTERNAL INCLUDES
 #include <feedback-plugin.h>
@@ -83,12 +76,6 @@ public: // FeedbackPlugin overrides
    * @copydoc Dali::FeedbackPlugin::PlayFeedbackPattern()
    */
   void PlayFeedbackPattern( int type, int pattern );
-
-private:
-
-  haptic_device_h mDeviceHandle;
-
-  bool mHapticInitialized;
 };
 
 }  // namespace Plugin

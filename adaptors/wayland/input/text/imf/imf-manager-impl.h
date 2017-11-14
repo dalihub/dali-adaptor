@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_IMF_MANAGER_WL_H
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,9 @@ public:
   typedef Dali::ImfManager::ImfEventSignalType ImfEventSignalType;
   typedef Dali::ImfManager::StatusSignalType ImfStatusSignalType;
   typedef Dali::ImfManager::VoidSignalType ImfVoidSignalType;
+  typedef Dali::ImfManager::KeyboardTypeSignalType ImfKeyboardTypeSignalType;
+  typedef Dali::ImfManager::KeyboardResizedSignalType KeyboardResizedSignalType;
+  typedef Dali::ImfManager::LanguageChangedSignalType LanguageChangedSignalType;
 
 public:
 
@@ -171,14 +174,14 @@ public:
   void ApplyOptions( const InputMethodOptions& options );
 
   /**
-   * @copydoc Dali::ImfManager::SetInputPanelUserData()
+   * @copydoc Dali::ImfManager::SetInputPanelData()
    */
-  void SetInputPanelUserData( const std::string& data );
+  void SetInputPanelData( const std::string& data );
 
   /**
-   * @copydoc Dali::ImfManager::GetInputPanelUserData()
+   * @copydoc Dali::ImfManager::GetInputPanelData()
    */
-  void GetInputPanelUserData( std::string& data );
+  void GetInputPanelData( std::string& data );
 
   /**
    * @copydoc Dali::ImfManager::GetInputPanelState()
@@ -205,6 +208,16 @@ public:
    */
   void HideInputPanel();
 
+  /**
+   * @copydoc Dali::ImfManager::GetKeyboardType()
+   */
+  Dali::ImfManager::KeyboardType GetKeyboardType();
+
+  /**
+   * @copydoc Dali::ImfManager::GetInputPanelLocale()
+   */
+  std::string GetInputPanelLocale();
+
 public:  // Signals
 
   /**
@@ -225,13 +238,17 @@ public:  // Signals
   /**
    * @copydoc Dali::ImfManager::ResizedSignal()
    */
-  ImfVoidSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
+  KeyboardResizedSignalType& ResizedSignal() { return mKeyboardResizeSignal; }
 
   /**
    * @copydoc Dali::ImfManager::LanguageChangedSignal()
    */
-  ImfVoidSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
+  LanguageChangedSignalType& LanguageChangedSignal() { return mKeyboardLanguageChangedSignal; }
 
+  /**
+   * @copydoc Dali::ImfManager::KeyboardTypeChangedSignal()
+   */
+  ImfKeyboardTypeSignalType& KeyboardTypeChangedSignal() { return mKeyboardTypeChangedSignal; }
 
   /**
    * @brief Called when an IMF Pre-Edit change event is received.
@@ -274,11 +291,12 @@ protected:
 
 private:
 
-  ImfManagerSignalType      mActivatedSignal;
-  ImfEventSignalType        mEventSignal;
-  ImfStatusSignalType       mKeyboardStatusSignal;
-  ImfVoidSignalType         mKeyboardResizeSignal;
-  ImfVoidSignalType         mKeyboardLanguageChangedSignal;
+  ImfManagerSignalType       mActivatedSignal;
+  ImfEventSignalType         mEventSignal;
+  ImfStatusSignalType        mKeyboardStatusSignal;
+  KeyboardResizedSignalType  mKeyboardResizeSignal;
+  LanguageChangedSignalType  mKeyboardLanguageChangedSignal;
+  ImfKeyboardTypeSignalType  mKeyboardTypeChangedSignal;
 
   // Undefined
   ImfManager( const ImfManager& );

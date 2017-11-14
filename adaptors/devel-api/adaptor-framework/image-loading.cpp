@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,36 +20,50 @@
 // INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
 #include <resource-loader/network/file-download.h>
-#include <platform-abstractions/portable/file-closer.h>
+#include <platform-abstractions/portable/file-reader.h>
+#include "pixel-buffer-impl.h"
 
 namespace Dali
 {
 
 namespace
 {
+
 // limit maximum image down load size to 50 MB
 const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+
+static unsigned int gMaxTextureSize = 4096;
+
 }
 
-PixelData LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
   Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
-  IntrusivePtr<Dali::RefObject> resource = TizenPlatform::ImageLoader::LoadImageSynchronously( resourceType, url );
 
-  if( resource )
+  Internal::Platform::FileReader fileReader( url );
+  FILE * const fp = fileReader.GetFile();
+  if( fp != NULL )
   {
-    Integration::Bitmap* bitmap = static_cast<Integration::Bitmap*>( resource.Get() );
+    Integration::BitmapPtr bitmap;
+    bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap( resourceType, url, fp, bitmap );
+    if( success && bitmap )
+    {
+      // Use bitmap->GetBufferOwnership() to transfer the buffer ownership
+      // to pixelData.  The destroy of bitmap will not release the buffer,
+      // instead, the pixelBuffer is responsible for releasing when its
+      // reference count falls to zero.
+      Internal::Adaptor::PixelBufferPtr pixelBufferImpl =
+        Internal::Adaptor::PixelBuffer::New( bitmap->GetBufferOwnership(),
+                                             bitmap->GetBufferSize(),
+                                             bitmap->GetImageWidth(),
+                                             bitmap->GetImageHeight(),
+                                             bitmap->GetPixelFormat() );
 
-    // Use bitmap->GetBufferOwnership() to transfer the buffer ownership to pixelData.
-    // The destroy of bitmap will not release the buffer, instead, the pixelData is responsible for releasing when its reference count falls to zero.
-    return Dali::PixelData::New( bitmap->GetBufferOwnership(),
-                                 bitmap->GetBufferSize(),
-                                 bitmap->GetImageWidth(),
-                                 bitmap->GetImageHeight(),
-                                 bitmap->GetPixelFormat(),
-                                 Dali::PixelData::FREE );
+      Dali::Devel::PixelBuffer pixelBuffer( pixelBufferImpl.Get() );
+      return pixelBuffer;
+    }
   }
-  return Dali::PixelData();
+  return Dali::Devel::PixelBuffer();
 }
 
 ImageDimensions GetClosestImageSize( const std::string& filename,
@@ -58,11 +72,16 @@ ImageDimensions GetClosestImageSize( const std::string& filename,
                                      SamplingMode::Type samplingMode,
                                      bool orientationCorrection )
 {
-  return TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+
+  dimension.SetWidth( std::min( dimension.GetWidth(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
+  dimension.SetHeight( std::min( dimension.GetHeight(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
+
+  return dimension;
 }
 
 
-PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
   Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
 
@@ -74,17 +93,15 @@ PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions si
                                                                     MAXIMUM_DOWNLOAD_IMAGE_SIZE );
   if( succeeded )
   {
-    void *blobBytes = static_cast<void*>(&dataBuffer[0]);
     size_t blobSize = dataBuffer.Size();
 
     DALI_ASSERT_DEBUG( blobSize > 0U );
-    DALI_ASSERT_DEBUG( blobBytes != 0U );
 
-    if( blobBytes != 0 && blobSize > 0U )
+    if( blobSize > 0U )
     {
       // Open a file handle on the memory buffer:
-      Dali::Internal::Platform::FileCloser fileCloser( blobBytes, blobSize, "rb" );
-      FILE * const fp = fileCloser.GetFile();
+      Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
+      FILE * const fp = fileReader.GetFile();
       if ( NULL != fp )
       {
         Integration::BitmapPtr bitmap;
@@ -96,12 +113,15 @@ PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions si
 
         if ( result && bitmap )
         {
-          return Dali::PixelData::New( bitmap->GetBufferOwnership(),
-                                       bitmap->GetBufferSize(),
-                                       bitmap->GetImageWidth(),
-                                       bitmap->GetImageHeight(),
-                                       bitmap->GetPixelFormat(),
-                                       Dali::PixelData::FREE );
+          Internal::Adaptor::PixelBufferPtr pixelBufferImpl =
+            Internal::Adaptor::PixelBuffer::New( bitmap->GetBufferOwnership(),
+                                                 bitmap->GetBufferSize(),
+                                                 bitmap->GetImageWidth(),
+                                                 bitmap->GetImageHeight(),
+                                                 bitmap->GetPixelFormat() );
+
+          Dali::Devel::PixelBuffer pixelBuffer( pixelBufferImpl.Get() );
+          return pixelBuffer;
         }
         else
         {
@@ -109,10 +129,18 @@ PixelData DownloadImageSynchronously( const std::string& url, ImageDimensions si
         }
       }
     }
-
   }
-  return Dali::PixelData();
+  return Dali::Devel::PixelBuffer();
 }
 
+void SetMaxTextureSize( unsigned int size )
+{
+  gMaxTextureSize = size;
+}
+
+unsigned int GetMaxTextureSize()
+{
+  return gMaxTextureSize;
+}
 
 } // namespace Dali

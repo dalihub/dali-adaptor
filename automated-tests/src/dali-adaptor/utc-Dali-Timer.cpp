@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <dali/dali.h>
 #include <Ecore.h>
 #include <dali-test-suite-utils.h>
+#include <adaptor-test-application.h>
 
 using namespace Dali;
 
@@ -116,7 +117,8 @@ public:
 // Positive test case for a method
 int UtcDaliTimerCreation(void)
 {
- // TestApplication application;
+  AdaptorTestApplication application;
+
   tet_printf("timer creation \n");
   Timer timer = Timer::New(300);
 
@@ -129,6 +131,8 @@ int UtcDaliTimerCreation(void)
 
 int UtcDaliTimerUnitializedStart(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized timer start \n");
 
   Timer *timer = new Timer;
@@ -147,6 +151,8 @@ int UtcDaliTimerUnitializedStart(void)
 
 int UtcDaliTimerUnitializedStop(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized timer stop \n");
 
   Timer *timer = new Timer;
@@ -165,6 +171,8 @@ int UtcDaliTimerUnitializedStop(void)
 
 int UtcDaliTimerUnitializedGetInterval(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized get interval \n");
 
   Timer *timer = new Timer;
@@ -183,6 +191,8 @@ int UtcDaliTimerUnitializedGetInterval(void)
 
 int UtcDaliTimerUnitializedSetInterval(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized set interval \n");
 
   Timer *timer = new Timer;
@@ -201,6 +211,8 @@ int UtcDaliTimerUnitializedSetInterval(void)
 
 int UtcDaliTimerUnitializedIsRunning(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized is running \n");
 
   Timer *timer = new Timer;
@@ -220,6 +232,8 @@ int UtcDaliTimerUnitializedIsRunning(void)
 
 int UtcDaliTimerUnitializedSignalTick(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("unintialized SignalTick \n");
 
   Timer *timer = new Timer;
@@ -240,6 +254,8 @@ int UtcDaliTimerUnitializedSignalTick(void)
 
 int UtcDaliTimerSetInterval(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("timer set interval \n");
   Timer timer = Timer::New(10);
 
@@ -254,6 +270,8 @@ int UtcDaliTimerSetInterval(void)
 
 int UtcDaliTimerCopyConstructor(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("timer copy constructor \n");
   Timer timer = Timer::New(10);
 
@@ -265,6 +283,8 @@ int UtcDaliTimerCopyConstructor(void)
 
 int UtcDaliTimerAssignmentOperator(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("assignmnet constructor \n");
 
   Timer timer = Timer::New(10);
@@ -294,6 +314,8 @@ int UtcDaliTimerAssignmentOperator(void)
 
 int UtcDaliTimerIsRunning(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("timer is running \n");
 
   Timer timer = Timer::New(100);
@@ -311,6 +333,8 @@ int UtcDaliTimerIsRunning(void)
 
 int UtcDaliTimerSignalTickContinue(void)
 {
+  AdaptorTestApplication application;
+
   tet_printf("timer call back\n");
 
   Timer timer = Timer::New(100);
@@ -329,6 +353,8 @@ int UtcDaliTimerSignalTickContinue(void)
 
 int UtcDaliTimerSignalTickStop(void)
 {
+  AdaptorTestApplication application;
+
   Timer timer = Timer::New(100);
   TimerTestClass testClass(false);
 
@@ -345,6 +371,8 @@ int UtcDaliTimerSignalTickStop(void)
 
 int UtcDaliTimerReset(void)
 {
+  AdaptorTestApplication application;
+
   Timer timer = Timer::New(100);
 
   DALI_TEST_CHECK(timer);
@@ -358,6 +386,8 @@ int UtcDaliTimerReset(void)
 
 int UtcDaliTimerDownCastP(void)
 {
+  AdaptorTestApplication application;
+
   Timer timer = Timer::New(100);
   Timer cast = Timer::DownCast( timer );
 
@@ -368,6 +398,8 @@ int UtcDaliTimerDownCastP(void)
 
 int UtcDaliTimerDownCastN(void)
 {
+  AdaptorTestApplication application;
+
   Timer timer;
   Timer cast = Timer::DownCast( timer );
 

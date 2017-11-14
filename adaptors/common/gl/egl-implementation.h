@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_EGL_IMPLEMENTATION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,9 @@ class EglImplementation : public EglInterface
 public:
   /**
    * Constructor
+   * @param environmentOptions To check the envirionment options
    */
-  EglImplementation();
+  EglImplementation( int multiSamplingLevel );
 
   /**
    * Destructor
@@ -178,9 +179,9 @@ private:
   Vector<EGLint>       mContextAttribs;
 
   EGLNativeDisplayType mEglNativeDisplay;
-#ifndef EMSCRIPTEN
+
   EGLNativeWindowType  mEglNativeWindow;
-#endif
+
   EGLNativePixmapType  mCurrentEglNativePixmap;
 
   EGLDisplay           mEglDisplay;
@@ -193,6 +194,8 @@ private:
   bool                 mContextCurrent;
   bool                 mIsWindow;
   ColorDepth           mColorDepth;
+
+  int                  mMultiSamplingLevel;
 };
 
 } // namespace Adaptor

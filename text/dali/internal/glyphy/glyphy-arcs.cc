@@ -20,6 +20,10 @@
 #include <config.h>
 #endif
 
+// Glyphy is written using C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 #include "glyphy-common.hh"
 #include "glyphy-geometry.hh"
 #include "glyphy-arcs-bezier.hh"
@@ -282,3 +286,5 @@ glyphy_arc_list_extents (const glyphy_arc_endpoint_t *endpoints,
     glyphy_extents_extend (extents, &arc_extents);
   }
 }
+
+#pragma GCC diagnostic pop

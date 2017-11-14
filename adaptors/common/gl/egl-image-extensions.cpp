@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,9 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     EGL_NONE
   };
 
+// EGL constants use C casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
   EGLImageKHR eglImage  = eglCreateImageKHRProc( mEglImplementation->GetDisplay(),
                                              EGL_NO_CONTEXT,
                                              EGL_NATIVE_PIXMAP_KHR,
@@ -138,8 +141,9 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
     }
   }
+#pragma GCC diagnostic pop
 
-  return (void*)eglImage;
+  return eglImage;
 }
 
 void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
@@ -199,7 +203,7 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     GLint glError = glGetError();
 #endif
 
-    glEGLImageTargetTexture2DOESProc(GL_TEXTURE_2D, (GLeglImageOES)eglImage);
+    glEGLImageTargetTexture2DOESProc(GL_TEXTURE_2D, reinterpret_cast< GLeglImageOES >( eglImage ) );
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
@@ -216,9 +220,9 @@ void EglImageExtensions::InitializeEglImageKHR()
   // avoid trying to reload extended KHR functions, if it fails the first time
   if( ! mImageKHRInitializeFailed )
   {
-    eglCreateImageKHRProc  = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglCreateImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
-    eglDestroyImageKHRProc = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
-    glEGLImageTargetTexture2DOESProc = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) eglGetProcAddress("glEGLImageTargetTexture2DOES"); /* parasoft-suppress MISRA2004-11_1_DMC "Using EGL defined functions." */
+    eglCreateImageKHRProc  = reinterpret_cast< PFNEGLCREATEIMAGEKHRPROC >( eglGetProcAddress("eglCreateImageKHR") );
+    eglDestroyImageKHRProc = reinterpret_cast< PFNEGLDESTROYIMAGEKHRPROC >( eglGetProcAddress("eglDestroyImageKHR") );
+    glEGLImageTargetTexture2DOESProc = reinterpret_cast< PFNGLEGLIMAGETARGETTEXTURE2DOESPROC >( eglGetProcAddress("glEGLImageTargetTexture2DOES") );
   }
 
   if (eglCreateImageKHRProc && eglDestroyImageKHRProc && glEGLImageTargetTexture2DOESProc)

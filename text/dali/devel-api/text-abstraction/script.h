@@ -2,7 +2,7 @@
 #define __DALI_TOOLKIT_TEXT_ABSTRACTION_SCRIPT_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,11 @@ enum Script
   JAVANESE,      ///< The Javanese script. Used by the Javanese language.
   SUNDANESE,     ///< The Sundanese script. Used by the Sundanese language.
 
+  GEEZ,          ///< The Ge'ez script. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
+  OL_CHIKI,      ///< The Ol Chiki script. Used by the Santali.
+  BAYBAYIN,      ///< The Baybayin script. Used by the Tagalog, Bikol languages, Ilocano, Pangasinan, Visayan and other languages in Philippines.
+  MEITEI,        ///< The Meitei script used for the Meitei language in Manipur, India.
+
   EMOJI,         ///< The Emoji which map to standardized Unicode characters.
 
   SYMBOLS1,      ///< Some symbols.
@@ -158,6 +163,11 @@ const char* const ScriptName[] =
   "KHMER",         ///< The Khmer script. Used by the Khmer language.
   "JAVANESE",      ///< The Javanese script. Used by the Javanese language.
   "SUNDANESE",     ///< The Sundanese script. Used by the Sundanese language.
+
+  "GEEZ",          ///< The Ge'ez script also known as Ethiopic. Used by the Amharic, Tigrinya and other languages in Ethiopia and Eritrea.
+  "OL_CHIKI",      ///< The Ol Chiki script. Used by the Santali.
+  "BAYBAYIN",      ///< The Baybayin script. Used by the Tagalog, Bikol languages, Ilocano, Pangasinan, Visayan and other languages in Philippines.
+  "MEITEI",        ///< The Meitei script used for the Meitei language in Manipur, India.
 
   "EMOJI",         ///< The Emoji which map to standardized Unicode characters.
 

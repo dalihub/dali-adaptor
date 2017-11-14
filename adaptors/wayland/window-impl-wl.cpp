@@ -48,11 +48,11 @@ struct Window::EventHandler
   // place holder
 };
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -111,17 +111,23 @@ Window::Window()
   mWMRotationAppSet( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
+  mResizeEnabled( true ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
-  mType( Dali::DevelWindow::NORMAL ),
+  mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints()
+  mAuxiliaryHints(),
+  mIndicatorVisibilityChangedSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
+  mDeleteRequestSignal()
 {
   mEventHandler = NULL;
 }
@@ -140,16 +146,15 @@ Window::~Window()
   delete mSurface;
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( windowPosition, surface, name, mIsTransparent );
+  Wayland::RenderSurface* windowSurface = new Wayland::RenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
 
   mOrientation = Orientation::New(this);
-
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -289,7 +294,7 @@ void Window::SetAcceptFocus( bool accept )
   mIsFocusAcceptable = accept;
 }
 
-bool Window::IsFocusAcceptable()
+bool Window::IsFocusAcceptable() const
 {
   return mIsFocusAcceptable;
 }
@@ -314,12 +319,17 @@ void Window::RotationDone( int orientation, int width, int height )
 {
 }
 
-unsigned int Window::GetSupportedAuxiliaryHintCount()
+void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
+{
+  mIndicatorVisible = mode;
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount() const
 {
   return 0;
 }
 
-std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index ) const
 {
   return std::string();
 }
@@ -353,24 +363,24 @@ void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 
-void Window::SetType( Dali::DevelWindow::Type type )
+void Window::SetType( Dali::Window::Type type )
 {
   mType = type;
 }
 
-Dali::DevelWindow::Type Window::GetType() const
+Dali::Window::Type Window::GetType() const
 {
   return mType;
 }
 
-bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
 {
   return false;
 }
 
-Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+Dali::Window::NotificationLevel::Type Window::GetNotificationLevel() const
 {
-  return Dali::DevelWindow::NotificationLevel::NONE;
+  return Dali::Window::NotificationLevel::NONE;
 }
 
 void Window::SetOpaqueState( bool opaque )
@@ -378,19 +388,19 @@ void Window::SetOpaqueState( bool opaque )
   mOpaqueState = opaque;
 }
 
-bool Window::IsOpaqueState()
+bool Window::IsOpaqueState() const
 {
   return mOpaqueState;
 }
 
-bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+bool Window::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
 {
   return false;
 }
 
-Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+Dali::Window::ScreenOffMode::Type Window::GetScreenOffMode() const
 {
-  return Dali::DevelWindow::ScreenMode::DEFAULT;
+  return Dali::Window::ScreenOffMode::TIMEOUT;
 }
 
 bool Window::SetBrightness( int brightness )
@@ -398,9 +408,60 @@ bool Window::SetBrightness( int brightness )
   return false;
 }
 
-int Window::GetBrightness()
+int Window::GetBrightness() const
 {
   return 0;
+}
+
+void Window::SetSize( Dali::Window::WindowSize size )
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.width != size.GetWidth() || positionSize.height != size.GetHeight() )
+  {
+    positionSize.width = size.GetWidth();
+    positionSize.height = size.GetHeight();
+
+    mSurface->MoveResize( positionSize );
+
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+    // Emit signal
+    mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );
+
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+  }
+}
+
+Dali::Window::WindowSize Window::GetSize() const
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::Window::WindowSize( positionSize.width, positionSize.height );
+}
+
+void Window::SetPosition( Dali::Window::WindowPosition position )
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.x != position.GetX() || positionSize.y != position.GetY() )
+  {
+    positionSize.x = position.GetX();
+    positionSize.y = position.GetY();
+
+    mSurface->MoveResize( positionSize );
+  }
+}
+
+Dali::Window::WindowPosition Window::GetPosition() const
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::Window::WindowPosition( positionSize.x, positionSize.y );
+}
+
+void Window::SetTransparency( bool transparent )
+{
 }
 
 } // Adaptor

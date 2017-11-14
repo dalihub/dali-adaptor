@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <Ecore.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <adaptor-test-application.h>
 #include <tilt-sensor-impl.h>
 
 using namespace Dali;
@@ -110,55 +111,55 @@ void tilt_sensor_cleanup(void)
 }
 
 
-int UtcDaliTiltSensorEnable(void)
+int UtcDaliTiltSensorStart(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorEnable");
+  tet_infoline("UtcDaliTiltSensorStart");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
-  sensor.Enable();
-  DALI_TEST_CHECK( sensor.IsEnabled() );
+  sensor.Start();
+  DALI_TEST_CHECK( sensor.IsStarted() );
 
   END_TEST;
 }
 
-int UtcDaliTiltSensorDisable(void)
+int UtcDaliTiltSensorStop(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorDisable");
+  tet_infoline("UtcDaliTiltSensorStop");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
-  sensor.Enable();
-  DALI_TEST_CHECK( sensor.IsEnabled() );
+  sensor.Start();
+  DALI_TEST_CHECK( sensor.IsStarted() );
 
-  sensor.Disable();
-  DALI_TEST_CHECK( !sensor.IsEnabled() );
+  sensor.Stop();
+  DALI_TEST_CHECK( !sensor.IsStarted() );
   END_TEST;
 }
 
-int UtcDaliTiltSensorIsEnabled(void)
+int UtcDaliTiltSensorIsStarted(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
-  tet_infoline("UtcDaliTiltSensorIsEnabled");
+  tet_infoline("UtcDaliTiltSensorIsStarted");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
 
   // Should be disabled by default
-  DALI_TEST_CHECK( !sensor.IsEnabled() );
+  DALI_TEST_CHECK( !sensor.IsStarted() );
   END_TEST;
 }
 
 int UtcDaliTiltSensorGetRoll(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetRoll");
 
@@ -172,7 +173,7 @@ int UtcDaliTiltSensorGetRoll(void)
 
 int UtcDaliTiltSensorGetPitch(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetPitch");
 
@@ -186,7 +187,7 @@ int UtcDaliTiltSensorGetPitch(void)
 
 int UtcDaliTiltSensorGetRotation(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorGetRotation");
 
@@ -208,13 +209,13 @@ int UtcDaliTiltSensorGetRotation(void)
 
 int UtcDaliTiltSensorSignalTilted(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSignalTilted");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
-  sensor.Enable();
+  sensor.Start();
 
   Radian angle(Degree(-45));
   //Setting a negative threshold for testing purpose
@@ -225,7 +226,7 @@ int UtcDaliTiltSensorSignalTilted(void)
 
 int UtcDaliTiltSensorSetUpdateFrequency(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSetUpdateFrequency");
 
@@ -243,13 +244,13 @@ int UtcDaliTiltSensorSetUpdateFrequency(void)
 
 int UtcDaliTiltSensorSetRotationThreshold01(void)
 {
-  TestApplication application;
+  AdaptorTestApplication application;
 
   tet_infoline("UtcDaliTiltSensorSetRotationThreshold01");
 
   TiltSensor sensor = GetTiltSensor();
   DALI_TEST_CHECK( sensor );
-  sensor.Enable();
+  sensor.Start();
 
   Radian angle(Degree(-45));
   sensor.SetRotationThreshold( angle );

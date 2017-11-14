@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@ const unsigned int NANOSECONDS_PER_MILLISECOND( 1e+6 );
 
 // The following values will get calculated at compile time
 const float        DEFAULT_FRAME_DURATION_IN_SECONDS( 1.0f / 60.0f );
-const unsigned int DEFAULT_FRAME_DURATION_IN_MILLISECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * MILLISECONDS_PER_SECOND );
-const unsigned int DEFAULT_FRAME_DURATION_IN_NANOSECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * NANOSECONDS_PER_SECOND );
+const uint64_t DEFAULT_FRAME_DURATION_IN_MILLISECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * MILLISECONDS_PER_SECOND );
+const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * NANOSECONDS_PER_SECOND );
 
 /**
  * Handles the use case when an update-request is received JUST before we process a sleep-request. If we did not have an update-request count then
@@ -107,7 +107,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mPendingRequestUpdate( FALSE ),
   mUseElapsedTimeAfterWait( FALSE ),
   mNewSurface( NULL ),
-  mPostRendering( FALSE )
+  mPostRendering( FALSE ),
+  mSurfaceResized( FALSE )
 {
   LOG_EVENT_TRACE;
 
@@ -284,13 +285,33 @@ void CombinedUpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
   LOG_EVENT( "Surface replaced, event-thread continuing" );
 }
 
+void CombinedUpdateRenderController::ResizeSurface()
+{
+  LOG_EVENT_TRACE;
+
+  LOG_EVENT( "Starting to resize the surface, event-thread blocked" );
+
+  // Start resizing the surface.
+  {
+    ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
+    mSurfaceResized = TRUE;
+    mUpdateRenderThreadWaitCondition.Notify( lock );
+  }
+
+  // Wait until the surface has been resized
+  sem_wait( &mEventThreadSemaphore );
+
+  LOG_EVENT( "Surface resized, event-thread continuing" );
+}
+
 void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOfFramesPerRender )
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
   mDefaultFrameDelta                  = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
-  mDefaultFrameDurationMilliseconds   = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
-  mDefaultFrameDurationNanoseconds    = (uint64_t)numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
-  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2;
+  mDefaultFrameDurationMilliseconds   = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
+  mDefaultFrameDurationNanoseconds    = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
+  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2u;
 
   LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
 }
@@ -376,8 +397,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   bool useElapsedTime = true;
   bool updateRequired = true;
+  uint64_t timeToSleepUntil = 0;
+  int extraFramesDropped = 0;
 
-  while( UpdateRenderReady( useElapsedTime, updateRequired ) )
+  const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
+  const bool renderToFboEnabled = 0u != renderToFboInterval;
+  unsigned int frameCount = 0u;
+
+  while( UpdateRenderReady( useElapsedTime, updateRequired, timeToSleepUntil ) )
   {
     LOG_UPDATE_RENDER_TRACE;
 
@@ -411,6 +438,22 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     //////////////////////////////
+    // RESIZE SURFACE
+    //////////////////////////////
+
+    const bool isRenderingToFbo = renderToFboEnabled && ( ( 0u == frameCount ) || ( 0u != frameCount % renderToFboInterval ) );
+    ++frameCount;
+
+    // The resizing will be applied in the next loop
+    bool surfaceResized = ShouldSurfaceBeResized();
+    if( DALI_UNLIKELY( surfaceResized ) )
+    {
+      LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
+      mRenderHelper.ResizeSurface();
+      SurfaceResized();
+    }
+
+    //////////////////////////////
     // UPDATE
     //////////////////////////////
 
@@ -422,8 +465,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( useElapsedTime )
     {
       // If using the elapsed time, then calculate frameDelta as a multiple of mDefaultFrameDelta
-      // Round up if remainder is more than half the default frame time
-      noOfFramesSinceLastUpdate = ( timeSinceLastFrame + mDefaultHalfFrameNanoseconds) / mDefaultFrameDurationNanoseconds;
+      noOfFramesSinceLastUpdate += extraFramesDropped;
+
       frameDelta = mDefaultFrameDelta * noOfFramesSinceLastUpdate;
     }
     LOG_UPDATE_RENDER( "timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta );
@@ -431,7 +474,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
-    mCore.Update( frameDelta, currentTime, nextFrameTime, updateStatus );
+    mCore.Update( frameDelta,
+                  currentTime,
+                  nextFrameTime,
+                  updateStatus,
+                  renderToFboEnabled,
+                  isRenderingToFbo );
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -459,7 +507,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mCore.Render( renderStatus );
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
-    mRenderHelper.PostRender();
+    if( renderStatus.NeedsPostRender() )
+    {
+      mRenderHelper.PostRender( isRenderingToFbo );
+    }
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) &&
@@ -478,8 +529,44 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // FRAME TIME
     //////////////////////////////
 
-    // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
-    TimeService::SleepUntil( currentFrameStartTime + mDefaultFrameDurationNanoseconds );
+    extraFramesDropped = 0;
+
+    if (timeToSleepUntil == 0)
+    {
+      // If this is the first frame after the thread is initialized or resumed, we
+      // use the actual time the current frame starts from to calculate the time to
+      // sleep until the next frame.
+      timeToSleepUntil = currentFrameStartTime + mDefaultFrameDurationNanoseconds;
+    }
+    else
+    {
+      // Otherwise, always use the sleep-until time calculated in the last frame to
+      // calculate the time to sleep until the next frame. In this way, if there is
+      // any time gap between the current frame and the next frame, or if update or
+      // rendering in the current frame takes too much time so that the specified
+      // sleep-until time has already passed, it will try to keep the frames syncing
+      // by shortening the duration of the next frame.
+      timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+
+      // Check the current time at the end of the frame
+      uint64_t currentFrameEndTime = 0;
+      TimeService::GetNanoseconds( currentFrameEndTime );
+      while ( currentFrameEndTime > timeToSleepUntil + mDefaultFrameDurationNanoseconds )
+      {
+         // We are more than one frame behind already, so just drop the next frames
+         // until the sleep-until time is later than the current time so that we can
+         // catch up.
+         timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+         extraFramesDropped++;
+      }
+    }
+
+    // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
+    if( 0u == renderToFboInterval )
+    {
+      // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
+      TimeService::SleepUntil( timeToSleepUntil );
+    }
   }
 
   // Inform core of context destruction & shutdown EGL
@@ -492,7 +579,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   mEnvironmentOptions.UnInstallLogFunction();
 }
 
-bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired )
+bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil )
 {
   useElapsedTime = true;
 
@@ -500,12 +587,19 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   while( ( ! mUpdateRenderRunCount || // Should try to wait if event-thread has paused the Update/Render thread
            ( mUpdateRenderThreadCanSleep && ! updateRequired && ! mPendingRequestUpdate ) ) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
          ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
-         ! mNewSurface ) // Ensure we don't wait if we need to replace the surface
+         ! mNewSurface &&  // Ensure we don't wait if we need to replace the surface
+         ! mSurfaceResized ) // Ensure we don't wait if we need to resize the surface
   {
     LOG_UPDATE_RENDER( "WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
     LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
     LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
     LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
+    LOG_UPDATE_RENDER( "      mSurfaceResized:             %d", mSurfaceResized );
+
+    // Reset the time when the thread is waiting, so the sleep-until time for
+    // the first frame after resuming should be based on the actual start time
+    // of the first frame.
+    timeToSleepUntil = 0;
 
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
 
@@ -519,6 +613,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
   LOG_COUNTER_UPDATE_RENDER( "mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
   LOG_COUNTER_UPDATE_RENDER( "mNewSurface:                 %d", mNewSurface );
+  LOG_COUNTER_UPDATE_RENDER( "mSurfaceResized:             %d", mSurfaceResized );
 
   mUseElapsedTimeAfterWait = FALSE;
   mUpdateRenderThreadCanSleep = FALSE;
@@ -546,6 +641,22 @@ RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 }
 
 void CombinedUpdateRenderController::SurfaceReplaced()
+{
+  // Just increment the semaphore
+  sem_post( &mEventThreadSemaphore );
+}
+
+bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
+{
+  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+
+  bool surfaceSized = mSurfaceResized;
+  mSurfaceResized = FALSE;
+
+  return surfaceSized;
+}
+
+void CombinedUpdateRenderController::SurfaceResized()
 {
   // Just increment the semaphore
   sem_post( &mEventThreadSemaphore );
@@ -595,6 +706,7 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   while( mPostRendering &&
          ! mNewSurface &&                // We should NOT wait if we're replacing the surface
+         ! mSurfaceResized &&            // We should NOT wait if we're resizing the surface
          ! mDestroyUpdateRenderThread )
   {
     mUpdateRenderThreadWaitCondition.Wait( lock );

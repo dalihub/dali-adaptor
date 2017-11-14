@@ -6,12 +6,12 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor")
 SET(TC_SOURCES
     utc-Dali-Application.cpp
-    utc-Dali-BitmapLoader.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
+    utc-Dali-PixelBuffer.cpp
     utc-Dali-SingletonService.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
@@ -34,6 +34,7 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-platform-abstraction.cpp
     dali-test-suite-utils/test-render-controller.cpp
     dali-test-suite-utils/test-trace-call-stack.cpp
+    dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
@@ -43,8 +44,8 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     ecore-x
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror")
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${${CAPI_LIB}_CFLAGS_OTHER}")
+ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
+ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
 ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )
 
@@ -60,7 +61,8 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
-    ${${CAPI_LIB}_LIBRARIES}
+  ${${CAPI_LIB}_LIBRARIES}
+  --coverage
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@
 #include <adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#include <app.h>
+#include <app_common.h>
 #ifdef APPCORE_WATCH_AVAILABLE
-#include <aul_rsm_provider.h>
+#include <screen_connector_provider.h>
 #include <ecore-wl-render-surface.h>
 #endif
+
+#include <system_settings.h>
 
 namespace Dali
 {
@@ -33,6 +35,30 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace
+{
+
+static void OnSystemLanguageChanged( system_settings_key_e key, void* data )
+{
+  char* locale = NULL;
+  if( system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale ) != SYSTEM_SETTINGS_ERROR_NONE ||
+      locale == NULL )
+  {
+    DALI_LOG_ERROR( "DALI OnSystemLanguageChanged failed " );
+    return;
+  }
+
+  Adaptor* adaptor = static_cast< Adaptor* >( data );
+  if( adaptor != NULL )
+  {
+    adaptor->SetRootLayoutDirection( locale );
+  }
+
+  free( locale );
+}
+
+} // namesapce
 
 void Adaptor::GetDataStoragePath( std::string& path)
 {
@@ -78,8 +104,30 @@ void Adaptor::SurfaceInitialized()
   app_get_id(&appId);
 
   Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
-  aul_rsm_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
+  screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
 #endif
+}
+
+void Adaptor::SetupSystemInformation()
+{
+  if( system_settings_set_changed_cb( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this ) != SYSTEM_SETTINGS_ERROR_NONE )
+  {
+    DALI_LOG_ERROR( "DALI system_settings_set_changed_cb failed.\n" );
+    return;
+  }
+
+  char* locale = NULL;
+  if( system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale ) != SYSTEM_SETTINGS_ERROR_NONE ||
+      locale == NULL )
+  {
+    DALI_LOG_ERROR( "DALI OnSystemLanguageChanged failed " );
+    return;
+  }
+
+  SetRootLayoutDirection( locale );
+
+  free( locale );
+
 }
 
 } // namespace Adaptor

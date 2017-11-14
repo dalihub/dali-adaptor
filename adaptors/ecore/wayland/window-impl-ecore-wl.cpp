@@ -19,6 +19,9 @@
 #include <window-impl.h>
 
 // EXTERNAL HEADERS
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Ecore_Wayland.h>
 #include <tizen-extension-client-protocol.h>
@@ -65,10 +68,7 @@ struct Window::EventHandler
    */
   EventHandler( Window* window )
   : mWindow( window ),
-    mWindowPropertyHandler( NULL ),
-    mWindowIconifyStateHandler( NULL ),
-    mWindowFocusInHandler( NULL ),
-    mWindowFocusOutHandler( NULL ),
+    mEcoreEventHandler(),
     mEcoreWindow( 0 ),
     mDisplay( NULL ),
     mEventQueue( NULL ),
@@ -77,9 +77,9 @@ struct Window::EventHandler
     mNotificationLevel( -1 ),
     mNotificationChangeState( 0 ),
     mNotificationLevelChangeDone( true ),
-    mScreenMode( 0 ),
-    mScreenModeChangeState( 0 ),
-    mScreenModeChangeDone( true ),
+    mScreenOffMode( 0 ),
+    mScreenOffModeChangeState( 0 ),
+    mScreenOffModeChangeDone( true ),
     mBrightness( 0 ),
     mBrightnessChangeState( 0 ),
     mBrightnessChangeDone( true )
@@ -94,9 +94,11 @@ struct Window::EventHandler
 
     if( mWindow->mEcoreEventHander )
     {
-      mWindowIconifyStateHandler = ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this );
-      mWindowFocusInHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this );
-      mWindowFocusOutHandler = ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_IGNORE_OUTPUT_TRANSFORM, EcoreEventIgnoreOutputTransform, this) );
     }
 
     mDisplay = ecore_wl_display_get();
@@ -125,22 +127,12 @@ struct Window::EventHandler
    */
   ~EventHandler()
   {
-    if ( mWindowPropertyHandler )
+    for( Dali::Vector< Ecore_Event_Handler* >::Iterator iter = mEcoreEventHandler.Begin(), endIter = mEcoreEventHandler.End(); iter != endIter; ++iter )
     {
-      ecore_event_handler_del( mWindowPropertyHandler );
+      ecore_event_handler_del( *iter );
     }
-    if ( mWindowIconifyStateHandler )
-    {
-      ecore_event_handler_del( mWindowIconifyStateHandler );
-    }
-    if( mWindowFocusInHandler )
-    {
-      ecore_event_handler_del( mWindowFocusInHandler );
-    }
-    if( mWindowFocusOutHandler )
-    {
-      ecore_event_handler_del( mWindowFocusOutHandler );
-    }
+    mEcoreEventHandler.Clear();
+
     if( mEventQueue )
     {
       wl_event_queue_destroy( mEventQueue );
@@ -148,12 +140,6 @@ struct Window::EventHandler
   }
 
   // Static methods
-
-  /// Called when the window properties are changed.
-  static Eina_Bool EcoreEventWindowPropertyChanged( void* data, int type, void* event )
-  {
-    return EINA_FALSE;
-  }
 
   /// Called when the window iconify state is changed.
   static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
@@ -169,12 +155,20 @@ struct Window::EventHandler
       {
         if( iconifyChangedEvent->iconified == EINA_TRUE )
         {
-          observer->OnWindowHidden();
+          handler->mWindow->mIconified = true;
+          if( handler->mWindow->mVisible )
+          {
+            observer->OnWindowHidden();
+          }
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
         }
         else
         {
-          observer->OnWindowShown();
+          handler->mWindow->mIconified = false;
+          if( handler->mWindow->mVisible )
+          {
+            observer->OnWindowShown();
+          }
           DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
         }
         handled = ECORE_CALLBACK_DONE;
@@ -211,6 +205,54 @@ struct Window::EventHandler
       DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n" );
 
       handler->mWindow->mFocusChangedSignal.Emit( false );
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the output is transformed
+  static Eina_Bool EcoreEventOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Output_Transform* transformEvent( static_cast< Ecore_Wl_Event_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventOutputTransform\n", handler->mEcoreWindow );
+
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
+    }
+
+    return ECORE_CALLBACK_PASS_ON;
+  }
+
+  /// Called when the output transform should be ignored
+  static Eina_Bool EcoreEventIgnoreOutputTransform( void* data, int type, void* event )
+  {
+    Ecore_Wl_Event_Ignore_Output_Transform* ignoreTransformEvent( static_cast< Ecore_Wl_Event_Ignore_Output_Transform* >( event ) );
+    EventHandler* handler( static_cast< EventHandler* >( data ) );
+
+    if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
+    {
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
+
+      ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
+      if( wlSurface )
+      {
+        wlSurface->OutputTransformed();
+
+        PositionSize positionSize = wlSurface->GetPositionSize();
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+      }
     }
 
     return ECORE_CALLBACK_PASS_ON;
@@ -270,9 +312,9 @@ struct Window::EventHandler
   {
     Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
 
-    eventHandler->mScreenMode = mode;
-    eventHandler->mScreenModeChangeState = state;
-    eventHandler->mScreenModeChangeDone = true;
+    eventHandler->mScreenOffMode = mode;
+    eventHandler->mScreenOffModeChangeState = state;
+    eventHandler->mScreenOffModeChangeDone = true;
 
     DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::TizenPolicyScreenModeChangeDone: mode = %d, state = %d\n", mode, state );
   }
@@ -314,10 +356,7 @@ struct Window::EventHandler
 
   // Data
   Window* mWindow;
-  Ecore_Event_Handler* mWindowPropertyHandler;
-  Ecore_Event_Handler* mWindowIconifyStateHandler;
-  Ecore_Event_Handler* mWindowFocusInHandler;
-  Ecore_Event_Handler* mWindowFocusOutHandler;
+  Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
   Ecore_Wl_Window* mEcoreWindow;
 
   wl_display* mDisplay;
@@ -329,20 +368,20 @@ struct Window::EventHandler
   uint32_t mNotificationChangeState;
   bool mNotificationLevelChangeDone;
 
-  int mScreenMode;
-  uint32_t mScreenModeChangeState;
-  bool mScreenModeChangeDone;
+  int mScreenOffMode;
+  uint32_t mScreenOffModeChangeState;
+  bool mScreenOffModeChangeDone;
 
   int mBrightness;
   uint32_t mBrightnessChangeState;
   bool mBrightnessChangeDone;
 };
 
-Window* Window::New(const PositionSize& posSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(posSize, name, className);
+  window->Initialize( positionSize, name, className );
   return window;
 }
 
@@ -466,18 +505,24 @@ Window::Window()
   mEcoreEventHander( true ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
+  mIconified( false ),
   mOpaqueState( false ),
+  mResizeEnabled( false ),
   mIndicator( NULL ),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mOverlay( NULL ),
   mAdaptor( NULL ),
-  mType( Dali::DevelWindow::NORMAL ),
+  mType( Dali::Window::NORMAL ),
   mEventHandler( NULL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints()
+  mAuxiliaryHints(),
+  mIndicatorVisibilityChangedSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
+  mDeleteRequestSignal()
 {
 }
 
@@ -504,17 +549,13 @@ Window::~Window()
   mAuxiliaryHints.clear();
 }
 
-void Window::Initialize(const PositionSize& windowPosition, const std::string& name, const std::string& className)
+void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // create an Wayland window by default
   Any surface;
-  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( windowPosition, surface, name, mIsTransparent );
+  ECore::WindowRenderSurface* windowSurface = new ECore::WindowRenderSurface( positionSize, surface, name, mIsTransparent );
 
   mSurface = windowSurface;
-  SetClass( name, className );
-  windowSurface->Map();
-
-  mOrientation = Orientation::New(this);
 
   // create event handler for Wayland window
   mEventHandler = new EventHandler( this );
@@ -533,6 +574,17 @@ void Window::Initialize(const PositionSize& windowPosition, const std::string& n
       DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::Initialize: %s\n", hint );
     }
   }
+
+  if( !positionSize.IsEmpty() )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  SetClass( name, className );
+  windowSurface->Map();
+
+  mOrientation = Orientation::New(this);
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -687,7 +739,8 @@ void Window::SetIndicatorActorRotation()
 
 void Window::Raise()
 {
-  ecore_wl_window_raise( mEventHandler->mEcoreWindow );
+  // Use ecore_wl_window_activate to prevent the window shown without rendering
+  ecore_wl_window_activate( mEventHandler->mEcoreWindow );
 }
 
 void Window::Lower()
@@ -821,7 +874,7 @@ void Window::SetAcceptFocus( bool accept )
   ecore_wl_window_focus_skip_set( mEventHandler->mEcoreWindow, !accept );
 }
 
-bool Window::IsFocusAcceptable()
+bool Window::IsFocusAcceptable() const
 {
   return mIsFocusAcceptable;
 }
@@ -831,10 +884,13 @@ void Window::Show()
   mVisible = true;
   ecore_wl_window_show( mEventHandler->mEcoreWindow );
 
-  // Need an update request
-  if( mAdaptor )
+  if( !mIconified )
   {
-    mAdaptor->RequestUpdateOnce();
+    if( mAdaptor )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowShown();
+    }
   }
 }
 
@@ -842,6 +898,15 @@ void Window::Hide()
 {
   mVisible = false;
   ecore_wl_window_hide( mEventHandler->mEcoreWindow );
+
+  if( !mIconified )
+  {
+    if( mAdaptor )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowHidden();
+    }
+  }
 }
 
 bool Window::IsVisible() const
@@ -851,15 +916,31 @@ bool Window::IsVisible() const
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  ecore_wl_window_rotation_change_done_send( mEventHandler->mEcoreWindow );
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  if( wlSurface )
+  {
+    wlSurface->RequestRotation( orientation, width, height );
+  }
+
+  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+
+  // Emit signal
+  mResizedSignal.Emit( Dali::Window::WindowSize( width, height ) );
+
+  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 }
 
-unsigned int Window::GetSupportedAuxiliaryHintCount()
+void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
+{
+  mIndicatorVisible = mode;
+}
+
+unsigned int Window::GetSupportedAuxiliaryHintCount() const
 {
   return mSupportedAuxiliaryHints.size();
 }
 
-std::string Window::GetSupportedAuxiliaryHint( unsigned int index )
+std::string Window::GetSupportedAuxiliaryHint( unsigned int index ) const
 {
   if( index >= GetSupportedAuxiliaryHintCount() )
   {
@@ -985,7 +1066,7 @@ void Window::SetInputRegion( const Rect< int >& inputRegion )
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
 
-void Window::SetType( Dali::DevelWindow::Type type )
+void Window::SetType( Dali::Window::Type type )
 {
   Ecore_Wl_Window_Type windowType;
 
@@ -993,22 +1074,22 @@ void Window::SetType( Dali::DevelWindow::Type type )
   {
     switch( type )
     {
-      case Dali::DevelWindow::NORMAL:
+      case Dali::Window::NORMAL:
       {
         windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
         break;
       }
-      case Dali::DevelWindow::NOTIFICATION:
+      case Dali::Window::NOTIFICATION:
       {
         windowType = ECORE_WL_WINDOW_TYPE_NOTIFICATION;
         break;
       }
-      case Dali::DevelWindow::UTILITY:
+      case Dali::Window::UTILITY:
       {
         windowType = ECORE_WL_WINDOW_TYPE_UTILITY;
         break;
       }
-      case Dali::DevelWindow::DIALOG:
+      case Dali::Window::DIALOG:
       {
         windowType = ECORE_WL_WINDOW_TYPE_DIALOG;
         break;
@@ -1026,14 +1107,14 @@ void Window::SetType( Dali::DevelWindow::Type type )
   mType = type;
 }
 
-Dali::DevelWindow::Type Window::GetType() const
+Dali::Window::Type Window::GetType() const
 {
   return mType;
 }
 
-bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type level )
+bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
 {
-  if( mType != Dali::DevelWindow::NOTIFICATION )
+  if( mType != Dali::Window::NOTIFICATION )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType );
     return false;
@@ -1048,27 +1129,27 @@ bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type le
 
   switch( level )
   {
-    case Dali::DevelWindow::NotificationLevel::NONE:
+    case Dali::Window::NotificationLevel::NONE:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_NONE;
       break;
     }
-    case Dali::DevelWindow::NotificationLevel::BASE:
+    case Dali::Window::NotificationLevel::BASE:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
       break;
     }
-    case Dali::DevelWindow::NotificationLevel::MEDIUM:
+    case Dali::Window::NotificationLevel::MEDIUM:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_MEDIUM;
       break;
     }
-    case Dali::DevelWindow::NotificationLevel::HIGH:
+    case Dali::Window::NotificationLevel::HIGH:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_HIGH;
       break;
     }
-    case Dali::DevelWindow::NotificationLevel::TOP:
+    case Dali::Window::NotificationLevel::TOP:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_TOP;
       break;
@@ -1111,12 +1192,12 @@ bool Window::SetNotificationLevel( Dali::DevelWindow::NotificationLevel::Type le
   return true;
 }
 
-Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
+Dali::Window::NotificationLevel::Type Window::GetNotificationLevel() const
 {
-  if( mType != Dali::DevelWindow::NOTIFICATION )
+  if( mType != Dali::Window::NOTIFICATION )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", mType );
-    return Dali::DevelWindow::NotificationLevel::NONE;
+    return Dali::Window::NotificationLevel::NONE;
   }
 
   while( !mEventHandler->mTizenPolicy )
@@ -1136,42 +1217,42 @@ Dali::DevelWindow::NotificationLevel::Type Window::GetNotificationLevel()
   if( !mEventHandler->mNotificationLevelChangeDone )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Error! [%d]\n", mEventHandler->mNotificationChangeState );
-    return Dali::DevelWindow::NotificationLevel::NONE;
+    return Dali::Window::NotificationLevel::NONE;
   }
 
-  Dali::DevelWindow::NotificationLevel::Type level;
+  Dali::Window::NotificationLevel::Type level;
 
   switch( mEventHandler->mNotificationLevel )
   {
     case TIZEN_POLICY_LEVEL_NONE:
     {
-      level = Dali::DevelWindow::NotificationLevel::NONE;
+      level = Dali::Window::NotificationLevel::NONE;
       break;
     }
     case TIZEN_POLICY_LEVEL_DEFAULT:
     {
-      level = Dali::DevelWindow::NotificationLevel::BASE;
+      level = Dali::Window::NotificationLevel::BASE;
       break;
     }
     case TIZEN_POLICY_LEVEL_MEDIUM:
     {
-      level = Dali::DevelWindow::NotificationLevel::MEDIUM;
+      level = Dali::Window::NotificationLevel::MEDIUM;
       break;
     }
     case TIZEN_POLICY_LEVEL_HIGH:
     {
-      level = Dali::DevelWindow::NotificationLevel::HIGH;
+      level = Dali::Window::NotificationLevel::HIGH;
       break;
     }
     case TIZEN_POLICY_LEVEL_TOP:
     {
-      level = Dali::DevelWindow::NotificationLevel::TOP;
+      level = Dali::Window::NotificationLevel::TOP;
       break;
     }
     default:
     {
       DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: invalid level [%d]\n", mEventHandler->mNotificationLevel );
-      level = Dali::DevelWindow::NotificationLevel::NONE;
+      level = Dali::Window::NotificationLevel::NONE;
       break;
     }
   }
@@ -1195,31 +1276,31 @@ void Window::SetOpaqueState( bool opaque )
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetOpaqueState: opaque = %d\n", opaque );
 }
 
-bool Window::IsOpaqueState()
+bool Window::IsOpaqueState() const
 {
   return mOpaqueState;
 }
 
-bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
+bool Window::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
 {
   while( !mEventHandler->mTizenPolicy )
   {
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
   }
 
-  mEventHandler->mScreenModeChangeDone = false;
-  mEventHandler->mScreenModeChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
+  mEventHandler->mScreenOffModeChangeDone = false;
+  mEventHandler->mScreenOffModeChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
 
   unsigned int mode = 0;
 
-  switch( screenMode )
+  switch( screenOffMode )
   {
-    case Dali::DevelWindow::ScreenMode::DEFAULT:
+    case Dali::Window::ScreenOffMode::TIMEOUT:
     {
       mode = 0;
       break;
     }
-    case Dali::DevelWindow::ScreenMode::ALWAYS_ON:
+    case Dali::Window::ScreenOffMode::NEVER:
     {
       mode = 1;
       break;
@@ -1230,30 +1311,30 @@ bool Window::SetScreenMode( Dali::DevelWindow::ScreenMode::Type screenMode )
 
   int count = 0;
 
-  while( !mEventHandler->mScreenModeChangeDone && count < 3 )
+  while( !mEventHandler->mScreenOffModeChangeDone && count < 3 )
   {
     ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
 
-  if( !mEventHandler->mScreenModeChangeDone )
+  if( !mEventHandler->mScreenOffModeChangeDone )
   {
-    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Screen mode change is failed [%d, %d]\n", screenMode, mEventHandler->mScreenModeChangeState );
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenOffMode: Screen mode change is failed [%d, %d]\n", screenOffMode, mEventHandler->mScreenOffModeChangeState );
     return false;
   }
-  else if( mEventHandler->mScreenModeChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED )
+  else if( mEventHandler->mScreenOffModeChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED )
   {
-    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Permission denied! [%d]\n", screenMode );
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenOffMode: Permission denied! [%d]\n", screenOffMode );
     return false;
   }
 
-  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenMode: Screen mode is changed [%d]\n", mEventHandler->mScreenMode );
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetScreenOffMode: Screen mode is changed [%d]\n", mEventHandler->mScreenOffMode );
 
   return true;
 }
 
-Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
+Dali::Window::ScreenOffMode::Type Window::GetScreenOffMode() const
 {
   while( !mEventHandler->mTizenPolicy )
   {
@@ -1262,36 +1343,36 @@ Dali::DevelWindow::ScreenMode::Type Window::GetScreenMode()
 
   int count = 0;
 
-  while( !mEventHandler->mScreenModeChangeDone && count < 3 )
+  while( !mEventHandler->mScreenOffModeChangeDone && count < 3 )
   {
     ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
 
-  if( !mEventHandler->mScreenModeChangeDone )
+  if( !mEventHandler->mScreenOffModeChangeDone )
   {
-    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenMode: Error! [%d]\n", mEventHandler->mScreenModeChangeState );
-    return Dali::DevelWindow::ScreenMode::DEFAULT;
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenOffMode: Error! [%d]\n", mEventHandler->mScreenOffModeChangeState );
+    return Dali::Window::ScreenOffMode::TIMEOUT;
   }
 
-  Dali::DevelWindow::ScreenMode::Type screenMode = Dali::DevelWindow::ScreenMode::DEFAULT;
+  Dali::Window::ScreenOffMode::Type screenMode = Dali::Window::ScreenOffMode::TIMEOUT;
 
-  switch( mEventHandler->mScreenMode )
+  switch( mEventHandler->mScreenOffMode )
   {
     case 0:
     {
-      screenMode = Dali::DevelWindow::ScreenMode::DEFAULT;
+      screenMode = Dali::Window::ScreenOffMode::TIMEOUT;
       break;
     }
     case 1:
     {
-      screenMode = Dali::DevelWindow::ScreenMode::ALWAYS_ON;
+      screenMode = Dali::Window::ScreenOffMode::NEVER;
       break;
     }
   }
 
-  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenMode: screen mode [%d]\n", mEventHandler->mScreenMode );
+  DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetScreenOffMode: screen mode [%d]\n", mEventHandler->mScreenOffMode );
 
   return screenMode;
 }
@@ -1339,7 +1420,7 @@ bool Window::SetBrightness( int brightness )
   return true;
 }
 
-int Window::GetBrightness()
+int Window::GetBrightness() const
 {
   while( !mEventHandler->mTizenDisplayPolicy )
   {
@@ -1366,6 +1447,78 @@ int Window::GetBrightness()
   return mEventHandler->mBrightness;
 }
 
+void Window::SetSize( Dali::Window::WindowSize size )
+{
+  if( !mResizeEnabled )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.width != size.GetWidth() || positionSize.height != size.GetHeight() )
+  {
+    positionSize.width = size.GetWidth();
+    positionSize.height = size.GetHeight();
+
+    mSurface->MoveResize( positionSize );
+
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+    // Emit signal
+    mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );
+
+    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+  }
+}
+
+Dali::Window::WindowSize Window::GetSize() const
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::Window::WindowSize( positionSize.width, positionSize.height );
+}
+
+void Window::SetPosition( Dali::Window::WindowPosition position )
+{
+  if( !mResizeEnabled )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  if( positionSize.x != position.GetX() || positionSize.y != position.GetY() )
+  {
+    positionSize.x = position.GetX();
+    positionSize.y = position.GetY();
+
+    mSurface->MoveResize( positionSize );
+  }
+}
+
+Dali::Window::WindowPosition Window::GetPosition() const
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+
+  return Dali::Window::WindowPosition( positionSize.x, positionSize.y );
+}
+
+void Window::SetTransparency( bool transparent )
+{
+  ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+  if( wlSurface )
+  {
+    wlSurface->SetTransparency( transparent );
+  }
+}
+
 } // Adaptor
+
 } // Internal
+
 } // Dali
+
+#pragma GCC diagnostic pop

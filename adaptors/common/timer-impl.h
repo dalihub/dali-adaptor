@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_TIMER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,11 @@ private: // Implementation
   // not implemented
   Timer( const Timer& );
   Timer& operator=( const Timer& );
+
+  /**
+   * Resets any stored timer data.
+   */
+  void ResetTimerData();
 
 private: // Data
 

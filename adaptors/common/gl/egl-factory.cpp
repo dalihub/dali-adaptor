@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,11 @@ namespace Internal
 namespace Adaptor
 {
 
-EglFactory::EglFactory()
+EglFactory::EglFactory( int multiSamplingLevel )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
-  mEglSync(new EglSyncImplementation) // Created early, as needed by Core constructor
+  mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
+  mMultiSamplingLevel( multiSamplingLevel )
 {
 }
 
@@ -48,8 +49,8 @@ EglFactory::~EglFactory()
 EglInterface* EglFactory::Create()
 {
   // Created by RenderThread (After Core construction)
-  mEglImplementation = new EglImplementation();
-  mEglImageExtensions = new EglImageExtensions(mEglImplementation);
+  mEglImplementation = new EglImplementation( mMultiSamplingLevel );
+  mEglImageExtensions = new EglImageExtensions( mEglImplementation );
 
   mEglSync->Initialize(mEglImplementation); // The sync impl needs the EglDisplay
   return mEglImplementation;

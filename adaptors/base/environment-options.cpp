@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
+const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
@@ -102,11 +103,15 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
   mGlesCallTime( 0 ),
-  mWindowWidth( 0 ),
-  mWindowHeight( 0 ),
+  mWindowWidth( 0u ),
+  mWindowHeight( 0u ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
-  mRenderRefreshRate( 1 ),
+  mRenderRefreshRate( 1u ),
   mGlesCallAccumulate( false ),
+  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
+  mMaxTextureSize( 0 ),
+  mIndicatorVisibleMode( -1 ),
+  mRenderToFboInterval( 0u ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -253,6 +258,26 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
   return mRenderRefreshRate;
 }
 
+int EnvironmentOptions::GetMultiSamplingLevel() const
+{
+  return mMultiSamplingLevel;
+}
+
+unsigned int EnvironmentOptions::GetMaxTextureSize() const
+{
+  return mMaxTextureSize;
+}
+
+int EnvironmentOptions::GetIndicatorVisibleMode() const
+{
+  return mIndicatorVisibleMode;
+}
+
+unsigned int EnvironmentOptions::GetRenderToFboInterval() const
+{
+  return mRenderToFboInterval;
+}
+
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
   return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
@@ -377,9 +402,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   {
     switch( threadingMode )
     {
-      case ThreadingMode::SEPARATE_UPDATE_RENDER:
       case ThreadingMode::COMBINED_UPDATE_RENDER:
-      case ThreadingMode::SINGLE_THREADED:
       {
         mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
         break;
@@ -396,6 +419,32 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       mRenderRefreshRate = renderRefreshRate;
     }
   }
+
+  int multiSamplingLevel( 0 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_MULTI_SAMPLING_LEVEL, multiSamplingLevel ) )
+  {
+    mMultiSamplingLevel = multiSamplingLevel;
+  }
+
+  int maxTextureSize( 0 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_MAX_TEXTURE_SIZE, maxTextureSize ) )
+  {
+    if( maxTextureSize > 0 )
+    {
+      mMaxTextureSize = maxTextureSize;
+    }
+  }
+
+  int indicatorVisibleMode( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_INDICATOR_VISIBLE_MODE, indicatorVisibleMode ) )
+  {
+    if( indicatorVisibleMode > -1 )
+    {
+      mIndicatorVisibleMode = indicatorVisibleMode;
+    }
+  }
+
+  mRenderToFboInterval = GetIntegerEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
 }
 
 } // Adaptor

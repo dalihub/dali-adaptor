@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,11 @@ ApplicationExtensions::~ApplicationExtensions()
 void ApplicationExtensions::Init()
 {
   Internal::Adaptor::GetImplementation(*mApplication).DoInit();
+}
+
+void ApplicationExtensions::Start()
+{
+  Internal::Adaptor::GetImplementation(*mApplication).DoStart();
 }
 
 void ApplicationExtensions::Terminate()

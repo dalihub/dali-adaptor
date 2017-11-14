@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,15 @@
 // CLASS HEADER
 #include "timer-impl.h"
 
+// INTERNAL INCLUDES
+#include <adaptor-impl.h>
+
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 
 namespace Dali
@@ -71,14 +79,15 @@ Timer::Timer( unsigned int milliSec )
 
 Timer::~Timer()
 {
-  // stop timers
-  Stop();
-
+  ResetTimerData();
   delete mImpl;
 }
 
 void Timer::Start()
 {
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
   if(mImpl->mId != NULL)
   {
     Stop();
@@ -88,11 +97,10 @@ void Timer::Start()
 
 void Timer::Stop()
 {
-  if (mImpl->mId != NULL)
-  {
-    ecore_timer_del(mImpl->mId);
-    mImpl->mId = NULL;
-  }
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
+  ResetTimerData();
 }
 
 void Timer::SetInterval( unsigned int interval )
@@ -145,6 +153,15 @@ Dali::Timer::TimerSignalType& Timer::TickSignal()
   return mTickSignal;
 }
 
+void Timer::ResetTimerData()
+{
+  if (mImpl->mId != NULL)
+  {
+    ecore_timer_del(mImpl->mId);
+    mImpl->mId = NULL;
+  }
+}
+
 bool Timer::IsRunning() const
 {
   return mImpl->mId != NULL;
@@ -155,3 +172,5 @@ bool Timer::IsRunning() const
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

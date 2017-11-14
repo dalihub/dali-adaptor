@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <cstdio>
 #include <cmath>
+#include <sys/stat.h>
 
 // INTERNAL INCLUDES
 #include <base/environment-options.h>
@@ -81,6 +82,19 @@ void FpsTracker::OutputFPSRecord()
 {
   float fps = mFrameCount / mElapsedTime;
   DALI_LOG_FPS("Frame count %.0f, elapsed time %.1fs, FPS: %.2f\n", mFrameCount, mElapsedTime, fps );
+
+  struct stat fileStat;
+
+  // Check file path
+  if( lstat( DALI_TEMP_UPDATE_FPS_FILE, &fileStat ) != 0 )
+  {
+    return;
+  }
+
+  if( !S_ISREG( fileStat.st_mode ) )
+  {
+    return;
+  }
 
   // Dumps out the frame rate.
   FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w" );

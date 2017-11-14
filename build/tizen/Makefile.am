@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Samsung Electronics Co., Ltd.
+# Copyright (c) 2017 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ rename_cov_data:
 	@test -z $(COVERAGE_DIR) || mkdir -p $(COVERAGE_DIR)
 	@rm -f $(COVERAGE_DIR)/*
 	@-cp adaptor/.libs/*.gcda adaptor/.libs/*.gcno  $(COVERAGE_DIR)
-	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor_la-*.gcda" -o -name "libdali_adaptor_la-*.gcno"` ;\
-		do mv $$i `echo $$i | sed s/libdali_adaptor_la-//` ; echo $$i ; done
+	@for i in `find $(COVERAGE_DIR) -name "libdali_adaptor*_la-*.gcda" -o -name "libdali_adaptor*_la-*.gcno"` ;\
+		do mv $$i `echo $$i | sed s/libdali_adaptor*_la-//` ; echo $$i ; done
 
 cov_data: rename_cov_data
 	@cd $(COVERAGE_DIR) ; lcov $(LCOV_OPTS) --base-directory . --directory . -c -o dali.info

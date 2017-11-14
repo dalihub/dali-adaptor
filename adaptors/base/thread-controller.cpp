@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@
 #include <base/environment-options.h>
 #include <base/thread-controller-interface.h>
 #include <base/combined-update-render/combined-update-render-controller.h>
-#include <base/separate-update-render/separate-update-render-controller.h>
-#include <base/single-threaded/single-thread-controller.h>
 
 namespace Dali
 {
@@ -39,21 +37,9 @@ ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, 
 {
   switch( environmentOptions.GetThreadingMode() )
   {
-    case ThreadingMode::SEPARATE_UPDATE_RENDER:
-    {
-      mThreadControllerInterface = new SeparateUpdateRenderController( adaptorInterfaces, environmentOptions );
-      break;
-    }
-
     case ThreadingMode::COMBINED_UPDATE_RENDER:
     {
       mThreadControllerInterface = new CombinedUpdateRenderController( adaptorInterfaces, environmentOptions );
-      break;
-    }
-
-    case ThreadingMode::SINGLE_THREADED:
-    {
-      mThreadControllerInterface = new SingleThreadController( adaptorInterfaces, environmentOptions );
       break;
     }
   }
@@ -102,6 +88,11 @@ void ThreadController::RequestUpdateOnce()
 void ThreadController::ReplaceSurface( RenderSurface* newSurface )
 {
   mThreadControllerInterface->ReplaceSurface( newSurface );
+}
+
+void ThreadController::ResizeSurface()
+{
+  mThreadControllerInterface->ResizeSurface();
 }
 
 void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )

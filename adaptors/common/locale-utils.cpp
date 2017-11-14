@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,128 +33,125 @@ namespace Locale
 namespace
 {
 
-struct LocaleDirection
+struct LocaleDirectionInfo
 {
   const char * locale;
   const char * name;
-  Dali::ImfManager::TextDirection direction;
+  Locale::Direction direction;
 };
 
-const LocaleDirection LOCALE_DIRECTION_LOOKUP_TABLE[] =
+const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
 {
-  { "af", "Afrikaans",          Dali::ImfManager::LeftToRight },
-  { "am", "Amharic",            Dali::ImfManager::LeftToRight },
-  { "ar", "Arabic",             Dali::ImfManager::RightToLeft },
-  { "as", "Assamese",           Dali::ImfManager::LeftToRight },
-  { "az", "Azeri",              Dali::ImfManager::LeftToRight },
-  { "be", "Belarusian",         Dali::ImfManager::LeftToRight },
-  { "bg", "Bulgarian",          Dali::ImfManager::LeftToRight },
-  { "bn", "Bengali",            Dali::ImfManager::LeftToRight },
-  { "bo", "Tibetan",            Dali::ImfManager::LeftToRight },
-  { "bs", "Bosnian",            Dali::ImfManager::LeftToRight },
-  { "ca", "Catalan",            Dali::ImfManager::LeftToRight },
-  { "cs", "Czech",              Dali::ImfManager::LeftToRight },
-  { "cy", "Welsh",              Dali::ImfManager::LeftToRight },
-  { "da", "Danish",             Dali::ImfManager::LeftToRight },
-  { "de", "German",             Dali::ImfManager::LeftToRight },
-  { "dv", "Divehi",             Dali::ImfManager::RightToLeft },
-  { "el", "Greek",              Dali::ImfManager::LeftToRight },
-  { "en", "English",            Dali::ImfManager::LeftToRight },
-  { "es", "Spanish",            Dali::ImfManager::LeftToRight },
-  { "et", "Estonian",           Dali::ImfManager::LeftToRight },
-  { "eu", "Basque",             Dali::ImfManager::LeftToRight },
-  { "fa", "Farsi",              Dali::ImfManager::RightToLeft },
-  { "fi", "Finnish",            Dali::ImfManager::LeftToRight },
-  { "fo", "Faroese",            Dali::ImfManager::LeftToRight },
-  { "fr", "French",             Dali::ImfManager::LeftToRight },
-  { "gd", "Gaelic",             Dali::ImfManager::LeftToRight },
-  { "gl", "Galician",           Dali::ImfManager::LeftToRight },
-  { "gn", "Guarani",            Dali::ImfManager::LeftToRight },
-  { "gu", "Gujarati",           Dali::ImfManager::LeftToRight },
-  { "he", "Hebrew",             Dali::ImfManager::RightToLeft },
-  { "hi", "Hindi",              Dali::ImfManager::LeftToRight },
-  { "hr", "Croatian",           Dali::ImfManager::LeftToRight },
-  { "hu", "Hungarian",          Dali::ImfManager::LeftToRight },
-  { "hy", "Armenian",           Dali::ImfManager::LeftToRight },
-  { "id", "Indonesian",         Dali::ImfManager::LeftToRight },
-  { "is", "Icelandic",          Dali::ImfManager::LeftToRight },
-  { "it", "Italian",            Dali::ImfManager::LeftToRight },
-  { "ja", "Japanese",           Dali::ImfManager::LeftToRight },
-  { "ka", "Georgian",           Dali::ImfManager::LeftToRight },
-  { "kk", "Kazakh",             Dali::ImfManager::RightToLeft },
-  { "km", "Khmer",              Dali::ImfManager::LeftToRight },
-  { "kn", "Kannada",            Dali::ImfManager::LeftToRight },
-  { "ko", "Korean",             Dali::ImfManager::LeftToRight },
-  { "ks", "Kashmiri",           Dali::ImfManager::RightToLeft },
-  { "la", "Latin",              Dali::ImfManager::LeftToRight },
-  { "lo", "Lao",                Dali::ImfManager::LeftToRight },
-  { "lt", "Lithuanian",         Dali::ImfManager::LeftToRight },
-  { "lv", "Latvian",            Dali::ImfManager::LeftToRight },
-  { "mi", "Maori",              Dali::ImfManager::LeftToRight },
-  { "mk", "FYRO Macedonia",     Dali::ImfManager::LeftToRight },
-  { "ml", "Malayalam",          Dali::ImfManager::LeftToRight },
-  { "mn", "Mongolian",          Dali::ImfManager::LeftToRight },
-  { "mr", "Marathi",            Dali::ImfManager::LeftToRight },
-  { "ms", "Malay",              Dali::ImfManager::LeftToRight },
-  { "mt", "Maltese",            Dali::ImfManager::LeftToRight },
-  { "my", "Burmese",            Dali::ImfManager::LeftToRight },
-  { "nb", "Norwegian: Bokml",   Dali::ImfManager::LeftToRight },
-  { "ne", "Nepali",             Dali::ImfManager::LeftToRight },
-  { "nl", "Dutch",              Dali::ImfManager::LeftToRight },
-  { "nn", "Norwegian: Nynorsk", Dali::ImfManager::LeftToRight },
-  { "or", "Oriya",              Dali::ImfManager::LeftToRight },
-  { "pa", "Punjabi",            Dali::ImfManager::LeftToRight },
-  { "pl", "Polish",             Dali::ImfManager::LeftToRight },
-  { "pt", "Portuguese",         Dali::ImfManager::LeftToRight },
-  { "rm", "Raeto-Romance",      Dali::ImfManager::LeftToRight },
-  { "ro", "Romanian",           Dali::ImfManager::LeftToRight },
-  { "ru", "Russian",            Dali::ImfManager::LeftToRight },
-  { "sa", "Sanskrit",           Dali::ImfManager::LeftToRight },
-  { "sb", "Sorbian",            Dali::ImfManager::LeftToRight },
-  { "sd", "Sindhi",             Dali::ImfManager::LeftToRight },
-  { "si", "Sinhala",            Dali::ImfManager::LeftToRight },
-  { "sk", "Slovak",             Dali::ImfManager::LeftToRight },
-  { "sl", "Slovenian",          Dali::ImfManager::LeftToRight },
-  { "so", "Somali",             Dali::ImfManager::LeftToRight },
-  { "sq", "Albanian",           Dali::ImfManager::LeftToRight },
-  { "sr", "Serbian",            Dali::ImfManager::LeftToRight },
-  { "sv", "Swedish",            Dali::ImfManager::LeftToRight },
-  { "sw", "Swahili",            Dali::ImfManager::LeftToRight },
-  { "ta", "Tamil",              Dali::ImfManager::LeftToRight },
-  { "te", "Telugu",             Dali::ImfManager::LeftToRight },
-  { "tg", "Tajik",              Dali::ImfManager::RightToLeft },
-  { "th", "Thai",               Dali::ImfManager::LeftToRight },
-  { "tk", "Turkmen",            Dali::ImfManager::LeftToRight },
-  { "tn", "Setsuana",           Dali::ImfManager::LeftToRight },
-  { "tr", "Turkish",            Dali::ImfManager::LeftToRight },
-  { "ts", "Tsonga",             Dali::ImfManager::LeftToRight },
-  { "tt", "Tatar",              Dali::ImfManager::LeftToRight },
-  { "uk", "Ukrainian",          Dali::ImfManager::LeftToRight },
-  { "ur", "Urdu",               Dali::ImfManager::RightToLeft },
-  { "uz", "Uzbek",              Dali::ImfManager::LeftToRight },
-  { "vi", "Vietnamese",         Dali::ImfManager::LeftToRight },
-  { "xh", "Xhosa",              Dali::ImfManager::LeftToRight },
-  { "yi", "Yiddish",            Dali::ImfManager::RightToLeft },
-  { "zh", "Chinese",            Dali::ImfManager::LeftToRight },
-  { "zu", "Zulu",               Dali::ImfManager::LeftToRight },
+  { "af", "Afrikaans",          Locale::LeftToRight },
+  { "am", "Amharic",            Locale::LeftToRight },
+  { "ar", "Arabic",             Locale::RightToLeft },
+  { "as", "Assamese",           Locale::LeftToRight },
+  { "az", "Azerbaijani",        Locale::RightToLeft },
+  { "be", "Belarusian",         Locale::LeftToRight },
+  { "bg", "Bulgarian",          Locale::LeftToRight },
+  { "bn", "Bengali",            Locale::LeftToRight },
+  { "bo", "Tibetan",            Locale::LeftToRight },
+  { "bs", "Bosnian",            Locale::LeftToRight },
+  { "ca", "Catalan",            Locale::LeftToRight },
+  { "cs", "Czech",              Locale::LeftToRight },
+  { "cy", "Welsh",              Locale::LeftToRight },
+  { "da", "Danish",             Locale::LeftToRight },
+  { "de", "German",             Locale::LeftToRight },
+  { "dv", "Divehi",             Locale::RightToLeft },
+  { "el", "Greek",              Locale::LeftToRight },
+  { "en", "English",            Locale::LeftToRight },
+  { "es", "Spanish",            Locale::LeftToRight },
+  { "et", "Estonian",           Locale::LeftToRight },
+  { "eu", "Basque",             Locale::LeftToRight },
+  { "fa", "Farsi",              Locale::RightToLeft },
+  { "fi", "Finnish",            Locale::LeftToRight },
+  { "fo", "Faroese",            Locale::LeftToRight },
+  { "fr", "French",             Locale::LeftToRight },
+  { "gd", "Gaelic",             Locale::LeftToRight },
+  { "gl", "Galician",           Locale::LeftToRight },
+  { "gn", "Guarani",            Locale::LeftToRight },
+  { "gu", "Gujarati",           Locale::LeftToRight },
+  { "he", "Hebrew",             Locale::RightToLeft },
+  { "hi", "Hindi",              Locale::LeftToRight },
+  { "hr", "Croatian",           Locale::LeftToRight },
+  { "hu", "Hungarian",          Locale::LeftToRight },
+  { "hy", "Armenian",           Locale::LeftToRight },
+  { "id", "Indonesian",         Locale::LeftToRight },
+  { "is", "Icelandic",          Locale::LeftToRight },
+  { "it", "Italian",            Locale::LeftToRight },
+  { "ja", "Japanese",           Locale::LeftToRight },
+  { "ka", "Georgian",           Locale::LeftToRight },
+  { "kk", "Kazakh",             Locale::RightToLeft },
+  { "km", "Khmer",              Locale::LeftToRight },
+  { "kn", "Kannada",            Locale::LeftToRight },
+  { "ko", "Korean",             Locale::LeftToRight },
+  { "ks", "Kashmiri",           Locale::RightToLeft },
+  { "la", "Latin",              Locale::LeftToRight },
+  { "lo", "Lao",                Locale::LeftToRight },
+  { "lt", "Lithuanian",         Locale::LeftToRight },
+  { "lv", "Latvian",            Locale::LeftToRight },
+  { "mi", "Maori",              Locale::LeftToRight },
+  { "mk", "FYRO Macedonia",     Locale::LeftToRight },
+  { "ml", "Malayalam",          Locale::LeftToRight },
+  { "mn", "Mongolian",          Locale::LeftToRight },
+  { "mr", "Marathi",            Locale::LeftToRight },
+  { "ms", "Malay",              Locale::LeftToRight },
+  { "mt", "Maltese",            Locale::LeftToRight },
+  { "my", "Burmese",            Locale::LeftToRight },
+  { "nb", "Norwegian: Bokml",   Locale::LeftToRight },
+  { "ne", "Nepali",             Locale::LeftToRight },
+  { "nl", "Dutch",              Locale::LeftToRight },
+  { "nn", "Norwegian: Nynorsk", Locale::LeftToRight },
+  { "or", "Oriya",              Locale::LeftToRight },
+  { "pa", "Punjabi",            Locale::LeftToRight },
+  { "pl", "Polish",             Locale::LeftToRight },
+  { "pt", "Portuguese",         Locale::LeftToRight },
+  { "rm", "Raeto-Romance",      Locale::LeftToRight },
+  { "ro", "Romanian",           Locale::LeftToRight },
+  { "ru", "Russian",            Locale::LeftToRight },
+  { "sa", "Sanskrit",           Locale::LeftToRight },
+  { "sb", "Sorbian",            Locale::LeftToRight },
+  { "sd", "Sindhi",             Locale::LeftToRight },
+  { "si", "Sinhala",            Locale::LeftToRight },
+  { "sk", "Slovak",             Locale::LeftToRight },
+  { "sl", "Slovenian",          Locale::LeftToRight },
+  { "so", "Somali",             Locale::LeftToRight },
+  { "sq", "Albanian",           Locale::LeftToRight },
+  { "sr", "Serbian",            Locale::LeftToRight },
+  { "sv", "Swedish",            Locale::LeftToRight },
+  { "sw", "Swahili",            Locale::LeftToRight },
+  { "ta", "Tamil",              Locale::LeftToRight },
+  { "te", "Telugu",             Locale::LeftToRight },
+  { "tg", "Tajik",              Locale::RightToLeft },
+  { "th", "Thai",               Locale::LeftToRight },
+  { "tk", "Turkmen",            Locale::LeftToRight },
+  { "tn", "Setsuana",           Locale::LeftToRight },
+  { "tr", "Turkish",            Locale::LeftToRight },
+  { "ts", "Tsonga",             Locale::LeftToRight },
+  { "tt", "Tatar",              Locale::LeftToRight },
+  { "uk", "Ukrainian",          Locale::LeftToRight },
+  { "ur", "Urdu",               Locale::RightToLeft },
+  { "uz", "Uzbek",              Locale::LeftToRight },
+  { "vi", "Vietnamese",         Locale::LeftToRight },
+  { "xh", "Xhosa",              Locale::LeftToRight },
+  { "yi", "Yiddish",            Locale::RightToLeft },
+  { "zh", "Chinese",            Locale::LeftToRight },
+  { "zu", "Zulu",               Locale::LeftToRight },
 
-  { NULL, NULL, Dali::ImfManager::LeftToRight }
+  { NULL, NULL, Locale::LeftToRight }
 };
 
 } // unnamed namespace
 
-Dali::ImfManager::TextDirection GetTextDirection( std::string locale )
+Locale::Direction GetDirection( const std::string& locale )
 {
-  Dali::ImfManager::TextDirection direction( Dali::ImfManager::LeftToRight );
+  Locale::Direction direction( Locale::LeftToRight );
 
   if ( !locale.empty() && locale.size() > 2 )
   {
-    // We're only interested in the first two characters
-    locale.resize(2);
-
-    for ( const LocaleDirection* iter = &LOCALE_DIRECTION_LOOKUP_TABLE[0]; iter->locale; ++iter )
+    for ( const LocaleDirectionInfo* iter = &LOCALE_DIRECTION_LOOKUP_TABLE[0]; iter->locale; ++iter )
     {
-      if ( !locale.compare( iter->locale ) )
+      if ( !locale.compare( 0, 2, iter->locale ) )
       {
         direction = iter->direction;
         break;

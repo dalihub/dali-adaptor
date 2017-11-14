@@ -2,7 +2,7 @@
 #define __DALI_VIDEO_PLAYER_IMPL_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,6 +125,11 @@ public:
   int GetPlayPosition();
 
   /**
+   * @copydoc Dali::VideoPlayer::SetDisplayArea()
+   */
+  void SetDisplayArea( DisplayArea area );
+
+  /**
    * @copydoc Dali::VideoPlayer::SetSetDisplayRotation()
    */
   void SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation );
@@ -143,6 +148,21 @@ public:
    * @brief Initializes member data.
    */
   void Initialize();
+
+  /**
+   * @brief Dali::VideoPlayer::Forward()
+   */
+  void Forward( int millisecond );
+
+  /**
+   * @brief Dali::VideoPlayer::Backward()
+   */
+  void Backward( int millisecond );
+
+  /**
+   * @brief Dali::VideoPlayer::IsVideoTextureSupported()
+   */
+  bool IsVideoTextureSupported() const;
 
 private:
 

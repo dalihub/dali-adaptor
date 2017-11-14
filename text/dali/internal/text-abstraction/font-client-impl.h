@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H__
-#define __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H__
+#ifndef DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H
+#define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,11 @@ public:
   PointSize26Dot6 GetPointSize( FontId id );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsCharacterSupportedByFont()
+   */
+  bool IsCharacterSupportedByFont( FontId fontId, Character character );
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::FindDefaultFont()
    */
   FontId FindDefaultFont( Character charcode,
@@ -164,14 +169,14 @@ public:
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data )
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex )
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
    */
-  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex );
+  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth );
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateVectorBlob()
@@ -232,4 +237,4 @@ inline static const Internal::FontClient& GetImplementation(const FontClient& fo
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H__
+#endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H

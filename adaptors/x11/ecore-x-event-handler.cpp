@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
 #include <events/event-handler.h>
 
 // EXTERNAL INCLUDES
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_X.h>
@@ -49,7 +52,6 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
-#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <events/gesture-manager.h>
@@ -86,7 +88,8 @@ namespace
 
 const char * DETENT_DEVICE_NAME = "tizen_detent";
 const std::string DEFAULT_DEVICE_NAME = "";
-const DevelKeyEvent::DeviceClass::Type DEFAULT_DEVICE_CLASS = DevelKeyEvent::DeviceClass::NONE;
+const Device::Class::Type DEFAULT_DEVICE_CLASS = Device::Class::NONE;
+const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
 // DBUS accessibility
 #define A11Y_BUS "org.a11y.Bus"
@@ -710,7 +713,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
         handler->SendEvent( keyEvent );
       }
     }
@@ -777,7 +780,7 @@ struct EventHandler::Impl
           keyString = keyEvent->string;
         }
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
         handler->SendEvent( keyEvent );
       }
@@ -1886,3 +1889,5 @@ void EventHandler::SetRotationObserver( RotationObserver* observer )
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

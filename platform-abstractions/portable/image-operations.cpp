@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
 #include <resampler.h>
+#include <image-loading.h>
 
 // INTERNAL INCLUDES
 
@@ -49,7 +50,6 @@ const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
 // Constants used by the ImageResampler.
 const float DEFAULT_SOURCE_GAMMA = 1.75f;   ///< Default source gamma value used in the Resampler() function. Partial gamma correction looks better on mips. Set to 1.0 to disable gamma correction.
 const float FILTER_SCALE = 1.f;             ///< Default filter scale value used in the Resampler() function. Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
-const char* const FILTER_TYPE = "lanczos4"; ///< Default filter used in the Resampler() function. Possible Lanczos filters are: lanczos3, lanczos4, lanczos6, lanczos12
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -160,7 +160,7 @@ inline void DebugAssertDualScanlineParameters( const uint8_t * const scanline1,
   DALI_ASSERT_DEBUG( scanline2 && "Null pointer." );
   DALI_ASSERT_DEBUG( outputScanline && "Null pointer." );
   DALI_ASSERT_DEBUG( ((scanline1 >= scanline2 + widthInComponents) || (scanline2 >= scanline1 + widthInComponents )) && "Scanlines alias." );
-  DALI_ASSERT_DEBUG( ((((void*)outputScanline) >= (void*)(scanline2 + widthInComponents)) || (((void*)scanline2) >= (void*)(scanline1 + widthInComponents))) && "Scanline 2 aliases output." );
+  DALI_ASSERT_DEBUG( ((outputScanline >= (scanline2 + widthInComponents)) || (scanline2 >= (scanline1 + widthInComponents))) && "Scanline 2 aliases output." );
 }
 
 /**
@@ -449,24 +449,59 @@ BitmapPtr MakeBitmap( const uint8_t * const pixels, Pixel::Format pixelFormat, u
  */
 ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned int bitmapHeight, unsigned int requestedWidth, unsigned int requestedHeight )
 {
+  unsigned int maxSize = Dali::GetMaxTextureSize();
+
   // If no dimensions have been requested, default to the source ones:
   if( requestedWidth == 0 && requestedHeight == 0 )
   {
-    return ImageDimensions( bitmapWidth, bitmapHeight );
+    if( bitmapWidth <= maxSize && bitmapHeight <= maxSize )
+    {
+      return ImageDimensions( bitmapWidth, bitmapHeight );
+    }
+    else
+    {
+      // Calculate the size from the max texture size and the source image aspect ratio
+      if( bitmapWidth > bitmapHeight )
+      {
+        return ImageDimensions( maxSize, bitmapHeight * maxSize / static_cast< float >( bitmapWidth ) + 0.5f );
+      }
+      else
+      {
+        return ImageDimensions( bitmapWidth * maxSize / static_cast< float >( bitmapHeight ) + 0.5f, maxSize );
+      }
+    }
   }
 
   // If both dimensions have values requested, use them both:
   if( requestedWidth != 0 && requestedHeight != 0 )
   {
-    return ImageDimensions( requestedWidth, requestedHeight );
+    if( requestedWidth <= maxSize && requestedHeight <= maxSize )
+    {
+      return ImageDimensions( requestedWidth, requestedHeight );
+    }
+    else
+    {
+      // Calculate the size from the max texture size and the source image aspect ratio
+      if( requestedWidth > requestedHeight )
+      {
+        return ImageDimensions( maxSize, requestedHeight * maxSize / static_cast< float >( requestedWidth ) + 0.5f );
+      }
+      else
+      {
+        return ImageDimensions( requestedWidth * maxSize / static_cast< float >( requestedHeight ) + 0.5f, maxSize );
+      }
+    }
   }
 
   // Only one of the dimensions has been requested. Calculate the other from
   // the requested one and the source image aspect ratio:
   if( requestedWidth != 0 )
   {
+    requestedWidth = std::min( requestedWidth, maxSize );
     return ImageDimensions( requestedWidth, bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f );
   }
+
+  requestedHeight = std::min( requestedHeight, maxSize );
   return ImageDimensions( bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight );
 }
 
@@ -1177,8 +1212,8 @@ inline void PointSampleAddressablePixels( const uint8_t * inPixels,
   DALI_ASSERT_DEBUG( ((desiredWidth <= inputWidth && desiredHeight <= inputHeight) ||
       outPixels >= inPixels + inputWidth * inputHeight * sizeof(PIXEL) || outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL)) &&
       "The input and output buffers must not overlap for an upscaling.");
-  DALI_ASSERT_DEBUG( ((uint64_t) inPixels)  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
-  DALI_ASSERT_DEBUG( ((uint64_t) outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+  DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( inPixels )  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+  DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( outPixels ) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
 
   if( inputWidth < 1u || inputHeight < 1u || desiredWidth < 1u || desiredHeight < 1u )
   {
@@ -1420,8 +1455,8 @@ inline void LinearSampleGeneric( const unsigned char * __restrict__ inPixels,
                      "Input and output buffers cannot overlap.");
   if( DEBUG_ASSERT_ALIGNMENT )
   {
-    DALI_ASSERT_DEBUG( ((uint64_t) inPixels)  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
-    DALI_ASSERT_DEBUG( ((uint64_t) outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+    DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( inPixels )  % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
+    DALI_ASSERT_DEBUG( reinterpret_cast< uint64_t >( outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...)." );
   }
 
   if( inputWidth < 1u || inputHeight < 1u || desiredWidth < 1u || desiredHeight < 1u )
@@ -1517,45 +1552,53 @@ void LinearSample4BPP( const unsigned char * __restrict__ inPixels,
   LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>( inPixels, inputDimensions, outPixels, desiredDimensions );
 }
 
-void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
-                        ImageDimensions inputDimensions,
-                        unsigned char * __restrict__ outPixels,
-                        ImageDimensions desiredDimensions )
+
+void Resample( const unsigned char * __restrict__ inPixels,
+               ImageDimensions inputDimensions,
+               unsigned char * __restrict__ outPixels,
+               ImageDimensions desiredDimensions,
+               Resampler::Filter filterType,
+               int numChannels, bool hasAlpha )
 {
   // Got from the test.cpp of the ImageResampler lib.
   const float ONE_DIV_255 = 1.0f / 255.0f;
   const int MAX_UNSIGNED_CHAR = std::numeric_limits<uint8_t>::max();
   const int LINEAR_TO_SRGB_TABLE_SIZE = 4096;
-  const int ALPHA_CHANNEL = 3;
-  const int NUMBER_OF_CHANNELS = 4;
+  const int ALPHA_CHANNEL = hasAlpha ? (numChannels-1) : 0;
 
-  float srgbToLinear[MAX_UNSIGNED_CHAR + 1];
-  for( int i = 0; i <= MAX_UNSIGNED_CHAR; ++i )
+  static bool loadColorSpaces = true;
+  static float srgbToLinear[MAX_UNSIGNED_CHAR + 1];
+  static unsigned char linearToSrgb[LINEAR_TO_SRGB_TABLE_SIZE];
+
+  if( loadColorSpaces ) // Only create the color space conversions on the first execution
   {
-    srgbToLinear[i] = pow( static_cast<float>( i ) * ONE_DIV_255, DEFAULT_SOURCE_GAMMA );
+    loadColorSpaces = false;
+
+    for( int i = 0; i <= MAX_UNSIGNED_CHAR; ++i )
+    {
+      srgbToLinear[i] = pow( static_cast<float>( i ) * ONE_DIV_255, DEFAULT_SOURCE_GAMMA );
+    }
+
+    const float invLinearToSrgbTableSize = 1.0f / static_cast<float>( LINEAR_TO_SRGB_TABLE_SIZE );
+    const float invSourceGamma = 1.0f / DEFAULT_SOURCE_GAMMA;
+
+    for( int i = 0; i < LINEAR_TO_SRGB_TABLE_SIZE; ++i )
+    {
+      int k = static_cast<int>( 255.0f * pow( static_cast<float>( i ) * invLinearToSrgbTableSize, invSourceGamma ) + 0.5f );
+      if( k < 0 )
+      {
+        k = 0;
+      }
+      else if( k > MAX_UNSIGNED_CHAR )
+      {
+        k = MAX_UNSIGNED_CHAR;
+      }
+      linearToSrgb[i] = static_cast<unsigned char>( k );
+    }
   }
 
-  unsigned char linearToSrgb[LINEAR_TO_SRGB_TABLE_SIZE];
-
-  const float invLinearToSrgbTableSize = 1.0f / static_cast<float>( LINEAR_TO_SRGB_TABLE_SIZE );
-  const float invSourceGamma = 1.0f / DEFAULT_SOURCE_GAMMA;
-
-  for( int i = 0; i < LINEAR_TO_SRGB_TABLE_SIZE; ++i )
-  {
-    int k = static_cast<int>( 255.0f * pow( static_cast<float>( i ) * invLinearToSrgbTableSize, invSourceGamma ) + 0.5f );
-    if( k < 0 )
-    {
-      k = 0;
-    }
-    else if( k > MAX_UNSIGNED_CHAR )
-    {
-      k = MAX_UNSIGNED_CHAR;
-    }
-    linearToSrgb[i] = static_cast<unsigned char>( k );
-  }
-
-  Resampler* resamplers[NUMBER_OF_CHANNELS] = { 0 };
-  Vector<float> samples[NUMBER_OF_CHANNELS];
+  Resampler* resamplers[numChannels];
+  Vector<float> samples[numChannels];
 
   const int srcWidth = inputDimensions.GetWidth();
   const int srcHeight = inputDimensions.GetHeight();
@@ -1571,13 +1614,13 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
                                  Resampler::BOUNDARY_CLAMP,
                                  0.0f,           // sample_low,
                                  1.0f,           // sample_high. Clamp output samples to specified range, or disable clamping if sample_low >= sample_high.
-                                 FILTER_TYPE,    // The type of filter. Currently Lanczos.
+                                 filterType,    // The type of filter.
                                  NULL,           // Pclist_x,
                                  NULL,           // Pclist_y. Optional pointers to contributor lists from another instance of a Resampler.
                                  FILTER_SCALE,   // src_x_ofs,
                                  FILTER_SCALE ); // src_y_ofs. Offset input image by specified amount (fractional values okay).
   samples[0].Resize( srcWidth );
-  for( int i = 1; i < NUMBER_OF_CHANNELS; ++i )
+  for( int i = 1; i < numChannels; ++i )
   {
     resamplers[i] = new Resampler( srcWidth,
                                    srcHeight,
@@ -1586,7 +1629,7 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
                                    Resampler::BOUNDARY_CLAMP,
                                    0.0f,
                                    1.0f,
-                                   FILTER_TYPE,
+                                   filterType,
                                    resamplers[0]->get_clist_x(),
                                    resamplers[0]->get_clist_y(),
                                    FILTER_SCALE,
@@ -1594,8 +1637,8 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
     samples[i].Resize( srcWidth );
   }
 
-  const int srcPitch = srcWidth * NUMBER_OF_CHANNELS;
-  const int dstPitch = dstWidth * NUMBER_OF_CHANNELS;
+  const int srcPitch = srcWidth * numChannels;
+  const int dstPitch = dstWidth * numChannels;
   int dstY = 0;
 
   for( int srcY = 0; srcY < srcHeight; ++srcY )
@@ -1604,9 +1647,9 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
 
     for( int x = 0; x < srcWidth; ++x )
     {
-      for( int c = 0; c < NUMBER_OF_CHANNELS; ++c )
+      for( int c = 0; c < numChannels; ++c )
       {
-        if( c == ALPHA_CHANNEL )
+        if( c == ALPHA_CHANNEL && hasAlpha )
         {
           samples[c][x] = *pSrc++ * ONE_DIV_255;
         }
@@ -1617,7 +1660,7 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
       }
     }
 
-    for( int c = 0; c < NUMBER_OF_CHANNELS; ++c )
+    for( int c = 0; c < numChannels; ++c )
     {
       if( !resamplers[c]->put_line( &samples[c][0] ) )
       {
@@ -1628,7 +1671,7 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
     for(;;)
     {
       int compIndex;
-      for( compIndex = 0; compIndex < NUMBER_OF_CHANNELS; ++compIndex )
+      for( compIndex = 0; compIndex < numChannels; ++compIndex )
       {
         const float* pOutputSamples = resamplers[compIndex]->get_line();
         if( !pOutputSamples )
@@ -1636,7 +1679,7 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
           break;
         }
 
-        const bool isAlphaChannel = ( compIndex == ALPHA_CHANNEL );
+        const bool isAlphaChannel = ( compIndex == ALPHA_CHANNEL && hasAlpha );
         DALI_ASSERT_DEBUG( dstY < dstHeight );
         unsigned char* pDst = &outPixels[dstY * dstPitch + compIndex];
 
@@ -1669,10 +1712,10 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
             *pDst = linearToSrgb[j];
           }
 
-          pDst += NUMBER_OF_CHANNELS;
+          pDst += numChannels;
         }
       }
-      if( compIndex < NUMBER_OF_CHANNELS )
+      if( compIndex < numChannels )
       {
         break;
       }
@@ -1682,10 +1725,27 @@ void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
   }
 
   // Delete the resamplers.
-  for( int i = 0; i < NUMBER_OF_CHANNELS; ++i )
+  for( int i = 0; i < numChannels; ++i )
   {
     delete resamplers[i];
   }
+}
+
+void LanczosSample4BPP( const unsigned char * __restrict__ inPixels,
+                        ImageDimensions inputDimensions,
+                        unsigned char * __restrict__ outPixels,
+                        ImageDimensions desiredDimensions )
+{
+  Resample( inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true );
+}
+
+void LanczosSample1BPP( const unsigned char * __restrict__ inPixels,
+                        ImageDimensions inputDimensions,
+                        unsigned char * __restrict__ outPixels,
+                        ImageDimensions desiredDimensions )
+{
+  // For L8 images
+  Resample( inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 1, false );
 }
 
 // Dispatch to a format-appropriate linear sampling function:

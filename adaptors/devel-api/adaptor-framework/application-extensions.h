@@ -2,7 +2,7 @@
 #define __DALI_APPLICATION_EXTENSIONS_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,15 @@ public:
 
 
  /**
-   * @brief Called wwhen the framework is initialised.
+   * @brief Called when the framework is initialised.
    * @SINCE_1_2.7
    */
   void Init();
+
+  /**
+    * @brief Called when the framework is started.
+    */
+   void Start();
 
  /**
    * @brief Called when the framework is terminated.

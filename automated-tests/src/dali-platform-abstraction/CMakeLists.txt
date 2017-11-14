@@ -22,6 +22,7 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
     ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
+    ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     tct-dali-platform-abstraction-core.cpp
     utc-image-loading-common.cpp
 )
@@ -31,7 +32,8 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali-adaptor
 )
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O0 -ggdb --coverage -Wall -Werror" )
+ADD_COMPILE_OPTIONS(-O0 -ggdb --coverage -Wall -Werror)
+ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
 # Shouldn't have to do this!
 # But CMake's new auto-escape quote policy doesn't work right.
@@ -46,6 +48,7 @@ INCLUDE_DIRECTORIES(
     ../../../
     ../../../adaptors/tizen
     ../../../platform-abstractions/tizen
+    ../../../third-party/image-resampler
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
     /usr/include/freetype2
@@ -53,7 +56,8 @@ INCLUDE_DIRECTORIES(
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
-    ${${CAPI_LIB}_LIBRARIES}
+  ${${CAPI_LIB}_LIBRARIES}
+  --coverage
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}

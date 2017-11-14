@@ -23,30 +23,21 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 
 AM_CONDITIONAL([USE_FEEDBACK], [test x$enable_feedback = xyes])
-AM_CONDITIONAL([USE_VIDEOPLAYER], [test x$enable_videoplayer = xyes])
 
-if test "x$enable_wayland" = "xyes"; then
-if test "x$enable_videoplayer" = "xyes"; then
-if test "x$enable_profile" != "xUBUNTU"; then
-PKG_CHECK_MODULES(CAPI_MEDIA_PLAYER, capi-media-player)
-PKG_CHECK_MODULES(ECORE_WAYLAND, ecore-wayland)
+AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
+AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
+
+if test "x$enable_cxx03_abi" = "xyes"; then
+ DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
 fi
-fi # enable_videoplayer
-fi # enable_wayland
 
 if test "x$enable_feedback" = "xyes"; then
-
-if test "x$enable_profile" = "xCOMMON" || test "x$enable_profile" = "xTV"; then
-PKG_CHECK_MODULES(HAPTIC, haptic)
-fi
-
-if test "x$enable_profile" = "xMOBILE"; then
-PKG_CHECK_MODULES(DEVICED, deviced)
-fi
+if test "x$enable_profile" != "xUBUNTU"; then
 
 PKG_CHECK_MODULES(FEEDBACK, feedback)
 PKG_CHECK_MODULES(MMFSOUND, mm-sound)
 
+fi # check UNBUNTU
 fi # enable_feedback
 
 AC_CONFIG_FILES(Makefile)

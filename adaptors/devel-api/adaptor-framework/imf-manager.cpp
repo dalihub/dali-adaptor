@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,14 +108,14 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   Internal::Adaptor::ImfManager::GetImplementation(*this).ApplyOptions( options );
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  Internal::Adaptor::ImfManager::GetImplementation(*this).SetInputPanelUserData( data );
+  Internal::Adaptor::ImfManager::GetImplementation(*this).SetInputPanelData( data );
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelUserData( data );
+  Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelData( data );
 }
 
 Dali::ImfManager::State ImfManager::GetInputPanelState()
@@ -143,6 +143,16 @@ void ImfManager::HideInputPanel()
   Internal::Adaptor::ImfManager::GetImplementation(*this).HideInputPanel();
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetKeyboardType();
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).GetInputPanelLocale();
+}
+
 ImfManager::ImfManagerSignalType& ImfManager::ActivatedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ActivatedSignal();
@@ -158,14 +168,19 @@ ImfManager::StatusSignalType& ImfManager::StatusChangedSignal()
   return Internal::Adaptor::ImfManager::GetImplementation(*this).StatusChangedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::ResizedSignal()
+ImfManager::KeyboardResizedSignalType& ImfManager::ResizedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).ResizedSignal();
 }
 
-ImfManager::VoidSignalType& ImfManager::LanguageChangedSignal()
+ImfManager::LanguageChangedSignalType& ImfManager::LanguageChangedSignal()
 {
   return Internal::Adaptor::ImfManager::GetImplementation(*this).LanguageChangedSignal();
+}
+
+ImfManager::KeyboardTypeSignalType& ImfManager::KeyboardTypeChangedSignal()
+{
+  return Internal::Adaptor::ImfManager::GetImplementation(*this).KeyboardTypeChangedSignal();
 }
 
 ImfManager::ImfManager(Internal::Adaptor::ImfManager *impl)

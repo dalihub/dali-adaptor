@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,11 @@ const hb_script_t SCRIPT_TO_HARFBUZZ[] =
   HB_SCRIPT_KHMER,
   HB_SCRIPT_JAVANESE,
   HB_SCRIPT_SUNDANESE,
+
+  HB_SCRIPT_ETHIOPIC,
+  HB_SCRIPT_OL_CHIKI,
+  HB_SCRIPT_TAGALOG,
+  HB_SCRIPT_MEETEI_MAYEK,
 
   HB_SCRIPT_UNKNOWN, // EMOJI
   HB_SCRIPT_UNKNOWN, // SYMBOLS1

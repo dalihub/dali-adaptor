@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ WatchApplicationPtr WatchApplication::New(
 }
 
 WatchApplication::WatchApplication( int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode )
-: Application(argc, argv, stylesheet, windowMode, Framework::WATCH)
+: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH)
 {
 }
 
@@ -50,12 +50,22 @@ void WatchApplication::OnTimeTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
   mTickSignal.Emit( watch, time );
+
+  // A watch application will queue messages to update the UI in the signal emitted above
+  // Process these immediately to avoid a blinking issue where the old time is briefly visible
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
   mAmbientTickSignal.Emit( watch, time );
+
+  // A watch application will queue messages to update the UI in the signal emitted above
+  // Process these immediately to avoid a blinking issue where the old time is briefly visible
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientChanged(bool ambient)

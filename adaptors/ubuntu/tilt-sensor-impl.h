@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_TILT_SENSOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,19 +57,19 @@ public:
   static Dali::TiltSensor Get();
 
   /**
-   * @copydoc Dali::TiltSensor::Enable()
+   * @copydoc Dali::TiltSensor::Start()
    */
-  bool Enable();
+  bool Start();
 
   /**
-   * @copydoc Dali::TiltSensor::Disable()
+   * @copydoc Dali::TiltSensor::Stop()
    */
-  void Disable();
+  void Stop();
 
   /**
-   * @copydoc Dali::TiltSensor::IsEnabled()
+   * @copydoc Dali::TiltSensor::IsStarted()
    */
-  bool IsEnabled() const;
+  bool IsStarted() const;
 
   /**
    * @copydoc Dali::TiltSensor::GetRoll()

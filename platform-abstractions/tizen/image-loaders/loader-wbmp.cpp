@@ -77,7 +77,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
     {
       return -1;
     }
-    buf = ((unsigned char *) map)[(*position)++];
+    buf = reinterpret_cast< unsigned char * >( map )[(*position)++];
     targetMultiByteInteger = (targetMultiByteInteger << 7) | (buf & 0x7f);
 
     if ((buf & 0x80) == 0)
@@ -105,11 +105,11 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& b
   PixelBuffer* pixels = NULL;
   size_t position = 0;
 
-  unsigned int  w, h;
+  unsigned int w, h;
   unsigned int type;
   unsigned int line_length;
   unsigned char *line = NULL;
-  int cur = 0, x, y;
+  unsigned int cur = 0, x, y;
 
   if( fseek(fp,0,SEEK_END) )
   {
@@ -183,7 +183,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& b
   memset(&surface[0], 0, w * h ); // w * h * 4
 
   line_length = (w + 7) >> 3;
-  for (y = 0; y < (int)h; y ++)
+  for (y = 0; y < h; y ++)
   {
     if (position + line_length > fsize)
     {
@@ -191,7 +191,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& b
     }
     line = &map[0] + position;
     position += line_length;
-    for (x = 0; x < (int)w; x++)
+    for (x = 0; x < w; x++)
     {
       int idx = x >> 3;
       int offset = 1 << (0x07 - (x & 0x07));
@@ -208,7 +208,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& b
   }
   pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::L8, w, h);//Pixel::RGBA8888
 
-  memcpy(pixels, (unsigned char*)&surface[0], w * h );//w * h * 4
+  memcpy( pixels, &surface[0], w * h ); //w * h * 4
 
   return true;
 }

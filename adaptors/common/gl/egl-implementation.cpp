@@ -28,6 +28,10 @@
 #include <gl/gl-implementation.h>
 #include <gl/egl-debug.h>
 
+// EGL constants use C style casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 namespace Dali
 {
 
@@ -48,7 +52,7 @@ namespace Adaptor
   } \
 }
 
-EglImplementation::EglImplementation()
+EglImplementation::EglImplementation( int multiSamplingLevel )
   : mEglNativeDisplay(0),
     mEglNativeWindow(0),
     mCurrentEglNativePixmap(0),
@@ -60,7 +64,8 @@ EglImplementation::EglImplementation()
     mIsOwnSurface(true),
     mContextCurrent(false),
     mIsWindow(true),
-    mColorDepth(COLOR_DEPTH_24)
+    mColorDepth(COLOR_DEPTH_24),
+    mMultiSamplingLevel( multiSamplingLevel )
 {
 }
 
@@ -150,6 +155,8 @@ void EglImplementation::DestroySurface()
 {
   if(mIsOwnSurface && mCurrentEglSurface)
   {
+    // Make context null to prevent crash in driver side
+    MakeContextNull();
     eglDestroySurface( mEglDisplay, mCurrentEglSurface );
     mCurrentEglSurface = 0;
   }
@@ -216,9 +223,7 @@ void EglImplementation::TerminateGles()
 {
   if ( mGlesInitialized )
   {
-    // in latest Mali DDK (r2p3 ~ r3p0 in April, 2012),
-    // MakeContextNull should be called before eglDestroy surface
-    // to prevent crash in _mali_surface_destroy_callback
+    // Make context null to prevent crash in driver side
     MakeContextNull();
 
     if(mIsOwnSurface && mCurrentEglSurface)
@@ -329,10 +334,13 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( EGL_STENCIL_SIZE );
   configAttribs.PushBack( 8 );
 #ifndef DALI_PROFILE_UBUNTU
-  configAttribs.PushBack( EGL_SAMPLES );
-  configAttribs.PushBack( 4 );
-  configAttribs.PushBack( EGL_SAMPLE_BUFFERS );
-  configAttribs.PushBack( 1 );
+  if( mMultiSamplingLevel != EGL_DONT_CARE )
+  {
+    configAttribs.PushBack( EGL_SAMPLES );
+    configAttribs.PushBack( mMultiSamplingLevel );
+    configAttribs.PushBack( EGL_SAMPLE_BUFFERS );
+    configAttribs.PushBack( 1 );
+  }
 #endif // DALI_PROFILE_UBUNTU
   configAttribs.PushBack( EGL_NONE );
 
@@ -460,3 +468,5 @@ EGLDisplay EglImplementation::GetContext() const
 } // namespace Internal
 
 } // namespace Dali
+
+#pragma GCC diagnostic pop

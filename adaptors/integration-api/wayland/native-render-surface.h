@@ -2,7 +2,7 @@
 #define __DALI_NATIVE_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,12 +130,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction );
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()

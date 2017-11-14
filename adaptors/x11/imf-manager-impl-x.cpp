@@ -30,6 +30,9 @@
 #include <locale-utils.h>
 #include <singleton-service-impl.h>
 #include <virtual-keyboard-impl.h>
+// Ecore is littered with C style cast
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include "ecore-virtual-keyboard.h"
 
 namespace Dali
@@ -442,6 +445,7 @@ Eina_Bool ImfManager::RetrieveSurrounding( void* data, Ecore_IMF_Context* imfCon
   {
     if( text )
     {
+      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
       *text = strdup( callbackData.currentText.c_str() );
     }
 
@@ -535,7 +539,7 @@ Dali::ImfManager::TextDirection ImfManager::GetTextDirection()
 
       if ( locale )
       {
-        direction = Locale::GetTextDirection( std::string( locale ) );
+        direction = static_cast< Dali::ImfManager::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
         free( locale );
       }
     }
@@ -587,25 +591,28 @@ void ImfManager::ApplyOptions( const InputMethodOptions& options )
   }
 }
 
-void ImfManager::SetInputPanelUserData( const std::string& data )
+void ImfManager::SetInputPanelData( const std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetInputPanelData\n" );
 
   if( mIMFContext )
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, &data, length );
+    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
 }
 
-void ImfManager::GetInputPanelUserData( std::string& data )
+void ImfManager::GetInputPanelData( std::string& data )
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelUserData\n" );
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelData\n" );
 
   if( mIMFContext )
   {
-    int* length = NULL;
-    ecore_imf_context_input_panel_imdata_get( mIMFContext, &data, length );
+    int length = 4096; // The max length is 4096 bytes
+    Dali::Vector< char > buffer;
+    buffer.Resize( length );
+    ecore_imf_context_input_panel_imdata_get( mIMFContext, &buffer[0], &length );
+    data = std::string( buffer.Begin(), buffer.End() );
   }
 }
 
@@ -687,8 +694,38 @@ void ImfManager::HideInputPanel()
   }
 }
 
+Dali::ImfManager::KeyboardType ImfManager::GetKeyboardType()
+{
+  return Dali::ImfManager::KeyboardType::SOFTWARE_KEYBOARD;
+}
+
+std::string ImfManager::GetInputPanelLocale()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::GetInputPanelLocale\n" );
+
+  std::string locale = "";
+
+  if( mIMFContext )
+  {
+    char* value = NULL;
+    ecore_imf_context_input_panel_language_locale_get( mIMFContext, &value );
+
+    if( value )
+    {
+      std::string valueCopy( value );
+      locale = valueCopy;
+
+      // The locale string retrieved must be freed with free().
+      free( value );
+    }
+  }
+  return locale;
+}
+
 } // Adaptor
 
 } // Internal
 
 } // Dali
+
+#pragma GCC diagnostic pop
