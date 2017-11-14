@@ -316,7 +316,7 @@ struct Framework::Impl
     return 0;
   }
 
-  static void AppInit(int argc, char **argv, void *data)
+  static int AppInit(int argc, char **argv, void *data)
   {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -325,6 +325,7 @@ struct Framework::Impl
     ecore_app_args_set( argc, (const char **)argv );
 
 #pragma GCC diagnostic pop
+    return 0;
   }
 
   static void AppFinish(void)
