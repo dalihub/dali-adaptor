@@ -447,7 +447,7 @@ bool Adaptor::AddIdle( CallbackBase* callback, bool forceAdd )
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState || forceAdd )
+  if( RUNNING == mState || READY == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleCallback( callback );
   }
@@ -691,7 +691,7 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || forceProcess ) )
+  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
     mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
   }
