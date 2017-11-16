@@ -155,15 +155,23 @@ bool RenderHelper::PreRender()
   return true;
 }
 
-void RenderHelper::PostRender()
+void RenderHelper::PostRender( bool renderToFbo )
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   mGLES.PostRender();
 
-  if( mSurface )
+  if( renderToFbo )
   {
-    // Inform the surface that rendering this frame has finished.
-    mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
+    mGLES.Flush();
+    mGLES.Finish();
+  }
+  else
+  {
+    if( mSurface )
+    {
+      // Inform the surface that rendering this frame has finished.
+      mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
+    }
   }
   mSurfaceReplaced = false;
   mSurfaceResized = false;

@@ -103,14 +103,15 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance(-1),
   mPanMinimumEvents(-1),
   mGlesCallTime( 0 ),
-  mWindowWidth( 0 ),
-  mWindowHeight( 0 ),
+  mWindowWidth( 0u ),
+  mWindowHeight( 0u ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
-  mRenderRefreshRate( 1 ),
+  mRenderRefreshRate( 1u ),
   mGlesCallAccumulate( false ),
   mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mMaxTextureSize( 0 ),
   mIndicatorVisibleMode( -1 ),
+  mRenderToFboInterval( 0u ),
   mLogFunction( NULL )
 {
   ParseEnvironmentOptions();
@@ -270,6 +271,11 @@ unsigned int EnvironmentOptions::GetMaxTextureSize() const
 int EnvironmentOptions::GetIndicatorVisibleMode() const
 {
   return mIndicatorVisibleMode;
+}
+
+unsigned int EnvironmentOptions::GetRenderToFboInterval() const
+{
+  return mRenderToFboInterval;
 }
 
 bool EnvironmentOptions::PerformanceServerRequired() const
@@ -437,6 +443,8 @@ void EnvironmentOptions::ParseEnvironmentOptions()
       mIndicatorVisibleMode = indicatorVisibleMode;
     }
   }
+
+  mRenderToFboInterval = GetIntegerEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
 }
 
 } // Adaptor
