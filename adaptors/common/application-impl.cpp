@@ -184,7 +184,7 @@ void Application::Lower()
 void Application::Quit()
 {
   // Actually quit the application.
-  AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ) );
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ), true );
 }
 
 void Application::QuitFromMainLoop()
