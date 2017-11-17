@@ -253,7 +253,7 @@ void WindowRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAb
   if(mNeedToApproveDeiconify)
   {
     // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
-    glAbstraction.Finish();
+    //glAbstraction.Finish();
 
     XDisplay* display = AnyCast<XDisplay *>(displayConnection->GetDisplay());
 

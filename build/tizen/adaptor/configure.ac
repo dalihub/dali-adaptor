@@ -308,12 +308,15 @@ PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.
                   [DALI_USE_ECORE_WAYLAND=0])
 
 else
-PKG_CHECK_MODULES(ECORE_X, [ecore-x],
+PKG_CHECK_MODULES(ECORE_X, [ecore-x x11-xcb],
                   [DALI_USE_ECORE_X11=1],
                   [DALI_USE_ECORE_X11=0])
-PKG_CHECK_MODULES(X11, [x11],
+PKG_CHECK_MODULES(X11, [x11 x11-xcb],
                   [DALI_USE_X11=1],
                   [DALI_USE_X11=0])
+#PKG_CHECK_MODULES(X11_XCB, [x11-xcb],
+#                  [DALI_HAS_X11_XCB=1],
+#                  [DALI_HAS_X11_XCB=0])
 fi
 
 # remove this when we update common repos
@@ -353,11 +356,18 @@ if test "x$enable_vulkan" != "xno"; then
                   [ AC_MSG_ERROR([Vulkan not available as a package]) ]
                   )
 
-    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVK_USE_PLATFORM_XLIB_KHR -DVULKAN_HPP_NO_EXCEPTIONS"
-    DALI_ADAPTOR_LDFLAGS+=" ${VULKAN_LIBS}"
+    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
+
+    # due to a bug in nvidia driver x11-xcb library is required
+    DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
+
+    if test "x$DALI_HAS_X11_XCB" == "x1"; then
+        echo "X11 libs: ${X11_XCB_LIBS}"
+        DALI_ADAPTOR_LDFLAGS+=${X11_XCB_LIBS}
+    fi
 fi
 
-AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan = xyes])
+AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan != xno])
 
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)

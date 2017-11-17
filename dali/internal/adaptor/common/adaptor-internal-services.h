@@ -36,6 +36,14 @@
 namespace Dali
 {
 
+namespace Integration
+{
+namespace Graphics
+{
+class Graphics;
+} // graphics
+} // integration
+
 namespace Internal
 {
 
@@ -72,6 +80,11 @@ public:
    * @return egl factory
    */
   virtual EglFactoryInterface& GetEGLFactoryInterface() const  = 0;
+
+  /**
+   * @return Graphics
+   */
+  virtual Dali::Integration::Graphics::Graphics& GetGraphics() const = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process

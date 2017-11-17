@@ -25,3 +25,8 @@ adaptor_graphics_ubuntu_gl_src_files=\
 # module: graphics, backend: ubuntu
 adaptor_graphics_ubuntu_src_files=\
     ${adaptor_graphics_dir}/ubuntu/vsync-monitor-ubuntu.cpp
+
+adaptor_vulkan_ubuntu_src_files = \
+    $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xcb.cpp \
+    $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xlib.cpp \
+    $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xlib2xcb.cpp

@@ -28,6 +28,7 @@
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -53,6 +54,7 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 
 #include <dali/internal/system/common/logging.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
@@ -147,12 +149,19 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this,
-                                  *mPlatformAbstraction,
-                                  *mGLES,
-                                  *eglSyncImpl,
-                                  *mGestureManager,
-                                  dataRetentionPolicy ,
+  // todo: add somewhere MakeUnique to make it cleaner
+  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
+    new Dali::Integration::Graphics::Graphics()
+  );
+
+  // todo: surface shouldn't really be create here :((((
+  auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
+  );
+
+  mGraphics->Create( std::move(xlibSurface) );
+
+  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGraphics, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   depthBufferAvailable,
                                   stencilBufferAvailable );
@@ -548,6 +557,11 @@ Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
 {
   DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
   return *mGLES;
+}
+
+Dali::Integration::Graphics::Graphics& Adaptor::GetGraphics() const
+{
+  return *mGraphics;
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
