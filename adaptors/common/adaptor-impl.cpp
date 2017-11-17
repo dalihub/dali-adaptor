@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include "adaptor-impl.h"
+#include <dali/integration-api/graphics/graphics.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-common.h>
@@ -54,6 +55,7 @@
 #include <object-profiler.h>
 #include <base/display-connection.h>
 #include <window-impl.h>
+#include <adaptors/surface/vk-surface-xlib2xcb.h>
 
 #include <tizen-logging.h>
 #include <image-loading.h>
@@ -142,13 +144,20 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
-  mCore = Integration::Core::New( *this,
-                                  *mPlatformAbstraction,
-                                  *mGLES,
-                                  *eglSyncImpl,
-                                  *mGestureManager,
-                                  dataRetentionPolicy ,
-                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
+  // todo: add somewhere MakeUnique to make it cleaner
+  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
+    new Dali::Integration::Graphics::Graphics()
+  );
+
+  // todo: surface shouldn't really be create here :((((
+  auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
+  );
+
+  mGraphics->Create( std::move(xlibSurface) );
+
+  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGraphics, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy,
+                                  0u != mEnvironmentOptions->GetRenderToFboInterval());
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -506,6 +515,11 @@ Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
 {
   DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
   return *mGLES;
+}
+
+Dali::Integration::Graphics::Graphics& Adaptor::GetGraphics() const
+{
+  return *mGraphics;
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
