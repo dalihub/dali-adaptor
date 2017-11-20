@@ -264,7 +264,13 @@ struct Window::EventHandler
 
     if( strcmp( interface, tizen_policy_interface.name ) == 0 )
     {
-      eventHandler->mTizenPolicy = static_cast< tizen_policy* >( wl_registry_bind( registry, name, &tizen_policy_interface, version ) );
+      uint32_t client_version = 0;
+      if (version >= 7)
+        client_version = 7;
+      else
+        client_version = version;
+
+      eventHandler->mTizenPolicy = static_cast< tizen_policy* >( wl_registry_bind( registry, name, &tizen_policy_interface, client_version ) );
       if( !eventHandler->mTizenPolicy )
       {
         DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::RegistryGlobalCallback: wl_registry_bind(tizen_policy_interface) is failed.\n" );
@@ -297,6 +303,14 @@ struct Window::EventHandler
     eventHandler->mTizenDisplayPolicy = NULL;
   }
 
+  static void TizenPolicyConformant( void *data, struct tizen_policy *tizen_policy,struct wl_surface *surface, uint32_t is_conformant )
+  {
+  }
+
+  static void TizenPolicyConformantArea( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h )
+  {
+  }
+
   static void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state )
   {
     Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
@@ -308,6 +322,10 @@ struct Window::EventHandler
     DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::TizenPolicyNotificationChangeDone: level = %d, state = %d\n", level, state );
   }
 
+  static void TizenPolicyTransientForDone( void *data, struct tizen_policy *tizen_policy, uint32_t child_id )
+  {
+  }
+
   static void TizenPolicyScreenModeChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t mode, uint32_t state )
   {
     Window::EventHandler* eventHandler = static_cast< Window::EventHandler* >( data );
@@ -317,6 +335,26 @@ struct Window::EventHandler
     eventHandler->mScreenOffModeChangeDone = true;
 
     DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window::EventHandler::TizenPolicyScreenModeChangeDone: mode = %d, state = %d\n", mode, state );
+  }
+
+  static void TizenPolicyIconifyStateChanged( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface_resource, uint32_t iconified, uint32_t force )
+  {
+  }
+
+  static void TizenPolicySupportedAuxHints( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints )
+  {
+  }
+
+  static void TizenPolicyAllowedAuxHint( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface_resource, int id )
+  {
+  }
+
+  static void TizenPolicyAuxMessage( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface_resource, const char *key, const char *val, struct wl_array *options )
+  {
+  }
+
+  static void TizenPolicyConformantRegion( void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h, uint32_t serial )
+  {
   }
 
   static void DisplayPolicyBrightnessChangeDone(void* data, struct tizen_display_policy *displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state )
@@ -338,15 +376,16 @@ struct Window::EventHandler
 
   const struct tizen_policy_listener mTizenPolicyListener =
   {
-     NULL,
-     NULL,
+     TizenPolicyConformant,
+     TizenPolicyConformantArea,
      TizenPolicyNotificationChangeDone,
-     NULL,
+     TizenPolicyTransientForDone,
      TizenPolicyScreenModeChangeDone,
-     NULL,
-     NULL,
-     NULL,
-     NULL
+     TizenPolicyIconifyStateChanged,
+     TizenPolicySupportedAuxHints,
+     TizenPolicyAllowedAuxHint,
+     TizenPolicyAuxMessage,
+     TizenPolicyConformantRegion
   };
 
   const struct tizen_display_policy_listener mTizenDisplayPolicyListener =
