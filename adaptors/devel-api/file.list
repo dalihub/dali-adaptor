@@ -64,6 +64,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/web-engine-lite.h \
   $(adaptor_devel_api_dir)/adaptor-framework/web-engine-lite-plugin.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-extension-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h
