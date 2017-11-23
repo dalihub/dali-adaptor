@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <base/threading-mode.h>
+#include <log-factory-interface.h>
 
 namespace Dali
 {
@@ -36,7 +37,7 @@ namespace Adaptor
  * the ability to install a log function.
  *
  */
-class EnvironmentOptions
+class EnvironmentOptions : public Dali::LogFactoryInterface
 {
 public:
 
@@ -46,9 +47,9 @@ public:
   EnvironmentOptions();
 
   /**
-   * non-virtual destructor, not intended as a base class
+   * Virtual Destructor for interface cleanup
    */
-  ~EnvironmentOptions();
+  virtual ~EnvironmentOptions();
 
   /**
    * @param logFunction logging function
@@ -58,7 +59,7 @@ public:
   /**
    * Install the log function for the current thread.
    */
-  void InstallLogFunction() const;
+  virtual void InstallLogFunction() const;
 
   /**
    * Un-install the log function for the current thread.

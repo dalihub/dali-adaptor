@@ -189,6 +189,11 @@ void Adaptor::RenderOnce()
   mImpl->RenderOnce();
 }
 
+const LogFactoryInterface& Adaptor::GetLogFactory()
+{
+  return mImpl->GetLogFactory();
+}
+
 Adaptor::Adaptor()
 : mImpl( NULL )
 {

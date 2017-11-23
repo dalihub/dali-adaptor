@@ -825,6 +825,11 @@ void Adaptor::RenderOnce()
   RequestUpdateOnce();
 }
 
+const LogFactoryInterface& Adaptor::GetLogFactory()
+{
+  return *mEnvironmentOptions;
+}
+
 void Adaptor::RequestUpdateOnce()
 {
   if( mThreadController )

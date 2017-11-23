@@ -364,6 +364,11 @@ public:
    */
   void RenderOnce();
 
+  /**
+   * @copydoc Dali::Adaptor::GetLogFactory
+   */
+  const LogFactoryInterface& GetLogFactory();
+
 public:  //AdaptorInternalServices
 
   /**
