@@ -62,6 +62,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.h \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player-plugin.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-extension-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h
