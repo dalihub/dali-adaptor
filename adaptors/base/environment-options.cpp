@@ -39,6 +39,8 @@ namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
 const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
+const bool DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING = true;
+const bool DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
@@ -83,36 +85,46 @@ const char * GetCharEnvironmentVariable( const char * variable )
 } // unnamed namespace
 
 EnvironmentOptions::EnvironmentOptions()
-: mWindowName(),
+: mLogFunction( NULL ),
+  mWindowName(),
   mWindowClassName(),
-  mNetworkControl(0),
-  mFpsFrequency(0),
-  mUpdateStatusFrequency(0),
+  mNetworkControl( 0 ),
+  mFpsFrequency( 0 ),
+  mUpdateStatusFrequency( 0 ),
   mObjectProfilerInterval( 0 ),
-  mPerformanceStatsLevel(0),
+  mPerformanceStatsLevel( 0 ),
   mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY ),
-  mPerformanceTimeStampOutput(0),
-  mPanGestureLoggingLevel(0),
-  mPanGesturePredictionMode(-1),
-  mPanGesturePredictionAmount(-1), ///< only sets value in pan gesture if greater than 0
-  mPanGestureMaxPredictionAmount(-1),
-  mPanGestureMinPredictionAmount(-1),
-  mPanGesturePredictionAmountAdjustment(-1),
-  mPanGestureSmoothingMode(-1),
-  mPanGestureSmoothingAmount(-1.0f),
-  mPanMinimumDistance(-1),
-  mPanMinimumEvents(-1),
-  mGlesCallTime( 0 ),
+  mPerformanceTimeStampOutput( 0 ),
+  mPanGestureLoggingLevel( 0 ),
   mWindowWidth( 0u ),
   mWindowHeight( 0u ),
-  mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mRenderRefreshRate( 1u ),
-  mGlesCallAccumulate( false ),
-  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mMaxTextureSize( 0 ),
-  mIndicatorVisibleMode( -1 ),
   mRenderToFboInterval( 0u ),
-  mLogFunction( NULL )
+  mPanGesturePredictionMode( -1 ),
+  mPanGesturePredictionAmount( -1 ), ///< only sets value in pan gesture if greater than 0
+  mPanGestureMaxPredictionAmount( -1 ),
+  mPanGestureMinPredictionAmount( -1 ),
+  mPanGesturePredictionAmountAdjustment( -1 ),
+  mPanGestureSmoothingMode( -1 ),
+  mPanGestureSmoothingAmount( -1.0f ),
+  mPanGestureUseActualTimes( -1 ),
+  mPanGestureInterpolationTimeRange( -1 ),
+  mPanGestureScalarOnlyPredictionEnabled( -1 ),
+  mPanGestureTwoPointPredictionEnabled( -1 ),
+  mPanGestureTwoPointInterpolatePastTime( -1 ),
+  mPanGestureTwoPointVelocityBias( -1.0f ),
+  mPanGestureTwoPointAccelerationBias( -1.0f ),
+  mPanGestureMultitapSmoothingRange( -1 ),
+  mPanMinimumDistance( -1 ),
+  mPanMinimumEvents( -1 ),
+  mGlesCallTime( 0 ),
+  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
+  mIndicatorVisibleMode( -1 ),
+  mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
+  mGlesCallAccumulate( false ),
+  mDepthBufferRequired( DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING ),
+  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING )
 {
   ParseEnvironmentOptions();
 }
@@ -208,6 +220,46 @@ float EnvironmentOptions::GetPanGestureSmoothingAmount() const
   return mPanGestureSmoothingAmount;
 }
 
+int EnvironmentOptions::GetPanGestureUseActualTimes() const
+{
+  return mPanGestureUseActualTimes;
+}
+
+int EnvironmentOptions::GetPanGestureInterpolationTimeRange() const
+{
+  return mPanGestureInterpolationTimeRange;
+}
+
+int EnvironmentOptions::GetPanGestureScalarOnlyPredictionEnabled() const
+{
+  return mPanGestureScalarOnlyPredictionEnabled;
+}
+
+int EnvironmentOptions::GetPanGestureTwoPointPredictionEnabled() const
+{
+  return mPanGestureTwoPointPredictionEnabled;
+}
+
+int EnvironmentOptions::GetPanGestureTwoPointInterpolatePastTime() const
+{
+  return mPanGestureTwoPointInterpolatePastTime;
+}
+
+float EnvironmentOptions::GetPanGestureTwoPointVelocityBias() const
+{
+  return mPanGestureTwoPointVelocityBias;
+}
+
+float EnvironmentOptions::GetPanGestureTwoPointAccelerationBias() const
+{
+  return mPanGestureTwoPointAccelerationBias;
+}
+
+int EnvironmentOptions::GetPanGestureMultitapSmoothingRange() const
+{
+  return mPanGestureMultitapSmoothingRange;
+}
+
 int EnvironmentOptions::GetMinimumPanDistance() const
 {
   return mPanMinimumDistance;
@@ -285,6 +337,16 @@ bool EnvironmentOptions::PerformanceServerRequired() const
            ( GetNetworkControlMode() > 0) );
 }
 
+bool EnvironmentOptions::DepthBufferRequired() const
+{
+  return mDepthBufferRequired;
+}
+
+bool EnvironmentOptions::StencilBufferRequired() const
+{
+  return mStencilBufferRequired;
+}
+
 void EnvironmentOptions::ParseEnvironmentOptions()
 {
   // get logging options
@@ -352,6 +414,68 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   {
     smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
     mPanGestureSmoothingAmount = smoothingAmount;
+  }
+
+  int useActualTimes( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_USE_ACTUAL_TIMES, useActualTimes ) )
+  {
+    mPanGestureUseActualTimes = useActualTimes == 0 ? 0 : 1;
+  }
+
+  int interpolationTimeRange( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_INTERPOLATION_TIME_RANGE, interpolationTimeRange ) )
+  {
+    if( interpolationTimeRange < 0 )
+    {
+      interpolationTimeRange = 0;
+    }
+    mPanGestureInterpolationTimeRange = interpolationTimeRange;
+  }
+
+  int scalarOnlyPredictionEnabled( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_SCALAR_ONLY_PREDICTION_ENABLED, scalarOnlyPredictionEnabled ) )
+  {
+    mPanGestureScalarOnlyPredictionEnabled = scalarOnlyPredictionEnabled == 0 ? 0 : 1;
+  }
+
+  int twoPointPredictionEnabled( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_PREDICTION_ENABLED, twoPointPredictionEnabled ) )
+  {
+    mPanGestureTwoPointPredictionEnabled = twoPointPredictionEnabled == 0 ? 0 : 1;
+  }
+
+  int twoPointPastInterpolateTime( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_PAST_INTERPOLATE_TIME, twoPointPastInterpolateTime ) )
+  {
+    if( twoPointPastInterpolateTime < 0 )
+    {
+      twoPointPastInterpolateTime = 0;
+    }
+    mPanGestureTwoPointInterpolatePastTime = twoPointPastInterpolateTime;
+  }
+
+  float twoPointVelocityBias = -1.0f;
+  if( GetFloatEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_VELOCITY_BIAS, twoPointVelocityBias ) )
+  {
+    twoPointVelocityBias = Clamp( twoPointVelocityBias, 0.0f, 1.0f );
+    mPanGestureTwoPointVelocityBias = twoPointVelocityBias;
+  }
+
+  float twoPointAccelerationBias = -1.0f;
+  if( GetFloatEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_ACCELERATION_BIAS, twoPointAccelerationBias ) )
+  {
+    twoPointAccelerationBias = Clamp( twoPointAccelerationBias, 0.0f, 1.0f );
+    mPanGestureTwoPointAccelerationBias = twoPointAccelerationBias;
+  }
+
+  int multitapSmoothingRange( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_MULTITAP_SMOOTHING_RANGE, multitapSmoothingRange ) )
+  {
+    if( multitapSmoothingRange < 0 )
+    {
+      multitapSmoothingRange = 0;
+    }
+    mPanGestureMultitapSmoothingRange = multitapSmoothingRange;
   }
 
   int minimumDistance(-1);
@@ -445,6 +569,26 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   }
 
   mRenderToFboInterval = GetIntegerEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
+
+
+  int depthBufferRequired( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_DISABLE_DEPTH_BUFFER, depthBufferRequired ) )
+  {
+    if( depthBufferRequired > 0 )
+    {
+      mDepthBufferRequired = false;
+      mStencilBufferRequired = false; // Disable stencil buffer as well
+    }
+  }
+
+  int stencilBufferRequired( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_DISABLE_STENCIL_BUFFER, stencilBufferRequired ) )
+  {
+    if( stencilBufferRequired > 0 )
+    {
+      mStencilBufferRequired = false;
+    }
+  }
 }
 
 } // Adaptor

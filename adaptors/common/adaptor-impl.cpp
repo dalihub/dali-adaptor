@@ -138,7 +138,10 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     mGLES = new GlImplementation();
   }
 
-  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel() );
+  const Integration::DepthBufferAvailable depthBufferAvailable = static_cast< Integration::DepthBufferAvailable >( mEnvironmentOptions->DepthBufferRequired() );
+  const Integration::StencilBufferAvailable stencilBufferAvailable = static_cast< Integration::StencilBufferAvailable >( mEnvironmentOptions->StencilBufferRequired() );
+
+  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel(), depthBufferAvailable, stencilBufferAvailable );
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
@@ -148,7 +151,9 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
                                   *eglSyncImpl,
                                   *mGestureManager,
                                   dataRetentionPolicy ,
-                                  0u != mEnvironmentOptions->GetRenderToFboInterval() );
+                                  ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
+                                  depthBufferAvailable,
+                                  stencilBufferAvailable );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -194,6 +199,38 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   if( mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f )
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
+  }
+  if( mEnvironmentOptions->GetPanGestureUseActualTimes() >= 0 )
+  {
+    Integration::SetPanGestureUseActualTimes( mEnvironmentOptions->GetPanGestureUseActualTimes() == 0 ? true : false );
+  }
+  if( mEnvironmentOptions->GetPanGestureInterpolationTimeRange() >= 0 )
+  {
+    Integration::SetPanGestureInterpolationTimeRange( mEnvironmentOptions->GetPanGestureInterpolationTimeRange() );
+  }
+  if( mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() >= 0 )
+  {
+    Integration::SetPanGestureScalarOnlyPredictionEnabled( mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() == 0 ? true : false  );
+  }
+  if( mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() >= 0 )
+  {
+    Integration::SetPanGestureTwoPointPredictionEnabled( mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() == 0 ? true : false  );
+  }
+  if( mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() >= 0 )
+  {
+    Integration::SetPanGestureTwoPointInterpolatePastTime( mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() );
+  }
+  if( mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() >= 0.0f )
+  {
+    Integration::SetPanGestureTwoPointVelocityBias( mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() );
+  }
+  if( mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() >= 0.0f )
+  {
+    Integration::SetPanGestureTwoPointAccelerationBias( mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() );
+  }
+  if( mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() >= 0 )
+  {
+    Integration::SetPanGestureMultitapSmoothingRange( mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() );
   }
 
   // Set max texture size

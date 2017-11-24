@@ -148,6 +148,48 @@ public:
   float GetPanGestureSmoothingAmount() const;
 
   /**
+   * @return pan-gesture use actual times is true if real gesture and frame times are to be used.
+   */
+  int GetPanGestureUseActualTimes() const;
+
+  /**
+   * @return pan-gesture interpolation time range is the time range (ms) of past points to use (with weights) when interpolating.
+   */
+  int GetPanGestureInterpolationTimeRange() const;
+
+  /**
+   * @return pan-gesture scalar only prediction, when enabled, ignores acceleration.
+   */
+  int GetPanGestureScalarOnlyPredictionEnabled() const;
+
+  /**
+   * @return pan-gesture two point prediction combines two interpolated points to get more steady acceleration and velocity values.
+   */
+  int GetPanGestureTwoPointPredictionEnabled() const;
+
+  /**
+   * @return pan-gesture two point interpolate past time is the time delta (ms) in the past to interpolate the second point.
+   */
+  int GetPanGestureTwoPointInterpolatePastTime() const;
+
+  /**
+   * @return pan-gesture two point velocity bias is the ratio of first and second points to use for velocity.
+   * 0.0f = 100% of first point. 1.0f = 100% of second point.
+   */
+  float GetPanGestureTwoPointVelocityBias() const;
+
+  /**
+   * @return pan-gesture two point acceleration bias is the ratio of first and second points to use for acceleration.
+   * 0.0f = 100% of first point. 1.0f = 100% of second point.
+   */
+  float GetPanGestureTwoPointAccelerationBias() const;
+
+  /**
+   * @return pan-gesture multitap smoothing range is the range in time (ms) of points in the history to smooth the final output against.
+   */
+  int GetPanGestureMultitapSmoothingRange() const;
+
+  /**
    * @return The minimum distance before a pan can be started (-1 means it's not set)
    */
   int GetMinimumPanDistance() const;
@@ -224,6 +266,28 @@ public:
    */
   unsigned int GetRenderToFboInterval() const;
 
+  /**
+   * @return Whether the depth buffer is required.
+   */
+  bool DepthBufferRequired() const;
+
+  /**
+   * @return Whether the stencil buffer is required.
+   */
+  bool StencilBufferRequired() const;
+
+  /// Deleted copy constructor.
+  EnvironmentOptions( const EnvironmentOptions& ) = delete;
+
+  /// Deleted move constructor.
+  EnvironmentOptions( const EnvironmentOptions&& ) = delete;
+
+  /// Deleted assignment operator.
+  EnvironmentOptions& operator=( const EnvironmentOptions& ) = delete;
+
+  /// Deleted move assignment operator.
+  EnvironmentOptions& operator=( const EnvironmentOptions&& ) = delete;
+
 private: // Internal
 
   /**
@@ -233,6 +297,8 @@ private: // Internal
   void ParseEnvironmentOptions();
 
 private: // Data
+
+  Dali::Integration::Log::LogFunction mLogFunction;
 
   std::string mWindowName;                        ///< name of the window
   std::string mWindowClassName;                   ///< name of the class the window belongs to
@@ -244,6 +310,11 @@ private: // Data
   unsigned int mPerformanceStatsFrequency;        ///< performance statistics logging frequency (seconds)
   unsigned int mPerformanceTimeStampOutput;       ///< performance time stamp output ( bitmask)
   unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
+  unsigned int mWindowWidth;                      ///< width of the window
+  unsigned int mWindowHeight;                     ///< height of the window
+  unsigned int mRenderRefreshRate;                ///< render refresh rate
+  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
+  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
   int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
   int mPanGesturePredictionAmount;                ///< prediction amount for pan gestures
   int mPanGestureMaxPredictionAmount;             ///< maximum prediction amount for pan gestures
@@ -251,27 +322,23 @@ private: // Data
   int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
   int mPanGestureSmoothingMode;                   ///< prediction mode for pan gestures
   float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
+  int mPanGestureUseActualTimes;                  ///< Disable to optionally override actual times if they make results worse.
+  int mPanGestureInterpolationTimeRange;          ///< Time into past history (ms) to use points to interpolate the first point.
+  int mPanGestureScalarOnlyPredictionEnabled;     ///< If enabled, prediction is done using velocity alone (no integration or acceleration).
+  int mPanGestureTwoPointPredictionEnabled;       ///< If enabled, a second interpolated point is predicted and combined with the first to get more stable values.
+  int mPanGestureTwoPointInterpolatePastTime;     ///< The target time in the past to generate the second interpolated point.
+  float mPanGestureTwoPointVelocityBias;          ///< The ratio of first and second interpolated points to use for velocity. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  float mPanGestureTwoPointAccelerationBias;      ///< The ratio of first and second interpolated points to use for acceleration. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  int mPanGestureMultitapSmoothingRange;          ///< The range in time (ms) of points in the history to smooth the final output against.
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
   int mGlesCallTime;                              ///< time in seconds between status updates
-  unsigned int mWindowWidth;                      ///< width of the window
-  unsigned int mWindowHeight;                     ///< height of the window
-  ThreadingMode::Type mThreadingMode;             ///< threading mode
-  unsigned int mRenderRefreshRate;                ///< render refresh rate
-  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
-  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
   int mIndicatorVisibleMode;                      ///< Indicator visible mode
-  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
-
-  Dali::Integration::Log::LogFunction mLogFunction;
-
-  // Undefined copy constructor.
-  EnvironmentOptions( const EnvironmentOptions& );
-
-  // Undefined assignment operator.
-  EnvironmentOptions& operator=( const EnvironmentOptions& );
-
+  ThreadingMode::Type mThreadingMode;             ///< threading mode
+  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
+  bool mDepthBufferRequired;                      ///< Whether the depth buffer is required
+  bool mStencilBufferRequired;                    ///< Whether the stencil buffer is required
 };
 
 } // Adaptor
