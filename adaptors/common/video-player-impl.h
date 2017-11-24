@@ -162,7 +162,7 @@ public:
   /**
    * @brief Dali::VideoPlayer::IsVideoTextureSupported()
    */
-  bool IsVideoTextureSupported() const;
+  bool IsVideoTextureSupported();
 
 private:
 

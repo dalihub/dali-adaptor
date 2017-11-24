@@ -245,7 +245,7 @@ public:
    * @brief Checks whether the video texture is supported
    * @return True if supported, otherwise false.
    */
-  bool IsVideoTextureSupported() const;
+  bool IsVideoTextureSupported();
 
 private: // Not intended for application developers
 
