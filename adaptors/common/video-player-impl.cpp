@@ -289,7 +289,7 @@ void VideoPlayer::Backward( int millisecond )
   }
 }
 
-bool VideoPlayer::IsVideoTextureSupported() const
+bool VideoPlayer::IsVideoTextureSupported()
 {
   if( mPlugin != NULL )
   {
