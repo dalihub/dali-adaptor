@@ -27,7 +27,6 @@
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
-#include <window.h>
 #include <adaptor.h>
 #include <render-surface.h>
 #include <tts-player.h>
@@ -439,16 +438,6 @@ public: // Stereoscopy
    */
   float GetStereoBase() const;
 
-  /**
-   * Set Window handle.
-   */
-  void SetWindow( Dali::Window window );
-
-  /**
-   * Return Window handle.
-   */
-  Dali::Window GetWindow();
-
 public: // Signals
 
   /**
@@ -607,7 +596,6 @@ private: // Data
   TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
-  Dali::Window                          mWindow;                      ///< Window handle
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
 public:

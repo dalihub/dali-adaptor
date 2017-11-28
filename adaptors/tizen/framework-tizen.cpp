@@ -28,7 +28,7 @@
 #include <system_info.h>
 #include <system_settings.h>
 #include <bundle_internal.h>
-#include <widget_base.h>
+
 // CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <appcore-watch/watch_app.h>
@@ -46,7 +46,6 @@
 // INTERNAL INCLUDES
 #include <callback-manager.h>
 
-#include <dlog.h>
 namespace Dali
 {
 
@@ -56,33 +55,12 @@ namespace Internal
 namespace Adaptor
 {
 
+#if defined(DEBUG_ENABLED)
 namespace
 {
-#if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New( Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS" );
-#endif
-
-bool IsWidgetFeatureEnabled()
-{
-  static bool feature = false;
-  static bool retrieved = false;
-  int ret;
-
-  if(retrieved == true)
-    return feature;
-
-  ret = system_info_get_platform_bool("http://tizen.org/feature/shell.appwidget", &feature);
-  if(ret != SYSTEM_INFO_ERROR_NONE)
-  {
-    DALI_LOG_ERROR("failed to get system info"); /* LCOV_EXCL_LINE */
-    return false; /* LCOV_EXCL_LINE */
-  }
-
-  retrieved = true;
-  return feature;
-}
-
 } // anonymous namespace
+#endif
 
 namespace AppCore
 {
@@ -218,10 +196,6 @@ struct Framework::Impl
     {
       ret = AppNormalMain();
     }
-    else if(mApplicationType == WIDGET)
-    {
-      ret = AppWidgetMain();
-    }
     else
     {
       ret = AppWatchMain();
@@ -234,10 +208,6 @@ struct Framework::Impl
     if (mApplicationType == NORMAL)
     {
       AppNormalExit();
-    }
-    else if(mApplicationType == WIDGET)
-    {
-      AppWidgetExit();
     }
     else
     {
@@ -539,58 +509,6 @@ struct Framework::Impl
   void AppNormalExit()
   {
     appcore_ui_base_exit();
-  }
-
-  void AppWidgetExit()
-  {
-    widget_base_exit();
-  }
-
-  static int WidgetAppCreate( void *data )
-  {
-    dlog_print(DLOG_ERROR,"DALI","WidgetAppCreate!\n");
-    widget_base_on_create();
-    return static_cast<int>( static_cast<Framework*>(data)->Create() );
-  }
-
-  static int WidgetAppTerminate( void *data )
-  {
-    Observer *observer = &static_cast<Framework*>(data)->mObserver;
-    observer->OnTerminate();
-
-    widget_base_on_terminate();
-    return 0;
-  }
-
-  int AppWidgetMain()
-  {
-    if( !IsWidgetFeatureEnabled() )
-    {
-      DALI_LOG_ERROR("widget feature is not supported");
-      return 0;
-    }
-
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::DEVICE_ORIENTATION_CHANGED], AppCore::DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
-
-    widget_base_ops ops = widget_base_get_default_ops();
-
-    /* override methods */
-    ops.create = WidgetAppCreate;
-    ops.terminate = WidgetAppTerminate;
-    ops.init = AppInit;
-    ops.finish = AppFinish;
-    ops.run = AppRun;
-    ops.exit = AppExit;
-
-    int result = widget_base_init(ops, *mFramework->mArgc, *mFramework->mArgv, mFramework);
-
-    widget_base_fini();
-
-    return result;
   }
 
 #ifdef APPCORE_WATCH_AVAILABLE

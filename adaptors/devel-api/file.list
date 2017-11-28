@@ -69,10 +69,3 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h
 
-adaptor_widget_src_files = \
-  $(adaptor_devel_api_dir)/adaptor-framework/widget.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/widget-application.cpp
-
-adaptor_widget_header_files = \
-  $(adaptor_devel_api_dir)/adaptor-framework/widget.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/widget-application.h

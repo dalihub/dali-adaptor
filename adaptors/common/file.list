@@ -59,7 +59,3 @@ adaptor_common_internal_default_profile_src_files = \
 
 adaptor_common_internal_egl_extension_src_files = \
   $(adaptor_common_dir)/gl/egl-image-extensions.cpp
-
-adaptor_internal_widget_src_files = \
-  $(adaptor_common_dir)/widget-impl.cpp \
-  $(adaptor_common_dir)/widget-application-impl.cpp

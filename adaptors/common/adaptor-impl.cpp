@@ -93,8 +93,6 @@ Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLo
 
   Window& windowImpl = Dali::GetImplementation(window);
   Dali::Adaptor* adaptor = New( winId, windowImpl.GetSurface(), configuration, environmentOptions );
-
-  Internal::Adaptor::Adaptor::GetImplementation( *adaptor ).SetWindow( window );
   windowImpl.SetAdaptor(*adaptor);
   return adaptor;
 }
@@ -866,7 +864,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mTriggerEventFactory(),
   mObjectProfiler( NULL ),
   mSocketFactory(),
-  mWindow(),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
   mUseRemoteSurface( false )
 {
@@ -903,16 +900,6 @@ void Adaptor::SetRootLayoutDirection( std::string locale )
 
   stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
                                     static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
-}
-
-void Adaptor::SetWindow( Dali::Window window )
-{
-  mWindow = window;
-}
-
-Dali::Window Adaptor::GetWindow()
-{
-  return mWindow;
 }
 
 } // namespace Adaptor
