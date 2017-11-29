@@ -411,8 +411,16 @@ struct Framework::Impl
   {
     Framework* framework = static_cast<Framework*>(data);
     Observer *observer = &framework->mObserver;
-    framework->SetLanguage( std::string( static_cast<const char *>(event->value) ) );
-    observer->OnLanguageChanged();
+
+    if( event && event->value )
+    {
+      framework->SetLanguage( std::string( static_cast<const char *>(event->value) ) );
+      observer->OnLanguageChanged();
+    }
+    else
+    {
+      DALI_LOG_ERROR( "NULL pointer in Language changed event\n" );
+    }
   }
 
   static void AppDeviceRotated(AppCore::AppEventInfoPtr event_info, void *data)
@@ -423,8 +431,16 @@ struct Framework::Impl
   {
     Framework* framework = static_cast<Framework*>(data);
     Observer *observer = &framework->mObserver;
-    framework->SetRegion( std::string( static_cast<const char *>(event->value) ) );
-    observer->OnRegionChanged();
+
+    if( event && event->value )
+    {
+      framework->SetRegion( std::string( static_cast<const char *>(event->value) ) );
+      observer->OnRegionChanged();
+    }
+    else
+    {
+      DALI_LOG_ERROR( "NULL pointer in Region changed event\n" );
+    }
   }
 
   static void AppBatteryLow(AppCore::AppEventInfoPtr event, void *data)
