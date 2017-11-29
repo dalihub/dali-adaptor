@@ -106,6 +106,16 @@ void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
   GetImplementation(*this).ApplyGaussianBlur( blurRadius );
 }
 
+void PixelBuffer::Crop( uint16_t x, uint16_t y, uint16_t width, uint16_t height )
+{
+  GetImplementation(*this).Crop( x, y, ImageDimensions( width, height ) );
+}
+
+void PixelBuffer::Resize( uint16_t width, uint16_t height )
+{
+  GetImplementation(*this).Resize( ImageDimensions( width, height ) );
+}
+
 } // namespace Devel
 
 } // namespace Dali
