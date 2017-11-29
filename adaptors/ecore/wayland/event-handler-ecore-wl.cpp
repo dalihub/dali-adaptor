@@ -665,9 +665,9 @@ struct EventHandler::Impl
         ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
         ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-        ecoreKeyDownEvent.dev_name  = "";
-        ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-        ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
+        ecoreKeyDownEvent.dev_name  = ecore_device_name_get( keyEvent->dev );
+        ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class>( ecore_device_class_get( keyEvent->dev ) );
+        ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>( ecore_device_subclass_get( keyEvent->dev ) );
 
         std::string checkDevice;
         GetDeviceName( keyEvent, checkDevice );
@@ -770,9 +770,9 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
         ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
-        ecoreKeyUpEvent.dev_name  = "";
-        ecoreKeyUpEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-        ecoreKeyUpEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
+        ecoreKeyUpEvent.dev_name  = ecore_device_name_get( keyEvent->dev );
+        ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class>( ecore_device_class_get( keyEvent->dev ) );
+        ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>( ecore_device_subclass_get( keyEvent->dev ) );
 
         eventHandled = ecore_imf_context_filter_event( imfContext,
                                                        ECORE_IMF_EVENT_KEY_UP,
