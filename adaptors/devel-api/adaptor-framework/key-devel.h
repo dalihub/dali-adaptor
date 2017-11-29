@@ -79,7 +79,17 @@ enum Key
   /**
    * @brief Delete key.
    */
-  DALI_KEY_DELETE = 119
+  DALI_KEY_DELETE = 119,
+
+  /**
+   * @brief Control Left key.
+   */
+  DALI_KEY_CONTROL_LEFT = 37,
+
+  /**
+   * @brief Control Right key.
+   */
+  DALI_KEY_CONTROL_RIGHT = 105
 
 };
 
