@@ -140,9 +140,11 @@ public:
   Dali::PixelData CreatePixelData() const;
 
   /**
-   * Apply the mask to the current buffer. This method may update the
-   * internal object - e.g. the new buffer may have a different pixel
-   * format - as an alpha channel may be added.
+   * @brief Apply the mask to the current buffer.
+   *
+   * This method may update the internal object - e.g. the new buffer
+   * may have a different pixel format - as an alpha channel may be
+   * added.
    * @param[in] mask The mask to apply to this pixel buffer
    * @param[in] contentScale The scaling factor to apply to the content
    * @param[in] cropToMask Whether to crop the output to the mask size (true) or scale the
@@ -151,11 +153,27 @@ public:
   void ApplyMask( const PixelBuffer& mask, float contentScale, bool cropToMask );
 
   /**
-   * Apply a Gaussian blur to the current buffer with the given radius.
+   * @brief Apply a Gaussian blur to the current buffer with the given radius.
    *
    * @param[in] blurRadius The radius for Gaussian blur
    */
   void ApplyGaussianBlur( const float blurRadius );
+
+  /**
+   * Crops this buffer to the given crop rectangle. Assumes the crop rectangle
+   * is within the bounds of this size.
+   * @param[in] x The top left corner's X
+   * @param[in] y The top left corner's y
+   * @param[in] cropDimensions The dimensions of the crop
+   */
+  void Crop( uint16_t x, uint16_t y, ImageDimensions cropDimensions );
+
+  /**
+   * Resizes the buffer to the given dimensions. Uses either Lanczos4 for downscaling
+   * or Mitchell for upscaling
+   * @param[in] outDimensions The new dimensions
+   */
+  void Resize( ImageDimensions outDimensions );
 
 private:
   /*
@@ -210,21 +228,6 @@ private:
    */
   static PixelBufferPtr NewResize( const PixelBuffer& inBuffer, ImageDimensions outDimensions );
 
-  /**
-   * Crops this buffer to the given crop rectangle. Assumes the crop rectangle
-   * is within the bounds of this size.
-   * @param[in] x The top left corner's X
-   * @param[in] y The top left corner's y
-   * @param[in] cropDimensions The dimensions of the crop
-   */
-  void Crop( uint16_t x, uint16_t y, ImageDimensions cropDimensions );
-
-  /**
-   * Resizes the buffer to the given dimensions. Uses either Lanczos4 for downscaling
-   * or Mitchell for upscaling
-   * @param[in] outDimensions The new dimensions
-   */
-  void Resize( ImageDimensions outDimensions );
 
 private:
 

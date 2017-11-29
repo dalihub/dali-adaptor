@@ -33,6 +33,7 @@ class PixelBuffer;
 }
 }
 
+
 // Use namespace to separate from PixelBuffer typedef in buffer-image.h
 namespace Devel
 {
@@ -178,6 +179,26 @@ public:
    * @param[in] blurRadius The radius for Gaussian blur. A value of 0 or negative value indicates no blur.
    */
   void ApplyGaussianBlur( const float blurRadius );
+
+  /**
+   * @brief Crops this buffer to the given crop rectangle.
+   *
+   * The crop rectangle will be clamped to the edges of the buffer if it is larger.
+   * @param[in] x The top left corner's X
+   * @param[in] y The top left corner's y
+   * @param[in] width The crop width
+   * @param[in] height The crop height
+   */
+  void Crop( uint16_t x, uint16_t y, uint16_t width, uint16_t height );
+
+  /**
+   * @brief Resizes the buffer to the given dimensions.
+   *
+   * Uses either Lanczos4 for downscaling or Mitchell for upscaling
+   * @param[in] width The new width
+   * @param[in] height The new height
+   */
+  void Resize( uint16_t width, uint16_t height );
 
 public:
 
