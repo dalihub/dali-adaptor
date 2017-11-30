@@ -13,744 +13,1214 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *
- * When the available GIFLIB is with version up to 4.1.6, for using the New functions DGifSavedExtensionToGCB()
- * which makes it easy to read GIF89 graphics control blocks in saved images,
- * we copied the DGifExtensionToGCB and DGifSavedExtensionToGCB functions
- * along with the GraphicsControlBlock structure from the GIFLIB 5.1.4 to this source file.
- *
- *     The GIFLIB distribution is Copyright (c) 1997  Eric S. Raymond
- *     Permission is hereby granted, free of charge, to any person obtaining a copy
- *     of this software and associated documentation files (the "Software"), to deal
- *     in the Software without restriction, including without limitation the rights
- *     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *     copies of the Software, and to permit persons to whom the Software is
- *     furnished to do so, subject to the following conditions:
- *
- *     The above copyright notice and this permission notice shall be included in
- *     all copies or substantial portions of the Software.
-
- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- *     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *     THE SOFTWARE.
+ * Copyright notice for the EFL:
+ * Copyright (C) EFL developers (see AUTHORS)
  */
 
 // CLASS HEADER
 #include "gif-loading.h"
 
 // EXTERNAL INCLUDES
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include <gif_lib.h>
+#include <cstring>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/math/rect.h>
 #include <dali/public-api/images/pixel-data.h>
 
-namespace
-{
-// forward declaration of function
-void GifCopyLine(unsigned char* destination, unsigned char* source, const ColorMapObject* colorMap, int transparent, int copyWidth, bool replace );
+#define IMG_TOO_BIG( w, h )                                                        \
+  ( ( static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) ) >= \
+    ( (1ULL << (29 * (sizeof(void *) / 4))) - 2048) )
 
-#ifdef GIF_LIB_VERSION
-
-/*********************************************
- *  GIFLIB version up to 4.1.6
- ******************************************/
-/**
- * With GIFLIB version up to 4.1.6, for using the New functions DGifSavedExtensionToGCB()
- * which makes it easy to read GIF89 graphics control blocks in saved images,
- * we copied the DGifExtensionToGCB and DGifSavedExtensionToGCB functions
- * along with the GraphicsControlBlock structure from the GIFLIB 5.1.4 to this source file.
- */
-
-/* compose unsigned little endian value */
-#define UNSIGNED_LITTLE_ENDIAN(lo, hi) ((lo) | ((hi) << 8))
-
-typedef struct GraphicsControlBlock {
-    int DisposalMode;
-#define DISPOSAL_UNSPECIFIED      0       /* No disposal specified. */
-#define DISPOSE_DO_NOT            1       /* Leave image in place */
-#define DISPOSE_BACKGROUND        2       /* Set area too background color */
-#define DISPOSE_PREVIOUS          3       /* Restore to previous content */
-    bool UserInputFlag;      /* User confirmation required before disposal */
-    int DelayTime;           /* pre-display delay in 0.01sec units */
-    int TransparentColor;    /* Palette index for transparency, -1 if none */
-#define NO_TRANSPARENT_COLOR    -1
-} GraphicsControlBlock;
-
-/******************************************************************************
- Extract a Graphics Control Block from raw extension data
-******************************************************************************/
-int DGifExtensionToGCB(const size_t GifExtensionLength,
-                       char *GifExtension,
-                       GraphicsControlBlock *GCB)
-{
-  if (GifExtensionLength != 4)
-  {
-    return GIF_ERROR;
-  }
-
-  GCB->DisposalMode = (GifExtension[0] >> 2) & 0x07;
-  GCB->UserInputFlag = (GifExtension[0] & 0x02) != 0;
-  GCB->DelayTime = UNSIGNED_LITTLE_ENDIAN(GifExtension[1], GifExtension[2]);
-  if (GifExtension[0] & 0x01)
-  {
-    GCB->TransparentColor = reinterpret_cast< int >( GifExtension[3]+256 ) % 256;
-  }
-  else
-  {
-    GCB->TransparentColor = NO_TRANSPARENT_COLOR;
-  }
-
-  return GIF_OK;
-}
-
-/******************************************************************************
- Extract the Graphics Control Block for a saved image, if it exists.
-******************************************************************************/
-int DGifSavedExtensionToGCB(GifFileType *GifFile, int ImageIndex, GraphicsControlBlock *GCB)
-{
-  int i;
-
-  if (ImageIndex < 0 || ImageIndex > GifFile->ImageCount - 1)
-    return GIF_ERROR;
-
-  GCB->DisposalMode = DISPOSAL_UNSPECIFIED;
-  GCB->UserInputFlag = false;
-  GCB->DelayTime = 0;
-  GCB->TransparentColor = NO_TRANSPARENT_COLOR;
-
-  for (i = 0; i < GifFile->SavedImages[ImageIndex].ExtensionBlockCount; i++) {
-    ExtensionBlock *ep = &GifFile->SavedImages[ImageIndex].ExtensionBlocks[i];
-    if (ep->Function == GRAPHICS_EXT_FUNC_CODE)
-      return DGifExtensionToGCB(ep->ByteCount, ep->Bytes, GCB);
-  }
-
-  return GIF_ERROR;
-}
-
-/******************************************************************************
- End of code copy from GIFLIB version 5.
-******************************************************************************/
-
-
-// simple class to enforce clean-up of GIF structures
-struct GifAutoCleanup
-{
-  GifAutoCleanup(GifFileType*& _gifInfo)
-  : gifInfo(_gifInfo)
-  {
-  }
-
-  ~GifAutoCleanup()
-  {
-    if(NULL != gifInfo)
-    {
-      // clean up GIF resources
-      DGifCloseFile( gifInfo );
-    }
-  }
-
-  GifFileType*& gifInfo;
-};
-
-/**
- * Open a new gif file for read.
- * @param[in] url The url of the gif to load.
- * @param[out] gifInfo The dynamically allocated GifFileType pointer which serves as the GIF info record.
- * @return True if the file is opened successfully, false otherwise.
- */
-bool GifOpen( const char* url, GifFileType*& gifInfo )
-{
-  gifInfo = DGifOpenFileName( url );
-  if( gifInfo == NULL )
-  {
-    DALI_LOG_ERROR( "GIF Loader: DGifOpen failed. \n" );
-    return false;
-  }
-  return true;
-}
-
-/**
- * With GIFLIB version 4.1.6, the interlacing needs to be handled manually
- */
-// Used in the GIF interlace algorithm to determine the starting byte and the increment required
-// for each pass.
-struct InterlacePair
-{
-  unsigned int startingByte;
-  unsigned int incrementalByte;
-};
-
-// Used in the GIF interlace algorithm to determine the order and which location to read data from
-// the file.
-const InterlacePair INTERLACE_PAIR_TABLE [] = {
-  { 0, 8 }, // Starting at 0, read every 8 bytes.
-  { 4, 8 }, // Starting at 4, read every 8 bytes.
-  { 2, 4 }, // Starting at 2, read every 4 bytes.
-  { 1, 2 }, // Starting at 1, read every 2 bytes.
-};
-const int INTERLACE_PAIR_TABLE_SIZE( sizeof( INTERLACE_PAIR_TABLE ) / sizeof( InterlacePair ) );
-
-/**
- * copy a image from color-index formated source to the the RGBA formated destination
- * @param[out] destination The RGBA formated destination.
- * @param[in] source The color-index formated source.
- * @param[in] width The width of the destination image.
- * @param[in] height The height of the destination image.
- * @param[in] imageDesc The description of the source image.
- * @param[in] colorMap The color map for mapping the color index to RGB values.
- * @param[in] transparent The color index which is interpreted as transparent.
- * @param[in] replace If true, the pixel with transparent color should be set as transparent.
- *                    If false, skip the pixel with transparent color, so that the previously initialized color is used.
- */
-void GifCopyFrame( unsigned char* destination, unsigned char* source, int width, int height,
-                   const GifImageDesc& imageDesc, const ColorMapObject* colorMap,
-                   int transparent, bool replace )
-{
-  // Calculate the copy size as the image might only cover sub area of the frame
-  int copyWidth = imageDesc.Width <= ( width-imageDesc.Left) ? imageDesc.Width : width - imageDesc.Left;
-  int copyHeight = imageDesc.Height <= ( height-imageDesc.Top) ? imageDesc.Height : height - imageDesc.Top;
-
-  unsigned char* row;
-  // copy line by line from the color-index formated source to the RGBA formated destination.
-  if( imageDesc.Interlace ) // With GIFLIB version 4.1, the interlacing needs to be handled manually
-  {
-    const InterlacePair* interlacePairPtr( INTERLACE_PAIR_TABLE );
-    for ( int interlacePair = 0; interlacePair < INTERLACE_PAIR_TABLE_SIZE; ++interlacePair, ++interlacePairPtr )
-    {
-      for( int currentRow = interlacePairPtr->startingByte; currentRow < copyHeight; currentRow +=interlacePairPtr->incrementalByte )
-      {
-        row = destination + (imageDesc.Top + currentRow) * width * 4 + imageDesc.Left * 4 ;
-        GifCopyLine( row, source, colorMap, transparent, copyWidth, replace);
-        source += imageDesc.Width;
-      }
-    }
-  }
-  else
-  {
-    for( int currentRow = 0; currentRow < copyHeight; currentRow++ )
-    {
-      row = destination + (imageDesc.Top + currentRow) * width * 4 + imageDesc.Left * 4 ;
-      GifCopyLine( row, source, colorMap, transparent, copyWidth, replace);
-      source += imageDesc.Width;
-    }
-  }
-}
-
-#else
-
-/*************************************************
- * GIFLIB major version 5
- *************************************************/
-
-// simple class to enforce clean-up of GIF structures
-struct GifAutoCleanup
-{
-  GifAutoCleanup(GifFileType*& _gifInfo)
-  : gifInfo(_gifInfo)
-  {
-  }
-
-  ~GifAutoCleanup()
-  {
-    if(NULL != gifInfo)
-    {
-      // clean up GIF resources
-      int errorCode = 0; //D_GIF_SUCCEEDED is 0
-      DGifCloseFile( gifInfo, &errorCode );
-
-      if( errorCode )
-      {
-        DALI_LOG_ERROR( "GIF Loader: DGifCloseFile Error. Code: %d\n", errorCode );
-      }
-    }
-  }
-
-  GifFileType*& gifInfo;
-};
-
-/**
- * Open a new gif file for read.
- * @param[in] url The url of the gif to load.
- * @param[out] gifInfo The dynamically allocated GifFileType pointer which serves as the GIF info record.
- * @return True if the file is opened successfully, false otherwise.
- */
-bool GifOpen( const char* url, GifFileType*& gifInfo )
-{
-  int errorCode;
-  gifInfo = DGifOpenFileName(url, &errorCode);
-  if (gifInfo == NULL)
-  {
-    DALI_LOG_ERROR( "GIF Loader: DGifOpenFileName Error. Code: %d\n", errorCode );
-    return false;
-  }
-  return true;
-}
-
-/**
- * copy a image from color-index formated source to the the RGBA formated destination
- * @param[out] destination The RGBA formated destination.
- * @param[in] source The color-index formated source.
- * @param[in] width The width of the destination image.
- * @param[in] height The height of the destination image.
- * @param[in] imageDesc The description of the source image.
- * @param[in] colorMap The color map for mapping the color index to RGB values.
- * @param[in] transparent The color index which is interpreted as transparent.
- * @param[in] replace If true, the pixel with transparent color should be set as transparent.
- *                    If false, skip the pixel with transparent color, so that the previously initialized color is used.
- */
-void GifCopyFrame( unsigned char* destination, unsigned char* source, int width, int height,
-                   const GifImageDesc& imageDesc, const ColorMapObject* colorMap,
-                    int transparent, bool replace )
-{
-  // Calculate the copy size as the image might only cover sub area of the frame
-  int copyWidth = imageDesc.Width <= ( width-imageDesc.Left) ? imageDesc.Width : width - imageDesc.Left;
-  int copyHeight = imageDesc.Height <= ( height-imageDesc.Top) ? imageDesc.Height : height - imageDesc.Top;
-
-  unsigned char* row;
-  // copy line by line from the color-index formated source to the RGBA formated destination.
-  for( int currentRow = 0; currentRow < copyHeight; currentRow++ )
-  {
-    row = destination + (imageDesc.Top + currentRow) * width * 4 + imageDesc.Left * 4 ;
-    GifCopyLine( row, source, colorMap, transparent, copyWidth, replace);
-    source += imageDesc.Width;
-  }
-}
-
-#endif // End of code for different GIF_LIB_VERSION
-
-/**
- * copy one line from the color-index formated source to the RGBA formated destination.
- * @param[out] destination The RGBA formated destination.
- * @param[in] source The color-index formated source.
- * @param[in] transparent The color index which is interpreted as transparent.
- * @param[in] color The color map for mapping the color index to RGB values.
- * @param[in] copyWidth The copy width.
- * @param[in] replace If true, the pixel with transparent color should be set as transparent.
- *                    If false, skip the pixel with transparent color, so that the previously initialized color is used.
- */
-void GifCopyLine(unsigned char* destination, unsigned char* source, const ColorMapObject* colorMap, int transparent, int copyWidth, bool replace )
-{
-  for ( ; copyWidth > 0; copyWidth--, source++ )
-  {
-    if( replace || *source != transparent )
-    {
-      *(destination++) = colorMap->Colors[*source].Red;
-      *(destination++) = colorMap->Colors[*source].Green;
-      *(destination++) = colorMap->Colors[*source].Blue;
-      *(destination++) = *source == transparent ? 0x00 : 0xff;
-    }
-    else
-    {
-      destination += 4;
-    }
-  }
-}
-
-
-/**
- * Decode one frame of the animated gif.
- * @param[out] delay The delay time of this frame.
- * @param[in] gifInfo The GifFileType structure.
- * @param[in] backgroundcolor The global background color.
- * @param[in] frameIndex The index of this frame.
- * @param[in] lastPreservedFrame The pixel buffer of the last preserved frame.
- * @param[in] previousFrame The pixel buffer of the previous frame.
- * @param[in] clearFrameArea The area to be cleared if the disposal mode is DISPOSE_BACKGROUND
- * @return The pixel buffer of the current frame. *
- */
-unsigned char* DecodeOneFrame( int& delay, GifFileType* gifInfo, const Dali::Vector<unsigned char>& backgroundColor,
-                               unsigned int frameIndex, unsigned char*& lastPreservedFrame,
-                               unsigned char*& previousFrame, Dali::Rect<int>& clearFrameArea )
-{
-  // Fetch the graphics control block
-  GraphicsControlBlock graphicsControlBlock;
-  if( int errorCode = DGifSavedExtensionToGCB( gifInfo, frameIndex, &graphicsControlBlock ) != GIF_OK
-      && gifInfo->ImageCount > 1 ) // for static gif, graphics control block may not been specified
-  {
-    DALI_LOG_ERROR( "GIF Loader: DGifSavedExtensionToGCB Error. Code: %d\n", errorCode );
-  }
-
-  // Read frame delay time, multiply 10 to change time unit to millisecods
-  delay = graphicsControlBlock.DelayTime * 10.f;
-
-  const int width = gifInfo->SWidth;
-  const int height = gifInfo->SHeight;
-
-  const SavedImage& frame = gifInfo->SavedImages[frameIndex];
-
-  // get the color map. If there is a local one, use the local color map, otherwise use the global color map
-  ColorMapObject* colorMap = frame.ImageDesc.ColorMap ? frame.ImageDesc.ColorMap : gifInfo->SColorMap;
-  if (colorMap == NULL || colorMap->ColorCount != (1 << colorMap->BitsPerPixel))
-  {
-    DALI_LOG_WARNING( "GIF Loader: potentially corrupt color map\n" );
-    return NULL;
-  }
-
-  // Allocate the buffer
-  int bufferSize = width*height*4;
-  unsigned char* buffer = new unsigned char[ bufferSize ];
-
-  // check whether buffer initializetion is needed
-  bool completelyCovered = graphicsControlBlock.TransparentColor == NO_TRANSPARENT_COLOR
-                           && frame.ImageDesc.Left == 0 && frame.ImageDesc.Top == 0
-                           && frame.ImageDesc.Width == width && frame.ImageDesc.Height == height;
-
-   // if not completely covered, needs to initialise the pixels
-  // depends on the disposal method, it would be initialised to background color, previous frame or the last preserved frame
-  if( !completelyCovered )
-  {
-    if( previousFrame && ( graphicsControlBlock.DisposalMode == DISPOSAL_UNSPECIFIED
-                        || graphicsControlBlock.DisposalMode == DISPOSE_DO_NOT
-                        || graphicsControlBlock.DisposalMode == DISPOSE_BACKGROUND) )
-    {
-      // disposal none: overlaid on the previous frame
-      if( clearFrameArea.height < height || clearFrameArea.width < width )
-      {
-        for( int i = 0; i < bufferSize; i++  )
-        {
-          buffer[i] = previousFrame[i];
-        }
-      }
-      // background disposal: When the time delay is finished for a particular frame, the area that was overlaid by that frame is cleared.
-      // Not the whole canvas, just the area that was overlaid. Once that is done then the resulting canvas is what is passed to the next frame of the animation,
-      // to be overlaid by that frames image.
-      for( int row = 0; row < clearFrameArea.height; row++  )
-      {
-        int idx = ( clearFrameArea.y + row)* width *4 + clearFrameArea.x * 4 + 3;
-        for( int col = 0; col < clearFrameArea.width; col++, idx+=4  )
-        {
-          buffer[idx] = 0x00;
-         }
-      }
-    }
-    else if( lastPreservedFrame && graphicsControlBlock.DisposalMode == DISPOSE_PREVIOUS )
-    {
-      // previous disposal: When the current image is finished, return the canvas to what it looked like before the image was overlaid.
-      for( int i = 0; i < bufferSize; i++  )
-      {
-        buffer[i] = lastPreservedFrame[i];
-      }
-    }
-    else if( !previousFrame && graphicsControlBlock.DisposalMode == DISPOSE_BACKGROUND)
-    {
-      // background disposal for first frame: clear to transparency
-      for( int i = 3; i < bufferSize; i+=4  )
-      {
-        buffer[i] = 0x00;
-      }
-    }
-    else
-    {
-      for( int i = 0; i < bufferSize; i+=4  )
-      {
-        buffer[i] = backgroundColor[0];
-        buffer[i+1] = backgroundColor[1];
-        buffer[i+2] = backgroundColor[2];
-        buffer[i+3] = backgroundColor[3];
-      }
-    }
-  }
-
-  unsigned char* source = frame.RasterBits;
-  bool replace = completelyCovered || (frameIndex == 0 && graphicsControlBlock.DisposalMode != DISPOSE_BACKGROUND);
-  GifCopyFrame( buffer, source, width, height, frame.ImageDesc, colorMap, graphicsControlBlock.TransparentColor, replace );
-
-  // update the pixel buffer of the previous frame and the last preserved frame
-  if( graphicsControlBlock.DisposalMode != DISPOSE_BACKGROUND && graphicsControlBlock.DisposalMode != DISPOSE_PREVIOUS )
-  {
-    lastPreservedFrame = buffer;
-  }
-  previousFrame = buffer;
-  if( graphicsControlBlock.DisposalMode == DISPOSE_BACKGROUND )
-  {
-    clearFrameArea.x = frame.ImageDesc.Left;
-    clearFrameArea.y = frame.ImageDesc.Top;
-    clearFrameArea.width = frame.ImageDesc.Width;
-    clearFrameArea.height = frame.ImageDesc.Height;
-  }
-  else
-  {
-    clearFrameArea.width = 0;
-    clearFrameArea.height = 0;
-  }
-
-  return buffer;
-}
-
-} // Anonymous namespace
+#define LOADERR( x )                              \
+  do {                                            \
+    DALI_LOG_ERROR( x );                          \
+    goto on_error;                                \
+  } while ( 0 )
 
 namespace Dali
 {
 
-#ifdef GIF_LIB_VERSION
-#else
-/*************************************************
- * GIFLIB major version 5
- *************************************************/
-#include <limits.h>
-#include <gif_lib.h>
-
-int ReadGifSlurp(GifFileType *GifFile)
+namespace
 {
-  size_t ImageSize;
-  GifRecordType RecordType;
-  SavedImage *sp;
-  GifByteType *ExtData;
-  int ExtFunction;
-  GifFile->ExtensionBlocks = NULL;
-  GifFile->ExtensionBlockCount = 0;
-  DALI_LOG_ERROR("DGifSlurp_dali() start!");
-  bool isEofTooSoonErr = false;
+#if defined(DEBUG_ENABLED)
+Debug::Filter *gGifLoadingLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_GIF_LOADING" );
+#endif
 
+const int IMG_MAX_SIZE = 65000;
+
+#if GIFLIB_MAJOR < 5
+const int DISPOSE_BACKGROUND = 2;       /* Set area too background color */
+const int DISPOSE_PREVIOUS = 3;         /* Restore to previous content */
+#endif
+
+struct FrameInfo
+{
+  FrameInfo()
+  : x( 0 ),
+    y( 0 ),
+    w( 0 ),
+    h( 0 ),
+    delay( 0 ),
+    transparent( -1 ),
+    dispose( DISPOSE_BACKGROUND ),
+    interlace( 0 )
+  {
+  }
+
+  int x, y, w, h;
+  unsigned short delay; // delay time in 1/100ths of a sec
+  short transparent : 10; // -1 == not, anything else == index
+  short dispose : 6; // 0, 1, 2, 3 (others invalid)
+  short interlace : 1; // interlaced or not
+};
+
+struct ImageFrame
+{
+  ImageFrame()
+  : index( 0 ),
+    data( nullptr ),
+    info(),
+    loaded( false )
+  {
+  }
+
+  ~ImageFrame()
+  {
+  }
+
+  int       index;
+  uint32_t  *data;     /* frame decoding data */
+  FrameInfo  info;     /* special image type info */
+  bool loaded : 1;
+};
+
+struct GifAnimationData
+{
+  GifAnimationData()
+  : frames( ),
+    frameCount( 0 ),
+    loopCount( 0 ),
+    currentFrame( 0 ),
+    animated( false )
+  {
+  }
+
+  std::vector<ImageFrame> frames;
+  int frameCount;
+  int loopCount;
+  int currentFrame;
+  bool animated;
+};
+
+struct LoaderInfo
+{
+  LoaderInfo()
+  : gif( nullptr ) ,
+    imageNumber ( 0 )
+  {
+  }
+
+  struct FileData
+  {
+    FileData()
+    : fileName( nullptr ),
+      globalMap ( nullptr ),
+      length( 0 ),
+      fileDescriptor( -1 )
+    {
+    }
+
+    const char *fileName;  /**< The absolute path of the file. */
+    unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
+    unsigned long long length;  /**< The length of the file in bytes. */
+    int fileDescriptor; /**< The file descriptor. */
+  };
+
+  struct FileInfo
+  {
+    FileInfo()
+    : map( nullptr ),
+      position( 0 ),
+      length( 0 )
+    {
+    }
+
+    unsigned char *map;
+    int position, length; // yes - gif uses ints for file sizes.
+  };
+
+  FileData fileData;
+  GifAnimationData animated;
+  GifFileType *gif;
+  int imageNumber;
+  FileInfo fileInfo;
+};
+
+struct ImageProperties
+{
+  unsigned int w;
+  unsigned int h;
+  bool alpha;
+};
+
+/**
+ * @brief This combines R, G, B and Alpha values into a single 32-bit (ABGR) value.
+ *
+ * @param[in] animated A structure containing GIF animation data
+ * @param[in] index Frame index to be searched in GIF
+ * @return A pointer to the ImageFrame.
+ */
+inline int CombinePixelABGR( int a, int r, int g, int b )
+{
+  return ( ((a) << 24) + ((b) << 16) + ((g) << 8) + (r) );
+}
+
+inline int PixelLookup( ColorMapObject *colorMap, int index )
+{
+  return CombinePixelABGR( 0xFF, colorMap->Colors[index].Red, colorMap->Colors[index].Green, colorMap->Colors[index].Blue );
+}
+
+/**
+ * @brief Brute force find frame index - gifs are normally small so ok for now.
+ *
+ * @param[in] animated A structure containing GIF animation data
+ * @param[in] index Frame index to be searched in GIF
+ * @return A pointer to the ImageFrame.
+ */
+ImageFrame *FindFrame( const GifAnimationData &animated, int index )
+{
+  for( auto &&elem : animated.frames )
+  {
+    if( elem.index == index )
+    {
+      return const_cast<ImageFrame *>( &elem );
+    }
+  }
+  return nullptr;
+}
+
+/**
+ * @brief Fill in an image with a specific rgba color value.
+ *
+ * @param[in] data A pointer pointing to an image data
+ * @param[in] row A int containing the number of rows in an image
+ * @param[in] val A uint32_t containing rgba color value
+ * @param[in] x X-coordinate used an offset to calculate pixel position
+ * @param[in] y Y-coordinate used an offset to calculate pixel position
+ * @param[in] width Width of the image
+ * @param[in] height Height of the image
+ */
+void FillImage( uint32_t *data, int row, uint32_t val, int x, int y, int width, int height )
+{
+  int xAxis, yAxis;
+  uint32_t *pixelPosition;
+
+  for( yAxis = 0; yAxis < height; yAxis++ )
+  {
+    pixelPosition = data + ((y + yAxis) * row) + x;
+    for( xAxis = 0; xAxis < width; xAxis++ )
+    {
+      *pixelPosition = val;
+      pixelPosition++;
+    }
+  }
+}
+
+/**
+ * @brief Fill a rgba data pixle blob with a frame color (bg or trans)
+ *
+ * @param[in] data A pointer pointing to an image data
+ * @param[in] row A int containing the number of rows in an image
+ * @param[in] gif A pointer pointing to GIF File Type
+ * @param[in] frameInfo A pointer pointing to Frame Information data
+ * @param[in] x X-coordinate used an offset to calculate pixel position
+ * @param[in] y Y-coordinate used an offset to calculate pixel position
+ * @param[in] width Width of the image
+ * @param[in] height Height of the image
+ */
+void FillFrame( uint32_t *data, int row, GifFileType *gif, FrameInfo *frameInfo, int x, int y, int w, int h )
+{
+  // solid color fill for pre frame region
+  if( frameInfo->transparent < 0 )
+  {
+    ColorMapObject *colorMap;
+    int backGroundColor;
+
+    // work out color to use from colorMap
+    if( gif->Image.ColorMap )
+    {
+      colorMap = gif->Image.ColorMap;
+    }
+    else
+    {
+      colorMap = gif->SColorMap;
+    }
+    backGroundColor = gif->SBackGroundColor;
+    // and do the fill
+    FillImage( data, row,
+              CombinePixelABGR( 0xff, colorMap->Colors[backGroundColor].Red,
+                                colorMap->Colors[backGroundColor].Green,
+                                colorMap->Colors[backGroundColor].Blue ),
+              x, y, w, h );
+  }
+  // fill in region with 0 (transparent)
+  else
+  {
+    FillImage( data, row, 0, x, y, w, h );
+  }
+}
+
+/**
+ * @brief Store common fields from gif file info into frame info
+ *
+ * @param[in] gif A pointer pointing to GIF File Type
+ * @param[in] frameInfo A pointer pointing to Frame Information data
+ */
+void StoreFrameInfo( GifFileType *gif, FrameInfo *frameInfo )
+{
+  frameInfo->x = gif->Image.Left;
+  frameInfo->y = gif->Image.Top;
+  frameInfo->w = gif->Image.Width;
+  frameInfo->h = gif->Image.Height;
+  frameInfo->interlace = gif->Image.Interlace;
+}
+
+/**
+ * @brief Check if image fills "screen space" and if so, if it is transparent
+ * at all then the image could be transparent - OR if image doesnt fill,
+ * then it could be trasnparent (full coverage of screen). Some gifs will
+ * be recognized as solid here for faster rendering, but not all.
+ *
+ * @param[out] full A boolean to show whether image is transparent or not
+ * @param[in] frameInfo A pointer pointing to Frame Information data
+ * @param[in] width Width of the image
+ * @param[in] height Height of the image
+ */
+void CheckTransparency( bool &full, FrameInfo *frameInfo, int width, int height )
+{
+  if( ( frameInfo->x == 0 ) && ( frameInfo->y == 0 ) &&
+      ( frameInfo->w == width ) && ( frameInfo->h == height ) )
+  {
+    if( frameInfo->transparent >= 0 )
+    {
+      full = false;
+    }
+  }
+  else
+  {
+    full = false;
+  }
+}
+
+/**
+ * @brief Fix coords and work out an x and y inset in orig data if out of image bounds.
+ */
+void ClipCoordinates( int imageWidth, int imageHeight, int *xin, int *yin, int x0, int y0, int w0, int h0, int *x, int *y, int *w, int *h )
+{
+  if( x0 < 0 )
+  {
+    w0 += x0;
+    *xin = -x0;
+    x0 = 0;
+  }
+  if( (x0 + w0) > imageWidth )
+  {
+    w0 = imageWidth - x0;
+  }
+  if( y0 < 0 )
+  {
+    h0 += y0;
+    *yin = -y0;
+    y0 = 0;
+  }
+  if( (y0 + h0) > imageHeight )
+  {
+    h0 = imageHeight - y0;
+  }
+  *x = x0;
+  *y = y0;
+  *w = w0;
+  *h = h0;
+}
+
+/**
+ * @brief Flush out rgba frame images to save memory but skip current,
+ * previous and lastPreservedFrame frames (needed for dispose mode DISPOSE_PREVIOUS)
+ *
+ * @param[in] animated A structure containing GIF animation data
+ * @param[in] width Width of the image
+ * @param[in] height Height of the image
+ * @param[in] thisframe The current frame
+ * @param[in] prevframe The previous frame
+ * @param[in] lastPreservedFrame The last preserved frame
+ */
+void FlushFrames( GifAnimationData &animated, int width, int height, ImageFrame *thisframe, ImageFrame *prevframe, ImageFrame *lastPreservedFrame )
+{
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "FlushFrames() START \n" );
+
+  // target is the amount of memory we want to be under for stored frames
+  int total = 0, target = 512 * 1024;
+
+  // total up the amount of memory used by stored frames for this image
+  for( auto &&frame : animated.frames )
+  {
+    if( frame.data )
+    {
+      total++;
+    }
+  }
+  total *= ( width * height * sizeof( uint32_t ) );
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "Total used frame size: %d\n", total );
+
+  // If we use more than target (512k) for frames - flush
+  if( total > target )
+  {
+    // Clean frames (except current and previous) until below target
+    for( auto &&frame : animated.frames )
+    {
+      if( (frame.index != thisframe->index) && (!prevframe || frame.index != prevframe->index) &&
+          (!lastPreservedFrame || frame.index != lastPreservedFrame->index) )
+      {
+        if( frame.data != nullptr )
+        {
+          delete[] frame.data;
+          frame.data = nullptr;
+
+          // subtract memory used and if below target - stop flush
+          total -= ( width * height * sizeof( uint32_t ) );
+          if( total < target )
+          {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "FlushFrames() END \n" );
+}
+
+/**
+ * @brief allocate frame and frame info and append to list and store fields.
+ *
+ * @param[in] animated A structure containing GIF animation data
+ * @param[in] transparent Transparent index of the new frame
+ * @param[in] dispose Dispose mode of new frame
+ * @param[in] delay The frame delay of new frame
+ * @param[in] index The index of new frame
+ */
+FrameInfo *NewFrame( GifAnimationData &animated, int transparent, int dispose, int delay, int index )
+{
+  ImageFrame frame;
+
+  // record transparent index to be used or -1 if none
+  // for this SPECIFIC frame
+  frame.info.transparent = transparent;
+  // record dispose mode (3 bits)
+  frame.info.dispose = dispose;
+  // record delay (2 bytes so max 65546 /100 sec)
+  frame.info.delay = delay;
+  // record the index number we are at
+  frame.index = index;
+  // that frame is stored AT image/screen size
+
+  animated.frames.push_back( frame );
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "NewFrame: animated.frames.size() = %d\n", animated.frames.size() );
+
+  return &( animated.frames.back().info );
+}
+
+/**
+ * @brief Copy data from gif file into buffer.
+ *
+ * @param[in] gifFileType A pointer pointing to GIF File Type
+ * @param[out] buffer A pointer to buffer containing GIF raw data
+ * @param[in] len The length in bytes to be copied
+ * @return The data length of the image in bytes
+ */
+int FileRead( GifFileType *gifFileType, GifByteType *buffer, int length )
+{
+  LoaderInfo::FileInfo *fi = reinterpret_cast<LoaderInfo::FileInfo *>( gifFileType->UserData );
+
+  if( fi->position >= fi->length )
+  {
+    return 0; // if at or past end - no
+  }
+  if( (fi->position + length) >= fi->length )
+  {
+    length = fi->length - fi->position;
+  }
+  memcpy( buffer, fi->map + fi->position, length );
+  fi->position += length;
+  return length;
+}
+
+/**
+ * @brief Decode a gif image into rows then expand to 32bit into the destination
+ * data pointer.
+ */
+bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin,
+                  int transparent, int x, int y, int w, int h, bool fill )
+{
+  int intoffset[] = {0, 4, 2, 1};
+  int intjump[] = {8, 8, 4, 2};
+  int i, xx, yy, pix;
+  GifRowType *rows = NULL;
+  bool ret = false;
+  ColorMapObject *colorMap;
+  uint32_t *p;
+
+  // what we need is image size.
+  SavedImage *sp = nullptr;
+  sp = &gif->SavedImages[ gif->ImageCount - 1 ];
+  if( sp != nullptr )
+  {
+    goto on_error;
+  }
+  w = sp->ImageDesc.Width;
+  h = sp->ImageDesc.Height;
+
+  // build a blob of memory to have pointers to rows of pixels
+  // AND store the decoded gif pixels (1 byte per pixel) as welll
+  rows = static_cast<GifRowType *>(malloc( (h * sizeof(GifRowType) ) + ( w * h * sizeof(GifPixelType) )));
+  if( !rows )
+  {
+    goto on_error;
+  }
+
+  // fill in the pointers at the start
+  for( yy = 0; yy < h; yy++ )
+  {
+    rows[yy] = reinterpret_cast<unsigned char *>(rows) + (h * sizeof(GifRowType)) + (yy * w * sizeof(GifPixelType));
+  }
+
+  // if gif is interlaced, walk interlace pattern and decode into rows
+  if( gif->Image.Interlace )
+  {
+    for( i = 0; i < 4; i++ )
+    {
+      for( yy = intoffset[i]; yy < h; yy += intjump[i] )
+      {
+        if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+        {
+          goto on_error;
+        }
+      }
+    }
+  }
+  // normal top to bottom - decode into rows
+  else
+  {
+    for( yy = 0; yy < h; yy++ )
+    {
+      if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+      {
+        goto on_error;
+      }
+    }
+  }
+
+  // work out what colormap to use
+  if( gif->Image.ColorMap )
+  {
+    colorMap = gif->Image.ColorMap;
+  }
+  else
+  {
+    colorMap = gif->SColorMap;
+  }
+
+  // if we need to deal with transparent pixels at all...
+  if( transparent >= 0 )
+  {
+    // if we are told to FILL (overwrite with transparency kept)
+    if( fill )
+    {
+      for( yy = 0; yy < h; yy++ )
+      {
+        p = data + ((y + yy) * rowpix) + x;
+        for( xx = 0; xx < w; xx++ )
+        {
+          pix = rows[yin + yy][xin + xx];
+          if( pix != transparent )
+          {
+            *p = PixelLookup( colorMap, pix );
+          }
+          else
+          {
+            *p = 0;
+          }
+          p++;
+        }
+      }
+    }
+    // paste on top with transparent pixels untouched
+    else
+    {
+      for( yy = 0; yy < h; yy++ )
+      {
+        p = data + ((y + yy) * rowpix) + x;
+        for( xx = 0; xx < w; xx++ )
+        {
+          pix = rows[yin + yy][xin + xx];
+          if( pix != transparent )
+          {
+            *p = PixelLookup( colorMap, pix );
+          }
+          p++;
+        }
+      }
+    }
+  }
+  else
+  {
+    // walk pixels without worring about transparency at all
+    for( yy = 0; yy < h; yy++ )
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for( xx = 0; xx < w; xx++ )
+      {
+        pix = rows[yin + yy][xin + xx];
+        *p = PixelLookup( colorMap, pix );
+        p++;
+      }
+    }
+  }
+  ret = true;
+
+on_error:
+  if( rows )
+  {
+    free( rows );
+  }
+  return ret;
+}
+
+/**
+ * @brief Reader header from the gif file and populates structures accordingly.
+ *
+ * @param[in] loaderInfo A LoaderInfo structure containing file descriptor and other data about GIF.
+ * @param[out] prop A ImageProperties structure for storing information about GIF data.
+ * @param[out] error Error code
+ * @return The true or false whether reading was successful or not.
+ */
+bool ReadHeader( LoaderInfo &loaderInfo,
+                 ImageProperties &prop, //output struct
+                 int *error )
+{
+  GifAnimationData &animated = loaderInfo.animated;
+  LoaderInfo::FileData &fileData = loaderInfo.fileData;
+  bool ret = false;
+  LoaderInfo::FileInfo fileInfo;
+  GifRecordType rec;
+  GifFileType *gif = NULL;
+  // it is possible which gif file have error midle of frames,
+  // in that case we should play gif file until meet error frame.
+  int imageNumber = 0;
+  int loopCount = -1;
+  FrameInfo *frameInfo = NULL;
+  bool full = true;
+
+  // init prop struct with some default null values
+  prop.w = 0;
+  prop.h = 0;
+
+  fileData.fileDescriptor = open( fileData.fileName, O_RDONLY );
+
+  if( fileData.fileDescriptor == -1 )
+  {
+    return false;
+  }
+
+  fileData.length = static_cast<unsigned long long> ( lseek( fileData.fileDescriptor, 0, SEEK_END ) );
+  lseek( fileData.fileDescriptor, 0, SEEK_SET );
+
+  // map the file and store/track info
+  fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
+  fileInfo.map = fileData.globalMap ;
+
+  close(fileData.fileDescriptor);
+  fileData.fileDescriptor = -1;
+
+  if( !fileInfo.map )
+  {
+    LOADERR("LOAD_ERROR_CORRUPT_FILE");
+  }
+  fileInfo.length = fileData.length;
+  fileInfo.position = 0;
+
+// actually ask libgif to open the file
+#if GIFLIB_MAJOR >= 5
+  gif = DGifOpen( &fileInfo, FileRead, NULL );
+#else
+  gif = DGifOpen( &fileInfo, FileRead );
+#endif
+
+  if (!gif)
+  {
+    LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+  }
+
+  // get the gif "screen size" (the actual image size)
+  prop.w = gif->SWidth;
+  prop.h = gif->SHeight;
+
+  // if size is invalid - abort here
+  if( (prop.w < 1) || (prop.h < 1) || (prop.w > IMG_MAX_SIZE) || (prop.h > IMG_MAX_SIZE) || IMG_TOO_BIG(prop.w, prop.h) )
+  {
+    if( IMG_TOO_BIG(prop.w, prop.h) )
+    {
+      LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+    }
+    LOADERR("LOAD_ERROR_GENERIC");
+  }
+  // walk through gif records in file to figure out info
   do
   {
-    if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
+    if( DGifGetRecordType(gif, &rec) == GIF_ERROR )
     {
-      DALI_LOG_ERROR("DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR");
-      return (GIF_ERROR);
-    }
-    switch (RecordType)
-    {
-      case IMAGE_DESC_RECORD_TYPE:
+      // if we have a gif that ends part way through a sequence
+      // (or animation) consider it valid and just break - no error
+      if( imageNumber > 1 )
       {
-        if (DGifGetImageDesc(GifFile) == GIF_ERROR)
+        break;
+      }
+      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+    }
+
+    // get image description section
+    if( rec == IMAGE_DESC_RECORD_TYPE )
+    {
+      int img_code;
+      GifByteType *img;
+
+      // get image desc
+      if( DGifGetImageDesc(gif) == GIF_ERROR )
+      {
+        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+      }
+      // skip decoding and just walk image to next
+      if( DGifGetCode(gif, &img_code, &img) == GIF_ERROR )
+      {
+        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+      }
+      // skip till next...
+      while( img )
+      {
+        img = NULL;
+        DGifGetCodeNext( gif, &img );
+      }
+      // store geometry in the last frame info data
+      if( frameInfo )
+      {
+        StoreFrameInfo( gif, frameInfo );
+        CheckTransparency( full, frameInfo, prop.w, prop.h );
+      }
+      // or if we dont have a frameInfo entry - create one even for stills
+      else
+      {
+        // allocate and save frame with field data
+        frameInfo = NewFrame( animated, -1, 0, 0, imageNumber + 1 );
+        if (!frameInfo)
         {
-          DALI_LOG_ERROR("DGifGetImageDesc(GifFile) == GIF_ERROR");
-          return (GIF_ERROR);
+          LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
         }
-        sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
-        /* Allocate memory for the image */
-        if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 &&
-          sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height))
+        // store geometry info from gif image
+        StoreFrameInfo( gif, frameInfo );
+        // check for transparency/alpha
+        CheckTransparency( full, frameInfo, prop.w, prop.h );
+      }
+      imageNumber++;
+    }
+    // we have an extension code block - for animated gifs for sure
+    else if( rec == EXTENSION_RECORD_TYPE )
+    {
+      int ext_code;
+      GifByteType *ext;
+
+      ext = NULL;
+      // get the first extension entry
+      DGifGetExtension( gif, &ext_code, &ext );
+      while( ext )
+      {
+        // graphic control extension - for animated gif data
+        // and transparent index + flag
+        if( ext_code == 0xf9 )
         {
-          DALI_LOG_ERROR("sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 ... GIF_ERROR");
-          return GIF_ERROR;
-        }
-        ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
-        /* SVACE error : This statement in the source code might be unreachable during program execution.
-        if (ImageSize > (SIZE_MAX / sizeof(GifPixelType)))
-        {
-          DALI_LOG_ERROR("ImageSize > (SIZE_MAX / sizeof(GifPixelType)) GIF_ERROR");
-          return GIF_ERROR;
-        }
-        */
-        sp->RasterBits = static_cast<unsigned char *>(reallocarray(NULL, ImageSize, sizeof(GifPixelType)));
-        if (sp->RasterBits == NULL)
-        {
-          DALI_LOG_ERROR("sp->RasterBits == NULL GIF_ERROR");
-          return GIF_ERROR;
-        }
-        if (sp->ImageDesc.Interlace)
-        {
-          int i, j;
-          /*
-          * The way an interlaced image should be read -
-          * offsets and jumps...
-          */
-          int InterlacedOffset[] = { 0, 4, 2, 1 };
-          int InterlacedJumps[] = { 8, 8, 4, 2 };
-          /* Need to perform 4 passes on the image */
-          for (i = 0; i < 4; i++)
+          // create frame and store it in image
+          int transparencyIndex = (ext[1] & 1) ? ext[4] : -1;
+          int disposeMode = (ext[1] >> 2) & 0x7;
+          int delay = (int(ext[3]) << 8) | int(ext[2]);
+          frameInfo = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
+          if( !frameInfo )
           {
-            for (j = InterlacedOffset[i]; j < sp->ImageDesc.Height; j += InterlacedJumps[i])
+            LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+          }
+        }
+        // netscape extension indicating loop count.
+        else if( ext_code == 0xff ) /* application extension */
+        {
+          if( !strncmp(reinterpret_cast<char *>(&ext[1]), "NETSCAPE2.0", 11) ||
+              !strncmp(reinterpret_cast<char *>(&ext[1]), "ANIMEXTS1.0", 11) )
+          {
+            ext = NULL;
+            DGifGetExtensionNext( gif, &ext );
+            if( ext[1] == 0x01 )
             {
-              if (DGifGetLine(GifFile, sp->RasterBits+j*sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR)
+              loopCount = (int(ext[3]) << 8) | int(ext[2]);
+              if( loopCount > 0 )
               {
-                DALI_LOG_ERROR("DGifGetLine(GifFile, sp->RasterBits+j*sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR");
-                if(GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON  && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT)
-                {
-                  DALI_LOG_ERROR("GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON  && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT GIF_ERROR");
-                  return GIF_ERROR;
-                }
-                else if (GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON)
-                {
-                  DALI_LOG_ERROR("GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON");
-                  isEofTooSoonErr = true;
-                  break;
-                }
+                loopCount++;
               }
             }
           }
         }
-        else
-        {
-          if (DGifGetLine(GifFile,sp->RasterBits,ImageSize)==GIF_ERROR)
-          {
-            DALI_LOG_ERROR("DGifGetLine(GifFile,sp->RasterBits,ImageSize)==GIF_ERROR");
-            if(GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT)
-            {
-              DALI_LOG_ERROR("GifFile->Error  != D_GIF_ERR_EOF_TOO_SOON && GifFile->Error != D_GIF_ERR_IMAGE_DEFECT GIF_ERROR");
-              return GIF_ERROR;
-            }
-            else if (GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON)
-            {
-              DALI_LOG_ERROR("GifFile->Error  == D_GIF_ERR_EOF_TOO_SOON");
-              isEofTooSoonErr = true;
-              break;
-            }
-          }
-        }
-        if (GifFile->ExtensionBlocks)
-        {
-          sp->ExtensionBlocks = GifFile->ExtensionBlocks;
-          sp->ExtensionBlockCount = GifFile->ExtensionBlockCount;
-          GifFile->ExtensionBlocks = NULL;
-          GifFile->ExtensionBlockCount = 0;
-        }
+        // and continue onto the next extension entry
+        ext = NULL;
+        DGifGetExtensionNext( gif, &ext );
       }
-      break;
-      case EXTENSION_RECORD_TYPE:
-      {
-        if (DGifGetExtension(GifFile,&ExtFunction,&ExtData) == GIF_ERROR)
-        {
-          DALI_LOG_ERROR("DGifGetExtension(GifFile,&ExtFunction,&ExtData) == GIF_ERROR");
-          return (GIF_ERROR);
-        }
-        /* Create an extension block with our data */
-        if (ExtData != NULL)
-        {
-          if (GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, ExtFunction, ExtData[0], &ExtData[1]) == GIF_ERROR)
-          {
-            DALI_LOG_ERROR("GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, ExtFunction, ExtData[0], &ExtData[1]) == GIF_ERROR");
-            return (GIF_ERROR);
-          }
-        }
-        while (ExtData != NULL)
-        {
-          if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR)
-          {
-            DALI_LOG_ERROR("DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR");
-            return (GIF_ERROR);
-          }
-          /* Continue the extension block */
-          if (ExtData != NULL)
-          {
-            if (GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, CONTINUE_EXT_FUNC_CODE, ExtData[0], &ExtData[1]) == GIF_ERROR)
-            {
-              DALI_LOG_ERROR("GifAddExtensionBlock(&GifFile->ExtensionBlockCount, &GifFile->ExtensionBlocks, CONTINUE_EXT_FUNC_CODE, ExtData[0], &ExtData[1]) == GIF_ERROR");
-              return (GIF_ERROR);
-            }
-          }
-        }
-      }
-      break;
-      case TERMINATE_RECORD_TYPE:
-        break;
-      default:   /* Should be trapped by DGifGetRecordType */
-        break;
     }
-    if ( isEofTooSoonErr == true)
-    {
-      DALI_LOG_ERROR("isEofTooSoonErr == true");
-      break;
-    }
-  } while (RecordType != TERMINATE_RECORD_TYPE);
-  /* Sanity check for corrupted file */
-  if (GifFile->ImageCount == 0)
+  } while( rec != TERMINATE_RECORD_TYPE );
+
+  // if the gif main says we have more than one image or our image counting
+  // says so, then this image is animated - indicate this
+  if( (gif->ImageCount > 1) || (imageNumber > 1) )
   {
-    DALI_LOG_ERROR("GifFile->ImageCount == 0 GIF_ERROR");
-    GifFile->Error = D_GIF_ERR_NO_IMAG_DSCR;
-    return(GIF_ERROR);
+    animated.animated = 1;
+    animated.loopCount = loopCount;
   }
-  return (GIF_OK);
-}
+  animated.frameCount = std::min( gif->ImageCount, imageNumber );
 
-#endif
-
-bool LoadAnimatedGifFromFile( const std::string& url, std::vector<Dali::PixelData>& pixelData, Dali::Vector<uint32_t>& frameDelays )
-{
-  // open GIF file
-  GifFileType* gifInfo = NULL;
-  GifAutoCleanup autoGif( gifInfo );
-  // enforce clean-up of the GIF structure when finishing this method.
-  if( !GifOpen( url.c_str(), gifInfo ) )
+  if( !full )
   {
-    return false;
+    prop.alpha = 1;
   }
 
-#ifdef GIF_LIB_VERSION
-  // read GIF file
-  if( DGifSlurp( gifInfo ) != GIF_OK )
+  animated.currentFrame = 1;
+
+  // no errors in header scan etc. so set err and return value
+  *error = 0;
+  ret = true;
+
+on_error: // jump here on any errors to clean up
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+  if( gif )
   {
-    DALI_LOG_ERROR( "GIF Loader: DGifSlurp failed. \n" );
-    return false;
+    DGifCloseFile( gif, NULL );
   }
 #else
-  // read GIF file
-  if( ReadGifSlurp( gifInfo ) != GIF_OK )
+  if( gif )
   {
-    DALI_LOG_ERROR( "GIF Loader: DGifSlurp failed. \n" );
-    return false;
+    DGifCloseFile( gif );
   }
 #endif
 
-  // validate attributes
-  if( gifInfo->ImageCount < 1 )
+  return ret;
+}
+
+/**
+ * @brief Reader next frame of the gif file and populates structures accordingly.
+ *
+ * @param[in] loaderInfo A LoaderInfo structure containing file descriptor and other data about GIF.
+ * @param[in/out] prop A ImageProperties structure containing information about gif data.
+ * @param[out] pixels A pointer to buffer which will contain all pixel data of the frame on return.
+ * @param[out] error Error code
+ * @return The true or false whether reading was successful or not.
+ */
+bool ReadNextFrame( LoaderInfo &loaderInfo, ImageProperties &prop, //  use for w and h
+                    unsigned char *pixels, int *error )
+{
+  GifAnimationData &animated = loaderInfo.animated;
+  LoaderInfo::FileData &fileData = loaderInfo.fileData;
+  bool ret = false;
+  GifRecordType rec;
+  GifFileType *gif = NULL;
+  int index = 0, imageNumber = 0;
+  FrameInfo *frameInfo;
+  ImageFrame *frame = NULL;
+  ImageFrame *lastPreservedFrame = NULL;
+
+  index = animated.currentFrame;
+
+  // if index is invalid for animated image - error out
+  if ((animated.animated) && ((index <= 0) || (index > animated.frameCount)))
   {
-    DALI_LOG_ERROR( "GIF Loader: frame count < 1. \n" );
-    return false;
+    LOADERR("LOAD_ERROR_GENERIC");
   }
 
-  // read the image size and frame count
-  ImageDimensions size( gifInfo->SWidth, gifInfo->SHeight );
-
-  // process frames
-  unsigned char* previousFrame = NULL;
-  unsigned char* lastPreservedFrame = NULL;
-
-  // previous frame area
-  Rect<int> clearFrameArea;
-
-  // get background color
-  Dali::Vector<unsigned char> backgroundColor;
-  backgroundColor.Resize( 4 );
-  ColorMapObject* globalColorMap = gifInfo->SColorMap;
-  if( gifInfo->SColorMap )
+  // find the given frame index
+  frame = FindFrame( animated, index );
+  if( frame )
   {
-    backgroundColor[0] = globalColorMap->Colors[ gifInfo->SBackGroundColor ].Red;
-    backgroundColor[1] = globalColorMap->Colors[ gifInfo->SBackGroundColor ].Green;
-    backgroundColor[2] = globalColorMap->Colors[ gifInfo->SBackGroundColor ].Blue;
-    backgroundColor[3] = 0xff;
+    if( (frame->loaded) && (frame->data) )
+    {
+      // frame is already there and decoded - jump to end
+      goto on_ok;
+    }
+  }
+  else
+  {
+    LOADERR("LOAD_ERROR_CORRUPT_FILE");
   }
 
-  int delay;
-  unsigned char* buffer = NULL;
-  // decode the gif frame by frame
-  pixelData.clear();
+open_file:
+  // actually ask libgif to open the file
+  gif = loaderInfo.gif;
+  if( !gif )
+  {
+    loaderInfo.fileInfo.map = fileData.globalMap ;
+    if( !loaderInfo.fileInfo.map )
+    {
+      LOADERR("LOAD_ERROR_CORRUPT_FILE");
+    }
+    loaderInfo.fileInfo.length = fileData.length;
+    loaderInfo.fileInfo.position = 0;
+
+#if GIFLIB_MAJOR >= 5
+    gif = DGifOpen( &( loaderInfo.fileInfo ), FileRead, NULL );
+#else
+    gif = DGifOpen( &( loaderInfo.fileInfo ), FileRead );
+#endif
+    // if gif open failed... get out of here
+    if( !gif )
+    {
+      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+    }
+    loaderInfo.gif = gif;
+    loaderInfo.imageNumber = 1;
+  }
+
+  // if we want to go backwards, we likely need/want to re-decode from the
+  // start as we have nothing to build on
+  if( (index > 0) && (index < loaderInfo.imageNumber) && (animated.animated) )
+  {
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+    if( loaderInfo.gif )
+      DGifCloseFile( loaderInfo.gif, NULL );
+#else
+    if( loaderInfo.gif )
+      DGifCloseFile( loaderInfo.gif );
+#endif
+    loaderInfo.gif = NULL;
+    loaderInfo.imageNumber = 0;
+    goto open_file;
+  }
+
+  // our current position is the previous frame we decoded from the file
+  imageNumber = loaderInfo.imageNumber;
+
+  // walk through gif records in file to figure out info
+  do
+  {
+    if( DGifGetRecordType( gif, &rec ) == GIF_ERROR )
+    {
+      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+    }
+
+    if( rec == EXTENSION_RECORD_TYPE )
+    {
+      int ext_code;
+      GifByteType *ext = NULL;
+      DGifGetExtension( gif, &ext_code, &ext );
+
+      while( ext )
+      {
+        ext = NULL;
+        DGifGetExtensionNext( gif, &ext );
+      }
+    }
+    // get image description section
+    else if( rec == IMAGE_DESC_RECORD_TYPE )
+    {
+      int xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
+      int img_code;
+      GifByteType *img;
+      ImageFrame *previousFrame = NULL;
+      ImageFrame *thisFrame = NULL;
+
+      // get image desc
+      if( DGifGetImageDesc(gif) == GIF_ERROR )
+      {
+        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+      }
+
+      // get the previous frame entry AND the current one to fill in
+      previousFrame = FindFrame(animated, imageNumber - 1);
+      thisFrame = FindFrame(animated, imageNumber);
+
+      // if we have a frame AND we're animated AND we have no data...
+      if( (thisFrame) && (!thisFrame->data) && (animated.animated) )
+      {
+        bool first = false;
+
+        // allocate it
+        thisFrame->data = new uint32_t[prop.w * prop.h];
+
+        if( !thisFrame->data )
+        {
+          LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+        }
+
+        // if we have no prior frame OR prior frame data... empty
+        if( (!previousFrame) || (!previousFrame->data) )
+        {
+          first = true;
+          frameInfo = &(thisFrame->info);
+          memset( thisFrame->data, 0, prop.w * prop.h * sizeof(uint32_t) );
+        }
+        // we have a prior frame to copy data from...
+        else
+        {
+          frameInfo = &( previousFrame->info );
+
+          // fix coords of sub image in case it goes out...
+          ClipCoordinates( prop.w, prop.h, &xin, &yin,
+                           frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
+                           &x, &y, &w, &h );
+
+          // if dispose mode is not restore - then copy pre frame
+          if( frameInfo->dispose != DISPOSE_PREVIOUS )
+          {
+            memcpy( thisFrame->data, previousFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+          }
+
+          // if dispose mode is "background" then fill with bg
+          if( frameInfo->dispose == DISPOSE_BACKGROUND )
+          {
+            FillFrame( thisFrame->data, prop.w, gif, frameInfo, x, y, w, h );
+          }
+
+          else if( frameInfo->dispose == DISPOSE_PREVIOUS ) // GIF_DISPOSE_RESTORE
+          {
+            int prevIndex = 2;
+            do
+            {
+              // Find last preserved frame.
+              lastPreservedFrame = FindFrame( animated, imageNumber - prevIndex );
+              prevIndex++;
+            } while( lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS );
+
+            if ( lastPreservedFrame )
+            {
+              memcpy( thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+            }
+          }
+        }
+        // now draw this frame on top
+        frameInfo = &( thisFrame->info );
+        ClipCoordinates( prop.w, prop.h, &xin, &yin,
+                         frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
+                         &x, &y, &w, &h );
+        if( !DecodeImage( gif, thisFrame->data, prop.w,
+                          xin, yin, frameInfo->transparent,
+                          x, y, w, h, first) )
+        {
+          LOADERR("LOAD_ERROR_CORRUPT_FILE");
+        }
+
+        // mark as loaded and done
+        thisFrame->loaded = true;
+
+        FlushFrames( animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame );
+      }
+      // if we hve a frame BUT the image is not animated... different
+      // path
+      else if( (thisFrame) && (!thisFrame->data) && (!animated.animated) )
+      {
+        // if we don't have the data decoded yet - decode it
+        if( (!thisFrame->loaded) || (!thisFrame->data) )
+        {
+          // use frame info but we WONT allocate frame pixels
+          frameInfo = &( thisFrame->info );
+          ClipCoordinates( prop.w, prop.h, &xin, &yin,
+                           frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
+                           &x, &y, &w, &h );
+
+          // clear out all pixels
+          FillFrame( reinterpret_cast<uint32_t *>(pixels), prop.w, gif, frameInfo, 0, 0, prop.w, prop.h );
+
+          // and decode the gif with overwriting
+          if( !DecodeImage( gif, reinterpret_cast<uint32_t *>(pixels), prop.w,
+                            xin, yin, frameInfo->transparent, x, y, w, h, true) )
+          {
+            LOADERR("LOAD_ERROR_CORRUPT_FILE");
+          }
+
+          // mark as loaded and done
+          thisFrame->loaded = true;
+        }
+        // flush mem we don't need (at expense of decode cpu)
+      }
+      else
+      {
+        // skip decoding and just walk image to next
+        if( DGifGetCode( gif, &img_code, &img ) == GIF_ERROR )
+        {
+          LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+        }
+
+        while( img )
+        {
+          img = NULL;
+          DGifGetCodeNext( gif, &img );
+        }
+      }
+
+      imageNumber++;
+      // if we found the image we wanted - get out of here
+      if( imageNumber > index )
+      {
+        break;
+      }
+    }
+  } while( rec != TERMINATE_RECORD_TYPE );
+
+  // if we are at the end of the animation or not animated, close file
+  loaderInfo.imageNumber = imageNumber;
+  if( (animated.frameCount <= 1) || (rec == TERMINATE_RECORD_TYPE) )
+  {
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+    if( loaderInfo.gif )
+    {
+      DGifCloseFile( loaderInfo.gif, NULL );
+    }
+#else
+    if( loaderInfo.gif )
+    {
+      DGifCloseFile( loaderInfo.gif );
+    }
+#endif
+
+    loaderInfo.gif = NULL;
+    loaderInfo.imageNumber = 0;
+  }
+
+on_ok:
+  // no errors in header scan etc. so set err and return value
+  *error = 0;
+  ret = true;
+
+  // if it was an animated image we need to copy the data to the
+  // pixels for the image from the frame holding the data
+  if( animated.animated && frame->data )
+  {
+    memcpy( pixels, frame->data, prop.w * prop.h * sizeof( uint32_t ) );
+  }
+
+on_error: // jump here on any errors to clean up
+  return ret;
+}
+
+} // unnamed namespace
+
+struct GifLoading::Impl
+{
+public:
+  Impl( const std::string& url)
+  : mUrl( url )
+  {
+    loaderInfo.gif = nullptr;
+    int error;
+    loaderInfo.fileData.fileName = mUrl.c_str();
+
+    ReadHeader( loaderInfo, imageProperties, &error );
+  }
+
+  ~Impl()
+  {
+    if( loaderInfo.fileData.globalMap  )
+    {
+      munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
+      loaderInfo.fileData.globalMap  = nullptr;
+    }
+  }
+
+  std::string mUrl;
+  LoaderInfo loaderInfo;
+  ImageProperties imageProperties;
+};
+
+std::unique_ptr<GifLoading> GifLoading::New( const std::string &url )
+{
+  return std::unique_ptr<GifLoading>( new GifLoading( url ) );
+}
+
+GifLoading::GifLoading( const std::string &url )
+: mImpl( new GifLoading::Impl( url ) )
+{
+}
+
+GifLoading::~GifLoading()
+{
+  delete mImpl;
+}
+
+bool GifLoading::LoadNextNFrames( int frameStartIndex, int count, std::vector<Dali::PixelData> &pixelData )
+{
+  int error;
+  bool ret = false;
+
+  const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof( uint32_t );
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameStartIndex:%d, count:%d )\n", frameStartIndex, count );
+
+  for( int i = 0; i < count; ++i )
+  {
+    auto pixelBuffer = new unsigned char[ bufferSize ];
+
+    mImpl->loaderInfo.animated.currentFrame = 1 + ( (frameStartIndex + i) % mImpl->loaderInfo.animated.frameCount );
+
+    if( ReadNextFrame( mImpl->loaderInfo, mImpl->imageProperties, pixelBuffer, &error ) )
+    {
+      if( pixelBuffer )
+      {
+        pixelData.push_back( Dali::PixelData::New( pixelBuffer, bufferSize,
+                                                   mImpl->imageProperties.w, mImpl->imageProperties.h,
+                                                   Dali::Pixel::RGBA8888, Dali::PixelData::DELETE_ARRAY) );
+        ret = true;
+      }
+    }
+  }
+
+  return ret;
+}
+
+bool GifLoading::LoadAllFrames( std::vector<Dali::PixelData> &pixelData, Dali::Vector<uint32_t> &frameDelays )
+{
+  if( LoadFrameDelays( frameDelays ) )
+  {
+    return LoadNextNFrames( 0, mImpl->loaderInfo.animated.frameCount, pixelData );
+  }
+  return false;
+}
+
+ImageDimensions GifLoading::GetImageSize()
+{
+  return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.w );
+}
+
+int GifLoading::GetImageCount()
+{
+  return mImpl->loaderInfo.animated.frameCount;
+}
+
+bool GifLoading::LoadFrameDelays( Dali::Vector<uint32_t> &frameDelays )
+{
   frameDelays.Clear();
-  for( int i = 0; i < gifInfo->ImageCount; i++ )
+
+  for( auto &&elem : mImpl->loaderInfo.animated.frames )
   {
-    buffer = DecodeOneFrame( delay, gifInfo, backgroundColor, i, lastPreservedFrame, previousFrame, clearFrameArea );
-    if( buffer )
-    {
-      pixelData.push_back( Dali::PixelData::New( buffer, size.GetWidth()*size.GetHeight()*4,
-                                                     size.GetWidth(), size.GetHeight(),
-                                                     Dali::Pixel::RGBA8888, Dali::PixelData::DELETE_ARRAY ) );
-      frameDelays.PushBack( delay );
-    }
-    else
-    {
-      DALI_LOG_ERROR( "GIF Loader: Loade frame data fail. FrameIndex: %d\n", i );
-    }
+    // Read frame delay time, multiply 10 to change time unit to milliseconds
+    frameDelays.PushBack( elem.info.delay * 10 );
   }
 
   return true;
-}
-
-ImageDimensions GetGifImageSize( const std::string& url )
-{
-  GifFileType* gifInfo = NULL;
- // enforce clean-up of the GIF structure when finishing this method.
-  GifAutoCleanup autoGif( gifInfo );
-  if( !GifOpen( url.c_str(), gifInfo ) )
-  {
-    return ImageDimensions();
-  }
-  return ImageDimensions( gifInfo->SWidth, gifInfo->SHeight );
 }
 
 } // namespace Dali
