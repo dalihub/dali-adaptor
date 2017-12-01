@@ -113,7 +113,7 @@ DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
 
 /**
  * @PLATFORM
- * @brief Grabs the list of keys specified by @Dali::Vector of keys for @a window in @Vector of grabModes.
+ * @brief Grabs the list of keys specified by Dali::Vector of keys for @a window in Dali::Vector of grabModes.
  *
  * @details This function can be used for following example scenarios:
  * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
@@ -134,7 +134,7 @@ DALI_IMPORT_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& 
 
 /**
  * @PLATFORM
- * @brief Ungrabs the list of keys specified by @Dali::Vector of keys for @a window.
+ * @brief Ungrabs the list of keys specified by Dali::Vector of keys for @a window.
  *
  * @SINCE_1_2.0
  * @PRIVLEVEL_PLATFORM
