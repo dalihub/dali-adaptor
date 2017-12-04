@@ -69,6 +69,7 @@ struct Timer::Impl
 TimerPtr Timer::New( unsigned int milliSec )
 {
   TimerPtr timer( new Timer( milliSec ) );
+  DALI_LOG_ERROR("Timer::New: called [%p]\n", timer.Get());
   return timer;
 }
 
@@ -88,6 +89,8 @@ void Timer::Start()
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
 
+  DALI_LOG_ERROR("Timer::Start: called [%p]\n", this);
+
   if(mImpl->mId != NULL)
   {
     Stop();
@@ -99,6 +102,8 @@ void Timer::Stop()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
+  DALI_LOG_ERROR("Timer::Stop: called [%p]\n", this);
 
   ResetTimerData();
 }
@@ -123,6 +128,8 @@ bool Timer::Tick()
   Dali::Timer handle( this );
 
   bool retVal( false );
+
+  DALI_LOG_ERROR("Timer::Tick: called [%p]\n", this);
 
   // Override with new signal if used
   if( !mTickSignal.Empty() )
