@@ -20,5 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/watch/watch-application.h>
+#include <dali/public-api/capture/capture.h>
 
 #endif // __DALI_WEARABLE_H__
