@@ -281,7 +281,7 @@ bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return mPlugin->IsColorGlyph( fontId, glyphIndex );
 }
 
-bool FontClient::AddCustomFontDirectory( const char* path )
+bool FontClient::AddCustomFontDirectory( const FontPath& path )
 {
   CreatePlugin();
 

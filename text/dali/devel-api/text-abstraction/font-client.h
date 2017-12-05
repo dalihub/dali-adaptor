@@ -412,7 +412,7 @@ public:
    *
    * @return true if the fonts can be added.
    */
-  bool AddCustomFontDirectory( const char* path );
+  bool AddCustomFontDirectory( const FontPath& path );
 
 public: // Not intended for application developers
   /**
