@@ -345,6 +345,9 @@ void Adaptor::Pause()
 
     mThreadController->Pause();
     mState = PAUSED;
+
+    // Ensure any messages queued during pause callbacks are processed by doing another update.
+    RequestUpdateOnce();
   }
 }
 
