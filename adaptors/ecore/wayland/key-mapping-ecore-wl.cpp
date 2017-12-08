@@ -88,6 +88,7 @@ KeyLookup KeyLookupTable[]=
   { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },
   { "Control_L",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_LEFT ),  false },
   { "Control_R",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_RIGHT ), false }
+  { "XF86Display",           static_cast<Dali::KEY>( DevelKey::DALI_KEY_SOURCE ), true  }
 };
 
 const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable ))/ (sizeof( KeyLookup ));
