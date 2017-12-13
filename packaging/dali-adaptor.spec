@@ -57,6 +57,7 @@ BuildRequires:  pkgconfig(screen_connector_provider)
 
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(ttrace)
 
 %if !0%{?disable_cxx03_build}
 BuildRequires:  dali-devel-cxx03
