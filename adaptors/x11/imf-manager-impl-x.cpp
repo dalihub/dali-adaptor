@@ -130,7 +130,6 @@ void ImfManager::Finalize()
     VirtualKeyboard::DisconnectCallbacks( mIMFContext );
     DisconnectCallbacks();
     DeleteContext();
-    ecore_imf_shutdown();
     mInited = false;
   }
 }
@@ -192,7 +191,6 @@ Dali::ImfManager ImfManager::Get()
 
   if ( ( imfManager != NULL ) &&!imfManager->mInited )
   {
-    ecore_imf_init();
     imfManager->CreateContext( imfManager->mEcoreXWin );
 
     imfManager->ConnectCallbacks();
@@ -212,11 +210,13 @@ ImfManager::ImfManager(Ecore_X_Window ecoreXwin )
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
+  ecore_imf_init();
 }
 
 ImfManager::~ImfManager()
 {
   Finalize();
+  ecore_imf_shutdown();
 }
 
 void ImfManager::CreateContext( Ecore_X_Window ecoreXwin )

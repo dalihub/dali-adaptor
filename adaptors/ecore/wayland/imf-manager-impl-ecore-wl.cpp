@@ -265,7 +265,6 @@ void ImfManager::Finalize()
   {
     DisconnectCallbacks();
     DeleteContext();
-    ecore_imf_shutdown();
     mInited = false;
   }
 }
@@ -326,9 +325,7 @@ Dali::ImfManager ImfManager::Get()
 
   if ( ( imfManager != NULL ) && !imfManager->mInited )
   {
-    ecore_imf_init();
     imfManager->CreateContext( imfManager->mEcoreWlwin );
-
     imfManager->ConnectCallbacks();
     imfManager->mInited = true;
   }
@@ -345,11 +342,13 @@ ImfManager::ImfManager( Ecore_Wl_Window *ecoreWlwin )
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
+  ecore_imf_init();
 }
 
 ImfManager::~ImfManager()
 {
   Finalize();
+  ecore_imf_shutdown();
 }
 
 void ImfManager::CreateContext( Ecore_Wl_Window *ecoreWlwin )
