@@ -164,7 +164,7 @@ struct Window::EventHandler
           {
             observer->OnWindowHidden();
           }
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Iconfied\n", handler->mEcoreWindow );
+          DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", handler->mEcoreWindow);
         }
         else
         {
@@ -173,7 +173,7 @@ struct Window::EventHandler
           {
             observer->OnWindowShown();
           }
-          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) Shown\n", handler->mEcoreWindow );
+          DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", handler->mEcoreWindow );
         }
         handled = ECORE_CALLBACK_DONE;
       }
@@ -222,7 +222,7 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
     {
-      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventOutputTransform\n", handler->mEcoreWindow );
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform\n", handler->mEcoreWindow );
 
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
@@ -246,7 +246,7 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
     {
-      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%d) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
+      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
 
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
@@ -929,6 +929,7 @@ void Window::Show()
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowShown();
+      DALI_LOG_RELEASE_INFO( "Window (%p) ::Show() \n", mEventHandler->mEcoreWindow);
     }
   }
 }
@@ -944,6 +945,7 @@ void Window::Hide()
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowHidden();
+      DALI_LOG_RELEASE_INFO( "Window (%p) ::Hide() \n", mEventHandler->mEcoreWindow);
     }
   }
 }
