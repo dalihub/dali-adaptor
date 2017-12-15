@@ -501,6 +501,7 @@ public:
 
   /**
    * @brief Gets preffered brightness of the window.
+   * @SINCE_1_2.60
    * @return The preffered brightness.
    */
   int GetBrightness() const;
