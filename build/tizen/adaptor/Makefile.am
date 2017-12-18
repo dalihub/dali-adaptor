@@ -194,7 +194,8 @@ endif # USE_ECORE_WAYLAND
 
 adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
                               $(adaptor_tizen_internal_native_image_src_files) \
-                              $(adaptor_internal_wearable_profile_src_files)
+                              $(adaptor_internal_wearable_profile_src_files) \
+                              $(adaptor_tizen_internal_capture_src_files)
 else
 adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
                               $(adaptor_common_internal_egl_extension_src_files) \
@@ -351,6 +352,12 @@ LIBDALI_ADAPTOR_LA_includes += \
 else
 LIBDALI_ADAPTOR_LA_includes += \
                       -I../../../adaptors/tizen
+endif
+
+if WEARABLE_PROFILE
+LIBDALI_ADAPTOR_LA_includes += \
+                      -I../../../adaptors/wearable \
+                      -I../../../adaptors/wearable/capture
 endif
 
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
@@ -585,6 +592,9 @@ tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
+
+tizencapturepublicapidir = $(tizenadaptorpublicapidir)/capture
+tizencapturepublicapi_HEADERS = $(public_dali_capture_header_files)
 
 if USE_APPFW
 if USE_APPFW_EFL_BASE
