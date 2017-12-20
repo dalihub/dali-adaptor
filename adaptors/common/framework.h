@@ -52,9 +52,8 @@ public:
 
   enum Type
   {
-    NORMAL,       ///< normal appFramework
-    WATCH,        ///< watch appFramework
-    WIDGET        ///< widget appFramework
+    NORMAL,       ///<  normal appFramework
+    WATCH     ///< watch appFramework
   };
 
   /**
