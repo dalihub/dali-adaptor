@@ -5,6 +5,9 @@ public_api_src_files = \
   $(adaptor_public_api_dir)/adaptor-framework/timer.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/tts-player.cpp \
   $(adaptor_public_api_dir)/adaptor-framework/native-image-source.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/widget.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/widget-impl.cpp \
+  $(adaptor_public_api_dir)/adaptor-framework/widget-application.cpp \
   $(adaptor_public_api_dir)/dali-adaptor-version.cpp
 
 
@@ -22,7 +25,10 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/timer.h \
   $(adaptor_public_api_dir)/adaptor-framework/tts-player.h \
   $(adaptor_public_api_dir)/adaptor-framework/native-image-source.h \
-  $(adaptor_public_api_dir)/adaptor-framework/window.h
+  $(adaptor_public_api_dir)/adaptor-framework/window.h \
+  $(adaptor_public_api_dir)/adaptor-framework/widget.h \
+  $(adaptor_public_api_dir)/adaptor-framework/widget-impl.h \
+  $(adaptor_public_api_dir)/adaptor-framework/widget-application.h
 
 adaptor_dali_header_file = \
   $(adaptor_public_api_dir)/dali.h
