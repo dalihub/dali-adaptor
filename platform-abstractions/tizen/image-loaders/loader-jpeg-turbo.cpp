@@ -31,21 +31,22 @@
 #include <cstring>
 #include <setjmp.h>
 
-#include <dali/integration-api/bitmap.h>
+#include <dali/public-api/object/property-map.h>
+#include <dali/public-api/object/property-array.h>
+#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
+
 
 // INTERNAL HEADERS
 #include "platform-capabilities.h"
 #include "image-operations.h"
 #include <image-loading.h>
+#include <adaptors/common/pixel-buffer-impl.h>
 
 namespace
 {
-using Dali::Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
 using Dali::Vector;
 namespace Pixel = Dali::Pixel;
-
-
+using PixelArray = unsigned char*;
 const unsigned int DECODED_L8 = 1;
 const unsigned int DECODED_RGB888 = 3;
 const unsigned int DECODED_RGBA8888 = 4;
@@ -172,7 +173,7 @@ UniquePointerSetter<T, Deleter> SetPointer(std::unique_ptr<T, Deleter>& uniquePo
   return UniquePointerSetter<T, Deleter>{uniquePointer};
 }
 
-using TransformFunction = std::function<void(PixelBuffer*,unsigned, unsigned)>;
+using TransformFunction = std::function<void(PixelArray,unsigned, unsigned)>;
 using TransformFunctionArray = std::array<TransformFunction, 3>; // 1, 3 and 4 bytes per pixel
 
 /// @brief Select the transform function depending on the pixel format
@@ -209,9 +210,94 @@ TransformFunction GetTransformFunction(const TransformFunctionArray& functions,
   return function;
 }
 
+// Storing Exif fields as properties
+template<class R, class V>
+R ConvertExifNumeric( const ExifEntry& entry )
+{
+  return static_cast<R>((*reinterpret_cast<V*>(entry.data)));
+}
+
+void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, ExifIfd ifd )
+{
+  auto shortName = std::string(exif_tag_get_name_in_ifd(entry.tag, ifd ));
+  switch( entry.format )
+  {
+    case EXIF_FORMAT_ASCII:
+    {
+      out.Insert( shortName, std::string(reinterpret_cast<char *>(entry.data)) );
+      break;
+    }
+    case EXIF_FORMAT_SHORT:
+    {
+      out.Insert( shortName, ConvertExifNumeric<int, unsigned int>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_LONG:
+    {
+      out.Insert( shortName, ConvertExifNumeric<int, unsigned long>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_SSHORT:
+    {
+      out.Insert( shortName, ConvertExifNumeric<int, int>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_SLONG:
+    {
+      out.Insert( shortName, ConvertExifNumeric<int, long>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_FLOAT:
+    {
+      out.Insert (shortName, ConvertExifNumeric<float, float>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_DOUBLE:
+    {
+      out.Insert( shortName, ConvertExifNumeric<float, double>(entry) );
+      break;
+    }
+    case EXIF_FORMAT_RATIONAL:
+    {
+      auto values = reinterpret_cast<unsigned int*>( entry.data );
+      Dali::Property::Array array;
+      array.Add( static_cast<int>(values[0]) );
+      array.Add( static_cast<int>(values[1]) );
+      out.Insert(shortName, array);
+      break;
+    }
+    case EXIF_FORMAT_SBYTE:
+    {
+      out.Insert(shortName, "EXIF_FORMAT_SBYTE Unsupported");
+      break;
+    }
+    case EXIF_FORMAT_BYTE:
+    {
+      out.Insert(shortName, "EXIF_FORMAT_BYTE Unsupported");
+      break;
+    }
+    case EXIF_FORMAT_SRATIONAL:
+    {
+      auto values = reinterpret_cast<int*>( entry.data );
+      Dali::Property::Array array;
+      array.Add(values[0]);
+      array.Add(values[1]);
+      out.Insert(shortName, array);
+      break;
+    }
+    case EXIF_FORMAT_UNDEFINED:
+    default:
+    {
+      std::stringstream ss;
+      ss << "EXIF_FORMAT_UNDEFINED, size: " << entry.size << ", components: " << entry.components;
+      out.Insert( shortName, ss.str());
+    }
+  }
+}
+
 /// @brief Apply a transform to a buffer
 bool Transform(const TransformFunctionArray& transformFunctions,
-               PixelBuffer *buffer,
+               PixelArray buffer,
                int width,
                int height,
                Pixel::Format pixelFormat )
@@ -232,7 +318,7 @@ struct PixelType
 };
 
 template<size_t N>
-void FlipVertical(PixelBuffer* buffer, int width, int height)
+void FlipVertical(PixelArray buffer, int width, int height)
 {
   // Destination pixel, set as the first pixel of screen
   auto to = reinterpret_cast<PixelType<N>*>( buffer );
@@ -248,7 +334,7 @@ void FlipVertical(PixelBuffer* buffer, int width, int height)
 }
 
 template<size_t N>
-void FlipHorizontal(PixelBuffer* buffer, int width, int height)
+void FlipHorizontal(PixelArray buffer, int width, int height)
 {
   for(auto iy = 0; iy < height; ++iy)
   {
@@ -264,7 +350,7 @@ void FlipHorizontal(PixelBuffer* buffer, int width, int height)
 }
 
 template<size_t N>
-void Transpose(PixelBuffer* buffer, int width, int height)
+void Transpose(PixelArray buffer, int width, int height)
 {
   //Transform vertically only
   for(auto iy = 0; iy < height / 2; ++iy)
@@ -279,7 +365,7 @@ void Transpose(PixelBuffer* buffer, int width, int height)
 }
 
 template<size_t N>
-void Transverse(PixelBuffer* buffer, int width, int height)
+void Transverse(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -302,7 +388,7 @@ void Transverse(PixelBuffer* buffer, int width, int height)
 
 
 template<size_t N>
-void Rotate90(PixelBuffer* buffer, int width, int height)
+void Rotate90(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -331,7 +417,7 @@ void Rotate90(PixelBuffer* buffer, int width, int height)
 }
 
 template<size_t N>
-void Rotate180(PixelBuffer* buffer, int width, int height)
+void Rotate180(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -355,7 +441,7 @@ void Rotate180(PixelBuffer* buffer, int width, int height)
 
 
 template<size_t N>
-void Rotate270(PixelBuffer* buffer, int width, int height)
+void Rotate270(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -442,7 +528,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   const int flags= 0;
   FILE* const fp = input.file;
@@ -505,12 +591,28 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
 
   auto transform = JpegTransform::NONE;
 
-  if( input.reorientationRequested )
+  // extract exif data
+  auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
+
+  if( exifData && input.reorientationRequested )
   {
-    auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
-    if( exifData )
+    transform = ConvertExifOrientation(exifData.get());
+  }
+
+  std::unique_ptr<Property::Map> exifMap;
+  exifMap.reset( new Property::Map() );
+
+  for( auto k = 0u; k < EXIF_IFD_COUNT; ++k )
+  {
+    auto content = exifData->ifd[k];
+    for (auto i = 0u; i < content->count; ++i)
     {
-      transform = ConvertExifOrientation(exifData.get());
+      auto       &&tag      = content->entries[i];
+      const char *shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
+      if(shortName)
+      {
+        AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
+      }
     }
   }
 
@@ -601,7 +703,12 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
   }
 #endif
   // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
-  PixelBuffer* bitmapPixelBuffer =  bitmap.GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, scaledPostXformWidth, scaledPostXformHeight ) ;
+  bitmap = Dali::Devel::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
+
+  // set metadata
+  GetImplementation(bitmap).SetMetadata( std::move(exifMap) );
+
+  auto bitmapPixelBuffer = bitmap.GetBuffer();
 
   if( tjDecompress2( jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>( bitmapPixelBuffer ), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags ) == -1 )
   {
@@ -707,6 +814,7 @@ bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& b
       break;
     }
   }
+
   return result;
 }
 

@@ -17,8 +17,8 @@
 #include "image-loader.h"
 
 #include <dali/devel-api/common/ref-counted-dali-vector.h>
-#include <dali/integration-api/bitmap.h>
-#include <dali/integration-api/debug.h>
+#include <adaptors/common/pixel-buffer-impl.h>
+
 
 #include "loader-astc.h"
 #include "loader-bmp.h"
@@ -29,7 +29,6 @@
 #include "loader-png.h"
 #include "loader-wbmp.h"
 #include "image-operations.h"
-#include "image-loader-input.h"
 #include "portable/file-reader.h"
 
 using namespace Dali::Integration;
@@ -41,7 +40,7 @@ namespace TizenPlatform
 
 namespace
 {
-typedef bool (*LoadBitmapFunction)( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+typedef bool (*LoadBitmapFunction)( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& pixelData );
 typedef bool (*LoadBitmapHeaderFunction)( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 #if defined(DEBUG_ENABLED)
@@ -252,17 +251,17 @@ bool GetBitmapLoaderFunctions( FILE *fp,
 namespace ImageLoader
 {
 
-bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path, FILE * const fp, BitmapPtr& ptr )
+bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path, FILE * const fp, Dali::Devel::PixelBuffer& pixelBuffer )
 {
   DALI_LOG_TRACE_METHOD( gLogFilter );
 
   bool result = false;
-  BitmapPtr bitmap = 0;
 
   if (fp != NULL)
   {
     LoadBitmapFunction function;
     LoadBitmapHeaderFunction header;
+
     Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
@@ -271,22 +270,19 @@ bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path
                                    header,
                                    profile ) )
     {
-      bitmap = Bitmap::New( profile, ResourcePolicy::OWNED_DISCARD );
-
-      DALI_LOG_SET_OBJECT_STRING( bitmap, path );
       const ScalingParameters scalingParameters( resource.size, resource.scalingMode, resource.samplingMode );
       const ImageLoader::Input input( fp, scalingParameters, resource.orientationCorrection );
 
       // Run the image type decoder:
-      result = function( input, *bitmap );
+      result = function( input, pixelBuffer );
 
       if (!result)
       {
         DALI_LOG_WARNING( "Unable to convert %s\n", path.c_str() );
-        bitmap = 0;
+        pixelBuffer.Reset();
       }
 
-      bitmap = Internal::Platform::ApplyAttributesToBitmap( bitmap, resource.size, resource.scalingMode, resource.samplingMode );
+      pixelBuffer = Internal::Platform::ApplyAttributesToBitmap( pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode );
     }
     else
     {
@@ -294,23 +290,40 @@ bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path
     }
   }
 
-  ptr.Reset( bitmap.Get() );
   return result;
 }
 
 ResourcePointer LoadImageSynchronously( const Integration::BitmapResourceType& resource, const std::string& path )
 {
   ResourcePointer result;
-  BitmapPtr bitmap = 0;
+  Dali::Devel::PixelBuffer bitmap;
 
   Internal::Platform::FileReader fileReader( path );
   FILE * const fp = fileReader.GetFile();
   if( fp != NULL )
   {
-    bool success = ConvertStreamToBitmap( resource, path, fp, bitmap );
-    if( success && bitmap )
+    bool success = ConvertStreamToBitmap(resource, path, fp, bitmap);
+    if (success && bitmap)
     {
-      result.Reset(bitmap.Get());
+      Bitmap::Profile profile{Bitmap::Profile::BITMAP_2D_PACKED_PIXELS};
+
+      // For backward compatibility the Bitmap must be created
+      auto retval = Bitmap::New(profile, Dali::ResourcePolicy::OWNED_DISCARD);
+
+      DALI_LOG_SET_OBJECT_STRING( retval, path );
+
+      retval->GetPackedPixelsProfile()->ReserveBuffer(
+              bitmap.GetPixelFormat(),
+              bitmap.GetWidth(),
+              bitmap.GetHeight(),
+              bitmap.GetWidth(),
+              bitmap.GetHeight()
+            );
+
+      auto& impl = Dali::GetImplementation(bitmap);
+
+      std::copy( impl.GetBuffer(), impl.GetBuffer()+impl.GetBufferSize(), retval->GetBuffer());
+      result.Reset(retval);
     }
   }
   return result;

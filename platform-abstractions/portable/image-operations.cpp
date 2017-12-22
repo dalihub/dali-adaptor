@@ -411,30 +411,17 @@ void CalculateBordersFromFittingMode(  ImageDimensions sourceSize, FittingMode::
 }
 
 /**
- * @brief Construct a bitmap with format and dimensions requested.
+ * @brief Construct a pixel buffer object from a copy of the pixel array passed in.
  */
-BitmapPtr MakeEmptyBitmap( Pixel::Format pixelFormat, unsigned int width, unsigned int height )
-{
-  DALI_ASSERT_DEBUG( Pixel::GetBytesPerPixel(pixelFormat) && "Compressed formats not supported." );
-
-  // Allocate a pixel buffer to hold the image passed in:
-  Integration::BitmapPtr newBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
-  newBitmap->GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, width, height, width, height );
-  return newBitmap;
-}
-
-/**
- * @brief Construct a bitmap object from a copy of the pixel array passed in.
- */
-BitmapPtr MakeBitmap( const uint8_t * const pixels, Pixel::Format pixelFormat, unsigned int width, unsigned int height )
+Dali::Devel::PixelBuffer MakePixelBuffer( const uint8_t * const pixels, Pixel::Format pixelFormat, unsigned int width, unsigned int height )
 {
   DALI_ASSERT_DEBUG( pixels && "Null bitmap buffer to copy." );
 
   // Allocate a pixel buffer to hold the image passed in:
-  Integration::BitmapPtr newBitmap = MakeEmptyBitmap( pixelFormat, width, height );
+  auto newBitmap = Dali::Devel::PixelBuffer::New( width, height, pixelFormat );
 
   // Copy over the pixels from the downscaled image that was generated in-place in the pixel buffer of the input bitmap:
-  memcpy( newBitmap->GetBuffer(), pixels, width * height * Pixel::GetBytesPerPixel( pixelFormat ) );
+  memcpy( newBitmap.GetBuffer(), pixels, width * height * Pixel::GetBytesPerPixel( pixelFormat ) );
   return newBitmap;
 }
 
@@ -525,14 +512,14 @@ ImageDimensions CalculateDesiredDimensions( ImageDimensions rawDimensions, Image
  *   bitmaps dimensions to only be as large as necessary, as a memory saving optimization. This will cause
  *   GPU scaling to be performed at render time giving the same result with less texture traversal.
  *
- * @param[in] bitmap            The source bitmap to perform modifications on.
+ * @param[in] bitmap            The source pixel buffer to perform modifications on.
  * @param[in] desiredDimensions The target dimensions to aim to fill based on the fitting mode.
  * @param[in] fittingMode       The fitting mode to use.
  *
  * @return                      A new bitmap with the padding and cropping required for fitting mode applied.
  *                              If no modification is needed or possible, the passed in bitmap is returned.
  */
-Integration::BitmapPtr CropAndPadForFittingMode( Integration::BitmapPtr bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode );
+Dali::Devel::PixelBuffer CropAndPadForFittingMode( Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode );
 
 /**
  * @brief Adds horizontal or vertical borders to the source image.
@@ -544,41 +531,34 @@ Integration::BitmapPtr CropAndPadForFittingMode( Integration::BitmapPtr bitmap, 
  */
 void AddBorders( PixelBuffer *targetPixels, const unsigned int bytesPerPixel, const ImageDimensions targetDimensions, const ImageDimensions padDimensions );
 
-BitmapPtr ApplyAttributesToBitmap( BitmapPtr bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode, SamplingMode::Type samplingMode )
+Dali::Devel::PixelBuffer ApplyAttributesToBitmap( Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode, SamplingMode::Type samplingMode )
 {
   if( bitmap )
   {
     // Calculate the desired box, accounting for a possible zero component:
-    const ImageDimensions desiredDimensions  = CalculateDesiredDimensions( bitmap->GetImageWidth(), bitmap->GetImageHeight(), dimensions.GetWidth(), dimensions.GetHeight() );
+    const ImageDimensions desiredDimensions  = CalculateDesiredDimensions( bitmap.GetWidth(), bitmap.GetHeight(), dimensions.GetWidth(), dimensions.GetHeight() );
 
     // If a different size than the raw one has been requested, resize the image
     // maximally using a repeated box filter without making it smaller than the
     // requested size in either dimension:
-    bitmap = DownscaleBitmap( *bitmap, desiredDimensions, fittingMode, samplingMode );
+    bitmap = DownscaleBitmap( bitmap, desiredDimensions, fittingMode, samplingMode );
 
     // Cut the bitmap according to the desired width and height so that the
     // resulting bitmap has the same aspect ratio as the desired dimensions.
     // Add crop and add borders if necessary depending on fitting mode.
-    if( bitmap && bitmap->GetPackedPixelsProfile() )
+    if( bitmap )
     {
       bitmap = CropAndPadForFittingMode( bitmap, desiredDimensions, fittingMode );
-    }
-
-    // Examine the image pixels remaining after cropping and scaling to see if all
-    // are opaque, allowing faster rendering, or some have non-1.0 alpha:
-    if( bitmap && bitmap->GetPackedPixelsProfile() && Pixel::HasAlpha( bitmap->GetPixelFormat() ) )
-    {
-      bitmap->GetPackedPixelsProfile()->TestForTransparency();
     }
   }
 
   return bitmap;
 }
 
-BitmapPtr CropAndPadForFittingMode( BitmapPtr bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode )
+Dali::Devel::PixelBuffer CropAndPadForFittingMode( Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode )
 {
-  const unsigned int inputWidth = bitmap->GetImageWidth();
-  const unsigned int inputHeight = bitmap->GetImageHeight();
+  const unsigned int inputWidth = bitmap.GetWidth();
+  const unsigned int inputHeight = bitmap.GetHeight();
 
   if( desiredDimensions.GetWidth() < 1u || desiredDimensions.GetHeight() < 1u )
   {
@@ -623,18 +603,16 @@ BitmapPtr CropAndPadForFittingMode( BitmapPtr bitmap, ImageDimensions desiredDim
         return bitmap;
       }
 
-      // Create a new bitmap with the desired size.
-      BitmapPtr croppedBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
-      Integration::Bitmap::PackedPixelsProfile *packedView = croppedBitmap->GetPackedPixelsProfile();
-      DALI_ASSERT_DEBUG( packedView );
-      const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
-      packedView->ReserveBuffer( pixelFormat, desiredWidth, desiredHeight, desiredWidth, desiredHeight );
+      // Create new PixelBuffer with the desired size.
+      const auto pixelFormat = bitmap.GetPixelFormat();
+
+      auto croppedBitmap = Devel::PixelBuffer::New( desiredWidth, desiredHeight, pixelFormat );
 
       // Add some pre-calculated offsets to the bitmap pointers so this is not done within a loop.
       // The cropping is added to the source pointer, and the padding is added to the destination.
-      const unsigned int bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
-      const PixelBuffer * const sourcePixels = bitmap->GetBuffer() + ( ( ( ( scanlinesToCrop / 2 ) * inputWidth ) + ( columnsToCrop / 2 ) ) * bytesPerPixel );
-      PixelBuffer * const targetPixels = croppedBitmap->GetBuffer();
+      const auto bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
+      const PixelBuffer * const sourcePixels = bitmap.GetBuffer() + ( ( ( ( scanlinesToCrop / 2 ) * inputWidth ) + ( columnsToCrop / 2 ) ) * bytesPerPixel );
+      PixelBuffer * const targetPixels = croppedBitmap.GetBuffer();
       PixelBuffer * const targetPixelsActive = targetPixels + ( ( ( ( scanlinesToPad / 2 ) * desiredWidth ) + ( columnsToPad / 2 ) ) * bytesPerPixel );
       DALI_ASSERT_DEBUG( sourcePixels && targetPixels );
 
@@ -662,7 +640,7 @@ BitmapPtr CropAndPadForFittingMode( BitmapPtr bitmap, ImageDimensions desiredDim
       // Add vertical or horizontal borders to the final image (if required).
       desiredDimensions.SetWidth( desiredWidth );
       desiredDimensions.SetHeight( desiredHeight );
-      AddBorders( croppedBitmap->GetBuffer(), bytesPerPixel, desiredDimensions, ImageDimensions( columnsToPad, scanlinesToPad ) );
+      AddBorders( croppedBitmap.GetBuffer(), bytesPerPixel, desiredDimensions, ImageDimensions( columnsToPad, scanlinesToPad ) );
       // Overwrite the loaded bitmap with the cropped version
       bitmap = croppedBitmap;
     }
@@ -719,26 +697,26 @@ void AddBorders( PixelBuffer *targetPixels, const unsigned int bytesPerPixel, co
   }
 }
 
-Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap,
+Dali::Devel::PixelBuffer DownscaleBitmap( Dali::Devel::PixelBuffer bitmap,
                                         ImageDimensions desired,
                                         FittingMode::Type fittingMode,
                                         SamplingMode::Type samplingMode )
 {
   // Source dimensions as loaded from resources (e.g. filesystem):
-  const unsigned int bitmapWidth  = bitmap.GetImageWidth();
-  const unsigned int bitmapHeight = bitmap.GetImageHeight();
+  auto bitmapWidth  = bitmap.GetWidth();
+  auto bitmapHeight = bitmap.GetHeight();
   // Desired dimensions (the rectangle to fit the source image to):
-  const unsigned int desiredWidth = desired.GetWidth();
-  const unsigned int desiredHeight = desired.GetHeight();
+  auto desiredWidth = desired.GetWidth();
+  auto desiredHeight = desired.GetHeight();
 
-  BitmapPtr outputBitmap( &bitmap );
+  Dali::Devel::PixelBuffer outputBitmap { bitmap };
 
   // If a different size than the raw one has been requested, resize the image:
-  if( bitmap.GetPackedPixelsProfile() &&
+  if(
       (desiredWidth > 0.0f) && (desiredHeight > 0.0f) &&
       ((desiredWidth < bitmapWidth) || (desiredHeight < bitmapHeight)) )
   {
-    const Pixel::Format pixelFormat = bitmap.GetPixelFormat();
+    auto pixelFormat = bitmap.GetPixelFormat();
 
     // Do the fast power of 2 iterated box filter to get to roughly the right side if the filter mode requests that:
     unsigned int shrunkWidth = -1, shrunkHeight = -1;
@@ -756,16 +734,17 @@ Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap,
       if( samplingMode == SamplingMode::LINEAR || samplingMode == SamplingMode::BOX_THEN_LINEAR ||
           samplingMode == SamplingMode::NEAREST || samplingMode == SamplingMode::BOX_THEN_NEAREST )
       {
-        outputBitmap = MakeEmptyBitmap( pixelFormat, filteredWidth, filteredHeight );
+        outputBitmap = Dali::Devel::PixelBuffer::New( filteredWidth, filteredHeight, pixelFormat );
+
         if( outputBitmap )
         {
           if( samplingMode == SamplingMode::LINEAR || samplingMode == SamplingMode::BOX_THEN_LINEAR )
           {
-            LinearSample( bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), pixelFormat, outputBitmap->GetBuffer(), filteredDimensions );
+            LinearSample( bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), pixelFormat, outputBitmap.GetBuffer(), filteredDimensions );
           }
           else
           {
-            PointSample( bitmap.GetBuffer(), shrunkWidth, shrunkHeight, pixelFormat, outputBitmap->GetBuffer(), filteredWidth, filteredHeight );
+            PointSample( bitmap.GetBuffer(), shrunkWidth, shrunkHeight, pixelFormat, outputBitmap.GetBuffer(), filteredWidth, filteredHeight );
           }
           filtered = true;
         }
@@ -774,7 +753,7 @@ Integration::BitmapPtr DownscaleBitmap( Integration::Bitmap& bitmap,
     // Copy out the 2^x downscaled, box-filtered pixels if no secondary filter (point or linear) was applied:
     if( filtered == false && ( shrunkWidth < bitmapWidth || shrunkHeight < bitmapHeight ) )
     {
-      outputBitmap = MakeBitmap( bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight );
+      outputBitmap = MakePixelBuffer( bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight );
     }
   }
 
