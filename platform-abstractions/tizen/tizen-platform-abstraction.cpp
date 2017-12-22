@@ -28,6 +28,7 @@
 // INTERNAL INCLUDES
 #include "image-loaders/image-loader.h"
 #include "portable/file-reader.h"
+#include <adaptors/common/pixel-buffer-impl.h>
 
 namespace Dali
 {
@@ -69,7 +70,8 @@ Integration::ResourcePointer TizenPlatformAbstraction::LoadImageSynchronously(co
 
 Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size )
 {
-  Integration::BitmapPtr bitmap = 0;
+  Integration::BitmapPtr resultBitmap;
+  Dali::Devel::PixelBuffer bitmap;
 
   Dali::Internal::Platform::FileReader fileReader( buffer, size );
   FILE * const fp = fileReader.GetFile();
@@ -81,9 +83,29 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
       bitmap.Reset();
       DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
     }
+    else
+    {
+      Integration::Bitmap::Profile profile{Integration::Bitmap::Profile::BITMAP_2D_PACKED_PIXELS};
+
+      // For backward compatibility the Bitmap must be created
+      auto retval = Integration::Bitmap::New(profile, Dali::ResourcePolicy::OWNED_DISCARD);
+
+      retval->GetPackedPixelsProfile()->ReserveBuffer(
+              bitmap.GetPixelFormat(),
+              bitmap.GetWidth(),
+              bitmap.GetHeight(),
+              bitmap.GetWidth(),
+              bitmap.GetHeight()
+            );
+
+      auto& impl = Dali::GetImplementation(bitmap);
+
+      std::copy( impl.GetBuffer(), impl.GetBuffer()+impl.GetBufferSize(), retval->GetBuffer());
+      resultBitmap.Reset(retval);
+    }
   }
 
-  return bitmap;
+  return resultBitmap;
 }
 
 bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const

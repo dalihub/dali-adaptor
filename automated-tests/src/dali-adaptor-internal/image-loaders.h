@@ -20,6 +20,7 @@
 
 #include <dali/dali.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include "platform-abstractions/tizen/image-loaders/image-loader-input.h"
 
 // Simple structure to close the file when finished with it.
@@ -82,7 +83,7 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, Dali::Integration::Bitmap& );
+  typedef bool (*LoadBitmapFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, Dali::Devel::PixelBuffer& );
   typedef bool (*LoadBitmapHeaderFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
   LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader );

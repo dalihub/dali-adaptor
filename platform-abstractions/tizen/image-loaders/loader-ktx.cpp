@@ -19,19 +19,13 @@
 #include "loader-ktx.h"
 
 // EXTERNAL INCLUDES
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <stdint.h>
 #include <dali/public-api/common/compile-time-assert.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/pixel.h>
+#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
-using Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
 
 namespace TizenPlatform
 {
@@ -538,7 +532,7 @@ bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsign
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);
@@ -592,7 +586,9 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Integration::Bitmap& bi
   }
 
   // Load up the image bytes:
-  PixelBuffer* const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, imageByteCount );
+  bitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+  auto pixels = bitmap.GetBuffer();
+
   if(!pixels)
   {
     DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );
