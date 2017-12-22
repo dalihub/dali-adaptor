@@ -26,7 +26,8 @@ namespace Dali
 
 Widget Widget::New()
 {
-  return Internal::Adaptor::Widget::New();
+  Internal::Adaptor::WidgetPtr internal = Internal::Adaptor::Widget::New();
+  return Widget(internal.Get());
 }
 
 Widget::~Widget()

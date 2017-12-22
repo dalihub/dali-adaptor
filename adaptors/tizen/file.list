@@ -4,7 +4,9 @@ adaptor_tizen_internal_src_files = \
   $(adaptor_tizen_dir)/adaptor-impl-tizen.cpp \
   $(adaptor_tizen_dir)/vsync-monitor-tizen.cpp \
   $(adaptor_tizen_dir)/tilt-sensor-impl-tizen.cpp \
-  $(adaptor_tizen_dir)/tts-player-impl-tizen.cpp
+  $(adaptor_tizen_dir)/tts-player-impl-tizen.cpp \
+  $(adaptor_tizen_dir)/widget-application-impl-tizen.cpp \
+  $(adaptor_tizen_dir)/widget-controller-tizen.cpp
 
 # common to tizen platforms except not for mobile
 adaptor_tizen_internal_non_mobile_src_files = \
@@ -19,10 +21,6 @@ adaptor_tizen_internal_native_image_src_files = \
   $(adaptor_tizen_dir)/display-connection-impl-tizen.cpp \
   $(adaptor_tizen_dir)/native-render-surface-tizen.cpp \
   $(adaptor_tizen_dir)/native-image-source-impl-tizen.cpp
-
-adaptor_tizen_internal_widget_src_files = \
-  $(adaptor_tizen_dir)/widget-application-impl.cpp \
-  $(adaptor_tizen_dir)/widget-controller.cpp
 
 public_api_adaptor_tizen_header_files = \
   $(adaptor_tizen_dir)/key-grab.h

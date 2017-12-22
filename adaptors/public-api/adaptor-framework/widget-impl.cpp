@@ -31,11 +31,9 @@ namespace Internal
 namespace Adaptor
 {
 
-Dali::Widget Widget::New()
+WidgetPtr Widget::New()
 {
-  IntrusivePtr<Widget> widget = new Widget();
-  Dali::Widget handle( widget.Get() );
-  return handle;
+  return new Widget();
 }
 
 Widget::Widget()
@@ -55,7 +53,7 @@ void Widget::OnCreate( const std::string& contentInfo, Dali::Window window )
 {
 }
 
-void Widget::OnTerminate( const std::string& contentInfo, Dali::Widget::Termination::Type type )
+void Widget::OnTerminate( const std::string& contentInfo, Dali::Widget::Termination type )
 {
 }
 

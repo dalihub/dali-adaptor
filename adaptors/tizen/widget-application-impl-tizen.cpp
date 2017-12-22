@@ -49,23 +49,28 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
   widget_base_context_window_bind( instanceHandle, id, wlWindow );
   window.SetSize( Dali::Window::WindowSize( w, h ) );
 
-  Dali::WidgetApplication::CreateWidgetFunction createFunction = application->GetWidgetCreatingFunction(std::string(id));
+  Dali::Internal::Adaptor::WidgetApplication::CreateWidgetFunctionPair pair = application->GetWidgetCreatingFunctionPair(std::string(id));
+  Dali::WidgetApplication::CreateWidgetFunction createFunction = pair.second;
 
-  Dali::Widget widgetInstance = createFunction();
+  Dali::Widget widgetInstance = createFunction( pair.first );
+  application->AddWidget( instanceHandle, widgetInstance );
 
   Dali::Internal::Adaptor::Widget::Impl *widgetImpl = new Dali::Internal::Adaptor::Widget::Impl(instanceHandle);
-
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl( widgetImpl );
 
-  bundle_raw *bundleRaw;
-  int len;
-  bundle_encode(content, &bundleRaw, &len);
-  char* encodedContent = reinterpret_cast< char* >( bundleRaw );
-  std::string encodedContentString( encodedContent );
+  std::string encodedContentString = "";
 
-  application->AddWidget( instanceHandle, widgetInstance );
+  if( bundle_get_count( content ) )
+  {
+    bundle_raw *bundleRaw;
+    int len;
+    bundle_encode(content, &bundleRaw, &len);
+    char* encodedContent = reinterpret_cast< char* >( bundleRaw );
+    encodedContentString = std::string( encodedContent );
+    free(bundleRaw);
+  }
+
   Internal::Adaptor::GetImplementation(widgetInstance).OnCreate( encodedContentString, window );
-  free(bundleRaw);
 
   return 0;
 }
@@ -77,21 +82,27 @@ int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget( instanceHandle );
 
-  Dali::Widget::Termination::Type destroyReason = Dali::Widget::Termination::TEMPORARY;
+  Dali::Widget::Termination destroyReason = Dali::Widget::Termination::TEMPORARY;
 
   if(reason == WIDGET_BASE_DESTROY_TYPE_PERMANENT)
   {
     destroyReason = Dali::Widget::Termination::PERMANENT;
   }
 
-  bundle_raw *bundleRaw;
-  int len;
-  bundle_encode(content, &bundleRaw, &len);
-  char* encodedContent = reinterpret_cast< char* >( bundleRaw );
-  std::string encodedContentString( encodedContent );
+  std::string encodedContentString = "";
+
+  if( bundle_get_count( content ) )
+  {
+    bundle_raw *bundleRaw;
+    int len;
+    bundle_encode(content, &bundleRaw, &len);
+    char* encodedContent = reinterpret_cast< char* >( bundleRaw );
+    encodedContentString = std::string(encodedContent);
+    free(bundleRaw);
+  }
+
   Internal::Adaptor::GetImplementation(widgetInstance).OnTerminate( encodedContentString, destroyReason );
 
-  free(bundleRaw);
   widget_base_class_on_destroy(instanceHandle, reason, content);
 
   application->DeleteWidget( instanceHandle );
@@ -152,14 +163,19 @@ int OnInstanceUpdate(widget_base_instance_h instanceHandle, bundle *content, int
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget( instanceHandle );
 
-  bundle_raw *bundleRaw;
-  int len;
-  bundle_encode(content, &bundleRaw, &len);
-  char* encodedContent = reinterpret_cast< char* >( bundleRaw );
-  std::string encodedContentString( encodedContent );
-  Internal::Adaptor::GetImplementation(widgetInstance).OnUpdate( encodedContentString, force );
+  std::string encodedContentString = "";
 
-  free(bundleRaw);
+  if( bundle_get_count( content ) )
+  {
+    bundle_raw *bundleRaw;
+    int len;
+    bundle_encode(content, &bundleRaw, &len);
+    char* encodedContent = reinterpret_cast< char* >( bundleRaw );
+    encodedContentString = std::string(encodedContent);
+    free(bundleRaw);
+  }
+
+  Internal::Adaptor::GetImplementation(widgetInstance).OnUpdate( encodedContentString, force );
 
   return 0;
 }
@@ -190,7 +206,7 @@ WidgetApplication::~WidgetApplication()
 
 void WidgetApplication::RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction )
 {
-  AddWidgetCreatingFunction( widgetName, createFunction );
+  AddWidgetCreatingFunctionPair( CreateWidgetFunctionPair(widgetName, createFunction) );
 
   // Register widget class to widget framework
   widget_base_class cls = widget_base_class_get_default();
@@ -204,22 +220,22 @@ void WidgetApplication::RegisterWidgetCreatingFunction( const std::string& widge
   widget_base_class_add(cls, widgetName.c_str(), this);
 }
 
-void WidgetApplication::AddWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction )
+void WidgetApplication::AddWidgetCreatingFunctionPair( CreateWidgetFunctionPair pair )
 {
-  mCreateWidgetFunctionContainer.push_back( CreateWidgetFunctionPair(widgetName, createFunction) );
+  mCreateWidgetFunctionContainer.push_back( pair );
 }
 
-Dali::WidgetApplication::CreateWidgetFunction WidgetApplication::GetWidgetCreatingFunction( const std::string& widgetName )
+WidgetApplication::CreateWidgetFunctionPair WidgetApplication::GetWidgetCreatingFunctionPair( const std::string& widgetName )
 {
   for( CreateWidgetFunctionContainer::const_iterator iter = mCreateWidgetFunctionContainer.begin(); iter != mCreateWidgetFunctionContainer.end(); ++iter )
   {
     if( widgetName.find((*iter).first) != std::string::npos  )
     {
-      return (*iter).second;
+      return *iter;
     }
   }
 
-  return nullptr;
+  return CreateWidgetFunctionPair( "", NULL );
 }
 
 void WidgetApplication::AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget )

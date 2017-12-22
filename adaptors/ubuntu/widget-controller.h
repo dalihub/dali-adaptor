@@ -22,9 +22,6 @@
 #include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
-#ifdef WIDGET_SUPPOERTED
-#include <widget_base.h>
-#endif
 #include <widget-impl.h>
 
 namespace Dali
@@ -43,14 +40,10 @@ class Widget::Impl : public ConnectionTracker
 {
 public:
 
-#ifndef WIDGET_SUPPOERTED
-  typedef void* widget_base_instance_h;
-#endif
-
   /**
    * Constructor
    */
-  Impl( widget_base_instance_h instanceHandle );
+  Impl();
 
   /**
    * Destructor
@@ -63,10 +56,6 @@ public:
    * Set content information to widget framework
    */
   void SetContentInfo( const std::string& contentInfo );
-
-private:
-
-  widget_base_instance_h mInstanceHandle;
 };
 
 } // namespace Adaptor

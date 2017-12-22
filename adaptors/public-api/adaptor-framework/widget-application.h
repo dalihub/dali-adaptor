@@ -19,8 +19,11 @@
  */
 
 // INTERNAL INCLUDES
-#include <public-api/adaptor-framework/application.h>
-
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
+#include <application.h>
+#else
+#include <dali/public-api/adaptor-framework/application.h>
+#endif
 namespace Dali
 {
 
@@ -64,7 +67,7 @@ class Widget;
  *     mApplication.InitSignal().Connect( this, &ExampleController::Create );
  *   }
  *
- *   static Widget CreateWidgetFunction()
+ *   static Widget CreateWidgetFunction(const std::string& widgetName)
  *   {
  *     MyWidget widget = MyWidget::New();
  *     return widget;
@@ -94,6 +97,7 @@ class Widget;
  * app.ResumeSignal().Connect(&app, &MyWidgetApplication::Resume);
  * @endcode
  *
+ * @SINCE_1_3_5
  */
 class DALI_IMPORT_API WidgetApplication : public Application
 {
@@ -101,14 +105,16 @@ public:
 
   /**
    * @brief This is the typedef for Widget creator.
+   * @SINCE_1_3_5
    */
-  typedef Widget(*CreateWidgetFunction)(void);
+  typedef Widget(*CreateWidgetFunction)(const std::string&);
 
 public:
 
   /**
    * @brief This is the constructor for WidgetApplications with a name.
    *
+   * @SINCE_1_3_5
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer to the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -119,35 +125,37 @@ public:
 
   /**
    * @brief The default constructor.
-   *
+   * @SINCE_1_3_5
    */
   WidgetApplication();
 
   /**
    * @brief Copy Constructor.
    *
-   * @param[in] WidgetApplication Handle to an object
+   * @SINCE_1_3_5
+   * @param[in] widgetApplication Handle to an object
    */
   WidgetApplication( const WidgetApplication& widgetApplication );
 
   /**
    * @brief Assignment operator.
    *
-   * @param[in] WidgetApplication Handle to an object
+   * @SINCE_1_3_5
+   * @param[in] widgetApplication Handle to an object
    * @return A reference to this
    */
   WidgetApplication& operator=( const WidgetApplication& widgetApplication );
 
  /**
    * @brief Destructor
-   *
-   *
+   * @SINCE_1_3_5
    */
   ~WidgetApplication();
 
   /**
    * @brief Register create function for widget.
    *
+   * @SINCE_1_3_5
    * @param[in] widgetName  Name of widget
    * @param[in] createFunction     Function pointer for widget creation.
    */

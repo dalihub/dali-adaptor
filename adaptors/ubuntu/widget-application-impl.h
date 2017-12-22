@@ -18,11 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifdef WIDGET_SUPPOERTED
-#include <widget_base.h>
-#endif
-
 // INTERNAL INCLUDES
 #include <application-impl.h>
 #include <widget-application.h>
@@ -47,9 +42,6 @@ class WidgetApplication : public Application
 {
 public:
 
-#ifndef WIDGET_SUPPOERTED
-  typedef void* widget_base_instance_h;
-#endif
   typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction >  CreateWidgetFunctionPair;
   typedef std::vector< CreateWidgetFunctionPair >   CreateWidgetFunctionContainer;
 
@@ -67,31 +59,6 @@ public:
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()
    */
   void RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction );
-
-  /**
-   * Add widget name - CreateWidgetFunction pair to container.
-   */
-  void AddWidgetCreatingFunctionPair( CreateWidgetFunctionPair pair );
-
-  /**
-   * Find and get CreateWidgetFunctionPair in container by widget name.
-   */
-  CreateWidgetFunctionPair GetWidgetCreatingFunctionPair( const std::string& widgetName );
-
-  /**
-   * Add widget_base_instance_h - Widget instance pair to container.
-   */
-  void AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget );
-
-  /**
-   * Find and get Widget instance in container by widget_base_instance_h.
-   */
-  Dali::Widget GetWidget( widget_base_instance_h widgetBaseInstance );
-
-  /**
-   * Delete widget_base_instance_h - Widget instance pair in container.
-   */
-  void DeleteWidget( widget_base_instance_h widgetBaseInstance );
 
 protected:
 
@@ -112,13 +79,6 @@ protected:
   WidgetApplication(const Application&);
   WidgetApplication& operator=(Application&);
 
-private:
-
-  typedef std::pair< widget_base_instance_h, Dali::Widget > WidgetInstancePair;
-  typedef std::vector< WidgetInstancePair >                 WidgetInstanceContainer;
-
-  CreateWidgetFunctionContainer  mCreateWidgetFunctionContainer;
-  WidgetInstanceContainer        mWidgetInstanceContainer;
 
 };
 

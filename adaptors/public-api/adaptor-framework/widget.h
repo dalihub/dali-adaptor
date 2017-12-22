@@ -46,55 +46,55 @@ class Window;
  *
  * To make own Widget, user should inherit this class and its impl class.
  *
+ * @SINCE_1_3_5
  */
 class DALI_IMPORT_API Widget : public BaseHandle
 {
 public:
 
   /**
-   * @brief Struct for termination type of widget instance.
+   * @brief Enumeration class for termination type of widget instance.
+   * @SINCE_1_3_5
    */
-  struct Termination
+  enum class Termination
   {
-    /**
-     * @brief Enumeration for termination type of widget instance.
-     */
-    enum Type
-    {
-      PERMANENT, //< User deleted this widget from the viewer
-      TEMPORARY, //< Widget is deleted because of other reasons (e.g. widget process is terminated temporarily by the system)
-    };
+    PERMANENT, //< User deleted this widget from the viewer @SINCE_1_3_5
+    TEMPORARY, //< Widget is deleted because of other reasons (e.g. widget process is terminated temporarily by the system) @SINCE_1_3_5
   };
 
 public:
 
   /**
    * @brief This is the constructor for Widget.
+   * @SINCE_1_3_5
    * @return A handle to the Widget
    */
   static Widget New();
 
   /**
    * @brief The default constructor.
-   *
+   * @SINCE_1_3_5
    */
   Widget();
 
   /**
    * @brief Copy Constructor.
-   * @param[in] Widget Handle to an object
+   * @SINCE_1_3_5
+   * @param[in] widget Handle to an object
    */
   Widget( const Widget& widget );
 
   /**
    * @brief Assignment operator.
-   * @param[in] Widget Handle to an object
+   * @SINCE_1_3_5
+   * @param[in] widget Handle to an object
    * @return A reference to this
    */
   Widget& operator=( const Widget& widget );
 
   /**
    * @brief Destructor
+   * @SINCE_1_3_5
    */
   ~Widget();
 

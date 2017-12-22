@@ -7,4 +7,6 @@ adaptor_ubuntu_internal_src_files = \
   $(adaptor_ubuntu_dir)/vsync-monitor-ubuntu.cpp \
   $(adaptor_ubuntu_dir)/tilt-sensor-impl-ubuntu.cpp \
   $(adaptor_ubuntu_dir)/tts-player-impl-ubuntu.cpp \
-  $(adaptor_ubuntu_dir)/key-mapping-ubuntu.cpp
+  $(adaptor_ubuntu_dir)/key-mapping-ubuntu.cpp \
+  $(adaptor_ubuntu_dir)/widget-application-impl-ubuntu.cpp \
+  $(adaptor_ubuntu_dir)/widget-controller-ubuntu.cpp
