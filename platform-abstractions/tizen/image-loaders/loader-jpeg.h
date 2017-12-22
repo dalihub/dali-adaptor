@@ -26,11 +26,11 @@
 
 namespace Dali
 {
-
-namespace Integration
+namespace Devel
 {
-  class Bitmap;
+class PixelBuffer;
 }
+
 
 namespace TizenPlatform
 {
@@ -50,7 +50,7 @@ const unsigned char MAGIC_BYTE_2 = 0xD8;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.

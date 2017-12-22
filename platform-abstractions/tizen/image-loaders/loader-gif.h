@@ -23,11 +23,11 @@
 
 namespace Dali
 {
-
-namespace Integration
+namespace Devel
 {
-  class Bitmap;
+class PixelBuffer;
 }
+
 
 namespace TizenPlatform
 {
@@ -48,7 +48,7 @@ const unsigned char MAGIC_BYTE_2 = 0x49;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromGif( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+bool LoadBitmapFromGif( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.

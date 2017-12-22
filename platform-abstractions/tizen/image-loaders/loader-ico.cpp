@@ -56,12 +56,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
-using Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
 
 namespace TizenPlatform
 {
@@ -357,7 +355,7 @@ bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return true;
 }
 
-bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromIco( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;
@@ -380,7 +378,6 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
 
   int diff_size = 0;
   unsigned int* pix;
-  PixelBuffer* pixels = NULL;
 
   size_t position = chosen.bmoffset;//22 == position
 
@@ -664,7 +661,8 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bi
     }
   }
 
-  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer( Pixel::RGBA8888, w, h );
+  bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
+  auto pixels = bitmap.GetBuffer();
   memcpy( pixels, &surface[0], w * h * 4 );
 
   return true;
