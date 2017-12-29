@@ -17,7 +17,7 @@
 
 #include "image-loaders.h"
 #include <dali-test-suite-utils.h>
-#include <adaptors/common/pixel-buffer-impl.h>
+
 
 AutoCloseFile::AutoCloseFile( FILE *fp )
 : filePtr( fp )
@@ -101,15 +101,17 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   // Loading the header moves the pointer within the file so reset to start of file.
   fseek( fp, 0, 0 );
 
-  Dali::Devel::PixelBuffer bitmap;
+  // Create a bitmap object and store a pointer to that object so it is destroyed at the end.
+  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( bitmapProfile, ResourcePolicy::OWNED_RETAIN  );
+  Dali::Integration::BitmapPtr bitmapPtr( bitmap );
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( input, bitmap ) );
-  DALI_TEST_EQUALS( image.width,  bitmap.GetWidth(),  TEST_LOCATION );
-  DALI_TEST_EQUALS( image.height, bitmap.GetHeight(), TEST_LOCATION );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
+  DALI_TEST_EQUALS( image.width,  bitmap->GetImageWidth(),  TEST_LOCATION );
+  DALI_TEST_EQUALS( image.height, bitmap->GetImageHeight(), TEST_LOCATION );
 
   // Compare buffer generated with reference buffer.
-  Dali::PixelBuffer* bufferPtr( bitmap.GetBuffer() );
+  Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
   Dali::PixelBuffer* refBufferPtr( image.refBuffer );
   for ( unsigned int i = 0; i < image.refBufferSize; ++i, ++bufferPtr, ++refBufferPtr )
   {
@@ -139,19 +141,21 @@ void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& fun
   // Loading the header moves the pointer within the file so reset to start of file.
   fseek( filePointer, 0, SEEK_SET );
 
-  Dali::Devel::PixelBuffer bitmap;
+  // Create a bitmap object and store a pointer to that object so it is destroyed at the end.
+  Dali::Integration::Bitmap * bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_RETAIN  );
+  Dali::Integration::BitmapPtr bitmapPointer( bitmap );
 
   // Load Bitmap and check its return values.
-  DALI_TEST_CHECK( functions.loader( input, bitmap ) );
-  DALI_TEST_EQUALS( image.width,  bitmap.GetWidth(),  TEST_LOCATION );
-  DALI_TEST_EQUALS( image.height, bitmap.GetHeight(), TEST_LOCATION );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
+  DALI_TEST_EQUALS( image.width,  bitmap->GetImageWidth(),  TEST_LOCATION );
+  DALI_TEST_EQUALS( image.height, bitmap->GetImageHeight(), TEST_LOCATION );
 
   // Check the bytes per pixel.
-  const Pixel::Format pixelFormat = bitmap.GetPixelFormat();
+  const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
   const unsigned int bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
 
   // Compare buffer generated with reference buffer.
-  Dali::PixelBuffer* pBitmapData( bitmap.GetBuffer() );
+  Dali::PixelBuffer* pBitmapData( bitmapPointer->GetBuffer() );
   const uint32_t* pMaster( master );
 
   // Loop through each pixel in the bitmap.
@@ -174,15 +178,15 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   FILE* fp = fopen( filename.c_str() , "rb" );
   AutoCloseFile autoClose( fp );
 
-  Dali::Devel::PixelBuffer bitmap;
+  Dali::Integration::Bitmap* bitmap = Dali::Integration::Bitmap::New( Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS,  ResourcePolicy::OWNED_RETAIN );
+  Dali::Integration::BitmapPtr bitmapPtr( bitmap );
   const Dali::TizenPlatform::ImageLoader::Input input( fp );
 
-  DALI_TEST_CHECK( functions.loader( input, bitmap ) );
+  DALI_TEST_CHECK( functions.loader( input, *bitmap ) );
 
-  Dali::PixelBuffer* bufferPtr( bitmap.GetBuffer() );
+  Dali::PixelBuffer* bufferPtr( bitmapPtr->GetBuffer() );
 
   FILE* writeFp = fopen( targetFilename.c_str(), "wb" );
   AutoCloseFile autoCloseWrite( writeFp );
-  auto& impl = GetImplementation(bitmap);
-  fwrite( bufferPtr, 1, impl.GetBufferSize(), writeFp );
+  fwrite( bufferPtr, 1, bitmap->GetBufferSize(), writeFp );
 }

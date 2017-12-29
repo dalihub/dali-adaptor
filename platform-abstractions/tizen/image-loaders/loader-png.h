@@ -26,9 +26,10 @@
 
 namespace Dali
 {
-namespace Devel
+
+namespace Integration
 {
-class PixelBuffer;
+  class Bitmap;
 }
 
 namespace TizenPlatform
@@ -49,7 +50,7 @@ const unsigned char MAGIC_BYTE_2 = 0x50;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.

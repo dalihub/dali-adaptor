@@ -116,11 +116,6 @@ void PixelBuffer::Resize( uint16_t width, uint16_t height )
   GetImplementation(*this).Resize( ImageDimensions( width, height ) );
 }
 
-bool PixelBuffer::GetMetadata( Property::Map& metadata ) const
-{
-  return GetImplementation(*this).GetMetadata(metadata);
-}
-
 } // namespace Devel
 
 } // namespace Dali

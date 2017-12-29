@@ -18,7 +18,6 @@
  *
  */
 
-// INTERNAL INCLUDES
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
@@ -200,14 +199,6 @@ public:
    * @param[in] height The new height
    */
   void Resize( uint16_t width, uint16_t height );
-
-  /**
-   * Returns Exif metadata as a property map
-   *
-   * @param[out] metadata Property map object to write into
-   * @return True on success
-   */
-  bool GetMetadata( Property::Map& metadata ) const;
 
 public:
 

@@ -19,16 +19,23 @@
 #include "loader-astc.h"
 
 // EXTERNAL INCLUDES
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <stdint.h>
 #include <dali/public-api/common/compile-time-assert.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/pixel.h>
-#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
+using Integration::Bitmap;
+using Dali::Integration::PixelBuffer;
+
 namespace TizenPlatform
 {
+
 namespace
 {
 
@@ -167,7 +174,7 @@ bool LoadAstcHeader( const ImageLoader::Input& input, unsigned int& width, unsig
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromAstc( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   FILE* const filePointer = input.file;
   if( !filePointer )
@@ -224,13 +231,16 @@ bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuff
     return false;
   }
 
-  // allocate pixel data
-  bitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
-  auto pixels = bitmap.GetBuffer();
+  // Allocate space to load the image data in to.
+  PixelBuffer* const pixels = bitmap.GetCompressedProfile()->ReserveBufferOfSize( pixelFormat, width, height, imageByteCount );
+  if( !pixels )
+  {
+    DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );
+    return false;
+  }
 
   // Load the image data.
   const size_t bytesRead = fread( pixels, 1, imageByteCount, filePointer );
-
   // Check the size of loaded data is what we expected.
   if( bytesRead != imageByteCount )
   {

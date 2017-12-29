@@ -25,11 +25,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/bitmap.h>
+#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
-
+using Integration::Bitmap;
+using Dali::Integration::PixelBuffer;
 namespace TizenPlatform
 {
 
@@ -90,7 +92,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   FILE* const fp = input.file;
   if(fp == NULL)
@@ -100,6 +102,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuff
   }
   Dali::Vector<unsigned char> map;
   Dali::Vector<unsigned char> surface;//unsigned int
+  PixelBuffer* pixels = NULL;
   size_t position = 0;
 
   unsigned int w, h;
@@ -203,7 +206,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuff
       cur++;
     }
   }
-  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
+  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(Pixel::L8, w, h);//Pixel::RGBA8888
 
   memcpy( pixels, &surface[0], w * h ); //w * h * 4
 
