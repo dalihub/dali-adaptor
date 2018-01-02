@@ -1241,6 +1241,12 @@ bool LoadBitmapFromBmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
       pixelBufferH = abs(infoHeader.height);
       newPixelFormat = Pixel::RGB565;
     }
+    else
+    {
+      pixelBufferW = infoHeader.width;
+      pixelBufferH = infoHeader.height;
+      newPixelFormat = pixelFormat;
+    }
     break;
   }
 
