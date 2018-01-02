@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ ImageDetails::ImageDetails( const char * const _name, unsigned int _width, unsig
   height( _height ),
   reportedWidth( _width ),
   reportedHeight( _height ),
-  refBufferSize( _width * _height ),
-  refBuffer( new Dali::PixelBuffer[ refBufferSize ] )
+  refBufferSize( 0u ),
+  refBuffer( nullptr )
 {
   LoadBuffer();
 }
@@ -51,27 +51,33 @@ ImageDetails::ImageDetails( const char * const _name, unsigned int _width, unsig
   height( _height ),
   reportedWidth( _reportedWidth ),
   reportedHeight( _reportedHeight ),
-  refBufferSize( _width * _height ),
-  refBuffer( new Dali::PixelBuffer[ refBufferSize ] )
+  refBufferSize( 0u ),
+  refBuffer( nullptr )
 {
   LoadBuffer();
 }
 
 ImageDetails::~ImageDetails()
 {
-  delete [] refBuffer;
+  if( refBuffer )
+  {
+    delete[] refBuffer;
+  }
 }
 
 void ImageDetails::LoadBuffer()
 {
   // Load the reference buffer from the buffer file
-
   std::string refBufferFilename( name + ".buffer" );
   FILE *fp = fopen ( refBufferFilename.c_str(), "rb" );
   AutoCloseFile autoCloseBufferFile( fp );
 
   if ( fp )
   {
+    fseek( fp, 0, SEEK_END );
+    refBufferSize = ftell( fp );
+    fseek( fp, 0, SEEK_SET );
+    refBuffer = reinterpret_cast<Dali::PixelBuffer*>( malloc( refBufferSize ) );
     fread( refBuffer, sizeof( Dali::PixelBuffer ), refBufferSize, fp );
   }
 }
