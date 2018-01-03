@@ -180,6 +180,12 @@ public:
   void Resize( ImageDimensions outDimensions );
 
   /**
+   * Multiplies the image's color values by the alpha value. This provides better
+   * blending capability.
+   */
+  void MultiplyColorByAlpha();
+
+  /**
    * @brief Sets image metadata
    *
    * @param map Property map containing Exif fields
