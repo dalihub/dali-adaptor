@@ -27,6 +27,7 @@
 #include "alpha-mask.h"
 #include "gaussian-blur.h"
 #include <platform-abstractions/portable/image-operations.h>
+#include <platform-abstractions/portable/pixel-manipulation.h>
 
 namespace Dali
 {
@@ -325,6 +326,36 @@ void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
     DALI_LOG_ERROR( "Trying to apply gaussian blur to an empty pixel buffer or a pixel buffer not in RGBA format" );
   }
 }
+
+void PixelBuffer::MultiplyColorByAlpha()
+{
+  auto bytesPerPixel = Pixel::GetBytesPerPixel( mPixelFormat );
+
+  if( Pixel::HasAlpha(mPixelFormat) )
+  {
+    unsigned char* pixel = mBuffer;
+    const unsigned int bufferSize = mWidth * mHeight;
+
+    for( unsigned int i=0; i<bufferSize; ++i )
+    {
+      unsigned int alpha = ReadChannel( pixel, mPixelFormat, Adaptor::ALPHA );
+      {
+        auto red       = ReadChannel( pixel, mPixelFormat, Adaptor::RED);
+        auto green     = ReadChannel( pixel, mPixelFormat, Adaptor::GREEN);
+        auto blue      = ReadChannel( pixel, mPixelFormat, Adaptor::BLUE);
+        auto luminance = ReadChannel( pixel, mPixelFormat, Adaptor::LUMINANCE);
+        WriteChannel( pixel, mPixelFormat, Adaptor::RED, red*alpha / 255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::GREEN, green*alpha/255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::BLUE, blue*alpha/255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::LUMINANCE, luminance*alpha/255 );
+      }
+      pixel += bytesPerPixel;
+    }
+  }
+}
+
+
+
 
 }// namespace Adaptor
 }// namespace Internal

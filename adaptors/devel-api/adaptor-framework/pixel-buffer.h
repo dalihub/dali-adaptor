@@ -200,6 +200,12 @@ public:
    */
   void Resize( uint16_t width, uint16_t height );
 
+  /**
+   * Multiplies the image's color values by the alpha value. This provides better
+   * blending capability.
+   */
+  void MultiplyColorByAlpha();
+
 public:
 
   /**

@@ -116,6 +116,11 @@ void PixelBuffer::Resize( uint16_t width, uint16_t height )
   GetImplementation(*this).Resize( ImageDimensions( width, height ) );
 }
 
+void PixelBuffer::MultiplyColorByAlpha()
+{
+  GetImplementation(*this).MultiplyColorByAlpha();
+}
+
 } // namespace Devel
 
 } // namespace Dali
