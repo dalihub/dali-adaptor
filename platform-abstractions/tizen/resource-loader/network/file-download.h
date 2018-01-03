@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 #include <string>
+#include <mutex> //c++11
 #include <stdint.h> // uint8
 
 namespace Dali
@@ -50,6 +51,24 @@ public:
    * Destructor calls curl_global_cleanup()
    */
   ~CurlEnvironment();
+
+  /**
+   * Locking function for libcurl with openssl
+   */
+  static void OnOpenSSLLocking( int mode, int n, const char* file, int line );
+
+  /**
+   * Gets thread id for libcurl with openssl
+   */
+  static unsigned long GetThreadId();
+
+private:
+
+  void SetLockingFunction();
+
+  void UnsetLockingFunction();
+
+  static std::mutex* mMutexs;
 };
 
 

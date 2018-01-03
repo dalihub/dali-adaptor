@@ -85,6 +85,8 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
+BuildRequires:  pkgconfig(libcrypto)
+
 %if %{with wayland}
 
 ####### BUILDING FOR WAYLAND #######
