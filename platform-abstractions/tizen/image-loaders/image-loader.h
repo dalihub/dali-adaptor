@@ -21,9 +21,6 @@
 #include <dali/public-api/images/image-operations.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/pixel-data.h>
-#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
-#include <string>
 
 namespace Dali
 {
@@ -44,16 +41,16 @@ namespace ImageLoader
  * @param[out] bitmap Pointer to write bitmap to
  * @return true on success, false on failure
  */
-bool ConvertStreamToBitmap( const Integration::BitmapResourceType& resource, std::string path, FILE * const fp, Dali::Devel::PixelBuffer& pixelBuffer );
+bool ConvertStreamToBitmap( const Integration::BitmapResourceType& resource, std::string path, FILE * const fp, Integration::BitmapPtr& ptr );
 
 /**
  * Convert a bitmap and write to a file stream.
  * @param[in] path The path to the resource.
  * @param[in] fp File Pointer. Closed on exit.
- * @param[out] pixelData Reference to PixelData object.
+ * @param[out] bitmap Pointer from which to read bitmap
  * @return true on success, false on failure
  */
-bool ConvertBitmapToStream( std::string path, FILE * const fp, Dali::Devel::PixelBuffer& pixelBuffer );
+bool ConvertBitmapToStream( std::string path, FILE * const fp, Integration::BitmapPtr& ptr );
 
 /**
  * Loads an image synchronously

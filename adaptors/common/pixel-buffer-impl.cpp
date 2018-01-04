@@ -43,8 +43,7 @@ PixelBuffer::PixelBuffer( unsigned char* buffer,
                           unsigned int width,
                           unsigned int height,
                           Dali::Pixel::Format pixelFormat )
-: mMetadata(),
-  mBuffer( buffer ),
+: mBuffer( buffer ),
   mBufferSize( bufferSize ),
   mWidth( width ),
   mHeight( height ),
@@ -264,26 +263,6 @@ PixelBufferPtr PixelBuffer::NewCrop( const PixelBuffer& inBuffer, uint16_t x, ui
   }
   return outBuffer;
 
-}
-
-void PixelBuffer::SetMetadata( const Property::Map& map )
-{
-  mMetadata.reset(new Property::Map(map));
-}
-
-bool PixelBuffer::GetMetadata(Property::Map& outMetadata) const
-{
-  if( !mMetadata )
-  {
-    return false;
-  }
-  outMetadata = *mMetadata;
-  return true;
-}
-
-void PixelBuffer::SetMetadata(std::unique_ptr<Property::Map> metadata)
-{
-  mMetadata = std::move(metadata);
 }
 
 void PixelBuffer::Resize( ImageDimensions outDimensions )

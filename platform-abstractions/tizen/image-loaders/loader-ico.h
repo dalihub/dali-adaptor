@@ -23,9 +23,10 @@
 
 namespace Dali
 {
-namespace Devel
+
+namespace Integration
 {
-class PixelBuffer;
+  class Bitmap;
 }
 
 namespace TizenPlatform
@@ -44,7 +45,7 @@ const unsigned char MAGIC_BYTE_2 = 0x00;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromIco( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromIco( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
 
 /**
  * @param[in]  input  Information about the input image (including file pointer)

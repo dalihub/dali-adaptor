@@ -18,17 +18,24 @@
 #include "loader-png.h"
 
 #include <cstring>
+#include <cstdlib>
 
 #include <zlib.h>
 #include <png.h>
 
+#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/image.h>
+#include "dali/public-api/math/math-utils.h"
+#include "dali/public-api/math/vector2.h"
 #include "platform-capabilities.h"
-#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
+
+using Integration::Bitmap;
+using Dali::Integration::PixelBuffer;
+
 namespace TizenPlatform
 {
 
@@ -121,7 +128,7 @@ bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return success;
 }
 
-bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromPng( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
 {
   png_structp png = NULL;
   png_infop info = NULL;
@@ -130,6 +137,7 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
   /// @todo: consider parameters
   unsigned int y;
   unsigned int width, height;
+  unsigned char *pixels;
   png_bytep *rows;
   unsigned int bpp = 0; // bytes per pixel
   bool valid = false;
@@ -304,7 +312,7 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
   }
 
   // decode the whole image into bitmap buffer
-  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
+  pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, width, height, bufferWidth, bufferHeight);
 
   DALI_ASSERT_DEBUG(pixels);
   rows = reinterpret_cast< png_bytep* >( malloc(sizeof(png_bytep) * height) );

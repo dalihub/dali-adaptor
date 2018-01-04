@@ -37,13 +37,13 @@ const char* ASCII_PAD_VALUE = ANSI_BLUE "#";
 typedef unsigned char PixelBuffer;
 
 
-void FillBitmap( Dali::Devel::PixelBuffer bitmap )
+void FillBitmap( BitmapPtr bitmap )
 {
   // Fill the given bitmap fully.
-  const Pixel::Format pixelFormat = bitmap.GetPixelFormat();
+  const Pixel::Format pixelFormat = bitmap->GetPixelFormat();
   const unsigned int bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
-  PixelBuffer * const targetPixels = bitmap.GetBuffer();
-  const int bytesToFill = bitmap.GetWidth() * bitmap.GetHeight() * bytesPerPixel;
+  PixelBuffer * const targetPixels = bitmap->GetBuffer();
+  const int bytesToFill = bitmap.Get()->GetImageWidth() * bitmap.Get()->GetImageHeight() * bytesPerPixel;
 
   memset( targetPixels, BORDER_FILL_VALUE, bytesToFill );
 }
@@ -97,15 +97,16 @@ void PerformFittingTests( TestContainer& tests )
     // Create a source bitmap.
     ImageDimensions desiredDimensions( desiredWidth, desiredHeight );
     SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR;
+    BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
+    Integration::Bitmap::PackedPixelsProfile *packedView = sourceBitmap->GetPackedPixelsProfile();
+    const Pixel::Format pixelFormat = sourceBitmap->GetPixelFormat();
+    packedView->ReserveBuffer( pixelFormat, sourceWidth, sourceHeight, sourceWidth, sourceHeight );
 
-
-    auto sourceBitmap = Dali::Devel::PixelBuffer::New( sourceWidth, sourceHeight, Pixel::Format::RGBA8888 );
-    const Pixel::Format pixelFormat = sourceBitmap.GetPixelFormat();
     // Completely fill the source bitmap (with white).
     FillBitmap( sourceBitmap );
 
     // Perform fitting operations (this is the method we are testing).
-    auto newBitmap = ApplyAttributesToBitmap( sourceBitmap, desiredDimensions, fittingMode, samplingMode );
+    BitmapPtr newBitmap = ApplyAttributesToBitmap( sourceBitmap, desiredDimensions, fittingMode, samplingMode );
 
     DALI_TEST_CHECK( newBitmap );
 
@@ -115,16 +116,16 @@ void PerformFittingTests( TestContainer& tests )
       return;
     }
 
-    auto bitmap( newBitmap );
+    Bitmap *bitmap = newBitmap.Get();
 
-    unsigned int resultWidth = bitmap.GetWidth();
-    unsigned int resultHeight = bitmap.GetHeight();
+    unsigned int resultWidth = bitmap->GetImageWidth();
+    unsigned int resultHeight = bitmap->GetImageHeight();
 
     // Check the dimensions of the modified image match against the expected values defined in the test.
     DALI_TEST_EQUALS( resultWidth, test.expectedWidth, TEST_LOCATION );
     DALI_TEST_EQUALS( resultHeight, test.expectedHeight, TEST_LOCATION );
 
-    PixelBuffer* resultBuffer = bitmap.GetBuffer();
+    PixelBuffer* resultBuffer = bitmap->GetBuffer();
     const unsigned int bytesPerPixel = Pixel::GetBytesPerPixel( pixelFormat );
 
     // We generate an ASCII representation of the source, desired and result images to log, purely as a debugging aid.

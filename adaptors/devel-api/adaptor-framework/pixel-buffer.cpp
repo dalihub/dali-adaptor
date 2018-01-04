@@ -121,11 +121,6 @@ void PixelBuffer::MultiplyColorByAlpha()
   GetImplementation(*this).MultiplyColorByAlpha();
 }
 
-bool PixelBuffer::GetMetadata( Property::Map& metadata ) const
-{
-  return GetImplementation(*this).GetMetadata(metadata);
-}
-
 } // namespace Devel
 
 } // namespace Dali

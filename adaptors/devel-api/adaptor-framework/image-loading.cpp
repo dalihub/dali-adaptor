@@ -18,13 +18,10 @@
 #include "image-loading.h"
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/property-map.h>
 #include "image-loaders/image-loader.h"
 #include <resource-loader/network/file-download.h>
 #include <platform-abstractions/portable/file-reader.h>
 #include "pixel-buffer-impl.h"
-
-
 
 namespace Dali
 {
@@ -47,11 +44,23 @@ Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions si
   FILE * const fp = fileReader.GetFile();
   if( fp != NULL )
   {
-    Dali::Devel::PixelBuffer bitmap;
+    Integration::BitmapPtr bitmap;
     bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap( resourceType, url, fp, bitmap );
     if( success && bitmap )
     {
-      return bitmap;
+      // Use bitmap->GetBufferOwnership() to transfer the buffer ownership
+      // to pixelData.  The destroy of bitmap will not release the buffer,
+      // instead, the pixelBuffer is responsible for releasing when its
+      // reference count falls to zero.
+      Internal::Adaptor::PixelBufferPtr pixelBufferImpl =
+        Internal::Adaptor::PixelBuffer::New( bitmap->GetBufferOwnership(),
+                                             bitmap->GetBufferSize(),
+                                             bitmap->GetImageWidth(),
+                                             bitmap->GetImageHeight(),
+                                             bitmap->GetPixelFormat() );
+
+      Dali::Devel::PixelBuffer pixelBuffer( pixelBufferImpl.Get() );
+      return pixelBuffer;
     }
   }
   return Dali::Devel::PixelBuffer();
@@ -95,7 +104,7 @@ Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDime
       FILE * const fp = fileReader.GetFile();
       if ( NULL != fp )
       {
-        Dali::Devel::PixelBuffer bitmap;
+        Integration::BitmapPtr bitmap;
         bool result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
           resourceType,
           url,
@@ -104,7 +113,15 @@ Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDime
 
         if ( result && bitmap )
         {
-          return bitmap;
+          Internal::Adaptor::PixelBufferPtr pixelBufferImpl =
+            Internal::Adaptor::PixelBuffer::New( bitmap->GetBufferOwnership(),
+                                                 bitmap->GetBufferSize(),
+                                                 bitmap->GetImageWidth(),
+                                                 bitmap->GetImageHeight(),
+                                                 bitmap->GetPixelFormat() );
+
+          Dali::Devel::PixelBuffer pixelBuffer( pixelBufferImpl.Get() );
+          return pixelBuffer;
         }
         else
         {
