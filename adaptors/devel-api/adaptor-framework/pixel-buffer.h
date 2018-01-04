@@ -209,6 +209,12 @@ public:
    */
   bool GetMetadata( Property::Map& metadata ) const;
 
+  /**
+   * Multiplies the image's color values by the alpha value. This provides better
+   * blending capability.
+   */
+  void MultiplyColorByAlpha();
+
 public:
 
   /**
