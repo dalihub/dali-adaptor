@@ -18,10 +18,10 @@
 #include "loader-gif.h"
 
 #include <gif_lib.h>
-#include <cstdlib>
 
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/bitmap.h>
+#include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
+#include <memory>
 
 // We need to check if giflib has the new open and close API (including error parameter).
 #ifdef GIFLIB_MAJOR
@@ -30,8 +30,6 @@
 
 namespace Dali
 {
-using Integration::Bitmap;
-using Dali::Integration::PixelBuffer;
 
 namespace TizenPlatform
 {
@@ -67,22 +65,6 @@ struct AutoCleanupGif
   }
 
   GifFileType*& gifInfo;
-};
-
-// Simple class to enforce clean-up of PixelBuffer
-struct AutoDeleteBuffer
-{
-  AutoDeleteBuffer( PixelBuffer* _buffer )
-  : buffer( _buffer )
-  {
-  }
-
-  ~AutoDeleteBuffer()
-  {
-    delete []buffer;
-  }
-
-  PixelBuffer* buffer;
 };
 
 // Used in the GIF interlace algorithm to determine the starting byte and the increment required
@@ -140,7 +122,7 @@ bool LoadGifHeader(FILE *fp, unsigned int &width, unsigned int &height, GifFileT
 }
 
 /// Decode the GIF image.
-bool DecodeImage( GifFileType* gifInfo, PixelBuffer* decodedData, const unsigned int width, const unsigned int height, const unsigned int bytesPerRow )
+bool DecodeImage( GifFileType* gifInfo, unsigned char* decodedData, const unsigned int width, const unsigned int height, const unsigned int bytesPerRow )
 {
   if ( gifInfo->Image.Interlace )
   {
@@ -151,7 +133,7 @@ bool DecodeImage( GifFileType* gifInfo, PixelBuffer* decodedData, const unsigned
     {
       for( unsigned int currentByte = interlacePairPtr->startingByte; currentByte < height; currentByte += interlacePairPtr->incrementalByte )
       {
-        PixelBuffer* row = decodedData + currentByte * bytesPerRow;
+        unsigned char* row = decodedData + currentByte * bytesPerRow;
         if ( DGifGetLine( gifInfo, row, width ) == GIF_ERROR )
         {
           DALI_LOG_ERROR( "GIF Loader: Error reading Interlaced GIF\n" );
@@ -163,7 +145,7 @@ bool DecodeImage( GifFileType* gifInfo, PixelBuffer* decodedData, const unsigned
   else
   {
     // Non-interlace does not require any erratic reading / jumping.
-    PixelBuffer* decodedDataPtr( decodedData );
+    unsigned char* decodedDataPtr( decodedData );
 
     for ( unsigned int row = 0; row < height; ++row )
     {
@@ -195,7 +177,7 @@ GifColorType* GetImageColors( SavedImage* image, GifFileType* gifInfo )
 }
 
 /// Called when we want to handle IMAGE_DESC_RECORD_TYPE
-bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
+bool HandleImageDescriptionRecordType( Dali::Devel::PixelBuffer& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished )
 {
   if ( DGifGetImageDesc( gifInfo ) == GIF_ERROR )
   {
@@ -210,16 +192,21 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, uns
     return false;
   }
 
+  Pixel::Format pixelFormat( Pixel::RGB888 );
+
   SavedImage* image( &gifInfo->SavedImages[ gifInfo->ImageCount - 1 ] );
   const GifImageDesc& desc( image->ImageDesc );
 
-  // Create a buffer to store the decoded data.
-  PixelBuffer* decodedData( new PixelBuffer[ width * height * sizeof( GifPixelType ) ] );
-  AutoDeleteBuffer autoDeleteBuffer( decodedData );
+  auto decodedData = new unsigned char[ width * height * sizeof( GifPixelType ) ];
+
+  std::unique_ptr<unsigned char[]> ptr{ decodedData };
 
   const unsigned int bytesPerRow( width * sizeof( GifPixelType ) );
   const unsigned int actualWidth( desc.Width );
   const unsigned int actualHeight( desc.Height );
+
+  // Create a buffer to store the decoded data.
+  bitmap = Dali::Devel::PixelBuffer::New( actualWidth, actualHeight, pixelFormat );
 
   // Decode the GIF Image
   if ( !DecodeImage( gifInfo, decodedData, actualWidth, actualHeight, bytesPerRow ) )
@@ -233,10 +220,7 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, uns
   // If it's an animated GIF, we still only read the first image
 
   // Create and populate pixel buffer.
-
-  Pixel::Format pixelFormat( Pixel::RGB888 );
-  PixelBuffer *pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer( pixelFormat, actualWidth, actualHeight );
-
+  auto pixels = bitmap.GetBuffer();
   for (unsigned int row = 0; row < actualHeight; ++row)
   {
     for (unsigned int column = 0; column < actualWidth; ++column)
@@ -249,9 +233,7 @@ bool HandleImageDescriptionRecordType( Bitmap& bitmap, GifFileType* gifInfo, uns
       pixels += 3;
     }
   }
-
   finished = true;
-
   return true;
 }
 
@@ -298,7 +280,7 @@ bool LoadGifHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return LoadGifHeader(fp, width, height, &gifInfo);
 }
 
-bool LoadBitmapFromGif( const ImageLoader::Input& input, Integration::Bitmap& bitmap )
+bool LoadBitmapFromGif( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   FILE* const fp = input.file;
   // Load the GIF Header file.

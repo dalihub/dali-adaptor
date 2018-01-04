@@ -358,14 +358,13 @@ void TestDownscaledBitmapHasRightDimensionsAndFormat(
   FittingMode::Type fittingMode( FittingMode::SHRINK_TO_FIT );
   SamplingMode::Type samplingMode( SamplingMode::BOX );
 
-  Integration::BitmapPtr sourceBitmap = Integration::Bitmap::New( Integration::Bitmap::BITMAP_2D_PACKED_PIXELS, ResourcePolicy::OWNED_DISCARD );
-  sourceBitmap->GetPackedPixelsProfile()->ReserveBuffer( format, sourceDimension, sourceDimension, sourceDimension, sourceDimension );
+  Dali::Devel::PixelBuffer sourceBitmap = Dali::Devel::PixelBuffer::New( sourceDimension, sourceDimension, format );
 
-  Integration::BitmapPtr downScaled = DownscaleBitmap( *sourceBitmap, desired, fittingMode, samplingMode );
+  Dali::Devel::PixelBuffer downScaled = DownscaleBitmap( sourceBitmap, desired, fittingMode, samplingMode );
 
-  DALI_TEST_EQUALS( downScaled->GetImageWidth(), expectedDimension, location );
-  DALI_TEST_EQUALS( downScaled->GetImageHeight(), expectedDimension, location );
-  DALI_TEST_EQUALS( downScaled->GetPixelFormat(), format, location );
+  DALI_TEST_EQUALS( downScaled.GetWidth(), expectedDimension, location );
+  DALI_TEST_EQUALS( downScaled.GetHeight(), expectedDimension, location );
+  DALI_TEST_EQUALS( downScaled.GetPixelFormat(), format, location );
 }
 
 /**

@@ -24,9 +24,9 @@
 namespace Dali
 {
 
-namespace Integration
+namespace Devel
 {
-  class Bitmap;
+class PixelBuffer;
 }
 
 namespace TizenPlatform
@@ -39,7 +39,7 @@ class ResourceLoadingClient;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Integration::Bitmap& bitmap );
+bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * @param[in]  input  Information about the input image (including file pointer)
