@@ -1242,12 +1242,6 @@ bool LoadBitmapFromBmp( const ImageLoader::Input& input, Integration::Bitmap& bi
     {
       pixels = bitmap.GetPackedPixelsProfile()->ReserveBuffer(pixelFormat, infoHeader.width, infoHeader.height);
     }
-    else
-    {
-      pixelBufferW = infoHeader.width;
-      pixelBufferH = infoHeader.height;
-      newPixelFormat = pixelFormat;
-    }
     break;
   }
 
