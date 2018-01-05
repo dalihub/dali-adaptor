@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,6 +204,13 @@ void PixelBuffer::ReleaseBuffer()
   }
 }
 
+void PixelBuffer::AllocateFixedSize( uint32_t size )
+{
+  ReleaseBuffer();
+  mBuffer = reinterpret_cast<unsigned char*>(malloc( size ));
+  mBufferSize = size;
+}
+
 void PixelBuffer::ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions )
 {
   ImageDimensions outDimensions( float(mWidth) * scaleFactor,
@@ -352,7 +359,9 @@ void PixelBuffer::MultiplyColorByAlpha()
 {
   auto bytesPerPixel = Pixel::GetBytesPerPixel( mPixelFormat );
 
-  if( Pixel::HasAlpha(mPixelFormat) )
+  // Compressed textures have unknown size of the pixel. Alpha premultiplication
+  // must be skipped in such case
+  if( Pixel::GetBytesPerPixel(mPixelFormat) && Pixel::HasAlpha(mPixelFormat) )
   {
     unsigned char* pixel = mBuffer;
     const unsigned int bufferSize = mWidth * mHeight;

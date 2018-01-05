@@ -24,6 +24,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel.h>
 #include <adaptors/devel-api/adaptor-framework/pixel-buffer.h>
+#include <adaptors/common/pixel-buffer-impl.h>
 
 namespace Dali
 {
@@ -226,7 +227,16 @@ bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuff
 
   // allocate pixel data
   bitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+
+  // Compressed format won't allocate the buffer
   auto pixels = bitmap.GetBuffer();
+  if( !pixels )
+  {
+    // allocate buffer manually
+    auto& impl = GetImplementation( bitmap );
+    impl.AllocateFixedSize( imageByteCount );
+    pixels = bitmap.GetBuffer();
+  }
 
   // Load the image data.
   const size_t bytesRead = fread( pixels, 1, imageByteCount, filePointer );
