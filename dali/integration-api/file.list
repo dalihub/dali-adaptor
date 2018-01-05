@@ -14,11 +14,11 @@ adaptor_integration_wayland_api_header_files = \
   $(adaptor_integration_api_dir)/native-render-surface-factory.h
 
 adaptor_integration_ecore_wayland_api_header_files = \
-  $(adaptor_integration_api_dir)/../internal/input/common/imf-manager-impl.h
+  $(adaptor_integration_api_dir)/../internal/input/common/input-method-context-impl.h
 
 adaptor_integration_x11_api_header_files = \
   $(adaptor_integration_api_dir)/x11/ecore-x-types.h \
   $(adaptor_integration_api_dir)/x11/ecore-x-render-surface.h \
   $(adaptor_integration_api_dir)/x11/pixmap-render-surface.h \
-  $(adaptor_integration_api_dir)/x11/imf-manager-impl.h \
+  $(adaptor_integration_api_dir)/x11/input-method-context-impl.h \
   $(adaptor_integration_api_dir)/pixmap-render-surface-factory.h

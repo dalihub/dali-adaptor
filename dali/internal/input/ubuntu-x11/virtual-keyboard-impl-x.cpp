@@ -28,8 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/input/ubuntu-x11/imf-manager-impl-x.h>
-
+#include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 namespace Dali
 {
@@ -85,14 +84,6 @@ void RotateTo(int angle)
 
 void SetReturnKeyType( const InputMethod::ButtonAction::Type type )
 {
-  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when setting values
-  Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-  if( imfContext )
-  {
-    gButtonActionFunction = type;
-    ecore_imf_context_input_panel_return_key_type_set( imfContext, buttonActionMapping( type ) );
-  }
 }
 
 Dali::InputMethod::ButtonAction::Type GetReturnKeyType()

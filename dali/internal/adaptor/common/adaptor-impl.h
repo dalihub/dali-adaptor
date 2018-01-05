@@ -30,7 +30,6 @@
 #include <dali/integration-api/adaptor.h>
 #include <dali/devel-api/adaptor-framework/render-surface.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
-#include <dali/devel-api/adaptor-framework/imf-manager.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
 
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>

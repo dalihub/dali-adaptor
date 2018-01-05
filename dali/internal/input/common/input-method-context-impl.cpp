@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,30 @@
  *
  */
 
-#include <memory>
-#include <dali/internal/input/tizen-wayland/imf-manager-impl-ecore-wl.h>
+#include <dali/internal/input/common/input-method-context-impl.h>
+#include <dali/internal/input/common/input-method-context-factory.h>
+#include <dali/internal/system/common/locale-utils.h>
+#include <dali/internal/system/common/singleton-service-impl.h>
 
 namespace Dali
 {
 namespace Internal
 {
+
 namespace Adaptor
 {
-class ImfManager;
 
-template<typename T, typename... Args>
-std::unique_ptr<T> MakeUnique(Args&&... args)
+InputMethodContextPtr InputMethodContext::New()
 {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  return Dali::Internal::Adaptor::InputMethodContextFactory::CreateInputMethodContext();
 }
 
-namespace ImfManagerFactory
+const std::string& InputMethodContext::GetSurroundingText() const
 {
-
-// ImfManager Factory to be implemented by the platform
-Dali::ImfManager CreateImfManager()
-{
-  return Dali::Internal::Adaptor::ImfManagerEcoreWl::Get();
+  static std::string str("");
+  return str;
 }
 
 }
-
-}
-
-
-
 }
 }

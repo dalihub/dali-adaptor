@@ -147,47 +147,6 @@ DALI_IMPORT_API void RotateTo(int angle);
  */
 DALI_IMPORT_API TextDirection GetTextDirection();
 
-/**
- * @brief Connect to this signal to be notified when the virtual keyboard is shown or hidden.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName(bool keyboardShown);
- * @endcode
- * If the parameter keyboardShown is true, then the keyboard has just shown, if it is false, then it
- * has just been hidden.
- * @return The signal to connect to.
- */
-DALI_IMPORT_API StatusSignalType& StatusChangedSignal();
-
-/**
- * @brief Connect to this signal to be notified when the virtual keyboard is resized.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( int resolvedResize );
- * @endcode
- * The parameter sends the resolved resize defined by the IMF.
- *
- * User can get changed size by using GetSizeAndPosition() in the callback
- * @return The signal to connect to.
- */
-DALI_IMPORT_API KeyboardResizedSignalType& ResizedSignal();
-
-/**
- * @brief Connect to this signal to be notified when the virtual keyboard's language is changed.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( int resolvedLanguage );
- * @endcode
- * The parameter sends the resolved language defined by the IMF.
- *
- * User can get the text direction of the language by calling GetTextDirection() in the callback.
- * @return The signal to connect to.
- */
-DALI_IMPORT_API LanguageChangedSignalType& LanguageChangedSignal();
-
 } // namespace VirtualKeyboard
 
 } // namespace Dali

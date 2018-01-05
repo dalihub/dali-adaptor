@@ -48,7 +48,6 @@
 #include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles20/egl-factory.h>
-#include <dali/internal/input/common/imf-manager-impl.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>

@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_INPUT_COMMON_IMF_MANAGER_FACTORY_H
-#define DALI_INTERNAL_INPUT_COMMON_IMF_MANAGER_FACTORY_H
+#ifndef DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_FACTORY_H
+#define DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_FACTORY_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/imf-manager.h>
+#include <dali/internal/input/common/input-method-context-impl.h>
 
 namespace Dali
 {
@@ -26,14 +26,13 @@ namespace Internal
 {
 namespace Adaptor
 {
-class ImfManager;
 
-namespace ImfManagerFactory
+namespace InputMethodContextFactory
 {
 
-// Factory function creating new IMFManager
+// Factory function creating new InputMethodContext
 // Symbol exists but may be overriden during linking
-Dali::ImfManager CreateImfManager();
+InputMethodContextPtr CreateInputMethodContext();
 
 }
 }
@@ -41,4 +40,4 @@ Dali::ImfManager CreateImfManager();
 
 }
 
-#endif //DALI_INTERNAL_INPUT_COMMON_IMF_MANAGER_FACTORY_H
+#endif //DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_FACTORY_H

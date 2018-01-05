@@ -30,7 +30,7 @@
 #include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/input/common/imf-manager-impl.h>
+#include <dali/internal/input/common/input-method-context-impl.h>
 
 namespace Dali
 {
@@ -136,58 +136,17 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
 
 void Show()
 {
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Show() is deprecated and will be removed from next release. Use ImfManager.Activate() instead.\n" );
-
-  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) to show the keyboard
-
-  if( imfManager )
-  {
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if( imfContext )
-    {
-      ecore_imf_context_input_panel_show( imfContext );
-    }
-  }
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Show() is deprecated and will be removed from next release. Use InputMethodContext.Activate() instead.\n" );
 }
 
 void Hide()
 {
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Hide() is deprecated and will be removed from next release. Use ImfManager.Deactivate() instead.\n" );
-
-  if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance*/ )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if( imfContext )
-    {
-      ecore_imf_context_input_panel_hide( imfContext );
-    }
-  }
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: Hide() is deprecated and will be removed from next release. Use InputMethodContext.Deactivate() instead.\n" );
 }
 
 bool IsVisible()
 {
   DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: IsVisible() is deprecated and will be removed from next release.\n" );
-
-  if( ImfManager::IsAvailable() /* We do not want to create an ImfManager instance */ )
-  {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "IMF IsVisible\n" );
-
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if ( imfContext )
-    {
-      if (ecore_imf_context_input_panel_state_get(imfContext) == ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
-          ecore_imf_context_input_panel_state_get(imfContext) == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW)
-      {
-        return true;
-      }
-    }
-  }
-
   return false;
 }
 
@@ -222,36 +181,10 @@ void ApplySettings( const Property::Map& settingsMap )
 
 void EnablePrediction(const bool enable)
 {
-  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) when enabling prediction
-
-  if( imfManager )
-  {
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if ( imfContext )
-    {
-      ecore_imf_context_prediction_allow_set( imfContext, (enable)? EINA_TRUE : EINA_FALSE);
-    }
-  }
 }
 
 bool IsPredictionEnabled()
 {
-  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManger */ )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if ( imfContext )
-    {
-      // predictive text is enabled.
-      if ( ecore_imf_context_input_panel_enabled_get( imfContext ) == EINA_TRUE )
-      {
-        return true;
-      }
-    }
-  }
-
   return false;
 }
 
@@ -259,78 +192,15 @@ Rect<int> GetSizeAndPosition()
 {
   int xPos, yPos, width, height;
 
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetSizeAndPosition() is deprecated and will be removed from next release. Use ImfManager.GetInputMethodArea() instead.\n" );
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetSizeAndPosition() is deprecated and will be removed from next release. Use InputMethodContext.GetInputMethodArea() instead.\n" );
 
   width = height = xPos = yPos = 0;
-  Dali::ImfManager imfManager = ImfManager::Get(); // Create ImfManager instance (if required) as we may need to do some size related setup in the application
-
-  if( imfManager )
-  {
-    Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-    if( imfContext )
-    {
-      ecore_imf_context_input_panel_geometry_get(imfContext, &xPos, &yPos, &width, &height);
-    }
-    else
-    {
-      DALI_LOG_WARNING("VKB Unable to get IMF Context so GetSize unavailable\n");
-    // return 0 as real size unknown.
-    }
-  }
-
   return Rect<int>(xPos,yPos,width,height);
-}
-
-Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: StatusChangedSignal() is deprecated and will be removed from next release. Use ImfManager.StatusChangedSignal() instead.\n" );
-
-  Dali::ImfManager imfManager = ImfManager::Get();
-  return imfManager.StatusChangedSignal();
-}
-
-Dali::VirtualKeyboard::KeyboardResizedSignalType& ResizedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal() is deprecated and will be removed from next release. Use ImfManager.ResizedSignal() instead.\n" );
-
-  Dali::ImfManager imfManager = ImfManager::Get();
-  return imfManager.ResizedSignal();
-}
-
-Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: LanguageChangedSignal() is deprecated and will be removed from next release. Use ImfManager.LanguageChangedSignal() instead.\n" );
-
-  Dali::ImfManager imfManager = ImfManager::Get();
-  return imfManager.LanguageChangedSignal();
 }
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()
 {
   Dali::VirtualKeyboard::TextDirection direction ( Dali::VirtualKeyboard::LeftToRight );
-
-  if ( ImfManager::IsAvailable() /* We do not want to create an instance of ImfManager */ )
-  {
-    Dali::ImfManager imfManager = ImfManager::Get();
-
-    if ( imfManager )
-    {
-      Ecore_IMF_Context* imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-
-      if ( imfContext )
-      {
-        char* locale( NULL );
-        ecore_imf_context_input_panel_language_locale_get( imfContext, &locale );
-
-        if ( locale )
-        {
-          direction = static_cast< Dali::VirtualKeyboard::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
-          free( locale );
-        }
-      }
-    }
-  }
   return direction;
 }
 

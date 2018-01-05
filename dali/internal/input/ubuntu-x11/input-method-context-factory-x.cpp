@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  *
  */
 
-#include <dali/internal/input/common/imf-manager-factory.h>
+#include <memory>
+#include <dali/internal/input/common/input-method-context-factory.h>
+#include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 namespace Dali
 {
@@ -23,23 +25,22 @@ namespace Internal
 {
 namespace Adaptor
 {
-class ImfManager;
+class InputMethodContext;
 
-namespace ImfManagerFactory
+namespace InputMethodContextFactory
 {
 
-// Factory function creating new IMFManager
-// Symbol exists but may be overriden during linking
-
-__attribute__((weak))
-Dali::ImfManager CreateImfManager()
+// InputMethodContext Factory to be implemented by the platform
+InputMethodContextPtr CreateInputMethodContext()
 {
-  // return empty handle if ImgManager not implemented
-  return Dali::ImfManager();
+  return Dali::Internal::Adaptor::InputMethodContextX::New();
 }
 
 }
-}
+
 }
 
+
+
+}
 }

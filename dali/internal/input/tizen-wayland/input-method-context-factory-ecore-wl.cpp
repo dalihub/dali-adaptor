@@ -16,7 +16,8 @@
  */
 
 #include <memory>
-#include <dali/internal/input/ubuntu-x11/imf-manager-impl-x.h>
+#include <dali/internal/input/common/input-method-context-factory.h>
+#include <dali/internal/input/tizen-wayland/input-method-context-impl-ecore-wl.h>
 
 namespace Dali
 {
@@ -24,21 +25,15 @@ namespace Internal
 {
 namespace Adaptor
 {
-class ImfManager;
+class InputMethodContext;
 
-template<typename T, typename... Args>
-std::unique_ptr<T> MakeUnique(Args&&... args)
-{
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-namespace ImfManagerFactory
+namespace InputMethodContextFactory
 {
 
-// ImfManager Factory to be implemented by the platform
-Dali::ImfManager CreateImfManager()
+// InputMethodContext Factory to be implemented by the platform
+InputMethodContextPtr CreateInputMethodContext()
 {
-  return Dali::Internal::Adaptor::ImfManagerX::Get();
+  return Dali::Internal::Adaptor::InputMethodContextEcoreWl::New();
 }
 
 }
