@@ -23,6 +23,10 @@
 #include <dali/public-api/images/image-operations.h> // For ImageDimensions
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/property-map.h>
+
+// EXTERNAL INCLUDES
+#include <memory>
 
 namespace Dali
 {
@@ -175,6 +179,33 @@ public:
    */
   void Resize( ImageDimensions outDimensions );
 
+  /**
+   * Multiplies the image's color values by the alpha value. This provides better
+   * blending capability.
+   */
+  void MultiplyColorByAlpha();
+
+  /**
+   * @brief Sets image metadata
+   *
+   * @param map Property map containing Exif fields
+   */
+  void SetMetadata( const Property::Map& map );
+
+  /**
+   * @brief Returns image metadata as a property map
+   * @param[out] outMetadata Property map to copy the data into
+   * @return True on success
+   */
+  bool GetMetadata(Property::Map& outMetadata) const;
+
+  /**
+   * @brief Sets metadata property map for the pixel buffer
+   * @note The function takes over the ownership of the property map
+   * @param[in] metadata Property map to copy the data into
+   */
+  void SetMetadata(std::unique_ptr<Property::Map> metadata);
+
 private:
   /*
    * Undefined copy constructor.
@@ -231,11 +262,12 @@ private:
 
 private:
 
-  unsigned char* mBuffer;           ///< The raw pixel data
-  unsigned int   mBufferSize;       ///< Buffer sized in bytes
-  unsigned int   mWidth;            ///< Buffer width in pixels
-  unsigned int   mHeight;           ///< Buffer height in pixels
-  Pixel::Format  mPixelFormat;      ///< Pixel format
+  std::unique_ptr<Property::Map>  mMetadata;         ///< Metadata fields
+  unsigned char*                  mBuffer;           ///< The raw pixel data
+  unsigned int                    mBufferSize;       ///< Buffer sized in bytes
+  unsigned int                    mWidth;            ///< Buffer width in pixels
+  unsigned int                    mHeight;           ///< Buffer height in pixels
+  Pixel::Format                   mPixelFormat;      ///< Pixel format
 };
 
 } // namespace Adaptor

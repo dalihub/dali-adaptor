@@ -27,6 +27,7 @@
 #include "alpha-mask.h"
 #include "gaussian-blur.h"
 #include <platform-abstractions/portable/image-operations.h>
+#include <platform-abstractions/portable/pixel-manipulation.h>
 
 namespace Dali
 {
@@ -42,7 +43,8 @@ PixelBuffer::PixelBuffer( unsigned char* buffer,
                           unsigned int width,
                           unsigned int height,
                           Dali::Pixel::Format pixelFormat )
-: mBuffer( buffer ),
+: mMetadata(),
+  mBuffer( buffer ),
   mBufferSize( bufferSize ),
   mWidth( width ),
   mHeight( height ),
@@ -264,6 +266,26 @@ PixelBufferPtr PixelBuffer::NewCrop( const PixelBuffer& inBuffer, uint16_t x, ui
 
 }
 
+void PixelBuffer::SetMetadata( const Property::Map& map )
+{
+  mMetadata.reset(new Property::Map(map));
+}
+
+bool PixelBuffer::GetMetadata(Property::Map& outMetadata) const
+{
+  if( !mMetadata )
+  {
+    return false;
+  }
+  outMetadata = *mMetadata;
+  return true;
+}
+
+void PixelBuffer::SetMetadata(std::unique_ptr<Property::Map> metadata)
+{
+  mMetadata = std::move(metadata);
+}
+
 void PixelBuffer::Resize( ImageDimensions outDimensions )
 {
   if( mWidth != outDimensions.GetWidth() || mHeight != outDimensions.GetHeight() )
@@ -325,6 +347,36 @@ void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
     DALI_LOG_ERROR( "Trying to apply gaussian blur to an empty pixel buffer or a pixel buffer not in RGBA format" );
   }
 }
+
+void PixelBuffer::MultiplyColorByAlpha()
+{
+  auto bytesPerPixel = Pixel::GetBytesPerPixel( mPixelFormat );
+
+  if( Pixel::HasAlpha(mPixelFormat) )
+  {
+    unsigned char* pixel = mBuffer;
+    const unsigned int bufferSize = mWidth * mHeight;
+
+    for( unsigned int i=0; i<bufferSize; ++i )
+    {
+      unsigned int alpha = ReadChannel( pixel, mPixelFormat, Adaptor::ALPHA );
+      {
+        auto red       = ReadChannel( pixel, mPixelFormat, Adaptor::RED);
+        auto green     = ReadChannel( pixel, mPixelFormat, Adaptor::GREEN);
+        auto blue      = ReadChannel( pixel, mPixelFormat, Adaptor::BLUE);
+        auto luminance = ReadChannel( pixel, mPixelFormat, Adaptor::LUMINANCE);
+        WriteChannel( pixel, mPixelFormat, Adaptor::RED, red*alpha / 255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::GREEN, green*alpha/255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::BLUE, blue*alpha/255 );
+        WriteChannel( pixel, mPixelFormat, Adaptor::LUMINANCE, luminance*alpha/255 );
+      }
+      pixel += bytesPerPixel;
+    }
+  }
+}
+
+
+
 
 }// namespace Adaptor
 }// namespace Internal
