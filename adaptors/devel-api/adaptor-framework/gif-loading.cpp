@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ struct LoaderInfo
 
     const char *fileName;  /**< The absolute path of the file. */
     unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
-    unsigned long long length;  /**< The length of the file in bytes. */
+    long long length;  /**< The length of the file in bytes. */
     int fileDescriptor; /**< The file descriptor. */
   };
 
@@ -639,7 +639,17 @@ bool ReadHeader( LoaderInfo &loaderInfo,
   }
 
   fileData.length = lseek( fileData.fileDescriptor, 0, SEEK_END );
-  lseek( fileData.fileDescriptor, 0, SEEK_SET );
+  if( fileData.length <= -1 )
+  {
+    close( fileData.fileDescriptor );
+    return false;
+  }
+
+  if( lseek( fileData.fileDescriptor, 0, SEEK_SET ) == -1 )
+  {
+    close( fileData.fileDescriptor );
+    return false;
+  }
 
   // map the file and store/track info
   fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
@@ -995,7 +1005,6 @@ open_file:
           {
             FillFrame( thisFrame->data, prop.w, gif, frameInfo, x, y, w, h );
           }
-
           else if( frameInfo->dispose == DISPOSE_PREVIOUS ) // GIF_DISPOSE_RESTORE
           {
             int prevIndex = 2;
@@ -1003,8 +1012,12 @@ open_file:
             {
               // Find last preserved frame.
               lastPreservedFrame = FindFrame( animated, imageNumber - prevIndex );
+              if( ! lastPreservedFrame )
+              {
+                LOADERR( "LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND" );
+              }
               prevIndex++;
-            } while( lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS );
+            } while( lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS );
 
             if ( lastPreservedFrame )
             {
