@@ -35,6 +35,14 @@ namespace Adaptor
 class WatchApplication;
 typedef IntrusivePtr<WatchApplication> WatchApplicationPtr;
 
+enum WatchApplicationState
+{
+  INITIALIZED,
+  PAUSED,
+  RESUMED = INITIALIZED,
+  TERMINATED
+};
+
 /**
  * Implementation of the WatchApplication class.
  */
@@ -68,6 +76,26 @@ public:
   virtual ~WatchApplication();
 
   /**
+   * Called when the framework is initialised.
+   */
+  virtual void OnInit();
+
+  /**
+   * Called when the framework is terminated.
+   */
+  virtual void OnTerminate();
+
+  /**
+   * Called when the framework is paused.
+   */
+  virtual void OnPause();
+
+  /**
+   * Called when the framework resumes from a paused state.
+   */
+  virtual void OnResume();
+
+  /**
    * Called every second
    */
   void OnTimeTick(WatchTime& time);
@@ -95,7 +123,10 @@ public:
   // Signals
   WatchTimeSignal                        mTickSignal;
   WatchTimeSignal                        mAmbientTickSignal;
-  WatchBoolSignal                      mAmbientChangeSignal;
+  WatchBoolSignal                        mAmbientChangeSignal;
+
+private:
+  WatchApplicationState                  mState;
 };
 
 inline WatchApplication& GetImplementation(Dali::WatchApplication& watch)
