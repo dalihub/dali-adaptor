@@ -849,19 +849,22 @@ void Window::AddAvailableOrientation(Dali::Window::WindowOrientation orientation
 {
   bool found = false;
 
-  for( std::size_t i=0; i<mAvailableOrientations.size(); i++ )
+  if ((orientation >= Dali::Window::PORTRAIT) && (orientation <= Dali::Window::LANDSCAPE_INVERSE))
   {
-    if(mAvailableOrientations[i] == orientation)
+    for( std::size_t i=0; i<mAvailableOrientations.size(); i++ )
     {
-      found = true;
-      break;
+      if(mAvailableOrientations[i] == orientation)
+      {
+        found = true;
+        break;
+      }
     }
-  }
 
-  if( ! found )
-  {
-    mAvailableOrientations.push_back(orientation);
-    SetAvailableOrientations( mAvailableOrientations );
+    if( ! found )
+    {
+      mAvailableOrientations.push_back(orientation);
+      SetAvailableOrientations( mAvailableOrientations );
+    }
   }
 }
 
