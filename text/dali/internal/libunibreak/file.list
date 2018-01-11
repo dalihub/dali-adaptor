@@ -4,4 +4,7 @@ static_libraries_libunibreak_src_files = \
   $(static_libraries_libunibreak_src_dir)/linebreak.c \
   $(static_libraries_libunibreak_src_dir)/linebreakdata.c \
   $(static_libraries_libunibreak_src_dir)/linebreakdef.c \
-  $(static_libraries_libunibreak_src_dir)/wordbreak.c
+  $(static_libraries_libunibreak_src_dir)/wordbreak.c \
+  $(static_libraries_libunibreak_src_dir)/unibreakbase.c \
+  $(static_libraries_libunibreak_src_dir)/unibreakdef.c
+
