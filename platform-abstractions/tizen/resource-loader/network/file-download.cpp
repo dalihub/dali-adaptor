@@ -63,7 +63,7 @@ void ConfigureCurlOptions( CURL* curlHandle, const std::string& url )
   curl_easy_setopt( curlHandle, CURLOPT_VERBOSE, VERBOSE_MODE );
 
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
-  curl_easy_setopt( curlHandle, CURLOPT_FAILONERROR, CLOSE_CONNECTION_ON_ERROR );
+  // Removed CURLOPT_FAILONERROR option
   curl_easy_setopt( curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
   curl_easy_setopt( curlHandle, CURLOPT_HEADER, INCLUDE_HEADER );
   curl_easy_setopt( curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY );
