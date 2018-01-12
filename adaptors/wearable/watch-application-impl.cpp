@@ -46,10 +46,46 @@ WatchApplication::~WatchApplication()
 {
 }
 
+void WatchApplication::OnInit()
+{
+  Application::OnInit();
+
+  Dali::Adaptor::Get().SetRenderRefreshRate( 2 ); // make 30 fps for watch applications
+
+  mState = INITIALIZED;
+}
+
+void WatchApplication::OnTerminate()
+{
+  Application::OnTerminate();
+
+  mState = TERMINATED;
+}
+
+void WatchApplication::OnResume()
+{
+  Application::OnResume();
+
+  mState = RESUMED;
+}
+
+void WatchApplication::OnPause()
+{
+  Application::OnPause();
+
+  mState = PAUSED;
+}
+
 void WatchApplication::OnTimeTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
   mTickSignal.Emit( watch, time );
+
+  if(mState == PAUSED)
+  {
+    // This is a pre-resume scenario. All rendering engine of tizen SHOULD forcely update once at this time.
+    Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() ).RequestUpdateOnce();
+  }
 
   // A watch application will queue messages to update the UI in the signal emitted above
   // Process these immediately to avoid a blinking issue where the old time is briefly visible

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,6 +205,12 @@ public:
    * @param[in] metadata Property map to copy the data into
    */
   void SetMetadata(std::unique_ptr<Property::Map> metadata);
+
+  /**
+   * Allocates fixed amount of memory for the pixel data. Used by compressed formats.
+   * @param[in] size Size of memory to be allocated
+   */
+  void AllocateFixedSize( uint32_t size );
 
 private:
   /*

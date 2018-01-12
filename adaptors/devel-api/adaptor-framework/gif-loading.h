@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_GIF_LOADING_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,13 @@ public:
    * @param[in] url The url of the gif image to load
    */
   GifLoading( const std::string& url );
+
+  // Moveable but not copyable
+
+  GifLoading( const GifLoading& ) = delete;
+  GifLoading& operator=( const GifLoading& ) = delete;
+  GifLoading( GifLoading&& ) = default;
+  GifLoading& operator=( GifLoading&& ) = default;
 
   /**
    * @brief Destructor
