@@ -184,6 +184,7 @@ void Application::Lower()
 void Application::Quit()
 {
   // Actually quit the application.
+  // Force a call to Quit even if adaptor is not running.
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ), true );
 }
 
@@ -264,6 +265,8 @@ void Application::DoLanguageChange()
 
 void Application::OnInit()
 {
+  DALI_LOG_RELEASE_INFO( "Application::OnInit has started.\n" );
+
   mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
 
   DoInit();
@@ -283,10 +286,14 @@ void Application::OnInit()
   mInitSignal.Emit( application );
 
   DoStart();
+
+  DALI_LOG_RELEASE_INFO( "Application::OnInit has finished.\n" );
 }
 
 void Application::OnTerminate()
 {
+  DALI_LOG_RELEASE_INFO( "Application::OnTerminate\n" );
+
   // we've been told to quit by AppCore, ecore_x_destroy has been called, need to quit synchronously
   // delete the window as ecore_x has been destroyed by AppCore
 
@@ -298,18 +305,20 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
-  DALI_LOG_RELEASE_INFO( "Application::OnPause\n" );
+  DALI_LOG_RELEASE_INFO( "Application::OnPause has started.\n" );
 
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
   // Pausing DALi core only occurs on the Window Hidden framework event
   Dali::Application application(this);
   mPauseSignal.Emit( application );
+
+  DALI_LOG_RELEASE_INFO( "Application::OnPause has finished.\n" );
 }
 
 void Application::OnResume()
 {
-  DALI_LOG_RELEASE_INFO( "Application::OnResume\n" );
+  DALI_LOG_RELEASE_INFO( "Application::OnResume has started.\n" );
 
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required
@@ -318,6 +327,8 @@ void Application::OnResume()
 
   // DALi just delivers the framework Resume event to the application.
   // Resuming DALi core only occurs on the Window Show framework event
+
+  DALI_LOG_RELEASE_INFO( "Application::OnResume has finished.\n" );
 }
 
 void Application::OnReset()
@@ -332,8 +343,12 @@ void Application::OnReset()
 
 void Application::OnAppControl(void *data)
 {
+  DALI_LOG_RELEASE_INFO( "Application::OnAppControl has started.\n" );
+
   Dali::Application application(this);
   mAppControlSignal.Emit( application , data );
+
+  DALI_LOG_RELEASE_INFO( "Application::OnAppControl has finished.\n" );
 }
 
 void Application::OnLanguageChanged()

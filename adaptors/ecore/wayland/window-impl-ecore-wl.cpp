@@ -780,16 +780,22 @@ void Window::Raise()
 {
   // Use ecore_wl_window_activate to prevent the window shown without rendering
   ecore_wl_window_activate( mEventHandler->mEcoreWindow );
+
+  DALI_LOG_RELEASE_INFO( "Window::Raise is called.\n" );
 }
 
 void Window::Lower()
 {
   ecore_wl_window_lower( mEventHandler->mEcoreWindow );
+
+  DALI_LOG_RELEASE_INFO( "Window::Lower is called.\n" );
 }
 
 void Window::Activate()
 {
   ecore_wl_window_activate( mEventHandler->mEcoreWindow );
+
+  DALI_LOG_RELEASE_INFO( "Window::Activate is called.\n" );
 }
 
 Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
@@ -926,7 +932,7 @@ void Window::Show()
   mVisible = true;
   ecore_wl_window_show( mEventHandler->mEcoreWindow );
 
-  DALI_LOG_RELEASE_INFO( "Window::Show: mIconified [%d]\n", mIconified );
+  DALI_LOG_RELEASE_INFO( "Window::Show is called : mIconified [%d]\n", mIconified );
 
   if( !mIconified )
   {
@@ -943,7 +949,7 @@ void Window::Hide()
   mVisible = false;
   ecore_wl_window_hide( mEventHandler->mEcoreWindow );
 
-  DALI_LOG_RELEASE_INFO( "Window::Hide: mIconified [%d]\n", mIconified );
+  DALI_LOG_RELEASE_INFO( "Window::Hide is called : mIconified [%d]\n", mIconified );
 
   if( !mIconified )
   {
