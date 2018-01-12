@@ -140,19 +140,20 @@ bool EcoreCallbackManager::AddIdleCallback( CallbackBase* callback )
 
 void EcoreCallbackManager::RemoveIdleCallback( CallbackBase* callback )
 {
-  for( CallbackList::iterator it = mCallbackContainer.begin(),
-         endIt = mCallbackContainer.end();
-       it != endIt;
-       ++it )
+  CallbackList::iterator it = mCallbackContainer.begin();
+
+  while( mCallbackContainer.end() != it )
   {
     CallbackData* data = *it;
 
     if( data->mCallback == callback )
     {
-      // remove callback data from the container.
-      CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
-
+      it = mCallbackContainer.erase( it );
       ecore_idler_del( data->mIdler );
+    }
+    else
+    {
+      it++;
     }
   }
 }
