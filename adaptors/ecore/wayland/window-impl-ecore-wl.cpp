@@ -164,7 +164,7 @@ struct Window::EventHandler
           {
             observer->OnWindowHidden();
           }
-          DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", handler->mEcoreWindow);
+          DALI_LOG_RELEASE_INFO( "EcoreEventWindowIconifyStateChanged: Iconified, mVisible [%d]\n", handler->mWindow->mVisible );
         }
         else
         {
@@ -173,7 +173,7 @@ struct Window::EventHandler
           {
             observer->OnWindowShown();
           }
-          DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", handler->mEcoreWindow );
+          DALI_LOG_RELEASE_INFO( "EcoreEventWindowIconifyStateChanged: Deiconified, mVisible [%d]\n", handler->mWindow->mVisible );
         }
         handled = ECORE_CALLBACK_DONE;
       }
@@ -926,13 +926,14 @@ void Window::Show()
   mVisible = true;
   ecore_wl_window_show( mEventHandler->mEcoreWindow );
 
+  DALI_LOG_RELEASE_INFO( "Window::Show: mIconified [%d]\n", mIconified );
+
   if( !mIconified )
   {
     if( mAdaptor )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowShown();
-      DALI_LOG_RELEASE_INFO( "Window (%p) ::Show() \n", mEventHandler->mEcoreWindow);
     }
   }
 }
@@ -942,13 +943,14 @@ void Window::Hide()
   mVisible = false;
   ecore_wl_window_hide( mEventHandler->mEcoreWindow );
 
+  DALI_LOG_RELEASE_INFO( "Window::Hide: mIconified [%d]\n", mIconified );
+
   if( !mIconified )
   {
     if( mAdaptor )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowHidden();
-      DALI_LOG_RELEASE_INFO( "Window (%p) ::Hide() \n", mEventHandler->mEcoreWindow);
     }
   }
 }

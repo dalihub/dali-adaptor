@@ -328,6 +328,8 @@ void Adaptor::Start()
 // Dali::Internal::Adaptor::Adaptor::Pause
 void Adaptor::Pause()
 {
+  DALI_LOG_RELEASE_INFO( "Adaptor::Pause: mState [%d]\n", mState );
+
   // Only pause the adaptor if we're actually running.
   if( RUNNING == mState )
   {
@@ -354,6 +356,8 @@ void Adaptor::Pause()
 // Dali::Internal::Adaptor::Adaptor::Resume
 void Adaptor::Resume()
 {
+  DALI_LOG_RELEASE_INFO( "Adaptor::Resume: mState [%d]\n", mState );
+
   // Only resume the adaptor if we are in the suspended state.
   if( PAUSED == mState )
   {
@@ -739,6 +743,8 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 
 void Adaptor::OnWindowShown()
 {
+  DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: mState [%d]\n", mState );
+
   if ( PAUSED_WHILE_HIDDEN == mState )
   {
     // Adaptor can now be resumed
@@ -753,6 +759,8 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
+  DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: mState [%d]\n", mState );
+
   if ( RUNNING == mState )
   {
     Pause();
