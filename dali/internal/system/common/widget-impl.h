@@ -151,7 +151,7 @@ protected:
 public:
   class Impl; // Class declaration is public so we can internally add devel API's to the WidgetImpl
 
-  /*
+  /**
    * Set pointer of WidgetImpl Internal.
    * @SINCE_1_3_5
    */
