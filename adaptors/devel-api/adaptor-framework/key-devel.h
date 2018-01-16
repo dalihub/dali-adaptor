@@ -94,8 +94,12 @@ enum Key
   /**
    * @brief Source key.
    */
-  DALI_KEY_SOURCE = 72
+  DALI_KEY_SOURCE = 72,
 
+   /**
+    *  @brief Control Return key.
+    */
+  DALI_KEY_RETURN = 36
 };
 
 } // namespace DevelKey
