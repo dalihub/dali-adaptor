@@ -85,7 +85,8 @@ KeyLookup KeyLookupTable[]=
   { "Shift_R",               DALI_KEY_SHIFT_RIGHT,                                       false },
   { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },
   { "Control_L",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_LEFT ),  false },
-  { "Control_R",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_RIGHT ), false }
+  { "Control_R",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_RIGHT ), false },
+  { "Return",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_RETURN ),        false }
 };
 
 const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable ))/ (sizeof( KeyLookup ));

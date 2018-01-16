@@ -89,7 +89,12 @@ enum Key
   /**
    * @brief Control Right key.
    */
-  DALI_KEY_CONTROL_RIGHT = 105
+  DALI_KEY_CONTROL_RIGHT = 105,
+
+  /**
+   * @brief Control Return key.
+   */
+  DALI_KEY_RETURN = 36
 
 };
 
