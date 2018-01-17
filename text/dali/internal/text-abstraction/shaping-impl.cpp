@@ -29,6 +29,7 @@
 #include <harfbuzz/hb-ft.h>
 
 #include <ft2build.h>
+#include <iostream>
 
 namespace Dali
 {
@@ -194,9 +195,13 @@ struct Shaping::Plugin
     hb_buffer_set_script( harfBuzzBuffer,
                           SCRIPT_TO_HARFBUZZ[ script ] ); /* see hb-unicode.h */
 
-    hb_buffer_set_language( harfBuzzBuffer,
-                            hb_language_from_string( DEFAULT_LANGUAGE,
-                                                     DEFAULT_LANGUAGE_LENGTH ) );
+
+    char* currentLocale = setlocale(LC_MESSAGES,NULL);
+
+    std::istringstream stringStream( currentLocale );
+    std::string localeString;
+    std::getline(stringStream, localeString, '_');
+    hb_buffer_set_language( harfBuzzBuffer, hb_language_from_string( localeString.c_str(), localeString.size() ) );
 
     /* Layout the text */
     hb_buffer_add_utf32( harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters );
