@@ -17,12 +17,13 @@
 m4_define([dali_version],[0.1.0])
 AC_INIT([dali], [dali_version])
 AM_INIT_AUTOMAKE([-Wall foreign])
-
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 AC_PROG_MKDIR_P
+
+AM_CONDITIONAL(DEADCODE, [no])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 

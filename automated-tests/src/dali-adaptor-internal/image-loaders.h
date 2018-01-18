@@ -21,7 +21,7 @@
 #include <dali/dali.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include "platform-abstractions/tizen/image-loaders/image-loader-input.h"
+#include <dali/internal/imaging/common/image-loader-input.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile

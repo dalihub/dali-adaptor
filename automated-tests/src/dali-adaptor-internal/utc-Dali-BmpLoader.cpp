@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <dali-test-suite-utils.h>
 
-#include "platform-abstractions/tizen/image-loaders/loader-bmp.h"
+#include <dali/internal/imaging/common/loader-bmp.h>
 #include "image-loaders.h"
 
 using namespace Dali;

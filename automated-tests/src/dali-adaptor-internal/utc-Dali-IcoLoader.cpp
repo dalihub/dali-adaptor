@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <dali-test-suite-utils.h>
 
-#include "platform-abstractions/tizen/image-loaders/loader-ico.h"
+#include <dali/internal/imaging/common/loader-ico.h>
 #include "image-loaders.h"
 
 using namespace Dali;

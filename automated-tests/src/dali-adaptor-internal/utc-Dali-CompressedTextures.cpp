@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <dali-test-suite-utils.h>
-#include "platform-abstractions/tizen/image-loaders/loader-ktx.h"
-#include "platform-abstractions/tizen/image-loaders/loader-astc.h"
+#include <dali/internal/imaging/common/loader-ktx.h>
+#include <dali/internal/imaging/common/loader-astc.h>
 
 // INTERNAL INCLUDES
 #include "image-loaders.h"
