@@ -37,6 +37,7 @@ typedef IntrusivePtr<WatchApplication> WatchApplicationPtr;
 
 enum WatchApplicationState
 {
+  UNINITIALIZED,
   INITIALIZED,
   PAUSED,
   RESUMED = INITIALIZED,
