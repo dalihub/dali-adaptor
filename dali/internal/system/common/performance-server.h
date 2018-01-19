@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_PERFORMANCE_SERVER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ private:
 
 #if defined(NETWORK_LOGGING_ENABLED)
   NetworkPerformanceServer mNetworkServer;                ///< network server
-  bool mNetworkControlEnabled;                          ///< Whether network control is enabled
+  bool mNetworkControlEnabled;                            ///< Whether network control is enabled
 #endif
 
   StatContextManager mStatContextManager;                 ///< Stat context manager

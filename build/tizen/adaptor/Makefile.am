@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -70,9 +70,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
 
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
 endif
 
-#                   $(adaptor_accessibility_tizen_common_src_files)
+endif
+
+
 if MOBILE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
@@ -111,9 +116,13 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
 
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
 endif
 
-#                   $(adaptor_accessibility_tizen_common_src_files)
+endif
+
 
 if IVI_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
@@ -152,9 +161,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
 endif
 
-#                  $(adaptor_accessibility_tizen_common_src_files)
+endif
+
 
 if TV_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
@@ -192,6 +206,12 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
 endif
 
 if COMMON_PROFILE
@@ -230,9 +250,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
 endif
 
-#                  $(adaptor_accessibility_tizen_common_src_files)
+endif
+
 
 
 if WEARABLE_PROFILE
@@ -273,7 +298,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
 endif
+
+endif
+
 
 # Package doc
 package_doxy_dir = ../../../doc
