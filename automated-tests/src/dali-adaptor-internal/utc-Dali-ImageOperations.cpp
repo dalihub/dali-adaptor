@@ -16,7 +16,7 @@
  */
 
 #include <dali-test-suite-utils.h>
-#include "platform-abstractions/portable/image-operations.h"
+#include <dali/internal/imaging/common/image-operations.h>
 #include <dali/devel-api/common/ref-counted-dali-vector.h>
 
 #include <sys/mman.h>

@@ -20,9 +20,9 @@
 #include <iostream>
 #include <dali.h>
 #include <dali-test-suite-utils.h>
-#include <lifecycle-controller.h>
+#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 
-#include <lifecycle-controller-impl.h>
+#include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
 using namespace Dali;
 

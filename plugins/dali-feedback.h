@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <feedback-plugin.h>
+#include <dali/devel-api/adaptor-framework/feedback-plugin.h>
 
 namespace Dali
 {

@@ -1,4 +1,0 @@
-# Add local source files here
-
-image_resampler_src_files = \
-   $(static_libraries_image_resampler_src_dir)/resampler.cpp

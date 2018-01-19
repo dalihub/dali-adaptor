@@ -1,0 +1,6 @@
+
+
+# module: network, backend: common
+adaptor_network_common_src_files=\
+    ${adaptor_network_dir}/common/socket-factory.cpp \
+    ${adaptor_network_dir}/common/socket-impl.cpp

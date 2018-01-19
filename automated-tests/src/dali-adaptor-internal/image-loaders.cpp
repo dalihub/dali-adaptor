@@ -17,7 +17,7 @@
 
 #include "image-loaders.h"
 #include <dali-test-suite-utils.h>
-#include <adaptors/common/pixel-buffer-impl.h>
+#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
 AutoCloseFile::AutoCloseFile( FILE *fp )
 : filePtr( fp )

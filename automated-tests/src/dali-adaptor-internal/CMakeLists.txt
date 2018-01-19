@@ -57,17 +57,6 @@ ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 # Adaptor directories are included in order of most-specific to least specific:
 INCLUDE_DIRECTORIES(
     ../../../
-    ../../../adaptors/mobile
-    ../../../adaptors/x11
-    ../../../adaptors/common
-    ../../../adaptors/base
-    ../../../adaptors/public-api
-    ../../../adaptors/devel-api
-    ../../../adaptors/devel-api/adaptor-framework
-    ../../../adaptors/public-api/adaptor-framework
-    ../../../adaptors/tizen
-    ../../../adaptors/ubuntu
-    ../../../text
     ../../../third-party/image-resampler
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils

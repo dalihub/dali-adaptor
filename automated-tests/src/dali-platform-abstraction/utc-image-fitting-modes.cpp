@@ -17,7 +17,7 @@
 
 #include "utc-image-loading-common.h"
 
-#include "platform-abstractions/portable/image-operations.h"
+#include <dali/internal/imaging/common/image-operations.h>
 
 using Dali::Internal::Platform::ApplyAttributesToBitmap;
 

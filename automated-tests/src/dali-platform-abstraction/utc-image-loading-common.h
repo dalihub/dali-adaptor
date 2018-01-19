@@ -23,7 +23,7 @@
 #include <ctime>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
-#include "tizen-platform-abstraction.h"
+#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 
 using namespace Dali;
 using namespace Dali::Integration;
