@@ -96,6 +96,16 @@ public:
    */
   bool LoadThemeFile( const std::string& filename, std::string& output );
 
+  /**
+   * @copydoc Dali::StyleMonitor::GetIgnoreGlobalFontSizeChange()
+   */
+  int GetIgnoreGlobalFontSizeChange();
+
+  /**
+   * @copydoc Dali::StyleMonitor::SetIgnoreGlobalFontSizeChange()
+   */
+  void SetIgnoreGlobalFontSizeChange(int value);
+
   // Signals
 
   /**
@@ -127,6 +137,7 @@ private:
   std::string mDefaultFontStyle;         ///< The default font style
   std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
   int mDefaultFontSize;                  ///< The default accessibility font size e.g. 0 is smallest
+  int mIgnoreGlobalFontSizeChange;       ///< Ignore global font size change when it is 1
 };
 
 } // namespace Adaptor

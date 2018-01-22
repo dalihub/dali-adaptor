@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include "watch-application-impl.h"
+#include <style-monitor.h>
 
 namespace Dali
 {
@@ -41,6 +42,7 @@ WatchApplication::WatchApplication( int* argc, char** argv[], const std::string&
 : Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH),
   mState( UNINITIALIZED )
 {
+  Dali::StyleMonitor::Get().SetIgnoreGlobalFontSizeChange(1);
 }
 
 WatchApplication::~WatchApplication()

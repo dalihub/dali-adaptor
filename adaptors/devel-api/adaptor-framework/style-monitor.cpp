@@ -77,6 +77,16 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
   return GetImplementation(*this).LoadThemeFile( filename, output );
 }
 
+int StyleMonitor::GetIgnoreGlobalFontSizeChange()
+{
+  return GetImplementation(*this).GetIgnoreGlobalFontSizeChange();
+}
+
+void StyleMonitor::SetIgnoreGlobalFontSizeChange(int value)
+{
+  GetImplementation(*this).SetIgnoreGlobalFontSizeChange( value );
+}
+
 StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 {
   return GetImplementation(*this).StyleChangeSignal();

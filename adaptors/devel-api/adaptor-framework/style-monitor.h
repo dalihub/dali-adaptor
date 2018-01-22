@@ -142,6 +142,18 @@ public: // Style Information
    */
   bool LoadThemeFile( const std::string& filename, std::string& output );
 
+  /**
+   * Return the value of mIgnoreGlobalFontSizeChange.
+   * @return Return mIgnoreGlobalFontSizeChange.
+   */
+  int GetIgnoreGlobalFontSizeChange();
+
+  /**
+   * Informs the Style Monitor that the style has changed.
+   * @param[in]  value The value of mIgnoreGlobalFontSizeChange.
+   */
+  void SetIgnoreGlobalFontSizeChange(int value);
+
 public: // Signals
 
   /**

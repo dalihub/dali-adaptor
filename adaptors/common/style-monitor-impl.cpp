@@ -86,7 +86,8 @@ Dali::StyleMonitor StyleMonitor::Get()
 }
 
 StyleMonitor::StyleMonitor()
-: mDefaultFontSize(-1)
+: mDefaultFontSize(-1),
+  mIgnoreGlobalFontSizeChange(-1)
 {
   mFontClient = TextAbstraction::FontClient::Get();
   GetSystemDefaultFontFamily( mFontClient, mDefaultFontFamily );
@@ -171,11 +172,6 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
   return retval;
 }
 
-Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
-{
-  return mStyleChangeSignal;
-}
-
 void StyleMonitor::EmitStyleChangeSignal( StyleChange::Type styleChange )
 {
   if( !mStyleChangeSignal.Empty() )
@@ -184,6 +180,21 @@ void StyleMonitor::EmitStyleChangeSignal( StyleChange::Type styleChange )
     Dali::StyleMonitor handle( this );
     mStyleChangeSignal.Emit( handle, styleChange );
   }
+}
+
+int StyleMonitor::GetIgnoreGlobalFontSizeChange()
+{
+  return mIgnoreGlobalFontSizeChange;
+}
+
+void StyleMonitor::SetIgnoreGlobalFontSizeChange(int value)
+{
+  mIgnoreGlobalFontSizeChange = value;
+}
+
+Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
+{
+  return mStyleChangeSignal;
 }
 
 } // namespace Adaptor
