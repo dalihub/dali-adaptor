@@ -299,6 +299,24 @@ bool VideoPlayer::IsVideoTextureSupported()
   return false;
 }
 
+void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->SetCodecType( type );
+  }
+}
+
+Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->GetCodecType();
+  }
+
+  return Dali::VideoPlayerPlugin::CodecType::DEFAULT;
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
