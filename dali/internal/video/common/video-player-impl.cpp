@@ -289,7 +289,7 @@ void VideoPlayer::Backward( int millisecond )
   }
 }
 
-bool VideoPlayer::IsVideoTextureSupported() const
+bool VideoPlayer::IsVideoTextureSupported()
 {
   if( mPlugin != NULL )
   {
@@ -297,6 +297,24 @@ bool VideoPlayer::IsVideoTextureSupported() const
   }
 
   return false;
+}
+
+void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->SetCodecType( type );
+  }
+}
+
+Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->GetCodecType();
+  }
+
+  return Dali::VideoPlayerPlugin::CodecType::DEFAULT;
 }
 
 } // namespace Adaptor;
