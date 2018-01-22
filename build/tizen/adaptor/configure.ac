@@ -236,6 +236,7 @@ PKG_CHECK_MODULES(SCREENCONNECTORPROVIDER, screen_connector_provider)
 PKG_CHECK_MODULES(APPFW_WATCH, capi-appfw-watch-application,
    [watch_available=yes], [watch_available=no] )
 PKG_CHECK_MODULES(APPCORE_WATCH, appcore-watch)
+PKG_CHECK_MODULES(CYNARA_CLIENT, cynara-client)
 if test "x$watch_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DAPPCORE_WATCH_AVAILABLE"
 fi

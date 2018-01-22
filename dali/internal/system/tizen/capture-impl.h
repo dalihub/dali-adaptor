@@ -79,11 +79,6 @@ public:
 protected:
 
   /**
-   * @brief Second-phase constructor. Must be called immediately after creating a new Capture;
-   */
-  void Initialize();
-
-  /**
    * @brief A reference counted object may only be deleted by calling Unreference()
    */
   virtual ~Capture();
@@ -203,6 +198,14 @@ private:
    * @return True is success to save, false is fail.
    */
   bool Save();
+
+  /**
+   * @brief Checks privilege for Capture
+   *
+   * @param[in] privilege The capture privilege
+   * @return True if input is capture privilege, false otherwise
+   */
+  bool CheckPrivilege( const char* privilege ) const;
 
 private:
 
