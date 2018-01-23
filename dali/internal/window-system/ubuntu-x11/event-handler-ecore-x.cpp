@@ -207,6 +207,33 @@ const unsigned int DirectionStringsTotal = sizeof( ElDBusAccessibilityDirectionS
 #endif // DALI_ELDBUS_AVAILABLE
 
 /**
+ * EcoreInputModifierToEcoreIMFLock function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Locks enums.
+ * @param[in] modifier the Ecore_Event_Modifier input.
+ * @return the Ecore_IMF_Keyboard_Locks output.
+ */
+Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock( unsigned int modifier )
+{
+    unsigned int lock( ECORE_IMF_KEYBOARD_LOCK_NONE ); // If no other matches, returns NONE.
+
+    if( modifier & ECORE_EVENT_LOCK_NUM )
+    {
+      lock |= ECORE_IMF_KEYBOARD_LOCK_NUM; // Num lock is active.
+    }
+
+    if( modifier & ECORE_EVENT_LOCK_CAPS )
+    {
+      lock |= ECORE_IMF_KEYBOARD_LOCK_CAPS; // Caps lock is active.
+    }
+
+    if( modifier & ECORE_EVENT_LOCK_SCROLL )
+    {
+      lock |= ECORE_IMF_KEYBOARD_LOCK_SCROLL; // Scroll lock is active.
+    }
+
+    return static_cast<Ecore_IMF_Keyboard_Locks>( lock );
+}
+
+/**
  * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
  * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
  * @param[in] ecoreModifier the Ecore_Event_Modifier input.
@@ -214,7 +241,7 @@ const unsigned int DirectionStringsTotal = sizeof( ElDBusAccessibilityDirectionS
  */
 Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier)
 {
-   int modifier( ECORE_IMF_KEYBOARD_MODIFIER_NONE );  // If no other matches returns NONE.
+   unsigned int modifier( ECORE_IMF_KEYBOARD_MODIFIER_NONE );  // If no other matches returns NONE.
 
 
    if ( ecoreModifier & ECORE_EVENT_MODIFIER_SHIFT )  // enums from ecore_input/Ecore_Input.h
@@ -672,7 +699,7 @@ struct EventHandler::Impl
         ecoreKeyDownEvent.compose   = keyEvent->compose;
         ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
         ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-        ecoreKeyDownEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+        ecoreKeyDownEvent.locks     = EcoreInputModifierToEcoreIMFLock( keyEvent->modifiers );
 #ifdef ECORE_IMF_1_13
         ecoreKeyDownEvent.dev_name  = "";
         ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
@@ -752,7 +779,7 @@ struct EventHandler::Impl
         ecoreKeyUpEvent.compose   = keyEvent->compose;
         ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
         ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-        ecoreKeyUpEvent.locks     = (Ecore_IMF_Keyboard_Locks) ECORE_IMF_KEYBOARD_LOCK_NONE;
+        ecoreKeyUpEvent.locks     = EcoreInputModifierToEcoreIMFLock( keyEvent->modifiers );
 #ifdef ECORE_IMF_1_13
         ecoreKeyUpEvent.dev_name  = "";
 #endif // ECORE_IMF_1_13
