@@ -11,15 +11,11 @@ adaptor_window_system_common_src_files=\
 
 # module: window-system, backend: tizen
 adaptor_window_system_tizen_src_files=\
-    ${adaptor_window_system_dir}/tizen/display-connection-impl-tizen.cpp
+    ${adaptor_window_system_dir}/tizen/native-render-surface-tizen.cpp
 
 # module: window-system, backend: tizen-mobile
 adaptor_window_system_tizen_mobile_src_files=\
     ${adaptor_window_system_dir}/tizen-mobile/native-render-surface-factory-mobile.cpp
-
-# module: window-system, backend: tizen
-adaptor_window_system_tizen_src_files=\
-    ${adaptor_window_system_dir}/tizen/native-render-surface-tizen.cpp
 
 # module: window-system, backend: tizen-wayland
 adaptor_window_system_tizen_wayland_src_files=\

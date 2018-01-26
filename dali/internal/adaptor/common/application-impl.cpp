@@ -315,6 +315,10 @@ void Application::OnResume()
 
   // DALi just delivers the framework Resume event to the application.
   // Resuming DALi core only occurs on the Window Show framework event
+
+  // Trigger processing of events queued up while paused
+  CoreEventInterface& coreEventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  coreEventInterface.ProcessCoreEvents();
 }
 
 void Application::OnReset()

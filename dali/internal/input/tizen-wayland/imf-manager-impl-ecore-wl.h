@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_COMMON_IMF_MANAGER_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class DALI_IMPORT_API ImfManagerEcoreWl : public Dali::Internal::Adaptor::ImfManager
+class ImfManagerEcoreWl : public Dali::Internal::Adaptor::ImfManager
 {
 public:
 
