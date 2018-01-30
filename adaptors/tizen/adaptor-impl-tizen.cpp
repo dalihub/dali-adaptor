@@ -110,7 +110,7 @@ void Adaptor::SurfaceInitialized()
 
 void Adaptor::SetupSystemInformation()
 {
-  if( system_settings_set_changed_cb( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this ) != SYSTEM_SETTINGS_ERROR_NONE )
+  if( system_settings_add_changed_cb( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this ) != SYSTEM_SETTINGS_ERROR_NONE )
   {
     DALI_LOG_ERROR( "DALI system_settings_set_changed_cb failed.\n" );
     return;
