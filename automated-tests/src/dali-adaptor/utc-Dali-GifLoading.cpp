@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,17 +65,24 @@ int UtcDaliGifLoadingP(void)
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  bool succeed = LoadAnimatedGifFromFile( gGif_100_None, pixelDataList, frameDelayList );
-  // Check that the loading succeed
-  DALI_TEST_CHECK( succeed );
-  VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u  );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None );
+  bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
 
-  succeed = LoadAnimatedGifFromFile( gGif_100_Prev, pixelDataList, frameDelayList );
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
 
-  succeed = LoadAnimatedGifFromFile( gGif_100_Bgnd, pixelDataList, frameDelayList );
+  pixelDataList.clear();
+  gifLoading = GifLoading::New( gGif_100_Prev );
+  succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+  // Check that the loading succeed
+  DALI_TEST_CHECK( succeed );
+  VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
+
+  pixelDataList.clear();
+  gifLoading = GifLoading::New( gGif_100_Bgnd );
+  succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u  );
@@ -88,7 +95,8 @@ int UtcDaliGifLoadingN(void)
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  bool succeed = LoadAnimatedGifFromFile( gGifNonExist, pixelDataList, frameDelayList );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist );
+  bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
 
   // Check that the loading failed
   DALI_TEST_CHECK( !succeed );
@@ -102,7 +110,8 @@ int UtcDaliGifLoadingN(void)
 
 int UtcDaliGifLoadingGetImageSizeP(void)
 {
-  ImageDimensions imageSize = GetGifImageSize( gGif_100_None );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None );
+  ImageDimensions imageSize = gifLoading->GetImageSize();
 
   // Check that the image size is [100, 100]
   DALI_TEST_EQUALS( imageSize.GetWidth(), 100u, TEST_LOCATION );
@@ -113,7 +122,8 @@ int UtcDaliGifLoadingGetImageSizeP(void)
 
 int UtcDaliGifLoadingGetImageSizeN(void)
 {
-  ImageDimensions imageSize = GetGifImageSize( gGifNonExist );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist );
+  ImageDimensions imageSize = gifLoading->GetImageSize();
 
   // Check that it returns zero size when the gif is not valid
   DALI_TEST_EQUALS( imageSize.GetWidth(), 0u, TEST_LOCATION );

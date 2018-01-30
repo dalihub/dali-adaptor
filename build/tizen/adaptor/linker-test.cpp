@@ -17,11 +17,11 @@
 
 #include <dali/public-api/dali-core.h>
 
-#include <application.h>
-#include <adaptor.h>
-#include <render-surface.h>
-#include <orientation.h>
-#include <timer.h>
+#include <dali/public-api/adaptor-framework/application.h>
+#include <dali/integration-api/adaptor.h>
+#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/devel-api/adaptor-framework/orientation.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 #include <iostream>
 
 using namespace Dali;

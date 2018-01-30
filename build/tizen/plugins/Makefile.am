@@ -58,10 +58,7 @@ LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
                       $(FEEDBACK_CFLAGS) \
                       $(DALI_PROFILE_CFLAGS) \
                       $(DALI_ADAPTOR_CFLAGS) \
-                      -I../../../adaptors/public-api \
-                      -I../../../adaptors/integration-api \
-                      -I../../../adaptors/public-api/adaptor-framework \
-                      -I../../../adaptors/devel-api/adaptor-framework \
+                      -I../../../ \
                       -Werror -Wall
 
 LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD = \

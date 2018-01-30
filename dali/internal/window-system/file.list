@@ -1,0 +1,44 @@
+
+
+# module: window-system, backend: common
+adaptor_window_system_common_src_files=\
+    ${adaptor_window_system_dir}/common/display-connection.cpp \
+    ${adaptor_window_system_dir}/common/display-connection-impl.cpp \
+    ${adaptor_window_system_dir}/common/ecore-indicator-impl.cpp \
+    ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
+    ${adaptor_window_system_dir}/common/indicator-buffer.cpp \
+    ${adaptor_window_system_dir}/common/orientation-impl.cpp
+
+# module: window-system, backend: tizen
+adaptor_window_system_tizen_src_files=\
+    ${adaptor_window_system_dir}/tizen/native-render-surface-tizen.cpp
+
+# module: window-system, backend: tizen-mobile
+adaptor_window_system_tizen_mobile_src_files=\
+    ${adaptor_window_system_dir}/tizen-mobile/native-render-surface-factory-mobile.cpp
+
+# module: window-system, backend: tizen-wayland
+adaptor_window_system_tizen_wayland_src_files=\
+    ${adaptor_window_system_dir}/tizen-wayland/display-connection-factory-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/display-connection-impl-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/event-handler-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/pixmap-render-surface-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/render-surface-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/window-impl-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/window-render-surface-ecore-wl.cpp
+
+# module: window-system, backend: tizen-wearable
+adaptor_window_system_tizen_wearable_src_files=\
+    ${adaptor_window_system_dir}/tizen-wearable/native-render-surface-factory-wearable.cpp
+
+# module: window-system, backend: ubuntu-x11
+adaptor_window_system_ubuntu_x11_src_files=\
+    ${adaptor_window_system_dir}/ubuntu-x11/display-connection-factory-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/display-connection-impl-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/event-handler-ecore-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/render-surface-ecore-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/render-surface-factory-ecore-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/window-interface-ecore-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/window-impl-x.cpp \
+    ${adaptor_window_system_dir}/ubuntu-x11/window-render-surface-x.cpp \
+    ${adaptor_window_system_dir}/tizen/pixmap-render-surface-x.cpp

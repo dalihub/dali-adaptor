@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
-#include <dali/internal/text-abstraction/font-client-helper.h>
+#include <dali/internal/text/text-abstraction/font-client-helper.h>
 
 using namespace Dali;
 

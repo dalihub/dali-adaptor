@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,251 +19,8 @@
 
 ############# INCLUDE FILE LISTS #############
 
-# Base Adaptor
-base_adaptor_src_dir = ../../../adaptors/base
-include ../../../adaptors/base/file.list
-
-# Platform Abstraction
-tizen_platform_abstraction_src_dir = ../../../platform-abstractions/tizen
-portable_platform_abstraction_src_dir = ../../../platform-abstractions/portable
-include ../../../platform-abstractions/tizen/file.list
-
-# Text Abstraction
-text_src_dir = ../../../text
-include ../../../text/file.list
-
-# Integration
-adaptor_integration_api_dir = ../../../adaptors/integration-api
-include ../../../adaptors/integration-api/file.list
-
-# Internal Common
-adaptor_common_dir = ../../../adaptors/common
-include ../../../adaptors/common/file.list
-
-# ECore Common
-adaptor_ecore_common_dir = ../../../adaptors/ecore/common
-include ../../../adaptors/ecore/common/file.list
-
-# Wayland
-if WAYLAND
-## Use ecore_wayland
-adaptor_ecore_wayland_dir = ../../../adaptors/ecore/wayland
-include ../../../adaptors/ecore/wayland/file.list
-else
-# X11
-adaptor_x11_dir = ../../../adaptors/x11
-include ../../../adaptors/x11/file.list
-endif
-
-# Ubuntu
-if UBUNTU_PROFILE
-adaptor_ubuntu_dir = ../../../adaptors/ubuntu
-include ../../../adaptors/ubuntu/file.list
-else
-
-# Tizen
-adaptor_tizen_dir = ../../../adaptors/tizen
-if USE_APPFW_EFL_BASE
-include ../../../adaptors/tizen/file-3.list
-else
-include ../../../adaptors/tizen/file.list
-endif
-endif
-
-# Mobile
-adaptor_mobile_dir = ../../../adaptors/mobile
-include ../../../adaptors/mobile/file.list
-
-# WEARABLE
-adaptor_wearable_dir = ../../../adaptors/wearable
-include ../../../adaptors/wearable/file.list
-
-# TV
-adaptor_tv_dir = ../../../adaptors/tv
-include ../../../adaptors/tv/file.list
-
-# Public API
-adaptor_public_api_dir = ../../../adaptors/public-api
-include ../../../adaptors/public-api/file.list
-
-# Devel API ( for use by Toolkit)
-adaptor_devel_api_dir = ../../../adaptors/devel-api
-include ../../../adaptors/devel-api/file.list
-
-
-# Static libraries
-static_libraries_libunibreak_src_dir = ../../../text/dali/internal/libunibreak
-include ../../../text/dali/internal/libunibreak/file.list
-
-static_libraries_glyphy_src_dir = ../../../text/dali/internal/glyphy
-include ../../../text/dali/internal/glyphy/file.list
-
-static_libraries_image_resampler_src_dir = ../../../third-party/image-resampler
-include ../../../third-party/image-resampler/file.list
-
-# Package doc
-package_doxy_dir = ../../../doc
-include ../../../doc/file.list
-
-############# source files #############
-adaptor_internal_src_files = $(adaptor_tizen_framework_efl_src_files) \
-                             $(adaptor_ecore_common_internal_src_files)
-
-# COMMON
-if COMMON_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                              $(adaptor_common_internal_default_profile_src_files) \
-                              $(adaptor_tizen_internal_src_files) \
-                              $(adaptor_tizen_internal_non_mobile_src_files) \
-                              $(static_libraries_libunibreak_src_files)
-
-if WAYLAND
-
-if USE_ECORE_WAYLAND
-adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files) \
-                              $(adaptor_ecore_wayland_internal_default_profile_src_files)
-else
-adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
-else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files) \
-                              $(adaptor_x11_internal_default_profile_src_files)
-endif # WAYLAND
-endif # COMMON_PROFILE
-
-
-# UBUNTU
-if UBUNTU_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_default_profile_src_files) \
-                             $(adaptor_ubuntu_internal_src_files) \
-                             $(adaptor_x11_ubuntu_internal_src_files) \
-                             $(adaptor_x11_internal_default_profile_src_files) \
-                             $(static_libraries_libunibreak_src_files) \
-                             $(adaptor_common_internal_egl_extension_src_files)
-
-endif # UBUNTU_PROFILE
-
-
-# MOBILE
-if MOBILE_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(static_libraries_libunibreak_src_files)
-
-if WAYLAND
-
-if USE_ECORE_WAYLAND
-adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
-else
-adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files) \
-                              $(adaptor_common_internal_wayland_mobile_profile_src_files)
-else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files) \
-                              $(adaptor_common_internal_x_mobile_profile_src_files)
-endif # WAYLAND
-
-endif # MOBILE_PROFILE
-
-# WEARABLE
-if WEARABLE_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(static_libraries_libunibreak_src_files)
-if WAYLAND
-
-if USE_ECORE_WAYLAND
-adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
-else
-adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files) \
-                              $(adaptor_internal_wearable_profile_src_files) \
-                              $(adaptor_common_internal_wayland_mobile_profile_src_files)
-else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files) \
-                              $(adaptor_common_internal_x_mobile_profile_src_files)
-endif # WAYLAND
-
-endif # WEARABLE
-
-
-# TV
-if TV_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_tv_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(adaptor_tizen_internal_non_mobile_src_files) \
-                             $(static_libraries_libunibreak_src_files)
-if WAYLAND
-
-if USE_ECORE_WAYLAND
-adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
-else
-adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
-else
-adaptor_internal_src_files += $(adaptor_x11_tv_internal_src_files) \
-                              $(adaptor_x11_internal_tv_profile_key_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files)
-endif # WAYLAND
-
-endif
-
-# IVI
-if IVI_PROFILE
-
-adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
-                             $(adaptor_common_internal_mobile_profile_src_files) \
-                             $(adaptor_tizen_internal_src_files) \
-                             $(static_libraries_libunibreak_src_files)
-
-if WAYLAND
-
-if USE_ECORE_WAYLAND
-adaptor_internal_src_files += $(adaptor_ecore_wayland_tizen_internal_src_files)
-else
-adaptor_internal_src_files += $(adaptor_wayland_tizen_internal_src_files)
-endif # USE_ECORE_WAYLAND
-
-adaptor_internal_src_files += $(adaptor_tizen_internal_egl_extension_src_files) \
-                              $(adaptor_tizen_internal_native_image_src_files)
-else
-adaptor_internal_src_files += $(adaptor_x11_tizen_internal_src_files) \
-                              $(adaptor_common_internal_egl_extension_src_files)
-endif # WAYLAND
-
-endif # IVI_PROFILE
-
-main_loop_integration_src_files = $(adaptor_common_internal_ecore_src_files)
-input_event_handler_src_files = $(adaptor_ecore_x_event_handler_internal_src_files)
-
-if ENABLE_VECTOR_BASED_TEXT_RENDERING
-adaptor_internal_src_files += $(static_libraries_glyphy_src_files)
-DALI_ADAPTOR_CFLAGS += -DENABLE_VECTOR_BASED_TEXT_RENDERING
-endif
+# New structure includes
+include ./module.list
 
 pkgconfigdir = $(libdir)/pkgconfig
 
@@ -273,72 +30,292 @@ else
 pkgconfig_DATA = dali-adaptor.pc dali-adaptor-integration.pc
 endif
 
+# sources
+if UBUNTU_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
-                     $(base_adaptor_src_files) \
-                     $(main_loop_integration_src_files) \
-                     $(tizen_platform_abstraction_src_files) \
-                     $(text_abstraction_src_files) \
-                     $(devel_api_src_files) \
-                     $(public_api_src_files) \
-                     $(adaptor_internal_src_files) \
-                     $(input_event_handler_src_files) \
-                     $(image_resampler_src_files)
-
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_ubuntu_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_ubuntu_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_ubuntu_x11_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_ubuntu_gl_src_files) \
+                  $(adaptor_graphics_ubuntu_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_ubuntu_x11_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_ubuntu_src_files) \
+                  $(adaptor_input_ubuntu_x11_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_ubuntu_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_ubuntu_src_files) \
+                  $(adaptor_system_ubuntu_x11_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_text_ubuntu_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_ubuntu_x11_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
-  $(base_adaptor_networking_src_files)
+                  $(adaptor_performance_logging_src_files)
 endif
+
+endif
+
+
+if MOBILE_PROFILE
+LIBDALI_ADAPTOR_LA_SOURCES = \
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_mobile_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_tizen_src_files) \
+                  $(adaptor_adaptor_tizen_wayland_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_tizen_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_tizen_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_tizen_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_tizen_mobile_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_tizen_mobile_src_files) \
+                  $(adaptor_window_system_tizen_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
+endif
+
+
+if IVI_PROFILE
+LIBDALI_ADAPTOR_LA_SOURCES = \
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_ivi_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_tizen_src_files) \
+                  $(adaptor_adaptor_tizen_wayland_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_tizen_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_haptics_tizen_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_tizen_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_tizen_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_tizen_ivi_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_tizen_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
+endif
+
+
+if TV_PROFILE
+LIBDALI_ADAPTOR_LA_SOURCES = \
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_tv_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_tizen_src_files) \
+                  $(adaptor_adaptor_tizen_wayland_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_tizen_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_tizen_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_tizen_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_tizen_tv_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_tizen_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
+endif
+
+if COMMON_PROFILE
+LIBDALI_ADAPTOR_LA_SOURCES = \
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_common_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_tizen_src_files) \
+                  $(adaptor_adaptor_tizen_wayland_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_tizen_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_tizen_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_tizen_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_generic_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_tizen_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
+endif
+
+
+
+if WEARABLE_PROFILE
+LIBDALI_ADAPTOR_LA_SOURCES = \
+                  $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_wearable_src_files) \
+                  $(adaptor_adaptor_common_src_files) \
+                  $(adaptor_adaptor_tizen_src_files) \
+                  $(adaptor_adaptor_tizen_wayland_src_files) \
+                  $(adaptor_adaptor_tizen_wearable_src_files) \
+                  $(adaptor_clipboard_common_src_files) \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(devel_api_src_files) \
+                  $(adaptor_devel_api_text_abstraction_src_files) \
+                  $(adaptor_graphics_common_src_files) \
+                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_tizen_src_files) \
+                  $(adaptor_haptics_common_src_files) \
+                  $(adaptor_imaging_common_src_files) \
+                  $(adaptor_imaging_tizen_src_files) \
+                  $(adaptor_input_common_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_legacy_common_src_files) \
+                  $(adaptor_network_common_src_files) \
+                  $(adaptor_public_api_src_files) \
+                  $(adaptor_sensor_common_src_files) \
+                  $(adaptor_sensor_tizen_src_files) \
+                  $(adaptor_styling_common_src_files) \
+                  $(adaptor_system_common_src_files) \
+                  $(adaptor_system_tizen_wearable_src_files) \
+                  $(adaptor_text_common_src_files) \
+                  $(adaptor_resampler_src_files) \
+                  $(adaptor_video_common_src_files) \
+                  $(adaptor_window_system_common_src_files) \
+                  $(adaptor_window_system_tizen_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wearable_src_files) \
+                  $(devel_api_text_abstraction_src_files) \
+                  $(static_libraries_glyphy_src_files) \
+                  $(static_libraries_libunibreak_src_files)
+
+if ENABLE_NETWORK_LOGGING
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_performance_logging_src_files)
+endif
+
+endif
+
+
+# Package doc
+package_doxy_dir = ../../../doc
+include ../../../doc/file.list
 
 libdali_adaptor_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (tizen) before portable root:
 LIBDALI_ADAPTOR_LA_includes = \
-                      -I../../.. \
-                      -I../../../platform-abstractions/tizen \
-                      -I../../../platform-abstractions/tizen/resource-loader \
-                      -I../../../platform-abstractions/portable \
-                      -I../../../platform-abstractions/ \
-                      -I../../../adaptors/public-api \
-                      -I../../../adaptors/integration-api \
-                      -I../../../adaptors/public-api/adaptor-framework \
-                      -I../../../adaptors/devel-api/adaptor-framework \
-                      -I../../../adaptors/common \
-                      -I../../../adaptors/base/interfaces \
-                      -I../../../adaptors/ \
-                      -I../../../text \
-                      -I../../../text/dali/internal/libunibreak \
-                      -I../../../third-party/image-resampler
-
-if WAYLAND
-LIBDALI_ADAPTOR_LA_includes += -I../../../adaptors/integration-api/wayland
-
-if USE_ECORE_WAYLAND
-LIBDALI_ADAPTOR_LA_includes += \
-                      -I../../../adaptors/ecore/common \
-                      -I../../../adaptors/ecore/wayland
-else
-LIBDALI_ADAPTOR_LA_includes += -I../../../adaptors/wayland \
-                               -I../../../adaptors/wayland/input/text/imf \
-                               -I../../../adaptors/wayland/clipboard
-endif # USE_ECORE_WAYLADN
-
-LIBDALI_ADAPTOR_LA_includes += \
-                      -I../../../adaptors/tizen
-else
-LIBDALI_ADAPTOR_LA_includes += \
-                      -I../../../adaptors/ecore/common \
-                      -I../../../adaptors/x11 \
-                      -I../../../adaptors/integration-api/x11
-endif # WAYLAND
-
-if UBUNTU_PROFILE
-LIBDALI_ADAPTOR_LA_includes += \
-                      -I../../../adaptors/ubuntu
-else
-LIBDALI_ADAPTOR_LA_includes += \
-                      -I../../../adaptors/tizen
-endif
+                       -I../../../
 
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
 daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
@@ -374,6 +351,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
+                      $(LIBCRYPTO_CFLAGS) \
                       $(TPKP_CURL_CFLAGS) \
                       $(UTILX_CFLAGS)
 
@@ -401,6 +379,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
                       $(LIBCURL_LIBS) \
+                      $(LIBCRYPTO_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
@@ -438,13 +417,18 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(ELEMENTARY_LIBS)
 
 else
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(CAPI_APPFW_COMMON_CFLAGS) \
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(BUNDLE_CFLAGS) \
+                               $(CAPI_APPFW_COMMON_CFLAGS) \
                                $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(CAPI_APPFW_WIDGET_BASE_CFLAGS) \
                                $(ECORE_IMF_CFLAGS) \
-                               $(FRIBIDI_CFLAGS)
+                               $(FRIBIDI_CFLAGS) \
+                               -DWIDGET_SUPPOERTED
 
-LIBDALI_ADAPTOR_LA_LIBADD += $(CAPI_APPFW_COMMON_LIBS) \
+LIBDALI_ADAPTOR_LA_LIBADD += $(BUNDLE_LIBS) \
+                             $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
+                             $(CAPI_APPFW_WIDGET_BASE_LIBS) \
                              $(ECORE_IMF_LIBS) \
                              $(FRIBIDI_LIBS)
 endif
@@ -569,6 +553,9 @@ tizenadaptorpublicapi_HEADERS += $(adaptor_dali_wearable_header_file)
 tizenwatchpublicapidir = $(tizenadaptorpublicapidir)/watch
 tizenwatchpublicapi_HEADERS = $(public_dali_watch_header_files)
 
+tizencapturepublicapidir = $(tizenadaptorpublicapidir)/capture
+tizencapturepublicapi_HEADERS = $(public_dali_capture_header_files)
+
 install-data-local:
 	$(MKDIR_P) ${DESTDIR}/${daliUserFontCacheDir} ${DESTDIR}/${daliShaderbinCacheDir}
 
@@ -610,26 +597,12 @@ linker_test_SOURCES = linker-test.cpp
 
 linker_test_CXXFLAGS = \
   -DDALI_ADAPTOR_COMPILATION \
-  -I../../../adaptors/common \
-  -I../../../adaptors/public-api \
-  -I../../../adaptors/integration-api \
-  -I../../../adaptors/base/interfaces \
-  -I../../../adaptors/public-api/adaptor-framework \
-  -I../../../adaptors/devel-api/adaptor-framework \
+  -I../../../ \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALICORE_CFLAGS) \
   $(VCONF_CFLAGS) \
   $(DALIX11_CFLAGS) \
   -Werror -Wall
-
-if WAYLAND
-linker_test_CXXFLAGS += \
-  -I../../../adaptors/integration-api/wayland
-else
-
-linker_test_CXXFLAGS += \
-  -I../../../adaptors/integration-api/x11
-endif
 
 linker_test_LDADD = \
   $(DALICORE_LIBS) \

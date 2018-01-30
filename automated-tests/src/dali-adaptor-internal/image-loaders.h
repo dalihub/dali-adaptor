@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@
 
 #include <dali/dali.h>
 #include <dali/integration-api/bitmap.h>
-#include "platform-abstractions/tizen/image-loaders/image-loader-input.h"
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/internal/imaging/common/image-loader-input.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
@@ -66,7 +67,7 @@ struct ImageDetails
   unsigned int reportedWidth;
   unsigned int reportedHeight;
   unsigned int refBufferSize;
-  Dali::PixelBuffer* const refBuffer;
+  Dali::PixelBuffer* refBuffer;
 
 private:
 
@@ -82,7 +83,7 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, Dali::Integration::Bitmap& );
+  typedef bool (*LoadBitmapFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, Dali::Devel::PixelBuffer& );
   typedef bool (*LoadBitmapHeaderFunction)( const Dali::TizenPlatform::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
   LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader );

@@ -1,0 +1,11 @@
+
+
+# module: text, backend: common
+adaptor_text_common_src_files=\
+    ${adaptor_text_dir}/text-abstraction/bidirectional-support-impl.cpp \
+    ${adaptor_text_dir}/text-abstraction/font-client-helper.cpp \
+    ${adaptor_text_dir}/text-abstraction/font-client-impl.cpp \
+    ${adaptor_text_dir}/text-abstraction/font-client-plugin-impl.cpp \
+    ${adaptor_text_dir}/text-abstraction/segmentation-impl.cpp \
+    ${adaptor_text_dir}/text-abstraction/shaping-impl.cpp
+

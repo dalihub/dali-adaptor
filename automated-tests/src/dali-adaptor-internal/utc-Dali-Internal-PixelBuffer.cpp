@@ -24,7 +24,7 @@
 
 // Internal headers are allowed here
 
-#include <platform-abstractions/portable/pixel-manipulation.h>
+#include <dali/internal/imaging/common/pixel-manipulation.h>
 
 using namespace Dali;
 using namespace Dali::Internal::Adaptor;

@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.2.65
+Version:    1.3.9
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -57,6 +57,7 @@ BuildRequires:  pkgconfig(screen_connector_provider)
 
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glesv2)
+BuildRequires:  pkgconfig(ttrace)
 
 %if !0%{?disable_cxx03_build}
 BuildRequires:  dali-devel-cxx03
@@ -83,6 +84,8 @@ BuildRequires:  fribidi-devel
 
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
+
+BuildRequires:  pkgconfig(libcrypto)
 
 %if %{with wayland}
 
@@ -120,6 +123,8 @@ BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(elementary)
 %else
 BuildRequires:  pkgconfig(appcore-ui)
+BuildRequires:  pkgconfig(appcore-widget-base)
+BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
 BuildRequires:  pkgconfig(ecore-imf)

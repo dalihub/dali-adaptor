@@ -23,7 +23,8 @@
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
 #include <adaptor-test-application.h>
-#include <tilt-sensor-impl.h>
+#include <dali/internal/sensor/common/tilt-sensor-impl.h>
+#include <dali/internal/sensor/common/tilt-sensor-factory.h>
 
 using namespace Dali;
 
@@ -70,7 +71,7 @@ struct SignalHelper : public ConnectionTracker
 
 TiltSensor GetTiltSensor()
 {
-  return Internal::Adaptor::TiltSensor::New();
+  return Dali::TiltSensor(Dali::Internal::Adaptor::TiltSensorFactory::Create());
 }
 
 bool ecore_timer_running = false;
