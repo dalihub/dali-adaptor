@@ -108,7 +108,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mUseElapsedTimeAfterWait( FALSE ),
   mNewSurface( NULL ),
   mPostRendering( FALSE ),
-  mSurfaceResized( FALSE )
+  mSurfaceResized( FALSE ),
+  mForceClear( FALSE )
 {
   LOG_EVENT_TRACE;
 
@@ -198,6 +199,7 @@ void CombinedUpdateRenderController::Resume()
     AddPerformanceMarker( PerformanceInterface::RESUME );
 
     mRunning = TRUE;
+    mForceClear = TRUE;
   }
 }
 
@@ -504,8 +506,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    mCore.Render( renderStatus );
+    mCore.Render( renderStatus, mForceClear );
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
+
+    mForceClear = false;
 
     if( renderStatus.NeedsPostRender() )
     {

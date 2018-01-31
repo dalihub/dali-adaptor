@@ -333,6 +333,7 @@ private:
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
+  volatile unsigned int             mForceClear;                       ///< Will be set to clear forcely
 };
 
 } // namespace Adaptor
