@@ -25,7 +25,7 @@
 #ifdef WIDGET_SUPPOERTED
 #include <widget_base.h>
 #endif
-#include <dali/internal/system/common/widget-impl.h>
+#include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/internal/system/common/widget-controller.h>
 
 namespace Dali
