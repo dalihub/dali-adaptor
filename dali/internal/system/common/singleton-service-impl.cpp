@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/core.h>
+#include <dali/integration-api/adaptor.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 // INTERNAL INCLUDES
 #if defined(DEBUG_ENABLED)
@@ -75,6 +78,15 @@ void SingletonService::Register( const std::type_info& info, BaseHandle singleto
   {
     DALI_LOG_SINGLETON_SERVICE( Debug::General, "Singleton Added: %s\n", info.name() );
     mSingletonContainer.push_back( SingletonPair( info.name(), singleton ) );
+
+    Integration::Processor* processor = dynamic_cast<Integration::Processor*>( &singleton.GetBaseObject() );
+    if( processor )
+    {
+      Dali::Adaptor& adaptor = Dali::Adaptor::Get();
+      Dali::Internal::Adaptor::Adaptor& adaptorImpl = Adaptor::GetImplementation( adaptor );
+      Integration::Core& core = adaptorImpl.GetCore();
+      core.RegisterProcessor( *processor );
+    }
   }
 }
 
@@ -123,4 +135,3 @@ SingletonService::~SingletonService()
 } // namespace Internal
 
 } // namespace Dali
-
