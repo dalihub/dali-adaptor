@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -290,7 +290,6 @@ Dali::ImfManager ImfManagerEcoreWl::Get()
     else if ( Adaptor::IsAvailable() )
     {
       // Create instance and register singleton only if the adaptor is available
-
       Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
 
@@ -331,10 +330,15 @@ ImfManagerEcoreWl::ImfManagerEcoreWl( Ecore_Wl_Window *ecoreWlwin )
 
 ImfManagerEcoreWl::~ImfManagerEcoreWl()
 {
-  DisconnectCallbacks();
-
-  DeleteContext();
+  Finalize();
   ecore_imf_shutdown();
+}
+
+void ImfManagerEcoreWl::Finalize()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::Finalize\n" );
+  DisconnectCallbacks();
+  DeleteContext();
 }
 
 void ImfManagerEcoreWl::CreateContext( Ecore_Wl_Window *ecoreWlwin )
