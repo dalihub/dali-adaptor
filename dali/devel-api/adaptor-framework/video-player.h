@@ -245,7 +245,19 @@ public:
    * @brief Checks whether the video texture is supported
    * @return True if supported, otherwise false.
    */
-  bool IsVideoTextureSupported() const;
+  bool IsVideoTextureSupported();
+
+  /**
+   * @brief Sets codec type
+   * @param[in] type The VideoCodec::Type
+   */
+  void SetCodecType( Dali::VideoPlayerPlugin::CodecType type );
+
+  /**
+   * @brief Gets codec type
+   * @return VideoCodec::Type
+   */
+  Dali::VideoPlayerPlugin::CodecType GetCodecType() const;
 
 private: // Not intended for application developers
 
