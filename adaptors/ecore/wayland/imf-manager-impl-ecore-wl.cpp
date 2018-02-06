@@ -325,6 +325,7 @@ Dali::ImfManager ImfManager::Get()
 
   if ( ( imfManager != NULL ) && !imfManager->mInited )
   {
+    imfManager->SetDefaultOptions();
     imfManager->CreateContext( imfManager->mEcoreWlwin );
     imfManager->ConnectCallbacks();
     imfManager->mInited = true;
@@ -387,6 +388,17 @@ void ImfManager::DeleteContext()
     ecore_imf_context_del( mIMFContext );
     mIMFContext = NULL;
   }
+}
+
+void ImfManager::SetDefaultOptions()
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::SetDefaultOptions\n" );
+  Property::Map map;
+  map.Insert( "PANEL_LAYOUT", InputMethod::PanelLayout::NORMAL );
+  map.Insert( "AUTO_CAPITALISE", InputMethod::AutoCapital::SENTENCE );
+  map.Insert( "ACTION_BUTTON", InputMethod::ActionButtonTitle::DEFAULT );
+  map.Insert( "VARIATION", InputMethod::NormalLayout::NORMAL );
+  mOptions.ApplyProperty( map );
 }
 
 // Callbacks for predicitive text support.
@@ -748,7 +760,6 @@ Rect<int> ImfManager::GetInputMethodArea()
 void ImfManager::ApplyOptions( const InputMethodOptions& options )
 {
   using namespace Dali::InputMethod::Category;
-
   int index;
 
   if (mIMFContext == NULL)
