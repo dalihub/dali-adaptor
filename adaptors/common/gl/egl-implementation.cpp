@@ -327,7 +327,8 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   configAttribs.PushBack( EGL_ALPHA_SIZE );
 #ifdef _ARCH_ARM_
-  configAttribs.PushBack( (depth == COLOR_DEPTH_32) ? 8 : 0 );
+  // For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+  configAttribs.PushBack( 8 );
 #else
   // There is a bug in the desktop emulator
   // setting EGL_ALPHA_SIZE to 8 results in eglChooseConfig failing
