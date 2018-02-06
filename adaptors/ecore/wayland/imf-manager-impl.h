@@ -282,6 +282,11 @@ private:
    */
   void DeleteContext();
 
+  /**
+   * Set default input method options when context was re-created.
+   */
+  void SetDefaultOptions();
+
 private:
   // Undefined
   ImfManager( Ecore_Wl_Window *ecoreWlwin );
