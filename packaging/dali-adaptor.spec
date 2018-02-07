@@ -53,7 +53,6 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
 BuildRequires:  pkgconfig(screen_connector_provider)
-BuildRequires:  pkgconfig(cynara-client)
 %endif
 
 BuildRequires:  pkgconfig(gles20)
