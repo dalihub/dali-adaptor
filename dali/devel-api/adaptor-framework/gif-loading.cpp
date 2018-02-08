@@ -1042,7 +1042,7 @@ open_file:
 
         FlushFrames( animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame );
       }
-      // if we hve a frame BUT the image is not animated... different
+      // if we have a frame BUT the image is not animated. different
       // path
       else if( (thisFrame) && (!thisFrame->data) && (!animated.animated) )
       {
@@ -1151,6 +1151,17 @@ public:
     {
       munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
       loaderInfo.fileData.globalMap  = nullptr;
+    }
+
+    // Delete all image frames
+    for( auto &&frame : loaderInfo.animated.frames )
+    {
+      if( frame.data != nullptr )
+      {
+        // De-allocate memory of the frame data.
+        delete[] frame.data;
+        frame.data = nullptr;
+      }
     }
   }
 
