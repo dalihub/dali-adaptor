@@ -31,96 +31,6 @@
 #include <ft2build.h>
 #include <iostream>
 
-namespace
-{
-
-const static uint8_t U2 = 2u;
-const static uint8_t U3 = 3u;
-const static uint8_t U4 = 4u;
-
-uint32_t GetNumberOfUtf8Bytes( const uint32_t* const utf32, uint32_t numberOfCharacters )
-{
-  uint32_t numberOfBytes = 0u;
-
-  const uint32_t* begin = utf32;
-  const uint32_t* end = utf32 + numberOfCharacters;
-
-  for( ; begin < end; ++begin )
-  {
-    const uint32_t code = *begin;
-
-    if( code < 0x80u )
-    {
-      ++numberOfBytes;
-    }
-    else if( code < 0x800u )
-    {
-      numberOfBytes += U2;
-    }
-    else if( code < 0x10000u )
-    {
-      numberOfBytes += U3;
-    }
-    else if( code < 0x200000u )
-    {
-      numberOfBytes += U4;
-    }
-  }
-
-  return numberOfBytes;
-}
-
-uint32_t Utf32ToUtf8( const uint32_t* const utf32, uint32_t numberOfCharacters, uint8_t* utf8 )
-{
-  const uint32_t* begin = utf32;
-  const uint32_t* end = utf32 + numberOfCharacters;
-
-  uint8_t* utf8Begin = utf8;
-
-  for( ; begin < end; ++begin )
-  {
-    const uint32_t code = *begin;
-
-    if( code < 0x80u )
-    {
-      *utf8++ = code;
-    }
-    else if( code < 0x800u )
-    {
-      *utf8++ = static_cast<uint8_t>(   code >> 6u )           | 0xc0u; // lead byte for 2 byte sequence
-      *utf8++ = static_cast<uint8_t>(   code          & 0x3f ) | 0x80u; // continuation byte
-    }
-    else if( code < 0x10000u )
-    {
-      *utf8++ = static_cast<uint8_t>(   code >> 12u )          | 0xe0u; // lead byte for 2 byte sequence
-      *utf8++ = static_cast<uint8_t>( ( code >> 6u )  & 0x3f ) | 0x80u; // continuation byte
-      *utf8++ = static_cast<uint8_t>(   code          & 0x3f ) | 0x80u; // continuation byte
-    }
-    else if( code < 0x200000u )
-    {
-      *utf8++ = static_cast<uint8_t>(   code >> 18u )          | 0xf0u; // lead byte for 2 byte sequence
-      *utf8++ = static_cast<uint8_t>( ( code >> 12u ) & 0x3f ) | 0x80u; // continuation byte
-      *utf8++ = static_cast<uint8_t>( ( code >> 6u )  & 0x3f ) | 0x80u; // continuation byte
-      *utf8++ = static_cast<uint8_t>(   code          & 0x3f ) | 0x80u; // continuation byte
-    }
-  }
-
-  return utf8 - utf8Begin;
-}
-
-void Utf32ToUtf8( const uint32_t* const utf32, uint32_t numberOfCharacters, std::string& utf8 )
-{
-  utf8.clear();
-
-  uint32_t numberOfBytes = GetNumberOfUtf8Bytes( &utf32[0], numberOfCharacters );
-  utf8.resize( numberOfBytes );
-
-  // This is a bit horrible but std::string returns a (signed) char*
-  Utf32ToUtf8( utf32, numberOfCharacters, reinterpret_cast<uint8_t*>(&utf8[0]) );
-}
-
-}
-
 namespace Dali
 {
 
@@ -298,11 +208,6 @@ struct Shaping::Plugin
 
     hb_shape( harfBuzzFont, harfBuzzBuffer, NULL, 0u );
 
-    std::string currentText;
-    Utf32ToUtf8( text, numberOfCharacters, currentText );
-
-    DALI_LOG_RELEASE_INFO( "Shape: currentText: %s, font: %s, pointSize: %d\n", currentText.c_str(), fontDescription.path.c_str(), static_cast<int>( fontClient.GetPointSize( fontId ) * FROM_266 ) );
-
     /* Get glyph data */
     unsigned int glyphCount;
     hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
@@ -360,8 +265,6 @@ struct Shaping::Plugin
         mCharacterMap.PushBack( glyphInfo[i].cluster );
         mOffset.PushBack( floor( glyphPositions[i].x_offset * FROM_266 ) );
         mOffset.PushBack( floor( glyphPositions[i].y_offset * FROM_266 ) );
-
-        DALI_LOG_RELEASE_INFO( "glyphIndex: %u, glyph.advance: %f, glyph.xBearing: %f\n", glyphInfo[i].codepoint, floor( glyphPositions[i].x_advance * FROM_266 ), floor( glyphPositions[i].x_offset * FROM_266 ) );
 
         ++i;
       }
