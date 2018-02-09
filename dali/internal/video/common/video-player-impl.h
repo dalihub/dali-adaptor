@@ -162,7 +162,17 @@ public:
   /**
    * @brief Dali::VideoPlayer::IsVideoTextureSupported()
    */
-  bool IsVideoTextureSupported() const;
+  bool IsVideoTextureSupported();
+
+  /**
+   * @brief Dali::VideoPlayer::SetCodecType()
+   */
+  void SetCodecType( Dali::VideoPlayerPlugin::CodecType type );
+
+  /**
+   * @brief Dali::VideoPlayer::GetCodecType()
+   */
+  Dali::VideoPlayerPlugin::CodecType GetCodecType() const;
 
 private:
 

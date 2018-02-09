@@ -1,5 +1,5 @@
-#ifndef DALI_WIDGET_CONTROLLER_H
-#define DALI_WIDGET_CONTROLLER_H
+#ifndef DALI_ADAPTOR_LOG_FACTORY_INTERFACE_H
+#define DALI_ADAPTOR_LOG_FACTORY_INTERFACE_H
 
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
@@ -15,40 +15,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
-// EXTERNAL INCLUDES
-#include <dali/public-api/signals/connection-tracker.h>
-
-// INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/widget-impl.h>
 
 namespace Dali
 {
 
-namespace Internal
-{
-
-namespace Adaptor
-{
-/**
- * @brief Holds the Implementation for the internal WidgetImpl class
- */
-class Widget::Impl : public Dali::ConnectionTracker
+class LogFactoryInterface
 {
 public:
-
   /**
-   * Set content information to widget framework
+   * @brief Install a log function for this thread.
+   *
+   * Only need to use once per thread, before any processing occurs.
    */
-  virtual void SetContentInfo( const std::string& contentInfo ) = 0;
+  virtual void InstallLogFunction() const = 0;
 };
-
-} // namespace Adaptor
-
-} // namespace Internal
 
 } // namespace Dali
 
-#endif // DALI_WIDGET_CONTROLLER_H
+
+#endif //DALI_ADAPTOR_LOG_FACTORY_INTERFACE_H

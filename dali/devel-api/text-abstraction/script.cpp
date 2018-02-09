@@ -250,13 +250,14 @@ Script GetCharacterScript( Character character )
 
   // The Emoji which map to standardized Unicode characters
   // 1. Emoticons ( 1F601 - 1F64F )
-  // 2. Dingbats ( 2702 - 27B0 )
+  // 2. Dingbats ( 2700 - 27BF )
   // 3. Transport and map symbols ( 1F680 - 1F6C0 )
   // 4. Enclosed characters ( 24C2 - 1F251 )
   // 5. Uncategorized :-S
   // 6. Additional Emoticons ( 1F600 - 1F636 )
-  // 6b. Additional transport and map symbols ( 1F681 - 1F6C5 )
+  // 6b. Additional transport and map symbols ( 1F680 - 1F6FF ): http://unicode.org/charts/PDF/U1F680.pdf
   // 6c. Other additional symbols ( 1F30D - 1F567 )
+  // 7. Supplemental Symbols and Pictographs ( 1F900–1F9FF ): http://unicode.org/charts/PDF/U1F900.pdf
 
   // Symbols. Work around for these symbols.
   // 0x25cb
@@ -804,8 +805,13 @@ Script GetCharacterScript( Character character )
           return ARABIC;
         }
         // U+1f170 4. Enclosed characters: negative squared latin capital letter A
-        // U+1f6c5 6b. Additional transport and map symbols
-        if( ( 0x1f170 <= character ) && ( character <= 0x1f6c5 ) )
+        // U+1f6ff 6b. Additional transport and map symbols
+        if( ( 0x1f170 <= character ) && ( character <= 0x1f6ff ) )
+        {
+          return EMOJI;
+        }
+        // 7. Supplemental Symbols and Pictographs
+        if( ( 0x1f900 <= character ) && ( character <= 0x1f9ff ) )
         {
           return EMOJI;
         }

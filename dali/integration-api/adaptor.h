@@ -29,6 +29,12 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/application-configuration.h>
 
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/log-factory-interface.h>
+#else
+#include <dali/integration-api/adaptors/log-factory-interface.h>
+#endif
+
 
 namespace Dali
 {
@@ -334,6 +340,12 @@ public:
    * @note Will not work if the window is hidden.
    */
   void RenderOnce();
+
+  /**
+   * @brief The log factory allows installation of a logger function in worker threads.
+   * @return An interface to a logging factory
+   */
+  const LogFactoryInterface& GetLogFactory();
 
 public:  // Signals
 
