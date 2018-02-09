@@ -719,8 +719,10 @@ struct EventHandler::Impl
         {
           if ( !strcmp( keyEvent->keyname, "Escape"   ) ||
                !strcmp( keyEvent->keyname, "Return"   ) ||
-               !strcmp( keyEvent->keyname, "KP_Enter" ) )
+               !strcmp( keyEvent->keyname, "KP_Enter" ) ||
+               !strcmp( keyEvent->keyname, "XF86Exit" ) )
           {
+            ecore_imf_context_input_panel_hide( imfContext );
             ecore_imf_context_reset( imfContext );
           }
         }
