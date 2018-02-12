@@ -65,6 +65,11 @@ FontClient& FontClient::operator=( const FontClient& handle )
   return *this;
 }
 
+void FontClient::ClearCache()
+{
+  GetImplementation(*this).ClearCache();
+}
+
 void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
 {
   GetImplementation(*this).SetDpi( horizontalDpi, verticalDpi );

@@ -200,7 +200,7 @@ struct Shaping::Plugin
 
     std::istringstream stringStream( currentLocale );
     std::string localeString;
-    std::getline(stringStream, localeString, '_');
+    std::getline(stringStream, localeString, '.');
     hb_buffer_set_language( harfBuzzBuffer, hb_language_from_string( localeString.c_str(), localeString.size() ) );
 
     /* Layout the text */
@@ -213,6 +213,7 @@ struct Shaping::Plugin
     hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
     hb_glyph_position_t *glyphPositions = hb_buffer_get_glyph_positions( harfBuzzBuffer, &glyphCount );
     const GlyphIndex lastGlyphIndex = glyphCount - 1u;
+
     for( GlyphIndex i = 0u; i < glyphCount; )
     {
       if( rtlDirection )
