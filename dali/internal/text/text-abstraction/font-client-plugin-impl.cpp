@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-list.h>
+
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
@@ -91,6 +92,8 @@ const int FONT_SLANT_TYPE_TO_INT[] = { -1, 0, 100, 110 };
 const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / sizeof( int );
 
 } // namespace
+
+
 
 using Dali::Vector;
 
@@ -258,6 +261,7 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   mVectorFontCache = new VectorFontCache( mFreeTypeLibrary );
 #endif
+
 }
 
 FontClient::Plugin::~Plugin()
@@ -273,6 +277,42 @@ FontClient::Plugin::~Plugin()
   delete mVectorFontCache;
 #endif
   FT_Done_FreeType( mFreeTypeLibrary );
+}
+
+void FontClient::Plugin::ClearCache()
+{
+  mDefaultFontDescription = FontDescription();
+
+  mSystemFonts.clear();
+  mDefaultFonts.clear();
+
+  DestroyCharacterSets( mDefaultFontCharacterSets );
+  mDefaultFontCharacterSets.Clear();
+
+  ClearFallbackCache( mFallbackCache );
+  mFallbackCache.clear();
+
+  mFontIdCache.Clear();
+
+  ClearCharacterSetFromFontFaceCache();
+  mFontFaceCache.clear();
+
+  mValidatedFontCache.clear();
+  mFontDescriptionCache.clear();
+  mFontDescriptionCache.resize( 1u );
+
+  DestroyCharacterSets( mCharacterSetCache );
+  mCharacterSetCache.Clear();
+  mCharacterSetCache.Resize( 1u );
+
+  mFontDescriptionSizeCache.clear();
+
+  mEllipsisCache.Clear();
+  mPixelBufferCache.clear();
+  mEmbeddedItemCache.Clear();
+  mBitmapFontCache.clear();
+
+  mDefaultFontDescriptionCached = false;
 }
 
 void FontClient::Plugin::SetDpi( unsigned int horizontalDpi,
@@ -914,7 +954,7 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                         false );
 
     fontFaceId = mFontIdCache[fontId-1u].id;
-    mFontFaceCache[fontFaceId].mCharacterSet = mCharacterSetCache[validatedFontId];
+    mFontFaceCache[fontFaceId].mCharacterSet = FcCharSetCopy( mCharacterSetCache[validatedFontId] );
 
     // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
     mFontDescriptionSizeCache.push_back( FontDescriptionSizeCacheItem( validatedFontId,
@@ -1658,8 +1698,8 @@ FontDescription::Type FontClient::Plugin::GetFontType( FontId fontId )
 
 bool FontClient::Plugin::AddCustomFontDirectory( const FontPath& path )
 {
-  // NULL as first parameter means the current configuration is used.
-  return FcConfigAppFontAddDir( NULL, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
+  // nullptr as first parameter means the current configuration is used.
+  return FcConfigAppFontAddDir( nullptr, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
 }
 
 GlyphIndex FontClient::Plugin::CreateEmbeddedItem( const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat )
@@ -1860,8 +1900,8 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( fontDescription.family.c_str() ) );
 
   // add a property to the pattern for local setting.
-  const char* locale = setlocale( LC_MESSAGES, NULL );
-  if( locale != NULL)
+  const char* locale = setlocale( LC_MESSAGES, nullptr );
+  if( locale != nullptr)
   {
     FcPatternAddString( fontFamilyPattern, FC_LANG, reinterpret_cast<const FcChar8*>( locale ) );
   }

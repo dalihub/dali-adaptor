@@ -73,6 +73,15 @@ Dali::TextAbstraction::FontClient FontClient::Get()
   return fontClientHandle;
 }
 
+void FontClient::ClearCache()
+{
+  if( mPlugin )
+  {
+    mPlugin->ClearCache();
+  }
+}
+
+
 void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
 {
   mDpiHorizontal = horizontalDpi;
