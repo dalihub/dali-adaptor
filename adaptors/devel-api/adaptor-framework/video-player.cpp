@@ -186,5 +186,15 @@ Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
   return GetImplementation( *this ).GetCodecType();
 }
 
+void VideoPlayer::SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode )
+{
+  GetImplementation( *this ).SetDisplayMode( mode );
+}
+
+Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
+{
+  return GetImplementation( *this ).GetDisplayMode();
+}
+
 } // namespace Dali;
 

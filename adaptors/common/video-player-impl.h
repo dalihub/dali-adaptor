@@ -174,6 +174,16 @@ public:
    */
   Dali::VideoPlayerPlugin::CodecType GetCodecType() const;
 
+  /**
+   * @copydoc Dali::VideoPlayer::SetDisplayMode()
+   */
+  void SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode );
+
+  /**
+   * @brief Dali::VideoPlayer::GetDisplayMode()
+   */
+  Dali::VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const;
+
 private:
 
   /**

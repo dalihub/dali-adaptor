@@ -317,6 +317,24 @@ Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
   return Dali::VideoPlayerPlugin::CodecType::DEFAULT;
 }
 
+void VideoPlayer::SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode )
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->SetDisplayMode( mode );
+  }
+}
+
+Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->GetDisplayMode();
+  }
+
+  return Dali::VideoPlayerPlugin::DisplayMode::DST_ROI;
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
