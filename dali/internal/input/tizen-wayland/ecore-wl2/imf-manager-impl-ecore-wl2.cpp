@@ -20,7 +20,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
-#include <dali/internal/input/tizen-wayland/imf-manager-impl-ecore-wl.h>
+#include <dali/internal/input/tizen-wayland/ecore-wl2/imf-manager-impl-ecore-wl2.h>
 #include <Ecore_Input.h>
 
 // EXTERNAL INCLUDES
@@ -32,7 +32,7 @@
 #include <dali/devel-api/adaptor-framework/input-method-devel.h>
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-render-surface-ecore-wl2.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 
@@ -294,12 +294,12 @@ Dali::ImfManager ImfManagerEcoreWl::Get()
       Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
       Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
 
-      // The Ecore_Wl_Window needs to use the ImfManager.
-      // Only when the render surface is window, we can get the Ecore_Wl_Window.
-      Ecore_Wl_Window *ecoreWwin( AnyCast< Ecore_Wl_Window* >( nativeWindow ) );
+      // The Ecore_Wl2_Window needs to use the ImfManager.
+      // Only when the render surface is window, we can get the Ecore_Wl2_Window.
+      Ecore_Wl2_Window *ecoreWwin( AnyCast< Ecore_Wl2_Window* >( nativeWindow ) );
       if (ecoreWwin)
       {
-        // If we fail to get Ecore_Wl_Window, we can't use the ImfManager correctly.
+        // If we fail to get Ecore_Wl2_Window, we can't use the ImfManager correctly.
         // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
         // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
 
@@ -316,7 +316,7 @@ Dali::ImfManager ImfManagerEcoreWl::Get()
   return manager;
 }
 
-ImfManagerEcoreWl::ImfManagerEcoreWl( Ecore_Wl_Window *ecoreWlwin )
+ImfManagerEcoreWl::ImfManagerEcoreWl( Ecore_Wl2_Window *ecoreWlwin )
 : mIMFContext(),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
@@ -337,7 +337,7 @@ ImfManagerEcoreWl::~ImfManagerEcoreWl()
   ecore_imf_shutdown();
 }
 
-void ImfManagerEcoreWl::CreateContext( Ecore_Wl_Window *ecoreWlwin )
+void ImfManagerEcoreWl::CreateContext( Ecore_Wl2_Window *ecoreWlwin )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "ImfManager::CreateContext\n" );
 
@@ -351,7 +351,7 @@ void ImfManagerEcoreWl::CreateContext( Ecore_Wl_Window *ecoreWlwin )
       if( ecoreWlwin )
       {
           ecore_imf_context_client_window_set( mIMFContext,
-            reinterpret_cast<void*>( ecore_wl_window_id_get(ecoreWlwin)) );
+            reinterpret_cast<void*>( ecore_wl2_window_id_get(ecoreWlwin)) );
       }
     }
     else

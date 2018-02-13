@@ -22,7 +22,11 @@
 #include <app_common.h>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <screen_connector_provider.h>
-#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
+#ifdef ECORE_WL2
+#include <dali/integration-api/wayland/ecore-wl2/ecore-wl2-render-surface.h>
+#else
+#include <dali/integration-api/wayland/ecore-wl/ecore-wl-render-surface.h>
+#endif
 #endif
 
 #include <system_settings.h>
@@ -103,8 +107,13 @@ void Adaptor::SurfaceInitialized()
   char *appId;
   app_get_id(&appId);
 
+#ifdef ECORE_WL2
+  Ecore_Wl2_Window* ecoreWlWindow = AnyCast<Ecore_Wl2_Window*>( mNativeWindow );
+  screen_connector_provider_remote_enable(appId, ecore_wl2_window_surface_get(ecoreWlWindow));
+#else
   Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
   screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
+#endif
 #endif
 }
 

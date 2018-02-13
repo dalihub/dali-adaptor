@@ -33,7 +33,7 @@
 #include <dali/devel-api/adaptor-framework/orientation.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/ecore-indicator-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
