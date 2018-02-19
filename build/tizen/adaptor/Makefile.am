@@ -499,13 +499,11 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += \
                       $(HAPTIC_CFLAGS) \
                       $(EFL_ASSIST_CFLAGS) \
                       $(SCREENCONNECTORPROVIDER_CFLAGS) \
-                      $(APPCORE_WATCH_CFLAGS) \
-                      $(CYNARA_CLIENT_CFLAGS)
+                      $(APPCORE_WATCH_CFLAGS)
 
 LIBDALI_ADAPTOR_LA_LIBADD += \
                       $(SCREENCONNECTORPROVIDER_LIBS) \
-                      $(APPCORE_WATCH_LIBS) \
-                      $(CYNARA_CLIENT_LIBS)
+                      $(APPCORE_WATCH_LIBS)
 endif
 
 if TV_PROFILE
