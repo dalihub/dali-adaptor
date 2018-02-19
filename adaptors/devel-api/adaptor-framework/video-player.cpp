@@ -176,5 +176,15 @@ bool VideoPlayer::IsVideoTextureSupported()
   return GetImplementation( *this ).IsVideoTextureSupported();
 }
 
+void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+{
+  GetImplementation( *this ).SetCodecType( type );
+}
+
+Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
+{
+  return GetImplementation( *this ).GetCodecType();
+}
+
 } // namespace Dali;
 
