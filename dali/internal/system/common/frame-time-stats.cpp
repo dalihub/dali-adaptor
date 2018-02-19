@@ -105,6 +105,7 @@ void FrameTimeStats::Reset()
   mMin = 0.f;
   mMax = 0.f;
   mRunCount = 0;
+  mStart = FrameTimeStamp();
   mSamples.Clear();
 }
 
