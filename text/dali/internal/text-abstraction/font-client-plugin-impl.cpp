@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-list.h>
+
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
@@ -90,6 +91,8 @@ const int FONT_SLANT_TYPE_TO_INT[] = { -1, 0, 100, 110 };
 const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / sizeof( int );
 
 } // namespace
+
+
 
 using Dali::Vector;
 
@@ -230,6 +233,7 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   mVectorFontCache = new VectorFontCache( mFreeTypeLibrary );
 #endif
+
 }
 
 FontClient::Plugin::~Plugin()
@@ -254,6 +258,35 @@ FontClient::Plugin::~Plugin()
 #endif
 
   FT_Done_FreeType( mFreeTypeLibrary );
+}
+
+void FontClient::Plugin::ClearCache()
+{
+  mFontCache.clear();
+  mValidatedFontCache.clear();
+  mFontDescriptionCache.clear();
+  mFontDescriptionCache.resize( 1u );
+
+  mCharacterSetCache.Clear();
+  mCharacterSetCache.Resize( 1u );
+
+  mFontIdCache.clear();
+  mFallbackCache.clear();
+
+#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
+  if(mVectorFontCache)
+  {
+    mVectorFontCache.clear();
+    mVectorFontCache = NULL;
+  }
+#endif
+
+  mEllipsisCache.Clear();
+  mSystemFonts.clear();
+  mDefaultFonts.clear();
+  mDefaultFontDescriptionCached = false;
+  mDefaultFontCharacterSets.Clear();
+  mDefaultFontDescription = FontDescription();
 }
 
 void FontClient::Plugin::SetDpi( unsigned int horizontalDpi,

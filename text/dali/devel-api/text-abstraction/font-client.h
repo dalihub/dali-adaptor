@@ -128,6 +128,12 @@ public:
   ////////////////////////////////////////
 
   /**
+   * @brief Clear all caches in FontClient
+   *
+   */
+  void ClearCache();
+
+  /**
    * @brief Set the DPI of the target window.
    *
    * @note Multiple windows are not currently supported.
