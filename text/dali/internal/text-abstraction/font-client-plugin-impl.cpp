@@ -273,14 +273,6 @@ void FontClient::Plugin::ClearCache()
   mFontIdCache.clear();
   mFallbackCache.clear();
 
-#ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
-  if(mVectorFontCache)
-  {
-    mVectorFontCache.clear();
-    mVectorFontCache = NULL;
-  }
-#endif
-
   mEllipsisCache.Clear();
   mSystemFonts.clear();
   mDefaultFonts.clear();
