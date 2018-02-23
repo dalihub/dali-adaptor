@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,6 +111,10 @@ if test "x$enable_debug" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDEBUG_ENABLED"
 fi
 
+if test "x$enable_trace" = "xyes"; then
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTRACE_ENABLED"
+fi
+
 if test "x$enable_debug" = "xno" -a "x$enable_exportall" = "xno"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -fvisibility=hidden -DHIDE_DALI_INTERNALS"
 fi
@@ -206,6 +210,8 @@ AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
 AM_CONDITIONAL([ENABLE_VECTOR_BASED_TEXT_RENDERING], [test x$enable_profile = xUBUNTU])
 
 AM_CONDITIONAL([ENABLE_NETWORK_LOGGING], [test x$enable_networklogging = xyes])
+
+AM_CONDITIONAL([ENABLE_TRACE], [test x$enable_trace = xyes])
 
 # Platforms should either enable features or remove them, they
 # should not disable features. This allows the developer to override
@@ -368,6 +374,7 @@ Configuration
 -------------
   Prefix:                           $prefix
   Debug Build:                      $enable_debug
+  Trace Build:                      $enable_trace
   Compile flags:                    $DALI_ADAPTOR_CFLAGS
   Freetype bitmap support (Emoji):  $freetype_bitmap_support
   Profile:                          $enable_profile
