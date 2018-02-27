@@ -174,7 +174,7 @@ bool DownloadFile( CURL* curlHandle,
 
   if( result != CURLE_OK)
   {
-    DALI_LOG_WARNING( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result );
+    DALI_LOG_ERROR( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result );
     return false;
   }
 
@@ -184,7 +184,7 @@ bool DownloadFile( CURL* curlHandle,
 
   if( size >= maximumAllowedSizeBytes )
   {
-    DALI_LOG_WARNING( "File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str() );
+    DALI_LOG_ERROR( "File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str() );
     return false;
   }
   else if( size > 0 )
@@ -200,7 +200,7 @@ bool DownloadFile( CURL* curlHandle,
 
   if( result != CURLE_OK )
   {
-    DALI_LOG_WARNING( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), result );
+    DALI_LOG_ERROR( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), result );
     return false;
   }
   return true;
