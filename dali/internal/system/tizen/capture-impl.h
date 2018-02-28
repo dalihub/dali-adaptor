@@ -199,14 +199,6 @@ private:
    */
   bool Save();
 
-  /**
-   * @brief Checks privilege for Capture
-   *
-   * @param[in] privilege The capture privilege
-   * @return True if input is capture privilege, false otherwise
-   */
-  bool CheckPrivilege( const char* privilege ) const;
-
 private:
 
   // Undefined

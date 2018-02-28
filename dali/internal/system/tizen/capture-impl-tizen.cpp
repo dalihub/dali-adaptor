@@ -25,10 +25,6 @@
 #include <dali/integration-api/debug.h>
 #include <fstream>
 #include <string.h>
-#include <cynara-client.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <system_info.h>
 
 // INTERNAL INCLUDES
 #include <adaptor.h>
@@ -36,10 +32,6 @@
 namespace
 {
 unsigned int TIME_OUT_DURATION = 1000;
-const int SMACK_LABEL_LENGTH = 255;
-
-const char* const CYNARA_CHECK_FILE = "/proc/self/attr/current";
-const char* const SCREEN_SHOT_PRIVILEGE = "http://tizen.org/privilege/screenshot";
 }
 
 namespace Dali
@@ -76,24 +68,12 @@ CapturePtr Capture::New()
 {
   CapturePtr pWorker = new Capture();
 
-  if( pWorker->CheckPrivilege( SCREEN_SHOT_PRIVILEGE ) == false )
-  {
-    DALI_LOG_ERROR( "Capture privilege error: permission denied\n" );
-    return NULL;
-  }
-
   return pWorker;
 }
 
 CapturePtr Capture::New( Dali::CameraActor cameraActor )
 {
   CapturePtr pWorker = new Capture( cameraActor );
-
-  if( pWorker->CheckPrivilege( SCREEN_SHOT_PRIVILEGE ) == false )
-  {
-    DALI_LOG_ERROR( "Capture privilege error: permission denied\n" );
-    return NULL;
-  }
 
   return pWorker;
 }
@@ -376,52 +356,6 @@ bool Capture::Save()
   DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL");
 
   return mNativeImageSourcePtr->EncodeToFile( mPath );
-}
-
-bool Capture::CheckPrivilege( const char* privilege ) const
-{
-  cynara* cynara;
-  int fd = 0;
-  int ret = 0;
-  char subjectLabel[SMACK_LABEL_LENGTH + 1] = "";
-  char uid[10] = { 0, };
-  const char* clientSession = "";
-
-  ret = cynara_initialize( &cynara, NULL );
-  if( ret != CYNARA_API_SUCCESS )
-  {
-    return false;
-  }
-
-  fd = open( CYNARA_CHECK_FILE, O_RDONLY );
-  if( fd < 0 )
-  {
-    cynara_finish( cynara );
-    return false;
-  }
-
-  ret = read( fd, subjectLabel, SMACK_LABEL_LENGTH );
-  if( ret < 0 )
-  {
-    close( fd );
-    cynara_finish( cynara );
-    return false;
-  }
-
-  close( fd );
-
-  snprintf( uid, 10, "%d", getuid() );
-
-  ret = cynara_check( cynara, subjectLabel, clientSession, uid, privilege );
-  if( ret != CYNARA_API_ACCESS_ALLOWED )
-  {
-    cynara_finish( cynara );
-    return false;
-  }
-
-  cynara_finish( cynara );
-
-  return true;
 }
 
 }  // End of namespace Adaptor
