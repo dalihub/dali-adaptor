@@ -587,10 +587,10 @@ void ImfManagerX::ApplyOptions( const InputMethodOptions& options )
   if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
   {
   }
-  if ( mOptions.CompareAndSet(AUTO_CAPITALISE, options, index) )
+  if ( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
   {
   }
-  if ( mOptions.CompareAndSet(ACTION_BUTTON_TITLE, options, index) )
+  if ( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
   {
   }
   if ( mOptions.CompareAndSet(VARIATION, options, index) )

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_VIRTUAL_KEYBOARD_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,12 +59,12 @@ void ApplySettings( const Property::Map& settingsMap );
 /**
  * @copydoc Dali::VirtualKeyboard::SetReturnKeyType()
  */
-void SetReturnKeyType( const Dali::InputMethod::ActionButton type );
+void SetReturnKeyType( const Dali::InputMethod::ButtonAction::Type type );
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetReturnKeyType()
  */
-Dali::InputMethod::ActionButton GetReturnKeyType();
+Dali::InputMethod::ButtonAction::Type GetReturnKeyType();
 
 /**
  * @copydoc Dali::VirtualKeyboard::EnablePrediction()

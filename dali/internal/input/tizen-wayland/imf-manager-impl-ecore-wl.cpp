@@ -29,12 +29,12 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/input-method-devel.h>
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/public-api/adaptor-framework/input-method.h>
 
 #define TOKEN_STRING(x) #x
 
@@ -752,13 +752,13 @@ void ImfManagerEcoreWl::ApplyOptions( const InputMethodOptions& options )
   {
     ecore_imf_context_input_panel_layout_set( mIMFContext, panelLayoutMap[index] );
   }
-  if ( mOptions.CompareAndSet(AUTO_CAPITALISE, options, index) )
-  {
-    ecore_imf_context_autocapital_type_set( mIMFContext, autoCapitalMap[index] );
-  }
-  if ( mOptions.CompareAndSet(ACTION_BUTTON_TITLE, options, index) )
+  if ( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
   {
     ecore_imf_context_input_panel_return_key_type_set( mIMFContext, returnKeyTypeMap[index] );
+  }
+  if ( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
+  {
+    ecore_imf_context_autocapital_type_set( mIMFContext, autoCapitalMap[index] );
   }
   if ( mOptions.CompareAndSet(VARIATION, options, index) )
   {

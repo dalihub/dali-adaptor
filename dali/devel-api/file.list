@@ -49,7 +49,6 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/input-method-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
@@ -66,7 +65,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h
-  
+ 
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
    $(adaptor_devel_api_dir)/text-abstraction/font-client.cpp \
