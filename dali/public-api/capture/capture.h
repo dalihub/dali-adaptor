@@ -106,28 +106,22 @@ public:
   Capture();
 
   /**
-   * @PRIVLEVEL_PLATFORM
    * @brief Create an initialized Capture.
    *
    * @SINCE_1_3_4
-   * @PRIVILEGE_CAPTURE
    *
    * @return A handle to a newly allocated Dali resource.
    * @note Projection mode of default cameraActor is Dali::Camera::PERSPECTIVE_PROJECTION
-   * @note If permission denied by privilege occurs, a uninitialized handle is returned
    */
   static Capture New();
 
   /**
-   * @PRIVLEVEL_PLATFORM
    * @brief Create an initialized Capture.
    *
    * @SINCE_1_3_4
-   * @PRIVILEGE_CAPTURE
    *
    * @param[in] cameraActor An initialized CameraActor.
    * @return A handle to a newly allocated Dali resource.
-   * @note If permission denied by privilege occurs, a uninitialized handle is returned
    */
   static Capture New( Dali::CameraActor cameraActor );
 
@@ -206,6 +200,7 @@ public:
   CaptureFinishedSignalType& FinishedSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief This constructor is used by New() methods.
    *
@@ -214,6 +209,7 @@ public: // Not intended for application developers
    * @param[in] internal A pointer to a newly allocated Dali resource.
    */
   explicit DALI_INTERNAL Capture( Internal::Adaptor::Capture* internal );
+  /// @endcond
 };
 
 /**
