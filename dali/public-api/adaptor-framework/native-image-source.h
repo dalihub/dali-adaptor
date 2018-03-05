@@ -122,10 +122,10 @@ public:
 
   /**
    * @brief Converts the current pixel contents to either a JPEG or PNG format
-   * and write that to the filesytem.
+   * and write that to the filesystem.
    *
    * @SINCE_1_0.0
-   * @param[in] filename Identify the filesytem location at which to write the encoded image.
+   * @param[in] filename Identify the filesystem location at which to write the encoded image.
    *                     The extension determines the encoding used.
    *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
    * @return    @c true if the pixels were written, and @c false otherwise
