@@ -81,7 +81,7 @@ enum KeyGrabMode
  * @brief Grabs the key specified by @a key for @a window in @a grabMode.
  *
  * @details This function can be used for following example scenarios:
- * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
+ * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foreground app.
  * - Mobile - When a user presses Home key, the homescreen appears regardless of current foreground app.
  * - Mobile - Using volume up/down as zoom up/down in camera apps.
  *
@@ -116,7 +116,7 @@ DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
  * @brief Grabs the list of keys specified by Dali::Vector of keys for @a window in Dali::Vector of grabModes.
  *
  * @details This function can be used for following example scenarios:
- * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foregrund app.
+ * - TV - A user might want to change the volume or channel of the background TV contents while focusing on the foreground app.
  * - Mobile - When a user presses Home key, the homescreen appears regardless of current foreground app.
  * - Mobile - Using volume up/down as zoom up/down in camera apps.
  *
