@@ -83,6 +83,7 @@ Dali::TtsPlayer TtsPlayer::New(Dali::TtsPlayer::Mode mode)
 TtsPlayer::TtsPlayer(Dali::TtsPlayer::Mode mode)
 : mInitialized(false),
   mUnplayedString(""),
+  mTtsHandle(),
   mUtteranceId(0),
   mTtsMode(mode)
 {
