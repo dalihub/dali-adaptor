@@ -280,7 +280,7 @@ public:
 
   /**
    * @brief Handle the accessibility action to move the focus to the first item on the top
-   * and read from the top item continously (by three fingers single tap).
+   * and read from the top item continuously (by three fingers single tap).
    *
    * @return Whether the action is performed successfully or not.
    */
@@ -288,7 +288,7 @@ public:
 
   /**
    * @brief Handle the accessibility action to move focus to and read from the next focusable
-   * actor continously (by three fingers double tap).
+   * actor continuously (by three fingers double tap).
    *
    * @return Whether the action is performed successfully or not.
    */

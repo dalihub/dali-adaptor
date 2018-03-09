@@ -63,6 +63,22 @@ public:
   };
 
   /**
+   * @brief The values of this enum determine how the video should be display mode to the view
+   */
+  struct DisplayMode
+  {
+    enum Type
+    {
+      LETTER_BOX = 0,     /**< Letter box */
+      ORIGIN_SIZE,        /**< Origin size */
+      FULL_SCREEN,        /**< Full-screen */
+      CROPPED_FULL,       /**< Cropped full-screen */
+      ORIGIN_OR_LETTER,   /**< Origin size (if surface size is larger than video size(width/height)) or Letter box (if video size(width/height) is larger than surface size) */
+      DST_ROI             /**< Region of Interest */
+    };
+  };
+
+  /**
    * @brief Constructor.
    * @SINCE_1_1.38
    */
@@ -238,6 +254,19 @@ public:
    * @return CodecType
    */
   virtual VideoPlayerPlugin::CodecType GetCodecType() const = 0;
+
+  /**
+   * @brief Sets the display mode for playback.
+   * @param[in] mode of playback
+   */
+  virtual void SetDisplayMode( VideoPlayerPlugin::DisplayMode::Type mode ) = 0;
+
+  /**
+   * @brief Returns the current display mode.
+   * @return The current display mode of playback
+   */
+  virtual VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const = 0;
+
 };
 
 } // namespace Dali;

@@ -259,6 +259,18 @@ public:
    */
   Dali::VideoPlayerPlugin::CodecType GetCodecType() const;
 
+  /**
+   * @brief Sets the display mode for playback.
+   * @param[in] mode of playback
+   */
+  void SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode );
+
+  /**
+   * @brief Gets display mode
+   * @return DisplayMode
+   */
+  Dali::VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const;
+
 private: // Not intended for application developers
 
   /**
