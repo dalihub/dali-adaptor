@@ -33,12 +33,11 @@ Debug::Filter* gSingletonServiceLogFilter = Debug::Filter::New( Debug::NoLogging
 #define DALI_LOG_SINGLETON_SERVICE_DIRECT(level, message)                        \
     if(gSingletonServiceLogFilter && gSingletonServiceLogFilter->IsEnabledFor(level)) { std::string string(message); Dali::TizenPlatform::LogMessage( Debug::DebugInfo, string );  }
 
-#define DALI_LOG_SINGLETON_SERVICE(level, format, args...) DALI_LOG_INFO(gSingletonServiceLogFilter, level, format, ## args )
-
+#define DALI_LOG_SINGLETON_SERVICE(level, format, ...) DALI_LOG_INFO(gSingletonServiceLogFilter, level, format, ## __VA_ARGS__ )
 #else
 
 #define DALI_LOG_SINGLETON_SERVICE_DIRECT(level, message)
-#define DALI_LOG_SINGLETON_SERVICE(level, format, args...)
+#define DALI_LOG_SINGLETON_SERVICE(level, format, ...)
 
 #endif
 
