@@ -120,8 +120,8 @@ EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& 
     WindowBase* windowBase = windowRenderSurface->GetWindowBase();
 
     // Connect signals
-    windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
     windowBase->WindowDamagedSignal().Connect( this, &EventHandler::OnWindowDamaged );
+    windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
     windowBase->RotationSignal().Connect( this, &EventHandler::SendRotationPrepareEvent );
     windowBase->TouchEventSignal().Connect( this, &EventHandler::OnTouchEvent );
     windowBase->WheelEventSignal().Connect( this, &EventHandler::OnWheelEvent );
