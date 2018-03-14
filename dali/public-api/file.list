@@ -31,9 +31,6 @@ public_api_adaptor_framework_header_files = \
   $(adaptor_public_api_dir)/adaptor-framework/widget-application.h \
   $(adaptor_public_api_dir)/adaptor-framework/widget-impl.h
 
-adaptor_dali_header_file = \
-  $(adaptor_public_api_dir)/dali.h
-
 # wearable and watch extra public headers
 adaptor_dali_wearable_header_file = \
   $(adaptor_public_api_dir)/watch/dali-wearable.h
