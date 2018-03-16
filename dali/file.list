@@ -1,0 +1,2 @@
+adaptor_dali_header_file = \
+  $(adaptor_dali_header_dir)/dali.h
