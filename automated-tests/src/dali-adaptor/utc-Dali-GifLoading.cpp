@@ -65,7 +65,7 @@ int UtcDaliGifLoadingP(void)
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None, true );
   bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
 
   // Check that the loading succeed
@@ -73,14 +73,14 @@ int UtcDaliGifLoadingP(void)
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
 
   pixelDataList.clear();
-  gifLoading = GifLoading::New( gGif_100_Prev );
+  gifLoading = GifLoading::New( gGif_100_Prev, true );
   succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
 
   pixelDataList.clear();
-  gifLoading = GifLoading::New( gGif_100_Bgnd );
+  gifLoading = GifLoading::New( gGif_100_Bgnd, true );
   succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
 
   // Check that the loading succeed
@@ -95,7 +95,7 @@ int UtcDaliGifLoadingN(void)
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist, true );
   bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
 
   // Check that the loading failed
@@ -110,7 +110,7 @@ int UtcDaliGifLoadingN(void)
 
 int UtcDaliGifLoadingGetImageSizeP(void)
 {
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None, true );
   ImageDimensions imageSize = gifLoading->GetImageSize();
 
   // Check that the image size is [100, 100]
@@ -122,7 +122,7 @@ int UtcDaliGifLoadingGetImageSizeP(void)
 
 int UtcDaliGifLoadingGetImageSizeN(void)
 {
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist );
+  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist, true );
   ImageDimensions imageSize = gifLoading->GetImageSize();
 
   // Check that it returns zero size when the gif is not valid
