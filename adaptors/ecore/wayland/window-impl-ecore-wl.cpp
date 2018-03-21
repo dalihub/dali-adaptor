@@ -890,7 +890,7 @@ void Window::RemoveAvailableOrientation(Dali::Window::WindowOrientation orientat
 
 void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations)
 {
-  int rotations[4];
+  int rotations[4] = { 0 };
   for( std::size_t i = 0; i < mAvailableOrientations.size(); ++i )
   {
     rotations[i] = static_cast< int >( mAvailableOrientations[i] );
