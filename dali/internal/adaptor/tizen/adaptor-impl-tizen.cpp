@@ -101,10 +101,17 @@ void Adaptor::SurfaceInitialized()
     return;
   }
   char *appId;
-  app_get_id(&appId);
+  char *id;
+  app_get_id(&id);
 
-  Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
-  screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
+  // Use strdup() in app_get_id(), so need to free memory
+  if( id )
+  {
+    appId = id;
+    Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
+    screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
+    free( id );
+  }
 #endif
 }
 
