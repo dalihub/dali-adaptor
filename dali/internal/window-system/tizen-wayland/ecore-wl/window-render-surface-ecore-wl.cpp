@@ -70,6 +70,7 @@ WindowRenderSurface::~WindowRenderSurface()
 {
   if( mEglWindow != NULL )
   {
+    DALI_LOG_RELEASE_INFO("Egl window is destroyed by WindowRenderSurface Destructor\n");
     wl_egl_window_destroy(mEglWindow);
     mEglWindow = NULL;
   }
@@ -200,6 +201,7 @@ void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
 
   if( mEglWindow != NULL )
   {
+    DALI_LOG_RELEASE_INFO("Egl window is destroyed by WindowRenderSurface::DestroyEglSurface()\n");
     wl_egl_window_destroy(mEglWindow);
     mEglWindow = NULL;
   }
@@ -211,6 +213,7 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
   if( mEglWindow != NULL )
   {
+    DALI_LOG_RELEASE_INFO("Egl window is destroyed by WindowRenderSurface::ReplaceEGLSurface()\n");
     wl_egl_window_destroy(mEglWindow);
     mEglWindow = NULL;
   }
