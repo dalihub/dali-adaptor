@@ -1009,7 +1009,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
       else
 #endif
       {
-        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_DEFAULT );
+        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_NO_AUTOHINT );
 
         if( FT_Err_Ok == error )
         {
@@ -1102,7 +1102,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
     else
 #endif
     {
-      error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_NO_AUTOHINT );
     }
     if( FT_Err_Ok == error )
     {
