@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDE
 #include <dali/public-api/adaptor-framework/widget.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
+#include <dali/internal/system/common/widget-impl.h>
 #include <dali/internal/system/tizen/widget-controller-tizen.h>
 
 #ifdef WIDGET_SUPPOERTED

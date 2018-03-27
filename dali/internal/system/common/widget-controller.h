@@ -22,7 +22,7 @@
 #include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/widget-impl.h>
+#include <dali/internal/system/common/widget-impl.h>
 
 namespace Dali
 {
