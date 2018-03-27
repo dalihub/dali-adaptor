@@ -22,11 +22,7 @@
 #include <wayland-client.h> // from wayland-devel package
 
 #ifdef WAYLAND_EXTENSIONS_SUPPORTED
-#ifdef ECORE_WL2
-#include <wayland-extension/xdg-shell-unstable-v6-client-protocol.h>
-#else
 #include <wayland-extension/xdg-shell-client-protocol.h>   // from wayland
-#endif
 #include <wayland-extension/text-client-protocol.h>
 #endif
 
@@ -54,14 +50,8 @@ typedef ::wl_touch_listener WlTouchListener;
 typedef ::wl_keyboard_listener WlKeyboardListener;
 
 #ifdef WAYLAND_EXTENSIONS_SUPPORTED
-#ifdef ECORE_WL2
-typedef ::zxdg_shell_v6 WlXdgShell;
-typedef ::zxdg_surface_v6 WlXdgShellSurface;
-#else
 typedef ::xdg_shell WlXdgShell;
 typedef ::xdg_surface WlXdgShellSurface;
-#endif
-
 typedef ::wl_text_input_manager WlTextInputManager;   // See Tizen wayland-extensions/protocol/text.xml
 typedef ::wl_text_input WlTextInput;                  // See Tizen wayland-extensions/protocol/text.xml
 typedef ::wl_text_input_listener WlTextInputListener; // See Tizen wayland-extensions/protocol/text.xml
