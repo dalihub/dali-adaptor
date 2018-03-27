@@ -59,14 +59,22 @@ glyphy_arc_accumulator_t *
 glyphy_arc_accumulator_create (void)
 {
   glyphy_arc_accumulator_t *acc = (glyphy_arc_accumulator_t *) calloc (1, sizeof (glyphy_arc_accumulator_t));
-  acc->refcount = 1;
 
-  acc->tolerance = 5e-4;
-  acc->d_bits = 8;
-  acc->callback = NULL;
-  acc->user_data = NULL;
+  /**
+   * In the original file, a pointer 'acc' returned from 'calloc' may be NULL, and it is dereferenced.
+   * To prevent Null Pointer Dereference, we add to check NULL value here.
+   */
+  if( acc )
+  {
+    acc->refcount = 1;
 
-  glyphy_arc_accumulator_reset (acc);
+    acc->tolerance = 5e-4;
+    acc->d_bits = 8;
+    acc->callback = NULL;
+    acc->user_data = NULL;
+
+    glyphy_arc_accumulator_reset (acc);
+  }
 
   return acc;
 }

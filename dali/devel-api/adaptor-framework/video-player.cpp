@@ -171,9 +171,29 @@ void VideoPlayer::Backward( int millisecond )
   GetImplementation( *this ).Backward( millisecond );
 }
 
-bool VideoPlayer::IsVideoTextureSupported() const
+bool VideoPlayer::IsVideoTextureSupported()
 {
   return GetImplementation( *this ).IsVideoTextureSupported();
+}
+
+void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+{
+  GetImplementation( *this ).SetCodecType( type );
+}
+
+Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
+{
+  return GetImplementation( *this ).GetCodecType();
+}
+
+void VideoPlayer::SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode )
+{
+  GetImplementation( *this ).SetDisplayMode( mode );
+}
+
+Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
+{
+  return GetImplementation( *this ).GetDisplayMode();
 }
 
 } // namespace Dali;

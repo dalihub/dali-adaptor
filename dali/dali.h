@@ -2,7 +2,7 @@
 #define __DALI_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,12 @@
 #include <dali/public-api/adaptor-framework/device-status.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
+#include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/dali-adaptor-version.h>
 

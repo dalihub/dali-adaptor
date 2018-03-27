@@ -72,6 +72,11 @@ public:
   void DisconnectCallbacks() override;
 
   /**
+   * @copydoc Dali::ImfManager::Finalize()
+   */
+  void Finalize() override;
+
+  /**
    * @copydoc Dali::ImfManager::Activate()
    */
   void Activate() override;

@@ -55,7 +55,6 @@ public:
   using ImfKeyboardResizedSignalType = Dali::ImfManager::KeyboardResizedSignalType;
 
 public:
-
   /**
    * Check whether the ImfManager is available.
    * @return true if available, false otherwise
@@ -81,6 +80,11 @@ public:
    * Disconnect Callbacks attached to imf context.
    */
   virtual void DisconnectCallbacks();
+
+  /**
+   * @copydoc Dali::ImfManager::Finalize()
+   */
+  virtual void Finalize();
 
   /**
    * @copydoc Dali::ImfManager::Activate()
@@ -316,4 +320,4 @@ public:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_INPUT_COMMON_IMF_MANAGER_IMPL_H
+#endif // __DALI_INTERNAL_IMF_MANAGER_H

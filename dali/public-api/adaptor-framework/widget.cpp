@@ -19,7 +19,7 @@
 #include <dali/public-api/adaptor-framework/widget.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/widget-impl.h>
+#include <dali/public-api/adaptor-framework/widget-impl.h>
 
 namespace Dali
 {

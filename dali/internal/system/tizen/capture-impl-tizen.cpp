@@ -68,18 +68,12 @@ CapturePtr Capture::New()
 {
   CapturePtr pWorker = new Capture();
 
-  // Second-phase construction
-  pWorker->Initialize();
-
   return pWorker;
 }
 
 CapturePtr Capture::New( Dali::CameraActor cameraActor )
 {
   CapturePtr pWorker = new Capture( cameraActor );
-
-  // Second-phase construction
-  pWorker->Initialize();
 
   return pWorker;
 }
@@ -102,10 +96,6 @@ void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::s
 Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 {
   return mFinishedSignal;
-}
-
-void Capture::Initialize()
-{
 }
 
 void Capture::CreateSurface( const Vector2& size )

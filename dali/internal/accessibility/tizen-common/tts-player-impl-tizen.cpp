@@ -80,6 +80,7 @@ std::unique_ptr<TtsPlayerTizen> TtsPlayerTizen::New(Dali::TtsPlayer::Mode mode)
 TtsPlayerTizen::TtsPlayerTizen(Dali::TtsPlayer::Mode mode)
 : mInitialized(false),
   mUnplayedString(""),
+  mTtsHandle(),
   mUtteranceId(0),
   mTtsMode(mode)
 {

@@ -200,6 +200,7 @@ public:
   CaptureFinishedSignalType& FinishedSignal();
 
 public: // Not intended for application developers
+  /// @cond internal
   /**
    * @brief This constructor is used by New() methods.
    *
@@ -208,6 +209,7 @@ public: // Not intended for application developers
    * @param[in] internal A pointer to a newly allocated Dali resource.
    */
   explicit DALI_INTERNAL Capture( Internal::Adaptor::Capture* internal );
+  /// @endcond
 };
 
 /**

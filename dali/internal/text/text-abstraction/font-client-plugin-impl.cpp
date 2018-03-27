@@ -1009,7 +1009,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
       else
 #endif
       {
-        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_DEFAULT );
+        int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_NO_AUTOHINT );
 
         if( FT_Err_Ok == error )
         {
@@ -1102,7 +1102,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
     else
 #endif
     {
-      error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_NO_AUTOHINT );
     }
     if( FT_Err_Ok == error )
     {
@@ -1424,23 +1424,25 @@ _FcFontSet* FontClient::Plugin::GetFcFontSet() const
   // a pattern holds a set of names, each name refers to a property of the font
   FcPattern* pattern = FcPatternCreate();
 
+  FcFontSet* fontset = NULL;
+
   // create an object set used to define which properties are to be returned in the patterns from FcFontList.
   FcObjectSet* objectSet = FcObjectSetCreate();
 
-  // build an object set from a list of property names
-  FcObjectSetAdd( objectSet, FC_FILE );
-  FcObjectSetAdd( objectSet, FC_FAMILY );
-  FcObjectSetAdd( objectSet, FC_WIDTH );
-  FcObjectSetAdd( objectSet, FC_WEIGHT );
-  FcObjectSetAdd( objectSet, FC_SLANT );
-
-  // get a list of fonts
-  // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
-  FcFontSet* fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
-
-  // clear up the object set
   if( objectSet )
   {
+    // build an object set from a list of property names
+    FcObjectSetAdd( objectSet, FC_FILE );
+    FcObjectSetAdd( objectSet, FC_FAMILY );
+    FcObjectSetAdd( objectSet, FC_WIDTH );
+    FcObjectSetAdd( objectSet, FC_WEIGHT );
+    FcObjectSetAdd( objectSet, FC_SLANT );
+
+    // get a list of fonts
+    // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
+    fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
+
+    // clear up the object set
     FcObjectSetDestroy( objectSet );
   }
   // clear up the pattern

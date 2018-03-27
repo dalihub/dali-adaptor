@@ -79,11 +79,6 @@ public:
 protected:
 
   /**
-   * @brief Second-phase constructor. Must be called immediately after creating a new Capture;
-   */
-  void Initialize();
-
-  /**
    * @brief A reference counted object may only be deleted by calling Unreference()
    */
   virtual ~Capture();

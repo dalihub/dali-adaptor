@@ -41,15 +41,22 @@ class DALI_IMPORT_API GifLoading
 {
 public:
 
-  static std::unique_ptr<GifLoading> New( const std::string& url );
+  /**
+   * Create a GifLoading with the given url and resourceType.
+   * @param[in] url The url of the gif image to load
+   * @param[in] isLocalResource The true or false whether this is a local resource.
+   * @return A newly created GifLoading.
+   */
+  static std::unique_ptr<GifLoading> New( const std::string& url, bool isLocalResource );
 
   /**
    * @brief Constructor
    *
    * Construct a Loader with the given URL
    * @param[in] url The url of the gif image to load
+   * @param[in] isLocalResource The true or false whether this is a local resource.
    */
-  GifLoading( const std::string& url );
+  GifLoading( const std::string& url, bool isLocalResource );
 
   // Moveable but not copyable
 
