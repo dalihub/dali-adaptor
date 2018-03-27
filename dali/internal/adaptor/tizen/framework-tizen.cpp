@@ -795,12 +795,7 @@ std::string Framework::GetResourcePath()
 {
   std::string resourcePath = "";
 #if defined( TIZEN_PLATFORM_CONFIG_SUPPORTED ) && TIZEN_PLATFORM_CONFIG_SUPPORTED
-  char* app_rsc_path = app_get_resource_path();
-  if (app_rsc_path)
-  {
-    resourcePath = app_rsc_path;
-    free(app_rsc_path);
-  }
+  resourcePath = app_get_resource_path();
 #else // For backwards compatibility with older Tizen versions
 
   // "DALI_APPLICATION_PACKAGE" is used to get the already configured Application package path.

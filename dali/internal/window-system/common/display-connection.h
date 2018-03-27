@@ -23,7 +23,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/render-surface.h>
-#include <dali/public-api/adaptor-framework/window.h>
 
 #include <memory>
 
@@ -87,14 +86,6 @@ public:
    * @param[out] dpiVertical set to the vertical dpi
    */
   static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
-
-  /**
-   * @brief Get DPI
-   * @param [in] handle A pointer to a newly allocated DisplayConnection resource
-   * @param[out] dpiHorizontal set to the horizontal dpi
-   * @param[out] dpiVertical set to the vertical dpi
-   */
-  static void GetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
   /**
    * @brief Consumes any possible events on the queue so that there is no leaking between frames

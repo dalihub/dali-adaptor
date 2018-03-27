@@ -16,19 +16,12 @@ adaptor_input_common_src_files=\
     ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
 
 # module: input, backend: tizen-wayland
-adaptor_input_tizen_wayland2_src_files=\
-    ${adaptor_input_dir}/tizen-wayland/imf-manager-factory-ecore.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-wl2/imf-manager-impl-ecore-wl2.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-wl2/key-grab-ecore-wl2.cpp \
-    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore.cpp \
-    ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore.cpp
-
 adaptor_input_tizen_wayland_src_files=\
-    ${adaptor_input_dir}/tizen-wayland/imf-manager-factory-ecore.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-wl/imf-manager-impl-ecore-wl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-wl/key-grab-ecore-wl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore.cpp \
-    ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore.cpp
+    ${adaptor_input_dir}/tizen-wayland/imf-manager-factory-ecore-wl.cpp \
+    ${adaptor_input_dir}/tizen-wayland/imf-manager-impl-ecore-wl.cpp \
+    ${adaptor_input_dir}/tizen-wayland/key-grab-ecore-wl.cpp \
+    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp \
+    ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore-wl.cpp
 
 # module: input, backend: ubuntu
 adaptor_input_ubuntu_src_files=\

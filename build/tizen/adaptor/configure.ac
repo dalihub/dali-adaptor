@@ -295,9 +295,7 @@ if test "x$enable_wayland" = "xyes"; then
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
                   [DALI_USE_ECORE_WAYLAND=1],
                   [DALI_USE_ECORE_WAYLAND=0])
-PKG_CHECK_MODULES(WAYLAND2, [ecore-wl2 egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
-                  [DALI_USE_ECORE_WAYLAND2=1],
-                  [DALI_USE_ECORE_WAYLAND2=0])
+
 else
 PKG_CHECK_MODULES(ECORE_X, [ecore-x],
                   [DALI_USE_ECORE_X11=1],
@@ -315,7 +313,6 @@ PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client text-client input-method-c
 fi
 fi
 AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
-AM_CONDITIONAL([USE_ECORE_WAYLAND2], [test "$DALI_USE_ECORE_WAYLAND2" -eq 1])
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR
