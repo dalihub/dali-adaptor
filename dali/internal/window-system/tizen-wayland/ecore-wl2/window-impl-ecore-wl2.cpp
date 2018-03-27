@@ -475,6 +475,9 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 
     mIndicatorVisible = visibleMode;
 
+    //temp code TODO : need to re-imple dali indicator for EFL 1.20
+    mIndicatorVisible = Dali::Window::INVISIBLE;
+
     if ( mIndicatorVisible == Dali::Window::VISIBLE )
     {
       // when the indicator is visible, set proper mode for indicator server according to bg mode
@@ -536,7 +539,8 @@ void Window::SetClass(std::string name, std::string klass)
 
 Window::Window()
 : mSurface( NULL ),
-  mIndicatorVisible( Dali::Window::VISIBLE ),
+  //temp code TODO : need to re-imple dali indicator for EFL 1.20
+  mIndicatorVisible( Dali::Window::INVISIBLE ),
   mIndicatorIsShown( false ),
   mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
@@ -629,6 +633,10 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
 {
+  // temp code TODO : to implementation for EFL 1.20
+  if ( mIndicatorVisible == Dali::Window::INVISIBLE )
+    return;
+
   if( mIndicator == NULL )
   {
     if( mIndicatorVisible != Dali::Window::INVISIBLE )
@@ -977,7 +985,9 @@ void Window::RotationDone( int orientation, int width, int height )
 
 void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
 {
-  mIndicatorVisible = mode;
+  // temp code TODO : need to re-imple dali indicator for EFL 1.20
+  //mIndicatorVisible = mode;
+  mIndicatorVisible = Dali::Window::INVISIBLE ;
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount() const
