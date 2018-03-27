@@ -25,7 +25,6 @@
 #include <dali/public-api/adaptor-framework/device-status.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key.h>
-#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>

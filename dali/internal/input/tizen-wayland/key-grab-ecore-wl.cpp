@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/internal/input/tizen/key-grab.h>
 
 // EXTERNAL INCLUDES
 #include <Ecore_Wayland.h>
