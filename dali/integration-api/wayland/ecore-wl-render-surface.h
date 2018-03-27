@@ -24,7 +24,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/render-surface.h>
+#ifdef DALI_ADAPTOR_COMPILATION  // full path doesn't exist until adaptor is installed so we have to use relative
 #include <dali/integration-api/egl-interface.h>
+#else
+#include <dali/integration-api/adaptors/egl-interface.h>
+#endif
 
 namespace Dali
 {
