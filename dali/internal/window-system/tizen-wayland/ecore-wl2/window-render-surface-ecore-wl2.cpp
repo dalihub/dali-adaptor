@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-render-surface-ecore-wl2.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
@@ -51,6 +51,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
                                           bool isTransparent)
 : EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
   mWlWindow( NULL ),
+  mEcore_Wl2_display( NULL ),
   mWlSurface( NULL ),
   mEglWindow( NULL ),
   mThreadSynchronization( NULL ),
@@ -76,7 +77,7 @@ WindowRenderSurface::~WindowRenderSurface()
 
   if( mOwnSurface )
   {
-    ecore_wl_window_free( mWlWindow );
+    ecore_wl2_window_free( mWlWindow );
   }
 
   if( mRotationTrigger )
@@ -86,7 +87,7 @@ WindowRenderSurface::~WindowRenderSurface()
 
 }
 
-Ecore_Wl_Window* WindowRenderSurface::GetDrawable()
+Ecore_Wl2_Window* WindowRenderSurface::GetDrawable()
 {
   // already an e-core type
   return mWlWindow;
@@ -98,7 +99,7 @@ Any WindowRenderSurface::GetSurface()
   return Any( mWlWindow );
 }
 
-Ecore_Wl_Window* WindowRenderSurface::GetWlWindow()
+Ecore_Wl2_Window* WindowRenderSurface::GetWlWindow()
 {
   return mWlWindow;
 }
@@ -123,7 +124,7 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
   mRotationAngle = angle;
   mRotationFinished = false;
 
-  ecore_wl_window_rotation_set( mWlWindow, mRotationAngle );
+  ecore_wl2_window_rotation_set( mWlWindow, mRotationAngle );
 
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
 }
@@ -132,13 +133,13 @@ void WindowRenderSurface::OutputTransformed()
 {
   int transform;
 
-  if( ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
+  if( ecore_wl2_window_ignore_output_transform_get( mWlWindow ) )
   {
     transform = 0;
   }
   else
   {
-    transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mWlWindow ) );
+    transform = ecore_wl2_output_transform_get( ecore_wl2_window_output_find( mWlWindow ) );
   }
 
   mScreenRotationAngle = transform * 90;
@@ -149,7 +150,7 @@ void WindowRenderSurface::OutputTransformed()
 
 void WindowRenderSurface::SetTransparency( bool transparent )
 {
-  ecore_wl_window_alpha_set( mWlWindow, transparent );
+  ecore_wl2_window_alpha_set( mWlWindow, transparent );
 }
 
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
@@ -251,14 +252,13 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
     needToResize = true;
   }
 
-  if( needToMove )
+  if( needToMove || needToResize )
   {
-    ecore_wl_window_position_set( mWlWindow, positionSize.x, positionSize.y );
-  }
-  if( needToResize )
-  {
-    ecore_wl_window_update_size( mWlWindow, positionSize.width, positionSize.height );
-    mResizeFinished = false;
+    ecore_wl2_window_geometry_set( mWlWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+    if (needToResize)
+    {
+      mResizeFinished = false;
+    }
   }
 
   mPositionSize = positionSize;
@@ -268,7 +268,7 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
 
 void WindowRenderSurface::Map()
 {
-  ecore_wl_window_show(mWlWindow);
+  ecore_wl2_window_show(mWlWindow);
 }
 
 void WindowRenderSurface::StartRender()
@@ -420,6 +420,21 @@ void WindowRenderSurface::SetViewMode( ViewMode viewMode )
 
 void WindowRenderSurface::CreateWlRenderable()
 {
+  // TODO ::
+  // use default display name as getenv("WAYLAND_DISPLAY")
+  // If specific name is needed,
+  // the name will be changed and should change the code of using ecore_wl2_connected_display_get()
+  // Because default name is used in ecore_wl2_connected_display_get()'s use case.
+  if ( mEcore_Wl2_display == NULL )
+  {
+      mEcore_Wl2_display = ecore_wl2_display_connect(NULL);
+  }
+  if ( mEcore_Wl2_display == NULL )
+  {
+      DALI_LOG_ERROR("Fail to connect ecore_wl2_display");
+      return;
+  }
+
    // if width or height are zero, go full screen.
   if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
   {
@@ -427,33 +442,34 @@ void WindowRenderSurface::CreateWlRenderable()
     mPositionSize.x = 0;
     mPositionSize.y = 0;
 
-    ecore_wl_screen_size_get( &mPositionSize.width, &mPositionSize.height );
+    ecore_wl2_display_screen_size_get( mEcore_Wl2_display, &mPositionSize.width, &mPositionSize.height );
   }
 
-  mWlWindow = ecore_wl_window_new( 0, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW );
-
+  mWlWindow = ecore_wl2_window_new( mEcore_Wl2_display, NULL, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
   if ( mWlWindow == 0 )
   {
     DALI_ASSERT_ALWAYS(0 && "Failed to create Wayland window");
   }
 
-  mWlSurface = ecore_wl_window_surface_create( mWlWindow );
+  mWlSurface = ecore_wl2_window_surface_get( mWlWindow );
 
   if( mColorDepth == COLOR_DEPTH_32 )
   {
-    ecore_wl_window_alpha_set( mWlWindow, true );
+    ecore_wl2_window_alpha_set( mWlWindow, true );
   }
   else
   {
-    ecore_wl_window_alpha_set( mWlWindow, false );
+    ecore_wl2_window_alpha_set( mWlWindow, false );
   }
 
-  // Get output transform
-  if( !ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
-  {
-    Ecore_Wl_Output* output = ecore_wl_window_output_find( mWlWindow );
+  ecore_wl2_window_type_set( mWlWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
 
-    int transform = ecore_wl_output_transform_get( output );
+  // Get output transform
+  if( !ecore_wl2_window_ignore_output_transform_get( mWlWindow ) )
+  {
+    Ecore_Wl2_Output* output = ecore_wl2_window_output_find( mWlWindow );
+
+    int transform = ecore_wl2_output_transform_get( output );
 
     mScreenRotationAngle = transform * 90;
     mScreenRotationFinished = false;
@@ -462,7 +478,7 @@ void WindowRenderSurface::CreateWlRenderable()
 
 void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
 {
-  mWlWindow = AnyCast< Ecore_Wl_Window* >( surfaceId );
+  mWlWindow = AnyCast< Ecore_Wl2_Window* >( surfaceId );
 }
 
 void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
@@ -481,7 +497,7 @@ void WindowRenderSurface::ProcessRotationRequest()
 {
   mRotationFinished = true;
 
-  ecore_wl_window_rotation_change_done_send( mWlWindow );
+  ecore_wl2_window_rotation_change_done_send( mWlWindow, mRotationAngle, mPositionSize.width, mPositionSize.height );
 
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n" );
 

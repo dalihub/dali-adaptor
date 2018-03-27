@@ -19,6 +19,7 @@
  */
 
 #include <memory>
+#include <dali/public-api/object/any.h>
 
 namespace Dali
 {
@@ -42,6 +43,8 @@ public:
 extern std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory();
 
 extern void DisplayConnectionFactoryGetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
+
+extern void DisplayConnectionFactoryGetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
 } // namespace Adaptor
 

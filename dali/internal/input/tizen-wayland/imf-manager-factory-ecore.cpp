@@ -16,7 +16,11 @@
  */
 
 #include <memory>
-#include <dali/internal/input/tizen-wayland/imf-manager-impl-ecore-wl.h>
+#ifdef ECORE_WL2
+#include <dali/internal/input/tizen-wayland/ecore-wl2/imf-manager-impl-ecore-wl2.h>
+#else
+#include <dali/internal/input/tizen-wayland/ecore-wl/imf-manager-impl-ecore-wl.h>
+#endif
 
 namespace Dali
 {

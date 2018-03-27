@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>
-#include <Ecore_Wayland.h>
 #include <Ecore_IMF.h>
 #include <algorithm>
 

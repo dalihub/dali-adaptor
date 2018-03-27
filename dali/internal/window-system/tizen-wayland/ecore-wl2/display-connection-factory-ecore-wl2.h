@@ -1,5 +1,8 @@
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL2_H
+#define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL2_H
+
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +18,25 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
-
+#include <dali/internal/window-system/common/display-utils.h>
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
-
-void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
+class DisplayConnectionFactoryEcoreWl2 : public DisplayConnectionFactory
 {
-  // Call static factory function
-  DisplayConnectionFactoryGetDpi( dpiHorizontal, dpiVertical );
-}
+public:
+  std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> CreateDisplayConnection() override;
+};
 
-void DisplayConnection::GetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical)
-{
-  DisplayConnectionFactoryGetDpi( nativeWindow, dpiHorizontal, dpiVertical );
-}
+} // Adaptor
 
-} // namespace Adaptor
+} // Internal
 
-} // namespace internal
+} // Dali
 
-} // namespace Dali
+
+#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL2_H

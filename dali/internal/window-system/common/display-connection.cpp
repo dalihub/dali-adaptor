@@ -69,6 +69,11 @@ void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVer
   Internal::Adaptor::DisplayConnection::GetDpi(dpiHorizontal, dpiVertical);
 }
 
+void DisplayConnection::GetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical)
+{
+  Internal::Adaptor::DisplayConnection::GetDpi(nativeWindow, dpiHorizontal, dpiVertical);
+}
+
 void DisplayConnection::ConsumeEvents()
 {
   mImpl->ConsumeEvents();
