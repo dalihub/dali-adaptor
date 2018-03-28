@@ -171,7 +171,13 @@ bool TiltSensor::Connect()
   {
     DALI_LOG_ERROR("sensor does not support SENSOR_ORIENTATION\n");
 
-    sensor_is_supported(SENSOR_ACCELEROMETER, &isSupported);
+    ret = sensor_is_supported(SENSOR_ACCELEROMETER, &isSupported);
+
+    if(ret < 0)
+    {
+      DALI_LOG_ERROR("sensor_is_supported() failed : %s\n", get_sensor_error_string(ret).c_str());
+      return false;
+    }
 
     if(isSupported == false)
     {
