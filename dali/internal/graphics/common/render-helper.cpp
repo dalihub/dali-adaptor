@@ -160,7 +160,6 @@ void RenderHelper::ShutdownEgl()
 
 bool RenderHelper::PreRender()
 {
-  mGraphics.PreRender( 1 );
 #if 0
   if( mSurface )
   {
@@ -173,7 +172,6 @@ bool RenderHelper::PreRender()
 
 void RenderHelper::PostRender( bool renderToFbo )
 {
-  mGraphics.PostRender( 1 );
 #if 0
   // Inform the gl implementation that rendering has finished before informing the surface
   mGLES.PostRender();
