@@ -97,6 +97,8 @@ NativeRenderSurface::~NativeRenderSurface()
 
     DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n" );
   }
+
+  ecore_wl_shutdown();
 }
 
 void NativeRenderSurface::SetRenderNotification( TriggerEventInterface* renderNotification )

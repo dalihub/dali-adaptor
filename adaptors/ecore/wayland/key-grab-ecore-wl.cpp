@@ -101,42 +101,42 @@ bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, c
   eina_init();
 
   Eina_List* keyList = NULL;
+  Ecore_Wl_Window_Keygrab_Info* info = new Ecore_Wl_Window_Keygrab_Info[keyCount];
   {
     for( Dali::Vector<float>::SizeType index = 0; index < keyCount; ++index )
     {
-      Ecore_Wl_Window_Keygrab_Info info;
-      info.key = const_cast<char*>(Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] ));
+      info[index].key = const_cast<char*>(Dali::Internal::Adaptor::KeyLookup::GetKeyName( daliKeyVector[index] ));
 
       switch( grabModeVector[index] )
       {
         case TOPMOST:
         {
-          info.mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
+          info[index].mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
           break;
         }
         case SHARED:
         {
-          info.mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
+          info[index].mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
           break;
         }
         case OVERRIDE_EXCLUSIVE:
         {
-          info.mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
+          info[index].mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
           break;
         }
         case EXCLUSIVE:
         {
-          info.mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
+          info[index].mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
           break;
         }
         default:
         {
-          info.mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
+          info[index].mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
           break;
         }
       }
 
-      keyList = eina_list_append( keyList, &info );
+      keyList = eina_list_append( keyList, &info[index] );
     }
   }
 
@@ -169,6 +169,8 @@ bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, c
       }
     }
   }
+
+  delete [] info;
 
   eina_list_free( keyList );
   eina_list_free( grabList );
