@@ -30,6 +30,8 @@
 #include <cstring>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel-data.h>
+#include <dali/internal/imaging/common/file-download.h>
+#include <dali/internal/system/common/file-reader.h>
 
 #define IMG_TOO_BIG( w, h )                                                        \
   ( ( static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) ) >= \
@@ -51,6 +53,7 @@ Debug::Filter *gGifLoadingLogFilter = Debug::Filter::New( Debug::NoLogging, fals
 #endif
 
 const int IMG_MAX_SIZE = 65000;
+constexpr size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024;
 
 #if GIFLIB_MAJOR < 5
 const int DISPOSE_BACKGROUND = 2;       /* Set area too background color */
@@ -130,7 +133,8 @@ struct LoaderInfo
     : fileName( nullptr ),
       globalMap ( nullptr ),
       length( 0 ),
-      fileDescriptor( -1 )
+      fileDescriptor( -1 ),
+      isLocalResource( true )
     {
     }
 
@@ -138,6 +142,7 @@ struct LoaderInfo
     unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
     long long length;  /**< The length of the file in bytes. */
     int fileDescriptor; /**< The file descriptor. */
+    bool isLocalResource; /**< The flag whether the file is a local resource */
   };
 
   struct FileInfo
@@ -631,32 +636,63 @@ bool ReadHeader( LoaderInfo &loaderInfo,
   prop.w = 0;
   prop.h = 0;
 
-  fileData.fileDescriptor = open( fileData.fileName, O_RDONLY );
-
-  if( fileData.fileDescriptor == -1 )
+  if( fileData.isLocalResource )
   {
-    return false;
-  }
+    // local file
+    fileData.fileDescriptor = open( fileData.fileName, O_RDONLY );
 
-  fileData.length = lseek( fileData.fileDescriptor, 0, SEEK_END );
-  if( fileData.length <= -1 )
+    if( fileData.fileDescriptor == -1 )
+    {
+      return false;
+    }
+
+    fileData.length = lseek( fileData.fileDescriptor, 0, SEEK_END );
+    if( fileData.length <= -1 )
+    {
+      close( fileData.fileDescriptor );
+      return false;
+    }
+
+    if( lseek( fileData.fileDescriptor, 0, SEEK_SET ) == -1 )
+    {
+      close( fileData.fileDescriptor );
+      return false;
+    }
+
+    // map the file and store/track info
+    fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
+    fileInfo.map = fileData.globalMap ;
+
+    close(fileData.fileDescriptor);
+    fileData.fileDescriptor = -1;
+  }
+  else
   {
-    close( fileData.fileDescriptor );
-    return false;
+    // remote file
+    bool succeeded;
+    Dali::Vector<uint8_t> dataBuffer;
+    size_t dataSize;
+
+    succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory( fileData.fileName, dataBuffer, dataSize,
+                                                                      MAXIMUM_DOWNLOAD_IMAGE_SIZE );
+    if( succeeded )
+    {
+      size_t blobSize = dataBuffer.Size();
+      if( blobSize > 0U )
+      {
+        // Open a file handle on the memory buffer:
+        Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
+        FILE * const fp = fileReader.GetFile();
+        if ( NULL != fp )
+        {
+          fseek( fp, 0, SEEK_SET );
+          fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * blobSize ) );
+          fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), blobSize, fp);
+          fileInfo.map = fileData.globalMap;
+        }
+      }
+    }
   }
-
-  if( lseek( fileData.fileDescriptor, 0, SEEK_SET ) == -1 )
-  {
-    close( fileData.fileDescriptor );
-    return false;
-  }
-
-  // map the file and store/track info
-  fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
-  fileInfo.map = fileData.globalMap ;
-
-  close(fileData.fileDescriptor);
-  fileData.fileDescriptor = -1;
 
   if( !fileInfo.map )
   {
@@ -1135,12 +1171,13 @@ on_error: // jump here on any errors to clean up
 struct GifLoading::Impl
 {
 public:
-  Impl( const std::string& url)
+  Impl( const std::string& url, bool isLocalResource )
   : mUrl( url )
   {
     loaderInfo.gif = nullptr;
     int error;
     loaderInfo.fileData.fileName = mUrl.c_str();
+    loaderInfo.fileData.isLocalResource = isLocalResource;
 
     ReadHeader( loaderInfo, imageProperties, &error );
   }
@@ -1149,7 +1186,14 @@ public:
   {
     if( loaderInfo.fileData.globalMap  )
     {
-      munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
+      if( loaderInfo.fileData.isLocalResource )
+      {
+        munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
+      }
+      else
+      {
+        free( loaderInfo.fileData.globalMap );
+      }
       loaderInfo.fileData.globalMap  = nullptr;
     }
 
@@ -1170,15 +1214,16 @@ public:
   ImageProperties imageProperties;
 };
 
-std::unique_ptr<GifLoading> GifLoading::New( const std::string &url )
+std::unique_ptr<GifLoading> GifLoading::New( const std::string &url, bool isLocalResource )
 {
-  return std::unique_ptr<GifLoading>( new GifLoading( url ) );
+  return std::unique_ptr<GifLoading>( new GifLoading( url, isLocalResource ) );
 }
 
-GifLoading::GifLoading( const std::string &url )
-: mImpl( new GifLoading::Impl( url ) )
+GifLoading::GifLoading( const std::string &url, bool isLocalResource )
+: mImpl( new GifLoading::Impl( url, isLocalResource ) )
 {
 }
+
 
 GifLoading::~GifLoading()
 {
