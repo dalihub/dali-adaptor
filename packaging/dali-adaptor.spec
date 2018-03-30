@@ -37,6 +37,8 @@ Requires:       giflib
 BuildRequires:  pkgconfig(libtzplatform-config)
 %endif
 
+%define disable_cxx03_build 0
+
 %if 0%{?tizen_version_major} < 4
 %define disable_cxx03_build 1
 %endif
@@ -132,6 +134,11 @@ BuildRequires:  pkgconfig(mm-sound)
 %if 0%{?tizen_version_major} >= 3
 BuildRequires:  pkgconfig(feedback)
 %endif
+
+#vulkan
+BuildRequires:  Vulkan-LoaderAndValidationLayers
+BuildRequires:  Vulkan-LoaderAndValidationLayers-devel
+#BuildRequires:  vulkan-wsi-tizen
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -410,7 +417,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 ##############################
 %build
 PREFIX+="/usr"
-CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
+CXXFLAGS=" -Wall -g -Os -fPIC -std=c++14 -std=gnu++14 -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
 LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
@@ -474,6 +481,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -516,6 +524,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -557,6 +566,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -598,6 +608,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -641,6 +652,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -692,6 +704,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -735,6 +748,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -777,6 +791,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -819,6 +834,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -862,6 +878,7 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+           --enable-vulkan="1.0" \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
