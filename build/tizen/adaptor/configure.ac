@@ -341,7 +341,7 @@ if test x$FONT_CONFIGURATION_FILE != x; then
 fi
 
 # vulkan support, includes xlib platform dependency
-if test "x$enable_vulkan" != "xno"; then
+if test x"$enable_vulkan" = "xyes"; then
     PKG_CHECK_MODULES(VULKAN, vulkan-${enable_vulkan}, AC_DEFINE(ENABLE_VULKAN, 1, [Vulkan available as package]),
                   [ AC_MSG_ERROR([Vulkan not available as a package]) ]
                   )
@@ -349,7 +349,8 @@ if test "x$enable_vulkan" != "xno"; then
     DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
 
     # due to a bug in nvidia driver x11-xcb library is required
-    DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
+    #DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
+    DALI_ADAPTOR_LDFLAGS+= $(libdir)/libvulkan.so
 
     if test "x$DALI_HAS_X11_XCB" == "x1"; then
         echo "X11 libs: ${X11_XCB_LIBS}"
@@ -357,7 +358,7 @@ if test "x$enable_vulkan" != "xno"; then
     fi
 fi
 
-AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan != xno])
+AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan = xyes])
 
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)

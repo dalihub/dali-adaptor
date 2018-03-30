@@ -152,12 +152,16 @@ adaptor_internal_src_files += $(adaptor_common_internal_src_files) \
                              $(adaptor_common_internal_egl_extension_src_files)
 
 # if VULKAN support include vulkan surfaces
-if VULKAN_ENABLED
-adaptor_internal_src_files += $(surface_vulkan_ubuntu_src_files)
-endif # VULKAN_ENABLED
+#if VULKAN_ENABLED
+#adaptor_internal_src_files += $(surface_vulkan_ubuntu_src_files)
+#endif # VULKAN_ENABLED
 
 endif # UBUNTU_PROFILE
 
+#if VULKAN support include vulkan surfaces
+#if VULKAN_ENABLED
+adaptor_internal_src_files += $(surface_vulkan_ubuntu_src_files)
+#endif # VULKAN_ENABLED
 
 # MOBILE
 if MOBILE_PROFILE
@@ -348,6 +352,12 @@ LIBDALI_ADAPTOR_LA_includes += \
                       -I../../../adaptors/tizen
 endif
 
+#if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_includes += \
+                      -I../../../adaptors/surface
+#endif # VULKAN_ENABLED
+
+
 daliDefaultThemeDir  = ${dataReadWriteDir}/theme/
 daliShaderbinCacheDir = ${dataReadOnlyDir}/core/shaderbin/
 
@@ -383,8 +393,8 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
                       $(TPKP_CURL_CFLAGS) \
-                      $(UTILX_CFLAGS)
-
+                      $(UTILX_CFLAGS) \
+                      $(VULKAN_CFLAGS)
 # Todo, as soon as common repos are updated on build server remove this.
 if !COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
@@ -393,7 +403,8 @@ endif
 LIBDALI_ADAPTOR_LA_CFLAGS = \
                       -Werror -Wall \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
-                      $(DALI_ADAPTOR_CFLAGS)
+                      $(DALI_ADAPTOR_CFLAGS) \
+                      $(VULKAN_CFLAGS)
 
 LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(DALICORE_LIBS) \
@@ -412,7 +423,8 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
-                      $(VULKAN_LIBS) \
+                      #$(VULKAN_LIBS) \
+		      $(libdir)/libvulkan.so \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \
@@ -473,6 +485,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(X11_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(X11_LIBS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(ECORE_X_LIBS)
 endif
+
 
 if COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_CXXFLAGS += $(HAPTIC_CFLAGS)
@@ -620,6 +633,7 @@ linker_test_CXXFLAGS = \
   $(DALICORE_CFLAGS) \
   $(VCONF_CFLAGS) \
   $(DALIX11_CFLAGS) \
+  $(LIBDALI_ADAPTOR_LA_CXXFLAGS) \
   -Werror -Wall
 
 if WAYLAND
@@ -635,11 +649,13 @@ linker_test_LDADD = \
   $(DALICORE_LIBS) \
   $(VCONF_LIBS) \
   $(HARFBUZZ_LIBS) \
+  $(libdir)/libvulkan.so \
   -L${prefix}/lib
 
 if ENABLE_CXX03_ABI
 
 linker_test_LDADD += libdali-adaptor.la
+
 linker_test_DEPENDENCIES = libdali-adaptor.la
 
 if ENABLE_RENAME_SO
@@ -653,6 +669,7 @@ endif
 else
 
 linker_test_LDADD += libdali-adaptor-cxx11.la
+
 linker_test_DEPENDENCIES = libdali-adaptor-cxx11.la
 
 if ENABLE_RENAME_SO

@@ -55,12 +55,21 @@
 #include <object-profiler.h>
 #include <base/display-connection.h>
 #include <window-impl.h>
-#include <adaptors/surface/vk-surface-xlib2xcb.h>
 
 #include <tizen-logging.h>
 #include <image-loading.h>
-
 #include <locale-utils.h>
+
+#ifndef VK_USE_PLATFORM_WAYLAND_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#include <adaptors/surface/vk-surface-wayland.h>
+#else
+#include <adaptors/surface/vk-surface-xlib2xcb.h>
+#endif
+
 
 using Dali::TextAbstraction::FontClient;
 
@@ -150,11 +159,17 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   );
 
   // todo: surface shouldn't really be create here :((((
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+  auto waylandSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
+	  new Dali::Graphics::Vulkan::VkSurfaceWayland( *mSurface )
+	);
+	mGraphics->Create( std::move(waylandSurface) );
+#else
   auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
-    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
+      new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
   );
-
   mGraphics->Create( std::move(xlibSurface) );
+#endif
 
   mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGraphics, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy,
                                   0u != mEnvironmentOptions->GetRenderToFboInterval());
