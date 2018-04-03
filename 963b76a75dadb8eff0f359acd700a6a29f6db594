@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "18d19dd6_fc9c3ae2",
+        "filename": "adaptors/common/adaptor-impl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "we should find a better way if creating the surface of particular type rather than using the preprocessor in the common code ( adaptor-impl is common )",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddd1abb9_3e5509d5",
         "filename": "adaptors/common/adaptor-impl.cpp",
         "patchSetId": 1
@@ -42,6 +59,91 @@
     },
     {
       "key": {
+        "uuid": "9f6347ff_f51974bc",
+        "filename": "adaptors/common/adaptor-impl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "tabs",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d94e9a5_8e6113b7",
+        "filename": "adaptors/surface/vk-surface-wayland.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "trailing spaces",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b868d617_39c327f9",
+        "filename": "adaptors/surface/vk-surface-wayland.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "use spaces not tabs",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5368f0c_89393076",
+        "filename": "adaptors/surface/vk-surface-wayland.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "trailing spaces",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f37487be_7174dead",
+        "filename": "adaptors/surface/vk-surface-wayland.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "check for error",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e59d92c_d0e9c38c",
         "filename": "adaptors/surface/vk-surface-wayland.h",
         "patchSetId": 1
@@ -70,6 +172,57 @@
       "writtenOn": "2018-04-03T13:32:18Z",
       "side": 1,
       "message": "missing copy/move constructors and assignment operators",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5db1b21_6908d7a8",
+        "filename": "adaptors/surface/wayland_native.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "??? ?",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c45901be_5ac14e4b",
+        "filename": "adaptors/surface/wayland_native.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "this looks to me like modified wayland header (?), is there a reason why it\u0027s here?\n\nit is fine if there\u0027s a reason to have such header here but then remove the commented out code,",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ea9d819_74af4ac6",
+        "filename": "adaptors/tizen/framework-tizen.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-04-03T14:28:33Z",
+      "side": 1,
+      "message": "if this line is not needed then delete it, don\u0027t leave commented out code",
       "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
