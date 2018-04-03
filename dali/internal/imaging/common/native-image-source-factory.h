@@ -32,7 +32,6 @@ class NativeImageSource;
 namespace NativeImageSourceFactory
 {
 
-__attribute__((weak))
 std::unique_ptr<Internal::Adaptor::NativeImageSource> New(unsigned int width,
                                        unsigned int height,
                                        Dali::NativeImageSource::ColorDepth depth,

@@ -33,7 +33,6 @@ namespace ImfManagerFactory
 
 // Factory function creating new IMFManager
 // Symbol exists but may be overriden during linking
-__attribute__((weak))
 Dali::ImfManager CreateImfManager();
 
 }

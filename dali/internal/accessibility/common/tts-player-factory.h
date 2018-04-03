@@ -37,7 +37,7 @@ namespace TtsPlayerFactory
  * Factory function that ought to be overriden by platform implementation.
  * @return
  */
-__attribute__((weak)) std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
+std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
 
 } // namespace TtsPlayerFactory
 

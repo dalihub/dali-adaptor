@@ -35,7 +35,7 @@ namespace TiltSensorFactory
  * Creates new instance of tilt sensor implementation
  * @return pointer to tilt sensor implementation instance
  */
-__attribute__((weak)) Dali::Internal::Adaptor::TiltSensor* Create();
+Dali::Internal::Adaptor::TiltSensor* Create();
 
 /**
  * Obtains existing or creates new instance of the tilt sensor
