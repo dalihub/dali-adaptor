@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddd1abb9_3e5509d5",
+        "filename": "adaptors/common/adaptor-impl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1010807
+      },
+      "writtenOn": "2018-04-03T13:32:18Z",
+      "side": 1,
+      "message": "refer to the adaptor implementation guide to do this without ifdef",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0746587a_b7a39d4a",
+        "filename": "adaptors/common/adaptor-impl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1010807
+      },
+      "writtenOn": "2018-04-03T13:32:18Z",
+      "side": 1,
+      "message": "tabs are not allowed",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 3
+      },
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e59d92c_d0e9c38c",
+        "filename": "adaptors/surface/vk-surface-wayland.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010807
+      },
+      "writtenOn": "2018-04-03T13:32:18Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af85a462_bd09d9ce",
+        "filename": "adaptors/surface/vk-surface-wayland.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1010807
+      },
+      "writtenOn": "2018-04-03T13:32:18Z",
+      "side": 1,
+      "message": "missing copy/move constructors and assignment operators",
+      "revId": "963b76a75dadb8eff0f359acd700a6a29f6db594",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
