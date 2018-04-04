@@ -42,7 +42,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_ubuntu_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -96,7 +96,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -158,7 +158,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_haptics_tizen_src_files) \
@@ -221,7 +221,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -282,7 +282,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -346,7 +346,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
+                  $(adaptor_graphics_gles_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \

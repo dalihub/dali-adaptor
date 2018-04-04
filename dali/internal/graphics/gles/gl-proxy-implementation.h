@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles20/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
 
 namespace Dali
 {

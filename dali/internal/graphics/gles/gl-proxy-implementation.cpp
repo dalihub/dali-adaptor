@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/gl-proxy-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 
 // EXTERNAL INCLUDES
 #include <math.h>

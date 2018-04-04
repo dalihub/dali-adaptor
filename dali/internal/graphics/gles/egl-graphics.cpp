@@ -17,7 +17,7 @@
 
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique

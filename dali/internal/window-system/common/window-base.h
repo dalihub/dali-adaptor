@@ -25,7 +25,7 @@
 #include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/key-event-integ.h>
