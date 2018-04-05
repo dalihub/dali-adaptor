@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_IMPL_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,6 @@ namespace Internal
 namespace Adaptor
 {
 class EventHandler;
-class EglFactory;
 class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
@@ -240,11 +239,6 @@ public:
    * @copydoc Dali::Adaptor::SetUseHardwareVSync()
    */
   void SetUseHardwareVSync(bool useHardware);
-
-  /**
-   * @return reference to EglFactory class
-   */
-  EglFactory& GetEGLFactory() const;
 
   /**
    * Return GlAbstraction.

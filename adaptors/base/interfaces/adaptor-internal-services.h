@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <trigger-event-interface.h>
 #include <trigger-event-factory-interface.h>
-#include <base/interfaces/egl-factory-interface.h>
+#include <base/interfaces/display-factory-interface.h>
 #include <base/interfaces/socket-factory-interface.h>
 #include <base/interfaces/performance-interface.h>
 #include <base/interfaces/vsync-monitor-interface.h>
@@ -72,14 +72,9 @@ public:
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface()  = 0;
 
   /**
-   * @return gles abstraction
+   * @return display factory
    */
-  virtual Dali::Integration::GlAbstraction& GetGlesInterface()  = 0;
-
-  /**
-   * @return egl factory
-   */
-  virtual EglFactoryInterface& GetEGLFactoryInterface() const  = 0;
+  virtual DisplayFactoryInterface& GetDisplayFactoryInterface() const  = 0;
 
   /**
    * @return Graphics

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@ private:
   FpsTracker                        mFpsTracker;                       ///< Object that tracks the FPS
   UpdateStatusLogger                mUpdateStatusLogger;               ///< Object that logs the update-status as required.
 
-  RenderHelper                      mRenderHelper;                     ///< Helper class for EGL, pre & post rendering
+  RenderHelper                      mRenderHelper;                     ///< Helper class for surface, pre & post rendering
 
   sem_t                             mEventThreadSemaphore;             ///< Used by the event thread to ensure all threads have been initialised, and when replacing the surface.
 

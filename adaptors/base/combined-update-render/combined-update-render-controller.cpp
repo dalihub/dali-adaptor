@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ void CombinedUpdateRenderController::Initialize()
   int error = pthread_create( mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this );
   DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() when creating UpdateRenderThread" );
 
-  // The Update/Render thread will now run and initialise EGL etc. and will then wait for Start to be called
+  // The Update/Render thread will now run and initialise, etc. and will then wait for Start to be called
   // When this function returns, the application initialisation on the event thread should occur
 }
 
@@ -382,7 +382,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   LOG_UPDATE_RENDER( "THREAD CREATED" );
 
-  mRenderHelper.InitializeEgl();
+  mRenderHelper.Initialize();
 
   // tell core it has a context
   mCore.ContextCreated();
@@ -569,9 +569,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  // Inform core of context destruction & shutdown EGL
+  // Inform core of context destruction & shutdown
   mCore.ContextDestroyed();
-  mRenderHelper.ShutdownEgl();
+  mRenderHelper.Shutdown();
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );
 

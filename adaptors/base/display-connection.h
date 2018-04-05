@@ -2,7 +2,7 @@
 #define __DALI_DISPLAY_CONNECTION_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@
 
 namespace Dali
 {
-
-class EglInterface;
 
 namespace Internal
 {
@@ -92,11 +90,11 @@ public:
   void ConsumeEvents();
 
   /**
-   * @brief Initialize EGL display
+   * @brief Initialize display
    *
-   * @param egl implementation to use for the creation
+   * @param implementation to use for the creation
    */
-  bool InitializeEgl(EglInterface& egl);
+  bool Initialize(DisplayInterface& displayInterface);
 
 public:
 

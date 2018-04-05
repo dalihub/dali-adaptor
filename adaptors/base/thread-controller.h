@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_THREAD_CONTROLLER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public:
   /**
    * @brief Initializes the thread controller
    *
-   * Will do any required initialiszation, e.g. initialize EGL, create threads (if required), etc.
+   * Will do any required initialiszation, e.g. initialize display, create threads (if required), etc.
    *
    * @note When this function returns, the application Init signal should be emitted
    */
@@ -80,7 +80,7 @@ public:
   /**
    * @brief Stops update/rendering altogether.
    *
-   * Will shutdown EGL, destroy threads (if required) etc.
+   * Will shutdown display, destroy threads (if required) etc.
    */
   void Stop();
 

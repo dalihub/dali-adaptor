@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
 
 // INTERNAL INCLUDES
 #include <display-connection-impl.h>
-#include <egl-interface.h>
 
 namespace Dali
 {
+
+// TODO: Create DisplayInterface?
+  class DisplayInterface;
 
 DisplayConnection* DisplayConnection::New()
 {
@@ -76,9 +78,9 @@ void DisplayConnection::ConsumeEvents()
   mImpl->ConsumeEvents();
 }
 
-bool DisplayConnection::InitializeEgl(EglInterface& egl)
+bool DisplayConnection::Initialize(DisplayInterface& displayInterface)
 {
-  return mImpl->InitializeEgl(egl);
+  return mImpl->Initialize();
 }
 
 }

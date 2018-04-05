@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_RENDER_HELPER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <egl-interface.h>
-#include <render-surface.h> // needed for Dali::RenderSurface
-
 namespace Dali
 {
 
@@ -43,10 +40,9 @@ namespace Adaptor
 {
 
 class AdaptorInternalServices;
-class EglFactoryInterface;
 
 /**
- * Helper class for EGL, surface, pre & post rendering
+ * Helper class for surface, pre & post rendering
  */
 class RenderHelper
 {
@@ -89,11 +85,11 @@ public:
   void ConsumeEvents();
 
   /**
-   * Initializes EGL.
+   * Initializes.
    *
    * @note Called from rendering thread
    */
-  void InitializeEgl();
+  void Initialize();
 
   /**
    * Replaces the rendering surface
@@ -113,11 +109,11 @@ public:
   void ResizeSurface();
 
   /**
-   * Shuts down EGL.
+   * Shuts down.
    *
    * @note Called from render thread
    */
-  void ShutdownEgl();
+  void Shutdown();
 
   /**
    * Called before core renders the scene
@@ -147,9 +143,6 @@ private:
 
 private: // Data
 
-  Integration::GlAbstraction&       mGLES;                   ///< GL abstraction reference
-  EglFactoryInterface*              mEglFactory;             ///< Factory class to create EGL implementation
-  EglInterface*                     mEGL;                    ///< Interface to EGL implementation
   RenderSurface*                    mSurface;                ///< Current surface
   Dali::DisplayConnection*          mDisplayConnection;      ///< Display connection
   Integration::Graphics::Graphics&  mGraphics;

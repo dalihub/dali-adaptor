@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,6 @@
 #include <events/event-handler.h>
 #include <gl/gl-proxy-implementation.h>
 #include <gl/gl-implementation.h>
-#include <gl/egl-sync-implementation.h>
-#include <gl/egl-image-extensions.h>
-#include <gl/egl-factory.h>
 #include <imf-manager-impl.h>
 #include <clipboard-impl.h>
 #include <vsync-monitor.h>
@@ -140,10 +137,6 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     mGLES = new GlImplementation();
   }
 
-  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel() );
-
-  EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
-
   // todo: add somewhere MakeUnique to make it cleaner
   mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
     new Dali::Integration::Graphics::Graphics()
@@ -156,7 +149,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mGraphics->Create( std::move(xlibSurface) );
 
-  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGraphics, *mGLES, *eglSyncImpl, *mGestureManager, dataRetentionPolicy,
+  mCore = Integration::Core::New( *this, *mPlatformAbstraction, *mGraphics, *mGestureManager, dataRetentionPolicy,
                                   0u != mEnvironmentOptions->GetRenderToFboInterval());
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
@@ -233,8 +226,6 @@ Adaptor::~Adaptor()
   delete mObjectProfiler;
 
   delete mCore;
-  delete mEglFactory;
-  delete mGLES;
   delete mGestureManager;
   delete mPlatformAbstraction;
   delete mCallbackManager;
@@ -498,23 +489,6 @@ void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 void Adaptor::SetUseHardwareVSync( bool useHardware )
 {
   mVSyncMonitor->SetUseHardwareVSync( useHardware );
-}
-
-EglFactory& Adaptor::GetEGLFactory() const
-{
-  DALI_ASSERT_DEBUG( mEglFactory && "EGL Factory not created" );
-  return *mEglFactory;
-}
-
-EglFactoryInterface& Adaptor::GetEGLFactoryInterface() const
-{
-  return *mEglFactory;
-}
-
-Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
-{
-  DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
-  return *mGLES;
 }
 
 Dali::Integration::Graphics::Graphics& Adaptor::GetGraphics() const
@@ -814,9 +788,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mCore( NULL ),
   mThreadController( NULL ),
   mVSyncMonitor( NULL ),
-  mGLES( NULL ),
-  mGlSync( NULL ),
-  mEglFactory( NULL ),
   mNativeWindow( nativeWindow ),
   mSurface( surface ),
   mPlatformAbstraction( NULL ),
