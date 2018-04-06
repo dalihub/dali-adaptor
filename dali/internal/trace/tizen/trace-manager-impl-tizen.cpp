@@ -1,8 +1,5 @@
-#ifndef DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
-#define DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
-
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +15,11 @@
  *
  */
 
-#include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <memory>
+// EXTERNAL INCLUDES
+#include <ttrace.h>
+#include <dali/internal/trace/tizen/trace-manager-impl-tizen.h>
+
+// INTERNAL INCLUDES
 
 namespace Dali
 {
@@ -29,22 +29,31 @@ namespace Internal
 
 namespace Adaptor
 {
-class TtsPlayer;
-namespace TtsPlayerFactory
+
+TraceManagerTizen::TraceManagerTizen( PerformanceInterface* performanceInterface )
+: TraceManager( performanceInterface )
 {
+}
 
-/**
- * Factory function that ought to be overriden by platform implementation.
- * @return
- */
-std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
+Dali::Integration::Trace::LogContextFunction TraceManagerTizen::GetLogContextFunction()
+{
+  return LogContext;
+}
 
-} // namespace TtsPlayerFactory
+void TraceManagerTizen::LogContext( bool start, const char* tag )
+{
+  if( start )
+  {
+    traceBegin( TTRACE_TAG_GRAPHICS, tag );
+  }
+  else
+  {
+    traceEnd( TTRACE_TAG_GRAPHICS );
+  }
+}
 
-} // namespaceAdaptor
+} // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-#endif // DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H

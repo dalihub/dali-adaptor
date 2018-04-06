@@ -1,8 +1,8 @@
-#ifndef TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
-#define TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
+#ifndef DALI_INTERNAL_TRACE_FACTORY_H
+#define DALI_INTERNAL_TRACE_FACTORY_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,36 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <memory>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/trace/common/trace-manager-impl.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
+
 namespace Adaptor
 {
 
-class NativeImageSource;
-namespace NativeImageSourceFactory
+namespace TraceManagerFactory
 {
 
-std::unique_ptr<Internal::Adaptor::NativeImageSource> New(unsigned int width,
-                                       unsigned int height,
-                                       Dali::NativeImageSource::ColorDepth depth,
-                                       Any nativeImageSource);
+using TraceManagerUPtr = std::unique_ptr<TraceManager>;
 
-}
+// Factory function creating new TraceFactory
+// Symbol exists but may be overriden during linking
+TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface );
 
-} // Adaptor
+} // namespace TraceManagerFactory
 
-} // Internal
+} // namespace Adaptor
 
-} // Dali
+} // namespace Internal
 
-#endif //TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
+} // namespace Dali
+
+#endif //DALI_INTERNAL_TRACE_FACTORY_H

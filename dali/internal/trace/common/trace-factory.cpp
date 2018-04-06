@@ -1,6 +1,3 @@
-#ifndef DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
-#define DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
-
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
@@ -18,8 +15,7 @@
  *
  */
 
-#include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <memory>
+#include <dali/internal/trace/common/trace-factory.h>
 
 namespace Dali
 {
@@ -29,22 +25,24 @@ namespace Internal
 
 namespace Adaptor
 {
-class TtsPlayer;
-namespace TtsPlayerFactory
+
+namespace TraceManagerFactory
 {
 
-/**
- * Factory function that ought to be overriden by platform implementation.
- * @return
- */
-std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
+// Factory function creating new TraceFactory
+// Symbol exists but may be overriden during linking
 
-} // namespace TtsPlayerFactory
+__attribute__((weak))
+TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface )
+{
+  // return empty handle if TraceManager not implemented
+  return nullptr;
+}
 
-} // namespaceAdaptor
+} // namespace TraceManagerFactory
+
+} // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-#endif // DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -31,6 +32,8 @@ namespace Internal
 {
 namespace Adaptor
 {
+class TraceManager;
+class PerformanceInterface;
 
 /**
  * This class provides the environment options which define settings as well as
@@ -50,6 +53,17 @@ public:
    * Virtual Destructor for interface cleanup
    */
   virtual ~EnvironmentOptions();
+
+  /**
+   * Create a TraceManager which is used for tracing.
+   * @param PerformanceInterface for using network logging for tracing on Ubuntu
+   */
+  void CreateTraceManager( PerformanceInterface* performanceInterface );
+
+  /**
+   * Initialize TraceManager by installing Trace function.
+   */
+  void InstallTraceFunction() const;
 
   /**
    * @param logFunction logging function
@@ -300,7 +314,6 @@ private: // Internal
 private: // Data
 
   Dali::Integration::Log::LogFunction mLogFunction;
-
   std::string mWindowName;                        ///< name of the window
   std::string mWindowClassName;                   ///< name of the class the window belongs to
   unsigned int mNetworkControl;                   ///< whether network control is enabled
@@ -340,6 +353,7 @@ private: // Data
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   bool mDepthBufferRequired;                      ///< Whether the depth buffer is required
   bool mStencilBufferRequired;                    ///< Whether the stencil buffer is required
+  std::unique_ptr<TraceManager> mTraceManager;    ///< TraceManager
 };
 
 } // Adaptor

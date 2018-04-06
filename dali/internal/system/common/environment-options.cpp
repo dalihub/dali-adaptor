@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/public-api/math/math-utils.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/trace/common/trace-factory.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
@@ -131,6 +132,19 @@ EnvironmentOptions::EnvironmentOptions()
 
 EnvironmentOptions::~EnvironmentOptions()
 {
+}
+
+void EnvironmentOptions::CreateTraceManager( PerformanceInterface* performanceInterface )
+{
+  mTraceManager = TraceManagerFactory::CreateTraceFactory( performanceInterface );
+}
+
+void EnvironmentOptions::InstallTraceFunction() const
+{
+  if( mTraceManager )
+  {
+    mTraceManager->Initialise();
+  }
 }
 
 void EnvironmentOptions::SetLogFunction( const Dali::Integration::Log::LogFunction& logFunction )
