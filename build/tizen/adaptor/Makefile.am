@@ -65,6 +65,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(adaptor_window_system_ubuntu_x11_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
@@ -73,6 +74,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_ubuntu_src_files)
 endif
 
 endif
@@ -112,6 +118,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_mobile_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -119,6 +126,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_tizen_src_files)
 endif
 
 endif
@@ -158,6 +170,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -165,6 +178,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_tizen_src_files)
 endif
 
 endif
@@ -203,6 +221,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -210,6 +229,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_tizen_src_files)
 endif
 
 endif
@@ -247,6 +271,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -254,6 +279,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_tizen_src_files)
 endif
 
 endif
@@ -295,6 +325,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_window_system_tizen_wearable_src_files) \
+                  $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -302,6 +333,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
+endif
+
+if ENABLE_TRACE
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_trace_tizen_src_files)
 endif
 
 endif

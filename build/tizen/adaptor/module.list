@@ -59,6 +59,10 @@ include ../../../dali/internal/video/file.list
 adaptor_window_system_dir = ../../../dali/internal/window-system
 include ../../../dali/internal/window-system/file.list
 
+# Module: trace
+adaptor_trace_dir = ../../../dali/internal/trace
+include ../../../dali/internal/trace/file.list
+
 # Module: public-api
 adaptor_public_api_dir = ../../../dali/public-api
 include ../../../dali/public-api/file.list

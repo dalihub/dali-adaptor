@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.3.17
+Version:    1.3.19
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -416,7 +416,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %build
 PREFIX+="/usr"
 CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
-LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbolic-functions "
+LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
@@ -479,6 +479,9 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -492,7 +495,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.mobile"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
 popd
 
@@ -521,6 +524,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -534,7 +540,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.tv"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
 popd
 
@@ -562,6 +568,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -575,7 +584,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.wearable"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
 popd
 
@@ -603,6 +612,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -616,7 +628,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adaptor*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.ivi"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 
 mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
 popd
@@ -646,6 +658,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -659,7 +674,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 
 mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
 popd
@@ -697,6 +712,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -710,7 +728,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.mobile"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -740,6 +758,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -753,7 +774,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.tv"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -782,6 +803,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -795,7 +819,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.wearable"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -824,6 +848,9 @@ make clean
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
+%if 0%{?enable_trace}
+           --enable-trace \
+%endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -837,7 +864,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.ivi"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done 
+for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -866,6 +893,9 @@ make clean
 %endif
 %if 0%{?enable_debug}
            --enable-debug \
+%endif
+%if 0%{?enable_trace}
+           --enable-trace \
 %endif
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
@@ -902,7 +932,7 @@ mv dali-adaptor*.pc %{buildroot}%{_libdir}/pkgconfig/
 popd
 
 ################################################
-#rename 
+#rename
 ###############################################
 pushd %{buildroot}%{_libdir}
 
