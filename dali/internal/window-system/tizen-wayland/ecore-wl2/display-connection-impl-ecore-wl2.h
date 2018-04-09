@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_WAYLAND_DISPLAY_CONNECTION_IMPL_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_WAYLAND_DISPLAY_CONNECTION_IMPL_WL_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL2_H
+#define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL2_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <wayland-egl.h>
+#include <Ecore_Wl2.h>
 #include <dali/integration-api/wayland/wl-types.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 
@@ -42,14 +43,14 @@ namespace Adaptor
 /**
  * DisplayConnection implementation
  */
-class DisplayConnection : public Dali::BaseObject
+class DisplayConnectionEcoreWl2 : public Dali::Internal::Adaptor::DisplayConnection
 {
 public:
 
   /**
    * @brief Default constructor
    */
-  DisplayConnection();
+  DisplayConnectionEcoreWl2();
 
   /**
    * @brief Create an initialized DisplayConnection.
@@ -85,29 +86,41 @@ public:
    */
   bool InitializeEgl(EglInterface& egl);
 
+  /**
+   * @brief Sets surface type
+   */
   void SetSurfaceType( RenderSurface::Type type );
+
+
 
 public:
 
   /**
    * Destructor
    */
-  virtual ~DisplayConnection();
+  virtual ~DisplayConnectionEcoreWl2();
 
 protected:
 
+  /**
+   * @brief Gets display connection for native surface
+   */
   EGLNativeDisplayType GetNativeDisplay();
 
+  /**
+   * @brief Release display connection for native surface
+   */
   void ReleaseNativeDisplay();
 
   // Undefined
-  DisplayConnection(const DisplayConnection&);
+  DisplayConnectionEcoreWl2(const DisplayConnectionEcoreWl2&);
 
   // Undefined
-  DisplayConnection& operator=(const DisplayConnection& rhs);
+  DisplayConnectionEcoreWl2& operator=(const DisplayConnectionEcoreWl2& rhs);
 
 private:
-  WlDisplay*   mDisplay;        ///< Wayland-display for rendering
+  EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
+  RenderSurface::Type mSurfaceType;
 };
 
 } // namespace Adaptor
@@ -116,4 +129,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_WAYLAND_DISPLAY_CONNECTION_IMPL_WL_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL2_H

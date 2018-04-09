@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
 #include <Ecore_Wayland.h>

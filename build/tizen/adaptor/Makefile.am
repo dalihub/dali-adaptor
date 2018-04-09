@@ -93,7 +93,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
-                  $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -103,7 +102,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_tizen_wayland_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -119,11 +117,22 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_mobile_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
-                  $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if USE_ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland2_src_files) \
+                  $(adaptor_input_tizen_wayland2_src_files) \
+                  $(adaptor_window_system_tizen_wayland2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -146,7 +155,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
-                  $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -157,7 +165,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_tizen_wayland_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -172,11 +179,22 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
-                  $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if USE_ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland2_src_files) \
+                  $(adaptor_input_tizen_wayland2_src_files) \
+                  $(adaptor_window_system_tizen_wayland2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -199,7 +217,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
-                  $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -209,7 +226,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_tizen_wayland_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -224,11 +240,22 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
-                  $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if USE_ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland2_src_files) \
+                  $(adaptor_input_tizen_wayland2_src_files) \
+                  $(adaptor_window_system_tizen_wayland2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -250,7 +277,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
-                  $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -260,7 +286,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_tizen_wayland_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -275,11 +300,22 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
-                  $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if USE_ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland2_src_files) \
+                  $(adaptor_input_tizen_wayland2_src_files) \
+                  $(adaptor_window_system_tizen_wayland2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -304,7 +340,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_adaptor_tizen_wearable_src_files) \
                   $(adaptor_clipboard_common_src_files) \
-                  $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -314,7 +349,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_tizen_wayland_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -329,12 +363,23 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
-                  $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_window_system_tizen_wearable_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if USE_ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland2_src_files) \
+                  $(adaptor_input_tizen_wayland2_src_files) \
+                  $(adaptor_window_system_tizen_wayland2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_window_system_tizen_wayland_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -562,7 +607,11 @@ tizenadaptorintegrationapi_HEADERS = $(adaptor_integration_api_header_files)
 
 if WAYLAND
 tizenadaptorintegrationwaylandapidir = $(devincludepath)/dali/integration-api/adaptors
-tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_wayland_api_header_files)
+if USE_ECORE_WAYLAND2
+tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_ecore_wl2_api_header_files)
+else
+tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_ecore_wl_api_header_files)
+endif
 tizenadaptorintegrationwaylandapi_HEADERS += $(adaptor_integration_ecore_wayland_api_header_files)
 else
 tizenadaptorintegrationx11apidir = $(devincludepath)/dali/integration-api/adaptors
