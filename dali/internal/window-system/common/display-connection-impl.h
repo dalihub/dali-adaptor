@@ -68,11 +68,6 @@ public:
   static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
   /**
-   * @copydoc Dali::DisplayConnection::GetDpi with native window
-   */
-  static void GetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical);
-
-  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   virtual void ConsumeEvents() = 0;

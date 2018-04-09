@@ -301,11 +301,7 @@ void Adaptor::Start()
 
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
-#ifdef ECORE_WL2
-  Dali::DisplayConnection::GetDpi( mNativeWindow, dpiHor, dpiVer );
-#else
-  Dali::DisplayConnection::GetDpi( dpiHor, dpiVer );
-#endif
+  Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
 
   // tell core about the DPI value
   mCore->SetDpi(dpiHor, dpiVer);
