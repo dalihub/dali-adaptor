@@ -55,11 +55,7 @@ include ../../../dali/internal/text/file.list
 adaptor_video_dir = ../../../dali/internal/video
 include ../../../dali/internal/video/file.list
 
-# Module: web-engine-lite
-adaptor_web_engine_dir = ../../../dali/internal/web-engine-lite
-include ../../../dali/internal/web-engine-lite/file.list
-
-# Module: window-system 
+# Module: window-system
 adaptor_window_system_dir = ../../../dali/internal/window-system
 include ../../../dali/internal/window-system/file.list
 
