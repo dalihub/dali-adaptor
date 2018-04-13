@@ -205,12 +205,12 @@ void ApplySettings( const Property::Map& settingsMap )
 
     Property::Value item = settingsMap.GetValue(i);
 
-    if ( key == TOKEN_STRING( ACTION_BUTTON ) )
+    if ( key == TOKEN_STRING( BUTTON_ACTION ) )
     {
       if ( item.GetType() == Property::INTEGER )
       {
         int value = item.Get< int >();
-        VirtualKeyboard::SetReturnKeyType( static_cast<InputMethod::ActionButton>(value) );
+        VirtualKeyboard::SetReturnKeyType( static_cast<InputMethod::ButtonAction::Type>(value) );
       }
     }
     else
