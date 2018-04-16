@@ -2,7 +2,7 @@
 #define __DALI_VIRTUAL_KEYBOARD_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,13 +98,13 @@ DALI_IMPORT_API void ApplySettings( const Property::Map& settingsMap );
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_IMPORT_API void SetReturnKeyType( const InputMethod::ActionButton type );
+DALI_IMPORT_API void SetReturnKeyType( const InputMethod::ButtonAction::Type type );
 
 /**
  * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
-DALI_IMPORT_API InputMethod::ActionButton GetReturnKeyType();
+DALI_IMPORT_API InputMethod::ButtonAction::Type GetReturnKeyType();
 
 /**
  * @brief Enable/disable prediction (predictive text).

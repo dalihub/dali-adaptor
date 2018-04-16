@@ -87,6 +87,7 @@ endif
 if MOBILE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_src_files) \
                   $(adaptor_accessibility_tizen_mobile_src_files) \
                   $(adaptor_adaptor_common_src_files) \
                   $(adaptor_adaptor_tizen_src_files) \
@@ -139,6 +140,7 @@ endif
 if IVI_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_src_files) \
                   $(adaptor_accessibility_tizen_ivi_src_files) \
                   $(adaptor_adaptor_common_src_files) \
                   $(adaptor_adaptor_tizen_src_files) \
@@ -191,6 +193,7 @@ endif
 if TV_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_src_files) \
                   $(adaptor_accessibility_tizen_tv_src_files) \
                   $(adaptor_adaptor_common_src_files) \
                   $(adaptor_adaptor_tizen_src_files) \
@@ -241,6 +244,7 @@ endif
 if COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_src_files) \
                   $(adaptor_accessibility_tizen_common_src_files) \
                   $(adaptor_adaptor_common_src_files) \
                   $(adaptor_adaptor_tizen_src_files) \
@@ -293,6 +297,7 @@ endif
 if WEARABLE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
+                  $(adaptor_accessibility_tizen_src_files) \
                   $(adaptor_accessibility_tizen_wearable_src_files) \
                   $(adaptor_adaptor_common_src_files) \
                   $(adaptor_adaptor_tizen_src_files) \

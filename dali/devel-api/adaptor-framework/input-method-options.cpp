@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/devel-api/adaptor-framework/input-method-options.h>
 
-// INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/input-method-devel.h>
-
 using namespace Dali::InputMethod;
 using namespace Dali::InputMethod::Category;
 
@@ -35,13 +32,13 @@ struct InputMethodOptions::Impl
   {
     mPanelLayout = PanelLayout::NORMAL;
     mAutoCapital = AutoCapital::SENTENCE;
-    mActionButton = ActionButtonTitle::DEFAULT;
+    mButtonAction = ButtonAction::DEFAULT;
     mVariation = NormalLayout::NORMAL;
   }
 
   PanelLayout::Type mPanelLayout;
   AutoCapital::Type mAutoCapital;
-  ActionButtonTitle::Type mActionButton;
+  ButtonAction::Type mButtonAction;
   int mVariation:4;
 };
 
@@ -81,20 +78,20 @@ void InputMethodOptions::ApplyProperty( const Property::Map& settings )
         mImpl->mPanelLayout = static_cast<InputMethod::PanelLayout::Type>(value);
       }
     }
-    else if ( key == TOKEN_STRING( AUTO_CAPITALISE ) )
+    else if ( key == TOKEN_STRING( BUTTON_ACTION ) )
+    {
+      if ( item.GetType() == Property::INTEGER )
+      {
+        int value = item.Get< int >();
+        mImpl->mButtonAction = static_cast<InputMethod::ButtonAction::Type>(value);
+      }
+    }
+    else if ( key == TOKEN_STRING( AUTO_CAPITALIZE ) )
     {
       if ( item.GetType() == Property::INTEGER )
       {
         int value = item.Get< int >();
         mImpl->mAutoCapital = static_cast<InputMethod::AutoCapital::Type>(value);
-      }
-    }
-    else if ( key == TOKEN_STRING( ACTION_BUTTON ) )
-    {
-      if ( item.GetType() == Property::INTEGER )
-      {
-        int value = item.Get< int >();
-        mImpl->mActionButton = static_cast<InputMethod::ActionButtonTitle::Type>(value);
       }
     }
     else if( key == TOKEN_STRING( VARIATION ) )
@@ -114,8 +111,8 @@ void InputMethodOptions::ApplyProperty( const Property::Map& settings )
 void InputMethodOptions::RetrieveProperty( Property::Map& settings )
 {
   settings[TOKEN_STRING( PANEL_LAYOUT )] = mImpl->mPanelLayout;
-  settings[TOKEN_STRING( AUTO_CAPITALISE )] = mImpl->mAutoCapital;
-  settings[TOKEN_STRING( ACTION_BUTTON )] = mImpl->mActionButton;
+  settings[TOKEN_STRING( BUTTON_ACTION )] = mImpl->mButtonAction;
+  settings[TOKEN_STRING( AUTO_CAPITALIZE )] = mImpl->mAutoCapital;
   settings[TOKEN_STRING( VARIATION )] = mImpl->mVariation;
 }
 
@@ -135,22 +132,22 @@ bool InputMethodOptions::CompareAndSet( InputMethod::Category::Type type, const 
       }
       break;
     }
-    case AUTO_CAPITALISE:
+    case BUTTON_ACTION:
+    {
+      if ( options.mImpl->mButtonAction != mImpl->mButtonAction )
+      {
+        mImpl->mButtonAction = options.mImpl->mButtonAction;
+        index = static_cast<int>(mImpl->mButtonAction);
+        updated = true;
+      }
+      break;
+    }
+    case AUTO_CAPITALIZE:
     {
       if ( options.mImpl->mAutoCapital != mImpl->mAutoCapital )
       {
         mImpl->mAutoCapital = options.mImpl->mAutoCapital;
         index = static_cast<int>(mImpl->mAutoCapital);
-        updated = true;
-      }
-      break;
-    }
-    case ACTION_BUTTON_TITLE:
-    {
-      if ( options.mImpl->mActionButton != mImpl->mActionButton )
-      {
-        mImpl->mActionButton = options.mImpl->mActionButton;
-        index = static_cast<int>(mImpl->mActionButton);
         updated = true;
       }
       break;
