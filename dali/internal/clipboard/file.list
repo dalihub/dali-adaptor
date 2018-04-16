@@ -5,8 +5,11 @@ adaptor_clipboard_common_src_files=\
     ${adaptor_clipboard_dir}/common/clipboard-event-notifier-impl.cpp
 
 # module: clipboard, backend: tizen-wayland
+adaptor_clipboard_tizen_wayland2_src_files=\
+    ${adaptor_clipboard_dir}/tizen-wayland/ecore-wl2/clipboard-impl-ecore-wl2.cpp
+
 adaptor_clipboard_tizen_wayland_src_files=\
-    ${adaptor_clipboard_dir}/tizen-wayland/clipboard-impl-ecore-wl.cpp
+    ${adaptor_clipboard_dir}/tizen-wayland/ecore-wl/clipboard-impl-ecore-wl.cpp
 
 # module: clipboard, backend: ubuntu-x11
 adaptor_clipboard_ubuntu_x11_src_files=\
