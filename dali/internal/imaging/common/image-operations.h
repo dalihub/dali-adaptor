@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H_
-#define DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H_
+#ifndef DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H
+#define DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H
 
 // EXTERNAL INCLUDES
 #include <stdint.h>
@@ -407,6 +407,33 @@ void RotateByShear( const uint8_t* const pixelsIn,
                     unsigned int& widthOut,
                     unsigned int& heightOut );
 
+/**
+ * @brief Applies to the input image a horizontal shear transformation.
+ *
+ * @pre @p pixelsIn must not alias @p pixelsOut. The input image should be a totally
+ * separate buffer from the output buffer.
+ * @pre The maximun/minimum shear angle is +/-45 degrees (PI/4 around 0.79 radians).
+ *
+ * @note This function allocates memory in @p pixelsOut which has to be released by calling @e free()
+ *
+ * @param[in] pixelsIn The input buffer.
+ * @param[in] widthIn The width of the input buffer.
+ * @param[in] heightIn The height of the input buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[in] radians The shear angle in radians.
+ * @param[out] pixelsOut The rotated output buffer.
+ * @param[out] widthOut The width of the output buffer.
+ * @param[out] heightOut The height of the output buffer.
+ */
+void HorizontalShear( const uint8_t* const pixelsIn,
+                      unsigned int widthIn,
+                      unsigned int heightIn,
+                      unsigned int pixelSize,
+                      float radians,
+                      uint8_t*& pixelsOut,
+                      unsigned int& widthOut,
+                      unsigned int& heightOut );
+
 /**@}*/
 
 /**
@@ -583,4 +610,4 @@ inline unsigned int BilinearFilter1Component(unsigned int tl, unsigned int tr, u
 } /* namespace Internal */
 } /* namespace Dali */
 
-#endif /* DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H_ */
+#endif /* DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H */
