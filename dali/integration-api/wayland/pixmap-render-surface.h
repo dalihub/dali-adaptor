@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/wayland/ecore-wl2/ecore-wl2-render-surface.h>
+#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
 
 namespace Dali
 {
@@ -56,7 +56,7 @@ public: // API
   /**
    * @copydoc Dali::ECore::EcoreWlRenderSurface::GetDrawable()
    */
-  virtual Ecore_Wl2_Window* GetDrawable();
+  virtual Ecore_Wl_Window* GetDrawable();
 
   /**
    * @brief GetSurface
