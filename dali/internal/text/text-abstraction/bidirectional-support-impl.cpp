@@ -24,7 +24,6 @@
 // EXTERNAL INCLUDES
 #include <memory.h>
 #include <fribidi/fribidi.h>
-#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -153,12 +152,7 @@ struct BidirectionalSupport::Plugin
     bidirectionalInfo->paragraphDirection = fribidi_get_par_direction( bidirectionalInfo->characterTypes, numberOfCharacters );
 
     // Retrieve the embedding levels.
-    if (fribidi_get_par_embedding_levels( bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels ) == 0)
-    {
-      free( bidirectionalInfo->characterTypes );
-      delete bidirectionalInfo;
-      return 0;
-    }
+    fribidi_get_par_embedding_levels( bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels );
 
     // Store the bidirectional info and return the index.
     BidiInfoIndex index = 0u;
@@ -231,17 +225,14 @@ struct BidirectionalSupport::Plugin
       memcpy( embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex,  embeddedLevelsSize );
 
       // Reorder the line.
-      if (fribidi_reorder_line( flags,
-                                bidirectionalInfo->characterTypes + firstCharacterIndex,
-                                numberOfCharacters,
-                                0u,
-                                bidirectionalInfo->paragraphDirection,
-                                embeddedLevels,
-                                NULL,
-                                reinterpret_cast<FriBidiStrIndex*>( visualToLogicalMap ) ) == 0)
-      {
-        DALI_LOG_ERROR("fribidi_reorder_line is failed\n");
-      }
+      fribidi_reorder_line( flags,
+                            bidirectionalInfo->characterTypes + firstCharacterIndex,
+                            numberOfCharacters,
+                            0u,
+                            bidirectionalInfo->paragraphDirection,
+                            embeddedLevels,
+                            NULL,
+                            reinterpret_cast<FriBidiStrIndex*>( visualToLogicalMap ) );
 
       // Free resources.
       free( embeddedLevels );
