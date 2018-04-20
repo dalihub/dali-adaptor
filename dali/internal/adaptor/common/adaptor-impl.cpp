@@ -38,7 +38,6 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/system/common/callback-manager.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/input/common/gesture-manager.h>
@@ -53,6 +52,7 @@
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 #include <dali/internal/system/common/logging.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>

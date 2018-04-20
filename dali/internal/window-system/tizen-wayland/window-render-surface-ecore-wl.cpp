@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,16 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/wayland/wl-types.h>
+#include <dali/internal/window-system/tizen-wayland/wl-types.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>
 
 namespace Dali
 {
-
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gRenderSurfaceLogFilter;
-#endif
-
-namespace ECore
+namespace Internal
+{
+namespace Adaptor
 {
 
 namespace
@@ -43,30 +40,38 @@ namespace
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE_ECORE_WL");
+#endif
+
 } // unnamed namespace
 
-WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
-                                          Any surface,
-                                          const std::string& name,
-                                          bool isTransparent)
-: EcoreWlRenderSurface( positionSize, surface, name, isTransparent ),
+WindowRenderSurfaceEcoreWl::WindowRenderSurfaceEcoreWl( Dali::PositionSize positionSize,
+                                                        Any surface,
+                                                        const std::string& name,
+                                                        bool isTransparent)
+: mTitle( name ),
+  mPositionSize( positionSize ),
   mWlWindow( NULL ),
   mWlSurface( NULL ),
   mEglWindow( NULL ),
   mThreadSynchronization( NULL ),
+  mRenderNotification( NULL ),
   mRotationTrigger( NULL ),
+  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
+  mOwnSurface( false ),
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
   mResizeFinished( true )
 {
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
-  Init( surface );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
+  Initialize( surface );
 }
 
-WindowRenderSurface::~WindowRenderSurface()
+WindowRenderSurfaceEcoreWl::~WindowRenderSurfaceEcoreWl()
 {
   if( mEglWindow != NULL )
   {
@@ -84,51 +89,38 @@ WindowRenderSurface::~WindowRenderSurface()
     delete mRotationTrigger;
   }
 
+  if( mOwnSurface )
+  {
+    ecore_wl_shutdown();
+  }
 }
 
-Ecore_Wl_Window* WindowRenderSurface::GetDrawable()
+void WindowRenderSurfaceEcoreWl::Initialize( Any surface )
 {
-  // already an e-core type
+  // see if there is a surface in Any surface
+  unsigned int surfaceId = GetSurfaceId( surface );
+
+  // if the surface is empty, create a new one.
+  if( surfaceId == 0 )
+  {
+    // we own the surface about to created
+    ecore_wl_init( NULL );
+    mOwnSurface = true;
+    CreateRenderable();
+  }
+  else
+  {
+    // XLib should already be initialized so no point in calling XInitThreads
+    UseExistingRenderable( surfaceId );
+  }
+}
+
+Ecore_Wl_Window* WindowRenderSurfaceEcoreWl::GetWlWindow()
+{
   return mWlWindow;
 }
 
-Any WindowRenderSurface::GetSurface()
-{
-  // already an e-core type
-  return Any( mWlWindow );
-}
-
-Ecore_Wl_Window* WindowRenderSurface::GetWlWindow()
-{
-  return mWlWindow;
-}
-
-void WindowRenderSurface::RequestRotation( int angle, int width, int height )
-{
-  if( !mRotationSupported )
-  {
-    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: Rotation is not supported!\n" );
-    return;
-  }
-
-  if( !mRotationTrigger )
-  {
-    TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
-    mRotationTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
-  }
-
-  mPositionSize.width = width;
-  mPositionSize.height = height;
-
-  mRotationAngle = angle;
-  mRotationFinished = false;
-
-  ecore_wl_window_rotation_set( mWlWindow, mRotationAngle );
-
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
-}
-
-void WindowRenderSurface::OutputTransformed()
+void WindowRenderSurfaceEcoreWl::OutputTransformed()
 {
   int transform;
 
@@ -144,26 +136,71 @@ void WindowRenderSurface::OutputTransformed()
   mScreenRotationAngle = transform * 90;
   mScreenRotationFinished = false;
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
 }
 
-void WindowRenderSurface::SetTransparency( bool transparent )
+Any WindowRenderSurfaceEcoreWl::GetWindow()
+{
+  return mWlWindow;
+}
+
+void WindowRenderSurfaceEcoreWl::Map()
+{
+  ecore_wl_window_show( mWlWindow );
+}
+
+void WindowRenderSurfaceEcoreWl::SetRenderNotification( TriggerEventInterface* renderNotification )
+{
+  mRenderNotification = renderNotification;
+}
+
+void WindowRenderSurfaceEcoreWl::SetTransparency( bool transparent )
 {
   ecore_wl_window_alpha_set( mWlWindow, transparent );
 }
 
-void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
+void WindowRenderSurfaceEcoreWl::RequestRotation( int angle, int width, int height )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  if( !mRotationSupported )
+  {
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::Rotate: Rotation is not supported!\n" );
+    return;
+  }
+
+  if( !mRotationTrigger )
+  {
+    TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
+    mRotationTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &WindowRenderSurfaceEcoreWl::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+  }
+
+  mPositionSize.width = width;
+  mPositionSize.height = height;
+
+  mRotationAngle = angle;
+  mRotationFinished = false;
+
+  ecore_wl_window_rotation_set( mWlWindow, mRotationAngle );
+
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+}
+
+PositionSize WindowRenderSurfaceEcoreWl::GetPositionSize() const
+{
+  return mPositionSize;
+}
+
+void WindowRenderSurfaceEcoreWl::InitializeEgl( EglInterface& eglIf )
+{
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
   eglImpl.ChooseConfig(true, mColorDepth);
 }
 
-void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
+void WindowRenderSurfaceEcoreWl::CreateEglSurface( EglInterface& eglIf )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
@@ -184,16 +221,16 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
   if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
   {
-    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: capability = %d\n", capability );
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::CreateEglSurface: capability = %d\n", capability );
     mRotationSupported = true;
   }
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
-void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
+void WindowRenderSurfaceEcoreWl::DestroyEglSurface( EglInterface& eglIf )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
@@ -205,9 +242,9 @@ void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
   }
 }
 
-bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool WindowRenderSurfaceEcoreWl::ReplaceEGLSurface( EglInterface& egl )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   if( mEglWindow != NULL )
   {
@@ -232,7 +269,7 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
   return eglImpl.ReplaceSurfaceWindow( windowType );
 }
 
-void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
+void WindowRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
 {
   bool needToMove = false;
   bool needToResize = false;
@@ -263,19 +300,18 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
 
   mPositionSize = positionSize;
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
 }
 
-void WindowRenderSurface::Map()
-{
-  ecore_wl_window_show(mWlWindow);
-}
-
-void WindowRenderSurface::StartRender()
+void WindowRenderSurfaceEcoreWl::SetViewMode( ViewMode viewMode )
 {
 }
 
-bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
+void WindowRenderSurfaceEcoreWl::StartRender()
+{
+}
+
+bool WindowRenderSurfaceEcoreWl::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
 {
   if( resizingSurface )
   {
@@ -328,7 +364,7 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
       // Reset only screen rotation flag
       mScreenRotationFinished = true;
 
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
+      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
     }
 
     // Only window rotate
@@ -375,20 +411,20 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
       wl_egl_window_resize( mEglWindow, mPositionSize.width, mPositionSize.height, mPositionSize.x, mPositionSize.y );
       mResizeFinished = true;
 
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
+      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::PreRender: Set resize\n" );
     }
   }
 
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurfaceEcoreWl::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   if( resizingSurface )
   {
     if( !mRotationFinished )
     {
-      DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::PostRender: Trigger rotation event\n" );
 
       mRotationTrigger->Trigger();
 
@@ -409,16 +445,28 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
 }
 
-void WindowRenderSurface::StopRender()
+void WindowRenderSurfaceEcoreWl::StopRender()
 {
 }
 
-void WindowRenderSurface::SetViewMode( ViewMode viewMode )
+void WindowRenderSurfaceEcoreWl::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
 {
-  //FIXME
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::SetThreadSynchronization: called\n" );
+
+  mThreadSynchronization = &threadSynchronization;
 }
 
-void WindowRenderSurface::CreateWlRenderable()
+void WindowRenderSurfaceEcoreWl::ReleaseLock()
+{
+  // Nothing to do.
+}
+
+RenderSurface::Type WindowRenderSurfaceEcoreWl::GetSurfaceType()
+{
+  return RenderSurface::WINDOW_RENDER_SURFACE;
+}
+
+void WindowRenderSurfaceEcoreWl::CreateRenderable()
 {
    // if width or height are zero, go full screen.
   if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
@@ -460,30 +508,33 @@ void WindowRenderSurface::CreateWlRenderable()
   }
 }
 
-void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
+void WindowRenderSurfaceEcoreWl::UseExistingRenderable( unsigned int surfaceId )
 {
   mWlWindow = AnyCast< Ecore_Wl_Window* >( surfaceId );
 }
 
-void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
+unsigned int WindowRenderSurfaceEcoreWl::GetSurfaceId( Any surface ) const
 {
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::SetThreadSynchronization: called\n" );
+  unsigned int surfaceId = 0;
 
-  mThreadSynchronization = &threadSynchronization;
+  if( surface.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (Ecore_Wl_Window *) ) )
+                        && "Surface type is invalid" );
+
+    surfaceId = AnyCast<unsigned int>( surface );
+  }
+  return surfaceId;
 }
 
-void WindowRenderSurface::ReleaseLock()
-{
-  // Nothing to do.
-}
-
-void WindowRenderSurface::ProcessRotationRequest()
+void WindowRenderSurfaceEcoreWl::ProcessRotationRequest()
 {
   mRotationFinished = true;
 
   ecore_wl_window_rotation_change_done_send( mWlWindow );
 
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n" );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurfaceEcoreWl::ProcessRotationRequest: Rotation Done\n" );
 
   if( mThreadSynchronization )
   {
@@ -491,6 +542,8 @@ void WindowRenderSurface::ProcessRotationRequest()
   }
 }
 
-} // namespace ECore
+} // namespace Adaptor
+
+} // namespace internal
 
 } // namespace Dali

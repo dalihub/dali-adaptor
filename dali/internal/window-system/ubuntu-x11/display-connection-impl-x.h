@@ -18,13 +18,11 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/integration-api/x11/ecore-x-types.h>
-
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 namespace Dali
 {

@@ -30,7 +30,7 @@
 #include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/graphics/common/vsync-monitor-interface.h>
 #include <dali/internal/network/common/trace-interface.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 
 
 namespace Dali

@@ -55,7 +55,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/gesture-manager.h>
-#include <dali/internal/window-system/ubuntu-x11/window-render-surface-x.h>
+#include <dali/internal/window-system/ubuntu-x11/window-render-surface-ecore-x.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
@@ -1592,8 +1592,8 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 {
   Ecore_X_Window window = 0;
 
-  // this code only works with the EcoreX11 RenderSurface so need to downcast
-  ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
+  // this code only works with the WindowRenderSurface so need to downcast
+  WindowRenderSurfaceEcoreX* ecoreSurface = static_cast< WindowRenderSurfaceEcoreX* >( surface );
   if( ecoreSurface )
   {
     // enable multi touch

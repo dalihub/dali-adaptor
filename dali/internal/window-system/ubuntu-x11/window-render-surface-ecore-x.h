@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_X_WINDOW_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,24 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/x11/ecore-x-render-surface.h>
+#include <dali/integration-api/egl-interface.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
+
+// EXTERNAL INCLUDES
+#include <Ecore_X.h>
 
 namespace Dali
 {
-
-namespace ECore
+namespace Internal
+{
+namespace Adaptor
 {
 
 /**
- * @copydoc Dali::ECore::EcoreXRenderSurface.
- * Window specialization.
+ * Ecore X11 Window implementation of render surface.
  */
-class WindowRenderSurface : public EcoreXRenderSurface
+class WindowRenderSurfaceEcoreX : public WindowRenderSurface
 {
 public:
 
@@ -43,23 +48,24 @@ public:
     * @param [in] className optional class name of the surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  WindowRenderSurface( Dali::PositionSize positionSize,
+  WindowRenderSurfaceEcoreX( Dali::PositionSize positionSize,
                        Any surface,
                        const std::string& name,
                        const std::string& className,
                        bool isTransparent = false );
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::~EcoreXRenderSurface
+   * @brief Destructor
    */
-  virtual ~WindowRenderSurface();
+  virtual ~WindowRenderSurfaceEcoreX();
 
 public: // API
 
   /**
-   * @copydoc Dali::RenderSurface::GetDrawable()
+   * @brief Get window handle
+   * @return the Ecore X window handle
    */
-  virtual Ecore_X_Drawable GetDrawable();
+  Ecore_X_Window GetXWindow();
 
   /**
    * Request to approve deiconify operation
@@ -67,22 +73,39 @@ public: // API
    */
   void RequestToApproveDeiconify();
 
-  /**
-   * Map window
-   */
-  virtual void Map();
+public: // from WindowRenderSurface
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::GetSurface()
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::GetWindow()
    */
-  virtual Any GetSurface();
+  virtual Any GetWindow() override;
 
   /**
-   * @copydoc Dali::ECore::EcoreXRenderSurface::GetXWindow()
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::Map()
    */
-  virtual Ecore_X_Window GetXWindow();
+  virtual void Map() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::SetRenderNotification()
+   */
+  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::SetTransparency()
+   */
+  virtual void SetTransparency( bool transparent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::RequestRotation()
+   */
+  virtual void RequestRotation( int angle, int width, int height ) override;
 
 public: // from Dali::RenderSurface
+
+  /**
+   * @copydoc Dali::RenderSurface::GetPositionSize()
+   */
+  virtual PositionSize GetPositionSize() const;
 
   /**
    * @copydoc Dali::RenderSurface::InitializeEgl()
@@ -144,27 +167,52 @@ public: // from Dali::RenderSurface
    */
   virtual void ReleaseLock();
 
-protected:
+  /**
+   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   */
+  virtual RenderSurface::Type GetSurfaceType();
+
+private: // from WindowRenderSurface
 
   /**
-   * Create XWindow
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::Initialize()
    */
-  virtual void CreateXRenderable();
+  void Initialize( Any surface ) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::ECore::EcoreXRenderSurface::UseExistingRenderable
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::CreateRenderable()
    */
-  virtual void UseExistingRenderable( unsigned int surfaceId );
+  void CreateRenderable() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::UseExistingRenderable()
+   */
+  void UseExistingRenderable( unsigned int surfaceId ) override;
+
+private:
+
+  /**
+   * Get the surface id if the surface parameter is not empty
+   * @param surface Any containing a surface id, or can be empty
+   * @return surface id, or zero if surface is empty
+   */
+  unsigned int GetSurfaceId( Any surface ) const;
 
 private: // Data
 
-  Ecore_X_Window   mX11Window; ///< X-Window
+  std::string      mTitle;                  ///< Title of window which shows from "xinfo -topvwins" command
+  std::string      mClassName;              ///< The class name of the window
+  PositionSize     mPosition;               ///< Position
+  ColorDepth       mColorDepth;             ///< Color depth of surface (32 bit or 24 bit)
+  Ecore_X_Window   mX11Window;              ///< X-Window
+  bool             mOwnSurface;             ///< Whether we own the surface (responsible for deleting it)
   bool             mNeedToApproveDeiconify; ///< Whether need to send ECORE_X_ATOM_E_DEICONIFY_APPROVE event
-  std::string      mClassName;          ///< The class name of the window
 
-}; // class WindowRenderSurface
+}; // class WindowRenderSurfaceEcoreX
 
-} // namespace ECore
+} // namespace Adaptor
+
+} // namespace internal
 
 } // namespace Dali
 

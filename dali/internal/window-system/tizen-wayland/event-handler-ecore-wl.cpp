@@ -25,8 +25,6 @@
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_IMF.h>
-#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
-//#include <dali/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <cstring>
 
 #include <sys/time.h>
@@ -1273,8 +1271,8 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 {
   Ecore_Wl_Window* window = 0;
 
-  // this code only works with the Ecore RenderSurface so need to downcast
-  ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
+  // this code only works with the WindowRenderSurface so need to downcast
+  WindowRenderSurfaceEcoreWl* ecoreSurface = static_cast< WindowRenderSurfaceEcoreWl* >( surface );
   if( ecoreSurface )
   {
     window = ecoreSurface->GetWlWindow();

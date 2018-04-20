@@ -1,8 +1,8 @@
-#ifndef __DALI_NATIVE_RENDER_SURFACE_H__
-#define __DALI_NATIVE_RENDER_SURFACE_H__
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,20 @@
 
 // EXTERNAL INCLUDES
 #include <tbm_surface.h>
+#include <tbm_surface_queue.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/render-surface.h>
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/egl-interface.h>
-#else
-#include <dali/integration-api/adaptors/egl-interface.h>
-#endif
+#include <dali/integration-api/native-render-surface.h>
 
 namespace Dali
 {
 
-class TriggerEventInterface;
-
 /**
- * Ecore X11 implementation of render surface.
+ * Ecore Wayland Native implementation of render surface.
  */
-class DALI_IMPORT_API NativeRenderSurface : public Dali::RenderSurface
+class NativeRenderSurfaceEcoreWl : public Dali::NativeRenderSurface
 {
 public:
 
@@ -48,41 +43,31 @@ public:
     * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  NativeRenderSurface( Dali::PositionSize positionSize,
+  NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize,
                              const std::string& name,
                              bool isTransparent = false );
 
   /**
-   * @copydoc Dali::RenderSurface::~RenderSurface
+   * @brief Destructor
    */
-  virtual ~NativeRenderSurface();
+  virtual ~NativeRenderSurfaceEcoreWl();
 
-public: // API
-
-  /**
-   * @brief Sets the render notification trigger to call when render thread is completed a frame
-   *
-   * @param renderNotification to use
-   */
-  void SetRenderNotification( TriggerEventInterface* renderNotification );
+public: // from WindowRenderSurface
 
   /**
-   * @brief Gets the tbm surface for offscreen rendering
+   * @copydoc Dali::NativeRenderSurface::GetSurface()
    */
-  virtual tbm_surface_h GetDrawable();
+  virtual Any GetDrawable() override;
 
   /**
-   * @brief Gets the surface
-   *
-   * @return TBM surface
+   * @copydoc Dali::NativeRenderSurface::SetRenderNotification()
    */
-  virtual Any GetSurface();
+  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
 
   /**
-   * @brief Waits until surface is replaced
-   * After tbm surface is acquired in PostRender, this function is finished.
+   * @copydoc Dali::NativeRenderSurface::WaitUntilSurfaceReplaced()
    */
-  void WaitUntilSurfaceReplaced();
+  virtual void WaitUntilSurfaceReplaced() override;
 
 public: // from Dali::RenderSurface
 
@@ -154,28 +139,37 @@ public: // from Dali::RenderSurface
 private:
 
   /**
-   * Release any locks.
+   * @copydoc Dali::RenderSurface::ReleaseLock()
    */
-  void ReleaseLock();
+  virtual void ReleaseLock() override;
 
   /**
-   * Create tbm surface
+   * @copydoc Dali::NativeRenderSurface::CreateNativeRenderable()
    */
-  virtual void CreateNativeRenderable();
+  virtual void CreateNativeRenderable() override;
 
   /**
-   * Release tbm surface
+   * @copydoc Dali::NativeRenderSurface::ReleaseDrawable()
    */
-  void ReleaseDrawable();
+  virtual void ReleaseDrawable() override;
 
 private: // Data
 
-  struct Impl;
+  PositionSize                    mPosition;
+  std::string                     mTitle;
+  TriggerEventInterface*          mRenderNotification;
+  ColorDepth                      mColorDepth;
+  tbm_format                      mTbmFormat;
+  bool                            mOwnSurface;
+  bool                            mDrawableCompleted;
 
-  Impl* mImpl;
+  tbm_surface_queue_h             mTbmQueue;
+  tbm_surface_h                   mConsumeSurface;
+  ThreadSynchronizationInterface* mThreadSynchronization;     ///< A pointer to the thread-synchronization
+  ConditionalWait                 mTbmSurfaceCondition;
 
 };
 
 } // namespace Dali
 
-#endif // __DALI_NATIVE_RENDER_SURFACE_H__
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H

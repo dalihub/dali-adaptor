@@ -89,19 +89,19 @@ public:
    */
   void Deactivate() override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::Reset()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::Reset()
+   */
   void Reset() override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::GetContext()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::GetContext()
+   */
   ImfContext* GetContext() override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::RestoreAfterFocusLost()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::RestoreAfterFocusLost()
+   */
   bool RestoreAfterFocusLost() const override;
 
   /**
@@ -114,24 +114,24 @@ public:
    */
   void PreEditChanged( void* data, ImfContext* imfContext, void* event_info ) override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
+   */
   void CommitReceived( void* data, ImfContext* imfContext, void* event_info ) override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
+   */
   bool RetrieveSurrounding( void* data, ImfContext* imfContext, char** text, int* cursorPosition ) override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::DeleteSurrounding()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::DeleteSurrounding()
+   */
   void DeleteSurrounding( void* data, ImfContext* imfContext, void* event_info ) override;
 
-  // /**
-  //  * @copydoc Dali::InputMethodContext::SendPrivateCommand()
-  //  */
+  /**
+   * @copydoc Dali::InputMethodContext::SendPrivateCommand()
+   */
   void SendPrivateCommand( void* data, ImfContext* imfContext, void* event_info ) override
   {}
 

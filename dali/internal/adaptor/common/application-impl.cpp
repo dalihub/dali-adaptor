@@ -28,6 +28,7 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali
 {

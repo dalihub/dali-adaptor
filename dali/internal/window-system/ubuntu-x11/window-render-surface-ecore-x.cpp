@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/ubuntu-x11/window-render-surface-x.h>
+#include <dali/internal/window-system/ubuntu-x11/window-render-surface-ecore-x.h>
 
 // EXTERNAL INCLUDES
 #include <X11/Xatom.h>
@@ -30,20 +30,16 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
-#include <dali/integration-api/x11/ecore-x-types.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
 namespace Dali
 {
-
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gRenderSurfaceLogFilter;
-#endif
-
-namespace ECore
+namespace Internal
+{
+namespace Adaptor
 {
 
 namespace
@@ -51,23 +47,30 @@ namespace
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE_ECORE_X");
+#endif
+
 } // unnamed namespace
 
-WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize,
+WindowRenderSurfaceEcoreX::WindowRenderSurfaceEcoreX( Dali::PositionSize positionSize,
                                           Any surface,
                                           const std::string& name,
                                           const std::string& className,
                                           bool isTransparent)
-: EcoreXRenderSurface( positionSize, surface, name, isTransparent ),
+: mTitle( name ),
+  mClassName( className ),
+  mPosition( positionSize ),
+  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mX11Window( 0 ),
-  mNeedToApproveDeiconify(false),
-  mClassName(className)
+  mOwnSurface( false ),
+  mNeedToApproveDeiconify( false )
 {
-  DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
-  Init( surface );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
+  Initialize( surface );
 }
 
-WindowRenderSurface::~WindowRenderSurface()
+WindowRenderSurfaceEcoreX::~WindowRenderSurfaceEcoreX()
 {
   if( mOwnSurface )
   {
@@ -75,40 +78,74 @@ WindowRenderSurface::~WindowRenderSurface()
   }
 }
 
-Ecore_X_Drawable WindowRenderSurface::GetDrawable()
+void WindowRenderSurfaceEcoreX::Initialize( Any surface )
 {
-  // already an e-core type
-  return static_cast< Ecore_X_Drawable >( mX11Window );
+  // see if there is a surface in Any surface
+  unsigned int surfaceId = GetSurfaceId( surface );
+
+  // if the surface is empty, create a new one.
+  if( surfaceId == 0 )
+  {
+    // we own the surface about to created
+    mOwnSurface = true;
+    CreateRenderable();
+  }
+  else
+  {
+    // XLib should already be initialized so no point in calling XInitThreads
+    UseExistingRenderable( surfaceId );
+  }
 }
 
-Any WindowRenderSurface::GetSurface()
-{
-  // already an e-core type
-  return Any( mX11Window );
-}
-
-Ecore_X_Window WindowRenderSurface::GetXWindow()
+Ecore_X_Window WindowRenderSurfaceEcoreX::GetXWindow()
 {
   return mX11Window;
 }
 
-void WindowRenderSurface::RequestToApproveDeiconify()
+void WindowRenderSurfaceEcoreX::RequestToApproveDeiconify()
 {
   mNeedToApproveDeiconify = true;
 }
 
-void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
+Any WindowRenderSurfaceEcoreX::GetWindow()
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  return mX11Window;
+}
+
+void WindowRenderSurfaceEcoreX::Map()
+{
+  ecore_x_window_show( mX11Window );
+}
+
+void WindowRenderSurfaceEcoreX::SetRenderNotification( TriggerEventInterface* renderNotification )
+{
+}
+
+void WindowRenderSurfaceEcoreX::SetTransparency( bool transparent )
+{
+}
+
+void WindowRenderSurfaceEcoreX::RequestRotation( int angle, int width, int height )
+{
+}
+
+PositionSize WindowRenderSurfaceEcoreX::GetPositionSize() const
+{
+  return mPosition;
+}
+
+void WindowRenderSurfaceEcoreX::InitializeEgl( EglInterface& eglIf )
+{
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
   eglImpl.ChooseConfig(true, mColorDepth);
 }
 
-void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
+void WindowRenderSurfaceEcoreX::CreateEglSurface( EglInterface& eglIf )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
@@ -118,17 +155,17 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
   eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( window ), mColorDepth );
 }
 
-void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
+void WindowRenderSurfaceEcoreX::DestroyEglSurface( EglInterface& eglIf )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
 }
 
-bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool WindowRenderSurfaceEcoreX::ReplaceEGLSurface( EglInterface& egl )
 {
-  DALI_LOG_TRACE_METHOD( gRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
   XWindow window( mX11Window );
@@ -137,7 +174,7 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
   return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( window ) );
 }
 
-void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
+void WindowRenderSurfaceEcoreX::MoveResize( Dali::PositionSize positionSize )
 {
   bool needToMove = false;
   bool needToResize = false;
@@ -171,25 +208,30 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
     ecore_x_window_resize(mX11Window, positionSize.width, positionSize.height);
     mPosition = positionSize;
   }
-
 }
 
-void WindowRenderSurface::Map()
+void WindowRenderSurfaceEcoreX::SetViewMode( ViewMode viewMode )
 {
-  ecore_x_window_show(mX11Window);
+  Ecore_X_Atom viewModeAtom( ecore_x_atom_get( "_E_COMP_3D_APP_WIN" ) );
+
+  if( viewModeAtom != None )
+  {
+    unsigned int value( static_cast<unsigned int>( viewMode ) );
+    ecore_x_window_prop_card32_set( mX11Window, viewModeAtom, &value, 1 );
+  }
 }
 
-void WindowRenderSurface::StartRender()
+void WindowRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool WindowRenderSurfaceEcoreX::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
 {
   // nothing to do for windows
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -225,22 +267,26 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   }
 }
 
-void WindowRenderSurface::StopRender()
+void WindowRenderSurfaceEcoreX::StopRender()
 {
 }
 
-void WindowRenderSurface::SetViewMode( ViewMode viewMode )
+void WindowRenderSurfaceEcoreX::SetThreadSynchronization( ThreadSynchronizationInterface& /* threadSynchronization */ )
 {
-  Ecore_X_Atom viewModeAtom( ecore_x_atom_get( "_E_COMP_3D_APP_WIN" ) );
-
-  if( viewModeAtom != None )
-  {
-    unsigned int value( static_cast<unsigned int>( viewMode ) );
-    ecore_x_window_prop_card32_set( mX11Window, viewModeAtom, &value, 1 );
-  }
+  // Nothing to do.
 }
 
-void WindowRenderSurface::CreateXRenderable()
+void WindowRenderSurfaceEcoreX::ReleaseLock()
+{
+  // Nothing to do.
+}
+
+RenderSurface::Type WindowRenderSurfaceEcoreX::GetSurfaceType()
+{
+  return WINDOW_RENDER_SURFACE;
+}
+
+void WindowRenderSurfaceEcoreX::CreateRenderable()
 {
    // if width or height are zero, go full screen.
   if ( (mPosition.width == 0) || (mPosition.height == 0) )
@@ -293,21 +339,36 @@ void WindowRenderSurface::CreateXRenderable()
   ecore_x_sync();
 }
 
-void WindowRenderSurface::UseExistingRenderable( unsigned int surfaceId )
+void WindowRenderSurfaceEcoreX::UseExistingRenderable( unsigned int surfaceId )
 {
   mX11Window = static_cast< Ecore_X_Window >( surfaceId );
 }
 
-void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& /* threadSynchronization */ )
+unsigned int WindowRenderSurfaceEcoreX::GetSurfaceId( Any surface ) const
 {
-  // Nothing to do.
+  unsigned int surfaceId = 0;
+
+  if ( surface.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (XWindow) ) ||
+                          (surface.GetType() == typeid (Ecore_X_Window) ) )
+                        && "Surface type is invalid" );
+
+    if ( surface.GetType() == typeid (Ecore_X_Window) )
+    {
+      surfaceId = AnyCast<Ecore_X_Window>( surface );
+    }
+    else
+    {
+      surfaceId = AnyCast<XWindow>( surface );
+    }
+  }
+  return surfaceId;
 }
 
-void WindowRenderSurface::ReleaseLock()
-{
-  // Nothing to do.
-}
+} // namespace Adaptor
 
-} // namespace ECore
+} // namespace internal
 
 } // namespace Dali

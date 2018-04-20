@@ -64,8 +64,8 @@ public:
 
   enum Type
   {
-    ECORE_RENDER_SURFACE,
-    WAYLAND_RENDER_SURFACE,
+    WINDOW_RENDER_SURFACE,
+    PIXMAP_RENDER_SURFACE,
     NATIVE_RENDER_SURFACE
   };
 
@@ -113,7 +113,7 @@ public:
   virtual bool ReplaceEGLSurface( EglInterface& egl ) = 0;
 
   /**
-   * @brief Resizes the underlying surface. Only available for x window
+   * @brief Resizes the underlying surface.
    */
   virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
 
@@ -166,6 +166,9 @@ public:
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) = 0;
 
+  /**
+   * @brief Gets the surface type
+   */
   virtual RenderSurface::Type GetSurfaceType() = 0;
 
 private:

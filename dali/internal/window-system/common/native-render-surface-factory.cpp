@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/wayland/native-render-surface.h>
+#include <dali/integration-api/native-render-surface.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
 namespace Dali
 {
@@ -26,7 +27,9 @@ DALI_EXPORT_API NativeRenderSurface* CreateNativeSurface(
                                      const std::string& name,
                                      bool               isTransparent)
 {
-  return new NativeRenderSurface( positionSize, name, isTransparent );
+  auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+  auto nativeRenderSurface =  renderSurfaceFactory->CreateNativeRenderSurface( positionSize, name, isTransparent );
+  return nativeRenderSurface.release();
 }
 
 } // namespace Dali

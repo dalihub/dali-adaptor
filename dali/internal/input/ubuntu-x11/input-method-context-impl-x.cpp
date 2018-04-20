@@ -28,7 +28,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
-#include <dali/internal/window-system/ubuntu-x11/window-render-surface-x.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>

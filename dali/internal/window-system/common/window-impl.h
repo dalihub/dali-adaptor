@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_WINDOW_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,11 @@
 #include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/devel-api/adaptor-framework/orientation.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
 #include <dali/devel-api/adaptor-framework/drag-and-drop-detector.h>
 
 namespace Dali
 {
 class Adaptor;
-class RenderSurface;
 
 namespace Integration
 {
@@ -46,6 +43,8 @@ namespace Internal
 namespace Adaptor
 {
 class Orientation;
+class WindowBase;
+class WindowRenderSurface;
 
 class Window;
 typedef IntrusivePtr<Window> WindowPtr;
@@ -82,7 +81,7 @@ public:
    * Get the window surface
    * @return The render surface
    */
-  RenderSurface* GetSurface();
+  WindowRenderSurface* GetSurface();
 
   /**
    * @copydoc Dali::Window::ShowIndicator()
@@ -95,6 +94,11 @@ public:
   void SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacity );
 
   /**
+   * Set the indicator visible mode
+   */
+  void SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode );
+
+  /**
    * @copydoc Dali::Window::RotateIndicator()
    */
   void RotateIndicator( Dali::Window::WindowOrientation orientation );
@@ -102,7 +106,7 @@ public:
   /**
    * @copydoc Dali::Window::SetClass()
    */
-  void SetClass( std::string name, std::string klass );
+  void SetClass( std::string name, std::string className );
 
   /**
    * @copydoc Dali::Window::Raise()
@@ -187,11 +191,11 @@ public:
   /**
    * @copydoc Dali::Window::GetSupportedAuxiliaryHintCount()
    */
-   unsigned int GetSupportedAuxiliaryHintCount() const;
+  unsigned int GetSupportedAuxiliaryHintCount() const;
 
-   /**
-    * @copydoc Dali::Window::GetSupportedAuxiliaryHint()
-    */
+  /**
+   * @copydoc Dali::Window::GetSupportedAuxiliaryHint()
+   */
   std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
 
   /**
@@ -305,9 +309,24 @@ public:
   void RotationDone( int orientation, int width, int height );
 
   /**
-   * Set the indicator visible mode
+   * Called when the window becomes iconified or deiconified.
    */
-  void SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode );
+  void OnIconifyChanged( bool iconified );
+
+  /**
+   * Called when the window focus is changed.
+   */
+  void OnFocusChanged( bool focusIn );
+
+  /**
+   * Called when the output is transformed.
+   */
+  void OnOutputTransformed();
+
+  /**
+   * Called when the window receives a delete request
+   */
+  void OnDeleteRequest();
 
 private:
   /**
@@ -346,7 +365,7 @@ private:
   /**
    * Set the indicator properties on the window
    */
-  void SetIndicatorProperties( bool isShown, Dali::Window::WindowOrientation lastOrientation );
+  void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation );
 
 private: // IndicatorInterface::Observer interface
 
@@ -416,16 +435,13 @@ public: // Signals
 
 private:
 
-  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
-
-  RenderSurface*                   mSurface;
+  WindowRenderSurface*             mSurface;
+  std::unique_ptr< WindowBase >    mWindowBase;
   Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
   bool                             mIndicatorIsShown:1; ///< private state
   bool                             mShowRotatedIndicatorOnClose:1;
   bool                             mStarted:1;
   bool                             mIsTransparent:1;
-  bool                             mWMRotationAppSet:1;
-  bool                             mEcoreEventHander:1;
   bool                             mIsFocusAcceptable:1;
   bool                             mVisible:1;
   bool                             mIconified:1;
@@ -438,17 +454,11 @@ private:
   Integration::SystemOverlay*      mOverlay;
   Adaptor*                         mAdaptor;
   Dali::DragAndDropDetector        mDragAndDropDetector;
-  Dali::Window::Type          mType;
-
-  struct EventHandler;
-  EventHandler*                    mEventHandler;
+  Dali::Window::Type               mType;
 
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
-
-  std::vector< std::string >        mSupportedAuxiliaryHints;
-  AuxiliaryHints                    mAuxiliaryHints;
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;
@@ -477,6 +487,5 @@ inline const Internal::Adaptor::Window& GetImplementation(const Dali::Window& wi
 }
 
 } // namespace Dali
-
 
 #endif // __DALI_INTERNAL_WINDOW_H__

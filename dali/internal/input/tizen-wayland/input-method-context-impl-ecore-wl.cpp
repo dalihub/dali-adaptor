@@ -33,7 +33,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/public-api/adaptor-framework/input-method.h>

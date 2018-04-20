@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -27,7 +27,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class RenderSurfaceFactoryEcoreX : public RenderSurfaceFactory
+class RenderSurfaceFactoryEcoreWl : public RenderSurfaceFactory
 {
 public:
   std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface,
@@ -43,4 +43,4 @@ public:
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL_H
