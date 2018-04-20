@@ -167,6 +167,13 @@ struct LoaderInfo
 
 struct ImageProperties
 {
+  ImageProperties()
+  : w( 0 ),
+    h( 0 ),
+    alpha( 0 )
+  {
+  }
+
   unsigned int w;
   unsigned int h;
   bool alpha;
@@ -631,10 +638,6 @@ bool ReadHeader( LoaderInfo &loaderInfo,
   int loopCount = -1;
   FrameInfo *frameInfo = NULL;
   bool full = true;
-
-  // init prop struct with some default null values
-  prop.w = 0;
-  prop.h = 0;
 
   if( fileData.isLocalResource )
   {
