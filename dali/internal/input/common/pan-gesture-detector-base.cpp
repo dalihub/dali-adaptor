@@ -105,7 +105,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
     {
       case Clear:
       {
-        if (primaryPointState == PointState::DOWN)
+        if ( ( primaryPointState == PointState::DOWN ) || ( primaryPointState == PointState::STATIONARY ) )
         {
           mPrimaryTouchDownLocation = event.points[0].GetScreenPosition();
           mPrimaryTouchDownTime = event.time;
