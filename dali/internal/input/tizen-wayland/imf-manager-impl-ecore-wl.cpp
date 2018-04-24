@@ -20,7 +20,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
-#include <dali/internal/input/tizen-wayland/ecore-wl/imf-manager-impl-ecore-wl.h>
+#include <dali/internal/input/tizen-wayland/imf-manager-impl-ecore-wl.h>
 #include <Ecore_Input.h>
 
 // EXTERNAL INCLUDES
@@ -31,7 +31,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/public-api/adaptor-framework/input-method.h>

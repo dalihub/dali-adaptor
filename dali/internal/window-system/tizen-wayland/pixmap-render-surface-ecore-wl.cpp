@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/wayland/ecore-wl2/pixmap-render-surface2.h>
+#include <dali/integration-api/wayland/pixmap-render-surface.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
@@ -56,7 +56,7 @@ PixmapRenderSurface::~PixmapRenderSurface()
   }
 }
 
-Ecore_Wl2_Window* PixmapRenderSurface::GetDrawable()
+Ecore_Wl_Window* PixmapRenderSurface::GetDrawable()
 {
   return NULL;
 }

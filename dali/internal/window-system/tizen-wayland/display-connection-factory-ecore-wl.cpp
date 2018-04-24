@@ -15,8 +15,8 @@
  *
  */
 
-#include <dali/internal/window-system/tizen-wayland/ecore-wl/display-connection-factory-ecore-wl.h>
-#include <dali/internal/window-system/tizen-wayland/ecore-wl/display-connection-impl-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/display-connection-factory-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 
 namespace Dali
 {

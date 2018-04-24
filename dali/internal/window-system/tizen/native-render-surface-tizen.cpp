@@ -23,11 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 
-#ifdef ECORE_WL2
-#include <Ecore_Wl2.h>
-#else
 #include <Ecore_Wayland.h>
-#endif
 #include <tbm_bufmgr.h>
 #include <tbm_surface_queue.h>
 #include <tbm_surface_internal.h>
@@ -80,11 +76,7 @@ NativeRenderSurface::NativeRenderSurface(Dali::PositionSize positionSize,
                                          bool isTransparent)
 : mImpl( new Impl( positionSize, name, isTransparent ) )
 {
-#ifdef ECORE_WL2
-  ecore_wl2_init();
-#else
   ecore_wl_init(NULL);
-#endif
   CreateNativeRenderable();
   setenv( "EGL_PLATFORM", "tbm", 1 );
 }

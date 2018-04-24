@@ -32,11 +32,6 @@ void DisplayConnection::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVer
   DisplayConnectionFactoryGetDpi( dpiHorizontal, dpiVertical );
 }
 
-void DisplayConnection::GetDpi(Any nativeWindow, unsigned int& dpiHorizontal, unsigned int& dpiVertical)
-{
-  DisplayConnectionFactoryGetDpi( nativeWindow, dpiHorizontal, dpiVertical );
-}
-
 } // namespace Adaptor
 
 } // namespace internal

@@ -7,15 +7,9 @@ adaptor_integration_api_header_files = \
   $(adaptor_integration_api_dir)/trigger-event-factory-interface.h \
   $(adaptor_integration_api_dir)/trigger-event-factory.h
 
-adaptor_integration_ecore_wl_api_header_files = \
+adaptor_integration_wayland_api_header_files = \
   $(adaptor_integration_api_dir)/wayland/wl-types.h \
-  $(adaptor_integration_api_dir)/wayland/ecore-wl/ecore-wl-render-surface.h \
-  $(adaptor_integration_api_dir)/wayland/native-render-surface.h \
-  $(adaptor_integration_api_dir)/native-render-surface-factory.h
-
-adaptor_integration_ecore_wl2_api_header_files = \
-  $(adaptor_integration_api_dir)/wayland/wl-types.h \
-  $(adaptor_integration_api_dir)/wayland/ecore-wl2/ecore-wl2-render-surface.h \
+  $(adaptor_integration_api_dir)/wayland/ecore-wl-render-surface.h \
   $(adaptor_integration_api_dir)/wayland/native-render-surface.h \
   $(adaptor_integration_api_dir)/native-render-surface-factory.h
 

@@ -23,7 +23,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
-#include <Ecore_Wl2.h>
+#include <Ecore_Wayland.h>
 #include <tizen-extension-client-protocol.h>
 
 #include <dali/integration-api/core.h>
@@ -33,7 +33,7 @@
 #include <dali/devel-api/adaptor-framework/orientation.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-render-surface-ecore-wl2.h>
+#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/ecore-indicator-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
@@ -98,15 +98,14 @@ struct Window::EventHandler
 
     if( mWindow->mEcoreEventHander )
     {
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this ) );
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this ) );
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
-      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_IGNORE_OUTPUT_TRANSFORM, EcoreEventIgnoreOutputTransform, this) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this ) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_OUTPUT_TRANSFORM, EcoreEventOutputTransform, this) );
+      mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL_EVENT_IGNORE_OUTPUT_TRANSFORM, EcoreEventIgnoreOutputTransform, this) );
     }
 
-    Ecore_Wl2_Display *ecore_wl2_display = ecore_wl2_connected_display_get(NULL);
-    mDisplay = ecore_wl2_display_get(ecore_wl2_display);
+    mDisplay = ecore_wl_display_get();
 
     if( mDisplay )
     {
@@ -149,14 +148,14 @@ struct Window::EventHandler
   /// Called when the window iconify state is changed.
   static Eina_Bool EcoreEventWindowIconifyStateChanged( void* data, int type, void* event )
   {
-    Ecore_Wl2_Event_Window_Iconify_State_Change* iconifyChangedEvent( static_cast< Ecore_Wl2_Event_Window_Iconify_State_Change* >( event ) );
+    Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent( static_cast< Ecore_Wl_Event_Window_Iconify_State_Change* >( event ) );
     EventHandler* handler( static_cast< EventHandler* >( data ) );
     Eina_Bool handled( ECORE_CALLBACK_PASS_ON );
 
     if ( handler && handler->mWindow )
     {
       WindowVisibilityObserver* observer( handler->mWindow->mAdaptor );
-      if ( observer && ( iconifyChangedEvent->win == static_cast< unsigned int> ( ecore_wl2_window_id_get( handler->mEcoreWindow ) ) ) )
+      if ( observer && ( iconifyChangedEvent->win == static_cast< unsigned int> ( ecore_wl_window_id_get( handler->mEcoreWindow ) ) ) )
       {
         if( iconifyChangedEvent->iconified == EINA_TRUE )
         {
@@ -186,10 +185,10 @@ struct Window::EventHandler
   /// Called when the window gains focus
   static Eina_Bool EcoreEventWindowFocusIn( void* data, int type, void* event )
   {
-    Ecore_Wl2_Event_Focus_In* focusInEvent( static_cast< Ecore_Wl2_Event_Focus_In* >( event ) );
+    Ecore_Wl_Event_Focus_In* focusInEvent( static_cast< Ecore_Wl_Event_Focus_In* >( event ) );
     EventHandler* handler( static_cast< EventHandler* >( data ) );
 
-    if ( handler && handler->mWindow && focusInEvent->window == static_cast< unsigned int >( ecore_wl2_window_id_get( handler->mEcoreWindow ) ) )
+    if ( handler && handler->mWindow && focusInEvent->win == static_cast< unsigned int >( ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
     {
       DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n" );
 
@@ -202,10 +201,10 @@ struct Window::EventHandler
   /// Called when the window loses focus
   static Eina_Bool EcoreEventWindowFocusOut( void* data, int type, void* event )
   {
-    Ecore_Wl2_Event_Focus_Out* focusOutEvent( static_cast< Ecore_Wl2_Event_Focus_Out* >( event ) );
+    Ecore_Wl_Event_Focus_Out* focusOutEvent( static_cast< Ecore_Wl_Event_Focus_Out* >( event ) );
     EventHandler* handler( static_cast< EventHandler* >( data ) );
 
-    if ( handler && handler->mWindow && focusOutEvent->window == static_cast< unsigned int >(ecore_wl2_window_id_get( handler->mEcoreWindow ) ) )
+    if ( handler && handler->mWindow && focusOutEvent->win == static_cast< unsigned int >(ecore_wl_window_id_get( handler->mEcoreWindow ) ) )
     {
       DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n" );
 
@@ -218,10 +217,10 @@ struct Window::EventHandler
   /// Called when the output is transformed
   static Eina_Bool EcoreEventOutputTransform( void* data, int type, void* event )
   {
-    Ecore_Wl2_Event_Output_Transform* transformEvent( static_cast< Ecore_Wl2_Event_Output_Transform* >( event ) );
+    Ecore_Wl_Event_Output_Transform* transformEvent( static_cast< Ecore_Wl_Event_Output_Transform* >( event ) );
     EventHandler* handler( static_cast< EventHandler* >( data ) );
 
-    if ( handler && handler->mWindow && transformEvent->output == ecore_wl2_window_output_find( handler->mEcoreWindow ) )
+    if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
     {
       DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform\n", handler->mEcoreWindow );
 
@@ -242,7 +241,7 @@ struct Window::EventHandler
   /// Called when the output transform should be ignored
   static Eina_Bool EcoreEventIgnoreOutputTransform( void* data, int type, void* event )
   {
-    Ecore_Wl2_Event_Ignore_Output_Transform* ignoreTransformEvent( static_cast< Ecore_Wl2_Event_Ignore_Output_Transform* >( event ) );
+    Ecore_Wl_Event_Ignore_Output_Transform* ignoreTransformEvent( static_cast< Ecore_Wl_Event_Ignore_Output_Transform* >( event ) );
     EventHandler* handler( static_cast< EventHandler* >( data ) );
 
     if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
@@ -397,7 +396,7 @@ struct Window::EventHandler
   // Data
   Window* mWindow;
   Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
-  Ecore_Wl2_Window* mEcoreWindow;
+  Ecore_Wl_Window* mEcoreWindow;
 
   wl_display* mDisplay;
   wl_event_queue* mEventQueue;
@@ -471,7 +470,7 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 
   if( wlSurface )
   {
-    Ecore_Wl2_Window* wlWindow = wlSurface->GetWlWindow();
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
 
     mIndicatorVisible = visibleMode;
 
@@ -480,21 +479,21 @@ void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
       // when the indicator is visible, set proper mode for indicator server according to bg mode
       if ( mIndicatorOpacityMode == Dali::Window::OPAQUE )
       {
-        ecore_wl2_window_indicator_opacity_set(wlWindow, ECORE_WL2_INDICATOR_OPAQUE);
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
       }
       else if ( mIndicatorOpacityMode == Dali::Window::TRANSLUCENT )
       {
-        ecore_wl2_window_indicator_opacity_set(wlWindow, ECORE_WL2_INDICATOR_TRANSLUCENT);
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSLUCENT);
       }
       else if ( mIndicatorOpacityMode == Dali::Window::TRANSPARENT )
       {
-        ecore_wl2_window_indicator_opacity_set(wlWindow, ECORE_WL2_INDICATOR_OPAQUE);
+        ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_OPAQUE);
       }
     }
     else
     {
       // when the indicator is not visible, set TRANSPARENT mode for indicator server
-      ecore_wl2_window_indicator_opacity_set(wlWindow, ECORE_WL2_INDICATOR_TRANSPARENT); // it means hidden indicator
+      ecore_wl_window_indicator_opacity_set(wlWindow, ECORE_WL_INDICATOR_TRANSPARENT); // it means hidden indicator
     }
   }
 
@@ -524,9 +523,9 @@ void Window::SetClass(std::string name, std::string klass)
 
   if( wlSurface )
   {
-    Ecore_Wl2_Window* wlWindow = wlSurface->GetWlWindow();
-    ecore_wl2_window_title_set( wlWindow, name.c_str() );
-    ecore_wl2_window_class_set( wlWindow, klass.c_str() );
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
+    ecore_wl_window_title_set( wlWindow, name.c_str() );
+    ecore_wl_window_class_name_set( wlWindow, klass.c_str() );
   }
   else
   {
@@ -601,7 +600,7 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   mEventHandler = new EventHandler( this );
 
   // get auxiliary hint
-  Eina_List* hints = ecore_wl2_window_aux_hints_supported_get( mEventHandler->mEcoreWindow );
+  Eina_List* hints = ecore_wl_window_aux_hints_supported_get( mEventHandler->mEcoreWindow );
   if( hints )
   {
     Eina_List* l = NULL;
@@ -689,14 +688,14 @@ void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientatio
 
   if( wlSurface )
   {
-    Ecore_Wl2_Window* wlWindow = wlSurface->GetWlWindow();
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
     if ( isShow )
     {
-      ecore_wl2_window_indicator_state_set(wlWindow, ECORE_WL2_INDICATOR_STATE_ON);
+      ecore_wl_window_indicator_state_set(wlWindow, ECORE_WL_INDICATOR_STATE_ON);
     }
     else
     {
-      ecore_wl2_window_indicator_state_set(wlWindow, ECORE_WL2_INDICATOR_STATE_OFF);
+      ecore_wl_window_indicator_state_set(wlWindow, ECORE_WL_INDICATOR_STATE_OFF);
     }
   }
 }
@@ -708,15 +707,15 @@ void Window::IndicatorTypeChanged(Indicator::Type type)
 
   if( wlSurface )
   {
-    Ecore_Wl2_Window* wlWindow = wlSurface->GetWlWindow();
+    Ecore_Wl_Window* wlWindow = wlSurface->GetWlWindow();
     switch(type)
     {
       case Indicator::INDICATOR_TYPE_1:
-        ecore_wl2_indicator_visible_type_set(wlWindow, ECORE_WL2_INDICATOR_VISIBLE_TYPE_SHOWN);
+        ecore_wl_indicator_visible_type_set(wlWindow, ECORE_WL_INDICATOR_VISIBLE_TYPE_SHOWN);
         break;
 
       case Indicator::INDICATOR_TYPE_2:
-        ecore_wl2_indicator_visible_type_set(wlWindow, ECORE_WL2_INDICATOR_VISIBLE_TYPE_HIDDEN);
+        ecore_wl_indicator_visible_type_set(wlWindow, ECORE_WL_INDICATOR_VISIBLE_TYPE_HIDDEN);
         break;
 
       case Indicator::INDICATOR_TYPE_UNKNOWN:
@@ -779,18 +778,18 @@ void Window::SetIndicatorActorRotation()
 
 void Window::Raise()
 {
-  // Use ecore_wl2_window_activate to prevent the window shown without rendering
-  ecore_wl2_window_activate( mEventHandler->mEcoreWindow );
+  // Use ecore_wl_window_activate to prevent the window shown without rendering
+  ecore_wl_window_activate( mEventHandler->mEcoreWindow );
 }
 
 void Window::Lower()
 {
-  ecore_wl2_window_lower( mEventHandler->mEcoreWindow );
+  ecore_wl_window_lower( mEventHandler->mEcoreWindow );
 }
 
 void Window::Activate()
 {
-  ecore_wl2_window_activate( mEventHandler->mEcoreWindow );
+  ecore_wl_window_activate( mEventHandler->mEcoreWindow );
 }
 
 Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
@@ -885,12 +884,12 @@ void Window::RemoveAvailableOrientation(Dali::Window::WindowOrientation orientat
 
 void Window::SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations)
 {
-  int rotations[4];
+  int rotations[4] = { 0 };
   for( std::size_t i = 0; i < mAvailableOrientations.size(); ++i )
   {
     rotations[i] = static_cast< int >( mAvailableOrientations[i] );
   }
-  ecore_wl2_window_available_rotations_set( mEventHandler->mEcoreWindow, rotations, mAvailableOrientations.size() );
+  ecore_wl_window_rotation_available_rotations_set( mEventHandler->mEcoreWindow, rotations, mAvailableOrientations.size() );
 }
 
 const std::vector<Dali::Window::WindowOrientation>& Window::GetAvailableOrientations()
@@ -902,7 +901,7 @@ void Window::SetPreferredOrientation(Dali::Window::WindowOrientation orientation
 {
   mPreferredOrientation = orientation;
 
-  ecore_wl2_window_preferred_rotation_set( mEventHandler->mEcoreWindow, orientation );
+  ecore_wl_window_rotation_preferred_rotation_set( mEventHandler->mEcoreWindow, orientation );
 }
 
 Dali::Window::WindowOrientation Window::GetPreferredOrientation()
@@ -914,7 +913,7 @@ void Window::SetAcceptFocus( bool accept )
 {
   mIsFocusAcceptable = accept;
 
-  ecore_wl2_window_focus_skip_set( mEventHandler->mEcoreWindow, !accept );
+  ecore_wl_window_focus_skip_set( mEventHandler->mEcoreWindow, !accept );
 }
 
 bool Window::IsFocusAcceptable() const
@@ -925,7 +924,7 @@ bool Window::IsFocusAcceptable() const
 void Window::Show()
 {
   mVisible = true;
-  ecore_wl2_window_show( mEventHandler->mEcoreWindow );
+  ecore_wl_window_show( mEventHandler->mEcoreWindow );
 
   if( !mIconified )
   {
@@ -941,7 +940,7 @@ void Window::Show()
 void Window::Hide()
 {
   mVisible = false;
-  ecore_wl2_window_hide( mEventHandler->mEcoreWindow );
+  ecore_wl_window_hide( mEventHandler->mEcoreWindow );
 
   if( !mIconified )
   {
@@ -1034,7 +1033,7 @@ unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::strin
 
   unsigned int id = mAuxiliaryHints.size();
 
-  ecore_wl2_window_aux_hint_add( mEventHandler->mEcoreWindow, static_cast< int >( id ), hint.c_str(), value.c_str() );
+  ecore_wl_window_aux_hint_add( mEventHandler->mEcoreWindow, static_cast< int >( id ), hint.c_str(), value.c_str() );
 
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id );
 
@@ -1051,7 +1050,7 @@ bool Window::RemoveAuxiliaryHint( unsigned int id )
 
   mAuxiliaryHints[id - 1].second = std::string();
 
-  ecore_wl2_window_aux_hint_del( mEventHandler->mEcoreWindow, static_cast< int >( id ) );
+  ecore_wl_window_aux_hint_del( mEventHandler->mEcoreWindow, static_cast< int >( id ) );
 
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::RemoveAuxiliaryHint: id = %d, hint = %s\n", id, mAuxiliaryHints[id - 1].first.c_str() );
 
@@ -1068,7 +1067,7 @@ bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
 
   mAuxiliaryHints[id - 1].second = value;
 
-  ecore_wl2_window_aux_hint_change( mEventHandler->mEcoreWindow, static_cast< int >( id ), value.c_str() );
+  ecore_wl_window_aux_hint_change( mEventHandler->mEcoreWindow, static_cast< int >( id ), value.c_str() );
 
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str() );
 
@@ -1106,14 +1105,14 @@ unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
 
 void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
-  ecore_wl2_window_input_region_set( mEventHandler->mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
+  ecore_wl_window_input_region_set( mEventHandler->mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
 
 void Window::SetType( Dali::Window::Type type )
 {
-  Ecore_Wl2_Window_Type windowType;
+  Ecore_Wl_Window_Type windowType;
 
   if( type != mType )
   {
@@ -1121,32 +1120,32 @@ void Window::SetType( Dali::Window::Type type )
     {
       case Dali::Window::NORMAL:
       {
-        windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
+        windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
         break;
       }
       case Dali::Window::NOTIFICATION:
       {
-        windowType = ECORE_WL2_WINDOW_TYPE_NOTIFICATION;
+        windowType = ECORE_WL_WINDOW_TYPE_NOTIFICATION;
         break;
       }
       case Dali::Window::UTILITY:
       {
-        windowType = ECORE_WL2_WINDOW_TYPE_UTILITY;
+        windowType = ECORE_WL_WINDOW_TYPE_UTILITY;
         break;
       }
       case Dali::Window::DIALOG:
       {
-        windowType = ECORE_WL2_WINDOW_TYPE_DIALOG;
+        windowType = ECORE_WL_WINDOW_TYPE_DIALOG;
         break;
       }
       default:
       {
-        windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
+        windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
         break;
       }
     }
 
-    ecore_wl2_window_type_set( mEventHandler->mEcoreWindow, windowType );
+    ecore_wl_window_type_set( mEventHandler->mEcoreWindow, windowType );
   }
 
   mType = type;
@@ -1210,13 +1209,13 @@ bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
   mEventHandler->mNotificationLevelChangeDone = false;
   mEventHandler->mNotificationChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
 
-  tizen_policy_set_notification_level( mEventHandler->mTizenPolicy, ecore_wl2_window_surface_get( mEventHandler->mEcoreWindow ), notificationLevel );
+  tizen_policy_set_notification_level( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), notificationLevel );
 
   int count = 0;
 
   while( !mEventHandler->mNotificationLevelChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
@@ -1254,7 +1253,7 @@ Dali::Window::NotificationLevel::Type Window::GetNotificationLevel() const
 
   while( !mEventHandler->mNotificationLevelChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
@@ -1314,7 +1313,7 @@ void Window::SetOpaqueState( bool opaque )
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
   }
 
-  tizen_policy_set_opaque_state( mEventHandler->mTizenPolicy, ecore_wl2_window_surface_get( mEventHandler->mEcoreWindow ), ( opaque ? 1 : 0 ) );
+  tizen_policy_set_opaque_state( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), ( opaque ? 1 : 0 ) );
 
   mOpaqueState = opaque;
 
@@ -1352,13 +1351,13 @@ bool Window::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
     }
   }
 
-  tizen_policy_set_window_screen_mode( mEventHandler->mTizenPolicy, ecore_wl2_window_surface_get( mEventHandler->mEcoreWindow ), mode );
+  tizen_policy_set_window_screen_mode( mEventHandler->mTizenPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), mode );
 
   int count = 0;
 
   while( !mEventHandler->mScreenOffModeChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
@@ -1390,7 +1389,7 @@ Dali::Window::ScreenOffMode::Type Window::GetScreenOffMode() const
 
   while( !mEventHandler->mScreenOffModeChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
@@ -1438,13 +1437,13 @@ bool Window::SetBrightness( int brightness )
   mEventHandler->mBrightnessChangeDone = false;
   mEventHandler->mBrightnessChangeState = TIZEN_POLICY_ERROR_STATE_NONE;
 
-  tizen_display_policy_set_window_brightness( mEventHandler->mTizenDisplayPolicy, ecore_wl2_window_surface_get( mEventHandler->mEcoreWindow ), brightness );
+  tizen_display_policy_set_window_brightness( mEventHandler->mTizenDisplayPolicy, ecore_wl_window_surface_get( mEventHandler->mEcoreWindow ), brightness );
 
   int count = 0;
 
   while( !mEventHandler->mBrightnessChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }
@@ -1476,7 +1475,7 @@ int Window::GetBrightness() const
 
   while( !mEventHandler->mBrightnessChangeDone && count < 3 )
   {
-    ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
+    ecore_wl_flush();
     wl_display_dispatch_queue( mEventHandler->mDisplay, mEventHandler->mEventQueue );
     count++;
   }

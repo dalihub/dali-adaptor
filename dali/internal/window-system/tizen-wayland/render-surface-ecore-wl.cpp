@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/wayland/ecore-wl2/ecore-wl2-render-surface.h>
+#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
@@ -58,7 +58,7 @@ void EcoreWlRenderSurface::Init( Any surface )
   if ( surfaceId == 0 )
   {
     // we own the surface about to created
-    ecore_wl2_init();
+    ecore_wl_init(NULL);
     mOwnSurface = true;
     CreateWlRenderable();
   }
@@ -85,7 +85,7 @@ EcoreWlRenderSurface::~EcoreWlRenderSurface()
 {
   if( mOwnSurface )
   {
-    ecore_wl2_shutdown();
+    ecore_wl_shutdown();
   }
 }
 
@@ -94,12 +94,12 @@ void EcoreWlRenderSurface::SetRenderNotification(TriggerEventInterface* renderNo
   mRenderNotification = renderNotification;
 }
 
-Ecore_Wl2_Window* EcoreWlRenderSurface::GetWlWindow()
+Ecore_Wl_Window* EcoreWlRenderSurface::GetWlWindow()
 {
   return 0;
 }
 
-Ecore_Wl2_Window* EcoreWlRenderSurface::GetDrawable()
+Ecore_Wl_Window* EcoreWlRenderSurface::GetDrawable()
 {
   return 0;
 }
@@ -125,7 +125,7 @@ unsigned int EcoreWlRenderSurface::GetSurfaceId( Any surface ) const
   if ( surface.Empty() == false )
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (Ecore_Wl2_Window *) ) )
+    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (Ecore_Wl_Window *) ) )
                         && "Surface type is invalid" );
 
     surfaceId = AnyCast<unsigned int>( surface );
