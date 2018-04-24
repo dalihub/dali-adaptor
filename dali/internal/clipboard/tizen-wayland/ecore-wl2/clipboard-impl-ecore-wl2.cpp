@@ -160,10 +160,6 @@ struct Clipboard::Impl
       DALI_LOG_ERROR("Unable to call method org.freedesktop.DBus.Properties.Get: %s %s",
       errname, errmsg);
       eldbus_message_unref(req);
-      if( reply )
-      {
-        eldbus_message_unref(reply);
-      }
       return -1;
     }
 
@@ -171,12 +167,10 @@ struct Clipboard::Impl
     {
       DALI_LOG_ERROR("Cannot get arguments from eldbus");
       eldbus_message_unref(req);
-      eldbus_message_unref(reply);
       return -1;
     }
 
     eldbus_message_unref(req);
-    eldbus_message_unref(reply);
     DALI_LOG_ERROR("cbhm item count(%d)", count);
     return count;
   }
