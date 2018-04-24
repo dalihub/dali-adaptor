@@ -24,11 +24,15 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Evas.h>
-#ifdef WAYLAND
+#ifdef WAYLAND   // WAYLAND
+#ifdef ECORE_WL2 //ECORE_WL2
+#include <Ecore_Wl2.h>
+#else            //ECORE_WL2
 #include <Ecore_Wayland.h>
-#else
+#endif           //ECORE_WL2
+#else            // WAYLAND
 #include <Ecore_X.h>
-#endif
+#endif           // WAYLAND
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -369,7 +373,11 @@ struct Indicator::Impl
   {
 #if defined(DALI_PROFILE_MOBILE)
 #if defined(WAYLAND)
+#if defined(ECORE_WL2)
+    mEcoreEventHandler = ecore_event_handler_add(ECORE_WL2_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#else
     mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#endif
 #else
     mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
 #endif
