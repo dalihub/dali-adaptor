@@ -7,6 +7,10 @@ include ../../../dali/internal/accessibility/file.list
 adaptor_adaptor_dir = ../../../dali/internal/adaptor
 include ../../../dali/internal/adaptor/file.list
 
+# Module: atspi-bridge
+bridge_src_dir = ../../../dali/dali-bridge
+include ../../../dali/dali-bridge/file.list
+
 # Module: clipboard
 adaptor_clipboard_dir = ../../../dali/internal/clipboard
 include ../../../dali/internal/clipboard/file.list
@@ -59,7 +63,7 @@ include ../../../dali/internal/video/file.list
 adaptor_web_engine_dir = ../../../dali/internal/web-engine-lite
 include ../../../dali/internal/web-engine-lite/file.list
 
-# Module: window-system 
+# Module: window-system
 adaptor_window_system_dir = ../../../dali/internal/window-system
 include ../../../dali/internal/window-system/file.list
 

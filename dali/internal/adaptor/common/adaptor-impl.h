@@ -48,6 +48,11 @@
 namespace Dali
 {
 
+namespace Accessibility
+{
+class Bridge;
+}
+
 class RenderSurface;
 class Window;
 
@@ -603,8 +608,18 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+
+  class AccessibilityObserver : public ConnectionTracker
+  {
+  public:
+    std::shared_ptr< Dali::Accessibility::Bridge > atspiBridge;
+
+    void OnAccessibleKeyEvent( const KeyEvent& event );
+  };
+  AccessibilityObserver accessibilityObserver;
+
 public:
-  inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
+  inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }
 };
 
 } // namespace Internal

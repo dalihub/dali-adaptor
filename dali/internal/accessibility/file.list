@@ -2,6 +2,7 @@
 
 # module: accessibility, backend: common
 adaptor_accessibility_common_src_files=\
+    ${adaptor_accessibility_dir}/accessibility-impl.cpp \
     ${adaptor_accessibility_dir}/common/tts-player-factory.cpp \
     ${adaptor_accessibility_dir}/common/tts-player-impl.cpp \
     ${adaptor_accessibility_dir}/common/accessibility-adaptor-impl.cpp \
