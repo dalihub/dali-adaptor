@@ -41,10 +41,7 @@ adaptor_common_internal_src_files = \
   $(adaptor_common_dir)/feedback/feedback-plugin-proxy.cpp \
   $(adaptor_common_dir)/gl/egl-factory.cpp \
   $(adaptor_common_dir)/gl/egl-implementation.cpp \
-  $(adaptor_common_dir)/gl/egl-sync-implementation.cpp \
-  $(adaptor_common_dir)/gl/egl-debug.cpp \
-  $(adaptor_common_dir)/gl/gl-proxy-implementation.cpp \
-  $(adaptor_common_dir)/gl/gl-extensions.cpp
+  $(adaptor_common_dir)/gl/egl-debug.cpp
 
 # Different files depending on the event loop being used
 adaptor_common_internal_ecore_src_files = \

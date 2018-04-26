@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <X11/extensions/Xfixes.h> // for damage notify
 #include <X11/extensions/Xdamage.h> // for damage notify
 
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -183,13 +182,13 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool WindowRenderSurface::PreRender( EglInterface&, bool )
 {
   // nothing to do for windows
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurface::PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -198,7 +197,7 @@ void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstract
   if(mNeedToApproveDeiconify)
   {
     // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
-    glAbstraction.Finish();
+    // glAbstraction.Finish();
 
     XDisplay* display = AnyCast<XDisplay *>(displayConnection->GetDisplay());
 

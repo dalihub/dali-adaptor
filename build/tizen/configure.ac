@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 m4_define([dali_version],[0.1.0])
 AC_INIT([dali], [dali_version])
 AM_INIT_AUTOMAKE([-Wall foreign])
+AM_PROG_AR
 
 AC_ARG_ENABLE([feedback],
               [AC_HELP_STRING([ --enable-feedback],

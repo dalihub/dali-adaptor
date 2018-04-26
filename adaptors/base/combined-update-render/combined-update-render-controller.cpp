@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -384,9 +384,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   mRenderHelper.InitializeEgl();
 
-  // tell core it has a context
-  mCore.ContextCreated();
-
   NotifyThreadInitialised();
 
   // Update time
@@ -569,8 +566,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  // Inform core of context destruction & shutdown EGL
-  mCore.ContextDestroyed();
+  // Shutdown EGL
   mRenderHelper.ShutdownEgl();
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );

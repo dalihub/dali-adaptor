@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <gl/egl-implementation.h>
 #include <gl/egl-image-extensions.h>
-#include <gl/egl-sync-implementation.h>
 
 namespace Dali
 {
@@ -33,7 +32,6 @@ namespace Adaptor
 EglFactory::EglFactory( int multiSamplingLevel )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
-  mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
   mMultiSamplingLevel( multiSamplingLevel )
 {
 }
@@ -43,7 +41,6 @@ EglFactory::~EglFactory()
   // Ensure the EGL implementation is destroyed
   delete mEglImageExtensions;
   delete mEglImplementation;
-  delete mEglSync;
 }
 
 EglInterface* EglFactory::Create()
@@ -51,8 +48,6 @@ EglInterface* EglFactory::Create()
   // Created by RenderThread (After Core construction)
   mEglImplementation = new EglImplementation( mMultiSamplingLevel );
   mEglImageExtensions = new EglImageExtensions( mEglImplementation );
-
-  mEglSync->Initialize(mEglImplementation); // The sync impl needs the EglDisplay
   return mEglImplementation;
 }
 
@@ -72,11 +67,6 @@ EglInterface* EglFactory::GetImplementation()
 EglImageExtensions* EglFactory::GetImageExtensions()
 {
   return mEglImageExtensions;
-}
-
-EglSyncImplementation* EglFactory::GetSyncImplementation()
-{
-  return mEglSync;
 }
 
 } // Adaptor

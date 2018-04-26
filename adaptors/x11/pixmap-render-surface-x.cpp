@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <X11/extensions/Xfixes.h> // for damage notify
 #include <X11/extensions/Xdamage.h> // for damage notify
 
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/devel-api/threading/conditional-wait.h>
@@ -194,16 +193,16 @@ void PixmapRenderSurface::StartRender()
 {
 }
 
-bool PixmapRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction&, bool )
+bool PixmapRenderSurface::PreRender( EglInterface& egl, bool )
 {
   // Nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void PixmapRenderSurface::PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   // flush gl instruction queue
-  glAbstraction.Flush();
+  //glAbstraction.Flush();
 
   if( mImpl->mThreadSynchronization )
   {

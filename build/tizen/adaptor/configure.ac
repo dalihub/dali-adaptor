@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 AC_PROG_MKDIR_P
+AM_PROG_AR
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
