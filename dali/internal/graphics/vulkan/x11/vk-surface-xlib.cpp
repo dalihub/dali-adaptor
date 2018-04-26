@@ -15,9 +15,9 @@
  *
  */
 
-#include <adaptors/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 #include <dali/internal/graphics/vulkan/x11/vk-surface-xlib.h>
-#include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/ubuntu-x11/window-render-surface-ecore-x.h>
 
 namespace Dali
 {
@@ -29,7 +29,7 @@ namespace Vulkan
 VkSurfaceXlib::VkSurfaceXlib(Dali::RenderSurface& renderSurface)
 : VkSurfaceFactory()
 {
-  auto ecoreSurface = dynamic_cast<Dali::ECore::WindowRenderSurface*>(&renderSurface);
+  auto ecoreSurface = dynamic_cast<Dali::Internal::Adaptor::WindowRenderSurfaceEcoreX*>(&renderSurface);
   assert( ecoreSurface != nullptr && "This is not ecore surface!");
   mWindow = ecoreSurface->GetXWindow();
   mDisplay = XOpenDisplay(nullptr);

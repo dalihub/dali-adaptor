@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-interface.h>
@@ -70,11 +69,6 @@ public:
    * @return platform abstraction
    */
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface()  = 0;
-
-  /**
-   * @return gles abstraction
-   */
-  virtual Dali::Integration::GlAbstraction& GetGlesInterface()  = 0;
 
   /**
    * @return egl factory

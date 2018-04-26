@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 #include <dali/integration-api/bitmap.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/graphics/gles20/gl-implementation.h>
 
 namespace Dali
 {
@@ -42,7 +41,6 @@ NativeBitmapBuffer::NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, un
 {
   DALI_ASSERT_ALWAYS( adaptor );
   mBuffer = new Integration::LocklessBuffer( width * height * Pixel::GetBytesPerPixel(pFormat) );
-  mGlAbstraction = &(adaptor->GetGlAbstraction());
 }
 
 NativeBitmapBuffer::~NativeBitmapBuffer()
@@ -53,10 +51,9 @@ NativeBitmapBuffer::~NativeBitmapBuffer()
 void NativeBitmapBuffer::PrepareTexture()
 {
   DALI_ASSERT_ALWAYS( mBuffer );
-  GLenum pixelFormat = GL_RGBA;
-  GLenum pixelDataType = GL_UNSIGNED_BYTE;
-
-  Integration::ConvertToGlFormat( mPixelFormat, pixelDataType, pixelFormat );
+  //GLenum pixelFormat = GL_RGBA;
+  //GLenum pixelDataType = GL_UNSIGNED_BYTE;
+  //Integration::ConvertToGlFormat( mPixelFormat, pixelDataType, pixelFormat );
 
   const unsigned char* buf = mBuffer->Read();
 
@@ -65,7 +62,7 @@ void NativeBitmapBuffer::PrepareTexture()
     mLastReadBuffer = buf;
 
     // The active texture has already been set to a sampler and bound.
-    mGlAbstraction->TexImage2D( GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, buf );
+    //mGlAbstraction->TexImage2D( GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, buf );
   }
 }
 

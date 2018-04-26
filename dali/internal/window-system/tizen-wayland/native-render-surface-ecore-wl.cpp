@@ -171,13 +171,13 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool NativeRenderSurfaceEcoreWl::PreRender( EglInterface&, bool )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();

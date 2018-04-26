@@ -323,7 +323,7 @@ void WindowRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool WindowRenderSurfaceEcoreWl::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
+bool WindowRenderSurfaceEcoreWl::PreRender( EglInterface& egl, bool resizingSurface )
 {
   if( resizingSurface )
   {
@@ -430,7 +430,7 @@ bool WindowRenderSurfaceEcoreWl::PreRender( EglInterface& egl, Integration::GlAb
   return true;
 }
 
-void WindowRenderSurfaceEcoreWl::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurfaceEcoreWl::PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   if( resizingSurface )
   {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ namespace Adaptor
 {
 
 RenderHelper::RenderHelper( AdaptorInternalServices& adaptorInterfaces )
-: mGLES( adaptorInterfaces.GetGlesInterface() ),
-  mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
+: mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
   mGraphics( adaptorInterfaces.GetGraphics() ),
   mSurfaceReplaced( false ),
@@ -163,9 +162,8 @@ bool RenderHelper::PreRender()
 #if 0
   if( mSurface )
   {
-    mSurface->PreRender( *mEGL, mGLES, mSurfaceResized );
+    mSurface->PreRender( *mEGL, mSurfaceResized );
   }
-  mGLES.PreRender();
 #endif
   return true;
 }
@@ -173,20 +171,17 @@ bool RenderHelper::PreRender()
 void RenderHelper::PostRender( bool renderToFbo )
 {
 #if 0
-  // Inform the gl implementation that rendering has finished before informing the surface
-  mGLES.PostRender();
-
   if( renderToFbo )
   {
-    mGLES.Flush();
-    mGLES.Finish();
+    //mGLES.Flush();
+    //mGLES.Finish();
   }
   else
   {
     if( mSurface )
     {
       // Inform the surface that rendering this frame has finished.
-      mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
+      mSurface->PostRender( *mEGL, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
     }
   }
   mSurfaceReplaced = false;
