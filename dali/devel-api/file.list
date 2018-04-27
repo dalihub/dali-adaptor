@@ -14,7 +14,7 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
@@ -48,13 +48,12 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.h \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/imf-manager.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.h \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.h \
   $(adaptor_devel_api_dir)/adaptor-framework/pixel-buffer.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/render-surface.h \
   $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.h \
   $(adaptor_devel_api_dir)/adaptor-framework/sound-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/style-monitor.h \
@@ -65,7 +64,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h
- 
+
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
    $(adaptor_devel_api_dir)/text-abstraction/font-client.cpp \

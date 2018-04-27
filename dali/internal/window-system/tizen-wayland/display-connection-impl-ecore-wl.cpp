@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <dali/integration-api/wayland/native-render-surface.h>
+#include <dali/integration-api/native-render-surface.h>
 
 namespace Dali
 {
@@ -43,7 +43,7 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay( NULL ),
-  mSurfaceType( RenderSurface::ECORE_RENDER_SURFACE )
+  mSurfaceType( RenderSurface::WINDOW_RENDER_SURFACE )
 {
 }
 

@@ -19,7 +19,7 @@
 
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/integration-api/adaptor.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <iostream>

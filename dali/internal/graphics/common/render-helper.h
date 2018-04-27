@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/egl-interface.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 
 namespace Dali
 {

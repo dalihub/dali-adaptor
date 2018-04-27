@@ -25,8 +25,6 @@
 #include <Ecore.h>
 #include <Ecore_Input.h>
 #include <Ecore_IMF.h>
-#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
-//#include <dali/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
 #include <cstring>
 
 #include <sys/time.h>
@@ -92,73 +90,6 @@ const char* PATH = "/org/tizen/GestureNavigation";
 const unsigned int PRIMARY_TOUCH_BUTTON_ID( 1 );
 
 const unsigned int BYTES_PER_CHARACTER_FOR_ATTRIBUTES = 3;
-
-/**
- * EcoreInputModifierToEcoreIMFLock function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Locks enums.
- * @param[in] modifier the Ecore_Event_Modifier input.
- * @return the Ecore_IMF_Keyboard_Locks output.
- */
-Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock( unsigned int modifier )
-{
-    unsigned int lock( ECORE_IMF_KEYBOARD_LOCK_NONE ); // If no other matches, returns NONE.
-
-    if( modifier & ECORE_EVENT_LOCK_NUM )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_NUM; // Num lock is active.
-    }
-
-    if( modifier & ECORE_EVENT_LOCK_CAPS )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_CAPS; // Caps lock is active.
-    }
-
-    if( modifier & ECORE_EVENT_LOCK_SCROLL )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_SCROLL; // Scroll lock is active.
-    }
-
-    return static_cast<Ecore_IMF_Keyboard_Locks>( lock );
-}
-
-/**
- * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
- * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
- * @param[in] ecoreModifier the Ecore_Event_Modifier input.
- * @return the Ecore_IMF_Keyboard_Modifiers output.
- */
-Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier)
-{
-   unsigned int modifier( ECORE_IMF_KEYBOARD_MODIFIER_NONE );  // If no other matches returns NONE.
-
-
-   if ( ecoreModifier & ECORE_EVENT_MODIFIER_SHIFT )  // enums from ecore_input/Ecore_Input.h
-   {
-     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_SHIFT;  // enums from ecore_imf/ecore_imf.h
-   }
-
-   if ( ecoreModifier & ECORE_EVENT_MODIFIER_ALT )
-   {
-     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_ALT;
-   }
-
-   if ( ecoreModifier & ECORE_EVENT_MODIFIER_CTRL )
-   {
-     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_CTRL;
-   }
-
-   if ( ecoreModifier & ECORE_EVENT_MODIFIER_WIN )
-   {
-     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_WIN;
-   }
-
-   if ( ecoreModifier & ECORE_EVENT_MODIFIER_ALTGR )
-   {
-     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_ALTGR;
-   }
-
-   return static_cast<Ecore_IMF_Keyboard_Modifiers>( modifier );
-}
-
 
 // Copied from x server
 static unsigned int GetCurrentMilliSeconds(void)
@@ -597,63 +528,6 @@ struct EventHandler::Impl
     Ecore_Event_Key *keyEvent( (Ecore_Event_Key*)event );
     bool eventHandled( false );
 
-    // If a device key then skip ecore_imf_context_filter_event.
-    if ( ! KeyLookup::IsDeviceButton( keyEvent->keyname ) )
-    {
-      Ecore_IMF_Context* imfContext = NULL;
-      Dali::ImfManager imfManager( ImfManager::Get() );
-      if ( imfManager )
-      {
-        imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-      }
-
-      if ( imfContext )
-      {
-        // We're consuming key down event so we have to pass to IMF so that it can parse it as well.
-        Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
-        ecoreKeyDownEvent.keyname   = keyEvent->keyname;
-        ecoreKeyDownEvent.key       = keyEvent->key;
-        ecoreKeyDownEvent.string    = keyEvent->string;
-        ecoreKeyDownEvent.compose   = keyEvent->compose;
-        ecoreKeyDownEvent.timestamp = keyEvent->timestamp;
-        ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-        ecoreKeyDownEvent.locks     = EcoreInputModifierToEcoreIMFLock( keyEvent->modifiers );
-        ecoreKeyDownEvent.dev_name  = ecore_device_name_get( keyEvent->dev );
-        ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class>( ecore_device_class_get( keyEvent->dev ) );
-        ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>( ecore_device_subclass_get( keyEvent->dev ) );
-
-        std::string checkDevice;
-        GetDeviceName( keyEvent, checkDevice );
-
-        // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
-        if( ( checkDevice == "ime" ) && ( ( !strncmp( keyEvent->keyname, "Left",  4 ) ) ||
-                                          ( !strncmp( keyEvent->keyname, "Right", 5 ) ) ||
-                                          ( !strncmp( keyEvent->keyname, "Up",    2 ) ) ||
-                                          ( !strncmp( keyEvent->keyname, "Down",  4 ) ) ) )
-        {
-          eventHandled = 0;
-        }
-        else
-        {
-          eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                         ECORE_IMF_EVENT_KEY_DOWN,
-                                                         (Ecore_IMF_Event *) &ecoreKeyDownEvent );
-        }
-
-        // If the event has not been handled by IMF then check if we should reset our IMF context
-        if( !eventHandled )
-        {
-          if ( !strcmp( keyEvent->keyname, "Escape"   ) ||
-               !strcmp( keyEvent->keyname, "Return"   ) ||
-               !strcmp( keyEvent->keyname, "KP_Enter" ) ||
-               !strcmp( keyEvent->keyname, "XF86Exit" ) )
-          {
-            ecore_imf_context_reset( imfContext );
-          }
-        }
-      }
-    }
-
     // If the event wasn't handled then we should send a key event.
     if ( !eventHandled )
     {
@@ -661,6 +535,14 @@ struct EventHandler::Impl
       {
         std::string keyName( keyEvent->keyname );
         std::string keyString( "" );
+        std::string compose( "" );
+
+        // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
+        if ( keyEvent->compose )
+        {
+          compose = keyEvent->compose;
+        }
+
         int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname);
         keyCode = (keyCode == -1) ? 0 : keyCode;
         int modifier( keyEvent->modifiers );
@@ -684,7 +566,7 @@ struct EventHandler::Impl
 
         DALI_LOG_INFO( gImfLogging, Debug::Verbose, "EVENT EcoreEventKeyDown - >>EcoreEventKeyDown deviceName(%s) deviceClass(%d)\n", deviceName.c_str(), deviceClass );
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, deviceName, deviceClass, deviceSubclass );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, deviceName, deviceClass, deviceSubclass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -703,37 +585,6 @@ struct EventHandler::Impl
     Ecore_Event_Key *keyEvent( (Ecore_Event_Key*)event );
     bool eventHandled( false );
 
-    // Device keys like Menu, home, back button must skip ecore_imf_context_filter_event.
-    if ( ! KeyLookup::IsDeviceButton( keyEvent->keyname ) )
-    {
-      Ecore_IMF_Context* imfContext = NULL;
-      Dali::ImfManager imfManager( ImfManager::Get() );
-      if ( imfManager )
-      {
-        imfContext = reinterpret_cast<Ecore_IMF_Context*>(ImfManager::GetImplementation( imfManager ).GetContext());
-      }
-
-      if ( imfContext )
-      {
-        // We're consuming key up event so we have to pass to IMF so that it can parse it as well.
-        Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
-        ecoreKeyUpEvent.keyname   = keyEvent->keyname;
-        ecoreKeyUpEvent.key       = keyEvent->key;
-        ecoreKeyUpEvent.string    = keyEvent->string;
-        ecoreKeyUpEvent.compose   = keyEvent->compose;
-        ecoreKeyUpEvent.timestamp = keyEvent->timestamp;
-        ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier ( keyEvent->modifiers );
-        ecoreKeyUpEvent.locks     = EcoreInputModifierToEcoreIMFLock( keyEvent->modifiers );
-        ecoreKeyUpEvent.dev_name  = ecore_device_name_get( keyEvent->dev );
-        ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class>( ecore_device_class_get( keyEvent->dev ) );
-        ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>( ecore_device_subclass_get( keyEvent->dev ) );
-
-        eventHandled = ecore_imf_context_filter_event( imfContext,
-                                                       ECORE_IMF_EVENT_KEY_UP,
-                                                       (Ecore_IMF_Event *) &ecoreKeyUpEvent );
-      }
-    }
-
     // If the event wasn't handled then we should send a key event.
     if ( !eventHandled )
     {
@@ -741,6 +592,14 @@ struct EventHandler::Impl
       {
         std::string keyName( keyEvent->keyname );
         std::string keyString( "" );
+        std::string compose( "" );
+
+        // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
+        if ( keyEvent->compose )
+        {
+          compose = keyEvent->compose;
+        }
+
         int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname);
         keyCode = (keyCode == -1) ? 0 : keyCode;
         int modifier( keyEvent->modifiers );
@@ -762,7 +621,7 @@ struct EventHandler::Impl
         GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
         GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, deviceName, deviceClass, deviceSubclass );
+        Integration::KeyEvent keyEvent(keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, deviceName, deviceClass, deviceSubclass );
         handler->SendEvent( keyEvent );
       }
     }
@@ -789,18 +648,6 @@ struct EventHandler::Impl
     {
       DALI_LOG_INFO( gImfLogging, Debug::General, "EVENT EcoreEventWindowFocusIn - >>WindowFocusGained \n" );
 
-      if ( ImfManager::IsAvailable() /* Only get the ImfManager if it's available as we do not want to create it */ )
-      {
-        Dali::ImfManager imfManager( ImfManager::Get() );
-        if ( imfManager )
-        {
-          ImfManager& imfManagerImpl( ImfManager::GetImplementation( imfManager ) );
-          if( imfManagerImpl.RestoreAfterFocusLost() )
-          {
-            imfManagerImpl.Activate();
-          }
-        }
-      }
       Dali::Clipboard clipboard = Clipboard::Get();
       clipboard.HideClipboard();
     }
@@ -821,19 +668,6 @@ struct EventHandler::Impl
     // If the window loses focus then hide the keyboard.
     if ( focusOutEvent->win == (unsigned int)ecore_wl_window_id_get(handler->mImpl->mWindow) )
     {
-      if ( ImfManager::IsAvailable() /* Only get the ImfManager if it's available as we do not want to create it */ )
-      {
-        Dali::ImfManager imfManager( ImfManager::Get() );
-        if ( imfManager )
-        {
-          ImfManager& imfManagerImpl( ImfManager::GetImplementation( imfManager ) );
-          if( imfManagerImpl.RestoreAfterFocusLost() )
-          {
-            imfManagerImpl.Deactivate();
-          }
-        }
-      }
-
       // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
       Dali::Clipboard clipboard = Clipboard::Get();
       if ( clipboard )
@@ -1437,8 +1271,8 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
 {
   Ecore_Wl_Window* window = 0;
 
-  // this code only works with the Ecore RenderSurface so need to downcast
-  ECore::WindowRenderSurface* ecoreSurface = dynamic_cast< ECore::WindowRenderSurface* >( surface );
+  // this code only works with the WindowRenderSurface so need to downcast
+  WindowRenderSurfaceEcoreWl* ecoreSurface = static_cast< WindowRenderSurfaceEcoreWl* >( surface );
   if( ecoreSurface )
   {
     window = ecoreSurface->GetWlWindow();

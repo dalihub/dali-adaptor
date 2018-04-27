@@ -77,21 +77,6 @@ void RotateTo(int angle)
   Internal::Adaptor::VirtualKeyboard::RotateTo(angle);
 }
 
-StatusSignalType& StatusChangedSignal()
-{
-  return Internal::Adaptor::VirtualKeyboard::StatusChangedSignal();
-}
-
-KeyboardResizedSignalType& ResizedSignal()
-{
-  return Internal::Adaptor::VirtualKeyboard::ResizedSignal();
-}
-
-LanguageChangedSignalType& LanguageChangedSignal()
-{
-  return Internal::Adaptor::VirtualKeyboard::LanguageChangedSignal();
-}
-
 TextDirection GetTextDirection()
 {
   return Internal::Adaptor::VirtualKeyboard::GetTextDirection();

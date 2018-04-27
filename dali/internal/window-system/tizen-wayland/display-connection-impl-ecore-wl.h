@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <wayland-egl.h>
 #include <Ecore_Wayland.h>
-#include <dali/integration-api/wayland/wl-types.h>
+#include <dali/internal/window-system/tizen-wayland/wl-types.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>

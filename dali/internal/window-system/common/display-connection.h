@@ -22,7 +22,7 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 
 #include <memory>
 

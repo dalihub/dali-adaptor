@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +19,27 @@
  */
 
 // EXTERNAL INCLUDES
+#include <Ecore_Wayland.h>
 #include <wayland-egl.h>
+#include <dali/public-api/common/dali-common.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
+#include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali
 {
 
-namespace ECore
+namespace Internal
+{
+namespace Adaptor
 {
 
 /**
- * @copydoc Dali::ECore::EcoreWlRenderSurface.
- * Window specialization.
+ * Ecore Wayland Window implementation of render surface.
  */
-class WindowRenderSurface : public EcoreWlRenderSurface
+class WindowRenderSurfaceEcoreWl : public WindowRenderSurface
 {
 public:
 
@@ -46,59 +50,62 @@ public:
     * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  WindowRenderSurface( Dali::PositionSize positionSize,
+  WindowRenderSurfaceEcoreWl( Dali::PositionSize positionSize,
                        Any surface,
                        const std::string& name,
                        bool isTransparent = false );
 
   /**
-   * @copydoc Dali::ECore::EcoreWlRenderSurface::~EcoreWlRenderSurface
+   * @brief Destructor
    */
-  virtual ~WindowRenderSurface();
+  virtual ~WindowRenderSurfaceEcoreWl();
 
 public: // API
 
   /**
-   * @copydoc Dali::RenderSurface::GetDrawable()
+   * @brief Get window handle
+   * @return the Ecore Waylnad window handle
    */
-  virtual Ecore_Wl_Window* GetDrawable();
-
-  /**
-   * Map window
-   */
-  virtual void Map();
-
-  /**
-   * @copydoc Dali::ECore::EcoreWlRenderSurface::GetSurface()
-   */
-  virtual Any GetSurface();
-
-  /**
-   * @copydoc Dali::ECore::EcoreWlRenderSurface::GetWlWindow()
-   */
-  virtual Ecore_Wl_Window* GetWlWindow();
-
-  /**
-   * Request surface rotation
-   * @param[in] angle A new angle of the surface
-   * @param[in] width A new width of the surface
-   * @param[in] height A new height of the surface
-   */
-  void RequestRotation( int angle, int width, int height );
+  Ecore_Wl_Window* GetWlWindow();
 
   /**
    * Notify output is transformed.
    */
   void OutputTransformed();
 
+public: // from WindowRenderSurface
+
   /**
-   * @brief Sets whether the surface is transparent or not.
-   *
-   * @param[in] transparent Whether the surface is transparent
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::GetWindow()
    */
-  void SetTransparency( bool transparent );
+  virtual Any GetWindow() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::Map()
+   */
+  virtual void Map() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::SetRenderNotification()
+   */
+  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::SetTransparency()
+   */
+  virtual void SetTransparency( bool transparent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::RequestRotation()
+   */
+  virtual void RequestRotation( int angle, int width, int height ) override;
 
 public: // from Dali::RenderSurface
+
+  /**
+   * @copydoc Dali::RenderSurface::GetPositionSize()
+   */
+  virtual PositionSize GetPositionSize() const;
 
   /**
    * @copydoc Dali::RenderSurface::InitializeEgl()
@@ -160,19 +167,36 @@ public: // from Dali::RenderSurface
    */
   virtual void ReleaseLock();
 
-protected:
+  /**
+   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   */
+  virtual RenderSurface::Type GetSurfaceType();
+
+private: // from WindowRenderSurface
 
   /**
-   * Create WlWindow
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::Initialize()
    */
-  virtual void CreateWlRenderable();
+  void Initialize( Any surface ) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::ECore::EcoreWlRenderSurface::UseExistingRenderable
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::CreateRenderable()
    */
-  virtual void UseExistingRenderable( unsigned int surfaceId );
+  void CreateRenderable() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowRenderSurface::UseExistingRenderable()
+   */
+  void UseExistingRenderable( unsigned int surfaceId ) override;
 
 private:
+
+  /**
+   * Get the surface id if the surface parameter is not empty
+   * @param surface Any containing a surface id, or can be empty
+   * @return surface id, or zero if surface is empty
+   */
+  unsigned int GetSurfaceId( Any surface ) const;
 
   /**
    * Used as the callback for the rotation-trigger.
@@ -181,21 +205,28 @@ private:
 
 private: // Data
 
-  Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
+  std::string                     mTitle;              ///< Title of window which shows from "xinfo -topvwins" command
+  PositionSize                    mPositionSize;       ///< Position
+  Ecore_Wl_Window*                mWlWindow;           ///< Wayland-Window
   wl_surface*                     mWlSurface;
   wl_egl_window*                  mEglWindow;
   ThreadSynchronizationInterface* mThreadSynchronization;
+  TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
+  ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
+  bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
   bool                            mRotationSupported;
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
 
-}; // class WindowRenderSurface
+}; // class WindowRenderSurfaceEcoreWl
 
-} // namespace ECore
+} // namespace Adaptor
+
+} // namespace internal
 
 } // namespace Dali
 
