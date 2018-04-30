@@ -27,6 +27,7 @@
 #include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/drag-and-drop-detector.h>
 
 namespace Dali
@@ -302,6 +303,26 @@ public:
    * @copydoc Dali::Window::SetTransparency()
    */
   void SetTransparency( bool transparent );
+
+  /**
+   * @copydoc Dali::KeyGrab::GrabKey()
+   */
+  bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode );
+
+  /**
+   * @copydoc Dali::KeyGrab::UngrabKey()
+   */
+  bool UngrabKey( Dali::KEY key );
+
+  /**
+   * @copydoc Dali::KeyGrab::GrabKeyList()
+   */
+  bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result );
+
+  /**
+   * @copydoc Dali::KeyGrab::UngrabKeyList()
+   */
+  bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result );
 
   /**
    * Called from Orientation after the Change signal has been sent
