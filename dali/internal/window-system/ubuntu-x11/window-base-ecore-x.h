@@ -212,6 +212,26 @@ public:
    */
   virtual int GetBrightness() const override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKey()
+   */
+  virtual bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKey()
+   */
+  virtual bool UngrabKey( Dali::KEY key ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKeyList()
+   */
+  virtual bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKeyList()
+   */
+  virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
+
 protected:
 
   // Undefined
