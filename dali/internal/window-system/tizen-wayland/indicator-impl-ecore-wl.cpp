@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/common/ecore-indicator-impl.h>
+#include <dali/internal/window-system/tizen-wayland/indicator-impl-ecore-wl.h>
 
 // EXTERNAL INCLUDES
 // Ecore is littered with C style cast
@@ -24,25 +24,16 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Evas.h>
-#ifdef WAYLAND
 #include <Ecore_Wayland.h>
-#else
-#include <Ecore_X.h>
-#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <iomanip>
-#include <fstream>
 
 #include <dali/public-api/images/native-image.h>
-#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/common/stage.h>
-#include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/images/pixel.h>
 
 #include <dali/integration-api/debug.h>
@@ -52,8 +43,6 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
-using Dali::Vector4;
-
 #if defined(DEBUG_ENABLED)
 #define STATE_DEBUG_STRING(state) (state==DISCONNECTED?"DISCONNECTED":state==CONNECTED?"CONNECTED":"UNKNOWN")
 #endif
@@ -62,8 +51,7 @@ namespace
 {
 
 const float SLIDING_ANIMATION_DURATION( 0.2f ); // 200 milli seconds
-const float AUTO_INDICATOR_STAY_DURATION(3.0f); // 3 seconds
-const float SHOWING_DISTANCE_HEIGHT_RATE(0.34f); // 20 pixels
+const float AUTO_INDICATOR_STAY_DURATION( 3.0f ); // 3 seconds
 
 enum
 {
@@ -149,15 +137,10 @@ Dali::Geometry CreateQuadGeometry()
   return quad;
 }
 
-const float OPAQUE_THRESHOLD(0.99f);
-const float TRANSPARENT_THRESHOLD(0.05f);
-
 // indicator service name
 const char* INDICATOR_SERVICE_NAME("elm_indicator");
 
 // Copied from ecore_evas_extn_engine.h
-
-#define NBUF 2
 
 enum // opcodes
 {
@@ -187,7 +170,6 @@ enum // opcodes
    OP_EV_HOLD,
    OP_MSG_PARENT,
    OP_MSG,
-   OP_PIXMAP_REF,
 };
 
 // Copied from elm_conform.c
@@ -198,11 +180,6 @@ const int MSG_ID_INDICATOR_ROTATION( 0x10003 );
 const int MSG_ID_INDICATOR_OPACITY( 0X1004 );
 const int MSG_ID_INDICATOR_TYPE( 0X1005 );
 const int MSG_ID_INDICATOR_START_ANIMATION( 0X10006 );
-
-struct IpcDataUpdate
-{
-   int x, w, y, h;
-};
 
 struct IpcDataResize
 {
@@ -352,7 +329,7 @@ Debug::Filter* gIndicatorLogFilter = Debug::Filter::New(Debug::Concise, false, "
 
 // Impl to hide EFL implementation.
 
-struct Indicator::Impl
+struct IndicatorEcoreWl::Impl
 {
   enum // operation mode
   {
@@ -363,17 +340,13 @@ struct Indicator::Impl
   /**
    * Constructor
    */
-  Impl(Indicator* indicator)
+  Impl(IndicatorEcoreWl* indicator)
   : mIndicator(indicator),
     mEcoreEventHandler(NULL)
   {
 #if defined(DALI_PROFILE_MOBILE)
-#if defined(WAYLAND)
     mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
-#else
-    mEcoreEventHandler = ecore_event_handler_add(ECORE_X_EVENT_CLIENT_MESSAGE,  EcoreEventClientMessage, this);
-#endif
-#endif // WAYLAND && DALI_PROFILE_MOBILE
+#endif // DALI_PROFILE_MOBILE
   }
 
   /**
@@ -389,7 +362,7 @@ struct Indicator::Impl
 
   static void SetIndicatorVisibility( void* data, int operation )
   {
-    Indicator::Impl* indicatorImpl((Indicator::Impl*)data);
+    IndicatorEcoreWl::Impl* indicatorImpl((IndicatorEcoreWl::Impl*)data);
 
     if ( indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
     {
@@ -413,8 +386,8 @@ struct Indicator::Impl
       }
     }
   }
+
 #if defined(DALI_PROFILE_MOBILE)
-#if defined(WAYLAND)
   /**
    * Called when the Ecore indicator event is received.
    */
@@ -423,36 +396,14 @@ struct Indicator::Impl
     SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
     return ECORE_CALLBACK_PASS_ON;
   }
-#else
-  /**
-   * Called when the client messages (i.e. quick panel state) are received.
-   */
-  static Eina_Bool EcoreEventClientMessage( void* data, int type, void* event )
-  {
-    Ecore_X_Event_Client_Message* clientMessageEvent((Ecore_X_Event_Client_Message*)event);
-
-    if ( clientMessageEvent != NULL )
-    {
-      if (clientMessageEvent->message_type == ECORE_X_ATOM_E_INDICATOR_FLICK_DONE)
-      {
-        SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
-      }
-      else if ( clientMessageEvent->message_type == ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE )
-      {
-        SetIndicatorVisibility( data, INDICATOR_HIDE );
-      }
-    }
-    return ECORE_CALLBACK_PASS_ON;
-  }
-#endif
-#endif // WAYLAND && DALI_PROFILE_MOBILE
+#endif // DALI_PROFILE_MOBILE
 
   // Data
-  Indicator*           mIndicator;
+  IndicatorEcoreWl*    mIndicator;
   Ecore_Event_Handler* mEcoreEventHandler;
 };
 
-Indicator::LockFile::LockFile(const std::string filename)
+IndicatorEcoreWl::LockFile::LockFile(const std::string filename)
 : mFilename(filename),
   mErrorThrown(false)
 {
@@ -465,7 +416,7 @@ Indicator::LockFile::LockFile(const std::string filename)
   }
 }
 
-Indicator::LockFile::~LockFile()
+IndicatorEcoreWl::LockFile::~LockFile()
 {
   // Closing file descriptor also unlocks file.
   if( mFileDescriptor > 0 )
@@ -474,7 +425,7 @@ Indicator::LockFile::~LockFile()
   }
 }
 
-bool Indicator::LockFile::Lock()
+bool IndicatorEcoreWl::LockFile::Lock()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -506,7 +457,7 @@ bool Indicator::LockFile::Lock()
   return locked;
 }
 
-void Indicator::LockFile::Unlock()
+void IndicatorEcoreWl::LockFile::Unlock()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -526,14 +477,14 @@ void Indicator::LockFile::Unlock()
   }
 }
 
-bool Indicator::LockFile::RetrieveAndClearErrorStatus()
+bool IndicatorEcoreWl::LockFile::RetrieveAndClearErrorStatus()
 {
   bool error = mErrorThrown;
   mErrorThrown = false;
   return error;
 }
 
-Indicator::ScopedLock::ScopedLock(LockFile* lockFile)
+IndicatorEcoreWl::ScopedLock::ScopedLock(LockFile* lockFile)
 : mLockFile(lockFile),
   mLocked(false)
 {
@@ -543,7 +494,7 @@ Indicator::ScopedLock::ScopedLock(LockFile* lockFile)
   }
 }
 
-Indicator::ScopedLock::~ScopedLock()
+IndicatorEcoreWl::ScopedLock::~ScopedLock()
 {
   if( mLockFile )
   {
@@ -551,16 +502,13 @@ Indicator::ScopedLock::~ScopedLock()
   }
 }
 
-bool Indicator::ScopedLock::IsLocked()
+bool IndicatorEcoreWl::ScopedLock::IsLocked()
 {
   return mLocked;
 }
 
-Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
-: mPixmap( 0 ),
-  mGestureDeltaY( 0.0f ),
-  mGestureDetected( false ),
-  mConnection( this ),
+IndicatorEcoreWl::IndicatorEcoreWl( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
+: mConnection( this ),
   mOpacityMode( Dali::Window::OPAQUE ),
   mState( DISCONNECTED ),
   mAdaptor(adaptor),
@@ -573,7 +521,6 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mIsShowing( true ),
   mIsAnimationPlaying( false ),
   mCurrentSharedFile( 0 ),
-  mSharedBufferType( BUFFER_TYPE_SHM ),
   mImpl( NULL ),
   mBackgroundVisible( false ),
   mTopMargin( 0 )
@@ -584,7 +531,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
 
   // Indicator image handles the touch event including "leave"
   mIndicatorContentActor.SetLeaveRequired( true );
-  mIndicatorContentActor.TouchSignal().Connect( this, &Indicator::OnTouch );
+  mIndicatorContentActor.TouchSignal().Connect( this, &IndicatorEcoreWl::OnTouch );
   mIndicatorContentActor.SetColor( Color::BLACK );
 
   mIndicatorActor = Dali::Actor::New();
@@ -600,7 +547,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   // It can prevent the problem that scrollview gets pan gesture even indicator area is touched,
   // since it consumes the pan gesture in advance.
   mPanDetector = Dali::PanGestureDetector::New();
-  mPanDetector.DetectedSignal().Connect( this, &Indicator::OnPan );
+  mPanDetector.DetectedSignal().Connect( this, &IndicatorEcoreWl::OnPan );
   mPanDetector.Attach( mEventActor );
 
   Open( orientation );
@@ -618,7 +565,7 @@ Indicator::Indicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientat
   mImpl = new Impl(this);
 }
 
-Indicator::~Indicator()
+IndicatorEcoreWl::~IndicatorEcoreWl()
 {
   if(mImpl)
   {
@@ -628,23 +575,23 @@ Indicator::~Indicator()
 
   if(mEventActor)
   {
-    mEventActor.TouchSignal().Disconnect( this, &Indicator::OnTouch );
+    mEventActor.TouchSignal().Disconnect( this, &IndicatorEcoreWl::OnTouch );
   }
   Disconnect();
 }
 
-void Indicator::SetAdaptor(Adaptor* adaptor)
+void IndicatorEcoreWl::SetAdaptor(Adaptor* adaptor)
 {
   mAdaptor = adaptor;
   mIndicatorBuffer->SetAdaptor( adaptor );
 }
 
-Dali::Actor Indicator::GetActor()
+Dali::Actor IndicatorEcoreWl::GetActor()
 {
   return mIndicatorActor;
 }
 
-void Indicator::Open( Dali::Window::WindowOrientation orientation )
+void IndicatorEcoreWl::Open( Dali::Window::WindowOrientation orientation )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -671,7 +618,7 @@ void Indicator::Open( Dali::Window::WindowOrientation orientation )
   }
 }
 
-void Indicator::Close()
+void IndicatorEcoreWl::Close()
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "State: %s", STATE_DEBUG_STRING(mState) );
 
@@ -688,7 +635,7 @@ void Indicator::Close()
   SetForegroundImage( emptyTexture );
 }
 
-void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
+void IndicatorEcoreWl::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
 {
   mOpacityMode = mode;
 
@@ -726,7 +673,7 @@ void Indicator::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
   UpdateTopMargin();
 }
 
-void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
+void IndicatorEcoreWl::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
 {
   if ( visibleMode != mVisible || forceUpdate )
   {
@@ -781,12 +728,12 @@ void Indicator::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool
   }
 }
 
-bool Indicator::IsConnected()
+bool IndicatorEcoreWl::IsConnected()
 {
   return ( mState == CONNECTED );
 }
 
-bool Indicator::SendMessage( int messageDomain, int messageId, const void *data, int size )
+bool IndicatorEcoreWl::SendMessage( int messageDomain, int messageId, const void *data, int size )
 {
  if(IsConnected())
  {
@@ -798,7 +745,7 @@ bool Indicator::SendMessage( int messageDomain, int messageId, const void *data,
  }
 }
 
-bool Indicator::OnTouch(Dali::Actor indicator, const Dali::TouchData& touchData)
+bool IndicatorEcoreWl::OnTouch(Dali::Actor indicator, const Dali::TouchData& touchData)
 {
   if( mServerConnection )
   {
@@ -863,7 +810,7 @@ bool Indicator::OnTouch(Dali::Actor indicator, const Dali::TouchData& touchData)
   return false;
 }
 
-bool Indicator::Connect()
+bool IndicatorEcoreWl::Connect()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -894,18 +841,18 @@ bool Indicator::Connect()
   return connected;
 }
 
-void Indicator::StartReconnectionTimer()
+void IndicatorEcoreWl::StartReconnectionTimer()
 {
   if( ! mReconnectTimer )
   {
     mReconnectTimer = Dali::Timer::New(1000);
     mConnection.DisconnectAll();
-    mReconnectTimer.TickSignal().Connect( mConnection, &Indicator::OnReconnectTimer );
+    mReconnectTimer.TickSignal().Connect( mConnection, &IndicatorEcoreWl::OnReconnectTimer );
   }
   mReconnectTimer.Start();
 }
 
-bool Indicator::OnReconnectTimer()
+bool IndicatorEcoreWl::OnReconnectTimer()
 {
   bool retry = false;
 
@@ -920,7 +867,7 @@ bool Indicator::OnReconnectTimer()
   return retry;
 }
 
-void Indicator::Disconnect()
+void IndicatorEcoreWl::Disconnect()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -932,7 +879,7 @@ void Indicator::Disconnect()
   ClearSharedFileInfo();
 }
 
-void Indicator::Resize( int width, int height )
+void IndicatorEcoreWl::Resize( int width, int height )
 {
   if( width < 1 )
   {
@@ -955,7 +902,7 @@ void Indicator::Resize( int width, int height )
   }
 }
 
-void Indicator::SetLockFileInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
+void IndicatorEcoreWl::SetLockFileInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -986,7 +933,7 @@ void Indicator::SetLockFileInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
   }
 }
 
-void Indicator::SetSharedImageInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
+void IndicatorEcoreWl::SetSharedImageInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -1018,18 +965,13 @@ void Indicator::SetSharedImageInfo( Ecore_Ipc_Event_Server_Data *epcEvent )
   }
 }
 
-void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
+void IndicatorEcoreWl::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
   // epcEvent->ref == alpha
   // epcEvent->ref_to == sys
   // epcEvent->response == buffer num
-
-  if ( mSharedBufferType != BUFFER_TYPE_SHM )
-  {
-    return ;
-  }
 
   int n = epcEvent->response;
 
@@ -1056,7 +998,7 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
     mSharedFileInfo[n].mSharedFile = SharedFile::New( sharedFilename.c_str(), mSharedFileInfo[n].mImageWidth * mSharedFileInfo[n].mImageWidth * 4, true );
     if( mSharedFileInfo[n].mSharedFile != NULL )
     {
-      mSharedFileInfo[n].mLock = new Indicator::LockFile( mSharedFileInfo[n].mLockFileName );
+      mSharedFileInfo[n].mLock = new IndicatorEcoreWl::LockFile( mSharedFileInfo[n].mLockFileName );
       if( mSharedFileInfo[n].mLock->RetrieveAndClearErrorStatus() )
       {
         DALI_LOG_ERROR( "### Indicator error: Cannot open lock file %s ###\n", mSharedFileInfo[n].mLockFileName.c_str() );
@@ -1070,29 +1012,7 @@ void Indicator::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
   }
 }
 
-void Indicator::LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent )
-{
-  DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
-
-  // epcEvent->ref == pixmap id
-  // epcEvent->ref_to == type
-  // epcEvent->response == buffer num
-
-  if( (epcEvent->ref > 0) && (epcEvent->ref_to > 0) )
-  {
-    mSharedBufferType = (BufferType)(epcEvent->ref_to);
-
-    ClearSharedFileInfo();
-
-    mPixmap = static_cast<PixmapId>(epcEvent->ref);
-    DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "mPixmap [%x]", mPixmap);
-
-    CreateNewPixmapImage();
-    UpdateVisibility();
-  }
-}
-
-void Indicator::UpdateTopMargin()
+void IndicatorEcoreWl::UpdateTopMargin()
 {
   int newMargin = (mVisible == Dali::Window::VISIBLE && mOpacityMode == Dali::Window::OPAQUE) ? mImageHeight : 0;
   if (mTopMargin != newMargin)
@@ -1102,7 +1022,7 @@ void Indicator::UpdateTopMargin()
   }
 }
 
-void Indicator::UpdateVisibility()
+void IndicatorEcoreWl::UpdateVisibility()
 {
   if( CheckVisibleState() )
   {
@@ -1123,34 +1043,24 @@ void Indicator::UpdateVisibility()
   SetVisible(mVisible, true);
 }
 
-void Indicator::UpdateImageData( int bufferNumber )
+void IndicatorEcoreWl::UpdateImageData( int bufferNumber )
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "State: %s  mVisible: %s", STATE_DEBUG_STRING(mState), mVisible?"T":"F" );
 
   if( mState == CONNECTED && mVisible )
   {
-    if(mPixmap == 0)
-    {
-      // in case of shm indicator (not pixmap), not sure we can skip it when mIsShowing is false
-      CopyToBuffer( bufferNumber );
-    }
-    else
-    {
-      if(mIsShowing)
-      {
-        mAdaptor->RequestUpdateOnce();
-      }
-    }
+    // not sure we can skip it when mIsShowing is false
+    CopyToBuffer( bufferNumber );
   }
 }
 
-bool Indicator::CopyToBuffer( int bufferNumber )
+bool IndicatorEcoreWl::CopyToBuffer( int bufferNumber )
 {
   bool success = false;
 
   if( mSharedFileInfo[bufferNumber].mLock )
   {
-    Indicator::ScopedLock scopedLock(mSharedFileInfo[bufferNumber].mLock);
+    IndicatorEcoreWl::ScopedLock scopedLock(mSharedFileInfo[bufferNumber].mLock);
     if( mSharedFileInfo[bufferNumber].mLock->RetrieveAndClearErrorStatus() )
     {
       // Do nothing here.
@@ -1171,38 +1081,7 @@ bool Indicator::CopyToBuffer( int bufferNumber )
   return success;
 }
 
-void Indicator::CreateNewPixmapImage()
-{
-  DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mImageWidth, mImageHeight );
-  Dali::NativeImageSourcePtr nativeImageSource = Dali::NativeImageSource::New( mPixmap );
-
-#ifdef ENABLE_INDICATOR_IMAGE_SAVING
-  SaveIndicatorImage( nativeImageSource );
-#endif
-
-  if( nativeImageSource )
-  {
-    Dali::Texture texture = Dali::Texture::New( *nativeImageSource );
-    SetForegroundImage( texture );
-    mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
-    mIndicatorActor.SetSize( mImageWidth, mImageHeight );
-    mEventActor.SetSize( mImageWidth, mImageHeight );
-    UpdateTopMargin();
-  }
-  else
-  {
-    DALI_LOG_WARNING("### Cannot create indicator image - disconnecting ###\n");
-    Disconnect();
-    if( mObserver != NULL )
-    {
-      mObserver->IndicatorClosed( this );
-    }
-    // Don't do connection in this callback - strange things happen!
-    StartReconnectionTimer();
-  }
-}
-
-void Indicator::CreateNewImage( int bufferNumber )
+void IndicatorEcoreWl::CreateNewImage( int bufferNumber )
 {
   DALI_LOG_TRACE_METHOD_FMT( gIndicatorLogFilter, "W:%d H:%d", mSharedFileInfo[bufferNumber].mImageWidth, mSharedFileInfo[bufferNumber].mImageHeight );
   mIndicatorBuffer = new IndicatorBuffer( mAdaptor, mSharedFileInfo[bufferNumber].mImageWidth, mSharedFileInfo[bufferNumber].mImageHeight, Pixel::BGRA8888 );
@@ -1224,7 +1103,7 @@ void Indicator::CreateNewImage( int bufferNumber )
   }
 }
 
-Dali::Geometry Indicator::CreateBackgroundGeometry()
+Dali::Geometry IndicatorEcoreWl::CreateBackgroundGeometry()
 {
   switch( mOpacityMode )
   {
@@ -1335,7 +1214,7 @@ Dali::Geometry Indicator::CreateBackgroundGeometry()
   return Dali::Geometry();
 }
 
-void Indicator::SetForegroundImage( Dali::Texture texture )
+void IndicatorEcoreWl::SetForegroundImage( Dali::Texture texture )
 {
   if( !mForegroundRenderer && texture )
   {
@@ -1374,7 +1253,7 @@ void Indicator::SetForegroundImage( Dali::Texture texture )
   }
 }
 
-void Indicator::OnIndicatorTypeChanged( Type indicatorType )
+void IndicatorEcoreWl::OnIndicatorTypeChanged( Type indicatorType )
 {
   if( mObserver != NULL )
   {
@@ -1382,7 +1261,7 @@ void Indicator::OnIndicatorTypeChanged( Type indicatorType )
   }
 }
 
-void Indicator::DataReceived( void* event )
+void IndicatorEcoreWl::DataReceived( void* event )
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
   Ecore_Ipc_Event_Server_Data *epcEvent = static_cast<Ecore_Ipc_Event_Server_Data *>( event );
@@ -1421,12 +1300,6 @@ void Indicator::DataReceived( void* event )
     {
       DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_SHM_REF2\n" );
       LoadSharedImage( epcEvent );
-      break;
-    }
-    case OP_PIXMAP_REF:
-    {
-      DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "Indicator client received: OP_PIXMAP_REF\n" );
-      LoadPixmapImage( epcEvent );
       break;
     }
     case OP_RESIZE:
@@ -1489,7 +1362,7 @@ void Indicator::DataReceived( void* event )
   }
 }
 
-void Indicator::ConnectionClosed()
+void IndicatorEcoreWl::ConnectionClosed()
 {
   DALI_LOG_TRACE_METHOD( gIndicatorLogFilter );
 
@@ -1502,7 +1375,7 @@ void Indicator::ConnectionClosed()
   Connect();
 }
 
-bool Indicator::CheckVisibleState()
+bool IndicatorEcoreWl::CheckVisibleState()
 {
   if( mOrientation == Dali::Window::LANDSCAPE
     || mOrientation == Dali::Window::LANDSCAPE_INVERSE
@@ -1515,7 +1388,7 @@ bool Indicator::CheckVisibleState()
   return true;
 }
 
-void Indicator::ClearSharedFileInfo()
+void IndicatorEcoreWl::ClearSharedFileInfo()
 {
   for( int i = 0; i < SHARED_FILE_NUMBER; i++ )
   {
@@ -1539,12 +1412,12 @@ void Indicator::ClearSharedFileInfo()
  *  HIDE_NOW = 0
  * };
  */
-void Indicator::ShowIndicator(float duration)
+void IndicatorEcoreWl::ShowIndicator(float duration)
 {
   if( !mIndicatorAnimation )
   {
     mIndicatorAnimation = Dali::Animation::New(SLIDING_ANIMATION_DURATION);
-    mIndicatorAnimation.FinishedSignal().Connect(this, &Indicator::OnAnimationFinished);
+    mIndicatorAnimation.FinishedSignal().Connect(this, &IndicatorEcoreWl::OnAnimationFinished);
   }
 
   if(mIsShowing && !EqualsZero(duration))
@@ -1586,7 +1459,7 @@ void Indicator::ShowIndicator(float duration)
     if(!mShowTimer)
     {
       mShowTimer = Dali::Timer::New(1000 * duration);
-      mShowTimer.TickSignal().Connect(this, &Indicator::OnShowTimer);
+      mShowTimer.TickSignal().Connect(this, &IndicatorEcoreWl::OnShowTimer);
     }
     mShowTimer.SetInterval(1000* duration);
     mShowTimer.Start();
@@ -1594,7 +1467,7 @@ void Indicator::ShowIndicator(float duration)
     if( mVisible == Dali::Window::AUTO )
     {
       // check the stage touch
-      Dali::Stage::GetCurrent().TouchSignal().Connect( this, &Indicator::OnStageTouch );
+      Dali::Stage::GetCurrent().TouchSignal().Connect( this, &IndicatorEcoreWl::OnStageTouch );
     }
   }
   else
@@ -1607,12 +1480,12 @@ void Indicator::ShowIndicator(float duration)
     if( mVisible == Dali::Window::AUTO )
     {
       // check the stage touch
-      Dali::Stage::GetCurrent().TouchSignal().Disconnect( this, &Indicator::OnStageTouch );
+      Dali::Stage::GetCurrent().TouchSignal().Disconnect( this, &IndicatorEcoreWl::OnStageTouch );
     }
   }
 }
 
-bool Indicator::OnShowTimer()
+bool IndicatorEcoreWl::OnShowTimer()
 {
   // after time up, hide indicator
   ShowIndicator( HIDE_NOW );
@@ -1620,7 +1493,7 @@ bool Indicator::OnShowTimer()
   return false;
 }
 
-void Indicator::OnAnimationFinished(Dali::Animation& animation)
+void IndicatorEcoreWl::OnAnimationFinished(Dali::Animation& animation)
 {
   mIsAnimationPlaying = false;
   // once animation is finished and indicator is hidden, take it off stage
@@ -1630,12 +1503,12 @@ void Indicator::OnAnimationFinished(Dali::Animation& animation)
   }
 }
 
-void Indicator::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
+void IndicatorEcoreWl::OnPan( Dali::Actor actor, const Dali::PanGesture& gesture )
 {
   // Nothing to do, but we still want to consume pan
 }
 
-void Indicator::OnStageTouch(const Dali::TouchData& touchData)
+void IndicatorEcoreWl::OnStageTouch(const Dali::TouchData& touchData)
 {
   // when stage is touched while indicator is showing temporary, hide it
   if( mIsShowing && ( CheckVisibleState() == false || mVisible == Dali::Window::AUTO ) )
