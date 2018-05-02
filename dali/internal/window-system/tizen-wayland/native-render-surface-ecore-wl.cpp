@@ -75,6 +75,8 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
 
     DALI_LOG_INFO( gNativeSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n" );
   }
+
+  ecore_wl_shutdown();
 }
 
 Any NativeRenderSurfaceEcoreWl::GetDrawable()
