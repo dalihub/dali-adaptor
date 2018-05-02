@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_FACTORY_ECORE_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_FACTORY_ECORE_WL_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -18,7 +18,7 @@
  *
  */
 
-#include <dali/internal/window-system/common/window-base-factory.h>
+#include <dali/internal/window-system/common/window-factory.h>
 
 namespace Dali
 {
@@ -27,14 +27,16 @@ namespace Internal
 namespace Adaptor
 {
 
-class WindowBaseFactoryEcoreWl : public WindowBaseFactory
+class WindowFactoryEcoreWl : public WindowFactory
 {
 public:
-  std::unique_ptr< Dali::Internal::Adaptor::WindowBase > CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface ) override;
+  std::unique_ptr< WindowBase > CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface ) override;
+
+  std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) override;
 };
 
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_FACTORY_ECORE_WL_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL_H

@@ -51,7 +51,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/gesture-manager.h>
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>

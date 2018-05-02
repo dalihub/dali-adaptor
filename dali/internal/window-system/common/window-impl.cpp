@@ -27,11 +27,10 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
-#include <dali/internal/window-system/common/ecore-indicator-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
-#include <dali/internal/window-system/common/window-base-factory.h>
+#include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -72,7 +71,7 @@ Window::Window()
   mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( false ),
-  mIndicator( NULL ),
+  mIndicator(),
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
@@ -96,7 +95,6 @@ Window::~Window()
     Dali::RenderTask indicatorTask = taskList.GetTask(0);
     mOverlay->GetOverlayRenderTasks().RemoveTask(indicatorTask);
     mIndicator->Close();
-    delete mIndicator;
   }
 
   if ( mAdaptor )
@@ -118,8 +116,8 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   mSurface = windowRenderSurface.release();
 
   // create a window base
-  auto windowBaseFactory = Dali::Internal::Adaptor::GetWindowBaseFactory();
-  mWindowBase = windowBaseFactory->CreateWindowBase( this, mSurface );
+  auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
+  mWindowBase = windowFactory->CreateWindowBase( this, mSurface );
 
   mWindowBase->Initialize();
 
@@ -609,11 +607,15 @@ void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
   {
     if( mIndicatorVisible != Dali::Window::INVISIBLE )
     {
-      mIndicator = new Indicator( mAdaptor, mIndicatorOrientation, this );
-      mIndicator->SetOpacityMode( mIndicatorOpacityMode );
-      Dali::Actor actor = mIndicator->GetActor();
-      SetIndicatorActorRotation();
-      mOverlay->Add(actor);
+      auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
+      mIndicator = windowFactory->CreateIndicator( mAdaptor, mIndicatorOrientation, this );
+      if( mIndicator )
+      {
+        mIndicator->SetOpacityMode( mIndicatorOpacityMode );
+        Dali::Actor actor = mIndicator->GetActor();
+        SetIndicatorActorRotation();
+        mOverlay->Add(actor);
+      }
     }
     // else don't create a hidden indicator
   }
@@ -649,7 +651,10 @@ void Window::DoRotateIndicator( Dali::Window::WindowOrientation orientation )
   {
     mShowRotatedIndicatorOnClose = true;
     mNextIndicatorOrientation = orientation;
-    mIndicator->Close(); // May synchronously call IndicatorClosed() callback
+    if( mIndicator )
+    {
+      mIndicator->Close(); // May synchronously call IndicatorClosed() callback
+    }
   }
   else
   {
@@ -662,31 +667,32 @@ void Window::DoRotateIndicator( Dali::Window::WindowOrientation orientation )
 void Window::SetIndicatorActorRotation()
 {
   DALI_LOG_TRACE_METHOD( gWindowLogFilter );
-  DALI_ASSERT_DEBUG( mIndicator != NULL );
-
-  Dali::Actor actor = mIndicator->GetActor();
-  switch( mIndicatorOrientation )
+  if( mIndicator )
   {
-    case Dali::Window::PORTRAIT:
-      actor.SetParentOrigin( ParentOrigin::TOP_CENTER );
-      actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetOrientation( Degree(0), Vector3::ZAXIS );
-      break;
-    case Dali::Window::PORTRAIT_INVERSE:
-      actor.SetParentOrigin( ParentOrigin::BOTTOM_CENTER );
-      actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetOrientation( Degree(180), Vector3::ZAXIS );
-      break;
-    case Dali::Window::LANDSCAPE:
-      actor.SetParentOrigin( ParentOrigin::CENTER_LEFT );
-      actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetOrientation( Degree(270), Vector3::ZAXIS );
-      break;
-    case Dali::Window::LANDSCAPE_INVERSE:
-      actor.SetParentOrigin( ParentOrigin::CENTER_RIGHT );
-      actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-      actor.SetOrientation( Degree(90), Vector3::ZAXIS );
-      break;
+    Dali::Actor actor = mIndicator->GetActor();
+    switch( mIndicatorOrientation )
+    {
+      case Dali::Window::PORTRAIT:
+        actor.SetParentOrigin( ParentOrigin::TOP_CENTER );
+        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
+        actor.SetOrientation( Degree(0), Vector3::ZAXIS );
+        break;
+      case Dali::Window::PORTRAIT_INVERSE:
+        actor.SetParentOrigin( ParentOrigin::BOTTOM_CENTER );
+        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
+        actor.SetOrientation( Degree(180), Vector3::ZAXIS );
+        break;
+      case Dali::Window::LANDSCAPE:
+        actor.SetParentOrigin( ParentOrigin::CENTER_LEFT );
+        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
+        actor.SetOrientation( Degree(270), Vector3::ZAXIS );
+        break;
+      case Dali::Window::LANDSCAPE_INVERSE:
+        actor.SetParentOrigin( ParentOrigin::CENTER_RIGHT );
+        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
+        actor.SetOrientation( Degree(90), Vector3::ZAXIS );
+        break;
+    }
   }
 }
 
@@ -695,7 +701,7 @@ void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientatio
   mWindowBase->SetIndicatorProperties( isShow, lastOrientation );
 }
 
-void Window::IndicatorTypeChanged(Indicator::Type type)
+void Window::IndicatorTypeChanged( IndicatorInterface::Type type )
 {
   mWindowBase->IndicatorTypeChanged( type );
 }
@@ -707,7 +713,10 @@ void Window::IndicatorClosed( IndicatorInterface* indicator )
   if( mShowRotatedIndicatorOnClose )
   {
     Dali::Window::WindowOrientation currentOrientation = mIndicatorOrientation;
-    mIndicator->Open( mNextIndicatorOrientation );
+    if( mIndicator )
+    {
+      mIndicator->Open( mNextIndicatorOrientation );
+    }
     mIndicatorOrientation = mNextIndicatorOrientation;
     SetIndicatorActorRotation();
     DoShowIndicator( currentOrientation );
@@ -746,8 +755,7 @@ void Window::OnStop()
     mIndicator->Close();
   }
 
-  delete mIndicator;
-  mIndicator = NULL;
+  mIndicator.release();
 }
 
 void Window::OnDestroy()

@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_WINDOW_H__
-#define __DALI_INTERNAL_WINDOW_H__
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -456,26 +456,26 @@ public: // Signals
 
 private:
 
-  WindowRenderSurface*             mSurface;
-  std::unique_ptr< WindowBase >    mWindowBase;
-  Dali::Window::IndicatorVisibleMode mIndicatorVisible; ///< public state
-  bool                             mIndicatorIsShown:1; ///< private state
-  bool                             mShowRotatedIndicatorOnClose:1;
-  bool                             mStarted:1;
-  bool                             mIsTransparent:1;
-  bool                             mIsFocusAcceptable:1;
-  bool                             mVisible:1;
-  bool                             mIconified:1;
-  bool                             mOpaqueState:1;
-  bool                             mResizeEnabled:1;
-  IndicatorInterface*              mIndicator;
-  Dali::Window::WindowOrientation  mIndicatorOrientation;
-  Dali::Window::WindowOrientation  mNextIndicatorOrientation;
-  Dali::Window::IndicatorBgOpacity mIndicatorOpacityMode;
-  Integration::SystemOverlay*      mOverlay;
-  Adaptor*                         mAdaptor;
-  Dali::DragAndDropDetector        mDragAndDropDetector;
-  Dali::Window::Type               mType;
+  WindowRenderSurface*                  mSurface;
+  std::unique_ptr< WindowBase >         mWindowBase;
+  Dali::Window::IndicatorVisibleMode    mIndicatorVisible; ///< public state
+  bool                                  mIndicatorIsShown:1; ///< private state
+  bool                                  mShowRotatedIndicatorOnClose:1;
+  bool                                  mStarted:1;
+  bool                                  mIsTransparent:1;
+  bool                                  mIsFocusAcceptable:1;
+  bool                                  mVisible:1;
+  bool                                  mIconified:1;
+  bool                                  mOpaqueState:1;
+  bool                                  mResizeEnabled:1;
+  std::unique_ptr< IndicatorInterface > mIndicator;
+  Dali::Window::WindowOrientation       mIndicatorOrientation;
+  Dali::Window::WindowOrientation       mNextIndicatorOrientation;
+  Dali::Window::IndicatorBgOpacity      mIndicatorOpacityMode;
+  Integration::SystemOverlay*           mOverlay;
+  Adaptor*                              mAdaptor;
+  Dali::DragAndDropDetector             mDragAndDropDetector;
+  Dali::Window::Type                    mType;
 
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
@@ -509,4 +509,4 @@ inline const Internal::Adaptor::Window& GetImplementation(const Dali::Window& wi
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_WINDOW_H__
+#endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
