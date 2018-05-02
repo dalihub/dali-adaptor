@@ -105,6 +105,19 @@ PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
   return mPosition;
 }
 
+void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
+{
+  // calculate DPI
+  float xres, yres;
+
+  // 1 inch = 25.4 millimeters
+  xres = ecore_wl_dpi_get();
+  yres = ecore_wl_dpi_get();
+
+  dpiHorizontal = int( xres + 0.5f );  // rounding
+  dpiVertical   = int( yres + 0.5f );
+}
+
 void NativeRenderSurfaceEcoreWl::InitializeEgl( EglInterface& egl )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );

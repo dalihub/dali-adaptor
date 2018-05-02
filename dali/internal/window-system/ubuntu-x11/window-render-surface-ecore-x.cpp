@@ -134,6 +134,19 @@ PositionSize WindowRenderSurfaceEcoreX::GetPositionSize() const
   return mPosition;
 }
 
+void WindowRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
+{
+  // calculate DPI
+  float xres, yres;
+
+  // 1 inch = 25.4 millimeters
+  xres = ecore_x_dpi_get();
+  yres = ecore_x_dpi_get();
+
+  dpiHorizontal = int( xres + 0.5f );  // rounding
+  dpiVertical   = int( yres + 0.5f );
+}
+
 void WindowRenderSurfaceEcoreX::InitializeEgl( EglInterface& eglIf )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );

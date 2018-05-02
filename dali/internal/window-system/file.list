@@ -3,7 +3,6 @@
 # module: window-system, backend: common
 adaptor_window_system_common_src_files=\
     ${adaptor_window_system_dir}/common/display-connection.cpp \
-    ${adaptor_window_system_dir}/common/display-connection-impl.cpp \
     ${adaptor_window_system_dir}/common/ecore-indicator-impl.cpp \
     ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
     ${adaptor_window_system_dir}/common/indicator-buffer.cpp \

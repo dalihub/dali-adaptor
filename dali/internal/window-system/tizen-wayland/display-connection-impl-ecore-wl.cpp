@@ -22,9 +22,6 @@
 #include <Ecore_Wayland.h>
 #include <dali/integration-api/debug.h>
 
-// INTERNAL HEADERS
-#include <dali/integration-api/native-render-surface.h>
-
 namespace Dali
 {
 
@@ -89,19 +86,6 @@ void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
   {
     mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
   }
-}
-
-void DisplayConnectionEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
-{
-  // calculate DPI
-  float xres, yres;
-
-  // 1 inch = 25.4 millimeters
-  xres = ecore_wl_dpi_get();
-  yres = ecore_wl_dpi_get();
-
-  dpiHorizontal = int(xres + 0.5f);  // rounding
-  dpiVertical   = int(yres + 0.5f);
 }
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
