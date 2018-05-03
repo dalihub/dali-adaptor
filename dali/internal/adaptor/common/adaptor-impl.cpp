@@ -55,14 +55,10 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/system/common/logging.h>
+#include <dali/devel-api/adaptor-framework/image-loading.h>
 
 #include <dali/internal/system/common/locale-utils.h>
-
-#include <aul.h>
-#include <unistd.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -247,38 +243,6 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   }
 
   SetupSystemInformation();
-
-  Dali::Stage stage = Dali::Stage::GetCurrent();
-
-  char appname[4096] = {0};
-  int pid = getpid();
-  aul_app_get_pkgname_bypid( pid, appname, sizeof( appname ) );
-
-  accessibilityObserver.atspiBridge = Accessibility::CreateBridge();
-  auto accessible = Accessibility::Accessible::Get( stage.GetRootLayer() );
-  accessibilityObserver.atspiBridge->SetApplicationChild( accessible );
-  accessibilityObserver.atspiBridge->SetApplicationName( appname );
-  accessibilityObserver.atspiBridge->Initialize();
-
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect( &accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent );
-}
-
-void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent( const KeyEvent& event )
-{
-  Accessibility::KeyEventType type;
-  if( event.state == KeyEvent::Down )
-  {
-    type = Accessibility::KeyEventType::KeyPressed;
-  }
-  else if( event.state == KeyEvent::Up )
-  {
-    type = Accessibility::KeyEventType::KeyReleased;
-  }
-  else
-  {
-    return;
-  }
-  atspiBridge->Emit( type, event.keyCode, event.keyPressedName, event.time, !event.keyPressed.empty() );
 }
 
 Adaptor::~Adaptor()
@@ -784,8 +748,6 @@ void Adaptor::OnWindowShown()
 {
   if ( PAUSED_WHILE_HIDDEN == mState )
   {
-    accessibilityObserver.atspiBridge->ApplicationShown();
-
     // Adaptor can now be resumed
     mState = PAUSED;
 
@@ -800,8 +762,6 @@ void Adaptor::OnWindowHidden()
 {
   if ( RUNNING == mState )
   {
-    accessibilityObserver.atspiBridge->ApplicationHidden();
-
     Pause();
 
     // Adaptor cannot be resumed until the window is shown

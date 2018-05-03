@@ -67,9 +67,8 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/key-extension-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility.h
-
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h
+ 
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
    $(adaptor_devel_api_dir)/text-abstraction/font-client.cpp \
