@@ -303,7 +303,7 @@ void Adaptor::Start()
 
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
-  Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
+  mSurface->GetDpi( dpiHor, dpiVer );
 
   // tell core about the DPI value
   mCore->SetDpi(dpiHor, dpiVer);

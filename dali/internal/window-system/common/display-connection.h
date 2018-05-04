@@ -81,13 +81,6 @@ public:
   Any GetDisplay();
 
   /**
-   * @brief Get DPI
-   * @param[out] dpiHorizontal set to the horizontal dpi
-   * @param[out] dpiVertical set to the vertical dpi
-   */
-  static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
-
-  /**
    * @brief Consumes any possible events on the queue so that there is no leaking between frames
    */
   void ConsumeEvents();

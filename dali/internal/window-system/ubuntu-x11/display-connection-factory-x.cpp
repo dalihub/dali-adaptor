@@ -25,8 +25,6 @@ namespace Internal
 namespace Adaptor
 {
 
-
-
 std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
 {
   return Utils::MakeUnique<DisplayConnectionX11>();
@@ -37,11 +35,6 @@ std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
 {
   // returns X display factory
   return Utils::MakeUnique<DisplayConnectionFactoryX>();
-}
-
-void DisplayConnectionFactoryGetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
-{
-  DisplayConnectionX11::GetDpi( dpiHorizontal, dpiVertical );
 }
 
 }

@@ -20,14 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
-#include <dali/public-api/object/base-object.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 namespace Dali
 {
 
-class RenderSurface;
 class DisplayConnection;
 
 namespace Internal
@@ -70,11 +67,6 @@ public:
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
   Any GetDisplay();
-
-  /**
-   * @copydoc Dali::DisplayConnection::GetDpi
-   */
-  static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents

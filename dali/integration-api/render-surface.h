@@ -88,6 +88,13 @@ public:
   virtual PositionSize GetPositionSize() const = 0;
 
   /**
+   * @brief Get DPI
+   * @param[out] dpiHorizontal set to the horizontal dpi
+   * @param[out] dpiVertical set to the vertical dpi
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
+
+  /**
    * Initialize EGL, RenderSurface should create egl display and initialize
    * @param egl implementation to use for the creation
    */

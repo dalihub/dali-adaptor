@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/internal/window-system/common/indicator-interface.h>
 
 // EXTERNAL INCLUDES
@@ -196,6 +197,26 @@ public:
    * @copydoc Dali::Window::GetBrightness()
    */
   virtual int GetBrightness() const = 0;
+
+  /**
+   * @copydoc Dali::KeyGrab::GrabKey()
+   */
+  virtual bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) = 0;
+
+  /**
+   * @copydoc Dali::KeyGrab::UngrabKey()
+   */
+  virtual bool UngrabKey( Dali::KEY key ) = 0;
+
+  /**
+   * @copydoc Dali::KeyGrab::GrabKeyList()
+   */
+  virtual bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) = 0;
+
+  /**
+   * @copydoc Dali::KeyGrab::UngrabKeyList()
+   */
+  virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) = 0;
 
 protected:
 

@@ -18,20 +18,12 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <wayland-egl.h>
-#include <Ecore_Wayland.h>
-#include <dali/internal/window-system/tizen-wayland/wl-types.h>
-
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
-#include <dali/public-api/object/base-object.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
 
 namespace Dali
 {
 
-class RenderSurface;
 class DisplayConnection;
 
 namespace Internal
@@ -67,11 +59,6 @@ public:
   Any GetDisplay();
 
   /**
-   * @copydoc Dali::DisplayConnection::GetDpi
-   */
-  static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
-
-  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   void ConsumeEvents();
@@ -85,8 +72,6 @@ public:
    * @brief Sets surface type
    */
   void SetSurfaceType( RenderSurface::Type type );
-
-
 
 public:
 

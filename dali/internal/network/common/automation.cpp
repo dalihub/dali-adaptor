@@ -216,17 +216,8 @@ std::string ToString( T i )
   return s;
 }
 
-
-// currently rotations are output in Euler format ( may change)
-void AppendPropertyNameAndValue( Dali::Handle handle, int propertyIndex, std::ostringstream& outputStream)
+std::string GetPropertyValueString( Dali::Handle handle, int propertyIndex )
 {
-  // get the property name and the value as a string
-  std::string propertyName( handle.GetPropertyName( propertyIndex ) );
-
-  // Apply quotes around the property name
-  outputStream << "\"" << propertyName << "\"" << ",";
-
-  // Convert value to a string
   std::ostringstream valueStream;
   Dali::Property::Value value = handle.GetProperty( propertyIndex );
   valueStream << value;
@@ -259,8 +250,29 @@ void AppendPropertyNameAndValue( Dali::Handle handle, int propertyIndex, std::os
 
     valueString = escapedValue.str();
   }
+  return valueString;
+}
+
+// currently rotations are output in Euler format ( may change)
+void AppendPropertyNameAndValue( Dali::Handle handle, int propertyIndex, std::ostringstream& outputStream)
+{
+  // get the property name and the value as a string
+  std::string propertyName( handle.GetPropertyName( propertyIndex ) );
+
+  // Apply quotes around the property name
+  outputStream << "\"" << propertyName << "\"" << ",";
+
+  // Convert value to a string
+  std::string valueString = GetPropertyValueString( handle, propertyIndex );
 
   outputStream << "\"" << valueString << "\"";
+}
+
+void AppendRendererPropertyNameAndValue( Dali::Renderer renderer, int rendererIndex, const std::string& name, std::ostringstream& outputStream)
+{
+  outputStream << ",[\"renderer[" << rendererIndex << "]." << name << "\"" << ",";
+  std::string valueString = GetPropertyValueString( renderer, renderer.GetPropertyIndex( name ) );
+  outputStream << "\"" << valueString << "\"]";
 }
 
 bool ExcludeProperty( int propIndex )
@@ -306,6 +318,19 @@ std::string DumpJson( Dali::Actor actor, int level )
       msg << "]";
     }
   }
+  if( actor.GetRendererCount() > 0 )
+  {
+    for( unsigned int i=0; i<actor.GetRendererCount(); ++i )
+    {
+      auto renderer = actor.GetRendererAt( i );
+      AppendRendererPropertyNameAndValue( renderer, i, "offset", msg );
+      AppendRendererPropertyNameAndValue( renderer, i, "size", msg );
+      AppendRendererPropertyNameAndValue( renderer, i, "offsetSizeMode", msg );
+      AppendRendererPropertyNameAndValue( renderer, i, "origin", msg );
+      AppendRendererPropertyNameAndValue( renderer, i, "anchorPoint", msg );
+    }
+  }
+
   msg << "]";
   msg << ", " << Quote( "children" ) << " : [ ";
 

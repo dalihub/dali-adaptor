@@ -74,67 +74,72 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::GetPositionSize()
    */
-  virtual PositionSize GetPositionSize() const;
+  virtual PositionSize GetPositionSize() const override;
+
+  /**
+   * @copydoc Dali::RenderSurface::GetDpi()
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::RenderSurface::InitializeEgl()
    */
-  virtual void InitializeEgl( EglInterface& egl );
+  virtual void InitializeEgl( EglInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateEglSurface()
    */
-  virtual void CreateEglSurface( EglInterface& egl );
+  virtual void CreateEglSurface( EglInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::DestroyEglSurface()
    */
-  virtual void DestroyEglSurface( EglInterface& egl );
+  virtual void DestroyEglSurface( EglInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
    */
-  virtual bool ReplaceEGLSurface( EglInterface& egl );
+  virtual bool ReplaceEGLSurface( EglInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()
    */
-  virtual void MoveResize( Dali::PositionSize positionSize);
+  virtual void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::RenderSurface::SetViewMode()
    */
-  void SetViewMode( ViewMode viewMode );
+  virtual void SetViewMode( ViewMode viewMode ) override;
 
   /**
    * @copydoc Dali::RenderSurface::StartRender()
    */
-  virtual void StartRender();
+  virtual void StartRender() override;
 
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface );
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface );
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
    */
-  virtual void StopRender();
+  virtual void StopRender() override;
 
   /**
    * @copydoc Dali::RenderSurface::SetThreadSynchronization
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization );
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )override;
 
   /**
    * @copydoc Dali::RenderSurface::GetSurfaceType()
    */
-  virtual RenderSurface::Type GetSurfaceType();
+  virtual RenderSurface::Type GetSurfaceType() override;
 
 private:
 

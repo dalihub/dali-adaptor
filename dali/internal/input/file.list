@@ -5,6 +5,7 @@ adaptor_input_common_src_files=\
     ${adaptor_input_dir}/common/drag-and-drop-detector-impl.cpp \
     ${adaptor_input_dir}/common/gesture-manager.cpp \
     ${adaptor_input_dir}/common/input-method-context-impl.cpp \
+    ${adaptor_input_dir}/common/key-grab.cpp \
     ${adaptor_input_dir}/common/key-impl.cpp \
     ${adaptor_input_dir}/common/long-press-gesture-detector.cpp \
     ${adaptor_input_dir}/common/pan-gesture-detector-base.cpp \
@@ -18,7 +19,6 @@ adaptor_input_common_src_files=\
 adaptor_input_tizen_wayland_src_files=\
     ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp \
     ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/key-grab-ecore-wl.cpp \
     ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp \
     ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore-wl.cpp
 

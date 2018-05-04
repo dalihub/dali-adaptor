@@ -25,6 +25,7 @@
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/input/common/key-impl.h>
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
@@ -1037,6 +1038,189 @@ int WindowBaseEcoreWl::GetBrightness() const
   DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl::GetBrightness: Brightness [%d]\n", mBrightness );
 
   return mBrightness;
+}
+
+bool WindowBaseEcoreWl::GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode )
+{
+  Ecore_Wl_Window_Keygrab_Mode mode;
+
+  switch( grabMode )
+  {
+    case KeyGrab::TOPMOST:
+    {
+      mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
+      break;
+    }
+    case KeyGrab::SHARED:
+    {
+      mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
+      break;
+    }
+    case KeyGrab::OVERRIDE_EXCLUSIVE:
+    {
+      mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
+      break;
+    }
+    case KeyGrab::EXCLUSIVE:
+    {
+      mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
+      break;
+    }
+    default:
+    {
+      return false;
+    }
+  }
+
+  return ecore_wl_window_keygrab_set( mEcoreWindow, KeyLookup::GetKeyName( key ), 0, 0, 0, mode );
+}
+
+bool WindowBaseEcoreWl::UngrabKey( Dali::KEY key )
+{
+  return ecore_wl_window_keygrab_unset( mEcoreWindow, KeyLookup::GetKeyName( key ), 0, 0 );
+}
+
+bool WindowBaseEcoreWl::GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result )
+{
+  int keyCount = key.Count();
+  int keyGrabModeCount = grabMode.Count();
+
+  if( keyCount != keyGrabModeCount || keyCount == 0 )
+  {
+    return false;
+  }
+
+  eina_init();
+
+  Eina_List* keyList = NULL;
+  Ecore_Wl_Window_Keygrab_Info* info = new Ecore_Wl_Window_Keygrab_Info[keyCount];
+
+  for( int index = 0; index < keyCount; ++index )
+  {
+    info[index].key = const_cast< char* >( KeyLookup::GetKeyName( key[index] ) );
+
+    switch( grabMode[index] )
+    {
+      case KeyGrab::TOPMOST:
+      {
+        info[index].mode = ECORE_WL_WINDOW_KEYGRAB_TOPMOST;
+        break;
+      }
+      case KeyGrab::SHARED:
+      {
+        info[index].mode = ECORE_WL_WINDOW_KEYGRAB_SHARED;
+        break;
+      }
+      case KeyGrab::OVERRIDE_EXCLUSIVE:
+      {
+        info[index].mode = ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE;
+        break;
+      }
+      case KeyGrab::EXCLUSIVE:
+      {
+        info[index].mode = ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE;
+        break;
+      }
+      default:
+      {
+        info[index].mode = ECORE_WL_WINDOW_KEYGRAB_UNKNOWN;
+        break;
+      }
+    }
+
+    keyList = eina_list_append( keyList, &info );
+  }
+
+  Eina_List* grabList = ecore_wl_window_keygrab_list_set( mEcoreWindow, keyList );
+
+  result.Resize( keyCount, true );
+
+  Eina_List* l = NULL;
+  Eina_List* m = NULL;
+  void* listData = NULL;
+  void* data = NULL;
+  if( grabList != NULL )
+  {
+    EINA_LIST_FOREACH( grabList, m, data )
+    {
+      int index = 0;
+      EINA_LIST_FOREACH( keyList, l, listData )
+      {
+        if( static_cast< Ecore_Wl_Window_Keygrab_Info* >( listData )->key == NULL )
+        {
+          DALI_LOG_ERROR( "input key list has null data!" );
+          break;
+        }
+
+        if( strcmp( static_cast< char* >( data ), static_cast< Ecore_Wl_Window_Keygrab_Info* >( listData )->key ) == 0 )
+        {
+          result[index] = false;
+        }
+        ++index;
+      }
+    }
+  }
+
+  delete [] info;
+
+  eina_list_free( keyList );
+  eina_list_free( grabList );
+  eina_shutdown();
+
+  return true;
+}
+
+bool WindowBaseEcoreWl::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result )
+{
+  int keyCount = key.Count();
+  if( keyCount == 0 )
+  {
+    return false;
+  }
+
+  eina_init();
+
+  Eina_List* keyList = NULL;
+  Ecore_Wl_Window_Keygrab_Info* info = new Ecore_Wl_Window_Keygrab_Info[keyCount];
+
+  for( int index = 0; index < keyCount; ++index )
+  {
+    info[index].key = const_cast< char* >( KeyLookup::GetKeyName( key[index] ) );
+    keyList = eina_list_append( keyList, &info );
+  }
+
+  Eina_List* ungrabList = ecore_wl_window_keygrab_list_unset( mEcoreWindow, keyList );
+
+  result.Resize( keyCount, true );
+
+  Eina_List* l = NULL;
+  Eina_List* m = NULL;
+  void *listData = NULL;
+  void *data = NULL;
+
+  if( ungrabList != NULL )
+  {
+    EINA_LIST_FOREACH( ungrabList, m, data )
+    {
+      int index = 0;
+      EINA_LIST_FOREACH( keyList, l, listData )
+      {
+        if( strcmp( static_cast< char* >( data ), static_cast< Ecore_Wl_Window_Keygrab_Info* >( listData )->key ) == 0 )
+        {
+          result[index] = false;
+        }
+        ++index;
+      }
+    }
+  }
+
+  delete [] info;
+
+  eina_list_free( keyList );
+  eina_list_free( ungrabList );
+  eina_shutdown();
+
+  return true;
 }
 
 } // namespace Adaptor

@@ -528,6 +528,26 @@ void Window::SetTransparency( bool transparent )
   mSurface->SetTransparency( transparent );
 }
 
+bool Window::GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode )
+{
+  return mWindowBase->GrabKey( key, grabMode );
+}
+
+bool Window::UngrabKey( Dali::KEY key )
+{
+  return mWindowBase->UngrabKey( key );
+}
+
+bool Window::GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result )
+{
+  return mWindowBase->GrabKeyList( key, grabMode, result );
+}
+
+bool Window::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result )
+{
+  return mWindowBase->UngrabKeyList( key, result );
+}
+
 void Window::RotationDone( int orientation, int width, int height )
 {
   mSurface->RequestRotation( orientation, width, height );
