@@ -20,11 +20,11 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/window-base-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-base-ecore-wl.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-impl.h>
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
 #include <dali/internal/input/common/key-impl.h>
 
 // EXTERNAL_HEADERS

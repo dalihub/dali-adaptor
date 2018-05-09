@@ -23,8 +23,14 @@
 #include <dali/internal/input/tizen-wayland/input-method-context-impl-ecore-wl.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore_IMF.h>
 #include <Ecore_Input.h>
+
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
+#include <Ecore_Wayland.h>
+#endif
+
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
@@ -271,15 +277,11 @@ InputMethodContextPtr InputMethodContextEcoreWl::New()
     Adaptor &adaptorImpl(Adaptor::GetImplementation(Adaptor::Get()));
     Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
 
-    // The Ecore_Wl_Window needs to use the InputMethodContext.
-    // Only when the render surface is window, we can get the Ecore_Wl_Window.
-    Ecore_Wl_Window *ecoreWwin(AnyCast<Ecore_Wl_Window *>(nativeWindow));
-    if (ecoreWwin)
+    // The window needs to use the InputMethodContext.
+    // Only when the render surface is window, we can get the window.
+    if( !nativeWindow.Empty() )
     {
-      // If we fail to get Ecore_Wl_Window, we can't use the InputMethodContext correctly.
-      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-      inputMethodContext = new InputMethodContextEcoreWl(ecoreWwin);
+      inputMethodContext = new InputMethodContextEcoreWl();
     }
     else
     {
@@ -297,9 +299,8 @@ void InputMethodContextEcoreWl::Finalize()
   DeleteContext();
 }
 
-InputMethodContextEcoreWl::InputMethodContextEcoreWl( Ecore_Wl_Window *ecoreWlwin )
+InputMethodContextEcoreWl::InputMethodContextEcoreWl()
 : mIMFContext(),
-  mEcoreWlwin( ecoreWlwin ),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
@@ -316,11 +317,11 @@ InputMethodContextEcoreWl::~InputMethodContextEcoreWl()
 
 void InputMethodContextEcoreWl::Initialize()
 {
-  CreateContext( mEcoreWlwin );
+  CreateContext();
   ConnectCallbacks();
 }
 
-void InputMethodContextEcoreWl::CreateContext( Ecore_Wl_Window *ecoreWlwin )
+void InputMethodContextEcoreWl::CreateContext()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContext::CreateContext\n" );
 
@@ -331,10 +332,22 @@ void InputMethodContextEcoreWl::CreateContext( Ecore_Wl_Window *ecoreWlwin )
 
     if( mIMFContext )
     {
+      // If we fail to get Ecore_Wl_Window, we can't use the InputMethodContext correctly.
+      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
+      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
+      Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
+      Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
+
+#ifdef ECORE_WAYLAND2
+      Ecore_Wl2_Window* ecoreWlwin( AnyCast< Ecore_Wl2_Window* >( nativeWindow ) );
+      int windowId = ecore_wl2_window_id_get( ecoreWlwin );
+#else
+      Ecore_Wl_Window* ecoreWlwin( AnyCast< Ecore_Wl_Window* >( nativeWindow ) );
+      int windowId = ecore_wl_window_id_get( ecoreWlwin );
+#endif
       if( ecoreWlwin )
       {
-        ecore_imf_context_client_window_set( mIMFContext,
-        reinterpret_cast<void*>( ecore_wl_window_id_get(ecoreWlwin)) );
+        ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast< void* >( windowId ) );
       }
     }
     else

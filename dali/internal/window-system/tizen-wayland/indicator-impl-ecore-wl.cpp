@@ -24,7 +24,12 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Evas.h>
+
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
 #include <Ecore_Wayland.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -345,7 +350,11 @@ struct IndicatorEcoreWl::Impl
     mEcoreEventHandler(NULL)
   {
 #if defined(DALI_PROFILE_MOBILE)
+#ifdef ECORE_WAYLAND2
+    mEcoreEventHandler = ecore_event_handler_add(ECORE_WL2_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#else
     mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
+#endif
 #endif // DALI_PROFILE_MOBILE
   }
 

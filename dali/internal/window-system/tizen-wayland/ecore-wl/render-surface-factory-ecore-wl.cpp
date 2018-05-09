@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/render-surface-factory-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/render-surface-factory-ecore-wl.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
 #include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>

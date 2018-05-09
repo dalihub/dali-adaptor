@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/window-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>

@@ -22,7 +22,12 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
 #include <Ecore_Wayland.h>
+#endif
+
 #include <tbm_bufmgr.h>
 #include <tbm_surface_internal.h>
 
@@ -56,7 +61,12 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( Dali::PositionSize posit
   mConsumeSurface( NULL ),
   mThreadSynchronization( NULL )
 {
+#ifdef ECORE_WAYLAND2
+  ecore_wl2_init();
+#else
   ecore_wl_init( NULL );
+#endif
+
   CreateNativeRenderable();
   setenv( "EGL_PLATFORM", "tbm", 1 );
 }
@@ -76,7 +86,11 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
     DALI_LOG_INFO( gNativeSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n" );
   }
 
+#ifdef ECORE_WAYLAND2
+  ecore_wl2_shutdown();
+#else
   ecore_wl_shutdown();
+#endif
 }
 
 Any NativeRenderSurfaceEcoreWl::GetDrawable()
@@ -111,8 +125,14 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   float xres, yres;
 
   // 1 inch = 25.4 millimeters
+#ifdef ECORE_WAYLAND2
+  // TODO: Application should set dpi value in wayland2
+  xres = 96;
+  yres = 96;
+#else
   xres = ecore_wl_dpi_get();
   yres = ecore_wl_dpi_get();
+#endif
 
   dpiHorizontal = int( xres + 0.5f );  // rounding
   dpiVertical   = int( yres + 0.5f );

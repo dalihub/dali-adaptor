@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/window-factory-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/window-base-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-base-ecore-wl2.h>
 #include <dali/internal/window-system/tizen-wayland/indicator-impl-ecore-wl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
@@ -30,12 +30,12 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< WindowBase > WindowFactoryEcoreWl::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
+std::unique_ptr< WindowBase > WindowFactoryEcoreWl2::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
 {
-  return Utils::MakeUnique< WindowBaseEcoreWl >( window, windowRenderSurface );
+  return Utils::MakeUnique< WindowBaseEcoreWl2 >( window, windowRenderSurface );
 }
 
-std::unique_ptr< IndicatorInterface > WindowFactoryEcoreWl::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
+std::unique_ptr< IndicatorInterface > WindowFactoryEcoreWl2::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
 {
   return Utils::MakeUnique< IndicatorEcoreWl >( adaptor, orientation, observer );
 }
@@ -44,7 +44,7 @@ std::unique_ptr< IndicatorInterface > WindowFactoryEcoreWl::CreateIndicator( Ada
 std::unique_ptr< WindowFactory > GetWindowFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< WindowFactoryEcoreWl >();
+  return Utils::MakeUnique< WindowFactoryEcoreWl2 >();
 }
 
 } // namespace Adaptor

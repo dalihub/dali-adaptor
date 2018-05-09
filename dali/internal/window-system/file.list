@@ -13,13 +13,24 @@ adaptor_window_system_common_src_files=\
 adaptor_window_system_tizen_wayland_src_files=\
     ${adaptor_window_system_dir}/tizen-wayland/display-connection-factory-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/display-connection-impl-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/event-handler-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/indicator-impl-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/render-surface-factory-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/window-render-surface-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/window-base-ecore-wl.cpp \
-    ${adaptor_window_system_dir}/tizen-wayland/window-factory-ecore-wl.cpp
+    ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl.cpp
+
+# module: window-system, backend: ecore-wl
+adaptor_window_system_ecore_wl_src_files=\
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/event-handler-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/render-surface-factory-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-base-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-factory-ecore-wl.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-render-surface-ecore-wl.cpp
+
+# module: window-system, backend: ecore-wl2
+adaptor_window_system_ecore_wl2_src_files=\
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/event-handler-ecore-wl2.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-base-ecore-wl2.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.cpp \
+    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-render-surface-ecore-wl2.cpp
 
 # module: window-system, backend: ubuntu-x11
 adaptor_window_system_ubuntu_x11_src_files=\
