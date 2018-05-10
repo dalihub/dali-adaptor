@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_FACTORY_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ namespace Adaptor
 {
 class EglImplementation;
 class EglImageExtensions;
-class EglSyncImplementation;
 
 class EglFactory : public EglFactoryInterface
 {
@@ -75,12 +74,6 @@ public:
    */
   EglImageExtensions* GetImageExtensions();
 
-  /**
-   * Get the fence sync implementation
-   * @return An implementation of fence sync
-   */
-  EglSyncImplementation* GetSyncImplementation();
-
 private:
   /** Undefined */
   EglFactory(const EglFactory& rhs);
@@ -89,7 +82,6 @@ private:
 private:
   EglImplementation* mEglImplementation;
   EglImageExtensions* mEglImageExtensions;
-  EglSyncImplementation* mEglSync;
 
   int mMultiSamplingLevel;
   Integration::DepthBufferAvailable mDepthBufferRequired;

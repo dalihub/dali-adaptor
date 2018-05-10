@@ -119,12 +119,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface ) override;
+  virtual bool PreRender( EglInterface& egl, bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
+  virtual void PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()

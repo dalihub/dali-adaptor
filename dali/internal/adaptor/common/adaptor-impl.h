@@ -54,7 +54,7 @@ class Window;
 namespace Integration
 {
 class Core;
-class GlAbstraction;
+
 
 namespace Graphics
 {
@@ -71,8 +71,6 @@ namespace Adaptor
 class EventHandler;
 class EglFactory;
 class GestureManager;
-class GlImplementation;
-class GlSyncImplementation;
 class ThreadController;
 class TriggerEvent;
 class CallbackManager;
@@ -168,16 +166,6 @@ public: // AdaptorInternalServices implementation
   virtual void Stop();
 
   /**
-   * @copydoc Dali::Adaptor::ContextLost()
-   */
-  virtual void ContextLost();
-
-  /**
-   * @copydoc Dali::Adaptor::ContextRegained()
-   */
-  virtual void ContextRegained();
-
-  /**
    * @copydoc Dali::EventFeeder::FeedTouchPoint()
    */
   virtual void FeedTouchPoint( TouchPoint& point, int timeStamp );
@@ -245,12 +233,6 @@ public:
    * @return reference to EglFactory class
    */
   EglFactory& GetEGLFactory() const;
-
-  /**
-   * Return GlAbstraction.
-   * @return the GlAbstraction.
-   */
-  Integration::GlAbstraction& GetGlAbstraction() const;
 
   /**
    * Return Graphics implementation
@@ -382,11 +364,6 @@ public:  //AdaptorInternalServices
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGlesInterface()
-   */
-  virtual Dali::Integration::GlAbstraction& GetGlesInterface();
 
   /**
   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetEGLFactoryInterface()
@@ -587,8 +564,6 @@ private: // Data
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
-  GlImplementation*                     mGLES;                        ///< GL implementation
-  GlSyncImplementation*                 mGlSync;                      ///< GL Sync implementation
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
   Any                                   mNativeWindow;                ///< window identifier

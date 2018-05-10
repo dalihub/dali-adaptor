@@ -24,7 +24,6 @@
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/context-notifier.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
@@ -43,9 +42,6 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/input/common/gesture-manager.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/graphics/gles20/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles20/gl-implementation.h>
-#include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles20/egl-factory.h>
 #include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
@@ -55,6 +51,7 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 
 #include <dali/internal/system/common/logging.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
@@ -133,23 +130,13 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
 
-  if( mEnvironmentOptions->GetGlesCallTime() > 0 )
-  {
-    mGLES = new GlProxyImplementation( *mEnvironmentOptions );
-  }
-  else
-  {
-    mGLES = new GlImplementation();
-  }
 
   const Integration::DepthBufferAvailable depthBufferAvailable = static_cast< Integration::DepthBufferAvailable >( mEnvironmentOptions->DepthBufferRequired() );
   const Integration::StencilBufferAvailable stencilBufferAvailable = static_cast< Integration::StencilBufferAvailable >( mEnvironmentOptions->StencilBufferRequired() );
 
   mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel(), depthBufferAvailable, stencilBufferAvailable );
 
-  EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
-
-  // todo: add somewhere MakeUnique to make it cleaner
+  // @todo: add somewhere MakeUnique to make it cleaner
   mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
     new Dali::Integration::Graphics::Graphics()
   );
@@ -164,8 +151,6 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   *mGraphics,
-                                  *mGLES,
-                                  *eglSyncImpl,
                                   *mGestureManager,
                                   dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
@@ -279,7 +264,6 @@ Adaptor::~Adaptor()
 
   delete mCore;
   delete mEglFactory;
-  delete mGLES;
   delete mGestureManager;
   delete mPlatformAbstraction;
   delete mCallbackManager;
@@ -430,19 +414,6 @@ void Adaptor::Stop()
   }
 }
 
-void Adaptor::ContextLost()
-{
-  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
-}
-
-void Adaptor::ContextRegained()
-{
-  // Inform core, so that texture resources can be reloaded
-  mCore->RecoverFromContextLoss();
-
-  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
-}
-
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
 {
   mEventHandler->FeedTouchPoint( point, timeStamp );
@@ -559,12 +530,6 @@ EglFactoryInterface& Adaptor::GetEGLFactoryInterface() const
   return *mEglFactory;
 }
 
-Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
-{
-  DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
-  return *mGLES;
-}
-
 Integration::Graphics::Graphics& Adaptor::GetGraphics() const
 {
   return *mGraphics;
@@ -573,11 +538,6 @@ Integration::Graphics::Graphics& Adaptor::GetGraphics() const
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
 {
   return *mPlatformAbstraction;
-}
-
-Dali::Integration::GlAbstraction& Adaptor::GetGlesInterface()
-{
-  return *mGLES;
 }
 
 TriggerEventInterface& Adaptor::GetProcessCoreEventsTrigger()
@@ -867,8 +827,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mCore( NULL ),
   mThreadController( NULL ),
   mVSyncMonitor( NULL ),
-  mGLES( NULL ),
-  mGlSync( NULL ),
   mEglFactory( NULL ),
   mNativeWindow( nativeWindow ),
   mSurface( surface ),

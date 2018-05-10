@@ -30,7 +30,6 @@ class DisplayConnection;
 
 namespace Integration
 {
-class GlAbstraction;
 
 namespace Graphics
 {
@@ -149,11 +148,10 @@ private:
 
 private: // Data
 
-  Integration::GlAbstraction&   mGLES;                   ///< GL abstraction reference
-  EglFactoryInterface*          mEglFactory;             ///< Factory class to create EGL implementation
-  EglInterface*                 mEGL;                    ///< Interface to EGL implementation
-  RenderSurface*                mSurface;                ///< Current surface
-  Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
+  EglFactoryInterface*              mEglFactory;             ///< Factory class to create EGL implementation
+  EglInterface*                     mEGL;                    ///< Interface to EGL implementation
+  RenderSurface*                    mSurface;                ///< Current surface
+  Dali::DisplayConnection*          mDisplayConnection;      ///< Display connection
   Integration::Graphics::Graphics&  mGraphics;
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialized.
   bool                          mSurfaceResized;         ///< True when the surface is resized.
