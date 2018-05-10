@@ -33,7 +33,6 @@ namespace Dali
 
 class RenderSurface;
 class DisplayConnection;
-class Window;
 
 namespace Internal
 {

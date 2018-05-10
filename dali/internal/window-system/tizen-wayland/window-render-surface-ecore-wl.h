@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ECORE_WL2_WINDOW_RENDER_SURFACE_H__
-#define __DALI_INTERNAL_ECORE_WL2_WINDOW_RENDER_SURFACE_H__
+#ifndef __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
+#define __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
 
 /*
  * Copyright (c) 2017 Samsung Electronics Co., Ltd.
@@ -22,7 +22,7 @@
 #include <wayland-egl.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/wayland/ecore-wl2/ecore-wl2-render-surface.h>
+#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
 
 namespace Dali
@@ -61,7 +61,7 @@ public: // API
   /**
    * @copydoc Dali::RenderSurface::GetDrawable()
    */
-  virtual Ecore_Wl2_Window* GetDrawable();
+  virtual Ecore_Wl_Window* GetDrawable();
 
   /**
    * Map window
@@ -76,7 +76,7 @@ public: // API
   /**
    * @copydoc Dali::ECore::EcoreWlRenderSurface::GetWlWindow()
    */
-  virtual Ecore_Wl2_Window* GetWlWindow();
+  virtual Ecore_Wl_Window* GetWlWindow();
 
   /**
    * Request surface rotation
@@ -181,8 +181,7 @@ private:
 
 private: // Data
 
-  Ecore_Wl2_Window*                mWlWindow;  ///< Wayland-Window
-  Ecore_Wl2_Display*               mEcore_Wl2_display;
+  Ecore_Wl_Window*                mWlWindow;  ///< Wayland-Window
   wl_surface*                     mWlSurface;
   wl_egl_window*                  mEglWindow;
   ThreadSynchronizationInterface* mThreadSynchronization;
@@ -200,4 +199,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ECORE_WL2_WINDOW_RENDER_SURFACE_H__
+#endif // __DALI_INTERNAL_ECORE_WL_WINDOW_RENDER_SURFACE_H__
