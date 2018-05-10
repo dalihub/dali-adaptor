@@ -87,21 +87,6 @@ Rect<int> GetSizeAndPosition();
 void RotateTo(int angle);
 
 /**
- * @copydox Dali::VirtualKeyboard::StatusChangedSignal()
- */
-Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal();
-
-/**
- * @copydox Dali::VirtualKeyboard::ResizedSignal()
- */
-Dali::VirtualKeyboard::KeyboardResizedSignalType& ResizedSignal();
-
-/**
- * @copydox Dali::VirtualKeyboard::LanguageChangedSignal()
- */
-Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal();
-
-/**
  * @copydoc Dali::VirtualKeyboard::GetTextDirection
  */
 Dali::VirtualKeyboard::TextDirection GetTextDirection();

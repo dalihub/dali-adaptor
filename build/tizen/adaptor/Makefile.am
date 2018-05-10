@@ -116,7 +116,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
-                  $(adaptor_window_system_tizen_mobile_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
@@ -329,7 +328,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
-                  $(adaptor_window_system_tizen_wearable_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
@@ -558,15 +556,6 @@ tizenadaptordevelapidir= $(devincludepath)/dali/devel-api
 
 tizenadaptorintegrationapidir = $(devincludepath)/dali/integration-api/adaptors
 tizenadaptorintegrationapi_HEADERS = $(adaptor_integration_api_header_files)
-
-if WAYLAND
-tizenadaptorintegrationwaylandapidir = $(devincludepath)/dali/integration-api/adaptors
-tizenadaptorintegrationwaylandapi_HEADERS = $(adaptor_integration_wayland_api_header_files)
-tizenadaptorintegrationwaylandapi_HEADERS += $(adaptor_integration_ecore_wayland_api_header_files)
-else
-tizenadaptorintegrationx11apidir = $(devincludepath)/dali/integration-api/adaptors
-tizenadaptorintegrationx11api_HEADERS = $(adaptor_integration_x11_api_header_files)
-endif
 
 tizenadaptorframeworkpublicapidir = $(tizenadaptorpublicapidir)/adaptor-framework
 tizenadaptorframeworkpublicapi_HEADERS = $(public_api_adaptor_framework_header_files)

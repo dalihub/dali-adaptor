@@ -38,7 +38,6 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/system/common/callback-manager.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/input/common/gesture-manager.h>
@@ -48,12 +47,12 @@
 #include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles20/egl-factory.h>
-#include <dali/internal/input/common/imf-manager-impl.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 #include <dali/internal/system/common/logging.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
@@ -304,7 +303,7 @@ void Adaptor::Start()
 
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
-  Dali::DisplayConnection::GetDpi(dpiHor, dpiVer);
+  mSurface->GetDpi( dpiHor, dpiVer );
 
   // tell core about the DPI value
   mCore->SetDpi(dpiHor, dpiVer);

@@ -22,9 +22,8 @@
 #include <app_common.h>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <screen_connector_provider.h>
-#include <dali/integration-api/wayland/ecore-wl-render-surface.h>
 #endif
-
+#include <Ecore_Wayland.h>
 #include <system_settings.h>
 
 namespace Dali

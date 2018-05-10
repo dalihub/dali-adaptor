@@ -168,7 +168,14 @@ bool TiltSensorTizen::Connect()
     return false;
   }
 
-  sensor_create_listener(mSensor, &mSensorListener);
+  ret = sensor_create_listener(mSensor, &mSensorListener);
+
+  if(ret < 0)
+  {
+    DALI_LOG_ERROR("sensor_create_listener() failed : %s\n", get_sensor_error_string(ret).c_str());
+    return false;
+  }
+
   sensor_listener_set_event_cb(mSensorListener, interval, sensor_changed_cb, this);
   sensor_listener_set_interval(mSensorListener, interval);
 

@@ -28,14 +28,13 @@
 namespace Dali
 {
 
-class RenderSurface;
 class DisplayConnection;
 
 namespace Internal
 {
 namespace Adaptor
 {
-class Impl;
+
 /**
  * DisplayConnection implementation
  */
@@ -61,11 +60,6 @@ public:
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
   virtual Any GetDisplay() = 0;
-
-  /**
-   * @copydoc Dali::DisplayConnection::GetDpi
-   */
-  static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents

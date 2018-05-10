@@ -29,7 +29,7 @@
 #include <dali/internal/graphics/gles20/egl-factory.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 
 namespace Dali
 {

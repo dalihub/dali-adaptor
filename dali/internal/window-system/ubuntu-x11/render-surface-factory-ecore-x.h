@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_ECORE_X_RENDER_SURFACE_FACTORY_H__
-#define __DALI_INTERNAL_ADAPTOR_ECORE_X_RENDER_SURFACE_FACTORY_H__
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H
+#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,52 +18,29 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
-#include <dali/public-api/math/rect.h>
-#include <dali/public-api/common/dali-common.h>
-
-// INTERNAL INCLUDES
-#include <native-buffer-pool.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 
-namespace ECore
+class RenderSurfaceFactoryEcoreX : public RenderSurfaceFactory
 {
+public:
+  std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface,
+                                                                    const std::string& name, const std::string& className, bool isTransparent = false ) override;
 
-class RenderSurface;
+  std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface,
+                                                                    const std::string& name, bool isTransparent = false ) override;
 
-/**
- * Surface factory function for pixmap
- * A pixmap surface is created.
- *
- * @param [in] type the type of surface to create
- * @param [in] positionSize the position and size of the surface to create
- * @param [in] display X Pixmap to use, or null for default.
- * @param [in] display X Display to use, or null for default.
- * @param [in] name Name of surface passed in
- * @param [in] isTransparent Whether the surface has an alpha channel
- */
-RenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any         surface,
-  Any         display,
-  const std::string& name,
-  bool               isTransparent );
-
-} // namespace ECore
+  std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, const std::string& name, bool isTransparent = false ) override;
+};
 
 } // namespace Adaptor
-
 } // namespace Internal
-
 } // namespace Dali
 
-#endif //  __DALI_INTERNAL_ADAPTOR_ECORE_X_RENDER_SURFACE_FACTORY_H__
+#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_RENDER_SURFACE_FACTORY_ECORE_X_H

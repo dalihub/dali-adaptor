@@ -26,7 +26,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/x11/ecore-x-types.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 namespace Dali
 {

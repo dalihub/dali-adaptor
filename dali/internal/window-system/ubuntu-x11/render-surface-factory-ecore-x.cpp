@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,49 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/integration-api/x11/pixmap-render-surface.h>
+// CLASS HEADER
+#include <dali/internal/window-system/ubuntu-x11/render-surface-factory-ecore-x.h>
+
+// INTERNAL HEADERS
+#include <dali/internal/window-system/ubuntu-x11/window-render-surface-ecore-x.h>
+#include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
+#include <dali/internal/window-system/common/display-utils.h>
+#include <dali/integration-api/native-render-surface.h>
 
 namespace Dali
 {
-
-namespace ECore
+namespace Internal
+{
+namespace Adaptor
 {
 
-DALI_EXPORT_API PixmapRenderSurface* CreatePixmapSurface(
-  PositionSize       positionSize,
-  Any                surface,
-  const std::string& name,
-  bool               isTransparent)
+std::unique_ptr< WindowRenderSurface > RenderSurfaceFactoryEcoreX::CreateWindowRenderSurface( Dali::PositionSize positionSize,
+                                                                                              Any surface,
+                                                                                              const std::string& name,
+                                                                                              const std::string& className,
+                                                                                              bool isTransparent )
 {
-  return new PixmapRenderSurface(positionSize, surface, name, isTransparent);
+  return Utils::MakeUnique< WindowRenderSurfaceEcoreX >( positionSize, surface, name, className, isTransparent );
 }
 
+std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryEcoreX::CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface,
+                                                                                              const std::string& name, bool isTransparent )
+{
+  return Utils::MakeUnique< PixmapRenderSurfaceEcoreX >( positionSize, surface, name, isTransparent );
+}
 
-} // namespace ECore
+std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreX::CreateNativeRenderSurface( Dali::PositionSize positionSize, const std::string& name, bool isTransparent )
+{
+  return std::unique_ptr< NativeRenderSurface >( nullptr );
+}
 
+// this should be created from somewhere
+std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory()
+{
+  // returns Window factory
+  return Utils::MakeUnique< RenderSurfaceFactoryEcoreX >();
+}
+
+} // namespace Adaptor
+} // namespace Internal
 } // namespace Dali
-
-
-

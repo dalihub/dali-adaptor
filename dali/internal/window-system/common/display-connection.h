@@ -22,7 +22,7 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/render-surface.h>
+#include <dali/integration-api/render-surface.h>
 
 #include <memory>
 
@@ -79,13 +79,6 @@ public:
    * @return display
    */
   Any GetDisplay();
-
-  /**
-   * @brief Get DPI
-   * @param[out] dpiHorizontal set to the horizontal dpi
-   * @param[out] dpiVertical set to the vertical dpi
-   */
-  static void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical);
 
   /**
    * @brief Consumes any possible events on the queue so that there is no leaking between frames
