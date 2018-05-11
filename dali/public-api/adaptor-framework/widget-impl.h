@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ typedef IntrusivePtr<Widget> WidgetPtr;
  *
  * @SINCE_1_3_5
  */
-class DALI_IMPORT_API Widget : public BaseObject, public ConnectionTrackerInterface
+class DALI_ADAPTOR_API Widget : public BaseObject, public ConnectionTrackerInterface
 {
 public:
 
@@ -175,7 +175,7 @@ private:
  * @return Implementation
  * @pre handle is initialized and points to a widget
  */
-DALI_IMPORT_API Internal::Adaptor::Widget& GetImplementation( Dali::Widget& widget );
+DALI_ADAPTOR_API Internal::Adaptor::Widget& GetImplementation( Dali::Widget& widget );
 
 /**
  * @brief Gets implementation from the handle.
@@ -185,7 +185,7 @@ DALI_IMPORT_API Internal::Adaptor::Widget& GetImplementation( Dali::Widget& widg
  * @return Implementation
  * @pre Handle is initialized and points to a widget.
  */
-DALI_IMPORT_API const Internal::Adaptor::Widget& GetImplementation( const Dali::Widget& widget );
+DALI_ADAPTOR_API const Internal::Adaptor::Widget& GetImplementation( const Dali::Widget& widget );
 
 } // namespace Adaptor
 

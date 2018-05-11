@@ -2,7 +2,7 @@
 #define __DALI_PLATFORM_TEXT_ABSTRACTION_SEGMENTATION_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
@@ -46,7 +47,7 @@ namespace TextAbstraction
  *   Segmentation API
  *
  */
-class DALI_IMPORT_API Segmentation : public BaseHandle
+class DALI_ADAPTOR_API Segmentation : public BaseHandle
 {
 
 public:

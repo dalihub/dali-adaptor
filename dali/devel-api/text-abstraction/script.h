@@ -2,7 +2,7 @@
 #define __DALI_TOOLKIT_TEXT_ABSTRACTION_SCRIPT_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
-
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
@@ -187,7 +185,7 @@ const char* const ScriptName[] =
  *
  * @return @e true if the script is right to left.
  */
-DALI_IMPORT_API bool IsRightToLeftScript( Script script );
+DALI_ADAPTOR_API bool IsRightToLeftScript( Script script );
 
 /**
  * @brief Retrieves a character's script.
@@ -196,7 +194,7 @@ DALI_IMPORT_API bool IsRightToLeftScript( Script script );
  *
  * @return The chraracter's script.
  */
-DALI_IMPORT_API Script GetCharacterScript( Character character );
+DALI_ADAPTOR_API Script GetCharacterScript( Character character );
 
 /**
  * @brief Whether the character is a white space.
@@ -205,7 +203,7 @@ DALI_IMPORT_API Script GetCharacterScript( Character character );
  *
  * @return @e true if the character is a white space.
  */
-DALI_IMPORT_API bool IsWhiteSpace( Character character );
+DALI_ADAPTOR_API bool IsWhiteSpace( Character character );
 
 /**
  * @brief Whether the character is a new paragraph character.
@@ -214,7 +212,7 @@ DALI_IMPORT_API bool IsWhiteSpace( Character character );
  *
  * @return @e true if the character is a new paragraph character.
  */
-DALI_IMPORT_API bool IsNewParagraph( Character character );
+DALI_ADAPTOR_API bool IsNewParagraph( Character character );
 
 /**
  * @brief Whether the character is a zero width non joiner.
@@ -223,7 +221,7 @@ DALI_IMPORT_API bool IsNewParagraph( Character character );
  *
  * @return @e true if the character is a zero width non joiner.
  */
-DALI_IMPORT_API bool IsZeroWidthNonJoiner( Character character );
+DALI_ADAPTOR_API bool IsZeroWidthNonJoiner( Character character );
 
 /**
  * @brief Whether the character is a zero width joiner.
@@ -232,7 +230,7 @@ DALI_IMPORT_API bool IsZeroWidthNonJoiner( Character character );
  *
  * @return @e true if the character is a zero width joiner.
  */
-DALI_IMPORT_API bool IsZeroWidthJoiner( Character character );
+DALI_ADAPTOR_API bool IsZeroWidthJoiner( Character character );
 
 /**
  * @brief Whether the character is a zero width space.
@@ -241,7 +239,7 @@ DALI_IMPORT_API bool IsZeroWidthJoiner( Character character );
  *
  * @return @e true if the character is a zero width space.
  */
-DALI_IMPORT_API bool IsZeroWidthSpace( Character character );
+DALI_ADAPTOR_API bool IsZeroWidthSpace( Character character );
 
 /**
  * @brief Whether the character is a left to right mark.
@@ -250,7 +248,7 @@ DALI_IMPORT_API bool IsZeroWidthSpace( Character character );
  *
  * @return @e true if the character is a left to right mark.
  */
-DALI_IMPORT_API bool IsLeftToRightMark( Character character );
+DALI_ADAPTOR_API bool IsLeftToRightMark( Character character );
 
 /**
  * @brief Whether the character is a right to left mark.
@@ -259,7 +257,7 @@ DALI_IMPORT_API bool IsLeftToRightMark( Character character );
  *
  * @return @e true if the character is a right to left mark.
  */
-DALI_IMPORT_API bool IsRightToLeftMark( Character character );
+DALI_ADAPTOR_API bool IsRightToLeftMark( Character character );
 
 /**
  * @brief Whether the character is a thin space.
@@ -268,7 +266,7 @@ DALI_IMPORT_API bool IsRightToLeftMark( Character character );
  *
  * @return @e true if the character is a thin space.
  */
-DALI_IMPORT_API bool IsThinSpace( Character character );
+DALI_ADAPTOR_API bool IsThinSpace( Character character );
 
 /**
  * @brief Whether the character is common within all scripts.
@@ -277,7 +275,7 @@ DALI_IMPORT_API bool IsThinSpace( Character character );
  *
  * @return @e true if the character is common within all scripts.
  */
-DALI_IMPORT_API bool IsCommonScript( Character character );
+DALI_ADAPTOR_API bool IsCommonScript( Character character );
 
 /**
  * @brief Whether the script contains ligatures that must be 'broken' for selection or cursor position.
@@ -289,7 +287,7 @@ DALI_IMPORT_API bool IsCommonScript( Character character );
  *
  * @return @e true if the script has ligatures that must be 'broken'.
  */
-DALI_IMPORT_API bool HasLigatureMustBreak( Script script );
+DALI_ADAPTOR_API bool HasLigatureMustBreak( Script script );
 } // namespace TextAbstraction
 
 } // namespace Dali

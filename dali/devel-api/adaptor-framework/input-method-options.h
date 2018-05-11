@@ -32,7 +32,7 @@ namespace Dali
 /**
  * Class to handle the Input Method options
  */
-class DALI_IMPORT_API InputMethodOptions
+class DALI_ADAPTOR_API InputMethodOptions
 {
 public:
 

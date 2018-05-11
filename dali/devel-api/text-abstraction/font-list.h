@@ -2,7 +2,7 @@
 #define __DALI_TEXT_ABSTRACTION_FONT_LIST_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 #include <string>
 #include <iostream>
 #include <dali/public-api/common/vector-wrapper.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -156,7 +159,7 @@ struct FontDescription
 
 typedef std::vector<FontDescription> FontList;
 
-DALI_IMPORT_API std::ostream& operator<<( std::ostream& o, const FontList& fontList );
+DALI_ADAPTOR_API std::ostream& operator<<( std::ostream& o, const FontList& fontList );
 
 } // namespace TextAbstraction
 

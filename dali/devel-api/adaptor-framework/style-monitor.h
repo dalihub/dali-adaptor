@@ -2,7 +2,7 @@
 #define __DALI_STYLE_MONITOR_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class StyleMonitor;
  * It provides a signal when any aspect of the default style changes on the device.
  * @see Adaptor::GetStyleMonitor
  */
-class DALI_IMPORT_API StyleMonitor : public BaseHandle
+class DALI_ADAPTOR_API StyleMonitor : public BaseHandle
 {
 public: // Typedefs
 

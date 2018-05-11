@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@
  *
  */
 
-#include <dali/integration-api/platform-abstraction.h>
-#include <dali/public-api/common/dali-common.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
+// EXTERNAL INCLUDES
 #include <string>
+#include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {

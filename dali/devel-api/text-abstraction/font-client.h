@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -59,7 +60,7 @@ class FontClient;
  * @endcode
  * Glyph metrics and bitmap resources can then be retrieved using the FontId.
  */
-class DALI_IMPORT_API FontClient : public BaseHandle
+class DALI_ADAPTOR_API FontClient : public BaseHandle
 {
 public:
   static const PointSize26Dot6 DEFAULT_POINT_SIZE; ///< The default point size.
@@ -67,7 +68,7 @@ public:
   /**
    * @brief Struct used to retrieve the glyph's bitmap.
    */
-  struct GlyphBufferData
+  struct DALI_ADAPTOR_API GlyphBufferData
   {
     /**
      * @brief Constructor.

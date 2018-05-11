@@ -2,7 +2,7 @@
 #define __DALI_COLOR_CONTROLLER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/math/vector4.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 
@@ -39,7 +42,7 @@ class ColorController;
  *
  * It provides the functionality of retrieving a RGBA color by passing in the color code string.
  */
-class DALI_IMPORT_API ColorController : public BaseHandle
+class DALI_ADAPTOR_API ColorController : public BaseHandle
 {
 public:
 

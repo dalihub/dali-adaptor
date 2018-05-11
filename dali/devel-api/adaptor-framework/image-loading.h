@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
 
 // EXTERNAL INCLUDES
 #include <string>
-#include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/images/image-operations.h>
-
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 
 namespace Dali
 {
@@ -39,7 +41,7 @@ namespace Dali
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
  */
-DALI_IMPORT_API Devel::PixelBuffer LoadImageFromFile(
+DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
   const std::string& url,
   ImageDimensions size = ImageDimensions( 0, 0 ),
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
@@ -62,7 +64,7 @@ DALI_IMPORT_API Devel::PixelBuffer LoadImageFromFile(
  * flip the image, e.g., from portrait to landscape.
  * @return dimensions that image will have if it is loaded with given parameters.
  */
-DALI_IMPORT_API ImageDimensions GetClosestImageSize(
+DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   const std::string& filename,
   ImageDimensions size = ImageDimensions(0, 0),
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
@@ -80,7 +82,7 @@ DALI_IMPORT_API ImageDimensions GetClosestImageSize(
  *
  * @return handle to the loaded PixelBuffer object or an empty handle in case downloading or decoding failed.
  */
-DALI_IMPORT_API Devel::PixelBuffer DownloadImageSynchronously(
+DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
   const std::string& url,
   ImageDimensions size = ImageDimensions( 0, 0 ),
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
@@ -92,14 +94,14 @@ DALI_IMPORT_API Devel::PixelBuffer DownloadImageSynchronously(
  *
  * @param [in] size The maximum texture size to set
  */
-void SetMaxTextureSize( unsigned int size );
+DALI_ADAPTOR_API void SetMaxTextureSize( unsigned int size );
 
 /**
  * @brief get the maximum texture size.
  *
  * @return The maximum texture size
  */
-DALI_IMPORT_API unsigned int GetMaxTextureSize();
+DALI_ADAPTOR_API unsigned int GetMaxTextureSize();
 
 } // Dali
 

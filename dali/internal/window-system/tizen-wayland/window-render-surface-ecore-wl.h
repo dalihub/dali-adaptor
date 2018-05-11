@@ -21,9 +21,9 @@
 // EXTERNAL INCLUDES
 #include <Ecore_Wayland.h>
 #include <wayland-egl.h>
-#include <dali/public-api/common/dali-common.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>

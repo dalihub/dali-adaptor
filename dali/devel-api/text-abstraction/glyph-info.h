@@ -2,7 +2,7 @@
 #define __DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
-
-// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 namespace Dali
@@ -34,7 +32,7 @@ namespace TextAbstraction
  * The information describing a glyph (font ID, index, metrics)
  * The metrics are in pixels.
  */
-struct DALI_IMPORT_API GlyphInfo
+struct DALI_ADAPTOR_API GlyphInfo
 {
   /**
    * @brief Default constructor.

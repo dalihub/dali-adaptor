@@ -22,7 +22,7 @@
 namespace Dali
 {
 
-DALI_EXPORT_API NativeRenderSurface* CreateNativeSurface(
+DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface(
                                      PositionSize       positionSize,
                                      const std::string& name,
                                      bool               isTransparent)
