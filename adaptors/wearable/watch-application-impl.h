@@ -128,6 +128,7 @@ public:
 
 private:
   WatchApplicationState                  mState;
+  bool                                   mNeedForceRender;
 };
 
 inline WatchApplication& GetImplementation(Dali::WatchApplication& watch)

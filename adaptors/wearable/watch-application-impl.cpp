@@ -40,7 +40,8 @@ WatchApplicationPtr WatchApplication::New(
 
 WatchApplication::WatchApplication( int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode )
 : Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH),
-  mState( UNINITIALIZED )
+  mState( UNINITIALIZED ),
+  mNeedForceRender( false )
 {
   Dali::StyleMonitor::Get().SetIgnoreGlobalFontSizeChange(1);
 }
@@ -70,6 +71,7 @@ void WatchApplication::OnResume()
   Application::OnResume();
 
   mState = RESUMED;
+  mNeedForceRender = true;
 }
 
 void WatchApplication::OnPause()
@@ -77,6 +79,7 @@ void WatchApplication::OnPause()
   Application::OnPause();
 
   mState = PAUSED;
+  mNeedForceRender = true;
 }
 
 void WatchApplication::OnTimeTick(WatchTime& time)
@@ -84,10 +87,11 @@ void WatchApplication::OnTimeTick(WatchTime& time)
   Dali::WatchApplication watch(this);
   mTickSignal.Emit( watch, time );
 
-  if(mState == PAUSED)
+  if( mNeedForceRender )
   {
     // This is a pre-resume scenario. All rendering engine of tizen SHOULD forcely update once at this time.
     Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() ).RequestUpdateOnce();
+    mNeedForceRender = false;
   }
 
   // A watch application will queue messages to update the UI in the signal emitted above
