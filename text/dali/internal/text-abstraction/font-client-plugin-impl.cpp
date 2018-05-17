@@ -256,7 +256,7 @@ FontClient::Plugin::~Plugin()
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   delete mVectorFontCache;
 #endif
-
+  DestroyMatchedPatterns();
   FT_Done_FreeType( mFreeTypeLibrary );
 }
 
@@ -279,6 +279,7 @@ void FontClient::Plugin::ClearCache()
   mDefaultFontDescriptionCached = false;
   mDefaultFontCharacterSets.Clear();
   mDefaultFontDescription = FontDescription();
+  DestroyMatchedPatterns();
 }
 
 void FontClient::Plugin::SetDpi( unsigned int horizontalDpi,
@@ -1991,8 +1992,9 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     FcCharSet* characterSet = NULL;
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
-    FcPatternDestroy( match );
     FcPatternDestroy( pattern );
+
+    mMatchedFcPatternCache.PushBack( match );
 
     mFontCache[id-1u].mCharacterSet = characterSet;
 
@@ -2013,7 +2015,7 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
   }
 }
 
-FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description ) const
+FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description )
 {
   FcCharSet* characterSet = NULL;
 
@@ -2026,11 +2028,20 @@ FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDesc
 
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
-    FcPatternDestroy( match );
+    mMatchedFcPatternCache.PushBack( match );
+
     FcPatternDestroy( pattern );
   }
 
   return characterSet;
+}
+
+void FontClient::Plugin::DestroyMatchedPatterns()
+{
+  for (auto & object : mMatchedFcPatternCache) {
+    FcPatternDestroy(reinterpret_cast<FcPattern*>(object));
+  }
+  mMatchedFcPatternCache.Clear();
 }
 
 } // namespace Internal
