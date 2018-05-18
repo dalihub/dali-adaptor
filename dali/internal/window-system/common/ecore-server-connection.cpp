@@ -43,7 +43,7 @@ namespace Internal
 namespace Adaptor
 {
 #if defined(DEBUG_ENABLED)
-extern Debug::Filter* gIndicatorLogFilter;
+Debug::Filter* gServerConnectionLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_SERVER_CONNECTION");
 #endif
 
 ServerConnection::ServerConnection(
@@ -67,13 +67,13 @@ ServerConnection::ServerConnection(
     ipctype = ECORE_IPC_LOCAL_SYSTEM;
   }
 
-  DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "ServerConnection: Connecting to %s %d\n", mService.name, mService.num );
+  DALI_LOG_INFO( gServerConnectionLogFilter, Debug::General, "ServerConnection: Connecting to %s %d\n", mService.name, mService.num );
 
   mIpcServer = ecore_ipc_server_connect( ipctype, (char *)mService.name, mService.num, this );
 
   if( !mIpcServer )
   {
-    DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "mIpcServer is null\n" );
+    DALI_LOG_INFO( gServerConnectionLogFilter, Debug::General, "mIpcServer is null\n" );
     ecore_ipc_shutdown();
   }
   else
@@ -145,14 +145,14 @@ bool ServerConnection::SendEvent( int event, int ref, int ref_to, const void *da
 
 Eina_Bool ServerConnection::IpcServerAdd( void *data, int /*type*/, void *event )
 {
-  DALI_LOG_INFO(gIndicatorLogFilter, Debug::General, "ServerConnection: IpcServerAdd\n" );
+  DALI_LOG_INFO(gServerConnectionLogFilter, Debug::General, "ServerConnection: IpcServerAdd\n" );
 
   return ECORE_CALLBACK_PASS_ON;
 }
 
 Eina_Bool ServerConnection::IpcServerDel( void *data, int /*type*/, void *event )
 {
-  DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "ServerConnection: IpcServerDel\n" );
+  DALI_LOG_INFO( gServerConnectionLogFilter, Debug::General, "ServerConnection: IpcServerDel\n" );
 
   Ecore_Ipc_Event_Server_Del *e = static_cast<Ecore_Ipc_Event_Server_Del *>( event );
   ServerConnection* connection = static_cast<ServerConnection*>( data );
@@ -171,7 +171,7 @@ Eina_Bool ServerConnection::IpcServerDel( void *data, int /*type*/, void *event 
 
 Eina_Bool ServerConnection::IpcServerData( void *data, int /*type*/, void *event )
 {
-  DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "ServerConnection: IpcServerData\n" );
+  DALI_LOG_INFO( gServerConnectionLogFilter, Debug::General, "ServerConnection: IpcServerData\n" );
 
   Ecore_Ipc_Event_Server_Data *e = static_cast<Ecore_Ipc_Event_Server_Data *>( event );
   ServerConnection* connection = static_cast<ServerConnection*>( data );
@@ -200,7 +200,7 @@ void ServerConnection::CloseConnection()
 {
   if( mConnected )
   {
-    DALI_LOG_INFO( gIndicatorLogFilter, Debug::General, "ServerConnection: CloseConnection\n" );
+    DALI_LOG_INFO( gServerConnectionLogFilter, Debug::General, "ServerConnection: CloseConnection\n" );
 
     if( mIpcServer )
     {

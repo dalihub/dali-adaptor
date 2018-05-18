@@ -2,7 +2,7 @@
 #define __DALI_TEXT_ABSTRACTION_FONT_METRICS_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -30,7 +30,7 @@ namespace TextAbstraction
 /**
  * The metrics for a Font expressed in pixels.
  */
-struct DALI_IMPORT_API FontMetrics
+struct DALI_ADAPTOR_API FontMetrics
 {
   /**
    * @brief Default constructor.

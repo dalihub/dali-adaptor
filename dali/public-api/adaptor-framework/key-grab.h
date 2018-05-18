@@ -2,7 +2,7 @@
 #define __DALI_KEY_GRAB_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/common/dali-vector.h>
+
+// EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/key.h>
 
 namespace Dali
@@ -50,7 +52,7 @@ namespace KeyGrab
  * @param[in] daliKey The key code to grab (defined in key.h)
  * @return true if the grab succeeds
  */
-DALI_IMPORT_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
+DALI_ADAPTOR_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
 
 /**
  * @brief Ungrabs the key specified by @a key for @a window.
@@ -62,7 +64,7 @@ DALI_IMPORT_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_IMPORT_API bool UngrabKeyTopmost( Window window, Dali::KEY daliKey );
+DALI_ADAPTOR_API bool UngrabKeyTopmost( Window window, Dali::KEY daliKey );
 
 /**
  * @brief Enumeration for key grab mode for platform-level APIs.
@@ -93,7 +95,7 @@ enum KeyGrabMode
  * @param[in] grabMode The grab mode for the key
  * @return true if the grab succeeds
  */
-DALI_IMPORT_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grabMode );
+DALI_ADAPTOR_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grabMode );
 
 /**
  * @PLATFORM
@@ -108,7 +110,7 @@ DALI_IMPORT_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grab
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
+DALI_ADAPTOR_API bool UngrabKey( Window window, Dali::KEY daliKey );
 
 
 /**
@@ -129,7 +131,7 @@ DALI_IMPORT_API bool UngrabKey( Window window, Dali::KEY daliKey );
  * @param[in] returnVector The Dali::Vector of return boolean values for the results of multiple grab succeeds/fails
  * @return bool false when error occurs
  */
-DALI_IMPORT_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector);
+DALI_ADAPTOR_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector);
 
 
 /**
@@ -146,7 +148,7 @@ DALI_IMPORT_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& 
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_IMPORT_API bool UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector);
+DALI_ADAPTOR_API bool UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector);
 
 
 } // namespace KeyGrab

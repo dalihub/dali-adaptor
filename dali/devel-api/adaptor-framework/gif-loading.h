@@ -25,6 +25,9 @@
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/uint-16-pair.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 class PixelData;
@@ -37,7 +40,7 @@ typedef Dali::Uint16Pair ImageDimensions;
  * is released. (This is to speed up frame loads, which would otherwise have to re-acquire the
  * data from disk)
  */
-class DALI_IMPORT_API GifLoading
+class DALI_ADAPTOR_API GifLoading
 {
 public:
 

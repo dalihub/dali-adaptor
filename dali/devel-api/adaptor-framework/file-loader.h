@@ -2,7 +2,7 @@
 #define __DALI_FILE_LOADER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,12 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
 #include <string>
-#include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/object/base-handle.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -46,7 +49,7 @@ enum FileType           ///< FileType format
  *
  *
  */
-DALI_IMPORT_API int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
 
 /**
  * @brief Load the file. It will load it either as a binary or as a text
@@ -58,7 +61,7 @@ DALI_IMPORT_API int ReadFile(const std::string& filename, Dali::Vector<char> & m
  * @return error code. 0 - Error, 1 - Ok
  *
  */
-DALI_IMPORT_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
 
 /**
  * @brief Get the file size of a file
@@ -66,7 +69,7 @@ DALI_IMPORT_API int ReadFile(const std::string& filename, std::streampos& fileSi
  * @param[in] filename  Filename of the file to load.
  * @return the size of the file or 0 if file not found
  */
-DALI_IMPORT_API std::streampos GetFileSize(const std::string& filename);
+DALI_ADAPTOR_API std::streampos GetFileSize(const std::string& filename);
 };
 
 } // Dali

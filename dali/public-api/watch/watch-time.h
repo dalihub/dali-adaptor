@@ -2,7 +2,7 @@
 #define __DALI_WATCH_TIME_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <time.h>
+#include <dali/public-api/dali-core.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-core.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -39,7 +40,7 @@ namespace Dali
  * on receiving timeTick signal.
  * @SINCE_1_1.37
  */
-class DALI_IMPORT_API WatchTime
+class DALI_ADAPTOR_API WatchTime
 {
 public:
 

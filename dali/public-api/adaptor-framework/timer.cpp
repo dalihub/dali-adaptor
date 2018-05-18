@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/timer.h>
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
-
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/timer-impl.h>
 
 namespace Dali

@@ -18,10 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
-
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #ifdef DALI_ADAPTOR_COMPILATION
 #include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/render-surface.h>
@@ -38,7 +36,7 @@ class TriggerEventInterface;
 /**
  * Native interface of render surface.
  */
-class DALI_IMPORT_API NativeRenderSurface : public Dali::RenderSurface
+class DALI_ADAPTOR_API NativeRenderSurface : public Dali::RenderSurface
 {
 public:
 

@@ -2,7 +2,7 @@
 #define __DALI_NATIVE_IMAGE_SOURCE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/object/any.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -59,7 +62,7 @@ typedef Dali::IntrusivePtr<Dali::NativeImageSource> NativeImageSourcePtr;
  * @SINCE_1_1.4
  * @see NativeImage
  */
-class DALI_IMPORT_API NativeImageSource : public NativeImageInterface
+class DALI_ADAPTOR_API NativeImageSource : public NativeImageInterface
 {
 public:
 

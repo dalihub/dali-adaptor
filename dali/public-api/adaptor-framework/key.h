@@ -2,7 +2,7 @@
 #define __DALI_KEY_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-
 #include <dali/public-api/events/key-event.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -88,7 +90,7 @@ enum KEY
  * @param daliKey Dali key enum
  * @return @c true if the key is matched, @c false if not
  */
-DALI_IMPORT_API bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
+DALI_ADAPTOR_API bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
 
 /**
  * @}

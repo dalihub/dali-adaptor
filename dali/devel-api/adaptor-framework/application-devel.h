@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace DevelApplication
  * @param[in,out]  argc         A pointer to the number of arguments
  * @param[in,out]  argv         A pointer to the argument list
  */
-DALI_IMPORT_API void PreInitialize( int* argc, char** argv[] );
+DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
 
 } // namespace DevelApplication
 

@@ -2,7 +2,7 @@
 #define  __DALI_CLIPBOARD_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -42,7 +44,7 @@ class Clipboard;
  * Clipboard can manage it's item and set show / hide status.
  */
 
-class DALI_IMPORT_API Clipboard : public BaseHandle
+class DALI_ADAPTOR_API Clipboard : public BaseHandle
 {
 public:
   /**

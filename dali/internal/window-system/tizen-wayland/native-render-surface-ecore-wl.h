@@ -21,10 +21,10 @@
 // EXTERNAL INCLUDES
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
-#include <dali/public-api/common/dali-common.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/native-render-surface.h>
 
 namespace Dali
