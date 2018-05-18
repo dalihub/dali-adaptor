@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_CLIPBOARD_EVENT_NOTIFIER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/clipboard-event-notifier.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {

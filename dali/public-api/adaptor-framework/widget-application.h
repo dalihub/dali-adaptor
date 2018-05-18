@@ -2,7 +2,7 @@
 #define DALI_WIDGET_APPLICATION_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ class Widget;
  *
  * @SINCE_1_3_5
  */
-class DALI_IMPORT_API WidgetApplication : public Application
+class DALI_ADAPTOR_API WidgetApplication : public Application
 {
 public:
 

@@ -18,8 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {

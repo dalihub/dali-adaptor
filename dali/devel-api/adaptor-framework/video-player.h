@@ -2,7 +2,7 @@
 #define __DALI_VIDEO_PLAYER_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -43,7 +44,7 @@ namespace Adaptor
  * @brief VideoPlayer class is used for video playback.
  * @SINCE_1_1.38
  */
-class DALI_IMPORT_API VideoPlayer: public BaseHandle
+class DALI_ADAPTOR_API VideoPlayer: public BaseHandle
 {
 public:
 

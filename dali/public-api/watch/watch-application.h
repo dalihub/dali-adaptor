@@ -2,7 +2,7 @@
 #define __DALI_WATCH_APPLICATION_H__
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/watch/watch-time.h>
 
@@ -74,7 +75,7 @@ class WatchApplication;
  *   WatchApplication&  mApplication;
  * };
  *
- * int DALI_EXPORT_API main (int argc, char **argv)
+ * int DALI_ADAPTOR_API main (int argc, char **argv)
  * {
  *   WatchApplication app = WatchApplication::New(&argc, &argv);
  *   ExampleController example( app );
@@ -93,7 +94,7 @@ class WatchApplication;
  * @SINCE_1_1.37
  */
 
-class DALI_IMPORT_API WatchApplication : public Application
+class DALI_ADAPTOR_API WatchApplication : public Application
 {
 public:
   typedef Signal< void (Application&, const WatchTime&) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37

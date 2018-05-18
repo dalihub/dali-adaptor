@@ -23,7 +23,6 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/tizen-wayland/wl-types.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>

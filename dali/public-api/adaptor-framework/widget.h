@@ -2,7 +2,7 @@
 #define DALI_WIDGET_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -48,7 +51,7 @@ class Window;
  *
  * @SINCE_1_3_5
  */
-class DALI_IMPORT_API Widget : public BaseHandle
+class DALI_ADAPTOR_API Widget : public BaseHandle
 {
 public:
 

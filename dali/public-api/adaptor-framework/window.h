@@ -2,7 +2,7 @@
 #define __DALI_WINDOW_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -54,7 +57,7 @@ class Orientation;
  * You can get a valid Window handle by calling Dali::Application::GetWindow().
  * @SINCE_1_0.0
  */
-class DALI_IMPORT_API Window : public BaseHandle
+class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
 

@@ -19,7 +19,6 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/devel-api/actors/actor-devel.h>
@@ -31,6 +30,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>

@@ -2,7 +2,7 @@
 #define __DALI_ADAPTOR_BITMAP_SAVER_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 #include <string>
 #include <dali/public-api/images/pixel.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 
@@ -37,7 +40,7 @@ namespace Dali
  *
  * @return true if the file was saved
  */
-DALI_IMPORT_API bool EncodeToFile(const unsigned char* const pixelBuffer,
+DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
                                   const std::string& filename,
                                   const Pixel::Format pixelFormat,
                                   const std::size_t width,

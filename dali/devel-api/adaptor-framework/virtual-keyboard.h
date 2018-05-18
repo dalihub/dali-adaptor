@@ -75,36 +75,36 @@ enum ReturnKeyType
 /**
  * @brief Show the virtual keyboard.
  */
-DALI_IMPORT_API void Show();
+DALI_ADAPTOR_API void Show();
 
 /**
  * @brief Hide the virtual keyboard.
  */
-DALI_IMPORT_API void Hide();
+DALI_ADAPTOR_API void Hide();
 
 /**
  * @brief Returns whether the virtual keyboard is visible or not.
  * @return true if visible, false otherwise.
  */
-DALI_IMPORT_API bool IsVisible();
+DALI_ADAPTOR_API bool IsVisible();
 
 /**
  * @brief Set one or more of the Input Method Settings
  * @param[in] settingsMap Map of Settings to be applied.
  */
-DALI_IMPORT_API void ApplySettings( const Property::Map& settingsMap );
+DALI_ADAPTOR_API void ApplySettings( const Property::Map& settingsMap );
 
 /**
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_IMPORT_API void SetReturnKeyType( const InputMethod::ButtonAction::Type type );
+DALI_ADAPTOR_API void SetReturnKeyType( const InputMethod::ButtonAction::Type type );
 
 /**
  * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
-DALI_IMPORT_API InputMethod::ButtonAction::Type GetReturnKeyType();
+DALI_ADAPTOR_API InputMethod::ButtonAction::Type GetReturnKeyType();
 
 /**
  * @brief Enable/disable prediction (predictive text).
@@ -113,13 +113,13 @@ DALI_IMPORT_API InputMethod::ButtonAction::Type GetReturnKeyType();
  * @param[in] enable true or false to enable or disable
  * Prediction can not be changed while the keyboard is visible. It must be set in advance of showing keyboard.
  */
-DALI_IMPORT_API void EnablePrediction(const bool enable);
+DALI_ADAPTOR_API void EnablePrediction(const bool enable);
 
 /**
  * @brief Returns whether prediction is enabled in the virtual keyboard
  * @return true if predictive text enabled, false otherwise.
  */
-DALI_IMPORT_API bool IsPredictionEnabled();
+DALI_ADAPTOR_API bool IsPredictionEnabled();
 
 /**
  * @brief Provides size and position of keyboard.
@@ -130,7 +130,7 @@ DALI_IMPORT_API bool IsPredictionEnabled();
  * the values then taken down.  So ideally GetSizeAndPosition() should be called after Show().
  * @return rect which is keyboard panel x, y, width, height
  */
-DALI_IMPORT_API Dali::Rect<int> GetSizeAndPosition();
+DALI_ADAPTOR_API Dali::Rect<int> GetSizeAndPosition();
 
 /**
  * @brief Rotates the keyboard orientation to the given angle.
@@ -139,13 +139,13 @@ DALI_IMPORT_API Dali::Rect<int> GetSizeAndPosition();
  * Other valid values are 90, 180, 270.
  * @param angle the angle is in degrees.
  */
-DALI_IMPORT_API void RotateTo(int angle);
+DALI_ADAPTOR_API void RotateTo(int angle);
 
 /**
  * @brief Returns text direction of the keyboard's current input language.
  * @return The direction of the text.
  */
-DALI_IMPORT_API TextDirection GetTextDirection();
+DALI_ADAPTOR_API TextDirection GetTextDirection();
 
 } // namespace VirtualKeyboard
 

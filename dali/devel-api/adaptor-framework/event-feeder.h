@@ -2,7 +2,7 @@
 #define __DALI_EVENT_FEEDER_H_
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -39,7 +39,7 @@ namespace EventFeeder
  *
  * @note For testing/automation purposes only.
  */
-DALI_IMPORT_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
+DALI_ADAPTOR_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
 
 /**
  * Feed a wheel event to the adaptor.
@@ -48,7 +48,7 @@ DALI_IMPORT_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
  *
  * @note For testing/automation purposes only.
  */
-DALI_IMPORT_API void FeedWheelEvent( WheelEvent& wheelEvent );
+DALI_ADAPTOR_API void FeedWheelEvent( WheelEvent& wheelEvent );
 
 /**
  * Feed a key event to the adaptor.
@@ -57,7 +57,7 @@ DALI_IMPORT_API void FeedWheelEvent( WheelEvent& wheelEvent );
  *
  * @note For testing/automation purposes only.
  */
-DALI_IMPORT_API void FeedKeyEvent( KeyEvent& keyEvent );
+DALI_ADAPTOR_API void FeedKeyEvent( KeyEvent& keyEvent );
 
 } // namespace EventFeeder
 
