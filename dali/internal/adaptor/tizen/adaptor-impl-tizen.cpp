@@ -20,18 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <app_common.h>
-#include <system_settings.h>
-
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <screen_connector_provider.h>
 #endif
-
-#ifdef ECORE_WAYLAND2
-#include <Ecore_Wl2.h>
-#else
 #include <Ecore_Wayland.h>
-#endif
-
+#include <system_settings.h>
 
 namespace Dali
 {
@@ -112,13 +105,8 @@ void Adaptor::SurfaceInitialized()
   // Use strdup() in app_get_id(), so need to free memory
   if( appId )
   {
-#ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Window* ecoreWlWindow = AnyCast<Ecore_Wl2_Window*>( mNativeWindow );
-    screen_connector_provider_remote_enable( appId, ecore_wl2_window_surface_get( ecoreWlWindow ) );
-#else
     Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>( mNativeWindow );
-    screen_connector_provider_remote_enable( appId, ecore_wl_window_surface_get( ecoreWlWindow ) );
-#endif
+    screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
     free( appId );
   }
 #endif

@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/ubuntu-x11/window-factory-ecore-x.h>
+#include <dali/internal/window-system/tizen-wayland/window-base-factory-ecore-wl.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/ubuntu-x11/window-base-ecore-x.h>
+#include <dali/internal/window-system/tizen-wayland/window-base-ecore-wl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali
@@ -29,21 +29,16 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< WindowBase > WindowFactoryEcoreX::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
+std::unique_ptr< Dali::Internal::Adaptor::WindowBase > WindowBaseFactoryEcoreWl::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
 {
-  return Utils::MakeUnique< WindowBaseEcoreX >( window, windowRenderSurface );
+  return Utils::MakeUnique< WindowBaseEcoreWl >( window, windowRenderSurface );
 }
 
-std::unique_ptr< IndicatorInterface > WindowFactoryEcoreX::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
+// this should be created from somewhere
+std::unique_ptr< WindowBaseFactory > GetWindowBaseFactory()
 {
-  return std::unique_ptr< IndicatorInterface >( nullptr );
-}
-
-// this should be created from Window impl
-std::unique_ptr< WindowFactory > GetWindowFactory()
-{
-  // returns Window factory
-  return Utils::MakeUnique< WindowFactoryEcoreX >();
+  // returns WindowBase factory
+  return Utils::MakeUnique< WindowBaseFactoryEcoreWl >();
 }
 
 } // namespace Adaptor

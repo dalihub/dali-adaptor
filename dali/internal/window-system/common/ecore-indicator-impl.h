@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_INDICATOR_IMPL_ECORE_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_INDICATOR_IMPL_ECORE_WL_H
+#ifndef __DALI_INTERNAL_ECORE_INDICATOR_H__
+#define __DALI_INTERNAL_ECORE_INDICATOR_H__
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,24 @@
 
 namespace Dali
 {
+namespace Integration
+{
+class Core;
+}
+
 namespace Internal
 {
 namespace Adaptor
 {
-
 class Adaptor;
+
+typedef unsigned int PixmapId;
 
 /**
  * The Indicator class connects to the indicator server, and gets and draws the indicator
  * for the given orientation.
  */
-class IndicatorEcoreWl : public ConnectionTracker, public ServerConnection::Observer, public IndicatorInterface
+class Indicator : public ConnectionTracker, public ServerConnection::Observer, public IndicatorInterface
 {
 public:
 
@@ -54,6 +60,17 @@ public:
   {
     DISCONNECTED,
     CONNECTED
+  };
+
+  /**
+   * copied from ecore_evas_extn_engine.h
+   */
+  enum BufferType
+  {
+    BUFFER_TYPE_SHM = 0,        ///< shared memory-based buffer backend
+    BUFFER_TYPE_DRI2_PIXMAP,    ///< dri2 pixmap-based buffer backend
+    BUFFER_TYPE_EVASGL_PIXMAP,  ///< pixmap backend for Evas GL only (DEPRECATED)
+    BUFFER_TYPE_GL_PIXMAP,      ///< double buffered GL pixmap backend
   };
 
 protected:
@@ -130,19 +147,16 @@ public:  // Dali::Internal::Adaptor::IndicicatorInterface
   /**
    * @copydoc Dali::Internal::IndicatorInterface::IndicatorInterface
    */
-  IndicatorEcoreWl( Adaptor* adaptor,
+  Indicator( Adaptor* adaptor,
              Dali::Window::WindowOrientation orientation,
              IndicatorInterface::Observer* observer );
 
   /**
    * @copydoc Dali::Internal::IndicatorInterface::~IndicatorInterface
    */
-  virtual ~IndicatorEcoreWl();
+  virtual ~Indicator();
 
 
-  /**
-   * @copydoc Dali::Internal::IndicatorInterface::SetAdaptor
-   */
   virtual void SetAdaptor(Adaptor* adaptor);
 
   /**
@@ -270,6 +284,12 @@ private:
   void LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent );
 
   /**
+   * Load the pixmap indicator image
+   * @param[in] epcEvent The event containing the image data
+   */
+  void LoadPixmapImage( Ecore_Ipc_Event_Server_Data *epcEvent );
+
+  /**
    * Update top margin of the stage as much as indicator height
    */
   void UpdateTopMargin();
@@ -298,6 +318,11 @@ private:
    * @param[in] bufferNumber The shared file number
    */
   void CreateNewImage( int bufferNumber );
+
+  /**
+   * Create a new pixmap image for the indicator, and set up signal handling for it.
+   */
+  void CreateNewPixmapImage();
 
   /**
    * Indicator type has changed.
@@ -384,6 +409,7 @@ private:
   Dali::Shader                     mBackgroundShader;    ///< Shader used for rendering the background
 
   IndicatorBufferPtr               mIndicatorBuffer;     ///< class which handles indicator rendering
+  PixmapId                         mPixmap;              ///< Pixmap including indicator content
   Dali::Renderer                   mForegroundRenderer;  ///< Renderer renders the indicator foreground
   Dali::Renderer                   mBackgroundRenderer;  ///< Renderer renders the indicator background
 
@@ -391,12 +417,14 @@ private:
   Dali::Actor                      mIndicatorActor;      ///< Handle to topmost indicator actor
   Dali::Actor                      mEventActor;          ///< Handle to event
   Dali::PanGestureDetector         mPanDetector;         ///< Pan detector to find flick gesture for hidden indicator
+  float                            mGestureDeltaY;       ///< Checking how much panning moved
+  bool                             mGestureDetected;     ///< Whether find the flick gesture
 
   Dali::Timer                      mReconnectTimer;      ///< Reconnection timer
-  SlotDelegate< IndicatorEcoreWl > mConnection;
+  SlotDelegate< Indicator >        mConnection;
 
   Dali::Window::IndicatorBgOpacity mOpacityMode;         ///< Opacity enum for background
-  IndicatorEcoreWl::State          mState;               ///< The connection state
+  Indicator::State                 mState;               ///< The connection state
 
   Adaptor*                         mAdaptor;
   ServerConnection*                mServerConnection;
@@ -416,6 +444,8 @@ private:
   int                              mCurrentSharedFile;   ///< Current shared file number
   SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
 
+  BufferType                       mSharedBufferType;    ///< Shared buffer type which is used to render indicator
+
   struct Impl; ///< Contains Ecore specific information
   Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
@@ -427,4 +457,4 @@ private:
 } // Internal
 } // Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_INDICATOR_IMPL_ECORE_WL_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_FACTORY_H
-#define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_FACTORY_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_FACTORY_H
+#define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_FACTORY_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -18,10 +18,6 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
-
 // EXTERNAL INCLUDES
 #include <memory>
 
@@ -32,27 +28,24 @@ namespace Internal
 namespace Adaptor
 {
 
-class Adaptor;
 class WindowBase;
 class Window;
 class WindowRenderSurface;
 
-class WindowFactory
+class WindowBaseFactory
 {
 public:
 
-  WindowFactory() = default;
-  virtual ~WindowFactory() = default;
+  WindowBaseFactory() = default;
+  virtual ~WindowBaseFactory() = default;
 
-  virtual std::unique_ptr< WindowBase > CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface ) = 0;
-
-  virtual std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) = 0;
+  virtual std::unique_ptr< Dali::Internal::Adaptor::WindowBase > CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface ) = 0;
 };
 
-extern std::unique_ptr< WindowFactory > GetWindowFactory();
+extern std::unique_ptr< WindowBaseFactory > GetWindowBaseFactory();
 
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_FACTORY_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_FACTORY_H
