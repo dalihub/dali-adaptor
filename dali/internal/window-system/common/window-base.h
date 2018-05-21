@@ -21,9 +21,16 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/internal/window-system/common/indicator-interface.h>
+#include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/rotation-observer.h>
+#include <dali/internal/graphics/gles20/egl-implementation.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/events/key-event-integ.h>
+#include <dali/integration-api/events/point.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <string>
 #include <vector>
 
@@ -42,21 +49,115 @@ class WindowBase
 public:
 
   /**
+   * @brief Struct used to retrieve accessibility information
+   */
+  struct AccessibilityInfo
+  {
+    int gestureValue;
+    int startX;
+    int startY;
+    int endX;
+    int endY;
+    int state;
+    int eventTime;
+  };
+
+  // Window
+  typedef Signal< void ( bool ) > IconifySignalType;
+  typedef Signal< void ( bool ) > FocusSignalType;
+  typedef Signal< void ( ) > OutputSignalType;
+  typedef Signal< void ( ) > DeleteSignalType;
+  typedef Signal< void ( const DamageArea& ) > DamageSignalType;
+  typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
+
+  // Input events
+  typedef Signal< void ( Integration::Point&, unsigned long ) > TouchEventSignalType;
+  typedef Signal< void ( WheelEvent& ) > WheelEventSignalType;
+  typedef Signal< void( Integration::KeyEvent& ) > KeyEventSignalType;
+
+  // Clipboard
+  typedef Signal< void ( void* ) > SelectionSignalType;
+
+  // Accessibility
+  typedef Signal< void ( StyleChange::Type ) > StyleSignalType;
+  typedef Signal< void ( const AccessibilityInfo& ) > AccessibilitySignalType;
+
+  // Indicator
+  typedef Signal< void ( ) > IndicatorSignalType;
+
+  /**
    * @brief Default constructor
    */
-  WindowBase() = default;
+  WindowBase();
 
   /**
    * @brief Destructor
    */
-  virtual ~WindowBase() = default;
+  virtual ~WindowBase();
 
 public:
 
   /**
-   * Second stage initialization
+   * @brief Get the native window handle
+   * @return The native window handle
    */
-  virtual void Initialize() = 0;
+  virtual Any GetNativeWindow() = 0;
+
+  /**
+   * @brief Get the native window id
+   * @return The native window id
+   */
+  virtual int GetNativeWindowId() = 0;
+
+  /**
+   * @brief Create the egl window
+   */
+  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) = 0;
+
+  /**
+   * @brief Destroy the egl window
+   */
+  virtual void DestroyEglWindow() = 0;
+
+  /**
+   * @brief Set the egl window rotation
+   */
+  virtual void SetEglWindowRotation( int angle ) = 0;
+
+  /**
+   * @brief Set the egl window buffer transform
+   */
+  virtual void SetEglWindowBufferTransform( int angle ) = 0;
+
+  /**
+   * @brief Set the egl window transform
+   */
+  virtual void SetEglWindowTransform( int angle ) = 0;
+
+  /**
+   * @brief Resize the egl window
+   */
+  virtual void ResizeEglWindow( Dali::PositionSize positionSize ) = 0;
+
+  /**
+   * @brief Returns whether the egl window support rotation or not
+   */
+  virtual bool IsEglWindowRotationSupported() = 0;
+
+  /**
+   * @brief Move the window
+   */
+  virtual void Move( Dali::PositionSize positionSize ) = 0;
+
+  /**
+   * @brief Resize the window
+   */
+  virtual void Resize( Dali::PositionSize positionSize ) = 0;
+
+  /**
+   * @brief Move and resize the window
+   */
+  virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
 
   /**
    * @copydoc Dali::Window::ShowIndicator()
@@ -76,7 +177,7 @@ public:
   /**
    * @copydoc Dali::Window::SetClass()
    */
-  virtual void SetClass( std::string name, std::string className ) = 0;
+  virtual void SetClass( const std::string& name, const std::string& className ) = 0;
 
   /**
    * @copydoc Dali::Window::Raise()
@@ -218,6 +319,111 @@ public:
    */
   virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) = 0;
 
+  /**
+   * @brief Get DPI
+   * @param[out] dpiHorizontal set to the horizontal dpi
+   * @param[out] dpiVertical set to the vertical dpi
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
+
+  /**
+   * @brief Set the stereoscopic 3D view mode
+   * @param[in] viewMode The new view mode
+   */
+  virtual void SetViewMode( ViewMode viewMode ) = 0;
+
+  /**
+   * @brief Get the screen rotation angle of the window
+   */
+  virtual int GetScreenRotationAngle() = 0;
+
+  /**
+   * @brief Set the rotation angle of the window
+   */
+  virtual void SetWindowRotationAngle( int degree ) = 0;
+
+  /**
+   * @brief Inform the window rotation is completed
+   */
+  virtual void WindowRotationCompleted( int degree, int width, int height ) = 0;
+
+  /**
+   * @copydoc Dali::Window::SetTransparency()
+   */
+  virtual void SetTransparency( bool transparent ) = 0;
+
+  // Signals
+
+  /**
+   * @brief This signal is emitted when the window becomes iconified or deiconified.
+   */
+   IconifySignalType& IconifyChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the window focus is changed.
+   */
+  FocusSignalType& FocusChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the output is transformed.
+   */
+  OutputSignalType& OutputTransformedSignal();
+
+  /**
+   * @brief This signal is emitted when the window receives a delete request.
+   */
+  DeleteSignalType& DeleteRequestSignal();
+
+  /**
+   * @brief This signal is emitted when the window is damaged.
+   */
+  DamageSignalType& WindowDamagedSignal();
+
+  /**
+   * @brief This signal is emitted when a rotation event is recevied.
+   */
+  RotationSignalType& RotationSignal();
+
+  /**
+   * @brief This signal is emitted when a touch event is received.
+   */
+  TouchEventSignalType& TouchEventSignal();
+
+  /**
+   * @brief This signal is emitted when a mouse wheel is received.
+   */
+  WheelEventSignalType& WheelEventSignal();
+
+  /**
+   * @brief This signal is emitted when a key event is received.
+   */
+  KeyEventSignalType& KeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when the source window notifies us the content in clipboard is selected.
+   */
+  SelectionSignalType& SelectionDataSendSignal();
+
+  /**
+   * @brief This signal is emitted when the source window sends us about the selected content.
+   */
+  SelectionSignalType& SelectionDataReceivedSignal();
+
+  /**
+   * @brief This signal is emitted when the style is changed.
+   */
+  StyleSignalType& StyleChangedSignal();
+
+  /**
+   * @brief This signal is emitted when an accessibility event is received.
+   */
+  AccessibilitySignalType& AccessibilitySignal();
+
+  /**
+   * @brief This signal is emitted when an indicator is flicked.
+   */
+  IndicatorSignalType& IndicatorFlickedSignal();
+
 protected:
 
   // Undefined
@@ -226,6 +432,22 @@ protected:
   // Undefined
   WindowBase& operator=(const WindowBase& rhs) = delete;
 
+protected:
+
+  IconifySignalType                    mIconifyChangedSignal;
+  FocusSignalType                      mFocusChangedSignal;
+  OutputSignalType                     mOutputTransformedSignal;
+  DeleteSignalType                     mDeleteRequestSignal;
+  DamageSignalType                     mWindowDamagedSignal;
+  RotationSignalType                   mRotationSignal;
+  TouchEventSignalType                 mTouchEventSignal;
+  WheelEventSignalType                 mWheelEventSignal;
+  KeyEventSignalType                   mKeyEventSignal;
+  SelectionSignalType                  mSelectionDataSendSignal;
+  SelectionSignalType                  mSelectionDataReceivedSignal;
+  StyleSignalType                      mStyleChangedSignal;
+  AccessibilitySignalType              mAccessibilitySignal;
+  IndicatorSignalType                  mIndicatorFlickedSignal;
 };
 
 } // namespace Adaptor

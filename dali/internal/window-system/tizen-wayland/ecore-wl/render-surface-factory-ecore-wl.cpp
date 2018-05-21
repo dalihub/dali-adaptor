@@ -16,13 +16,13 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/ubuntu-x11/render-surface-factory-ecore-x.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/render-surface-factory-ecore-wl.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
+#include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
-#include <dali/integration-api/native-render-surface.h>
 
 // EXTERNAL INCLUDES
 #include <memory>
@@ -34,26 +34,26 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< WindowRenderSurface > RenderSurfaceFactoryEcoreX::CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr< WindowRenderSurface > RenderSurfaceFactoryEcoreWl::CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 {
   return Utils::MakeUnique< WindowRenderSurface >( positionSize, surface, isTransparent );
 }
 
-std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryEcoreX::CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryEcoreWl::CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 {
-  return Utils::MakeUnique< PixmapRenderSurfaceEcoreX >( positionSize, surface, isTransparent );
+  return std::unique_ptr< PixmapRenderSurface >( nullptr );
 }
 
-std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreX::CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent )
+std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreWl::CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent )
 {
-  return std::unique_ptr< NativeRenderSurface >( nullptr );
+  return Utils::MakeUnique< NativeRenderSurfaceEcoreWl >( positionSize, isTransparent );
 }
 
 // this should be created from somewhere
 std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< RenderSurfaceFactoryEcoreX >();
+  return Utils::MakeUnique< RenderSurfaceFactoryEcoreWl >();
 }
 
 } // namespace Adaptor

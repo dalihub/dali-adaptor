@@ -24,11 +24,13 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-impl.h>
-#include <dali/internal/window-system/ubuntu-x11/window-render-surface-ecore-x.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
 #include <dali/integration-api/debug.h>
+#include <Ecore_Input.h>
 
 namespace Dali
 {
@@ -42,9 +44,19 @@ namespace Adaptor
 namespace
 {
 
+const std::string DEFAULT_DEVICE_NAME = "";
+const Device::Class::Type DEFAULT_DEVICE_CLASS = Device::Class::NONE;
+const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
+
+const unsigned int PRIMARY_TOUCH_BUTTON_ID( 1 );
+
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_WINDOW_BASE" );
 #endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Window Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 static Eina_Bool EcoreEventWindowPropertyChanged( void* data, int type, void* event )
 {
@@ -57,7 +69,9 @@ static Eina_Bool EcoreEventWindowPropertyChanged( void* data, int type, void* ev
   return ECORE_CALLBACK_PASS_ON;
 }
 
-/// Called when the window receives a delete request
+/**
+ * Called when the window receives a delete request
+ */
 static Eina_Bool EcoreEventWindowDeleteRequest( void* data, int type, void* event )
 {
   WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
@@ -68,16 +82,176 @@ static Eina_Bool EcoreEventWindowDeleteRequest( void* data, int type, void* even
   return ECORE_CALLBACK_DONE;
 }
 
+/**
+ * Called when the window gains focus.
+ */
+static Eina_Bool EcoreEventWindowFocusIn( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnFocusIn( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when the window loses focus.
+ */
+static Eina_Bool EcoreEventWindowFocusOut( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnFocusOut( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when the window is damaged.
+ */
+static Eina_Bool EcoreEventWindowDamaged( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnWindowDamaged( data, type, event );
+  }
+
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Selection Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when the source window notifies us the content in clipboard is selected.
+ */
+static Eina_Bool EcoreEventSelectionClear( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnSelectionClear( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when the source window sends us about the selected content.
+ * For example, when dragged items are dragged INTO our window or when items are selected in the clipboard.
+ */
+static Eina_Bool EcoreEventSelectionNotify( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnSelectionNotify( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Touch Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when a touch down is received.
+ */
+static Eina_Bool EcoreEventMouseButtonDown( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnMouseButtonDown( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when a touch up is received.
+ */
+static Eina_Bool EcoreEventMouseButtonUp( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnMouseButtonUp( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when a touch motion is received.
+ */
+static Eina_Bool EcoreEventMouseButtonMove( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnMouseButtonMove( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Wheel Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when a mouse wheel is received.
+ */
+static Eina_Bool EcoreEventMouseWheel( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnMouseWheel( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Key Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when a key down is received.
+ */
+static Eina_Bool EcoreEventKeyDown( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnKeyDown( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when a key up is received.
+ */
+static Eina_Bool EcoreEventKeyUp( void* data, int type, void* event )
+{
+  WindowBaseEcoreX* windowBase = static_cast< WindowBaseEcoreX* >( data );
+  if( windowBase )
+  {
+    windowBase->OnKeyUp( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
 } // unnamed namespace
 
-WindowBaseEcoreX::WindowBaseEcoreX( Window* window, WindowRenderSurface* windowRenderSurface )
+WindowBaseEcoreX::WindowBaseEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 : mEcoreEventHandler(),
-  mWindow( window ),
-  mWindowSurface( NULL ),
   mEcoreWindow( 0 ),
+  mOwnSurface( false ),
   mRotationAppSet( false )
 {
-  mWindowSurface = dynamic_cast< WindowRenderSurfaceEcoreX* >( windowRenderSurface );
+  Initialize( positionSize, surface, isTransparent );
 }
 
 WindowBaseEcoreX::~WindowBaseEcoreX()
@@ -87,25 +261,84 @@ WindowBaseEcoreX::~WindowBaseEcoreX()
     ecore_event_handler_del( *iter );
   }
   mEcoreEventHandler.Clear();
+
+  if( mOwnSurface )
+  {
+    ecore_x_window_free( mEcoreWindow );
+  }
 }
 
-void WindowBaseEcoreX::Initialize()
+void WindowBaseEcoreX::Initialize( PositionSize positionSize, Any surface, bool isTransparent )
 {
-  if( !mWindowSurface )
+  // see if there is a surface in Any surface
+  unsigned int surfaceId = GetSurfaceId( surface );
+
+  // if the surface is empty, create a new one.
+  if( surfaceId == 0 )
   {
-    DALI_ASSERT_ALWAYS( "Invalid window surface" );
+    // we own the surface about to created
+    mOwnSurface = true;
+    CreateWindow( positionSize, isTransparent );
+  }
+  else
+  {
+    // XLib should already be initialized so no point in calling XInitThreads
+    mEcoreWindow = static_cast< Ecore_X_Window >( surfaceId );
   }
 
-  mEcoreWindow = mWindowSurface->GetXWindow();
-  DALI_ASSERT_ALWAYS( mEcoreWindow != 0 && "There is no EcoreX window" );
+  // set up etc properties to match with ecore-evas
+  char *id = NULL;
+  if( ( id = getenv("DESKTOP_STARTUP_ID") ) )
+  {
+    ecore_x_netwm_startup_id_set( mEcoreWindow, id );
+  }
+
+  ecore_x_icccm_hints_set( mEcoreWindow,
+                           1,                                // accepts_focus
+                           ECORE_X_WINDOW_STATE_HINT_NORMAL, // initial_state
+                           0,                                // icon_pixmap
+                           0,                                // icon_mask
+                           0,                                // icon_window
+                           0,                                // window_group
+                           0 );                              // is_urgent
+
+  // we SHOULD guarantee the x11 window was created in x server.
+  ecore_x_sync();
 
   ecore_x_input_multi_select( mEcoreWindow );
 
   // This ensures that we catch the window close (or delete) request
   ecore_x_icccm_protocol_set( mEcoreWindow, ECORE_X_WM_PROTOCOL_DELETE_REQUEST, EINA_TRUE );
 
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_PROPERTY, EcoreEventWindowPropertyChanged, this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_DELETE_REQUEST, EcoreEventWindowDeleteRequest, this ) );
+  // Enable Drag & Drop
+  ecore_x_dnd_aware_set( mEcoreWindow, EINA_TRUE );
+
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_PROPERTY,       EcoreEventWindowPropertyChanged, this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_DELETE_REQUEST, EcoreEventWindowDeleteRequest,   this ) );
+
+  // Register window focus events
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_FOCUS_IN,       EcoreEventWindowFocusIn,   this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_FOCUS_OUT,      EcoreEventWindowFocusOut,  this ) );
+
+  // Register Window damage events
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_WINDOW_DAMAGE,         EcoreEventWindowDamaged,   this ) );
+
+  // Register Touch events
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,       EcoreEventMouseButtonDown, this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,         EcoreEventMouseButtonUp,   this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,              EcoreEventMouseButtonMove, this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_OUT,               EcoreEventMouseButtonUp,   this ) ); // process mouse out event like up event
+
+  // Register Mouse wheel events
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,             EcoreEventMouseWheel,      this ) );
+
+  // Register Key events
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,                EcoreEventKeyDown,         this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_UP,                  EcoreEventKeyUp,           this ) );
+
+  // Register Selection event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_CLEAR,       EcoreEventSelectionClear,  this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_X_EVENT_SELECTION_NOTIFY,      EcoreEventSelectionNotify, this ) );
 }
 
 Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged( void* data, int type, void* event )
@@ -122,24 +355,21 @@ Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged( void* data, int type, void*
       case ECORE_X_WINDOW_STATE_HINT_WITHDRAWN:
       {
         // Window was hidden.
-        mWindow->OnIconifyChanged( true );
-        DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Window (%d) Withdrawn\n", mWindow );
+        mIconifyChangedSignal.Emit( true );
         handled = ECORE_CALLBACK_DONE;
         break;
       }
       case ECORE_X_WINDOW_STATE_HINT_ICONIC:
       {
         // Window was iconified (minimised).
-        mWindow->OnIconifyChanged( true );
-        DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Window (%d) Iconfied\n", mWindow );
+        mIconifyChangedSignal.Emit( true );
         handled = ECORE_CALLBACK_DONE;
         break;
       }
       case ECORE_X_WINDOW_STATE_HINT_NORMAL:
       {
         // Window was shown.
-        mWindow->OnIconifyChanged( false );
-        DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Window (%d) Shown\n", mWindow );
+        mIconifyChangedSignal.Emit( false );
         handled = ECORE_CALLBACK_DONE;
         break;
       }
@@ -156,7 +386,285 @@ Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged( void* data, int type, void*
 
 void WindowBaseEcoreX::OnDeleteRequest()
 {
-  mWindow->OnDeleteRequest();
+  mDeleteRequestSignal.Emit();
+}
+
+void WindowBaseEcoreX::OnFocusIn( void* data, int type, void* event )
+{
+  Ecore_X_Event_Window_Focus_In* focusInEvent = static_cast< Ecore_X_Event_Window_Focus_In* >( event );
+
+  if( focusInEvent->win == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n" );
+
+    mFocusChangedSignal.Emit( true );
+  }
+}
+
+void WindowBaseEcoreX::OnFocusOut( void* data, int type, void* event )
+{
+  Ecore_X_Event_Window_Focus_Out* focusOutEvent = static_cast< Ecore_X_Event_Window_Focus_Out* >( event );
+
+  // If the window loses focus then hide the keyboard.
+  if( focusOutEvent->win == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n" );
+
+    mFocusChangedSignal.Emit( false );
+  }
+}
+
+void WindowBaseEcoreX::OnWindowDamaged( void* data, int type, void* event )
+{
+  Ecore_X_Event_Window_Damage* windowDamagedEvent = static_cast< Ecore_X_Event_Window_Damage* >( event );
+
+  if( windowDamagedEvent->win == mEcoreWindow )
+  {
+    DamageArea area;
+    area.x = windowDamagedEvent->x;
+    area.y = windowDamagedEvent->y;
+    area.width = windowDamagedEvent->w;
+    area.height = windowDamagedEvent->h;
+
+    mWindowDamagedSignal.Emit( area );
+  }
+}
+
+void WindowBaseEcoreX::OnMouseButtonDown( void* data, int type, void* event )
+{
+  Ecore_Event_Mouse_Button* touchEvent = static_cast< Ecore_Event_Mouse_Button* >( event );
+
+  if( touchEvent->window == mEcoreWindow )
+  {
+    PointState::Type state ( PointState::DOWN );
+
+    // Check if the buttons field is set and ensure it's the primary touch button.
+    // If this event was triggered by buttons other than the primary button (used for touch), then
+    // just send an interrupted event to Core.
+    if( touchEvent->buttons && ( touchEvent->buttons != PRIMARY_TOUCH_BUTTON_ID ) )
+    {
+      state = PointState::INTERRUPTED;
+    }
+
+    Integration::Point point;
+    point.SetDeviceId( touchEvent->multi.device );
+    point.SetState( state );
+    point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+    point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+    point.SetPressure( touchEvent->multi.pressure );
+    point.SetAngle( Degree( touchEvent->multi.angle ) );
+
+    mTouchEventSignal.Emit( point, touchEvent->timestamp );
+  }
+}
+
+void WindowBaseEcoreX::OnMouseButtonUp( void* data, int type, void* event )
+{
+  Ecore_Event_Mouse_Button* touchEvent = static_cast< Ecore_Event_Mouse_Button* >( event );
+
+  if( touchEvent->window == mEcoreWindow )
+  {
+    Integration::Point point;
+    point.SetDeviceId( touchEvent->multi.device );
+    point.SetState( PointState::UP );
+    point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+    point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+    point.SetPressure( touchEvent->multi.pressure );
+    point.SetAngle( Degree( touchEvent->multi.angle ) );
+
+    mTouchEventSignal.Emit( point, touchEvent->timestamp );
+  }
+}
+
+void WindowBaseEcoreX::OnMouseButtonMove( void* data, int type, void* event )
+{
+  Ecore_Event_Mouse_Move* touchEvent = static_cast< Ecore_Event_Mouse_Move* >( event );
+
+  if( touchEvent->window == mEcoreWindow )
+  {
+    Integration::Point point;
+    point.SetDeviceId( touchEvent->multi.device );
+    point.SetState( PointState::MOTION );
+    point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
+    point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
+    point.SetPressure( touchEvent->multi.pressure );
+    point.SetAngle( Degree( touchEvent->multi.angle ) );
+
+    mTouchEventSignal.Emit( point, touchEvent->timestamp );
+  }
+}
+
+void WindowBaseEcoreX::OnMouseWheel( void* data, int type, void* event )
+{
+  Ecore_Event_Mouse_Wheel* mouseWheelEvent = static_cast< Ecore_Event_Mouse_Wheel* >( event );
+
+  if( mouseWheelEvent->window == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
+
+    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( mouseWheelEvent->x, mouseWheelEvent->y ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+
+    mWheelEventSignal.Emit( wheelEvent );
+  }
+}
+
+void WindowBaseEcoreX::OnKeyDown( void* data, int type, void* event )
+{
+  Ecore_Event_Key* keyEvent = static_cast< Ecore_Event_Key* >( event );
+
+  if( keyEvent->window == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnKeyDown\n" );
+
+    std::string keyName( keyEvent->keyname );
+    std::string keyString( "" );
+    std::string compose( "" );
+
+    // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
+    if( keyEvent->compose )
+    {
+      compose = keyEvent->compose;
+    }
+
+    int keyCode = ecore_x_keysym_keycode_get( keyEvent->keyname );
+    int modifier( keyEvent->modifiers );
+    unsigned long time = keyEvent->timestamp;
+
+    // Ensure key event string is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->string )
+    {
+      keyString = keyEvent->string;
+    }
+
+    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+
+    mKeyEventSignal.Emit( keyEvent );
+  }
+}
+
+void WindowBaseEcoreX::OnKeyUp( void* data, int type, void* event )
+{
+  Ecore_Event_Key* keyEvent = static_cast< Ecore_Event_Key* >( event );
+
+  if ( keyEvent->window == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, " WindowBaseEcoreX::OnKeyUp\n" );
+
+    std::string keyName( keyEvent->keyname );
+    std::string keyString( "" );
+    std::string compose( "" );
+
+    // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
+    if( keyEvent->compose )
+    {
+      compose = keyEvent->compose;
+    }
+    int keyCode = ecore_x_keysym_keycode_get( keyEvent->keyname );
+    int modifier( keyEvent->modifiers );
+    unsigned long time( keyEvent->timestamp );
+
+    // Ensure key event string is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->string )
+    {
+      keyString = keyEvent->string;
+    }
+
+    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+
+    mKeyEventSignal.Emit( keyEvent );
+  }
+}
+
+void WindowBaseEcoreX::OnSelectionClear( void* data, int type, void* event )
+{
+  Ecore_X_Event_Selection_Clear* selectionClearEvent = static_cast< Ecore_X_Event_Selection_Clear* >( event );
+
+  if( selectionClearEvent->win == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Concise, " WindowBaseEcoreX::OnSelectionClear\n" );
+
+    if( selectionClearEvent->selection == ECORE_X_SELECTION_SECONDARY )
+    {
+      // Request to get the content from Ecore.
+      ecore_x_selection_secondary_request( selectionClearEvent->win, ECORE_X_SELECTION_TARGET_TEXT );
+    }
+  }
+}
+
+void WindowBaseEcoreX::OnSelectionNotify( void* data, int type, void* event )
+{
+  Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast< Ecore_X_Event_Selection_Notify* >( event );
+
+  if( selectionNotifyEvent->win == mEcoreWindow )
+  {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Concise, " WindowBaseEcoreX::OnSelectionNotify\n" );
+
+    Ecore_X_Selection_Data* selectionData = static_cast< Ecore_X_Selection_Data* >( selectionNotifyEvent->data );
+    if( selectionData->data )
+    {
+      if( selectionNotifyEvent->selection == ECORE_X_SELECTION_SECONDARY )
+      {
+        mSelectionDataReceivedSignal.Emit( event  );
+      }
+    }
+  }
+}
+
+Any WindowBaseEcoreX::GetNativeWindow()
+{
+  return mEcoreWindow;
+}
+
+int WindowBaseEcoreX::GetNativeWindowId()
+{
+  return mEcoreWindow;
+}
+
+EGLNativeWindowType WindowBaseEcoreX::CreateEglWindow( int width, int height )
+{
+  // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
+  XWindow window( mEcoreWindow );
+  return reinterpret_cast< EGLNativeWindowType >( window );
+}
+
+void WindowBaseEcoreX::DestroyEglWindow()
+{
+}
+
+void WindowBaseEcoreX::SetEglWindowRotation( int angle )
+{
+}
+
+void WindowBaseEcoreX::SetEglWindowBufferTransform( int angle )
+{
+}
+
+void WindowBaseEcoreX::SetEglWindowTransform( int angle )
+{
+}
+
+void WindowBaseEcoreX::ResizeEglWindow( PositionSize positionSize )
+{
+}
+
+bool WindowBaseEcoreX::IsEglWindowRotationSupported()
+{
+  return false;
+}
+
+void WindowBaseEcoreX::Move( PositionSize positionSize )
+{
+  ecore_x_window_move( mEcoreWindow, positionSize.x, positionSize.y );
+}
+
+void WindowBaseEcoreX::Resize( PositionSize positionSize )
+{
+  ecore_x_window_resize( mEcoreWindow, positionSize.width, positionSize.height );
+}
+
+void WindowBaseEcoreX::MoveResize( PositionSize positionSize )
+{
+  ecore_x_window_move_resize( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
 void WindowBaseEcoreX::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
@@ -174,12 +682,6 @@ void WindowBaseEcoreX::ShowIndicator( Dali::Window::IndicatorVisibleMode visible
     {
       ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_TRANSLUCENT );
     }
-#if defined (DALI_PROFILE_MOBILE)
-    else if( opacityMode == Dali::Window::TRANSPARENT )
-    {
-      ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_OPAQUE );
-    }
-#endif
   }
   else
   {
@@ -208,8 +710,10 @@ void WindowBaseEcoreX::IndicatorTypeChanged( IndicatorInterface::Type type )
 {
 }
 
-void WindowBaseEcoreX::SetClass( std::string name, std::string className )
+void WindowBaseEcoreX::SetClass( const std::string& name, const std::string& className )
 {
+  ecore_x_icccm_title_set( mEcoreWindow, name.c_str() );
+  ecore_x_netwm_name_set( mEcoreWindow, name.c_str() );
   ecore_x_icccm_name_class_set( mEcoreWindow, name.c_str(), className.c_str() );
 }
 
@@ -345,6 +849,88 @@ bool WindowBaseEcoreX::GrabKeyList( const Dali::Vector< Dali::KEY >& key, const 
 bool WindowBaseEcoreX::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result )
 {
   return false;
+}
+
+void WindowBaseEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
+{
+  // calculate DPI
+  float xres, yres;
+
+  // 1 inch = 25.4 millimeters
+  xres = ecore_x_dpi_get();
+  yres = ecore_x_dpi_get();
+
+  dpiHorizontal = int( xres + 0.5f );  // rounding
+  dpiVertical   = int( yres + 0.5f );
+}
+
+void WindowBaseEcoreX::SetViewMode( ViewMode viewMode )
+{
+  Ecore_X_Atom viewModeAtom( ecore_x_atom_get( "_E_COMP_3D_APP_WIN" ) );
+
+  if( viewModeAtom != None )
+  {
+    unsigned int value( static_cast< unsigned int >( viewMode ) );
+    ecore_x_window_prop_card32_set( mEcoreWindow, viewModeAtom, &value, 1 );
+  }
+}
+
+int WindowBaseEcoreX::GetScreenRotationAngle()
+{
+  return 0;
+}
+
+void WindowBaseEcoreX::SetWindowRotationAngle( int degree )
+{
+}
+
+void WindowBaseEcoreX::WindowRotationCompleted( int degree, int width, int height )
+{
+}
+
+void WindowBaseEcoreX::SetTransparency( bool transparent )
+{
+}
+
+unsigned int WindowBaseEcoreX::GetSurfaceId( Any surface ) const
+{
+  unsigned int surfaceId = 0;
+
+  if ( surface.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( (surface.GetType() == typeid (XWindow) ) || (surface.GetType() == typeid (Ecore_X_Window) ) )
+                        && "Surface type is invalid" );
+
+    if ( surface.GetType() == typeid (Ecore_X_Window) )
+    {
+      surfaceId = AnyCast< Ecore_X_Window >( surface );
+    }
+    else
+    {
+      surfaceId = AnyCast< XWindow >( surface );
+    }
+  }
+  return surfaceId;
+}
+
+void WindowBaseEcoreX::CreateWindow( PositionSize positionSize, bool isTransparent )
+{
+ if( isTransparent )
+ {
+   // create 32 bit window
+   mEcoreWindow = ecore_x_window_argb_new( 0, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+ }
+ else
+ {
+   // create 24 bit window
+   mEcoreWindow = ecore_x_window_new( 0, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+ }
+
+ if ( mEcoreWindow == 0 )
+ {
+   DALI_ASSERT_ALWAYS( 0 && "Failed to create X window" );
+ }
 }
 
 } // namespace Adaptor

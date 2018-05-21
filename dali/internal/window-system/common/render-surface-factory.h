@@ -45,13 +45,11 @@ public:
   RenderSurfaceFactory() = default;
   virtual ~RenderSurfaceFactory() = default;
 
-  virtual std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface,
-                                                                            const std::string& name, const std::string& className, bool isTransparent = false ) = 0;
+  virtual std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) = 0;
 
-  virtual std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface,
-                                                                            const std::string& name, bool isTransparent = false ) = 0;
+  virtual std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) = 0;
 
-  virtual std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, const std::string& name, bool isTransparent = false ) = 0;
+  virtual std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent = false ) = 0;
 };
 
 extern std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory();

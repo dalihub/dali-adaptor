@@ -109,17 +109,21 @@ Window::~Window()
 
 void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
-  // create a window render surface
+  // Create a window render surface
   Any surface;
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  auto windowRenderSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, name, className, mIsTransparent );
+  auto windowRenderSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, mIsTransparent );
   mSurface = windowRenderSurface.release();
 
-  // create a window base
-  auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
-  mWindowBase = windowFactory->CreateWindowBase( this, mSurface );
+  // Get a window base
+  mWindowBase = mSurface->GetWindowBase();
 
-  mWindowBase->Initialize();
+  // Connect signals
+  mWindowBase->IconifyChangedSignal().Connect( this, &Window::OnIconifyChanged );
+  mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
+  mWindowBase->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
+  mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
+  mWindowBase->IndicatorFlickedSignal().Connect( this, &Window::OnIndicatorFlicked );
 
   if( !positionSize.IsEmpty() )
   {
@@ -295,7 +299,7 @@ Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
 
 Dali::Any Window::GetNativeHandle() const
 {
-  return mSurface->GetWindow();
+  return mSurface->GetNativeWindow();
 }
 
 void Window::SetAcceptFocus( bool accept )
@@ -558,49 +562,6 @@ void Window::RotationDone( int orientation, int width, int height )
   mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
 }
 
-void Window::OnIconifyChanged( bool iconified )
-{
-  if( iconified )
-  {
-    mIconified = true;
-
-    if( mVisible )
-    {
-      WindowVisibilityObserver* observer( mAdaptor );
-      observer->OnWindowHidden();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", this );
-    }
-  }
-  else
-  {
-    mIconified = false;
-
-    if( mVisible )
-    {
-      WindowVisibilityObserver* observer( mAdaptor );
-      observer->OnWindowShown();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", this );
-    }
-  }
-}
-
-void Window::OnFocusChanged( bool focusIn )
-{
-  mFocusChangedSignal.Emit( focusIn );
-}
-
-void Window::OnOutputTransformed()
-{
-  PositionSize positionSize = mSurface->GetPositionSize();
-  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-}
-
-void Window::OnDeleteRequest()
-{
-  mDeleteRequestSignal.Emit();
-}
-
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
 {
   if( mIndicator == NULL )
@@ -699,6 +660,57 @@ void Window::SetIndicatorActorRotation()
 void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
 {
   mWindowBase->SetIndicatorProperties( isShow, lastOrientation );
+}
+
+void Window::OnIconifyChanged( bool iconified )
+{
+  if( iconified )
+  {
+    mIconified = true;
+
+    if( mVisible )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowHidden();
+      DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", this );
+    }
+  }
+  else
+  {
+    mIconified = false;
+
+    if( mVisible )
+    {
+      WindowVisibilityObserver* observer( mAdaptor );
+      observer->OnWindowShown();
+      DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", this );
+    }
+  }
+}
+
+void Window::OnFocusChanged( bool focusIn )
+{
+  mFocusChangedSignal.Emit( focusIn );
+}
+
+void Window::OnOutputTransformed()
+{
+  PositionSize positionSize = mSurface->GetPositionSize();
+  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+}
+
+void Window::OnDeleteRequest()
+{
+  mDeleteRequestSignal.Emit();
+}
+
+void Window::OnIndicatorFlicked()
+{
+  if( mIndicator )
+  {
+    mIndicator->Flicked();
+  }
 }
 
 void Window::IndicatorTypeChanged( IndicatorInterface::Type type )

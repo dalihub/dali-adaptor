@@ -32,10 +32,6 @@ namespace Internal
 namespace Adaptor
 {
 
-class Window;
-class WindowRenderSurface;
-class WindowRenderSurfaceEcoreX;
-
 /**
  * WindowBaseEcoreX class provides an WindowBase EcoreX implementation.
  */
@@ -46,7 +42,7 @@ public:
   /**
    * @brief Constructor
    */
-  WindowBaseEcoreX( Window* window, WindowRenderSurface* windowRenderSurface );
+  WindowBaseEcoreX( PositionSize positionSize, Any surface, bool isTransparent );
 
   /**
    * @brief Destructor
@@ -61,16 +57,126 @@ public:
   Eina_Bool OnWindowPropertyChanged( void* data, int type, void* event );
 
   /**
-   * Called when the window receives a delete request
+   * @brief Called when the window receives a delete request
    */
   void OnDeleteRequest();
+
+  /**
+   * @brief Called when the window gains focus.
+   */
+  void OnFocusIn( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the window loses focus.
+   */
+  void OnFocusOut( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the window is damaged.
+   */
+  void OnWindowDamaged( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch down is received.
+   */
+  void OnMouseButtonDown( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch up is received.
+   */
+  void OnMouseButtonUp( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch motion is received.
+   */
+  void OnMouseButtonMove( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a mouse wheel is received.
+   */
+  void OnMouseWheel( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a key down is received.
+   */
+  void OnKeyDown( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a key up is received.
+   */
+  void OnKeyUp( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the source window notifies us the content in clipboard is selected.
+   */
+  void OnSelectionClear( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the source window sends us about the selected content.
+   */
+  void OnSelectionNotify( void* data, int type, void* event );
 
 public:
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::Initialize()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
    */
-  virtual void Initialize() override;
+  virtual Any GetNativeWindow() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
+   */
+  virtual int GetNativeWindowId() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
+   */
+  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
+   */
+  virtual void DestroyEglWindow() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
+   */
+  virtual void SetEglWindowRotation( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
+   */
+  virtual void SetEglWindowBufferTransform( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
+   */
+  virtual void SetEglWindowTransform( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
+   */
+  virtual void ResizeEglWindow( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
+   */
+  virtual bool IsEglWindowRotationSupported() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
+   */
+  virtual void Move( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Resize()
+   */
+  virtual void Resize( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
+   */
+  virtual void MoveResize( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ShowIndicator()
@@ -90,7 +196,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
-  virtual void SetClass( std::string name, std::string className ) override;
+  virtual void SetClass( const std::string& name, const std::string& className ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Raise()
@@ -232,6 +338,55 @@ public:
    */
   virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetDpi()
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetViewMode()
+   */
+  virtual void SetViewMode( ViewMode viewMode ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
+   */
+  virtual int GetScreenRotationAngle() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
+   */
+  virtual void SetWindowRotationAngle( int degree ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
+   */
+  virtual void WindowRotationCompleted( int degree, int width, int height ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
+   */
+  virtual void SetTransparency( bool transparent ) override;
+
+private:
+
+  /**
+   * Second stage initialization
+   */
+  void Initialize( PositionSize positionSize, Any surface, bool isTransparent );
+
+  /**
+   * @brief Get the surface id if the surface parameter is not empty
+   * @param surface Any containing a surface id, or can be empty
+   * @return surface id, or zero if surface is empty
+   */
+  unsigned int GetSurfaceId( Any surface ) const;
+
+  /**
+   * @brief Create window
+   */
+  void CreateWindow( PositionSize positionSize, bool isTransparent );
+
 protected:
 
   // Undefined
@@ -243,11 +398,9 @@ protected:
 private:
 
   Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
-
-  Window*                              mWindow;
-  WindowRenderSurfaceEcoreX*           mWindowSurface;
-  Ecore_X_Window                       mEcoreWindow;
-
+  Ecore_X_Window                       mEcoreWindow;        ///< Native window handle
+  bool                                 mOwnSurface:1;       ///< Whether we own the surface (responsible for deleting it)
+  bool                                 mIsTransparent;      ///< Whether the window is transparent (32 bit or 24 bit)
   bool                                 mRotationAppSet:1;
 };
 

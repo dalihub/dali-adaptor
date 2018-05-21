@@ -25,6 +25,11 @@
 #include <Ecore.h>
 #include <Ecore_Wayland.h>
 #include <tizen-extension-client-protocol.h>
+#include <wayland-egl.h>
+
+#ifdef DALI_ELDBUS_AVAILABLE
+#include <Eldbus.h>
+#endif
 
 namespace Dali
 {
@@ -37,7 +42,7 @@ class WindowRenderSurface;
 class WindowRenderSurfaceEcoreWl;
 
 /**
- * WindowBaseEcoreWl class provides an WindowBase EcoreX implementation.
+ * WindowBaseEcoreWl class provides an WindowBase Ecore-Wayland implementation.
  */
 class WindowBaseEcoreWl : public WindowBase
 {
@@ -46,7 +51,7 @@ public:
   /**
    * @brief Constructor
    */
-  WindowBaseEcoreWl( Window* window, WindowRenderSurface* windowRenderSurface );
+  WindowBaseEcoreWl( PositionSize positionSize, Any surface, bool isTransparent );
 
   /**
    * @brief Destructor
@@ -81,6 +86,83 @@ public:
   Eina_Bool OnIgnoreOutputTransform( void* data, int type, void* event );
 
   /**
+   * @brief Called when a rotation event is recevied.
+   */
+  void OnRotation( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch down is received.
+   */
+  void OnMouseButtonDown( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch up is received.
+   */
+  void OnMouseButtonUp( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch motion is received.
+   */
+  void OnMouseButtonMove( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a touch is canceled.
+   */
+  void OnMouseButtonCancel( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a mouse wheel is received.
+   */
+  void OnMouseWheel( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a detent rotation event is recevied.
+   */
+  void OnDetentRotation( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a key down is received.
+   */
+  void OnKeyDown( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a key up is received.
+   */
+  void OnKeyUp( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the source window notifies us the content in clipboard is selected.
+   */
+  void OnDataSend( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the source window sends us about the selected content.
+   */
+  void OnDataReceive( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the indicator event is received.
+   */
+  void OnIndicatorFlicked( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a font name is changed.
+   */
+  void OnFontNameChanged();
+
+  /**
+   * @brief Called when a font size is changed.
+   */
+  void OnFontSizeChanged();
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  /**
+   * @brief Called when Ecore ElDBus accessibility event is received.
+   */
+  void OnEcoreElDBusAccessibilityNotification( void* context, const Eldbus_Message* message );
+#endif
+
+  /**
    * @brief RegistryGlobalCallback
    */
   void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version );
@@ -108,9 +190,64 @@ public:
 public:
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::Initialize()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
    */
-  virtual void Initialize() override;
+  virtual Any GetNativeWindow() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
+   */
+  virtual int GetNativeWindowId() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
+   */
+  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
+   */
+  virtual void DestroyEglWindow() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
+   */
+  virtual void SetEglWindowRotation( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
+   */
+  virtual void SetEglWindowBufferTransform( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
+   */
+  virtual void SetEglWindowTransform( int angle ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
+   */
+  virtual void ResizeEglWindow( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
+   */
+  virtual bool IsEglWindowRotationSupported() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
+   */
+  virtual void Move( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Resize()
+   */
+  virtual void Resize( PositionSize positionSize ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
+   */
+  virtual void MoveResize( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ShowIndicator()
@@ -130,7 +267,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
-  virtual void SetClass( std::string name, std::string className ) override;
+  virtual void SetClass( const std::string& name, const std::string& className ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Raise()
@@ -272,6 +409,53 @@ public:
    */
   virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetDpi()
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetViewMode()
+   */
+  virtual void SetViewMode( ViewMode viewMode ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
+   */
+  virtual int GetScreenRotationAngle() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
+   */
+  virtual void SetWindowRotationAngle( int degree ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
+   */
+  virtual void WindowRotationCompleted( int degree, int width, int height ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
+   */
+  virtual void SetTransparency( bool transparent ) override;
+
+private:
+
+  /**
+   * Second stage initialization
+   */
+  void Initialize( PositionSize positionSize, Any surface, bool isTransparent );
+
+  /**
+   * Initialize Ecore ElDBus
+   */
+  void InitializeEcoreElDBus();
+
+  /**
+   * @brief Create window
+   */
+  void CreateWindow( PositionSize positionSize );
+
 protected:
 
   // Undefined
@@ -286,9 +470,9 @@ private:
 
   Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
 
-  Window*                              mWindow;
-  WindowRenderSurfaceEcoreWl*          mWindowSurface;
   Ecore_Wl_Window*                     mEcoreWindow;
+  wl_surface*                          mWlSurface;
+  wl_egl_window*                       mEglWindow;
   wl_display*                          mDisplay;
   wl_event_queue*                      mEventQueue;
   tizen_policy*                        mTizenPolicy;
@@ -308,6 +492,12 @@ private:
   int                                  mBrightness;
   uint32_t                             mBrightnessChangeState;
   bool                                 mBrightnessChangeDone;
+
+  bool                                 mOwnSurface;
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  Eldbus_Connection*                   mSystemConnection;
+#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor
