@@ -47,13 +47,9 @@ public:
     * Uses an X11 surface to render to.
     * @param [in] positionSize the position and size of the surface
     * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
-    * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize,
-                       Any surface,
-                       const std::string& name,
-                       bool isTransparent = false);
+  PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent = false );
 
   /**
    * @brief Destructor
@@ -180,7 +176,6 @@ private: // Data
   static const int BUFFER_COUNT = 2;
 
   PositionSize                    mPosition;               ///< Position
-  std::string                     mTitle;                  ///< Title of window which shows from "xinfo -topvwins" command
   TriggerEventInterface*          mRenderNotification;     ///< Render notification trigger
   ColorDepth                      mColorDepth;             ///< Color depth of surface (32 bit or 24 bit)
   bool                            mOwnSurface;             ///< Whether we own the surface (responsible for deleting it)

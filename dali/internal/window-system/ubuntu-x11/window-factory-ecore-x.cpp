@@ -29,9 +29,9 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< WindowBase > WindowFactoryEcoreX::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
+std::unique_ptr< WindowBase > WindowFactoryEcoreX::CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 {
-  return Utils::MakeUnique< WindowBaseEcoreX >( window, windowRenderSurface );
+  return Utils::MakeUnique< WindowBaseEcoreX >( positionSize, surface, isTransparent );
 }
 
 std::unique_ptr< IndicatorInterface > WindowFactoryEcoreX::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
