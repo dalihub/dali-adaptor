@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,13 @@ public:
    * Destructor calls curl_global_cleanup()
    */
   ~CurlEnvironment();
+
+  // Moveable but not copyable
+
+  CurlEnvironment( const CurlEnvironment& ) = delete;
+  CurlEnvironment& operator=( const CurlEnvironment& ) = delete;
+  CurlEnvironment( CurlEnvironment&& ) = default;
+  CurlEnvironment& operator=( CurlEnvironment&& ) = default;
 
   /**
    * Locking function for libcurl with openssl
