@@ -96,7 +96,11 @@ BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
 
 # dali-adaptor uses ecore mainloop
+%if 0%{?tizen_version_major} >= 5
+BuildRequires:  pkgconfig(ecore-wl2)
+%else
 BuildRequires:  pkgconfig(ecore-wayland)
+%endif
 
 # dali-adaptor needs tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
@@ -426,6 +430,18 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
 configure_flags="--enable-wayland"
+
+# Need Ecore-Wayland2 when Tizen version is 5.x or greater
+%if 0%{?tizen_version_major} >= 5
+CFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
+CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
+configure_flags+=" --enable-ecore-wayland2"
+%endif
+%endif
+
+# Use this conditional when Tizen version is 5.x or greater
+%if 0%{?tizen_version_major} >= 5
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_5"
 %endif
 
 # Use this conditional when Tizen version is 4.x or greater
