@@ -566,6 +566,7 @@ tizentextabstractiondevelapi_HEADERS = $(text_abstraction_header_files)
 
 if !UBUNTU_PROFILE
 tizenadaptorframeworkpublicapi_HEADERS += $(public_api_adaptor_tizen_header_files)
+tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_header_files)
 
 if !WAYLAND
 tizenadaptorframeworkdevelapi_HEADERS += $(devel_api_adaptor_tizen_x11_header_files)
