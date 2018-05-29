@@ -26,6 +26,8 @@
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
 
+#include <memory>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
@@ -53,6 +55,12 @@ namespace Integration
 {
 class Core;
 class GlAbstraction;
+
+namespace Graphics
+{
+class Graphics;
+}
+
 }
 
 namespace Internal
@@ -243,6 +251,12 @@ public:
    * @return the GlAbstraction.
    */
   Integration::GlAbstraction& GetGlAbstraction() const;
+
+  /**
+   * Return Graphics implementation
+   * @return the Graphics implementation
+   */
+  Dali::Integration::Graphics::Graphics& GetGraphics() const;
 
   /**
    * Return the PlatformAbstraction.
@@ -601,6 +615,9 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+
+  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;
+
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

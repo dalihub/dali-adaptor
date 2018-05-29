@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_RENDER_HELPER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,12 @@ class DisplayConnection;
 namespace Integration
 {
 class GlAbstraction;
+
+namespace Graphics
+{
+class Graphics;
+}
+
 }
 
 namespace Internal
@@ -148,6 +154,7 @@ private: // Data
   EglInterface*                 mEGL;                    ///< Interface to EGL implementation
   RenderSurface*                mSurface;                ///< Current surface
   Dali::DisplayConnection*      mDisplayConnection;      ///< Display connection
+  Integration::Graphics::Graphics&  mGraphics;
   bool                          mSurfaceReplaced;        ///< True when new surface has been initialized.
   bool                          mSurfaceResized;         ///< True when the surface is resized.
 };

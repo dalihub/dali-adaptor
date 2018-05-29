@@ -28,6 +28,7 @@
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -47,6 +48,7 @@
 #include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles20/egl-factory.h>
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>
@@ -147,8 +149,21 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
 
+  // todo: add somewhere MakeUnique to make it cleaner
+  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
+    new Dali::Integration::Graphics::Graphics()
+  );
+
+  // todo: surface shouldn't really be create here :((((
+  auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
+  );
+
+  mGraphics->Create( std::move(xlibSurface) );
+
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
+                                  *mGraphics,
                                   *mGLES,
                                   *eglSyncImpl,
                                   *mGestureManager,
@@ -548,6 +563,11 @@ Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
 {
   DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
   return *mGLES;
+}
+
+Integration::Graphics::Graphics& Adaptor::GetGraphics() const
+{
+  return *mGraphics;
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
