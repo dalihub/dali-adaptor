@@ -249,6 +249,7 @@ WindowBaseEcoreX::WindowBaseEcoreX( Dali::PositionSize positionSize, Any surface
 : mEcoreEventHandler(),
   mEcoreWindow( 0 ),
   mOwnSurface( false ),
+  mIsTransparent( false ), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
   mRotationAppSet( false )
 {
   Initialize( positionSize, surface, isTransparent );
@@ -920,6 +921,7 @@ void WindowBaseEcoreX::CreateWindow( PositionSize positionSize, bool isTranspare
  {
    // create 32 bit window
    mEcoreWindow = ecore_x_window_argb_new( 0, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+   mIsTransparent = true;
  }
  else
  {
