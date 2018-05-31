@@ -33,12 +33,6 @@ class EglInterface;
 class DisplayConnection;
 class ThreadSynchronizationInterface;
 
-namespace Integration
-{
-
-class GlAbstraction;
-
-} // namespace Integration
 
 /**
  * @brief The position and size of the render surface.
@@ -140,21 +134,19 @@ public:
    * If the operation fails, then Core::Render should not be called until there is
    * a surface to render onto.
    * @param[in] egl The Egl interface
-   * @param[in] glAbstraction OpenGLES abstraction interface
    * @param[in] resizingSurface True if the surface is being resized
    * @return True if the operation is successful, False if the operation failed
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface ) = 0;
+  virtual bool PreRender( EglInterface& egl, bool resizingSurface ) = 0;
 
   /**
    * @brief Invoked by render thread after Core::Render
    * @param[in] egl The Egl interface
-   * @param[in] glAbstraction OpenGLES abstraction interface
    * @param[in] displayConnection display connection
    * @param[in] replacingSurface True if the surface is being replaced.
    * @param[in] resizingSurface True if the surface is being resized.
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) = 0;
+  virtual void PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) = 0;
 
   /**
    * @brief Invoked by render thread when the thread should be stop

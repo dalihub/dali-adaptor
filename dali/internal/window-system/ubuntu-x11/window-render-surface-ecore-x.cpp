@@ -26,7 +26,6 @@
 #include <X11/extensions/Xfixes.h> // for damage notify
 #include <X11/extensions/Xdamage.h> // for damage notify
 
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -238,13 +237,13 @@ void WindowRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool WindowRenderSurfaceEcoreX::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool WindowRenderSurfaceEcoreX::PreRender( EglInterface&, bool )
 {
   // nothing to do for windows
   return true;
 }
 
-void WindowRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurfaceEcoreX::PostRender( EglInterface& egl, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   eglImpl.SwapBuffers();
@@ -253,7 +252,7 @@ void WindowRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAb
   if(mNeedToApproveDeiconify)
   {
     // SwapBuffer is desychronized. So make sure to sychronize when window is deiconified.
-    glAbstraction.Finish();
+    //glAbstraction.Finish();
 
     XDisplay* display = AnyCast<XDisplay *>(displayConnection->GetDisplay());
 

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-interface.h>
@@ -35,6 +34,14 @@
 
 namespace Dali
 {
+
+namespace Integration
+{
+namespace Graphics
+{
+class Graphics;
+}
+}
 
 namespace Internal
 {
@@ -64,14 +71,14 @@ public:
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface()  = 0;
 
   /**
-   * @return gles abstraction
-   */
-  virtual Dali::Integration::GlAbstraction& GetGlesInterface()  = 0;
-
-  /**
    * @return egl factory
    */
   virtual EglFactoryInterface& GetEGLFactoryInterface() const  = 0;
+
+  /**
+   * @return Graphics
+   */
+  virtual Dali::Integration::Graphics::Graphics& GetGraphics() const = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process

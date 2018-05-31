@@ -81,6 +81,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_trace_ubuntu_src_files)
 endif
 
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_x11_src_files)
+endif
+
 endif
 
 
@@ -422,6 +427,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
+                      $(VULKAN_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \

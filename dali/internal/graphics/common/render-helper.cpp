@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
@@ -35,9 +36,9 @@ namespace Adaptor
 {
 
 RenderHelper::RenderHelper( AdaptorInternalServices& adaptorInterfaces )
-: mGLES( adaptorInterfaces.GetGlesInterface() ),
-  mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
+: mEglFactory( &adaptorInterfaces.GetEGLFactoryInterface()),
   mEGL( NULL ),
+  mGraphics( adaptorInterfaces.GetGraphics() ),
   mSurfaceReplaced( false ),
   mSurfaceResized( false )
 {
@@ -61,25 +62,30 @@ RenderHelper::~RenderHelper()
     delete mDisplayConnection;
     mDisplayConnection = NULL;
   }
-
+#if 0
   mEglFactory->Destroy();
+#endif
 }
 
 void RenderHelper::Start()
 {
+#if 0
   if( mSurface )
   {
     mSurface->StartRender();
   }
+#endif
 }
 
 void RenderHelper::Stop()
 {
+#if 0
   if( mSurface )
   {
     // Tell surface we have stopped rendering
     mSurface->StopRender();
   }
+#endif
 }
 
 void RenderHelper::ConsumeEvents()
@@ -89,6 +95,7 @@ void RenderHelper::ConsumeEvents()
 
 void RenderHelper::InitializeEgl()
 {
+#if 0
   mEGL = mEglFactory->Create();
 
   DALI_ASSERT_ALWAYS( mSurface && "NULL surface" );
@@ -105,10 +112,12 @@ void RenderHelper::InitializeEgl()
 
   // Make it current
   mEGL->MakeContextCurrent();
+#endif
 }
 
 void RenderHelper::ReplaceSurface( RenderSurface* newSurface )
 {
+#if 0
   mSurface->DestroyEglSurface(*mEGL);
 
   // This is designed for replacing pixmap surfaces, but should work for window as well
@@ -124,6 +133,7 @@ void RenderHelper::ReplaceSurface( RenderSurface* newSurface )
   // use the new surface from now on
   mSurface = newSurface;
   mSurfaceReplaced = true;
+#endif
 }
 
 void RenderHelper::ResizeSurface()
@@ -133,6 +143,7 @@ void RenderHelper::ResizeSurface()
 
 void RenderHelper::ShutdownEgl()
 {
+#if 0
   if( mSurface )
   {
     // give a chance to destroy the OpenGL surface that created externally
@@ -143,38 +154,39 @@ void RenderHelper::ShutdownEgl()
 
   // delete the GL context / egl surface
   mEGL->TerminateGles();
+#endif
 }
 
 bool RenderHelper::PreRender()
 {
+#if 0
   if( mSurface )
   {
-    mSurface->PreRender( *mEGL, mGLES, mSurfaceResized );
+    mSurface->PreRender( *mEGL, mSurfaceResized );
   }
-  mGLES.PreRender();
+#endif
   return true;
 }
 
 void RenderHelper::PostRender( bool renderToFbo )
 {
-  // Inform the gl implementation that rendering has finished before informing the surface
-  mGLES.PostRender();
-
+#if 0
   if( renderToFbo )
   {
-    mGLES.Flush();
-    mGLES.Finish();
+    //mGLES.Flush();
+    //mGLES.Finish();
   }
   else
   {
     if( mSurface )
     {
       // Inform the surface that rendering this frame has finished.
-      mSurface->PostRender( *mEGL, mGLES, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
+      mSurface->PostRender( *mEGL, mDisplayConnection, mSurfaceReplaced, mSurfaceResized );
     }
   }
   mSurfaceReplaced = false;
   mSurfaceResized = false;
+#endif
 }
 
 } // namespace Adaptor

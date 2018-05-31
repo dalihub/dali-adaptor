@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 
 namespace Dali
 {
@@ -35,7 +34,6 @@ EglFactory::EglFactory( int multiSamplingLevel,
                         Integration::StencilBufferAvailable stencilBufferRequired )
 : mEglImplementation(NULL),
   mEglImageExtensions(NULL),
-  mEglSync(new EglSyncImplementation), // Created early, as needed by Core constructor
   mMultiSamplingLevel( multiSamplingLevel ),
   mDepthBufferRequired( depthBufferRequired ),
   mStencilBufferRequired( stencilBufferRequired )
@@ -47,7 +45,6 @@ EglFactory::~EglFactory()
   // Ensure the EGL implementation is destroyed
   delete mEglImageExtensions;
   delete mEglImplementation;
-  delete mEglSync;
 }
 
 EglInterface* EglFactory::Create()
@@ -56,7 +53,6 @@ EglInterface* EglFactory::Create()
   mEglImplementation = new EglImplementation( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired );
   mEglImageExtensions = new EglImageExtensions( mEglImplementation );
 
-  mEglSync->Initialize(mEglImplementation); // The sync impl needs the EglDisplay
   return mEglImplementation;
 }
 
@@ -76,11 +72,6 @@ EglInterface* EglFactory::GetImplementation()
 EglImageExtensions* EglFactory::GetImageExtensions()
 {
   return mEglImageExtensions;
-}
-
-EglSyncImplementation* EglFactory::GetSyncImplementation()
-{
-  return mEglSync;
 }
 
 } // Adaptor

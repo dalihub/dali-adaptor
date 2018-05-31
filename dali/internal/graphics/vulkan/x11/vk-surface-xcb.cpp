@@ -15,28 +15,28 @@
  *
  */
 
-#include <dali/internal/window-system/ubuntu-x11/display-connection-factory-x.h>
-#include <dali/internal/window-system/ubuntu-x11/display-connection-impl-x.h>
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xcb.h>
 
 namespace Dali
 {
-namespace Internal
+namespace Graphics
 {
-namespace Adaptor
+namespace Vulkan
 {
 
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
+VkSurfaceXcb::VkSurfaceXcb(xcb_connection_t* connection, xcb_window_t window)
+: VkSurfaceFactory{}, mConnection(connection), mWindow(window)
 {
-  return Utils::MakeUnique<DisplayConnectionX11>();
 }
 
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
+vk::SurfaceKHR VkSurfaceXcb::Create(vk::Instance instance, vk::AllocationCallbacks* allocCallbacks,
+                                    vk::PhysicalDevice physicalDevice) const
 {
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryX>();
+  vk::XcbSurfaceCreateInfoKHR info;
+  info.setConnection(mConnection).setWindow(mWindow);
+  auto retval = instance.createXcbSurfaceKHR(info, allocCallbacks).value;
+  return retval;
 }
-
 }
 }
 }

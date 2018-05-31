@@ -26,6 +26,8 @@
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
 
+#include <memory>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
@@ -52,7 +54,13 @@ class Window;
 namespace Integration
 {
 class Core;
-class GlAbstraction;
+
+
+namespace Graphics
+{
+class Graphics;
+}
+
 }
 
 namespace Internal
@@ -63,8 +71,6 @@ namespace Adaptor
 class EventHandler;
 class EglFactory;
 class GestureManager;
-class GlImplementation;
-class GlSyncImplementation;
 class ThreadController;
 class TriggerEvent;
 class CallbackManager;
@@ -160,16 +166,6 @@ public: // AdaptorInternalServices implementation
   virtual void Stop();
 
   /**
-   * @copydoc Dali::Adaptor::ContextLost()
-   */
-  virtual void ContextLost();
-
-  /**
-   * @copydoc Dali::Adaptor::ContextRegained()
-   */
-  virtual void ContextRegained();
-
-  /**
    * @copydoc Dali::EventFeeder::FeedTouchPoint()
    */
   virtual void FeedTouchPoint( TouchPoint& point, int timeStamp );
@@ -239,10 +235,10 @@ public:
   EglFactory& GetEGLFactory() const;
 
   /**
-   * Return GlAbstraction.
-   * @return the GlAbstraction.
+   * Return Graphics implementation
+   * @return the Graphics implementation
    */
-  Integration::GlAbstraction& GetGlAbstraction() const;
+  Dali::Integration::Graphics::Graphics& GetGraphics() const;
 
   /**
    * Return the PlatformAbstraction.
@@ -368,11 +364,6 @@ public:  //AdaptorInternalServices
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGlesInterface()
-   */
-  virtual Dali::Integration::GlAbstraction& GetGlesInterface();
 
   /**
   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetEGLFactoryInterface()
@@ -573,8 +564,6 @@ private: // Data
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
-  GlImplementation*                     mGLES;                        ///< GL implementation
-  GlSyncImplementation*                 mGlSync;                      ///< GL Sync implementation
   EglFactory*                           mEglFactory;                  ///< EGL Factory
 
   Any                                   mNativeWindow;                ///< window identifier
@@ -601,6 +590,9 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+
+  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;
+
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
 };

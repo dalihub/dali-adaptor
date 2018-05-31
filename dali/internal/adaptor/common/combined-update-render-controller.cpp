@@ -390,9 +390,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   mRenderHelper.InitializeEgl();
 
-  // tell core it has a context
-  mCore.ContextCreated();
-
   NotifyThreadInitialised();
 
   // Update time
@@ -577,8 +574,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  // Inform core of context destruction & shutdown EGL
-  mCore.ContextDestroyed();
+  // Shutdown EGL
   mRenderHelper.ShutdownEgl();
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );
