@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -23,7 +23,13 @@
 
 // EXTERNAL HEADERS
 #include <Ecore.h>
-#include <Ecore_X.h>
+#include <Ecore_Wayland.h>
+#include <tizen-extension-client-protocol.h>
+#include <wayland-egl.h>
+
+#ifdef DALI_ELDBUS_AVAILABLE
+#include <Eldbus.h>
+#endif
 
 namespace Dali
 {
@@ -32,49 +38,57 @@ namespace Internal
 namespace Adaptor
 {
 
+class WindowRenderSurface;
+class WindowRenderSurfaceEcoreWl;
+
 /**
- * WindowBaseEcoreX class provides an WindowBase EcoreX implementation.
+ * WindowBaseEcoreWl class provides an WindowBase Ecore-Wayland implementation.
  */
-class WindowBaseEcoreX : public WindowBase
+class WindowBaseEcoreWl : public WindowBase
 {
 public:
 
   /**
    * @brief Constructor
    */
-  WindowBaseEcoreX( PositionSize positionSize, Any surface, bool isTransparent );
+  WindowBaseEcoreWl( PositionSize positionSize, Any surface, bool isTransparent );
 
   /**
    * @brief Destructor
    */
-  virtual ~WindowBaseEcoreX();
+  virtual ~WindowBaseEcoreWl();
 
 public:
 
   /**
-   * @brief Called when the window property is changed.
+   * @brief Called when the window iconify state is changed.
    */
-  Eina_Bool OnWindowPropertyChanged( void* data, int type, void* event );
-
-  /**
-   * @brief Called when the window receives a delete request
-   */
-  void OnDeleteRequest();
+  Eina_Bool OnIconifyStateChanged( void* data, int type, void* event );
 
   /**
    * @brief Called when the window gains focus.
    */
-  void OnFocusIn( void* data, int type, void* event );
+  Eina_Bool OnFocusIn( void* data, int type, void* event );
 
   /**
    * @brief Called when the window loses focus.
    */
-  void OnFocusOut( void* data, int type, void* event );
+  Eina_Bool OnFocusOut( void* data, int type, void* event );
 
   /**
-   * @brief Called when the window is damaged.
+   * @brief Called when the output is transformed.
    */
-  void OnWindowDamaged( void* data, int type, void* event );
+  Eina_Bool OnOutputTransform( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the output transform should be ignored.
+   */
+  Eina_Bool OnIgnoreOutputTransform( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a rotation event is recevied.
+   */
+  void OnRotation( void* data, int type, void* event );
 
   /**
    * @brief Called when a touch down is received.
@@ -92,9 +106,19 @@ public:
   void OnMouseButtonMove( void* data, int type, void* event );
 
   /**
+   * @brief Called when a touch is canceled.
+   */
+  void OnMouseButtonCancel( void* data, int type, void* event );
+
+  /**
    * @brief Called when a mouse wheel is received.
    */
   void OnMouseWheel( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a detent rotation event is recevied.
+   */
+  void OnDetentRotation( void* data, int type, void* event );
 
   /**
    * @brief Called when a key down is received.
@@ -109,12 +133,59 @@ public:
   /**
    * @brief Called when the source window notifies us the content in clipboard is selected.
    */
-  void OnSelectionClear( void* data, int type, void* event );
+  void OnDataSend( void* data, int type, void* event );
 
   /**
    * @brief Called when the source window sends us about the selected content.
    */
-  void OnSelectionNotify( void* data, int type, void* event );
+  void OnDataReceive( void* data, int type, void* event );
+
+  /**
+   * @brief Called when the indicator event is received.
+   */
+  void OnIndicatorFlicked( void* data, int type, void* event );
+
+  /**
+   * @brief Called when a font name is changed.
+   */
+  void OnFontNameChanged();
+
+  /**
+   * @brief Called when a font size is changed.
+   */
+  void OnFontSizeChanged();
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  /**
+   * @brief Called when Ecore ElDBus accessibility event is received.
+   */
+  void OnEcoreElDBusAccessibilityNotification( void* context, const Eldbus_Message* message );
+#endif
+
+  /**
+   * @brief RegistryGlobalCallback
+   */
+  void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version );
+
+  /**
+   * @brief RegistryGlobalCallbackRemove
+   */
+  void RegistryGlobalCallbackRemove( void* data, struct wl_registry* registry, uint32_t id );
+
+  /**
+   * @brief TizenPolicyNotificationChangeDone
+   */
+  void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state );
+
+  /**
+   * @brief TizenPolicyScreenModeChangeDone
+   */
+  void TizenPolicyScreenModeChangeDone( void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t mode, uint32_t state );
+
+  /**
+   * @brief DisplayPolicyBrightnessChangeDone
+   */
+  void DisplayPolicyBrightnessChangeDone( void* data, struct tizen_display_policy *displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state );
 
 public:
 
@@ -376,32 +447,57 @@ private:
   void Initialize( PositionSize positionSize, Any surface, bool isTransparent );
 
   /**
-   * @brief Get the surface id if the surface parameter is not empty
-   * @param surface Any containing a surface id, or can be empty
-   * @return surface id, or zero if surface is empty
+   * Initialize Ecore ElDBus
    */
-  unsigned int GetSurfaceId( Any surface ) const;
+  void InitializeEcoreElDBus();
 
   /**
    * @brief Create window
    */
-  void CreateWindow( PositionSize positionSize, bool isTransparent );
+  void CreateWindow( PositionSize positionSize );
 
 protected:
 
   // Undefined
-  WindowBaseEcoreX(const WindowBaseEcoreX&) = delete;
+  WindowBaseEcoreWl(const WindowBaseEcoreWl&) = delete;
 
   // Undefined
-  WindowBaseEcoreX& operator=(const WindowBaseEcoreX& rhs) = delete;
+  WindowBaseEcoreWl& operator=(const WindowBaseEcoreWl& rhs) = delete;
 
 private:
 
+  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
+
   Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
-  Ecore_X_Window                       mEcoreWindow;        ///< Native window handle
-  bool                                 mOwnSurface:1;       ///< Whether we own the surface (responsible for deleting it)
-  bool                                 mIsTransparent;      ///< Whether the window is transparent (32 bit or 24 bit)
-  bool                                 mRotationAppSet:1;
+
+  Ecore_Wl_Window*                     mEcoreWindow;
+  wl_surface*                          mWlSurface;
+  wl_egl_window*                       mEglWindow;
+  wl_display*                          mDisplay;
+  wl_event_queue*                      mEventQueue;
+  tizen_policy*                        mTizenPolicy;
+  tizen_display_policy*                mTizenDisplayPolicy;
+
+  std::vector< std::string >           mSupportedAuxiliaryHints;
+  AuxiliaryHints                       mAuxiliaryHints;
+
+  int                                  mNotificationLevel;
+  uint32_t                             mNotificationChangeState;
+  bool                                 mNotificationLevelChangeDone;
+
+  int                                  mScreenOffMode;
+  uint32_t                             mScreenOffModeChangeState;
+  bool                                 mScreenOffModeChangeDone;
+
+  int                                  mBrightness;
+  uint32_t                             mBrightnessChangeState;
+  bool                                 mBrightnessChangeDone;
+
+  bool                                 mOwnSurface;
+
+#ifdef DALI_ELDBUS_AVAILABLE
+  Eldbus_Connection*                   mSystemConnection;
+#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor
@@ -410,4 +506,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL_H

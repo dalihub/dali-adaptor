@@ -24,7 +24,6 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
 #include <Evas.h>
-#include <Ecore_Wayland.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -327,82 +326,6 @@ namespace Adaptor
 Debug::Filter* gIndicatorLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_INDICATOR");
 #endif
 
-// Impl to hide EFL implementation.
-
-struct IndicatorEcoreWl::Impl
-{
-  enum // operation mode
-  {
-    INDICATOR_HIDE,
-    INDICATOR_STAY_WITH_DURATION
-  };
-
-  /**
-   * Constructor
-   */
-  Impl(IndicatorEcoreWl* indicator)
-  : mIndicator(indicator),
-    mEcoreEventHandler(NULL)
-  {
-#if defined(DALI_PROFILE_MOBILE)
-    mEcoreEventHandler = ecore_event_handler_add(ECORE_WL_EVENT_INDICATOR_FLICK,  EcoreEventIndicator, this);
-#endif // DALI_PROFILE_MOBILE
-  }
-
-  /**
-   * Destructor
-   */
-  ~Impl()
-  {
-    if ( mEcoreEventHandler )
-    {
-      ecore_event_handler_del(mEcoreEventHandler);
-    }
-  }
-
-  static void SetIndicatorVisibility( void* data, int operation )
-  {
-    IndicatorEcoreWl::Impl* indicatorImpl((IndicatorEcoreWl::Impl*)data);
-
-    if ( indicatorImpl == NULL || indicatorImpl->mIndicator == NULL)
-    {
-      return;
-    }
-    if ( operation == INDICATOR_STAY_WITH_DURATION )
-    {
-      // if indicator is not showing, INDICATOR_FLICK_DONE is given
-      if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
-          !indicatorImpl->mIndicator->mIsShowing )
-      {
-        indicatorImpl->mIndicator->ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
-      }
-    }
-    else if( operation == INDICATOR_HIDE )
-    {
-      if( indicatorImpl->mIndicator->mVisible == Dali::Window::AUTO &&
-          indicatorImpl->mIndicator->mIsShowing )
-      {
-        indicatorImpl->mIndicator->ShowIndicator( HIDE_NOW );
-      }
-    }
-  }
-
-#if defined(DALI_PROFILE_MOBILE)
-  /**
-   * Called when the Ecore indicator event is received.
-   */
-  static Eina_Bool EcoreEventIndicator( void* data, int type, void* event )
-  {
-    SetIndicatorVisibility( data, INDICATOR_STAY_WITH_DURATION );
-    return ECORE_CALLBACK_PASS_ON;
-  }
-#endif // DALI_PROFILE_MOBILE
-
-  // Data
-  IndicatorEcoreWl*    mIndicator;
-  Ecore_Event_Handler* mEcoreEventHandler;
-};
-
 IndicatorEcoreWl::LockFile::LockFile(const std::string filename)
 : mFilename(filename),
   mErrorThrown(false)
@@ -521,7 +444,6 @@ IndicatorEcoreWl::IndicatorEcoreWl( Adaptor* adaptor, Dali::Window::WindowOrient
   mIsShowing( true ),
   mIsAnimationPlaying( false ),
   mCurrentSharedFile( 0 ),
-  mImpl( NULL ),
   mBackgroundVisible( false ),
   mTopMargin( 0 )
 {
@@ -560,19 +482,10 @@ IndicatorEcoreWl::IndicatorEcoreWl( Adaptor* adaptor, Dali::Window::WindowOrient
   }
   // hide the indicator by default
   mIndicatorActor.SetVisible( false );
-
-  // create impl to handle ecore event
-  mImpl = new Impl(this);
 }
 
 IndicatorEcoreWl::~IndicatorEcoreWl()
 {
-  if(mImpl)
-  {
-    delete mImpl;
-    mImpl = NULL;
-  }
-
   if(mEventActor)
   {
     mEventActor.TouchSignal().Disconnect( this, &IndicatorEcoreWl::OnTouch );
@@ -633,6 +546,15 @@ void IndicatorEcoreWl::Close()
 
   Dali::Texture emptyTexture;
   SetForegroundImage( emptyTexture );
+}
+
+void IndicatorEcoreWl::Flicked()
+{
+  // if indicator is not showing, INDICATOR_FLICK_DONE is given
+  if( mVisible == Dali::Window::AUTO && !mIsShowing )
+  {
+    ShowIndicator( AUTO_INDICATOR_STAY_DURATION );
+  }
 }
 
 void IndicatorEcoreWl::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )

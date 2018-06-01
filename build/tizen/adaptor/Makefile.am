@@ -123,6 +123,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
 
+if ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl_src_files)
+endif
+
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
@@ -176,6 +184,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
 
+if ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl_src_files)
+endif
+
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
@@ -228,6 +244,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
 
+if ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl_src_files)
+endif
+
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
@@ -278,6 +302,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -332,6 +364,14 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
+
+if ECORE_WAYLAND2
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl2_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_window_system_ecore_wl_src_files)
+endif
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
