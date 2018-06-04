@@ -267,6 +267,7 @@ public:
    * @code
    *   void MyFunction();
    * @endcode
+   * This callback will be deleted once it is called.
    *
    * @note Ownership of the callback is passed onto this class.
    */

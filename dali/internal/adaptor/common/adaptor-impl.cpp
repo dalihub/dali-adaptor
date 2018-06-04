@@ -484,14 +484,14 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback, bool forceAdd )
+bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue, bool forceAdd )
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
   if( RUNNING == mState || READY == mState || forceAdd )
   {
-    idleAdded = mCallbackManager->AddIdleCallback( callback );
+    idleAdded = mCallbackManager->AddIdleCallback( callback, hasReturnValue );
   }
 
   return idleAdded;
@@ -735,7 +735,7 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
   // and we haven't installed the idle notification
   if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
-    mNotificationOnIdleInstalled = AddIdle( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
+    mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
   }
 }
 
@@ -907,6 +907,24 @@ void Adaptor::SetRootLayoutDirection( std::string locale )
 
   stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
                                     static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+}
+
+bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
+{
+  bool idleAdded( false );
+
+  // Only add an idle if the Adaptor is actually running
+  if( RUNNING == mState || READY == mState || forceAdd )
+  {
+    idleAdded = mCallbackManager->AddIdleEntererCallback( callback );
+  }
+
+  return idleAdded;
+}
+
+void Adaptor::RemoveIdleEnterer( CallbackBase* callback )
+{
+  mCallbackManager->RemoveIdleEntererCallback( callback );
 }
 
 } // namespace Adaptor
