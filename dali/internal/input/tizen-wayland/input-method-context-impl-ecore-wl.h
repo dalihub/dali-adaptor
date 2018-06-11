@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <Ecore_IMF.h>
 #include <Ecore.h>
+#include <Ecore_Wayland.h>
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
@@ -229,8 +230,9 @@ public:
 private:
   /**
    * Context created the first time and kept until deleted.
+   * @param[in] ecoreWlwin, The window is created by application.
    */
-  void CreateContext();
+  void CreateContext( Ecore_Wl_Window *ecoreWlwin );
 
   /**
    * @copydoc Dali::InputMethodContext::DeleteContext()
@@ -274,7 +276,7 @@ private:
   /**
    * @brief Constructor.
    */
-  explicit InputMethodContextEcoreWl();
+  explicit InputMethodContextEcoreWl( Ecore_Wl_Window *ecoreWlwin );
 
 protected:
   /**
@@ -291,6 +293,7 @@ private:
 
 private:
   Ecore_IMF_Context* mIMFContext;
+  Ecore_Wl_Window* mEcoreWlwin;
   int mIMFCursorPosition;
   std::string mSurroundingText;
 
