@@ -172,8 +172,7 @@ WindowRenderSurface* Window::GetSurface()
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
-  //Make always INVISIBLE until updating indicator code.
-  mIndicatorVisible = Dali::Window::INVISIBLE;
+  mIndicatorVisible = visibleMode;
 
   mWindowBase->ShowIndicator( mIndicatorVisible, mIndicatorOpacityMode );
 
@@ -192,8 +191,7 @@ void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode
 
 void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
 {
-  //Make always INVISIBLE until updating indicator code.
-  mIndicatorVisible = Dali::Window::INVISIBLE;
+  mIndicatorVisible = mode;
 }
 
 void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
