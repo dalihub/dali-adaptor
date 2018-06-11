@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_EVENT_HANDLER_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
+#include <dali/internal/window-system/common/window-base.h>
 
 namespace Dali
 {
@@ -52,7 +53,7 @@ class StyleMonitor;
  *
  * These TouchEvents are then passed on to Core.
  */
-class EventHandler
+class EventHandler : public ConnectionTracker
 {
 public:
 
@@ -167,6 +168,58 @@ private:
    */
   void Reset();
 
+  /**
+   * Called when a touch event is received.
+   */
+  void OnTouchEvent( Integration::Point& point, unsigned long timeStamp );
+
+  /**
+   * Called when a mouse wheel is received.
+   */
+  void OnWheelEvent( WheelEvent& wheelEvent );
+
+  /**
+   * Called when a key event is received.
+   */
+  void OnKeyEvent( Integration::KeyEvent& keyEvent );
+
+  /**
+   * Called when the window focus is changed.
+   */
+  void OnFocusChanged( bool focusIn );
+
+  /**
+   * Called when the window is damaged.
+   */
+  void OnWindowDamaged( const DamageArea& area );
+
+  /**
+   * Called when the source window notifies us the content in clipboard is selected.
+   */
+  void OnSelectionDataSend( void* event );
+
+  /**
+   * Called when the source window sends us about the selected content.
+   */
+  void OnSelectionDataReceived( void* event );
+
+  /**
+   * Called when the style is changed.
+   */
+  void OnStyleChanged( StyleChange::Type styleChange );
+
+  /**
+   * Called when Ecore ElDBus accessibility event is received.
+   */
+  void OnAccessibilityNotification( const WindowBase::AccessibilityInfo& info );
+
+private:
+
+  /**
+   * Convert touch event position
+   */
+  void ConvertTouchPosition( Integration::Point& point );
+
 private:
 
   // Undefined
@@ -189,8 +242,9 @@ private:
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard
 
-  struct Impl; ///< Implementation
-  Impl* mImpl; ///< Created on construction and destroyed on destruction.
+  int mRotationAngle;
+  int mWindowWidth;
+  int mWindowHeight;
 
   bool mPaused; ///< The paused state of the adaptor.
 };

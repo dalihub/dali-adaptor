@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -27,7 +27,7 @@ namespace Internal
 namespace Adaptor
 {
 
-class WindowFactoryEcoreX : public WindowFactory
+class WindowFactoryEcoreWl2 : public WindowFactory
 {
 public:
   std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) override;
@@ -39,4 +39,4 @@ public:
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H

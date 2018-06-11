@@ -122,6 +122,11 @@ public:
   virtual void Close() = 0;
 
   /**
+   * Notify the indicator flicked.
+   */
+  virtual void Flicked() = 0;
+
+  /**
    * Set the opacity mode of the indicator background.
    * @param[in] mode opacity mode
    */
@@ -149,8 +154,6 @@ public:
    * @return whether the message is sent successfully or not
    */
   virtual bool SendMessage( int messageDomain, int messageId, const void *data, int size ) = 0;
-
-
 };
 
 } // Adaptor

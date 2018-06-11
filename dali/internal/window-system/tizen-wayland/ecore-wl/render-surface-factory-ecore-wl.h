@@ -30,13 +30,11 @@ namespace Adaptor
 class RenderSurfaceFactoryEcoreWl : public RenderSurfaceFactory
 {
 public:
-  std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface,
-                                                                    const std::string& name, const std::string& className, bool isTransparent = false ) override;
+  std::unique_ptr< WindowRenderSurface > CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) override;
 
-  std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface,
-                                                                    const std::string& name, bool isTransparent = false ) override;
+  std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) override;
 
-  std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, const std::string& name, bool isTransparent = false ) override;
+  std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent = false ) override;
 };
 
 } // namespace Adaptor
