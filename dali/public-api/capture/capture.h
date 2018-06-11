@@ -23,6 +23,9 @@
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/actors/camera-actor.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 

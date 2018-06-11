@@ -62,10 +62,6 @@ public:
    */
   static unsigned long GetThreadId();
 
-  static void ConfigureCurlOptions( void* curlHandle, const std::string& url );
-
-  static void InitWriteFunction( void* curlHandle );
-
 private:
 
   void SetLockingFunction();

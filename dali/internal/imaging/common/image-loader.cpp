@@ -32,7 +32,6 @@
 #include <dali/internal/system/common/file-reader.h>
 
 using namespace Dali::Integration;
-using namespace Dali::Internal::Platform;
 
 namespace Dali
 {
@@ -160,10 +159,10 @@ bool GetBitmapLoaderFunctions( FILE *fp,
                                Bitmap::Profile& profile )
 {
   unsigned char magic[MAGIC_LENGTH];
-  size_t read = InternalFile::fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
+  size_t read = fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
 
   // Reset to the start of the file.
-  if( InternalFile::fseek(fp, 0, SEEK_SET) )
+  if( fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -238,7 +237,7 @@ bool GetBitmapLoaderFunctions( FILE *fp,
   }
 
   // Reset to the start of the file.
-  if( InternalFile::fseek(fp, 0, SEEK_SET) )
+  if( fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
