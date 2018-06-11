@@ -61,7 +61,7 @@ Window* Window::New( const PositionSize& positionSize, const std::string& name, 
 Window::Window()
 : mSurface( NULL ),
   mWindowBase(),
-  mIndicatorVisible( Dali::Window::INVISIBLE ),
+  mIndicatorVisible( Dali::Window::VISIBLE ),
   mIndicatorIsShown( false ),
   mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
