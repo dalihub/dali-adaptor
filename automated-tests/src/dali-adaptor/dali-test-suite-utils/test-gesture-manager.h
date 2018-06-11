@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/gesture-manager.h>
-#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
