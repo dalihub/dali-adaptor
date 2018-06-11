@@ -37,7 +37,7 @@ class WindowRenderSurface;
 class WindowRenderSurfaceEcoreWl;
 
 /**
- * WindowBaseEcoreWl class provides an WindowBase Ecore-Wayland implementation.
+ * WindowBaseEcoreWl class provides an WindowBase EcoreX implementation.
  */
 class WindowBaseEcoreWl : public WindowBase
 {
