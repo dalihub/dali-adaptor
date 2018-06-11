@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_SYSTEM_H
+#define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_SYSTEM_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -18,8 +18,6 @@
  *
  */
 
-#include <dali/internal/window-system/common/window-factory.h>
-
 namespace Dali
 {
 namespace Internal
@@ -27,16 +25,28 @@ namespace Internal
 namespace Adaptor
 {
 
-class WindowFactoryEcoreX : public WindowFactory
+namespace WindowSystem
 {
-public:
-  std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) override;
 
-  std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) override;
-};
+/**
+ * @brief Initialize a window system
+ */
+void Initialize();
+
+/**
+ * @brief Shutdown a window system
+ */
+void Shutdown();
+
+/**
+ * @brief Get the screen size
+ */
+void GetScreenSize( int& width, int& height );
+
+} // namespace WindowSystem
 
 } // namespace Adaptor
-} // namespace Internal
+} // namespace internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_SYSTEM_H

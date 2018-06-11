@@ -52,12 +52,8 @@ static const int INITIAL_PRODUCE_BUFFER_INDEX = 0;
 static const int INITIAL_CONSUME_BUFFER_INDEX = 1;
 }
 
-PixmapRenderSurfaceEcoreX::PixmapRenderSurfaceEcoreX(Dali::PositionSize positionSize,
-                                         Any surface,
-                                         const std::string& name,
-                                         bool isTransparent)
+PixmapRenderSurfaceEcoreX::PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 : mPosition( positionSize ),
-  mTitle( name ),
   mRenderNotification( NULL ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOwnSurface( false ),

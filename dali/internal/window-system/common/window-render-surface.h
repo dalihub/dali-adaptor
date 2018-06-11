@@ -20,6 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/egl-interface.h>
+
+// EXTERNAL INCLUDES
+#include <dali/public-api/signals/connection-tracker.h>
+#include <memory>
 
 namespace Dali
 {
@@ -31,47 +36,58 @@ namespace Internal
 namespace Adaptor
 {
 
+class WindowBase;
+
 /**
  * Window interface of render surface.
  */
-class WindowRenderSurface : public Dali::RenderSurface
+class WindowRenderSurface : public Dali::RenderSurface, public ConnectionTracker
 {
 public:
 
   /**
-   * @brief Default constructor
-   */
-  WindowRenderSurface() = default;
+    * Uses an window surface to render to.
+    * @param [in] positionSize the position and size of the surface
+    * @param [in] surface can be a window or pixmap.
+    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+    */
+  WindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false );
 
   /**
    * @brief Destructor
    */
-  virtual ~WindowRenderSurface() = default;
+  virtual ~WindowRenderSurface();
 
 public: // API
 
   /**
-   * @brief Get the render surface the adaptor is using to render to.
-   * @return reference to current render surface
+   * @brief Get the native window handle
+   * @return The native window handle
    */
-  virtual Any GetWindow() = 0;
+  Any GetNativeWindow();
+
+  /**
+   * @brief Get the native window id
+   * @return The native window id
+   */
+  int GetNativeWindowId();
 
   /**
    * @brief Map window
    */
-  virtual void Map() = 0;
+  void Map();
 
   /**
    * @brief Sets the render notification trigger to call when render thread is completed a frame
    * @param renderNotification to use
    */
-  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) = 0;
+  void SetRenderNotification( TriggerEventInterface* renderNotification );
 
   /**
    * @brief Sets whether the surface is transparent or not.
    * @param[in] transparent Whether the surface is transparent
    */
-  virtual void SetTransparency( bool transparent ) = 0;
+  void SetTransparency( bool transparent );
 
   /**
    * Request surface rotation
@@ -79,25 +95,107 @@ public: // API
    * @param[in] width A new width of the surface
    * @param[in] height A new height of the surface
    */
-  virtual void RequestRotation( int angle, int width, int height ) = 0;
+  void RequestRotation( int angle, int width, int height );
 
-protected:
+  /**
+   * @brief Gets the window base object
+   * @return The window base object
+   */
+  WindowBase* GetWindowBase();
+
+public: // from Dali::RenderSurface
+
+  /**
+   * @copydoc Dali::RenderSurface::GetPositionSize()
+   */
+  virtual PositionSize GetPositionSize() const override;
+
+  /**
+   * @copydoc Dali::RenderSurface::GetDpi()
+   */
+  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::InitializeEgl()
+   */
+  virtual void InitializeEgl( EglInterface& egl ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   */
+  virtual void CreateEglSurface( EglInterface& egl ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   */
+  virtual void DestroyEglSurface( EglInterface& egl ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   */
+  virtual bool ReplaceEGLSurface( EglInterface& egl ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::MoveResize()
+   */
+  virtual void MoveResize( Dali::PositionSize positionSize) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::SetViewMode()
+   */
+  virtual void SetViewMode( ViewMode viewMode ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::StartRender()
+   */
+  virtual void StartRender() override;
+
+  /**
+   * @copydoc Dali::RenderSurface::PreRender()
+   */
+  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::PostRender()
+   */
+  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::StopRender()
+   */
+  virtual void StopRender() override;
+
+  /**
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   */
+  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+
+  /**
+   * @copydoc Dali::RenderSurface::ReleaseLock()
+   */
+  virtual void ReleaseLock() override;
+
+  /**
+   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   */
+  virtual RenderSurface::Type GetSurfaceType() override;
+
+private:
 
   /**
    * @brief Second stage construction
    */
-  virtual void Initialize( Any surface ) = 0;
+  void Initialize( Any surface );
 
   /**
-   * @brief Create window
+   * Notify output is transformed.
    */
-  virtual void CreateRenderable() = 0;
+  void OutputTransformed();
 
   /**
-   * @brief Use an existing render surface
-   * @param surfaceId the id of the surface
+   * @brief Used as the callback for the rotation-trigger.
    */
-  virtual void UseExistingRenderable( unsigned int surfaceId ) = 0;
+  void ProcessRotationRequest();
 
 protected:
 
@@ -106,6 +204,22 @@ protected:
 
   // Undefined
   WindowRenderSurface& operator=(const WindowRenderSurface& rhs) = delete;
+
+private: // Data
+
+  PositionSize                    mPositionSize;       ///< Position
+  std::unique_ptr< WindowBase >   mWindowBase;
+  ThreadSynchronizationInterface* mThreadSynchronization;
+  TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
+  TriggerEventInterface*          mRotationTrigger;
+  ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
+  int                             mRotationAngle;
+  int                             mScreenRotationAngle;
+  bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
+  bool                            mRotationSupported;
+  bool                            mRotationFinished;
+  bool                            mScreenRotationFinished;
+  bool                            mResizeFinished;
 
 }; // class WindowRenderSurface
 

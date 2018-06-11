@@ -161,6 +161,11 @@ public:  // Dali::Internal::Adaptor::IndicicatorInterface
   virtual void Close();
 
   /**
+   * @copydoc Dali::Internal::IndicatorInterface::Flicked
+   */
+  virtual void Flicked() override;
+
+  /**
    * @copydoc Dali::Internal::IndicatorInterface::SetOpacityMode
    */
   virtual void SetOpacityMode( Dali::Window::IndicatorBgOpacity mode );
@@ -415,9 +420,6 @@ private:
 
   int                              mCurrentSharedFile;   ///< Current shared file number
   SharedFileInfo                   mSharedFileInfo[SHARED_FILE_NUMBER];    ///< Table to store shared file info
-
-  struct Impl; ///< Contains Ecore specific information
-  Impl* mImpl; ///< Created on construction and destroyed on destruction.
 
   bool                             mBackgroundVisible;   ///< Indicate whether background is visible
   int                              mTopMargin;   ///< Top margin of the stage for indicator

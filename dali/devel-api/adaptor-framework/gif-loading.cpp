@@ -688,10 +688,20 @@ bool ReadHeader( LoaderInfo &loaderInfo,
         FILE * const fp = fileReader.GetFile();
         if ( NULL != fp )
         {
-          fseek( fp, 0, SEEK_SET );
-          fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * blobSize ) );
-          fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), blobSize, fp);
-          fileInfo.map = fileData.globalMap;
+          if( ( ! fseek( fp, 0, SEEK_SET ) ) )
+          {
+            fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * blobSize ) );
+            fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), blobSize, fp);
+            fileInfo.map = fileData.globalMap;
+          }
+          else
+          {
+            DALI_LOG_ERROR( "Error seeking within file\n" );
+          }
+        }
+        else
+        {
+          DALI_LOG_ERROR( "Error reading file\n" );
         }
       }
     }
@@ -1184,6 +1194,13 @@ public:
 
     ReadHeader( loaderInfo, imageProperties, &error );
   }
+
+  // Moveable but not copyable
+
+  Impl( const Impl& ) = delete;
+  Impl& operator=( const Impl& ) = delete;
+  Impl( Impl&& ) = default;
+  Impl& operator=( Impl&& ) = default;
 
   ~Impl()
   {
