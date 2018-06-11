@@ -138,12 +138,6 @@ BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 %endif
 
-# for Web Engine Lite Plugin
-%if 0%{?enable_web_engine_lite}
-BuildRequires: lightweight-web-engine
-BuildRequires: lightweight-web-engine-devel
-%endif
-
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
 Recommends: %{name}-profile_common = %{version}-%{release}
@@ -374,16 +368,6 @@ Requires:   %{name} = %{version}-%{release}
 %description dali-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
 
-##############################
-# Dali WebEngineLite Plugin
-##############################
-
-%package dali-web-engine-lite-plugin
-Summary:    Plugin WebEngineLite for Dali
-Group:      System/Libraries
-%description dali-web-engine-lite-plugin
-WebEngineLite plugin for Dali
-
 %if !0%{?disable_cxx03_build}
 ##############################
 # Dali Feedback Plugin cxx03
@@ -396,15 +380,6 @@ Requires:   %{name}-cxx03 = %{version}-%{release}
 %description dali-feedback-plugin-cxx03
 Feedback plugin to play haptic and audio feedback for Dali
 
-##############################
-# Dali WebEngineLite Plugin
-##############################
-
-%package dali-web-engine-lite-plugin-cxx03
-Summary:    Plugin WebEngineLite for Dali with cxx03 abi
-Group:      System/Libraries
-%description dali-web-engine-lite-plugin-cxx03
-WebEngineLite plugin for Dali
 %endif
 
 ##############################
@@ -501,9 +476,6 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -549,9 +521,6 @@ make clean
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -596,9 +565,6 @@ make clean
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -642,9 +608,6 @@ make clean
            --enable-efl=no \
 %else
            --enable-efl=yes \
-%endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
 %endif
 %if 0%{?enable_debug}
            --enable-debug \
@@ -691,9 +654,6 @@ make clean
            --enable-efl=no \
 %else
            --enable-efl=yes \
-%endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
 %endif
 %if 0%{?enable_debug}
            --enable-debug \
@@ -749,9 +709,6 @@ make clean
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -798,9 +755,6 @@ make clean
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -845,9 +799,6 @@ make clean
            --enable-efl=no \
 %else
            --enable-efl=yes \
-%endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
 %endif
 %if 0%{?enable_debug}
            --enable-debug \
@@ -894,9 +845,6 @@ make clean
 %else
            --enable-efl=yes \
 %endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
-%endif
 %if 0%{?enable_debug}
            --enable-debug \
 %endif
@@ -942,9 +890,6 @@ make clean
            --enable-efl=no \
 %else
            --enable-efl=yes \
-%endif
-%if 0%{?enable_web_engine_lite}
-           --enable-web-engine-lite \
 %endif
 %if 0%{?enable_debug}
            --enable-debug \
@@ -1074,12 +1019,6 @@ exit 0
 %postun
 /sbin/ldconfig
 exit 0
-
-#%if %{with wayland}
-%post dali-web-engine-lite-plugin
-/sbin/ldconfig
-exit 0
-#%endif
 
 ##############################
 
@@ -1265,14 +1204,6 @@ exit 0
 #%endif
 
 %if 0%{?tizen_version_major} >= 3
-%if 0%{?enable_web_engine_lite}
-%files dali-web-engine-lite-plugin-cxx03
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-web-engine-lite-plugin.so*
-%license LICENSE
-%endif
-
 %files dali-feedback-plugin-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
@@ -1284,14 +1215,6 @@ exit 0
 #################################################
 
 %if 0%{?tizen_version_major} >= 3
-%if 0%{?enable_web_engine_lite}
-%files dali-web-engine-lite-plugin
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libdali-web-engine-lite-plugin-cxx11.so*
-%license LICENSE
-%endif
-
 %files dali-feedback-plugin
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
