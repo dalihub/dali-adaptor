@@ -20,6 +20,7 @@
 
 // EXTERNAL_HEADERS
 #include <tbm_bufmgr.h>
+#include <tbm_dummy_display.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
@@ -37,14 +38,14 @@ namespace Adaptor
 
 EGLNativeDisplayType DisplayConnection::GetNativeDisplay()
 {
-  return reinterpret_cast< EGLNativeDisplayType >( tbm_bufmgr_init( -1 ) );
+  return reinterpret_cast< EGLNativeDisplayType >( tbm_dummy_display_create() );
 }
 
 void DisplayConnection::ReleaseNativeDisplay()
 {
   if( mDisplay )
   {
-    tbm_bufmgr_deinit( reinterpret_cast< tbm_bufmgr >( mDisplay ) );
+     tbm_dummy_display_destroy( reinterpret_cast< tbm_dummy_display* >( mDisplay ) );
   }
 }
 
