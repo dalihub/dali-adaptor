@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/render-controller.h>
 
 namespace Dali

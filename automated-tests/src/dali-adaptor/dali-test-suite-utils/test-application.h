@@ -24,7 +24,7 @@
 #include "test-gl-sync-abstraction.h"
 #include "test-gl-abstraction.h"
 #include "test-render-controller.h"
-#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/resource-policies.h>
 #include <dali/integration-api/trace.h>
 
