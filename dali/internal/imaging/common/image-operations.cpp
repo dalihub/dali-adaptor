@@ -1576,8 +1576,8 @@ void Resample( const unsigned char * __restrict__ inPixels,
     }
   }
 
-  std::vector<Resampler*> resamplers( numChannels );
-  std::vector<Vector<float>> samples(numChannels);
+  Resampler* resamplers[numChannels];
+  Vector<float> samples[numChannels];
 
   const int srcWidth = inputDimensions.GetWidth();
   const int srcHeight = inputDimensions.GetHeight();
