@@ -831,12 +831,14 @@ void Adaptor::IndicatorSizeChanged(int height)
   mCore->SetTopMargin(height);
 }
 
-void Adaptor::ProcessCoreEventsFromIdle()
+bool Adaptor::ProcessCoreEventsFromIdle()
 {
   ProcessCoreEvents();
 
   // the idle handle automatically un-installs itself
   mNotificationOnIdleInstalled = false;
+
+  return false;
 }
 
 Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions)
