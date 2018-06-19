@@ -26,12 +26,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/render-surface.h>
 
 // Allow this to be encoded and saved:
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
+
 
 namespace Dali
 {
@@ -91,8 +92,12 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
+
+  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
+  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+
+  mEglImageExtensions = eglGraphics->GetImageExtensions();
+
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );

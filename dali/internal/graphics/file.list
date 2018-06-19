@@ -1,17 +1,14 @@
 
 
-# module: graphics, backend: common
-adaptor_graphics_common_src_files=\
-    ${adaptor_graphics_dir}/common/render-helper.cpp
-
 # module: graphics, backend: gles20
 adaptor_graphics_gles20_src_files=\
     ${adaptor_graphics_dir}/gles20/egl-debug.cpp \
-    ${adaptor_graphics_dir}/gles20/egl-factory.cpp \
     ${adaptor_graphics_dir}/gles20/egl-implementation.cpp \
     ${adaptor_graphics_dir}/gles20/egl-sync-implementation.cpp \
     ${adaptor_graphics_dir}/gles20/gl-extensions.cpp \
-    ${adaptor_graphics_dir}/gles20/gl-proxy-implementation.cpp
+    ${adaptor_graphics_dir}/gles20/gl-proxy-implementation.cpp \
+    ${adaptor_graphics_dir}/gles20/egl-graphics-factory.cpp \
+    ${adaptor_graphics_dir}/gles20/egl-graphics.cpp
 
 # module: graphics, backend: tizen
 adaptor_graphics_tizen_src_files=\

@@ -53,6 +53,37 @@ DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
  */
 DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackBase* callback );
 
+/**
+ * @brief Create and Add a child window to the application instance
+ * @param[in] application A handle to the Application
+ * @param[in] childPosSize The position and size of the child window to be created
+ * @param[in] childWindowName The title of the child window
+ * @param[in] childWindowClassName The class name of the child window
+ * @param[in] childWindowMode The mode of the newly created child window
+ * @return @c a window handle if added successfully, @c null otherwise
+ *
+ * @note Function must be called from main event thread only
+ */
+DALI_ADAPTOR_API Dali::Window CreateWindow( Application application, PositionSize childPosSize, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode );
+
+/**
+ * @brief Removes a previously created Window instance from the Adaptor internal list
+ * @note Function must be called from the main event thread only.
+ * @param[in] application A handle to the Application
+ * @param[in] childWindow The created Window instance
+ * @return true if removed successfully, false otherwise
+ */
+DALI_ADAPTOR_API bool DestroyWindow( Application application, Dali::Window* childWindow );
+
+/**
+ * @brief Removes a previously created Window instance from the Adaptor internal list
+ * @note Function must be called from the main event thread only.
+ * @param[in] application A handle to the Application
+ * @param[in] childWindowName The title of the window
+ * @return true if removed successfully, false otherwise
+ */
+DALI_ADAPTOR_API bool DestroyWindow( Application application, const std::string& childWindowName );
+
 } // namespace DevelApplication
 
 } // namespace Dali

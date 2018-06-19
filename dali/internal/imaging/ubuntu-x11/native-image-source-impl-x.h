@@ -22,6 +22,8 @@
 #include <Ecore_X.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
+
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
 #include <dali/internal/imaging/common/native-image-source-impl.h>

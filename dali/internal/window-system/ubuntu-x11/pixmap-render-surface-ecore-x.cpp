@@ -34,6 +34,8 @@
 #include <dali/integration-api/thread-synchronization-interface.h>
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
+
 
 namespace Dali
 {
@@ -139,20 +141,22 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-void PixmapRenderSurfaceEcoreX::InitializeEgl( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::InitializeGraphics( GraphicsInterface& graphics, Dali::DisplayConnection& displayConnection )
 {
-  DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
+  mGraphics = &graphics;
+  mDisplayConnection = &displayConnection;
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   eglImpl.ChooseConfig(false, mColorDepth);
 }
 
-void PixmapRenderSurfaceEcoreX::CreateEglSurface( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   for (int i = 0; i < BUFFER_COUNT; ++i)
   {
@@ -163,11 +167,13 @@ void PixmapRenderSurfaceEcoreX::CreateEglSurface( EglInterface& egl )
   }
 }
 
-void PixmapRenderSurfaceEcoreX::DestroyEglSurface( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   for (int i = 0; i < BUFFER_COUNT; ++i)
   {
@@ -178,13 +184,15 @@ void PixmapRenderSurfaceEcoreX::DestroyEglSurface( EglInterface& egl )
   }
 }
 
-bool PixmapRenderSurfaceEcoreX::ReplaceEGLSurface( EglInterface& egl )
+bool PixmapRenderSurfaceEcoreX::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
 
   bool contextLost = false;
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   for (int i = 0; i < BUFFER_COUNT; ++i)
   {
@@ -205,15 +213,18 @@ void PixmapRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool PixmapRenderSurfaceEcoreX::PreRender( EglInterface& egl, Integration::GlAbstraction&, bool )
+bool PixmapRenderSurfaceEcoreX::PreRender( bool )
 {
   // Nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
   // flush gl instruction queue
+  Integration::GlAbstraction& glAbstraction = eglGraphics->GetGlAbstraction();
   glAbstraction.Flush();
 
   if( mThreadSynchronization )
@@ -225,7 +236,7 @@ void PixmapRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAb
     ConditionalWait::ScopedLock lock( mPixmapCondition );
     mConsumeBufferIndex = __sync_fetch_and_xor( &mProduceBufferIndex, 1 ); // Swap buffer indexes.
 
-    Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
     // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
     XPixmap pixmap = static_cast<XPixmap>( mX11Pixmaps[mProduceBufferIndex] );
@@ -254,7 +265,7 @@ void PixmapRenderSurfaceEcoreX::PostRender( EglInterface& egl, Integration::GlAb
       rect.width = mPosition.width;
       rect.height = mPosition.height;
 
-      XDisplay* display = AnyCast<XDisplay*>(displayConnection->GetDisplay());
+      XDisplay* display = AnyCast<XDisplay*>(mDisplayConnection->GetDisplay());
 
       // make a fixes region as updated area
       region = XFixesCreateRegion( display, &rect, 1 );

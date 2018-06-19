@@ -26,10 +26,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/integration-api/render-surface.h>
+
 
 namespace Dali
 {
@@ -97,8 +98,12 @@ NativeImageSourceX::NativeImageSourceX( unsigned int width, unsigned int height,
   mEglImageExtensions( NULL )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
+
+  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
+  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+
+  mEglImageExtensions = eglGraphics->GetImageExtensions();
+
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   // assign the pixmap
@@ -159,7 +164,7 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
   XImageJanitor xImageJanitor( XGetImage( displayConnection,
                                           mPixmap,
                                           0, 0, // x,y of subregion to extract.
-                                          width, height, // of suregion to extract.
+                                          width, height, // of subregion to extract.
                                           0xFFFFFFFF,
                                           ZPixmap ) );
   XImage* const  pXImage = xImageJanitor.mXImage;

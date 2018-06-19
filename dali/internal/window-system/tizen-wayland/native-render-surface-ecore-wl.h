@@ -26,9 +26,12 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/native-render-surface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {
+
+class DisplayConnection;
 
 /**
  * Ecore Wayland Native implementation of render surface.
@@ -79,24 +82,24 @@ public: // from Dali::RenderSurface
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeEgl( EglInterface& egl ) override;
+  virtual void InitializeGraphics( Internal::Adaptor::GraphicsInterface& graphics, DisplayConnection& displayConnection ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::RenderSurface::CreateSurface()
    */
-  virtual void CreateEglSurface( EglInterface& egl ) override;
+  virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   * @copydoc Dali::RenderSurface::DestroySurface()
    */
-  virtual void DestroyEglSurface( EglInterface& egl ) override;
+  virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceEGLSurface( EglInterface& egl ) override;
+  virtual bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()
@@ -116,12 +119,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface ) override;
+  virtual bool PreRender( bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
@@ -157,17 +160,18 @@ private:
 
 private: // Data
 
-  PositionSize                    mPosition;
-  TriggerEventInterface*          mRenderNotification;
-  ColorDepth                      mColorDepth;
-  tbm_format                      mTbmFormat;
-  bool                            mOwnSurface;
-  bool                            mDrawableCompleted;
+  PositionSize                           mPosition;
+  TriggerEventInterface*                 mRenderNotification;
+  Internal::Adaptor::GraphicsInterface*  mGraphics;                  ///< The graphics interface
+  ColorDepth                             mColorDepth;
+  tbm_format                             mTbmFormat;
+  bool                                   mOwnSurface;
+  bool                                   mDrawableCompleted;
 
-  tbm_surface_queue_h             mTbmQueue;
-  tbm_surface_h                   mConsumeSurface;
-  ThreadSynchronizationInterface* mThreadSynchronization;     ///< A pointer to the thread-synchronization
-  ConditionalWait                 mTbmSurfaceCondition;
+  tbm_surface_queue_h                    mTbmQueue;
+  tbm_surface_h                          mConsumeSurface;
+  ThreadSynchronizationInterface*        mThreadSynchronization;     ///< A pointer to the thread-synchronization
+  ConditionalWait                        mTbmSurfaceCondition;
 
 };
 

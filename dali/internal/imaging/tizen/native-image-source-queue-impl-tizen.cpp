@@ -25,7 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
@@ -84,8 +84,12 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( unsigned int width, un
   mBlendingRequired( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
+
+  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
+  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+
+  mEglImageExtensions = eglGraphics->GetImageExtensions();
+
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mTbmQueue = GetSurfaceFromAny( nativeImageSourceQueue );

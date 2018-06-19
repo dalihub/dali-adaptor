@@ -18,33 +18,34 @@
 // CLASS HEADER
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
-// EXTERNAL INCLUDES
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
-#include <dali/integration-api/egl-interface.h>
+
 
 namespace Dali
 {
 
-DisplayConnection* DisplayConnection::New()
+DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
   Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
+  internal->SetGraphicsInterface( graphics );
 
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics, RenderSurface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
   Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
 
+  internal->SetGraphicsInterface( graphics );
   internal->SetSurfaceType( type );
 
   return new DisplayConnection(internal);
@@ -69,9 +70,9 @@ void DisplayConnection::ConsumeEvents()
   mImpl->ConsumeEvents();
 }
 
-bool DisplayConnection::InitializeEgl(EglInterface& egl)
+bool DisplayConnection::Initialize()
 {
-  return mImpl->InitializeEgl(egl);
+  return mImpl->InitializeGraphics();
 }
 
 }

@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_BASE_EGL_FACTORY_INTERFACE_H
-#define DALI_INTERNAL_BASE_EGL_FACTORY_INTERFACE_H
+#ifndef DALI_INTERNAL_GRAPHICS_FACTORY_H
+#define DALI_INTERNAL_GRAPHICS_FACTORY_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,48 @@
  *
  */
 
+// CLASS HEADER
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
+
+
 namespace Dali
 {
 
-class EglInterface;
-
 namespace Internal
 {
+
 namespace Adaptor
 {
 
-/**
- * Factory interface for creating EGL implementation
- */
-class EglFactoryInterface
+class GraphicsFactory : public GraphicsFactoryInterface
 {
 public:
-  /**
-   * Create an EGL implementation
-   * @return An implementation of the EGL interface
-   */
-  virtual EglInterface* Create() = 0;
 
   /**
-   * Destroy the EGL implementation
+   * Constructor
    */
-  virtual void Destroy() = 0;
+  GraphicsFactory();
 
-protected:
   /**
-   * Virtual protected destructor - no deletion through this interface
+   * Destructor
    */
-  virtual ~EglFactoryInterface() {};
+  virtual ~GraphicsFactory();
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
+   */
+  GraphicsInterface& Create() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
+   */
+  void Destroy();
 };
 
 } // Adaptor
+
 } // Internal
+
 } // Dali
 
-#endif // DALI_INTERNAL_BASE_EGL_FACTORY_INTERFACE_H
+#endif // DALI_INTERNAL_GRAPHICS_FACTORY_H

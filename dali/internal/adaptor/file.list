@@ -5,6 +5,7 @@ adaptor_adaptor_common_src_files=\
     ${adaptor_adaptor_dir}/common/lifecycle-controller-impl.cpp \
     ${adaptor_adaptor_dir}/common/adaptor-impl.cpp \
     ${adaptor_adaptor_dir}/common/adaptor.cpp \
+    ${adaptor_adaptor_dir}/common/adaptor-builder-impl.cpp \
     ${adaptor_adaptor_dir}/common/application-impl.cpp \
     ${adaptor_adaptor_dir}/common/combined-update-render-controller.cpp
 
