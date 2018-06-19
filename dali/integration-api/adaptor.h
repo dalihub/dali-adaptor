@@ -184,17 +184,24 @@ public:
    * @brief Ensures that the function passed in is called from the main loop when it is idle.
    * @note Function must be called from the main event thread only.
    *
-   * A callback of the following type may be used:
+   * Callbacks of the following types may be used:
    * @code
    *   void MyFunction();
    * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @code
+   *   bool MyFunction();
+   * @endcode
+   * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
    *
    * @param[in] callback The function to call.
+   * @param[in] hasReturnValue Sould be set to true if the callback function has a return value.
    * @return true if added successfully, false otherwise
    *
    * @note Ownership of the callback is passed onto this class.
    */
-  bool AddIdle( CallbackBase* callback );
+  bool AddIdle( CallbackBase* callback, bool hasReturnValue );
 
   /**
    * @brief Removes a previously added @p callback.

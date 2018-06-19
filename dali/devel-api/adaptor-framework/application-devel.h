@@ -35,6 +35,24 @@ namespace DevelApplication
  */
 DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
 
+/**
+ * @brief Ensures that the function passed in is called from the main loop when it is idle.
+ * @param[in] application A handle to the Application
+ * @param[in] callback The function to call
+ * @return @c true if added successfully, @c false otherwise
+ *
+ * @note Function must be called from main event thread only
+ *
+ * A callback of the following type should be used:
+ * @code
+ *   bool MyFunction();
+ * @endcode
+ * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
+ *
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackBase* callback );
+
 } // namespace DevelApplication
 
 } // namespace Dali
