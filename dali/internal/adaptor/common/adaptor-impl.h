@@ -209,7 +209,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::AddIdle()
    */
-  virtual bool AddIdle( CallbackBase* callback, bool forceAdd );
+  virtual bool AddIdle( CallbackBase* callback, bool hasReturnValue, bool forceAdd );
 
   /**
    * @copydoc Dali::Adaptor::RemoveIdle()
@@ -524,7 +524,7 @@ private:
   /**
    * Sends an notification message from main loop idle handler
    */
-  void ProcessCoreEventsFromIdle();
+  bool ProcessCoreEventsFromIdle();
 
   /**
    * Gets path for data/resource storage.
@@ -536,6 +536,22 @@ private:
    * Sets up system information if needs
    */
   void SetupSystemInformation();
+
+  /**
+   * Adds a callback to be run when entering an idle state.
+   *
+   * A callback of the following type should be used:
+   * @code
+   *   bool MyFunction();
+   * @endcode
+   * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
+   */
+  bool AddIdleEnterer( CallbackBase* callback, bool forceAdd );
+
+  /**
+   * Removes a previously added the idle enterer callback.
+   */
+  void RemoveIdleEnterer( CallbackBase* callback );
 
 private:
 

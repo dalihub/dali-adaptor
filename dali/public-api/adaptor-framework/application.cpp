@@ -164,7 +164,7 @@ void Application::Quit()
 
 bool Application::AddIdle( CallbackBase* callback )
 {
-  return Internal::Adaptor::GetImplementation(*this).AddIdle( callback );
+  return Internal::Adaptor::GetImplementation(*this).AddIdle( callback, false );
 }
 
 Window Application::GetWindow()

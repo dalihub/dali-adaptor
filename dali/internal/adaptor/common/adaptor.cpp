@@ -78,9 +78,9 @@ void Adaptor::Stop()
   mImpl->Stop();
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback )
+bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue )
 {
-  return mImpl->AddIdle( callback, false );
+  return mImpl->AddIdle( callback, hasReturnValue, false );
 }
 
 void Adaptor::RemoveIdle( CallbackBase* callback )

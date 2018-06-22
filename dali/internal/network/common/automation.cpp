@@ -26,6 +26,9 @@
 #include <dali/public-api/dali-core.h>
 #include <dali/integration-api/debug.h>
 
+using Dali::Property;
+using Dali::Matrix;
+using Dali::Matrix3;
 
 namespace  // un-named namespace
 {
@@ -198,6 +201,29 @@ int SetProperties( const std::string& setPropertyMessage )
 }
 
 
+void MatrixToStream( Property::Value value, std::ostream& o )
+{
+  Matrix m4(false);
+  Matrix3 m3;
+
+  if( value.Get(m4) )
+  {
+    float* matrix = m4.AsFloat();
+    o << "[ [" << matrix[0] << ", " << matrix[1] << ", " << matrix[2]  << ", " << matrix[3] << "], "
+      << "[" << matrix[4] << ", " << matrix[5] << ", " << matrix[6]  << ", " << matrix[7] << "], "
+      << "[" << matrix[8] << ", " << matrix[9] << ", " << matrix[10] << ", " << matrix[11] << "], "
+      << "[" << matrix[12] << ", " << matrix[13] << ", " << matrix[14] << ", " << matrix[15] << "] ]";
+  }
+  else if( value.Get(m3) )
+  {
+    float* matrix = m3.AsFloat();
+    o << "[ [" << matrix[0] << ", " << matrix[1] << ", " << matrix[2]  << "], "
+      << "[" << matrix[3] << ", " << matrix[4] << ", " << matrix[5]  << "], "
+      << "[" << matrix[6] << ", " << matrix[7] << ", " << matrix[8]  << "] ]";
+  }
+}
+
+
 }; //   un-named namespace
 
 inline std::string Quote( const std::string& in )
@@ -219,38 +245,54 @@ std::string ToString( T i )
 std::string GetPropertyValueString( Dali::Handle handle, int propertyIndex )
 {
   std::ostringstream valueStream;
-  Dali::Property::Value value = handle.GetProperty( propertyIndex );
-  valueStream << value;
-  std::string valueString = valueStream.str();
-
-  if( value.GetType() == Dali::Property::STRING )
+  if( propertyIndex != Dali::Property::INVALID_INDEX )
   {
-    // Escape the string (to ensure valid json)
-    // Write out quotes, escapes and control characters using unicode syntax \uXXXX
-    std::ostringstream escapedValue;
-    for( std::string::iterator c = valueString.begin() ; c != valueString.end(); ++c )
-    {
-      if( *c == '"' )
-      {
-        escapedValue << "\\\"";
-      }
-      else if( *c == '\\' )
-      {
-        escapedValue << "\\\\";
-      }
-      else if( '\x00' <= *c && *c <= '\x1f' )
-      {
-        escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(*c);
-      }
-      else
-      {
-        escapedValue << *c;
-      }
-    }
+    Dali::Property::Value value = handle.GetProperty( propertyIndex );
 
-    valueString = escapedValue.str();
+    if( value.GetType() == Dali::Property::STRING )
+    {
+      // Escape the string (to ensure valid json)
+      // Write out quotes, escapes and control characters using unicode syntax \uXXXX
+      std::ostringstream unescapedValue;
+      unescapedValue << value;
+      std::string valueString = unescapedValue.str();
+      std::ostringstream escapedValue;
+      for( std::string::iterator c = valueString.begin() ; c != valueString.end(); ++c )
+      {
+        if( *c == '"' )
+        {
+          escapedValue << "\\\"";
+        }
+        else if( *c == '\\' )
+        {
+          escapedValue << "\\\\";
+        }
+        else if( '\x00' <= *c && *c <= '\x1f' )
+        {
+          escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(*c);
+        }
+        else
+        {
+          escapedValue << *c;
+        }
+      }
+      valueStream << escapedValue.str();
+    }
+    else if( value.GetType() == Dali::Property::MATRIX || value.GetType() == Dali::Property::MATRIX3 )
+    {
+      MatrixToStream( value, valueStream );
+    }
+    else
+    {
+      valueStream << value;
+    }
   }
-  return valueString;
+  else
+  {
+    valueStream << "INVALID";
+  }
+
+  return valueStream.str();
 }
 
 // currently rotations are output in Euler format ( may change)
@@ -354,6 +396,9 @@ std::string GetActorTree()
   std::string str = DumpJson( actor, 0 );
   return str;
 }
+
+
+
 namespace Dali
 {
 
