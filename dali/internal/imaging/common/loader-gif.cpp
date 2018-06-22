@@ -23,10 +23,6 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <memory>
 
-#include <dali/internal/system/common/file-closer.h>
-
-using namespace Dali::Internal::Platform;
-
 // We need to check if giflib has the new open and close API (including error parameter).
 #ifdef GIFLIB_MAJOR
 #define LIBGIF_VERSION_5_1_OR_ABOVE
@@ -93,7 +89,7 @@ const unsigned int INTERLACE_PAIR_TABLE_SIZE( sizeof( INTERLACE_PAIR_TABLE ) / s
 int ReadDataFromGif(GifFileType *gifInfo, GifByteType *data, int length)
 {
   FILE *fp = reinterpret_cast<FILE*>(gifInfo->UserData);
-  return InternalFile::fread( data, sizeof( GifByteType ), length, fp);
+  return fread( data, sizeof( GifByteType ), length, fp);
 }
 
 /// Loads the GIF Header.
