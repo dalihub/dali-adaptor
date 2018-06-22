@@ -524,7 +524,7 @@ private:
   /**
    * Sends an notification message from main loop idle handler
    */
-  bool ProcessCoreEventsFromIdle();
+  void ProcessCoreEventsFromIdle();
 
   /**
    * Gets path for data/resource storage.
