@@ -727,6 +727,27 @@ bool InputMethodContextX::FilterEventKey( const Dali::KeyEvent& keyEvent )
   return eventHandled;
 }
 
+void InputMethodContextX::AllowTextPrediction( bool prediction )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::AllowTextPrediction\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_prediction_allow_set( mIMFContext, prediction );
+  }
+}
+
+bool InputMethodContextX::IsTextPredictionAllowed() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::IsTextPredictionAllowed\n" );
+  bool prediction = false;
+  if( mIMFContext )
+  {
+    prediction = ecore_imf_context_prediction_allow_get( mIMFContext );
+  }
+  return prediction;
+}
+
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
