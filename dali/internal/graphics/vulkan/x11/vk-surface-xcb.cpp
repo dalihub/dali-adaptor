@@ -29,7 +29,7 @@ VkSurfaceXcb::VkSurfaceXcb(xcb_connection_t* connection, xcb_window_t window)
 {
 }
 
-vk::SurfaceKHR VkSurfaceXcb::Create(vk::Instance instance, vk::AllocationCallbacks* allocCallbacks,
+vk::SurfaceKHR VkSurfaceXcb::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                     vk::PhysicalDevice physicalDevice) const
 {
   vk::XcbSurfaceCreateInfoKHR info;
