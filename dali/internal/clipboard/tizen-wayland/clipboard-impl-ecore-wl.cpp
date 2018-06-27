@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,13 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <Ecore.h>
+
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
 #include <Ecore_Wayland.h>
+#endif
+
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
@@ -103,21 +109,37 @@ struct Clipboard::Impl
 
     // ELM_SEL_TYPE_CLIPBOARD - To distinguish clipboard selection in cbhm
     types[++i] = "CLIPBOARD_END";
-    ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
+
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get( ecore_wl2_connected_display_get( NULL ) );
+    ecore_wl2_dnd_selection_set( input, types );
+#else
+    ecore_wl_dnd_selection_set( ecore_wl_input_get(), types );
+#endif
   }
 
   void RequestItem()
   {
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get( ecore_wl2_connected_display_get( NULL ) );
+    ecore_wl2_dnd_selection_get( input );
+#else
     const char *types[10] = {0, };
     int i = -1;
 
     types[++i] = "text/plain;charset=utf-8";
     ecore_wl_dnd_selection_get(ecore_wl_input_get(), *types);
+#endif
   }
 
   char *ExcuteSend( void *event )
   {
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Event_Data_Source_Send *ev = (Ecore_Wl2_Event_Data_Source_Send *)event;
+#else
     Ecore_Wl_Event_Data_Source_Send *ev = (Ecore_Wl_Event_Data_Source_Send *)event;
+#endif
+
     int len_buf = mSendBuffer.length();
     int len_remained = len_buf;
     int len_written = 0, ret;
@@ -137,7 +159,11 @@ struct Clipboard::Impl
 
   char *ExcuteReceive( void *event )
   {
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Event_Selection_Data_Ready *ev = (Ecore_Wl2_Event_Selection_Data_Ready *)event;
+#else
     Ecore_Wl_Event_Selection_Data_Ready *ev = (Ecore_Wl_Event_Selection_Data_Ready *)event;
+#endif
 
     return (char *)ev->data;
   }

@@ -187,6 +187,11 @@ AC_ARG_ENABLE(wayland,
               enable_wayland=yes,
               enable_wayland=no)
 
+AC_ARG_ENABLE(ecore_wayland2,
+              [  --enable-ecore-wayland2  Build on Ecore Wayland2],
+              enable_ecore_wayland2=yes,
+              enable_ecore_wayland2=no)
+
 AC_ARG_ENABLE([cxx03_abi],
               [AC_HELP_STRING([--enable-cxx03-abi],
                               [Specify abi for the build])],
@@ -208,6 +213,7 @@ AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
 AM_CONDITIONAL([IVI_PROFILE], [test x$enable_profile = xIVI])
 AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
+AM_CONDITIONAL([ECORE_WAYLAND2], [test x$enable_ecore_wayland2 = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
 AM_CONDITIONAL([USE_APPFW_EFL_BASE], [test x$enable_tizen_major_version = x3])
 AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
@@ -304,9 +310,12 @@ fi
 
 # Using EFL api's for  WAYLAND AND X11 to run on ecore mainloop
 if test "x$enable_wayland" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm],
-                  [DALI_USE_ECORE_WAYLAND=1],
-                  [DALI_USE_ECORE_WAYLAND=0])
+
+if test "x$enable_ecore_wayland2" = "xyes"; then
+PKG_CHECK_MODULES(WAYLAND, [ecore-wl2 egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm])
+else
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm])
+fi
 
 else
 PKG_CHECK_MODULES(ECORE_X, [ecore-x x11-xcb],
@@ -327,7 +336,6 @@ if test "x$enable_profile" != "xCOMMON"; then
 PKG_CHECK_MODULES(WAYLAND_EXTENSION, xdg-shell-client text-client input-method-client)
 fi
 fi
-AM_CONDITIONAL([USE_ECORE_WAYLAND], [test "$DALI_USE_ECORE_WAYLAND" -eq 1])
 
 if test x$DALI_DATA_RW_DIR != x; then
   dataReadWriteDir=$DALI_DATA_RW_DIR

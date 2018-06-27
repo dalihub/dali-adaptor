@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_BASE_INDICATOR_INTERFACE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,6 +122,11 @@ public:
   virtual void Close() = 0;
 
   /**
+   * Notify the indicator flicked.
+   */
+  virtual void Flicked() = 0;
+
+  /**
    * Set the opacity mode of the indicator background.
    * @param[in] mode opacity mode
    */
@@ -149,8 +154,6 @@ public:
    * @return whether the message is sent successfully or not
    */
   virtual bool SendMessage( int messageDomain, int messageId, const void *data, int size ) = 0;
-
-
 };
 
 } // Adaptor

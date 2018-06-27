@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,7 +252,7 @@ FontClient::Plugin::~Plugin()
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   delete mVectorFontCache;
 #endif
-
+  DestroyMatchedPatterns();
   FT_Done_FreeType( mFreeTypeLibrary );
 }
 
@@ -1955,9 +1955,9 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     FcCharSet* characterSet = NULL;
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
-    FcPatternDestroy( match );
     FcPatternDestroy( pattern );
 
+    mMatchedFcPatternCache.PushBack( match );
     mFontCache[id-1u].mCharacterSet = characterSet;
 
     // Add the path to the cache.
@@ -1977,7 +1977,7 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
   }
 }
 
-FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description ) const
+FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description )
 {
   FcCharSet* characterSet = NULL;
 
@@ -1989,12 +1989,20 @@ FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDesc
     FcPattern* match = FcFontMatch( NULL, pattern, &result );
 
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
+    mMatchedFcPatternCache.PushBack( match );
 
-    FcPatternDestroy( match );
     FcPatternDestroy( pattern );
   }
 
   return characterSet;
+}
+
+void FontClient::Plugin::DestroyMatchedPatterns()
+{
+  for (auto & object : mMatchedFcPatternCache) {
+    FcPatternDestroy(reinterpret_cast<FcPattern*>(object));
+  }
+  mMatchedFcPatternCache.Clear();
 }
 
 } // namespace Internal

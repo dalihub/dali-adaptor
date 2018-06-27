@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -485,7 +485,13 @@ private:
    *
    * @return A character set.
    */
-  _FcCharSet* CreateCharacterSetFromDescription( const FontDescription& description ) const;
+  _FcCharSet* CreateCharacterSetFromDescription( const FontDescription& description );
+
+  /**
+   * @brief Destroy all matched Patterns.
+   *
+   */
+  void DestroyMatchedPatterns();
 
 private:
 
@@ -515,9 +521,9 @@ private:
   CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
   std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
-  VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
-
-  Vector<EllipsisItem> mEllipsisCache;      ///< Caches ellipsis glyphs for a particular point size.
+  VectorFontCache* mVectorFontCache;            ///< Separate cache for vector data blobs etc.
+  Vector<EllipsisItem> mEllipsisCache;          ///< Caches ellipsis glyphs for a particular point size.
+  Vector<_FcPattern*>  mMatchedFcPatternCache;  ///< Contain matched FcPattern pointer.
 
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 };

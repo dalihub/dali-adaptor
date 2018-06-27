@@ -24,8 +24,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/drag-and-drop-detector.h>
@@ -44,8 +44,8 @@ namespace Internal
 namespace Adaptor
 {
 class Orientation;
-class WindowBase;
 class WindowRenderSurface;
+class WindowBase;
 
 class Window;
 typedef IntrusivePtr<Window> WindowPtr;
@@ -54,7 +54,7 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
  */
-class Window : public Dali::BaseObject, public IndicatorInterface::Observer, public LifeCycleObserver
+class Window : public Dali::BaseObject, public IndicatorInterface::Observer, public LifeCycleObserver, public ConnectionTracker
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
@@ -329,27 +329,8 @@ public:
    */
   void RotationDone( int orientation, int width, int height );
 
-  /**
-   * Called when the window becomes iconified or deiconified.
-   */
-  void OnIconifyChanged( bool iconified );
-
-  /**
-   * Called when the window focus is changed.
-   */
-  void OnFocusChanged( bool focusIn );
-
-  /**
-   * Called when the output is transformed.
-   */
-  void OnOutputTransformed();
-
-  /**
-   * Called when the window receives a delete request
-   */
-  void OnDeleteRequest();
-
 private:
+
   /**
    * Private constructor.
    * @sa Window::New()
@@ -387,6 +368,31 @@ private:
    * Set the indicator properties on the window
    */
   void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation );
+
+  /**
+   * Called when the window becomes iconified or deiconified.
+   */
+  void OnIconifyChanged( bool iconified );
+
+  /**
+   * Called when the window focus is changed.
+   */
+  void OnFocusChanged( bool focusIn );
+
+  /**
+   * Called when the output is transformed.
+   */
+  void OnOutputTransformed();
+
+  /**
+   * Called when the window receives a delete request.
+   */
+  void OnDeleteRequest();
+
+  /**
+   * Called when the Ecore indicator event is received.
+   */
+  void OnIndicatorFlicked();
 
 private: // IndicatorInterface::Observer interface
 
@@ -457,7 +463,7 @@ public: // Signals
 private:
 
   WindowRenderSurface*                  mSurface;
-  std::unique_ptr< WindowBase >         mWindowBase;
+  WindowBase*                           mWindowBase;
   Dali::Window::IndicatorVisibleMode    mIndicatorVisible; ///< public state
   bool                                  mIndicatorIsShown:1; ///< private state
   bool                                  mShowRotatedIndicatorOnClose:1;

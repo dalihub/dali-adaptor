@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,13 @@
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
-#include <Ecore_Wayland.h>
 #include <dali/integration-api/debug.h>
+
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
+#include <Ecore_Wayland.h>
+#endif
 
 namespace Dali
 {
@@ -84,7 +89,12 @@ void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
   }
   else
   {
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get( NULL );
+    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl2_display_get( display ) );
+#else
     mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
+#endif
   }
 }
 

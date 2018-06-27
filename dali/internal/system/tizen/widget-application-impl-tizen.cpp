@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,13 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
   Dali::Window window = application->GetWindow();
   window.ShowIndicator(Dali::Window::INVISIBLE);
   Any nativeHandle = window.GetNativeHandle();
+
+#ifdef ECORE_WAYLAND2
+  Ecore_Wl2_Window * wlWindow = AnyCast<Ecore_Wl2_Window*>( nativeHandle );
+#else
   Ecore_Wl_Window * wlWindow = AnyCast<Ecore_Wl_Window*>( nativeHandle );
+#endif
+
   widget_base_context_window_bind( instanceHandle, id, wlWindow );
   window.SetSize( Dali::Window::WindowSize( w, h ) );
 

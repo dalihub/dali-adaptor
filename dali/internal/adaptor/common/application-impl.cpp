@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ void Application::Quit()
 {
   // Actually quit the application.
   // Force a call to Quit even if adaptor is not running.
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ), true );
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle( MakeCallback( this, &Application::QuitFromMainLoop ), false, true );
 }
 
 void Application::QuitFromMainLoop()
@@ -372,9 +372,9 @@ void Application::OnResize(Dali::Adaptor& adaptor)
   mResizeSignal.Emit( application );
 }
 
-bool Application::AddIdle( CallbackBase* callback )
+bool Application::AddIdle( CallbackBase* callback, bool hasReturnValue )
 {
-  return mAdaptor->AddIdle( callback );
+  return mAdaptor->AddIdle( callback, hasReturnValue );
 }
 
 std::string Application::GetRegion() const

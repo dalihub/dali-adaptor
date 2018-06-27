@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,6 +212,23 @@ bool Clipboard::IsVisible() const
 
 char* Clipboard::ExcuteBuffered( bool type, void *event )
 {
+  if( !type )
+  {
+    // Receive
+    Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast< Ecore_X_Event_Selection_Notify* >( event );
+
+    Ecore_X_Selection_Data* selectionData = static_cast< Ecore_X_Selection_Data* >( selectionNotifyEvent->data );
+    if( selectionData->data )
+    {
+      if( selectionNotifyEvent->selection == ECORE_X_SELECTION_SECONDARY )
+      {
+        // Claim the ownership of the SECONDARY selection.
+        ecore_x_selection_secondary_set( mImpl->mApplicationWindow, "", 1 );
+
+        return ( reinterpret_cast< char* >( selectionData->data ) );
+      }
+    }
+  }
   return NULL;
 }
 

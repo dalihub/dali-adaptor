@@ -40,12 +40,9 @@ public:
   /**
     * Uses an Wayland surface to render to.
     * @param [in] positionSize the position and size of the surface
-    * @param [in] name optional name of surface passed in
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize,
-                             const std::string& name,
-                             bool isTransparent = false );
+  NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize, bool isTransparent = false );
 
   /**
    * @brief Destructor
@@ -161,7 +158,6 @@ private:
 private: // Data
 
   PositionSize                    mPosition;
-  std::string                     mTitle;
   TriggerEventInterface*          mRenderNotification;
   ColorDepth                      mColorDepth;
   tbm_format                      mTbmFormat;

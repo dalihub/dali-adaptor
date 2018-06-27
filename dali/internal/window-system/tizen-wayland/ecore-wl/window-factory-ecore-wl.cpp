@@ -16,11 +16,11 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/window-factory-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-factory-ecore-wl.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/window-base-ecore-wl.h>
 #include <dali/internal/window-system/tizen-wayland/indicator-impl-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/ecore-wl/window-base-ecore-wl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali
@@ -30,9 +30,9 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< WindowBase > WindowFactoryEcoreWl::CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface )
+std::unique_ptr< WindowBase > WindowFactoryEcoreWl::CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 {
-  return Utils::MakeUnique< WindowBaseEcoreWl >( window, windowRenderSurface );
+  return Utils::MakeUnique< WindowBaseEcoreWl >( positionSize, surface, isTransparent );
 }
 
 std::unique_ptr< IndicatorInterface > WindowFactoryEcoreWl::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )

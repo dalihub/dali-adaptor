@@ -34,8 +34,6 @@ namespace Adaptor
 
 class Adaptor;
 class WindowBase;
-class Window;
-class WindowRenderSurface;
 
 class WindowFactory
 {
@@ -44,7 +42,7 @@ public:
   WindowFactory() = default;
   virtual ~WindowFactory() = default;
 
-  virtual std::unique_ptr< WindowBase > CreateWindowBase( Window* window, WindowRenderSurface* windowRenderSurface ) = 0;
+  virtual std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) = 0;
 
   virtual std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) = 0;
 };

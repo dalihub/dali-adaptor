@@ -1,6 +1,3 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
-
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
@@ -18,25 +15,49 @@
  *
  */
 
-#include <dali/internal/window-system/common/window-factory.h>
+// INTERNAL HEADERS
+#include <dali/internal/window-system/common/window-system.h>
+
+// EXTERNAL_HEADERS
+#include <Ecore_Wl2.h>
 
 namespace Dali
 {
+
 namespace Internal
 {
+
 namespace Adaptor
 {
 
-class WindowFactoryEcoreX : public WindowFactory
+namespace WindowSystem
 {
-public:
-  std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) override;
 
-  std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) override;
-};
+void Initialize()
+{
+  ecore_wl2_init();
+}
+
+void Shutdown()
+{
+  ecore_wl2_shutdown();
+}
+
+void GetScreenSize( int& width, int& height )
+{
+  Ecore_Wl2_Display* display = ecore_wl2_display_connect( NULL );
+  if( display )
+  {
+    ecore_wl2_display_screen_size_get( display, &width, &height );
+  }
+}
+
+} // namespace WindowSystem
 
 } // namespace Adaptor
+
 } // namespace Internal
+
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_FACTORY_ECORE_X_H
+#pragma GCC diagnostic pop
