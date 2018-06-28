@@ -19,7 +19,6 @@
 #include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 
 #ifdef ECORE_WAYLAND2
