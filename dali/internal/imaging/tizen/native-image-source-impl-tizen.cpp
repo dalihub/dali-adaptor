@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/gl-defines.h>
 #include <cstring>
 #include <tbm_surface_internal.h>
 
@@ -490,7 +489,7 @@ const char* NativeImageSourceTizen::GetCustomSamplerTypename()
 
 int NativeImageSourceTizen::GetEglImageTextureTarget()
 {
-  return GL_TEXTURE_EXTERNAL_OES;
+  return -1;
 }
 
 bool NativeImageSourceTizen::CheckBlending( tbm_format format )

@@ -44,14 +44,18 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles20/egl-factory.h>
-#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+
+#ifdef VULKAN_WITH_WAYLAND
+#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
+#else
 #include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
+#endif
 
 #include <dali/internal/system/common/logging.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
@@ -140,12 +144,19 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     new Dali::Integration::Graphics::Graphics()
   );
 
+#ifdef VULKAN_WITH_WAYLAND
+  auto waylandSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
+      new Dali::Graphics::Vulkan::VkSurfaceWayland( *mSurface )
+  );
+  mGraphics->Create( std::move(waylandSurface) );
+#else
   // @todo: surface shouldn't really be create here :((((
   auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
     new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
   );
 
   mGraphics->Create( std::move(xlibSurface) );
+#endif
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
