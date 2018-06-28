@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/gl-defines.h>
 #include <cstring>
 #include <tbm_surface_internal.h>
 
@@ -32,6 +31,10 @@
 
 // Allow this to be encoded and saved:
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
+
+#ifndef GL_TEXTURE_EXTERNAL_OES
+# define GL_TEXTURE_EXTERNAL_OES 0x8D65
+#endif
 
 namespace Dali
 {

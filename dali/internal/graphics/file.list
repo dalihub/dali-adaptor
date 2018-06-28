@@ -28,3 +28,7 @@ adaptor_graphics_vulkan_x11_src_files=\
     $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xcb.cpp \
     $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xlib.cpp \
     $(adaptor_graphics_dir)/vulkan/x11/vk-surface-xlib2xcb.cpp
+
+# module: graphics, backend: vulkan/wayland
+adaptor_graphics_vulkan_wayland_src_files=\
+    $(adaptor_graphics_dir)/vulkan/wayland/vk-surface-wayland.cpp

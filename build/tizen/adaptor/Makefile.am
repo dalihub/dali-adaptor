@@ -136,6 +136,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_window_system_ecore_wl_src_files)
 endif
 
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_wayland_src_files)
+endif
+
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
@@ -195,6 +200,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 else
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_window_system_ecore_wl_src_files)
+endif
+
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_wayland_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -257,6 +267,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_window_system_ecore_wl_src_files)
 endif
 
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_wayland_src_files)
+endif
+
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_performance_logging_src_files)
@@ -314,6 +329,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 else
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_window_system_ecore_wl_src_files)
+endif
+
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_wayland_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -376,6 +396,11 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 else
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_window_system_ecore_wl_src_files)
+endif
+
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_wayland_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -444,10 +469,18 @@ if !COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
 endif
 
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(VULKAN_CFLAGS)
+endif
+
 LIBDALI_ADAPTOR_LA_CFLAGS = \
                       -Werror -Wall \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       $(DALI_ADAPTOR_CFLAGS)
+
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_CFLAGS += $(VULKAN_CFLAGS)
+endif
 
 LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(DALICORE_LIBS) \
@@ -482,6 +515,10 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(EVAS_CFLAGS) \
 
 LIBDALI_ADAPTOR_LA_LIBADD += $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
+
+if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_LIBADD += $(VULKAN_LIBS)
+endif
 
 if USE_APPFW
 
