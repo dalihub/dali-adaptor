@@ -2218,6 +2218,7 @@ void WindowBaseEcoreWl2::CreateWindow( PositionSize positionSize )
 
   mEcoreWindow = ecore_wl2_window_new( display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 
+  std::cout << "create EcoreWindow:" << *mEcoreWindow << std::endl;
   if ( mEcoreWindow == 0 )
   {
     DALI_ASSERT_ALWAYS( 0 && "Failed to create Wayland window" );

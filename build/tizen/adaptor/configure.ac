@@ -365,14 +365,20 @@ if test "x$enable_vulkan" != "xno"; then
                   [ AC_MSG_ERROR([Vulkan not available as a package]) ]
                   )
 
-    DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
+    if test "x$enable_wayland" = "xyes"; then
+        DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS -DVULKAN_WITH_WAYLAND"
+        DALI_ADAPTOR_CXXFLAGS+=" -DVULKAN_WITH_WAYLAND "
+        DALI_ADAPTOR_LDFLAGS+=" -lvulkan"
+    else
+        DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
 
-    # due to a bug in nvidia driver x11-xcb library is required
-    DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
+        # due to a bug in nvidia driver x11-xcb library is required
+        DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
 
-    if test "x$DALI_HAS_X11_XCB" == "x1"; then
-        echo "X11 libs: ${X11_XCB_LIBS}"
-        DALI_ADAPTOR_LDFLAGS+=${X11_XCB_LIBS}
+        if test "x$DALI_HAS_X11_XCB" == "x1"; then
+            echo "X11 libs: ${X11_XCB_LIBS}"
+            DALI_ADAPTOR_LDFLAGS+=${X11_XCB_LIBS}
+        fi
     fi
 fi
 

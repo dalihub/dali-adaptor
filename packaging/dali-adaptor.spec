@@ -142,6 +142,10 @@ BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 %endif
 
+BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  Vulkan-LoaderAndValidationLayers
+BuildRequires:  Vulkan-LoaderAndValidationLayers-devel
+
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
 Recommends: %{name}-profile_common = %{version}-%{release}
@@ -419,7 +423,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 ##############################
 %build
 PREFIX+="/usr"
-CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
+CXXFLAGS+=" -Wall -g -Os -fPIC -std=c++14 -std=gnu++14 -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
 LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
@@ -429,6 +433,11 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %if %{with wayland}
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
+%if 0%{?tizen_version_major} >= 5
+CFLAGS+=" -DECORE_WL2 -DEFL_BETA_API_SUPPORT"
+CXXFLAGS+=" -DECORE_WL2 -DEFL_BETA_API_SUPPORT"
+LDFLAGS+=" -lvulkan"
+%endif
 configure_flags="--enable-wayland"
 
 # Need Ecore-Wayland2 when Tizen version is 5.x or greater
@@ -499,6 +508,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
            --enable-trace \
 %endif
            --enable-appfw=yes \
+           --enable-vulkan=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
 
@@ -543,6 +553,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -587,6 +598,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -631,6 +643,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -677,6 +690,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -731,6 +745,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -777,6 +792,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -822,6 +838,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -867,6 +884,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
@@ -913,6 +931,7 @@ make clean
 %if 0%{?enable_trace}
            --enable-trace \
 %endif
+           --enable-vulkan=yes \
            --enable-appfw=yes \
            $configure_flags --libdir=%{_libdir} \
            --enable-rename-so=no
