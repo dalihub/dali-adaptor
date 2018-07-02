@@ -18,7 +18,7 @@
  *
  */
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
