@@ -226,6 +226,15 @@ public:
    */
   bool FilterEventKey( const Dali::KeyEvent& keyEvent ) override;
 
+  /**
+   * @copydoc Dali::InputMethodContext::AllowTextPrediction()
+   */
+  void AllowTextPrediction( bool prediction ) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
+   */
+  bool IsTextPredictionAllowed() const override;
 private:
   /**
    * Context created the first time and kept until deleted.
