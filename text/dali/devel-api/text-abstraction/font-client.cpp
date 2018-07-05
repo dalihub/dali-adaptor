@@ -30,7 +30,7 @@ namespace TextAbstraction
 const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
 
 FontClient::GlyphBufferData::GlyphBufferData()
-: buffer( NULL ),
+: buffer( nullptr ),
   width( 0u ),
   height( 0u ),
   format( Pixel::A8 )

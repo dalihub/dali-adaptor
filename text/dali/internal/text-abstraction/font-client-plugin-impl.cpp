@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,23 +141,30 @@ FontSlant::Type IntToSlantType( int slant )
   return static_cast<FontSlant::Type>( ValueToIndex( slant, FONT_SLANT_TYPE_TO_INT, NUM_FONT_SLANT_TYPE - 1u ) );
 }
 
-  FontClient::Plugin::FallbackCacheItem::FallbackCacheItem( const FontDescription& font, FontList* fallbackFonts, CharacterSetList* characterSets )
-: fontDescription( font ),
-  fallbackFonts( fallbackFonts ),
-  characterSets( characterSets )
+FontClient::Plugin::FallbackCacheItem::FallbackCacheItem( FontDescription&& font, FontList* fallbackFonts, CharacterSetList* characterSets )
+: fontDescription{ std::move( font ) },
+  fallbackFonts{ fallbackFonts },
+  characterSets{ characterSets }
 {
 }
 
 FontClient::Plugin::FontDescriptionCacheItem::FontDescriptionCacheItem( const FontDescription& fontDescription,
                                                                         FontDescriptionId index )
-: fontDescription( fontDescription ),
-  index( index )
+: fontDescription{ fontDescription },
+  index{ index }
 {
 }
 
-FontClient::Plugin::FontIdCacheItem::FontIdCacheItem( FontDescriptionId validatedFontId,
-                                                      PointSize26Dot6 requestedPointSize,
-                                                      FontId fontId )
+FontClient::Plugin::FontDescriptionCacheItem::FontDescriptionCacheItem( FontDescription&& fontDescription,
+                                                                        FontDescriptionId index )
+: fontDescription{ std::move( fontDescription ) },
+  index{ index }
+{
+}
+
+FontClient::Plugin::FontDescriptionSizeCacheItem::FontDescriptionSizeCacheItem( FontDescriptionId validatedFontId,
+                                                                                PointSize26Dot6 requestedPointSize,
+                                                                                FontId fontId )
 : validatedFontId( validatedFontId ),
   requestedPointSize( requestedPointSize ),
   fontId( fontId )
@@ -174,7 +181,7 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
   mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
-  mCharacterSet( NULL ),
+  mCharacterSet( nullptr ),
   mFixedWidthPixels( 0.0f ),
   mFixedHeightPixels( 0.0f ),
   mVectorFontId( 0 ),
@@ -196,7 +203,7 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
   mRequestedPointSize( requestedPointSize ),
   mFaceIndex( face ),
   mMetrics( metrics ),
-  mCharacterSet( NULL ),
+  mCharacterSet( nullptr ),
   mFixedWidthPixels( fixedWidth ),
   mFixedHeightPixels( fixedHeight ),
   mVectorFontId( 0 ),
@@ -207,18 +214,18 @@ FontClient::Plugin::FontFaceCacheItem::FontFaceCacheItem( FT_Face ftFace,
 
 FontClient::Plugin::Plugin( unsigned int horizontalDpi,
                             unsigned int verticalDpi )
-: mFreeTypeLibrary( NULL ),
+: mFreeTypeLibrary( nullptr ),
   mDpiHorizontal( horizontalDpi ),
   mDpiVertical( verticalDpi ),
   mDefaultFontDescription(),
   mSystemFonts(),
   mDefaultFonts(),
-  mFontCache(),
+  mFontFaceCache(),
   mValidatedFontCache(),
   mFontDescriptionCache( 1u ),
   mCharacterSetCache(),
-  mFontIdCache(),
-  mVectorFontCache( NULL ),
+  mFontDescriptionSizeCache(),
+  mVectorFontCache( nullptr ),
   mEllipsisCache(),
   mDefaultFontDescriptionCached( false )
 {
@@ -238,18 +245,14 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 
 FontClient::Plugin::~Plugin()
 {
-  for( std::vector<FallbackCacheItem>::iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end();
-       it != endIt;
-       ++it )
+  for( auto& item : mFallbackCache )
   {
-    FallbackCacheItem& item = *it;
-
     if( item.fallbackFonts )
     {
       delete item.fallbackFonts;
       delete item.characterSets;
-      item.fallbackFonts = NULL;
-      item.characterSets = NULL;
+      item.fallbackFonts = nullptr;
+      item.characterSets = nullptr;
     }
   }
 
@@ -262,7 +265,7 @@ FontClient::Plugin::~Plugin()
 
 void FontClient::Plugin::ClearCache()
 {
-  mFontCache.clear();
+  mFontFaceCache.clear();
   mValidatedFontCache.clear();
   mFontDescriptionCache.clear();
   mFontDescriptionCache.resize( 1u );
@@ -270,7 +273,7 @@ void FontClient::Plugin::ClearCache()
   mCharacterSetCache.Clear();
   mCharacterSetCache.Resize( 1u );
 
-  mFontIdCache.clear();
+  mFontDescriptionSizeCache.clear();
   mFallbackCache.clear();
 
   mEllipsisCache.Clear();
@@ -309,13 +312,13 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
   FcResult result = FcResultMatch;
 
   // Match the pattern.
-  FcFontSet* fontSet = FcFontSort( NULL /* use default configure */,
+  FcFontSet* fontSet = FcFontSort( nullptr /* use default configure */,
                                    fontFamilyPattern,
                                    false /* don't trim */,
-                                   NULL,
+                                   nullptr,
                                    &result );
 
-  if( NULL != fontSet )
+  if( nullptr != fontSet )
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "  number of fonts found : [%d]\n", fontSet->nfont );
     // Reserve some space to avoid reallocations.
@@ -330,14 +333,14 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
       // Skip fonts with no path
       if( GetFcString( fontPattern, FC_FILE, path ) )
       {
-        FcCharSet* characterSet = NULL;
+        FcCharSet* characterSet = nullptr;
         FcPatternGetCharSet( fontPattern, FC_CHARSET, 0u, &characterSet );
 
         characterSetList.PushBack( characterSet );
         fontList.push_back( FontDescription() );
         FontDescription& newFontDescription = fontList.back();
 
-        newFontDescription.path = path;
+        newFontDescription.path = std::move( path );
 
         int width = 0;
         int weight = 0;
@@ -399,19 +402,15 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
     mDefaultFontCharacterSets.Clear();
     mCharacterSetCache.Clear();
 
-    for( std::vector<FallbackCacheItem>::iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end(); it != endIt; ++it )
+    for( auto& item : mFallbackCache )
     {
-      FallbackCacheItem& item = *it;
-
       item.characterSets->Clear();
     }
 
-    for( std::vector<FontFaceCacheItem>::iterator it = mFontCache.begin(), endIt = mFontCache.end(); it != endIt; ++it )
+    for( auto& item : mFontFaceCache )
     {
-      FontFaceCacheItem& item = *it;
-
       // Set the character set pointer as null. Will be created again the next time IsCharacterSupportedByFont()
-      item.mCharacterSet = NULL;
+      item.mCharacterSet = nullptr;
     }
 
     // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
@@ -421,44 +420,37 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 
     if( matchPattern )
     {
-      FcConfigSubstitute( NULL, matchPattern, FcMatchPattern );
+      FcConfigSubstitute( nullptr, matchPattern, FcMatchPattern );
       FcDefaultSubstitute( matchPattern );
 
-      FcCharSet* characterSet = NULL;
+      FcCharSet* characterSet = nullptr;
       MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription, &characterSet );
       FcPatternDestroy( matchPattern );
     }
 
     // Create again the character sets as they are not valid after FcInitReinitialize()
 
-    for( FontList::const_iterator it = mDefaultFonts.begin(), endIt = mDefaultFonts.end(); it != endIt; ++it )
+    for( const auto& description : mDefaultFonts )
     {
-      const FontDescription& description = *it;
-
       mDefaultFontCharacterSets.PushBack( CreateCharacterSetFromDescription( description ) );
     }
 
-    for( FontList::const_iterator it = mFontDescriptionCache.begin(), endIt = mFontDescriptionCache.end(); it != endIt; ++it )
+    for( const auto& description : mFontDescriptionCache )
     {
-      const FontDescription& description = *it;
-
       mCharacterSetCache.PushBack( CreateCharacterSetFromDescription( description ) );
     }
 
-    for( std::vector<FallbackCacheItem>::iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end(); it != endIt; ++it )
+    for( auto& item : mFallbackCache )
     {
-      FallbackCacheItem& item = *it;
-
-      if( NULL != item.fallbackFonts )
+      if( nullptr != item.fallbackFonts )
       {
-        if( NULL == item.characterSets )
+        if( nullptr == item.characterSets )
         {
           item.characterSets = new CharacterSetList;
         }
 
-        for( FontList::const_iterator flIt = item.fallbackFonts->begin(), flEndIt = item.fallbackFonts->end(); flIt != flEndIt; ++flIt )
+        for( const auto& description : *( item.fallbackFonts ) )
         {
-          const FontDescription& description = *flIt;
           item.characterSets->PushBack( CreateCharacterSetFromDescription( description ) );
         }
       }
@@ -501,13 +493,8 @@ void FontClient::Plugin::GetDescription( FontId id,
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::GetDescription\n");
   DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", id );
 
-  for( std::vector<FontIdCacheItem>::const_iterator it = mFontIdCache.begin(),
-         endIt = mFontIdCache.end();
-       it != endIt;
-       ++it )
+  for( const auto& item : mFontDescriptionSizeCache )
   {
-    const FontIdCacheItem& item = *it;
-
     if( item.fontId == id )
     {
       fontDescription = *( mFontDescriptionCache.begin() + item.validatedFontId );
@@ -533,11 +520,11 @@ PointSize26Dot6 FontClient::Plugin::GetPointSize( FontId id )
   const FontId index = id - 1u;
 
   if( ( id > 0u ) &&
-      ( index < mFontCache.size() ) )
+      ( index < mFontFaceCache.size() ) )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "  point size : %d\n", ( *( mFontCache.begin() + index ) ).mRequestedPointSize );
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  point size : %d\n", ( *( mFontFaceCache.begin() + index ) ).mRequestedPointSize );
     DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::GetPointSize\n");
-    return ( *( mFontCache.begin() + index ) ).mRequestedPointSize;
+    return ( *( mFontFaceCache.begin() + index ) ).mRequestedPointSize;
   }
   else
   {
@@ -555,9 +542,9 @@ bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character ch
   DALI_LOG_INFO( gLogFilter, Debug::General, "    font id : %d\n", fontId );
   DALI_LOG_INFO( gLogFilter, Debug::General, "  character : %p\n", character );
 
-  if( ( fontId < 1u ) || ( fontId > mFontCache.size() ) )
+  if( ( fontId < 1u ) || ( fontId > mFontFaceCache.size() ) )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font id. Number of items in the cache: %d\n",mFontCache.size());
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font id. Number of items in the cache: %d\n",mFontFaceCache.size());
     DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::IsCharacterSupportedByFont\n");
     return false;
   }
@@ -566,16 +553,16 @@ bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character ch
 
   bool isSupported = false;
 
-  FontFaceCacheItem& cacheItem = mFontCache[fontId];
+  FontFaceCacheItem& cacheItem = mFontFaceCache[fontId];
 
-  if( NULL == cacheItem.mCharacterSet )
+  if( nullptr == cacheItem.mCharacterSet )
   {
     // Create again the character set.
     // It can be null if the ResetSystemDefaults() method has been called.
 
     FontDescription description;
     description.path = cacheItem.mPath;
-    description.family = FontFamily( cacheItem.mFreeTypeFace->family_name );
+    description.family = std::move( FontFamily( cacheItem.mFreeTypeFace->family_name ) );
     description.weight = FontWeight::NONE;
     description.width = FontWidth::NONE;
     description.slant = FontSlant::NONE;
@@ -632,7 +619,7 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[description.slant] );
 
     bool foundInRanges = false;
-    if( NULL != characterSet )
+    if( nullptr != characterSet )
     {
       foundInRanges = FcCharSetHasChar( characterSet, character );
     }
@@ -648,9 +635,9 @@ FontId FontClient::Plugin::FindFontForCharacter( const FontList& fontList,
       if( preferColor )
       {
         if( ( fontId > 0 ) &&
-            ( fontId - 1u < mFontCache.size() ) )
+            ( fontId - 1u < mFontFaceCache.size() ) )
         {
-          const FontFaceCacheItem& item = mFontCache[fontId - 1u];
+          const FontFaceCacheItem& item = mFontFaceCache[fontId - 1u];
 
           foundColor = item.mHasColorTables;
         }
@@ -734,8 +721,8 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontSlant::Name[preferredFontDescription.slant], FontSlant::Name[fontDescription.slant] );
 
   // Check first if the font's description has been queried before.
-  FontList* fontList = NULL;
-  CharacterSetList* characterSetList = NULL;
+  FontList* fontList = nullptr;
+  CharacterSetList* characterSetList = nullptr;
 
   if( !FindFallbackFontList( fontDescription, fontList, characterSetList ) )
   {
@@ -745,7 +732,7 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
     SetFontList( fontDescription, *fontList, *characterSetList );
 
     // Add the font-list to the cache.
-    mFallbackCache.push_back( FallbackCacheItem( fontDescription, fontList, characterSetList ) );
+    mFallbackCache.push_back( std::move( FallbackCacheItem( std::move( fontDescription ), fontList, characterSetList ) ) );
   }
 
   if( fontList && characterSetList )
@@ -769,7 +756,7 @@ FontId FontClient::Plugin::GetFontId( const FontPath& path,
 
   FontId id( 0 );
 
-  if( NULL != mFreeTypeLibrary )
+  if( nullptr != mFreeTypeLibrary )
   {
     FontId foundId(0);
     if( FindFont( path, requestedPointSize, faceIndex, foundId ) )
@@ -841,12 +828,12 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                         faceIndex,
                         false );
 
-    mFontCache[fontId-1u].mCharacterSet = mCharacterSetCache[validatedFontId];
+    mFontFaceCache[fontId-1u].mCharacterSet = mCharacterSetCache[validatedFontId];
 
     // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
-    mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
-                                             requestedPointSize,
-                                             fontId ) );
+    mFontDescriptionSizeCache.push_back( FontDescriptionSizeCacheItem( validatedFontId,
+                                                                       requestedPointSize,
+                                                                       fontId ) );
   }
 
   DALI_LOG_INFO( gLogFilter, Debug::General, "  font id : %d\n", fontId );
@@ -870,11 +857,11 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
 
   FontDescription description;
 
-  FcCharSet* characterSet = NULL;
+  FcCharSet* characterSet = nullptr;
   bool matched = MatchFontDescriptionToPattern( fontFamilyPattern, description, &characterSet );
   FcPatternDestroy( fontFamilyPattern );
 
-  if( matched && ( NULL != characterSet ) )
+  if( matched && ( nullptr != characterSet ) )
   {
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
@@ -894,7 +881,7 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
     FontDescriptionCacheItem item( description,
                                    validatedFontId );
 
-    mValidatedFontCache.push_back( item );
+    mValidatedFontCache.push_back( std::move( item ) );
 
     if( ( fontDescription.family != description.family ) ||
         ( fontDescription.width != description.width )   ||
@@ -905,7 +892,7 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
       FontDescriptionCacheItem item( fontDescription,
                                      validatedFontId );
 
-      mValidatedFontCache.push_back( item );
+      mValidatedFontCache.push_back( std::move( item ) );
     }
   }
   else
@@ -920,9 +907,9 @@ void FontClient::Plugin::GetFontMetrics( FontId fontId,
                                          FontMetrics& metrics )
 {
   if( ( fontId > 0 ) &&
-      ( fontId - 1u < mFontCache.size() ) )
+      ( fontId - 1u < mFontFaceCache.size() ) )
   {
-    const FontFaceCacheItem& font = mFontCache[fontId-1];
+    const FontFaceCacheItem& font = mFontFaceCache[fontId-1];
 
     metrics = font.mMetrics;
 
@@ -955,9 +942,9 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex( FontId fontId,
   GlyphIndex index = 0u;
 
   if( ( fontId > 0u ) &&
-      ( fontId - 1u < mFontCache.size() ) )
+      ( fontId - 1u < mFontFaceCache.size() ) )
   {
-    FT_Face ftFace = mFontCache[fontId-1u].mFreeTypeFace;
+    FT_Face ftFace = mFontFaceCache[fontId-1u].mFreeTypeFace;
 
     index = FT_Get_Char_Index( ftFace, charcode );
   }
@@ -991,9 +978,9 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
     FontId fontId = glyph.fontId;
 
     if( fontId > 0 &&
-        fontId-1 < mFontCache.size() )
+        fontId-1 < mFontFaceCache.size() )
     {
-      const FontFaceCacheItem& font = mFontCache[fontId-1];
+      const FontFaceCacheItem& font = mFontFaceCache[fontId-1];
 
       FT_Face ftFace = font.mFreeTypeFace;
 
@@ -1079,9 +1066,9 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
     FontId fontId = array[i].fontId;
 
     if( fontId > 0 &&
-        fontId-1 < mFontCache.size() )
+        fontId-1 < mFontFaceCache.size() )
     {
-      FontFaceCacheItem& font = mFontCache[fontId-1];
+      FontFaceCacheItem& font = mFontFaceCache[fontId-1];
 
       if( ! font.mVectorFontId )
       {
@@ -1113,15 +1100,15 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   if( ( fontId > 0 ) &&
-      ( fontId - 1u < mFontCache.size() ) )
+      ( fontId - 1u < mFontFaceCache.size() ) )
   {
-    FT_Face ftFace = mFontCache[fontId - 1u].mFreeTypeFace;
+    FT_Face ftFace = mFontFaceCache[fontId - 1u].mFreeTypeFace;
 
     FT_Error error;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
     // Check to see if this is fixed size bitmap
-    if ( mFontCache[fontId - 1u].mIsFixedSizeBitmap )
+    if ( mFontFaceCache[fontId - 1u].mIsFixedSizeBitmap )
     {
       error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
     }
@@ -1210,14 +1197,14 @@ PixelData FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex
 
 void FontClient::Plugin::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
 {
-  blob = NULL;
+  blob = nullptr;
   blobLength = 0;
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   if( fontId > 0 &&
-      fontId-1 < mFontCache.size() )
+      fontId-1 < mFontFaceCache.size() )
   {
-    FontFaceCacheItem& font = mFontCache[fontId-1];
+    FontFaceCacheItem& font = mFontFaceCache[fontId-1];
 
     if( ! font.mVectorFontId )
     {
@@ -1235,13 +1222,8 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
   DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize %d.\n", requestedPointSize );
 
   // First look into the cache if there is an ellipsis glyph for the requested point size.
-  for( Vector<EllipsisItem>::ConstIterator it = mEllipsisCache.Begin(),
-         endIt = mEllipsisCache.End();
-       it != endIt;
-       ++it )
+  for( const auto& item : mEllipsisCache )
   {
-    const EllipsisItem& item = *it;
-
     if( fabsf( item.requestedPointSize - requestedPointSize ) < Math::MACHINE_EPSILON_1000 )
     {
       // Use the glyph in the cache.
@@ -1266,7 +1248,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
                                        false );
 
   // Set the character index to access the glyph inside the font.
-  item.glyph.index = FT_Get_Char_Index( mFontCache[item.glyph.fontId-1].mFreeTypeFace,
+  item.glyph.index = FT_Get_Char_Index( mFontFaceCache[item.glyph.fontId-1].mFreeTypeFace,
                                         ELLIPSIS_CHARACTER );
 
   GetBitmapMetrics( &item.glyph, 1u, true );
@@ -1284,9 +1266,9 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 
 #ifdef FREETYPE_BITMAP_SUPPORT
   if( ( fontId > 0 ) &&
-      ( fontId - 1u < mFontCache.size() ) )
+      ( fontId - 1u < mFontFaceCache.size() ) )
   {
-    const FontFaceCacheItem& item = mFontCache[fontId - 1u];
+    const FontFaceCacheItem& item = mFontFaceCache[fontId - 1u];
     FT_Face ftFace = item.mFreeTypeFace;
 
     // Check to see if this is fixed size bitmap
@@ -1302,8 +1284,8 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 
 bool FontClient::Plugin::AddCustomFontDirectory( const FontPath& path )
 {
-  // NULL as first parameter means the current configuration is used.
-  return FcConfigAppFontAddDir( NULL, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
+  // nullptr as first parameter means the current configuration is used.
+  return FcConfigAppFontAddDir( nullptr, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
 }
 
 void FontClient::Plugin::InitSystemFonts()
@@ -1331,7 +1313,7 @@ void FontClient::Plugin::InitSystemFonts()
         mSystemFonts.push_back( FontDescription() );
         FontDescription& fontDescription = mSystemFonts.back();
 
-        fontDescription.path = path;
+        fontDescription.path = std::move( path );
 
         int width = 0;
         int weight = 0;
@@ -1362,9 +1344,9 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::MatchFontDescriptionToPattern\n" );
 
   FcResult result = FcResultMatch;
-  FcPattern* match = FcFontMatch( NULL /* use default configure */, pattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, pattern, &result );
 
-  const bool matched = NULL != match;
+  const bool matched = nullptr != match;
   DALI_LOG_INFO( gLogFilter, Debug::General, "  pattern matched : %s\n", ( matched ? "true" : "false" ) );
 
   if( matched )
@@ -1406,15 +1388,15 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
 
   if( !fontFamilyPattern )
   {
-    return NULL;
+    return nullptr;
   }
 
   // add a property to the pattern for the font family
   FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( fontDescription.family.c_str() ) );
 
   // add a property to the pattern for local setting.
-  const char* locale = setlocale( LC_MESSAGES, NULL );
-  if( locale != NULL)
+  const char* locale = setlocale( LC_MESSAGES, nullptr );
+  if( locale != nullptr)
   {
     FcPatternAddString( fontFamilyPattern, FC_LANG, reinterpret_cast<const FcChar8*>( locale ) );
   }
@@ -1448,7 +1430,7 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   FcPatternAddString( fontFamilyPattern , FC_FONTFORMAT, reinterpret_cast<const FcChar8*>( FONT_FORMAT.c_str() ) );
 
   // modify the config, with the mFontFamilyPatterm
-  FcConfigSubstitute( NULL /* use default configure */, fontFamilyPattern, FcMatchPattern );
+  FcConfigSubstitute( nullptr /* use default configure */, fontFamilyPattern, FcMatchPattern );
 
   // provide default values for unspecified properties in the font pattern
   // e.g. patterns without a specified style or weight are set to Medium
@@ -1475,7 +1457,7 @@ _FcFontSet* FontClient::Plugin::GetFcFontSet() const
 
   // get a list of fonts
   // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
-  FcFontSet* fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
+  FcFontSet* fontset = FcFontList( nullptr /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
 
   // clear up the object set
   if( objectSet )
@@ -1495,7 +1477,7 @@ bool FontClient::Plugin::GetFcString( const FcPattern* const pattern,
                                       const char* const n,
                                       std::string& string )
 {
-  FcChar8* file = NULL;
+  FcChar8* file = nullptr;
   const FcResult retVal = FcPatternGetString( pattern, n, 0u, &file );
 
   if( FcResultMatch == retVal )
@@ -1594,8 +1576,8 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                              0.0f,
                              0.0f );
 
-        mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight, hasColorTables ) );
-        id = mFontCache.size();
+        mFontFaceCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics, fixedWidth, fixedHeight, hasColorTables ) );
+        id = mFontFaceCache.size();
       }
     }
     else
@@ -1617,8 +1599,8 @@ FontId FontClient::Plugin::CreateFont( const FontPath& path,
                              static_cast< float >( ftFace->underline_position ) * FROM_266,
                              static_cast< float >( ftFace->underline_thickness ) * FROM_266 );
 
-        mFontCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
-        id = mFontCache.size();
+        mFontFaceCache.push_back( FontFaceCacheItem( ftFace, path, requestedPointSize, faceIndex, metrics ) );
+        id = mFontFaceCache.size();
       }
       else
       {
@@ -1718,22 +1700,16 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::FindFont\n" );
   DALI_LOG_INFO( gLogFilter, Debug::General, "                path : [%s]\n", path.c_str() );
   DALI_LOG_INFO( gLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize );
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of fonts in the cache : %d\n", mFontCache.size() );
+  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of fonts in the cache : %d\n", mFontFaceCache.size() );
 
   fontId = 0u;
-  for( std::vector<FontFaceCacheItem>::const_iterator it = mFontCache.begin(),
-         endIt = mFontCache.end();
-       it != endIt;
-       ++it, ++fontId )
+  for( const auto& cacheItem : mFontFaceCache )
   {
-    const FontFaceCacheItem& cacheItem = *it;
-
+    ++fontId;
     if( cacheItem.mRequestedPointSize == requestedPointSize &&
         cacheItem.mFaceIndex == faceIndex &&
         cacheItem.mPath == path )
     {
-      ++fontId;
-
       DALI_LOG_INFO( gLogFilter, Debug::General, "  font found, id : %d\n", fontId );
       DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
 
@@ -1744,6 +1720,7 @@ bool FontClient::Plugin::FindFont( const FontPath& path,
   DALI_LOG_INFO( gLogFilter, Debug::General, "  font not found\n" );
   DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::FindFont\n" );
 
+  fontId = 0u;
   return false;
 }
 
@@ -1760,13 +1737,8 @@ bool FontClient::Plugin::FindValidatedFont( const FontDescription& fontDescripti
 
   validatedFontId = 0u;
 
-  for( std::vector<FontDescriptionCacheItem>::const_iterator it = mValidatedFontCache.begin(),
-         endIt = mValidatedFontCache.end();
-       it != endIt;
-       ++it )
+  for( const auto& item : mValidatedFontCache )
   {
-    const FontDescriptionCacheItem& item = *it;
-
     if( !fontDescription.family.empty() &&
         ( fontDescription.family == item.fontDescription.family ) &&
         ( fontDescription.width == item.fontDescription.width ) &&
@@ -1798,14 +1770,10 @@ bool FontClient::Plugin::FindFallbackFontList( const FontDescription& fontDescri
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                slant : [%s]\n\n", FontSlant::Name[fontDescription.slant] );
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  number of fallback font lists in the cache : %d\n", mFallbackCache.size() );
 
-  fontList = NULL;
+  fontList = nullptr;
 
-  for( std::vector<FallbackCacheItem>::const_iterator it = mFallbackCache.begin(), endIt = mFallbackCache.end();
-       it != endIt;
-       ++it )
+  for( const auto& item : mFallbackCache )
   {
-    const FallbackCacheItem& item = *it;
-
     if( !fontDescription.family.empty() &&
         ( fontDescription.family == item.fontDescription.family ) &&
         ( fontDescription.width == item.fontDescription.width ) &&
@@ -1836,13 +1804,8 @@ bool FontClient::Plugin::FindFont( FontDescriptionId validatedFontId,
 
   fontId = 0u;
 
-  for( std::vector<FontIdCacheItem>::const_iterator it = mFontIdCache.begin(),
-         endIt = mFontIdCache.end();
-       it != endIt;
-       ++it )
+  for( const auto& item : mFontDescriptionSizeCache )
   {
-    const FontIdCacheItem& item = *it;
-
     if( ( validatedFontId == item.validatedFontId ) &&
         ( requestedPointSize == item.requestedPointSize ) )
     {
@@ -1888,7 +1851,7 @@ bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result );
   bool isScalable = false;
 
   if( match )
@@ -1941,7 +1904,7 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match = FcFontMatch( NULL /* use default configure */, fontFamilyPattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result );
 
   if( match )
   {
@@ -1962,7 +1925,7 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
 {
   FontDescription description;
   description.path = path;
-  description.family = FontFamily( ftFace->family_name );
+  description.family = std::move( FontFamily( ftFace->family_name ) );
   description.weight = FontWeight::NONE;
   description.width = FontWidth::NONE;
   description.slant = FontSlant::NONE;
@@ -1987,44 +1950,42 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     FcPattern* pattern = CreateFontFamilyPattern( description );
 
     FcResult result = FcResultMatch;
-    FcPattern* match = FcFontMatch( NULL, pattern, &result );
+    FcPattern* match = FcFontMatch( nullptr, pattern, &result );
 
-    FcCharSet* characterSet = NULL;
+    FcCharSet* characterSet = nullptr;
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
     FcPatternDestroy( pattern );
 
     mMatchedFcPatternCache.PushBack( match );
 
-    mFontCache[id-1u].mCharacterSet = characterSet;
+    mFontFaceCache[id-1u].mCharacterSet = characterSet;
 
     // Add the path to the cache.
     mFontDescriptionCache.push_back( description );
     mCharacterSetCache.PushBack( characterSet );
 
     // Cache the index and the font's description.
-    FontDescriptionCacheItem item( description,
-                                   validatedFontId );
-
-    mValidatedFontCache.push_back( item );
+    mValidatedFontCache.push_back( std::move( FontDescriptionCacheItem( std::move( description ),
+                                                                        validatedFontId) ) );
 
     // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
-    mFontIdCache.push_back( FontIdCacheItem( validatedFontId,
-                                             requestedPointSize,
-                                             id ) );
+    mFontDescriptionSizeCache.push_back( FontDescriptionSizeCacheItem( validatedFontId,
+                                                                       requestedPointSize,
+                                                                       id ) );
   }
 }
 
 FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDescription& description )
 {
-  FcCharSet* characterSet = NULL;
+  FcCharSet* characterSet = nullptr;
 
   FcPattern* pattern = CreateFontFamilyPattern( description );
 
-  if( NULL != pattern )
+  if( nullptr != pattern )
   {
     FcResult result = FcResultMatch;
-    FcPattern* match = FcFontMatch( NULL, pattern, &result );
+    FcPattern* match = FcFontMatch( nullptr, pattern, &result );
 
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
@@ -2038,7 +1999,8 @@ FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDesc
 
 void FontClient::Plugin::DestroyMatchedPatterns()
 {
-  for (auto & object : mMatchedFcPatternCache) {
+  for (auto & object : mMatchedFcPatternCache)
+  {
     FcPatternDestroy(reinterpret_cast<FcPattern*>(object));
   }
   mMatchedFcPatternCache.Clear();

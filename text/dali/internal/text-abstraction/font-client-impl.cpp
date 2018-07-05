@@ -37,7 +37,7 @@ namespace Internal
 {
 
 FontClient::FontClient()
-: mPlugin( NULL ),
+: mPlugin( nullptr ),
   mDpiHorizontal( 0 ),
   mDpiVertical( 0 )
 {
