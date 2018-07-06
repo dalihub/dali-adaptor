@@ -29,6 +29,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/events/mouse-button.h>
 #include <dali/integration-api/debug.h>
 #include <Ecore_Input.h>
 
@@ -439,14 +440,6 @@ void WindowBaseEcoreX::OnMouseButtonDown( void* data, int type, void* event )
   {
     PointState::Type state ( PointState::DOWN );
 
-    // Check if the buttons field is set and ensure it's the primary touch button.
-    // If this event was triggered by buttons other than the primary button (used for touch), then
-    // just send an interrupted event to Core.
-    if( touchEvent->buttons && ( touchEvent->buttons != PRIMARY_TOUCH_BUTTON_ID ) )
-    {
-      state = PointState::INTERRUPTED;
-    }
-
     Integration::Point point;
     point.SetDeviceId( touchEvent->multi.device );
     point.SetState( state );
@@ -454,6 +447,10 @@ void WindowBaseEcoreX::OnMouseButtonDown( void* data, int type, void* event )
     point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
     point.SetPressure( touchEvent->multi.pressure );
     point.SetAngle( Degree( touchEvent->multi.angle ) );
+    if( touchEvent->buttons)
+    {
+      point.SetMouseButton( static_cast< MouseButton::Type >( touchEvent->buttons) );
+    }
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
   }
@@ -472,6 +469,10 @@ void WindowBaseEcoreX::OnMouseButtonUp( void* data, int type, void* event )
     point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
     point.SetPressure( touchEvent->multi.pressure );
     point.SetAngle( Degree( touchEvent->multi.angle ) );
+    if( touchEvent->buttons)
+    {
+      point.SetMouseButton( static_cast< MouseButton::Type >( touchEvent->buttons) );
+    }
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
   }
