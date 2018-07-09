@@ -292,20 +292,14 @@ void CombinedUpdateRenderController::ResizeSurface()
 {
   LOG_EVENT_TRACE;
 
-  LOG_EVENT( "Starting to resize the surface, event-thread blocked" );
+  LOG_EVENT( "Resize the surface" );
 
-  // Start resizing the surface.
   {
     ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
     mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
     mSurfaceResized = TRUE;
     mUpdateRenderThreadWaitCondition.Notify( lock );
   }
-
-  // Wait until the surface has been resized
-  sem_wait( &mEventThreadSemaphore );
-
-  LOG_EVENT( "Surface resized, event-thread continuing" );
 }
 
 void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOfFramesPerRender )
@@ -443,21 +437,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceReplaced();
     }
 
-    //////////////////////////////
-    // RESIZE SURFACE
-    //////////////////////////////
-
     const bool isRenderingToFbo = renderToFboEnabled && ( ( 0u == frameCount ) || ( 0u != frameCount % renderToFboInterval ) );
     ++frameCount;
-
-    // The resizing will be applied in the next loop
-    bool surfaceResized = ShouldSurfaceBeResized();
-    if( DALI_UNLIKELY( surfaceResized ) )
-    {
-      LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
-      mRenderHelper.ResizeSurface();
-      SurfaceResized();
-    }
 
     //////////////////////////////
     // UPDATE
@@ -495,6 +476,19 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     {
       mNotificationTrigger.Trigger();
       LOG_UPDATE_RENDER( "Notification Triggered" );
+    }
+
+    // Check resize
+    bool surfaceResized = ShouldSurfaceBeResized();
+    if( DALI_UNLIKELY( surfaceResized ) )
+    {
+      // RenderHelper::ResizeSurface() should be called right after a viewport is changed.
+      if( updateStatus.SurfaceRectChanged() )
+      {
+        LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
+        mRenderHelper.ResizeSurface();
+        SurfaceResized();
+      }
     }
 
     // Optional logging of update/render status
@@ -657,17 +651,13 @@ void CombinedUpdateRenderController::SurfaceReplaced()
 bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-
-  bool surfaceSized = mSurfaceResized;
-  mSurfaceResized = FALSE;
-
-  return surfaceSized;
+  return mSurfaceResized;
 }
 
 void CombinedUpdateRenderController::SurfaceResized()
 {
-  // Just increment the semaphore
-  sem_post( &mEventThreadSemaphore );
+  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  mSurfaceResized = FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

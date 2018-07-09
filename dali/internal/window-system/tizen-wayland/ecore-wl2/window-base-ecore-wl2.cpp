@@ -30,6 +30,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/events/mouse-button.h>
 #include <dali/integration-api/debug.h>
 #include <Ecore_Input.h>
 #include <vconf.h>
@@ -863,21 +864,24 @@ void WindowBaseEcoreWl2::OnMouseButtonDown( void* data, int type, void* event )
 
   if( touchEvent->window == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
   {
-    PointState::Type state ( PointState::DOWN );
-
-    // Check if the buttons field is set and ensure it's the primary touch button.
-    // If this event was triggered by buttons other than the primary button (used for touch), then
-    // just send an interrupted event to Core.
-    if( touchEvent->buttons && (touchEvent->buttons != PRIMARY_TOUCH_BUTTON_ID ) )
-    {
-      state = PointState::INTERRUPTED;
-    }
-
     Device::Class::Type deviceClass;
     Device::Subclass::Type deviceSubclass;
 
     GetDeviceClass( ecore_device_class_get( touchEvent->dev ), deviceClass );
     GetDeviceSubclass( ecore_device_subclass_get( touchEvent->dev ), deviceSubclass );
+
+    PointState::Type state ( PointState::DOWN );
+
+    if( deviceClass != Device::Class::Type::MOUSE )
+    {
+      // Check if the buttons field is set and ensure it's the primary touch button.
+      // If this event was triggered by buttons other than the primary button (used for touch), then
+      // just send an interrupted event to Core.
+      if( touchEvent->buttons && (touchEvent->buttons != PRIMARY_TOUCH_BUTTON_ID ) )
+      {
+        state = PointState::INTERRUPTED;
+      }
+    }
 
     Integration::Point point;
     point.SetDeviceId( touchEvent->multi.device );
@@ -888,6 +892,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown( void* data, int type, void* event )
     point.SetAngle( Degree( touchEvent->multi.angle ) );
     point.SetDeviceClass( deviceClass );
     point.SetDeviceSubclass( deviceSubclass );
+    point.SetMouseButton( static_cast< MouseButton::Type >( touchEvent->buttons) );
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
   }
@@ -914,6 +919,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp( void* data, int type, void* event )
     point.SetAngle( Degree( touchEvent->multi.angle ) );
     point.SetDeviceClass( deviceClass );
     point.SetDeviceSubclass( deviceSubclass );
+    point.SetMouseButton( static_cast< MouseButton::Type >( touchEvent->buttons) );
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
   }
