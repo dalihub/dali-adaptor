@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,10 @@ VkSurfaceWayland::VkSurfaceWayland(::wl_display* display, ::wl_surface* surface)
 }
 
 
-vk::SurfaceKHR VkSurfaceWayland::Create(vk::Instance instance, vk::AllocationCallbacks* allocCallbacks,
-                                    vk::PhysicalDevice physicalDevice) const
+vk::SurfaceKHR VkSurfaceWayland::Create(
+  vk::Instance instance,
+  const vk::AllocationCallbacks* allocCallbacks,
+  vk::PhysicalDevice physicalDevice) const
 {
   vk::WaylandSurfaceCreateInfoKHR info;
 
