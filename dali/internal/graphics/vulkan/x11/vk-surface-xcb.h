@@ -44,7 +44,7 @@ public:
    */
   VkSurfaceXcb(xcb_connection_t* connection, xcb_window_t window);
 
-  virtual vk::SurfaceKHR Create(vk::Instance instance, vk::AllocationCallbacks* allocCallbacks,
+  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                 vk::PhysicalDevice physicalDevice) const override;
 
 private:

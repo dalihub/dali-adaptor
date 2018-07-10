@@ -40,7 +40,7 @@ VkSurfaceXlib::VkSurfaceXlib(Display* display, Window window)
 {
 }
 
-vk::SurfaceKHR VkSurfaceXlib::Create(vk::Instance instance, vk::AllocationCallbacks* allocCallbacks,
+vk::SurfaceKHR VkSurfaceXlib::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                      vk::PhysicalDevice physicalDevice) const
 {
   vk::XlibSurfaceCreateInfoKHR info;
