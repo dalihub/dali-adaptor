@@ -339,6 +339,11 @@ public:
   void GetAppId( std::string& appId );
 
   /**
+   * Informs core the surface size and orientation has changed
+   */
+  void SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation );
+
+  /**
    * Informs core the surface size has changed
    */
   void SurfaceResizePrepare( SurfaceSize surfaceSize );

@@ -89,7 +89,7 @@ public: // API
   /**
    * Notify output is transformed.
    */
-  void OutputTransformed();
+  int OutputTransformed();
 
   /**
    * @brief Sets whether the surface is transparent or not.

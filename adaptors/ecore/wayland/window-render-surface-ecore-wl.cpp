@@ -128,23 +128,19 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
 }
 
-void WindowRenderSurface::OutputTransformed()
+int WindowRenderSurface::OutputTransformed()
 {
   int transform;
 
-  if( ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
-  {
-    transform = 0;
-  }
-  else
+  if( !ecore_wl_window_ignore_output_transform_get( mWlWindow ) )
   {
     transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mWlWindow ) );
+    mScreenRotationAngle = transform * 90;
+    mScreenRotationFinished = false;
+    mResizeFinished = false;
   }
-
-  mScreenRotationAngle = transform * 90;
-  mScreenRotationFinished = false;
-
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+  return  (mRotationAngle + mScreenRotationAngle) % 360;
 }
 
 void WindowRenderSurface::SetTransparency( bool transparent )
@@ -279,13 +275,13 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
 {
   if( resizingSurface )
   {
+    int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
 #ifdef OVER_TIZEN_VERSION_4
     // Window rotate or screen rotate
     if( !mRotationFinished || !mScreenRotationFinished )
     {
       wl_egl_window_rotation rotation;
       wl_output_transform bufferTransform;
-      int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
 
       switch( totalAngle )
       {
@@ -372,7 +368,14 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
     // Resize case
     if( !mResizeFinished )
     {
-      wl_egl_window_resize( mEglWindow, mPositionSize.width, mPositionSize.height, mPositionSize.x, mPositionSize.y );
+      if( totalAngle == 0 || totalAngle == 180 )
+      {
+        wl_egl_window_resize( mEglWindow, mPositionSize.width, mPositionSize.height, mPositionSize.x, mPositionSize.y );
+      }
+      else
+      {
+        wl_egl_window_resize( mEglWindow, mPositionSize.height, mPositionSize.width, mPositionSize.x, mPositionSize.y );
+      }
       mResizeFinished = true;
 
       DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );

@@ -227,10 +227,10 @@ struct Window::EventHandler
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        wlSurface->OutputTransformed();
+        int orientation = wlSurface->OutputTransformed();
 
         PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation );
         handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
       }
     }
@@ -251,10 +251,10 @@ struct Window::EventHandler
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        wlSurface->OutputTransformed();
+        int orientation = wlSurface->OutputTransformed();
 
         PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation );
         handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
       }
     }

@@ -777,6 +777,14 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate( false );
 }
 
+void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation )
+{
+  // let the core know the surface size and orientation has changed
+  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight(), orientation );
+
+  mResizedSignal.Emit( mAdaptor );
+}
+
 void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
   // let the core know the surface size has changed
