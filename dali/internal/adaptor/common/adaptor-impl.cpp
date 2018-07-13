@@ -785,7 +785,6 @@ void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  // this method blocks until the render thread has completed the resizing.
   mThreadController->ResizeSurface();
 }
 
