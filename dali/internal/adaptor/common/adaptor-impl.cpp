@@ -148,14 +148,14 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   auto waylandSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
       new Dali::Graphics::Vulkan::VkSurfaceWayland( *mSurface )
   );
-  mGraphics->Create( std::move(waylandSurface) );
+  mGraphics->Create( std::move(waylandSurface), size.width, size.height );
 #else
   // @todo: surface shouldn't really be create here :((((
   auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
     new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
   );
 
-  mGraphics->Create( std::move(xlibSurface) );
+  mGraphics->Create( std::move(xlibSurface), size.width, size.height );
 #endif
 
   mCore = Integration::Core::New( *this,
