@@ -1348,7 +1348,7 @@ bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
 
 void WindowBaseEcoreWl2::Move( PositionSize positionSize )
 {
-  ecore_wl2_window_geometry_set( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+  ecore_wl2_window_position_set( mEcoreWindow, positionSize.x, positionSize.y );
 }
 
 void WindowBaseEcoreWl2::Resize( PositionSize positionSize )
@@ -1358,6 +1358,7 @@ void WindowBaseEcoreWl2::Resize( PositionSize positionSize )
 
 void WindowBaseEcoreWl2::MoveResize( PositionSize positionSize )
 {
+  ecore_wl2_window_position_set( mEcoreWindow, positionSize.x, positionSize.y );
   ecore_wl2_window_geometry_set( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
