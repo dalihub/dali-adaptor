@@ -25,9 +25,9 @@ include ./module.list
 pkgconfigdir = $(libdir)/pkgconfig
 
 if ENABLE_CXX03_ABI
-pkgconfig_DATA = dali-adaptor-cxx03.pc dali-adaptor-integration-cxx03.pc
+pkgconfig_DATA = dali-adaptor-vk-cxx03.pc dali-adaptor-vk-integration-cxx03.pc
 else
-pkgconfig_DATA = dali-adaptor.pc dali-adaptor-integration.pc
+pkgconfig_DATA = dali-adaptor-vk.pc dali-adaptor-vk-integration.pc
 endif
 
 # sources
@@ -420,7 +420,7 @@ endif
 package_doxy_dir = ../../../doc
 include ../../../doc/file.list
 
-libdali_adaptor_la_DEPENDENCIES =
+libdali_adaptor_vk_la_DEPENDENCIES =
 
 # List include directories with more platform-specific (tizen) before portable root:
 LIBDALI_ADAPTOR_LA_includes = \
@@ -674,23 +674,23 @@ packagedoxy_HEADERS = $(package_doxy_files)
 
 if ENABLE_CXX03_ABI
 
-lib_LTLIBRARIES = libdali-adaptor.la
+lib_LTLIBRARIES = libdali-adaptor-vk.la
 
-libdali_adaptor_la_SOURCES = $(LIBDALI_ADAPTOR_LA_SOURCES)
-libdali_adaptor_la_includes = $(LIBDALI_ADAPTOR_LA_INCLUDES)
-libdali_adaptor_la_CFLAGS = $(LIBDALI_ADAPTOR_LA_CFLAGS)
-libdali_adaptor_la_CXXFLAGS = $(LIBDALI_ADAPTOR_LA_CXXFLAGS)
-libdali_adaptor_la_LIBADD = $(LIBDALI_ADAPTOR_LA_LIBADD)
+libdali_adaptor_vk_la_SOURCES = $(LIBDALI_ADAPTOR_LA_SOURCES)
+libdali_adaptor_vk_la_includes = $(LIBDALI_ADAPTOR_LA_INCLUDES)
+libdali_adaptor_vk_la_CFLAGS = $(LIBDALI_ADAPTOR_LA_CFLAGS)
+libdali_adaptor_vk_la_CXXFLAGS = $(LIBDALI_ADAPTOR_LA_CXXFLAGS)
+libdali_adaptor_vk_la_LIBADD = $(LIBDALI_ADAPTOR_LA_LIBADD)
 
 else
 
-lib_LTLIBRARIES = libdali-adaptor-cxx11.la
+lib_LTLIBRARIES = libdali-adaptor-vk-cxx11.la
 
-libdali_adaptor_cxx11_la_SOURCES = $(LIBDALI_ADAPTOR_LA_SOURCES)
-libdali_adaptor_cxx11_la_includes = $(LIBDALI_ADAPTOR_LA_INCLUDES)
-libdali_adaptor_cxx11_la_CFLAGS = $(LIBDALI_ADAPTOR_LA_CFLAGS)
-libdali_adaptor_cxx11_la_CXXFLAGS = $(LIBDALI_ADAPTOR_LA_CXXFLAGS)
-libdali_adaptor_cxx11_la_LIBADD = $(LIBDALI_ADAPTOR_LA_LIBADD)
+libdali_adaptor_vk_cxx11_la_SOURCES = $(LIBDALI_ADAPTOR_LA_SOURCES)
+libdali_adaptor_vk_cxx11_la_includes = $(LIBDALI_ADAPTOR_LA_INCLUDES)
+libdali_adaptor_vk_cxx11_la_CFLAGS = $(LIBDALI_ADAPTOR_LA_CFLAGS)
+libdali_adaptor_vk_cxx11_la_CXXFLAGS = $(LIBDALI_ADAPTOR_LA_CXXFLAGS)
+libdali_adaptor_vk_cxx11_la_LIBADD = $(LIBDALI_ADAPTOR_LA_LIBADD)
 
 endif
 
@@ -716,28 +716,28 @@ linker_test_LDADD = \
 
 if ENABLE_CXX03_ABI
 
-linker_test_LDADD += libdali-adaptor.la
-linker_test_DEPENDENCIES = libdali-adaptor.la
+linker_test_LDADD += libdali-adaptor-vk.la
+linker_test_DEPENDENCIES = libdali-adaptor-vk.la
 
 if ENABLE_RENAME_SO
 #rename
 install: install-am
-	rm -rf $(libdir)/libdali-adaptor.so
-	rm -rf $(libdir)/libdali-adaptor-cxx03.so
-	ln -s $(libdir)/libdali-adaptor.so.0.0.* $(libdir)/libdali-adaptor-cxx03.so
+	rm -rf $(libdir)/libdali-adaptor-vk.so
+	rm -rf $(libdir)/libdali-adaptor-vk-cxx03.so
+	ln -s $(libdir)/libdali-adaptor-vk.so.0.0.* $(libdir)/libdali-adaptor-vk-cxx03.so
 endif
 
 else
 
-linker_test_LDADD += libdali-adaptor-cxx11.la
-linker_test_DEPENDENCIES = libdali-adaptor-cxx11.la
+linker_test_LDADD += libdali-adaptor-vk-cxx11.la
+linker_test_DEPENDENCIES = libdali-adaptor-vk-cxx11.la
 
 if ENABLE_RENAME_SO
 #rename
 install: install-am
-	rm -rf $(libdir)/libdali-adaptor-cxx11.so
-	rm -rf $(libdir)/libdali-adaptor.so
-	ln -s $(libdir)/libdali-adaptor-cxx11.so.0.0.* $(libdir)/libdali-adaptor.so
+	rm -rf $(libdir)/libdali-adaptor-vk-cxx11.so
+	rm -rf $(libdir)/libdali-adaptor-vk.so
+	ln -s $(libdir)/libdali-adaptor-vk-cxx11.so.0.0.* $(libdir)/libdali-adaptor-vk.so
 endif
 
 endif

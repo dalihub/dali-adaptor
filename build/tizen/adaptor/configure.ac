@@ -244,9 +244,9 @@ PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
 if test "x$enable_cxx03_abi" = "xyes"; then
-PKG_CHECK_MODULES(DALICORE, dali-core-cxx03)
+PKG_CHECK_MODULES(DALICORE, dali-core-vk-cxx03)
 else
-PKG_CHECK_MODULES(DALICORE, dali-core)
+PKG_CHECK_MODULES(DALICORE, dali-core-vk)
 fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
@@ -400,9 +400,9 @@ AC_SUBST(devincludepath)
 AC_CONFIG_FILES([Makefile])
 
 if test "x$enable_cxx03_abi" = "xyes"; then
-AC_CONFIG_FILES([dali-adaptor-cxx03.pc dali-adaptor-integration-cxx03.pc])
+AC_CONFIG_FILES([dali-adaptor-vk-cxx03.pc dali-adaptor-vk-integration-cxx03.pc])
 else
-AC_CONFIG_FILES([dali-adaptor.pc dali-adaptor-integration.pc])
+AC_CONFIG_FILES([dali-adaptor-vk.pc dali-adaptor-vk-integration.pc])
 fi
 
 if test "x$freetype_bitmap_support" = "xyes"; then
