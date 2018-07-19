@@ -17,7 +17,7 @@
 
 %bcond_with wayland
 
-Name:       dali-adaptor
+Name:       dali-adaptor-vk
 Summary:    The DALi Tizen Adaptor
 Version:    1.3.33
 Release:    1
@@ -60,11 +60,11 @@ BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(ttrace)
 
 %if !0%{?disable_cxx03_build}
-BuildRequires:  dali-devel-cxx03
-BuildRequires:  dali-integration-devel-cxx03
+BuildRequires:  dali-vk-devel-cxx03
+BuildRequires:  dali-vk-integration-devel-cxx03
 %endif
-BuildRequires:  dali-devel
-BuildRequires:  dali-integration-devel
+BuildRequires:  dali-vk-devel
+BuildRequires:  dali-vk-integration-devel
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
@@ -758,7 +758,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.mobile"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
+for FILE in libdali-*plugin-vk.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -805,7 +805,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.tv"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
+for FILE in libdali-*plugin-vk.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -851,7 +851,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.wearable"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
+for FILE in libdali-*plugin-vk.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -897,7 +897,7 @@ popd
 
 pushd %{buildroot}%{_libdir}
 for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.ivi"; done
-for FILE in libdali-*plugin.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
+for FILE in libdali-*plugin-vk.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
 popd
 
 make clean
@@ -975,9 +975,9 @@ pushd %{buildroot}%{_libdir}
 #%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 rm -rf libdali-adaptor*.so
 %if !0%{?disable_cxx03_build}
-ln -s libdali-adaptor.so.0.0.0 libdali-adaptor-cxx03.so
+ln -s libdali-adaptor-vk.so.0.0.0 libdali-adaptor-vk-cxx03.so
 %endif
-ln -s libdali-adaptor-cxx11.so.0.0.0 libdali-adaptor.so
+ln -s libdali-adaptor-vk-cxx11.so.0.0.0 libdali-adaptor-vk.so
 #%endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -985,9 +985,9 @@ ln -s libdali-adaptor-cxx11.so.0.0.0 libdali-adaptor.so
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 rm -rf libdali-adaptor*.so.wearable
 %if !0%{?disable_cxx03_build}
-ln -s libdali-adaptor.so.0.0.*.wearable libdali-adaptor-cxx03.so.wearable
+ln -s libdali-adaptor-vk.so.0.0.*.wearable libdali-adaptor-vk-cxx03.so.wearable
 %endif
-ln -s libdali-adaptor-cxx11.so.0.0.*.wearable libdali-adaptor.so.wearable
+ln -s libdali-adaptor-vk-cxx11.so.0.0.*.wearable libdali-adaptor-vk.so.wearable
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -995,9 +995,9 @@ ln -s libdali-adaptor-cxx11.so.0.0.*.wearable libdali-adaptor.so.wearable
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 rm -rf libdali-adaptor*.so.tv
 %if !0%{?disable_cxx03_build}
-ln -s libdali-adaptor.so.0.0.*.tv libdali-adaptor-cxx03.so.tv
+ln -s libdali-adaptor-vk.so.0.0.*.tv libdali-adaptor-vk-cxx03.so.tv
 %endif
-ln -s libdali-adaptor-cxx11.so.0.0.*.tv libdali-adaptor.so.tv
+ln -s libdali-adaptor-vk-cxx11.so.0.0.*.tv libdali-adaptor-vk.so.tv
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1005,9 +1005,9 @@ ln -s libdali-adaptor-cxx11.so.0.0.*.tv libdali-adaptor.so.tv
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 rm -rf libdali-adaptor*.so.ivi
 %if !0%{?disable_cxx03_build}
-ln -s libdali-adaptor.so.0.0.*.ivi libdali-adaptor-cxx03.so.ivi
+ln -s libdali-adaptor-vk.so.0.0.*.ivi libdali-adaptor-vk-cxx03.so.ivi
 %endif
-ln -s libdali-adaptor-cxx11.so.0.0.*.ivi libdali-adaptor.so.ivi
+ln -s libdali-adaptor-vk-cxx11.so.0.0.*.ivi libdali-adaptor-vk.so.ivi
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1015,9 +1015,9 @@ ln -s libdali-adaptor-cxx11.so.0.0.*.ivi libdali-adaptor.so.ivi
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 rm -rf libdali-adaptor*.so.mobile
 %if !0%{?disable_cxx03_build}
-ln -s libdali-adaptor.so.0.0.*.mobile libdali-adaptor-cxx03.so.mobile
+ln -s libdali-adaptor-vk.so.0.0.*.mobile libdali-adaptor-vk-cxx03.so.mobile
 %endif
-ln -s libdali-adaptor-cxx11.so.0.0.*.mobile libdali-adaptor.so.mobile
+ln -s libdali-adaptor-vk-cxx11.so.0.0.*.mobile libdali-adaptor-vk.so.mobile
 %endif
 popd
 
@@ -1061,7 +1061,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_mobile
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.mobile; do ln -sf "$FILE" "${FILE%.mobile}"; done
+for FILE in libdali-adaptor-vk-cxx11.so*.mobile; do ln -sf "$FILE" "${FILE%.mobile}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1078,7 +1078,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %post profile_tv
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.tv; do ln -sf "$FILE" "${FILE%.tv}"; done
+for FILE in libdali-adaptor-vk-cxx11.so*.tv; do ln -sf "$FILE" "${FILE%.tv}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1095,7 +1095,7 @@ exit 0
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_wearable
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.wearable; do ln -sf "$FILE" "${FILE%.wearable}"; done
+for FILE in libdali-adaptor-vk-cxx11.so*.wearable; do ln -sf "$FILE" "${FILE%.wearable}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1112,7 +1112,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_ivi
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.ivi; do ln -sf "$FILE" "${FILE%.ivi}"; done
+for FILE in libdali-adaptor-vk-cxx11.so*.ivi; do ln -sf "$FILE" "${FILE%.ivi}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1131,7 +1131,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_mobile-cxx03
 pushd %{_libdir}
-for FILE in libdali-adaptor.so*.mobile; do ln -sf "$FILE" "${FILE%.mobile}"; done
+for FILE in libdali-adaptor-vk.so*.mobile; do ln -sf "$FILE" "${FILE%.mobile}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1148,7 +1148,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %post profile_tv-cxx03
 pushd %{_libdir}
-for FILE in libdali-adaptor.so*.tv; do ln -sf "$FILE" "${FILE%.tv}"; done
+for FILE in libdali-adaptor-vk.so*.tv; do ln -sf "$FILE" "${FILE%.tv}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1165,7 +1165,7 @@ exit 0
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_wearable-cxx03
 pushd %{_libdir}
-for FILE in libdali-adaptor.so*.wearable; do ln -sf "$FILE" "${FILE%.wearable}"; done
+for FILE in libdali-adaptor-vk.so*.wearable; do ln -sf "$FILE" "${FILE%.wearable}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1182,7 +1182,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_ivi-cxx03
 pushd %{_libdir}
-for FILE in libdali-adaptor.so*.ivi; do ln -sf "$FILE" "${FILE%.ivi}"; done
+for FILE in libdali-adaptor-vk.so*.ivi; do ln -sf "$FILE" "${FILE%.ivi}"; done
 popd
 /sbin/ldconfig
 exit 0
@@ -1209,8 +1209,8 @@ exit 0
 # if common ||"undefined"
 #%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx11.so.0*
-%{_libdir}/libdali-adaptor.so
+%{_libdir}/libdali-adaptor-vk-cxx11.so.0*
+%{_libdir}/libdali-adaptor-vk.so
 %exclude %{_libdir}/libdali-adap*.so*.mobile
 %exclude %{_libdir}/libdali-adap*.so*.wearable
 %exclude %{_libdir}/libdali-adap*.so*.tv
@@ -1229,8 +1229,8 @@ exit 0
 # if common ||"undefined"
 #%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor.so.0*
-%{_libdir}/libdali-adaptor-cxx03.so
+%{_libdir}/libdali-adaptor-vk.so.0*
+%{_libdir}/libdali-adaptor-vk-cxx03.so
 %exclude %{_libdir}/libdali-adap*.so*.mobile
 %exclude %{_libdir}/libdali-adap*.so*.wearable
 %exclude %{_libdir}/libdali-adap*.so*.tv
@@ -1241,7 +1241,7 @@ exit 0
 %files dali-feedback-plugin-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-feedback-plugin.so*
+%{_libdir}/libdali-feedback-plugin-vk.so*
 %{dali_plugin_sound_files}/*
 %endif
 %endif
@@ -1252,7 +1252,7 @@ exit 0
 %files dali-feedback-plugin
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-feedback-plugin-cxx11.so*
+%{_libdir}/libdali-feedback-plugin-vk-cxx11.so*
 %{dali_plugin_sound_files}/*
 %endif
 
@@ -1271,8 +1271,8 @@ exit 0
 %files profile_mobile
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor.so.mobile
-%{_libdir}/libdali-adaptor-cxx11.so.0*.mobile
+%{_libdir}/libdali-adaptor-vk.so.mobile
+%{_libdir}/libdali-adaptor-vk-cxx11.so.0*.mobile
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1281,8 +1281,8 @@ exit 0
 %files profile_tv
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor.so.tv
-%{_libdir}/libdali-adaptor-cxx11.so.0*.tv
+%{_libdir}/libdali-adaptor-vk.so.tv
+%{_libdir}/libdali-adaptor-vk-cxx11.so.0*.tv
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1291,8 +1291,8 @@ exit 0
 %files profile_wearable
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor.so.wearable
-%{_libdir}/libdali-adaptor-cxx11.so.0*.wearable
+%{_libdir}/libdali-adaptor-vk.so.wearable
+%{_libdir}/libdali-adaptor-vk-cxx11.so.0*.wearable
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1301,8 +1301,8 @@ exit 0
 %files profile_ivi
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor.so.ivi
-%{_libdir}/libdali-adaptor-cxx11.so.0*.ivi
+%{_libdir}/libdali-adaptor-vk.so.ivi
+%{_libdir}/libdali-adaptor-vk-cxx11.so.0*.ivi
 %endif
 
 
@@ -1312,12 +1312,12 @@ exit 0
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
-%{_libdir}/pkgconfig/dali-adaptor.pc
+%{_libdir}/pkgconfig/dali-adaptor-vk.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
 %{dev_include_path}/dali/integration-api/adaptors/*
-%{_libdir}/pkgconfig/dali-adaptor-integration.pc
+%{_libdir}/pkgconfig/dali-adaptor-vk-integration.pc
 
 %if !0%{?disable_cxx03_build}
 ################################################
@@ -1337,8 +1337,8 @@ exit 0
 %files profile_mobile-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx03.so.mobile
-%{_libdir}/libdali-adaptor.so.0*mobile
+%{_libdir}/libdali-adaptor-vk-cxx03.so.mobile
+%{_libdir}/libdali-adaptor-vk.so.0*mobile
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1347,8 +1347,8 @@ exit 0
 %files profile_tv-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx03.so.tv
-%{_libdir}/libdali-adaptor.so.0*.tv
+%{_libdir}/libdali-adaptor-vk-cxx03.so.tv
+%{_libdir}/libdali-adaptor-vk.so.0*.tv
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1357,8 +1357,8 @@ exit 0
 %files profile_wearable-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx03.so.wearable
-%{_libdir}/libdali-adaptor.so.0*.wearable
+%{_libdir}/libdali-adaptor-vk-cxx03.so.wearable
+%{_libdir}/libdali-adaptor-vk.so.0*.wearable
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1367,8 +1367,8 @@ exit 0
 %files profile_ivi-cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx03.so.ivi
-%{_libdir}/libdali-adaptor.so.0*.ivi
+%{_libdir}/libdali-adaptor-vk-cxx03.so.ivi
+%{_libdir}/libdali-adaptor-vk.so.0*.ivi
 %endif
 
 
@@ -1378,10 +1378,10 @@ exit 0
 %{dev_include_path}/dali/public-api/*
 %{dev_include_path}/dali/devel-api/*
 %{dev_include_path}/dali/doc/*
-%{_libdir}/pkgconfig/dali-adaptor-cxx03.pc
+%{_libdir}/pkgconfig/dali-adaptor-vk-cxx03.pc
 
 %files integration-devel-cxx03
 %defattr(-,root,root,-)
 %{dev_include_path}/dali/integration-api/adaptors/*
-%{_libdir}/pkgconfig/dali-adaptor-integration-cxx03.pc
+%{_libdir}/pkgconfig/dali-adaptor-vk-integration-cxx03.pc
 %endif

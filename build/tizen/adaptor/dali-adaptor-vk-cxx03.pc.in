@@ -4,9 +4,9 @@ apiversion=@DALI_ADAPTOR_VERSION@
 libdir=@libdir@
 includedir=@devincludepath@
 
-Name: dali-adaptor
+Name: dali-adaptor-cxx03
 Description: DALi adaptor using ecore
 Version: ${apiversion}
-Requires: dali-core
-Libs: -L${libdir} -ldali-adaptor
+Requires: dali-core-vk-cxx03
+Libs: -L${libdir} -ldali-adaptor-vk-cxx03
 Cflags: -I${includedir}/dali

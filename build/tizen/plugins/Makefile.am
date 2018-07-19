@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Samsung Electronics Co., Ltd.
+# Copyright (c) 2018 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ lib_LTLIBRARIES =
 if ENABLE_CXX03_ABI
 
 if USE_FEEDBACK
-lib_LTLIBRARIES += libdali-feedback-plugin.la
+lib_LTLIBRARIES += libdali-feedback-plugin-vk.la
 endif
 
 else # ENABLE_CXX03_ABI
 
 if USE_FEEDBACK
-lib_LTLIBRARIES += libdali-feedback-plugin-cxx11.la
+lib_LTLIBRARIES += libdali-feedback-plugin-vk-cxx11.la
 endif
 
 endif # ENABLE_CXX03_ABI
@@ -48,7 +48,7 @@ LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES = \
                      $(feedback_plugin_src_files)
 
 
-libdali_feedback_plugin_la_DEPENDENCIES =
+libdali_feedback_plugin_vk_la_DEPENDENCIES =
 
 LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS = -DDALI_COMPILATION \
                       -DDALI_SOUND_DIR="\"${dalisounddir}\"" \
@@ -76,34 +76,34 @@ endif
 if ENABLE_CXX03_ABI
 
 if USE_FEEDBACK
-libdali_feedback_plugin_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
-libdali_feedback_plugin_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
-libdali_feedback_plugin_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
-libdali_feedback_plugin_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
+libdali_feedback_plugin_vk_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
+libdali_feedback_plugin_vk_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
+libdali_feedback_plugin_vk_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
+libdali_feedback_plugin_vk_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
 
 if ENABLE_RENAME_SO
 #rename
 install: install-am
-	rm -rf $(libdir)/libdali_feedback_plugin.so
-	rm -rf $(libdir)/libdali_feedback_plugin-cxx03.so
-	ln -s $(libdir)/libdali_feedback_plugin.so.0.0.* $(libdir)/libdali_feedback_plugin-cxx03.so
+	rm -rf $(libdir)/libdali-feedback-plugin-vk.so
+	rm -rf $(libdir)/libdali-feedback-plugin-vk-cxx03.so
+	ln -s $(libdir)/libdali-feedback-plugin-vk.so.0.0.* $(libdir)/libdali-feedback-plugin-vk-cxx03.so
 endif
 endif
 
 else # CXX03
 
 if USE_FEEDBACK
-libdali_feedback_plugin_cxx11_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
-libdali_feedback_plugin_cxx11_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
-libdali_feedback_plugin_cxx11_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
-libdali_feedback_plugin_cxx11_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
+libdali_feedback_plugin_vk_cxx11_la_SOURCES = $(LIBDALI_FEEDBACK_PLUGIN_LA_SOURCES)
+libdali_feedback_plugin_vk_cxx11_la_LIBADD = $(LIBDALI_FEEDBACK_PLUGIN_LA_LIBADD)
+libdali_feedback_plugin_vk_cxx11_la_CXXFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_CXXFLAGS)
+libdali_feedback_plugin_vk_cxx11_la_LDFLAGS = $(LIBDALI_FEEDBACK_PLUGIN_LA_LDFLAGS)
 
 if ENABLE_RENAME_SO
 #rename
 install: install-am
-	rm -rf $(libdir)/libdali_feedback_plugin-cxx11.so
-	rm -rf $(libdir)/libdali_feedback_plugin.so
-	ln -s $(libdir)/libdali_feedback_plugin-cxx11.so.0.0.* $(libdir)/libdali_feedback_plugin.so
+	rm -rf $(libdir)/libdali-feedback-plugin-vk-cxx11.so
+	rm -rf $(libdir)/libdali-feedback-plugin-vk.so
+	ln -s $(libdir)/libdali-feedback-plugin-vk-cxx11.so.0.0.* $(libdir)/libdali-feedback-plugin-vk.so
 endif
 endif
 

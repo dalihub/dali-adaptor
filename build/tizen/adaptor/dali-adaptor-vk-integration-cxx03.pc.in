@@ -7,6 +7,6 @@ includedir=@devincludepath@
 Name: dali-adaptor-integration-cxx03
 Description: Integration APIs for dali-adaptor
 Version: ${apiversion}
-Requires: dali-adaptor-cxx03
+Requires: dali-adaptor-vk-cxx03
 Libs: -L${libdir}
 Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptors/
