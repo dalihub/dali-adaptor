@@ -236,6 +236,15 @@ public:
    */
   virtual bool FilterEventKey( const Dali::KeyEvent& keyEvent ) { return false; }
 
+  /**
+   * @copydoc Dali::InputMethodContext::AllowTextPrediction()
+   */
+  virtual void AllowTextPrediction( bool prediction ) {}
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
+   */
+  virtual bool IsTextPredictionAllowed() const { return false; }
 public:  // Signals
 
   /**

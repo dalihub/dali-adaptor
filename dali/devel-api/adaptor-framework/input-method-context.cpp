@@ -186,6 +186,16 @@ bool InputMethodContext::FilterEventKey( const Dali::KeyEvent& keyEvent )
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).FilterEventKey( keyEvent );
 }
 
+void InputMethodContext::AllowTextPrediction( bool prediction )
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).AllowTextPrediction( prediction );
+}
+
+bool InputMethodContext::IsTextPredictionAllowed() const
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).IsTextPredictionAllowed();
+}
+
 InputMethodContext::ActivatedSignalType& InputMethodContext::ActivatedSignal()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).ActivatedSignal();

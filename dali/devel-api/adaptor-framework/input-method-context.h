@@ -399,6 +399,19 @@ public:
    */
   bool FilterEventKey( const Dali::KeyEvent& keyEvent );
 
+  /**
+   * @brief Sets whether the IM context should allow to use the text prediction.
+   *
+   * @param[in] prediction Whether to allow text prediction or not.
+   */
+  void AllowTextPrediction( bool prediction );
+
+  /**
+   * @brief Gets whether the IM context allow to use the text prediction.
+   *
+   * @return Whether the IM allow text prediction or not.
+   */
+  bool IsTextPredictionAllowed() const;
 public:
 
   // Signals

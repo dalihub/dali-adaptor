@@ -920,6 +920,27 @@ bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
   return eventHandled;
 }
 
+void InputMethodContextEcoreWl::AllowTextPrediction( bool prediction )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::AllowTextPrediction\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_prediction_allow_set( mIMFContext, prediction );
+  }
+}
+
+bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::IsTextPredictionAllowed\n" );
+  bool prediction = false;
+  if( mIMFContext )
+  {
+    prediction = ecore_imf_context_prediction_allow_get( mIMFContext );
+  }
+  return prediction;
+}
+
 bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
