@@ -1291,7 +1291,7 @@ bool GifLoading::LoadAllFrames( std::vector<Dali::PixelData> &pixelData, Dali::V
 
 ImageDimensions GifLoading::GetImageSize()
 {
-  return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.w );
+  return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.h );
 }
 
 int GifLoading::GetImageCount()

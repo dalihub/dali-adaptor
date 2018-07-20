@@ -66,7 +66,7 @@ struct FontClient::Plugin
    */
   struct FallbackCacheItem
   {
-    FallbackCacheItem( const FontDescription& fontDescription, FontList* fallbackFonts, CharacterSetList* characterSets );
+    FallbackCacheItem( FontDescription&& fontDescription, FontList* fallbackFonts, CharacterSetList* characterSets );
 
     FontDescription fontDescription; ///< The font description.
     FontList* fallbackFonts;         ///< The list of fallback fonts for the given font-description.
@@ -80,6 +80,8 @@ struct FontClient::Plugin
   {
     FontDescriptionCacheItem( const FontDescription& fontDescription,
                               FontDescriptionId index );
+    FontDescriptionCacheItem( FontDescription&& fontDescription,
+                              FontDescriptionId index );
 
     FontDescription fontDescription; ///< The font description.
     FontDescriptionId index;         ///< Index to the vector of font descriptions.
@@ -88,11 +90,11 @@ struct FontClient::Plugin
   /**
    * @brief Caches the font id of the pair font point size and the index to the vector of font descriptions of validated fonts.
    */
-  struct FontIdCacheItem
+  struct FontDescriptionSizeCacheItem
   {
-    FontIdCacheItem( FontDescriptionId validatedFontId,
-                     PointSize26Dot6 requestedPointSize,
-                     FontId fontId );
+    FontDescriptionSizeCacheItem( FontDescriptionId validatedFontId,
+                                  PointSize26Dot6 requestedPointSize,
+                                  FontId fontId );
 
     FontDescriptionId validatedFontId;    ///< Index to the vector with font descriptions.
     PointSize26Dot6   requestedPointSize; ///< The font point size.
@@ -429,8 +431,8 @@ private:
    * @brief Finds a fallback font list from the cache for a given font-description
    *
    * @param[in] fontDescription The font to validate.
-   * @param[out] A valid pointer to a font list, or NULL if not found.
-   * @param[out] characterSetList A valid pointer to a character set list, or NULL if not found.
+   * @param[out] A valid pointer to a font list, or @e nullptr if not found.
+   * @param[out] characterSetList A valid pointer to a character set list, or @e nullptr if not found.
    */
   bool FindFallbackFontList( const FontDescription& fontDescription,
                              FontList*& fontList,
@@ -515,11 +517,11 @@ private:
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
-  std::vector<FontFaceCacheItem>        mFontCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
-  std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
-  FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
-  CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
-  std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+  std::vector<FontFaceCacheItem>            mFontFaceCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
+  std::vector<FontDescriptionCacheItem>     mValidatedFontCache;       ///< Caches indices to the vector of font descriptions for a given font.
+  FontList                                  mFontDescriptionCache;     ///< Caches font descriptions for the validated font.
+  CharacterSetList                          mCharacterSetCache;        ///< Caches character set lists for the validated font.
+  std::vector<FontDescriptionSizeCacheItem> mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
   VectorFontCache* mVectorFontCache;            ///< Separate cache for vector data blobs etc.
   Vector<EllipsisItem> mEllipsisCache;          ///< Caches ellipsis glyphs for a particular point size.
