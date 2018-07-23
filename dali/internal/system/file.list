@@ -30,7 +30,8 @@ adaptor_system_common_src_files=\
     ${adaptor_system_dir}/common/logging.cpp \
     ${adaptor_system_dir}/common/callback-manager-ecore.cpp \
     ${adaptor_system_dir}/common/file-descriptor-monitor-ecore.cpp \
-    ${adaptor_system_dir}/common/timer-impl-ecore.cpp
+    ${adaptor_system_dir}/common/timer-impl-ecore.cpp \
+    ${adaptor_system_dir}/linux/file-closer-linux.cpp
 
 # module: system, backend: generic
 adaptor_system_generic_src_files=\
