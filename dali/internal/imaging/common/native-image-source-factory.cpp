@@ -40,7 +40,8 @@ __attribute__((weak))
 std::unique_ptr<Dali::Internal::Adaptor::NativeImageSource> New(unsigned int width,
                                        unsigned int height,
                                        Dali::NativeImageSource::ColorDepth depth,
-                                       Any nativeImageSource)
+                                       Any nativeImageSource,
+                                       Any device)
 {
   return std::unique_ptr<NativeImageSource>(nullptr);
 }

@@ -33,9 +33,10 @@ NativeImageSource::~NativeImageSource() = default;
 NativeImageSource* NativeImageSource::New(unsigned int width,
                               unsigned int height,
                               Dali::NativeImageSource::ColorDepth depth,
-                              Any nativeImageSource)
+                              Any nativeImageSource,
+                              Any device)
 {
-  return Internal::Adaptor::NativeImageSourceFactory::New( width, height, depth, nativeImageSource ).release();
+  return Internal::Adaptor::NativeImageSourceFactory::New( width, height, depth, nativeImageSource, device ).release();
 }
 
 

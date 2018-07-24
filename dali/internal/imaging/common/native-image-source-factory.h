@@ -35,7 +35,8 @@ namespace NativeImageSourceFactory
 std::unique_ptr<Internal::Adaptor::NativeImageSource> New(unsigned int width,
                                        unsigned int height,
                                        Dali::NativeImageSource::ColorDepth depth,
-                                       Any nativeImageSource);
+                                       Any nativeImageSource,
+                                       Any device);
 
 }
 
