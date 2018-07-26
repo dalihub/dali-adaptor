@@ -255,11 +255,11 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   CreatePlugin();
 
-  mPlugin->CreateBitmap( fontId, glyphIndex, data, outlineWidth );
+  mPlugin->CreateBitmap( fontId, glyphIndex, softwareItalic, softwareBold, data, outlineWidth );
 }
 
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )

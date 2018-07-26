@@ -44,6 +44,7 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
  */
 const float FROM_266 = 1.0f / 64.0f;
 const float POINTS_PER_INCH = 72.f;
+const FT_Fixed FONT_SLANT_TANGENT = 0.221694663 * 0x10000; // For support software italic
 
 const std::string FONT_FORMAT( "TrueType" );
 const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
@@ -1097,7 +1098,7 @@ bool FontClient::Plugin::GetVectorMetrics( GlyphInfo* array,
 #endif
 }
 
-void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   if( ( fontId > 0 ) &&
       ( fontId - 1u < mFontFaceCache.size() ) )
@@ -1120,6 +1121,19 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dal
     if( FT_Err_Ok == error )
     {
       FT_Glyph glyph;
+
+      if( softwareBold )
+      {
+        FT_GlyphSlot_Embolden(ftFace->glyph);
+      }
+
+      if( softwareItalic )
+      {
+        // FT Matrix uses 16.16 fixed-point format
+        FT_Matrix transform = {0x10000, FONT_SLANT_TANGENT, 0x00000, 0x10000};
+        FT_Outline_Transform(&ftFace->glyph->outline, &transform);
+      }
+
       error = FT_Get_Glyph( ftFace->glyph, &glyph );
 
       // Convert to bitmap if necessary
@@ -1185,7 +1199,7 @@ PixelData FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex
 {
   TextAbstraction::FontClient::GlyphBufferData data;
 
-  CreateBitmap( fontId, glyphIndex, data, outlineWidth );
+  CreateBitmap( fontId, glyphIndex, false, false, data, outlineWidth );
 
   return PixelData::New( data.buffer,
                          data.width * data.height * Pixel::GetBytesPerPixel( data.format ),

@@ -32,7 +32,9 @@ GlyphInfo::GlyphInfo()
   xBearing( 0 ),
   yBearing( 0 ),
   advance( 0 ),
-  scaleFactor( 0 )
+  scaleFactor( 0 ),
+  softwareItalic(false),
+  softwareBold(false)
 {
 }
 
@@ -44,7 +46,9 @@ GlyphInfo::GlyphInfo( FontId font, GlyphIndex i )
   xBearing( 0 ),
   yBearing( 0 ),
   advance( 0 ),
-  scaleFactor( 0 )
+  scaleFactor( 0 ),
+  softwareItalic(false),
+  softwareBold(false)
 {
 }
 
