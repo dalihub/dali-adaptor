@@ -35,6 +35,7 @@ class VectorFontCache;
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_STROKER_H
+#include FT_SYNTHESIS_H
 
 // forward declarations of font config types.
 struct _FcCharSet;
@@ -299,9 +300,9 @@ struct FontClient::Plugin
   bool GetVectorMetrics( GlyphInfo* array, uint32_t size, bool horizontal );
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
