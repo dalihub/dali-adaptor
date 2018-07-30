@@ -50,6 +50,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.h \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.h \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.h \
