@@ -26,7 +26,9 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp
+  $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.cpp
+
 
 
 devel_api_adaptor_framework_header_files = \
@@ -63,7 +65,8 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/key-extension-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.h
 
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
