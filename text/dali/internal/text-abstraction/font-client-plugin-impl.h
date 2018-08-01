@@ -333,6 +333,11 @@ struct FontClient::Plugin
    */
   bool AddCustomFontDirectory( const FontPath& path );
 
+  /**
+   * @copydoc Dali::TextAbstraction::Internal::FontClient::GetFreetypeFace()
+   */
+  FT_FaceRec_* GetFreetypeFace( FontId fontId );
+
 private:
 
   /**

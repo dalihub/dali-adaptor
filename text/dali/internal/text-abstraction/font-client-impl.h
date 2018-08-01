@@ -24,6 +24,9 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 
+
+struct FT_FaceRec_;
+
 namespace Dali
 {
 
@@ -202,6 +205,15 @@ public:
    * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
    */
   bool AddCustomFontDirectory( const FontPath& path );
+
+  /**
+   * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
+   *
+   * @param[in] fontId The font id.
+   *
+   * @return The pointer to the FreeType Font Face.
+   */
+  FT_FaceRec_* GetFreetypeFace( FontId fontId );
 
 private:
 

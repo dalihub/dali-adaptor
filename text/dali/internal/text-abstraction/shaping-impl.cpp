@@ -23,13 +23,11 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
+#include "font-client-impl.h"
 
 // EXTERNAL INCLUDES
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ft.h>
-
-#include <ft2build.h>
-#include <iostream>
 
 namespace Dali
 {
@@ -40,7 +38,7 @@ namespace TextAbstraction
 namespace Internal
 {
 
-const char*        DEFAULT_LANGUAGE = "en";
+const char* const  DEFAULT_LANGUAGE = "en";
 const unsigned int DEFAULT_LANGUAGE_LENGTH = 2u;
 const float        FROM_266 = 1.0f / 64.0f;
 
@@ -115,8 +113,7 @@ const hb_script_t SCRIPT_TO_HARFBUZZ[] =
 struct Shaping::Plugin
 {
   Plugin()
-  : mFreeTypeLibrary( NULL ),
-    mIndices(),
+  : mIndices(),
     mAdvance(),
     mCharacterMap(),
     mFontId( 0u )
@@ -125,16 +122,6 @@ struct Shaping::Plugin
 
   ~Plugin()
   {
-    FT_Done_FreeType( mFreeTypeLibrary );
-  }
-
-  void Initialize()
-  {
-    int error = FT_Init_FreeType( &mFreeTypeLibrary );
-    if( FT_Err_Ok != error )
-    {
-      DALI_LOG_ERROR( "FreeType Init error: %d\n", error );
-    }
   }
 
   Length Shape( const Character* const text,
@@ -157,29 +144,17 @@ struct Shaping::Plugin
     mOffset.Reserve( 2u * numberOfGlyphs );
 
     TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
-
-    // Get the font's path file name from the font Id.
-    FontDescription fontDescription;
-    fontClient.GetDescription( fontId, fontDescription );
+    TextAbstraction::Internal::FontClient& fontClientImpl = TextAbstraction::GetImplementation( fontClient );
 
     // Create a FreeType font's face.
     FT_Face face;
-    FT_Error retVal = FT_New_Face( mFreeTypeLibrary, fontDescription.path.c_str(), 0u, &face );
-    if( FT_Err_Ok != retVal )
+
+    face = fontClientImpl.GetFreetypeFace( fontId );
+    if( nullptr == face )
     {
-      DALI_LOG_ERROR( "Failed to open face: %s\n", fontDescription.path.c_str() );
+      // Nothing to do if the face is null.
       return 0u;
     }
-
-    unsigned int horizontalDpi = 0u;
-    unsigned int verticalDpi = 0u;
-    fontClient.GetDpi( horizontalDpi, verticalDpi );
-
-    FT_Set_Char_Size( face,
-                      0u,
-                      fontClient.GetPointSize( fontId ),
-                      horizontalDpi,
-                      verticalDpi );
 
     /* Get our harfbuzz font struct */
     hb_font_t* harfBuzzFont;
@@ -274,7 +249,6 @@ struct Shaping::Plugin
     /* Cleanup */
     hb_buffer_destroy( harfBuzzBuffer );
     hb_font_destroy( harfBuzzFont );
-    FT_Done_Face( face );
 
     return mIndices.Count();
   }
@@ -303,8 +277,6 @@ struct Shaping::Plugin
       glyphToCharacter = *( characterMapIt + index );
     }
   }
-
-  FT_Library             mFreeTypeLibrary;
 
   Vector<CharacterIndex> mIndices;
   Vector<float>          mAdvance;
@@ -375,7 +347,6 @@ void Shaping::CreatePlugin()
   if( !mPlugin )
   {
     mPlugin = new Plugin();
-    mPlugin->Initialize();
   }
 }
 

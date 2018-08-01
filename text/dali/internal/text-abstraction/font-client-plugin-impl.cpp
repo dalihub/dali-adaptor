@@ -1288,6 +1288,19 @@ bool FontClient::Plugin::AddCustomFontDirectory( const FontPath& path )
   return FcConfigAppFontAddDir( nullptr, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
 }
 
+FT_FaceRec_* FontClient::Plugin::GetFreetypeFace( FontId fontId )
+{
+  FT_Face fontFace = nullptr;
+
+  if( ( fontId > 0u ) &&
+      ( fontId - 1u < mFontFaceCache.size() ) )
+  {
+    fontFace = mFontFaceCache[fontId - 1u].mFreeTypeFace;
+  }
+
+  return fontFace;
+}
+
 void FontClient::Plugin::InitSystemFonts()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );
