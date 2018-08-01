@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,14 +85,9 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mTbmFormat( 0 ),
   mBlendingRequired( false ),
   mColorDepth( depth ),
-  mEglImageKHR( NULL ),
-  mEglImageExtensions( NULL ),
   mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
@@ -397,51 +392,20 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
 
 bool NativeImageSourceTizen::GlExtensionCreate()
 {
-  // casting from an unsigned int to a void *, which should then be cast back
-  // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
-  if( !eglBuffer )
-  {
-    return false;
-  }
-
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
-
-  return mEglImageKHR != NULL;
+  return true;
 }
 
 void NativeImageSourceTizen::GlExtensionDestroy()
 {
-  if( mEglImageKHR )
-  {
-    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
-
-    mEglImageKHR = NULL;
-  }
 }
 
 unsigned int NativeImageSourceTizen::TargetTexture()
 {
-  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
-
   return 0;
 }
 
 void NativeImageSourceTizen::PrepareTexture()
 {
-  if( mSetSource )
-  {
-    void* eglImage = mEglImageKHR;
-
-    if( GlExtensionCreate() )
-    {
-      TargetTexture();
-    }
-
-    mEglImageExtensions->DestroyImageKHR( eglImage );
-
-    mSetSource = false;
-  }
 }
 
 int NativeImageSourceTizen::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const

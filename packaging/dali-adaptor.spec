@@ -126,6 +126,7 @@ BuildRequires:  pkgconfig(utilX)
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(elementary)
 %else
+BuildRequires:  elementary
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(appcore-widget-base)
 BuildRequires:  pkgconfig(bundle)

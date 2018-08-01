@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ namespace Internal
 
 namespace Adaptor
 {
-
-class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -187,8 +185,6 @@ private:
   tbm_format mTbmFormat;
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
-  void* mEglImageKHR;                         ///< From EGL extension
-  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
   bool mSetSource;
 };
 
