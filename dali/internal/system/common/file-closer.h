@@ -28,7 +28,23 @@ namespace Internal
 {
 namespace Platform
 {
+namespace InternalFile
+{
+  FILE *fmemopen( void *__s, size_t __len, const char *__modes );
 
+  size_t fread( void*  _Buffer, size_t _ElementSize, size_t _ElementCount, FILE*  _Stream );
+  int fclose( FILE *__stream );
+
+  size_t fread( void* buf, size_t eleSize, size_t count, const FILE *fp );
+
+  void fwrite( void *buf, int size, int count, FILE *fp );
+
+  int fseek( FILE *fp, int offset, int origin );
+
+  int ftell( FILE *fp );
+
+  bool feof( FILE *fp );
+};
 /**
  * Opens files and closes them later even if an exception is thrown.
  */
@@ -55,7 +71,7 @@ protected: // prevent this class being directly instantiated
    * @brief Construct a FileCloser guarding a FILE* for reading out of the memory buffer passed in.
    */
   FileCloser( uint8_t* buffer, size_t dataSize, const char * const mode )
-  : mFile( fmemopen( buffer, dataSize, mode) )
+  : mFile( InternalFile::fmemopen( buffer, dataSize, mode) )
   {
   }
 
@@ -71,7 +87,7 @@ protected: // prevent this class being directly instantiated
     vector.Resize( bufferSize );
 
     void * const buffer = &vector[0];
-    mFile = fmemopen( buffer, bufferSize, mode );
+    mFile = InternalFile::fmemopen( buffer, bufferSize, mode );
 
     DALI_ASSERT_DEBUG( buffer != 0 && "Cant open file on null buffer." );
     DALI_ASSERT_DEBUG( dataSize > 0 && "Pointless to open file on empty buffer." );
@@ -90,7 +106,7 @@ protected: // prevent this class being directly instantiated
   {
     if( mFile != 0 )
     {
-      const int closeFailed = fclose( mFile );
+      const int closeFailed = InternalFile::fclose( mFile );
 
       if ( closeFailed )
       {
