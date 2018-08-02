@@ -28,6 +28,7 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/devel-api/adaptor-framework/thread-settings.h>
 
 namespace Dali
 {
@@ -374,6 +375,8 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
 
 void CombinedUpdateRenderController::UpdateRenderThread()
 {
+  SetThreadName("RenderThread\0");
+
   // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();
 

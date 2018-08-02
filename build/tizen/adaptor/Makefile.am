@@ -66,6 +66,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_video_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(adaptor_window_system_ubuntu_x11_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
@@ -119,6 +120,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -180,6 +182,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -240,6 +243,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -299,6 +303,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)
@@ -361,6 +366,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
                   $(adaptor_trace_common_src_files) \
+                  $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
                   $(static_libraries_libunibreak_src_files)

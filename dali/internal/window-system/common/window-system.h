@@ -43,6 +43,16 @@ void Shutdown();
  */
 void GetScreenSize( int& width, int& height );
 
+/**
+ * @copydoc Dali::Keyboard::SetRepeatInfo()
+ */
+bool SetKeyboardRepeatInfo( float rate, float delay );
+
+/**
+ * @copydoc Dali::Keyboard::GetRepeatInfo()
+ */
+bool GetKeyboardRepeatInfo( float& rate, float& delay );
+
 } // namespace WindowSystem
 
 } // namespace Adaptor

@@ -15,56 +15,29 @@
  *
  */
 
-// INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
+// CLASS HEADER
 #include <dali/devel-api/adaptor-framework/keyboard.h>
 
-// EXTERNAL_HEADERS
-#include <Ecore_X.h>
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
 {
 
-namespace Internal
+namespace Keyboard
 {
 
-namespace Adaptor
+bool SetRepeatInfo( float rate, float delay )
 {
-
-namespace WindowSystem
-{
-
-void Initialize()
-{
-  ecore_x_init( NULL );
+  return Dali::Internal::Adaptor::WindowSystem::SetKeyboardRepeatInfo( rate, delay );
 }
 
-void Shutdown()
+bool GetRepeatInfo( float& rate, float& delay )
 {
-  ecore_x_shutdown();
+  return Dali::Internal::Adaptor::WindowSystem::GetKeyboardRepeatInfo( rate, delay );
 }
 
-void GetScreenSize( int& width, int& height )
-{
-  ecore_x_screen_size_get( ecore_x_default_screen_get(), &width, &height );
-}
-
-bool SetKeyboardRepeatInfo( float rate, float delay )
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo( float& rate, float& delay )
-{
-  return false;
-}
-
-} // namespace WindowSystem
-
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace Keyboard
 
 } // namespace Dali
 
-#pragma GCC diagnostic pop
