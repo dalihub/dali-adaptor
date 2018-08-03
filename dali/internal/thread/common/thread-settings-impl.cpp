@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  *
  */
 
-// INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
-#include <dali/devel-api/adaptor-framework/keyboard.h>
+// CLASS HEADER
+#include <dali/internal/thread/common/thread-settings-impl.h>
 
-// EXTERNAL_HEADERS
-#include <Ecore_X.h>
+// INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -31,40 +30,22 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace WindowSystem
+namespace ThreadSettings
 {
 
-void Initialize()
+void SetThreadName(const std::string& threadName)
 {
-  ecore_x_init( NULL );
+  int err = prctl(PR_SET_NAME, threadName.c_str());
+  if ( err )
+  {
+    DALI_LOG_ERROR( "prctl(PR_SET_NAME, %s) failed\n", threadName.c_str() );
+  }
 }
 
-void Shutdown()
-{
-  ecore_x_shutdown();
-}
-
-void GetScreenSize( int& width, int& height )
-{
-  ecore_x_screen_size_get( ecore_x_default_screen_get(), &width, &height );
-}
-
-bool SetKeyboardRepeatInfo( float rate, float delay )
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo( float& rate, float& delay )
-{
-  return false;
-}
-
-} // namespace WindowSystem
+} // namespace ThreadSettings
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

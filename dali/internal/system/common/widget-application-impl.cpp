@@ -51,7 +51,7 @@ WidgetApplicationPtr WidgetApplication::New(
 }
 
 WidgetApplication::WidgetApplication( int* argc, char** argv[], const std::string& stylesheet )
-: Application(argc, argv, stylesheet, Dali::WidgetApplication::OPAQUE, PositionSize(), Framework::NORMAL)
+: Application(argc, argv, stylesheet, Dali::WidgetApplication::OPAQUE, PositionSize(), Framework::WIDGET)
 {
   DALI_LOG_ERROR("WidgetApplication is not implemented in UBUNTU profile.\n");
 }
