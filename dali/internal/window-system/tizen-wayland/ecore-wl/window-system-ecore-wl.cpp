@@ -48,6 +48,21 @@ void GetScreenSize( int& width, int& height )
   ecore_wl_screen_size_get( &width, &height );
 }
 
+bool SetKeyboardRepeatInfo( float rate, float delay )
+{
+  return ecore_wl_keyboard_repeat_info_set( static_cast<double>( rate ), static_cast<double>( delay ) );
+}
+
+bool GetKeyboardRepeatInfo( float& rate, float& delay )
+{
+  double rateVal, delayVal;
+  bool ret = ecore_wl_keyboard_repeat_info_get( &rateVal, &delayVal );
+  rate = static_cast<float>( rateVal );
+  delay = static_cast<float>( delayVal );
+
+  return ret;
+}
+
 } // namespace WindowSystem
 
 } // namespace Adaptor

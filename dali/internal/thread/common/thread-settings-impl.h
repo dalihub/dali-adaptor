@@ -1,5 +1,8 @@
+#ifndef __DALI_INTERNAL_THREAD_SETTINGS_H__
+#define __DALI_INTERNAL_THREAD_SETTINGS_H__
+
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +18,9 @@
  *
  */
 
-// INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
-#include <dali/devel-api/adaptor-framework/keyboard.h>
-
-// EXTERNAL_HEADERS
-#include <Ecore_X.h>
+// EXTERNAL INCLUDES
+#include <string>
+#include <sys/prctl.h>
 
 namespace Dali
 {
@@ -31,35 +31,20 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace WindowSystem
+/**
+ * Implementation of the Thread Settings
+ */
+namespace ThreadSettings
 {
 
-void Initialize()
-{
-  ecore_x_init( NULL );
-}
+/**
+ * @brief Set the thread name.
+ *
+ * @param [in] threadName The name of thread. The name can be up to 16 bytes long, and should be null-terminated if it contains fewer bytes.
+ */
+void SetThreadName(const std::string& threadName);
 
-void Shutdown()
-{
-  ecore_x_shutdown();
-}
-
-void GetScreenSize( int& width, int& height )
-{
-  ecore_x_screen_size_get( ecore_x_default_screen_get(), &width, &height );
-}
-
-bool SetKeyboardRepeatInfo( float rate, float delay )
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo( float& rate, float& delay )
-{
-  return false;
-}
-
-} // namespace WindowSystem
+} // namespace ThreadSettings
 
 } // namespace Adaptor
 
@@ -67,4 +52,4 @@ bool GetKeyboardRepeatInfo( float& rate, float& delay )
 
 } // namespace Dali
 
-#pragma GCC diagnostic pop
+#endif // __DALI_INTERNAL_THREAD_SETTINGS_H__
