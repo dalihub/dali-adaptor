@@ -697,9 +697,9 @@ void Window::OnFocusChanged( bool focusIn )
 
 void Window::OnOutputTransformed()
 {
-  PositionSize positionSize = mSurface->GetPositionSize();
-  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+//  PositionSize positionSize = mSurface->GetPositionSize();
+//  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+//  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 }
 
 void Window::OnDeleteRequest()
