@@ -56,6 +56,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mRenderNotification( NULL ),
   mRotationTrigger( NULL ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
+  mOutputTransformedSignal(),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
   mOwnSurface( false ),
@@ -156,6 +157,11 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
 WindowBase* WindowRenderSurface::GetWindowBase()
 {
   return mWindowBase.get();
+}
+
+WindowBase::OutputSignalType& WindowRenderSurface::OutputTransformedSignal()
+{
+  return mOutputTransformedSignal;
 }
 
 PositionSize WindowRenderSurface::GetPositionSize() const
@@ -388,10 +394,20 @@ RenderSurface::Type WindowRenderSurface::GetSurfaceType()
 
 void WindowRenderSurface::OutputTransformed()
 {
-  mScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
-  mScreenRotationFinished = false;
+  int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+  if( mScreenRotationAngle != screenRotationAngle )
+  {
+    mScreenRotationFinished = false;
+
+    mOutputTransformedSignal.Emit();
+
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+  }
+  else
+  {
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle );
+  }
 }
 
 void WindowRenderSurface::ProcessRotationRequest()
