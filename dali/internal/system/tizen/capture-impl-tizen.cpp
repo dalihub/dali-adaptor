@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <capture-impl.h>
+#include <dali/internal/system/tizen/capture-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -27,7 +27,7 @@
 #include <string.h>
 
 // INTERNAL INCLUDES
-#include <adaptor.h>
+#include <dali/integration-api/adaptor.h>
 
 namespace
 {

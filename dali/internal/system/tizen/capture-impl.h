@@ -30,9 +30,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <native-image-source.h>
-#include <timer.h>
-#include <capture.h>
+#include <dali/public-api/capture/capture.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 
 namespace Dali
 {
