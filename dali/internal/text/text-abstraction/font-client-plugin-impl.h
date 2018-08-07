@@ -324,6 +324,11 @@ struct FontClient::Plugin
    */
   bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
+  /**
+   * @copydoc Dali::TextAbstraction::Internal::FontClient::GetFreetypeFace()
+   */
+  FT_FaceRec_* GetFreetypeFace( FontId fontId );
+
 private:
 
   /**

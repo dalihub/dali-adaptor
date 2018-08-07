@@ -1270,6 +1270,19 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return FT_Err_Ok == error;
 }
 
+FT_FaceRec_* FontClient::Plugin::GetFreetypeFace( FontId fontId )
+{
+  FT_Face fontFace = nullptr;
+
+  if( ( fontId > 0u ) &&
+      ( fontId - 1u < mFontFaceCache.size() ) )
+  {
+    fontFace = mFontFaceCache[fontId - 1u].mFreeTypeFace;
+  }
+
+  return fontFace;
+}
+
 void FontClient::Plugin::InitSystemFonts()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );

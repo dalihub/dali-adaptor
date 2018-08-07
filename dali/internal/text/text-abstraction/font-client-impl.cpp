@@ -281,6 +281,13 @@ bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return mPlugin->IsColorGlyph( fontId, glyphIndex );
 }
 
+FT_FaceRec_* FontClient::GetFreetypeFace( FontId fontId )
+{
+  CreatePlugin();
+
+  return mPlugin->GetFreetypeFace( fontId );
+}
+
 void FontClient::CreatePlugin()
 {
   if( !mPlugin )
