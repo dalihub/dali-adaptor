@@ -24,6 +24,9 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 
+
+struct FT_FaceRec_;
+
 namespace Dali
 {
 
@@ -169,9 +172,9 @@ public:
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
@@ -192,6 +195,15 @@ public:
    * @copydoc Dali::TextAbstraction::FontClient::IsColorGlyph()
    */
   bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
+
+  /**
+   * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
+   *
+   * @param[in] fontId The font id.
+   *
+   * @return The pointer to the FreeType Font Face.
+   */
+  FT_FaceRec_* GetFreetypeFace( FontId fontId );
 
 private:
 

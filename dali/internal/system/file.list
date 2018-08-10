@@ -65,8 +65,10 @@ adaptor_system_tizen_wearable_src_files=\
     ${adaptor_system_dir}/tizen-wearable/color-controller-impl-wearable.cpp \
     ${adaptor_system_dir}/tizen-wearable/system-settings-wearable.cpp \
     ${adaptor_system_dir}/tizen-wearable/watch-time.cpp \
+    ${adaptor_system_dir}/tizen-wearable/capture.cpp \
     ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
+    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp \
+    ${adaptor_system_dir}/tizen/capture-impl-tizen.cpp
 
 
 # module: system, backend: ubuntu
