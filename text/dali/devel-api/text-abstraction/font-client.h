@@ -356,12 +356,14 @@ public:
    *
    * @note The caller is responsible for deallocating the bitmap data @p data.buffer using delete[].
    *
-   * @param[in] fontId The identifier of the font.
-   * @param[in] glyphIndex The index of a glyph within the specified font.
-   * @param[out] data The bitmap data.
-   * @param[in] outlineWidth The width of the glyph outline in pixels.
+   * @param[in]  fontId          The identifier of the font.
+   * @param[in]  glyphIndex      The index of a glyph within the specified font.
+   * @param[in]  softwareItalic  Whether glyph needs software support to draw italic style.
+   * @param[in]  softwareBold    Whether glyph needs software support to draw bold style.
+   * @param[out] data            The bitmap data.
+   * @param[in]  outlineWidth    The width of the glyph outline in pixels.
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, GlyphBufferData& data, int outlineWidth );
 
   /**
    * @brief Create a bitmap representation of a glyph.
