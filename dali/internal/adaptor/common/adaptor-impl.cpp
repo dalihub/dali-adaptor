@@ -59,6 +59,7 @@
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 
 #include <dali/internal/system/common/locale-utils.h>
+#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -322,6 +323,9 @@ void Adaptor::Start()
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
+  // Initialize the image loader plugin
+  Internal::Adaptor::ImageLoaderPluginProxy::Initialize();
+
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
   {
     (*iter)->OnStart();
@@ -403,6 +407,9 @@ void Adaptor::Stop()
         mTtsPlayers[i].Reset();
       }
     }
+
+    // Destroy the image loader plugin
+    Internal::Adaptor::ImageLoaderPluginProxy::Destroy();
 
     delete mEventHandler;
     mEventHandler = NULL;

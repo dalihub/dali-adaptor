@@ -19,7 +19,7 @@
  */
 
 #include <cstdio>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
 namespace Dali
 {
@@ -39,7 +39,7 @@ class ResourceLoadingClient;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * @param[in]  input  Information about the input image (including file pointer)
@@ -47,7 +47,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuff
  * @param[out] height of image
  * @return  true if header loaded successfully, false otherwise
  */
-bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 }
 

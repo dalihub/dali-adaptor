@@ -90,7 +90,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   FILE* const fp = input.file;
   if(fp == NULL)
@@ -211,7 +211,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuff
 }
 
 
-bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   FILE* const fp = input.file;
   if(fp == NULL)

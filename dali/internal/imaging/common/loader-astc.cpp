@@ -161,14 +161,14 @@ bool LoadAstcHeader( FILE * const filePointer, unsigned int& width, unsigned int
 
 
 // File loading API entry-point:
-bool LoadAstcHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadAstcHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   AstcFileHeader fileHeader;
   return LoadAstcHeader( input.file, width, height, fileHeader );
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromAstc( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   FILE* const filePointer = input.file;
   if( !filePointer )

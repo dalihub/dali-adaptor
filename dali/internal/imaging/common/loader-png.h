@@ -22,7 +22,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/internal/legacy/tizen/image-encoder.h>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
 namespace Dali
 {
@@ -49,7 +49,7 @@ const unsigned char MAGIC_BYTE_2 = 0x50;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.
@@ -59,7 +59,7 @@ bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
  * @param[out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 /**
  * Encode raw pixel data to PNG format.

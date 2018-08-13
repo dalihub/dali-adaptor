@@ -337,7 +337,7 @@ bool LoadIcoHeaderHelper( FILE* fp,
 
 }//unnamed namespace
 
-bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadIcoHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;
@@ -355,7 +355,7 @@ bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return true;
 }
 
-bool LoadBitmapFromIco( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromIco( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   IcoData chosen;
   Dali::Vector<unsigned char> map;

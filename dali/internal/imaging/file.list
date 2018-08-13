@@ -9,6 +9,7 @@ adaptor_imaging_common_src_files=\
     ${adaptor_imaging_dir}/common/gaussian-blur.cpp \
     ${adaptor_imaging_dir}/common/http-utils.cpp \
     ${adaptor_imaging_dir}/common/image-loader.cpp \
+    ${adaptor_imaging_dir}/common/image-loader-plugin-proxy.cpp \
     ${adaptor_imaging_dir}/common/image-operations.cpp \
     ${adaptor_imaging_dir}/common/loader-astc.cpp \
     ${adaptor_imaging_dir}/common/loader-bmp.cpp \
