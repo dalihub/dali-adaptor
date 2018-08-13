@@ -182,9 +182,9 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, GlyphBufferData& data, int outlineWidth )
 {
-  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, data, outlineWidth );
+  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, softwareItalic, softwareBold, data, outlineWidth );
 }
 
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )

@@ -44,14 +44,16 @@ struct DALI_ADAPTOR_API GlyphInfo
    */
   GlyphInfo( FontId font, GlyphIndex i );
 
-  FontId fontId;     ///< Identifies the font containing the glyph
-  GlyphIndex index;  ///< Uniquely identifies a glyph for a given FontId
-  float width;       ///< The width of the glyph
-  float height;      ///< The height of the glyph
-  float xBearing;    ///< The distance from the cursor position to the leftmost border of the glyph
-  float yBearing;    ///< The distance from the baseline to the topmost border of the glyph
-  float advance;     ///< The distance to move the cursor for this glyph
-  float scaleFactor; ///< The scaling applied (fixed-size fonts only)
+  FontId fontId;       ///< Identifies the font containing the glyph
+  GlyphIndex index;    ///< Uniquely identifies a glyph for a given FontId
+  float width;         ///< The width of the glyph
+  float height;        ///< The height of the glyph
+  float xBearing;      ///< The distance from the cursor position to the leftmost border of the glyph
+  float yBearing;      ///< The distance from the baseline to the topmost border of the glyph
+  float advance;       ///< The distance to move the cursor for this glyph
+  float scaleFactor;   ///< The scaling applied (fixed-size fonts only)
+  bool softwareItalic; ///< Whether glyph needs software support to draw italic style
+  bool softwareBold;   ///< Whether glyph needs software support to draw bold style
 };
 
 } // Dali

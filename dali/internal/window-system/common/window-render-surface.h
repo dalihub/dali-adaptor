@@ -24,6 +24,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <memory>
 
 namespace Dali
@@ -44,6 +45,8 @@ class WindowBase;
 class WindowRenderSurface : public Dali::RenderSurface, public ConnectionTracker
 {
 public:
+
+  typedef Signal< void ( ) > OutputSignalType;
 
   /**
     * Uses an window surface to render to.
@@ -102,6 +105,11 @@ public: // API
    * @return The window base object
    */
   WindowBase* GetWindowBase();
+
+  /**
+   * @brief This signal is emitted when the output is transformed.
+   */
+  OutputSignalType& OutputTransformedSignal();
 
 public: // from Dali::RenderSurface
 
@@ -213,6 +221,7 @@ private: // Data
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
+  OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
