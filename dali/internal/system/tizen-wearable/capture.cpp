@@ -16,10 +16,10 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/capture/capture.h>
+#include <capture.h>
 
 // INTERNAL HEADER
-#include <dali/internal/system/tizen/capture-impl.h>
+#include <capture-impl.h>
 
 namespace Dali
 {
