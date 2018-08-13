@@ -408,6 +408,15 @@ public:
    */
   bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
+  /**
+   * @brief  Add custom fonts directory
+   *
+   * @param[in] path to the fonts directory
+   *
+   * @return true if the fonts can be added.
+   */
+  bool AddCustomFontDirectory( const FontPath& path );
+
 public: // Not intended for application developers
   /**
    * @brief This constructor is used by FontClient::Get().
