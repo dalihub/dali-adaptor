@@ -1,5 +1,0 @@
-
-
-# module: web-engine, backend: common
-adaptor_web_engine_common_src_files=\
-    ${adaptor_web_engine_dir}/common/web-engine-lite-impl.cpp
