@@ -145,19 +145,43 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   );
 
 #ifdef VULKAN_WITH_WAYLAND
-  auto waylandSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
+  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
       new Dali::Graphics::Vulkan::VkSurfaceWayland( *mSurface )
   );
-  mGraphics->Create( std::move(waylandSurface), size.width, size.height );
 #else
   // @todo: surface shouldn't really be create here :((((
-  auto xlibSurface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
     new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
   );
 
-  mGraphics->Create( std::move(xlibSurface), size.width, size.height );
 #endif
 
+  uint32_t depthStencilMask = mEnvironmentOptions->StencilBufferRequired() ? 1 : 0;
+  depthStencilMask |= mEnvironmentOptions->DepthBufferRequired() ? 1 << 1 : 0;
+
+  Integration::Graphics::GraphicsCreateInfo info;
+  info.surfaceWidth = uint32_t( size.width );
+  info.surfaceHeight = uint32_t( size.height );
+  info.depthStencilMode = std::function<Integration::Graphics::DepthStencilMode()>(
+    [depthStencilMask]() {
+      switch( depthStencilMask )
+      {
+        case 1:
+        case 3:
+          return Integration::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
+        case 2:
+          return Integration::Graphics::DepthStencilMode::DEPTH_OPTIMAL;
+        case 0:
+          return Integration::Graphics::DepthStencilMode::NONE;
+        default:
+          return Integration::Graphics::DepthStencilMode::NONE;
+      }
+    }
+  )();
+
+  info.surfaceFactory = std::move( surface );
+  info.swapchainBufferingMode = Integration::Graphics::SwapchainBufferingMode::OPTIMAL;
+  mGraphics->Create( info );
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   *mGraphics,
