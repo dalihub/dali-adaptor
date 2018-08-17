@@ -155,9 +155,34 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
   );
 
-  mGraphics->Create( std::move(xlibSurface), size.width, size.height );
 #endif
 
+  uint32_t depthStencilMask = mEnvironmentOptions->StencilBufferRequired() ? 1 : 0;
+  depthStencilMask |= mEnvironmentOptions->DepthBufferRequired() ? 1 << 1 : 0;
+
+  Integration::Graphics::GraphicsCreateInfo info;
+  info.surfaceWidth = uint32_t( size.width );
+  info.surfaceHeight = uint32_t( size.height );
+  info.depthStencilMode = std::function<Integration::Graphics::DepthStencilMode()>(
+    [depthStencilMask]() {
+      switch( depthStencilMask )
+      {
+        case 1:
+        case 3:
+          return Integration::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
+        case 2:
+          return Integration::Graphics::DepthStencilMode::DEPTH_OPTIMAL;
+        case 0:
+          return Integration::Graphics::DepthStencilMode::NONE;
+        default:
+          return Integration::Graphics::DepthStencilMode::NONE;
+      }
+    }
+  )();
+
+  info.surfaceFactory = std::move(xlibSurface);
+  info.swapchainBufferingMode = Integration::Graphics::SwapchainBufferingMode::OPTIMAL;
+  mGraphics->Create( info );
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   *mGraphics,
