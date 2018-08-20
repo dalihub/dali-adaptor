@@ -205,11 +205,6 @@ public:
    */
   FT_FaceRec_* GetFreetypeFace( FontId fontId );
 
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
-   */
-  bool AddCustomFontDirectory( const FontPath& path );
-
 private:
 
   /**
