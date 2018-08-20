@@ -96,6 +96,11 @@ public:
    */
   void InitializeEgl();
 
+  RenderSurface* GetSurface()
+  {
+    return mSurface;
+  }
+
   /**
    * Replaces the rendering surface
    *

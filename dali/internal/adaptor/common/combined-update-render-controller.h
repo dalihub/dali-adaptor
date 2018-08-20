@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,15 @@ namespace Dali
 
 class RenderSurface;
 class TriggerEventInterface;
+
+namespace Integration
+{
+namespace Graphics
+{
+class Graphics;
+} // Graphics
+} // Integration
+
 
 namespace Internal
 {
@@ -77,8 +86,13 @@ public:
 
   /**
    * Constructor
+   * @param[in] adaptorInterfaces container of adaptor interfaces
+   * @param[in] graphics The graphics library object
+   * @param[in] environmentOptions Settings from environment/command line/registries.
    */
-  CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
+  CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
+                                  Integration::Graphics::Graphics& graphics,
+                                  const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.
@@ -303,6 +317,7 @@ private:
   AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
   PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
   Integration::Core&                mCore;                             ///< Dali core reference
+  Integration::Graphics::Graphics&  mGraphics;                         ///< Graphics object
   const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
   TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
   TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates

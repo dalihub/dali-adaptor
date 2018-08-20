@@ -139,22 +139,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel(), depthBufferAvailable, stencilBufferAvailable );
 
-  // @todo: add somewhere MakeUnique to make it cleaner
-  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
-    new Dali::Integration::Graphics::Graphics()
-  );
-
-#ifdef VULKAN_WITH_WAYLAND
-  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
-      new Dali::Graphics::Vulkan::VkSurfaceWayland( *mSurface )
-  );
-#else
-  // @todo: surface shouldn't really be create here :((((
-  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
-    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mSurface )
-  );
-
-#endif
+  // @todo Refactor following into GraphicsFactory
 
   uint32_t depthStencilMask = mEnvironmentOptions->StencilBufferRequired() ? 1 : 0;
   depthStencilMask |= mEnvironmentOptions->DepthBufferRequired() ? 1 << 1 : 0;
@@ -179,14 +164,17 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
     }
   )();
 
-  info.surfaceFactory = std::move( surface );
   info.swapchainBufferingMode = Integration::Graphics::SwapchainBufferingMode::OPTIMAL;
-  mGraphics->Create( info );
+
+  mGraphics = std::unique_ptr<Dali::Integration::Graphics::Graphics>(
+    new Dali::Integration::Graphics::Graphics( info )
+  );
+
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   *mGraphics,
                                   *mGestureManager,
-                                  dataRetentionPolicy ,
+                                  dataRetentionPolicy,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   depthBufferAvailable,
                                   stencilBufferAvailable );
@@ -201,7 +189,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mVSyncMonitor = new VSyncMonitor;
 
-  mThreadController = new ThreadController( *this, *mEnvironmentOptions );
+  mThreadController = new ThreadController( *this, *mGraphics, *mEnvironmentOptions );
 
   // Should be called after Core creation
   if( mEnvironmentOptions->GetPanGestureLoggingLevel() )

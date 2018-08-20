@@ -23,12 +23,19 @@
 #include <dali/integration-api/platform-abstraction.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/graphics/graphics.h>
 #include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
+
+#ifdef VULKAN_WITH_WAYLAND
+#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
+#else
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
+#endif
 
 namespace Dali
 {
@@ -84,7 +91,9 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions )
+CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
+                                                                Integration::Graphics::Graphics& graphics,
+                                                                const EnvironmentOptions& environmentOptions )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
   mRenderHelper( adaptorInterfaces ),
@@ -93,6 +102,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mAdaptorInterfaces( adaptorInterfaces ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
   mCore( adaptorInterfaces.GetCore() ),
+  mGraphics( graphics ),
   mEnvironmentOptions( environmentOptions ),
   mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
   mSleepTrigger( NULL ),
@@ -385,7 +395,18 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   LOG_UPDATE_RENDER( "THREAD CREATED" );
 
-  mRenderHelper.InitializeEgl();
+  //@todo Move implementation detail to vulkan surface factory
+#ifdef VULKAN_WITH_WAYLAND
+  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
+    new Dali::Graphics::Vulkan::VkSurfaceWayland( *mRenderHelper.GetSurface() )
+  );
+#else
+  auto surface = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *mRenderHelper.GetSurface() )
+  );
+#endif
+
+  mGraphics.Create( std::move(surface) );
 
   NotifyThreadInitialised();
 

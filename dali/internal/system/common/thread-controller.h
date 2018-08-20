@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_THREAD_CONTROLLER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,14 @@ namespace Dali
 {
 
 class RenderSurface;
+
+namespace Integration
+{
+namespace Graphics
+{
+class Graphics;
+} // Graphics
+} // Integration;
 
 namespace Internal
 {
@@ -43,7 +51,7 @@ public:
   /**
    * Constructor
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
+  ThreadController( AdaptorInternalServices& adaptorInterfaces, Integration::Graphics::Graphics& graphics, const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.
