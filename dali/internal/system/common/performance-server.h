@@ -68,6 +68,11 @@ public:
   virtual ContextId AddContext( const char* name );
 
   /**
+   * @copydoc PerformanceLogger::GetContextId()
+   */
+  virtual ContextId GetContextId( const char* name );
+
+  /**
    * @copydoc PerformanceLogger::RemoveContext()
    */
   virtual void RemoveContext( ContextId contextId );
