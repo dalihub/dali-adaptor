@@ -474,6 +474,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(LIBCURL_CFLAGS) \
                       $(LIBCRYPTO_CFLAGS) \
                       $(TPKP_CURL_CFLAGS) \
+                      $(TTRACE_CFLAGS) \
                       $(UTILX_CFLAGS)
 
 # Todo, as soon as common repos are updated on build server remove this.
@@ -511,6 +512,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(LIBCRYPTO_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
+                      $(TTRACE_LIBS) \
                       $(UTILX_LIBS) \
                       $(VULKAN_LIBS) \
                       -lgif \

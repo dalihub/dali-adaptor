@@ -18,6 +18,7 @@
 // EXTERNAL INCLUDES
 #include <dali/internal/trace/ubuntu/trace-manager-impl-ubuntu.h>
 #include <dali/internal/system/common/performance-interface.h>
+#include <dali/public-api/common/vector-wrapper.h>
 
 // INTERNAL INCLUDES
 
@@ -48,12 +49,16 @@ void TraceManagerUbuntu::LogContext( bool start, const char* tag )
 {
   if( start )
   {
-    unsigned short contextId = traceManagerUbuntu->mPerformanceInterface->AddContext( tag );
+    unsigned short contextId = TraceManagerUbuntu::traceManagerUbuntu->mPerformanceInterface->GetContextId( tag );
+    if( !contextId )
+    {
+      contextId = traceManagerUbuntu->mPerformanceInterface->AddContext( tag );
+    }
     traceManagerUbuntu->mPerformanceInterface->AddMarker( PerformanceInterface::START, contextId );
   }
   else
   {
-    unsigned short contextId = traceManagerUbuntu->mPerformanceInterface->AddContext( tag );
+    unsigned short contextId = TraceManagerUbuntu::traceManagerUbuntu->mPerformanceInterface->GetContextId( tag );
     traceManagerUbuntu->mPerformanceInterface->AddMarker( PerformanceInterface::END, contextId );
   }
 }
@@ -63,3 +68,30 @@ void TraceManagerUbuntu::LogContext( bool start, const char* tag )
 } // namespace Internal
 
 } // namespace Dali
+
+#if defined( ANNOTATE_USING_TTRACE )
+std::vector<std::string> traceStack;
+
+void traceBegin(uint64_t tag, const char *name, ...)
+{
+  if( Dali::Internal::Adaptor::TraceManagerUbuntu::traceManagerUbuntu != NULL )
+  {
+    Dali::Internal::Adaptor::TraceManagerUbuntu::traceManagerUbuntu->LogContext( true, name );
+    traceStack.push_back(name);
+  }
+}
+
+void traceEnd(uint64_t tag)
+{
+  if( Dali::Internal::Adaptor::TraceManagerUbuntu::traceManagerUbuntu != NULL )
+  {
+    Dali::Internal::Adaptor::TraceManagerUbuntu::traceManagerUbuntu->LogContext( false, traceStack.back().c_str() );
+    traceStack.pop_back();
+  }
+}
+
+
+void traceMark(uint64_t tag, const char *name, ...)
+{
+}
+#endif
