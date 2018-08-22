@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <errno.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/graphics/graphics.h>
@@ -36,6 +37,7 @@
 #else
 #include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #endif
+
 
 namespace Dali
 {
@@ -481,6 +483,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     Integration::UpdateStatus updateStatus;
 
+    //DALI_TRACE_BEGIN( gFilter, "UPDATE_THREAD" );
+
+    DALI_ANNOTATE_BEGIN( 0, 0x001100ff, "UpdateThread" );
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
     mCore.Update( frameDelta,
                   currentTime,
@@ -489,6 +494,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                   renderToFboEnabled,
                   isRenderingToFbo );
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
+    DALI_ANNOTATE_END( 0 );
+
+    //DALI_TRACE_END( gFilter, "UPDATE_THREAD" );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
 
