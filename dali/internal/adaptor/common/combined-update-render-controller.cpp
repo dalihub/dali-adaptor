@@ -21,8 +21,10 @@
 // EXTERNAL INCLUDES
 #include <errno.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/trace.h>
 #include <dali/integration-api/graphics/graphics.h>
 #include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
@@ -37,6 +39,10 @@
 #include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #endif
 
+#ifdef _ARCH_ARM_
+#include <ttrace.h>
+#endif
+
 namespace Dali
 {
 
@@ -48,6 +54,8 @@ namespace Adaptor
 
 namespace
 {
+
+DALI_INIT_TRACE_FILTER( gFilter, "TRACE_UPDATE", true );
 
 const unsigned int CREATED_THREAD_COUNT = 1u;
 
@@ -481,6 +489,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     Integration::UpdateStatus updateStatus;
 
+    DALI_TRACE_BEGIN( gFilter, "UPDATE_THREAD" );
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
     mCore.Update( frameDelta,
                   currentTime,
@@ -489,6 +498,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                   renderToFboEnabled,
                   isRenderingToFbo );
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
+    DALI_TRACE_END( gFilter, "UPDATE_THREAD" );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
 
@@ -581,7 +591,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
          // We are more than one frame behind already, so just drop the next frames
          // until the sleep-until time is later than the current time so that we can
          // catch up.
-         timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+
+        timeToSleepUntil += mDefaultFrameDurationNanoseconds;
          extraFramesDropped++;
       }
     }
@@ -590,7 +601,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( 0u == renderToFboInterval )
     {
       // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
+      DALI_TRACE_BEGIN( gFilter, "Sleeping" );
       TimeService::SleepUntil( timeToSleepUntil );
+      DALI_TRACE_END( gFilter, "Sleeping" );
     }
   }
 

@@ -423,7 +423,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %build
 PREFIX+="/usr"
 CXXFLAGS+=" -Wall -g -Os -fPIC -std=c++14 -std=gnu++14 -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
-LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
+LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
