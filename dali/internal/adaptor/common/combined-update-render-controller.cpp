@@ -635,7 +635,17 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
     // of the first frame.
     timeToSleepUntil = 0;
 
+    if( ! mUpdateRenderRunCount )
+    {
+      mGraphics.Pause();
+    }
+
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
+
+    if( mUpdateRenderRunCount )
+    {
+      mGraphics.Resume();
+    }
 
     if( ! mUseElapsedTimeAfterWait )
     {
