@@ -64,6 +64,9 @@ private:
    * LogContext method (Ubuntu specific) used for tracing
    */
   static void LogContext( bool start, const char* tag );
+
+  friend void ::traceBegin(uint64_t tag, const char *name, ...);
+  friend void ::traceEnd(uint64_t tag);
 };
 
 } // namespace Adaptor
