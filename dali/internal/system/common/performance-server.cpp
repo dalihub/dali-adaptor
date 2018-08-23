@@ -116,6 +116,12 @@ PerformanceInterface::ContextId PerformanceServer::AddContext(const char* name)
   return mStatContextManager.AddContext(name, PerformanceMarker::CUSTOM_EVENTS);
 }
 
+PerformanceInterface::ContextId PerformanceServer::GetContextId( const char* name )
+{
+  // for adding custom contexts
+  return mStatContextManager.GetContextId( name );
+}
+
 void PerformanceServer::RemoveContext(ContextId contextId)
 {
   mStatContextManager.RemoveContext(contextId);

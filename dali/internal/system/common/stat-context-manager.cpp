@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +58,11 @@ StatContextManager::~StatContextManager()
   }
   mStatContexts.Clear();
 }
+
 PerformanceInterface::ContextId StatContextManager::AddContext(const char* const               name,
                                                                PerformanceMarker::MarkerFilter type)
 {
-  unsigned int contextId = mNextContextId++;
+  unsigned int contextId = ++mNextContextId;
 
   DALI_ASSERT_DEBUG(NULL == GetContext(contextId));
 
@@ -177,6 +178,24 @@ const char* StatContextManager::GetContextName(PerformanceInterface::ContextId c
   }
   return "context not found";
 }
+
+PerformanceInterface::ContextId StatContextManager::GetContextId(const char* name) const
+{
+  std::string match(name);
+
+  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  {
+    StatContext* context = *it;
+
+    std::string contextName( context->GetName() );
+    if( contextName.compare(match) == 0 )
+    {
+      return context->GetId();
+    }
+  }
+  return 0;
+}
+
 
 const char* StatContextManager::GetMarkerDescription(PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId) const
 {
