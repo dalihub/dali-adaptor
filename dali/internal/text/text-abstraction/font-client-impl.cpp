@@ -288,6 +288,13 @@ FT_FaceRec_* FontClient::GetFreetypeFace( FontId fontId )
   return mPlugin->GetFreetypeFace( fontId );
 }
 
+bool FontClient::AddCustomFontDirectory( const FontPath& path )
+{
+  CreatePlugin();
+
+  return mPlugin->AddCustomFontDirectory( path );
+}
+
 void FontClient::CreatePlugin()
 {
   if( !mPlugin )
