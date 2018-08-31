@@ -24,11 +24,20 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-factory-interface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/integration-api/graphics/graphics.h>
+
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
+
+//@ todo: remove platform dependency
+#ifdef VULKAN_WITH_WAYLAND
+#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
+#else
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
+#endif
 
 namespace Dali
 {
@@ -61,7 +70,8 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true )
+  mResizeFinished( true ),
+  mGraphicsSurface( nullptr )
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -167,19 +177,35 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
 }
 
-void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
+void WindowRenderSurface::InitializeGraphics( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  // old GL code
+#if 0
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
 
   eglImpl.ChooseConfig(true, mColorDepth);
+#endif
 }
 
-void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
+void WindowRenderSurface::CreateSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  //@todo Move implementation detail to vulkan surface factory
+#ifdef VULKAN_WITH_WAYLAND
+  auto surfaceFactory = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
+    new Dali::Graphics::Vulkan::VkSurfaceWayland( *this )
+  );
+#else
+  auto surfaceFactory = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
+    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *this )
+  );
+#endif
+
+  // old GL code
+#if 0
   int width, height;
   if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
   {
@@ -200,24 +226,30 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
 
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
+#endif
+
+  mGraphicsSurface = graphicsInterface.CreateSurface( *surfaceFactory.get() );
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
-void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
+void WindowRenderSurface::DestroySurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
-
+#if 0
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
   eglImpl.DestroySurface();
 
   mWindowBase->DestroyEglWindow();
+#endif
 }
 
-bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool WindowRenderSurface::ReplaceSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  // old GL code
+#if 0
   // Destroy the old one
   mWindowBase->DestroyEglWindow();
 
@@ -241,6 +273,8 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
   return eglImpl.ReplaceSurfaceWindow( window );
+#endif
+  return false;
 }
 
 void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )

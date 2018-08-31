@@ -129,45 +129,29 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeEgl( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-  unsetenv( "EGL_PLATFORM" );
-
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-
-  eglImpl.ChooseConfig( true, mColorDepth );
+  DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::InitializeGraphics() not implemented!" );
 }
 
-void NativeRenderSurfaceEcoreWl::CreateEglSurface( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::CreateSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-
-  eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mColorDepth );
+  DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::CreateSurface() not implemented!" );
 }
 
-void NativeRenderSurfaceEcoreWl::DestroyEglSurface( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::DestroySurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-  eglImpl.DestroySurface();
+  DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::DestroySurface() not implemented!" );
 }
 
-bool NativeRenderSurfaceEcoreWl::ReplaceEGLSurface( EglInterface& egl )
+bool NativeRenderSurfaceEcoreWl::ReplaceSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-
-  if( !mTbmQueue )
-  {
-    return false;
-  }
-
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
-
-  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ) );
+  DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::ReplaceSurface() not implemented!" );
+  return false;
 }
 
 void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )

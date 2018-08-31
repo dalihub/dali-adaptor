@@ -28,6 +28,17 @@
 
 namespace Dali
 {
+namespace Integration
+{
+namespace Graphics
+{
+class Graphics;
+class Surface;
+}
+}
+
+//@todo:
+using GraphicsInterface = Dali::Integration::Graphics::Graphics;
 
 class EglInterface;
 class DisplayConnection;
@@ -92,26 +103,26 @@ public:
    * Initialize EGL, RenderSurface should create egl display and initialize
    * @param egl implementation to use for the creation
    */
-  virtual void InitializeEgl( EglInterface& egl ) = 0;
+  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) = 0;
 
   /**
    * @brief Creates EGL Surface
    * @param egl implementation to use for the creation
    */
-  virtual void CreateEglSurface( EglInterface& egl ) = 0;
+  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) = 0;
 
   /**
    * @brief Destroys EGL Surface
    * @param egl implementation to use for the destruction
    */
-  virtual void DestroyEglSurface( EglInterface& egl ) = 0;
+  virtual void DestroySurface( GraphicsInterface& graphicsInterface ) = 0;
 
   /**
    * @brief Replace the EGL Surface
    * @param egl implementation to use for the creation
    * @return true if context was lost
    */
-  virtual bool ReplaceEGLSurface( EglInterface& egl ) = 0;
+  virtual bool ReplaceSurface( GraphicsInterface& graphicsInterface ) = 0;
 
   /**
    * @brief Resizes the underlying surface.

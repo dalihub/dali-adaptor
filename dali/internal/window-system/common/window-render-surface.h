@@ -28,6 +28,14 @@
 
 namespace Dali
 {
+namespace Integration
+{
+namespace Graphics
+{
+class Surface;
+class Graphics;
+} // namespace Graphics
+} // namespace Integration
 
 class TriggerEventInterface;
 
@@ -118,22 +126,22 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeEgl()
    */
-  virtual void InitializeEgl( EglInterface& egl ) override;
+  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateEglSurface()
    */
-  virtual void CreateEglSurface( EglInterface& egl ) override;
+  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::DestroyEglSurface()
    */
-  virtual void DestroyEglSurface( EglInterface& egl ) override;
+  virtual void DestroySurface( GraphicsInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
    */
-  virtual bool ReplaceEGLSurface( EglInterface& egl ) override;
+  virtual bool ReplaceSurface( GraphicsInterface& egl ) override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()
@@ -220,7 +228,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-
+  std::unique_ptr<Dali::Integration::Graphics::Surface> mGraphicsSurface;
 }; // class WindowRenderSurface
 
 } // namespace Adaptor
