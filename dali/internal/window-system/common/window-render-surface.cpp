@@ -228,7 +228,7 @@ void WindowRenderSurface::CreateSurface( GraphicsInterface& graphicsInterface )
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
 #endif
 
-  mGraphicsSurface = graphicsInterface.CreateSurface( *surfaceFactory.get() );
+  mGraphicsSurface = graphicsInterface.CreateSurface( std::move( surfaceFactory ) );
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
