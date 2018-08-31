@@ -16,6 +16,24 @@
       "revId": "65802bd35fca52dc61f0c27c42fa2ae14c1258ff",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ee4f6f_a8b67e5b",
+        "filename": "dali/integration-api/render-surface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2018-08-31T14:58:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14e92f3b_f223ea18",
+      "revId": "65802bd35fca52dc61f0c27c42fa2ae14c1258ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
