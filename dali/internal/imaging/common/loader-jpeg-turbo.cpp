@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,7 +224,7 @@ void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, 
   {
     case EXIF_FORMAT_ASCII:
     {
-      out.Insert( shortName, std::string(reinterpret_cast<char *>(entry.data)) );
+      out.Insert( shortName, std::string( reinterpret_cast<char *>(entry.data), entry.size ) );
       break;
     }
     case EXIF_FORMAT_SHORT:

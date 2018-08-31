@@ -121,9 +121,10 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect( this, &Window::OnIconifyChanged );
   mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
-  mWindowBase->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
   mWindowBase->IndicatorFlickedSignal().Connect( this, &Window::OnIndicatorFlicked );
+
+  mSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
   if( !positionSize.IsEmpty() )
   {
