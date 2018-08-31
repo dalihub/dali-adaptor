@@ -79,24 +79,24 @@ public: // from Dali::RenderSurface
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeEgl( EglInterface& egl ) override;
+  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::RenderSurface::CreateSurface()
    */
-  virtual void CreateEglSurface( EglInterface& egl ) override;
+  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::DestroyEglSurface()
    */
-  virtual void DestroyEglSurface( EglInterface& egl ) override;
+  virtual void DestroySurface( GraphicsInterface& graphicsInterface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
    */
-  virtual bool ReplaceEGLSurface( EglInterface& egl ) override;
+  virtual bool ReplaceSurface( GraphicsInterface& graphicsInterface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()

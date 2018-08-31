@@ -138,19 +138,20 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-void PixmapRenderSurfaceEcoreX::InitializeEgl( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::InitializeGraphics( GraphicsInterface& graphicsInterface)
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
-
+#if 0
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   eglImpl.ChooseConfig(false, mColorDepth);
+#endif
 }
 
-void PixmapRenderSurfaceEcoreX::CreateEglSurface( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::CreateSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
-
+#if 0
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   for (int i = 0; i < BUFFER_COUNT; ++i)
@@ -160,12 +161,13 @@ void PixmapRenderSurfaceEcoreX::CreateEglSurface( EglInterface& egl )
     XPixmap pixmap = static_cast<XPixmap>( mX11Pixmaps[i] );
     mEglSurfaces[i] = eglImpl.CreateSurfacePixmap( EGLNativePixmapType( pixmap ), mColorDepth ); // reinterpret_cast does not compile
   }
+#endif
 }
 
-void PixmapRenderSurfaceEcoreX::DestroyEglSurface( EglInterface& egl )
+void PixmapRenderSurfaceEcoreX::DestroySurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
-
+#if 0
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
 
   for (int i = 0; i < BUFFER_COUNT; ++i)
@@ -175,12 +177,13 @@ void PixmapRenderSurfaceEcoreX::DestroyEglSurface( EglInterface& egl )
     eglImpl.MakeCurrent( EGLNativePixmapType( pixmap ), mEglSurfaces[i] );
     eglImpl.DestroySurface();
   }
+#endif
 }
 
-bool PixmapRenderSurfaceEcoreX::ReplaceEGLSurface( EglInterface& egl )
+bool PixmapRenderSurfaceEcoreX::ReplaceSurface( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
-
+#if 0
   bool contextLost = false;
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
@@ -198,6 +201,9 @@ bool PixmapRenderSurfaceEcoreX::ReplaceEGLSurface( EglInterface& egl )
   eglImpl.MakeCurrent( EGLNativePixmapType( pixmap ), mEglSurfaces[mProduceBufferIndex] );
 
   return contextLost;
+#endif
+
+  return false;
 }
 
 void PixmapRenderSurfaceEcoreX::StartRender()
