@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14e92f3b_f223ea18",
+        "filename": "dali/integration-api/render-surface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2018-08-31T14:21:03Z",
+      "side": 1,
+      "message": "don\u0027t need this header anymore",
+      "revId": "65802bd35fca52dc61f0c27c42fa2ae14c1258ff",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
