@@ -202,18 +202,29 @@ public:
   void Resize( uint16_t width, uint16_t height );
 
   /**
-   * Multiplies the image's color values by the alpha value. This provides better
+   * @brief Multiplies the image's color values by the alpha value. This provides better
    * blending capability.
    */
   void MultiplyColorByAlpha();
 
   /**
-   * Returns Exif metadata as a property map
+   * @brief Returns Exif metadata as a property map
    *
    * @param[out] metadata Property map object to write into
    * @return True on success
    */
   bool GetMetadata( Property::Map& metadata ) const;
+
+  /**
+   * @brief Rotates the pixel buffer by the given angle.
+   *
+   * @note Operation valid for pixel formats: A8, L8, LA88, RGB888, RGB8888, BGR8888, RGBA8888 and BGRA8888. Does nothing otherwise.
+   * @note The operation does nothing for angles equivalent to 0 degrees: -360, 360, 720, etc.
+   * @note If the pixel buffer does rotate, all the pointers to the internal pixel buffer retrieved by the method GetPixelBuffer() become invalid.
+   *
+   * @param[in] angle The angle in degrees.
+   */
+  void Rotate( Degree angle );
 
 public:
 

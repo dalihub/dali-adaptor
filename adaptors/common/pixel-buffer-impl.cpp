@@ -38,6 +38,11 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+const float TWO_PI = 2.f * Math::PI; ///< 360 degrees in radians
+} // namespace
+
 PixelBuffer::PixelBuffer( unsigned char* buffer,
                           unsigned int bufferSize,
                           unsigned int width,
@@ -209,6 +214,73 @@ void PixelBuffer::AllocateFixedSize( uint32_t size )
   ReleaseBuffer();
   mBuffer = reinterpret_cast<unsigned char*>(malloc( size ));
   mBufferSize = size;
+}
+
+void PixelBuffer::Rotate( Degree angle )
+{
+  // Check first if Rotate() can perform the operation in the current pixel buffer.
+
+  bool validPixelFormat = false;
+  switch( mPixelFormat )
+  {
+    case Pixel::A8:
+    case Pixel::L8:
+    case Pixel::LA88:
+    case Pixel::RGB888:
+    case Pixel::RGB8888:
+    case Pixel::BGR8888:
+    case Pixel::RGBA8888:
+    case Pixel::BGRA8888: // FALL THROUGH
+    {
+      validPixelFormat = true;
+      break;
+    }
+    default:
+    {
+      // This pixel format is not supported for this operation.
+      validPixelFormat = false;
+      break;
+    }
+  }
+
+  if( !validPixelFormat )
+  {
+    // Can't rotate the pixel buffer with the current pixel format.
+    DALI_LOG_ERROR( "Can't rotate the pixel buffer with the current pixel format\n" );
+    return;
+  }
+
+  float radians = Radian( angle ).radian;
+
+  // Transform the input angle into the range [0..2PI]
+  radians = fmod( radians, TWO_PI );
+  radians += ( radians < 0.f ) ? TWO_PI : 0.f;
+
+  if( radians < Dali::Math::MACHINE_EPSILON_10 )
+  {
+    // Nothing to do if the angle is zero.
+    return;
+  }
+
+  const unsigned int pixelSize = Pixel::GetBytesPerPixel( mPixelFormat );
+
+  uint8_t* pixelsOut = nullptr;
+  Platform::RotateByShear( mBuffer,
+                           mWidth,
+                           mHeight,
+                           pixelSize,
+                           radians,
+                           pixelsOut,
+                           mWidth,
+                           mHeight );
+
+  // Release the memory of the current pixel buffer.
+  ReleaseBuffer();
+
+  // Set the new pixel buffer.
+  mBuffer = pixelsOut;
+  pixelsOut = nullptr;
+  mBufferSize = mWidth * mHeight * pixelSize;
 }
 
 void PixelBuffer::ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions )
