@@ -946,16 +946,19 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
   bool eventHandled( false );
   if ( mIMFContext )
   {
+    std::string compose = keyEvent.GetCompose();
+    std::string deviceName = keyEvent.GetDeviceName();
+
     // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
     ecoreKeyDownEvent.keyname = keyEvent.keyPressedName.c_str();
     ecoreKeyDownEvent.key = keyEvent.keyPressedName.c_str();
     ecoreKeyDownEvent.string = keyEvent.keyPressed.c_str();
-    ecoreKeyDownEvent.compose = keyEvent.GetCompose().c_str();
+    ecoreKeyDownEvent.compose = compose.c_str();
     ecoreKeyDownEvent.timestamp = keyEvent.time;
     ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-    ecoreKeyDownEvent.dev_name = keyEvent.GetDeviceName().c_str();
+    ecoreKeyDownEvent.dev_name = deviceName.c_str();
     ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
 
@@ -993,16 +996,19 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
   bool eventHandled( false );
   if( mIMFContext )
   {
+    std::string compose = keyEvent.GetCompose();
+    std::string deviceName = keyEvent.GetDeviceName();
+
     // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
     ecoreKeyUpEvent.keyname = keyEvent.keyPressedName.c_str();
     ecoreKeyUpEvent.key = keyEvent.keyPressedName.c_str();
     ecoreKeyUpEvent.string = keyEvent.keyPressed.c_str();
-    ecoreKeyUpEvent.compose = keyEvent.GetCompose().c_str();
+    ecoreKeyUpEvent.compose = compose.c_str();
     ecoreKeyUpEvent.timestamp = keyEvent.time;
     ecoreKeyUpEvent.modifiers =  EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-    ecoreKeyUpEvent.dev_name = keyEvent.GetDeviceName().c_str();
+    ecoreKeyUpEvent.dev_name = deviceName.c_str();
     ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
 
