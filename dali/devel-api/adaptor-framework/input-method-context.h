@@ -42,6 +42,7 @@ class InputMethodContext;
  *
  * Specifically manages the ecore input method framework which enables the virtual or hardware keyboards.
  */
+
 class DALI_ADAPTOR_API InputMethodContext : public BaseHandle
 {
 public:
