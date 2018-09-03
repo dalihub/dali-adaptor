@@ -295,6 +295,8 @@ struct BidirectionalSupport::Plugin
     for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
     {
       CharacterDirection& characterDirection = *( directions + index );
+      CharacterDirection nextDirection = false;
+
       characterDirection = false;
 
       // Get the bidi direction.
@@ -303,14 +305,14 @@ struct BidirectionalSupport::Plugin
       if( RIGHT_TO_LEFT == bidiDirection )
       {
         characterDirection = true;
+        nextDirection = true;
       }
       else if( NEUTRAL == bidiDirection )
       {
         // For neutral characters it check's the next and previous directions.
         // If they are equals set that direction. If they are not, sets the paragraph's direction.
         // If there is no next, sets the paragraph's direction.
-
-        CharacterDirection nextDirection = paragraphDirection;
+        nextDirection = paragraphDirection;
 
         // Look for the next non-neutral character.
         Length nextIndex = index + 1u;
@@ -328,7 +330,9 @@ struct BidirectionalSupport::Plugin
         characterDirection = previousDirection == nextDirection ? previousDirection : paragraphDirection;
 
         // Set the direction to all the neutral characters.
+        // The indices from currentIndex + 1u to nextIndex - 1u are neutral characters.
         ++index;
+
         for( ; index < nextIndex; ++index )
         {
           CharacterDirection& nextCharacterDirection = *( directions + index );
@@ -342,7 +346,7 @@ struct BidirectionalSupport::Plugin
         }
       }
 
-      previousDirection = characterDirection;
+      previousDirection = nextDirection;
     }
   }
 

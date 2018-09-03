@@ -109,7 +109,10 @@ void RenderHelper::InitializeEgl()
 
 void RenderHelper::ReplaceSurface( RenderSurface* newSurface )
 {
-  mSurface->DestroyEglSurface(*mEGL);
+  if( mSurface )
+  {
+    mSurface->DestroyEglSurface(*mEGL);
+  }
 
   // This is designed for replacing pixmap surfaces, but should work for window as well
   // we need to delete the egl surface and renderable (pixmap / window)
