@@ -64,6 +64,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_ubuntu_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_trace_common_src_files) \
                   $(adaptor_thread_common_src_files) \
@@ -116,6 +117,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
@@ -178,6 +180,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
@@ -239,6 +242,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
@@ -299,6 +303,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
@@ -362,6 +367,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
+                  $(adaptor_web_engine_common_src_files) \
                   $(adaptor_window_system_common_src_files) \
                   $(adaptor_window_system_tizen_src_files) \
                   $(adaptor_window_system_tizen_wayland_src_files) \
