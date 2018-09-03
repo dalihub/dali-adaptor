@@ -1283,12 +1283,6 @@ FT_FaceRec_* FontClient::Plugin::GetFreetypeFace( FontId fontId )
   return fontFace;
 }
 
-bool FontClient::Plugin::AddCustomFontDirectory( const FontPath& path )
-{
-  // NULL as first parameter means the current configuration is used.
-  return FcConfigAppFontAddDir( NULL, reinterpret_cast<const FcChar8 *>( path.c_str() ) );
-}
-
 void FontClient::Plugin::InitSystemFonts()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );
