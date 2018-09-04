@@ -502,6 +502,11 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mCallbackManager->RemoveIdleCallback( callback );
 }
 
+void Adaptor::SetPreRenderCallback( CallbackBase* callback )
+{
+  mThreadController->SetPreRenderCallback( callback );
+}
+
 Dali::Adaptor& Adaptor::Get()
 {
   DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );

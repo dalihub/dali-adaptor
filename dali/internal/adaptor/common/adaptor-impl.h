@@ -216,6 +216,11 @@ public: // AdaptorInternalServices implementation
    */
   virtual void RemoveIdle( CallbackBase* callback );
 
+  /**
+   * Sets a pre-render callback.
+   */
+  void SetPreRenderCallback( CallbackBase* callback );
+
 public:
 
   /**
