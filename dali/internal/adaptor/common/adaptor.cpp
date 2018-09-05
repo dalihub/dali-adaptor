@@ -113,6 +113,11 @@ Any Adaptor::GetNativeWindowHandle()
   return mImpl->GetNativeWindowHandle();
 }
 
+Any Adaptor::GetGraphicsDisplay()
+{
+  return mImpl->GetGraphicsDisplay();
+}
+
 void Adaptor::ReleaseSurfaceLock()
 {
   mImpl->ReleaseSurfaceLock();

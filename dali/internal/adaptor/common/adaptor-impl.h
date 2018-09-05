@@ -290,6 +290,13 @@ public:
   Any GetNativeWindowHandle();
 
   /**
+   * Get the native display associated with the graphics backend
+   *
+   * @return A handle to the native display
+   */
+  Any GetGraphicsDisplay();
+
+  /**
    * Sets use remote surface for eglSurface output
    * @param[in] useRemoteSurface True if the remote surface is used
    */

@@ -236,6 +236,13 @@ public:
   Any GetNativeWindowHandle();
 
   /**
+   * @brief Get the native display associated with the graphics backend
+   *
+   * @return A handle to the native display
+   */
+  Any GetGraphicsDisplay();
+
+  /**
    * @brief Release any locks the surface may hold.
    *
    * For example, after compositing an offscreen surface, use this method to allow
