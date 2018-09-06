@@ -224,7 +224,7 @@ void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, 
   {
     case EXIF_FORMAT_ASCII:
     {
-      out.Insert( shortName, std::string(reinterpret_cast<char *>(entry.data)) );
+      out.Insert( shortName, std::string( reinterpret_cast<char *>(entry.data), entry.size ) );
       break;
     }
     case EXIF_FORMAT_SHORT:

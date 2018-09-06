@@ -503,9 +503,9 @@ public:
   bool SetBrightness( int brightness );
 
   /**
-   * @brief Gets preffered brightness of the window.
+   * @brief Gets preferred brightness of the window.
    * @SINCE_1_2.60
-   * @return The preffered brightness.
+   * @return The preferred brightness.
    */
   int GetBrightness() const;
 
