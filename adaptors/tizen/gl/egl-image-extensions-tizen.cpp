@@ -97,7 +97,6 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
                                              clientBuffer,
                                              attribs );
 
-  DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "X11Image::GlExtensionCreate eglCreateImageKHR failed!\n");
   if( EGL_NO_IMAGE_KHR == eglImage )
   {
     switch( eglGetError() )
@@ -142,6 +141,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
     }
   }
+  DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "EglImageExtensions::CreateImageKHR: eglCreateImageKHR failed!\n");
 
   return eglImage;
 }

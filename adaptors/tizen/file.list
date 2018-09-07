@@ -21,7 +21,9 @@ adaptor_tizen_internal_native_image_src_files = \
   $(adaptor_tizen_dir)/display-connection-impl-tizen.cpp \
   $(adaptor_tizen_dir)/native-render-surface-tizen.cpp \
   $(adaptor_tizen_dir)/native-render-surface-factory-tizen.cpp \
-  $(adaptor_tizen_dir)/native-image-source-impl-tizen.cpp
+  $(adaptor_tizen_dir)/native-image-source-factory-tizen.cpp \
+  $(adaptor_tizen_dir)/native-image-source-impl-tizen.cpp \
+  $(adaptor_tizen_dir)/native-image-source-queue-impl-tizen.cpp
 
 public_api_adaptor_tizen_header_files = \
   $(adaptor_tizen_dir)/key-grab.h

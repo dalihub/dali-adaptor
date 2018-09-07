@@ -19,12 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <tbm_surface.h>
-#include <dali/devel-api/images/native-image-interface-extension.h>
-#include <dali/public-api/common/dali-vector.h>
+#include <Ecore_X.h>
 
 // INTERNAL INCLUDES
 #include <native-image-source.h>
+#include <native-image-source-impl.h>
 
 namespace Dali
 {
@@ -34,13 +33,12 @@ namespace Internal
 
 namespace Adaptor
 {
-
 class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
  */
-class NativeImageSource: public NativeImageInterface::Extension
+class NativeImageSourceX : public Internal::Adaptor::NativeImageSource
 {
 public:
 
@@ -53,66 +51,64 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSource* New(unsigned int width,
+  static NativeImageSourceX* New(unsigned int width,
                           unsigned int height,
                           Dali::NativeImageSource::ColorDepth depth,
                           Any nativeImageSource);
-
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
-  Any GetNativeImageSource() const;
-
+  Any GetNativeImageSource() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const;
+  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
    */
-  bool EncodeToFile(const std::string& filename) const;
+  bool EncodeToFile(const std::string& filename) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
-  void SetSource( Any source );
+  void SetSource( Any source ) override;
 
   /**
    * @copydoc Dali::NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
    */
-  bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth );
+  bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth ) override;
 
   /**
    * destructor
    */
-  ~NativeImageSource();
+  ~NativeImageSourceX() override;
 
   /**
    * @copydoc Dali::NativeImageSource::GlExtensionCreate()
    */
-  bool GlExtensionCreate();
+  bool GlExtensionCreate() override;
 
   /**
    * @copydoc Dali::NativeImageSource::GlExtensionDestroy()
    */
-  void GlExtensionDestroy();
+  void GlExtensionDestroy() override;
 
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  unsigned int TargetTexture();
+  unsigned int TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
    */
-  void PrepareTexture();
+  void PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  unsigned int GetWidth() const
+  unsigned int GetWidth() const override
   {
     return mWidth;
   }
@@ -120,7 +116,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  unsigned int GetHeight() const
+  unsigned int GetHeight() const override
   {
     return mHeight;
   }
@@ -128,7 +124,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()
    */
-  bool RequiresBlending() const
+  bool RequiresBlending() const override
   {
     return mBlendingRequired;
   }
@@ -136,30 +132,10 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
-  NativeImageInterface::Extension* GetNativeImageInterfaceExtension()
+  NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
   {
-    return this;
+    return nullptr;
   }
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomFragmentPreFix()
-   */
-  const char* GetCustomFragmentPreFix();
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomSamplerTypename()
-   */
-  const char* GetCustomSamplerTypename();
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
-   */
-  int GetEglImageTextureTarget();
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::SetDestructorNotification((void *notification)
-   */
-  void SetDestructorNotification(void* notification);
 
 private:
 
@@ -170,32 +146,46 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  NativeImageSource(unsigned int width,
+  NativeImageSourceX(unsigned int width,
               unsigned  int height,
               Dali::NativeImageSource::ColorDepth depth,
               Any nativeImageSource);
 
+  /**
+   * 2nd phase construction.
+   */
   void Initialize();
 
+  /**
+   * Uses X11 to get the default depth.
+   * @param depth the PixelImage depth enum
+   * @return default x11 pixel depth
+   */
   int GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const;
 
-  tbm_surface_h GetSurfaceFromAny( Any source ) const;
+  /**
+   * Gets the pixmap from the Any parameter
+   * @param pixmap contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @return pixmap x11 pixmap
+   */
+  Ecore_X_Pixmap GetPixmapFromAny(Any pixmap) const;
 
-  bool CheckBlending( tbm_format format );
+  /**
+   * Given an existing pixmap, the function uses X to find out
+   * the width, heigth and depth of that pixmap.
+   */
+  void GetPixmapDetails();
 
 private:
 
   unsigned int mWidth;                        ///< image width
   unsigned int mHeight;                       ///< image heights
-  bool mOwnTbmSurface;                            ///< Whether we created pixmap or not
-  tbm_surface_h mTbmSurface;
-  tbm_format mTbmFormat;
+  bool mOwnPixmap;                            ///< Whether we created pixmap or not
+  Ecore_X_Pixmap mPixmap;                     ///< From Xlib
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
-  bool mSetSource;
-  void *mNotification;
 };
 
 } // namespace Adaptor

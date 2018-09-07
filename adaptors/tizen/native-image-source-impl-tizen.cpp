@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "native-image-source-impl.h"
+#include <native-image-source-impl-tizen.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -30,7 +30,6 @@
 #include <adaptor-impl.h>
 #include <render-surface.h>
 #include <trigger-event-factory.h>
-
 
 // Allow this to be encoded and saved:
 #include <bitmap-saver.h>
@@ -67,9 +66,9 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 using Dali::Integration::PixelBuffer;
 
-NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceTizen* NativeImageSourceTizen::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
-  NativeImageSource* image = new NativeImageSource( width, height, depth, nativeImageSource );
+  NativeImageSourceTizen* image = new NativeImageSourceTizen( width, height, depth, nativeImageSource );
   DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
 
   if( image )
@@ -80,7 +79,7 @@ NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int heigh
   return image;
 }
 
-NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
   mOwnTbmSurface( false ),
@@ -109,7 +108,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   }
 }
 
-void NativeImageSource::Initialize()
+void NativeImageSourceTizen::Initialize()
 {
   if( mTbmSurface != NULL || mWidth == 0 || mHeight == 0 )
   {
@@ -169,7 +168,7 @@ void NativeImageSource::Initialize()
   mOwnTbmSurface = true;
 }
 
-tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
+tbm_surface_h NativeImageSourceTizen::GetSurfaceFromAny( Any source ) const
 {
   if( source.Empty() )
   {
@@ -186,7 +185,7 @@ tbm_surface_h NativeImageSource::GetSurfaceFromAny( Any source ) const
   }
 }
 
-NativeImageSource::~NativeImageSource()
+NativeImageSourceTizen::~NativeImageSourceTizen()
 {
   if( mOwnTbmSurface )
   {
@@ -209,18 +208,18 @@ NativeImageSource::~NativeImageSource()
   }
 }
 
-Any NativeImageSource::GetNativeImageSource() const
+Any NativeImageSourceTizen::GetNativeImageSource() const
 {
   return Any( mTbmSurface );
 }
 
 
-void NativeImageSource::SetDestructorNotification(void* notification)
+void NativeImageSourceTizen::SetDestructorNotification(void* notification)
 {
   mNotification = notification;
 }
 
-bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
   if( mTbmSurface != NULL )
   {
@@ -313,7 +312,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   return false;
 }
 
-bool NativeImageSource::EncodeToFile(const std::string& filename) const
+bool NativeImageSourceTizen::EncodeToFile(const std::string& filename) const
 {
   std::vector< unsigned char > pixbuf;
   unsigned int width(0), height(0);
@@ -326,7 +325,7 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-void NativeImageSource::SetSource( Any source )
+void NativeImageSourceTizen::SetSource( Any source )
 {
   if( mOwnTbmSurface )
   {
@@ -359,7 +358,7 @@ void NativeImageSource::SetSource( Any source )
   }
 }
 
-bool NativeImageSource::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
+bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
 {
   uint32_t* formats;
   uint32_t formatNum;
@@ -410,7 +409,7 @@ bool NativeImageSource::IsColorDepthSupported( Dali::NativeImageSource::ColorDep
   return false;
 }
 
-bool NativeImageSource::GlExtensionCreate()
+bool NativeImageSourceTizen::GlExtensionCreate()
 {
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
@@ -425,7 +424,7 @@ bool NativeImageSource::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSource::GlExtensionDestroy()
+void NativeImageSourceTizen::GlExtensionDestroy()
 {
   if( mEglImageKHR )
   {
@@ -435,14 +434,14 @@ void NativeImageSource::GlExtensionDestroy()
   }
 }
 
-unsigned int NativeImageSource::TargetTexture()
+unsigned int NativeImageSourceTizen::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
-void NativeImageSource::PrepareTexture()
+void NativeImageSourceTizen::PrepareTexture()
 {
   if( mSetSource )
   {
@@ -459,55 +458,22 @@ void NativeImageSource::PrepareTexture()
   }
 }
 
-int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
-{
-  switch (depth)
-  {
-    case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
-    {
-      // ToDo: Get the default screen depth
-      return 32;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_8:
-    {
-      return 8;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_16:
-    {
-      return 16;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_24:
-    {
-      return 24;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_32:
-    {
-      return 32;
-    }
-    default:
-    {
-      DALI_ASSERT_DEBUG(0 && "unknown color enum");
-      return 0;
-    }
-  }
-}
-
-const char* NativeImageSource::GetCustomFragmentPreFix()
+const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
 {
   return FRAGMENT_PREFIX;
 }
 
-const char* NativeImageSource::GetCustomSamplerTypename()
+const char* NativeImageSourceTizen::GetCustomSamplerTypename()
 {
   return SAMPLER_TYPE;
 }
 
-int NativeImageSource::GetEglImageTextureTarget()
+int NativeImageSourceTizen::GetEglImageTextureTarget()
 {
   return GL_TEXTURE_EXTERNAL_OES;
 }
 
-bool NativeImageSource::CheckBlending( tbm_format format )
+bool NativeImageSourceTizen::CheckBlending( tbm_format format )
 {
   if( mTbmFormat != format )
   {

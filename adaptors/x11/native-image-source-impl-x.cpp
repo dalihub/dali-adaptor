@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "native-image-source-impl.h"
+#include <native-image-source-impl-x.h>
 
 // EXTERNAL INCLUDES
 #include <Ecore_X.h>
@@ -72,9 +72,9 @@ namespace
   };
 }
 
-NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceX* NativeImageSourceX::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
-  NativeImageSource* image = new NativeImageSource( width, height, depth, nativeImageSource );
+  NativeImageSourceX* image = new NativeImageSourceX( width, height, depth, nativeImageSource );
   DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
 
   // 2nd phase construction
@@ -86,7 +86,7 @@ NativeImageSource* NativeImageSource::New(unsigned int width, unsigned int heigh
   return image;
 }
 
-NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceX::NativeImageSourceX( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
   mOwnPixmap( true ),
@@ -105,7 +105,7 @@ NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, D
   mPixmap = GetPixmapFromAny(nativeImageSource);
 }
 
-void NativeImageSource::Initialize()
+void NativeImageSourceX::Initialize()
 {
   // if pixmap has been created outside of X11 Image we can return
   if (mPixmap)
@@ -132,7 +132,7 @@ void NativeImageSource::Initialize()
   ecore_x_sync();
 }
 
-NativeImageSource::~NativeImageSource()
+NativeImageSourceX::~NativeImageSourceX()
 {
   if (mOwnPixmap && mPixmap)
   {
@@ -140,13 +140,13 @@ NativeImageSource::~NativeImageSource()
   }
 }
 
-Any NativeImageSource::GetNativeImageSource() const
+Any NativeImageSourceX::GetNativeImageSource() const
 {
   // return ecore x11 type
   return Any(mPixmap);
 }
 
-bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
   bool success = false;
@@ -159,7 +159,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   XImageJanitor xImageJanitor( XGetImage( displayConnection,
                                           mPixmap,
                                           0, 0, // x,y of subregion to extract.
-                                          width, height, // of suregion to extract.
+                                          width, height, // of subregion to extract.
                                           0xFFFFFFFF,
                                           ZPixmap ) );
   XImage* const  pXImage = xImageJanitor.mXImage;
@@ -260,7 +260,7 @@ bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& 
   return success;
 }
 
-bool NativeImageSource::EncodeToFile(const std::string& filename) const
+bool NativeImageSourceX::EncodeToFile(const std::string& filename) const
 {
   std::vector< unsigned char > pixbuf;
   unsigned int width(0), height(0);
@@ -273,7 +273,7 @@ bool NativeImageSource::EncodeToFile(const std::string& filename) const
   return false;
 }
 
-void NativeImageSource::SetSource( Any source )
+void NativeImageSourceX::SetSource( Any source )
 {
   mPixmap = GetPixmapFromAny( source );
 
@@ -287,12 +287,12 @@ void NativeImageSource::SetSource( Any source )
   }
 }
 
-bool NativeImageSource::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
+bool NativeImageSourceX::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
 {
   return true;
 }
 
-bool NativeImageSource::GlExtensionCreate()
+bool NativeImageSourceX::GlExtensionCreate()
 {
   // if the image existed previously delete it.
   if (mEglImageKHR != NULL)
@@ -309,25 +309,25 @@ bool NativeImageSource::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSource::GlExtensionDestroy()
+void NativeImageSourceX::GlExtensionDestroy()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
 }
 
-unsigned int NativeImageSource::TargetTexture()
+unsigned int NativeImageSourceX::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
-void NativeImageSource::PrepareTexture()
+void NativeImageSourceX::PrepareTexture()
 {
 }
 
-int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
+int NativeImageSourceX::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
 {
   switch (depth)
   {
@@ -360,7 +360,7 @@ int NativeImageSource::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) 
   }
 }
 
-Ecore_X_Pixmap NativeImageSource::GetPixmapFromAny(Any pixmap) const
+Ecore_X_Pixmap NativeImageSourceX::GetPixmapFromAny(Any pixmap) const
 {
   if (pixmap.Empty())
   {
@@ -382,7 +382,7 @@ Ecore_X_Pixmap NativeImageSource::GetPixmapFromAny(Any pixmap) const
   }
 }
 
-void NativeImageSource::GetPixmapDetails()
+void NativeImageSourceX::GetPixmapDetails()
 {
   int x, y;
 
