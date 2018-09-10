@@ -2,3 +2,6 @@
 
 feedback_plugin_src_files = \
    $(plugin_src_dir)/dali-feedback.cpp
+
+web_engine_lite_plugin_src_files = \
+   $(plugin_src_dir)/tizen-web-engine-lite.cpp
