@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_THREAD_CONTROLLER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  * limitations under the License.
  *
  */
+#include <dali/public-api/signals/callback.h>
 
 namespace Dali
 {
@@ -112,6 +113,11 @@ public:
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+
+  /**
+   * @copydoc Dali::Adaptor::SetPreRenderCallback
+   */
+  void SetPreRenderCallback( CallbackBase* callback );
 
 private:
 
