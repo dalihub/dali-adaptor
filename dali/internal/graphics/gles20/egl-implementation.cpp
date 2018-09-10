@@ -21,6 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES

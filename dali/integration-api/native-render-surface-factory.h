@@ -24,6 +24,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
+// INTERNAL INCLUDES
+
 namespace Dali
 {
 
