@@ -216,6 +216,11 @@ public: // AdaptorInternalServices implementation
    */
   virtual void RemoveIdle( CallbackBase* callback );
 
+  /**
+   * Sets a pre-render callback.
+   */
+  void SetPreRenderCallback( CallbackBase* callback );
+
 public:
 
   /**
@@ -283,6 +288,13 @@ public:
    * @return native window handle
    */
   Any GetNativeWindowHandle();
+
+  /**
+   * Get the native display associated with the graphics backend
+   *
+   * @return A handle to the native display
+   */
+  Any GetGraphicsDisplay();
 
   /**
    * Sets use remote surface for eglSurface output

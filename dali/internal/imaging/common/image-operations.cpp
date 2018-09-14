@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,11 @@ const unsigned int MAXIMUM_TARGET_BITMAP_SIZE( ( 1u << 16 ) - 1 );
 // Constants used by the ImageResampler.
 const float DEFAULT_SOURCE_GAMMA = 1.75f;   ///< Default source gamma value used in the Resampler() function. Partial gamma correction looks better on mips. Set to 1.0 to disable gamma correction.
 const float FILTER_SCALE = 1.f;             ///< Default filter scale value used in the Resampler() function. Filter scale - values < 1.0 cause aliasing, but create sharper looking mips.
+
+const float RAD_135 = Math::PI_2 + Math::PI_4; ///< 135 degrees in radians;
+const float RAD_225 = RAD_135    + Math::PI_2; ///< 225 degrees in radians;
+const float RAD_270 = 3.f * Math::PI_2;        ///< 270 degrees in radians;
+const float RAD_315 = RAD_225    + Math::PI_2; ///< 315 degrees in radians;
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
@@ -490,6 +495,340 @@ ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned i
 
   requestedHeight = std::min( requestedHeight, maxSize );
   return ImageDimensions( bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight );
+}
+
+/**
+ * @brief Rotates the given buffer @p pixelsIn 90 degrees counter clockwise.
+ *
+ * @note It allocates memory for the returned @p pixelsOut buffer.
+ * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ *
+ * @param[in] pixelsIn The input buffer.
+ * @param[in] widthIn The width of the input buffer.
+ * @param[in] heightIn The height of the input buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[out] pixelsOut The rotated output buffer.
+ * @param[out] widthOut The width of the output buffer.
+ * @param[out] heightOut The height of the output buffer.
+ */
+void Rotate90( const uint8_t* const pixelsIn,
+               unsigned int widthIn,
+               unsigned int heightIn,
+               unsigned int pixelSize,
+               uint8_t*& pixelsOut,
+               unsigned int& widthOut,
+               unsigned int& heightOut )
+{
+  // The new size of the image.
+  widthOut = heightIn;
+  heightOut = widthIn;
+
+  // Allocate memory for the rotated buffer.
+  pixelsOut = static_cast<uint8_t*>( malloc ( widthOut * heightOut * pixelSize ) );
+
+  // Rotate the buffer.
+  for( unsigned int y = 0u; y < heightIn; ++y )
+  {
+    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int dstX = y;
+    for( unsigned int x = 0u; x < widthIn; ++x )
+    {
+      const unsigned int dstY = heightOut - x - 1u;
+      const unsigned int dstIndex = pixelSize * ( dstY * widthOut + dstX );
+      const unsigned int srcIndex = pixelSize * ( srcLineIndex + x );
+
+      for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+      {
+        *( pixelsOut + dstIndex + channel ) = *( pixelsIn + srcIndex + channel );
+      }
+    }
+  }
+}
+
+/**
+ * @brief Rotates the given buffer @p pixelsIn 180 degrees counter clockwise.
+ *
+ * @note It allocates memory for the returned @p pixelsOut buffer.
+ * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ *
+ * @param[in] pixelsIn The input buffer.
+ * @param[in] widthIn The width of the input buffer.
+ * @param[in] heightIn The height of the input buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[out] pixelsOut The rotated output buffer.
+ */
+void Rotate180( const uint8_t* const pixelsIn,
+                unsigned int widthIn,
+                unsigned int heightIn,
+                unsigned int pixelSize,
+                uint8_t*& pixelsOut )
+{
+  // Allocate memory for the rotated buffer.
+  pixelsOut = static_cast<uint8_t*>( malloc ( widthIn * heightIn * pixelSize ) );
+
+  // Rotate the buffer.
+  for( unsigned int y = 0u; y < heightIn; ++y )
+  {
+    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int dstY = heightIn - y - 1u;
+    for( unsigned int x = 0u; x < widthIn; ++x )
+    {
+      const unsigned int dstX = widthIn - x - 1u;
+      const unsigned int dstIndex = pixelSize * ( dstY * widthIn + dstX );
+      const unsigned int srcIndex = pixelSize * ( srcLineIndex + x );
+
+      for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+      {
+        *( pixelsOut + dstIndex + channel ) = *( pixelsIn + srcIndex + channel );
+      }
+    }
+  }
+}
+
+/**
+ * @brief Rotates the given buffer @p pixelsIn 270 degrees counter clockwise.
+ *
+ * @note It allocates memory for the returned @p pixelsOut buffer.
+ * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ *
+ * @param[in] pixelsIn The input buffer.
+ * @param[in] widthIn The width of the input buffer.
+ * @param[in] heightIn The height of the input buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[out] pixelsOut The rotated output buffer.
+ * @param[out] widthOut The width of the output buffer.
+ * @param[out] heightOut The height of the output buffer.
+ */
+void Rotate270( const uint8_t* const pixelsIn,
+                unsigned int widthIn,
+                unsigned int heightIn,
+                unsigned int pixelSize,
+                uint8_t*& pixelsOut,
+                unsigned int& widthOut,
+                unsigned int& heightOut )
+{
+  // The new size of the image.
+  widthOut = heightIn;
+  heightOut = widthIn;
+
+  // Allocate memory for the rotated buffer.
+  pixelsOut = static_cast<uint8_t*>( malloc ( widthOut * heightOut * pixelSize ) );
+
+  // Rotate the buffer.
+  for( unsigned int y = 0u; y < heightIn; ++y )
+  {
+    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int dstX = widthOut - y - 1u;
+    for( unsigned int x = 0u; x < widthIn; ++x )
+    {
+      const unsigned int dstY = x;
+      const unsigned int dstIndex = pixelSize * ( dstY * widthOut + dstX );
+      const unsigned int srcIndex = pixelSize * ( srcLineIndex + x );
+
+      for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+      {
+        *( pixelsOut + dstIndex + channel ) = *( pixelsIn + srcIndex + channel );
+      }
+    }
+  }
+}
+
+/**
+ * @brief Skews a row horizontally (with filtered weights)
+ *
+ * @note Limited to 45 degree skewing only.
+ * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ *
+ * @param[in] srcBufferPtr Pointer to the input pixel buffer.
+ * @param[in] srcWidth The width of the input pixel buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[in,out] dstPixelBuffer Pointer to the output pixel buffer.
+ * @param[in] dstWidth The width of the output pixel buffer.
+ * @param[in] row The row index.
+ * @param[in] offset The skew offset.
+ * @param[in] weight The relative weight of right pixel.
+ */
+void HorizontalSkew( const uint8_t* const srcBufferPtr,
+                     int srcWidth,
+                     unsigned int pixelSize,
+                     uint8_t*& dstBufferPtr,
+                     int dstWidth,
+                     unsigned int row,
+                     int offset,
+                     float weight )
+{
+  if( offset > 0 )
+  {
+    // Fill gap left of skew with background.
+    memset( dstBufferPtr + row * pixelSize * dstWidth, 0u, pixelSize * offset );
+  }
+
+  unsigned char oldLeft[4u] = { 0u, 0u, 0u, 0u };
+
+  int i = 0;
+  for( i = 0u; i < srcWidth; ++i )
+  {
+    // Loop through row pixels
+    const unsigned int srcIndex = pixelSize * ( row * srcWidth + i );
+
+    unsigned char src[4u] = { 0u, 0u, 0u, 0u };
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      src[channel] = *( srcBufferPtr + srcIndex + channel );
+    }
+
+    // Calculate weights
+    unsigned char left[4u] = { 0u, 0u, 0u, 0u };
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      left[channel] = static_cast<unsigned char>( static_cast<float>( src[channel] ) * weight );
+
+      // Update left over on source
+      src[channel] -= ( left[channel] - oldLeft[channel] );
+    }
+
+    // Check boundaries
+    if( ( i + offset >= 0 ) && ( i + offset < dstWidth ) )
+    {
+      const unsigned int dstIndex = pixelSize * ( row * dstWidth + i + offset );
+
+      for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+      {
+        *( dstBufferPtr + dstIndex + channel ) = src[channel];
+      }
+    }
+
+    // Save leftover for next pixel in scan
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      oldLeft[channel] = left[channel];
+    }
+  }
+
+  // Go to rightmost point of skew
+  i += offset;
+  if( i < dstWidth )
+  {
+    // If still in image bounds, put leftovers there
+    const unsigned int dstIndex = pixelSize * ( row * dstWidth + i );
+
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      *( dstBufferPtr + dstIndex + channel ) = oldLeft[channel];
+    }
+
+    // Clear to the right of the skewed line with background
+    ++i;
+    memset( dstBufferPtr + pixelSize * ( row * dstWidth + i ), 0u, pixelSize * ( dstWidth - i ) );
+  }
+}
+
+/**
+ * @brief Skews a column vertically (with filtered weights)
+ *
+ * @note Limited to 45 degree skewing only.
+ * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ *
+ * @param[in] srcBufferPtr Pointer to the input pixel buffer.
+ * @param[in] srcWidth The width of the input pixel buffer.
+ * @param[in] srcHeight The height of the input pixel buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[in,out] dstPixelBuffer Pointer to the output pixel buffer.
+ * @param[in] dstWidth The width of the output pixel buffer.
+ * @param[in] dstHeight The height of the output pixel buffer.
+ * @param[in] column The column index.
+ * @param[in] offset The skew offset.
+ * @param[in] weight The relative weight of uppeer pixel.
+ */
+void VerticalSkew( const uint8_t* const srcBufferPtr,
+                   int srcWidth,
+                   int srcHeight,
+                   unsigned int pixelSize,
+                   uint8_t*& dstBufferPtr,
+                   int dstWidth,
+                   int dstHeight,
+                   unsigned int column,
+                   int offset,
+                   float weight )
+{
+  for( int i = 0; i < offset; ++i )
+  {
+    // Fill gap above skew with background
+    const unsigned int dstIndex = pixelSize * ( i * dstWidth + column );
+
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      *( dstBufferPtr + dstIndex + channel ) = 0u;
+    }
+  }
+
+  unsigned char oldLeft[4u] = { 0u, 0u, 0u, 0u };
+
+  int yPos = 0;
+  int i = 0;
+  for( i = 0; i < srcHeight; ++i )
+  {
+    // Loop through column pixels
+    const unsigned int srcIndex = pixelSize * ( i * srcWidth + column );
+
+    unsigned char src[4u] = { 0u, 0u, 0u, 0u };
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      src[channel] = *( srcBufferPtr + srcIndex + channel );
+    }
+
+    yPos = i + offset;
+
+    // Calculate weights
+    unsigned char left[4u] = { 0u, 0u, 0u, 0u };
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      left[channel] = static_cast<unsigned char>( static_cast<float>( src[channel] ) * weight );
+      // Update left over on source
+      src[channel] -= ( left[channel] - oldLeft[channel] );
+    }
+
+    // Check boundaries
+    if( ( yPos >= 0 ) && ( yPos < dstHeight ) )
+    {
+      const unsigned int dstIndex = pixelSize * ( yPos * dstWidth + column );
+
+      for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+      {
+        *( dstBufferPtr + dstIndex + channel ) = src[channel];
+      }
+    }
+
+    // Save leftover for next pixel in scan
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      oldLeft[channel] = left[channel];
+    }
+  }
+
+  // Go to bottom point of skew
+  i = yPos;
+  if( i < dstHeight )
+  {
+    // If still in image bounds, put leftovers there
+    const unsigned int dstIndex = pixelSize * ( i * dstWidth + column );
+
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      *( dstBufferPtr + dstIndex + channel ) = oldLeft[channel];
+    }
+  }
+
+  while( ++i < dstHeight )
+  {
+    // Clear below skewed line with background
+    const unsigned int dstIndex = pixelSize * ( i * dstWidth + column );
+
+    for( unsigned int channel = 0u; channel < pixelSize; ++channel )
+    {
+      *( dstBufferPtr + dstIndex + channel ) = 0u;
+    }
+  }
 }
 
 } // namespace - unnamed
@@ -1576,8 +1915,8 @@ void Resample( const unsigned char * __restrict__ inPixels,
     }
   }
 
-  Resampler* resamplers[numChannels];
-  Vector<float> samples[numChannels];
+  std::vector<Resampler*> resamplers( numChannels );
+  std::vector<Vector<float>> samples(numChannels);
 
   const int srcWidth = inputDimensions.GetWidth();
   const int srcHeight = inputDimensions.GetHeight();
@@ -1766,6 +2105,175 @@ void LinearSample( const unsigned char * __restrict__ inPixels,
   {
     DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat) );
   }
+}
+
+void RotateByShear( const uint8_t* const pixelsIn,
+                    unsigned int widthIn,
+                    unsigned int heightIn,
+                    unsigned int pixelSize,
+                    float radians,
+                    uint8_t*& pixelsOut,
+                    unsigned int& widthOut,
+                    unsigned int& heightOut )
+{
+  // @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+
+  // Do first the fast rotations to transform the angle into a (-45..45] range.
+
+  float fastRotationPerformed = false;
+  if( ( radians > Math::PI_4 ) && ( radians <= RAD_135 ) )
+  {
+    // Angle in (45.0 .. 135.0]
+    // Rotate image by 90 degrees into temporary image,
+    // so it requires only an extra rotation angle
+    // of -45.0 .. +45.0 to complete rotation.
+    Rotate90( pixelsIn,
+              widthIn,
+              heightIn,
+              pixelSize,
+              pixelsOut,
+              widthOut,
+              heightOut );
+    radians -= Math::PI_2;
+    fastRotationPerformed = true;
+  }
+  else if( ( radians > RAD_135 ) && ( radians <= RAD_225 ) )
+  {
+    // Angle in (135.0 .. 225.0]
+    // Rotate image by 180 degrees into temporary image,
+    // so it requires only an extra rotation angle
+    // of -45.0 .. +45.0 to complete rotation.
+
+    Rotate180( pixelsIn,
+               widthIn,
+               heightIn,
+               pixelSize,
+               pixelsOut );
+    radians -= Math::PI;
+    widthOut = widthIn;
+    heightOut = heightIn;
+    fastRotationPerformed = true;
+  }
+  else if( ( radians > RAD_225 ) && ( radians <= RAD_315 ) )
+  {
+    // Angle in (225.0 .. 315.0]
+    // Rotate image by 270 degrees into temporary image,
+    // so it requires only an extra rotation angle
+    // of -45.0 .. +45.0 to complete rotation.
+
+    Rotate270( pixelsIn,
+               widthIn,
+               heightIn,
+               pixelSize,
+               pixelsOut,
+               widthOut,
+               heightOut );
+    radians -= RAD_270;
+    fastRotationPerformed = true;
+  }
+
+  if( fabs( radians ) < Dali::Math::MACHINE_EPSILON_10 )
+  {
+    // Nothing else to do if the angle is zero.
+    // The rotation angle was 90, 180 or 270.
+
+    // @note Allocated memory by 'Fast Rotations', if any, has to be freed by the called to this function.
+    return;
+  }
+
+  const uint8_t* const firstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
+  uint8_t*  tmpFirstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : nullptr; // keep the pointer to free the memory.
+
+  // Reset the input/output
+  widthIn = widthOut;
+  heightIn = heightOut;
+  pixelsOut = nullptr;
+
+  const float angleSinus = sin( radians );
+  const float angleCosinus = cos( radians );
+  const float angleTangent = tan( 0.5f * radians );
+
+  ///////////////////////////////////////
+  // Perform 1st shear (horizontal)
+  ///////////////////////////////////////
+
+  // Calculate first shear (horizontal) destination image dimensions
+
+  widthOut = widthIn + static_cast<unsigned int>( fabs( angleTangent ) * static_cast<float>( heightIn ) );
+  heightOut = heightIn;
+
+  // Allocate the buffer for the 1st shear
+  pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
+
+  for( unsigned int y = 0u; y < heightOut; ++y )
+  {
+    const float shear = angleTangent * ( ( angleTangent >= 0.f ) ? ( 0.5f + static_cast<float>( y ) ) : ( 0.5f + static_cast<float>( y ) - static_cast<float>( heightOut ) ) );
+
+    const int intShear = static_cast<int>( floor( shear ) );
+    HorizontalSkew( firstHorizontalSkwePixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
+  }
+
+  // Free the memory allocated by the 'Fast Rotations'.
+  free( tmpFirstHorizontalSkwePixelsIn );
+
+  uint8_t* tmpPixelsIn = pixelsOut;
+  unsigned int tmpWidthIn = widthOut;
+  unsigned int tmpHeightIn = heightOut;
+
+  // Reset the input/output
+  pixelsOut = nullptr;
+
+  ///////////////////////////////////////
+  // Perform 2nd shear (vertical)
+  ///////////////////////////////////////
+
+  // Calc 2nd shear (vertical) destination image dimensions
+  heightOut = static_cast<unsigned int>( static_cast<float>( widthIn ) * fabs( angleSinus ) + static_cast<float>( heightIn ) * angleCosinus );
+
+  // Allocate the buffer for the 2nd shear
+  pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
+
+  // Variable skew offset
+  float offset = angleSinus * ( ( angleSinus > 0.f ) ? static_cast<float>( widthIn - 1u ) : -( static_cast<float>( widthIn ) - static_cast<float>( widthOut ) ) );
+
+  unsigned int column = 0u;
+  for( column = 0u; column < widthOut; ++column, offset -= angleSinus )
+  {
+    const int shear = static_cast<int>( floor( offset ) );
+    VerticalSkew( tmpPixelsIn, tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>( shear ) );
+  }
+
+  // Free the memory allocated by the 'First Horizontal Skew'.
+  free( tmpPixelsIn );
+
+  // Reset the input/output
+  tmpPixelsIn = pixelsOut;
+  tmpWidthIn = widthOut;
+  tmpHeightIn = heightOut;
+  pixelsOut = nullptr;
+
+  ///////////////////////////////////////
+  // Perform 3rd shear (horizontal)
+  ///////////////////////////////////////
+
+  // Calc 3rd shear (horizontal) destination image dimensions
+  widthOut = static_cast<unsigned int>( static_cast<float>( heightIn ) * fabs( angleSinus ) + static_cast<float>( widthIn ) * angleCosinus ) + 1u;
+
+  // Allocate the buffer for the 3rd shear
+  pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
+
+  offset =  ( angleSinus >= 0.f ) ? -angleSinus * angleTangent * static_cast<float>( widthIn - 1u ) : angleTangent * ( static_cast<float>( widthIn - 1u ) * -angleSinus + ( 1.f - static_cast<float>( heightOut ) ) );
+
+  for( unsigned int y = 0u; y < heightOut; ++y, offset += angleTangent )
+  {
+    const int shear = static_cast<int>( floor( offset ) );
+    HorizontalSkew( tmpPixelsIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>( shear ) );
+  }
+
+  // Free the memory allocated by the 'First Horizontal Skew'.
+  free( tmpPixelsIn );
+
+  // @note Allocated memory by the last 'Horizontal Skew' has to be freed by the called to this function.
 }
 
 } /* namespace Platform */

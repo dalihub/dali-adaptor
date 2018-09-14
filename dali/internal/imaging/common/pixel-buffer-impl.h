@@ -212,6 +212,11 @@ public:
    */
   void AllocateFixedSize( uint32_t size );
 
+  /**
+   * @copydoc Devel::PixelBuffer::Rotate()
+   */
+  void Rotate( Degree angle );
+
 private:
   /*
    * Undefined copy constructor.
@@ -264,7 +269,6 @@ private:
    * @return a new buffer of the given size.
    */
   static PixelBufferPtr NewResize( const PixelBuffer& inBuffer, ImageDimensions outDimensions );
-
 
 private:
 
