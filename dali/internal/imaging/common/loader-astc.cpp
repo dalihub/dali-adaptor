@@ -26,10 +26,6 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-#include <dali/internal/system/common/file-closer.h>
-
-using namespace Dali::Internal::Platform;
-
 namespace Dali
 {
 namespace TizenPlatform
@@ -124,7 +120,7 @@ bool LoadAstcHeader( FILE * const filePointer, unsigned int& width, unsigned int
 {
   // Pull the bytes of the file header in as a block:
   const unsigned int readLength = sizeof( AstcFileHeader );
-  if( InternalFile::fread( &fileHeader, 1, readLength, filePointer ) != readLength )
+  if( fread( &fileHeader, 1, readLength, filePointer ) != readLength )
   {
     return false;
   }
@@ -200,20 +196,20 @@ bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuff
   }
 
   // Retrieve the file size.
-  if( InternalFile::fseek( filePointer, 0L, SEEK_END ) )
+  if( fseek( filePointer, 0L, SEEK_END ) )
   {
     DALI_LOG_ERROR( "Could not seek through file.\n" );
     return false;
   }
 
-  off_t fileSize = InternalFile::ftell( filePointer );
+  off_t fileSize = ftell( filePointer );
   if( fileSize == -1L )
   {
     DALI_LOG_ERROR( "Could not determine ASTC file size.\n" );
     return false;
   }
 
-  if( InternalFile::fseek( filePointer, sizeof( AstcFileHeader ), SEEK_SET ) )
+  if( fseek( filePointer, sizeof( AstcFileHeader ), SEEK_SET ) )
   {
     DALI_LOG_ERROR( "Could not seek through file.\n" );
     return false;
@@ -243,7 +239,7 @@ bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuff
   }
 
   // Load the image data.
-  const size_t bytesRead = InternalFile::fread( pixels, 1, imageByteCount, filePointer );
+  const size_t bytesRead = fread( pixels, 1, imageByteCount, filePointer );
 
   // Check the size of loaded data is what we expected.
   if( bytesRead != imageByteCount )
