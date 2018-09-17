@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,44 +264,6 @@ int UtcDaliTimerSetInterval(void)
   timer.SetInterval(5000);
 
   DALI_TEST_CHECK( timer.GetInterval() == 5000);
-
-  END_TEST;
-}
-
-int UtcDaliTimerSetInterval02(void)
-{
-  AdaptorTestApplication application;
-
-  tet_printf("timer set interval 02 \n");
-  Timer timer = Timer::New(10);
-  timer.SetInterval(20);
-
-  DALI_TEST_CHECK( timer.GetInterval() == 20 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
-
-  timer.SetInterval(5000, false);
-
-  DALI_TEST_CHECK( timer.GetInterval() == 5000 );
-  DALI_TEST_CHECK( timer.IsRunning() == false );
-
-  END_TEST;
-}
-
-int UtcDaliTimerSetInterval03(void)
-{
-  AdaptorTestApplication application;
-
-  tet_printf("UtcDaliTimerSetInterval03 SetInterval and ensure timer restarts \n");
-  Timer timer = Timer::New(10);
-  timer.SetInterval(20);
-
-  DALI_TEST_CHECK( timer.GetInterval() == 20 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
-
-  timer.SetInterval(5000, true);
-
-  DALI_TEST_CHECK( timer.GetInterval() == 5000 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
 
   END_TEST;
 }

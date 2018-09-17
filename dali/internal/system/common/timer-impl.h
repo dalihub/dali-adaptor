@@ -70,19 +70,9 @@ public:
   virtual void Stop();
 
   /**
-   * @copydoc Dali::Timer::Pause()
-   */
-  virtual void Pause();
-
-  /**
-   * @copydoc Dali::Timer::Resume()
-   */
-  virtual void Resume();
-
-  /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  virtual void SetInterval( unsigned int interval, bool restart );
+  virtual void SetInterval( unsigned int interval );
 
   /**
    * @copydoc Dali::Timer::GetInterval()

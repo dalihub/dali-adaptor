@@ -69,24 +69,9 @@ void Timer::Stop()
   Internal::Adaptor::GetImplementation(*this).Stop();
 }
 
-void Timer::Pause()
-{
-  Internal::Adaptor::GetImplementation(*this).Pause();
-}
-
-void Timer::Resume()
-{
-  Internal::Adaptor::GetImplementation(*this).Resume();
-}
-
 void Timer::SetInterval( unsigned int interval )
 {
-  Internal::Adaptor::GetImplementation(*this).SetInterval( interval, true );
-}
-
-void Timer::SetInterval( unsigned int interval, bool restart )
-{
-  Internal::Adaptor::GetImplementation(*this).SetInterval( interval, restart );
+  Internal::Adaptor::GetImplementation(*this).SetInterval( interval );
 }
 
 unsigned int Timer::GetInterval() const
