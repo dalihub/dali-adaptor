@@ -215,7 +215,7 @@ public:
   /**
    * @copydoc Devel::PixelBuffer::Rotate()
    */
-  void Rotate( Degree angle );
+  bool Rotate( Degree angle );
 
 private:
   /*

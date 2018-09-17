@@ -215,7 +215,7 @@ void PixelBuffer::AllocateFixedSize( uint32_t size )
   mBufferSize = size;
 }
 
-void PixelBuffer::Rotate( Degree angle )
+bool PixelBuffer::Rotate( Degree angle )
 {
   // Check first if Rotate() can perform the operation in the current pixel buffer.
 
@@ -246,7 +246,7 @@ void PixelBuffer::Rotate( Degree angle )
   {
     // Can't rotate the pixel buffer with the current pixel format.
     DALI_LOG_ERROR( "Can't rotate the pixel buffer with the current pixel format\n" );
-    return;
+    return false;
   }
 
   float radians = Radian( angle ).radian;
@@ -258,7 +258,7 @@ void PixelBuffer::Rotate( Degree angle )
   if( radians < Dali::Math::MACHINE_EPSILON_10 )
   {
     // Nothing to do if the angle is zero.
-    return;
+    return true;
   }
 
   const unsigned int pixelSize = Pixel::GetBytesPerPixel( mPixelFormat );
@@ -273,13 +273,21 @@ void PixelBuffer::Rotate( Degree angle )
                            mWidth,
                            mHeight );
 
-  // Release the memory of the current pixel buffer.
-  ReleaseBuffer();
+  // Check whether the rotation succedded and set the new pixel buffer data.
+  const bool success = nullptr != pixelsOut;
 
-  // Set the new pixel buffer.
-  mBuffer = pixelsOut;
-  pixelsOut = nullptr;
-  mBufferSize = mWidth * mHeight * pixelSize;
+  if( success )
+  {
+    // Release the memory of the current pixel buffer.
+    ReleaseBuffer();
+
+    // Set the new pixel buffer.
+    mBuffer = pixelsOut;
+    pixelsOut = nullptr;
+    mBufferSize = mWidth * mHeight * pixelSize;
+  }
+
+  return success;
 }
 
 void PixelBuffer::ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions )
@@ -454,9 +462,6 @@ void PixelBuffer::MultiplyColorByAlpha()
     }
   }
 }
-
-
-
 
 }// namespace Adaptor
 }// namespace Internal
