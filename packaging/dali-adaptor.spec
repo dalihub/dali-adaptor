@@ -1182,7 +1182,6 @@ exit 0
 %files
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
@@ -1203,7 +1202,6 @@ exit 0
 %files cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
