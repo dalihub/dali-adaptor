@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,72 +53,72 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
-  virtual Any GetNativeImageSource() const;
+  virtual Any GetNativeImageSource() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  virtual bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const;
+  virtual bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
    */
-  virtual bool EncodeToFile(const std::string& filename) const;
+  virtual bool EncodeToFile(const std::string& filename) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
-  virtual void SetSource( Any source );
+  virtual void SetSource( Any source ) = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
    */
-  virtual bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth );
+  virtual bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth ) = 0;
 
   /**
    * destructor
    */
-  virtual ~NativeImageSource();
+  virtual ~NativeImageSource() = default;
 
   /**
    * @copydoc Dali::NativeImageSource::GlExtensionCreate()
    */
-  virtual bool GlExtensionCreate();
+  virtual bool GlExtensionCreate() = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GlExtensionDestroy()
    */
-  virtual void GlExtensionDestroy();
+  virtual void GlExtensionDestroy() = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  virtual unsigned int TargetTexture();
+  virtual unsigned int TargetTexture() = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
    */
-  virtual void PrepareTexture();
+  virtual void PrepareTexture() = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  virtual unsigned int GetWidth() const;
+  virtual unsigned int GetWidth() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  virtual unsigned int GetHeight() const;
+  virtual unsigned int GetHeight() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()
    */
-  virtual bool RequiresBlending() const;
+  virtual bool RequiresBlending() const = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
-  virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension();
+  virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;
 };
 
 } // namespace Adaptor

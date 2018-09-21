@@ -51,7 +51,7 @@ public:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the image.
-   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] nativeImageSource contains tbm_surface_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
   static NativeImageSourceTizen* New(unsigned int width,
@@ -172,8 +172,6 @@ private:
 
   void Initialize();
 
-  int GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const;
-
   tbm_surface_h GetSurfaceFromAny( Any source ) const;
 
   bool CheckBlending( tbm_format format );
@@ -181,8 +179,8 @@ private:
 private:
 
   unsigned int mWidth;                        ///< image width
-  unsigned int mHeight;                       ///< image heights
-  bool mOwnTbmSurface;                            ///< Whether we created pixmap or not
+  unsigned int mHeight;                       ///< image height
+  bool mOwnTbmSurface;                        ///< Whether we created pixmap or not
   tbm_surface_h mTbmSurface;
   tbm_format mTbmFormat;
   bool mBlendingRequired;                      ///< Whether blending is required
