@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
  *
  */
 
-#include <memory>
+// CLASS HEADER
+#include <dali/internal/imaging/tizen/native-image-source-factory-tizen.h>
+
+// INTERNAL HEADERS
 #include <dali/internal/imaging/tizen/native-image-source-impl-tizen.h>
+#include <dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h>
 
 namespace Dali
 {
@@ -25,29 +29,25 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace NativeImageSourceFactory
+std::unique_ptr< NativeImageSource > NativeImageSourceFactoryTizen::CreateNativeImageSource( unsigned int width, unsigned int height,
+                                                                                             Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
-
-/**
- * Dummy implementation
- * @param width
- * @param height
- * @param depth
- * @param nativeImageSource
- * @return
- */
-std::unique_ptr<Dali::Internal::Adaptor::NativeImageSource> New(unsigned int width,
-                                       unsigned int height,
-                                       Dali::NativeImageSource::ColorDepth depth,
-                                       Any nativeImageSource)
-{
-  return std::unique_ptr<NativeImageSourceTizen>( NativeImageSourceTizen::New( width, height, depth, nativeImageSource ) );
+  return std::unique_ptr< NativeImageSource >( NativeImageSourceTizen::New( width, height, depth, nativeImageSource ) );
 }
 
+std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryTizen::CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
+                                                                                                       Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+{
+  return std::unique_ptr< NativeImageSourceQueue >( NativeImageSourceQueueTizen::New( width, height, depth, nativeImageSourceQueue ) );
+}
+
+// this should be created from somewhere
+std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory()
+{
+  // returns native image source factory
+  return std::unique_ptr< NativeImageSourceFactoryTizen >( new NativeImageSourceFactoryTizen() );
 }
 
 } // Adaptor
-
 } // Internal
-
 } // Dali

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/layer.h>
+#include <dali/public-api/object/any.h>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -510,6 +511,11 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mCallbackManager->RemoveIdleCallback( callback );
 }
 
+void Adaptor::SetPreRenderCallback( CallbackBase* callback )
+{
+  mThreadController->SetPreRenderCallback( callback );
+}
+
 Dali::Adaptor& Adaptor::Get()
 {
   DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
@@ -650,6 +656,22 @@ void Adaptor::SetMinimumPinchDistance(float distance)
 Any Adaptor::GetNativeWindowHandle()
 {
   return mNativeWindow;
+}
+
+Any Adaptor::GetGraphicsDisplay()
+{
+  Any display;
+
+  if( mEglFactory )
+  {
+    EglInterface* egl = mEglFactory->GetImplementation();
+    if( egl )
+    {
+      auto eglImpl = static_cast<EglImplementation*>(egl);
+      display = eglImpl->GetDisplay();
+    }
+  }
+  return display;
 }
 
 void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)

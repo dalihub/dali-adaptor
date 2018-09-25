@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor-vk
 Summary:    The DALi Tizen Adaptor
-Version:    1.3.39
+Version:    1.3.42
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -1200,7 +1200,6 @@ exit 0
 %files
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
@@ -1221,7 +1220,6 @@ exit 0
 %files cxx03
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%defattr(-,app,app,-)
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE

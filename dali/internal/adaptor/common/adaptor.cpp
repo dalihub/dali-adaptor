@@ -113,6 +113,11 @@ Any Adaptor::GetNativeWindowHandle()
   return mImpl->GetNativeWindowHandle();
 }
 
+Any Adaptor::GetGraphicsDisplay()
+{
+  return mImpl->GetGraphicsDisplay();
+}
+
 void Adaptor::ReleaseSurfaceLock()
 {
   mImpl->ReleaseSurfaceLock();
@@ -121,6 +126,11 @@ void Adaptor::ReleaseSurfaceLock()
 void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 {
   mImpl->SetRenderRefreshRate( numberOfVSyncsPerRender );
+}
+
+void Adaptor::SetPreRenderCallback( CallbackBase* callback )
+{
+  mImpl->SetPreRenderCallback( callback );
 }
 
 void Adaptor::SetUseHardwareVSync(bool useHardware)

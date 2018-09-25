@@ -100,6 +100,11 @@ void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender
   mThreadControllerInterface->SetRenderRefreshRate( numberOfVSyncsPerRender );
 }
 
+void ThreadController::SetPreRenderCallback( CallbackBase* callback )
+{
+  mThreadControllerInterface->SetPreRenderCallback( callback );
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
