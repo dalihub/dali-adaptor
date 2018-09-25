@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,6 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
                                              clientBuffer,
                                              attribs );
 
-  DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "X11Image::GlExtensionCreate eglCreateImageKHR failed!\n");
   if( EGL_NO_IMAGE_KHR == eglImage )
   {
     switch( eglGetError() )
@@ -142,6 +141,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
     }
   }
+  DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "EglImageExtensions::CreateImageKHR: eglCreateImageKHR failed!\n");
 
   return eglImage;
 }

@@ -1,8 +1,8 @@
-#ifndef TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
-#define TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
+#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
+#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,12 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <memory>
+
+// INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 
 namespace Dali
 {
@@ -29,20 +33,27 @@ namespace Adaptor
 {
 
 class NativeImageSource;
-namespace NativeImageSourceFactory
+class NativeImageSourceQueue;
+
+class NativeImageSourceFactory
 {
+public:
 
-std::unique_ptr<Internal::Adaptor::NativeImageSource> New(unsigned int width,
-                                       unsigned int height,
-                                       Dali::NativeImageSource::ColorDepth depth,
-                                       Any nativeImageSource);
+  NativeImageSourceFactory() = default;
+  virtual ~NativeImageSourceFactory() = default;
 
-}
+  virtual std::unique_ptr< NativeImageSource > CreateNativeImageSource( unsigned int width, unsigned int height,
+                                                                        Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource ) = 0;
+
+  virtual std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
+                                                                                  Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue ) = 0;
+
+};
+
+extern std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory();
 
 } // Adaptor
-
 } // Internal
-
 } // Dali
 
-#endif //TIZEN_ORG_NATIVE_IMAGE_SOURCE_FACTORY_H
+#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
