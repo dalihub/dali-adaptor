@@ -17,6 +17,7 @@
  * limitations under the License.
  *
  */
+#include <dali/public-api/signals/callback.h>
 
 namespace Dali
 {
@@ -120,6 +121,11 @@ public:
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+
+  /**
+   * @copydoc Dali::Adaptor::SetPreRenderCallback
+   */
+  void SetPreRenderCallback( CallbackBase* callback );
 
 private:
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -441,39 +441,6 @@ void NativeImageSourceTizen::PrepareTexture()
     mEglImageExtensions->DestroyImageKHR( eglImage );
 
     mSetSource = false;
-  }
-}
-
-int NativeImageSourceTizen::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
-{
-  switch (depth)
-  {
-    case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
-    {
-      // ToDo: Get the default screen depth
-      return 32;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_8:
-    {
-      return 8;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_16:
-    {
-      return 16;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_24:
-    {
-      return 24;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_32:
-    {
-      return 32;
-    }
-    default:
-    {
-      DALI_ASSERT_DEBUG(0 && "unknown color enum");
-      return 0;
-    }
   }
 }
 

@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,19 @@ public:
   virtual void Stop() = 0;
 
   /**
+   * @copydoc Dali::Timer::Pause()
+   */
+  virtual void Pause() = 0;
+
+  /**
+   * @copydoc Dali::Timer::Resume()
+   */
+  virtual void Resume() = 0;
+
+  /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  virtual void SetInterval( unsigned int intervalInMilliseconds ) = 0;
+  virtual void SetInterval( unsigned int intervalInMilliseconds, bool restart ) = 0;
 
   /**
    * @copydoc Dali::Timer::GetInterval()

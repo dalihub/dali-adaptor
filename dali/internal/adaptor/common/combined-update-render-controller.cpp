@@ -100,6 +100,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mEnvironmentOptions( environmentOptions ),
   mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
   mSleepTrigger( NULL ),
+  mPreRenderCallback( NULL ),
   mUpdateRenderThread( NULL ),
   mDefaultFrameDelta( 0.0f ),
   mDefaultFrameDurationMilliseconds( 0u ),
@@ -141,6 +142,7 @@ CombinedUpdateRenderController::~CombinedUpdateRenderController()
 
   Stop();
 
+  delete mPreRenderCallback;
   delete mSleepTrigger;
 }
 
@@ -316,6 +318,19 @@ void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOf
   mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2u;
 
   LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
+}
+
+void CombinedUpdateRenderController::SetPreRenderCallback( CallbackBase* callback )
+{
+  LOG_EVENT_TRACE;
+  LOG_EVENT( "Set PreRender Callback" );
+
+  ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
+  if( mPreRenderCallback )
+  {
+    delete mPreRenderCallback;
+  }
+  mPreRenderCallback = callback;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -508,6 +523,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     //////////////////////////////
 
     mRenderHelper.ConsumeEvents();
+    if( mPreRenderCallback != NULL )
+    {
+      bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
+      if( ! keepCallback )
+      {
+        delete mPreRenderCallback;
+        mPreRenderCallback = NULL;
+      }
+    }
     Integration::RenderStatus renderStatus;
 
 #if 0
