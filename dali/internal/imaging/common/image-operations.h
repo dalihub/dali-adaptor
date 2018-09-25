@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -380,6 +380,27 @@ void Resample( const unsigned char * __restrict__ inPixels,
                Resampler::Filter filterType,
                int numChannels, bool hasAlpha );
 
+
+/**
+ * @brief Rotates the input image with an implementation of the 'Rotate by Shear' algorithm.
+ *
+ * @param[in] pixelsIn The input buffer.
+ * @param[in] widthIn The width of the input buffer.
+ * @param[in] heightIn The height of the input buffer.
+ * @param[in] pixelSize The size of the pixel.
+ * @param[in] radians The rotation angle in radians.
+ * @param[out] pixelsOut The rotated output buffer.
+ * @param[out] widthOut The width of the output buffer.
+ * @param[out] heightOut The height of the output buffer.
+ */
+void RotateByShear( const uint8_t* const pixelsIn,
+                    unsigned int widthIn,
+                    unsigned int heightIn,
+                    unsigned int pixelSize,
+                    float radians,
+                    uint8_t*& pixelsOut,
+                    unsigned int& widthOut,
+                    unsigned int& heightOut );
 
 /**@}*/
 

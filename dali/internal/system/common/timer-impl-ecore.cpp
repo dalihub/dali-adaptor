@@ -101,13 +101,39 @@ void Timer::Stop()
   ResetTimerData();
 }
 
-void Timer::SetInterval( unsigned int interval )
+void Timer::Pause()
+{
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
+  if( mImpl->mId != NULL )
+  {
+    ecore_timer_freeze( mImpl->mId );
+  }
+}
+
+void Timer::Resume()
+{
+  // Timer should be used in the event thread
+  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
+  if( mImpl->mId != NULL )
+  {
+    ecore_timer_thaw( mImpl->mId );
+  }
+}
+
+void Timer::SetInterval( unsigned int interval, bool restart )
 {
   // stop existing timer
   Stop();
   mImpl->mInterval = interval;
-  // start new tick
-  Start();
+
+  if( restart )
+  {
+    // start new tick
+    Start();
+  }
 }
 
 unsigned int Timer::GetInterval() const
