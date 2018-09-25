@@ -132,6 +132,18 @@ public: // API
   void Stop();
 
   /**
+   * @brief Pauses timer.
+   * @SINCE_1_3.41
+   */
+  void Pause();
+
+  /**
+   * @brief Resumes timer.
+   * @SINCE_1_3.41
+   */
+  void Resume();
+
+  /**
    * @brief Sets a new interval on the timer and starts the timer.
    *
    * Cancels the previous timer.
@@ -139,6 +151,16 @@ public: // API
    * @param[in] milliSec Interval in milliseconds
    */
   void SetInterval( unsigned int milliSec );
+
+  /**
+   * @brief Sets a new interval on the timer with option to restart the timer.
+   *
+   * Cancels the previous timer.
+   * @SINCE_1_3.41
+   * @param[in] milliSec Interval in milliseconds
+   * @param[in] restart Flag to set enabled to restart or not.
+   */
+  void SetInterval( unsigned int milliSec, bool restart );
 
   /**
    * @brief Gets the interval of timer.
