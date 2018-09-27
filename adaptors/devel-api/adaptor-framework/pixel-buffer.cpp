@@ -126,9 +126,9 @@ bool PixelBuffer::GetMetadata( Property::Map& metadata ) const
   return GetImplementation(*this).GetMetadata(metadata);
 }
 
-void PixelBuffer::Rotate( Degree angle )
+bool PixelBuffer::Rotate( Degree angle )
 {
-  GetImplementation(*this).Rotate( angle );
+  return GetImplementation(*this).Rotate( angle );
 }
 
 } // namespace Devel

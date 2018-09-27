@@ -390,6 +390,11 @@ void Resample( const unsigned char * __restrict__ inPixels,
 /**
  * @brief Rotates the input image with an implementation of the 'Rotate by Shear' algorithm.
  *
+ * @pre @p pixelsIn must not alias @p pixelsOut. The input image should be a totally
+ * separate buffer from the output buffer.
+ *
+ * @note This function allocates memory in @p pixelsOut which has to be released by calling @e free()
+ *
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.

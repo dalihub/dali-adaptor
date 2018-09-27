@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
@@ -2235,8 +2236,8 @@ void RotateByShear( const uint8_t* const pixelsIn,
     return;
   }
 
-  const uint8_t* const firstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
-  uint8_t*  tmpFirstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : nullptr; // keep the pointer to free the memory.
+  const uint8_t* const firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
+  std::unique_ptr<uint8_t, void(*)(void*)> tmpPixelsInPtr( ( fastRotationPerformed ? pixelsOut : nullptr ), free );
 
   // Reset the input/output
   widthIn = widthOut;
@@ -2261,12 +2262,10 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
   if( nullptr == pixelsOut )
   {
-    // Free the memory allocated by the 'Fast Rotations'.
-    free( tmpFirstHorizontalSkwePixelsIn );
-
     widthOut = 0u;
     heightOut = 0u;
 
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Fast rotations'.
     // Nothing else to do if the memory allocation fails.
     return;
   }
@@ -2276,13 +2275,11 @@ void RotateByShear( const uint8_t* const pixelsIn,
     const float shear = angleTangent * ( ( angleTangent >= 0.f ) ? ( 0.5f + static_cast<float>( y ) ) : ( 0.5f + static_cast<float>( y ) - static_cast<float>( heightOut ) ) );
 
     const int intShear = static_cast<int>( floor( shear ) );
-    HorizontalSkew( firstHorizontalSkwePixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
+    HorizontalSkew( firstHorizontalSkewPixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
   }
 
-  // Free the memory allocated by the 'Fast Rotations'.
-  free( tmpFirstHorizontalSkwePixelsIn );
-
-  uint8_t* tmpPixelsIn = pixelsOut;
+  // Reset the 'pixel in' pointer with the output of the 'First Horizontal Skew' and free the memory allocated by the 'Fast Rotations'.
+  tmpPixelsInPtr.reset( pixelsOut );
   unsigned int tmpWidthIn = widthOut;
   unsigned int tmpHeightIn = heightOut;
 
@@ -2301,12 +2298,10 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
   if( nullptr == pixelsOut )
   {
-    // Free the memory allocated by the 'First Horizontal Skew'.
-    free( tmpPixelsIn );
-
     widthOut = 0u;
     heightOut = 0u;
 
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'First Horizontal Skew'.
     // Nothing else to do if the memory allocation fails.
     return;
   }
@@ -2318,14 +2313,11 @@ void RotateByShear( const uint8_t* const pixelsIn,
   for( column = 0u; column < widthOut; ++column, offset -= angleSinus )
   {
     const int shear = static_cast<int>( floor( offset ) );
-    VerticalSkew( tmpPixelsIn, tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>( shear ) );
+    VerticalSkew( tmpPixelsInPtr.get(), tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>( shear ) );
   }
-
-  // Free the memory allocated by the 'First Horizontal Skew'.
-  free( tmpPixelsIn );
-
+  // Reset the 'pixel in' pointer with the output of the 'Vertical Skew' and free the memory allocated by the 'First Horizontal Skew'.
   // Reset the input/output
-  tmpPixelsIn = pixelsOut;
+  tmpPixelsInPtr.reset( pixelsOut );
   tmpWidthIn = widthOut;
   tmpHeightIn = heightOut;
   pixelsOut = nullptr;
@@ -2342,12 +2334,10 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
   if( nullptr == pixelsOut )
   {
-    // Free the memory allocated by the 'Vertical Skew'.
-    free( tmpPixelsIn );
-
     widthOut = 0u;
     heightOut = 0u;
 
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
     // Nothing else to do if the memory allocation fails.
     return;
   }
@@ -2357,12 +2347,10 @@ void RotateByShear( const uint8_t* const pixelsIn,
   for( unsigned int y = 0u; y < heightOut; ++y, offset += angleTangent )
   {
     const int shear = static_cast<int>( floor( offset ) );
-    HorizontalSkew( tmpPixelsIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>( shear ) );
+    HorizontalSkew( tmpPixelsInPtr.get(), tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>( shear ) );
   }
 
-  // Free the memory allocated by the 'Vertical Skew'.
-  free( tmpPixelsIn );
-
+  // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
   // @note Allocated memory by the last 'Horizontal Skew' has to be freed by the caller to this function.
 }
 
