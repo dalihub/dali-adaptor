@@ -1389,6 +1389,13 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   // add a property to the pattern for the font family
   FcPatternAddString( fontFamilyPattern, FC_FAMILY, reinterpret_cast<const FcChar8*>( fontDescription.family.c_str() ) );
 
+  // add a property to the pattern for local setting.
+  const char* locale = setlocale( LC_MESSAGES, NULL );
+  if( locale != NULL)
+  {
+    FcPatternAddString( fontFamilyPattern, FC_LANG, reinterpret_cast<const FcChar8*>( locale ) );
+  }
+
   int width = FONT_WIDTH_TYPE_TO_INT[fontDescription.width];
   if( width < 0 )
   {
