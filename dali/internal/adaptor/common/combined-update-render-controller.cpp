@@ -28,9 +28,7 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
-#if defined(__GNUC__)
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
-#endif
 
 namespace Dali
 {
@@ -392,9 +390,7 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
 
 void CombinedUpdateRenderController::UpdateRenderThread()
 {
-#if defined(__GNUC__)
   SetThreadName("RenderThread\0");
-#endif
 
   // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();

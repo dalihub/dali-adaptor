@@ -25,10 +25,6 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-#include <dali/internal/system/common/file-closer.h>
-
-using namespace Dali::Internal::Platform;
-
 namespace Dali
 {
 
@@ -198,7 +194,7 @@ inline bool ReadHeader( FILE* filePointer, KtxFileHeader& header )
   const unsigned int readLength = sizeof( KtxFileHeader );
 
   // Load the information directly into our structure
-  if( InternalFile::fread( &header, 1, readLength, filePointer ) != readLength )
+  if( fread( &header, 1, readLength, filePointer ) != readLength )
   {
     return false;
   }
@@ -560,7 +556,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
 
   // Skip the key-values:
   const long int imageSizeOffset = sizeof(KtxFileHeader) + fileHeader.bytesOfKeyValueData;
-  if(InternalFile::fseek(fp, imageSizeOffset, SEEK_SET))
+  if(fseek(fp, imageSizeOffset, SEEK_SET))
   {
     DALI_LOG_ERROR( "Seek past key/vals in KTX compressed bitmap file failed.\n" );
     return false;
@@ -568,7 +564,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
 
   // Load the size of the image data:
   uint32_t imageByteCount = 0;
-  if ( InternalFile::fread( &imageByteCount, 1, 4, fp ) != 4 )
+  if ( fread( &imageByteCount, 1, 4, fp ) != 4 )
   {
     DALI_LOG_ERROR( "Read of image size failed.\n" );
     return false;
@@ -609,7 +605,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
     return false;
   }
 
-  const size_t bytesRead = InternalFile::fread(pixels, 1, imageByteCount, fp);
+  const size_t bytesRead = fread(pixels, 1, imageByteCount, fp);
   if(bytesRead != imageByteCount)
   {
     DALI_LOG_ERROR( "Read of image pixel data failed.\n" );
