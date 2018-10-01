@@ -445,39 +445,6 @@ void NativeImageSourceTizen::PrepareTexture()
   }
 }
 
-int NativeImageSourceTizen::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
-{
-  switch (depth)
-  {
-    case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
-    {
-      // ToDo: Get the default screen depth
-      return 32;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_8:
-    {
-      return 8;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_16:
-    {
-      return 16;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_24:
-    {
-      return 24;
-    }
-    case Dali::NativeImageSource::COLOR_DEPTH_32:
-    {
-      return 32;
-    }
-    default:
-    {
-      DALI_ASSERT_DEBUG(0 && "unknown color enum");
-      return 0;
-    }
-  }
-}
-
 const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
 {
   return FRAGMENT_PREFIX;
