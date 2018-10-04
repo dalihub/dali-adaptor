@@ -23,6 +23,10 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/object/type-registry.h>
+#include <string.h>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 
 namespace Dali
 {
@@ -36,7 +40,14 @@ namespace Adaptor
 namespace // unnamed namespace
 {
 
+#define DALI_ENV_WEB_ENGINE_NAME "DALI_WEB_ENGINE_NAME"
+
+const char* WEB_ENGINE_CHROMIUM_NAME( "chromium" );
+const char* WEB_ENGINE_LITE_NAME( "lightweight" );
+
 const char* WEB_ENGINE_PLUGIN_SO( "libdali-web-engine-plugin.so" );
+const char* WEB_ENGINE_CHROMIUM_PLUGIN_SO( "libdali-web-engine-chromium-plugin.so" );
+const char* WEB_ENGINE_LITE_PLUGIN_SO( "libdali-web-engine-lite-plugin.so" );
 
 Dali::BaseHandle Create()
 {
@@ -88,7 +99,22 @@ bool WebEngine::Initialize()
 {
   char* error = NULL;
 
-  mHandle = dlopen( WEB_ENGINE_PLUGIN_SO, RTLD_LAZY );
+  const char* engineName = WEB_ENGINE_PLUGIN_SO;
+  const char* engineEnvName = EnvironmentVariable::GetEnvironmentVariable( DALI_ENV_WEB_ENGINE_NAME );
+
+  if ( engineEnvName )
+  {
+    if( 0 == strcmp( engineEnvName, WEB_ENGINE_CHROMIUM_NAME ) )
+    {
+      engineName = WEB_ENGINE_CHROMIUM_PLUGIN_SO;
+    }
+    else if( 0 == strcmp( engineEnvName, WEB_ENGINE_LITE_NAME ) )
+    {
+      engineName = WEB_ENGINE_LITE_PLUGIN_SO;
+    }
+  }
+
+  mHandle = dlopen( engineName, RTLD_LAZY );
 
   error = dlerror();
   if( mHandle == NULL || error != NULL )
