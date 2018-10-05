@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
@@ -502,6 +503,7 @@ ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned i
  *
  * @note It allocates memory for the returned @p pixelsOut buffer.
  * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ * @note It may fail if malloc() fails to allocate memory.
  *
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
@@ -510,8 +512,10 @@ ImageDimensions CalculateDesiredDimensions( unsigned int bitmapWidth, unsigned i
  * @param[out] pixelsOut The rotated output buffer.
  * @param[out] widthOut The width of the output buffer.
  * @param[out] heightOut The height of the output buffer.
+ *
+ * @return Whether the rotation succeded.
  */
-void Rotate90( const uint8_t* const pixelsIn,
+bool Rotate90( const uint8_t* const pixelsIn,
                unsigned int widthIn,
                unsigned int heightIn,
                unsigned int pixelSize,
@@ -525,6 +529,14 @@ void Rotate90( const uint8_t* const pixelsIn,
 
   // Allocate memory for the rotated buffer.
   pixelsOut = static_cast<uint8_t*>( malloc ( widthOut * heightOut * pixelSize ) );
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    // Return if the memory allocations fails.
+    return false;
+  }
 
   // Rotate the buffer.
   for( unsigned int y = 0u; y < heightIn; ++y )
@@ -543,6 +555,8 @@ void Rotate90( const uint8_t* const pixelsIn,
       }
     }
   }
+
+  return true;
 }
 
 /**
@@ -550,14 +564,17 @@ void Rotate90( const uint8_t* const pixelsIn,
  *
  * @note It allocates memory for the returned @p pixelsOut buffer.
  * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ * @note It may fail if malloc() fails to allocate memory.
  *
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[out] pixelsOut The rotated output buffer.
+ *
+ * @return Whether the rotation succeded.
  */
-void Rotate180( const uint8_t* const pixelsIn,
+bool Rotate180( const uint8_t* const pixelsIn,
                 unsigned int widthIn,
                 unsigned int heightIn,
                 unsigned int pixelSize,
@@ -565,6 +582,11 @@ void Rotate180( const uint8_t* const pixelsIn,
 {
   // Allocate memory for the rotated buffer.
   pixelsOut = static_cast<uint8_t*>( malloc ( widthIn * heightIn * pixelSize ) );
+  if( nullptr == pixelsOut )
+  {
+    // Return if the memory allocations fails.
+    return false;
+  }
 
   // Rotate the buffer.
   for( unsigned int y = 0u; y < heightIn; ++y )
@@ -583,6 +605,8 @@ void Rotate180( const uint8_t* const pixelsIn,
       }
     }
   }
+
+  return true;
 }
 
 /**
@@ -590,6 +614,7 @@ void Rotate180( const uint8_t* const pixelsIn,
  *
  * @note It allocates memory for the returned @p pixelsOut buffer.
  * @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
+ * @note It may fail if malloc() fails to allocate memory.
  *
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
@@ -598,8 +623,10 @@ void Rotate180( const uint8_t* const pixelsIn,
  * @param[out] pixelsOut The rotated output buffer.
  * @param[out] widthOut The width of the output buffer.
  * @param[out] heightOut The height of the output buffer.
+ *
+ * @return Whether the rotation succeded.
  */
-void Rotate270( const uint8_t* const pixelsIn,
+bool Rotate270( const uint8_t* const pixelsIn,
                 unsigned int widthIn,
                 unsigned int heightIn,
                 unsigned int pixelSize,
@@ -613,6 +640,14 @@ void Rotate270( const uint8_t* const pixelsIn,
 
   // Allocate memory for the rotated buffer.
   pixelsOut = static_cast<uint8_t*>( malloc ( widthOut * heightOut * pixelSize ) );
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    // Return if the memory allocations fails.
+    return false;
+  }
 
   // Rotate the buffer.
   for( unsigned int y = 0u; y < heightIn; ++y )
@@ -631,6 +666,8 @@ void Rotate270( const uint8_t* const pixelsIn,
       }
     }
   }
+
+  return true;
 }
 
 /**
@@ -2127,15 +2164,21 @@ void RotateByShear( const uint8_t* const pixelsIn,
     // Rotate image by 90 degrees into temporary image,
     // so it requires only an extra rotation angle
     // of -45.0 .. +45.0 to complete rotation.
-    Rotate90( pixelsIn,
-              widthIn,
-              heightIn,
-              pixelSize,
-              pixelsOut,
-              widthOut,
-              heightOut );
+    fastRotationPerformed = Rotate90( pixelsIn,
+                                      widthIn,
+                                      heightIn,
+                                      pixelSize,
+                                      pixelsOut,
+                                      widthOut,
+                                      heightOut );
+
+    if( !fastRotationPerformed )
+    {
+      // The fast rotation failed.
+      return;
+    }
+
     radians -= Math::PI_2;
-    fastRotationPerformed = true;
   }
   else if( ( radians > RAD_135 ) && ( radians <= RAD_225 ) )
   {
@@ -2144,15 +2187,21 @@ void RotateByShear( const uint8_t* const pixelsIn,
     // so it requires only an extra rotation angle
     // of -45.0 .. +45.0 to complete rotation.
 
-    Rotate180( pixelsIn,
-               widthIn,
-               heightIn,
-               pixelSize,
-               pixelsOut );
+    fastRotationPerformed = Rotate180( pixelsIn,
+                                       widthIn,
+                                       heightIn,
+                                       pixelSize,
+                                       pixelsOut );
+
+    if( !fastRotationPerformed )
+    {
+      // The fast rotation failed.
+      return;
+    }
+
     radians -= Math::PI;
     widthOut = widthIn;
     heightOut = heightIn;
-    fastRotationPerformed = true;
   }
   else if( ( radians > RAD_225 ) && ( radians <= RAD_315 ) )
   {
@@ -2161,15 +2210,21 @@ void RotateByShear( const uint8_t* const pixelsIn,
     // so it requires only an extra rotation angle
     // of -45.0 .. +45.0 to complete rotation.
 
-    Rotate270( pixelsIn,
-               widthIn,
-               heightIn,
-               pixelSize,
-               pixelsOut,
-               widthOut,
-               heightOut );
+    fastRotationPerformed = Rotate270( pixelsIn,
+                                       widthIn,
+                                       heightIn,
+                                       pixelSize,
+                                       pixelsOut,
+                                       widthOut,
+                                       heightOut );
+
+    if( !fastRotationPerformed )
+    {
+      // The fast rotation failed.
+      return;
+    }
+
     radians -= RAD_270;
-    fastRotationPerformed = true;
   }
 
   if( fabs( radians ) < Dali::Math::MACHINE_EPSILON_10 )
@@ -2181,8 +2236,8 @@ void RotateByShear( const uint8_t* const pixelsIn,
     return;
   }
 
-  const uint8_t* const firstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
-  uint8_t*  tmpFirstHorizontalSkwePixelsIn = fastRotationPerformed ? pixelsOut : nullptr; // keep the pointer to free the memory.
+  const uint8_t* const firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
+  std::unique_ptr<uint8_t, void(*)(void*)> tmpPixelsInPtr( ( fastRotationPerformed ? pixelsOut : nullptr ), free );
 
   // Reset the input/output
   widthIn = widthOut;
@@ -2205,18 +2260,26 @@ void RotateByShear( const uint8_t* const pixelsIn,
   // Allocate the buffer for the 1st shear
   pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
 
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Fast rotations'.
+    // Nothing else to do if the memory allocation fails.
+    return;
+  }
+
   for( unsigned int y = 0u; y < heightOut; ++y )
   {
     const float shear = angleTangent * ( ( angleTangent >= 0.f ) ? ( 0.5f + static_cast<float>( y ) ) : ( 0.5f + static_cast<float>( y ) - static_cast<float>( heightOut ) ) );
 
     const int intShear = static_cast<int>( floor( shear ) );
-    HorizontalSkew( firstHorizontalSkwePixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
+    HorizontalSkew( firstHorizontalSkewPixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
   }
 
-  // Free the memory allocated by the 'Fast Rotations'.
-  free( tmpFirstHorizontalSkwePixelsIn );
-
-  uint8_t* tmpPixelsIn = pixelsOut;
+  // Reset the 'pixel in' pointer with the output of the 'First Horizontal Skew' and free the memory allocated by the 'Fast Rotations'.
+  tmpPixelsInPtr.reset( pixelsOut );
   unsigned int tmpWidthIn = widthOut;
   unsigned int tmpHeightIn = heightOut;
 
@@ -2233,6 +2296,16 @@ void RotateByShear( const uint8_t* const pixelsIn,
   // Allocate the buffer for the 2nd shear
   pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
 
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'First Horizontal Skew'.
+    // Nothing else to do if the memory allocation fails.
+    return;
+  }
+
   // Variable skew offset
   float offset = angleSinus * ( ( angleSinus > 0.f ) ? static_cast<float>( widthIn - 1u ) : -( static_cast<float>( widthIn ) - static_cast<float>( widthOut ) ) );
 
@@ -2240,14 +2313,11 @@ void RotateByShear( const uint8_t* const pixelsIn,
   for( column = 0u; column < widthOut; ++column, offset -= angleSinus )
   {
     const int shear = static_cast<int>( floor( offset ) );
-    VerticalSkew( tmpPixelsIn, tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>( shear ) );
+    VerticalSkew( tmpPixelsInPtr.get(), tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>( shear ) );
   }
-
-  // Free the memory allocated by the 'First Horizontal Skew'.
-  free( tmpPixelsIn );
-
+  // Reset the 'pixel in' pointer with the output of the 'Vertical Skew' and free the memory allocated by the 'First Horizontal Skew'.
   // Reset the input/output
-  tmpPixelsIn = pixelsOut;
+  tmpPixelsInPtr.reset( pixelsOut );
   tmpWidthIn = widthOut;
   tmpHeightIn = heightOut;
   pixelsOut = nullptr;
@@ -2262,18 +2332,26 @@ void RotateByShear( const uint8_t* const pixelsIn,
   // Allocate the buffer for the 3rd shear
   pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
 
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
+    // Nothing else to do if the memory allocation fails.
+    return;
+  }
+
   offset =  ( angleSinus >= 0.f ) ? -angleSinus * angleTangent * static_cast<float>( widthIn - 1u ) : angleTangent * ( static_cast<float>( widthIn - 1u ) * -angleSinus + ( 1.f - static_cast<float>( heightOut ) ) );
 
   for( unsigned int y = 0u; y < heightOut; ++y, offset += angleTangent )
   {
     const int shear = static_cast<int>( floor( offset ) );
-    HorizontalSkew( tmpPixelsIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>( shear ) );
+    HorizontalSkew( tmpPixelsInPtr.get(), tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>( shear ) );
   }
 
-  // Free the memory allocated by the 'First Horizontal Skew'.
-  free( tmpPixelsIn );
-
-  // @note Allocated memory by the last 'Horizontal Skew' has to be freed by the called to this function.
+  // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
+  // @note Allocated memory by the last 'Horizontal Skew' has to be freed by the caller to this function.
 }
 
 } /* namespace Platform */
