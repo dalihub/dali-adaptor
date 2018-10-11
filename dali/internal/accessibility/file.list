@@ -7,30 +7,30 @@ adaptor_accessibility_common_src_files=\
     ${adaptor_accessibility_dir}/common/accessibility-adaptor-impl.cpp \
     ${adaptor_accessibility_dir}/common/accessibility-gesture-detector.cpp
 
-# module: accessibility, backend: tizen
-adaptor_accessibility_tizen_src_files=\
-    ${adaptor_accessibility_dir}/tizen/tts-player-factory-tizen.cpp \
-    ${adaptor_accessibility_dir}/tizen/tts-player-impl-tizen.cpp
+# module: accessibility, backend: tizen-wayland
+adaptor_accessibility_tizen_wayland_src_files=\
+    ${adaptor_accessibility_dir}/tizen-wayland/tts-player-factory-tizen.cpp \
+    ${adaptor_accessibility_dir}/tizen-wayland/tts-player-impl-tizen.cpp
 
 # module: accessibility, backend: tizen-common profile
 adaptor_accessibility_tizen_common_src_files=\
-    ${adaptor_accessibility_dir}/tizen-common/accessibility-adaptor-impl-tizen.cpp
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-common/accessibility-adaptor-impl-tizen.cpp
 
 # module: accessibility, backend: tizen-ivi profile
 adaptor_accessibility_tizen_ivi_src_files=\
-    ${adaptor_accessibility_dir}/tizen-ivi/accessibility-adaptor-impl-ivi.cpp
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-ivi/accessibility-adaptor-impl-ivi.cpp
 
 # module: accessibility, backend: tizen-mobile profile
 adaptor_accessibility_tizen_mobile_src_files=\
-    ${adaptor_accessibility_dir}/tizen-mobile/accessibility-adaptor-impl-mobile.cpp
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-mobile/accessibility-adaptor-impl-mobile.cpp
 
 # module: accessibility, backend: tizen-tv profile
 adaptor_accessibility_tizen_tv_src_files=\
-    ${adaptor_accessibility_dir}/tizen-tv/accessibility-adaptor-impl-tv.cpp
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-tv/accessibility-adaptor-impl-tv.cpp
 
 # module: accessibility, backend: tizen-wearable profile
 adaptor_accessibility_tizen_wearable_src_files=\
-    ${adaptor_accessibility_dir}/tizen-wearable/accessibility-adaptor-impl-wearable.cpp
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-wearable/accessibility-adaptor-impl-wearable.cpp
 
 # module: accessibility, backend: ubuntu
 adaptor_accessibility_ubuntu_src_files=\

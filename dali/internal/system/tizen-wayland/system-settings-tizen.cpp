@@ -16,10 +16,7 @@
  */
 
 // EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
 #include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-settings.h>
@@ -33,19 +30,14 @@ namespace Internal
 namespace Adaptor
 {
 
-int GetElmAccessActionOver()
-{
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
-  return 0;
-#endif // DALI_PROFILE_UBUNTU
-}
-
 int GetLongPressTime( int defaultTime )
 {
   return defaultTime;
+}
+
+int GetElmAccessActionOver()
+{
+  return 0;
 }
 
 } // namespace Adaptor

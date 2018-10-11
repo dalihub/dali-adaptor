@@ -43,13 +43,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
                   $(adaptor_graphics_gles20_src_files) \
-                  $(adaptor_graphics_ubuntu_gl_src_files) \
                   $(adaptor_graphics_ubuntu_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_ubuntu_x11_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_ubuntu_src_files) \
                   $(adaptor_input_ubuntu_x11_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
@@ -58,7 +56,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_ubuntu_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_ubuntu_src_files) \
+                  $(adaptor_system_linux_src_files) \
                   $(adaptor_system_ubuntu_x11_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_text_ubuntu_src_files) \
@@ -89,10 +87,9 @@ endif
 if MOBILE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_mobile_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
@@ -113,7 +110,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_mobile_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -151,10 +149,9 @@ endif
 if IVI_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_ivi_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
@@ -176,7 +173,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_ivi_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -214,10 +212,9 @@ endif
 if TV_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_tv_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
@@ -238,7 +235,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_tv_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -275,10 +273,9 @@ endif
 if COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_common_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
@@ -299,7 +296,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_generic_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -338,10 +336,9 @@ endif
 if WEARABLE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_wearable_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_adaptor_tizen_wearable_src_files) \
                   $(adaptor_clipboard_common_src_files) \
@@ -363,6 +360,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
+                  $(adaptor_system_linux_src_files) \
                   $(adaptor_system_tizen_wearable_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \

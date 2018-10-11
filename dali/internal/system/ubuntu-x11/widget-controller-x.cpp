@@ -15,14 +15,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
-#include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/system-settings.h>
+// CLASS HEADER
+#include <dali/internal/system/ubuntu-x11/widget-controller-x.h>
 
 namespace Dali
 {
@@ -33,19 +27,16 @@ namespace Internal
 namespace Adaptor
 {
 
-int GetElmAccessActionOver()
+WidgetImplUbuntu::WidgetImplUbuntu()
 {
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
-  return 0;
-#endif // DALI_PROFILE_UBUNTU
 }
 
-int GetLongPressTime( int defaultTime )
+WidgetImplUbuntu::~WidgetImplUbuntu()
 {
-  return defaultTime;
+}
+
+void WidgetImplUbuntu::SetContentInfo( const std::string& contentInfo )
+{
 }
 
 } // namespace Adaptor
