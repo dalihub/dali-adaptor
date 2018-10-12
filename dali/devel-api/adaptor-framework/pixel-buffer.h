@@ -221,13 +221,15 @@ public:
   /**
    * @brief Rotates the pixel buffer by the given angle.
    *
-   * @note Operation valid for pixel formats: A8, L8, LA88, RGB888, RGB8888, BGR8888, RGBA8888 and BGRA8888. Does nothing otherwise.
+   * @note Operation valid for pixel formats: A8, L8, LA88, RGB888, RGB8888, BGR8888, RGBA8888 and BGRA8888. Fails otherwise.
    * @note The operation does nothing for angles equivalent to 0 degrees: -360, 360, 720, etc.
    * @note If the pixel buffer does rotate, all the pointers to the internal pixel buffer retrieved by the method GetPixelBuffer() become invalid.
    *
    * @param[in] angle The angle in degrees.
+   *
+   * @return @e false if the rotation fails (invalid pixel format or memory issues).
    */
-  void Rotate( Degree angle );
+  bool Rotate( Degree angle );
 
 public:
 

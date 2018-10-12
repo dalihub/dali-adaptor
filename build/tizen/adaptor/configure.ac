@@ -137,7 +137,7 @@ AC_ARG_ENABLE([gles],
               [AC_HELP_STRING([--enable-gles],
                               [Specify the OpenGL ES version for backwards compatibility])],
               [enable_gles=$enableval],
-              [enable_gles=20])
+              [enable_gles=30])
 
 AC_ARG_ENABLE([vulkan],
               [AC_HELP_STRING([--enable-vulkan],
