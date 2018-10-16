@@ -20,21 +20,18 @@
 // EXTERNAL INCLUDES
 #include <cstdio>
 #include <dali/public-api/images/image-operations.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/bitmap.h>
 
 // INTERNAL INCLUDES
 
 namespace Dali
 {
-namespace TizenPlatform
-{
 namespace ImageLoader
 {
 
-
 /**
  * @brief A simple immutable struct to bundle together parameters for scaling an image.
- * @ToDo Move this to adaptor internal?
- * @ToDo Rename it after the move to ImageScalingParameters.
  */
 class ScalingParameters
 {
@@ -58,8 +55,24 @@ struct Input
   bool reorientationRequested;
 };
 
+
+using LoadBitmapFunction = bool( * )( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& pixelData );
+using LoadBitmapHeaderFunction = bool( * )( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+
+/**
+ * Stores the magic bytes, and the loader and header functions used for each image loader.
+ */
+struct BitmapLoader
+{
+  unsigned char magicByte1;        ///< The first byte in the file should be this
+  unsigned char magicByte2;        ///< The second byte in the file should be this
+  LoadBitmapFunction loader;       ///< The function which decodes the file
+  LoadBitmapHeaderFunction header; ///< The function which decodes the header of the file
+  Dali::Integration::Bitmap::Profile profile;         ///< The kind of bitmap to be created
+                                   ///  (addressable packed pixels or an opaque compressed blob).
+};
+
 } // ImageLoader
-} // TizenPlatform
 } // Dali
 
 #endif // __DALI_TIZEN_PLATFORM_IMAGE_LOADER_INPUT_H__
