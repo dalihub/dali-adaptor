@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// CLASS HEADER
+#include <vector-animation-renderer-plugin-proxy.h>
+
+// EXTERNAL INCLUDES
+#include <dlfcn.h>
+#include <dali/integration-api/debug.h>
+
+namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
+{
+
+namespace
+{
+
+// The default plugin name
+const char* DEFAULT_OBJECT_NAME( "libdali-vector-animation-renderer-plugin.so" );
+
+}
+
+VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy( const std::string& sharedObjectName )
+: mSharedObjectName(),
+  mLibHandle( NULL ),
+  mPlugin( NULL ),
+  mCreateVectorAnimationRendererPtr( NULL )
+{
+  if( !sharedObjectName.empty() )
+  {
+    mSharedObjectName = sharedObjectName;
+  }
+  else
+  {
+    mSharedObjectName = DEFAULT_OBJECT_NAME;
+  }
+
+  Initialize();
+}
+
+VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
+{
+  if( mPlugin )
+  {
+    delete mPlugin;
+    mPlugin = NULL;
+
+    if( mLibHandle && dlclose( mLibHandle ) )
+    {
+      DALI_LOG_ERROR( "Error closing vector animation renderer plugin library: %s\n", dlerror() );
+    }
+  }
+}
+
+void VectorAnimationRendererPluginProxy::Initialize()
+{
+  mLibHandle = dlopen( mSharedObjectName.c_str(), RTLD_LAZY );
+
+  char* error = dlerror();
+  if( mLibHandle == NULL || error != NULL )
+  {
+    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: dlopen error [%s]\n", error );
+    return;
+  }
+
+  // load plugin
+  mCreateVectorAnimationRendererPtr = reinterpret_cast< CreateVectorAnimationRendererFunction >( dlsym( mLibHandle, "CreateVectorAnimationRendererPlugin" ) );
+
+  error = dlerror();
+  if( mCreateVectorAnimationRendererPtr == NULL || error != NULL )
+  {
+    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error );
+    return;
+  }
+
+  mPlugin = mCreateVectorAnimationRendererPtr();
+  if( !mPlugin )
+  {
+    DALI_LOG_ERROR("VectorAnimationRendererPluginProxy::Initialize: Plugin creation failed\n");
+    return;
+  }
+}
+
+bool VectorAnimationRendererPluginProxy::CreateRenderer( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height )
+{
+  if( mPlugin )
+  {
+    return mPlugin->CreateRenderer( url, renderer, width, height );
+  }
+  return false;
+}
+
+bool VectorAnimationRendererPluginProxy::StartRender()
+{
+  if( mPlugin )
+  {
+    return mPlugin->StartRender();
+  }
+  return false;
+}
+
+void VectorAnimationRendererPluginProxy::StopRender()
+{
+  if( mPlugin )
+  {
+    mPlugin->StopRender();
+  }
+}
+
+void VectorAnimationRendererPluginProxy::Render( uint32_t frameNumber )
+{
+  if( mPlugin )
+  {
+    mPlugin->Render( frameNumber );
+  }
+}
+
+uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber()
+{
+  if( mPlugin )
+  {
+    return mPlugin->GetTotalFrameNumber();
+  }
+  return 0;
+}
+
+} // namespace Adaptor
+
+} // namespace Internal
+
+} // namespace Dali
