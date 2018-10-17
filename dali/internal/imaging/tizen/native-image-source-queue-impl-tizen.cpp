@@ -79,6 +79,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( unsigned int width, un
   mTbmQueue( NULL ),
   mConsumeSurface( NULL ),
   mEglImages(),
+  mEglGraphics( NULL ),
   mEglImageExtensions( NULL ),
   mOwnTbmQueue( false ),
   mBlendingRequired( false )
@@ -86,11 +87,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( unsigned int width, un
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  auto eglGraphics = static_cast<EglGraphics *>(graphics);
-
-  mEglImageExtensions = eglGraphics->GetImageExtensions();
-
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  mEglGraphics = static_cast<EglGraphics *>(graphics);
 
   mTbmQueue = GetSurfaceFromAny( nativeImageSourceQueue );
 
@@ -187,6 +184,9 @@ void NativeImageSourceQueueTizen::SetSource( Any source )
 
 bool NativeImageSourceQueueTizen::GlExtensionCreate()
 {
+  mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  DALI_ASSERT_DEBUG( mEglImageExtensions );
+
   return true;
 }
 
@@ -210,48 +210,46 @@ void NativeImageSourceQueueTizen::PrepareTexture()
 {
   tbm_surface_h oldSurface = mConsumeSurface;
 
-  bool needToWait = ( mConsumeSurface == NULL ) ? true : false;
-
-  if( tbm_surface_queue_can_acquire( mTbmQueue, needToWait ) )
+  if( tbm_surface_queue_can_acquire( mTbmQueue, 0 ) )
   {
     if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
       return;
     }
-  }
 
-  if( oldSurface && oldSurface != mConsumeSurface )
-  {
-    if( tbm_surface_internal_is_valid( oldSurface ) )
+    if( oldSurface )
     {
-      tbm_surface_queue_release( mTbmQueue, oldSurface );
-    }
-  }
-
-  if( mConsumeSurface )
-  {
-    bool existing = false;
-    for( auto&& iter : mEglImages )
-    {
-      if( iter.first == mConsumeSurface )
+      if( tbm_surface_internal_is_valid( oldSurface ) )
       {
-        // Find the surface in the existing list
-        existing = true;
-        mEglImageExtensions->TargetTextureKHR( iter.second );
-        break;
+        tbm_surface_queue_release( mTbmQueue, oldSurface );
       }
     }
 
-    if( !existing )
+    if( mConsumeSurface )
     {
-      // Push the surface
-      tbm_surface_internal_ref( mConsumeSurface );
+      bool existing = false;
+      for( auto&& iter : mEglImages )
+      {
+        if( iter.first == mConsumeSurface )
+        {
+          // Find the surface in the existing list
+          existing = true;
+          mEglImageExtensions->TargetTextureKHR( iter.second );
+          break;
+        }
+      }
 
-      void* eglImageKHR = mEglImageExtensions->CreateImageKHR( reinterpret_cast< EGLClientBuffer >( mConsumeSurface ) );
-      mEglImageExtensions->TargetTextureKHR( eglImageKHR );
+      if( !existing )
+      {
+        // Push the surface
+        tbm_surface_internal_ref( mConsumeSurface );
 
-      mEglImages.push_back( EglImagePair( mConsumeSurface, eglImageKHR) );
+        void* eglImageKHR = mEglImageExtensions->CreateImageKHR( reinterpret_cast< EGLClientBuffer >( mConsumeSurface ) );
+        mEglImageExtensions->TargetTextureKHR( eglImageKHR );
+
+        mEglImages.push_back( EglImagePair( mConsumeSurface, eglImageKHR) );
+      }
     }
   }
 }

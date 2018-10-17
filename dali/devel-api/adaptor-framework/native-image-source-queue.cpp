@@ -29,13 +29,21 @@ NativeImageSourceQueuePtr NativeImageSourceQueue::New( unsigned int width, unsig
 {
   Any empty;
   NativeImageSourceQueuePtr image = new NativeImageSourceQueue( width, height, depth, empty );
-  return image;
+  if( image->mImpl )
+  {
+    return image;
+  }
+  return nullptr;
 }
 
 NativeImageSourceQueuePtr NativeImageSourceQueue::New( Any nativeImageSourceQueue )
 {
   NativeImageSourceQueuePtr image = new NativeImageSourceQueue( 0, 0, COLOR_DEPTH_DEFAULT, nativeImageSourceQueue );
-  return image;
+  if( image->mImpl )
+  {
+    return image;
+  }
+  return nullptr;
 }
 
 Any NativeImageSourceQueue::GetNativeImageSourceQueue()

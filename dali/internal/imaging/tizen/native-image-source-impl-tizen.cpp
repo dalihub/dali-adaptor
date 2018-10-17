@@ -33,7 +33,6 @@
 // Allow this to be encoded and saved:
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 
-
 namespace Dali
 {
 
@@ -88,17 +87,14 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
+  mEglGraphics( NULL ),
   mEglImageExtensions( NULL ),
   mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  auto eglGraphics = static_cast<EglGraphics *>(graphics);
-
-  mEglImageExtensions = eglGraphics->GetImageExtensions();
-
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  mEglGraphics = static_cast<EglGraphics *>(graphics);
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
@@ -410,6 +406,9 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   {
     return false;
   }
+
+  mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 
