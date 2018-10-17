@@ -88,14 +88,13 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
+  mEglFactory( NULL ),
   mEglImageExtensions( NULL ),
   mSetSource( false ),
   mNotification( NULL )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  mEglFactory = &( Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory() );
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
@@ -418,6 +417,9 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   {
     return false;
   }
+
+  mEglImageExtensions = mEglFactory->GetImageExtensions();
+  DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 

@@ -36,6 +36,7 @@ namespace Internal
 namespace Adaptor
 {
 
+class EglFactory;
 class EglImageExtensions;
 
 /**
@@ -171,6 +172,7 @@ private:
   tbm_surface_queue_h              mTbmQueue;             ///< Tbm surface queue handle
   tbm_surface_h                    mConsumeSurface;       ///< The current tbm surface
   std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector
+  EglFactory*                      mEglFactory;           ///< EGL Factory
   EglImageExtensions*              mEglImageExtensions;   ///< The EGL Image Extensions
   bool                             mOwnTbmQueue;          ///< Whether we created tbm queue
   bool                             mBlendingRequired;     ///< Whether blending is required
