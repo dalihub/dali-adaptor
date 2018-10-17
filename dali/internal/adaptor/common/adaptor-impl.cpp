@@ -59,10 +59,10 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #include <dali/internal/system/common/logging.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
+#include <dali/internal/imaging/common/image-loader.h>
 
 
 using Dali::TextAbstraction::FontClient;
@@ -272,7 +272,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   // Set max texture size
   if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
   {
-    Dali::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
 
   SetupSystemInformation();

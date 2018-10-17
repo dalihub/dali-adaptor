@@ -95,7 +95,9 @@ void VideoPlayer::Initialize()
   }
 
   mCreateVideoPlayerPtr = reinterpret_cast< CreateVideoPlayerFunction >( dlsym( mHandle, "CreateVideoPlayerPlugin" ) );
-  if( mCreateVideoPlayerPtr == NULL )
+
+  error = dlerror();
+  if( mCreateVideoPlayerPtr == NULL || error != NULL )
   {
     DALI_LOG_ERROR( "Can't load symbol CreateVideoPlayerPlugin(), error: %s\n", error );
     return;
@@ -110,12 +112,13 @@ void VideoPlayer::Initialize()
   }
 
   mDestroyVideoPlayerPtr = reinterpret_cast< DestroyVideoPlayerFunction >( dlsym( mHandle, "DestroyVideoPlayerPlugin" ) );
-  if( mDestroyVideoPlayerPtr == NULL )
+
+  error = dlerror();
+  if( mDestroyVideoPlayerPtr == NULL || error != NULL )
   {
     DALI_LOG_ERROR( "Can't load symbol DestroyVideoPlayerPlugin(), error: %s\n", error );
     return;
   }
-
 }
 
 void VideoPlayer::SetUrl( const std::string& url )
