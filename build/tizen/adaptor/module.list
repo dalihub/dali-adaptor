@@ -71,6 +71,10 @@ include ../../../dali/internal/trace/file.list
 adaptor_thread_dir = ../../../dali/internal/thread
 include ../../../dali/internal/thread/file.list
 
+# Module: vector-animation
+adaptor_vector_animation_dir = ../../../dali/internal/vector-animation
+include ../../../dali/internal/vector-animation/file.list
+
 # Module: public-api
 adaptor_public_api_dir = ../../../dali/public-api
 include ../../../dali/public-api/file.list
