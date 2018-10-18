@@ -19,7 +19,7 @@
  */
 
 #include <cstdio>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
 namespace Dali
 {
@@ -44,7 +44,7 @@ const unsigned char MAGIC_BYTE_2 = 0x00;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromIco( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromIco( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * @param[in]  input  Information about the input image (including file pointer)
@@ -52,7 +52,7 @@ bool LoadBitmapFromIco( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
  * @param[out] height of image
  * @return  true if header loaded successfully, false otherwise
  */
-bool LoadIcoHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadIcoHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 }
 
