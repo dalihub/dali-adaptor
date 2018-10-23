@@ -108,6 +108,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override
+  {
+    return 0;
+  }
+
+  /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
   bool RequiresBlending() const override

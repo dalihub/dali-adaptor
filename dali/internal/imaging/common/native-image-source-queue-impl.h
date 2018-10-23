@@ -93,6 +93,11 @@ public:
   virtual bool RequiresBlending() const = 0;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const = 0;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;

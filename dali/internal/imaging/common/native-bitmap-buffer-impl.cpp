@@ -95,6 +95,11 @@ unsigned int NativeBitmapBuffer::GetHeight() const
   return mHeight;
 }
 
+Any NativeBitmapBuffer::GetNativeImageHandle() const
+{
+  return 0;
+}
+
 bool NativeBitmapBuffer::RequiresBlending() const
 {
   return Pixel::HasAlpha( mPixelFormat );

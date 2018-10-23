@@ -101,6 +101,11 @@ bool NativeImageSource::RequiresBlending() const
   return mImpl->RequiresBlending();
 }
 
+Any NativeImageSource::GetNativeImageHandle() const
+{
+ return mImpl->GetNativeImageHandle();
+}
+
 NativeImageInterface::Extension* NativeImageSource::GetExtension()
 {
   return mImpl->GetNativeImageInterfaceExtension();

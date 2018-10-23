@@ -190,6 +190,11 @@ private:   // native image
   virtual bool RequiresBlending() const;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetExtension();

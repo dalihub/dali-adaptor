@@ -123,6 +123,11 @@ public:
   }
 
   /**
+   * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()
    */
   bool RequiresBlending() const override
