@@ -266,6 +266,16 @@ int NativeImageSourceQueueTizen::GetEglImageTextureTarget()
   return -1;
 }
 
+Any NativeImageSourceQueueTizen::GetNativeImageHandle() const
+{
+  return Any( 0 );
+}
+
+bool NativeImageSourceQueueTizen::IsSetSource() const
+{
+  return false;
+}
+
 void NativeImageSourceQueueTizen::DestroyQueue()
 {
   if( mConsumeSurface )

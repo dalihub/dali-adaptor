@@ -459,6 +459,19 @@ int NativeImageSourceTizen::GetEglImageTextureTarget()
   return -1;
 }
 
+Any NativeImageSourceTizen::GetNativeImageHandle() const
+{
+ tbm_surface_h tbmSurface = AnyCast< tbm_surface_h >( mTbmSurface );
+  DALI_LOG_ERROR("%s:GetNativeImageHandle %p\n",__FUNCTION__, tbmSurface);
+  return Any( mTbmSurface );
+}
+
+bool NativeImageSourceTizen::IsSetSource() const
+{
+  DALI_LOG_ERROR("%s:mSetSource %d\n",__FUNCTION__, mSetSource);
+  return mSetSource;
+}
+
 bool NativeImageSourceTizen::CheckBlending( tbm_format format )
 {
   if( mTbmFormat != format )
