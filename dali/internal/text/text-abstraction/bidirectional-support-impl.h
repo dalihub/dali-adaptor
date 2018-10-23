@@ -60,7 +60,9 @@ public:
    * @copydoc Dali::BidirectionalSupport::CreateInfo()
    */
   BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters );
+                            Length numberOfCharacters,
+                            bool matchSystemLanguageDirection,
+                            LayoutDirection::Type layoutDirection );
 
   /**
    * @copydoc Dali::BidirectionalSupport::DestroyInfo()
