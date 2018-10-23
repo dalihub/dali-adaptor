@@ -46,10 +46,14 @@ BidirectionalSupport BidirectionalSupport::Get()
 }
 
 BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,
-                                                Length numberOfCharacters )
+                                                Length numberOfCharacters,
+                                                bool matchSystemLanguageDirection,
+                                                LayoutDirection::Type layoutDirection )
 {
   return GetImplementation( *this ).CreateInfo( paragraph,
-                                                numberOfCharacters );
+                                                numberOfCharacters,
+                                                matchSystemLanguageDirection,
+                                                layoutDirection );
 }
 
 void BidirectionalSupport::DestroyInfo( BidiInfoIndex bidiInfoIndex )
