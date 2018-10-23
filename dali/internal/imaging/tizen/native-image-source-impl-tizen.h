@@ -156,6 +156,16 @@ public:
    */
   int GetEglImageTextureTarget() override;
 
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::IsSetSource()
+   */
+  bool IsSetSource() override;
+
 private:
 
   /**

@@ -459,6 +459,16 @@ int NativeImageSourceTizen::GetEglImageTextureTarget()
   return -1;
 }
 
+Any NativeImageSourceTizen::GetNativeImageHandle()
+{
+  return Any( mTbmSurface );
+}
+
+bool NativeImageSourceTizen::IsSetSource()
+{
+  return mSetSource;
+}
+
 bool NativeImageSourceTizen::CheckBlending( tbm_format format )
 {
   if( mTbmFormat != format )
