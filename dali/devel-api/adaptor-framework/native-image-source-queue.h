@@ -134,6 +134,11 @@ private:   // native image
   virtual unsigned int GetHeight() const;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const;
+
+  /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
   virtual bool RequiresBlending() const;

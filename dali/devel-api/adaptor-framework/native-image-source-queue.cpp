@@ -78,6 +78,11 @@ unsigned int NativeImageSourceQueue::GetHeight() const
   return mImpl->GetHeight();
 }
 
+Any NativeImageSourceQueue::GetNativeImageHandle() const
+{
+  return mImpl->GetNativeImageHandle();
+}
+
 bool NativeImageSourceQueue::RequiresBlending() const
 {
   return mImpl->RequiresBlending();

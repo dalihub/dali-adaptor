@@ -111,6 +111,11 @@ public:
   virtual unsigned int GetHeight() const = 0;
 
   /**
+   * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const = 0;
+
+  /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()
    */
   virtual bool RequiresBlending() const = 0;

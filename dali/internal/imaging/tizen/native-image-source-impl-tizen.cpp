@@ -444,6 +444,11 @@ void NativeImageSourceTizen::PrepareTexture()
   }
 }
 
+Any NativeImageSourceTizen::GetNativeImageHandle() const
+{
+  return Any( mTbmSurface );
+}
+
 const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
 {
   return FRAGMENT_PREFIX;

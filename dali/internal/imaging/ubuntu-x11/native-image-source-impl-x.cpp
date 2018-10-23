@@ -398,6 +398,12 @@ void NativeImageSourceX::GetPixmapDetails()
   mBlendingRequired = ( depth == 32 || depth == 8 );
 }
 
+Any NativeImageSourceX::GetNativeImageHandle() const
+{
+  // return ecore x11 type
+  return Any(mPixmap);
+}
+
 } // namespace Adaptor
 
 } // namespace internal
