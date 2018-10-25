@@ -15,14 +15,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
-#include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/system-settings.h>
+#include <dali/internal/accessibility/common/tts-player-factory.h>
+#include <dali/internal/accessibility/tizen-wayland/tts-player-impl-tizen.h>
 
 namespace Dali
 {
@@ -32,24 +26,19 @@ namespace Internal
 
 namespace Adaptor
 {
-
-int GetElmAccessActionOver()
+class TtsPlayer;
+namespace TtsPlayerFactory
 {
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
-  return 0;
-#endif // DALI_PROFILE_UBUNTU
+
+std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
+{
+  return TtsPlayerTizen::New(mode);
 }
 
-int GetLongPressTime( int defaultTime )
-{
-  return defaultTime;
 }
 
-} // namespace Adaptor
+} // Adaptor
 
-} // namespace Internal
+} // Internal
 
-} // namespace Dali
+} // Dali

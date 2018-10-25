@@ -15,14 +15,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
-#include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/system-settings.h>
+// CLASS HEADER
+#include <dali/internal/system/common/color-controller-impl.h>
 
 namespace Dali
 {
@@ -33,19 +27,27 @@ namespace Internal
 namespace Adaptor
 {
 
-int GetElmAccessActionOver()
+Dali::ColorController ColorController::Get()
 {
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
-  return 0;
-#endif // DALI_PROFILE_UBUNTU
+  return Dali::ColorController( new ColorController() );
 }
 
-int GetLongPressTime( int defaultTime )
+ColorController::ColorController()
 {
-  return defaultTime;
+}
+
+ColorController::~ColorController()
+{
+}
+
+bool ColorController::RetrieveColor( const std::string& colorCode, Vector4& colorValue )
+{
+  return false;
+}
+
+bool ColorController::RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
+{
+  return false;
 }
 
 } // namespace Adaptor

@@ -15,14 +15,12 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
-#include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
+// CLASS HEADER
+#include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/system-settings.h>
+// EXTERNAL INCLUDES
+#include <bundle.h>
+#include <widget_base.h>
 
 namespace Dali
 {
@@ -33,20 +31,27 @@ namespace Internal
 namespace Adaptor
 {
 
-int GetElmAccessActionOver()
+WidgetImplTizen::WidgetImplTizen( widget_base_instance_h instanceHandle )
+: Widget::Impl(), mInstanceHandle( instanceHandle )
 {
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
-  return 0;
-#endif // DALI_PROFILE_UBUNTU
 }
 
-int GetLongPressTime( int defaultTime )
+WidgetImplTizen::~WidgetImplTizen()
 {
-  return defaultTime;
 }
+
+void WidgetImplTizen::SetContentInfo( const std::string& contentInfo )
+{
+  bundle *contentBundle;
+  bundle_raw *contentBundleRaw = reinterpret_cast< bundle_raw* >( const_cast<char*>(contentInfo.c_str()) );
+  int len = contentInfo.length();
+  contentBundle = bundle_decode(contentBundleRaw, len);
+
+  widget_base_context_set_content_info( mInstanceHandle, contentBundle );
+
+  bundle_free( contentBundle );
+}
+
 
 } // namespace Adaptor
 

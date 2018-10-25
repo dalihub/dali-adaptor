@@ -27,59 +27,36 @@ adaptor_system_common_src_files=\
     ${adaptor_system_dir}/common/trigger-event-factory.cpp \
     ${adaptor_system_dir}/common/update-status-logger.cpp \
     ${adaptor_system_dir}/common/widget-application-impl.cpp \
-    ${adaptor_system_dir}/common/logging.cpp \
-    ${adaptor_system_dir}/common/callback-manager-ecore.cpp \
-    ${adaptor_system_dir}/common/file-descriptor-monitor-ecore.cpp \
-    ${adaptor_system_dir}/common/timer-impl-ecore.cpp
+    ${adaptor_system_dir}/common/logging.cpp
 
-# module: system, backend: generic
-adaptor_system_generic_src_files=\
-    ${adaptor_system_dir}/generic/color-controller-impl.cpp \
-    ${adaptor_system_dir}/generic/system-settings.cpp \
-    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
+# module: system, backend: linux
+adaptor_system_linux_src_files=\
+    ${adaptor_system_dir}/linux/callback-manager-ecore.cpp \
+    ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp \
+    ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
 
-# module: system, backend: tizen-ivi
-adaptor_system_tizen_ivi_src_files=\
-    ${adaptor_system_dir}/tizen-ivi/color-controller-impl-ivi.cpp \
-    ${adaptor_system_dir}/tizen-ivi/system-settings-ivi.cpp \
-    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
-
-# module: system, backend: tizen-mobile
-adaptor_system_tizen_mobile_src_files=\
-    ${adaptor_system_dir}/tizen-mobile/color-controller-impl-mobile.cpp \
-    ${adaptor_system_dir}/tizen-mobile/system-settings-mobile.cpp \
-    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
-
-# module: system, backend: tizen-tv
-adaptor_system_tizen_tv_src_files=\
-    ${adaptor_system_dir}/tizen-tv/color-controller-impl-tv.cpp \
-    ${adaptor_system_dir}/tizen-tv/system-settings-tv.cpp \
-    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
+# module: system, backend: tizen-wayland
+adaptor_system_tizen_wayland_src_files=\
+    ${adaptor_system_dir}/tizen-wayland/color-controller-impl-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 
 # module: system, backend: tizen-wearable
 adaptor_system_tizen_wearable_src_files=\
-    ${adaptor_system_dir}/tizen-wearable/color-controller-impl-wearable.cpp \
-    ${adaptor_system_dir}/tizen-wearable/system-settings-wearable.cpp \
-    ${adaptor_system_dir}/tizen-wearable/watch-time.cpp \
-    ${adaptor_system_dir}/tizen-wearable/capture.cpp \
-    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp \
-    ${adaptor_system_dir}/tizen/capture-impl-tizen.cpp
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture.cpp \
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture-impl-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp \
+    ${adaptor_system_dir}/tizen-wayland/color-controller-impl-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
+    ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 
-
-# module: system, backend: ubuntu
-adaptor_system_ubuntu_src_files=\
-    ${adaptor_system_dir}/ubuntu/color-controller-impl-ubuntu.cpp \
-    ${adaptor_system_dir}/ubuntu/system-settings-ubuntu.cpp \
-    ${adaptor_system_dir}/ubuntu/widget-application-impl-ubuntu.cpp \
-    ${adaptor_system_dir}/ubuntu/widget-controller-ubuntu.cpp
 
 # module: system, backend: ubuntu-x11
 adaptor_system_ubuntu_x11_src_files=\
-    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
-
+    ${adaptor_system_dir}/ubuntu-x11/color-controller-impl-x.cpp \
+    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp \
+    ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp \
+    ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
 

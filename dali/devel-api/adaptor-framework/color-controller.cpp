@@ -19,7 +19,7 @@
 #include <dali/devel-api/adaptor-framework/color-controller.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/generic/color-controller-impl.h>
+#include <dali/internal/system/common/color-controller-impl.h>
 
 namespace Dali
 {
