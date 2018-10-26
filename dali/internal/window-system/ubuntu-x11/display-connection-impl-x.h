@@ -74,11 +74,19 @@ public:
   void ConsumeEvents();
 
   /**
-   * @copydoc Dali::DisplayConnection::InitializeEgl
+   * @copydoc Dali::DisplayConnection::InitializeGraphics
    */
-  bool InitializeEgl(EglInterface& egl);
+  bool InitializeGraphics();
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
+   */
   void SetSurfaceType( RenderSurface::Type type );
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
+   */
+  void SetGraphicsInterface( GraphicsInterface& graphics );
 
 public:
 
@@ -96,6 +104,8 @@ protected:
   DisplayConnectionX11& operator=(const DisplayConnectionX11& rhs) = delete;
 
 private:
+
+  GraphicsInterface* mGraphics; ///< The graphics interface
 
 public:
 

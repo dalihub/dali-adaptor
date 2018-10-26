@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/stage.h>
@@ -36,6 +37,9 @@
 #include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 
+#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h> // Temporary until Core is abstracted
+
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/system/common/callback-manager.h>
@@ -47,7 +51,6 @@
 #include <dali/internal/graphics/gles20/gl-implementation.h>
 #include <dali/internal/graphics/gles20/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>
@@ -56,10 +59,11 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #include <dali/internal/system/common/logging.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
+#include <dali/internal/imaging/common/image-loader.h>
+
 
 using Dali::TextAbstraction::FontClient;
 
@@ -77,13 +81,18 @@ namespace
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
+
 Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
   Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions );
   adaptor->mImpl = impl;
 
-  impl->Initialize(configuration);
+  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder();
+  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+
+  impl->Initialize( graphicsFactory, configuration );
+  delete mAdaptorBuilder; // Not needed anymore as the graphics interface has now been created
 
   return adaptor;
 }
@@ -92,13 +101,34 @@ Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLo
 {
   Any winId = window.GetNativeHandle();
 
-  Window& windowImpl = Dali::GetImplementation(window);
+  Window& windowImpl = Dali::GetImplementation( window );
   Dali::Adaptor* adaptor = New( winId, windowImpl.GetSurface(), configuration, environmentOptions );
-  windowImpl.SetAdaptor(*adaptor);
+  windowImpl.SetAdaptor( *adaptor );
   return adaptor;
 }
 
-void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+{
+  Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
+  Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions ); // Impl adaptor
+  adaptor->mImpl = impl;
+
+  impl->Initialize( graphicsFactory, configuration );
+
+  return adaptor;
+} // Called second
+
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+{
+  Any winId = window.GetNativeHandle();
+
+  Window& windowImpl = Dali::GetImplementation( window );
+  Dali::Adaptor* adaptor = New( graphicsFactory, winId, windowImpl.GetSurface(), configuration, environmentOptions );
+  windowImpl.SetAdaptor( *adaptor );
+  return adaptor;
+} // Called first
+
+void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration )
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
@@ -116,8 +146,8 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   {
     dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
   }
-  // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from
-  // files automatically.
+
+  // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from files automatically.
 
   if( mEnvironmentOptions->PerformanceServerRequired() )
   {
@@ -129,35 +159,28 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
 
   mCallbackManager = CallbackManager::New();
 
-  PositionSize size = mSurface->GetPositionSize();
+  WindowPane defaultWindow = mWindowFrame.front();
+  PositionSize size = defaultWindow.surface->GetPositionSize();
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
 
-  if( mEnvironmentOptions->GetGlesCallTime() > 0 )
-  {
-    mGLES = new GlProxyImplementation( *mEnvironmentOptions );
-  }
-  else
-  {
-    mGLES = new GlImplementation();
-  }
+  mGraphics = &( graphicsFactory.Create() );
+  mGraphics->Initialize( mEnvironmentOptions );
 
-  const Integration::DepthBufferAvailable depthBufferAvailable = static_cast< Integration::DepthBufferAvailable >( mEnvironmentOptions->DepthBufferRequired() );
-  const Integration::StencilBufferAvailable stencilBufferAvailable = static_cast< Integration::StencilBufferAvailable >( mEnvironmentOptions->StencilBufferRequired() );
+  auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
 
-  mEglFactory = new EglFactory( mEnvironmentOptions->GetMultiSamplingLevel(), depthBufferAvailable, stencilBufferAvailable );
-
-  EglSyncImplementation* eglSyncImpl = mEglFactory->GetSyncImplementation();
+  GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+  EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
-                                  *mGLES,
-                                  *eglSyncImpl,
+                                  mGLES,
+                                  eglSyncImpl,
                                   *mGestureManager,
                                   dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
-                                  depthBufferAvailable,
-                                  stencilBufferAvailable );
+                                  mGraphics->GetDepthBufferRequired(),
+                                  mGraphics->GetStencilBufferRequired() );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -168,6 +191,15 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   mNotificationTrigger = mTriggerEventFactory.CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
   mVSyncMonitor = new VSyncMonitor;
+
+  if( defaultWindow.surface )
+  {
+    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow.surface->GetSurfaceType() );
+  }
+  else
+  {
+    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics );
+  }
 
   mThreadController = new ThreadController( *this, *mEnvironmentOptions );
 
@@ -240,7 +272,7 @@ void Adaptor::Initialize( Dali::Configuration::ContextLoss configuration )
   // Set max texture size
   if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
   {
-    Dali::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
 
   SetupSystemInformation();
@@ -265,12 +297,14 @@ Adaptor::~Adaptor()
   delete mObjectProfiler;
 
   delete mCore;
-  delete mEglFactory;
-  delete mGLES;
+
   delete mGestureManager;
+  delete mDisplayConnection;
   delete mPlatformAbstraction;
   delete mCallbackManager;
   delete mPerformanceInterface;
+
+  mGraphics->Destroy();
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
@@ -284,8 +318,7 @@ Adaptor::~Adaptor()
 
 void Adaptor::Start()
 {
-  // it doesn't support restart after stop at this moment
-  // to support restarting, need more testing
+  // It doesn't support restart after stop at this moment to support restarting, need more testing
   if( READY != mState )
   {
     return;
@@ -294,8 +327,10 @@ void Adaptor::Start()
   // Start the callback manager
   mCallbackManager->Start();
 
-  // create event handler
-  mEventHandler = new EventHandler( mSurface, *this, *mGestureManager, *this, mDragAndDropDetector );
+  WindowPane defaultWindow = mWindowFrame.front();
+
+  // Create event handler
+  mEventHandler = new EventHandler( defaultWindow.surface, *this, *mGestureManager, *this, mDragAndDropDetector );
 
   if( mDeferredRotationObserver != NULL )
   {
@@ -305,7 +340,8 @@ void Adaptor::Start()
 
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
-  mSurface->GetDpi( dpiHor, dpiVer );
+
+  defaultWindow.surface->GetDpi( dpiHor, dpiVer );
 
   // tell core about the DPI value
   mCore->SetDpi(dpiHor, dpiVer);
@@ -315,7 +351,8 @@ void Adaptor::Start()
   fontClient.SetDpi( dpiHor, dpiVer );
 
   // Tell the core the size of the surface just before we start the render-thread
-  PositionSize size = mSurface->GetPositionSize();
+  PositionSize size = defaultWindow.surface->GetPositionSize();
+
   mCore->SurfaceResized( size.width, size.height );
 
   // Initialize the thread controller
@@ -378,7 +415,7 @@ void Adaptor::Resume()
       (*iter)->OnResume();
     }
 
-    // trigger processing of events queued up while paused
+    // Trigger processing of events queued up while paused
     mCore->ProcessEvents();
 
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
@@ -398,6 +435,9 @@ void Adaptor::Stop()
     }
 
     mThreadController->Stop();
+
+    // Clear out all the handles to Windows
+    mWindowFrame.clear();
 
     // Delete the TTS player
     for(int i =0; i < Dali::TtsPlayer::MODE_NUM; i++)
@@ -451,34 +491,45 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
   mEventHandler->FeedKeyEvent( keyEvent );
 }
 
-void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
+void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
 {
-  PositionSize positionSize = surface.GetPositionSize();
+  PositionSize positionSize = newSurface.GetPositionSize();
 
-  // let the core know the surface size has changed
+  // Let the core know the surface size has changed
   mCore->SurfaceResized( positionSize.width, positionSize.height );
 
   mResizedSignal.Emit( mAdaptor );
 
-  mNativeWindow = nativeWindow;
-  mSurface = &surface;
+  WindowPane newDefaultWindow;
+  newDefaultWindow.nativeWindow = nativeWindow;
+  newDefaultWindow.surface = &newSurface;
 
-  // flush the event queue to give the update-render thread chance
+  // Must delete the old Window first before replacing it with the new one
+  WindowPane oldDefaultWindow = mWindowFrame.front();
+  oldDefaultWindow.surface->DestroySurface();
+
+  // Update WindowFrame
+  std::vector<WindowPane>::iterator iter = mWindowFrame.begin();
+  iter = mWindowFrame.insert( iter, newDefaultWindow );
+
+  // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  // this method blocks until the render thread has completed the replace.
-  mThreadController->ReplaceSurface(mSurface);
+  // This method blocks until the render thread has completed the replace.
+  mThreadController->ReplaceSurface( newDefaultWindow.surface );
 }
 
 RenderSurface& Adaptor::GetSurface() const
 {
-  return *mSurface;
+  WindowPane defaultWindow = mWindowFrame.front();
+  return *(defaultWindow.surface);
 }
 
 void Adaptor::ReleaseSurfaceLock()
 {
-  mSurface->ReleaseLock();
+  WindowPane defaultWindow = mWindowFrame.front();
+  defaultWindow.surface->ReleaseLock();
 }
 
 Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
@@ -515,6 +566,52 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
   mThreadController->SetPreRenderCallback( callback );
 }
 
+bool Adaptor::AddWindow( Dali::Window* childWindow, const std::string& childWindowName, const std::string& childWindowClassName, const bool& childWindowMode )
+{
+  // This is any Window that is not the main (default) one
+  WindowPane additionalWindow;
+  additionalWindow.instance = childWindow;
+  additionalWindow.window_name = childWindowName;
+  additionalWindow.class_name = childWindowClassName;
+  additionalWindow.window_mode = childWindowMode;
+
+  // Add the new Window to the Frame - the order is not important
+  mWindowFrame.push_back( additionalWindow );
+
+  Window& windowImpl = Dali::GetImplementation( *childWindow );
+  windowImpl.SetAdaptor( Get() );
+
+  return true;
+}
+
+bool Adaptor::RemoveWindow( Dali::Window* childWindow )
+{
+  for ( WindowFrames::iterator iter = mWindowFrame.begin(); iter != mWindowFrame.end(); ++iter )
+  {
+    if( iter->instance == childWindow )
+    {
+      mWindowFrame.erase( iter );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool Adaptor::RemoveWindow( std::string childWindowName )
+{
+  for ( WindowFrames::iterator iter = mWindowFrame.begin(); iter != mWindowFrame.end(); ++iter )
+  {
+    if( iter->window_name == childWindowName )
+    {
+      mWindowFrame.erase( iter );
+      return true;
+    }
+  }
+
+  return false;
+}
+
 Dali::Adaptor& Adaptor::Get()
 {
   DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
@@ -546,31 +643,21 @@ void Adaptor::SetUseHardwareVSync( bool useHardware )
   mVSyncMonitor->SetUseHardwareVSync( useHardware );
 }
 
-EglFactory& Adaptor::GetEGLFactory() const
+Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 {
-  DALI_ASSERT_DEBUG( mEglFactory && "EGL Factory not created" );
-  return *mEglFactory;
+  DALI_ASSERT_DEBUG( mDisplayConnection && "Display connection not created" );
+  return *mDisplayConnection;
 }
 
-EglFactoryInterface& Adaptor::GetEGLFactoryInterface() const
+GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
-  return *mEglFactory;
-}
-
-Integration::GlAbstraction& Adaptor::GetGlAbstraction() const
-{
-  DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
-  return *mGLES;
+  DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
+  return *mGraphics;
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
 {
   return *mPlatformAbstraction;
-}
-
-Dali::Integration::GlAbstraction& Adaptor::GetGlesInterface()
-{
-  return *mGLES;
 }
 
 TriggerEventInterface& Adaptor::GetProcessCoreEventsTrigger()
@@ -590,7 +677,15 @@ SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
 
 RenderSurface* Adaptor::GetRenderSurfaceInterface()
 {
-  return mSurface;
+  if( !mWindowFrame.empty())
+  {
+    WindowPane defaultWindow = mWindowFrame.front();
+    return defaultWindow.surface;
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
@@ -660,22 +755,22 @@ void Adaptor::SetMinimumPinchDistance(float distance)
 
 Any Adaptor::GetNativeWindowHandle()
 {
-  return mNativeWindow;
+  WindowPane defaultWindow = mWindowFrame.front();
+  return defaultWindow.nativeWindow;
 }
 
 Any Adaptor::GetGraphicsDisplay()
 {
   Any display;
 
-  if( mEglFactory )
+  if (mGraphics)
   {
-    EglInterface* egl = mEglFactory->GetImplementation();
-    if( egl )
-    {
-      auto eglImpl = static_cast<EglImplementation*>(egl);
-      display = eglImpl->GetDisplay();
-    }
+    auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+
+    EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    display = eglImpl.GetDisplay();
   }
+
   return display;
 }
 
@@ -802,7 +897,7 @@ void Adaptor::OnDamaged( const DamageArea& area )
 
 void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
-  // let the core know the surface size has changed
+  // Let the core know the surface size has changed
   mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
 
   mResizedSignal.Emit( mAdaptor );
@@ -810,7 +905,7 @@ void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 
 void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
 {
-  // flush the event queue to give the update-render thread chance
+  // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
@@ -824,7 +919,7 @@ void Adaptor::NotifySceneCreated()
   // Start thread controller after the scene has been created
   mThreadController->Start();
 
-  // process after surface is created (registering to remote surface provider if required)
+  // Process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
 
   mState = RUNNING;
@@ -855,7 +950,7 @@ void Adaptor::RequestUpdateOnce()
 
 void Adaptor::IndicatorSizeChanged(int height)
 {
-  // let the core know the indicator height is changed
+  // Let the core know the indicator height is changed
   mCore->SetTopMargin(height);
 }
 
@@ -874,37 +969,41 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mLanguageChangedSignal(),
   mAdaptor( adaptor ),
   mState( READY ),
-  mCore( NULL ),
-  mThreadController( NULL ),
-  mVSyncMonitor( NULL ),
-  mGLES( NULL ),
-  mGlSync( NULL ),
-  mEglFactory( NULL ),
-  mNativeWindow( nativeWindow ),
-  mSurface( surface ),
-  mPlatformAbstraction( NULL ),
-  mEventHandler( NULL ),
-  mCallbackManager( NULL ),
+  mCore( nullptr ),
+  mThreadController( nullptr ),
+  mVSyncMonitor( nullptr ),
+  mDisplayConnection( nullptr ),
+  mPlatformAbstraction( nullptr ),
+  mEventHandler( nullptr ),
+  mCallbackManager( nullptr ),
   mNotificationOnIdleInstalled( false ),
-  mNotificationTrigger( NULL ),
-  mGestureManager( NULL ),
+  mNotificationTrigger( nullptr ),
+  mGestureManager( nullptr ),
   mDaliFeedbackPlugin(),
-  mFeedbackController( NULL ),
+  mFeedbackController( nullptr ),
   mTtsPlayers(),
   mObservers(),
   mDragAndDropDetector(),
-  mDeferredRotationObserver( NULL ),
+  mDeferredRotationObserver( nullptr ),
   mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
-  mPerformanceInterface( NULL ),
+  mPerformanceInterface( nullptr ),
   mKernelTracer(),
   mSystemTracer(),
   mTriggerEventFactory(),
-  mObjectProfiler( NULL ),
+  mObjectProfiler( nullptr ),
   mSocketFactory(),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
   mUseRemoteSurface( false )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
+
+  WindowPane defaultWindow;
+  defaultWindow.nativeWindow = nativeWindow;
+  defaultWindow.surface = surface;
+
+  std::vector<WindowPane>::iterator iter = mWindowFrame.begin();
+  iter = mWindowFrame.insert( iter, defaultWindow );
+
   gThreadLocalAdaptor = this;
 }
 
@@ -912,7 +1011,9 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
 
 void Adaptor::SetViewMode( ViewMode viewMode )
 {
-  mSurface->SetViewMode( viewMode );
+  WindowPane defaultWindow = mWindowFrame.front();
+  defaultWindow.surface->SetViewMode( viewMode );
+
   mCore->SetViewMode( viewMode );
 }
 

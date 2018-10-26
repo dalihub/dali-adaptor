@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <Elementary.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/generic/system-settings.h>
+#include <dali/internal/system/common/system-settings.h>
 
 namespace Dali
 {
@@ -41,6 +41,11 @@ int GetElmAccessActionOver()
 #else // DALI_PROFILE_UBUNTU
   return 0;
 #endif // DALI_PROFILE_UBUNTU
+}
+
+int GetLongPressTime( int defaultTime )
+{
+  return defaultTime;
 }
 
 } // namespace Adaptor

@@ -90,13 +90,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
   bool orientationCorrection = true );
 
 /**
- * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
- *
- * @param [in] size The maximum texture size to set
- */
-DALI_ADAPTOR_API void SetMaxTextureSize( unsigned int size );
-
-/**
  * @brief get the maximum texture size.
  *
  * @return The maximum texture size

@@ -1,5 +1,5 @@
-#ifndef __DALI_INTEGRATION_ADAPTOR_H__
-#define __DALI_INTEGRATION_ADAPTOR_H__
+#ifndef DALI_INTEGRATION_ADAPTOR_H
+#define DALI_INTEGRATION_ADAPTOR_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -46,6 +46,7 @@ namespace Internal
 {
 namespace Adaptor
 {
+class GraphicsFactory;
 class Adaptor;
 }
 }
@@ -415,4 +416,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTEGRATION_ADAPTOR_H__
+#endif // DALI_INTEGRATION_ADAPTOR_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <dali/integration-api/events/long-press-gesture-event.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 
-#include <dali/internal/system/generic/system-settings.h>
+#include <dali/internal/system/common/system-settings.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/core-event-interface.h>

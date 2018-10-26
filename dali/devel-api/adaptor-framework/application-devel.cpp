@@ -35,6 +35,29 @@ bool AddIdleWithReturnValue( Application application, CallbackBase* callback )
   return Internal::Adaptor::GetImplementation( application ).AddIdle( callback, true );
 }
 
+Dali::Window CreateWindow( Application application, PositionSize childPosSize, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
+{
+  auto& adaptor = Internal::Adaptor::GetImplementation( application ).GetAdaptor();
+
+  Dali::Window childWindow = Dali::Window::New( childPosSize, childWindowName, childWindowClassName, childWindowMode );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &childWindow, childWindowName, childWindowClassName, childWindowMode );
+  return childWindow;
+}
+
+bool DestroyWindow( Application application, Dali::Window* childWindow )
+{
+  auto& adaptor = Internal::Adaptor::GetImplementation( application ).GetAdaptor();
+
+  return Internal::Adaptor::Adaptor::GetImplementation( adaptor ).RemoveWindow( childWindow );
+}
+
+bool DestroyWindow( Application application, const std::string& childWindowName )
+{
+  auto& adaptor = Internal::Adaptor::GetImplementation( application ).GetAdaptor();
+
+  return Internal::Adaptor::Adaptor::GetImplementation( adaptor ).RemoveWindow( childWindowName );
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

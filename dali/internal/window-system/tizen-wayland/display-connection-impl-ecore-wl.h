@@ -64,14 +64,21 @@ public:
   void ConsumeEvents();
 
   /**
-   * @copydoc Dali::DisplayConnection::InitializeEgl
+   * @copydoc Dali::DisplayConnection::InitializeGraphics
    */
-  bool InitializeEgl(EglInterface& egl);
+  bool InitializeGraphics();
 
   /**
-   * @brief Sets surface type
+   * @brief Sets the surface type
+   * @param[in] type The surface type
    */
   void SetSurfaceType( RenderSurface::Type type );
+
+  /**
+   * @brief Sets the graphics interface
+   * @param[in] graphics The graphics interface
+   */
+  void SetGraphicsInterface( GraphicsInterface& graphics );
 
 public:
 
@@ -100,7 +107,8 @@ protected:
 
 private:
   EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
-  RenderSurface::Type mSurfaceType;
+  RenderSurface::Type mSurfaceType;     ///< The surface type
+  GraphicsInterface* mGraphics;         ///< The graphics interface
 };
 
 } // namespace Adaptor

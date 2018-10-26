@@ -24,6 +24,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/gles20/gl-implementation.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 
 namespace Dali
 {
@@ -35,14 +36,18 @@ namespace Adaptor
 {
 
 NativeBitmapBuffer::NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pFormat )
-: mWidth(width),
+: mGlAbstraction( nullptr),
+  mWidth(width),
   mHeight(height),
   mPixelFormat(pFormat),
   mLastReadBuffer(NULL)
 {
   DALI_ASSERT_ALWAYS( adaptor );
   mBuffer = new Integration::LocklessBuffer( width * height * Pixel::GetBytesPerPixel(pFormat) );
-  mGlAbstraction = &(adaptor->GetGlAbstraction());
+
+  GraphicsInterface* graphics = &(adaptor->GetGraphicsInterface());
+  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+  mGlAbstraction = &(eglGraphics->GetGlAbstraction());
 }
 
 NativeBitmapBuffer::~NativeBitmapBuffer()

@@ -26,7 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/render-surface.h>
 
@@ -87,13 +87,14 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
+  mEglGraphics( NULL ),
   mEglImageExtensions( NULL ),
   mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+
+  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
+  mEglGraphics = static_cast<EglGraphics *>(graphics);
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
@@ -405,6 +406,9 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   {
     return false;
   }
+
+  mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 

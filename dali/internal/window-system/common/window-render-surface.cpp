@@ -30,6 +30,8 @@
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
+
 
 namespace Dali
 {
@@ -79,15 +81,15 @@ WindowRenderSurface::~WindowRenderSurface()
 
 void WindowRenderSurface::Initialize( Any surface )
 {
-  // if width or height are zero, go full screen.
- if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
- {
-   // Default window size == screen size
-   mPositionSize.x = 0;
-   mPositionSize.y = 0;
+  // If width or height are zero, go full screen.
+  if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
+  {
+    // Default window size == screen size
+    mPositionSize.x = 0;
+    mPositionSize.y = 0;
 
-   WindowSystem::GetScreenSize( mPositionSize.width, mPositionSize.height );
- }
+    WindowSystem::GetScreenSize( mPositionSize.width, mPositionSize.height );
+  }
 
   // Create a window base
   auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
@@ -174,16 +176,31 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
 }
 
-void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
+void WindowRenderSurface::InitializeGraphics( GraphicsInterface& graphics, Dali::DisplayConnection& displayConnection )
 {
-  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
+  mGraphics = &graphics;
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 
+  EglInterface* mEGL = eglGraphics->Create();
+
+  // Initialize EGL & OpenGL
+  displayConnection.Initialize();
+
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
   eglImpl.ChooseConfig(true, mColorDepth);
+
+  // Create the OpenGL context
+  mEGL->CreateContext();
+
+  // Create the OpenGL surface
+  CreateSurface();
+
+  // Make it current
+  mEGL->MakeContextCurrent();
 }
 
-void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
+void WindowRenderSurface::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
@@ -199,29 +216,33 @@ void WindowRenderSurface::CreateEglSurface( EglInterface& eglIf )
     height = mPositionSize.width;
   }
 
-  // create the EGL window
+  // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   eglImpl.CreateSurfaceWindow( window, mColorDepth );
 
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateEglSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
-void WindowRenderSurface::DestroyEglSurface( EglInterface& eglIf )
+void WindowRenderSurface::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( eglIf );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   eglImpl.DestroySurface();
 
   mWindowBase->DestroyEglWindow();
 }
 
-bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
+bool WindowRenderSurface::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
@@ -240,13 +261,15 @@ bool WindowRenderSurface::ReplaceEGLSurface( EglInterface& egl )
     height = mPositionSize.width;
   }
 
-  // create the EGL window
+  // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
 
   // Set screen rotation
   mScreenRotationFinished = false;
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   return eglImpl.ReplaceSurfaceWindow( window );
 }
 
@@ -255,14 +278,14 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
   bool needToMove = false;
   bool needToResize = false;
 
-  // check moving
+  // Check moving
   if( (fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
       (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE) )
   {
     needToMove = true;
   }
 
-  // check resizing
+  // Check resizing
   if( (fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
       (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE) )
   {
@@ -305,7 +328,7 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, bool resizingSurface )
+bool WindowRenderSurface::PreRender( bool resizingSurface )
 {
   if( resizingSurface )
   {
@@ -341,28 +364,45 @@ bool WindowRenderSurface::PreRender( EglInterface& egl, Integration::GlAbstracti
     }
   }
 
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  auto mGLES = eglGraphics->GetGlesInterface();
+  mGLES.PreRender();
+
   return true;
 }
 
-void WindowRenderSurface::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
-  if( resizingSurface )
+  // Inform the gl implementation that rendering has finished before informing the surface
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  auto mGLES = eglGraphics->GetGlesInterface();
+  mGLES.PostRender();
+
+  if( renderToFbo )
   {
-    if( !mRotationFinished )
+    mGLES.Flush();
+    mGLES.Finish();
+  }
+  else
+  {
+    if( resizingSurface )
     {
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
-
-      mRotationTrigger->Trigger();
-
-      if( mThreadSynchronization )
+      if( !mRotationFinished )
       {
-        // Wait until the event-thread complete the rotation event processing
-        mThreadSynchronization->PostRenderWaitForCompletion();
+        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+
+        mRotationTrigger->Trigger();
+
+        if( mThreadSynchronization )
+        {
+          // Wait until the event-thread complete the rotation event processing
+          mThreadSynchronization->PostRenderWaitForCompletion();
+        }
       }
     }
   }
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   eglImpl.SwapBuffers();
 
   if( mRenderNotification )
