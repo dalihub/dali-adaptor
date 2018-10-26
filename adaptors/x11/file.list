@@ -6,6 +6,7 @@ _adaptor_x11_internal_src_files = \
   $(adaptor_x11_dir)/imf-manager-impl-x.cpp \
   $(adaptor_x11_dir)/native-image-source-factory-x.cpp \
   $(adaptor_x11_dir)/native-image-source-impl-x.cpp \
+  $(adaptor_x11_dir)/native-image-source-queue-impl-x.cpp \
   $(adaptor_x11_dir)/virtual-keyboard-impl-x.cpp \
   $(adaptor_x11_dir)/window-impl-x.cpp \
   $(adaptor_x11_dir)/pixmap-render-surface-x.cpp \
