@@ -90,9 +90,9 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  //EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
+  //mEglImageExtensions = eglFactory.GetImageExtensions();
+  //DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
@@ -397,6 +397,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
 
 bool NativeImageSourceTizen::GlExtensionCreate()
 {
+  /*
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
@@ -408,27 +409,32 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 
   return mEglImageKHR != NULL;
+  */
+  return true;
 }
 
 void NativeImageSourceTizen::GlExtensionDestroy()
 {
+  /*
   if( mEglImageKHR )
   {
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
     mEglImageKHR = NULL;
   }
+  */
 }
 
 unsigned int NativeImageSourceTizen::TargetTexture()
 {
-  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
+  //mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
 void NativeImageSourceTizen::PrepareTexture()
 {
+  /*
   if( mSetSource )
   {
     void* eglImage = mEglImageKHR;
@@ -442,6 +448,7 @@ void NativeImageSourceTizen::PrepareTexture()
 
     mSetSource = false;
   }
+  */
 }
 
 Any NativeImageSourceTizen::GetNativeImageHandle() const
