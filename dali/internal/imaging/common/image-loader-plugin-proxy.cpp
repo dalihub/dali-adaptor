@@ -43,6 +43,18 @@ static CreateImageLoaderPlugin* mCreatePluginFunctionPtr = NULL;
 static DestroyImageLoaderPlugin* mDestroyImageLoaderPluginPtr = NULL;
 static Dali::ImageLoaderPlugin* mImageLoaderPlugin = NULL;
 
+#if defined(DEBUG_ENABLED)
+/**
+ * Disable logging of image loader plugin proxy or make it verbose from the commandline
+ * as follows (e.g., for dali demo app):
+ * <code>
+ * LOG_IMAGE_LOADER_PLUGIN=0 dali-demo #< off
+ * LOG_IMAGE_LOADER_PLUGIN=3 dali-demo #< on, verbose
+ * </code>
+ */
+Debug::Filter* gImageLoaderPluginLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_IMAGE_LOADER_PLUGIN" );
+#endif
+
 void Initialize()
 {
   // Only attempt to load dll once
@@ -54,7 +66,7 @@ void Initialize()
     error = dlerror();
     if( !mLibHandle )
     {
-      DALI_LOG_ERROR( "Cannot load dali image loading plugin library error: %s\n", error );
+      DALI_LOG_INFO( gImageLoaderPluginLogFilter, Dali::Integration::Log::Verbose, "Cannot load dali image loading plugin library error: %s\n", error );
       return;
     }
 
