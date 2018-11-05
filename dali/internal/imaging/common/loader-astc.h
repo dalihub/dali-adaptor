@@ -19,7 +19,7 @@
  */
 
 #include <cstdio>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
 namespace Dali
 {
@@ -49,7 +49,7 @@ const unsigned char MAGIC_BYTE_2 = 0xAB;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return True if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromAstc( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * Loads the header of a ASTC file and fills in the width and height appropriately.
@@ -58,7 +58,7 @@ bool LoadBitmapFromAstc( const ImageLoader::Input& input, Dali::Devel::PixelBuff
  * @param[out] height Is set with the height of the image
  * @return            True if the header was read successfully, false otherwise
  */
-bool LoadAstcHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadAstcHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 
 } // namespace TizenPlatform

@@ -528,7 +528,7 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
   return true;
 }
 
-bool LoadBitmapFromJpeg( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   const int flags= 0;
   FILE* const fp = input.file;
@@ -1114,7 +1114,7 @@ ExifHandle LoadExifData( FILE* fp )
   return exifData;
 }
 
-bool LoadJpegHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadJpegHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   unsigned int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
   unsigned int requiredHeight = input.scalingParameters.dimensions.GetHeight();

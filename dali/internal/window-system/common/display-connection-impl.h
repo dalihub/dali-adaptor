@@ -23,7 +23,6 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 
-#include <memory>
 
 namespace Dali
 {
@@ -67,11 +66,21 @@ public:
   virtual void ConsumeEvents() = 0;
 
   /**
-   * @copydoc Dali::DisplayConnection::InitializeEgl
+   * @copydoc Dali::DisplayConnection::InitializeGraphics
    */
-  virtual bool InitializeEgl(EglInterface& egl) = 0;
+  virtual bool InitializeGraphics() = 0;
 
+  /**
+   * Sets the render surface type
+   * @param[in] type The render surface type
+   */
   virtual void SetSurfaceType( RenderSurface::Type type ) = 0;
+
+  /**
+   * Sets the graphics interface
+   * @param[in] graphics The graphics interface
+   */
+  virtual void SetGraphicsInterface( GraphicsInterface& graphics ) = 0;
 
 public:
 

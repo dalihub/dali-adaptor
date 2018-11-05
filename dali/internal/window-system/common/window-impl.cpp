@@ -21,6 +21,8 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/system-overlay.h>
+#include <dali/integration-api/render-task-list-integ.h>
+#include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
@@ -61,7 +63,7 @@ Window* Window::New( const PositionSize& positionSize, const std::string& name, 
 Window::Window()
 : mSurface( NULL ),
   mWindowBase(),
-  mIndicatorVisible( Dali::Window::VISIBLE ),
+  mIndicatorVisible( Dali::Window::INVISIBLE ),   // TODO: Enable this after indicator implementation based on tizen 5.
   mIndicatorIsShown( false ),
   mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
@@ -144,13 +146,22 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   DALI_ASSERT_ALWAYS( !mStarted && "Adaptor already started" );
   mStarted = true;
 
-  // Only create one overlay per window
+  // Create one overlay for the main window only
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   Integration::Core& core = adaptorImpl.GetCore();
   mOverlay = &core.GetSystemOverlay();
 
-  Dali::RenderTaskList taskList = mOverlay->GetOverlayRenderTasks();
-  taskList.CreateTask();
+  // Only create render task list for the overlay once
+  if (!mOverlay->GetOverlayRenderTasks())
+  {
+    Dali::RenderTaskList overlayRenderTaskList = Integration::RenderTaskList::New();
+
+    Dali::Actor overlayRootActor = mOverlay->GetDefaultRootActor();
+    Dali::CameraActor overlayCameraActor = mOverlay->GetDefaultCameraActor();
+    Integration::RenderTaskList::CreateTask( overlayRenderTaskList, overlayRootActor, overlayCameraActor );
+
+    mOverlay->SetOverlayRenderTasks( overlayRenderTaskList );
+  }
 
   mAdaptor = &adaptorImpl;
   mAdaptor->AddObserver( *this );
@@ -177,7 +188,8 @@ WindowRenderSurface* Window::GetSurface()
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
-  mIndicatorVisible = visibleMode;
+  // TODO: Enable this after indicator implementation based on tizen 5.
+//  mIndicatorVisible = visibleMode;
 
   mWindowBase->ShowIndicator( mIndicatorVisible, mIndicatorOpacityMode );
 
@@ -196,7 +208,8 @@ void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode
 
 void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
 {
-  mIndicatorVisible = mode;
+  // TODO: Enable this after indicator implementation based on tizen 5.
+//  mIndicatorVisible = mode;
 }
 
 void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )

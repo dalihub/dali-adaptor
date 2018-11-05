@@ -34,6 +34,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
@@ -130,34 +131,54 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeEgl( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Internal::Adaptor::GraphicsInterface& graphics, DisplayConnection& displayConnection )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   unsetenv( "EGL_PLATFORM" );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  mGraphics = &graphics;
 
-  eglImpl.ChooseConfig( true, mColorDepth );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+
+  EglInterface* mEGL = eglGraphics->Create();
+
+  // Initialize EGL & OpenGL
+  displayConnection.Initialize();
+
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
+  eglImpl.ChooseConfig(true, mColorDepth);
+
+  // Create the OpenGL context
+  mEGL->CreateContext();
+
+  // Create the OpenGL surface
+  CreateSurface();
+
+  // Make it current
+  mEGL->MakeContextCurrent();
 }
 
-void NativeRenderSurfaceEcoreWl::CreateEglSurface( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mColorDepth );
 }
 
-void NativeRenderSurfaceEcoreWl::DestroyEglSurface( EglInterface& egl )
+void NativeRenderSurfaceEcoreWl::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
   eglImpl.DestroySurface();
 }
 
-bool NativeRenderSurfaceEcoreWl::ReplaceEGLSurface( EglInterface& egl )
+bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
 
@@ -166,7 +187,8 @@ bool NativeRenderSurfaceEcoreWl::ReplaceEGLSurface( EglInterface& egl )
     return false;
   }
 
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ) );
 }
@@ -183,15 +205,17 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender( EglInterface&, Integration::GlAbstraction&, bool )
+bool NativeRenderSurfaceEcoreWl::PreRender( bool )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, Integration::GlAbstraction& glAbstraction, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
   eglImpl.SwapBuffers();
 
   if( mThreadSynchronization )
@@ -203,7 +227,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, Integration::GlA
   {
     if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
+      DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
       return;
     }
   }

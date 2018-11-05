@@ -2,7 +2,7 @@
 #define __DALI_ADAPTOR_TEST_APPLICATION_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,8 @@ public:
                           size_t surfaceHeight = DEFAULT_SURFACE_HEIGHT,
                           float  horizontalDpi = DEFAULT_HORIZONTAL_DPI,
                           float  verticalDpi   = DEFAULT_VERTICAL_DPI )
-  : TestApplication( false, surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi )
+  : TestApplication( surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi )
   {
-    Initialize();
-
     Internal::Adaptor::Adaptor::SetAvailable();
   }
 

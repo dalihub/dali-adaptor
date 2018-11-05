@@ -27,6 +27,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {

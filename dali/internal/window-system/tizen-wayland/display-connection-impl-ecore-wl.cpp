@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
@@ -45,7 +46,8 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay( NULL ),
-  mSurfaceType( RenderSurface::WINDOW_RENDER_SURFACE )
+  mSurfaceType( RenderSurface::WINDOW_RENDER_SURFACE ),
+  mGraphics( nullptr )
 {
 }
 
@@ -66,9 +68,10 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 {
 }
 
-bool DisplayConnectionEcoreWl::InitializeEgl(EglInterface& egl)
+bool DisplayConnectionEcoreWl::InitializeGraphics()
 {
-  EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   if( !eglImpl.InitializeGles( mDisplay ) )
   {
@@ -96,6 +99,11 @@ void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
     mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
 #endif
   }
+}
+
+void DisplayConnectionEcoreWl::SetGraphicsInterface( GraphicsInterface& graphics )
+{
+  mGraphics = &graphics;
 }
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()

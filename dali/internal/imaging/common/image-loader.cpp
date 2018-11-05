@@ -28,7 +28,8 @@
 #include <dali/internal/imaging/common/loader-png.h>
 #include <dali/internal/imaging/common/loader-wbmp.h>
 #include <dali/internal/imaging/common/image-operations.h>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/system/common/file-reader.h>
 
 using namespace Dali::Integration;
@@ -40,25 +41,11 @@ namespace TizenPlatform
 
 namespace
 {
-typedef bool (*LoadBitmapFunction)( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& pixelData );
-typedef bool (*LoadBitmapHeaderFunction)( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
-
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gLogFilter = Debug::Filter::New( Debug::Concise, false, "LOG_IMAGE_LOADING" );
 #endif
 
-/**
- * Stores the magic bytes, and the loader and header functions used for each image loader.
- */
-struct BitmapLoader
-{
-  unsigned char magicByte1;        ///< The first byte in the file should be this
-  unsigned char magicByte2;        ///< The second byte in the file should be this
-  LoadBitmapFunction loader;       ///< The function which decodes the file
-  LoadBitmapHeaderFunction header; ///< The function which decodes the header of the file
-  Bitmap::Profile profile;         ///< The kind of bitmap to be created
-                                   ///  (addressable packed pixels or an opaque compressed blob).
-};
+static unsigned int gMaxTextureSize = 4096;
 
 /**
  * Enum for file formats, has to be in sync with BITMAP_LOADER_LOOKUP_TABLE
@@ -87,7 +74,7 @@ enum FileFormats
  * A lookup table containing all the bitmap loaders with the appropriate information.
  * Has to be in sync with enum FileFormats
  */
-const BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
+const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
 {
   { Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  LoadPngHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS },
   { Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS },
@@ -154,9 +141,10 @@ FileFormats GetFormatHint( const std::string& filename )
  */
 bool GetBitmapLoaderFunctions( FILE *fp,
                                FileFormats format,
-                               LoadBitmapFunction& loader,
-                               LoadBitmapHeaderFunction& header,
-                               Bitmap::Profile& profile )
+                               Dali::ImageLoader::LoadBitmapFunction& loader,
+                               Dali::ImageLoader::LoadBitmapHeaderFunction& header,
+                               Bitmap::Profile& profile,
+                               const std::string& filename )
 {
   unsigned char magic[MAGIC_LENGTH];
   size_t read = fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
@@ -173,11 +161,21 @@ bool GetBitmapLoaderFunctions( FILE *fp,
   }
 
   bool loaderFound = false;
-  const BitmapLoader *lookupPtr = BITMAP_LOADER_LOOKUP_TABLE;
-  ImageLoader::Input defaultInput( fp );
+  const Dali::ImageLoader::BitmapLoader *lookupPtr = BITMAP_LOADER_LOOKUP_TABLE;
+  Dali::ImageLoader::Input defaultInput( fp );
 
-  // try hinted format first
-  if ( format != FORMAT_UNKNOWN )
+  // try plugin image loader
+  const Dali::ImageLoader::BitmapLoader* data = Internal::Adaptor::ImageLoaderPluginProxy::BitmapLoaderLookup( filename );
+  if( data != NULL )
+  {
+    lookupPtr = data;
+    unsigned int width = 0;
+    unsigned int height = 0;
+    loaderFound = lookupPtr->header( fp, width, height );
+  }
+
+  // try hinted format
+  if ( false == loaderFound && format != FORMAT_UNKNOWN )
   {
     lookupPtr = BITMAP_LOADER_LOOKUP_TABLE + format;
     if ( format >= FORMAT_MAGIC_BYTE_COUNT ||
@@ -259,8 +257,8 @@ bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path
 
   if (fp != NULL)
   {
-    LoadBitmapFunction function;
-    LoadBitmapHeaderFunction header;
+    Dali::ImageLoader::LoadBitmapFunction function;
+    Dali::ImageLoader::LoadBitmapHeaderFunction header;
 
     Bitmap::Profile profile;
 
@@ -268,10 +266,11 @@ bool ConvertStreamToBitmap( const BitmapResourceType& resource, std::string path
                                    GetFormatHint( path ),
                                    function,
                                    header,
-                                   profile ) )
+                                   profile,
+                                   path ) )
     {
-      const ScalingParameters scalingParameters( resource.size, resource.scalingMode, resource.samplingMode );
-      const ImageLoader::Input input( fp, scalingParameters, resource.orientationCorrection );
+      const Dali::ImageLoader::ScalingParameters scalingParameters( resource.size, resource.scalingMode, resource.samplingMode );
+      const Dali::ImageLoader::Input input( fp, scalingParameters, resource.orientationCorrection );
 
       // Run the image type decoder:
       result = function( input, pixelBuffer );
@@ -343,17 +342,18 @@ ImageDimensions  GetClosestImageSize( const std::string& filename,
   FILE *fp = fileReader.GetFile();
   if (fp != NULL)
   {
-    LoadBitmapFunction loaderFunction;
-    LoadBitmapHeaderFunction headerFunction;
+    Dali::ImageLoader::LoadBitmapFunction loaderFunction;
+    Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
     Bitmap::Profile profile;
 
     if ( GetBitmapLoaderFunctions( fp,
                                    GetFormatHint(filename),
                                    loaderFunction,
                                    headerFunction,
-                                   profile ) )
+                                   profile,
+                                   filename ) )
     {
-      const ImageLoader::Input input( fp, ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
+      const Dali::ImageLoader::Input input( fp, Dali::ImageLoader::ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
 
       const bool read_res = headerFunction( input, width, height );
       if(!read_res)
@@ -391,17 +391,18 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
       FILE *fp = fileReader.GetFile();
       if ( fp != NULL )
       {
-        LoadBitmapFunction loaderFunction;
-        LoadBitmapHeaderFunction headerFunction;
+        Dali::ImageLoader::LoadBitmapFunction loaderFunction;
+        Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
         Bitmap::Profile profile;
 
         if ( GetBitmapLoaderFunctions( fp,
                                        FORMAT_UNKNOWN,
                                        loaderFunction,
                                        headerFunction,
-                                       profile ) )
+                                       profile,
+                                       "" ) )
         {
-          const ImageLoader::Input input( fp, ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
+          const Dali::ImageLoader::Input input( fp, Dali::ImageLoader::ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
           const bool read_res = headerFunction( input, width, height );
           if( !read_res )
           {
@@ -412,6 +413,16 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
     }
   }
   return ImageDimensions( width, height );
+}
+
+void SetMaxTextureSize( unsigned int size )
+{
+  gMaxTextureSize = size;
+}
+
+unsigned int GetMaxTextureSize()
+{
+  return gMaxTextureSize;
 }
 
 } // ImageLoader

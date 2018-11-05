@@ -119,7 +119,7 @@ class KtxTestFixture
 
       // Check the header file.
       unsigned int width( 0 ), height( 0 );
-      const Dali::TizenPlatform::ImageLoader::Input input( fileDescriptor );
+      const Dali::ImageLoader::Input input( fileDescriptor );
 
       // Use the given loader to parse the image header.
       DALI_TEST_CHECK( testEntry.loadFunctions.header( input, width, height ) );

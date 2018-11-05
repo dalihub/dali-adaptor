@@ -98,7 +98,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
   // Check the header file.
 
   unsigned int width(0), height(0);
-  const Dali::TizenPlatform::ImageLoader::Input input( fp );
+  const Dali::ImageLoader::Input input( fp );
   DALI_TEST_CHECK( functions.header( input, width, height ) );
 
   DALI_TEST_EQUALS( width,  image.reportedWidth,  TEST_LOCATION );
@@ -136,7 +136,7 @@ void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& fun
 
   // Check the header file.
   unsigned int width = 0, height = 0;
-  const Dali::TizenPlatform::ImageLoader::Input input( filePointer );
+  const Dali::ImageLoader::Input input( filePointer );
   DALI_TEST_CHECK( functions.header( input, width, height ) );
 
   DALI_TEST_EQUALS( width,  image.reportedWidth,  TEST_LOCATION );
@@ -181,7 +181,7 @@ void DumpImageBufferToTempFile( std::string filename, std::string targetFilename
   AutoCloseFile autoClose( fp );
 
   Dali::Devel::PixelBuffer bitmap;
-  const Dali::TizenPlatform::ImageLoader::Input input( fp );
+  const Dali::ImageLoader::Input input( fp );
 
   DALI_TEST_CHECK( functions.loader( input, bitmap ) );
 
