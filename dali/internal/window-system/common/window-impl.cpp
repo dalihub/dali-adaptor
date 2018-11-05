@@ -61,7 +61,7 @@ Window* Window::New( const PositionSize& positionSize, const std::string& name, 
 Window::Window()
 : mSurface( NULL ),
   mWindowBase(),
-  mIndicatorVisible( Dali::Window::INVISIBLE ),   // TODO: Enable this after indicator implementation based on tizen 5.
+  mIndicatorVisible( Dali::Window::VISIBLE ),
   mIndicatorIsShown( false ),
   mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
@@ -177,8 +177,7 @@ WindowRenderSurface* Window::GetSurface()
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
-  // TODO: Enable this after indicator implementation based on tizen 5.
-//  mIndicatorVisible = visibleMode;
+  mIndicatorVisible = visibleMode;
 
   mWindowBase->ShowIndicator( mIndicatorVisible, mIndicatorOpacityMode );
 
@@ -197,8 +196,7 @@ void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode
 
 void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
 {
-  // TODO: Enable this after indicator implementation based on tizen 5.
-//  mIndicatorVisible = mode;
+  mIndicatorVisible = mode;
 }
 
 void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
