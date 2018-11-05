@@ -1095,7 +1095,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
     if( FT_Err_Ok == error )
     {
       FT_Glyph glyph;
-
+#if defined(__GNUC__)
       if( softwareBold )
       {
         FT_GlyphSlot_Embolden(ftFace->glyph);
@@ -1107,7 +1107,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
         FT_Matrix transform = {0x10000, FONT_SLANT_TANGENT, 0x00000, 0x10000};
         FT_Outline_Transform(&ftFace->glyph->outline, &transform);
       }
-
+#endif
       error = FT_Get_Glyph( ftFace->glyph, &glyph );
 
       // Convert to bitmap if necessary
