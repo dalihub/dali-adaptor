@@ -90,7 +90,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
                                                                 const EnvironmentOptions& environmentOptions )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
-  mRenderHelper( adaptorInterfaces ),
   mEventThreadSemaphore(),
   mUpdateRenderThreadWaitCondition(),
   mAdaptorInterfaces( adaptorInterfaces ),
@@ -158,7 +157,7 @@ void CombinedUpdateRenderController::Initialize()
   int error = pthread_create( mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this );
   DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() when creating UpdateRenderThread" );
 
-  // The Update/Render thread will now run and initialise EGL etc. and will then wait for Start to be called
+  // The Update/Render thread will now run and initialise the graphics interface etc. and will then wait for Start to be called
   // When this function returns, the application initialisation on the event thread should occur
 }
 
@@ -174,7 +173,11 @@ void CombinedUpdateRenderController::Start()
     sem_wait( &mEventThreadSemaphore );
   }
 
-  mRenderHelper.Start();
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->StartRender();
+  }
 
   mRunning = TRUE;
 
@@ -216,7 +219,11 @@ void CombinedUpdateRenderController::Stop()
   LOG_EVENT_TRACE;
 
   // Stop Rendering and the Update/Render Thread
-  mRenderHelper.Stop();
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->StopRender();
+  }
 
   StopUpdateRenderThread();
 
@@ -404,12 +411,16 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   LOG_UPDATE_RENDER( "THREAD CREATED" );
 
-
   // Create graphics
-  mGraphics.Create();
+  auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
+  graphics.Create();
 
   // Create Graphics surface
-  mRenderHelper.GetSurface()->CreateSurface( mGraphics );
+  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->InitializeGraphics( graphics );
+  }
 
   NotifyThreadInitialised();
 
@@ -457,7 +468,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
-      mRenderHelper.ReplaceSurface( newSurface );
+
+      // This is designed for replacing pixmap surfaces, but should work for window as well
+      // we need to delete the surface and renderable (pixmap / window)
+      // Then create a new pixmap/window and new surface
+      // If the new surface has a different display connection, then the context will be lost
+
+      mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
 
@@ -506,11 +524,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     bool surfaceResized = ShouldSurfaceBeResized();
     if( DALI_UNLIKELY( surfaceResized ) )
     {
-      // RenderHelper::ResizeSurface() should be called right after a viewport is changed.
       if( updateStatus.SurfaceRectChanged() )
       {
         LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
-        mRenderHelper.ResizeSurface();
         SurfaceResized();
       }
     }
@@ -522,7 +538,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // RENDER
     //////////////////////////////
 
-    mRenderHelper.ConsumeEvents();
+    mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
+
     if( mPreRenderCallback != NULL )
     {
       bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
@@ -534,24 +551,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
     Integration::RenderStatus renderStatus;
 
-#if 0
-    mRenderHelper.PreRender();
-
-    AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    mCore.Render( renderStatus, mForceClear );
-    AddPerformanceMarker( PerformanceInterface::RENDER_END );
-
-    mForceClear = false;
-
-    if( renderStatus.NeedsPostRender() )
-    {
-      mRenderHelper.PostRender( isRenderingToFbo );
-    }
-#endif
-
     // Trigger event thread to request Update/Render thread to sleep if update not required
-    if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) &&
-        ! renderStatus.NeedsUpdate() )
+    if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )
     {
       mSleepTrigger->Trigger();
       updateRequired = false;
@@ -606,8 +607,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  // Shutdown EGL
-  mRenderHelper.ShutdownEgl();
+
+  if( currentSurface )
+  {
+    currentSurface->DestroySurface();
+    currentSurface = nullptr;
+  }
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );
 

@@ -21,6 +21,7 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
 // INTERNAL HEADERS
 
@@ -34,7 +35,8 @@ namespace Adaptor
 {
 
 NativeBitmapBuffer::NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pFormat )
-: mWidth(width),
+: //mGraphicsInterface( nullptr),
+  mWidth(width),
   mHeight(height),
   mPixelFormat(pFormat),
   mLastReadBuffer(NULL)

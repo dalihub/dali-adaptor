@@ -19,6 +19,9 @@
  */
 #include <dali/public-api/signals/callback.h>
 
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/display-connection.h>
+
 namespace Dali
 {
 
@@ -130,10 +133,10 @@ public:
 private:
 
   // Undefined copy constructor.
-  ThreadController( const ThreadController& );
+  ThreadController( const ThreadController& ) = delete;
 
   // Undefined assignment operator.
-  ThreadController& operator=( const ThreadController& );
+  ThreadController& operator=( const ThreadController& ) = delete;
 
 private:
 

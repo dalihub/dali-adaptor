@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
 
 } // namespace - anonymous
 
-bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   png_structp png = NULL;
   png_infop info = NULL;
@@ -121,7 +121,7 @@ bool LoadPngHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return success;
 }
 
-bool LoadBitmapFromPng( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   png_structp png = NULL;
   png_infop info = NULL;

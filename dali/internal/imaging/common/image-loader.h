@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_IMAGE_LOADER_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,20 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
                           FittingMode::Type fittingMode,
                           SamplingMode::Type samplingMode,
                           bool orientationCorrection );
+
+/**
+ * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
+ *
+ * @param [in] size The maximum texture size to set
+ */
+void SetMaxTextureSize( unsigned int size );
+
+/**
+ * @brief Get the maximum texture size.
+ *
+ * @return The maximum texture size
+ */
+unsigned int GetMaxTextureSize();
 
 } // ImageLoader
 } // TizenPlatform

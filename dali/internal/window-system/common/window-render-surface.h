@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
 #include <dali/integration-api/egl-interface.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
@@ -127,29 +128,28 @@ public: // from Dali::RenderSurface
   virtual PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::RenderSurface::GetDpi()
    */
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) override;
+  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::RenderSurface::CreateSurface()
    */
-  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) override;
+  virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   * @copydoc Dali::RenderSurface::DestroySurface()
    */
-  virtual void DestroySurface( GraphicsInterface& egl ) override;
+  virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceSurface( GraphicsInterface& egl ) override;
+  virtual bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()
@@ -169,12 +169,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, bool resizingSurface ) override;
+  virtual bool PreRender( bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, Dali::DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) override;
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
@@ -228,6 +228,7 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
+  Integration::Graphics::GraphicsInterface* mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;

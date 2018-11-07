@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ namespace
 
 // limit maximum image down load size to 50 MB
 const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
-
-static unsigned int gMaxTextureSize = 4096;
 
 }
 
@@ -114,14 +112,9 @@ Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDime
   return Dali::Devel::PixelBuffer();
 }
 
-void SetMaxTextureSize( unsigned int size )
-{
-  gMaxTextureSize = size;
-}
-
 unsigned int GetMaxTextureSize()
 {
-  return gMaxTextureSize;
+  return TizenPlatform::ImageLoader::GetMaxTextureSize();
 }
 
 } // namespace Dali

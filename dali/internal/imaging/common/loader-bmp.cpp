@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1043,7 +1043,7 @@ bool DecodeRLE8(FILE *fp,
 
 } // unnamed namespace
 
-bool LoadBmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadBmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   BmpFileHeader fileHeader;
   BmpInfoHeader infoHeader;
@@ -1053,7 +1053,7 @@ bool LoadBmpHeader( const ImageLoader::Input& input, unsigned int& width, unsign
   return ret;
 }
 
-bool LoadBitmapFromBmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromBmp( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   //DALI_ASSERT_DEBUG( bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into." );
   FILE* const fp = input.file;

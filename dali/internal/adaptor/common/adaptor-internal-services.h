@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
-#define __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
+#ifndef DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
+#define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -22,8 +22,10 @@
 #include <dali/integration-api/core.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/graphics/graphics-interface.h>
 #include <dali/integration-api/trigger-event-interface.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>
+#include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/graphics/gles20/egl-factory-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
@@ -68,23 +70,26 @@ public:
   /**
    * @return platform abstraction
    */
-  virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface()  = 0;
+  virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface() = 0;
 
   /**
-   * @return egl factory
+   * Used to access the Display Connection interface from the Render thread
+   * @return the Display Connection interface
    */
-  virtual EglFactoryInterface& GetEGLFactoryInterface() const  = 0;
+  virtual Dali::DisplayConnection& GetDisplayConnectionInterface() = 0;
 
   /**
-   * @return Graphics
+   * Used to access the abstracted graphics interface
+   * This also contains the depth and stencil buffers
+   * @return the graphics interface
    */
-  virtual Dali::Integration::Graphics::Graphics& GetGraphics() const = 0;
+  virtual Dali::Integration::Graphics::GraphicsInterface& GetGraphicsInterface() = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process
    * @return trigger event ProcessCoreEvents
    */
-  virtual TriggerEventInterface& GetProcessCoreEventsTrigger()  = 0;
+  virtual TriggerEventInterface& GetProcessCoreEventsTrigger() = 0;
 
   /**
    * @return trigger event factory interface
@@ -99,27 +104,27 @@ public:
   /**
    * @return render surface
    */
-  virtual RenderSurface* GetRenderSurfaceInterface()  = 0;
+  virtual RenderSurface* GetRenderSurfaceInterface() = 0;
 
   /**
    * @return vsync monitor interface
    */
-  virtual VSyncMonitorInterface* GetVSyncMonitorInterface()  = 0;
+  virtual VSyncMonitorInterface* GetVSyncMonitorInterface() = 0;
 
   /**
    * @return performance interface
    */
-  virtual PerformanceInterface* GetPerformanceInterface()  = 0;
+  virtual PerformanceInterface* GetPerformanceInterface() = 0;
 
   /**
    * @return interface for logging to the kernel ( e.g. using ftrace )
    */
-  virtual TraceInterface& GetKernelTraceInterface()  = 0;
+  virtual TraceInterface& GetKernelTraceInterface() = 0;
 
   /**
    * @return system trace interface, e.g. for using Tizen Trace (ttrace) or Android Trace (atrace)
    */
-  virtual TraceInterface& GetSystemTraceInterface()  = 0;
+  virtual TraceInterface& GetSystemTraceInterface() = 0;
 
 
 protected:
@@ -139,10 +144,10 @@ protected:
   };
 
   // Undefined copy constructor.
-  AdaptorInternalServices( const AdaptorInternalServices& );
+  AdaptorInternalServices( const AdaptorInternalServices& ) = delete;
 
   // Undefined assignment operator.
-  AdaptorInternalServices& operator=( const AdaptorInternalServices& );
+  AdaptorInternalServices& operator=( const AdaptorInternalServices& ) = delete;
 };
 
 } // namespace Internal
@@ -151,4 +156,4 @@ protected:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H__
+#endif // DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H

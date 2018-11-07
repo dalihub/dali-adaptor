@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ class KtxTestFixture
 
       // Check the header file.
       unsigned int width( 0 ), height( 0 );
-      const Dali::TizenPlatform::ImageLoader::Input input( fileDescriptor );
+      const Dali::ImageLoader::Input input( fileDescriptor );
 
       // Use the given loader to parse the image header.
       DALI_TEST_CHECK( testEntry.loadFunctions.header( input, width, height ) );

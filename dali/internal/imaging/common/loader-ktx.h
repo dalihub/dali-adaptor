@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_LOADER_KTX_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #include <cstdio>
-#include <dali/internal/imaging/common/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
 namespace Dali
 {
@@ -47,7 +47,7 @@ const unsigned char MAGIC_BYTE_2 = 0x4B;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
 
 /**
  * Loads the header of a KTX file and fills in the width and height appropriately.
@@ -57,7 +57,7 @@ bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffe
  * @param[out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadKtxHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
 } // namespace TizenPlatform
 

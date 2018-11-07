@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_APPLICATION_H__
-#define __DALI_INTERNAL_APPLICATION_H__
+#ifndef DALI_INTERNAL_APPLICATION_H
+#define DALI_INTERNAL_APPLICATION_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -29,6 +29,7 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/system/common/environment-options.h>
+#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 namespace Dali
 {
@@ -376,6 +377,11 @@ protected:
   void CreateAdaptor();
 
   /**
+   * Creates the adaptor builder
+   */
+  void CreateAdaptorBuilder();
+
+  /**
    * Quits from the main loop
    */
   void QuitFromMainLoop();
@@ -402,16 +408,21 @@ private:
   Dali::Configuration::ContextLoss      mContextLossConfiguration;
   CommandLineOptions*                   mCommandLineOptions;
 
-  Dali::SingletonService                mSingletonService;
-  Dali::Adaptor*                        mAdaptor;
-  Dali::Window                          mWindow;
-  Dali::Application::WINDOW_MODE        mWindowMode;
-  std::string                           mName;
-  std::string                           mStylesheet;
-  EnvironmentOptions                    mEnvironmentOptions;
-  PositionSize                          mWindowPositionSize;
-  Launchpad::State                      mLaunchpadState;
-  bool                                  mUseRemoteSurface;
+  Dali::SingletonService                   mSingletonService;
+  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder;   ///< The adaptor builder
+  Dali::Adaptor*                           mAdaptor;
+
+  // The Main Window is that window created by the Application during initial startup
+  // (previously this was the only window)
+  Dali::Window                             mMainWindow;       ///< Main Window instance
+  Dali::Application::WINDOW_MODE           mMainWindowMode;   ///< Window mode of the main window
+  std::string                              mMainWindowName;   ///< Name of the main window as obtained from environment options
+
+  std::string                              mStylesheet;
+  EnvironmentOptions                       mEnvironmentOptions;
+  PositionSize                             mWindowPositionSize;
+  Launchpad::State                         mLaunchpadState;
+  bool                                     mUseRemoteSurface;
 
   SlotDelegate< Application >           mSlotDelegate;
 
@@ -429,7 +440,7 @@ inline Application& GetImplementation(Dali::Application& application)
 
 inline const Application& GetImplementation(const Dali::Application& application)
 {
-  DALI_ASSERT_ALWAYS(application && "Timre handle is empty");
+  DALI_ASSERT_ALWAYS(application && "application handle is empty");
 
   const BaseObject& handle = application.GetBaseObject();
 
@@ -443,4 +454,4 @@ inline const Application& GetImplementation(const Dali::Application& application
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_APPLICATION_H__
+#endif // DALI_INTERNAL_APPLICATION_H

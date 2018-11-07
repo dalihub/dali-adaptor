@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,15 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
-#include <memory>
 
 namespace Dali
 {
-
-class EglInterface;
-
 namespace Internal
 {
 namespace Adaptor
@@ -46,18 +44,20 @@ public:
   /**
    * @brief Create an initialized DisplayConnection.
    *
+   * @param[in] graphics The abstracted graphics interface
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New();
+  static DisplayConnection* New( Dali::Integration::Graphics::GraphicsInterface& graphics );
 
   /**
    * @brief Create an initialized DisplayConnection.
    * Native surface will need this instead of DisplayConnection::New()
    *
+   * @param[in] graphics The abstracted graphics interface
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( RenderSurface::Type type );
+  static DisplayConnection* New( Dali::Integration::Graphics::GraphicsInterface& graphics, RenderSurface::Type type );
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().
@@ -86,11 +86,9 @@ public:
   void ConsumeEvents();
 
   /**
-   * @brief Initialize EGL display
-   *
-   * @param egl implementation to use for the creation
+   * @brief Initialize the display
    */
-  bool InitializeEgl(EglInterface& egl);
+  bool Initialize();
 
 public:
 

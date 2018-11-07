@@ -21,6 +21,8 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/system-overlay.h>
+#include <dali/integration-api/render-task-list-integ.h>
+#include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
@@ -144,13 +146,22 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   DALI_ASSERT_ALWAYS( !mStarted && "Adaptor already started" );
   mStarted = true;
 
-  // Only create one overlay per window
+  // Create one overlay for the main window only
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   Integration::Core& core = adaptorImpl.GetCore();
   mOverlay = &core.GetSystemOverlay();
 
-  Dali::RenderTaskList taskList = mOverlay->GetOverlayRenderTasks();
-  taskList.CreateTask();
+  // Only create render task list for the overlay once
+  if (!mOverlay->GetOverlayRenderTasks())
+  {
+    Dali::RenderTaskList overlayRenderTaskList = Integration::RenderTaskList::New();
+
+    Dali::Actor overlayRootActor = mOverlay->GetDefaultRootActor();
+    Dali::CameraActor overlayCameraActor = mOverlay->GetDefaultCameraActor();
+    Integration::RenderTaskList::CreateTask( overlayRenderTaskList, overlayRootActor, overlayCameraActor );
+
+    mOverlay->SetOverlayRenderTasks( overlayRenderTaskList );
+  }
 
   mAdaptor = &adaptorImpl;
   mAdaptor->AddObserver( *this );

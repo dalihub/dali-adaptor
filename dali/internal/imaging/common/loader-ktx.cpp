@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -523,7 +523,7 @@ bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, 
 } // unnamed namespace
 
 // File loading API entry-point:
-bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadKtxHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   KtxFileHeader fileHeader;
   FILE* const fp = input.file;
@@ -533,7 +533,7 @@ bool LoadKtxHeader( const ImageLoader::Input& input, unsigned int& width, unsign
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
   DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);

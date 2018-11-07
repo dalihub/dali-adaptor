@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-factory.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 #include <dali/integration-api/render-surface.h>
+
 
 namespace Dali
 {
@@ -97,9 +97,14 @@ NativeImageSourceX::NativeImageSourceX( unsigned int width, unsigned int height,
   mEglImageExtensions( NULL )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  EglFactory& eglFactory = Adaptor::GetImplementation( Adaptor::Get() ).GetEGLFactory();
-  mEglImageExtensions = eglFactory.GetImageExtensions();
+
+#if 0
+  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
+  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+
+  mEglImageExtensions = eglGraphics->GetImageExtensions();
   DALI_ASSERT_DEBUG( mEglImageExtensions );
+#endif
 
   // assign the pixmap
   mPixmap = GetPixmapFromAny(nativeImageSource);
@@ -159,7 +164,7 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
   XImageJanitor xImageJanitor( XGetImage( displayConnection,
                                           mPixmap,
                                           0, 0, // x,y of subregion to extract.
-                                          width, height, // of suregion to extract.
+                                          width, height, // of subregion to extract.
                                           0xFFFFFFFF,
                                           ZPixmap ) );
   XImage* const  pXImage = xImageJanitor.mXImage;
@@ -294,6 +299,7 @@ bool NativeImageSourceX::IsColorDepthSupported( Dali::NativeImageSource::ColorDe
 
 bool NativeImageSourceX::GlExtensionCreate()
 {
+#if 0
   // if the image existed previously delete it.
   if (mEglImageKHR != NULL)
   {
@@ -306,20 +312,24 @@ bool NativeImageSourceX::GlExtensionCreate()
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
 
+#endif
   return mEglImageKHR != NULL;
 }
 
 void NativeImageSourceX::GlExtensionDestroy()
 {
+#if 0
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
+#endif
 }
 
 unsigned int NativeImageSourceX::TargetTexture()
 {
+#if 0
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
-
+#endif
   return 0;
 }
 

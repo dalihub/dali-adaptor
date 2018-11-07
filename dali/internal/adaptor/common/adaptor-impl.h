@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_IMPL_H__
-#define __DALI_INTERNAL_ADAPTOR_IMPL_H__
+#ifndef DALI_INTERNAL_ADAPTOR_IMPL_H
+#define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -25,12 +25,12 @@
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
-
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/system/common/environment-options.h>
@@ -42,6 +42,7 @@
 #include <dali/internal/system/common/system-trace.h>
 #include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/network/common/socket-factory.h>
+
 
 #include <memory>
 
@@ -66,8 +67,9 @@ namespace Internal
 
 namespace Adaptor
 {
+class DisplayConnection;
+class GraphicsFactory;
 class EventHandler;
-class EglFactory;
 class GestureManager;
 class ThreadController;
 class TriggerEvent;
@@ -115,12 +117,44 @@ public:
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions );
+  static Dali::Adaptor* New( Dali::Window window,
+                             Dali::Configuration::ContextLoss configuration,
+                             EnvironmentOptions* environmentOptions );
+
+  /**
+   * Creates a New Adaptor
+   * @param[in]  graphicsFactory     A factory that creates the graphics interface
+   * @param[in]  nativeWindow        Native window handle
+   * @param[in]  surface             A render surface can be one of the following
+   *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
+   *                                  - Window, adaptor will use existing Window to draw on to
+   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
+   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   */
+  static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
+                             Any nativeWindow,
+                             RenderSurface* surface,
+                             Dali::Configuration::ContextLoss configuration,
+                             EnvironmentOptions* environmentOptions );
+
+  /**
+   * Creates a New Adaptor
+   * @param[in]  graphicsFactory     A factory that creates the graphics interface
+   * @param[in]  nativeWindow        native window handle
+   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
+   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   */
+  static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
+                             Dali::Window window,
+                             Dali::Configuration::ContextLoss configuration,
+                             EnvironmentOptions* environmentOptions );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
+   * @param[in]  graphicsFactory     A factory that creates the graphics interface
+   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    */
-  void Initialize(Dali::Configuration::ContextLoss configuration);
+  void Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration );
 
   /**
    * Virtual destructor.
@@ -206,6 +240,31 @@ public: // AdaptorInternalServices implementation
   virtual bool AddIdle( CallbackBase* callback, bool hasReturnValue, bool forceAdd );
 
   /**
+   * Adds a new Window instance to the Adaptor
+   * @param[in]  childWindow The child window instance
+   * @param[in]  childWindowName The child window title/name
+   * @param[in]  childWindowClassName The class name that the child window belongs to
+   * @param[in]  childWindowMode The mode of the child window
+   */
+  virtual bool AddWindow( Dali::Window* childWindow,
+                          const std::string& childWindowName,
+                          const std::string& childWindowClassName,
+                          const bool& childWindowMode );
+
+  /**
+   * Removes an existing Window instance from the Adaptor
+   * @param[in]  window The Window instance
+   */
+  virtual bool RemoveWindow( Dali::Window* childWindow );
+
+  /**
+   * Removes an existing Window instance from the Adaptor
+   * @param[in]  windowName The Window name
+   * @note If two Windows have the same name, the first one that matches will be removed
+   */
+  virtual bool RemoveWindow( std::string childWindowName );
+
+  /**
    * @copydoc Dali::Adaptor::RemoveIdle()
    */
   virtual void RemoveIdle( CallbackBase* callback );
@@ -233,17 +292,6 @@ public:
   void SetUseHardwareVSync(bool useHardware);
 
   /**
-   * @return reference to EglFactory class
-   */
-  EglFactory& GetEGLFactory() const;
-
-  /**
-   *
-   * @return the Graphics
-   */
-  Dali::Integration::Graphics::Graphics& GetGraphics() const;
-
-  /**
    * Return the PlatformAbstraction.
    * @return The PlatformAbstraction.
    */
@@ -263,7 +311,7 @@ public:
   void SetRotationObserver( RotationObserver* observer );
 
   /**
-   * Destroy the TtsPlayer of sepcific mode.
+   * Destroy the TtsPlayer of specific mode.
    * @param[in] mode The mode of TtsPlayer to destroy
    */
   void DestroyTtsPlayer(Dali::TtsPlayer::Mode mode);
@@ -291,7 +339,7 @@ public:
   Any GetGraphicsDisplay();
 
   /**
-   * Sets use remote surface for eglSurface output
+   * Sets use remote surface for Surface output
    * @param[in] useRemoteSurface True if the remote surface is used
    */
   void SetUseRemoteSurface(bool useRemoteSurface);
@@ -376,9 +424,14 @@ public:  //AdaptorInternalServices
   virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
 
   /**
-  * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetEGLFactoryInterface()
-  */
-  virtual EglFactoryInterface& GetEGLFactoryInterface() const;
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetDisplayConnectionInterface()
+   */
+  virtual Dali::DisplayConnection& GetDisplayConnectionInterface();
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
+   */
+  virtual Dali::Integration::Graphics::GraphicsInterface& GetGraphicsInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
@@ -506,8 +559,8 @@ private: // From Dali::Internal::Adaptor::DamageObserver
 private:
 
   // Undefined
-  Adaptor(const Adaptor&);
-  Adaptor& operator=(Adaptor&);
+  Adaptor(const Adaptor&) = delete;
+  Adaptor& operator=(Adaptor&) = delete;
 
 private:
 
@@ -578,6 +631,19 @@ private: // Types
     STOPPED,             ///< Adaptor has been stopped.
   };
 
+  // A structure to encapsulate each Window instance for the Adaptor to track them
+  typedef struct WindowPane
+  {
+    Dali::Window*  instance;     ///< Window object
+    std::string    window_name;  ///< Name (title)_of the window
+    std::string    class_name;   ///< Class name that the window belongs to
+    bool           window_mode;  ///< Display mode of the window
+    Any            nativeWindow; ///< window identifier
+    RenderSurface* surface;      ///< The surface the Window is bound to
+  } WindowPane;
+
+  typedef std::vector<WindowPane> WindowFrames;
+
   typedef std::vector<LifeCycleObserver*>  ObserverContainer;
 
 private: // Data
@@ -590,10 +656,13 @@ private: // Data
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
-  EglFactory*                           mEglFactory;                  ///< EGL Factory
 
-  Any                                   mNativeWindow;                ///< window identifier
-  RenderSurface*                        mSurface;                     ///< Current surface
+  //GraphicsInterface*                  mGraphics;                    ///< Graphics interface
+  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;   ///< @todo move ownership to GraphicsFactory?
+
+  Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
+  WindowFrames                          mWindowFrame;                 ///< A container of all the Windows that are currently created
+
   TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;      ///< Platform abstraction
 
   EventHandler*                         mEventHandler;                ///< event handler
@@ -617,10 +686,9 @@ private: // Data
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
 
-  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;
 
 public:
-  inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) {return *adaptor.mImpl;}
+  inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }
 };
 
 } // namespace Internal
@@ -629,4 +697,4 @@ public:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_IMPL_H__
+#endif // DALI_INTERNAL_ADAPTOR_IMPL_H

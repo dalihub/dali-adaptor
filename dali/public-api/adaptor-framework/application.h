@@ -1,5 +1,5 @@
-#ifndef __DALI_APPLICATION_H__
-#define __DALI_APPLICATION_H__
+#ifndef DALI_APPLICATION_H
+#define DALI_APPLICATION_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
@@ -471,4 +470,4 @@ public: // Not intended for application developers
  */
 } // namespace Dali
 
-#endif // __DALI_APPLICATION_H__
+#endif // DALI_APPLICATION_H

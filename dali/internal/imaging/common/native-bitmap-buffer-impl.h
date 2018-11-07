@@ -21,11 +21,12 @@
 // EXTERNAL HEADERS
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
-#include <dali/integration-api/lockless-buffer.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/integration-api/lockless-buffer.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+
 
 namespace Dali
 {

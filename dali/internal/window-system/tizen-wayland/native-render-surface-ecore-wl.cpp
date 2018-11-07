@@ -33,6 +33,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
@@ -129,25 +130,25 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics( GraphicsInterface& graphicsInterface )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics, DisplayConnection& displayConnection )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::InitializeGraphics() not implemented!" );
 }
 
-void NativeRenderSurfaceEcoreWl::CreateSurface( GraphicsInterface& graphicsInterface )
+void NativeRenderSurfaceEcoreWl::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::CreateSurface() not implemented!" );
 }
 
-void NativeRenderSurfaceEcoreWl::DestroySurface( GraphicsInterface& graphicsInterface )
+void NativeRenderSurfaceEcoreWl::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::DestroySurface() not implemented!" );
 }
 
-bool NativeRenderSurfaceEcoreWl::ReplaceSurface( GraphicsInterface& graphicsInterface )
+bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::ReplaceSurface() not implemented!" );
@@ -166,15 +167,17 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender( EglInterface&, bool )
+bool NativeRenderSurfaceEcoreWl::PreRender( bool )
 {
   // nothing to do for pixmaps
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface )
+void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
   eglImpl.SwapBuffers();
 
   if( mThreadSynchronization )
@@ -186,7 +189,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( EglInterface& egl, DisplayConnectio
   {
     if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
-      DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
+      DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
       return;
     }
   }

@@ -1,5 +1,5 @@
-#ifndef __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
-#define __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#ifndef DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
+#define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -20,14 +20,17 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/egl-interface.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 #include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
+#include <dali/internal/window-system/common/display-connection.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <Ecore_X.h>
+
 
 namespace Dali
 {
@@ -81,24 +84,24 @@ public: // from Dali::RenderSurface
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeEgl()
+   * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) override;
+  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateEglSurface()
+   * @copydoc Dali::RenderSurface::CreateSurface()
    */
-  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) override;
+  virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::DestroyEglSurface()
+   * @copydoc Dali::RenderSurface::DestroySurface()
    */
-  virtual void DestroySurface( GraphicsInterface& graphicsInterface ) override;
+  virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceEGLSurface()
+   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceSurface( GraphicsInterface& graphicsInterface ) override;
+  virtual bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurface::MoveResize()
@@ -118,12 +121,12 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::PreRender()
    */
-  virtual bool PreRender( EglInterface& egl, bool resizingSurface ) override;
+  virtual bool PreRender( bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::PostRender()
    */
-  virtual void PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface );
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::RenderSurface::StopRender()
@@ -174,7 +177,8 @@ private:
 private: // Data
 
   static const int BUFFER_COUNT = 2;
-
+  GraphicsInterface*              mGraphics;               ///< Graphics interface
+  Dali::DisplayConnection*        mDisplayConnection;      ///< Display connection
   PositionSize                    mPosition;               ///< Position
   TriggerEventInterface*          mRenderNotification;     ///< Render notification trigger
   ColorDepth                      mColorDepth;             ///< Color depth of surface (32 bit or 24 bit)
@@ -194,4 +198,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // __DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H__
+#endif // DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H

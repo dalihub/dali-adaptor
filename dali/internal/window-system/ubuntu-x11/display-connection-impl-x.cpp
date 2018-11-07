@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
+//#include <dali/internal/graphics/gles20/egl-graphics.h>
 
 namespace Dali
 {
@@ -43,7 +44,8 @@ DisplayConnection* DisplayConnectionX11::New()
 }
 
 DisplayConnectionX11::DisplayConnectionX11()
-: mDisplay(NULL)
+: mGraphics( nullptr ),
+  mDisplay( nullptr )
 {
 }
 
@@ -81,16 +83,18 @@ void DisplayConnectionX11::ConsumeEvents()
   while (events > 0);
 }
 
-bool DisplayConnectionX11::InitializeEgl(EglInterface& egl)
+bool DisplayConnectionX11::InitializeGraphics()
 {
-  EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
+#if 0
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
   {
     DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
   }
-
+#endif
   return true;
 }
 
@@ -101,6 +105,11 @@ void DisplayConnectionX11::SetSurfaceType( RenderSurface::Type type )
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);
   }
+}
+
+void DisplayConnectionX11::SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics )
+{
+  mGraphics = &graphics;
 }
 
 } // namespace Adaptor

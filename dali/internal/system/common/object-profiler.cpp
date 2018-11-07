@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20187 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace Internal
 namespace Adaptor
 {
 
-ObjectProfiler::ObjectProfiler( unsigned int timeInterval )
+ObjectProfiler::ObjectProfiler( uint32_t timeInterval )
 {
   // This class must be created after the Stage; this means it doesn't count the initial objects
   // that are created by the stage (base layer, default camera actor)
@@ -59,7 +59,7 @@ void ObjectProfiler::DisplayInstanceCounts()
 {
   for( auto&& element : mInstanceCountContainer )
   {
-    int memorySize = GetMemorySize( element.first, element.second );
+    std::size_t memorySize = GetMemorySize( element.first, element.second );
     if( memorySize > 0 )
     {
       LogMessage( Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n",
@@ -134,12 +134,12 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
   }
 }
 
-int ObjectProfiler::GetMemorySize(const std::string& name, int count)
+std::size_t ObjectProfiler::GetMemorySize( const std::string& name, uint32_t count )
 {
   struct MemoryMemorySize
   {
     std::string name;
-    int memorySize;
+    std::size_t memorySize;
   };
   MemoryMemorySize memoryMemorySizes[] =
     {

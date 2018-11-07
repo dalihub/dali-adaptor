@@ -1,5 +1,5 @@
-#ifndef __DALI_RENDER_SURFACE_H__
-#define __DALI_RENDER_SURFACE_H__
+#ifndef DALI_RENDER_SURFACE_H
+#define DALI_RENDER_SURFACE_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -25,9 +25,22 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
 namespace Dali
 {
+
+namespace Internal
+{
+
+namespace Adaptor
+{
+
+class GraphicsInterface;
+
+} // namespace Adaptor
+
+} // namespace Internal
 namespace Integration
 {
 namespace Graphics
@@ -37,13 +50,7 @@ class Surface;
 }
 }
 
-//@todo:
-using GraphicsInterface = Dali::Integration::Graphics::Graphics;
-
-class EglInterface;
-class DisplayConnection;
 class ThreadSynchronizationInterface;
-
 
 /**
  * @brief The position and size of the render surface.
@@ -100,32 +107,30 @@ public:
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
 
   /**
-   * Initialize EGL, RenderSurface should create egl display and initialize
+   * Initialize Graphics.
    * @param egl implementation to use for the creation
    */
-  virtual void InitializeGraphics( GraphicsInterface& graphicsInterface ) = 0;
+  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphicsInterface ) = 0;
 
   /**
-   * @brief Creates EGL Surface
-   * @param egl implementation to use for the creation
+   * @brief Creates the Surface
    */
-  virtual void CreateSurface( GraphicsInterface& graphicsInterface ) = 0;
+  virtual void CreateSurface() = 0;
 
   /**
-   * @brief Destroys EGL Surface
-   * @param egl implementation to use for the destruction
+   * @brief Destroys the Surface
    */
-  virtual void DestroySurface( GraphicsInterface& graphicsInterface ) = 0;
+  virtual void DestroySurface() = 0;
 
   /**
-   * @brief Replace the EGL Surface
-   * @param egl implementation to use for the creation
+   * @brief Replace the Surface
    * @return true if context was lost
    */
-  virtual bool ReplaceSurface( GraphicsInterface& graphicsInterface ) = 0;
+  virtual bool ReplaceGraphicsSurface() = 0;
 
   /**
    * @brief Resizes the underlying surface.
+   * @param[in] The dimensions of the new position
    */
   virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
 
@@ -144,21 +149,18 @@ public:
    * @brief Invoked by render thread before Core::Render
    * If the operation fails, then Core::Render should not be called until there is
    * a surface to render onto.
-   * @param[in] egl The Egl interface
    * @param[in] resizingSurface True if the surface is being resized
    * @return True if the operation is successful, False if the operation failed
    */
-  virtual bool PreRender( EglInterface& egl, bool resizingSurface ) = 0;
+  virtual bool PreRender( bool resizingSurface ) = 0;
 
   /**
    * @brief Invoked by render thread after Core::Render
-   * @param[in] egl The Egl interface
-   * @param[in] displayConnection display connection
+   * @param[in] renderToFbo True if render to FBO.
    * @param[in] replacingSurface True if the surface is being replaced.
    * @param[in] resizingSurface True if the surface is being resized.
    */
-  virtual void PostRender( EglInterface& egl, DisplayConnection* displayConnection, bool replacingSurface, bool resizingSurface ) = 0;
-
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface ) = 0;
   /**
    * @brief Invoked by render thread when the thread should be stop
    */
@@ -196,4 +198,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_RENDER_SURFACE_H__
+#endif // DALI_RENDER_SURFACE_H

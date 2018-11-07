@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ int extractMultiByteInteger(unsigned int *data, void *map, size_t length, size_t
 
 }// end unnamed namespace
 
-bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
   FILE* const fp = input.file;
   if(fp == NULL)
@@ -211,7 +211,7 @@ bool LoadBitmapFromWbmp( const ImageLoader::Input& input, Dali::Devel::PixelBuff
 }
 
 
-bool LoadWbmpHeader( const ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
   FILE* const fp = input.file;
   if(fp == NULL)

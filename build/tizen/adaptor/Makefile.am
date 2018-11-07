@@ -42,14 +42,11 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
-                  $(adaptor_graphics_ubuntu_gl_src_files) \
                   $(adaptor_graphics_ubuntu_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
                   $(adaptor_imaging_ubuntu_x11_src_files) \
                   $(adaptor_input_common_src_files) \
-                  $(adaptor_input_ubuntu_src_files) \
                   $(adaptor_input_ubuntu_x11_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
@@ -58,7 +55,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_ubuntu_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_ubuntu_src_files) \
+                  $(adaptor_system_linux_src_files) \
                   $(adaptor_system_ubuntu_x11_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_text_ubuntu_src_files) \
@@ -85,26 +82,29 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_x11_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_ubuntu_src_files)
 endif
 
-endif
+endif # UBUNTU PROFILE
 
 
 if MOBILE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_mobile_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -118,7 +118,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_mobile_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -142,7 +143,12 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_tizen_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -155,23 +161,21 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_trace_tizen_src_files)
 endif
 
-endif
+endif # MOBILE_PROFILE
 
 
 if IVI_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_ivi_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_haptics_tizen_src_files) \
@@ -186,7 +190,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_ivi_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -210,7 +215,12 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_tizen_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -223,23 +233,21 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_trace_tizen_src_files)
 endif
 
-endif
+endif #IVI_PROFILE
 
 
 if TV_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_tv_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -253,7 +261,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_tizen_tv_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -277,7 +286,12 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_tizen_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -290,22 +304,20 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_trace_tizen_src_files)
 endif
 
-endif
+endif # TV_PROFILE
 
 if COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_common_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -319,7 +331,8 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
-                  $(adaptor_system_generic_src_files) \
+                  $(adaptor_system_linux_src_files) \
+                  $(adaptor_system_tizen_wayland_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
                   $(adaptor_video_common_src_files) \
@@ -343,7 +356,12 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_tizen_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -363,10 +381,9 @@ endif
 if WEARABLE_PROFILE
 LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_accessibility_common_src_files) \
-                  $(adaptor_accessibility_tizen_src_files) \
+                  $(adaptor_accessibility_tizen_wayland_src_files) \
                   $(adaptor_accessibility_tizen_wearable_src_files) \
                   $(adaptor_adaptor_common_src_files) \
-                  $(adaptor_adaptor_tizen_src_files) \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_adaptor_tizen_wearable_src_files) \
                   $(adaptor_clipboard_common_src_files) \
@@ -374,7 +391,6 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
-                  $(adaptor_graphics_gles20_src_files) \
                   $(adaptor_graphics_tizen_src_files) \
                   $(adaptor_haptics_common_src_files) \
                   $(adaptor_imaging_common_src_files) \
@@ -388,6 +404,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_sensor_tizen_src_files) \
                   $(adaptor_styling_common_src_files) \
                   $(adaptor_system_common_src_files) \
+                  $(adaptor_system_linux_src_files) \
                   $(adaptor_system_tizen_wearable_src_files) \
                   $(adaptor_text_common_src_files) \
                   $(adaptor_resampler_src_files) \
@@ -412,7 +429,12 @@ endif
 
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
+else
+LIBDALI_ADAPTOR_LA_SOURCES += \
+                  $(adaptor_graphics_gl_src_files) \
+                  $(adaptor_graphics_gl_tizen_src_files)
 endif
 
 if ENABLE_NETWORK_LOGGING
@@ -459,7 +481,6 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(LIBDALI_ADAPTOR_LA_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
                       $(DALICORE_CFLAGS) \
-                      $(OPENGLES20_CFLAGS) \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
@@ -481,22 +502,13 @@ if !COMMON_PROFILE
 LIBDALI_ADAPTOR_LA_CXXFLAGS += -DWAYLAND_EXTENSIONS_SUPPORTED
 endif
 
-if VULKAN_ENABLED
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(VULKAN_CFLAGS)
-endif
-
 LIBDALI_ADAPTOR_LA_CFLAGS = \
                       -Werror -Wall \
                       -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION \
                       $(DALI_ADAPTOR_CFLAGS)
 
-if VULKAN_ENABLED
-LIBDALI_ADAPTOR_LA_CFLAGS += $(VULKAN_CFLAGS)
-endif
-
 LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(DALICORE_LIBS) \
-                      $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
                       $(FONTCONFIG_LIBS) \
                       $(PNG_LIBS) \
@@ -512,7 +524,6 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(HARFBUZZ_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
-                      $(VULKAN_LIBS) \
                       -lgif \
                       -lpthread \
                       -lturbojpeg \
@@ -529,7 +540,13 @@ LIBDALI_ADAPTOR_LA_LIBADD += $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
 
 if VULKAN_ENABLED
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(VULKAN_CFLAGS)
+LIBDALI_ADAPTOR_LA_CFLAGS += $(VULKAN_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(VULKAN_LIBS)
+else
+LIBDALI_ADAPTOR_LA_CXXFLAGS += $(OPENGLES20_CFLAGS)
+LIBDALI_ADAPTOR_LA_CFLAGS += $(OPENGLES20_CFLAGS)
+LIBDALI_ADAPTOR_LA_LIBADD += $(OPENGLES20_LIBS)
 endif
 
 if USE_APPFW
@@ -570,7 +587,7 @@ else
 LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
 
 LIBDALI_ADAPTOR_LA_LIBADD += $(ELEMENTARY_LIBS)
-endif
+endif #USE_APPFW
 
 if WAYLAND
 # This is to avoid having to include wayland-egl.h everywhere

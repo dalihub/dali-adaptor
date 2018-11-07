@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,6 +205,11 @@ const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSiz
 bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 {
   return GetImplementation(*this).IsColorGlyph( fontId, glyphIndex );
+}
+
+bool FontClient::AddCustomFontDirectory( const FontPath& path )
+{
+  return GetImplementation(*this).AddCustomFontDirectory( path );
 }
 
 FontClient::FontClient( Internal::FontClient* internal )
