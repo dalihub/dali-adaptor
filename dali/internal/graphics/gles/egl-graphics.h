@@ -22,13 +22,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/gles20/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles20/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
 #include <dali/integration-api/egl-interface.h>
 
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-sync-implementation.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 
 namespace Dali

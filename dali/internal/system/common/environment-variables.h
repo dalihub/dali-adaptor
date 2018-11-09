@@ -112,6 +112,8 @@ namespace Adaptor
 
 #define DALI_ENV_DISABLE_STENCIL_BUFFER "DALI_DISABLE_STENCIL_BUFFER"
 
+#define DALI_ENV_WEB_ENGINE_NAME "DALI_WEB_ENGINE_NAME"
+
 } // namespace Adaptor
 
 } // namespace Internal

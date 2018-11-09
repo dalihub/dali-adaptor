@@ -126,7 +126,9 @@ struct BidirectionalSupport::Plugin
   }
 
   BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters )
+                            Length numberOfCharacters,
+                            bool matchSystemLanguageDirection,
+                            LayoutDirection::Type layoutDirection )
   {
     // Reserve memory for the paragraph's bidirectional info.
     BidirectionalInfo* bidirectionalInfo = new BidirectionalInfo();
@@ -150,7 +152,9 @@ struct BidirectionalSupport::Plugin
     fribidi_get_bidi_types( paragraph, numberOfCharacters, bidirectionalInfo->characterTypes );
 
     // Retrieve the paragraph's direction.
-    bidirectionalInfo->paragraphDirection = fribidi_get_par_direction( bidirectionalInfo->characterTypes, numberOfCharacters );
+    bidirectionalInfo->paragraphDirection = matchSystemLanguageDirection == true ?
+                                           ( layoutDirection == LayoutDirection::RIGHT_TO_LEFT ? FRIBIDI_PAR_RTL : FRIBIDI_PAR_LTR ) :
+                                           ( fribidi_get_par_direction( bidirectionalInfo->characterTypes, numberOfCharacters ) );
 
     // Retrieve the embedding levels.
     if (fribidi_get_par_embedding_levels( bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels ) == 0)
@@ -390,12 +394,16 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
 }
 
 BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,
-                                                Length numberOfCharacters )
+                                                Length numberOfCharacters,
+                                                bool matchSystemLanguageDirection,
+                                                Dali::LayoutDirection::Type layoutDirection )
 {
   CreatePlugin();
 
   return mPlugin->CreateInfo( paragraph,
-                              numberOfCharacters );
+                              numberOfCharacters,
+                              matchSystemLanguageDirection,
+                              layoutDirection );
 }
 
 void BidirectionalSupport::DestroyInfo( BidiInfoIndex bidiInfoIndex )

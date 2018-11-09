@@ -20,7 +20,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/imaging/ubuntu-x11/native-image-source-impl-x.h>
-#include <dali/internal/imaging/common/native-image-source-queue-impl.h>
+#include <dali/internal/imaging/ubuntu-x11/native-image-source-queue-impl-x.h>
 
 namespace Dali
 {
@@ -38,7 +38,7 @@ std::unique_ptr< NativeImageSource > NativeImageSourceFactoryX::CreateNativeImag
 std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryX::CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
                                                                                                    Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
 {
-  return std::unique_ptr< NativeImageSourceQueue >( nullptr );
+  return std::unique_ptr< NativeImageSourceQueue >( NativeImageSourceQueueX::New( width, height, depth, nativeImageSourceQueue ) );
 }
 
 // this should be created from somewhere

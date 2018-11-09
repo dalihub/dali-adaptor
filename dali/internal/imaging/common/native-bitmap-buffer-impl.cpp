@@ -23,8 +23,8 @@
 #include <dali/integration-api/bitmap.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/graphics/gles20/gl-implementation.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali
 {

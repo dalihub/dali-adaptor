@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/egl-debug.h>
+#include <dali/internal/graphics/gles/egl-debug.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

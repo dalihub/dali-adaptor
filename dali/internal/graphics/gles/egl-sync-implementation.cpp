@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/egl-sync-implementation.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 // EXTERNAL INCLUDES
 
@@ -31,7 +31,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 #ifdef _ARCH_ARM_
 

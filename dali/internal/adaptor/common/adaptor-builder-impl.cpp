@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 

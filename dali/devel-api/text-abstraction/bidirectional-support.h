@@ -23,6 +23,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/actors/actor-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -81,11 +82,14 @@ public:
    *
    * @param[in] paragraph Pointer to the first character of the paragraph coded in UTF32.
    * @param[in] numberOfCharacters The number of characters of the paragraph.
-   *
+   * @param[in] matchSystemLanguageDirection Whether match for system language direction or not.
+   * @param[in] layoutDirection The direction of the system language.
    * @return An index of an object inside a table storing the bidirectional data.
    */
   BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters );
+                            Length numberOfCharacters,
+                            bool matchSystemLanguageDirection,
+                            LayoutDirection::Type layoutDirection );
 
   /**
    * @brief Destroys the bidirectional data.
