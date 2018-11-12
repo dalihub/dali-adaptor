@@ -31,7 +31,7 @@ namespace Integration
 {
 namespace Graphics
 {
-class Graphics;
+class GraphicsInterface;
 } // Graphics
 } // Integration;
 
@@ -55,7 +55,7 @@ public:
   /**
    * Constructor
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, Integration::Graphics::Graphics& graphics, const EnvironmentOptions& environmentOptions );
+  ThreadController( AdaptorInternalServices& adaptorInterfaces, Integration::Graphics::GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.

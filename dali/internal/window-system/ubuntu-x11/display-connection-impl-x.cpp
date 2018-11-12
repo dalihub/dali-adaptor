@@ -85,16 +85,6 @@ void DisplayConnectionX11::ConsumeEvents()
 
 bool DisplayConnectionX11::InitializeGraphics()
 {
-#if 0
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
-  if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-#endif
   return true;
 }
 

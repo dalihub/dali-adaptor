@@ -32,8 +32,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/trigger-event.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
@@ -130,7 +128,7 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics, DisplayConnection& displayConnection )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::InitializeGraphics() not implemented!" );
@@ -175,6 +173,7 @@ bool NativeRenderSurfaceEcoreWl::PreRender( bool )
 
 void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
+#if 0
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
@@ -219,6 +218,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
 
   // release the consumed surface after post render was completed
   ReleaseDrawable();
+#endif
 }
 
 void NativeRenderSurfaceEcoreWl::StopRender()

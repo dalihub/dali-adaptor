@@ -41,16 +41,14 @@ class AdaptorBuilder
 public:
 
   /**
-   * Constructor
-   */
-  AdaptorBuilder(EnvironmentOptions& environmentOptions);
-
-
-  /**
    * Destructor
    */
   ~AdaptorBuilder() {};
 
+  /**
+   * Singleton getter
+   */
+  static AdaptorBuilder& Get(EnvironmentOptions& environmentOptions);
 
 public:
 
@@ -61,7 +59,13 @@ public:
 
 
 private:
-  // Eliminate copy and assigned operations
+
+  /**
+   * Constructor
+   */
+  AdaptorBuilder(EnvironmentOptions& environmentOptions);
+
+// Eliminate copy and assigned operations
   AdaptorBuilder(const AdaptorBuilder&) = delete;
   AdaptorBuilder& operator=(AdaptorBuilder&) = delete;
 

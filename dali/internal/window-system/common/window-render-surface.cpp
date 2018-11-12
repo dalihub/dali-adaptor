@@ -185,8 +185,10 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
 
 void WindowRenderSurface::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphicsInterface )
 {
-  mGraphics = &graphicsInterface;
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
+
+  mGraphics = &graphicsInterface;
+  CreateSurface();
 }
 
 void WindowRenderSurface::CreateSurface()

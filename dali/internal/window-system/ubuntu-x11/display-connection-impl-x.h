@@ -66,27 +66,27 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
+  void ConsumeEvents() override;
 
   /**
    * @copydoc Dali::DisplayConnection::InitializeGraphics
    */
-  bool InitializeGraphics();
+  bool InitializeGraphics() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
    */
-  void SetSurfaceType( RenderSurface::Type type );
+  void SetSurfaceType( RenderSurface::Type type ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
    */
-  void SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics );
+  void SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics ) override;
 
 public:
 

@@ -173,7 +173,7 @@ void Application::CreateAdaptor()
 
 void Application::CreateAdaptorBuilder()
 {
-  mAdaptorBuilder = new AdaptorBuilder(mEnvironmentOptions);
+  mAdaptorBuilder = &AdaptorBuilder::Get( mEnvironmentOptions );
 }
 
 void Application::MainLoop(Dali::Configuration::ContextLoss configuration)

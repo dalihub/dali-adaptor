@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/native-render-surface.h>
-#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 
 namespace Dali
 {
@@ -160,18 +160,17 @@ private:
 
 private: // Data
 
-  PositionSize                           mPosition;
-  TriggerEventInterface*                 mRenderNotification;
-  Integration::Graphics::GraphicsInterface*  mGraphics               ///< The graphics interface
-  ColorDepth                             mColorDepth;
-  tbm_format                             mTbmFormat;
-  bool                                   mOwnSurface;
-  bool                                   mDrawableCompleted;
-
-  tbm_surface_queue_h                    mTbmQueue;
-  tbm_surface_h                          mConsumeSurface;
-  ThreadSynchronizationInterface*        mThreadSynchronization;     ///< A pointer to the thread-synchronization
-  ConditionalWait                        mTbmSurfaceCondition;
+  PositionSize                              mPosition;
+  TriggerEventInterface*                    mRenderNotification;
+  Integration::Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
+  ColorDepth                                mColorDepth;
+  tbm_format                                mTbmFormat;
+  bool                                      mOwnSurface;
+  bool                                      mDrawableCompleted;
+  tbm_surface_queue_h                       mTbmQueue;
+  tbm_surface_h                             mConsumeSurface;
+  ThreadSynchronizationInterface*           mThreadSynchronization; ///< A pointer to the thread-synchronization
+  ConditionalWait                           mTbmSurfaceCondition;
 
 };
 

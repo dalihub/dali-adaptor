@@ -36,8 +36,8 @@ namespace Internal
 namespace Adaptor
 {
 
-class EglGraphics;
-class EglImageExtensions;
+//class EglGraphics;
+//class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -166,9 +166,9 @@ private:
   unsigned int                     mHeight;               ///< image height
   tbm_surface_queue_h              mTbmQueue;             ///< Tbm surface queue handle
   tbm_surface_h                    mConsumeSurface;       ///< The current tbm surface
-  std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector
-  EglGraphics*                     mEglGraphics;          ///< EGL Graphics
-  EglImageExtensions*              mEglImageExtensions;   ///< The EGL Image Extensions
+//  std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector
+//  EglGraphics*                     mEglGraphics;          ///< EGL Graphics
+//  EglImageExtensions*              mEglImageExtensions;   ///< The EGL Image Extensions
   bool                             mOwnTbmQueue;          ///< Whether we created tbm queue
   bool                             mBlendingRequired;     ///< Whether blending is required
 };
