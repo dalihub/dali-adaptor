@@ -1007,31 +1007,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   gThreadLocalAdaptor = this;
 }
 
-// Stereoscopy
-
-void Adaptor::SetViewMode( ViewMode viewMode )
-{
-  WindowPane defaultWindow = mWindowFrame.front();
-  defaultWindow.surface->SetViewMode( viewMode );
-
-  mCore->SetViewMode( viewMode );
-}
-
-ViewMode Adaptor::GetViewMode() const
-{
-  return mCore->GetViewMode();
-}
-
-void Adaptor::SetStereoBase( float stereoBase )
-{
-  mCore->SetStereoBase( stereoBase );
-}
-
-float Adaptor::GetStereoBase() const
-{
-  return mCore->GetStereoBase();
-}
-
 void Adaptor::SetRootLayoutDirection( std::string locale )
 {
   Dali::Stage stage = Dali::Stage::GetCurrent();

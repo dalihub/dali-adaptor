@@ -2148,10 +2148,6 @@ void WindowBaseEcoreWl2::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiV
   dpiVertical   = int( yres + 0.5f );
 }
 
-void WindowBaseEcoreWl2::SetViewMode( ViewMode viewMode )
-{
-}
-
 int WindowBaseEcoreWl2::GetScreenRotationAngle()
 {
   int transform = 0;
