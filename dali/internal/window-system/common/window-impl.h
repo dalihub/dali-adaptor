@@ -300,6 +300,11 @@ public:
   Dali::Window::WindowPosition GetPosition() const;
 
   /**
+   * @copydoc Dali::DevelWindow::SetPositionSize()
+   */
+  void SetPositionSize( PositionSize positionSize );
+
+  /**
    * @copydoc Dali::Window::SetTransparency()
    */
   void SetTransparency( bool transparent );
