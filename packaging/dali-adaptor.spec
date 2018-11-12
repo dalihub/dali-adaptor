@@ -98,6 +98,7 @@ BuildRequires:  wayland-extension-client-devel
 # dali-adaptor uses ecore mainloop
 %if 0%{?tizen_version_major} >= 5
 BuildRequires:  pkgconfig(ecore-wl2)
+BuildRequires:  pkgconfig(wayland-egl-tizen)
 %else
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif

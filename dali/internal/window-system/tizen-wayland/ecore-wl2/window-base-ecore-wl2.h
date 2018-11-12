@@ -495,6 +495,9 @@ private:
 
   bool                                 mOwnSurface;
 
+  volatile uint32_t                    mMoveResizeSerial;
+  uint32_t                             mLastSubmittedMoveResizeSerial;
+
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection*                   mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
