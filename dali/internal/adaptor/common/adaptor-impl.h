@@ -657,8 +657,7 @@ private: // Data
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
-  //GraphicsInterface*                  mGraphics;                    ///< Graphics interface
-  std::unique_ptr<Dali::Integration::Graphics::Graphics> mGraphics;   ///< @todo move ownership to GraphicsFactory?
+  Integration::Graphics::GraphicsInterface* mGraphics;                ///< @todo move ownership to GraphicsFactory?
 
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowFrames                          mWindowFrame;                 ///< A container of all the Windows that are currently created

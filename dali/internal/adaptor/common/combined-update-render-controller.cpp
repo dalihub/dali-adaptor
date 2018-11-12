@@ -86,7 +86,7 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                                                Integration::Graphics::Graphics& graphics,
+                                                                Integration::Graphics::GraphicsInterface& graphics,
                                                                 const EnvironmentOptions& environmentOptions )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),

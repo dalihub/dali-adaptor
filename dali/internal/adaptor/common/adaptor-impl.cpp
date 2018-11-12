@@ -29,6 +29,7 @@
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/graphics/graphics-interface.h>
 #include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
@@ -88,11 +89,10 @@ Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Con
   Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions );
   adaptor->mImpl = impl;
 
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder( *environmentOptions );
-  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  AdaptorBuilder& adaptorBuilder( AdaptorBuilder::Get( *environmentOptions ) );
+  auto graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
   impl->Initialize( graphicsFactory, configuration );
-  delete mAdaptorBuilder; // Not needed anymore as the graphics interface has now been created
 
   return adaptor;
 }
@@ -164,7 +164,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
 
-  mGraphics = std::move(graphicsFactory.Create(size));
+  mGraphics = &graphicsFactory.Create(size);
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,

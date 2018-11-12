@@ -2,7 +2,7 @@
 #define __DALI_INTEGRATION_THREAD_SYNCHRONIZATION_INTERFACE_H__
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ namespace Dali
 {
 
 /**
- * @brief Interface for the ThreadSyncrhonization handler.
+ * @brief Interface for the ThreadSynchronization handler.
  *
  * This handler ensure the threads are synchronized properly.
  */

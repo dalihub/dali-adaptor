@@ -361,7 +361,7 @@ fi
 
 # vulkan support, includes xlib platform dependency
 if test "x$enable_vulkan" != "xno"; then
-    PKG_CHECK_MODULES(VULKAN, vulkan, AC_DEFINE(ENABLE_VULKAN, 1, [Vulkan available as package]),
+    PKG_CHECK_MODULES(VULKAN, vulkan, AC_DEFINE(VULKAN_ENABLED, 1, [Vulkan available as package]),
                   [ AC_MSG_ERROR([Vulkan not available as a package]) ]
                   )
 

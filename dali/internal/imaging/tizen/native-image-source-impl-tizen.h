@@ -36,8 +36,8 @@ namespace Internal
 namespace Adaptor
 {
 
-class EglGraphics;
-class EglImageExtensions;
+//class EglGraphics;
+//class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -186,10 +186,10 @@ private:
   tbm_format mTbmFormat;
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
-  void* mEglImageKHR;                         ///< From EGL extension
-  EglGraphics* mEglGraphics;                  ///< EGL Graphics
-  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
-  bool mSetSource;
+//  void* mEglImageKHR;                         ///< From EGL extension
+//  EglGraphics* mEglGraphics;                  ///< EGL Graphics
+//  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
+//  bool mSetSource;
 };
 
 } // namespace Adaptor

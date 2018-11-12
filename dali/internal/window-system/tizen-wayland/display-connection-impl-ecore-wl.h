@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/object/any.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
 namespace Dali
@@ -56,29 +57,29 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
+  void ConsumeEvents() override;
 
   /**
    * @copydoc Dali::DisplayConnection::InitializeGraphics
    */
-  bool InitializeGraphics();
+  bool InitializeGraphics() override;
 
   /**
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType( RenderSurface::Type type );
+  void SetSurfaceType( RenderSurface::Type type ) override;
 
   /**
    * @brief Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  void SetGraphicsInterface( GraphicsInterface& graphics );
+  void SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics ) override;
 
 public:
 
@@ -92,7 +93,7 @@ protected:
   /**
    * @brief Gets display connection for native surface
    */
-  EGLNativeDisplayType GetNativeDisplay();
+  Any GetNativeDisplay();
 
   /**
    * @brief Release display connection for native surface
@@ -106,9 +107,9 @@ protected:
   DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs);
 
 private:
-  EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
+  Any mDisplay;        ///< Wayland-display for rendering
   RenderSurface::Type mSurfaceType;     ///< The surface type
-  GraphicsInterface* mGraphics;         ///< The graphics interface
+  Integration::Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
 };
 
 } // namespace Adaptor

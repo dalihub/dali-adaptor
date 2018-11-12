@@ -43,7 +43,7 @@ namespace Integration
 {
 namespace Graphics
 {
-class Graphics;
+class GraphicsInterface;
 } // Graphics
 } // Integration
 
@@ -92,7 +92,7 @@ public:
    * @param[in] environmentOptions Settings from environment/command line/registries.
    */
   CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                  Integration::Graphics::Graphics& graphics,
+                                  Integration::Graphics::GraphicsInterface& graphics,
                                   const EnvironmentOptions& environmentOptions );
 
   /**
@@ -321,7 +321,7 @@ private:
   AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
   PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
   Integration::Core&                mCore;                             ///< Dali core reference
-  Integration::Graphics::Graphics&  mGraphics;                         ///< Graphics object
+  Integration::Graphics::GraphicsInterface& mGraphics;                 ///< Graphics object
   const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
   TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
   TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates

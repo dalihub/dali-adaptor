@@ -37,6 +37,17 @@ namespace Internal
 namespace Adaptor
 {
 
+AdaptorBuilder* gAdaptorBuilder=nullptr;
+
+AdaptorBuilder& AdaptorBuilder::Get(EnvironmentOptions& environmentOptions)
+{
+  if( gAdaptorBuilder == nullptr )
+  {
+    gAdaptorBuilder = new AdaptorBuilder( environmentOptions );
+  }
+  return *gAdaptorBuilder;
+}
+
 AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions( environmentOptions )
 {

@@ -23,8 +23,8 @@
 #include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+//#include <dali/internal/graphics/common/egl-image-extensions.h>
+//#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
@@ -40,8 +40,8 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE  3
 
-const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
-const char* SAMPLER_TYPE = "samplerExternalOES";
+//const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
+//const char* SAMPLER_TYPE = "samplerExternalOES";
 
 int FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
@@ -77,14 +77,14 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( unsigned int width, un
   mHeight( height ),
   mTbmQueue( NULL ),
   mConsumeSurface( NULL ),
-  mEglImages(),
-  mEglGraphics( NULL ),
-  mEglImageExtensions( NULL ),
+//  mEglImages(),
+//  mEglGraphics( NULL ),
+//  mEglImageExtensions( NULL ),
   mOwnTbmQueue( false ),
   mBlendingRequired( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-
+#if 0
   GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
   mEglGraphics = static_cast<EglGraphics *>(graphics);
 
@@ -96,6 +96,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( unsigned int width, un
     mWidth = tbm_surface_queue_get_width( mTbmQueue );
     mHeight = tbm_surface_queue_get_height( mTbmQueue );
   }
+#endif
 }
 
 NativeImageSourceQueueTizen::~NativeImageSourceQueueTizen()
@@ -183,14 +184,15 @@ void NativeImageSourceQueueTizen::SetSource( Any source )
 
 bool NativeImageSourceQueueTizen::GlExtensionCreate()
 {
-  mEglImageExtensions = mEglGraphics->GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  //mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  //DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   return true;
 }
 
 void NativeImageSourceQueueTizen::GlExtensionDestroy()
 {
+#if 0
   for( auto&& iter : mEglImages )
   {
     mEglImageExtensions->DestroyImageKHR( iter.second );
@@ -198,6 +200,7 @@ void NativeImageSourceQueueTizen::GlExtensionDestroy()
     tbm_surface_internal_unref( iter.first );
   }
   mEglImages.clear();
+#endif
 }
 
 unsigned int NativeImageSourceQueueTizen::TargetTexture()
@@ -224,7 +227,7 @@ void NativeImageSourceQueueTizen::PrepareTexture()
         tbm_surface_queue_release( mTbmQueue, oldSurface );
       }
     }
-
+#if 0
     if( mConsumeSurface )
     {
       bool existing = false;
@@ -250,17 +253,20 @@ void NativeImageSourceQueueTizen::PrepareTexture()
         mEglImages.push_back( EglImagePair( mConsumeSurface, eglImageKHR) );
       }
     }
+#endif
   }
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomFragmentPreFix()
 {
-  return FRAGMENT_PREFIX;
+  //return FRAGMENT_PREFIX;
+  return nullptr;
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename()
 {
-  return SAMPLER_TYPE;
+  //return SAMPLER_TYPE;
+  return nullptr;
 }
 
 int NativeImageSourceQueueTizen::GetEglImageTextureTarget()

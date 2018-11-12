@@ -17,7 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+//#include <dali/internal/graphics/gles20/egl-graphics.h>
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
@@ -45,7 +45,7 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 }
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
-: mDisplay( NULL ),
+: mDisplay(),
   mSurfaceType( RenderSurface::WINDOW_RENDER_SURFACE ),
   mGraphics( nullptr )
 {
@@ -70,15 +70,6 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 
 bool DisplayConnectionEcoreWl::InitializeGraphics()
 {
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
-  if( !eglImpl.InitializeGles( mDisplay ) )
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
   return true;
 }
 
@@ -94,26 +85,25 @@ void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
   {
 #ifdef ECORE_WAYLAND2
     Ecore_Wl2_Display* display = ecore_wl2_connected_display_get( NULL );
-    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl2_display_get( display ) );
+    mDisplay = Any( ecore_wl2_display_get( display ) );
 #else
-    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
+    mDisplay = Any( ecore_wl_display_get() );
 #endif
   }
 }
 
-void DisplayConnectionEcoreWl::SetGraphicsInterface( GraphicsInterface& graphics )
+void DisplayConnectionEcoreWl::SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics )
 {
   mGraphics = &graphics;
 }
 
-EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
+Any DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  return EGLNativeDisplayType();
+  return Any();
 }
 
 void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
 {
-
 }
 
 } // namespace Adaptor

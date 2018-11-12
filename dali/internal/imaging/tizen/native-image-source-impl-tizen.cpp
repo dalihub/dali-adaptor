@@ -24,8 +24,8 @@
 #include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+//#include <dali/internal/graphics/common/egl-image-extensions.h>
+//#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/render-surface.h>
 
@@ -84,14 +84,14 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
   mTbmSurface( NULL ),
   mTbmFormat( 0 ),
   mBlendingRequired( false ),
-  mColorDepth( depth ),
-  mEglImageKHR( NULL ),
-  mEglGraphics( NULL ),
-  mEglImageExtensions( NULL ),
-  mSetSource( false )
+  mColorDepth( depth )
+  //mEglImageKHR( NULL ),
+  //mEglGraphics( NULL ),
+  //mEglImageExtensions( NULL ),
+  //mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-
+#if 0
   GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
   mEglGraphics = static_cast<EglGraphics *>(graphics);
 
@@ -104,6 +104,7 @@ NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
   }
+#endif
 }
 
 void NativeImageSourceTizen::Initialize()
@@ -337,7 +338,7 @@ void NativeImageSourceTizen::SetSource( Any source )
 
   if( mTbmSurface != NULL )
   {
-    mSetSource = true;
+    //mSetSource = true;
     tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
@@ -398,6 +399,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
 
 bool NativeImageSourceTizen::GlExtensionCreate()
 {
+#if 0
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
@@ -410,29 +412,32 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   DALI_ASSERT_DEBUG( mEglImageExtensions );
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
-
-  return mEglImageKHR != NULL;
+#endif
+  return false;// mEglImageKHR != NULL;
 }
 
 void NativeImageSourceTizen::GlExtensionDestroy()
 {
+#if 0
   if( mEglImageKHR )
   {
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
     mEglImageKHR = NULL;
   }
+#endif
 }
 
 unsigned int NativeImageSourceTizen::TargetTexture()
 {
-  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
+  //mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
 
 void NativeImageSourceTizen::PrepareTexture()
 {
+#if 0
   if( mSetSource )
   {
     void* eglImage = mEglImageKHR;
@@ -446,6 +451,7 @@ void NativeImageSourceTizen::PrepareTexture()
 
     mSetSource = false;
   }
+#endif
 }
 
 const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
