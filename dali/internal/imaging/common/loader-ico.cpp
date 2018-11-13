@@ -58,6 +58,10 @@
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
+#include <dali/internal/system/common/file-closer.h>
+
+using namespace Dali::Internal::Platform;
+
 namespace Dali
 {
 
@@ -174,13 +178,13 @@ bool LoadIcoHeaderHelper( FILE* fp,
   unsigned short word;
   unsigned char byte;
 
-  if( fseek(fp,0,SEEK_END) )
+  if( InternalFile::fseek(fp,0,SEEK_END) )
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
   }
 
-  long positionIndicator = ftell(fp);
+  long positionIndicator = InternalFile::ftell(fp);
   fsize = 0u;
 
   if( positionIndicator > -1L )
@@ -193,7 +197,7 @@ bool LoadIcoHeaderHelper( FILE* fp,
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if( InternalFile::fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
@@ -205,7 +209,7 @@ bool LoadIcoHeaderHelper( FILE* fp,
   }
   map.Resize(fsize);
 
-  if(fread(&map[0], 1, fsize, fp) != fsize)
+  if(InternalFile::fread(&map[0], 1, fsize, fp) != fsize)
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
