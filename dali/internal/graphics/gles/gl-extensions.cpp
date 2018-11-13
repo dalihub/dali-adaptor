@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/gl-extensions.h>
+#include <dali/internal/graphics/gles/gl-extensions.h>
 
 // EXTERNAL INCLUDES
 #include <EGL/egl.h>

@@ -187,9 +187,16 @@ private:
    */
   bool Initialize();
 
+  /**
+   * @brief Initializes library handle by loading web engine plugin.
+   *
+   * @return Whether the initialization succeed or not.
+   */
+  bool InitializePluginHandle();
+
 private:
 
-  Dali::WebEnginePlugin* mPlugin; ///< WebEngine plugin handle
+  Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
   void* mHandle; ///< Handle for the loaded library
 
   typedef Dali::WebEnginePlugin* (*CreateWebEngineFunction)();

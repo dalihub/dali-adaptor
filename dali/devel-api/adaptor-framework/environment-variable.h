@@ -34,6 +34,15 @@ namespace EnvironmentVariable
  */
 DALI_ADAPTOR_API const char * GetEnvironmentVariable( const char * variable );
 
+/**
+ * @brief Create or overwrite (when it does not exist) an environment variable.
+ *
+ * @param[in] variable Null-terminated character string identifying the name of the environmental variable.
+ * @param[in] value Null-terminated character string to set as a value.
+ * @return True on success, false on error.
+ */
+DALI_ADAPTOR_API bool SetEnvironmentVariable( const char * variable, const char * value );
+
 } // namespace EnvironmentVariable
 
 } // namespace Dali

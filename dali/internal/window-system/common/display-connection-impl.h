@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 
 namespace Dali

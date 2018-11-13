@@ -31,6 +31,11 @@ const char * GetEnvironmentVariable( const char * variable )
   return std::getenv( variable );
 }
 
+bool SetEnvironmentVariable( const char * variable, const char * value )
+{
+  return setenv( variable, value, 1 ) == 0;
+}
+
 } // namespace EnvironmentVariable
 
 } // namespace Dali
