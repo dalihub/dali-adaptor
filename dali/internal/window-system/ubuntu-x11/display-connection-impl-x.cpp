@@ -24,7 +24,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali
 {

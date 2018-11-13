@@ -37,8 +37,8 @@
 #include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 
-#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h> // Temporary until Core is abstracted
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles/egl-graphics.h> // Temporary until Core is abstracted
 
 #include <dali/devel-api/text-abstraction/font-client.h>
 
@@ -47,9 +47,9 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/input/common/gesture-manager.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/graphics/gles20/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles20/gl-implementation.h>
-#include <dali/internal/graphics/gles20/egl-sync-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>

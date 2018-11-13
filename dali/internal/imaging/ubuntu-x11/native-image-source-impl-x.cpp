@@ -26,7 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/integration-api/render-surface.h>

@@ -17,8 +17,8 @@
 
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 // INTERNAL INCLUDES
 

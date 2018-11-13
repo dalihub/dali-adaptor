@@ -25,12 +25,12 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-factory-interface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
-#include <dali/internal/graphics/gles20/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 
 namespace Dali
