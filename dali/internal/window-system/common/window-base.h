@@ -327,12 +327,6 @@ public:
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
 
   /**
-   * @brief Set the stereoscopic 3D view mode
-   * @param[in] viewMode The new view mode
-   */
-  virtual void SetViewMode( ViewMode viewMode ) = 0;
-
-  /**
    * @brief Get the screen rotation angle of the window
    */
   virtual int GetScreenRotationAngle() = 0;

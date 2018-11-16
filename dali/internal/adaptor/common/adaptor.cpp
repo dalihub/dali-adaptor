@@ -183,16 +183,6 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
-void Adaptor::SetViewMode( ViewMode mode )
-{
-  mImpl->SetViewMode( mode );
-}
-
-void Adaptor::SetStereoBase(  float stereoBase )
-{
-  mImpl->SetStereoBase( stereoBase );
-}
-
 void Adaptor::RenderOnce()
 {
   mImpl->RenderOnce();
