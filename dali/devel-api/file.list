@@ -29,7 +29,8 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/video-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/web-engine.cpp
+  $(adaptor_devel_api_dir)/adaptor-framework/web-engine.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.cpp
 
 
 
@@ -74,7 +75,8 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.h
+  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.h
 
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \

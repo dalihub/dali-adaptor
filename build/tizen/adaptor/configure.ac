@@ -306,7 +306,7 @@ fi
 if test "x$enable_wayland" = "xyes"; then
 
 if test "x$enable_ecore_wayland2" = "xyes"; then
-PKG_CHECK_MODULES(WAYLAND, [ecore-wl2 egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm])
+PKG_CHECK_MODULES(WAYLAND, [ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client >= 1.2.0 xkbcommon libtbm])
 else
 PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm])
 fi
