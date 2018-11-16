@@ -515,13 +515,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     // Check resize
-    bool surfaceResized = ShouldSurfaceBeResized();
-    if( DALI_UNLIKELY( surfaceResized ) )
+    bool surfaceResized = false;
+    bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
+    if( DALI_UNLIKELY( shouldSurfaceBeResized ) )
     {
       if( updateStatus.SurfaceRectChanged() )
       {
         LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
         SurfaceResized();
+        surfaceResized = true;
       }
     }
 
@@ -547,7 +549,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
     if( currentSurface )
     {
-      currentSurface->PreRender( mSurfaceResized );
+      currentSurface->PreRender( surfaceResized );
     }
 
     Integration::RenderStatus renderStatus;
@@ -562,7 +564,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     {
       if( currentSurface )
       {
-        currentSurface->PostRender( isRenderingToFbo, ( mNewSurface != NULL ), mSurfaceResized );
+        currentSurface->PostRender( isRenderingToFbo, ( mNewSurface != NULL ), surfaceResized );
       }
     }
 
