@@ -473,6 +473,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // If the new surface has a different display connection, then the context will be lost
 
       mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      newSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface(), mAdaptorInterfaces.GetDisplayConnectionInterface() );
       newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
