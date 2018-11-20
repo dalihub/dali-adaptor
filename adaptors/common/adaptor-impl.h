@@ -341,12 +341,7 @@ public:
   /**
    * Informs core the surface size and orientation has changed
    */
-  void SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation );
-
-  /**
-   * Informs core the surface size has changed
-   */
-  void SurfaceResizePrepare( SurfaceSize surfaceSize );
+  void SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation, bool forceUpdate );
 
   /**
    * Informs ThreadController the surface size has changed

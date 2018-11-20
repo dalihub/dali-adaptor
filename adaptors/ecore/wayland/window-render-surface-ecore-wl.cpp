@@ -128,7 +128,7 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
 }
 
-int WindowRenderSurface::OutputTransformed()
+void WindowRenderSurface::OutputTransformed()
 {
   int transform;
 
@@ -138,14 +138,25 @@ int WindowRenderSurface::OutputTransformed()
     mScreenRotationAngle = transform * 90;
     mScreenRotationFinished = false;
     mResizeFinished = false;
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: called!\n" );
   }
+
   DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
-  return  (mRotationAngle + mScreenRotationAngle) % 360;
 }
 
 void WindowRenderSurface::SetTransparency( bool transparent )
 {
   ecore_wl_window_alpha_set( mWlWindow, transparent );
+}
+
+int WindowRenderSurface::GetOrientation() const
+{
+  return (mRotationAngle + mScreenRotationAngle) % 360;
+}
+
+bool WindowRenderSurface::IsPreRotationSupported() const
+{
+  return mRotationSupported;
 }
 
 void WindowRenderSurface::InitializeEgl( EglInterface& eglIf )
@@ -460,6 +471,8 @@ void WindowRenderSurface::CreateWlRenderable()
 
     mScreenRotationAngle = transform * 90;
     mScreenRotationFinished = false;
+
+    DALI_LOG_INFO( gRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateWlRenderable: screen rotation = %d\n", mScreenRotationAngle );
   }
 }
 

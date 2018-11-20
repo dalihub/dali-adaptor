@@ -109,6 +109,16 @@ PositionSize EcoreWlRenderSurface::GetPositionSize() const
   return mPositionSize;
 }
 
+int EcoreWlRenderSurface::GetOrientation() const
+{
+  return 0;
+}
+
+bool EcoreWlRenderSurface::IsPreRotationSupported() const
+{
+  return false;
+}
+
 void EcoreWlRenderSurface::MoveResize( Dali::PositionSize positionSize )
 {
   // nothing to do in base class

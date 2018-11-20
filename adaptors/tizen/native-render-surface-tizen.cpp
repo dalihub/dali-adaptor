@@ -223,6 +223,16 @@ PositionSize NativeRenderSurface::GetPositionSize() const
   return mImpl->mPosition;
 }
 
+int NativeRenderSurface::GetOrientation() const
+{
+  return 0;
+}
+
+bool NativeRenderSurface::IsPreRotationSupported() const
+{
+  return false;
+}
+
 void NativeRenderSurface::MoveResize( Dali::PositionSize positionSize )
 {
 }

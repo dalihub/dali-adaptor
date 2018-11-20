@@ -810,7 +810,7 @@ void Window::RotationDone( int orientation, int width, int height )
                                      ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
                                      ECORE_X_ATOM_CARDINAL, 32, &angles, 2 );
 
-    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ), 0, false );
 
     // Emit signal
     mResizedSignal.Emit( Dali::Window::WindowSize( width, height ) );
@@ -925,7 +925,7 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), 0, false );
 
     // Emit signal
     mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );

@@ -89,7 +89,7 @@ public: // API
   /**
    * Notify output is transformed.
    */
-  int OutputTransformed();
+  void OutputTransformed();
 
   /**
    * @brief Sets whether the surface is transparent or not.
@@ -99,6 +99,16 @@ public: // API
   void SetTransparency( bool transparent );
 
 public: // from Dali::RenderSurface
+
+  /**
+   * @copydoc Dali::RenderSurface::GetOrientation()
+   */
+  virtual int GetOrientation() const;
+
+  /**
+   * @copydoc Dali::RenderSurface::IsPreRotationSupported()
+   */
+  virtual bool IsPreRotationSupported() const;
 
   /**
    * @copydoc Dali::RenderSurface::InitializeEgl()

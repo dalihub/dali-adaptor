@@ -312,7 +312,15 @@ void Adaptor::Start()
 
   // Tell the core the size of the surface just before we start the render-thread
   PositionSize size = mSurface->GetPositionSize();
-  mCore->SurfaceResized( size.width, size.height );
+  int orientation = mSurface->GetOrientation();
+  bool forceUpdate = false;
+  if( mSurface->IsPreRotationSupported() )
+  {
+    orientation = 0;
+    forceUpdate = true;
+  }
+
+  mCore->SurfaceResized( size.width, size.height, orientation, forceUpdate );
 
   // Initialize the thread controller
   mThreadController->Initialize();
@@ -448,9 +456,17 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& surface )
 {
   PositionSize positionSize = surface.GetPositionSize();
+  int orientation = mSurface->GetOrientation();
+  bool forceUpdate = false;
+
+  if( mSurface->IsPreRotationSupported() )
+  {
+    orientation = 0;
+    forceUpdate = true;
+  }
 
   // let the core know the surface size has changed
-  mCore->SurfaceResized( positionSize.width, positionSize.height );
+  mCore->SurfaceResized( positionSize.width, positionSize.height, orientation, forceUpdate );
 
   mResizedSignal.Emit( mAdaptor );
 
@@ -777,18 +793,10 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate( false );
 }
 
-void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation )
+void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize, int orientation, bool forceUpdate )
 {
   // let the core know the surface size and orientation has changed
-  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight(), orientation );
-
-  mResizedSignal.Emit( mAdaptor );
-}
-
-void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
-{
-  // let the core know the surface size has changed
-  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
+  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight(), orientation, forceUpdate );
 
   mResizedSignal.Emit( mAdaptor );
 }

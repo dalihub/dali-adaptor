@@ -78,6 +78,16 @@ PositionSize RenderSurface::GetPositionSize() const
   return mWindow.mPosition;
 }
 
+int RenderSurface::GetOrientation() const
+{
+  return 0;
+}
+
+bool RenderSurface::IsPreRotationSupported() const
+{
+  return false;
+}
+
 void RenderSurface::InitializeEgl( EglInterface& egl )
 {
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( egl );

@@ -222,16 +222,27 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && transformEvent->output == ecore_wl_window_output_find( handler->mEcoreWindow ) )
     {
-      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform\n", handler->mEcoreWindow );
-
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        int orientation = wlSurface->OutputTransformed();
+        wlSurface->OutputTransformed();
+
+        bool forceUpdate = false;
+        int orientation = wlSurface->GetOrientation();
+
+        // If PreRotation is supported, don't work client rotation by core.
+        // Client rotation means both window resize and camera rotation.
+        if( wlSurface->IsPreRotationSupported() )
+        {
+          forceUpdate = true;
+          orientation = 0;
+        }
 
         PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation );
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
         handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
       }
     }
 
@@ -246,16 +257,27 @@ struct Window::EventHandler
 
     if ( handler && handler->mWindow && ignoreTransformEvent->win == handler->mEcoreWindow )
     {
-      DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform\n", handler->mEcoreWindow );
-
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        int orientation = wlSurface->OutputTransformed();
+        wlSurface->OutputTransformed();
+
+        bool forceUpdate = false;
+        int orientation = wlSurface->GetOrientation();
+
+        // If PreRotation is supported, don't work client rotation by core.
+        // Client rotation means both window resize and camera rotation.
+        if( wlSurface->IsPreRotationSupported() )
+        {
+          forceUpdate = true;
+          orientation = 0;
+        }
 
         PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation );
+        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
         handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
       }
     }
 
@@ -968,13 +990,25 @@ bool Window::IsVisible() const
 
 void Window::RotationDone( int orientation, int width, int height )
 {
+  bool forceUpdate = false;
   ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
   if( wlSurface )
   {
     wlSurface->RequestRotation( orientation, width, height );
+
+    // Update orientation
+    orientation = wlSurface->GetOrientation();
+
+    // If PreRotation is supported, don't work client rotation by core.
+    // Client rotation means both window resize and camera rotation.
+    if( wlSurface->IsPreRotationSupported() )
+    {
+      forceUpdate = true;
+      orientation = 0;
+    }
   }
 
-  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ), orientation, forceUpdate );
 
   // Emit signal
   mResizedSignal.Emit( Dali::Window::WindowSize( width, height ) );
@@ -1516,7 +1550,22 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
     mSurface->MoveResize( positionSize );
 
-    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    int orientation = 0;
+    bool forceUpdate = false;
+    ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( mSurface ) );
+    if( wlSurface )
+    {
+      orientation = wlSurface->GetOrientation();
+      // If PreRotation is supported, don't work client rotation by core.
+      // Client rotation means both window resize and camera rotation.
+      if( wlSurface->IsPreRotationSupported() )
+      {
+        forceUpdate = true;
+        orientation = 0;
+      }
+    }
+
+    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
 
     // Emit signal
     mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );

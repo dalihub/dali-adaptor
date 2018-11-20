@@ -88,6 +88,18 @@ public:
   virtual PositionSize GetPositionSize() const = 0;
 
   /**
+   * @brief Return the orientation of the surface.
+   * @return The orientation
+   */
+  virtual int GetOrientation() const = 0;
+
+  /**
+   * Query wheter PreRotation is supported or not.
+   * @return true if the PreRotation is supported.
+   */
+  virtual bool IsPreRotationSupported() const = 0;
+
+  /**
    * Initialize EGL, RenderSurface should create egl display and initialize
    * @param egl implementation to use for the creation
    */

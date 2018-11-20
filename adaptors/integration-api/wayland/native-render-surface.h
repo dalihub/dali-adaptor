@@ -93,6 +93,16 @@ public: // from Dali::RenderSurface
   virtual PositionSize GetPositionSize() const;
 
   /**
+   * @copydoc Dali::RenderSurface::GetOrientation()
+   */
+  virtual int GetOrientation() const;
+
+  /**
+   * @copydoc Dali::RenderSurface::IsPreRotationSupported()
+   */
+  virtual bool IsPreRotationSupported() const;
+
+  /**
    * @copydoc Dali::RenderSurface::InitializeEgl()
    */
   virtual void InitializeEgl( EglInterface& egl );
