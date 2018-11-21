@@ -54,6 +54,7 @@ Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize, bool isTransparent )
 : mPosition( positionSize ),
   mRenderNotification( NULL ),
+  mGraphics( NULL ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
   mOwnSurface( false ),
@@ -214,9 +215,12 @@ bool NativeRenderSurfaceEcoreWl::PreRender( bool )
 void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  if ( eglGraphics )
+  {
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-  eglImpl.SwapBuffers();
+    eglImpl.SwapBuffers();
+  }
 
   if( mThreadSynchronization )
   {
