@@ -500,9 +500,7 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
   newDefaultWindow.nativeWindow = nativeWindow;
   newDefaultWindow.surface = &newSurface;
 
-  // Must delete the old Window first before replacing it with the new one
   WindowPane oldDefaultWindow = mWindowFrame.front();
-  oldDefaultWindow.surface->DestroySurface();
 
   // Update WindowFrame
   std::vector<WindowPane>::iterator iter = mWindowFrame.begin();
@@ -514,6 +512,9 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
 
   // This method blocks until the render thread has completed the replace.
   mThreadController->ReplaceSurface( newDefaultWindow.surface );
+
+  // Must delete the old Window only after the render thread has completed the replace
+  oldDefaultWindow.surface->DestroySurface();
 }
 
 RenderSurface& Adaptor::GetSurface() const

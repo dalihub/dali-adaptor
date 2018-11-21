@@ -361,8 +361,11 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
   }
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  auto mGLES = eglGraphics->GetGlesInterface();
-  mGLES.PreRender();
+  if ( eglGraphics )
+  {
+    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+    mGLES.PreRender();
+  }
 
   return true;
 }
@@ -371,39 +374,42 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  auto mGLES = eglGraphics->GetGlesInterface();
-  mGLES.PostRender();
+  if ( eglGraphics )
+  {
+    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+    mGLES.PostRender();
 
-  if( renderToFbo )
-  {
-    mGLES.Flush();
-    mGLES.Finish();
-  }
-  else
-  {
-    if( resizingSurface )
+    if( renderToFbo )
     {
-      if( !mRotationFinished )
+      mGLES.Flush();
+      mGLES.Finish();
+    }
+    else
+    {
+      if( resizingSurface )
       {
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
-
-        mRotationTrigger->Trigger();
-
-        if( mThreadSynchronization )
+        if( !mRotationFinished )
         {
-          // Wait until the event-thread complete the rotation event processing
-          mThreadSynchronization->PostRenderWaitForCompletion();
+          DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+
+          mRotationTrigger->Trigger();
+
+          if( mThreadSynchronization )
+          {
+            // Wait until the event-thread complete the rotation event processing
+            mThreadSynchronization->PostRenderWaitForCompletion();
+          }
         }
       }
     }
-  }
 
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.SwapBuffers();
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    eglImpl.SwapBuffers();
 
-  if( mRenderNotification )
-  {
-    mRenderNotification->Trigger();
+    if( mRenderNotification )
+    {
+      mRenderNotification->Trigger();
+    }
   }
 }
 
