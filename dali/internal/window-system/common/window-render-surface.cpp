@@ -57,6 +57,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mThreadSynchronization( NULL ),
   mRenderNotification( NULL ),
   mRotationTrigger( NULL ),
+  mGraphics( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
   mRotationAngle( 0 ),

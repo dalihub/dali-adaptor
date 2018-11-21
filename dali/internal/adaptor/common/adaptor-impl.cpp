@@ -160,6 +160,9 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   mCallbackManager = CallbackManager::New();
 
   WindowPane defaultWindow = mWindowFrame.front();
+
+  DALI_ASSERT_DEBUG( defaultWindow.surface && "Surface not initialized" );
+
   PositionSize size = defaultWindow.surface->GetPositionSize();
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
@@ -192,14 +195,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mVSyncMonitor = new VSyncMonitor;
 
-  if( defaultWindow.surface )
-  {
-    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow.surface->GetSurfaceType() );
-  }
-  else
-  {
-    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics );
-  }
+  mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow.surface->GetSurfaceType() );
 
   mThreadController = new ThreadController( *this, *mEnvironmentOptions );
 
@@ -972,7 +968,9 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mCore( nullptr ),
   mThreadController( nullptr ),
   mVSyncMonitor( nullptr ),
+  mGraphics( nullptr ),
   mDisplayConnection( nullptr ),
+  mWindowFrame(),
   mPlatformAbstraction( nullptr ),
   mEventHandler( nullptr ),
   mCallbackManager( nullptr ),
