@@ -129,28 +129,19 @@ public:
   virtual void GoBack() = 0;
 
   /**
-    * @brief Evaluates JavaScript code represented as a string.
-    *
-    * @param[in] script The JavaScript code
-    */
+   * @brief Evaluates JavaScript code represented as a string.
+   *
+   * @param[in] script The JavaScript code
+   */
   virtual void EvaluateJavaScript( const std::string& script ) = 0;
 
   /**
-    * @brief Adds a JavaScript interface.
-    *
-    * @param[in] exposedObjectName The name of exposed object
-    * @param[in] jsFunctionName The name of JavaScript function
-    * @param[in] cb The callback function
-    */
-  virtual void AddJavaScriptInterface( const std::string& exposedObjectName, const std::string& jsFunctionName, std::function< std::string(const std::string&) > cb ) = 0;
-
-  /**
-    * @brief Removes a JavaScript interface.
-    *
-    * @param[in] exposedObjectName The name of exposed object
-    * @param[in] jsFunctionName The name of JavaScript function
-    */
-  virtual void RemoveJavascriptInterface( const std::string& exposedObjectName, const std::string& jsFunctionName ) = 0;
+   * @brief Add a message handler into JavaScript.
+   *
+   * @param[in] exposedObjectName The name of exposed object
+   * @param[in] handler The callback function
+   */
+  virtual void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void( const std::string& ) > handler ) = 0;
 
   /**
    * @brief Clears the history of Web.
