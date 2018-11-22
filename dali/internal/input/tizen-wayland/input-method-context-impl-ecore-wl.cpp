@@ -946,16 +946,13 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
   bool eventHandled( false );
   if ( mIMFContext )
   {
-    Integration::KeyEvent integKeyEvent( keyEvent );
-    std::string key = integKeyEvent.key;
-
     std::string compose = keyEvent.GetCompose();
     std::string deviceName = keyEvent.GetDeviceName();
 
     // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
     ecoreKeyDownEvent.keyname = keyEvent.keyPressedName.c_str();
-    ecoreKeyDownEvent.key = key.c_str();
+    ecoreKeyDownEvent.key = keyEvent.keyPressedName.c_str();
     ecoreKeyDownEvent.string = keyEvent.keyPressed.c_str();
     ecoreKeyDownEvent.compose = compose.c_str();
     ecoreKeyDownEvent.timestamp = keyEvent.time;
@@ -999,16 +996,13 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
   bool eventHandled( false );
   if( mIMFContext )
   {
-    Integration::KeyEvent integKeyEvent( keyEvent );
-    std::string key = integKeyEvent.key;
-
     std::string compose = keyEvent.GetCompose();
     std::string deviceName = keyEvent.GetDeviceName();
 
     // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
     ecoreKeyUpEvent.keyname = keyEvent.keyPressedName.c_str();
-    ecoreKeyUpEvent.key = key.c_str();
+    ecoreKeyUpEvent.key = keyEvent.keyPressedName.c_str();
     ecoreKeyUpEvent.string = keyEvent.keyPressed.c_str();
     ecoreKeyUpEvent.compose = compose.c_str();
     ecoreKeyUpEvent.timestamp = keyEvent.time;

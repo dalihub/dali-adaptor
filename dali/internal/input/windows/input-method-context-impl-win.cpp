@@ -734,11 +734,9 @@ bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )
 //  if ( mIMFContext )
 //  {
 //    // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
-//    Internal::KeyEventImpl& keyEventImpl = GetImplementation( keyEvent );
-//    std::string key = keyEventImpl.GetKey();
 //    Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
 //    ecoreKeyDownEvent.keyname = keyEvent.keyPressedName.c_str();
-//    ecoreKeyDownEvent.key = key.c_str();
+//    ecoreKeyDownEvent.key = keyEvent.keyPressedName.c_str();
 //    ecoreKeyDownEvent.string = keyEvent.keyPressed.c_str();
 //    ecoreKeyDownEvent.compose = keyEvent.GetCompose().c_str();
 //    ecoreKeyDownEvent.timestamp = keyEvent.time;
@@ -785,11 +783,9 @@ bool InputMethodContextWin::ProcessEventKeyUp( const KeyEvent& keyEvent )
 //  if( mIMFContext )
 //  {
 //    // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
-//    Internal::KeyEventImpl& keyEventImpl = GetImplementation( keyEvent );
-//    std::string key = keyEventImpl.GetKey();
 //    Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
 //    ecoreKeyUpEvent.keyname = keyEvent.keyPressedName.c_str();
-//    ecoreKeyUpEvent.key = key.c_str();
+//    ecoreKeyUpEvent.key = keyEvent.keyPressedName.c_str();
 //    ecoreKeyUpEvent.string = keyEvent.keyPressed.c_str();
 //    ecoreKeyUpEvent.compose = keyEvent.GetCompose().c_str();
 //    ecoreKeyUpEvent.timestamp = keyEvent.time;

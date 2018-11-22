@@ -511,7 +511,6 @@ void WindowBaseWin::OnKeyDown( void* data, int type, TWinEventInfo *event )
 
     int keyCode = event->wParam;
     std::string keyName( WindowsPlatformImplement::GetKeyName( keyCode ) );
-    std::string key( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -521,7 +520,7 @@ void WindowBaseWin::OnKeyDown( void* data, int type, TWinEventInfo *event )
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back( event->wParam );
 
-    Integration::KeyEvent keyEvent( keyName, key, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -535,7 +534,6 @@ void WindowBaseWin::OnKeyUp( void* data, int type, TWinEventInfo *event )
 
     int keyCode = event->wParam;
     std::string keyName( WindowsPlatformImplement::GetKeyName( keyCode ) );
-    std::string key( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -545,7 +543,7 @@ void WindowBaseWin::OnKeyUp( void* data, int type, TWinEventInfo *event )
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back( event->wParam );
 
-    Integration::KeyEvent keyEvent( keyName, key, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
