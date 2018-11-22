@@ -32,10 +32,10 @@ class NativeImageSourceFactoryTizen : public NativeImageSourceFactory
 {
 public:
 
-  std::unique_ptr< NativeImageSource > CreateNativeImageSource( unsigned int width, unsigned int height,
+  std::unique_ptr< NativeImageSource > CreateNativeImageSource( uint32_t width, uint32_t height,
                                                                 Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource ) override;
 
-  std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
+  std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( uint32_t width, uint32_t height,
                                                                           Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue ) override;
 
 };

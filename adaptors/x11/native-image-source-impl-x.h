@@ -51,8 +51,8 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceX* New(unsigned int width,
-                          unsigned int height,
+  static NativeImageSourceX* New( uint32_t width,
+                          uint32_t height,
                           Dali::NativeImageSource::ColorDepth depth,
                           Any nativeImageSource);
   /**
@@ -63,7 +63,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const override;
+  bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
@@ -98,7 +98,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -108,7 +108,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  unsigned int GetWidth() const override
+  uint32_t GetWidth() const override
   {
     return mWidth;
   }
@@ -116,7 +116,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  unsigned int GetHeight() const override
+  uint32_t GetHeight() const override
   {
     return mHeight;
   }
@@ -146,8 +146,8 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  NativeImageSourceX(unsigned int width,
-              unsigned  int height,
+  NativeImageSourceX( uint32_t width,
+              uint32_t height,
               Dali::NativeImageSource::ColorDepth depth,
               Any nativeImageSource);
 
@@ -178,8 +178,8 @@ private:
 
 private:
 
-  unsigned int mWidth;                        ///< image width
-  unsigned int mHeight;                       ///< image heights
+  uint32_t mWidth;                            ///< image width
+  uint32_t mHeight;                           ///< image heights
   bool mOwnPixmap;                            ///< Whether we created pixmap or not
   Ecore_X_Pixmap mPixmap;                     ///< From Xlib
   bool mBlendingRequired;                      ///< Whether blending is required

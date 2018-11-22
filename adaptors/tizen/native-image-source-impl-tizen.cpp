@@ -66,7 +66,7 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceTizen* NativeImageSourceTizen::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceTizen* NativeImageSourceTizen::New( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
   NativeImageSourceTizen* image = new NativeImageSourceTizen( width, height, depth, nativeImageSource );
   DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
@@ -79,7 +79,7 @@ NativeImageSourceTizen* NativeImageSourceTizen::New(unsigned int width, unsigned
   return image;
 }
 
-NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
   mOwnTbmSurface( false ),
@@ -436,7 +436,7 @@ void NativeImageSourceTizen::GlExtensionDestroy()
   }
 }
 
-unsigned int NativeImageSourceTizen::TargetTexture()
+uint32_t NativeImageSourceTizen::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
