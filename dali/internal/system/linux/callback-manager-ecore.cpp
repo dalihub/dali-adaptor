@@ -178,6 +178,11 @@ void EcoreCallbackManager::RemoveIdleCallback( CallbackBase* callback )
       CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
 
       ecore_idler_del( data->mIdler );
+
+      // delete our data
+      delete data;
+
+      return;
     }
   }
 }
@@ -219,6 +224,11 @@ void EcoreCallbackManager::RemoveIdleEntererCallback( CallbackBase* callback )
       CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
 
       ecore_idle_enterer_del( data->mIdleEnterer );
+
+      // delete our data
+      delete data;
+
+      return;
     }
   }
 }
