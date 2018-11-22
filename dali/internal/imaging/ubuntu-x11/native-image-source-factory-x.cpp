@@ -29,13 +29,13 @@ namespace Internal
 namespace Adaptor
 {
 
-std::unique_ptr< NativeImageSource > NativeImageSourceFactoryX::CreateNativeImageSource( unsigned int width, unsigned int height,
+std::unique_ptr< NativeImageSource > NativeImageSourceFactoryX::CreateNativeImageSource( uint32_t width, uint32_t height,
                                                                                          Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
   return std::unique_ptr< NativeImageSource >( NativeImageSourceX::New( width, height, depth, nativeImageSource ) );
 }
 
-std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryX::CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
+std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryX::CreateNativeImageSourceQueue( uint32_t width, uint32_t height,
                                                                                                    Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
 {
   return std::unique_ptr< NativeImageSourceQueue >( NativeImageSourceQueueX::New( width, height, depth, nativeImageSourceQueue ) );
