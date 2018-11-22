@@ -27,6 +27,10 @@
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
+#include <dali/internal/system/common/file-closer.h>
+
+using namespace Dali::Internal::Platform;
+
 namespace Dali
 {
 
@@ -108,12 +112,12 @@ bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   unsigned char *line = NULL;
   unsigned int cur = 0, x, y;
 
-  if( fseek(fp,0,SEEK_END) )
+  if( InternalFile::fseek(fp,0,SEEK_END) )
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
   }
-  long positionIndicator = ftell(fp);
+  long positionIndicator = InternalFile::ftell(fp);
 
   unsigned int fsize( 0u );
   if( positionIndicator > -1L )
@@ -127,7 +131,7 @@ bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if( InternalFile::fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
@@ -144,7 +148,7 @@ bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   }
   map.Resize(fsize);
 
-  if(fread(&map[0], 1, fsize, fp) != fsize)
+  if( InternalFile::fread(&map[0], 1, fsize, fp) != fsize)
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
@@ -224,12 +228,12 @@ bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
 
   unsigned int  w, h;
   unsigned int type;
-  if( fseek(fp,0,SEEK_END) )
+  if( InternalFile::fseek(fp,0,SEEK_END) )
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
   }
-  long positionIndicator = ftell(fp);
+  long positionIndicator = InternalFile::ftell(fp);
 
   unsigned int fsize( 0u );
   if( positionIndicator > -1L )
@@ -242,7 +246,7 @@ bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if( InternalFile::fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
@@ -258,7 +262,7 @@ bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
   headerSize = std::min(headerSize, fsize);
 
   map.Resize(headerSize);
-  if(fread(&map[0], 1, headerSize, fp) != headerSize)
+  if( InternalFile::fread(&map[0], 1, headerSize, fp) != headerSize)
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
