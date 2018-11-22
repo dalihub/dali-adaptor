@@ -515,6 +515,7 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
 
   // Must delete the old Window only after the render thread has completed the replace
   oldDefaultWindow.surface->DestroySurface();
+  oldDefaultWindow.surface = nullptr;
 }
 
 RenderSurface& Adaptor::GetSurface() const
