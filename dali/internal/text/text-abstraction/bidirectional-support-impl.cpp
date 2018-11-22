@@ -151,14 +151,6 @@ struct BidirectionalSupport::Plugin
     // Retrieve the type of each character..
     fribidi_get_bidi_types( paragraph, numberOfCharacters, bidirectionalInfo->characterTypes );
 
-    // The system language direction should be followed only if the character type is clearly RTL / LTR.
-    if( matchSystemLanguageDirection && *bidirectionalInfo->characterTypes != FRIBIDI_TYPE_LTR &&
-                                        *bidirectionalInfo->characterTypes != FRIBIDI_TYPE_RTL &&
-                                        *bidirectionalInfo->characterTypes != FRIBIDI_TYPE_WS )
-    {
-      matchSystemLanguageDirection = false;
-    }
-
     // Retrieve the paragraph's direction.
     bidirectionalInfo->paragraphDirection = matchSystemLanguageDirection == true ?
                                            ( layoutDirection == LayoutDirection::RIGHT_TO_LEFT ? FRIBIDI_PAR_RTL : FRIBIDI_PAR_LTR ) :
