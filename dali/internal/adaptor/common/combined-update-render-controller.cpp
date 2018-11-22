@@ -547,7 +547,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+    currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
     if( currentSurface )
     {
       currentSurface->PreRender( surfaceResized );
@@ -627,6 +627,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Inform core of context destruction & shutdown EGL
   mCore.ContextDestroyed();
+  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->DestroySurface();
