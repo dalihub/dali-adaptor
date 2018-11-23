@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.3.50
+Version:    1.3.51
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -98,6 +98,7 @@ BuildRequires:  wayland-extension-client-devel
 # dali-adaptor uses ecore mainloop
 %if 0%{?tizen_version_major} >= 5
 BuildRequires:  pkgconfig(ecore-wl2)
+BuildRequires:  pkgconfig(wayland-egl-tizen)
 %else
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif

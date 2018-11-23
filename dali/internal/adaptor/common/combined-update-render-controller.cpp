@@ -469,6 +469,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // If the new surface has a different display connection, then the context will be lost
 
       mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      newSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface(), mAdaptorInterfaces.GetDisplayConnectionInterface() );
       newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
@@ -546,7 +547,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+    currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
     if( currentSurface )
     {
       currentSurface->PreRender( surfaceResized );
@@ -626,6 +627,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Inform core of context destruction & shutdown EGL
   mCore.ContextDestroyed();
+  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->DestroySurface();

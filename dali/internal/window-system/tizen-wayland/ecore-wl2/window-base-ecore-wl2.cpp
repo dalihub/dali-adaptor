@@ -35,6 +35,7 @@
 #include <Ecore_Input.h>
 #include <vconf.h>
 #include <vconf-keys.h>
+#include <wayland-egl-tizen.h>
 
 namespace Dali
 {
@@ -606,7 +607,9 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2( Dali::PositionSize positionSize, Any sur
   mBrightness( 0 ),
   mBrightnessChangeState( 0 ),
   mBrightnessChangeDone( true ),
-  mOwnSurface( false )
+  mOwnSurface( false ),
+  mMoveResizeSerial( 0 ),
+  mLastSubmittedMoveResizeSerial( 0 )
 #ifdef DALI_ELDBUS_AVAILABLE
   , mSystemConnection( NULL )
 #endif
@@ -1332,6 +1335,13 @@ void WindowBaseEcoreWl2::SetEglWindowTransform( int angle )
 void WindowBaseEcoreWl2::ResizeEglWindow( PositionSize positionSize )
 {
   wl_egl_window_resize( mEglWindow, positionSize.width, positionSize.height, positionSize.x, positionSize.y );
+
+  // Note: Both "Resize" and "MoveResize" cases can reach here, but only "MoveResize" needs to submit serial number
+  if( mMoveResizeSerial != mLastSubmittedMoveResizeSerial )
+  {
+    wl_egl_window_tizen_set_window_serial( mEglWindow, mMoveResizeSerial );
+    mLastSubmittedMoveResizeSerial = mMoveResizeSerial;
+  }
 }
 
 bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
@@ -1358,8 +1368,7 @@ void WindowBaseEcoreWl2::Resize( PositionSize positionSize )
 
 void WindowBaseEcoreWl2::MoveResize( PositionSize positionSize )
 {
-  ecore_wl2_window_position_set( mEcoreWindow, positionSize.x, positionSize.y );
-  ecore_wl2_window_geometry_set( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
+  ecore_wl2_window_sync_geometry_set( mEcoreWindow, ++mMoveResizeSerial, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
 void WindowBaseEcoreWl2::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
@@ -2146,10 +2155,6 @@ void WindowBaseEcoreWl2::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiV
 
   dpiHorizontal = int( xres + 0.5f );  // rounding
   dpiVertical   = int( yres + 0.5f );
-}
-
-void WindowBaseEcoreWl2::SetViewMode( ViewMode viewMode )
-{
 }
 
 int WindowBaseEcoreWl2::GetScreenRotationAngle()

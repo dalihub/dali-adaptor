@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,13 +55,18 @@ static const int INITIAL_CONSUME_BUFFER_INDEX = 1;
 }
 
 PixmapRenderSurfaceEcoreX::PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent )
-: mPosition( positionSize ),
+: mGraphics( nullptr ),
+  mDisplayConnection( nullptr ),
+  mPosition( positionSize ),
   mRenderNotification( NULL ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOwnSurface( false ),
   mProduceBufferIndex( INITIAL_PRODUCE_BUFFER_INDEX ),
   mConsumeBufferIndex( INITIAL_CONSUME_BUFFER_INDEX ),
-  mThreadSynchronization(NULL)
+  mX11Pixmaps(),
+  mEglSurfaces(),
+  mThreadSynchronization( nullptr ),
+  mPixmapCondition()
 {
   for( int i = 0; i != BUFFER_COUNT; ++i )
   {
