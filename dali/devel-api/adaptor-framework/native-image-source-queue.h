@@ -51,8 +51,10 @@ typedef Dali::IntrusivePtr< Dali::NativeImageSourceQueue > NativeImageSourceQueu
 /**
  * @brief Used for displaying native images.
  *
- * NativeImageSource can be created internally or externally by native image source.
  * NativeImage is a platform specific way of providing pixel data to the GPU for rendering,for example via an EGL image.
+ * NativeImageSourceQueue can be created internally or externally by native image source.
+ * It has a queue which handles some image buffers.
+ * Someone should fill the buffers and enqueue them, then DALi will show them.
  */
 class DALI_ADAPTOR_API NativeImageSourceQueue : public NativeImageInterface
 {
