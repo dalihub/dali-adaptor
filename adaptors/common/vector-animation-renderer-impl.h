@@ -57,6 +57,11 @@ public:
   void Initialize( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height );
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::SetSize()
+   */
+  void SetSize( uint32_t width, uint32_t height );
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::StartRender()
    */
   bool StartRender();

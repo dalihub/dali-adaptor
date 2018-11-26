@@ -82,6 +82,14 @@ public:
   VectorAnimationRenderer& operator=( const VectorAnimationRenderer& rhs );
 
   /**
+   * @brief Sets the target image size.
+   *
+   * @param[in] width The target image width
+   * @param[in] height The target image height
+   */
+  void SetSize( uint32_t width, uint32_t height );
+
+  /**
    * @brief Starts the rendering.
    *
    * @return True if the renderer is successfully started, false otherwise.

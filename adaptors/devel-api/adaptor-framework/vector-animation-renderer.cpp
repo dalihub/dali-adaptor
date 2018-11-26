@@ -59,6 +59,11 @@ VectorAnimationRenderer& VectorAnimationRenderer::operator=( const VectorAnimati
   return *this;
 }
 
+void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
+{
+  GetImplementation( *this ).SetSize( width, height );
+}
+
 bool VectorAnimationRenderer::StartRender()
 {
   return GetImplementation( *this ).StartRender();

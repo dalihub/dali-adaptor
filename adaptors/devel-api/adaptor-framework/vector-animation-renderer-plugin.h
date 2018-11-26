@@ -56,6 +56,14 @@ public:
   virtual bool CreateRenderer( const std::string& url, Renderer renderer, uint32_t width, uint32_t height ) = 0;
 
   /**
+   * @brief Sets the target image size.
+   *
+   * @param[in] width The target image width
+   * @param[in] height The target image height
+   */
+  virtual void SetSize( uint32_t width, uint32_t height ) = 0;
+
+  /**
    * @brief Starts the rendering.
    *
    * @return True if the renderer is successfully started, false otherwise
