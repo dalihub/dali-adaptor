@@ -46,7 +46,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "am", "Amharic",            Locale::LeftToRight },
   { "ar", "Arabic",             Locale::RightToLeft },
   { "as", "Assamese",           Locale::LeftToRight },
-  { "az", "Azerbaijani",        Locale::RightToLeft },
+  { "az", "Azerbaijani",        Locale::LeftToRight },
   { "be", "Belarusian",         Locale::LeftToRight },
   { "bg", "Bulgarian",          Locale::LeftToRight },
   { "bn", "Bengali",            Locale::LeftToRight },
