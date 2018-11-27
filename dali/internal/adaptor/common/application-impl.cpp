@@ -27,7 +27,10 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
+#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+
+#undef Status
 
 namespace Dali
 {
@@ -439,7 +442,7 @@ void Application::ReplaceWindow( const PositionSize& positionSize, const std::st
     GetImplementation( newWindow ).SetIndicatorVisibleMode( static_cast< Dali::Window::IndicatorVisibleMode >( indicatorVisibleMode ) );
   }
 
-  Dali::RenderSurface* renderSurface = windowImpl.GetSurface();
+  Internal::Adaptor::WindowRenderSurface* renderSurface = windowImpl.GetSurface();
 
   Any nativeWindow = newWindow.GetNativeHandle();
   Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);

@@ -70,77 +70,82 @@ public: // from WindowRenderSurface
    */
   virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
 
-public: // from Dali::RenderSurface
+public: // from Dali::Integration::RenderSurface
 
   /**
-   * @copydoc Dali::RenderSurface::GetPositionSize()
+   * @copydoc Dali::Integration::RenderSurface::GetPositionSize()
    */
   virtual PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::RenderSurface::GetDpi()
+   * @copydoc Dali::Integration::RenderSurface::GetDpi()
    */
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeGraphics()
+   * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( GraphicsInterface& graphics, Dali::DisplayConnection& displayConnection ) override;
+  virtual void InitializeGraphics() override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateSurface()
+   * @copydoc Dali::Integration::RenderSurface::CreateSurface()
    */
   virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::DestroySurface()
+   * @copydoc Dali::Integration::RenderSurface::DestroySurface()
    */
   virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
+   * @copydoc Dali::Integration::RenderSurface::ReplaceGraphicsSurface()
    */
   virtual bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::MoveResize()
+   * @copydoc Dali::Integration::RenderSurface::MoveResize()
    */
   virtual void MoveResize( Dali::PositionSize positionSize) override {}
 
   /**
-   * @copydoc Dali::RenderSurface::StartRender()
+   * @copydoc Dali::Integration::RenderSurface::StartRender()
    */
   virtual void StartRender() override;
 
   /**
-   * @copydoc Dali::RenderSurface::PreRender()
+   * @copydoc Dali::Integration::RenderSurface::PreRender()
    */
   virtual bool PreRender( bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::PostRender()
+   * @copydoc Dali::Integration::RenderSurface::PostRender()
    */
   virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::StopRender()
+   * @copydoc Dali::Integration::RenderSurface::StopRender()
    */
   virtual void StopRender() override;
 
   /**
-   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   * @copydoc Dali::Integration::RenderSurface::SetThreadSynchronization
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   * @copydoc Dali::Integration::RenderSurface::GetSurfaceType()
    */
-  virtual RenderSurface::Type GetSurfaceType() override;
+  virtual Integration::RenderSurface::Type GetSurfaceType() override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::MakeContextCurrent()
+   */
+  virtual void MakeContextCurrent() override;
 
 private: // from PixmapRenderSurface
 
   /**
-   * @copydoc Dali::RenderSurface::ReleaseLock()
+   * @copydoc Dali::Integration::RenderSurface::ReleaseLock()
    */
   virtual void ReleaseLock() override;
 

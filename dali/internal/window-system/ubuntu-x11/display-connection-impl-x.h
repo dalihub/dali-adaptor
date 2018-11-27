@@ -81,7 +81,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
    */
-  void SetSurfaceType( RenderSurface::Type type );
+  void SetSurfaceType( Integration::RenderSurface::Type type );
 
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
