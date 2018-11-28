@@ -33,8 +33,7 @@ adaptor_system_common_src_files=\
 adaptor_system_linux_src_files=\
     ${adaptor_system_dir}/linux/callback-manager-ecore.cpp \
     ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp \
-    ${adaptor_system_dir}/linux/timer-impl-ecore.cpp \
-    ${adaptor_system_dir}/linux/file-closer-linux.cpp
+    ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
 
 # module: system, backend: tizen-wayland
 adaptor_system_tizen_wayland_src_files=\
