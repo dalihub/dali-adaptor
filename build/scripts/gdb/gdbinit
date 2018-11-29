@@ -1,0 +1,25 @@
+set print static-members off
+set opaque-type-resolution on
+
+source ~/src/gdb/dali/hook
+
+define reset-tty
+echo \033[0m
+end
+
+define hook-stop
+echo \033[0m
+end
+
+define displts
+  python
+import gdb
+from io import StringIO
+lines=gdb.execute("info break", True, True)
+for l in StringIO(lines).readlines():
+  if "@plt" in l:
+    bp=l.split()[0]
+    gdb.execute("disable {0}".format(bp))
+    print("disabling {0}".format(bp))
+  end
+end

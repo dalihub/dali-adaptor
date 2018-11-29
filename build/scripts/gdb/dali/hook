@@ -1,0 +1,18 @@
+python
+import os.path
+import sys
+import gdb
+
+# Add ~src/gdb directory to system path
+dir = os.path.join(os.path.expanduser("~"), "src/gdb/dali")
+if not dir in sys.path:
+    sys.path.insert(0, dir)
+
+# Import Dali
+from dali import register_dali_printers
+register_dali_printers(None)
+
+from dalivk import register_dalivk_printers
+register_dalivk_printers(None)
+
+end
