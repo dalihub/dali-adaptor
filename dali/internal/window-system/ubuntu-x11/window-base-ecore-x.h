@@ -344,6 +344,11 @@ public:
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetViewMode()
+   */
+  virtual void SetViewMode( ViewMode viewMode ) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
   virtual int GetScreenRotationAngle() override;

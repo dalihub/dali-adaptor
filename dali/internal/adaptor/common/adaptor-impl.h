@@ -481,6 +481,28 @@ public:  //AdaptorInternalServices
    */
   virtual TraceInterface& GetSystemTraceInterface();
 
+public: // Stereoscopy
+
+  /**
+   * @copydoc Dali::Integration::Core::SetViewMode()
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Integration::Core::GetViewMode()
+   */
+  ViewMode GetViewMode() const;
+
+  /**
+   * @copydoc Dali::Integration::Core::SetStereoBase()
+   */
+  void SetStereoBase( float stereoBase );
+
+  /**
+   * @copydoc Dali::Integration::Core::GetStereoBase()
+   */
+  float GetStereoBase() const;
+
 public: // Signals
 
   /**

@@ -107,6 +107,11 @@ public: // from Dali::RenderSurface
   virtual void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
+   * @copydoc Dali::RenderSurface::SetViewMode()
+   */
+  virtual void SetViewMode( ViewMode viewMode ) override;
+
+  /**
    * @copydoc Dali::RenderSurface::StartRender()
    */
   virtual void StartRender() override;

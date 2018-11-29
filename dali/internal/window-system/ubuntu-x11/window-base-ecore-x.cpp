@@ -866,6 +866,17 @@ void WindowBaseEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVer
   dpiVertical   = int( yres + 0.5f );
 }
 
+void WindowBaseEcoreX::SetViewMode( ViewMode viewMode )
+{
+  Ecore_X_Atom viewModeAtom( ecore_x_atom_get( "_E_COMP_3D_APP_WIN" ) );
+
+  if( viewModeAtom != None )
+  {
+    unsigned int value( static_cast< unsigned int >( viewMode ) );
+    ecore_x_window_prop_card32_set( mEcoreWindow, viewModeAtom, &value, 1 );
+  }
+}
+
 int WindowBaseEcoreX::GetScreenRotationAngle()
 {
   return 0;

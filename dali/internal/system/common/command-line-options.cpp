@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,8 @@ Argument EXPECTED_ARGS[] =
   { "width",       "Stage Width"             },
   { "height",      "Stage Height"            },
   { "dpi",         "Emulated DPI"            },
+  { "view",        "Stereocopic 3D view mode ([0]=MONO, 1=STEREO_HORIZONTAL, 2=STEREO_VERTICAL, 3=STEREO_INTERLACED)" },
+  { "stereo-base", "Distance in millimeters between left/right cameras [65.0]" },
   { "help",        "Help"                    },
   { NULL,          NULL                      }
 };
@@ -70,10 +72,12 @@ enum Option
   OPTION_STAGE_WIDTH,
   OPTION_STAGE_HEIGHT,
   OPTION_DPI,
+  OPTION_STEREO_MODE,
+  OPTION_STEREO_BASE,
   OPTION_HELP
 };
 
-typedef Dali::Vector< int32_t > UnhandledContainer;
+typedef Dali::Vector< int > UnhandledContainer;
 
 void ShowHelp()
 {
@@ -88,9 +92,11 @@ void ShowHelp()
 
 } // unnamed namespace
 
-CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
+CommandLineOptions::CommandLineOptions(int *argc, char **argv[])
 : noVSyncOnRender(0),
-  stageWidth(0), stageHeight(0)
+  stageWidth(0), stageHeight(0),
+  viewMode(0),
+  stereoBase(65)
 {
   // Exit gracefully if no arguments provided
   if ( !argc || !argv )
@@ -101,10 +107,10 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
   if ( *argc > 1 )
   {
     // We do not want to print out errors.
-    int32_t origOptErrValue( opterr );
+    int origOptErrValue( opterr );
     opterr = 0;
 
-    int32_t help( 0 );
+    int help( 0 );
 
     const struct option options[]=
     {
@@ -112,14 +118,16 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
       { EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt,  required_argument, NULL,             'w' },  // "--width"
       { EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL,             'h' },  // "--height"
       { EXPECTED_ARGS[OPTION_DPI].opt,          required_argument, NULL,             'd' },  // "--dpi"
+      { EXPECTED_ARGS[OPTION_STEREO_MODE].opt,  required_argument, NULL,             'v' },  // "--view"
+      { EXPECTED_ARGS[OPTION_STEREO_BASE].opt,  required_argument, NULL,             's' },  // "--stereo-base"
       { EXPECTED_ARGS[OPTION_HELP].opt,         no_argument,       &help,            '?' },  // "--help"
       { 0, 0, 0, 0 } // end of options
     };
 
-    int32_t shortOption( 0 );
-    int32_t optionIndex( 0 );
+    int shortOption( 0 );
+    int optionIndex( 0 );
 
-    const char* optString = "-w:h:d:"; // The '-' ensures that argv is NOT permuted
+    const char* optString = "-w:h:d:v:s:"; // The '-' ensures that argv is NOT permuted
     bool optionProcessed( false );
 
     UnhandledContainer unhandledOptions; // We store indices of options we do not handle here
@@ -171,6 +179,26 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
           break;
         }
 
+        case 'v':
+        {
+          if ( optarg )
+          {
+            viewMode = atoi(optarg);
+            optionProcessed = true;
+          }
+          break;
+        }
+
+        case 's':
+        {
+          if ( optarg )
+          {
+            stereoBase = atoi(optarg);
+            optionProcessed = true;
+          }
+          break;
+        }
+
         case -1:
         {
           // All command-line options have been parsed.
@@ -190,7 +218,7 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
     {
       if ( unhandledOptions.Count() > 0 )
       {
-        int32_t index( 1 );
+        int index( 1 );
 
         // Overwrite the argv with the values from the unhandled indices
         const UnhandledContainer::ConstIterator endIter = unhandledOptions.End();
