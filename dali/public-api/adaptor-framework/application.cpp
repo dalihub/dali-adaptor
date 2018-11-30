@@ -192,22 +192,24 @@ std::string Application::GetLanguage() const
   return Internal::Adaptor::GetImplementation(*this).GetLanguage();
 }
 
-void Application::SetViewMode( ViewMode /*viewMode*/ )
+void Application::SetViewMode( ViewMode viewMode )
 {
+  Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
 }
 
 ViewMode Application::GetViewMode() const
 {
-  return ViewMode::MONO;
+  return Internal::Adaptor::GetImplementation(*this).GetViewMode();
 }
 
-void Application::SetStereoBase( float /*stereoBase*/ )
+void Application::SetStereoBase( float stereoBase )
 {
+  Internal::Adaptor::GetImplementation(*this).SetStereoBase( stereoBase );
 }
 
 float Application::GetStereoBase() const
 {
-  return 0.f;
+  return Internal::Adaptor::GetImplementation(*this).GetStereoBase();
 }
 
 Application::AppSignalType& Application::InitSignal()
