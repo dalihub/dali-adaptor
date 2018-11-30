@@ -31,12 +31,13 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
-#include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/window-visibility-observer.h>
 
 namespace Dali
 {
@@ -69,6 +70,7 @@ Window::Window()
   mSurface( nullptr ),
   mWindowBase(),
   mStarted( false ),
+  mIsTransparent( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
   mIconified( false ),
@@ -88,12 +90,12 @@ Window::~Window()
   if ( mAdaptor )
   {
     mAdaptor->RemoveObserver( *this );
-    mAdaptor->SetDragAndDropDetector( NULL );
     mAdaptor->RemoveWindow( this );
     mAdaptor = NULL;
   }
 
-  mSurface.reset( nullptr );
+  // Do we need to do it?
+  mEventHandler->SetRotationObserver( nullptr );
 }
 
 void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
@@ -128,11 +130,21 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
 void Window::SetAdaptor(Dali::Adaptor& adaptor)
 {
-  DALI_ASSERT_ALWAYS( !mStarted && "Adaptor already started" );
+  Window::SetAdaptor( Internal::Adaptor::Adaptor::GetImplementation( adaptor ) );
+}
+
+void Window::SetAdaptor(Adaptor& adaptor)
+{
+  if( mStarted )
+  {
+    return;
+  }
+
   mStarted = true;
 
+  // Create scene for the window
   PositionSize positionSize = mSurface->GetPositionSize();
-  mScene = Dali::Integration::Scene::New( Vector2(positionSize.width, positionSize.height) );
+  mScene = Dali::Integration::Scene::New( Vector2( positionSize.width, positionSize.height ) );
   mScene.SetSurface( *mSurface.get() );
 
   unsigned int dpiHorizontal, dpiVertical;
@@ -141,26 +153,42 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   mSurface->GetDpi( dpiHorizontal, dpiVertical );
   mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
 
-  // Create one overlay for the main window only
-  Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
-  mAdaptor = &adaptorImpl;
+  // Add the window to the adaptor observers
+  mAdaptor = &adaptor;
   mAdaptor->AddObserver( *this );
 
   // Can only create the detector when we know the Core has been instantiated.
   mDragAndDropDetector = DragAndDropDetector::New();
-  mAdaptor->SetDragAndDropDetector( &GetImplementation( mDragAndDropDetector ) );
 
   if( mOrientation )
   {
-    mOrientation->SetAdaptor(adaptor);
+    mOrientation->SetAdaptor( adaptor );
   }
 
   mSurface->SetAdaptor( *mAdaptor );
+
+  mEventHandler = EventHandlerPtr(
+      new EventHandler( mScene, *mAdaptor, *mAdaptor->GetGestureManager(), *mAdaptor ) );
 }
 
-WindowRenderSurface* Window::GetSurface()
+WindowRenderSurface* Window::GetSurface() const
 {
   return mSurface.get();
+}
+
+void Window::SetSurface(WindowRenderSurface* surface)
+{
+  mSurface.reset( surface );
+
+  mScene.SetSurface( *mSurface.get() );
+
+  unsigned int dpiHorizontal, dpiVertical;
+  dpiHorizontal = dpiVertical = 0;
+
+  mSurface->GetDpi( dpiHorizontal, dpiVertical );
+  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
+
+  mSurface->SetAdaptor( *mAdaptor );
 }
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
@@ -177,7 +205,19 @@ void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
 
 void Window::SetClass( std::string name, std::string className )
 {
+  mName = name;
+  mClassName = className;
   mWindowBase->SetClass( name, className );
+}
+
+std::string Window::GetName() const
+{
+  return mName;
+}
+
+std::string Window::GetClassName() const
+{
+  return mClassName;
 }
 
 void Window::Raise()
@@ -557,6 +597,11 @@ void Window::SetPositionSize( PositionSize positionSize )
   }
 }
 
+Dali::Layer Window::GetRootLayer()
+{
+  return mScene.GetRootLayer();
+}
+
 void Window::SetTransparency( bool transparent )
 {
   mSurface->SetTransparency( transparent );
@@ -664,6 +709,58 @@ uint32_t Window::GetId() const
 {
   return mId;
 }
+
+void Window::FeedTouchPoint( TouchPoint& point, int timeStamp )
+{
+  if( mEventHandler )
+  {
+    mEventHandler->FeedTouchPoint( point, timeStamp );
+  }
+}
+
+void Window::FeedWheelEvent( WheelEvent& wheelEvent )
+{
+  if( mEventHandler )
+  {
+    mEventHandler->FeedWheelEvent( wheelEvent );
+  }
+}
+
+void Window::FeedKeyEvent( KeyEvent& keyEvent )
+{
+  if( mEventHandler )
+  {
+    mEventHandler->FeedKeyEvent( keyEvent );
+  }
+}
+
+void Window::Pause()
+{
+  if( mEventHandler )
+  {
+    mEventHandler->Pause();
+  }
+}
+
+void Window::Resume()
+{
+  if( mEventHandler )
+  {
+    mEventHandler->Resume();
+  }
+}
+
+bool Window::SetRotationObserver( RotationObserver* observer )
+{
+  if( mEventHandler )
+  {
+    mEventHandler->SetRotationObserver( observer );
+    return true;
+  }
+
+  return false;
+}
+
 
 } // Adaptor
 

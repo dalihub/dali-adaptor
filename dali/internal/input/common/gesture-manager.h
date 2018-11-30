@@ -74,7 +74,7 @@ public:
    * Used by the event handler to send touch events to the Gesture Manager.
    * @param[in]  event  The latest touch event.
    */
-  void SendEvent(const Integration::TouchEvent& event);
+  void SendEvent(Integration::Scene& scene, const Integration::TouchEvent& event);
 
   /**
    * Used by the event handler to stop the GestureManager detection.

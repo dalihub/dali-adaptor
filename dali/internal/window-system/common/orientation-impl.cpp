@@ -55,8 +55,12 @@ Orientation::~Orientation()
 
 void Orientation::SetAdaptor(Dali::Adaptor& adaptor)
 {
-  Adaptor& adaptorImpl = Adaptor::GetImplementation(adaptor);
-  adaptorImpl.SetRotationObserver(this);
+  SetAdaptor( Adaptor::GetImplementation( adaptor ) );
+}
+
+void Orientation::SetAdaptor(Adaptor& adaptor)
+{
+  adaptor.SetRotationObserver(this);
 }
 
 int Orientation::GetDegrees() const

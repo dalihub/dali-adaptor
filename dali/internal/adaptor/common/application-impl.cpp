@@ -29,7 +29,9 @@
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
+// To disable a macro with the same name from one of OpenGL headers
 #undef Status
 
 namespace Dali
@@ -396,15 +398,12 @@ float Application::GetStereoBase() const
 
 void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
-  Dali::Window newWindow = Dali::Window::New( positionSize, name, mMainWindowMode == Dali::Application::TRANSPARENT );
-  Window& windowImpl = GetImplementation(newWindow);
-  windowImpl.SetAdaptor(*mAdaptor);
+  Any surface;
+  auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+  std::unique_ptr<Internal::Adaptor::WindowRenderSurface> renderSurface =
+      renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, false );
 
-  Internal::Adaptor::WindowRenderSurface* renderSurface = windowImpl.GetSurface();
-
-  Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
-  mMainWindow = newWindow;
+  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface( mMainWindow, *renderSurface.release() );
   mWindowPositionSize = positionSize;
 }
 

@@ -137,21 +137,21 @@ public:
   /**
    * @brief Create a new adaptor using render surface.
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to draw onto
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Any nativeWindow, const Dali::RenderSurfaceInterface& surface );
+  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface );
 
   /**
    * @brief Create a new adaptor using render surface.
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to draw onto
    * @param[in] surface The surface to draw onto
    * @param[in] configuration The context loss configuration.
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Any nativeWindow, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
+  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
 
   /**
    * @brief Virtual Destructor.
@@ -218,10 +218,10 @@ public:
   /**
    * @brief Replaces the rendering surface
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface( Any nativeWindow, Dali::RenderSurfaceInterface& surface );
+  void ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface );
 
   /**
    * @brief Get the render surface the adaptor is using to render to.
