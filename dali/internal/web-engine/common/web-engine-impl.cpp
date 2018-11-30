@@ -21,8 +21,13 @@
 // EXTERNAL INCLUDES
 #include <dlfcn.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/object/type-registry.h>
+#include <sstream>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/environment-variables.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -36,7 +41,20 @@ namespace Adaptor
 namespace // unnamed namespace
 {
 
-const char* WEB_ENGINE_PLUGIN_SO( "libdali-web-engine-plugin.so" );
+constexpr char const * const kPluginFullNamePrefix = "libdali-web-engine-";
+constexpr char const * const kPluginFullNamePostfix = "-plugin.so";
+constexpr char const * const kPluginFullNameDefault = "libdali-web-engine-plugin.so";
+
+// Note: Dali WebView policy does not allow to use multiple web engines in an application.
+// So once pluginName is set to non-empty string, it will not change.
+std::string pluginName;
+
+std::string MakePluginName( const char* environmentName )
+{
+  std::stringstream fullName;
+  fullName << kPluginFullNamePrefix << environmentName << kPluginFullNamePostfix;
+  return std::move( fullName.str() );
+}
 
 Dali::BaseHandle Create()
 {
@@ -84,16 +102,40 @@ WebEngine::~WebEngine()
   }
 }
 
+bool WebEngine::InitializePluginHandle()
+{
+  if ( pluginName.length() == 0 )
+  {
+    // pluginName is not initialized yet.
+    const char* name = EnvironmentVariable::GetEnvironmentVariable( DALI_ENV_WEB_ENGINE_NAME );
+    if ( name )
+    {
+      pluginName = MakePluginName( name );
+      mHandle = dlopen( pluginName.c_str(), RTLD_LAZY );
+      if ( mHandle )
+      {
+        return true;
+      }
+    }
+    pluginName = std::string( kPluginFullNameDefault );
+  }
+
+  mHandle = dlopen( pluginName.c_str(), RTLD_LAZY );
+  if ( !mHandle )
+  {
+    DALI_LOG_ERROR( "Can't load %s : %s\n", pluginName.c_str(), dlerror() );
+    return false;
+  }
+
+  return true;
+}
+
 bool WebEngine::Initialize()
 {
   char* error = NULL;
 
-  mHandle = dlopen( WEB_ENGINE_PLUGIN_SO, RTLD_LAZY );
-
-  error = dlerror();
-  if( mHandle == NULL || error != NULL )
+  if ( !InitializePluginHandle() )
   {
-    DALI_LOG_ERROR( "WebEngine::Initialize(), dlopen error: %s\n", error );
     return false;
   }
 

@@ -160,6 +160,9 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   mCallbackManager = CallbackManager::New();
 
   WindowPane defaultWindow = mWindowFrame.front();
+
+  DALI_ASSERT_DEBUG( defaultWindow.surface && "Surface not initialized" );
+
   PositionSize size = defaultWindow.surface->GetPositionSize();
 
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
@@ -185,14 +188,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mVSyncMonitor = new VSyncMonitor;
 
-  if( defaultWindow.surface )
-  {
-    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow.surface->GetSurfaceType() );
-  }
-  else
-  {
-    mDisplayConnection = Dali::DisplayConnection::New( *mGraphics );
-  }
+  mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow.surface->GetSurfaceType() );
 
   mThreadController = new ThreadController( *this, *mGraphics, *mEnvironmentOptions );
 
@@ -484,9 +480,7 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
   newDefaultWindow.nativeWindow = nativeWindow;
   newDefaultWindow.surface = &newSurface;
 
-  // Must delete the old Window first before replacing it with the new one
   WindowPane oldDefaultWindow = mWindowFrame.front();
-  oldDefaultWindow.surface->DestroySurface();
 
   // Update WindowFrame
   std::vector<WindowPane>::iterator iter = mWindowFrame.begin();
@@ -498,6 +492,10 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
 
   // This method blocks until the render thread has completed the replace.
   mThreadController->ReplaceSurface( newDefaultWindow.surface );
+
+  // Must delete the old Window only after the render thread has completed the replace
+  oldDefaultWindow.surface->DestroySurface();
+  oldDefaultWindow.surface = nullptr;
 }
 
 RenderSurface& Adaptor::GetSurface() const
@@ -954,7 +952,9 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   mCore( nullptr ),
   mThreadController( nullptr ),
   mVSyncMonitor( nullptr ),
+  mGraphics( nullptr ),
   mDisplayConnection( nullptr ),
+  mWindowFrame(),
   mPlatformAbstraction( nullptr ),
   mEventHandler( nullptr ),
   mCallbackManager( nullptr ),
@@ -987,31 +987,6 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   iter = mWindowFrame.insert( iter, defaultWindow );
 
   gThreadLocalAdaptor = this;
-}
-
-// Stereoscopy
-
-void Adaptor::SetViewMode( ViewMode viewMode )
-{
-  WindowPane defaultWindow = mWindowFrame.front();
-  defaultWindow.surface->SetViewMode( viewMode );
-
-  mCore->SetViewMode( viewMode );
-}
-
-ViewMode Adaptor::GetViewMode() const
-{
-  return mCore->GetViewMode();
-}
-
-void Adaptor::SetStereoBase( float stereoBase )
-{
-  mCore->SetStereoBase( stereoBase );
-}
-
-float Adaptor::GetStereoBase() const
-{
-  return mCore->GetStereoBase();
 }
 
 void Adaptor::SetRootLayoutDirection( std::string locale )

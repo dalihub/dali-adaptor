@@ -26,7 +26,7 @@
 #include <dali/integration-api/trigger-event-interface.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>
 #include <dali/internal/window-system/common/display-connection.h>
-#include <dali/internal/graphics/gles20/egl-factory-interface.h>
+#include <dali/internal/graphics/gles/egl-factory-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/graphics/common/vsync-monitor-interface.h>

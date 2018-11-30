@@ -17,7 +17,6 @@
 
 // CLASS HEADER
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
-//#include <dali/internal/graphics/gles20/egl-graphics.h>
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>

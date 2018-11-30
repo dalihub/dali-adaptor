@@ -135,12 +135,6 @@ public:
   virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
 
   /**
-   * @brief Set the stereoscopic 3D view mode
-   * @param[in] viewMode The new view mode
-   */
-  virtual void SetViewMode( ViewMode viewMode ) = 0;
-
-  /**
    * @brief Called when Render thread has started
    */
   virtual void StartRender() = 0;

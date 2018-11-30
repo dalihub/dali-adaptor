@@ -33,8 +33,6 @@
 #include <dali/integration-api/thread-synchronization-interface.h>
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
-//#include <dali/internal/graphics/gles20/egl-graphics.h>
-
 
 namespace Dali
 {
@@ -54,18 +52,23 @@ static const int INITIAL_CONSUME_BUFFER_INDEX = 1;
 }
 
 PixmapRenderSurfaceEcoreX::PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent )
-: mPosition( positionSize ),
+: mGraphics( nullptr ),
+  mDisplayConnection( nullptr ),
+  mPosition( positionSize ),
   mRenderNotification( NULL ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOwnSurface( false ),
   mProduceBufferIndex( INITIAL_PRODUCE_BUFFER_INDEX ),
   mConsumeBufferIndex( INITIAL_CONSUME_BUFFER_INDEX ),
-  mThreadSynchronization(NULL)
+  mX11Pixmaps(),
+  //mEglSurfaces(),
+  mThreadSynchronization( nullptr ),
+  mPixmapCondition()
 {
   for( int i = 0; i != BUFFER_COUNT; ++i )
   {
     mX11Pixmaps[i] = 0;
-    mEglSurfaces[i] = 0;
+    //mEglSurfaces[i] = 0;
   }
 
   Initialize( surface );

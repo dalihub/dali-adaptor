@@ -12,30 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-// CLASS HEADER
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
-
-// EXTERNAL INCLUDE
-#include <cstdlib>
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
 
-namespace EnvironmentVariable
+namespace DevelWindow
 {
 
-const char * GetEnvironmentVariable( const char * variable )
+void SetPositionSize( Window window, PositionSize positionSize )
 {
-  return std::getenv( variable );
+  GetImplementation( window ).SetPositionSize( positionSize );
 }
 
-bool SetEnvironmentVariable( const char * variable, const char * value )
-{
-  return setenv( variable, value, 1 ) == 0;
-}
-
-} // namespace EnvironmentVariable
+} // namespace DevelWindow
 
 } // namespace Dali

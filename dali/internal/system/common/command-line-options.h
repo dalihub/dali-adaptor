@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_COMMAND_LINE_OPTIONS_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <cstdint> // int32_t
 
 namespace Dali
 {
@@ -41,8 +42,6 @@ namespace Adaptor
  *  -w|--width          Stage Width
  *  -h|--height         Stage Height
  *  -d|--dpi            Emulated DPI
- *  -v|--view           Viewing mode
- *  -s|--stereo-base    Eye separation for stereoscopic rendering (in mm)
  *     --help           Help
  * @endcode
  *
@@ -58,7 +57,7 @@ public:
    * @param[in,out]  argv  The argument list
    * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
-  CommandLineOptions(int *argc, char **argv[]);
+  CommandLineOptions( int32_t *argc, char **argv[] );
 
   /**
    * Destructor
@@ -67,12 +66,10 @@ public:
 
 public: // Command line parsed values
 
-  int noVSyncOnRender;  ///< If 1, then the user does not want VSync on Render
-  int stageWidth;       ///< The width of the stage required.  0 if not set.
-  int stageHeight;      ///< The height of the stage required.   0 if not set.
-  int viewMode;         ///< Stereocopic 3D view mode (0=MONO, 1=STEREO_HORIZONTAL, 2=STEREO_VERTICAL, 3=STEREO_INTERLACED)
-  int stereoBase;       ///< The distance in millimeters between left/right cameras
-  std::string stageDPI; ///< DPI stored as hxv, where h is horizontal DPI and v is vertical DPI
+  int32_t noVSyncOnRender; ///< If 1, then the user does not want VSync on Render
+  int32_t stageWidth;      ///< The width of the stage required.  0 if not set.
+  int32_t stageHeight;     ///< The height of the stage required.   0 if not set.
+  std::string stageDPI;    ///< DPI stored as hxv, where h is horizontal DPI and v is vertical DPI
 };
 
 } // namespace Adaptor

@@ -23,8 +23,6 @@
 #include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
-//#include <dali/internal/graphics/common/egl-image-extensions.h>
-//#include <dali/internal/graphics/gles20/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali

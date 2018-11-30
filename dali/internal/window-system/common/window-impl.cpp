@@ -488,21 +488,22 @@ void Window::SetSize( Dali::Window::WindowSize size )
     mResizeEnabled = true;
   }
 
-  PositionSize positionSize = mSurface->GetPositionSize();
+  PositionSize oldRect = mSurface->GetPositionSize();
 
-  if( positionSize.width != size.GetWidth() || positionSize.height != size.GetHeight() )
+  mSurface->MoveResize( PositionSize( oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight() ) );
+
+  PositionSize newRect = mSurface->GetPositionSize();
+
+  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if( ( oldRect.width != newRect.width ) || ( oldRect.height != newRect.height ) )
   {
-    positionSize.width = size.GetWidth();
-    positionSize.height = size.GetHeight();
+    Uint16Pair newSize( newRect.width, newRect.height );
 
-    mSurface->MoveResize( positionSize );
+    mAdaptor->SurfaceResizePrepare( newSize );
 
-    mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mResizedSignal.Emit( newSize );
 
-    // Emit signal
-    mResizedSignal.Emit( Dali::Window::WindowSize( positionSize.width, positionSize.height ) );
-
-    mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+    mAdaptor->SurfaceResizeComplete( newSize );
   }
 }
 
@@ -521,15 +522,9 @@ void Window::SetPosition( Dali::Window::WindowPosition position )
     mResizeEnabled = true;
   }
 
-  PositionSize positionSize = mSurface->GetPositionSize();
+  PositionSize oldRect = mSurface->GetPositionSize();
 
-  if( positionSize.x != position.GetX() || positionSize.y != position.GetY() )
-  {
-    positionSize.x = position.GetX();
-    positionSize.y = position.GetY();
-
-    mSurface->MoveResize( positionSize );
-  }
+  mSurface->MoveResize( PositionSize( position.GetX(), position.GetY(), oldRect.width, oldRect.height ) );
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -537,6 +532,33 @@ Dali::Window::WindowPosition Window::GetPosition() const
   PositionSize positionSize = mSurface->GetPositionSize();
 
   return Dali::Window::WindowPosition( positionSize.x, positionSize.y );
+}
+
+void Window::SetPositionSize( PositionSize positionSize )
+{
+  if( !mResizeEnabled )
+  {
+    AddAuxiliaryHint( "wm.policy.win.user.geometry", "1" );
+    mResizeEnabled = true;
+  }
+
+  PositionSize oldRect = mSurface->GetPositionSize();
+
+  mSurface->MoveResize( positionSize );
+
+  PositionSize newRect = mSurface->GetPositionSize();
+
+  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if( ( oldRect.width != newRect.width ) || ( oldRect.height != newRect.height ) )
+  {
+    Uint16Pair newSize( newRect.width, newRect.height );
+
+    mAdaptor->SurfaceResizePrepare( newSize );
+
+    mResizedSignal.Emit( newSize );
+
+    mAdaptor->SurfaceResizeComplete( newSize );
+  }
 }
 
 void Window::SetTransparency( bool transparent )

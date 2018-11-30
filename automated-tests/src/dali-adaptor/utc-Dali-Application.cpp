@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,74 +255,6 @@ int UtcDaliApplicationReplaceWindowN(void)
   try
   {
     application.ReplaceWindow( PositionSize(), "window" );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationSetViewModeN(void)
-{
-  Application application;
-
-  try
-  {
-    application.SetViewMode( STEREO_VERTICAL );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationGetViewModeN(void)
-{
-  Application application;
-
-  try
-  {
-    (void) application.GetViewMode();
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationSetStereoBaseN(void)
-{
-  Application application;
-
-  try
-  {
-    application.SetStereoBase( 1.0f );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationGetStereoBaseN(void)
-{
-  Application application;
-
-  try
-  {
-    (void) application.GetStereoBase();
     DALI_TEST_CHECK( false ); // Should not get here
   }
   catch( ... )

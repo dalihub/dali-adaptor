@@ -25,7 +25,7 @@
 #include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/key-event-integ.h>
@@ -325,12 +325,6 @@ public:
    * @param[out] dpiVertical set to the vertical dpi
    */
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
-
-  /**
-   * @brief Set the stereoscopic 3D view mode
-   * @param[in] viewMode The new view mode
-   */
-  virtual void SetViewMode( ViewMode viewMode ) = 0;
 
   /**
    * @brief Get the screen rotation angle of the window

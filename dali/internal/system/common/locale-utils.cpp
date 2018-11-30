@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "bo", "Tibetan",            Locale::LeftToRight },
   { "bs", "Bosnian",            Locale::LeftToRight },
   { "ca", "Catalan",            Locale::LeftToRight },
+  { "ck", "Iraq",               Locale::RightToLeft },
   { "cs", "Czech",              Locale::LeftToRight },
   { "cy", "Welsh",              Locale::LeftToRight },
   { "da", "Danish",             Locale::LeftToRight },
@@ -81,7 +82,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "it", "Italian",            Locale::LeftToRight },
   { "ja", "Japanese",           Locale::LeftToRight },
   { "ka", "Georgian",           Locale::LeftToRight },
-  { "kk", "Kazakh",             Locale::RightToLeft },
+  { "kk", "Kazakh",             Locale::LeftToRight },
   { "km", "Khmer",              Locale::LeftToRight },
   { "kn", "Kannada",            Locale::LeftToRight },
   { "ko", "Korean",             Locale::LeftToRight },

@@ -475,6 +475,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // If the new surface has a different display connection, then the context will be lost
 
       mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      newSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface() );
       newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
@@ -521,8 +522,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     // Check resize
-    bool surfaceResized = ShouldSurfaceBeResized();
-    if( DALI_UNLIKELY( surfaceResized ) )
+    bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
+    if( DALI_UNLIKELY( shouldSurfaceBeResized ) )
     {
       if( updateStatus.SurfaceRectChanged() )
       {
@@ -607,7 +608,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-
+  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->DestroySurface();

@@ -21,7 +21,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
 
 
 namespace Dali

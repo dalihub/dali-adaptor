@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/graphics/graphics-interface.h>
-#include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 #include <dali/internal/window-system/common/display-connection.h>
@@ -109,11 +108,6 @@ public: // from Dali::RenderSurface
   virtual void MoveResize( Dali::PositionSize positionSize) override {}
 
   /**
-   * @copydoc Dali::RenderSurface::SetViewMode()
-   */
-  void SetViewMode( ViewMode viewMode ) override {}
-
-  /**
    * @copydoc Dali::RenderSurface::StartRender()
    */
   virtual void StartRender() override;
@@ -187,7 +181,7 @@ private: // Data
   int                             mProduceBufferIndex;
   int                             mConsumeBufferIndex;
   XPixmap                         mX11Pixmaps[BUFFER_COUNT];  ///< X-Pixmap
-  EGLSurface                      mEglSurfaces[BUFFER_COUNT];
+  //EGLSurface                      mEglSurfaces[BUFFER_COUNT];
   ThreadSynchronizationInterface* mThreadSynchronization;     ///< A pointer to the thread-synchronization
   ConditionalWait                 mPixmapCondition;           ///< condition to share pixmap
 };

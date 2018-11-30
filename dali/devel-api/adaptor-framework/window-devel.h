@@ -1,3 +1,6 @@
+#ifndef DALI_WINDOW_DEVEL_H
+#define DALI_WINDOW_DEVEL_H
+
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
@@ -12,30 +15,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-// CLASS HEADER
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
-
-// EXTERNAL INCLUDE
-#include <cstdlib>
+// INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
 {
 
-namespace EnvironmentVariable
+namespace DevelWindow
 {
 
-const char * GetEnvironmentVariable( const char * variable )
-{
-  return std::getenv( variable );
-}
+/**
+ * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
+ *
+ * @param[in] window The window instance
+ * @param[in] positionSize The new window position and size
+ */
+DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
 
-bool SetEnvironmentVariable( const char * variable, const char * value )
-{
-  return setenv( variable, value, 1 ) == 0;
-}
-
-} // namespace EnvironmentVariable
+} // namespace DevelWindow
 
 } // namespace Dali
+
+#endif // DALI_WINDOW_DEVEL_H

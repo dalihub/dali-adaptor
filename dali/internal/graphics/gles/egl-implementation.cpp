@@ -17,7 +17,7 @@
 
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -26,7 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/graphics/gles20/egl-debug.h>
+#include <dali/internal/graphics/gles/egl-debug.h>
 
 // EGL constants use C style casts
 #pragma GCC diagnostic push

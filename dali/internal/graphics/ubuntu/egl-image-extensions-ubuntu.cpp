@@ -22,7 +22,6 @@
 // EXTERNAL INCLUDES
 #if DALI_GLES_VERSION >= 30
 #include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
 
 #else
 #include <GLES2/gl2.h>
@@ -35,7 +34,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles20/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 
 namespace

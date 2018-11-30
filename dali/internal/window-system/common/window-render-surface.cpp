@@ -26,7 +26,6 @@
 #include <dali/integration-api/thread-synchronization-interface.h>
 #include <dali/integration-api/graphics/graphics.h> //@todo Move to adaptor internal
 
-#include <dali/internal/graphics/gles20/egl-implementation.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
@@ -63,6 +62,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mThreadSynchronization( NULL ),
   mRenderNotification( NULL ),
   mRotationTrigger( NULL ),
+  mGraphics( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
   mRotationAngle( 0 ),
@@ -331,11 +331,6 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
 }
 
-void WindowRenderSurface::SetViewMode( ViewMode viewMode )
-{
-  mWindowBase->SetViewMode( viewMode );
-}
-
 void WindowRenderSurface::StartRender()
 {
 }
@@ -378,8 +373,11 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
   }
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  auto mGLES = eglGraphics->GetGlesInterface();
-  mGLES.PreRender();
+  if ( eglGraphics )
+  {
+    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+    mGLES.PreRender();
+  }
 #endif
   return true;
 }
@@ -389,41 +387,44 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
 #if 0
   // Inform the gl implementation that rendering has finished before informing the surface
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  auto mGLES = eglGraphics->GetGlesInterface();
-  mGLES.PostRender();
+  if ( eglGraphics )
+  {
+    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+    mGLES.PostRender();
 
-  if( renderToFbo )
-  {
-    mGLES.Flush();
-    mGLES.Finish();
-  }
-  else
-  {
-#endif
-    if( resizingSurface )
+    if( renderToFbo )
     {
-      if( !mRotationFinished )
+      mGLES.Flush();
+      mGLES.Finish();
+    }
+    else
+    {
+#endif
+      if( resizingSurface )
       {
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
-
-        mRotationTrigger->Trigger();
-
-        if( mThreadSynchronization )
+        if( !mRotationFinished )
         {
-          // Wait until the event-thread complete the rotation event processing
-          mThreadSynchronization->PostRenderWaitForCompletion();
+          DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+
+          mRotationTrigger->Trigger();
+
+          if( mThreadSynchronization )
+          {
+            // Wait until the event-thread complete the rotation event processing
+            mThreadSynchronization->PostRenderWaitForCompletion();
+          }
         }
       }
-    }
 #if 0
+    }
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    eglImpl.SwapBuffers();
+    if( mRenderNotification )
+    {
+      mRenderNotification->Trigger();
+    }
   }
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.SwapBuffers();
 #endif
-  if( mRenderNotification )
-  {
-    mRenderNotification->Trigger();
-  }
 }
 
 void WindowRenderSurface::StopRender()
