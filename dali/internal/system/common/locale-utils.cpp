@@ -88,7 +88,6 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "kn", "Kannada",            Locale::LeftToRight },
   { "ko", "Korean",             Locale::LeftToRight },
   { "ks", "Kashmiri",           Locale::LeftToRight },
-  { "ku", "Kurdish",            Locale::RightToLeft },
   { "la", "Latin",              Locale::LeftToRight },
   { "lo", "Lao",                Locale::LeftToRight },
   { "lt", "Lithuanian",         Locale::LeftToRight },
