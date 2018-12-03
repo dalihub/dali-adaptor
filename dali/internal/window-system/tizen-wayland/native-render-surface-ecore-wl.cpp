@@ -198,10 +198,6 @@ void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
 {
 }
 
-void NativeRenderSurfaceEcoreWl::SetViewMode( ViewMode viewMode )
-{
-}
-
 void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }

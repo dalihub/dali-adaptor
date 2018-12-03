@@ -320,11 +320,6 @@ void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
 }
 
-void WindowRenderSurface::SetViewMode( ViewMode viewMode )
-{
-  mWindowBase->SetViewMode( viewMode );
-}
-
 void WindowRenderSurface::StartRender()
 {
 }
