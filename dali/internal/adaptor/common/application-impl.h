@@ -154,6 +154,28 @@ public:
    */
   static ApplicationPtr GetPreInitializedApplication();
 
+public: // Stereoscopy
+
+  /**
+   * @copydoc Dali::Application::SetViewMode()
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Application::GetViewMode()
+   */
+  ViewMode GetViewMode() const;
+
+  /**
+   * @copydoc Dali::Application::SetStereoBase()
+   */
+  void SetStereoBase( float stereoBase );
+
+  /**
+   * @copydoc Dali::Application::GetStereoBase()
+   */
+  float GetStereoBase() const;
+
 public: // Lifecycle functionality
 
   /**
@@ -402,9 +424,12 @@ private:
   Launchpad::State                         mLaunchpadState;
   bool                                     mUseRemoteSurface;
 
-  SlotDelegate< Application >           mSlotDelegate;
+  SlotDelegate< Application >              mSlotDelegate;
 
-  static ApplicationPtr                 gPreInitializedApplication;
+  ViewMode                                 mViewMode;
+  float                                    mStereoBase;
+
+  static ApplicationPtr                    gPreInitializedApplication;
 };
 
 inline Application& GetImplementation(Dali::Application& application)
