@@ -74,21 +74,23 @@ namespace
     switch( characterDirection )
     {
       case FRIBIDI_TYPE_LTR: // Left-To-Right letter.
-      case FRIBIDI_TYPE_EN:  // European Numeral.
-      case FRIBIDI_TYPE_AN:  // Arabic Numeral.
-      case FRIBIDI_TYPE_ES:  // European number Separator.
-      case FRIBIDI_TYPE_ET:  // European number Terminator.
       {
         return LEFT_TO_RIGHT;
       }
-      case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
       case FRIBIDI_TYPE_AL:  // Arabic Letter.
+      case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
       {
         return RIGHT_TO_LEFT;
       }
+      case FRIBIDI_TYPE_AN:  // Arabic Numeral.
+      case FRIBIDI_TYPE_ES:  // European number Separator.
+      case FRIBIDI_TYPE_ET:  // European number Terminator.
+      case FRIBIDI_TYPE_EN:  // European Numeral.
+      default :
+      {
+        return NEUTRAL;
+      }
     }
-
-    return NEUTRAL;
   }
 }
 

@@ -72,6 +72,12 @@ public:
    */
   uint32_t GetTotalFrameNumber();
 
+  // Not copyable or movable
+  VectorAnimationRendererPluginProxy( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy constructor
+  VectorAnimationRendererPluginProxy( VectorAnimationRendererPluginProxy&& ) = delete; ///< Deleted move constructor
+  VectorAnimationRendererPluginProxy& operator=( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy assignment operator
+  VectorAnimationRendererPluginProxy& operator=( VectorAnimationRendererPluginProxy&& ) = delete; ///< Deleted move assignment operator
+
 private:
 
   /**
