@@ -72,7 +72,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "gl", "Galician",           Locale::LeftToRight },
   { "gn", "Guarani",            Locale::LeftToRight },
   { "gu", "Gujarati",           Locale::LeftToRight },
-  { "ha", "Hausa",              Locale::RightToLeft },
+  { "ha", "Hausa",              Locale::LeftToRight },
   { "he", "Hebrew",             Locale::RightToLeft },
   { "hi", "Hindi",              Locale::LeftToRight },
   { "hr", "Croatian",           Locale::LeftToRight },
