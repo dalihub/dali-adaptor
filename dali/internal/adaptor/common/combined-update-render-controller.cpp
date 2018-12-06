@@ -607,6 +607,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
+  mCore.GraphicsShutdown();
 
   if( currentSurface )
   {
