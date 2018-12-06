@@ -608,6 +608,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
+  mCore.GraphicsShutdown();
   currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
