@@ -30,7 +30,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
-#include <dali/public-api/events/mouse-button.h>
+#include <dali/devel-api/events/mouse-button.h>
 #include <dali/integration-api/debug.h>
 #include <Ecore_Input.h>
 #include <vconf.h>
