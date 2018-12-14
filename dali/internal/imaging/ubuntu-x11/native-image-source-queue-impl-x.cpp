@@ -45,13 +45,13 @@ const char* SAMPLER_TYPE = "sampler2D";
 
 }
 
-NativeImageSourceQueueX* NativeImageSourceQueueX::New( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueueX* NativeImageSourceQueueX::New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
 {
   NativeImageSourceQueueX* image = new NativeImageSourceQueueX( width, height, depth, nativeImageSourceQueue );
   return image;
 }
 
-NativeImageSourceQueueX::NativeImageSourceQueueX( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueueX::NativeImageSourceQueueX( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
 : mWidth( width ),
   mHeight( height )
 {
@@ -67,8 +67,10 @@ Any NativeImageSourceQueueX::GetNativeImageSourceQueue() const
   return Any();
 }
 
-void NativeImageSourceQueueX::SetSource( Any source )
+void NativeImageSourceQueueX::SetSize( uint32_t width, uint32_t height )
 {
+  mWidth = width;
+  mHeight = height;
 }
 
 bool NativeImageSourceQueueX::GlExtensionCreate()
@@ -80,7 +82,7 @@ void NativeImageSourceQueueX::GlExtensionDestroy()
 {
 }
 
-unsigned int NativeImageSourceQueueX::TargetTexture()
+uint32_t NativeImageSourceQueueX::TargetTexture()
 {
   return 0;
 }
