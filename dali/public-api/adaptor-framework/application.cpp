@@ -37,6 +37,8 @@ Application Application::New( int* argc, char **argv[] )
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if( internal )
   {
+    // pre-initialized application
+    internal->SetCommandLineOptions( argc, argv );
     if( argc && ( *argc > 0 ) )
     {
       internal->GetWindow().SetClass( (*argv)[0], "" );
@@ -57,6 +59,8 @@ Application Application::New( int* argc, char **argv[], const std::string& style
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if( internal )
   {
+    // pre-initialized application
+    internal->SetCommandLineOptions( argc, argv );
     if( argc && ( *argc > 0 ) )
     {
       internal->GetWindow().SetClass( (*argv)[0], "" );
@@ -78,6 +82,8 @@ Application Application::New( int* argc, char **argv[], const std::string& style
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if( internal )
   {
+    // pre-initialized application
+    internal->SetCommandLineOptions( argc, argv );
     if( argc && ( *argc > 0 ) )
     {
       internal->GetWindow().SetClass( (*argv)[0], "" );
@@ -101,6 +107,8 @@ Application Application::New( int* argc, char **argv[], const std::string& style
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if( internal )
   {
+    // pre-initialized application
+    internal->SetCommandLineOptions( argc, argv );
     if( argc && ( *argc > 0 ) )
     {
       internal->GetWindow().SetClass( (*argv)[0], "" );

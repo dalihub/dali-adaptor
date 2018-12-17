@@ -442,6 +442,15 @@ void Application::SetStyleSheet( const std::string& stylesheet )
   mStylesheet = stylesheet;
 }
 
+void Application::SetCommandLineOptions( int* argc, char **argv[] )
+{
+  delete mCommandLineOptions;
+
+  mCommandLineOptions = new CommandLineOptions( argc, argv );
+
+  mFramework->SetCommandLineOptions( argc, argv );
+}
+
 ApplicationPtr Application::GetPreInitializedApplication()
 {
   return gPreInitializedApplication;
