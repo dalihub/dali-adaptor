@@ -109,6 +109,14 @@ bool VectorAnimationRendererPluginProxy::CreateRenderer( const std::string& url,
   return false;
 }
 
+void VectorAnimationRendererPluginProxy::SetSize( uint32_t width, uint32_t height )
+{
+  if( mPlugin )
+  {
+    mPlugin->SetSize( width, height );
+  }
+}
+
 bool VectorAnimationRendererPluginProxy::StartRender()
 {
   if( mPlugin )

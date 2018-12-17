@@ -46,8 +46,8 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSource* New(unsigned int width,
-                                unsigned int height,
+  static NativeImageSource* New(uint32_t width,
+                                uint32_t height,
                                 Dali::NativeImageSource::ColorDepth depth,
                                 Any nativeImageSource);
   /**
@@ -58,7 +58,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  virtual bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const = 0;
+  virtual bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
@@ -93,7 +93,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  virtual unsigned int TargetTexture() = 0;
+  virtual uint32_t TargetTexture() = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -103,12 +103,12 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  virtual unsigned int GetWidth() const = 0;
+  virtual uint32_t GetWidth() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  virtual unsigned int GetHeight() const = 0;
+  virtual uint32_t GetHeight() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()

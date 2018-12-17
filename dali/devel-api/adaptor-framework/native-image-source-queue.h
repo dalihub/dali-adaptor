@@ -51,8 +51,10 @@ typedef Dali::IntrusivePtr< Dali::NativeImageSourceQueue > NativeImageSourceQueu
 /**
  * @brief Used for displaying native images.
  *
- * NativeImageSource can be created internally or externally by native image source.
  * NativeImage is a platform specific way of providing pixel data to the GPU for rendering,for example via an EGL image.
+ * NativeImageSourceQueue can be created internally or externally by native image source.
+ * It has a queue which handles some image buffers.
+ * Someone should fill the buffers and enqueue them, then DALi will show them.
  */
 class DALI_ADAPTOR_API NativeImageSourceQueue : public NativeImageInterface
 {
@@ -76,7 +78,7 @@ public:
    * @param[in] depth color depth of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageSourceQueuePtr New( unsigned int width, unsigned int height, ColorDepth depth );
+  static NativeImageSourceQueuePtr New( uint32_t width, uint32_t height, ColorDepth depth );
 
   /**
    * @brief Creates a new NativeImageSourceQueue from an existing native image source.
@@ -95,11 +97,12 @@ public:
   Any GetNativeImageSourceQueue();
 
   /**
-   * @brief Sets an existing source.
+   * @brief Sets the size of the image.
    *
-   * @param[in] source Any handle with the source
+   * @param[in] width The width of the image
+   * @param[in] height The height of the image
    */
-  void SetSource( Any source );
+  void SetSize( uint32_t width, uint32_t height );
 
 private:   // native image
 
@@ -116,7 +119,7 @@ private:   // native image
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  virtual unsigned int TargetTexture();
+  virtual uint32_t TargetTexture();
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -126,12 +129,12 @@ private:   // native image
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  virtual unsigned int GetWidth() const;
+  virtual uint32_t GetWidth() const;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  virtual unsigned int GetHeight() const;
+  virtual uint32_t GetHeight() const;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
@@ -153,7 +156,7 @@ private:
    * @param[in] depth color depth of the image
    * @param[in] nativeImageSourceQueue contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSourceQueue( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSourceQueue );
+  DALI_INTERNAL NativeImageSourceQueue( uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue );
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
