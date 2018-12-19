@@ -552,6 +552,20 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
     Integration::RenderStatus renderStatus;
 
+    //mRenderHelper.PreRender();
+
+    //AddPerformanceMarker( PerformanceInterface::RENDER_START );
+    //mCore.Render( renderStatus, mForceClear );
+    //AddPerformanceMarker( PerformanceInterface::RENDER_END );
+
+    //mForceClear = false;
+
+    //if( renderStatus.NeedsPostRender() )
+    //{
+      //mRenderHelper.PostRender( isRenderingToFbo );
+    //}
+
+
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )
     {
@@ -638,6 +652,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
     LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
     LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
     LOG_UPDATE_RENDER( "      mSurfaceResized:             %d", mSurfaceResized );
+    LOG_UPDATE_RENDER( "      mRunning:                    %d", mRunning );
 
     // Reset the time when the thread is waiting, so the sleep-until time for
     // the first frame after resuming should be based on the actual start time
@@ -651,7 +666,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
 
     mUpdateRenderThreadWaitCondition.Wait( updateLock );
 
-    if( mUpdateRenderRunCount )
+    if( mUpdateRenderRunCount && mRunning )
     {
       mGraphics.Resume();
     }
@@ -661,6 +676,8 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
       useElapsedTime = false;
     }
   }
+
+  LOG_UPDATE_RENDER( "      mRunning:                    %d", mRunning );
 
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
