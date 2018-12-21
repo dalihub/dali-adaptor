@@ -45,7 +45,6 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 const float FROM_266 = 1.0f / 64.0f;
 const float POINTS_PER_INCH = 72.f;
 
-const std::string FONT_FORMAT( "TrueType" );
 const std::string DEFAULT_FONT_FAMILY_NAME( "Tizen" );
 const int DEFAULT_FONT_WIDTH  = 100; // normal
 const int DEFAULT_FONT_WEIGHT =  80; // normal
@@ -1890,9 +1889,6 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
   FcPatternAddInteger( fontFamilyPattern, FC_WIDTH, width );
   FcPatternAddInteger( fontFamilyPattern, FC_WEIGHT, weight );
   FcPatternAddInteger( fontFamilyPattern, FC_SLANT, slant );
-
-  // Add a property of the pattern, to say we want to match TrueType fonts
-  FcPatternAddString( fontFamilyPattern , FC_FONTFORMAT, reinterpret_cast<const FcChar8*>( FONT_FORMAT.c_str() ) );
 
   // modify the config, with the mFontFamilyPatterm
   FcConfigSubstitute( nullptr /* use default configure */, fontFamilyPattern, FcMatchPattern );
