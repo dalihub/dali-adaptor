@@ -287,6 +287,8 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
                                    size_t& dataSize,
                                    size_t maximumAllowedSizeBytes )
 {
+  bool result = false;
+
   if( url.empty() )
   {
     DALI_LOG_WARNING("empty url requested \n");
@@ -297,17 +299,18 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
   CURL* curlHandle = curl_easy_init();
+  if ( curlHandle )
+  {
+    result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
 
-  bool result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
-
-  // clean up session
-  curl_easy_cleanup( curlHandle );
+    // clean up session
+    curl_easy_cleanup( curlHandle );
 
 #ifdef TPK_CURL_ENABLED
-  // Clean up tpkp(the module for certificate pinning) resources on Tizen
-  tpkp_curl_cleanup();
+    // Clean up tpkp(the module for certificate pinning) resources on Tizen
+    tpkp_curl_cleanup();
 #endif // TPK_CURL_ENABLED
-
+  }
   return result;
 }
 
