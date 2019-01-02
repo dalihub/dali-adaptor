@@ -52,4 +52,4 @@
 #endif
 #endif
 
-#endif //DALI_ADAPTOR_COMMON_H
+#endif // DALI_ADAPTOR_COMMON_H
