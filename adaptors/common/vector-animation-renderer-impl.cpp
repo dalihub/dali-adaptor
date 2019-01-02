@@ -60,9 +60,14 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 {
 }
 
-void VectorAnimationRenderer::Initialize( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height )
+void VectorAnimationRenderer::Initialize( const std::string& url )
 {
-  mPlugin.CreateRenderer( url, renderer, width, height );
+  mPlugin.SetUrl( url );
+}
+
+void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
+{
+  mPlugin.SetRenderer( renderer );
 }
 
 void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
