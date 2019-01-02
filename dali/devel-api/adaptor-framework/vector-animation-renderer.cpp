@@ -24,12 +24,12 @@
 namespace Dali
 {
 
-VectorAnimationRenderer VectorAnimationRenderer::New( const std::string& url, Renderer renderer, uint32_t width, uint32_t height )
+VectorAnimationRenderer VectorAnimationRenderer::New( const std::string& url )
 {
   Internal::Adaptor::VectorAnimationRendererPtr animationRenderer = Internal::Adaptor::VectorAnimationRenderer::New();
   if( animationRenderer )
   {
-    animationRenderer->Initialize( url, renderer, width, height );
+    animationRenderer->Initialize( url );
   }
 
   return VectorAnimationRenderer( animationRenderer.Get() );
@@ -57,6 +57,11 @@ VectorAnimationRenderer& VectorAnimationRenderer::operator=( const VectorAnimati
 {
   BaseHandle::operator=( rhs );
   return *this;
+}
+
+void VectorAnimationRenderer::SetRenderer( Renderer renderer )
+{
+  GetImplementation( *this ).SetRenderer( renderer );
 }
 
 void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
