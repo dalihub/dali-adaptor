@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Samsung Electronics Co., Ltd.
+# Copyright (c) 2019 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 # Build the Dali Adaptor library
 
+SUBDIRS=
 
 ############# INCLUDE FILE LISTS #############
 
@@ -90,6 +91,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_gl_src_files) \
                   $(adaptor_graphics_gl_ubuntu_src_files)
 endif
+
 
 endif # UBUNTU PROFILE
 
@@ -486,7 +488,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       -Werror -Wall -lgcc -Wold-style-cast\
                       $(LIBDALI_ADAPTOR_LA_includes) \
                       $(DALI_ADAPTOR_CFLAGS) \
-                      $(DALICORE_CFLAGS) \
+                      $(DALI_CORE_CFLAGS) \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
                       $(PNG_CFLAGS) \
@@ -514,7 +516,7 @@ LIBDALI_ADAPTOR_LA_CFLAGS = \
                       $(DALI_ADAPTOR_CFLAGS)
 
 LIBDALI_ADAPTOR_LA_LIBADD = \
-                      $(DALICORE_LIBS) \
+                      $(DALI_CORE_LIBS) \
                       $(FREETYPE_LIBS) \
                       $(FONTCONFIG_LIBS) \
                       $(PNG_LIBS) \
@@ -545,6 +547,8 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(EVAS_CFLAGS) \
 LIBDALI_ADAPTOR_LA_LIBADD += $(ECORE_IPC_LIBS) \
                              $(ELDBUS_LIBS)
 
+
+# TODO: Move to Graphics dependencies
 if VULKAN_ENABLED
 LIBDALI_ADAPTOR_LA_CXXFLAGS += $(VULKAN_CFLAGS)
 LIBDALI_ADAPTOR_LA_CFLAGS += $(VULKAN_CFLAGS)
@@ -554,6 +558,9 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(OPENGLES20_CFLAGS)
 LIBDALI_ADAPTOR_LA_CFLAGS += $(OPENGLES20_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(OPENGLES20_LIBS)
 endif
+
+LIBDALI_ADAPTOR_LA_LIBADD += $(DALI_GRAPHICS_LIBS)
+
 
 if USE_APPFW
 
@@ -705,8 +712,6 @@ bin_SCRIPTS = ../../../adaptors/scripts/dalireslog.sh
 packagedoxydir = $(devincludepath)/dali/doc
 packagedoxy_HEADERS = $(package_doxy_files)
 
-
-
 if ENABLE_CXX03_ABI
 
 lib_LTLIBRARIES = libdali-adaptor-vk.la
@@ -738,13 +743,15 @@ linker_test_CXXFLAGS = \
   -DDALI_ADAPTOR_COMPILATION \
   -I../../../ \
   $(DALI_ADAPTOR_CFLAGS) \
-  $(DALICORE_CFLAGS) \
+  $(DALI_CORE_CFLAGS) \
+  $(DALI_GRAPHICS_CFLAGS) \
   $(VCONF_CFLAGS) \
   $(DALIX11_CFLAGS) \
   -Werror -Wall
 
 linker_test_LDADD = \
-  $(DALICORE_LIBS) \
+  $(DALI_CORE_LIBS) \
+  $(DALI_GRAPHICS_LIBS) \
   $(VCONF_LIBS) \
   $(HARFBUZZ_LIBS) \
   -L${prefix}/lib

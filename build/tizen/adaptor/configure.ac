@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Samsung Electronics Co., Ltd.
+# Copyright (c) 2019 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -244,9 +244,9 @@ PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
 if test "x$enable_cxx03_abi" = "xyes"; then
-PKG_CHECK_MODULES(DALICORE, dali-core-vk-cxx03)
+PKG_CHECK_MODULES(DALI_CORE, dali-core-vk-cxx03)
 else
-PKG_CHECK_MODULES(DALICORE, dali-core-vk)
+PKG_CHECK_MODULES(DALI_CORE, dali-core-vk)
 fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
@@ -369,6 +369,9 @@ if test "x$enable_vulkan" != "xno"; then
         DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS -DVULKAN_WITH_WAYLAND"
         DALI_ADAPTOR_CXXFLAGS+=" -DVULKAN_WITH_WAYLAND "
         DALI_ADAPTOR_LDFLAGS+=${VULKAN_LIBS}
+        AC_SUBST(VULKAN_SDK)
+        AC_SUBST(VULKAN_LIBS)
+        AC_SUBST(VULKAN_CFLAGS)
     else
         DALI_ADAPTOR_CFLAGS+=" ${VULKAN_CFLAGS} -DVULKAN_HPP_NO_EXCEPTIONS"
 
@@ -380,14 +383,41 @@ if test "x$enable_vulkan" != "xno"; then
             DALI_ADAPTOR_LDFLAGS+=${X11_XCB_LIBS}
         fi
     fi
+
+    if test "x$enable_cxx03_abi" = "xyes"; then
+        # Can't rely on this for first time install. Is there another way?
+        #PKG_CHECK_MODULES(DALI_GRAPHICS, dali-graphics-vk-cxx03)
+        DALI_GRAPHICS_CFLAGS=-I${includedir}/dali
+        DALI_GRAPHICS_LIBS=-ldali-graphics-vk
+    else
+        #PKG_CHECK_MODULES(DALI_GRAPHICS, dali-graphics-vk)
+        DALI_GRAPHICS_CFLAGS=-I${includedir}/dali
+        DALI_GRAPHICS_LIBS=-ldali-graphics-vk-cxx11
+    fi
+
+else
+    if test "x$enable_cxx03_abi" = "xyes"; then
+        #PKG_CHECK_MODULES(DALI_GRAPHICS, dali-graphics-cxx03)
+        DALI_GRAPHICS_CFLAGS=-I${includedir}/dali
+        DALI_GRAPHICS_LIBS=-ldali-graphics
+    else
+        #PKG_CHECK_MODULES(DALI_GRAPHICS, dali-graphics)
+        DALI_GRAPHICS_CFLAGS=-I${includedir}/dali
+        DALI_GRAPHICS_LIBS=-ldali-graphics-cxx11
+    fi
 fi
 
+
+
 AM_CONDITIONAL([VULKAN_ENABLED], [test x$enable_vulkan != xno])
+
 
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
 AC_SUBST(DALI_ADAPTOR_LDFLAGS)
+AC_SUBST(DALI_GRAPHICS_CFLAGS)
+AC_SUBST(DALI_GRAPHICS_LIBS)
 AC_SUBST(DALI_PROFILE_CFLAGS)
 AC_SUBST(fontConfigurationFile)
 AC_SUBST(tizenPlatformConfigSupported)
@@ -432,6 +462,7 @@ Configuration
   Using Tizen APP FW libraries:     $enable_appfw
   OpenGL ES version:                $enable_gles
   Tizen Platform Config supported   $tizenPlatformConfigSupported
+  Graphics backend:                 ${DALI_GRAPHICS_LIBS}
   Vulkan Support:                   ${enable_vulkan}"
 
 if test "x$VULKAN_SDK" != "x"; then

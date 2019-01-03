@@ -1,0 +1,8 @@
+# Add graphics integration source files here
+
+graphics_integration_src_files = \
+   $(graphics_integration_dir)/graphics.cpp
+
+#graphics_vulkan_integration_header_files = \
+#  $(platform_abstraction_src_dir)/graphics/vulkan/vk-surface-factory.h \
+#  $(platform_abstraction_src_dir)/graphics/vulkan/vulkan-hpp-wrapper.h
