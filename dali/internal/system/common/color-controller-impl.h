@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_COLOR_CONTROLLER_H__
-#define __DALI_INTERNAL_COLOR_CONTROLLER_H__
+#ifndef DALI_INTERNAL_COLOR_CONTROLLER_H
+#define DALI_INTERNAL_COLOR_CONTROLLER_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/color-controller.h>
+#include <dali/devel-api/adaptor-framework/color-controller-plugin.h>
 
 namespace Dali
 {
@@ -56,15 +57,31 @@ public:
   bool RetrieveColor( const std::string& colorCode, Vector4& colorValue );
 
   /**
-   *copydoc Dali::ColorController::RetrieveColor(const std::string&, Vector4&, Vector4&, Vector4&)
+   * @copydoc Dali::ColorController::RetrieveColor(const std::string&, Vector4&, Vector4&, Vector4&)
    */
   bool RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor);
 
+private:
+
+ /**
+  * @brief Initialize
+  */
+  void Initialize();
+
 protected:
   /**
-   * Destructor.
+   * @brief Destructor.
    */
   virtual ~ColorController();
+
+private:
+
+  using CreateColorControllerFunction = Dali::ColorControllerPlugin* (*)();
+
+  void*                                  mLibHandle;          ///< Handle for the loaded library
+  Dali::ColorControllerPlugin*           mPlugin;             ///< Plugin handle
+
+  CreateColorControllerFunction          mCreateColorControllerPtr;   ///< Function pointer called in adaptor to create a plugin instance
 
 };
 
@@ -89,4 +106,4 @@ inline const Internal::Adaptor::ColorController& GetImplementation(const Dali::C
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_COLOR_CONTROLLER_H__
+#endif // DALI_INTERNAL_COLOR_CONTROLLER_H

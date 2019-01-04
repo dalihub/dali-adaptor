@@ -1,8 +1,8 @@
-#ifndef __DALI_COLOR_CONTROLLER_H__
-#define __DALI_COLOR_CONTROLLER_H__
+#ifndef DALI_COLOR_CONTROLLER_H
+#define DALI_COLOR_CONTROLLER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace Adaptor
 {
 class ColorController;
 }
+
 }
 
 /**
@@ -82,7 +83,7 @@ public:
   ~ColorController();
 
   /**
-   * @brief Retrieve the RGB value by given the color code.
+   * @brief Retrieve the RGBA value by given the color code.
    *
    * @param[in] colorCode The color code string.
    * @param[out] colorValue The RGBA color
@@ -91,7 +92,7 @@ public:
   bool RetrieveColor( const std::string& colorCode, Vector4& colorValue );
 
   /**
-    * @brief Retrieve the RGB values by given the color code.
+    * @brief Retrieve the RGBA values by given the color code.
     *
     * @param[in] colorCode The color code string.
     * @param[out] textColor The text color.
@@ -113,4 +114,4 @@ public: // Not intended for application developers
 
 } //namespace Dali
 
-#endif /* __DALI_COLOR_CONTROLLER_H__ */
+#endif // DALI_COLOR_CONTROLLER_H
