@@ -30,9 +30,9 @@ namespace Graphics
 namespace VulkanAPI
 {
 /**
- * @brief API::Shader represents program conceptually
+ * @brief Dali::Graphics::Shader represents program conceptually
  */
-class Shader : public Dali::Graphics::API::Shader
+class Shader : public Dali::Graphics::Shader
 {
 public:
   // not copyable
@@ -44,13 +44,13 @@ public:
 
   explicit Shader( Vulkan::Graphics& graphics );
 
-  bool AddShaderModule( Dali::Graphics::API::ShaderDetails::PipelineStage pipelineStage,
-                        Dali::Graphics::API::ShaderDetails::Language language,
-                        Dali::Graphics::API::ShaderDetails::ShaderSource shaderSource );
+  bool AddShaderModule( Dali::Graphics::ShaderDetails::PipelineStage pipelineStage,
+                        Dali::Graphics::ShaderDetails::Language language,
+                        Dali::Graphics::ShaderDetails::ShaderSource shaderSource );
 
   Vulkan::RefCountedShader GetShader( vk::ShaderStageFlagBits shaderStage ) const;
 
-  static Shader& DownCast( Dali::Graphics::API::Shader& shader );
+  static Shader& DownCast( Dali::Graphics::Shader& shader );
 
   Vulkan::RefCountedShader GetShaderRef( vk::ShaderStageFlagBits shaderStage ) const;
 
@@ -62,7 +62,7 @@ public:
 
   uint32_t GetVertexAttributeLocation( const std::string& name ) const override;
 
-  API::ShaderDetails::VertexInputAttributeFormat GetVertexAttributeFormat( uint32_t location ) const override;
+  Dali::Graphics::ShaderDetails::VertexInputAttributeFormat GetVertexAttributeFormat( uint32_t location ) const override;
 
   std::string GetVertexAttributeName( uint32_t location ) const override;
 
@@ -82,9 +82,9 @@ public:
 
   uint32_t GetUniformBlockMemberOffset( uint32_t blockIndex, uint32_t memberLocation ) const;
 
-  bool GetNamedUniform( const std::string& name, API::ShaderDetails::UniformInfo& out ) const override;
+  bool GetNamedUniform( const std::string& name, Dali::Graphics::ShaderDetails::UniformInfo& out ) const override;
 
-  std::vector< API::ShaderDetails::UniformInfo > GetSamplers() const override;
+  std::vector< Dali::Graphics::ShaderDetails::UniformInfo > GetSamplers() const override;
 
   uint32_t GetUniformBlockCount() const override;
 
@@ -92,7 +92,7 @@ public:
 
   uint32_t GetUniformBlockBinding( uint32_t index ) const override;
 
-  bool GetUniformBlock( uint32_t index, API::ShaderDetails::UniformBlockInfo& out ) const override;
+  bool GetUniformBlock( uint32_t index, Dali::Graphics::ShaderDetails::UniformBlockInfo& out ) const override;
 
 protected:
   // derived types should not be moved direcly to prevent slicing

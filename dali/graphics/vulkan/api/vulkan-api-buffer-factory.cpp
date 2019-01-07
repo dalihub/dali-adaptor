@@ -33,41 +33,41 @@ BufferFactory::BufferFactory( Controller& controller )
 
 }
 
-BufferFactory& BufferFactory::SetUsageFlags( Dali::Graphics::API::BufferUsageFlags usage )
+BufferFactory& BufferFactory::SetUsageFlags( Dali::Graphics::BufferUsageFlags usage )
 {
-  if( usage & uint32_t( API::BufferUsage::TRANSFER_DST ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::TRANSFER_DST ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eTransferDst;
   }
-  if( usage & uint32_t( API::BufferUsage::TRANSFER_SRC ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::TRANSFER_SRC ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eTransferSrc;
   }
-  if( usage & uint32_t( API::BufferUsage::UNIFORM_TEXEL_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::UNIFORM_TEXEL_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::STORAGE_TEXEL_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::STORAGE_TEXEL_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::UNIFORM_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::UNIFORM_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eUniformBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::STORAGE_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::STORAGE_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eStorageBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::INDEX_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::INDEX_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eIndexBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::VERTEX_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::VERTEX_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eVertexBuffer;
   }
-  if( usage & uint32_t( API::BufferUsage::INDIRECT_BUFFER ) )
+  if( usage & uint32_t( Dali::Graphics::BufferUsage::INDIRECT_BUFFER ) )
   {
     mUsage |= vk::BufferUsageFlagBits::eIndexBuffer;
   }
@@ -80,12 +80,12 @@ BufferFactory& BufferFactory::SetSize( uint32_t size )
   return *this;
 }
 
-std::unique_ptr< API::Buffer > BufferFactory::Create() const
+std::unique_ptr< Dali::Graphics::Buffer > BufferFactory::Create() const
 {
   auto retval = std::make_unique< VulkanAPI::Buffer >( mController, mUsage, mUsageHints, mSize );
   if( retval->Initialise() )
   {
-    return std::unique_ptr< API::Buffer >{ retval.release() };
+    return std::unique_ptr< Dali::Graphics::Buffer >{ retval.release() };
   }
   return nullptr;
 }

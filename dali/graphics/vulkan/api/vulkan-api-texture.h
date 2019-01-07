@@ -40,11 +40,11 @@ class Controller;
  * This is temporary implementation. It should be using graphics-texture as base
  * interface.
  */
-class Texture : public Dali::Graphics::API::Texture
+class Texture : public Dali::Graphics::Texture
 {
 public:
 
-  explicit Texture( Dali::Graphics::API::TextureFactory& factory );
+  explicit Texture( Dali::Graphics::TextureFactory& factory );
 
   ~Texture() override;
 
@@ -56,11 +56,11 @@ public:
 
   Vulkan::RefCountedSampler GetSamplerRef() const;
 
-  void CopyMemory( const void *srcMemory, uint32_t maxDataSize, API::Extent2D srcExtent, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode ) override;
+  void CopyMemory( const void *srcMemory, uint32_t maxDataSize, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode ) override;
 
-  void CopyTexture( const API::Texture &srcTexture, API::Rect2D srcRegion, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode ) override;
+  void CopyTexture( const Dali::Graphics::Texture &srcTexture, Dali::Graphics::Rect2D srcRegion, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode ) override;
 
-  void CopyBuffer( const API::Buffer &srcBuffer, API::Extent2D srcExtent, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode) override;
+  void CopyBuffer( const Dali::Graphics::Buffer &srcBuffer, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode) override;
 
 private:
 

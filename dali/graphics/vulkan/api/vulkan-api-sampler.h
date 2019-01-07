@@ -32,7 +32,7 @@ class Controller;
 /**
  * @brief Interface class for Sampler types in the graphics API.
  */
-class Sampler : public API::Sampler
+class Sampler : public Dali::Graphics::Sampler
 {
 public:
 

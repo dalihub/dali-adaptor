@@ -26,12 +26,12 @@ namespace Graphics
 {
 namespace VulkanAPI
 {
-using namespace Dali::Graphics::API;
+using namespace Dali::Graphics;
 using namespace Dali::Graphics::Vulkan;
 
-using ShaderLanguage = Dali::Graphics::API::ShaderDetails::Language;
-using ShaderPipelineStage = Dali::Graphics::API::ShaderDetails::PipelineStage;
-using ShaderSource = Dali::Graphics::API::ShaderDetails::ShaderSource;
+using ShaderLanguage = Dali::Graphics::ShaderDetails::Language;
+using ShaderPipelineStage = Dali::Graphics::ShaderDetails::PipelineStage;
+using ShaderSource = Dali::Graphics::ShaderDetails::ShaderSource;
 
 Shader::Shader( Vulkan::Graphics& graphics ) :
         mGraphics( graphics )
@@ -63,7 +63,7 @@ RefCountedShader Shader::GetShader( vk::ShaderStageFlagBits shaderStage ) const
   return RefCountedShader();
 }
 
-Shader& Shader::DownCast( Dali::Graphics::API::Shader& shader )
+Shader& Shader::DownCast( Dali::Graphics::Shader& shader )
 {
   return *( dynamic_cast<Shader*>( &shader ) );
 }
@@ -84,9 +84,9 @@ Vulkan::RefCountedShader Shader::GetShaderRef( vk::ShaderStageFlagBits shaderSta
   }
 }
 
-bool Shader::AddShaderModule( Dali::Graphics::API::ShaderDetails::PipelineStage pipelineStage,
-                              Dali::Graphics::API::ShaderDetails::Language language,
-                              Dali::Graphics::API::ShaderDetails::ShaderSource shaderSource )
+bool Shader::AddShaderModule( Dali::Graphics::ShaderDetails::PipelineStage pipelineStage,
+                              Dali::Graphics::ShaderDetails::Language language,
+                              Dali::Graphics::ShaderDetails::ShaderSource shaderSource )
 {
   // TODO: AB: only supported language is SPIRV for now
   if( language != ShaderLanguage::SPIRV_1_0 && language != ShaderLanguage::SPIRV_1_1 )
@@ -155,7 +155,7 @@ uint32_t Shader::GetVertexAttributeLocation( const std::string& name ) const
 {
   if( !mVertexShader )
   {
-    return API::ShaderDetails::ERROR_VERTEX_INPUT_ATTRIBUTE_NOT_FOUND;
+    return Dali::Graphics::ShaderDetails::ERROR_VERTEX_INPUT_ATTRIBUTE_NOT_FOUND;
   }
 
   for( auto&& attr : mVertexInputAttributes )
@@ -165,39 +165,39 @@ uint32_t Shader::GetVertexAttributeLocation( const std::string& name ) const
       return attr.location;
     }
   }
-  return API::ShaderDetails::ERROR_VERTEX_INPUT_ATTRIBUTE_NOT_FOUND;
+  return Dali::Graphics::ShaderDetails::ERROR_VERTEX_INPUT_ATTRIBUTE_NOT_FOUND;
 }
 
-API::ShaderDetails::VertexInputAttributeFormat Shader::GetVertexAttributeFormat( uint32_t location ) const
+Dali::Graphics::ShaderDetails::VertexInputAttributeFormat Shader::GetVertexAttributeFormat( uint32_t location ) const
 {
   if( !mVertexShader || mVertexInputAttributes.size() <= location )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::UNDEFINED;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::UNDEFINED;
   }
 
   const auto& attr = mVertexInputAttributes[location];
 
   if( attr.format == vk::Format::eR32Sfloat )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::FLOAT;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::FLOAT;
   }
   if( attr.format == vk::Format::eR32Sint )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::INTEGER;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::INTEGER;
   }
   if( attr.format == vk::Format::eR32G32Sfloat )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::VEC2;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::VEC2;
   }
   if( attr.format == vk::Format::eR32G32B32Sfloat )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::VEC3;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::VEC3;
   }
   if( attr.format == vk::Format::eR32G32B32A32Sfloat )
   {
-    return API::ShaderDetails::VertexInputAttributeFormat::VEC4;
+    return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::VEC4;
   }
-  return API::ShaderDetails::VertexInputAttributeFormat::UNDEFINED;
+  return Dali::Graphics::ShaderDetails::VertexInputAttributeFormat::UNDEFINED;
 }
 
 std::string Shader::GetVertexAttributeName( uint32_t location ) const
@@ -254,7 +254,7 @@ uint32_t Shader::GetUniformBlockMemberOffset( uint32_t blockIndex, uint32_t memb
   return mUniformBlocks[blockIndex].members[memberLocation].offset;
 }
 
-bool Shader::GetNamedUniform( const std::string& name, API::ShaderDetails::UniformInfo& out ) const
+bool Shader::GetNamedUniform( const std::string& name, Dali::Graphics::ShaderDetails::UniformInfo& out ) const
 {
   // check uniform blocks first
   auto index = 0u;
@@ -292,24 +292,24 @@ bool Shader::GetNamedUniform( const std::string& name, API::ShaderDetails::Unifo
   return false;
 }
 
-std::vector< API::ShaderDetails::UniformInfo > Shader::GetSamplers() const
+std::vector< Dali::Graphics::ShaderDetails::UniformInfo > Shader::GetSamplers() const
 {
-  std::vector< API::ShaderDetails::UniformInfo > retval;
+  std::vector< Dali::Graphics::ShaderDetails::UniformInfo > retval;
   for( auto&& uniform : mUniformOpaques )
   {
     if( uniform.type == vk::DescriptorType::eCombinedImageSampler )
     {
-      API::ShaderDetails::UniformInfo info;
+      Dali::Graphics::ShaderDetails::UniformInfo info;
       info.location = 0u;
       info.binding = uniform.binding;
       info.offset = 0;
       info.name = uniform.name;
-      info.uniformClass = API::ShaderDetails::UniformClass::COMBINED_IMAGE_SAMPLER;
+      info.uniformClass = Dali::Graphics::ShaderDetails::UniformClass::COMBINED_IMAGE_SAMPLER;
       retval.emplace_back( info );
     }
   }
   std::sort( retval.begin(), retval.end(),
-             []( const API::ShaderDetails::UniformInfo& a, const API::ShaderDetails::UniformInfo& b ) {
+             []( const Dali::Graphics::ShaderDetails::UniformInfo& a, const Dali::Graphics::ShaderDetails::UniformInfo& b ) {
                return a.binding < b.binding;
              } );
 
@@ -331,7 +331,7 @@ uint32_t Shader::GetUniformBlockBinding( uint32_t index ) const
   return U32( mUniformBlocks[index].binding );
 }
 
-bool Shader::GetUniformBlock( uint32_t index, API::ShaderDetails::UniformBlockInfo& out ) const
+bool Shader::GetUniformBlock( uint32_t index, Dali::Graphics::ShaderDetails::UniformBlockInfo& out ) const
 {
   if( index >= mUniformBlocks.size() )
   {
@@ -351,7 +351,7 @@ bool Shader::GetUniformBlock( uint32_t index, API::ShaderDetails::UniformBlockIn
     const auto& memberUniform = block.members[i];
     out.members[i].name = memberUniform.name;
     out.members[i].binding = block.binding;
-    out.members[i].uniformClass = API::ShaderDetails::UniformClass::UNIFORM_BUFFER;
+    out.members[i].uniformClass = Dali::Graphics::ShaderDetails::UniformClass::UNIFORM_BUFFER;
     out.members[i].offset = memberUniform.offset;
     out.members[i].location = memberUniform.location;
   }

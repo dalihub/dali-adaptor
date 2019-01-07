@@ -34,11 +34,11 @@ ShaderFactory::ShaderFactory( Vulkan::Graphics& graphics ) :
 
 ShaderFactory::~ShaderFactory() = default;
 
-ShaderFactory& ShaderFactory::SetShaderModule( Graphics::API::ShaderDetails::PipelineStage pipelineStage,
-                                               Graphics::API::ShaderDetails::Language language,
-                                               const Graphics::API::ShaderDetails::ShaderSource& source )
+ShaderFactory& ShaderFactory::SetShaderModule( Graphics::ShaderDetails::PipelineStage pipelineStage,
+                                               Graphics::ShaderDetails::Language language,
+                                               const Graphics::ShaderDetails::ShaderSource& source )
 {
-  using PipelineStage = Graphics::API::ShaderDetails::PipelineStage;
+  using PipelineStage = Graphics::ShaderDetails::PipelineStage;
   if( pipelineStage == PipelineStage::VERTEX )
   {
     mVertexShader = ShaderModuleInfo( pipelineStage, language, source );
@@ -50,7 +50,7 @@ ShaderFactory& ShaderFactory::SetShaderModule( Graphics::API::ShaderDetails::Pip
   return *this;
 }
 
-std::unique_ptr< Graphics::API::Shader > ShaderFactory::Create() const
+std::unique_ptr< Graphics::Shader > ShaderFactory::Create() const
 {
   if( !mVertexShader.source.IsSet() || !mFragmentShader.source.IsSet() )
   {

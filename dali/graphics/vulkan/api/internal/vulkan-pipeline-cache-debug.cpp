@@ -52,7 +52,7 @@ std::string PipelineCacheDebug::DebugPrintPipelineInfo( const PipelineFactory::I
     for (auto &&i : info.vertexInputState.bufferBindings)
     {
       ss << "    binding[" << k++ << "]" << std::endl;
-      ss << "       inputRate = " << API::Debug::str(i.inputRate) << std::endl;
+      ss << "       inputRate = " << Dali::Graphics::Debug::str(i.inputRate) << std::endl;
       ss << "       stride    = " << i.stride << std::endl;
     }
   }
@@ -60,32 +60,32 @@ std::string PipelineCacheDebug::DebugPrintPipelineInfo( const PipelineFactory::I
   // vertex input state
   ss << "  IA    : " << std::endl;
   ss << "    primitiveRestartEnable: " << info.inputAssemblyState.primitiveRestartEnable << std::endl;
-  ss << "    topology              : " << API::Debug::str(info.inputAssemblyState.topology) << std::endl;
+  ss << "    topology              : " << Dali::Graphics::Debug::str(info.inputAssemblyState.topology) << std::endl;
 
   // depth/stencil
   const auto& ds = info.depthStencilState;
   ss << "  DS    : " << std::endl;
   ss << "    depthTestEnable: " << ds.depthTestEnable << std::endl;
   ss << "    depthWriteEnable: " << ds.depthWriteEnable << std::endl;
-  ss << "    depthCompareOp: " << API::Debug::str(ds.depthCompareOp) << std::endl;
+  ss << "    depthCompareOp: " << Dali::Graphics::Debug::str(ds.depthCompareOp) << std::endl;
   ss << "    stencilTestEnable: " << ds.stencilTestEnable << std::endl;
 
   // rasterization state
   const auto& rs = info.rasterizationState;
   ss << "  RS    : " << std::endl;
-  ss << "    polygonMode : " << API::Debug::str(rs.polygonMode) << std::endl;
-  ss << "    frontFace   : " << API::Debug::str(rs.frontFace) << std::endl;
-  ss << "    cullMode    : " << API::Debug::str(rs.cullMode) << std::endl;
+  ss << "    polygonMode : " << Dali::Graphics::Debug::str(rs.polygonMode) << std::endl;
+  ss << "    frontFace   : " << Dali::Graphics::Debug::str(rs.frontFace) << std::endl;
+  ss << "    cullMode    : " << Dali::Graphics::Debug::str(rs.cullMode) << std::endl;
 
   const auto& cb = info.colorBlendState;
   ss << "  CB    : " << std::endl;
-  ss << "    colorBlendOp        : " << API::Debug::str(cb.colorBlendOp) << std::endl;
-  ss << "    alphaBlendOp        : " << API::Debug::str(cb.alphaBlendOp) << std::endl;
+  ss << "    colorBlendOp        : " << Dali::Graphics::Debug::str(cb.colorBlendOp) << std::endl;
+  ss << "    alphaBlendOp        : " << Dali::Graphics::Debug::str(cb.alphaBlendOp) << std::endl;
   ss << "    blendConstants      : " << cb.blendConstants[0] << ", " << cb.blendConstants[1] << ", " << cb.blendConstants[2] << ", " << cb.blendConstants[3] << std::endl;
-  ss << "    srcColorBlendFactor : " << API::Debug::str(cb.srcColorBlendFactor) << std::endl;
-  ss << "    srcAlphaBlendFactor : " << API::Debug::str(cb.srcAlphaBlendFactor) << std::endl;
-  ss << "    dstColorBlendFactor : " << API::Debug::str(cb.dstColorBlendFactor) << std::endl;
-  ss << "    dstAlphaBlendFactor : " << API::Debug::str(cb.dstAlphaBlendFactor) << std::endl;
+  ss << "    srcColorBlendFactor : " << Dali::Graphics::Debug::str(cb.srcColorBlendFactor) << std::endl;
+  ss << "    srcAlphaBlendFactor : " << Dali::Graphics::Debug::str(cb.srcAlphaBlendFactor) << std::endl;
+  ss << "    dstColorBlendFactor : " << Dali::Graphics::Debug::str(cb.dstColorBlendFactor) << std::endl;
+  ss << "    dstAlphaBlendFactor : " << Dali::Graphics::Debug::str(cb.dstAlphaBlendFactor) << std::endl;
   ss << "    blendEnable         : " << cb.blendEnable << std::endl;
   ss << "    logicOpEnable       : " << cb.logicOpEnable << std::endl;
   ss << "    logicOp             : " << "UNDEFINED" << std::endl;
@@ -150,4 +150,3 @@ std::string PipelineCacheDebug::DebugPrint() const
 } // namespace VulkanAPI
 } // namespace Graphics
 } // namespace Dali
-

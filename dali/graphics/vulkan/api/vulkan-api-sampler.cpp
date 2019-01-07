@@ -28,35 +28,35 @@ namespace VulkanAPI
 {
 namespace
 {
-constexpr vk::Filter ConvertFilter( API::SamplerFilter filter )
+constexpr vk::Filter ConvertFilter( Dali::Graphics::SamplerFilter filter )
 {
   switch(filter)
   {
-    case API::SamplerFilter::LINEAR: return vk::Filter::eLinear;
-    case API::SamplerFilter::NEAREST: return vk::Filter::eNearest;
+    case Dali::Graphics::SamplerFilter::LINEAR: return vk::Filter::eLinear;
+    case Dali::Graphics::SamplerFilter::NEAREST: return vk::Filter::eNearest;
   }
   return vk::Filter{};
 }
 
-constexpr vk::SamplerAddressMode ConvertAddressMode( API::SamplerAddressMode mode )
+constexpr vk::SamplerAddressMode ConvertAddressMode( Dali::Graphics::SamplerAddressMode mode )
 {
   switch(mode)
   {
-    case API::SamplerAddressMode::CLAMP_TO_EDGE: return vk::SamplerAddressMode::eClampToEdge;
-    case API::SamplerAddressMode::CLAMP_TO_BORDER: return vk::SamplerAddressMode::eClampToBorder;
-    case API::SamplerAddressMode::MIRROR_CLAMP_TO_EDGE: return vk::SamplerAddressMode::eMirrorClampToEdge;
-    case API::SamplerAddressMode::MIRRORED_REPEAT: return vk::SamplerAddressMode::eMirroredRepeat;
-    case API::SamplerAddressMode::REPEAT: return vk::SamplerAddressMode::eRepeat;
+    case Dali::Graphics::SamplerAddressMode::CLAMP_TO_EDGE: return vk::SamplerAddressMode::eClampToEdge;
+    case Dali::Graphics::SamplerAddressMode::CLAMP_TO_BORDER: return vk::SamplerAddressMode::eClampToBorder;
+    case Dali::Graphics::SamplerAddressMode::MIRROR_CLAMP_TO_EDGE: return vk::SamplerAddressMode::eMirrorClampToEdge;
+    case Dali::Graphics::SamplerAddressMode::MIRRORED_REPEAT: return vk::SamplerAddressMode::eMirroredRepeat;
+    case Dali::Graphics::SamplerAddressMode::REPEAT: return vk::SamplerAddressMode::eRepeat;
   }
   return vk::SamplerAddressMode{};
 }
 
-constexpr vk::SamplerMipmapMode ConvertMipmapMode( API::SamplerMipmapMode mode )
+constexpr vk::SamplerMipmapMode ConvertMipmapMode( Dali::Graphics::SamplerMipmapMode mode )
 {
   switch(mode)
   {
-    case API::SamplerMipmapMode::LINEAR: return vk::SamplerMipmapMode::eLinear;
-    case API::SamplerMipmapMode::NEAREST: return vk::SamplerMipmapMode::eNearest;
+    case Dali::Graphics::SamplerMipmapMode::LINEAR: return vk::SamplerMipmapMode::eLinear;
+    case Dali::Graphics::SamplerMipmapMode::NEAREST: return vk::SamplerMipmapMode::eNearest;
   }
   return vk::SamplerMipmapMode{};
 }

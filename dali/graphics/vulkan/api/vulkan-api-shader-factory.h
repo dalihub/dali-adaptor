@@ -34,14 +34,14 @@ class Graphics;
 namespace VulkanAPI
 {
 
-class ShaderFactory : public Dali::Graphics::API::ShaderFactory
+class ShaderFactory : public Dali::Graphics::ShaderFactory
 {
 public:
   explicit ShaderFactory( Vulkan::Graphics& graphics );
 
-  ShaderFactory& SetShaderModule( Graphics::API::ShaderDetails::PipelineStage pipelineStage,
-                                  Graphics::API::ShaderDetails::Language language,
-                                  const Graphics::API::ShaderDetails::ShaderSource& source ) override;
+  ShaderFactory& SetShaderModule( Graphics::ShaderDetails::PipelineStage pipelineStage,
+                                  Graphics::ShaderDetails::Language language,
+                                  const Graphics::ShaderDetails::ShaderSource& source ) override;
 
   PointerType Create() const override;
 
@@ -51,9 +51,9 @@ private:
 
   struct ShaderModuleInfo
   {
-    using PipelineStage = Graphics::API::ShaderDetails::PipelineStage;
-    using Language = Graphics::API::ShaderDetails::Language;
-    using ShaderSource = Graphics::API::ShaderDetails::ShaderSource;
+    using PipelineStage = Graphics::ShaderDetails::PipelineStage;
+    using Language = Graphics::ShaderDetails::Language;
+    using ShaderSource = Graphics::ShaderDetails::ShaderSource;
 
     PipelineStage pipelineStage;
     Language language;

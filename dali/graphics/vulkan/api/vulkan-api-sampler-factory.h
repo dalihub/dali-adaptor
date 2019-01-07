@@ -31,7 +31,7 @@ namespace VulkanAPI
 /**
  * @brief Interface class for ShaderFactory types in the graphics API.
  */
-class SamplerFactory : public API::SamplerFactory
+class SamplerFactory : public Dali::Graphics::SamplerFactory
 {
 public:
 
@@ -41,34 +41,34 @@ public:
 
   }
 
-  API::SamplerFactory& SetAddressModeU( API::SamplerAddressMode mode ) override;
+  Dali::Graphics::SamplerFactory& SetAddressModeU( Dali::Graphics::SamplerAddressMode mode ) override;
 
-  API::SamplerFactory& SetAddressModeV( API::SamplerAddressMode mode ) override;
+  Dali::Graphics::SamplerFactory& SetAddressModeV( Dali::Graphics::SamplerAddressMode mode ) override;
 
-  API::SamplerFactory& SetAddressModeW( API::SamplerAddressMode mode ) override;
+  Dali::Graphics::SamplerFactory& SetAddressModeW( Dali::Graphics::SamplerAddressMode mode ) override;
 
-  API::SamplerFactory& SetMinFilter( API::SamplerFilter filter ) override;
+  Dali::Graphics::SamplerFactory& SetMinFilter( Dali::Graphics::SamplerFilter filter ) override;
 
-  API::SamplerFactory& SetMagFilter( API::SamplerFilter filter ) override;
+  Dali::Graphics::SamplerFactory& SetMagFilter( Dali::Graphics::SamplerFilter filter ) override;
 
-  API::SamplerFactory& SetMipmapMode( API::SamplerMipmapMode mipmapMode ) override;
+  Dali::Graphics::SamplerFactory& SetMipmapMode( Dali::Graphics::SamplerMipmapMode mipmapMode ) override;
 
-  API::SamplerFactory& SetAnisotropyEnable( bool anisotropyEnable ) override;
+  Dali::Graphics::SamplerFactory& SetAnisotropyEnable( bool anisotropyEnable ) override;
 
-  API::SamplerFactory& SetMaxAnisotropy( float maxAnisotropy ) override;
+  Dali::Graphics::SamplerFactory& SetMaxAnisotropy( float maxAnisotropy ) override;
 
-  API::SamplerFactory& SetMinLod( float minLod ) override;
+  Dali::Graphics::SamplerFactory& SetMinLod( float minLod ) override;
 
-  API::SamplerFactory& SetMaxLod( float maxLod ) override;
+  Dali::Graphics::SamplerFactory& SetMaxLod( float maxLod ) override;
 
-  API::SamplerFactory& SetUnnormalizeCoordinates( bool unnormalizedCoordinates ) override;
+  Dali::Graphics::SamplerFactory& SetUnnormalizeCoordinates( bool unnormalizedCoordinates ) override;
 
-  API::SamplerFactory& SetCompareEnable( bool compareEnable ) override;
+  Dali::Graphics::SamplerFactory& SetCompareEnable( bool compareEnable ) override;
 
-  API::SamplerFactory& SetCompareOp( API::CompareOp compareOp ) override;
+  Dali::Graphics::SamplerFactory& SetCompareOp( Dali::Graphics::CompareOp compareOp ) override;
 
   // not copyable
-  SamplerFactory(const API::SamplerFactory&) = delete;
+  SamplerFactory(const Dali::Graphics::SamplerFactory&) = delete;
   SamplerFactory& operator=(const SamplerFactory&) = delete;
 
   ~SamplerFactory() = default;
@@ -90,13 +90,13 @@ public:
 
   VulkanAPI::Controller& mController;
 
-  API::SamplerAddressMode mAddressModeU {};
-  API::SamplerAddressMode mAddressModeW {};
-  API::SamplerAddressMode mAddressModeV {};
-  API::SamplerFilter      mMinFilter {};
-  API::SamplerFilter      mMagFilter {};
-  API::SamplerMipmapMode  mMipmapMode {};
-  API::CompareOp          mCompareOp {};
+  Dali::Graphics::SamplerAddressMode mAddressModeU {};
+  Dali::Graphics::SamplerAddressMode mAddressModeW {};
+  Dali::Graphics::SamplerAddressMode mAddressModeV {};
+  Dali::Graphics::SamplerFilter      mMinFilter {};
+  Dali::Graphics::SamplerFilter      mMagFilter {};
+  Dali::Graphics::SamplerMipmapMode  mMipmapMode {};
+  Dali::Graphics::CompareOp          mCompareOp {};
   float                   mMaxAnisotropy { 0.0f };
   float                   mMinLod { 0.0f };
   float                   mMaxLod { 0.0f };

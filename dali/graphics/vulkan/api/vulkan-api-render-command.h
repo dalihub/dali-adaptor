@@ -58,7 +58,7 @@ class DescriptorSetAllocator;
  * - Descriptor sets are allocated upon pipeline creation
  * - Note: need resource "versioning"
  */
-class RenderCommand : public Graphics::API::RenderCommand
+class RenderCommand : public Graphics::RenderCommand
 {
 public:
 

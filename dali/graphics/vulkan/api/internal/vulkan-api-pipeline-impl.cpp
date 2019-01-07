@@ -43,170 +43,170 @@ namespace Internal
 using Vulkan::VkAssert;
 namespace
 {
-constexpr vk::BlendOp ConvertBlendOp( Dali::Graphics::API::BlendOp blendOp )
+constexpr vk::BlendOp ConvertBlendOp( Dali::Graphics::BlendOp blendOp )
 {
   switch( blendOp )
   {
-    case API::BlendOp::ADD:
+    case Dali::Graphics::BlendOp::ADD:
       return vk::BlendOp::eAdd;
-    case API::BlendOp::SUBTRACT:
+    case Dali::Graphics::BlendOp::SUBTRACT:
       return vk::BlendOp::eSubtract;
-    case API::BlendOp::REVERSE_SUBTRACT:
+    case Dali::Graphics::BlendOp::REVERSE_SUBTRACT:
       return vk::BlendOp::eReverseSubtract;
-    case API::BlendOp::MIN:
+    case Dali::Graphics::BlendOp::MIN:
       return vk::BlendOp::eMin;
-    case API::BlendOp::MAX:
+    case Dali::Graphics::BlendOp::MAX:
       return vk::BlendOp::eMax;
   }
   return vk::BlendOp{};
 }
 
-constexpr vk::BlendFactor ConvertBlendFactor( Dali::Graphics::API::BlendFactor blendFactor )
+constexpr vk::BlendFactor ConvertBlendFactor( Dali::Graphics::BlendFactor blendFactor )
 {
   switch( blendFactor )
   {
-    case API::BlendFactor::ZERO:
+    case Dali::Graphics::BlendFactor::ZERO:
       return vk::BlendFactor::eZero;
-    case API::BlendFactor::ONE:
+    case Dali::Graphics::BlendFactor::ONE:
       return vk::BlendFactor::eOne;
-    case API::BlendFactor::SRC_COLOR:
+    case Dali::Graphics::BlendFactor::SRC_COLOR:
       return vk::BlendFactor::eSrcColor;
-    case API::BlendFactor::ONE_MINUS_SRC_COLOR:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_SRC_COLOR:
       return vk::BlendFactor::eOneMinusSrcAlpha;
-    case API::BlendFactor::DST_COLOR:
+    case Dali::Graphics::BlendFactor::DST_COLOR:
       return vk::BlendFactor::eDstColor;
-    case API::BlendFactor::ONE_MINUS_DST_COLOR:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_DST_COLOR:
       return vk::BlendFactor::eOneMinusDstColor;
-    case API::BlendFactor::SRC_ALPHA:
+    case Dali::Graphics::BlendFactor::SRC_ALPHA:
       return vk::BlendFactor::eSrcAlpha;
-    case API::BlendFactor::ONE_MINUS_SRC_ALPHA:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_SRC_ALPHA:
       return vk::BlendFactor::eOneMinusSrcAlpha;
-    case API::BlendFactor::DST_ALPHA:
+    case Dali::Graphics::BlendFactor::DST_ALPHA:
       return vk::BlendFactor::eDstAlpha;
-    case API::BlendFactor::ONE_MINUS_DST_ALPHA:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_DST_ALPHA:
       return vk::BlendFactor::eOneMinusDstAlpha;
-    case API::BlendFactor::CONSTANT_COLOR:
+    case Dali::Graphics::BlendFactor::CONSTANT_COLOR:
       return vk::BlendFactor::eConstantColor;
-    case API::BlendFactor::ONE_MINUS_CONSTANT_COLOR:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_CONSTANT_COLOR:
       return vk::BlendFactor::eOneMinusConstantColor;
-    case API::BlendFactor::CONSTANT_ALPHA:
+    case Dali::Graphics::BlendFactor::CONSTANT_ALPHA:
       return vk::BlendFactor::eConstantAlpha;
-    case API::BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
       return vk::BlendFactor::eOneMinusConstantAlpha;
-    case API::BlendFactor::SRC_ALPHA_SATURATE:
+    case Dali::Graphics::BlendFactor::SRC_ALPHA_SATURATE:
       return vk::BlendFactor::eSrcAlphaSaturate;
-    case API::BlendFactor::SRC1_COLOR:
+    case Dali::Graphics::BlendFactor::SRC1_COLOR:
       return vk::BlendFactor::eSrc1Color;
-    case API::BlendFactor::ONE_MINUS_SRC1_COLOR:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_SRC1_COLOR:
       return vk::BlendFactor::eOneMinusSrc1Color;
-    case API::BlendFactor::SRC1_ALPHA:
+    case Dali::Graphics::BlendFactor::SRC1_ALPHA:
       return vk::BlendFactor::eSrc1Alpha;
-    case API::BlendFactor::ONE_MINUS_SRC1_ALPHA:
+    case Dali::Graphics::BlendFactor::ONE_MINUS_SRC1_ALPHA:
       return vk::BlendFactor::eOneMinusSrc1Alpha;
   }
   return vk::BlendFactor{};
 }
 
-constexpr vk::CompareOp ConvertCompareOp( Dali::Graphics::API::CompareOp compareOp )
+constexpr vk::CompareOp ConvertCompareOp( Dali::Graphics::CompareOp compareOp )
 {
   switch( compareOp )
   {
-    case API::CompareOp::NEVER:
+    case Dali::Graphics::CompareOp::NEVER:
       return vk::CompareOp::eNever;
-    case API::CompareOp::LESS:
+    case Dali::Graphics::CompareOp::LESS:
       return vk::CompareOp::eLess;
-    case API::CompareOp::EQUAL:
+    case Dali::Graphics::CompareOp::EQUAL:
       return vk::CompareOp::eEqual;
-    case API::CompareOp::LESS_OR_EQUAL:
+    case Dali::Graphics::CompareOp::LESS_OR_EQUAL:
       return vk::CompareOp::eLessOrEqual;
-    case API::CompareOp::GREATER:
+    case Dali::Graphics::CompareOp::GREATER:
       return vk::CompareOp::eGreater;
-    case API::CompareOp::NOT_EQUAL:
+    case Dali::Graphics::CompareOp::NOT_EQUAL:
       return vk::CompareOp::eNotEqual;
-    case API::CompareOp::GREATER_OR_EQUAL:
+    case Dali::Graphics::CompareOp::GREATER_OR_EQUAL:
       return vk::CompareOp::eGreaterOrEqual;
-    case API::CompareOp::ALWAYS:
+    case Dali::Graphics::CompareOp::ALWAYS:
       return vk::CompareOp::eAlways;
   }
   return vk::CompareOp{};
 }
 
-constexpr vk::PrimitiveTopology ConvertPrimitiveTopology( Dali::Graphics::API::PrimitiveTopology topology )
+constexpr vk::PrimitiveTopology ConvertPrimitiveTopology( Dali::Graphics::PrimitiveTopology topology )
 {
-  using Dali::Graphics::API::Pipeline;
+  using Dali::Graphics::Pipeline;
   switch( topology )
   {
-    case API::PrimitiveTopology::POINT_LIST:
+    case Dali::Graphics::PrimitiveTopology::POINT_LIST:
       return vk::PrimitiveTopology::ePointList;
-    case API::PrimitiveTopology::LINE_LIST:
+    case Dali::Graphics::PrimitiveTopology::LINE_LIST:
       return vk::PrimitiveTopology::eLineList;
-    case API::PrimitiveTopology::LINE_STRIP:
+    case Dali::Graphics::PrimitiveTopology::LINE_STRIP:
       return vk::PrimitiveTopology::eLineStrip;
-    case API::PrimitiveTopology::TRIANGLE_LIST:
+    case Dali::Graphics::PrimitiveTopology::TRIANGLE_LIST:
       return vk::PrimitiveTopology::eTriangleList;
-    case API::PrimitiveTopology::TRIANGLE_STRIP:
+    case Dali::Graphics::PrimitiveTopology::TRIANGLE_STRIP:
       return vk::PrimitiveTopology::eTriangleStrip;
-    case API::PrimitiveTopology::TRIANGLE_FAN:
+    case Dali::Graphics::PrimitiveTopology::TRIANGLE_FAN:
       return vk::PrimitiveTopology::eTriangleFan;
   }
   return vk::PrimitiveTopology{};
 }
 
-constexpr vk::CullModeFlagBits ConvertCullMode( Dali::Graphics::API::CullMode cullMode )
+constexpr vk::CullModeFlagBits ConvertCullMode( Dali::Graphics::CullMode cullMode )
 {
   switch( cullMode )
   {
-    case API::CullMode::NONE:
+    case Dali::Graphics::CullMode::NONE:
       return vk::CullModeFlagBits::eNone;
-    case API::CullMode::FRONT:
+    case Dali::Graphics::CullMode::FRONT:
       return vk::CullModeFlagBits::eFront;
-    case API::CullMode::BACK:
+    case Dali::Graphics::CullMode::BACK:
       return vk::CullModeFlagBits::eBack;
-    case API::CullMode::FRONT_AND_BACK:
+    case Dali::Graphics::CullMode::FRONT_AND_BACK:
       return vk::CullModeFlagBits::eFrontAndBack;
   }
   return vk::CullModeFlagBits{};
 }
 
-constexpr vk::PolygonMode ConvertPolygonMode( Dali::Graphics::API::PolygonMode polygonMode )
+constexpr vk::PolygonMode ConvertPolygonMode( Dali::Graphics::PolygonMode polygonMode )
 {
   switch( polygonMode )
   {
-    case API::PolygonMode::FILL:
+    case Dali::Graphics::PolygonMode::FILL:
       return vk::PolygonMode::eFill;
-    case API::PolygonMode::LINE:
+    case Dali::Graphics::PolygonMode::LINE:
       return vk::PolygonMode::eLine;
-    case API::PolygonMode::POINT:
+    case Dali::Graphics::PolygonMode::POINT:
       return vk::PolygonMode::ePoint;
   }
   return vk::PolygonMode{};
 }
 
-constexpr vk::FrontFace ConvertFrontFace( Dali::Graphics::API::FrontFace frontFace )
+constexpr vk::FrontFace ConvertFrontFace( Dali::Graphics::FrontFace frontFace )
 {
   switch( frontFace )
   {
-    case API::FrontFace::CLOCKWISE:
+    case Dali::Graphics::FrontFace::CLOCKWISE:
       return vk::FrontFace::eClockwise;
-    case API::FrontFace::COUNTER_CLOCKWISE:
+    case Dali::Graphics::FrontFace::COUNTER_CLOCKWISE:
       return vk::FrontFace::eCounterClockwise;
   }
   return vk::FrontFace{};
 }
 
 
-constexpr vk::StencilOp ConvertStencilOp( Dali::Graphics::API::StencilOp stencilOp )
+constexpr vk::StencilOp ConvertStencilOp( Dali::Graphics::StencilOp stencilOp )
 {
   switch( stencilOp )
   {
-    case API::StencilOp::KEEP: return vk::StencilOp::eKeep;
-    case API::StencilOp::ZERO: return vk::StencilOp::eZero;
-    case API::StencilOp::REPLACE: return vk::StencilOp::eReplace;
-    case API::StencilOp::INCREMENT_AND_CLAMP: return vk::StencilOp::eIncrementAndClamp;
-    case API::StencilOp::DECREMENT_AND_CLAMP: return vk::StencilOp::eDecrementAndClamp;
-    case API::StencilOp::INVERT: return vk::StencilOp::eInvert;
-    case API::StencilOp::INCREMENT_AND_WRAP: return vk::StencilOp::eIncrementAndWrap;
-    case API::StencilOp::DECREMENT_AND_WRAP: return vk::StencilOp::eDecrementAndWrap;
+    case Dali::Graphics::StencilOp::KEEP: return vk::StencilOp::eKeep;
+    case Dali::Graphics::StencilOp::ZERO: return vk::StencilOp::eZero;
+    case Dali::Graphics::StencilOp::REPLACE: return vk::StencilOp::eReplace;
+    case Dali::Graphics::StencilOp::INCREMENT_AND_CLAMP: return vk::StencilOp::eIncrementAndClamp;
+    case Dali::Graphics::StencilOp::DECREMENT_AND_CLAMP: return vk::StencilOp::eDecrementAndClamp;
+    case Dali::Graphics::StencilOp::INVERT: return vk::StencilOp::eInvert;
+    case Dali::Graphics::StencilOp::INCREMENT_AND_WRAP: return vk::StencilOp::eIncrementAndWrap;
+    case Dali::Graphics::StencilOp::DECREMENT_AND_WRAP: return vk::StencilOp::eDecrementAndWrap;
   }
   return {};
 }
@@ -349,7 +349,7 @@ bool Pipeline::Initialise()
                                               .setBinding( bindingIndex )
                                               .setInputRate(
                                                       bufferBindings[bindingIndex].inputRate ==
-                                                      API::VertexInputRate::PER_VERTEX
+                                                      Dali::Graphics::VertexInputRate::PER_VERTEX
                                                       ? vk::VertexInputRate::eVertex
                                                       : vk::VertexInputRate::eInstance )
                                               .setStride( bufferBindings[bindingIndex].stride ) );
@@ -524,7 +524,7 @@ const vk::PipelineDynamicStateCreateInfo* Pipeline::PrepareDynamicStateCreatInfo
 
   std::vector<vk::DynamicState> dynamicStates{};
 
-  for( auto i = 0u; i < API::PIPELINE_DYNAMIC_STATE_COUNT; ++i )
+  for( auto i = 0u; i < Dali::Graphics::PIPELINE_DYNAMIC_STATE_COUNT; ++i )
   {
     if(mCreateInfo->info.dynamicStateMask & (1u << i))
     {
@@ -577,9 +577,9 @@ const vk::PipelineViewportStateCreateInfo* Pipeline::PrepareViewportStateCreateI
   const auto& dynamicStateInfo = mCreateInfo->info.dynamicStateMask;
 
   // Use maximum viewport size in case we use dynamic viewport state
-  auto width = dynamicStateInfo & API::PipelineDynamicStateBits::VIEWPORT_BIT ?
+  auto width = dynamicStateInfo & Dali::Graphics::PipelineDynamicStateBits::VIEWPORT_BIT ?
                float( mGraphics.GetPhysicalDevice().getProperties().limits.maxFramebufferWidth ) : vpInfo.viewport.width;
-  auto height = dynamicStateInfo & API::PipelineDynamicStateBits::VIEWPORT_BIT ?
+  auto height = dynamicStateInfo & Dali::Graphics::PipelineDynamicStateBits::VIEWPORT_BIT ?
                 float( mGraphics.GetPhysicalDevice().getProperties().limits.maxFramebufferHeight ) : vpInfo.viewport.height;
 
   // viewports
@@ -800,7 +800,7 @@ const std::vector< Vulkan::DescriptorSetLayoutSignature >& Pipeline::GetDescript
   return mDescriptorSetLayoutSignatures;
 }
 
-API::PipelineDynamicStateMask Pipeline::GetDynamicStateMask() const
+Dali::Graphics::PipelineDynamicStateMask Pipeline::GetDynamicStateMask() const
 {
   return mCreateInfo->info.dynamicStateMask;
 }
@@ -825,4 +825,3 @@ bool Pipeline::HasStencilEnabled() const
 } // VulkanAPI
 } // Graphics
 } // Dal
-

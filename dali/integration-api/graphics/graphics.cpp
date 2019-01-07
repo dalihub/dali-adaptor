@@ -129,7 +129,7 @@ void Graphics::PostRender()
   mGraphicsImpl->CollectGarbage();
 }
 
-Dali::Graphics::API::Controller& Graphics::GetController()
+Dali::Graphics::Controller& Graphics::GetController()
 {
   return mGraphicsImpl->GetController();
 }

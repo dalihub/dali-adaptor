@@ -68,9 +68,9 @@ uint32_t HashPipeline( const VulkanAPI::PipelineFactory& factory )
 
   // vertex input contains std containers so has to be hashed differently
   uint32_t viStateBindingsHash = HashBinary( info.vertexInputState.bufferBindings.data(), uint32_t(
-          sizeof( API::VertexInputState::Binding ) * info.vertexInputState.bufferBindings.size() ) );
+          sizeof( Dali::Graphics::VertexInputState::Binding ) * info.vertexInputState.bufferBindings.size() ) );
   uint32_t viStateAttributesHash = HashBinary( info.vertexInputState.attributes.data(), uint32_t(
-          sizeof( API::VertexInputState::Attribute ) * info.vertexInputState.attributes.size() ) );
+          sizeof( Dali::Graphics::VertexInputState::Attribute ) * info.vertexInputState.attributes.size() ) );
 
   // rehash all
   std::array< uint32_t, 11 > allHashes = {
@@ -90,14 +90,14 @@ PipelineFactory::PipelineFactory( Controller& controller )
 {
 }
 
-API::PipelineFactory& PipelineFactory::SetPipelineCache( VulkanAPI::PipelineCache& pipelineCache )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetPipelineCache( VulkanAPI::PipelineCache& pipelineCache )
 {
   mPipelineCache = dynamic_cast<VulkanAPI::PipelineCache*>(&pipelineCache);
   return *this;
 }
 
 
-API::PipelineFactory& PipelineFactory::SetColorBlendState( const API::ColorBlendState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetColorBlendState( const Dali::Graphics::ColorBlendState& state )
 {
   mInfo.colorBlendState = state;
   mHashCode = 0u;
@@ -105,77 +105,77 @@ API::PipelineFactory& PipelineFactory::SetColorBlendState( const API::ColorBlend
 }
 
 
-API::PipelineFactory& PipelineFactory::SetShaderState( const API::ShaderState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetShaderState( const Dali::Graphics::ShaderState& state )
 {
   mInfo.shaderState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetViewportState( const API::ViewportState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetViewportState( const Dali::Graphics::ViewportState& state )
 {
   mInfo.viewportState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetFramebufferState( const API::FramebufferState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetFramebufferState( const Dali::Graphics::FramebufferState& state )
 {
   mInfo.framebufferState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetBasePipeline( API::Pipeline& pipeline )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetBasePipeline( Dali::Graphics::Pipeline& pipeline )
 {
   mBasePipeline = dynamic_cast<VulkanAPI::Pipeline*>(&pipeline);
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetDepthStencilState( API::DepthStencilState state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetDepthStencilState( Dali::Graphics::DepthStencilState state )
 {
   mInfo.depthStencilState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetRasterizationState( const API::RasterizationState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetRasterizationState( const Dali::Graphics::RasterizationState& state )
 {
   mInfo.rasterizationState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetVertexInputState( const API::VertexInputState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetVertexInputState( const Dali::Graphics::VertexInputState& state )
 {
   mInfo.vertexInputState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetInputAssemblyState( const API::InputAssemblyState& state )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetInputAssemblyState( const Dali::Graphics::InputAssemblyState& state )
 {
   mInfo.inputAssemblyState = state;
   mHashCode = 0u;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetDynamicStateMask( const API::PipelineDynamicStateMask mask )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetDynamicStateMask( const Dali::Graphics::PipelineDynamicStateMask mask )
 {
   mInfo.dynamicStateMask = mask;
   mHashCode = 0;
   return *this;
 }
 
-API::PipelineFactory& PipelineFactory::SetOldPipeline( std::unique_ptr<API::Pipeline> oldPipeline )
+Dali::Graphics::PipelineFactory& PipelineFactory::SetOldPipeline( std::unique_ptr<Dali::Graphics::Pipeline> oldPipeline )
 {
   mOldPipeline = std::move( oldPipeline );
   mHashCode = 0;
   return *this;
 }
 
-std::unique_ptr< API::Pipeline > PipelineFactory::Create()
+std::unique_ptr< Dali::Graphics::Pipeline > PipelineFactory::Create()
 {
   // check cache
   if( mPipelineCache )
@@ -190,11 +190,11 @@ std::unique_ptr< API::Pipeline > PipelineFactory::Create()
     // if pipeline is already in cache, attach implementation and return unique ptr
     if( ptr )
     {
-      return std::unique_ptr< API::Pipeline >( new VulkanAPI::Pipeline( ptr ) );
+      return std::unique_ptr< Dali::Graphics::Pipeline >( new VulkanAPI::Pipeline( ptr ) );
     }
   }
 
-  return std::unique_ptr< API::Pipeline >( new VulkanAPI::Pipeline( mGraphics, mController, this ) );
+  return std::unique_ptr< Dali::Graphics::Pipeline >( new VulkanAPI::Pipeline( mGraphics, mController, this ) );
 }
 
 void PipelineFactory::Reset()

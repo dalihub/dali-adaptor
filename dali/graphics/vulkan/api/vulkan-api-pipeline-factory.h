@@ -41,54 +41,54 @@ class PipelineCache;
 /**
  * @brief Interface class for ShaderFactory types in the graphics API.
  */
-class PipelineFactory : public API::PipelineFactory
+class PipelineFactory : public Dali::Graphics::PipelineFactory
 {
 public:
 
   PipelineFactory( Controller& controller );
 
-  API::PipelineFactory& SetPipelineCache( VulkanAPI::PipelineCache& pipelineCache );
+  Dali::Graphics::PipelineFactory& SetPipelineCache( VulkanAPI::PipelineCache& pipelineCache );
 
-  API::PipelineFactory& SetColorBlendState( const API::ColorBlendState& state ) override;
+  Dali::Graphics::PipelineFactory& SetColorBlendState( const Dali::Graphics::ColorBlendState& state ) override;
 
-  API::PipelineFactory& SetShaderState( const API::ShaderState& state ) override;
+  Dali::Graphics::PipelineFactory& SetShaderState( const Dali::Graphics::ShaderState& state ) override;
 
-  API::PipelineFactory& SetViewportState( const API::ViewportState& state ) override;
+  Dali::Graphics::PipelineFactory& SetViewportState( const Dali::Graphics::ViewportState& state ) override;
 
-  API::PipelineFactory& SetFramebufferState( const API::FramebufferState& state ) override;
+  Dali::Graphics::PipelineFactory& SetFramebufferState( const Dali::Graphics::FramebufferState& state ) override;
 
-  API::PipelineFactory& SetBasePipeline( API::Pipeline& pipeline ) override;
+  Dali::Graphics::PipelineFactory& SetBasePipeline( Dali::Graphics::Pipeline& pipeline ) override;
 
-  API::PipelineFactory& SetDepthStencilState( API::DepthStencilState state ) override;
+  Dali::Graphics::PipelineFactory& SetDepthStencilState( Dali::Graphics::DepthStencilState state ) override;
 
-  API::PipelineFactory& SetRasterizationState( const API::RasterizationState& state ) override;
+  Dali::Graphics::PipelineFactory& SetRasterizationState( const Dali::Graphics::RasterizationState& state ) override;
 
-  API::PipelineFactory& SetVertexInputState( const API::VertexInputState& state ) override;
+  Dali::Graphics::PipelineFactory& SetVertexInputState( const Dali::Graphics::VertexInputState& state ) override;
 
-  API::PipelineFactory& SetInputAssemblyState( const API::InputAssemblyState& state ) override;
+  Dali::Graphics::PipelineFactory& SetInputAssemblyState( const Dali::Graphics::InputAssemblyState& state ) override;
 
-  API::PipelineFactory& SetDynamicStateMask( const API::PipelineDynamicStateMask mask ) override;
+  Dali::Graphics::PipelineFactory& SetDynamicStateMask( const Dali::Graphics::PipelineDynamicStateMask mask ) override;
 
-  API::PipelineFactory& SetOldPipeline( std::unique_ptr<API::Pipeline> oldPipeline ) override;
+  Dali::Graphics::PipelineFactory& SetOldPipeline( std::unique_ptr<Dali::Graphics::Pipeline> oldPipeline ) override;
 
   // To be called when getting new factory
   void Reset();
 
-  std::unique_ptr< API::Pipeline > Create() override;
+  std::unique_ptr< Dali::Graphics::Pipeline > Create() override;
 
   uint32_t GetHashCode() const;
 
   struct Info
   {
-    API::DepthStencilState depthStencilState;
-    API::ColorBlendState colorBlendState;
-    API::ShaderState shaderState;
-    API::ViewportState viewportState;
-    API::FramebufferState framebufferState;
-    API::RasterizationState rasterizationState;
-    API::VertexInputState vertexInputState;
-    API::InputAssemblyState inputAssemblyState;
-    API::PipelineDynamicStateMask dynamicStateMask;
+    Dali::Graphics::DepthStencilState depthStencilState;
+    Dali::Graphics::ColorBlendState colorBlendState;
+    Dali::Graphics::ShaderState shaderState;
+    Dali::Graphics::ViewportState viewportState;
+    Dali::Graphics::FramebufferState framebufferState;
+    Dali::Graphics::RasterizationState rasterizationState;
+    Dali::Graphics::VertexInputState vertexInputState;
+    Dali::Graphics::InputAssemblyState inputAssemblyState;
+    Dali::Graphics::PipelineDynamicStateMask dynamicStateMask;
   };
 
   const Info& GetCreateInfo() const
@@ -104,7 +104,7 @@ public:
   VulkanAPI::PipelineCache* mPipelineCache;
   VulkanAPI::Pipeline* mBasePipeline;
   mutable uint32_t mHashCode;
-  std::unique_ptr<API::Pipeline> mOldPipeline { nullptr };
+  std::unique_ptr<Dali::Graphics::Pipeline> mOldPipeline { nullptr };
 };
 
 } // namespace API
@@ -112,4 +112,3 @@ public:
 } // namespace Dali
 
 #endif // DALI_GRAPHICS_VULKAN_API_PIPELINE_FACTORY_H
-

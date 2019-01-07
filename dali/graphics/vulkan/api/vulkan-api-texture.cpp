@@ -46,11 +46,11 @@ using namespace Dali::Graphics::Vulkan;
 /**
  * Remaps components
  */
-inline vk::ComponentMapping GetVkComponentMapping( API::Format format )
+inline vk::ComponentMapping GetVkComponentMapping( Dali::Graphics::Format format )
 {
   switch( format )
   {
-    case API::Format::L8:
+    case Dali::Graphics::Format::L8:
     {
       return vk::ComponentMapping{
         vk::ComponentSwizzle::eR,
@@ -59,7 +59,7 @@ inline vk::ComponentMapping GetVkComponentMapping( API::Format format )
         vk::ComponentSwizzle::eOne
       };
     }
-    case API::Format::L8A8:
+    case Dali::Graphics::Format::L8A8:
     {
       return vk::ComponentMapping{
         vk::ComponentSwizzle::eR,
@@ -83,787 +83,787 @@ inline vk::ComponentMapping GetVkComponentMapping( API::Format format )
 /**
  * Converts API pixel format to Vulkan
  */
-constexpr vk::Format ConvertApiToVk( API::Format format )
+constexpr vk::Format ConvertApiToVk( Dali::Graphics::Format format )
 {
   switch( format )
   {
-    case API::Format::L8:
+    case Dali::Graphics::Format::L8:
     {
       return vk::Format::eR8Unorm;
     }
-    case API::Format::L8A8:
+    case Dali::Graphics::Format::L8A8:
     {
       return vk::Format::eR8G8Unorm;
     }
-    case API::Format::UNDEFINED:
+    case Dali::Graphics::Format::UNDEFINED:
     {
       return vk::Format::eUndefined;
     }
-    case API::Format::R4G4_UNORM_PACK8:
+    case Dali::Graphics::Format::R4G4_UNORM_PACK8:
     {
       return vk::Format::eR4G4UnormPack8;
     }
-    case API::Format::R4G4B4A4_UNORM_PACK16:
+    case Dali::Graphics::Format::R4G4B4A4_UNORM_PACK16:
     {
       return vk::Format::eR4G4B4A4UnormPack16;
     }
-    case API::Format::B4G4R4A4_UNORM_PACK16:
+    case Dali::Graphics::Format::B4G4R4A4_UNORM_PACK16:
     {
       return vk::Format::eB4G4R4A4UnormPack16;
     }
-    case API::Format::R5G6B5_UNORM_PACK16:
+    case Dali::Graphics::Format::R5G6B5_UNORM_PACK16:
     {
       return vk::Format::eR5G6B5UnormPack16;
     }
-    case API::Format::B5G6R5_UNORM_PACK16:
+    case Dali::Graphics::Format::B5G6R5_UNORM_PACK16:
     {
       return vk::Format::eB5G6R5UnormPack16;
     }
-    case API::Format::R5G5B5A1_UNORM_PACK16:
+    case Dali::Graphics::Format::R5G5B5A1_UNORM_PACK16:
     {
       return vk::Format::eR5G5B5A1UnormPack16;
     }
-    case API::Format::B5G5R5A1_UNORM_PACK16:
+    case Dali::Graphics::Format::B5G5R5A1_UNORM_PACK16:
     {
       return vk::Format::eB5G5R5A1UnormPack16;
     }
-    case API::Format::A1R5G5B5_UNORM_PACK16:
+    case Dali::Graphics::Format::A1R5G5B5_UNORM_PACK16:
     {
       return vk::Format::eA1R5G5B5UnormPack16;
     }
-    case API::Format::R8_UNORM:
+    case Dali::Graphics::Format::R8_UNORM:
     {
       return vk::Format::eR8Unorm;
     }
-    case API::Format::R8_SNORM:
+    case Dali::Graphics::Format::R8_SNORM:
     {
       return vk::Format::eR8Snorm;
     }
-    case API::Format::R8_USCALED:
+    case Dali::Graphics::Format::R8_USCALED:
     {
       return vk::Format::eR8Uscaled;
     }
-    case API::Format::R8_SSCALED:
+    case Dali::Graphics::Format::R8_SSCALED:
     {
       return vk::Format::eR8Sscaled;
     }
-    case API::Format::R8_UINT:
+    case Dali::Graphics::Format::R8_UINT:
     {
       return vk::Format::eR8Uint;
     }
-    case API::Format::R8_SINT:
+    case Dali::Graphics::Format::R8_SINT:
     {
       return vk::Format::eR8Sint;
     }
-    case API::Format::R8_SRGB:
+    case Dali::Graphics::Format::R8_SRGB:
     {
       return vk::Format::eR8Srgb;
     }
-    case API::Format::R8G8_UNORM:
+    case Dali::Graphics::Format::R8G8_UNORM:
     {
       return vk::Format::eR8G8Unorm;
     }
-    case API::Format::R8G8_SNORM:
+    case Dali::Graphics::Format::R8G8_SNORM:
     {
       return vk::Format::eR8G8Snorm;
     }
-    case API::Format::R8G8_USCALED:
+    case Dali::Graphics::Format::R8G8_USCALED:
     {
       return vk::Format::eR8G8Uscaled;
     }
-    case API::Format::R8G8_SSCALED:
+    case Dali::Graphics::Format::R8G8_SSCALED:
     {
       return vk::Format::eR8G8Sscaled;
     }
-    case API::Format::R8G8_UINT:
+    case Dali::Graphics::Format::R8G8_UINT:
     {
       return vk::Format::eR8G8Uint;
     }
-    case API::Format::R8G8_SINT:
+    case Dali::Graphics::Format::R8G8_SINT:
     {
       return vk::Format::eR8G8Sint;
     }
-    case API::Format::R8G8_SRGB:
+    case Dali::Graphics::Format::R8G8_SRGB:
     {
       return vk::Format::eR8G8Srgb;
     }
-    case API::Format::R8G8B8_UNORM:
+    case Dali::Graphics::Format::R8G8B8_UNORM:
     {
       return vk::Format::eR8G8B8Unorm;
     }
-    case API::Format::R8G8B8_SNORM:
+    case Dali::Graphics::Format::R8G8B8_SNORM:
     {
       return vk::Format::eR8G8B8Snorm;
     }
-    case API::Format::R8G8B8_USCALED:
+    case Dali::Graphics::Format::R8G8B8_USCALED:
     {
       return vk::Format::eR8G8B8Uscaled;
     }
-    case API::Format::R8G8B8_SSCALED:
+    case Dali::Graphics::Format::R8G8B8_SSCALED:
     {
       return vk::Format::eR8G8B8Sscaled;
     }
-    case API::Format::R8G8B8_UINT:
+    case Dali::Graphics::Format::R8G8B8_UINT:
     {
       return vk::Format::eR8G8B8Uint;
     }
-    case API::Format::R8G8B8_SINT:
+    case Dali::Graphics::Format::R8G8B8_SINT:
     {
       return vk::Format::eR8G8B8Sint;
     }
-    case API::Format::R8G8B8_SRGB:
+    case Dali::Graphics::Format::R8G8B8_SRGB:
     {
       return vk::Format::eR8G8B8Srgb;
     }
-    case API::Format::B8G8R8_UNORM:
+    case Dali::Graphics::Format::B8G8R8_UNORM:
     {
       return vk::Format::eB8G8R8Unorm;
     }
-    case API::Format::B8G8R8_SNORM:
+    case Dali::Graphics::Format::B8G8R8_SNORM:
     {
       return vk::Format::eB8G8R8Snorm;
     }
-    case API::Format::B8G8R8_USCALED:
+    case Dali::Graphics::Format::B8G8R8_USCALED:
     {
       return vk::Format::eB8G8R8Uscaled;
     }
-    case API::Format::B8G8R8_SSCALED:
+    case Dali::Graphics::Format::B8G8R8_SSCALED:
     {
       return vk::Format::eB8G8R8Sscaled;
     }
-    case API::Format::B8G8R8_UINT:
+    case Dali::Graphics::Format::B8G8R8_UINT:
     {
       return vk::Format::eB8G8R8Uint;
     }
-    case API::Format::B8G8R8_SINT:
+    case Dali::Graphics::Format::B8G8R8_SINT:
     {
       return vk::Format::eB8G8R8Sint;
     }
-    case API::Format::B8G8R8_SRGB:
+    case Dali::Graphics::Format::B8G8R8_SRGB:
     {
       return vk::Format::eB8G8R8Srgb;
     }
-    case API::Format::R8G8B8A8_UNORM:
+    case Dali::Graphics::Format::R8G8B8A8_UNORM:
     {
       return vk::Format::eR8G8B8A8Unorm;
     }
-    case API::Format::R8G8B8A8_SNORM:
+    case Dali::Graphics::Format::R8G8B8A8_SNORM:
     {
       return vk::Format::eR8G8B8A8Snorm;
     }
-    case API::Format::R8G8B8A8_USCALED:
+    case Dali::Graphics::Format::R8G8B8A8_USCALED:
     {
       return vk::Format::eR8G8B8A8Uscaled;
     }
-    case API::Format::R8G8B8A8_SSCALED:
+    case Dali::Graphics::Format::R8G8B8A8_SSCALED:
     {
       return vk::Format::eR8G8B8A8Sscaled;
     }
-    case API::Format::R8G8B8A8_UINT:
+    case Dali::Graphics::Format::R8G8B8A8_UINT:
     {
       return vk::Format::eR8G8B8A8Uint;
     }
-    case API::Format::R8G8B8A8_SINT:
+    case Dali::Graphics::Format::R8G8B8A8_SINT:
     {
       return vk::Format::eR8G8B8A8Sint;
     }
-    case API::Format::R8G8B8A8_SRGB:
+    case Dali::Graphics::Format::R8G8B8A8_SRGB:
     {
       return vk::Format::eR8G8B8A8Srgb;
     }
-    case API::Format::B8G8R8A8_UNORM:
+    case Dali::Graphics::Format::B8G8R8A8_UNORM:
     {
       return vk::Format::eB8G8R8A8Unorm;
     }
-    case API::Format::B8G8R8A8_SNORM:
+    case Dali::Graphics::Format::B8G8R8A8_SNORM:
     {
       return vk::Format::eB8G8R8A8Snorm;
     }
-    case API::Format::B8G8R8A8_USCALED:
+    case Dali::Graphics::Format::B8G8R8A8_USCALED:
     {
       return vk::Format::eB8G8R8A8Uscaled;
     }
-    case API::Format::B8G8R8A8_SSCALED:
+    case Dali::Graphics::Format::B8G8R8A8_SSCALED:
     {
       return vk::Format::eB8G8R8A8Sscaled;
     }
-    case API::Format::B8G8R8A8_UINT:
+    case Dali::Graphics::Format::B8G8R8A8_UINT:
     {
       return vk::Format::eB8G8R8A8Uint;
     }
-    case API::Format::B8G8R8A8_SINT:
+    case Dali::Graphics::Format::B8G8R8A8_SINT:
     {
       return vk::Format::eB8G8R8A8Sint;
     }
-    case API::Format::B8G8R8A8_SRGB:
+    case Dali::Graphics::Format::B8G8R8A8_SRGB:
     {
       return vk::Format::eB8G8R8A8Srgb;
     }
-    case API::Format::A8B8G8R8_UNORM_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_UNORM_PACK32:
     {
       return vk::Format::eA8B8G8R8UnormPack32;
     }
-    case API::Format::A8B8G8R8_SNORM_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_SNORM_PACK32:
     {
       return vk::Format::eA8B8G8R8SnormPack32;
     }
-    case API::Format::A8B8G8R8_USCALED_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_USCALED_PACK32:
     {
       return vk::Format::eA8B8G8R8UscaledPack32;
     }
-    case API::Format::A8B8G8R8_SSCALED_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_SSCALED_PACK32:
     {
       return vk::Format::eA8B8G8R8SscaledPack32;
     }
-    case API::Format::A8B8G8R8_UINT_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_UINT_PACK32:
     {
       return vk::Format::eA8B8G8R8UintPack32;
     }
-    case API::Format::A8B8G8R8_SINT_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_SINT_PACK32:
     {
       return vk::Format::eA8B8G8R8SintPack32;
     }
-    case API::Format::A8B8G8R8_SRGB_PACK32:
+    case Dali::Graphics::Format::A8B8G8R8_SRGB_PACK32:
     {
       return vk::Format::eA8B8G8R8SrgbPack32;
     }
-    case API::Format::A2R10G10B10_UNORM_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_UNORM_PACK32:
     {
       return vk::Format::eA2R10G10B10UnormPack32;
     }
-    case API::Format::A2R10G10B10_SNORM_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_SNORM_PACK32:
     {
       return vk::Format::eA2R10G10B10SnormPack32;
     }
-    case API::Format::A2R10G10B10_USCALED_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_USCALED_PACK32:
     {
       return vk::Format::eA2R10G10B10UscaledPack32;
     }
-    case API::Format::A2R10G10B10_SSCALED_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_SSCALED_PACK32:
     {
       return vk::Format::eA2R10G10B10SscaledPack32;
     }
-    case API::Format::A2R10G10B10_UINT_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_UINT_PACK32:
     {
       return vk::Format::eA2R10G10B10UintPack32;
     }
-    case API::Format::A2R10G10B10_SINT_PACK32:
+    case Dali::Graphics::Format::A2R10G10B10_SINT_PACK32:
     {
       return vk::Format::eA2R10G10B10SintPack32;
     }
-    case API::Format::A2B10G10R10_UNORM_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_UNORM_PACK32:
     {
       return vk::Format::eA2B10G10R10UnormPack32;
     }
-    case API::Format::A2B10G10R10_SNORM_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_SNORM_PACK32:
     {
       return vk::Format::eA2B10G10R10SnormPack32;
     }
-    case API::Format::A2B10G10R10_USCALED_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_USCALED_PACK32:
     {
       return vk::Format::eA2B10G10R10UscaledPack32;
     }
-    case API::Format::A2B10G10R10_SSCALED_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_SSCALED_PACK32:
     {
       return vk::Format::eA2B10G10R10SscaledPack32;
     }
-    case API::Format::A2B10G10R10_UINT_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_UINT_PACK32:
     {
       return vk::Format::eA2B10G10R10UintPack32;
     }
-    case API::Format::A2B10G10R10_SINT_PACK32:
+    case Dali::Graphics::Format::A2B10G10R10_SINT_PACK32:
     {
       return vk::Format::eA2B10G10R10SintPack32;
     }
-    case API::Format::R16_UNORM:
+    case Dali::Graphics::Format::R16_UNORM:
     {
       return vk::Format::eR16Unorm;
     }
-    case API::Format::R16_SNORM:
+    case Dali::Graphics::Format::R16_SNORM:
     {
       return vk::Format::eR16Snorm;
     }
-    case API::Format::R16_USCALED:
+    case Dali::Graphics::Format::R16_USCALED:
     {
       return vk::Format::eR16Uscaled;
     }
-    case API::Format::R16_SSCALED:
+    case Dali::Graphics::Format::R16_SSCALED:
     {
       return vk::Format::eR16Sscaled;
     }
-    case API::Format::R16_UINT:
+    case Dali::Graphics::Format::R16_UINT:
     {
       return vk::Format::eR16Uint;
     }
-    case API::Format::R16_SINT:
+    case Dali::Graphics::Format::R16_SINT:
     {
       return vk::Format::eR16Sint;
     }
-    case API::Format::R16_SFLOAT:
+    case Dali::Graphics::Format::R16_SFLOAT:
     {
       return vk::Format::eR16Sfloat;
     }
-    case API::Format::R16G16_UNORM:
+    case Dali::Graphics::Format::R16G16_UNORM:
     {
       return vk::Format::eR16G16Unorm;
     }
-    case API::Format::R16G16_SNORM:
+    case Dali::Graphics::Format::R16G16_SNORM:
     {
       return vk::Format::eR16G16Snorm;
     }
-    case API::Format::R16G16_USCALED:
+    case Dali::Graphics::Format::R16G16_USCALED:
     {
       return vk::Format::eR16G16Uscaled;
     }
-    case API::Format::R16G16_SSCALED:
+    case Dali::Graphics::Format::R16G16_SSCALED:
     {
       return vk::Format::eR16G16Sscaled;
     }
-    case API::Format::R16G16_UINT:
+    case Dali::Graphics::Format::R16G16_UINT:
     {
       return vk::Format::eR16G16Uint;
     }
-    case API::Format::R16G16_SINT:
+    case Dali::Graphics::Format::R16G16_SINT:
     {
       return vk::Format::eR16G16Sint;
     }
-    case API::Format::R16G16_SFLOAT:
+    case Dali::Graphics::Format::R16G16_SFLOAT:
     {
       return vk::Format::eR16G16Sfloat;
     }
-    case API::Format::R16G16B16_UNORM:
+    case Dali::Graphics::Format::R16G16B16_UNORM:
     {
       return vk::Format::eR16G16B16Unorm;
     }
-    case API::Format::R16G16B16_SNORM:
+    case Dali::Graphics::Format::R16G16B16_SNORM:
     {
       return vk::Format::eR16G16B16Snorm;
     }
-    case API::Format::R16G16B16_USCALED:
+    case Dali::Graphics::Format::R16G16B16_USCALED:
     {
       return vk::Format::eR16G16B16Uscaled;
     }
-    case API::Format::R16G16B16_SSCALED:
+    case Dali::Graphics::Format::R16G16B16_SSCALED:
     {
       return vk::Format::eR16G16B16Sscaled;
     }
-    case API::Format::R16G16B16_UINT:
+    case Dali::Graphics::Format::R16G16B16_UINT:
     {
       return vk::Format::eR16G16B16Uint;
     }
-    case API::Format::R16G16B16_SINT:
+    case Dali::Graphics::Format::R16G16B16_SINT:
     {
       return vk::Format::eR16G16B16Sint;
     }
-    case API::Format::R16G16B16_SFLOAT:
+    case Dali::Graphics::Format::R16G16B16_SFLOAT:
     {
       return vk::Format::eR16G16B16Sfloat;
     }
-    case API::Format::R16G16B16A16_UNORM:
+    case Dali::Graphics::Format::R16G16B16A16_UNORM:
     {
       return vk::Format::eR16G16B16A16Unorm;
     }
-    case API::Format::R16G16B16A16_SNORM:
+    case Dali::Graphics::Format::R16G16B16A16_SNORM:
     {
       return vk::Format::eR16G16B16A16Snorm;
     }
-    case API::Format::R16G16B16A16_USCALED:
+    case Dali::Graphics::Format::R16G16B16A16_USCALED:
     {
       return vk::Format::eR16G16B16A16Uscaled;
     }
-    case API::Format::R16G16B16A16_SSCALED:
+    case Dali::Graphics::Format::R16G16B16A16_SSCALED:
     {
       return vk::Format::eR16G16B16A16Sscaled;
     }
-    case API::Format::R16G16B16A16_UINT:
+    case Dali::Graphics::Format::R16G16B16A16_UINT:
     {
       return vk::Format::eR16G16B16A16Uint;
     }
-    case API::Format::R16G16B16A16_SINT:
+    case Dali::Graphics::Format::R16G16B16A16_SINT:
     {
       return vk::Format::eR16G16B16A16Sint;
     }
-    case API::Format::R16G16B16A16_SFLOAT:
+    case Dali::Graphics::Format::R16G16B16A16_SFLOAT:
     {
       return vk::Format::eR16G16B16A16Sfloat;
     }
-    case API::Format::R32_UINT:
+    case Dali::Graphics::Format::R32_UINT:
     {
       return vk::Format::eR32Uint;
     }
-    case API::Format::R32_SINT:
+    case Dali::Graphics::Format::R32_SINT:
     {
       return vk::Format::eR32Sint;
     }
-    case API::Format::R32_SFLOAT:
+    case Dali::Graphics::Format::R32_SFLOAT:
     {
       return vk::Format::eR32Sfloat;
     }
-    case API::Format::R32G32_UINT:
+    case Dali::Graphics::Format::R32G32_UINT:
     {
       return vk::Format::eR32G32Uint;
     }
-    case API::Format::R32G32_SINT:
+    case Dali::Graphics::Format::R32G32_SINT:
     {
       return vk::Format::eR32G32Sint;
     }
-    case API::Format::R32G32_SFLOAT:
+    case Dali::Graphics::Format::R32G32_SFLOAT:
     {
       return vk::Format::eR32G32Sfloat;
     }
-    case API::Format::R32G32B32_UINT:
+    case Dali::Graphics::Format::R32G32B32_UINT:
     {
       return vk::Format::eR32G32B32Uint;
     }
-    case API::Format::R32G32B32_SINT:
+    case Dali::Graphics::Format::R32G32B32_SINT:
     {
       return vk::Format::eR32G32B32Sint;
     }
-    case API::Format::R32G32B32_SFLOAT:
+    case Dali::Graphics::Format::R32G32B32_SFLOAT:
     {
       return vk::Format::eR32G32B32Sfloat;
     }
-    case API::Format::R32G32B32A32_UINT:
+    case Dali::Graphics::Format::R32G32B32A32_UINT:
     {
       return vk::Format::eR32G32B32A32Uint;
     }
-    case API::Format::R32G32B32A32_SINT:
+    case Dali::Graphics::Format::R32G32B32A32_SINT:
     {
       return vk::Format::eR32G32B32A32Sint;
     }
-    case API::Format::R32G32B32A32_SFLOAT:
+    case Dali::Graphics::Format::R32G32B32A32_SFLOAT:
     {
       return vk::Format::eR32G32B32A32Sfloat;
     }
-    case API::Format::R64_UINT:
+    case Dali::Graphics::Format::R64_UINT:
     {
       return vk::Format::eR64Uint;
     }
-    case API::Format::R64_SINT:
+    case Dali::Graphics::Format::R64_SINT:
     {
       return vk::Format::eR64Sint;
     }
-    case API::Format::R64_SFLOAT:
+    case Dali::Graphics::Format::R64_SFLOAT:
     {
       return vk::Format::eR64Sfloat;
     }
-    case API::Format::R64G64_UINT:
+    case Dali::Graphics::Format::R64G64_UINT:
     {
       return vk::Format::eR64G64Uint;
     }
-    case API::Format::R64G64_SINT:
+    case Dali::Graphics::Format::R64G64_SINT:
     {
       return vk::Format::eR64G64Sint;
     }
-    case API::Format::R64G64_SFLOAT:
+    case Dali::Graphics::Format::R64G64_SFLOAT:
     {
       return vk::Format::eR64G64Sfloat;
     }
-    case API::Format::R64G64B64_UINT:
+    case Dali::Graphics::Format::R64G64B64_UINT:
     {
       return vk::Format::eR64G64B64Uint;
     }
-    case API::Format::R64G64B64_SINT:
+    case Dali::Graphics::Format::R64G64B64_SINT:
     {
       return vk::Format::eR64G64B64Sint;
     }
-    case API::Format::R64G64B64_SFLOAT:
+    case Dali::Graphics::Format::R64G64B64_SFLOAT:
     {
       return vk::Format::eR64G64B64Sfloat;
     }
-    case API::Format::R64G64B64A64_UINT:
+    case Dali::Graphics::Format::R64G64B64A64_UINT:
     {
       return vk::Format::eR64G64B64A64Uint;
     }
-    case API::Format::R64G64B64A64_SINT:
+    case Dali::Graphics::Format::R64G64B64A64_SINT:
     {
       return vk::Format::eR64G64B64A64Sint;
     }
-    case API::Format::R64G64B64A64_SFLOAT:
+    case Dali::Graphics::Format::R64G64B64A64_SFLOAT:
     {
       return vk::Format::eR64G64B64A64Sfloat;
     }
-    case API::Format::B10G11R11_UFLOAT_PACK32:
+    case Dali::Graphics::Format::B10G11R11_UFLOAT_PACK32:
     {
       return vk::Format::eB10G11R11UfloatPack32;
     }
-    case API::Format::E5B9G9R9_UFLOAT_PACK32:
+    case Dali::Graphics::Format::E5B9G9R9_UFLOAT_PACK32:
     {
       return vk::Format::eE5B9G9R9UfloatPack32;
     }
-    case API::Format::D16_UNORM:
+    case Dali::Graphics::Format::D16_UNORM:
     {
       return vk::Format::eD16Unorm;
     }
-    case API::Format::X8_D24_UNORM_PACK32:
+    case Dali::Graphics::Format::X8_D24_UNORM_PACK32:
     {
       return vk::Format::eX8D24UnormPack32;
     }
-    case API::Format::D32_SFLOAT:
+    case Dali::Graphics::Format::D32_SFLOAT:
     {
       return vk::Format::eD32Sfloat;
     }
-    case API::Format::S8_UINT:
+    case Dali::Graphics::Format::S8_UINT:
     {
       return vk::Format::eS8Uint;
     }
-    case API::Format::D16_UNORM_S8_UINT:
+    case Dali::Graphics::Format::D16_UNORM_S8_UINT:
     {
       return vk::Format::eD16UnormS8Uint;
     }
-    case API::Format::D24_UNORM_S8_UINT:
+    case Dali::Graphics::Format::D24_UNORM_S8_UINT:
     {
       return vk::Format::eD24UnormS8Uint;
     }
-    case API::Format::D32_SFLOAT_S8_UINT:
+    case Dali::Graphics::Format::D32_SFLOAT_S8_UINT:
     {
       return vk::Format::eD32SfloatS8Uint;
     }
-    case API::Format::BC1_RGB_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC1_RGB_UNORM_BLOCK:
     {
       return vk::Format::eBc1RgbUnormBlock;
     }
-    case API::Format::BC1_RGB_SRGB_BLOCK:
+    case Dali::Graphics::Format::BC1_RGB_SRGB_BLOCK:
     {
       return vk::Format::eBc1RgbSrgbBlock;
     }
-    case API::Format::BC1_RGBA_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC1_RGBA_UNORM_BLOCK:
     {
       return vk::Format::eBc1RgbaUnormBlock;
     }
-    case API::Format::BC1_RGBA_SRGB_BLOCK:
+    case Dali::Graphics::Format::BC1_RGBA_SRGB_BLOCK:
     {
       return vk::Format::eBc1RgbaSrgbBlock;
     }
-    case API::Format::BC2_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC2_UNORM_BLOCK:
     {
       return vk::Format::eBc2UnormBlock;
     }
-    case API::Format::BC2_SRGB_BLOCK:
+    case Dali::Graphics::Format::BC2_SRGB_BLOCK:
     {
       return vk::Format::eBc2SrgbBlock;
     }
-    case API::Format::BC3_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC3_UNORM_BLOCK:
     {
       return vk::Format::eBc3UnormBlock;
     }
-    case API::Format::BC3_SRGB_BLOCK:
+    case Dali::Graphics::Format::BC3_SRGB_BLOCK:
     {
       return vk::Format::eBc3SrgbBlock;
     }
-    case API::Format::BC4_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC4_UNORM_BLOCK:
     {
       return vk::Format::eBc4UnormBlock;
     }
-    case API::Format::BC4_SNORM_BLOCK:
+    case Dali::Graphics::Format::BC4_SNORM_BLOCK:
     {
       return vk::Format::eBc4SnormBlock;
     }
-    case API::Format::BC5_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC5_UNORM_BLOCK:
     {
       return vk::Format::eBc5UnormBlock;
     }
-    case API::Format::BC5_SNORM_BLOCK:
+    case Dali::Graphics::Format::BC5_SNORM_BLOCK:
     {
       return vk::Format::eBc5SnormBlock;
     }
-    case API::Format::BC6H_UFLOAT_BLOCK:
+    case Dali::Graphics::Format::BC6H_UFLOAT_BLOCK:
     {
       return vk::Format::eBc6HUfloatBlock;
     }
-    case API::Format::BC6H_SFLOAT_BLOCK:
+    case Dali::Graphics::Format::BC6H_SFLOAT_BLOCK:
     {
       return vk::Format::eBc6HSfloatBlock;
     }
-    case API::Format::BC7_UNORM_BLOCK:
+    case Dali::Graphics::Format::BC7_UNORM_BLOCK:
     {
       return vk::Format::eBc7UnormBlock;
     }
-    case API::Format::BC7_SRGB_BLOCK:
+    case Dali::Graphics::Format::BC7_SRGB_BLOCK:
     {
       return vk::Format::eBc7SrgbBlock;
     }
-    case API::Format::ETC2_R8G8B8_UNORM_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8_UNORM_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8UnormBlock;
     }
-    case API::Format::ETC2_R8G8B8_SRGB_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8_SRGB_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8SrgbBlock;
     }
-    case API::Format::ETC2_R8G8B8A1_UNORM_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8A1_UNORM_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8A1UnormBlock;
     }
-    case API::Format::ETC2_R8G8B8A1_SRGB_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8A1_SRGB_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8A1SrgbBlock;
     }
-    case API::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8A8UnormBlock;
     }
-    case API::Format::ETC2_R8G8B8A8_SRGB_BLOCK:
+    case Dali::Graphics::Format::ETC2_R8G8B8A8_SRGB_BLOCK:
     {
       return vk::Format::eEtc2R8G8B8A8SrgbBlock;
     }
-    case API::Format::EAC_R11_UNORM_BLOCK:
+    case Dali::Graphics::Format::EAC_R11_UNORM_BLOCK:
     {
       return vk::Format::eEacR11UnormBlock;
     }
-    case API::Format::EAC_R11_SNORM_BLOCK:
+    case Dali::Graphics::Format::EAC_R11_SNORM_BLOCK:
     {
       return vk::Format::eEacR11SnormBlock;
     }
-    case API::Format::EAC_R11G11_UNORM_BLOCK:
+    case Dali::Graphics::Format::EAC_R11G11_UNORM_BLOCK:
     {
       return vk::Format::eEacR11G11UnormBlock;
     }
-    case API::Format::EAC_R11G11_SNORM_BLOCK:
+    case Dali::Graphics::Format::EAC_R11G11_SNORM_BLOCK:
     {
       return vk::Format::eEacR11G11SnormBlock;
     }
-    case API::Format::ASTC_4x4_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_4x4_UNORM_BLOCK:
     {
       return vk::Format::eAstc4x4UnormBlock;
     }
-    case API::Format::ASTC_4x4_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_4x4_SRGB_BLOCK:
     {
       return vk::Format::eAstc4x4SrgbBlock;
     }
-    case API::Format::ASTC_5x4_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_5x4_UNORM_BLOCK:
     {
       return vk::Format::eAstc5x4UnormBlock;
     }
-    case API::Format::ASTC_5x4_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_5x4_SRGB_BLOCK:
     {
       return vk::Format::eAstc5x4SrgbBlock;
     }
-    case API::Format::ASTC_5x5_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_5x5_UNORM_BLOCK:
     {
       return vk::Format::eAstc5x5UnormBlock;
     }
-    case API::Format::ASTC_5x5_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_5x5_SRGB_BLOCK:
     {
       return vk::Format::eAstc5x5SrgbBlock;
     }
-    case API::Format::ASTC_6x5_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_6x5_UNORM_BLOCK:
     {
       return vk::Format::eAstc6x5UnormBlock;
     }
-    case API::Format::ASTC_6x5_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_6x5_SRGB_BLOCK:
     {
       return vk::Format::eAstc6x5SrgbBlock;
     }
-    case API::Format::ASTC_6x6_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_6x6_UNORM_BLOCK:
     {
       return vk::Format::eAstc6x6UnormBlock;
     }
-    case API::Format::ASTC_6x6_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_6x6_SRGB_BLOCK:
     {
       return vk::Format::eAstc6x6SrgbBlock;
     }
-    case API::Format::ASTC_8x5_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x5_UNORM_BLOCK:
     {
       return vk::Format::eAstc8x5UnormBlock;
     }
-    case API::Format::ASTC_8x5_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x5_SRGB_BLOCK:
     {
       return vk::Format::eAstc8x5SrgbBlock;
     }
-    case API::Format::ASTC_8x6_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x6_UNORM_BLOCK:
     {
       return vk::Format::eAstc8x6UnormBlock;
     }
-    case API::Format::ASTC_8x6_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x6_SRGB_BLOCK:
     {
       return vk::Format::eAstc8x6SrgbBlock;
     }
-    case API::Format::ASTC_8x8_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x8_UNORM_BLOCK:
     {
       return vk::Format::eAstc8x8UnormBlock;
     }
-    case API::Format::ASTC_8x8_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_8x8_SRGB_BLOCK:
     {
       return vk::Format::eAstc8x8SrgbBlock;
     }
-    case API::Format::ASTC_10x5_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x5_UNORM_BLOCK:
     {
       return vk::Format::eAstc10x5UnormBlock;
     }
-    case API::Format::ASTC_10x5_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x5_SRGB_BLOCK:
     {
       return vk::Format::eAstc10x5SrgbBlock;
     }
-    case API::Format::ASTC_10x6_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x6_UNORM_BLOCK:
     {
       return vk::Format::eAstc10x6UnormBlock;
     }
-    case API::Format::ASTC_10x6_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x6_SRGB_BLOCK:
     {
       return vk::Format::eAstc10x6SrgbBlock;
     }
-    case API::Format::ASTC_10x8_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x8_UNORM_BLOCK:
     {
       return vk::Format::eAstc10x8UnormBlock;
     }
-    case API::Format::ASTC_10x8_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x8_SRGB_BLOCK:
     {
       return vk::Format::eAstc10x8SrgbBlock;
     }
-    case API::Format::ASTC_10x10_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x10_UNORM_BLOCK:
     {
       return vk::Format::eAstc10x10UnormBlock;
     }
-    case API::Format::ASTC_10x10_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_10x10_SRGB_BLOCK:
     {
       return vk::Format::eAstc10x10SrgbBlock;
     }
-    case API::Format::ASTC_12x10_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_12x10_UNORM_BLOCK:
     {
       return vk::Format::eAstc12x10UnormBlock;
     }
-    case API::Format::ASTC_12x10_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_12x10_SRGB_BLOCK:
     {
       return vk::Format::eAstc12x10SrgbBlock;
     }
-    case API::Format::ASTC_12x12_UNORM_BLOCK:
+    case Dali::Graphics::Format::ASTC_12x12_UNORM_BLOCK:
     {
       return vk::Format::eAstc12x12UnormBlock;
     }
-    case API::Format::ASTC_12x12_SRGB_BLOCK:
+    case Dali::Graphics::Format::ASTC_12x12_SRGB_BLOCK:
     {
       return vk::Format::eAstc12x12SrgbBlock;
     }
-    case API::Format::PVRTC1_2BPP_UNORM_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC1_2BPP_UNORM_BLOCK_IMG:
     {
       return vk::Format::ePvrtc12BppUnormBlockIMG;
     }
-    case API::Format::PVRTC1_4BPP_UNORM_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC1_4BPP_UNORM_BLOCK_IMG:
     {
       return vk::Format::ePvrtc14BppUnormBlockIMG;
     }
-    case API::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
     {
       return vk::Format::ePvrtc22BppUnormBlockIMG;
     }
-    case API::Format::PVRTC2_4BPP_UNORM_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC2_4BPP_UNORM_BLOCK_IMG:
     {
       return vk::Format::ePvrtc24BppUnormBlockIMG;
     }
-    case API::Format::PVRTC1_2BPP_SRGB_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC1_2BPP_SRGB_BLOCK_IMG:
     {
       return vk::Format::ePvrtc12BppSrgbBlockIMG;
     }
-    case API::Format::PVRTC1_4BPP_SRGB_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC1_4BPP_SRGB_BLOCK_IMG:
     {
       return vk::Format::ePvrtc14BppSrgbBlockIMG;
     }
-    case API::Format::PVRTC2_2BPP_SRGB_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC2_2BPP_SRGB_BLOCK_IMG:
     {
       return vk::Format::ePvrtc22BppSrgbBlockIMG;
     }
-    case API::Format::PVRTC2_4BPP_SRGB_BLOCK_IMG:
+    case Dali::Graphics::Format::PVRTC2_4BPP_SRGB_BLOCK_IMG:
     {
       return vk::Format::ePvrtc24BppSrgbBlockIMG;
     }
@@ -871,7 +871,7 @@ constexpr vk::Format ConvertApiToVk( API::Format format )
   return {};
 }
 
-Texture::Texture( Dali::Graphics::API::TextureFactory& factory )
+Texture::Texture( Dali::Graphics::TextureFactory& factory )
   : mTextureFactory( dynamic_cast<VulkanAPI::TextureFactory&>( factory ) ),
     mController( mTextureFactory.GetController() ),
     mGraphics( mTextureFactory.GetGraphics() ),
@@ -902,17 +902,17 @@ bool Texture::Initialise()
   mLayout = vk::ImageLayout::eUndefined;
   switch( mTextureFactory.GetUsage())
   {
-    case API::TextureDetails::Usage::COLOR_ATTACHMENT:
+    case Dali::Graphics::TextureDetails::Usage::COLOR_ATTACHMENT:
     {
       mUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
       break;
     }
-    case API::TextureDetails::Usage::DEPTH_ATTACHMENT:
+    case Dali::Graphics::TextureDetails::Usage::DEPTH_ATTACHMENT:
     {
       mUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
       break;
     }
-    case API::TextureDetails::Usage::SAMPLE:
+    case Dali::Graphics::TextureDetails::Usage::SAMPLE:
     {
       mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
       break;
@@ -928,7 +928,7 @@ bool Texture::Initialise()
    * the valid format is supported we're going to use it as it is.
    */
   std::vector<uint8_t> rgbaBuffer{};
-  if(mTextureFactory.GetFormat() == API::Format::R8G8B8_UNORM )
+  if(mTextureFactory.GetFormat() == Dali::Graphics::Format::R8G8B8_UNORM )
   {
     auto formatProperties = mGraphics.GetPhysicalDevice().getFormatProperties( mFormat );
     if( !formatProperties.optimalTilingFeatures )
@@ -964,7 +964,7 @@ bool Texture::Initialise()
     // copy data to the image
     if( data )
     {
-      CopyMemory(data, sizeInBytes, {mWidth, mHeight}, {0, 0}, 0, 0, API::TextureDetails::UpdateMode::UNDEFINED );
+      CopyMemory(data, sizeInBytes, {mWidth, mHeight}, {0, 0}, 0, 0, Dali::Graphics::TextureDetails::UpdateMode::UNDEFINED );
     }
     return true;
   }
@@ -972,7 +972,7 @@ bool Texture::Initialise()
   return false;
 }
 
-void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, API::Extent2D srcExtent, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode )
+void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
 {
   // @todo transient buffer memory could be persistently mapped and aliased ( work like a per-frame stack )
   uint32_t allocationSize = 0u;
@@ -1012,7 +1012,7 @@ void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, API::Ext
 
   transferRequest.bufferToImageInfo.dstImage = mImage;
   transferRequest.bufferToImageInfo.srcBuffer = std::move(buffer);
-  transferRequest.deferredTransferMode = !( updateMode == API::TextureDetails::UpdateMode::IMMEDIATE );
+  transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
 
   assert( transferRequest.bufferToImageInfo.srcBuffer.GetRefCount() == 1 && "Too many transient buffer owners, buffer will be released automatically!" );
 
@@ -1020,7 +1020,7 @@ void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, API::Ext
   mController.ScheduleResourceTransfer( std::move(transferRequest) );
 }
 
-void Texture::CopyTexture(const API::Texture &srcTexture, API::Rect2D srcRegion, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode )
+void Texture::CopyTexture(const Dali::Graphics::Texture &srcTexture, Dali::Graphics::Rect2D srcRegion, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
 {
   ResourceTransferRequest transferRequest( TransferRequestType::IMAGE_TO_IMAGE );
 
@@ -1039,13 +1039,13 @@ void Texture::CopyTexture(const API::Texture &srcTexture, API::Rect2D srcRegion,
                  .setSrcSubresource( imageSubresourceLayers  )
                  .setDstSubresource( imageSubresourceLayers );
 
-  transferRequest.deferredTransferMode = !( updateMode == API::TextureDetails::UpdateMode::IMMEDIATE );
+  transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
 
   // schedule transfer
   mController.ScheduleResourceTransfer( std::move(transferRequest) );
 }
 
-void Texture::CopyBuffer(const API::Buffer &srcBuffer, API::Extent2D srcExtent, API::Offset2D dstOffset, uint32_t layer, uint32_t level, API::TextureDetails::UpdateMode updateMode )
+void Texture::CopyBuffer(const Dali::Graphics::Buffer &srcBuffer, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
 {
   ResourceTransferRequest transferRequest( TransferRequestType::BUFFER_TO_IMAGE );
 
@@ -1063,7 +1063,7 @@ void Texture::CopyBuffer(const API::Buffer &srcBuffer, API::Extent2D srcExtent, 
 
   transferRequest.bufferToImageInfo.dstImage = mImage;
   transferRequest.bufferToImageInfo.srcBuffer = static_cast<const VulkanAPI::Buffer&>(srcBuffer).GetBufferRef();
-  transferRequest.deferredTransferMode = !( updateMode == API::TextureDetails::UpdateMode::IMMEDIATE );
+  transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
 
   // schedule transfer
   mController.ScheduleResourceTransfer( std::move(transferRequest) );

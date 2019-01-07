@@ -37,7 +37,7 @@ class Controller;
 /**
  * Implementation of the frame buffer factory
  */
-class FramebufferFactory : public Dali::Graphics::API::FramebufferFactory
+class FramebufferFactory : public Dali::Graphics::FramebufferFactory
 {
 public:
 
@@ -54,25 +54,25 @@ public:
   /**
    * Set the size of the framebuffer
    */
-  Graphics::API::FramebufferFactory& SetSize( const API::RectSize& size ) override;
+  Graphics::FramebufferFactory& SetSize( const Dali::Graphics::RectSize& size ) override;
 
   /**
    * Set a color attachment for the framebuffer
    */
-  Graphics::API::FramebufferFactory& SetColorAttachment(
-    Graphics::API::TextureDetails::AttachmentId attachmentIndex,
-    const Graphics::API::Texture&               texture,
-    Graphics::API::TextureDetails::LayerId      layer,
-    Graphics::API::TextureDetails::LevelId      level ) override;
+  Graphics::FramebufferFactory& SetColorAttachment(
+    Graphics::TextureDetails::AttachmentId attachmentIndex,
+    const Graphics::Texture&               texture,
+    Graphics::TextureDetails::LayerId      layer,
+    Graphics::TextureDetails::LevelId      level ) override;
 
   /**
    * Set a depth attachment for the framebuffer
    */
-  Graphics::API::FramebufferFactory& SetDepthStencilAttachment(
-    const Graphics::API::Texture&                   texture,
-    Graphics::API::TextureDetails::LayerId          layer,
-    Graphics::API::TextureDetails::LevelId          level,
-    Graphics::API::TextureDetails::DepthStencilFlag depthStencilFlag ) override;
+  Graphics::FramebufferFactory& SetDepthStencilAttachment(
+    const Graphics::Texture&                   texture,
+    Graphics::TextureDetails::LayerId          layer,
+    Graphics::TextureDetails::LevelId          level,
+    Graphics::TextureDetails::DepthStencilFlag depthStencilFlag ) override;
 
 
   // not copyable
@@ -81,7 +81,7 @@ public:
 
   ~FramebufferFactory() override;
 
-  std::unique_ptr<Graphics::API::Framebuffer> Create() const override;
+  std::unique_ptr<Graphics::Framebuffer> Create() const override;
 
 
 protected:
@@ -96,17 +96,17 @@ public:
 
   struct ColorAttachment
   {
-    const Graphics::API::Texture*          texture;
-    Graphics::API::TextureDetails::LayerId layer;
-    Graphics::API::TextureDetails::LevelId mipmapLevel;
+    const Graphics::Texture*          texture;
+    Graphics::TextureDetails::LayerId layer;
+    Graphics::TextureDetails::LevelId mipmapLevel;
   };
 
   struct DepthAttachment
   {
-    const Graphics::API::Texture*                   texture;
-    Graphics::API::TextureDetails::LayerId          layer;
-    Graphics::API::TextureDetails::LevelId          mipmapLevel;
-    Graphics::API::TextureDetails::DepthStencilFlag depthStencilFlag;
+    const Graphics::Texture*                   texture;
+    Graphics::TextureDetails::LayerId          layer;
+    Graphics::TextureDetails::LevelId          mipmapLevel;
+    Graphics::TextureDetails::DepthStencilFlag depthStencilFlag;
   };
 
 private:

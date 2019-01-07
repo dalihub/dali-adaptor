@@ -46,7 +46,7 @@ void FramebufferFactory::Reset()
   mDepthStencilAttachment.texture = nullptr;
 }
 
-Graphics::API::FramebufferFactory& FramebufferFactory::SetSize(const API::RectSize& size)
+Graphics::FramebufferFactory& FramebufferFactory::SetSize(const Dali::Graphics::RectSize& size)
 {
   mWidth = uint32_t(size.width);
   mHeight = uint32_t(size.height);
@@ -56,11 +56,11 @@ Graphics::API::FramebufferFactory& FramebufferFactory::SetSize(const API::RectSi
 /**
  * Set a color attachment for the framebuffer
  */
-Graphics::API::FramebufferFactory& FramebufferFactory::SetColorAttachment(
-  Graphics::API::TextureDetails::AttachmentId attachmentIndex,
-  const Graphics::API::Texture&               texture,
-  Graphics::API::TextureDetails::LayerId      layer,
-  Graphics::API::TextureDetails::LevelId      level )
+Graphics::FramebufferFactory& FramebufferFactory::SetColorAttachment(
+  Graphics::TextureDetails::AttachmentId attachmentIndex,
+  const Graphics::Texture&               texture,
+  Graphics::TextureDetails::LayerId      layer,
+  Graphics::TextureDetails::LevelId      level )
 {
   if( mColorAttachments.size() <= attachmentIndex )
   {
@@ -74,18 +74,18 @@ Graphics::API::FramebufferFactory& FramebufferFactory::SetColorAttachment(
 /**
  * Set a depth attachment for the framebuffer
  */
-Graphics::API::FramebufferFactory& FramebufferFactory::SetDepthStencilAttachment(
-  const Graphics::API::Texture&                   texture,
-  Graphics::API::TextureDetails::LayerId          layer,
-  Graphics::API::TextureDetails::LevelId          level,
-  Graphics::API::TextureDetails::DepthStencilFlag depthStencilFlag )
+Graphics::FramebufferFactory& FramebufferFactory::SetDepthStencilAttachment(
+  const Graphics::Texture&                   texture,
+  Graphics::TextureDetails::LayerId          layer,
+  Graphics::TextureDetails::LevelId          level,
+  Graphics::TextureDetails::DepthStencilFlag depthStencilFlag )
 {
   mDepthStencilAttachment = DepthAttachment{ &texture, layer, level,depthStencilFlag };
 
   return *this;
 }
 
-std::unique_ptr<Graphics::API::Framebuffer> FramebufferFactory::Create() const
+std::unique_ptr<Graphics::Framebuffer> FramebufferFactory::Create() const
 {
   auto retval = std::make_unique<VulkanAPI::Framebuffer>( mController, mWidth, mHeight );
 

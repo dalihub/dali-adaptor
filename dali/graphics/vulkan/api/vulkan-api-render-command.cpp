@@ -91,12 +91,12 @@ void RenderCommand::PrepareResources()
 {
   if( mUpdateFlags )
   {
-    if( mUpdateFlags & (API::RENDER_COMMAND_UPDATE_UNIFORM_BUFFER_BIT ))
+    if( mUpdateFlags & (Dali::Graphics::RENDER_COMMAND_UPDATE_UNIFORM_BUFFER_BIT ))
     {
       BindUniformBuffers();
     }
 
-    if( mUpdateFlags & ( API::RENDER_COMMAND_UPDATE_TEXTURE_BIT|API::RENDER_COMMAND_UPDATE_SAMPLER_BIT) )
+    if( mUpdateFlags & ( Dali::Graphics::RENDER_COMMAND_UPDATE_TEXTURE_BIT|Dali::Graphics::RENDER_COMMAND_UPDATE_SAMPLER_BIT) )
     {
       BindTexturesAndSamplers();
     }
@@ -112,8 +112,8 @@ void RenderCommand::AllocateDescriptorSets( VulkanAPI::Internal::DescriptorSetAl
   {
     mData->vkDescriptorSets.descriptorSets.clear();
     dsAllocator.AllocateDescriptorSets( mData->descriptorSetLayoutSignatures, mData->descriptorSetLayouts, mData->vkDescriptorSets );
-    mUpdateFlags |= API::RENDER_COMMAND_UPDATE_UNIFORM_BUFFER_BIT;
-    mUpdateFlags |= API::RENDER_COMMAND_UPDATE_TEXTURE_BIT;
+    mUpdateFlags |= Dali::Graphics::RENDER_COMMAND_UPDATE_UNIFORM_BUFFER_BIT;
+    mUpdateFlags |= Dali::Graphics::RENDER_COMMAND_UPDATE_TEXTURE_BIT;
   }
 }
 
@@ -127,7 +127,7 @@ void RenderCommand::UpdateDescriptorSetAllocationRequirements( std::vector<Descr
   }
   // If pipeline changed we need to free descriptor sets and allocate new ones.
   // Destroying old descriptors must happen before allocating new ones
-  if( mUpdateFlags & API::RENDER_COMMAND_UPDATE_PIPELINE_BIT )
+  if( mUpdateFlags & Dali::Graphics::RENDER_COMMAND_UPDATE_PIPELINE_BIT )
   {
     auto pipeline = static_cast<const VulkanAPI::Pipeline *>( mPipeline );
     if( !pipeline )
@@ -179,7 +179,7 @@ void RenderCommand::UpdateDescriptorSetAllocationRequirements( std::vector<Descr
 
 void RenderCommand::BuildDescriptorSetRequirements()
 {
-  if( !(mUpdateFlags & API::RENDER_COMMAND_UPDATE_PIPELINE_BIT) )
+  if( !(mUpdateFlags & Dali::Graphics::RENDER_COMMAND_UPDATE_PIPELINE_BIT) )
   {
     return;
   }

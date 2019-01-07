@@ -35,7 +35,7 @@ class Controller;
 /**
  * Framebuffer implementation
  */
-class Framebuffer : public Dali::Graphics::API::Framebuffer
+class Framebuffer : public Dali::Graphics::Framebuffer
 {
 public:
 

@@ -32,25 +32,25 @@ class Graphics;
 namespace VulkanAPI
 {
 class Controller;
-class TextureFactory : public Dali::Graphics::API::TextureFactory
+class TextureFactory : public Dali::Graphics::TextureFactory
 {
 public:
 
   explicit TextureFactory( VulkanAPI::Controller& controller );
 
-  Graphics::API::TextureFactory& SetType( API::TextureDetails::Type type ) override;
+  Graphics::TextureFactory& SetType( Dali::Graphics::TextureDetails::Type type ) override;
 
-  Graphics::API::TextureFactory& SetSize( const API::RectSize& size ) override;
+  Graphics::TextureFactory& SetSize( const Dali::Graphics::RectSize& size ) override;
 
-  Graphics::API::TextureFactory& SetFormat( API::TextureDetails::Format format ) override;
+  Graphics::TextureFactory& SetFormat( Dali::Graphics::TextureDetails::Format format ) override;
 
-  Graphics::API::TextureFactory& SetMipMapFlag( API::TextureDetails::MipMapFlag mipMSapFlag ) override;
+  Graphics::TextureFactory& SetMipMapFlag( Dali::Graphics::TextureDetails::MipMapFlag mipMSapFlag ) override;
 
-  Graphics::API::TextureFactory& SetUsage( API::TextureDetails::Usage usage ) override;
+  Graphics::TextureFactory& SetUsage( Dali::Graphics::TextureDetails::Usage usage ) override;
 
-  Graphics::API::TextureFactory& SetData( void* pData ) override;
+  Graphics::TextureFactory& SetData( void* pData ) override;
 
-  Graphics::API::TextureFactory& SetDataSize( uint32_t dataSizeInBytes ) override;
+  Graphics::TextureFactory& SetDataSize( uint32_t dataSizeInBytes ) override;
 
   // not copyable
   TextureFactory( const TextureFactory& ) = delete;
@@ -59,18 +59,18 @@ public:
 
   ~TextureFactory() override;
 
-  std::unique_ptr< Graphics::API::Texture > Create() const override;
+  std::unique_ptr< Graphics::Texture > Create() const override;
 
   /** Internal interface */
-  const API::TextureDetails::Type& GetType() const;
+  const Dali::Graphics::TextureDetails::Type& GetType() const;
 
-  const API::RectSize& GetSize() const;
+  const Dali::Graphics::RectSize& GetSize() const;
 
-  const API::TextureDetails::Format& GetFormat() const;
+  const Dali::Graphics::TextureDetails::Format& GetFormat() const;
 
-  const API::TextureDetails::Usage& GetUsage() const;
+  const Dali::Graphics::TextureDetails::Usage& GetUsage() const;
 
-  const API::TextureDetails::MipMapFlag& GetMipMapFlag() const;
+  const Dali::Graphics::TextureDetails::MipMapFlag& GetMipMapFlag() const;
 
   const void* GetData() const;
 

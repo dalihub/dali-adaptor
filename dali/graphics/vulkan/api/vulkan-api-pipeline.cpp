@@ -69,7 +69,7 @@ const std::vector< Vulkan::DescriptorSetLayoutSignature >& Pipeline::GetDescript
   return mPipelineImpl->GetDescriptorSetLayoutSignatures();
 }
 
-API::PipelineDynamicStateMask Pipeline::GetDynamicStateMask() const
+Dali::Graphics::PipelineDynamicStateMask Pipeline::GetDynamicStateMask() const
 {
   return mPipelineImpl->GetDynamicStateMask();
 }

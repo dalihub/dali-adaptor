@@ -36,13 +36,13 @@ namespace VulkanAPI
 {
 class Controller;
 
-class BufferFactory : public Dali::Graphics::API::BufferFactory
+class BufferFactory : public Dali::Graphics::BufferFactory
 {
 public:
 
   explicit BufferFactory( Controller& controller );
 
-  VulkanAPI::BufferFactory& SetUsageFlags( Dali::Graphics::API::BufferUsageFlags usage ) override;
+  VulkanAPI::BufferFactory& SetUsageFlags( Dali::Graphics::BufferUsageFlags usage ) override;
 
   VulkanAPI::BufferFactory& SetSize( uint32_t size ) override;
 
@@ -53,7 +53,7 @@ private:
   Controller& mController;
   Vulkan::Graphics& mGraphics;
   vk::BufferUsageFlags mUsage;
-  API::Buffer::UsageHint mUsageHints;
+  Dali::Graphics::Buffer::UsageHint mUsageHints;
   uint32_t mSize;
 };
 

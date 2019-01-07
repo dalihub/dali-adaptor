@@ -25,79 +25,79 @@ namespace Graphics
 namespace VulkanAPI
 {
 
-API::SamplerFactory& SamplerFactory::SetAddressModeU( API::SamplerAddressMode mode )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetAddressModeU( Dali::Graphics::SamplerAddressMode mode )
 {
   mAddressModeU = mode;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetAddressModeV( API::SamplerAddressMode mode )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetAddressModeV( Dali::Graphics::SamplerAddressMode mode )
 {
   mAddressModeV = mode;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetAddressModeW( API::SamplerAddressMode mode )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetAddressModeW( Dali::Graphics::SamplerAddressMode mode )
 {
   mAddressModeW = mode;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMinFilter( API::SamplerFilter filter )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMinFilter( Dali::Graphics::SamplerFilter filter )
 {
   mMinFilter = filter;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMagFilter( API::SamplerFilter filter )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMagFilter( Dali::Graphics::SamplerFilter filter )
 {
   mMagFilter = filter;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMipmapMode( API::SamplerMipmapMode mipmapMode )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMipmapMode( Dali::Graphics::SamplerMipmapMode mipmapMode )
 {
   mMipmapMode = mipmapMode;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetAnisotropyEnable( bool anisotropyEnable )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetAnisotropyEnable( bool anisotropyEnable )
 {
   mAnisotropyEnable = anisotropyEnable;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMaxAnisotropy( float maxAnisotropy )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMaxAnisotropy( float maxAnisotropy )
 {
   mMaxAnisotropy = maxAnisotropy;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMinLod( float minLod )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMinLod( float minLod )
 {
   mMinLod = minLod;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetMaxLod( float maxLod )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetMaxLod( float maxLod )
 {
   mMaxLod = maxLod;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetUnnormalizeCoordinates( bool unnormalizedCoordinates )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetUnnormalizeCoordinates( bool unnormalizedCoordinates )
 {
   mUnnormalizedCoordinates = unnormalizedCoordinates;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetCompareEnable( bool compareEnable )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetCompareEnable( bool compareEnable )
 {
   mCompareEnable = compareEnable;
   return *this;
 }
 
-API::SamplerFactory& SamplerFactory::SetCompareOp( API::CompareOp compareOp )
+Dali::Graphics::SamplerFactory& SamplerFactory::SetCompareOp( Dali::Graphics::CompareOp compareOp )
 {
   mCompareOp = compareOp;
   return *this;
@@ -105,13 +105,13 @@ API::SamplerFactory& SamplerFactory::SetCompareOp( API::CompareOp compareOp )
 
 SamplerFactory& SamplerFactory::Reset()
 {
-  mAddressModeU = API::SamplerAddressMode{};
-  mAddressModeV = API::SamplerAddressMode{};
-  mAddressModeW = API::SamplerAddressMode{};
-  mMinFilter = API::SamplerFilter{};
-  mMagFilter = API::SamplerFilter{};
-  mMipmapMode = API::SamplerMipmapMode{};
-  mCompareOp = API::CompareOp{};
+  mAddressModeU = Dali::Graphics::SamplerAddressMode{};
+  mAddressModeV = Dali::Graphics::SamplerAddressMode{};
+  mAddressModeW = Dali::Graphics::SamplerAddressMode{};
+  mMinFilter = Dali::Graphics::SamplerFilter{};
+  mMagFilter = Dali::Graphics::SamplerFilter{};
+  mMipmapMode = Dali::Graphics::SamplerMipmapMode{};
+  mCompareOp = Dali::Graphics::CompareOp{};
   mMaxAnisotropy = 1.0f; // value must be 1.0f as default if anisotropy feature isn't enabled
   mMinLod = 0.0f;
   mMaxLod = 0.0f;
@@ -121,7 +121,7 @@ SamplerFactory& SamplerFactory::Reset()
   return *this;
 }
 
-std::unique_ptr< Graphics::API::Sampler > SamplerFactory::Create() const
+std::unique_ptr< Graphics::Sampler > SamplerFactory::Create() const
 {
   return std::unique_ptr<VulkanAPI::Sampler>( new VulkanAPI::Sampler( mController, *this ) );
 }

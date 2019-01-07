@@ -33,8 +33,6 @@ namespace Dali
 {
 namespace Graphics
 {
-namespace API
-{
 
 std::string APItoVK( const Buffer* buffer)
 {
@@ -249,8 +247,8 @@ std::ostream& operator<<(std::ostream& ss, const RenderCommand& object)
   return ss;
 }
 
-}
-}
-}
+
+} // Graphics
+} // Dali
 
 #endif

@@ -26,6 +26,12 @@
 
 #include <dali/integration-api/graphics/vulkan/vulkan-hpp-wrapper.h>
 
+// Ensure we can use this type name safely.
+// Something in the target compilation system is defining it.
+#ifdef WAYLAND
+#undef WAYLAND
+#endif
+
 namespace Dali
 {
 namespace Graphics
@@ -50,10 +56,25 @@ namespace Vulkan
  * Forward class declarations
  */
 class Graphics;
-
-class Surface;
-
 class Queue;
+
+class Buffer;
+class CommandBuffer;
+class CommandPool;
+class DescriptorPool;
+class DescriptorSet;
+class Fence;
+class Framebuffer;
+class FramebufferAttachment;
+class GpuMemoryBlock;
+class Image;
+class ImageView;
+class Pipeline;
+class Sampler;
+class Shader;
+class Surface;
+class Swapchain;
+class Texture;
 
 /**
  * Unique pointers to Vulkan types
@@ -499,23 +520,23 @@ TypeValueEncoder< 4, DescriptorType, static_cast< size_t >( DescriptorType::DESC
 /*
  * Forward declarations of reference types
  */
-using RefCountedShader = Handle< class Shader >;
-using RefCountedPipeline = Handle< class Pipeline >;
-using RefCountedFence = Handle< class Fence >;
-using RefCountedBuffer = Handle< class Buffer >;
-using RefCountedFramebuffer = Handle< class Framebuffer >;
-using RefCountedImage = Handle< class Image >;
-using RefCountedImageView = Handle< class ImageView >;
-using RefCountedDescriptorPool = Handle< class DescriptorPool >;
-using RefCountedCommandPool = Handle< class CommandPool >;
-using RefCountedCommandBuffer = Handle< class CommandBuffer >;
-using RefCountedGpuMemoryBlock = Handle< class GpuMemoryBlock >;
-using RefCountedDescriptorSet = Handle< class DescriptorSet >;
-using RefCountedSwapchain = Handle< class Swapchain >;
-using RefCountedSurface = Handle< class Surface >;
-using RefCountedSampler = Handle< class Sampler >;
-using RefCountedTexture = Handle< class Texture >;
-using RefCountedFramebufferAttachment = Handle< class FramebufferAttachment >;
+using RefCountedBuffer = Handle< class Vulkan::Buffer >;
+using RefCountedCommandBuffer = Handle< class Vulkan::CommandBuffer >;
+using RefCountedCommandPool = Handle< class Vulkan::CommandPool >;
+using RefCountedDescriptorPool = Handle< class Vulkan::DescriptorPool >;
+using RefCountedDescriptorSet = Handle< class Vulkan::DescriptorSet >;
+using RefCountedFence = Handle< class Vulkan::Fence >;
+using RefCountedFramebuffer = Handle< class Vulkan::Framebuffer >;
+using RefCountedFramebufferAttachment = Handle< class Vulkan::FramebufferAttachment >;
+using RefCountedGpuMemoryBlock = Handle< class Vulkan::GpuMemoryBlock >;
+using RefCountedImage = Handle< class Vulkan::Image >;
+using RefCountedImageView = Handle< class Vulkan::ImageView >;
+using RefCountedPipeline = Handle< class Vulkan::Pipeline >;
+using RefCountedSampler = Handle< class Vulkan::Sampler >;
+using RefCountedShader = Handle< class Vulkan::Shader >;
+using RefCountedSurface = Handle< class Vulkan::Surface >;
+using RefCountedSwapchain = Handle< class Vulkan::Swapchain >;
+using RefCountedTexture = Handle< class Vulkan::Texture >;
 
 } // namespace Vulkan
 } // namespace Graphics

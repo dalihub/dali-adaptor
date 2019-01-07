@@ -67,7 +67,7 @@ public:
 
   const std::vector< Vulkan::DescriptorSetLayoutSignature >& GetDescriptorSetLayoutSignatures() const;
 
-  API::PipelineDynamicStateMask GetDynamicStateMask() const;
+  Dali::Graphics::PipelineDynamicStateMask GetDynamicStateMask() const;
 
   void Bind( Vulkan::RefCountedCommandBuffer& commandBuffer );
 

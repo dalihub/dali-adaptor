@@ -39,9 +39,9 @@ struct TextureFactory::Impl
 
   ~Impl() = default;
 
-  std::unique_ptr< Graphics::API::Texture > Create()
+  std::unique_ptr< Graphics::Texture > Create()
   {
-    auto retval = std::make_unique< VulkanAPI::Texture >( static_cast<Graphics::API::TextureFactory&>(mApi) );
+    auto retval = std::make_unique< VulkanAPI::Texture >( static_cast<Graphics::TextureFactory&>(mApi) );
 
     if( retval->Initialise() )
     {
@@ -55,11 +55,11 @@ struct TextureFactory::Impl
   VulkanAPI::Controller& mController;
   Vulkan::Graphics& mGraphics;
 
-  API::TextureDetails::Type mType;
-  API::TextureDetails::Usage mUsage;
-  API::RectSize mSize;
-  API::Format mFormat;
-  API::TextureDetails::MipMapFlag mMipmapFlags;
+  Dali::Graphics::TextureDetails::Type mType;
+  Dali::Graphics::TextureDetails::Usage mUsage;
+  Dali::Graphics::RectSize mSize;
+  Dali::Graphics::Format mFormat;
+  Dali::Graphics::TextureDetails::MipMapFlag mMipmapFlags;
   void* mData;
   uint32_t mDataSizeInBytes;
 
@@ -72,74 +72,74 @@ TextureFactory::TextureFactory( VulkanAPI::Controller& controller )
 
 TextureFactory::~TextureFactory() = default;
 
-Graphics::API::TextureFactory& TextureFactory::SetType( API::TextureDetails::Type type )
+Graphics::TextureFactory& TextureFactory::SetType( Dali::Graphics::TextureDetails::Type type )
 {
   mImpl->mType = type;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetSize( const API::RectSize& size )
+Graphics::TextureFactory& TextureFactory::SetSize( const Dali::Graphics::RectSize& size )
 {
   mImpl->mSize = size;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetUsage( API::TextureDetails::Usage usage )
+Graphics::TextureFactory& TextureFactory::SetUsage( Dali::Graphics::TextureDetails::Usage usage )
 {
   mImpl->mUsage = usage;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetFormat( API::TextureDetails::Format format )
+Graphics::TextureFactory& TextureFactory::SetFormat( Dali::Graphics::TextureDetails::Format format )
 {
   mImpl->mFormat = format;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetMipMapFlag( API::TextureDetails::MipMapFlag mipMSapFlag )
+Graphics::TextureFactory& TextureFactory::SetMipMapFlag( Dali::Graphics::TextureDetails::MipMapFlag mipMSapFlag )
 {
   mImpl->mMipmapFlags = mipMSapFlag;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetData( void* pData )
+Graphics::TextureFactory& TextureFactory::SetData( void* pData )
 {
   mImpl->mData = pData;
   return *this;
 }
 
-Graphics::API::TextureFactory& TextureFactory::SetDataSize( uint32_t dataSizeInBytes )
+Graphics::TextureFactory& TextureFactory::SetDataSize( uint32_t dataSizeInBytes )
 {
   mImpl->mDataSizeInBytes = dataSizeInBytes;
   return *this;
 }
 
-std::unique_ptr< Graphics::API::Texture > TextureFactory::Create() const
+std::unique_ptr< Graphics::Texture > TextureFactory::Create() const
 {
   return mImpl->Create();
 }
 
-const API::TextureDetails::Type& TextureFactory::GetType() const
+const Dali::Graphics::TextureDetails::Type& TextureFactory::GetType() const
 {
   return mImpl->mType;
 }
 
-const API::TextureDetails::Usage& TextureFactory::GetUsage() const
+const Dali::Graphics::TextureDetails::Usage& TextureFactory::GetUsage() const
 {
   return mImpl->mUsage;
 }
 
-const API::RectSize& TextureFactory::GetSize() const
+const Dali::Graphics::RectSize& TextureFactory::GetSize() const
 {
   return mImpl->mSize;
 }
 
-const API::TextureDetails::Format& TextureFactory::GetFormat() const
+const Dali::Graphics::TextureDetails::Format& TextureFactory::GetFormat() const
 {
   return mImpl->mFormat;
 }
 
-const API::TextureDetails::MipMapFlag& TextureFactory::GetMipMapFlag() const
+const Dali::Graphics::TextureDetails::MipMapFlag& TextureFactory::GetMipMapFlag() const
 {
   return mImpl->mMipmapFlags;
 }

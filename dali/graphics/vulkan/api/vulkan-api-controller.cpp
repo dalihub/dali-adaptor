@@ -84,7 +84,7 @@ struct Controller::Impl
     vk::RenderPassBeginInfo beginInfo{};
     std::vector< vk::ClearValue > colorValues{};
     Vulkan::RefCountedFramebuffer framebuffer{};
-    std::vector< Dali::Graphics::API::RenderCommand* > renderCommands;
+    std::vector< Dali::Graphics::RenderCommand* > renderCommands;
   };
 
   Impl( Controller& owner, Dali::Graphics::Vulkan::Graphics& graphics )
@@ -231,34 +231,34 @@ struct Controller::Impl
     swapchain->Present();
   }
 
-  API::TextureFactory& GetTextureFactory() const
+  Dali::Graphics::TextureFactory& GetTextureFactory() const
   {
     return *( mTextureFactory.get() );
   }
 
-  API::ShaderFactory& GetShaderFactory() const
+  Dali::Graphics::ShaderFactory& GetShaderFactory() const
   {
     return *( mShaderFactory.get() );
   }
 
-  API::BufferFactory& GetBufferFactory() const
+  Dali::Graphics::BufferFactory& GetBufferFactory() const
   {
     return *( mBufferFactory.get() );
   }
 
-  API::FramebufferFactory& GetFramebufferFactory() const
+  Dali::Graphics::FramebufferFactory& GetFramebufferFactory() const
   {
     mFramebufferFactory->Reset();
     return *( mFramebufferFactory.get() );
   }
 
 
-  std::unique_ptr< API::RenderCommand > AllocateRenderCommand()
+  std::unique_ptr< Dali::Graphics::RenderCommand > AllocateRenderCommand()
   {
     return std::make_unique< VulkanAPI::RenderCommand >( mOwner, mGraphics );
   }
 
-  void UpdateRenderPass( const std::vector< Dali::Graphics::API::RenderCommand*  >& commands, uint32_t startIndex, uint32_t endIndex )
+  void UpdateRenderPass( const std::vector< Dali::Graphics::RenderCommand*  >& commands, uint32_t startIndex, uint32_t endIndex )
   {
     auto firstCommand = static_cast<VulkanAPI::RenderCommand*>(commands[startIndex]);
     auto renderTargetBinding = firstCommand->GetRenderTargetBinding();
@@ -309,7 +309,7 @@ struct Controller::Impl
    * Submits number of commands in one go ( simiar to vkCmdExecuteCommands )
    * @param commands
    */
-  void SubmitCommands( std::vector< Dali::Graphics::API::RenderCommand* > commands )
+  void SubmitCommands( std::vector< Dali::Graphics::RenderCommand* > commands )
   {
     /*
      * analyze descriptorset needs pers signature
@@ -371,7 +371,7 @@ struct Controller::Impl
     }
 
     // Update render pass data per framebuffer
-    const Dali::Graphics::API::Framebuffer* currFramebuffer = nullptr;
+    const Dali::Graphics::Framebuffer* currFramebuffer = nullptr;
     uint32_t previousPassBeginIndex = 0u;
     uint32_t index = 0u;
     for( auto& command : commands )
@@ -647,7 +647,7 @@ struct Controller::Impl
       auto vulkanApiPipeline = static_cast<const VulkanAPI::Pipeline*>(apiCommand->GetPipeline());
 
       auto dynamicStateMask = vulkanApiPipeline->GetDynamicStateMask();
-      if( (dynamicStateMask & API::PipelineDynamicStateBits::VIEWPORT_BIT) && apiCommand->mDrawCommand.viewportEnable )
+      if( (dynamicStateMask & Dali::Graphics::PipelineDynamicStateBits::VIEWPORT_BIT) && apiCommand->mDrawCommand.viewportEnable )
       {
         auto viewportRect = apiCommand->mDrawCommand.viewport;
 
@@ -792,27 +792,27 @@ struct Controller::Impl
 
 // TODO: @todo temporarily ignore missing return type, will be fixed later
 
-std::unique_ptr< API::Shader > Controller::CreateShader( const API::BaseFactory< API::Shader >& factory )
+std::unique_ptr< Dali::Graphics::Shader > Controller::CreateShader( const Dali::Graphics::BaseFactory< Dali::Graphics::Shader >& factory )
 {
   return factory.Create();
 }
 
-std::unique_ptr< API::Texture > Controller::CreateTexture( const API::BaseFactory< API::Texture >& factory )
+std::unique_ptr< Dali::Graphics::Texture > Controller::CreateTexture( const Dali::Graphics::BaseFactory< Dali::Graphics::Texture >& factory )
 {
   return factory.Create();
 }
 
-std::unique_ptr< API::Buffer > Controller::CreateBuffer( const API::BaseFactory< API::Buffer >& factory )
+std::unique_ptr< Dali::Graphics::Buffer > Controller::CreateBuffer( const Dali::Graphics::BaseFactory< Dali::Graphics::Buffer >& factory )
 {
   return factory.Create();
 }
 
-std::unique_ptr< API::Sampler > Controller::CreateSampler( const API::BaseFactory< API::Sampler >& factory )
+std::unique_ptr< Dali::Graphics::Sampler > Controller::CreateSampler( const Dali::Graphics::BaseFactory< Dali::Graphics::Sampler >& factory )
 {
   return factory.Create();
 }
 
-std::unique_ptr< API::Pipeline > Controller::CreatePipeline( const API::PipelineFactory& factory )
+std::unique_ptr< Dali::Graphics::Pipeline > Controller::CreatePipeline( const Dali::Graphics::PipelineFactory& factory )
 {
   auto& pipelineFactory = const_cast<PipelineFactory&>(dynamic_cast<const PipelineFactory&>( factory ));
 
@@ -825,7 +825,7 @@ std::unique_ptr< API::Pipeline > Controller::CreatePipeline( const API::Pipeline
   return mImpl->mPipelineFactory->Create();
 }
 
-std::unique_ptr< API::Framebuffer > Controller::CreateFramebuffer( const API::BaseFactory< API::Framebuffer >& factory )
+std::unique_ptr< Dali::Graphics::Framebuffer > Controller::CreateFramebuffer( const Dali::Graphics::BaseFactory< Dali::Graphics::Framebuffer >& factory )
 {
   return factory.Create();
 }
@@ -926,33 +926,33 @@ void Controller::Resume()
   mImpl->mDrawOnResume = true;
 }
 
-API::TextureFactory& Controller::GetTextureFactory() const
+Dali::Graphics::TextureFactory& Controller::GetTextureFactory() const
 {
   return mImpl->GetTextureFactory();
 }
 
-API::ShaderFactory& Controller::GetShaderFactory() const
+Dali::Graphics::ShaderFactory& Controller::GetShaderFactory() const
 {
   return mImpl->GetShaderFactory();
 }
 
-API::BufferFactory& Controller::GetBufferFactory() const
+Dali::Graphics::BufferFactory& Controller::GetBufferFactory() const
 {
   return mImpl->GetBufferFactory();
 }
 
-API::FramebufferFactory& Controller::GetFramebufferFactory() const
+Dali::Graphics::FramebufferFactory& Controller::GetFramebufferFactory() const
 {
   return mImpl->GetFramebufferFactory();
 }
 
-API::PipelineFactory& Controller::GetPipelineFactory()
+Dali::Graphics::PipelineFactory& Controller::GetPipelineFactory()
 {
   mImpl->mPipelineFactory->Reset();
   return *mImpl->mPipelineFactory;
 }
 
-API::SamplerFactory& Controller::GetSamplerFactory()
+Dali::Graphics::SamplerFactory& Controller::GetSamplerFactory()
 {
   return mImpl->mSamplerFactory->Reset();
 }
@@ -985,12 +985,12 @@ bool Controller::HasPendingResourceTransfers() const
   return !mImpl->mResourceTransferRequests.empty();
 }
 
-void Controller::SubmitCommands( std::vector< API::RenderCommand* > commands )
+void Controller::SubmitCommands( std::vector< Dali::Graphics::RenderCommand* > commands )
 {
   mImpl->SubmitCommands( std::move( commands ) );
 }
 
-std::unique_ptr< API::RenderCommand > Controller::AllocateRenderCommand()
+std::unique_ptr< Dali::Graphics::RenderCommand > Controller::AllocateRenderCommand()
 {
   return mImpl->AllocateRenderCommand();
 }

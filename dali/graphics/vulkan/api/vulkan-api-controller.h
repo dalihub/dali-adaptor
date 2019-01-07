@@ -128,7 +128,7 @@ struct ResourceTransferRequest
 /**
  * @brief Interface class for Manager types in the graphics API.
  */
-class Controller : public Dali::Graphics::API::Controller
+class Controller : public Dali::Graphics::Controller
 {
 public:
 
@@ -146,36 +146,36 @@ public:
   /**
    * @brief Create a new object
    */
-  std::unique_ptr< API::Shader > CreateShader( const API::BaseFactory< API::Shader >& factory ) override;
+  std::unique_ptr< Dali::Graphics::Shader > CreateShader( const Dali::Graphics::BaseFactory< Dali::Graphics::Shader >& factory ) override;
 
   /**
    * @brief Create a new object
    */
-  std::unique_ptr< API::Texture > CreateTexture( const API::BaseFactory< API::Texture >& factory ) override;
+  std::unique_ptr< Dali::Graphics::Texture > CreateTexture( const Dali::Graphics::BaseFactory< Dali::Graphics::Texture >& factory ) override;
 
   /**
  * @brief Create a new object
  */
-  std::unique_ptr< API::Buffer > CreateBuffer( const API::BaseFactory< API::Buffer >& factory ) override;
+  std::unique_ptr< Dali::Graphics::Buffer > CreateBuffer( const Dali::Graphics::BaseFactory< Dali::Graphics::Buffer >& factory ) override;
 
   /**
    * @brief Create a new object
    */
-  std::unique_ptr< API::Sampler > CreateSampler( const API::BaseFactory< API::Sampler >& factory ) override;
+  std::unique_ptr< Dali::Graphics::Sampler > CreateSampler( const Dali::Graphics::BaseFactory< Dali::Graphics::Sampler >& factory ) override;
 
   /**
    * @brief Create a new object
    */
-  std::unique_ptr< API::Pipeline > CreatePipeline( const API::PipelineFactory& factory ) override;
+  std::unique_ptr< Dali::Graphics::Pipeline > CreatePipeline( const Dali::Graphics::PipelineFactory& factory ) override;
 
   /**
    * @brief Create a new object
    */
-  std::unique_ptr< API::Framebuffer > CreateFramebuffer( const API::BaseFactory< API::Framebuffer >& factory ) override;
+  std::unique_ptr< Dali::Graphics::Framebuffer > CreateFramebuffer( const Dali::Graphics::BaseFactory< Dali::Graphics::Framebuffer >& factory ) override;
 
-  void SubmitCommands( std::vector< API::RenderCommand* > commands ) override;
+  void SubmitCommands( std::vector< Dali::Graphics::RenderCommand* > commands ) override;
 
-  std::unique_ptr< API::RenderCommand > AllocateRenderCommand() override;
+  std::unique_ptr< Dali::Graphics::RenderCommand > AllocateRenderCommand() override;
 
   virtual void BeginFrame() override;
 
@@ -228,17 +228,17 @@ public:
 
 public:
 
-  API::TextureFactory& GetTextureFactory() const override;
+  Dali::Graphics::TextureFactory& GetTextureFactory() const override;
 
-  API::ShaderFactory& GetShaderFactory() const override;
+  Dali::Graphics::ShaderFactory& GetShaderFactory() const override;
 
-  API::BufferFactory& GetBufferFactory() const override;
+  Dali::Graphics::BufferFactory& GetBufferFactory() const override;
 
-  API::PipelineFactory& GetPipelineFactory() override;
+  Dali::Graphics::PipelineFactory& GetPipelineFactory() override;
 
-  API::FramebufferFactory& GetFramebufferFactory() const override;
+  Dali::Graphics::FramebufferFactory& GetFramebufferFactory() const override;
 
-  API::SamplerFactory& GetSamplerFactory() override;
+  Dali::Graphics::SamplerFactory& GetSamplerFactory() override;
 
 public:
   // not copyable

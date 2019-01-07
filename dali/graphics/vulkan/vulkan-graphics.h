@@ -265,7 +265,7 @@ public: // Getters
 
   Platform GetDefaultPlatform() const;
 
-  Dali::Graphics::API::Controller& GetController();
+  Dali::Graphics::Controller& GetController();
 
   const vk::PipelineCache& GetVulkanPipelineCache();
 

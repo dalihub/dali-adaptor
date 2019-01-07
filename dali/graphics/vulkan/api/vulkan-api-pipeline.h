@@ -46,7 +46,7 @@ class PipelineFactory;
 /**
  * Pipeline due to its nature ( it's cached, single ownership ) is only an interface
  */
-class Pipeline : public API::Pipeline
+class Pipeline : public Dali::Graphics::Pipeline
 {
 public:
 
@@ -74,7 +74,7 @@ public:
 
   const std::vector< Vulkan::DescriptorSetLayoutSignature>& GetDescriptorSetLayoutSignatures() const;
 
-  API::PipelineDynamicStateMask GetDynamicStateMask() const;
+  Dali::Graphics::PipelineDynamicStateMask GetDynamicStateMask() const;
 
   void Bind( Vulkan::RefCountedCommandBuffer& commandBuffer ) const;
 

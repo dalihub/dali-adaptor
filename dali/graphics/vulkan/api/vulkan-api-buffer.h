@@ -30,18 +30,19 @@ namespace Graphics
 {
 namespace VulkanAPI
 {
+
 class Controller;
 
 /**
  * Buffer represents a Buffer-type resource
  */
-class Buffer : public Graphics::API::Buffer
+class Buffer : public Graphics::Buffer
 {
 public:
 
   explicit Buffer( Controller& controller,
                    vk::BufferUsageFlags usage,
-                   API::Buffer::UsageHint usageHints,
+                   Dali::Graphics::Buffer::UsageHint usageHints,
                    uint32_t size );
 
   bool Initialise();
@@ -82,12 +83,14 @@ private:
   Controller& mController;
   Vulkan::Graphics& mGraphics;
   vk::BufferUsageFlags mUsage{ vk::BufferUsageFlagBits::eVertexBuffer };
-  API::Buffer::UsageHint mUsageHints;
+  Dali::Graphics::Buffer::UsageHint mUsageHints;
   uint32_t mSize;
 
   Vulkan::RefCountedBuffer mBufferRef;
 };
-}
+
+} // Namespace VulkanAPI
 } // namespace Graphics
 } // namespace Dali
+
 #endif // DALI_GRAPHICS_VULKAN_API_BUFFER_H

@@ -116,7 +116,7 @@ public:
    * Returns controller object
    * @return
    */
-  Dali::Graphics::API::Controller& GetController() override;
+  Dali::Graphics::Controller& GetController() override;
 
   /*
    * Surface resized
