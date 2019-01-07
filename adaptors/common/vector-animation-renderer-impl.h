@@ -54,7 +54,12 @@ public:
   /**
    * @brief Initializes member data.
    */
-  void Initialize( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height );
+  void Initialize( const std::string& url );
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::SetRenderer()
+   */
+  void SetRenderer( Dali::Renderer renderer );
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::SetSize()

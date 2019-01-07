@@ -100,13 +100,20 @@ void VectorAnimationRendererPluginProxy::Initialize()
   }
 }
 
-bool VectorAnimationRendererPluginProxy::CreateRenderer( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height )
+void VectorAnimationRendererPluginProxy::SetUrl( const std::string& url )
 {
   if( mPlugin )
   {
-    return mPlugin->CreateRenderer( url, renderer, width, height );
+    mPlugin->SetUrl( url );
   }
-  return false;
+}
+
+void VectorAnimationRendererPluginProxy::SetRenderer( Dali::Renderer renderer )
+{
+  if( mPlugin )
+  {
+    mPlugin->SetRenderer( renderer );
+  }
 }
 
 void VectorAnimationRendererPluginProxy::SetSize( uint32_t width, uint32_t height )
