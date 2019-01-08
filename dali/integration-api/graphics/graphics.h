@@ -149,10 +149,6 @@ namespace GraphicsFactory
 std::unique_ptr<Dali::Integration::Graphics::Graphics> Create( const GraphicsCreateInfo& info );
 }
 
-/**
- * fixme: dummy function to make sure the static library won't be discarded entirely during linking
- */
-EXPORT_API void IncludeThisLibrary();
 
 } // Namespace Graphics
 } // Namespace Integration

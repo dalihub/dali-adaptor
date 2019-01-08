@@ -1272,6 +1272,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk.so.mobile
 %{_libdir}/libdali-adaptor-vk-cxx11.so.0*.mobile
+%{_libdir}/libdali-graphics-vk-cxx11.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1282,6 +1283,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk.so.tv
 %{_libdir}/libdali-adaptor-vk-cxx11.so.0*.tv
+%{_libdir}/libdali-graphics-vk-cxx11.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1292,6 +1294,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk.so.wearable
 %{_libdir}/libdali-adaptor-vk-cxx11.so.0*.wearable
+%{_libdir}/libdali-graphics-vk-cxx11.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1302,6 +1305,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk.so.ivi
 %{_libdir}/libdali-adaptor-vk-cxx11.so.0*.ivi
+%{_libdir}/libdali-graphics-vk-cxx11.so*
 %endif
 
 
@@ -1317,6 +1321,7 @@ exit 0
 %defattr(-,root,root,-)
 %{dev_include_path}/dali/integration-api/adaptors/*
 %{_libdir}/pkgconfig/dali-adaptor-vk-integration.pc
+%{_libdir}/pkgconfig/dali-graphics-vk.pc
 
 %if !0%{?disable_cxx03_build}
 ################################################
@@ -1338,6 +1343,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk-cxx03.so.mobile
 %{_libdir}/libdali-adaptor-vk.so.0*mobile
+%{_libdir}/libdali-graphics-vk.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1348,6 +1354,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk-cxx03.so.tv
 %{_libdir}/libdali-adaptor-vk.so.0*.tv
+%{_libdir}/libdali-graphics-vk.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1358,6 +1365,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk-cxx03.so.wearable
 %{_libdir}/libdali-adaptor-vk.so.0*.wearable
+%{_libdir}/libdali-graphics-vk.so*
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -1368,6 +1376,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor-vk-cxx03.so.ivi
 %{_libdir}/libdali-adaptor-vk.so.0*.ivi
+%{_libdir}/libdali-graphics-vk.so*
 %endif
 
 
@@ -1383,4 +1392,5 @@ exit 0
 %defattr(-,root,root,-)
 %{dev_include_path}/dali/integration-api/adaptors/*
 %{_libdir}/pkgconfig/dali-adaptor-vk-integration-cxx03.pc
+%{_libdir}/pkgconfig/dali-graphics-vk-cxx03.pc
 %endif

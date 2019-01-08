@@ -8,5 +8,5 @@ Name: dali-graphics
 Description: DALi graphics using vulkan
 Version: ${apiversion}
 Requires: dali-core-vk
-Libs: -L${libdir} -ldali-graphics-vk
+Libs: -L${libdir} -ldali-graphics-vk-cxx11
 Cflags: -I${includedir}/dali

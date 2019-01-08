@@ -441,7 +441,6 @@ fi
 
 AC_OUTPUT
 
-
 echo "
 Configuration
 -------------

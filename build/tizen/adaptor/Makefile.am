@@ -83,6 +83,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+# Factory object + surface
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_x11_src_files)
@@ -559,7 +560,8 @@ LIBDALI_ADAPTOR_LA_CFLAGS += $(OPENGLES20_CFLAGS)
 LIBDALI_ADAPTOR_LA_LIBADD += $(OPENGLES20_LIBS)
 endif
 
-LIBDALI_ADAPTOR_LA_LIBADD += $(DALI_GRAPHICS_LIBS)
+#
+#LIBDALI_ADAPTOR_LA_LIBADD += $(DALI_GRAPHICS_LIBS)
 
 
 if USE_APPFW
@@ -744,22 +746,21 @@ linker_test_CXXFLAGS = \
   -I../../../ \
   $(DALI_ADAPTOR_CFLAGS) \
   $(DALI_CORE_CFLAGS) \
-  $(DALI_GRAPHICS_CFLAGS) \
   $(VCONF_CFLAGS) \
   $(DALIX11_CFLAGS) \
   -Werror -Wall
 
 linker_test_LDADD = \
   $(DALI_CORE_LIBS) \
-  $(DALI_GRAPHICS_LIBS) \
   $(VCONF_LIBS) \
   $(HARFBUZZ_LIBS) \
   -L${prefix}/lib
 
+
 if ENABLE_CXX03_ABI
 
-linker_test_LDADD += libdali-adaptor-vk.la
-linker_test_DEPENDENCIES = libdali-adaptor-vk.la
+linker_test_LDADD += libdali-adaptor-vk.la ../graphics/libdali-graphics-vk.la
+linker_test_DEPENDENCIES = libdali-adaptor-vk.la ../graphics/libdali-graphics-vk.la
 
 if ENABLE_RENAME_SO
 #rename
@@ -771,8 +772,8 @@ endif
 
 else
 
-linker_test_LDADD += libdali-adaptor-vk-cxx11.la
-linker_test_DEPENDENCIES = libdali-adaptor-vk-cxx11.la
+linker_test_LDADD += libdali-adaptor-vk-cxx11.la ../graphics/libdali-graphics-vk-cxx11.la
+linker_test_DEPENDENCIES = libdali-adaptor-vk-cxx11.la ../graphics/libdali-graphics-vk-cxx11.la
 
 if ENABLE_RENAME_SO
 #rename

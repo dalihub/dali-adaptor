@@ -28,19 +28,22 @@ include ../../../dali/integration-api/graphics/file.list
 
 # Build the graphics library
 lib_LTLIBRARIES=
+pkgconfigdir = $(libdir)/pkgconfig
 
 if ENABLE_CXX03_ABI
 
 lib_LTLIBRARIES  += libdali-graphics-vk.la
+pkgconfig_DATA = dali-graphics-vk-cxx03.pc
 
 else # ENABLE_CXX03_ABI
 lib_LTLIBRARIES  += libdali-graphics-vk-cxx11.la
+pkgconfig_DATA = dali-graphics-vk.pc
 
 endif # ENABLE_CXX03_ABI
 
 
-dali_includes = \
-                     -I../../..
+
+dali_includes = -I../../..
 
 gcc_flags = -Wno-return-local-addr -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override \
             -Wstack-usage=256 -Wunsafe-loop-optimizations -Wzero-as-null-pointer-constant -Wuseless-cast
@@ -102,10 +105,11 @@ libdali_graphics_vk_cxx11_la_CXXFLAGS = $(cxx_flags) \
                                         $(vulkan_flags)
 
 libdali_graphics_vk_cxx11_la_SOURCES = $(graphics_src_files) \
-                                    $(graphics_integration_src_files)
+                                       $(graphics_integration_src_files)
 
 libdali_graphics_vk_cxx11_la_LDFLAGS = -fPIC
 
 libdali_graphics_vk_cxx11_la_LIBADD = $(VULKAN_LIBS)
+
 
 endif # ENABLE_CXX03_ABI
