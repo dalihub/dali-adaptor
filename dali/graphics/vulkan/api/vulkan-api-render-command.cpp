@@ -15,7 +15,6 @@
  *
  */
 
-#include <dali/graphics-api/utility/utility-memory-pool.h>
 
 #include <dali/graphics/vulkan/api/vulkan-api-render-command.h>
 
