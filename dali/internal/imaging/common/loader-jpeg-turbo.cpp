@@ -42,6 +42,10 @@
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
+#include <dali/internal/system/common/file-closer.h>
+
+using namespace Dali::Internal::Platform;
+
 namespace
 {
 using Dali::Vector;
@@ -533,13 +537,13 @@ bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   const int flags= 0;
   FILE* const fp = input.file;
 
-  if( fseek(fp,0,SEEK_END) )
+  if( InternalFile::fseek(fp,0,SEEK_END) )
   {
     DALI_LOG_ERROR("Error seeking to end of file\n");
     return false;
   }
 
-  long positionIndicator = ftell(fp);
+  long positionIndicator = InternalFile::ftell(fp);
   unsigned int jpegBufferSize = 0u;
   if( positionIndicator > -1L )
   {
@@ -551,7 +555,7 @@ bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if( InternalFile::fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
     return false;
@@ -570,13 +574,13 @@ bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   unsigned char * const jpegBufferPtr = jpegBuffer.Begin();
 
   // Pull the compressed JPEG image bytes out of a file and into memory:
-  if( fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
+  if( InternalFile::fread( jpegBufferPtr, 1, jpegBufferSize, fp ) != jpegBufferSize )
   {
     DALI_LOG_WARNING("Error on image file read.\n");
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if( InternalFile::fseek(fp, 0, SEEK_SET) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -1086,7 +1090,7 @@ ExifHandle LoadExifData( FILE* fp )
   auto exifData = MakeNullExifData();
   unsigned char dataBuffer[1024];
 
-  if( fseek( fp, 0, SEEK_SET ) )
+  if( InternalFile::fseek( fp, 0, SEEK_SET ) )
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -1095,9 +1099,9 @@ ExifHandle LoadExifData( FILE* fp )
     auto exifLoader = std::unique_ptr<ExifLoader, decltype(exif_loader_unref)*>{
         exif_loader_new(), exif_loader_unref };
 
-    while( !feof(fp) )
+    while( !InternalFile::feof(fp) )
     {
-      int size = fread( dataBuffer, 1, sizeof( dataBuffer ), fp );
+      int size = InternalFile::fread( dataBuffer, 1, sizeof( dataBuffer ), fp );
       if( size <= 0 )
       {
         break;
