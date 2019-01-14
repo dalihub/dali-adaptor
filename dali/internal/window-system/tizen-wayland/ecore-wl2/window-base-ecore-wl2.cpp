@@ -1008,6 +1008,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyDown\n" );
 
     std::string keyName( keyEvent->keyname );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -1015,6 +1016,12 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     if( keyEvent->compose )
     {
       compose = keyEvent->compose;
+    }
+
+    // Ensure key symbol is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->key )
+    {
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
@@ -1040,7 +1047,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
     GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, deviceName, deviceClass, deviceSubclass );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, deviceName, deviceClass, deviceSubclass );
 
      mKeyEventSignal.Emit( keyEvent );
   }
@@ -1055,6 +1062,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp\n" );
 
     std::string keyName( keyEvent->keyname );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -1062,6 +1070,12 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     if( keyEvent->compose )
     {
       compose = keyEvent->compose;
+    }
+
+    // Ensure key symbol is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->key )
+    {
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
@@ -1087,7 +1101,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
     GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, deviceName, deviceClass, deviceSubclass );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, deviceName, deviceClass, deviceSubclass );
 
      mKeyEventSignal.Emit( keyEvent );
   }
