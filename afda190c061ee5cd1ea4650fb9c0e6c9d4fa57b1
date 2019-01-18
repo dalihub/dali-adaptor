@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd85e6eb_6953fc59",
+        "filename": "dali/integration-api/graphics/graphics.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1007416
+      },
+      "writtenOn": "2019-01-18T17:18:22Z",
+      "side": 1,
+      "message": "Does this really have to be in the Integration namespace.  I don\u0027t even think it needs to be in the Graphics namespace.",
+      "revId": "afda190c061ee5cd1ea4650fb9c0e6c9d4fa57b1",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
