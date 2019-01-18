@@ -872,7 +872,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
   // Initialise a JPEG codec:
   {
     auto jpeg = MakeJpegCompressor();
-    if( jpeg )
+    if( !jpeg )
     {
       DALI_LOG_ERROR( "JPEG Compressor init failed: %s\n", tjGetErrorStr() );
       return false;
