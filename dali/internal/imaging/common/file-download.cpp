@@ -22,7 +22,6 @@
 #include <dali/integration-api/debug.h>
 #include <pthread.h>
 #include <curl/curl.h>
-#include <openssl/crypto.h>
 #include <cstring>
 
 // INTERNAL INCLUDES
@@ -250,10 +249,10 @@ void CurlEnvironment::OnOpenSSLLocking( int mode, int n, const char* file, int l
   }
 }
 
-unsigned long CurlEnvironment::GetThreadId()
+void CurlEnvironment::GetThreadId( CRYPTO_THREADID* tid )
 {
   // If dali uses c++ thread, we may replace pthread_self() to this_thread::get_id()
-  return static_cast< unsigned long >( pthread_self() );
+  CRYPTO_THREADID_set_numeric( tid, static_cast< unsigned long > ( pthread_self() ) );
 }
 
 void CurlEnvironment::SetLockingFunction()
@@ -265,7 +264,7 @@ void CurlEnvironment::SetLockingFunction()
 
   mMutexs = new std::mutex[ CRYPTO_num_locks() ];
 
-  CRYPTO_set_id_callback( &CurlEnvironment::GetThreadId );
+  CRYPTO_THREADID_set_callback( &CurlEnvironment::GetThreadId );
   CRYPTO_set_locking_callback( &CurlEnvironment::OnOpenSSLLocking );
 }
 
@@ -276,7 +275,7 @@ void CurlEnvironment::UnsetLockingFunction()
     return;
   }
 
-  CRYPTO_set_id_callback( NULL );
+  CRYPTO_THREADID_set_callback( NULL );
   CRYPTO_set_locking_callback( NULL );
   delete [] mMutexs;
   mMutexs = NULL;
