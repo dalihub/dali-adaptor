@@ -27,10 +27,6 @@
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
-#include <dali/internal/system/common/file-closer.h>
-
-using namespace Dali::Internal::Platform;
-
 namespace Dali
 {
 namespace TizenPlatform
@@ -65,7 +61,7 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
   png_byte header[8] = { 0 };
 
   // Check header to see if it is a PNG file
-  size_t size = InternalFile::fread(header, 1, 8, fp);
+  size_t size = fread(header, 1, 8, fp);
   if(size != 8)
   {
     return false;
