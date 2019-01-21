@@ -86,7 +86,7 @@ private:
   AbortHandler& operator=(const AbortHandler& rhs);
 
 private:
-  typedef void (*SignalHandlerFuncPtr )( int );
+  typedef void ( *SignalHandlerFuncPtr )( int );
 
   // _NSIG comes from the signal.h linux system header, defining the number of signals.
   SignalHandlerFuncPtr        mSignalOldHandlers[_NSIG-1];
