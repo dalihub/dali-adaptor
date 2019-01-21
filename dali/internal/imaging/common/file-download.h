@@ -23,6 +23,7 @@
 #include <string>
 #include <mutex> //c++11
 #include <stdint.h> // uint8
+#include <openssl/crypto.h>
 
 namespace Dali
 {
@@ -67,7 +68,7 @@ public:
   /**
    * Gets thread id for libcurl with openssl
    */
-  static unsigned long GetThreadId();
+  static void GetThreadId( CRYPTO_THREADID* tid );
 
 private:
 
