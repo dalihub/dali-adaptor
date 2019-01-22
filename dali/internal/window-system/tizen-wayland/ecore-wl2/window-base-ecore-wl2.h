@@ -91,6 +91,11 @@ public:
   void OnRotation( void* data, int type, void* event );
 
   /**
+   * @brief Called when a configure event is recevied.
+   */
+  void OnConfiguration( void* data, int type, void* event );
+
+  /**
    * @brief Called when a touch down is received.
    */
   void OnMouseButtonDown( void* data, int type, void* event );
