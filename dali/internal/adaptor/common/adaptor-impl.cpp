@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -627,7 +627,7 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
   return *mDisplayConnection;
 }
 
-Dali::Integration::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
+Dali::Integration::GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
   return *mGraphics;

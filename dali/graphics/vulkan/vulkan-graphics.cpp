@@ -355,9 +355,9 @@ void Graphics::CreateDevice()
 }
 
 FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
-                              const Integration::Graphics::GraphicsCreateInfo& createInfo )
+                              const Integration::GraphicsCreateInfo& createInfo )
 {
-  auto vulkanSurfaceFactory = dynamic_cast<Dali::Integration::Graphics::Vulkan::VkSurfaceFactory*>( &surfaceFactory );
+  auto vulkanSurfaceFactory = dynamic_cast<Dali::Integration::Vulkan::VkSurfaceFactory*>( &surfaceFactory );
 
   if( !vulkanSurfaceFactory )
   {
@@ -409,8 +409,8 @@ FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
   mSurfaceFBIDMap[ fbid ] = SwapchainSurfacePair{ RefCountedSwapchain{}, RefCountedSurface( surface ) };
 
 
-  if( createInfo.depthStencilMode == Integration::Graphics::DepthStencilMode::DEPTH_OPTIMAL ||
-      createInfo.depthStencilMode == Integration::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
+  if( createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_OPTIMAL ||
+      createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
   {
     mHasDepth = true;
   }
@@ -419,7 +419,7 @@ FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
     mHasDepth = false;
   }
 
-  if( createInfo.depthStencilMode == Integration::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
+  if( createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
   {
     mHasStencil = true;
   }

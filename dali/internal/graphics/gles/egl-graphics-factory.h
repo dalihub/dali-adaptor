@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_FACTORY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  Integration::Graphics::GraphicsInterface& Create(PositionSize posSize) override;
+  Integration::GraphicsInterface& Create(PositionSize posSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()

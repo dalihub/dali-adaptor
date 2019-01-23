@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::GraphicsInterface& graphics )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::InitializeGraphics() not implemented!" );

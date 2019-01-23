@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public:
    * Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  virtual void SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics ) = 0;
+  virtual void SetGraphicsInterface( Integration::GraphicsInterface& graphics ) = 0;
 
 public:
 

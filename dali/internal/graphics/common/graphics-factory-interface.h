@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_FACTORY_INTERFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public:
    * Create a Graphics interface implementation
    * @return An implementation of the Graphics interface
    */
-  virtual Integration::Graphics::GraphicsInterface& Create(PositionSize) = 0;
+  virtual Integration::GraphicsInterface& Create(PositionSize) = 0;
 
   /**
    * Destroy the Graphics Factory implementation

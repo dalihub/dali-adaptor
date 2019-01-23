@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,10 +41,7 @@ class TriggerEventInterface;
 
 namespace Integration
 {
-namespace Graphics
-{
 class GraphicsInterface;
-} // Graphics
 } // Integration
 
 
@@ -92,7 +89,7 @@ public:
    * @param[in] environmentOptions Settings from environment/command line/registries.
    */
   CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                  Integration::Graphics::GraphicsInterface& graphics,
+                                  Integration::GraphicsInterface& graphics,
                                   const EnvironmentOptions& environmentOptions );
 
   /**
@@ -321,7 +318,7 @@ private:
   AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
   PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
   Integration::Core&                mCore;                             ///< Dali core reference
-  Integration::Graphics::GraphicsInterface& mGraphics;                 ///< Graphics object
+  Integration::GraphicsInterface&   mGraphics;                         ///< Graphics object
   const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
   TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
   TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates

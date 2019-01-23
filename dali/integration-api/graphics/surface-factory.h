@@ -22,8 +22,6 @@ namespace Dali
 {
 namespace Integration
 {
-namespace Graphics
-{
 
 class SurfaceFactory
 {
@@ -35,7 +33,6 @@ public:
   SurfaceFactory& operator=( const SurfaceFactory& ) = delete;
 };
 
-} // Namespace Graphics
 } // Namespace Integration
 } // Namespace Dali
 

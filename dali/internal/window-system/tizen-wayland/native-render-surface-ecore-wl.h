@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -157,7 +157,7 @@ private: // Data
 
   PositionSize                              mPosition;
   TriggerEventInterface*                    mRenderNotification;
-  Integration::Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
+  Integration::GraphicsInterface* mGraphics; ///< The graphics interface
   ColorDepth                                mColorDepth;
   tbm_format                                mTbmFormat;
   bool                                      mOwnSurface;

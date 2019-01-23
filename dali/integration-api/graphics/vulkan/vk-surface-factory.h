@@ -29,8 +29,6 @@ namespace Dali
 {
 namespace Integration
 {
-namespace Graphics
-{
 namespace Vulkan
 {
 
@@ -46,7 +44,6 @@ public:
 };
 
 } // namespace Vulkan
-} // namespace Graphics
 } // namespace Integration
 } // namespace Dali
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-void PixmapRenderSurfaceEcoreX::InitializeGraphics(Integration::Graphics::GraphicsInterface& graphics)
+void PixmapRenderSurfaceEcoreX::InitializeGraphics(Integration::GraphicsInterface& graphics)
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
 #if 0

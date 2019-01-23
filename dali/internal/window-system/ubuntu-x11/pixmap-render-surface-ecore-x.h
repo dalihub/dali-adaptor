@@ -2,7 +2,7 @@
 #define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -171,7 +171,7 @@ private:
 private: // Data
 
   static const int BUFFER_COUNT = 2;
-  GraphicsInterface*              mGraphics;               ///< Graphics interface
+  Integration::GraphicsInterface* mGraphics;               ///< Graphics interface
   Dali::DisplayConnection*        mDisplayConnection;      ///< Display connection
   PositionSize                    mPosition;               ///< Position
   TriggerEventInterface*          mRenderNotification;     ///< Render notification trigger

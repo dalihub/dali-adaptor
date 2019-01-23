@@ -61,8 +61,8 @@ using Dali::Graphics::Vulkan::Pipeline;
 using Dali::Graphics::Vulkan::RefCountedPipeline;
 using Dali::Graphics::Vulkan::Shader;
 using Dali::Graphics::Vulkan::RefCountedShader;
-using Dali::Integration::Graphics::Graphics;
-using Dali::Integration::Graphics::Vulkan::VkSurfaceFactory;
+using Dali::Integration::Graphics;
+using Dali::Integration::Vulkan::VkSurfaceFactory;
 
 extern std::vector< uint8_t > VSH;
 extern std::vector< uint8_t > FSH;
@@ -80,7 +80,7 @@ std::unique_ptr< T > MakeUnique( Args&& ... args )
   return std::unique_ptr< T >( new T( std::forward< Args >( args )... ) );
 }
 
-class VkSurfaceXlib : public Dali::Integration::Graphics::Vulkan::VkSurfaceFactory
+class VkSurfaceXlib : public Dali::Integration::Vulkan::VkSurfaceFactory
 {
 public:
   /**
@@ -108,7 +108,7 @@ private:
   vk::SurfaceKHR mSurface;
 };
 
-class VkSurfaceXcb : public Dali::Integration::Graphics::Vulkan::VkSurfaceFactory
+class VkSurfaceXcb : public Dali::Integration::Vulkan::VkSurfaceFactory
 {
 public:
   /**

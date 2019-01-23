@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 namespace Dali
 {
 
-DisplayConnection* DisplayConnection::New( Dali::Integration::Graphics::GraphicsInterface& graphics )
+DisplayConnection* DisplayConnection::New( Dali::Integration::GraphicsInterface& graphics )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
@@ -38,7 +38,7 @@ DisplayConnection* DisplayConnection::New( Dali::Integration::Graphics::Graphics
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Integration::Graphics::GraphicsInterface& graphics, RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Dali::Integration::GraphicsInterface& graphics, RenderSurface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();

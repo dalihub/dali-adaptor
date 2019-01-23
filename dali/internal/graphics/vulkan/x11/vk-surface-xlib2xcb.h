@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ namespace Vulkan
  * Presenting swapchain that uses Xlib surface crashes. Class VkSurfaceXlib2Xcb
  * takes Xlib window arguments but creates Xcb surface. It's a workaround.
  */
-class VkSurfaceXlib2Xcb final : public Dali::Integration::Graphics::Vulkan::VkSurfaceFactory
+class VkSurfaceXlib2Xcb final : public Dali::Integration::Vulkan::VkSurfaceFactory
 {
 public:
   VkSurfaceXlib2Xcb(Dali::RenderSurface& renderSurface);

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,7 @@ namespace Dali
 {
 namespace Integration
 {
-namespace Graphics
-{
 class Surface;
-class Graphics;
-} // namespace Graphics
 } // namespace Integration
 
 class TriggerEventInterface;
@@ -134,7 +130,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -223,7 +219,7 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
-  Integration::Graphics::GraphicsInterface* mGraphics;           ///< Graphics interface
+  Integration::GraphicsInterface* mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
@@ -233,7 +229,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  std::unique_ptr<Dali::Integration::Graphics::Surface> mGraphicsSurface;
+  std::unique_ptr<Dali::Integration::Surface> mGraphicsSurface;
 }; // class WindowRenderSurface
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public:
    * @param[in] graphics The abstracted graphics interface
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Integration::Graphics::GraphicsInterface& graphics );
+  static DisplayConnection* New( Dali::Integration::GraphicsInterface& graphics );
 
   /**
    * @brief Create an initialized DisplayConnection.
@@ -57,7 +57,7 @@ public:
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Integration::Graphics::GraphicsInterface& graphics, RenderSurface::Type type );
+  static DisplayConnection* New( Dali::Integration::GraphicsInterface& graphics, RenderSurface::Type type );
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().

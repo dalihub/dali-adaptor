@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,6 @@
 
 namespace Dali
 {
-
-namespace Integration
-{
-namespace Graphics
-{
-class Graphics;
-} // graphics
-} // integration
 
 namespace Internal
 {
@@ -83,7 +75,7 @@ public:
    * This also contains the depth and stencil buffers
    * @return the graphics interface
    */
-  virtual Dali::Integration::Graphics::GraphicsInterface& GetGraphicsInterface() = 0;
+  virtual Dali::Integration::GraphicsInterface& GetGraphicsInterface() = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process

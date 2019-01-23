@@ -35,8 +35,6 @@ using GraphicsImpl = Dali::Graphics::Vulkan::Graphics;
 
 namespace Integration
 {
-namespace Graphics
-{
 
 Surface::Surface( Dali::Graphics::GraphicsImpl* graphicsImpl, Dali::Graphics::FBID fbid )
     : mGraphicsImpl( graphicsImpl ),
@@ -56,7 +54,7 @@ Surface::~Surface()
   }
 }
 
-using Dali::Integration::Graphics::SurfaceFactory;
+using Dali::Integration::SurfaceFactory;
 
 Graphics::Graphics( const GraphicsCreateInfo& info,
                     Integration::DepthBufferAvailable depthBufferAvailable,
@@ -142,6 +140,5 @@ void Graphics::SurfaceResized( unsigned int width, unsigned int height )
   mGraphicsImpl->SurfaceResized( width, height );
 }
 
-} // Namespace Graphics
 } // Namespace Integration
 } // Namespace Dali

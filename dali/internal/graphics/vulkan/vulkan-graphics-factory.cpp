@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ GraphicsFactory::~GraphicsFactory()
   /* Deleted by Adaptor destructor */
 }
 
-Integration::Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
+Integration::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
 {
   auto depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ?
                               Integration::DepthBufferAvailable::TRUE :
@@ -53,29 +53,29 @@ Integration::Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactor
   uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1 : 0;
   depthStencilMask |= mEnvironmentOptions.DepthBufferRequired() ? 1 << 1 : 0;
 
-  Integration::Graphics::GraphicsCreateInfo info;
+  Integration::GraphicsCreateInfo info;
   info.surfaceWidth = uint32_t( positionSize.width );
   info.surfaceHeight = uint32_t( positionSize.height );
-  info.depthStencilMode = std::function<Integration::Graphics::DepthStencilMode()>(
+  info.depthStencilMode = std::function<Integration::DepthStencilMode()>(
     [depthStencilMask]() {
       switch( depthStencilMask )
       {
         case 1:
         case 3:
-          return Integration::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
+          return Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
         case 2:
-          return Integration::Graphics::DepthStencilMode::DEPTH_OPTIMAL;
+          return Integration::DepthStencilMode::DEPTH_OPTIMAL;
         case 0:
-          return Integration::Graphics::DepthStencilMode::NONE;
+          return Integration::DepthStencilMode::NONE;
         default:
-          return Integration::Graphics::DepthStencilMode::NONE;
+          return Integration::DepthStencilMode::NONE;
       }
     }
   )();
 
-  info.swapchainBufferingMode = Integration::Graphics::SwapchainBufferingMode::OPTIMAL;
+  info.swapchainBufferingMode = Integration::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Dali::Integration::Graphics::Graphics( info, depthBufferRequired, stencilBufferRequired );
+  auto graphics = new Dali::Integration::Graphics( info, depthBufferRequired, stencilBufferRequired );
   return *graphics;
 }
 

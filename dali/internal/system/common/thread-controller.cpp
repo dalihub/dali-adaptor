@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ namespace Internal
 namespace Adaptor
 {
 
-ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, Integration::Graphics::GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions )
+ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, Integration::GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions )
 : mThreadControllerInterface( NULL )
 {
   switch( environmentOptions.GetThreadingMode() )

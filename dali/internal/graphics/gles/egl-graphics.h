@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public:
   virtual ~EglGraphics();
 
   /**
-   * @copydoc Dali::Integration::Graphics::GraphicsInterface::Initialize()
+   * @copydoc Dali::Integration::GraphicsInterface::Initialize()
    */
   void Initialize( EnvironmentOptions* environmentOptions ) override;
 
@@ -95,12 +95,12 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
-   * @copydoc Dali::Integration::Graphics::GraphicsInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Integration::GraphicsInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable& GetDepthBufferRequired();
 
   /**
-   * @copydoc Dali::Integration::Graphics::GraphicsInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Integration::GraphicsInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired();
 
@@ -111,7 +111,7 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
-   * @copydoc Dali::Integration::Graphics::GraphicsInterface::Destroy()
+   * @copydoc Dali::Integration::GraphicsInterface::Destroy()
    */
   void Destroy() override;
 

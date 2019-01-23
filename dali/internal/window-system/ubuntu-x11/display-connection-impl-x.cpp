@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ void DisplayConnectionX11::SetSurfaceType( RenderSurface::Type type )
   }
 }
 
-void DisplayConnectionX11::SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics )
+void DisplayConnectionX11::SetGraphicsInterface( Integration::GraphicsInterface& graphics )
 {
   mGraphics = &graphics;
 }

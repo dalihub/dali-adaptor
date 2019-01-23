@@ -116,7 +116,7 @@ private:
   bool hostVisible;
 };
 
-using Dali::Integration::Graphics::SurfaceFactory;
+using Dali::Integration::SurfaceFactory;
 using CommandPoolMap = std::unordered_map< std::thread::id, RefCountedCommandPool >;
 
 struct SwapchainSurfacePair
@@ -147,8 +147,8 @@ public: // Create methods
 
   void InitialiseController();
 
-  FBID CreateSurface( SurfaceFactory& surfaceFactory,
-                      const Integration::Graphics::GraphicsCreateInfo& createInfo );
+  FBID CreateSurface( Integration::SurfaceFactory& surfaceFactory,
+                      const Integration::GraphicsCreateInfo& createInfo );
 
   RefCountedSwapchain CreateSwapchainForSurface( RefCountedSurface surface );
 

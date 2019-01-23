@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,11 +55,6 @@ class Window;
 namespace Integration
 {
 class Core;
-
-namespace Graphics
-{
-class Graphics;
-}
 }
 
 namespace Internal
@@ -431,7 +426,7 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
    */
-  virtual Dali::Integration::Graphics::GraphicsInterface& GetGraphicsInterface();
+  virtual Dali::Integration::GraphicsInterface& GetGraphicsInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
@@ -635,7 +630,7 @@ private: // Data
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
-  Integration::Graphics::GraphicsInterface* mGraphics;                ///< @todo move ownership to GraphicsFactory?
+  Integration::GraphicsInterface*       mGraphics;                    ///< @todo move ownership to GraphicsFactory?
 
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowFrames                          mWindowFrame;                 ///< A container of all the Windows that are currently created

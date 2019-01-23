@@ -2,7 +2,7 @@
 #define DALI_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,24 +30,10 @@
 namespace Dali
 {
 
-namespace Internal
-{
-
-namespace Adaptor
-{
-
-class GraphicsInterface;
-
-} // namespace Adaptor
-
-} // namespace Internal
 namespace Integration
 {
-namespace Graphics
-{
+class GraphicsInterface;
 class Graphics;
-class Surface;
-}
 }
 
 class ThreadSynchronizationInterface;
@@ -110,7 +96,7 @@ public:
    * Initialize Graphics.
    * @param egl implementation to use for the creation
    */
-  virtual void InitializeGraphics( Integration::Graphics::GraphicsInterface& graphicsInterface ) = 0;
+  virtual void InitializeGraphics( Integration::GraphicsInterface& graphicsInterface ) = 0;
 
   /**
    * @brief Creates the Surface

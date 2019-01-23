@@ -48,8 +48,7 @@ using GraphicsImpl = Vulkan::Graphics;
 
 namespace Integration
 {
-namespace Graphics
-{
+
 class SurfaceFactory;
 struct EXPORT_API Surface
 {
@@ -58,7 +57,6 @@ struct EXPORT_API Surface
   Dali::Graphics::GraphicsImpl* mGraphicsImpl;
   Dali::Graphics::FBID frambufferId;
 };
-
 
 /**
  * Graphics implementation class
@@ -146,11 +144,9 @@ namespace GraphicsFactory
  * @param info
  * @return
  */
-std::unique_ptr<Dali::Integration::Graphics::Graphics> Create( const GraphicsCreateInfo& info );
+std::unique_ptr<Dali::Integration::Graphics> Create( const Integration::GraphicsCreateInfo& info );
 }
 
-
-} // Namespace Graphics
 } // Namespace Integration
 } // Namespace Dali
 

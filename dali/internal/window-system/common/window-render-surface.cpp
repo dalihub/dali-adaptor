@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,7 +183,7 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
 }
 
-void WindowRenderSurface::InitializeGraphics( Integration::Graphics::GraphicsInterface& graphicsInterface )
+void WindowRenderSurface::InitializeGraphics( Integration::GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
@@ -232,7 +232,7 @@ void WindowRenderSurface::CreateSurface()
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
 #endif
 
-  mGraphicsSurface = static_cast<Integration::Graphics::Graphics*>(mGraphics)->CreateSurface( *surfaceFactory.get() );
+  mGraphicsSurface = static_cast<Integration::Graphics*>(mGraphics)->CreateSurface( *surfaceFactory.get() );
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }

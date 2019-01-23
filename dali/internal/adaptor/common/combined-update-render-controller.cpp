@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                                                Integration::Graphics::GraphicsInterface& graphics,
+                                                                Integration::GraphicsInterface& graphics,
                                                                 const EnvironmentOptions& environmentOptions )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),

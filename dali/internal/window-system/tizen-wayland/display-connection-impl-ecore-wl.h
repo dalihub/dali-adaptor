@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public:
    * @brief Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  void SetGraphicsInterface( Integration::Graphics::GraphicsInterface& graphics ) override;
+  void SetGraphicsInterface( Integration::GraphicsInterface& graphics ) override;
 
 public:
 
@@ -109,7 +109,7 @@ protected:
 private:
   Any mDisplay;        ///< Wayland-display for rendering
   RenderSurface::Type mSurfaceType;     ///< The surface type
-  Integration::Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
+  Integration::GraphicsInterface* mGraphics; ///< The graphics interface
 };
 
 } // namespace Adaptor
