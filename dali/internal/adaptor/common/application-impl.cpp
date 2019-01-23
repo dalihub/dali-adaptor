@@ -452,6 +452,11 @@ std::string Application::GetResourcePath()
   return Internal::Adaptor::Framework::GetResourcePath();
 }
 
+std::string Application::GetDataPath()
+{
+  return Internal::Adaptor::Framework::GetDataPath();
+}
+
 void Application::SetStyleSheet( const std::string& stylesheet )
 {
   mStylesheet = stylesheet;

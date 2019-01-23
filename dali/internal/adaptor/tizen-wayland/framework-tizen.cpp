@@ -815,6 +815,18 @@ std::string Framework::GetResourcePath()
   return resourcePath;
 }
 
+std::string Framework::GetDataPath()
+{
+  std::string result;
+  char* dataPath = app_get_data_path();
+  if( dataPath )
+  {
+    result = dataPath;
+    free(dataPath);
+  }
+  return result;
+}
+
 void Framework::SetBundleId(const std::string& id)
 {
   mBundleId = id;

@@ -148,6 +148,11 @@ public:
   static std::string GetResourcePath();
 
   /**
+   * @copydoc Dali::DevelApplication::GetDataPath()
+   */
+  static std::string GetDataPath();
+
+  /**
    * Retrieves the pre-initialized application.
    *
    * @return A pointer to the pre-initialized application

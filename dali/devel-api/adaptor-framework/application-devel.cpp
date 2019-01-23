@@ -58,6 +58,11 @@ bool DestroyWindow( Application application, const std::string& childWindowName 
   return Internal::Adaptor::Adaptor::GetImplementation( adaptor ).RemoveWindow( childWindowName );
 }
 
+std::string GetDataPath()
+{
+  return Internal::Adaptor::Application::GetDataPath();
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

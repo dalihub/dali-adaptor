@@ -191,6 +191,11 @@ public:
   static std::string GetResourcePath();
 
   /**
+   *  Gets the path at which application data are stored.
+   */
+  static std::string GetDataPath();
+
+  /**
    * Sets system language.
    */
   void SetLanguage( const std::string& language );
