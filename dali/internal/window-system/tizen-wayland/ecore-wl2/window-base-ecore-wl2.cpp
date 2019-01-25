@@ -277,6 +277,19 @@ static Eina_Bool EcoreEventRotate( void* data, int type, void* event )
   return ECORE_CALLBACK_PASS_ON;
 }
 
+/**
+ * Called when configure event is recevied.
+ */
+static Eina_Bool EcoreEventConfigure( void* data, int type, void* event )
+{
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+  if( windowBase )
+  {
+    windowBase->OnConfiguration( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Touch Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -689,6 +702,9 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
   // Register Rotate event
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ROTATE,               EcoreEventRotate,                    this ) );
 
+  // Register Configure event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_CONFIGURE,            EcoreEventConfigure,                 this ) );
+
   // Register Touch events
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,               EcoreEventMouseButtonDown,           this ) );
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,                 EcoreEventMouseButtonUp,             this ) );
@@ -858,6 +874,18 @@ void WindowBaseEcoreWl2::OnRotation( void* data, int type, void* event )
     }
 
     mRotationSignal.Emit( rotationEvent );
+  }
+}
+
+void WindowBaseEcoreWl2::OnConfiguration( void* data, int type, void* event )
+{
+  Ecore_Wl2_Event_Window_Configure* ev( static_cast< Ecore_Wl2_Event_Window_Configure* >( event ) );
+
+  if( ev->win == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
+  {
+    // Note: To comply with the wayland protocol, Dali should make an ack_configure
+    // by calling ecore_wl2_window_commit
+    ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
   }
 }
 

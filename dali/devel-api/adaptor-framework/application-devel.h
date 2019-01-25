@@ -84,6 +84,13 @@ DALI_ADAPTOR_API bool DestroyWindow( Application application, Dali::Window* chil
  */
 DALI_ADAPTOR_API bool DestroyWindow( Application application, const std::string& childWindowName );
 
+/**
+* @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
+* @return The absolute path to the application's data directory
+*/
+DALI_ADAPTOR_API std::string GetDataPath();
+
+
 } // namespace DevelApplication
 
 } // namespace Dali

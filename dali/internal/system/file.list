@@ -3,6 +3,7 @@
 # module: system, backend: common
 adaptor_system_common_src_files=\
     ${adaptor_system_dir}/common/abort-handler.cpp \
+    ${adaptor_system_dir}/common/color-controller-impl.cpp \
     ${adaptor_system_dir}/common/command-line-options.cpp \
     ${adaptor_system_dir}/common/environment-options.cpp \
     ${adaptor_system_dir}/common/fps-tracker.cpp \
@@ -37,7 +38,6 @@ adaptor_system_linux_src_files=\
 
 # module: system, backend: tizen-wayland
 adaptor_system_tizen_wayland_src_files=\
-    ${adaptor_system_dir}/tizen-wayland/color-controller-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
@@ -47,7 +47,6 @@ adaptor_system_tizen_wearable_src_files=\
     ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture.cpp \
     ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp \
-    ${adaptor_system_dir}/tizen-wayland/color-controller-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
@@ -55,7 +54,6 @@ adaptor_system_tizen_wearable_src_files=\
 
 # module: system, backend: ubuntu-x11
 adaptor_system_ubuntu_x11_src_files=\
-    ${adaptor_system_dir}/ubuntu-x11/color-controller-impl-x.cpp \
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp \
     ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp \
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
