@@ -67,6 +67,10 @@ ImageDimensions GetClosestImageSize( const std::string& filename,
   return dimension;
 }
 
+ImageDimensions GetOriginalImageSize( const std::string& filename )
+{
+   return TizenPlatform::ImageLoader::GetClosestImageSize( filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, true );
+}
 
 Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
 {
