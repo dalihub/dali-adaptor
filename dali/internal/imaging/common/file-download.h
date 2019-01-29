@@ -70,10 +70,6 @@ public:
    */
   static void GetThreadId( CRYPTO_THREADID* tid );
 
-  static void ConfigureCurlOptions( void* curlHandle, const std::string& url );
-
-  static void InitWriteFunction( void* curlHandle );
-
 private:
 
   void SetLockingFunction();
