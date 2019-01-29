@@ -222,6 +222,19 @@ std::string Framework::GetResourcePath()
   return resourcePath;
 }
 
+std::string Framework::GetDataPath()
+{
+  const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
+  char* value = getenv( ubuntuEnvironmentVariable );
+  std::string dataPath;
+  if ( value != NULL )
+  {
+    dataPath = value;
+  }
+
+  return dataPath;
+}
+
 void Framework::SetBundleId(const std::string& id)
 {
   mBundleId = id;

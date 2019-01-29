@@ -44,6 +44,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/color-controller-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.h \
   $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.h \
   $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.h \
