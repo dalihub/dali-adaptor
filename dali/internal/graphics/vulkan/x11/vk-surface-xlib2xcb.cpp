@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
 
 namespace Dali
 {
-namespace Graphics
+namespace Internal
 {
-namespace Vulkan
+namespace Adaptor
 {
 
 VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb(Dali::RenderSurface& renderSurface)
@@ -51,6 +51,7 @@ vk::SurfaceKHR VkSurfaceXlib2Xcb::Create(vk::Instance instance, const vk::Alloca
   auto retval = instance.createXcbSurfaceKHR(info, allocCallbacks).value;
   return retval;
 }
-}
-}
-}
+
+} // Adaptor
+} // Internal
+} // Dali

@@ -1,3 +1,6 @@
+#ifndef DALI_INTERNAL_GRAPHICS_SURFACE_FACTORY_H
+#define DALI_INTERNAL_GRAPHICS_SURFACE_FACTORY_H
+
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
@@ -15,12 +18,11 @@
  *
  */
 
-#ifndef DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
-#define DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
-
 namespace Dali
 {
-namespace Integration
+namespace Internal
+{
+namespace Adaptor
 {
 
 class SurfaceFactory
@@ -33,7 +35,8 @@ public:
   SurfaceFactory& operator=( const SurfaceFactory& ) = delete;
 };
 
-} // Namespace Integration
+} // Namespace Adaptor
+} // Namespace Internal
 } // Namespace Dali
 
-#endif // DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
+#endif // DALI_INTERNAL_GRAPHICS_SURFACE_FACTORY_H

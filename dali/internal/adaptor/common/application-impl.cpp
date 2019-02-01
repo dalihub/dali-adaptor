@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,7 +162,7 @@ void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS( mMainWindow && "Window required to create adaptor" );
 
-  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  auto& graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
   mAdaptor = Dali::Internal::Adaptor::Adaptor::New( graphicsFactory, mMainWindow, mContextLossConfiguration, &mEnvironmentOptions );
 

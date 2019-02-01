@@ -24,7 +24,7 @@
 #include <memory>
 #include <bitset>
 
-#include <dali/integration-api/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 // Ensure we can use this type name safely.
 // Something in the target compilation system is defining it.

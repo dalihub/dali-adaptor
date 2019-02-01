@@ -219,7 +219,7 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
-  Integration::GraphicsInterface* mGraphics;           ///< Graphics interface
+  Graphics::GraphicsInterface*    mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
@@ -229,7 +229,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  std::unique_ptr<Dali::Integration::Surface> mGraphicsSurface;
+  std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
 }; // class WindowRenderSurface
 
 } // namespace Adaptor

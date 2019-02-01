@@ -19,9 +19,9 @@
 
 using namespace glm;
 
-#include <dali/integration-api/graphics/graphics.h>
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
-#include <dali/integration-api/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/internal/graphics/vulkan/graphics.h>
+#include <dali/internal/graphics/vulkan/vk-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 #include <unistd.h>
 #include <xcb/xcb.h>
@@ -61,7 +61,6 @@ using Dali::Graphics::Vulkan::Pipeline;
 using Dali::Graphics::Vulkan::RefCountedPipeline;
 using Dali::Graphics::Vulkan::Shader;
 using Dali::Graphics::Vulkan::RefCountedShader;
-using Dali::Integration::Graphics;
 using Dali::Integration::Vulkan::VkSurfaceFactory;
 
 extern std::vector< uint8_t > VSH;

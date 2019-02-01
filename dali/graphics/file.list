@@ -1,6 +1,7 @@
 # Add graphics source files here
 
 graphics_src_files = \
+    $(graphics_src_dir)/vulkan/graphics-implementation.cpp \
     $(graphics_src_dir)/vulkan/api/internal/vulkan-api-debug.cpp \
     $(graphics_src_dir)/vulkan/api/internal/vulkan-api-descriptor-set-allocator.cpp \
     $(graphics_src_dir)/vulkan/api/internal/vulkan-api-descriptor-set-requirements.cpp \

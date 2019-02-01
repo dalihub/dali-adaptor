@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -26,7 +26,7 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vk-surface-factory.h>
 
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
@@ -35,16 +35,17 @@ namespace Dali
 {
 class RenderSurface;
 
-namespace Graphics
+namespace Internal
 {
-namespace Vulkan
+namespace Adaptor
 {
+
 /**
  * This surface exists only because of ( probably ) Nvidia driver bug.
  * Presenting swapchain that uses Xlib surface crashes. Class VkSurfaceXlib2Xcb
  * takes Xlib window arguments but creates Xcb surface. It's a workaround.
  */
-class VkSurfaceXlib2Xcb final : public Dali::Integration::Vulkan::VkSurfaceFactory
+class VkSurfaceXlib2Xcb final : public VkSurfaceFactory
 {
 public:
   VkSurfaceXlib2Xcb(Dali::RenderSurface& renderSurface);
@@ -60,8 +61,8 @@ private:
   vk::SurfaceKHR    mSurface;
 };
 
-} // Namespace Vulkan
-} // Namespace Graphics
+} // Namespace Adaptor
+} // Namespace Internal
 } // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H

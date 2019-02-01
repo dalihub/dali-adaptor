@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -33,11 +33,11 @@ namespace Dali
 {
 class RenderSurface;
 
-namespace Graphics
+namespace Internal
 {
-namespace Vulkan
+namespace Adaptor
 {
-class VkSurfaceWayland final : public Dali::Integration::Vulkan::VkSurfaceFactory
+class VkSurfaceWayland final : public VkSurfaceFactory
 {
 public:
 
@@ -54,8 +54,8 @@ private:
   wl_surface *w_surface;
 };
 
-} // Namespace Vulkan
-} // Namespace Graphics
+} // Namespace Adaptor
+} // Namespace Internal
 } // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEXCB_H
