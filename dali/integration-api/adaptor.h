@@ -24,6 +24,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/common/view-mode.h>
+#include <dali/integration-api/processor-interface.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -369,6 +370,19 @@ public:
    * @return An interface to a logging factory
    */
   const LogFactoryInterface& GetLogFactory();
+
+  /**
+   * @brief Register a processor implementing the Integration::Processor interface with dali-core.
+   * @param[in] processor the Processor to register
+   * @note using this api does not maintain the processor's lifecycle, must be done elsewhere.
+   */
+  void RegisterProcessor( Integration::Processor& processor );
+
+  /**
+   * @brief Unregister a previously registered processor from dali-core.
+   * @param[in] processor the Processor to unregister
+   */
+  void UnregisterProcessor( Integration::Processor& processor );
 
 public:  // Signals
 

@@ -56,6 +56,7 @@ namespace Integration
 {
 class Core;
 class GlAbstraction;
+class Processor;
 }
 
 namespace Internal
@@ -423,6 +424,16 @@ public:
    * @copydoc Dali::Adaptor::GetLogFactory
    */
   const LogFactoryInterface& GetLogFactory();
+
+  /**
+   * @copydoc Dali::Adaptor::RegisterProcessor
+   */
+  void RegisterProcessor( Integration::Processor& processor );
+
+  /**
+   * @coydoc Dali::Adaptor::UnregisterProcessor
+   */
+  void UnregisterProcessor( Integration::Processor& processor );
 
 public:  //AdaptorInternalServices
 
