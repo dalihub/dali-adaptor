@@ -45,15 +45,18 @@ public:
   virtual ~VectorAnimationRendererPlugin() {}
 
   /**
-   * @brief Creates a renderer to render an vector animation file.
+   * @brief Sets the url of the animation file.
    *
-   * @param[in] url The url of an animation file
-   * @param[in] renderer The renderer used to render the image
-   * @param[in] width The target image width
-   * @param[in] height The target image height
-   * @return True if the renderer is successfully created, false otherwise
+   * @param[in] url The url of the animation file
    */
-  virtual bool CreateRenderer( const std::string& url, Renderer renderer, uint32_t width, uint32_t height ) = 0;
+  virtual void SetUrl( const std::string& url ) = 0;
+
+  /**
+   * @brief Sets the renderer used to display the result image.
+   *
+   * @param[in] renderer The renderer used to display the result image
+   */
+  virtual void SetRenderer( Renderer renderer ) = 0;
 
   /**
    * @brief Sets the target image size.
