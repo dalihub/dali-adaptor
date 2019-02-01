@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 // INTERNAL HEADERS
 
@@ -34,6 +34,7 @@ namespace Internal
 namespace Adaptor
 {
 
+// @todo GRAPHICS_API FIXME
 NativeBitmapBuffer::NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pFormat )
 : //mGraphicsInterface( nullptr),
   mWidth(width),

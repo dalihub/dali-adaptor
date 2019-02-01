@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
+#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -17,35 +17,43 @@
  * limitations under the License.
  *
  */
+
+#ifndef VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
+#endif
 #ifndef VK_USE_PLATFORM_XCB_KHR
 #define VK_USE_PLATFORM_XCB_KHR
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
+#include <dali/graphics/vulkan/vk-surface-factory.h>
 
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
 
 namespace Dali
 {
+class RenderSurface;
+
 namespace Graphics
 {
 namespace Vulkan
 {
 
-class VkSurfaceXcb final : public Dali::Integration::Vulkan::VkSurfaceFactory
+/**
+ * This surface exists only because of ( probably ) Nvidia driver bug.
+ * Presenting swapchain that uses Xlib surface crashes. Class VkSurfaceXlib2Xcb
+ * takes Xlib window arguments but creates Xcb surface. It's a workaround.
+ */
+class VkSurfaceXlib2Xcb final : public Graphics::Vulkan::SurfaceFactory
 {
 public:
-  /**
-   * Instantiates surface factory ( should
-   * @param display
-   * @param window
-   */
-  VkSurfaceXcb(xcb_connection_t* connection, xcb_window_t window);
+  VkSurfaceXlib2Xcb( Dali::RenderSurface& renderSurface );
 
-  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                vk::PhysicalDevice physicalDevice) const override;
+  VkSurfaceXlib2Xcb( Display* display, Window window );
+
+  virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
+                                 vk::PhysicalDevice physicalDevice) const override;
 
 private:
   xcb_connection_t* mConnection;
@@ -57,4 +65,4 @@ private:
 } // Namespace Graphics
 } // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
+#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H

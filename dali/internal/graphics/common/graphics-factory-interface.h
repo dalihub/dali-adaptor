@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 namespace Dali
 {
@@ -41,18 +41,17 @@ public:
    * Create a Graphics interface implementation
    * @return An implementation of the Graphics interface
    */
-  virtual Integration::GraphicsInterface& Create(PositionSize) = 0;
+  virtual Graphics::GraphicsInterface& Create(PositionSize) = 0;
 
   /**
    * Destroy the Graphics Factory implementation
    */
   virtual void Destroy() = 0;
 
-protected:
   /**
-   * Virtual protected destructor - no deletion through this interface
+   * Virtual destructor
    */
-  virtual ~GraphicsFactoryInterface() {};
+  virtual ~GraphicsFactoryInterface() = default;
 };
 
 } // Adaptor

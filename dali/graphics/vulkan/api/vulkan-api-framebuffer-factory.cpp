@@ -46,7 +46,7 @@ void FramebufferFactory::Reset()
   mDepthStencilAttachment.texture = nullptr;
 }
 
-Graphics::FramebufferFactory& FramebufferFactory::SetSize(const Dali::Graphics::RectSize& size)
+Dali::Graphics::FramebufferFactory& FramebufferFactory::SetSize( const Dali::Graphics::Extent2D& size )
 {
   mWidth = uint32_t(size.width);
   mHeight = uint32_t(size.height);
@@ -56,11 +56,11 @@ Graphics::FramebufferFactory& FramebufferFactory::SetSize(const Dali::Graphics::
 /**
  * Set a color attachment for the framebuffer
  */
-Graphics::FramebufferFactory& FramebufferFactory::SetColorAttachment(
-  Graphics::TextureDetails::AttachmentId attachmentIndex,
-  const Graphics::Texture&               texture,
-  Graphics::TextureDetails::LayerId      layer,
-  Graphics::TextureDetails::LevelId      level )
+Dali::Graphics::FramebufferFactory& FramebufferFactory::SetColorAttachment(
+  TextureDetails::AttachmentId attachmentIndex,
+  const Texture&               texture,
+  TextureDetails::LayerId      layer,
+  TextureDetails::LevelId      level )
 {
   if( mColorAttachments.size() <= attachmentIndex )
   {
@@ -74,7 +74,7 @@ Graphics::FramebufferFactory& FramebufferFactory::SetColorAttachment(
 /**
  * Set a depth attachment for the framebuffer
  */
-Graphics::FramebufferFactory& FramebufferFactory::SetDepthStencilAttachment(
+Dali::Graphics::FramebufferFactory& FramebufferFactory::SetDepthStencilAttachment(
   const Graphics::Texture&                   texture,
   Graphics::TextureDetails::LayerId          layer,
   Graphics::TextureDetails::LevelId          level,

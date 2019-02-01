@@ -79,7 +79,7 @@ public:
    * @brief Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  void SetGraphicsInterface( Integration::GraphicsInterface& graphics ) override;
+  void SetGraphicsInterface( Graphics::GraphicsInterface& graphics ) override;
 
 public:
 
@@ -109,7 +109,7 @@ protected:
 private:
   Any mDisplay;        ///< Wayland-display for rendering
   RenderSurface::Type mSurfaceType;     ///< The surface type
-  Integration::GraphicsInterface* mGraphics; ///< The graphics interface
+  Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
 };
 
 } // namespace Adaptor

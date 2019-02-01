@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -17,51 +17,45 @@
  * limitations under the License.
  *
  */
-
-#ifndef VK_USE_PLATFORM_XLIB_KHR
-#define VK_USE_PLATFORM_XLIB_KHR
-#endif
-#ifndef VK_USE_PLATFORM_XCB_KHR
-#define VK_USE_PLATFORM_XCB_KHR
+#ifndef VK_USE_PLATFORM_WAYLAND_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
 #endif
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
 
+
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
+
 
 namespace Dali
 {
 class RenderSurface;
 
-namespace Graphics
+namespace Internal
 {
-namespace Vulkan
+namespace Adaptor
 {
-/**
- * This surface exists only because of ( probably ) Nvidia driver bug.
- * Presenting swapchain that uses Xlib surface crashes. Class VkSurfaceXlib2Xcb
- * takes Xlib window arguments but creates Xcb surface. It's a workaround.
- */
-class VkSurfaceXlib2Xcb final : public Dali::Integration::Vulkan::VkSurfaceFactory
+class VkSurfaceWayland final : public VkSurfaceFactory
 {
 public:
-  VkSurfaceXlib2Xcb(Dali::RenderSurface& renderSurface);
 
-  VkSurfaceXlib2Xcb(Display* display, Window window);
+  VkSurfaceWayland(Dali::RenderSurface& renderSurface);
+
+  VkSurfaceWayland(::wl_display* display, ::wl_surface* surface);
 
   virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                 vk::PhysicalDevice physicalDevice) const override;
 
+
 private:
-  xcb_connection_t* mConnection;
-  xcb_window_t      mWindow;
-  vk::SurfaceKHR    mSurface;
+  wl_display *w_display;
+  wl_surface *w_surface;
 };
 
-} // Namespace Vulkan
-} // Namespace Graphics
+} // Namespace Adaptor
+} // Namespace Internal
 } // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXLIB2XCB_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_VKSURFACEXCB_H

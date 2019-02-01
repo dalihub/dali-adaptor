@@ -1,3 +1,6 @@
+#ifndef DALI_GRAPHICS_SURFACE_FACTORY_H
+#define DALI_GRAPHICS_SURFACE_FACTORY_H
+
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
@@ -15,12 +18,11 @@
  *
  */
 
-#ifndef DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
-#define DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
-
 namespace Dali
 {
-namespace Integration
+class RenderSurface;
+
+namespace Graphics
 {
 
 class SurfaceFactory
@@ -29,11 +31,17 @@ public:
   SurfaceFactory()          = default;
   virtual ~SurfaceFactory() = default;
 
+  /**
+   * Create a new surface factory
+   * @param[in] renderSurface The render surface for which the surface factory will create a graphics surface.
+   */
+  static std::unique_ptr<SurfaceFactory> New( Dali::RenderSurface& renderSurface );
+
   SurfaceFactory( const SurfaceFactory& ) = delete;
   SurfaceFactory& operator=( const SurfaceFactory& ) = delete;
 };
 
-} // Namespace Integration
+} // Namespace Graphics
 } // Namespace Dali
 
-#endif // DALI_INTEGRATION_GRAPHICS_SURFACE_FACTORY_H
+#endif // DALI_GRAPHICS_SURFACE_FACTORY_H

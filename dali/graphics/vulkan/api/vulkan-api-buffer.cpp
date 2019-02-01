@@ -29,7 +29,7 @@ namespace VulkanAPI
 
 Buffer::Buffer( Controller& controller,
                 vk::BufferUsageFlags usage,
-                Graphics::Buffer::UsageHint usageHints,
+                Dali::Graphics::Buffer::UsageHint usageHints,
                 uint32_t size )
         : mController( controller ),
           mGraphics( controller.GetGraphics() ),

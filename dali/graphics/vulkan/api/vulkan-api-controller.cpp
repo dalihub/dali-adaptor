@@ -87,8 +87,8 @@ struct Controller::Impl
     std::vector< Dali::Graphics::RenderCommand* > renderCommands;
   };
 
-  Impl( Controller& owner, Dali::Graphics::Vulkan::Graphics& graphics )
-  : mGraphics( graphics ),
+  Impl( Controller& owner )
+  : mGraphics(),
     mOwner( owner ),
     mDepthStencilBufferCurrentState( 0u ),
     mDepthStencilBufferRequestedState( 0u )
@@ -742,12 +742,11 @@ struct Controller::Impl
     return mGraphics.GetSwapchainForFBID(0u)->GetImageCount();
   }
 
-  std::unique_ptr< PipelineCache > mDefaultPipelineCache;
-  std::unique_ptr< VulkanAPI::Internal::DescriptorSetAllocator > mDescriptorSetAllocator;
-
-  Vulkan::Graphics& mGraphics;
+  Vulkan::Graphics mGraphics;
   Controller& mOwner;
 
+  std::unique_ptr< PipelineCache > mDefaultPipelineCache;
+  std::unique_ptr< VulkanAPI::Internal::DescriptorSetAllocator > mDescriptorSetAllocator;
   std::unique_ptr< VulkanAPI::TextureFactory > mTextureFactory;
   std::unique_ptr< VulkanAPI::ShaderFactory > mShaderFactory;
   std::unique_ptr< VulkanAPI::BufferFactory > mBufferFactory;
@@ -830,23 +829,23 @@ std::unique_ptr< Dali::Graphics::Framebuffer > Controller::CreateFramebuffer( co
   return factory.Create();
 }
 
-std::unique_ptr< Controller > Controller::New( Vulkan::Graphics& vulkanGraphics )
-{
-  return std::make_unique< Controller >( vulkanGraphics );
-}
 
-Controller::Controller( Vulkan::Graphics& vulkanGraphics ) : mImpl( std::make_unique< Impl >( *this, vulkanGraphics ) )
+Controller::Controller()
+: mImpl( std::make_unique< Impl >( *this ) )
 {
 }
 
 void Controller::Initialise()
 {
+  mImpl->mGraphics.Create();
+
+  // create device
+  mImpl->mGraphics.CreateDevice();
+
   mImpl->Initialise();
 }
 
 Controller::~Controller() = default;
-
-Controller::Controller() = default;
 
 Controller& Controller::operator=( Controller&& ) noexcept = default;
 

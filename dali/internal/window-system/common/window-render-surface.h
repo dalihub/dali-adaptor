@@ -21,9 +21,9 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
 #include <dali/integration-api/egl-interface.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
 
 // EXTERNAL INCLUDES
+#include <dali/graphics/graphics-interface.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <memory>
@@ -130,7 +130,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -219,7 +219,7 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
-  Integration::GraphicsInterface* mGraphics;           ///< Graphics interface
+  Graphics::GraphicsInterface*    mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
@@ -229,7 +229,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  std::unique_ptr<Dali::Integration::Surface> mGraphicsSurface;
+  std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
 }; // class WindowRenderSurface
 
 } // namespace Adaptor

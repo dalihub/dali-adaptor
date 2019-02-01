@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 
 namespace Dali
@@ -47,7 +47,7 @@ public:
    * @param[in] graphics The abstracted graphics interface
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Integration::GraphicsInterface& graphics );
+  static DisplayConnection* New( Dali::Graphics::GraphicsInterface& graphics );
 
   /**
    * @brief Create an initialized DisplayConnection.
@@ -57,7 +57,7 @@ public:
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Integration::GraphicsInterface& graphics, RenderSurface::Type type );
+  static DisplayConnection* New( Dali::Graphics::GraphicsInterface& graphics, RenderSurface::Type type );
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().

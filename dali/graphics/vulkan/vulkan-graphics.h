@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_GRAPHICS
-#define DALI_GRAPHICS_VULKAN_GRAPHICS
+#ifndef DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS
+#define DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -23,10 +23,10 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/surface-factory.h>
+#include <dali/graphics/graphics-interface.h>
+#include <dali/graphics/surface-factory.h>
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
 #include <dali/graphics/vulkan/internal/vulkan-queue.h>
-#include <dali/integration-api/graphics/graphics.h>
 
 #include <thread>
 #include <mutex>
@@ -38,14 +38,6 @@ namespace Dali
 {
 namespace Graphics
 {
-namespace API
-{
-class Controller;
-}
-namespace VulkanAPI
-{
-class Controller;
-}
 
 namespace Vulkan
 {
@@ -116,7 +108,7 @@ private:
   bool hostVisible;
 };
 
-using Dali::Integration::SurfaceFactory;
+
 using CommandPoolMap = std::unordered_map< std::thread::id, RefCountedCommandPool >;
 
 struct SwapchainSurfacePair
@@ -126,6 +118,7 @@ struct SwapchainSurfacePair
 };
 
 using DiscardQueue = std::vector< std::function< void() > >;
+
 
 class Graphics
 {
@@ -145,10 +138,10 @@ public: // Create methods
 
   void CreateDevice();
 
-  void InitialiseController();
+  FBID CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
+                      const Dali::Graphics::GraphicsCreateInfo& createInfo );
 
-  FBID CreateSurface( Integration::SurfaceFactory& surfaceFactory,
-                      const Integration::GraphicsCreateInfo& createInfo );
+  void DestroySurface( Dali::Graphics::FBID framebufferId );
 
   RefCountedSwapchain CreateSwapchainForSurface( RefCountedSurface surface );
 
@@ -265,8 +258,6 @@ public: // Getters
 
   Platform GetDefaultPlatform() const;
 
-  Dali::Graphics::Controller& GetController();
-
   const vk::PipelineCache& GetVulkanPipelineCache();
 
   bool HasDepthEnabled() const;
@@ -341,8 +332,6 @@ private: // Members
 
   std::mutex mMutex;
 
-  std::unique_ptr< Dali::Graphics::VulkanAPI::Controller > mGfxController;
-
   // Command pool map using thread IDs as keys
   CommandPoolMap mCommandPools;
 
@@ -364,4 +353,4 @@ private: // Members
 } // namespace Graphics
 } // namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_GRAPHICS
+#endif // DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS

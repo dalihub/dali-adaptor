@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_FACTORY_H
-#define DALI_INTERNAL_GRAPHICS_FACTORY_H
+#ifndef DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H
+#define DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -49,7 +49,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  Integration::GraphicsInterface& Create( PositionSize positionSize ) override;
+  Graphics::GraphicsInterface& Create( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
@@ -67,4 +67,4 @@ private:
 
 } // Dali
 
-#endif // DALI_INTERNAL_GRAPHICS_FACTORY_H
+#endif // DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H

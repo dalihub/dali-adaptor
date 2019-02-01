@@ -24,46 +24,40 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
 #include <dali/devel-api/actors/actor-devel.h>
+
+#include <dali/graphics/graphics-interface.h>
+
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
-#include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/system/common/thread-controller.h>
-#include <dali/internal/system/common/performance-interface-factory.h>
-#include <dali/internal/adaptor/common/lifecycle-observer.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-#include <dali/internal/system/common/callback-manager.h>
-#include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
-#include <dali/internal/input/common/gesture-manager.h>
-#include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
+#include <dali/internal/accessibility/common/tts-player-impl.h>
+#include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/graphics/common/vsync-monitor.h>
+
+#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
+#include <dali/internal/imaging/common/image-loader.h>
+#include <dali/internal/input/common/gesture-manager.h>
+#include <dali/internal/system/common/callback-manager.h>
+#include <dali/internal/system/common/locale-utils.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/system/common/object-profiler.h>
+#include <dali/internal/system/common/performance-interface-factory.h>
+#include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-#ifdef VULKAN_WITH_WAYLAND
-#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
-#else
-#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
-#endif
-
-#include <dali/internal/system/common/logging.h>
-
-#include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
-#include <dali/internal/imaging/common/image-loader.h>
 
 
 using Dali::TextAbstraction::FontClient;
@@ -90,7 +84,7 @@ Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Con
   adaptor->mImpl = impl;
 
   AdaptorBuilder& adaptorBuilder( AdaptorBuilder::Get( *environmentOptions ) );
-  auto graphicsFactory = adaptorBuilder.GetGraphicsFactory();
+  auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
   impl->Initialize( graphicsFactory, configuration );
 
@@ -107,7 +101,7 @@ Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLo
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactoryInterface& graphicsFactory, Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
   Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions ); // Impl adaptor
@@ -118,7 +112,7 @@ Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Any nativeWindow,
   return adaptor;
 } // Called second
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactoryInterface& graphicsFactory, Dali::Window window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Any winId = window.GetNativeHandle();
 
@@ -128,7 +122,7 @@ Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Window wind
   return adaptor;
 } // Called first
 
-void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration )
+void Adaptor::Initialize( GraphicsFactoryInterface& graphicsFactory, Dali::Configuration::ContextLoss configuration )
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
@@ -171,7 +165,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
-                                  *mGraphics,
+                                  mGraphics->GetController(),
                                   *mGestureManager,
                                   dataRetentionPolicy,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
@@ -343,6 +337,7 @@ void Adaptor::Start()
   PositionSize size = defaultWindow.surface->GetPositionSize();
 
   mCore->SurfaceResized( size.width, size.height );
+  mGraphics->SurfaceResized( size.width, size.height );
 
   // Initialize the thread controller
   mThreadController->Initialize();
@@ -473,6 +468,8 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
 
   // Let the core know the surface size has changed
   mCore->SurfaceResized( positionSize.width, positionSize.height );
+
+  //@todo Inform Graphics subsystem?
 
   mResizedSignal.Emit( mAdaptor );
 
@@ -627,7 +624,7 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
   return *mDisplayConnection;
 }
 
-Dali::Integration::GraphicsInterface& Adaptor::GetGraphicsInterface()
+Dali::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
   return *mGraphics;
@@ -879,6 +876,9 @@ void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
 {
   // Let the core know the surface size has changed
   mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
+
+  //@todo Inform graphics subsystem
+  //mGraphics->SurfaceResized( surfaceSize.width, surfaceSize.height );
 
   mResizedSignal.Emit( mAdaptor );
 }

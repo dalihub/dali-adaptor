@@ -1,5 +1,5 @@
-#ifndef DALI_INTEGRATION_GRAPHICS_H
-#define DALI_INTEGRATION_GRAPHICS_H
+#ifndef DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H
+#define DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -19,53 +19,25 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
+#include <dali/graphics/surface-factory.h>
 
 // EXTERNAL INCLUDES
+#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 #include <memory>
-
-#define EXPORT_API __attribute__ ((visibility ("default")))
 
 namespace Dali
 {
 namespace Graphics
 {
-namespace API
-{
-class Controller;
-} // API
-
-// frame buffer id
-using FBID = int32_t;
-
-namespace Vulkan
-{
-class Graphics;
-} // Vulkan
-using GraphicsImpl = Vulkan::Graphics;
-
-} // Graphics
-
-namespace Integration
-{
-
-class SurfaceFactory;
-struct EXPORT_API Surface
-{
-  Surface( Dali::Graphics::GraphicsImpl* graphicsImpl, Dali::Graphics::FBID fbid );
-  ~Surface();
-  Dali::Graphics::GraphicsImpl* mGraphicsImpl;
-  Dali::Graphics::FBID frambufferId;
-};
 
 /**
  * Graphics implementation class
  */
-class EXPORT_API Graphics final : public GraphicsInterface
+class Graphics final : public Dali::Graphics::GraphicsInterface
 {
 public:
-
-  Graphics( const GraphicsCreateInfo& info,
+  Graphics( const Dali::Graphics::GraphicsCreateInfo& info,
             Integration::DepthBufferAvailable depthBufferAvailable,
             Integration::StencilBufferAvailable stencilBufferRequired );
 
@@ -74,11 +46,10 @@ public:
   void Initialize() override;
 
   /**
-   *
    * @param surfaceFactory
    * @return
    */
-  std::unique_ptr<Surface> CreateSurface( SurfaceFactory& surfaceFactory );
+  std::unique_ptr<Dali::Graphics::Surface> CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory ) override;
 
   /**
    * When creating Graphics at least one surfaceFactory must be supplied ( no headless mode )
@@ -101,16 +72,6 @@ public:
   void Resume() override;
 
   /**
-   * Prerender
-   */
-  void PreRender() override;
-
-  /*
-   * Postrender
-   */
-  void PostRender() override;
-
-  /**
    * Returns controller object
    * @return
    */
@@ -121,33 +82,12 @@ public:
    */
   void SurfaceResized( unsigned int width, unsigned int height ) override;
 
-  // this function is used only by the standalone test
-  template <class T>
-  T& GetImplementation() const
-  {
-    return static_cast<T&>(*mGraphicsImpl.get());
-  }
-
-  GraphicsCreateInfo& GetCreateInfo()
-  {
-    return mCreateInfo;
-  }
-
 private:
-  std::unique_ptr<Dali::Graphics::GraphicsImpl> mGraphicsImpl;
+  Dali::Graphics::VulkanAPI::Controller mGraphicsController;
 };
 
-namespace GraphicsFactory
-{
-/**
- * Creates new instance of Graphics integration object
- * @param info
- * @return
- */
-std::unique_ptr<Dali::Integration::Graphics> Create( const Integration::GraphicsCreateInfo& info );
-}
 
-} // Namespace Integration
+} // Namespace Graphics
 } // Namespace Dali
 
-#endif // DALI_INTEGRATION_GRAPHICS_H
+#endif // DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATIONH

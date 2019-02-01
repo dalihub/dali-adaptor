@@ -25,16 +25,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 namespace Dali
 {
 
-namespace Integration
-{
-class GraphicsInterface;
-class Graphics;
-}
 
 class ThreadSynchronizationInterface;
 
@@ -94,9 +89,9 @@ public:
 
   /**
    * Initialize Graphics.
-   * @param egl implementation to use for the creation
+   * @param graphics The graphics implementation to use for the creation
    */
-  virtual void InitializeGraphics( Integration::GraphicsInterface& graphicsInterface ) = 0;
+  virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) = 0;
 
   /**
    * @brief Creates the Surface

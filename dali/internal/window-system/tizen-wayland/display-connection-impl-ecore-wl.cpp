@@ -91,7 +91,7 @@ void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
   }
 }
 
-void DisplayConnectionEcoreWl::SetGraphicsInterface( Integration::GraphicsInterface& graphics )
+void DisplayConnectionEcoreWl::SetGraphicsInterface( Graphics::GraphicsInterface& graphics )
 {
   mGraphics = &graphics;
 }

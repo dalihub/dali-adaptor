@@ -19,9 +19,7 @@
 #include <dali/graphics/vulkan/vulkan-graphics.h>
 
 // INTERNAL INCLUDES
-#include <dali/graphics-api/graphics-api-controller.h>
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
-
+#include <dali/graphics/vulkan/vk-surface-factory.h>
 #include <dali/graphics/vulkan/internal/vulkan-command-pool.h>
 #include <dali/graphics/vulkan/internal/vulkan-command-buffer.h>
 #include <dali/graphics/vulkan/internal/vulkan-queue.h>
@@ -31,7 +29,6 @@
 #include <dali/graphics/vulkan/internal/vulkan-image-view.h>
 #include <dali/graphics/vulkan/internal/vulkan-shader.h>
 #include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
-#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 #include <dali/graphics/vulkan/internal/vulkan-sampler.h>
 #include <dali/graphics/vulkan/internal/vulkan-debug.h>
 #include <dali/graphics/vulkan/internal/vulkan-fence.h>
@@ -191,15 +188,9 @@ Graphics::Graphics()
 
 Graphics::~Graphics()
 {
-  mGfxController.reset( nullptr );
-
   // Wait for everything to finish on the GPU
   DeviceWaitIdle();
 
-  // Manually resetting unique pointer here because we need to control the order of destruction.
-  // This defeats the purpose of unique pointers and we might as well use raw pointers. But a unique ptr
-  // communicates ownership more clearly (e.g by not allowing copies).
-  mGfxController.reset( nullptr );
   mSurfaceFBIDMap.clear();
 
   mCommandPools.clear();
@@ -354,10 +345,10 @@ void Graphics::CreateDevice()
   }
 }
 
-FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
-                              const Integration::GraphicsCreateInfo& createInfo )
+FBID Graphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
+                              const Dali::Graphics::GraphicsCreateInfo& createInfo )
 {
-  auto vulkanSurfaceFactory = dynamic_cast<Dali::Integration::Vulkan::VkSurfaceFactory*>( &surfaceFactory );
+  auto vulkanSurfaceFactory = dynamic_cast<Dali::Graphics::Vulkan::SurfaceFactory*>( &surfaceFactory );
 
   if( !vulkanSurfaceFactory )
   {
@@ -409,8 +400,8 @@ FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
   mSurfaceFBIDMap[ fbid ] = SwapchainSurfacePair{ RefCountedSwapchain{}, RefCountedSurface( surface ) };
 
 
-  if( createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_OPTIMAL ||
-      createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
+  if( createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_OPTIMAL ||
+      createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
   {
     mHasDepth = true;
   }
@@ -419,13 +410,26 @@ FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
     mHasDepth = false;
   }
 
-  if( createInfo.depthStencilMode == Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
+  if( createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
   {
     mHasStencil = true;
   }
 
   return fbid;
 }
+
+void Graphics::DestroySurface( Dali::Graphics::FBID framebufferId )
+{
+  if( auto surface = GetSurface( framebufferId ) )
+  {
+    DeviceWaitIdle();
+    auto swapchain = GetSwapchainForFBID( framebufferId );
+    swapchain->Destroy();
+    surface->Destroy();
+    CollectGarbage();
+  }
+}
+
 
 RefCountedSwapchain Graphics::CreateSwapchainForSurface( RefCountedSurface surface )
 {
@@ -452,10 +456,6 @@ RefCountedSwapchain Graphics::CreateSwapchainForSurface( RefCountedSurface surfa
   return swapchain;
 }
 
-void Graphics::InitialiseController()
-{
-  mGfxController->Initialise();
-}
 
 RefCountedSwapchain Graphics::ReplaceSwapchainForSurface( RefCountedSurface surface, RefCountedSwapchain&& oldSwapchain )
 {
@@ -1389,15 +1389,6 @@ Platform Graphics::GetDefaultPlatform() const
 #endif
 }
 
-Dali::Graphics::Controller& Graphics::GetController()
-{
-  if( !mGfxController )
-  {
-    mGfxController = Dali::Graphics::VulkanAPI::Controller::New( *this );
-  }
-
-  return *mGfxController;
-}
 
 bool Graphics::IsSurfaceResized() const
 {

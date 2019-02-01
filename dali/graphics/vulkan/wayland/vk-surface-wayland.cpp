@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  *
  */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 
 #include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -72,6 +76,15 @@ vk::SurfaceKHR VkSurfaceWayland::Create(
 
   return retval;
 }
+
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New( Dali::RenderSurface* renderSurface )
+{
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceWayland>( new Graphics::Vulkan::VkSurfaceWayland( *renderSurface ) );
+  return std::move( surfaceFactory );
 }
-}
-}
+
+} // Vulkan
+} // Graphics
+} // Dali
+
+#pragma GCC diagnostic pop

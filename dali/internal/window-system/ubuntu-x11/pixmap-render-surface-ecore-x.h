@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/egl-interface.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 #include <dali/internal/window-system/common/display-connection.h>
@@ -85,7 +84,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -171,7 +170,7 @@ private:
 private: // Data
 
   static const int BUFFER_COUNT = 2;
-  Integration::GraphicsInterface* mGraphics;               ///< Graphics interface
+  Graphics::GraphicsInterface*    mGraphics;               ///< Graphics interface
   Dali::DisplayConnection*        mDisplayConnection;      ///< Display connection
   PositionSize                    mPosition;               ///< Position
   TriggerEventInterface*          mRenderNotification;     ///< Render notification trigger
