@@ -54,7 +54,7 @@ public:
   /**
    * Set the size of the framebuffer
    */
-  Graphics::FramebufferFactory& SetSize( const Dali::Graphics::RectSize& size ) override;
+  Graphics::FramebufferFactory& SetSize( const Dali::Graphics::Extent2D& size ) override;
 
   /**
    * Set a color attachment for the framebuffer

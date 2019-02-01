@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BUILDER_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 
 
 namespace Dali
@@ -55,7 +55,7 @@ public:
   /**
    * @return reference to the GraphicsFactory object
    */
-  GraphicsFactory& GetGraphicsFactory() const;
+  GraphicsFactoryInterface& GetGraphicsFactory() const;
 
 
 private:
@@ -71,7 +71,7 @@ private:
 
 
 private:
-  std::unique_ptr< GraphicsFactory > mGraphicsFactory;
+  std::unique_ptr< GraphicsFactoryInterface > mGraphicsFactory;
   EnvironmentOptions& mEnvironmentOptions;
 };
 

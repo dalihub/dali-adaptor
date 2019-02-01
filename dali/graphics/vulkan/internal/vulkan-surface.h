@@ -23,23 +23,10 @@
 
 namespace Dali
 {
-
-// Forward declarations
-namespace Integration
-{
-class SurfaceFactory;
-
-namespace Vulkan
-{
-class VkSurfaceFactory;
-} // namespace Vulkan
-} // namespace Integration
-
 namespace Graphics
 {
 namespace Vulkan
 {
-class Graphics;
 
 class Surface : public VkManaged
 {

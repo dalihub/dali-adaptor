@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_GRAPHICS
-#define DALI_GRAPHICS_VULKAN_GRAPHICS
+#ifndef DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS
+#define DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -23,10 +23,10 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/surface-factory.h>
+#include <dali/graphics/vulkan/graphics-implementation.h>
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
 #include <dali/graphics/vulkan/internal/vulkan-queue.h>
-#include <dali/integration-api/graphics/graphics.h>
 
 #include <thread>
 #include <mutex>
@@ -38,10 +38,8 @@ namespace Dali
 {
 namespace Graphics
 {
-namespace API
-{
 class Controller;
-}
+
 namespace VulkanAPI
 {
 class Controller;
@@ -116,7 +114,7 @@ private:
   bool hostVisible;
 };
 
-using Dali::Integration::SurfaceFactory;
+
 using CommandPoolMap = std::unordered_map< std::thread::id, RefCountedCommandPool >;
 
 struct SwapchainSurfacePair
@@ -147,8 +145,8 @@ public: // Create methods
 
   void InitialiseController();
 
-  FBID CreateSurface( Integration::SurfaceFactory& surfaceFactory,
-                      const Integration::GraphicsCreateInfo& createInfo );
+  FBID CreateSurface( SurfaceFactory& surfaceFactory,
+                      const Dali::Graphics::GraphicsCreateInfo& createInfo );
 
   RefCountedSwapchain CreateSwapchainForSurface( RefCountedSurface surface );
 
@@ -364,4 +362,4 @@ private: // Members
 } // namespace Graphics
 } // namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_GRAPHICS
+#endif // DALI_GRAPHICS_VULKAN_VULKAN_GRAPHICS

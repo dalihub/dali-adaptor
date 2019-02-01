@@ -1,7 +1,5 @@
-
 # module: graphics, backend: Common
 adaptor_graphics_common_src_files=
-
 
 # module: graphics, backend: tizen
 adaptor_graphics_tizen_src_files=\
@@ -29,6 +27,7 @@ adaptor_graphics_gl_tizen_src_files=\
 
 # module: graphics, backend: vulkan
 adaptor_graphics_vulkan_src_files=\
+   $(graphics_integration_dir)/graphics.cpp \
     $(adaptor_graphics_dir)/vulkan/vulkan-graphics-factory.cpp
 
 # module: graphics, backend: vulkan/x11

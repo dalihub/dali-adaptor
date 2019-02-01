@@ -24,7 +24,6 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-factory-interface.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
-#include <dali/integration-api/graphics/graphics.h> //@todo Move to adaptor internal
 
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-base.h>
@@ -197,42 +196,12 @@ void WindowRenderSurface::CreateSurface()
 
   //@todo Move implementation detail to vulkan surface factory
 #ifdef VULKAN_WITH_WAYLAND
-  auto surfaceFactory = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceWayland>(
-    new Dali::Graphics::Vulkan::VkSurfaceWayland( *this )
-  );
+  auto surfaceFactory = std::unique_ptr<VkSurfaceWayland>( new VkSurfaceWayland( *this ) );
 #else
-  auto surfaceFactory = std::unique_ptr<Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb>(
-    new Dali::Graphics::Vulkan::VkSurfaceXlib2Xcb( *this )
-  );
+  auto surfaceFactory = std::unique_ptr<VkSurfaceXlib2Xcb>( new VkSurfaceXlib2Xcb( *this ) );
 #endif
 
-  // old GL code
-#if 0
-  int width, height;
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
-  {
-    width = mPositionSize.width;
-    height = mPositionSize.height;
-  }
-  else
-  {
-    width = mPositionSize.height;
-    height = mPositionSize.width;
-  }
-
-  // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
-
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.CreateSurfaceWindow( window, mColorDepth );
-
-  // Check rotation capability
-  mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
-#endif
-
-  mGraphicsSurface = static_cast<Integration::Graphics*>(mGraphics)->CreateSurface( *surfaceFactory.get() );
+  mGraphicsSurface = std::move( mGraphics->CreateSurface( surfaceFactory.get() ) );
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
@@ -240,48 +209,11 @@ void WindowRenderSurface::CreateSurface()
 void WindowRenderSurface::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
-#if 0
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.DestroySurface();
-
-  mWindowBase->DestroyEglWindow();
-#endif
 }
 
 bool WindowRenderSurface::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
-
-  // old GL code
-#if 0
-  // Destroy the old one
-  mWindowBase->DestroyEglWindow();
-
-  int width, height;
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
-  {
-    width = mPositionSize.width;
-    height = mPositionSize.height;
-  }
-  else
-  {
-    width = mPositionSize.height;
-    height = mPositionSize.width;
-  }
-
-  // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
-
-  // Set screen rotation
-  mScreenRotationFinished = false;
-
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  return eglImpl.ReplaceSurfaceWindow( window );
-#endif
   return false;
 }
 
@@ -337,94 +269,26 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender( bool resizingSurface )
 {
-#if 0
-  if( resizingSurface )
-  {
-#ifdef OVER_TIZEN_VERSION_4
-    // Window rotate or screen rotate
-    if( !mRotationFinished || !mScreenRotationFinished )
-    {
-      int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
-
-      mWindowBase->SetEglWindowRotation( totalAngle );
-      mWindowBase->SetEglWindowBufferTransform( totalAngle );
-
-      // Reset only screen rotation flag
-      mScreenRotationFinished = true;
-
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
-    }
-
-    // Only window rotate
-    if( !mRotationFinished )
-    {
-      mWindowBase->SetEglWindowTransform( mRotationAngle );
-    }
-#endif
-
-    // Resize case
-    if( !mResizeFinished )
-    {
-      mWindowBase->ResizeEglWindow( mPositionSize );
-      mResizeFinished = true;
-
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
-    }
-  }
-
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  if ( eglGraphics )
-  {
-    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-    mGLES.PreRender();
-  }
-#endif
   return true;
 }
 
 void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
-#if 0
-  // Inform the gl implementation that rendering has finished before informing the surface
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  if ( eglGraphics )
+  if( resizingSurface )
   {
-    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-    mGLES.PostRender();
+    if( !mRotationFinished )
+    {
+      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
 
-    if( renderToFbo )
-    {
-      mGLES.Flush();
-      mGLES.Finish();
-    }
-    else
-    {
-#endif
-      if( resizingSurface )
+      mRotationTrigger->Trigger();
+
+      if( mThreadSynchronization )
       {
-        if( !mRotationFinished )
-        {
-          DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
-
-          mRotationTrigger->Trigger();
-
-          if( mThreadSynchronization )
-          {
-            // Wait until the event-thread complete the rotation event processing
-            mThreadSynchronization->PostRenderWaitForCompletion();
-          }
-        }
+        // Wait until the event-thread complete the rotation event processing
+        mThreadSynchronization->PostRenderWaitForCompletion();
       }
-#if 0
-    }
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers();
-    if( mRenderNotification )
-    {
-      mRenderNotification->Trigger();
     }
   }
-#endif
 }
 
 void WindowRenderSurface::StopRender()

@@ -20,7 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-api-controller.h>
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vk-surface-factory.h>
+#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 
 #include <dali/graphics/vulkan/internal/vulkan-command-pool.h>
 #include <dali/graphics/vulkan/internal/vulkan-command-buffer.h>
@@ -31,7 +32,6 @@
 #include <dali/graphics/vulkan/internal/vulkan-image-view.h>
 #include <dali/graphics/vulkan/internal/vulkan-shader.h>
 #include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
-#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 #include <dali/graphics/vulkan/internal/vulkan-sampler.h>
 #include <dali/graphics/vulkan/internal/vulkan-debug.h>
 #include <dali/graphics/vulkan/internal/vulkan-fence.h>
@@ -355,9 +355,9 @@ void Graphics::CreateDevice()
 }
 
 FBID Graphics::CreateSurface( SurfaceFactory& surfaceFactory,
-                              const Integration::GraphicsCreateInfo& createInfo )
+                              const Dali::Graphics::GraphicsCreateInfo& createInfo )
 {
-  auto vulkanSurfaceFactory = dynamic_cast<Dali::Integration::Vulkan::VkSurfaceFactory*>( &surfaceFactory );
+  auto vulkanSurfaceFactory = dynamic_cast<Dali::Internal::Adaptor::VkSurfaceFactory*>( &surfaceFactory );
 
   if( !vulkanSurfaceFactory )
   {

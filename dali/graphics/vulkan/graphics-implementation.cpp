@@ -15,27 +15,26 @@
  *
  */
 
+#include <dali/graphics/vulkan/graphics-implementation.h>
+
+#include <dali/graphics-api/graphics-api-controller.h>
+
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
 #include <dali/graphics/vulkan/internal/vulkan-surface.h>
 #include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
-#include <dali/graphics-api/graphics-api-controller.h>
-#include <dali/integration-api/graphics/graphics.h>
+#include <dali/graphics/vulkan/vulkan-graphics.h>
 #include <dali/graphics/vulkan/internal/vulkan-swapchain.h>
 
 extern "C" std::vector<uint32_t> GraphicsGetBuiltinShader( const std::string& tag );
 
 namespace Dali
 {
-/// fixme: substituting directly the vulkan implementation
 namespace Graphics
 {
-using GraphicsImpl = Dali::Graphics::Vulkan::Graphics;
-}
 
-namespace Integration
-{
-
+/**
+ * Implementation of Graphics::Surface
+ */
 Surface::Surface( Dali::Graphics::GraphicsImpl* graphicsImpl, Dali::Graphics::FBID fbid )
     : mGraphicsImpl( graphicsImpl ),
       frambufferId( fbid )
@@ -54,9 +53,7 @@ Surface::~Surface()
   }
 }
 
-using Dali::Integration::SurfaceFactory;
-
-Graphics::Graphics( const GraphicsCreateInfo& info,
+Graphics::Graphics( const Graphics::GraphicsCreateInfo& info,
                     Integration::DepthBufferAvailable depthBufferAvailable,
                     Integration::StencilBufferAvailable stencilBufferRequired )
 : GraphicsInterface( info, depthBufferAvailable, stencilBufferRequired )
@@ -85,18 +82,18 @@ void Graphics::Create()
   mGraphicsImpl->InitialiseController();
 }
 
-std::unique_ptr<Surface> Graphics::CreateSurface( SurfaceFactory& surfaceFactory)
+std::unique_ptr<Graphics::Surface> Graphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory)
 {
   // create surface ( also takes surface factory ownership )
-  auto retval = mGraphicsImpl->CreateSurface( surfaceFactory, mCreateInfo );
+  auto framebufferId = mGraphicsImpl->CreateSurface( surfaceFactory, mCreateInfo );
 
   // create swapchain from surface
-  auto surface = mGraphicsImpl->GetSurface( retval );
+  auto surface = mGraphicsImpl->GetSurface( framebufferId );
 
   // create swapchain
   mGraphicsImpl->CreateSwapchainForSurface( surface );
 
-  return std::unique_ptr<Surface>( new Surface( mGraphicsImpl.get(), retval ) );
+  return std::unique_ptr<Graphics::Surface>( new Graphics::Surface( mGraphicsImpl.get(), retval ) );
 }
 
 void Graphics::Destroy()
@@ -140,5 +137,5 @@ void Graphics::SurfaceResized( unsigned int width, unsigned int height )
   mGraphicsImpl->SurfaceResized( width, height );
 }
 
-} // Namespace Integration
+} // Namespace Graphics
 } // Namespace Dali

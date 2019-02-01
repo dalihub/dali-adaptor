@@ -18,10 +18,10 @@
 
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
-#include <dali/integration-api/core-enumerations.h>
-#include <dali/integration-api/graphics/graphics.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/core-enumerations.h>
+#include <dali/internal/graphics/vulkan/graphics.h>
 
 namespace Dali
 {
@@ -40,7 +40,7 @@ GraphicsFactory::~GraphicsFactory()
   /* Deleted by Adaptor destructor */
 }
 
-Integration::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
+Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
 {
   auto depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ?
                               Integration::DepthBufferAvailable::TRUE :
@@ -75,7 +75,7 @@ Integration::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::Positio
 
   info.swapchainBufferingMode = Integration::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Dali::Integration::Graphics( info, depthBufferRequired, stencilBufferRequired );
+  auto graphics = new Adaptor::Graphics( info, depthBufferRequired, stencilBufferRequired );
   return *graphics;
 }
 

@@ -23,4 +23,3 @@ adaptor_adaptor_tizen_wearable_src_files=\
 adaptor_adaptor_ubuntu_src_files=\
     ${adaptor_adaptor_dir}/ubuntu/adaptor-impl-ubuntu.cpp \
     ${adaptor_adaptor_dir}/ubuntu/framework-ubuntu.cpp
-

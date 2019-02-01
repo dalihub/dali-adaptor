@@ -48,11 +48,10 @@ public:
    */
   virtual void Destroy() = 0;
 
-protected:
   /**
-   * Virtual protected destructor - no deletion through this interface
+   * Virtual destructor
    */
-  virtual ~GraphicsFactoryInterface() {};
+  virtual ~GraphicsFactoryInterface() = default;
 };
 
 } // Adaptor

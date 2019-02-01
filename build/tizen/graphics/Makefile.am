@@ -23,9 +23,6 @@
 graphics_src_dir = ../../../dali/graphics/
 include ../../../dali/graphics/file.list
 
-graphics_integration_dir = ../../../dali/integration-api/graphics
-include ../../../dali/integration-api/graphics/file.list
-
 # Build the graphics library
 lib_LTLIBRARIES=
 pkgconfigdir = $(libdir)/pkgconfig
@@ -88,8 +85,7 @@ libdali_graphics_vk_la_CXXFLAGS = $(cxx_flags) \
                                $(VULKAN_CFLAGS) \
                                $(vulkan_flags)
 
-libdali_graphics_vk_la_SOURCES = $(graphics_src_files) \
-                                 $(graphics_integration_src_files)
+libdali_graphics_vk_la_SOURCES = $(graphics_src_files)
 
 libdali_graphics_vk_la_LDFLAGS = -fPIC
 
@@ -104,8 +100,7 @@ libdali_graphics_vk_cxx11_la_CXXFLAGS = $(cxx_flags) \
                                         $(VULKAN_CFLAGS) \
                                         $(vulkan_flags)
 
-libdali_graphics_vk_cxx11_la_SOURCES = $(graphics_src_files) \
-                                       $(graphics_integration_src_files)
+libdali_graphics_vk_cxx11_la_SOURCES = $(graphics_src_files)
 
 libdali_graphics_vk_cxx11_la_LDFLAGS = -fPIC
 
