@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,13 @@
  *
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
+#include <dali/graphics/vulkan/x11/vk-surface-xcb.h>
+
 #include <dali/integration-api/render-surface.h>
-#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <X11/Xlib-xcb.h>
 
@@ -27,23 +32,16 @@ namespace Graphics
 namespace Vulkan
 {
 
-VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb(Dali::RenderSurface& renderSurface)
-: VkSurfaceFactory()
+VkSurfaceXcb::VkSurfaceXcb( Dali::RenderSurface& renderSurface )
+: SurfaceFactory{}
 {
-  auto ecoreSurface = dynamic_cast<Dali::Internal::Adaptor::WindowRenderSurface*>(&renderSurface);
+  auto ecoreSurface = dynamic_cast< Dali::Internal::Adaptor::WindowRenderSurface* >( &renderSurface );
   assert( ecoreSurface != nullptr && "This is not ecore surface!");
-  mConnection = XGetXCBConnection(XOpenDisplay(nullptr));
-  mWindow = static_cast<decltype(mWindow)>(ecoreSurface->GetNativeWindowId());
+  mConnection = XGetXCBConnection( XOpenDisplay(nullptr) );
+  mWindow = static_cast<decltype( mWindow )>( ecoreSurface->GetNativeWindowId() );
 }
 
-VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb(Display* display, Window window)
-: VkSurfaceFactory()
-{
-  mConnection = XGetXCBConnection(display);
-  mWindow = static_cast<decltype(mWindow)>(window);
-}
-
-vk::SurfaceKHR VkSurfaceXlib2Xcb::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
+vk::SurfaceKHR VkSurfaceXcb::Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                      vk::PhysicalDevice physicalDevice) const
 {
   vk::XcbSurfaceCreateInfoKHR info;
@@ -51,6 +49,16 @@ vk::SurfaceKHR VkSurfaceXlib2Xcb::Create(vk::Instance instance, const vk::Alloca
   auto retval = instance.createXcbSurfaceKHR(info, allocCallbacks).value;
   return retval;
 }
+
+} // Vulkan
+
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New(Dali::RenderSurface& renderSurface)
+{
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXcb>( new Graphics::Vulkan::VkSurfaceXcb( renderSurface ) );
+  return std::move( surfaceFactory );
 }
-}
-}
+
+} // Graphics
+} // Dali
+
+#pragma GCC diagnostic pop

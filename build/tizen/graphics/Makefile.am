@@ -23,8 +23,6 @@
 graphics_src_dir = ../../../dali/graphics/
 include ../../../dali/graphics/file.list
 
-graphics_integration_dir = ../../../dali/integration-api/graphics
-include ../../../dali/integration-api/graphics/file.list
 
 # Build the graphics library
 lib_LTLIBRARIES=
@@ -82,18 +80,29 @@ endif
 if ENABLE_CXX03_ABI
 
 libdali_graphics_vk_la_CXXFLAGS = $(cxx_flags) \
-                               $(dali_includes) \
-                               $(DALI_CORE_CFLAGS) \
-                               $(DALI_ADAPTOR_CFLAGS) \
-                               $(VULKAN_CFLAGS) \
-                               $(vulkan_flags)
+                                  $(dali_includes) \
+                                  $(DALI_CORE_CFLAGS) \
+                                  $(DALI_ADAPTOR_CFLAGS) \
+                                  $(WAYLAND_CFLAGS) \
+                                  $(ECORE_X_CFLAGS) \
+                                  $(X11_CFLAGS) \
+                                  $(VULKAN_CFLAGS) \
+                                  $(vulkan_flags)
 
-libdali_graphics_vk_la_SOURCES = $(graphics_src_files) \
-                                 $(graphics_integration_src_files)
+libdali_graphics_vk_la_SOURCES = $(graphics_vulkan_src_files)
+
+if WAYLAND
+libdali_graphics_vk_la_SOURCES += $(graphics_vulkan_wayland_src_files)
+else  # WAYLAND
+libdali_graphics_vk_la_SOURCES += $(graphics_vulkan_x11_src_files)
+endif # WAYLAND
 
 libdali_graphics_vk_la_LDFLAGS = -fPIC
 
-libdali_graphics_vk_la_LIBADD = $(VULKAN_LIBS)
+libdali_graphics_vk_la_LIBADD = $(VULKAN_LIBS)  \
+                                $(WAYLAND_LIBS) \
+                                $(ECORE_X_LIBS) \
+                                $(X11_LIBS)
 
 
 else # ENABLE_CXX03_ABI
@@ -101,15 +110,27 @@ libdali_graphics_vk_cxx11_la_CXXFLAGS = $(cxx_flags) \
                                         $(dali_includes) \
                                         $(DALI_CORE_CFLAGS) \
                                         $(DALI_ADAPTOR_CFLAGS) \
+                                        $(WAYLAND_CFLAGS) \
+                                        $(ECORE_X_CFLAGS) \
+                                        $(X11_CFLAGS) \
                                         $(VULKAN_CFLAGS) \
                                         $(vulkan_flags)
 
-libdali_graphics_vk_cxx11_la_SOURCES = $(graphics_src_files) \
-                                       $(graphics_integration_src_files)
+libdali_graphics_vk_cxx11_la_SOURCES = $(graphics_vulkan_src_files)
+
+
+if WAYLAND
+libdali_graphics_vk_cxx11_la_SOURCES += $(graphics_vulkan_wayland_src_files)
+else  # WAYLAND
+libdali_graphics_vk_cxx11_la_SOURCES += $(graphics_vulkan_x11_src_files)
+endif # WAYLAND
 
 libdali_graphics_vk_cxx11_la_LDFLAGS = -fPIC
 
-libdali_graphics_vk_cxx11_la_LIBADD = $(VULKAN_LIBS)
+libdali_graphics_vk_cxx11_la_LIBADD = $(VULKAN_LIBS) \
+                                      $(WAYLAND_LIBS) \
+                                      $(ECORE_X_LIBS) \
+                                      $(X11_LIBS)
 
 
 endif # ENABLE_CXX03_ABI

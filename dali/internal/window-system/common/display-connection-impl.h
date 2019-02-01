@@ -79,7 +79,7 @@ public:
    * Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  virtual void SetGraphicsInterface( Integration::GraphicsInterface& graphics ) = 0;
+  virtual void SetGraphicsInterface( Graphics::GraphicsInterface& graphics ) = 0;
 
 public:
 

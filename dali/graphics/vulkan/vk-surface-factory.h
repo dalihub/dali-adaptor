@@ -19,24 +19,24 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/surface-factory.h>
+#include <dali/graphics/surface-factory.h>
 
 
 namespace Dali
 {
-namespace Integration
+namespace Graphics
 {
 namespace Vulkan
 {
 
-class VkSurfaceFactory : public SurfaceFactory
+class SurfaceFactory : public Dali::Graphics::SurfaceFactory
 {
 public:
 
-  VkSurfaceFactory() = default;
+  SurfaceFactory() = default;
 
   virtual vk::SurfaceKHR Create( vk::Instance instance,
                                  const vk::AllocationCallbacks* allocCallbacks,
@@ -44,7 +44,7 @@ public:
 };
 
 } // namespace Vulkan
-} // namespace Integration
+} // namespace Graphics
 } // namespace Dali
 
 #endif // DALI_GRAPHICS_VULKAN_VKSURFACEFACTORY_H

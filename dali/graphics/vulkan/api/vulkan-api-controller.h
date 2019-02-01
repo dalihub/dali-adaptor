@@ -131,17 +131,12 @@ struct ResourceTransferRequest
 class Controller : public Dali::Graphics::Controller
 {
 public:
-
-  explicit Controller( Vulkan::Graphics& vulkanGraphics );
+  /**
+   * Constructor
+   */
+  Controller();
 
   void Initialise();
-
-  /**
-   * Must be created from VulkanGraphics
-   * @param vulkanGraphics
-   * @return
-   */
-  static std::unique_ptr< Controller > New( Vulkan::Graphics& vulkanGraphics );
 
   /**
    * @brief Create a new object
@@ -253,11 +248,6 @@ protected:
   Controller( Controller&& ) noexcept = default;
 
   Controller& operator=( Controller&& ) noexcept;
-
-  /**
-   * Objects of this type should not directly.
-   */
-  Controller();
 
 private:
   struct Impl;

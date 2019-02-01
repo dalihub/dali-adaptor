@@ -324,9 +324,7 @@ PKG_CHECK_MODULES(ECORE_X, [ecore-x x11-xcb],
 PKG_CHECK_MODULES(X11, [x11 x11-xcb],
                   [DALI_USE_X11=1],
                   [DALI_USE_X11=0])
-#PKG_CHECK_MODULES(X11_XCB, [x11-xcb],
-#                  [DALI_HAS_X11_XCB=1],
-#                  [DALI_HAS_X11_XCB=0])
+
 fi
 
 # remove this when we update common repos

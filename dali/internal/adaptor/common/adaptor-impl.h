@@ -25,23 +25,23 @@
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
-#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
-#include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/system/common/core-event-interface.h>
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <dali/internal/network/common/socket-factory.h>
+#include <dali/internal/system/common/core-event-interface.h>
+#include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/kernel-trace.h>
 #include <dali/internal/system/common/system-trace.h>
-#include <dali/integration-api/trigger-event-factory.h>
-#include <dali/internal/network/common/socket-factory.h>
+#include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/public-api/adaptor-framework/tts-player.h>
 
 
 #include <memory>
@@ -63,7 +63,7 @@ namespace Internal
 namespace Adaptor
 {
 class DisplayConnection;
-class GraphicsFactory;
+class GraphicsFactoryInterface;
 class EventHandler;
 class GestureManager;
 class ThreadController;
@@ -126,7 +126,7 @@ public:
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
+  static Dali::Adaptor* New( GraphicsFactoryInterface& graphicsFactory,
                              Any nativeWindow,
                              RenderSurface* surface,
                              Dali::Configuration::ContextLoss configuration,
@@ -139,7 +139,7 @@ public:
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
+  static Dali::Adaptor* New( GraphicsFactoryInterface& graphicsFactory,
                              Dali::Window window,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
@@ -149,7 +149,7 @@ public:
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    */
-  void Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration );
+  void Initialize( GraphicsFactoryInterface& graphicsFactory, Dali::Configuration::ContextLoss configuration );
 
   /**
    * Virtual destructor.
@@ -426,7 +426,7 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
    */
-  virtual Dali::Integration::GraphicsInterface& GetGraphicsInterface();
+  virtual Dali::Graphics::GraphicsInterface& GetGraphicsInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
@@ -630,7 +630,7 @@ private: // Data
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
-  Integration::GraphicsInterface*       mGraphics;                    ///< @todo move ownership to GraphicsFactory?
+  Graphics::GraphicsInterface*          mGraphics;                    ///< @todo move ownership to GraphicsFactory?
 
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowFrames                          mWindowFrame;                 ///< A container of all the Windows that are currently created

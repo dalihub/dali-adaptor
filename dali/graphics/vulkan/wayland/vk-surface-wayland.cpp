@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,28 @@
  *
  */
 
-#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
+// Dali Core math structs need hardening
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
+#include <dali/graphics/vulkan/wayland/vk-surface-wayland.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+
+// Ecore system headers need hardening!
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wcast-qual"
 
 #ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
 #else
 #include <Ecore_Wayland.h>
 #endif
+#pragma GCC diagnostic pop
 
 namespace Dali
 {
@@ -32,7 +46,7 @@ namespace Vulkan
 {
 
 VkSurfaceWayland::VkSurfaceWayland(Dali::RenderSurface& renderSurface)
-: VkSurfaceFactory()
+: SurfaceFactory()
 {
   auto ecoreWlSurface = dynamic_cast<Dali::Internal::Adaptor::WindowRenderSurface*>(&renderSurface);
   assert( ecoreWlSurface != nullptr && "This is not ecore wayland surface!");
@@ -51,7 +65,7 @@ VkSurfaceWayland::VkSurfaceWayland(Dali::RenderSurface& renderSurface)
 }
 
 VkSurfaceWayland::VkSurfaceWayland(::wl_display* display, ::wl_surface* surface)
-: VkSurfaceFactory()
+: SurfaceFactory()
 {
   w_display = display;
   w_surface = surface;
@@ -72,6 +86,16 @@ vk::SurfaceKHR VkSurfaceWayland::Create(
 
   return retval;
 }
+
+} // Vulkan
+
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New( Dali::RenderSurface& renderSurface )
+{
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceWayland>( new Graphics::Vulkan::VkSurfaceWayland( renderSurface ) );
+  return std::move( surfaceFactory );
 }
-}
-}
+
+} // Graphics
+} // Dali
+
+#pragma GCC diagnostic pop

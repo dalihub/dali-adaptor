@@ -57,7 +57,7 @@ struct TextureFactory::Impl
 
   Dali::Graphics::TextureDetails::Type mType;
   Dali::Graphics::TextureDetails::Usage mUsage;
-  Dali::Graphics::RectSize mSize;
+  Dali::Graphics::Extent2D mSize;
   Dali::Graphics::Format mFormat;
   Dali::Graphics::TextureDetails::MipMapFlag mMipmapFlags;
   void* mData;
@@ -78,7 +78,7 @@ Graphics::TextureFactory& TextureFactory::SetType( Dali::Graphics::TextureDetail
   return *this;
 }
 
-Graphics::TextureFactory& TextureFactory::SetSize( const Dali::Graphics::RectSize& size )
+Graphics::TextureFactory& TextureFactory::SetSize( const Dali::Graphics::Extent2D& size )
 {
   mImpl->mSize = size;
   return *this;
@@ -129,7 +129,7 @@ const Dali::Graphics::TextureDetails::Usage& TextureFactory::GetUsage() const
   return mImpl->mUsage;
 }
 
-const Dali::Graphics::RectSize& TextureFactory::GetSize() const
+const Dali::Graphics::Extent2D& TextureFactory::GetSize() const
 {
   return mImpl->mSize;
 }

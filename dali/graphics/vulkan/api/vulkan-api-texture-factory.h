@@ -40,7 +40,7 @@ public:
 
   Graphics::TextureFactory& SetType( Dali::Graphics::TextureDetails::Type type ) override;
 
-  Graphics::TextureFactory& SetSize( const Dali::Graphics::RectSize& size ) override;
+  Graphics::TextureFactory& SetSize( const Dali::Graphics::Extent2D& size ) override;
 
   Graphics::TextureFactory& SetFormat( Dali::Graphics::TextureDetails::Format format ) override;
 
@@ -64,7 +64,7 @@ public:
   /** Internal interface */
   const Dali::Graphics::TextureDetails::Type& GetType() const;
 
-  const Dali::Graphics::RectSize& GetSize() const;
+  const Dali::Graphics::Extent2D& GetSize() const;
 
   const Dali::Graphics::TextureDetails::Format& GetFormat() const;
 

@@ -27,7 +27,7 @@
 namespace Dali
 {
 
-DisplayConnection* DisplayConnection::New( Dali::Integration::GraphicsInterface& graphics )
+DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
@@ -38,7 +38,7 @@ DisplayConnection* DisplayConnection::New( Dali::Integration::GraphicsInterface&
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Integration::GraphicsInterface& graphics, RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics, RenderSurface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();

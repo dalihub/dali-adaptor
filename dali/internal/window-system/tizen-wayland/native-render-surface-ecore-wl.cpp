@@ -129,7 +129,7 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics( Integration::GraphicsInterface& graphics )
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Graphics::GraphicsInterface& graphics )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   DALI_ASSERT_ALWAYS( true && "NativeRenderSurfaceEcoreWl::InitializeGraphics() not implemented!" );

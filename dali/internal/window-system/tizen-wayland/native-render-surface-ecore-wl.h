@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/native-render-surface.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+
 
 namespace Dali
 {
@@ -84,7 +84,7 @@ public: // from Dali::RenderSurface
   /**
    * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Integration::GraphicsInterface& graphics ) override;
+  virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::RenderSurface::CreateSurface()
@@ -157,7 +157,7 @@ private: // Data
 
   PositionSize                              mPosition;
   TriggerEventInterface*                    mRenderNotification;
-  Integration::GraphicsInterface* mGraphics; ///< The graphics interface
+  Graphics::GraphicsInterface*              mGraphics; ///< The graphics interface
   ColorDepth                                mColorDepth;
   tbm_format                                mTbmFormat;
   bool                                      mOwnSurface;

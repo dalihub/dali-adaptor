@@ -83,7 +83,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
-# Factory object + surface
+# NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_x11_src_files)
@@ -147,6 +147,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+# NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
@@ -220,6 +221,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+# NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
@@ -292,6 +294,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+# NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
@@ -363,6 +366,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+# NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)
@@ -437,6 +441,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 if VULKAN_ENABLED
+#NOW EMPTY
 LIBDALI_ADAPTOR_LA_SOURCES += \
                   $(adaptor_graphics_vulkan_src_files) \
                   $(adaptor_graphics_vulkan_wayland_src_files)

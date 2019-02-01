@@ -39,10 +39,6 @@ namespace Dali
 class RenderSurface;
 class TriggerEventInterface;
 
-namespace Integration
-{
-class GraphicsInterface;
-} // Integration
 
 
 namespace Internal
@@ -89,7 +85,7 @@ public:
    * @param[in] environmentOptions Settings from environment/command line/registries.
    */
   CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                  Integration::GraphicsInterface& graphics,
+                                  Graphics::GraphicsInterface& graphics,
                                   const EnvironmentOptions& environmentOptions );
 
   /**
@@ -318,7 +314,7 @@ private:
   AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
   PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
   Integration::Core&                mCore;                             ///< Dali core reference
-  Integration::GraphicsInterface&   mGraphics;                         ///< Graphics object
+  Graphics::GraphicsInterface&      mGraphics;                         ///< Graphics object
   const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
   TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
   TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates

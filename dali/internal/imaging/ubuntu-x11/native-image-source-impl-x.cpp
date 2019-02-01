@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 #include <dali/integration-api/render-surface.h>
 
 

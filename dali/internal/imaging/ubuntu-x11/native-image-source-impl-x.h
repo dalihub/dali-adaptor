@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <Ecore_X.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 

@@ -48,7 +48,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  Integration::GraphicsInterface& Create(PositionSize posSize) override;
+  Graphics:GraphicsInterface& Create(PositionSize posSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()

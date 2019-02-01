@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/graphics-interface.h>
+#include <dali/graphics/graphics-interface.h>
 #include <dali/integration-api/egl-interface.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -55,7 +55,7 @@ public:
   virtual ~EglGraphics();
 
   /**
-   * @copydoc Dali::Integration::GraphicsInterface::Initialize()
+   * @copydoc Dali::Graphics::GraphicsInterface::Initialize()
    */
   void Initialize( EnvironmentOptions* environmentOptions ) override;
 
@@ -95,12 +95,12 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
-   * @copydoc Dali::Integration::GraphicsInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Graphics::GraphicsInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable& GetDepthBufferRequired();
 
   /**
-   * @copydoc Dali::Integration::GraphicsInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Graphics::GraphicsInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired();
 
@@ -111,7 +111,7 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
-   * @copydoc Dali::Integration::GraphicsInterface::Destroy()
+   * @copydoc Dali::Graphics::GraphicsInterface::Destroy()
    */
   void Destroy() override;
 

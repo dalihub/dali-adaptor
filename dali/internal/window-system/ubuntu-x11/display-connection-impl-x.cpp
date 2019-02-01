@@ -96,7 +96,7 @@ void DisplayConnectionX11::SetSurfaceType( RenderSurface::Type type )
   }
 }
 
-void DisplayConnectionX11::SetGraphicsInterface( Integration::GraphicsInterface& graphics )
+void DisplayConnectionX11::SetGraphicsInterface( Graphics::GraphicsInterface& graphics )
 {
   mGraphics = &graphics;
 }

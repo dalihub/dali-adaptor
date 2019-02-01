@@ -35,8 +35,7 @@ AM_CONDITIONAL([COMMON_PROFILE], [test x$enable_profile = xCOMMON])
 AM_CONDITIONAL([MOBILE_PROFILE], [test x$enable_profile = xMOBILE])
 AM_CONDITIONAL([WEARABLE_PROFILE], [test x$enable_profile = xWEARABLE])
 AM_CONDITIONAL([TV_PROFILE], [test x$enable_profile = xTV])
-AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
-AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
+AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes -o x$enable_ecore_wayland2 = xyes ] )
 
 AC_ARG_ENABLE([debug],
               [AC_HELP_STRING([--enable-debug],
@@ -114,6 +113,22 @@ if test x$TIZEN_PLATFORM_CONFIG_SUPPORTED != x; then
 else
   tizenPlatformConfigSupported=0
 fi
+
+if test "x$enable_wayland" = "xyes"; then
+if test "x$enable_ecore_wayland2" = "xyes"; then
+PKG_CHECK_MODULES(WAYLAND, [ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client >= 1.2.0 xkbcommon libtbm])
+else
+PKG_CHECK_MODULES(WAYLAND, [ecore-wayland egl wayland-egl wayland-client >= 1.2.0 xkbcommon libtbm])
+fi
+else
+PKG_CHECK_MODULES(ECORE_X, [ecore-x x11-xcb],
+                  [DALI_USE_ECORE_X11=1],
+                  [DALI_USE_ECORE_X11=0])
+PKG_CHECK_MODULES(X11, [x11 x11-xcb],
+                  [DALI_USE_X11=1],
+                  [DALI_USE_X11=0])
+fi
+
 
 # vulkan support, includes xlib platform dependency
 if test "x$enable_vulkan" != "xno"; then

@@ -86,7 +86,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
    */
-  void SetGraphicsInterface( Integration::GraphicsInterface& graphics ) override;
+  void SetGraphicsInterface( Graphics::GraphicsInterface& graphics ) override;
 
 public:
 
@@ -105,7 +105,7 @@ protected:
 
 private:
 
-  Integration::GraphicsInterface* mGraphics; ///< The graphics interface
+  Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
 
 public:
 

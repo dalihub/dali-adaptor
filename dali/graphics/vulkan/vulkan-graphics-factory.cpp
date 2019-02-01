@@ -17,11 +17,11 @@
 
 
 // CLASS HEADER
-#include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
-#include <dali/integration-api/core-enumerations.h>
-#include <dali/integration-api/graphics/graphics.h>
+#include <dali/graphics/vulkan/vulkan-graphics-factory.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/core-enumerations.h>
+#include <dali/graphics/vulkan/graphics-implementation.h>
 
 namespace Dali
 {
@@ -40,7 +40,7 @@ GraphicsFactory::~GraphicsFactory()
   /* Deleted by Adaptor destructor */
 }
 
-Integration::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
+Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
 {
   auto depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ?
                               Integration::DepthBufferAvailable::TRUE :
@@ -50,38 +50,37 @@ Integration::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::Positio
                                 Integration::StencilBufferAvailable::TRUE :
                                 Integration::StencilBufferAvailable::FALSE );
 
-  uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1 : 0;
-  depthStencilMask |= mEnvironmentOptions.DepthBufferRequired() ? 1 << 1 : 0;
+  uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1u : 0u;
+  depthStencilMask |= uint32_t(mEnvironmentOptions.DepthBufferRequired()) ? 1u << 1u : 0u;
 
-  Integration::GraphicsCreateInfo info;
+  Graphics::GraphicsCreateInfo info;
   info.surfaceWidth = uint32_t( positionSize.width );
   info.surfaceHeight = uint32_t( positionSize.height );
-  info.depthStencilMode = std::function<Integration::DepthStencilMode()>(
+  info.depthStencilMode = std::function<Graphics::DepthStencilMode()>(
     [depthStencilMask]() {
       switch( depthStencilMask )
       {
         case 1:
         case 3:
-          return Integration::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
+          return Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
         case 2:
-          return Integration::DepthStencilMode::DEPTH_OPTIMAL;
+          return Graphics::DepthStencilMode::DEPTH_OPTIMAL;
         case 0:
-          return Integration::DepthStencilMode::NONE;
+          return Graphics::DepthStencilMode::NONE;
         default:
-          return Integration::DepthStencilMode::NONE;
+          return Graphics::DepthStencilMode::NONE;
       }
     }
   )();
 
-  info.swapchainBufferingMode = Integration::SwapchainBufferingMode::OPTIMAL;
+  info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Dali::Integration::Graphics( info, depthBufferRequired, stencilBufferRequired );
+  auto graphics = new Graphics::Graphics( info, depthBufferRequired, stencilBufferRequired );
   return *graphics;
 }
 
 void GraphicsFactory::Destroy()
 {
-  /* Deleted by EglGraphics */
 }
 
 } // Adaptor

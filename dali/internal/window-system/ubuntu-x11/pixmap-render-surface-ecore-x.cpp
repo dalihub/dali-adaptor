@@ -143,7 +143,7 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-void PixmapRenderSurfaceEcoreX::InitializeGraphics(Integration::GraphicsInterface& graphics)
+void PixmapRenderSurfaceEcoreX::InitializeGraphics(Graphics::GraphicsInterface& graphics)
 {
   DALI_LOG_TRACE_METHOD( gPixmapRenderSurfaceLogFilter );
 #if 0

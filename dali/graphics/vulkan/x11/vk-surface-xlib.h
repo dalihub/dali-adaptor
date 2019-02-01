@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_SURFACE
-#define DALI_GRAPHICS_VULKAN_SURFACE
+#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXLIB_H
+#define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -18,54 +18,41 @@
  *
  */
 
+#ifndef VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
+#endif
+
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/graphics/vulkan/vk-surface-factory.h>
+
+// EXTERNAL INCLUDES
+#include <vulkan/vulkan.hpp>
 
 namespace Dali
 {
+class RenderSurface;
+
 namespace Graphics
 {
 namespace Vulkan
 {
 
-class Surface : public VkManaged
+class VkSurfaceXlib final : public SurfaceFactory
 {
-  friend class Graphics;
-
 public:
+  VkSurfaceXlib( Dali::RenderSurface& renderSurface );
 
-  ~Surface() final;
-
-  /**
-   *
-   * @return
-   */
-  vk::SurfaceKHR GetVkHandle() const;
-
-  /**
-   * Returns size of surface
-   * @return
-   */
-  const vk::SurfaceCapabilitiesKHR& GetCapabilities() const;
-
-  /**
-   * Update size of surface
-   */
-  void UpdateSize( unsigned int width, unsigned int height );
-
-  bool OnDestroy() override;
+  virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
+                                 vk::PhysicalDevice physicalDevice ) const override;
 
 private:
-  Surface( Graphics& graphic );
-
-private:
-  Graphics* mGraphics;
+  Display*       mDisplay;
+  ::Window       mWindow;
   vk::SurfaceKHR mSurface;
-  vk::SurfaceCapabilitiesKHR mCapabilities;
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // Namespace Vulkan
+} // Namespace Graphics
+} // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_SURFACE
+#endif // DALI_GRAPHICS_VULKAN_VKSURFACEXLIB_H

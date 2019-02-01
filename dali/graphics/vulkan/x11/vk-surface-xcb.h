@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
+#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
+#define DALI_GRAPHICS_VULKAN_VKSURFACEXCB_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -17,41 +17,39 @@
  * limitations under the License.
  *
  */
-#ifndef VK_USE_PLATFORM_WAYLAND_KHR
-#define VK_USE_PLATFORM_WAYLAND_KHR
+#ifndef VK_USE_PLATFORM_XCB_KHR
+#define VK_USE_PLATFORM_XCB_KHR
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/graphics/vulkan/vk-surface-factory.h>
-
+#include <dali/graphics/vulkan/vk-surface-factory.h>
 
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
 
-
 namespace Dali
 {
-class RenderSurface;
-
 namespace Graphics
 {
 namespace Vulkan
 {
-class VkSurfaceWayland final : public Dali::Integration::Vulkan::VkSurfaceFactory
+
+class VkSurfaceXcb final : public SurfaceFactory
 {
 public:
+  /**
+   * Instantiates surface factory
+   * @param[in] renderSurface
+   */
+  VkSurfaceXcb( Dali::RenderSurface& renderSurface );
 
-  VkSurfaceWayland(Dali::RenderSurface& renderSurface);
-
-  VkSurfaceWayland(::wl_display* display, ::wl_surface* surface);
-
-  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                vk::PhysicalDevice physicalDevice) const override;
-
+  virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
+                                 vk::PhysicalDevice physicalDevice) const override;
 
 private:
-  wl_display *w_display;
-  wl_surface *w_surface;
+  xcb_connection_t* mConnection;
+  xcb_window_t      mWindow;
+  vk::SurfaceKHR    mSurface;
 };
 
 } // Namespace Vulkan
