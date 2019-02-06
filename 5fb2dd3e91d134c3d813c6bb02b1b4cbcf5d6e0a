@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbab0b4c_479dbfde",
+        "filename": "dali/graphics/graphics-interface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1007416
+      },
+      "writtenOn": "2019-02-06T18:35:01Z",
+      "side": 1,
+      "message": "Do you really need this for enum classes?",
+      "range": {
+        "startLine": 45,
+        "startChar": 11,
+        "endLine": 45,
+        "endChar": 27
+      },
+      "revId": "5fb2dd3e91d134c3d813c6bb02b1b4cbcf5d6e0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "665ab456_01e5a6f1",
+        "filename": "dali/graphics/vulkan/wayland/vk-surface-wayland.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1007416
+      },
+      "writtenOn": "2019-02-06T18:35:01Z",
+      "side": 1,
+      "message": "We should fix the ones we can in dali-core.",
+      "revId": "5fb2dd3e91d134c3d813c6bb02b1b4cbcf5d6e0a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
