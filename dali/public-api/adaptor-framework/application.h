@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,7 +324,7 @@ public: // Stereoscopy
    * @brief Sets the viewing mode for the application.
    * @SINCE_1_0.0
    * @param[in] viewMode The new viewing mode
-   * @DEPRECATED_1_3.39
+   * @DEPRECATED_1_3.51
    */
   void SetViewMode( ViewMode viewMode );
 
@@ -332,7 +332,7 @@ public: // Stereoscopy
    * @brief Gets the current viewing mode.
    * @SINCE_1_0.0
    * @return The current viewing mode
-   * @DEPRECATED_1_3.39
+   * @DEPRECATED_1_3.51
    */
   ViewMode GetViewMode() const;
 
@@ -343,7 +343,7 @@ public: // Stereoscopy
    * between 50mm and 70mm. The default value is 65mm.
    * @SINCE_1_0.0
    * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
-   * @DEPRECATED_1_3.39
+   * @DEPRECATED_1_3.51
    */
   void SetStereoBase( float stereoBase );
 
@@ -352,7 +352,7 @@ public: // Stereoscopy
    *
    * @SINCE_1_0.0
    * @return The stereo base (eye separation) for Stereoscopic 3D
-   * @DEPRECATED_1_3.39
+   * @DEPRECATED_1_3.51
    */
   float GetStereoBase() const;
 

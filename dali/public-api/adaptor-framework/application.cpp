@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,22 +192,24 @@ std::string Application::GetLanguage() const
   return Internal::Adaptor::GetImplementation(*this).GetLanguage();
 }
 
-void Application::SetViewMode( ViewMode /*viewMode*/ )
+void Application::SetViewMode( ViewMode viewMode )
 {
+  Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
 }
 
 ViewMode Application::GetViewMode() const
 {
-  return ViewMode::MONO;
+  return Internal::Adaptor::GetImplementation(*this).GetViewMode();
 }
 
-void Application::SetStereoBase( float /*stereoBase*/ )
+void Application::SetStereoBase( float stereoBase )
 {
+  Internal::Adaptor::GetImplementation(*this).SetStereoBase( stereoBase );
 }
 
 float Application::GetStereoBase() const
 {
-  return 0.f;
+  return Internal::Adaptor::GetImplementation(*this).GetStereoBase();
 }
 
 Application::AppSignalType& Application::InitSignal()

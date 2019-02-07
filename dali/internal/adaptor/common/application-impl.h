@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,11 +148,38 @@ public:
   static std::string GetResourcePath();
 
   /**
+   * @copydoc Dali::DevelApplication::GetDataPath()
+   */
+  static std::string GetDataPath();
+
+  /**
    * Retrieves the pre-initialized application.
    *
    * @return A pointer to the pre-initialized application
    */
   static ApplicationPtr GetPreInitializedApplication();
+
+public: // Stereoscopy
+
+  /**
+   * @copydoc Dali::Application::SetViewMode()
+   */
+  void SetViewMode( ViewMode viewMode );
+
+  /**
+   * @copydoc Dali::Application::GetViewMode()
+   */
+  ViewMode GetViewMode() const;
+
+  /**
+   * @copydoc Dali::Application::SetStereoBase()
+   */
+  void SetStereoBase( float stereoBase );
+
+  /**
+   * @copydoc Dali::Application::GetStereoBase()
+   */
+  float GetStereoBase() const;
 
 public: // Lifecycle functionality
 
@@ -402,9 +429,12 @@ private:
   Launchpad::State                         mLaunchpadState;
   bool                                     mUseRemoteSurface;
 
-  SlotDelegate< Application >           mSlotDelegate;
+  SlotDelegate< Application >              mSlotDelegate;
 
-  static ApplicationPtr                 gPreInitializedApplication;
+  ViewMode                                 mViewMode;
+  float                                    mStereoBase;
+
+  static ApplicationPtr                    gPreInitializedApplication;
 };
 
 inline Application& GetImplementation(Dali::Application& application)

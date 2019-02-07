@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::New()
    */
-  static NativeImageSourceQueue* New( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueue* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -48,9 +48,9 @@ public:
   virtual Any GetNativeImageSourceQueue() const = 0;
 
   /**
-   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
+   * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  virtual void SetSource( Any source ) = 0;
+  virtual void SetSize( uint32_t width, uint32_t height ) = 0;
 
   /**
    * destructor
@@ -70,7 +70,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  virtual unsigned int TargetTexture() = 0;
+  virtual uint32_t TargetTexture() = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -80,12 +80,12 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  virtual unsigned int GetWidth() const = 0;
+  virtual uint32_t GetWidth() const = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  virtual unsigned int GetHeight() const = 0;
+  virtual uint32_t GetHeight() const = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()

@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,14 +118,9 @@ public:
   void EvaluateJavaScript( const std::string& script );
 
   /**
-   * @copydoc Dali::WebEngine::AddJavaScriptInterface()
+   * @copydoc Dali::WebEngine::AddJavaScriptMessageHandler()
    */
-  void AddJavaScriptInterface( const std::string& exposedObjectName, const std::string& jsFunctionName, std::function< std::string(const std::string&) > cb );
-
-  /**
-   * @copydoc Dali::WebEngine::RemoveJavascriptInterface()
-   */
-  void RemoveJavascriptInterface( const std::string& exposedObjectName, const std::string& jsFunctionName );
+  void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void(const std::string&) > handler );
 
   /**
    * @copydoc Dali::WebEngine::ClearHistory()

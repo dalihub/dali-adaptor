@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_X_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueX* New(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueueX* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -60,9 +60,9 @@ public:
   Any GetNativeImageSourceQueue() const override;
 
   /**
-   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
+   * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  void SetSource( Any source ) override;
+  void SetSize( uint32_t width, uint32_t height ) override;
 
   /**
    * destructor
@@ -82,7 +82,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -92,7 +92,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  unsigned int GetWidth() const override
+  uint32_t GetWidth() const override
   {
     return mWidth;
   }
@@ -100,7 +100,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  unsigned int GetHeight() const override
+  uint32_t GetHeight() const override
   {
     return mHeight;
   }
@@ -145,12 +145,12 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueX( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  NativeImageSourceQueueX( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
 private:
 
-  unsigned int    mWidth;                ///< image width
-  unsigned int    mHeight;               ///< image height
+  uint32_t    mWidth;                ///< image width
+  uint32_t    mHeight;               ///< image height
 
 };
 

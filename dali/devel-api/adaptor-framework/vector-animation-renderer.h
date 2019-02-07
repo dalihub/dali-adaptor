@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,9 @@ public:
    * @brief Creates an initialized handle to a new VectorAnimationRenderer.
    *
    * @param[in] url The url of the vector animation file
-   * @param[in] renderer The renderer used to render the image
-   * @param[in] width The width of the content
-   * @param[in] height The height of the content
    * @return A handle to a newly allocated VectorAnimationRenderer
    */
-  static VectorAnimationRenderer New( const std::string& url, Renderer renderer, uint32_t width, uint32_t height );
+  static VectorAnimationRenderer New( const std::string& url );
 
   /**
    * @brief Creates an empty handle.
@@ -83,6 +80,21 @@ public:
    * @return A reference to this
    */
   VectorAnimationRenderer& operator=( const VectorAnimationRenderer& rhs );
+
+  /**
+   * @brief Sets the renderer used to display the result image.
+   *
+   * @param[in] renderer The renderer used to display the result image
+   */
+  void SetRenderer( Renderer renderer );
+
+  /**
+   * @brief Sets the target image size.
+   *
+   * @param[in] width The target image width
+   * @param[in] height The target image height
+   */
+  void SetSize( uint32_t width, uint32_t height );
 
   /**
    * @brief Starts the rendering.

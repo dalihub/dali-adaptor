@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, 
     }
     case EXIF_FORMAT_SHORT:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, unsigned int>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, unsigned short>(entry) );
       break;
     }
     case EXIF_FORMAT_LONG:
@@ -239,7 +239,7 @@ void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, 
     }
     case EXIF_FORMAT_SSHORT:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, int>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, short>(entry) );
       break;
     }
     case EXIF_FORMAT_SLONG:
@@ -872,7 +872,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
   // Initialise a JPEG codec:
   {
     auto jpeg = MakeJpegCompressor();
-    if( jpeg )
+    if( !jpeg )
     {
       DALI_LOG_ERROR( "JPEG Compressor init failed: %s\n", tjGetErrorStr() );
       return false;

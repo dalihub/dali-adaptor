@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "am", "Amharic",            Locale::LeftToRight },
   { "ar", "Arabic",             Locale::RightToLeft },
   { "as", "Assamese",           Locale::LeftToRight },
-  { "az", "Azerbaijani",        Locale::RightToLeft },
+  { "az", "Azerbaijani",        Locale::LeftToRight },
   { "be", "Belarusian",         Locale::LeftToRight },
   { "bg", "Bulgarian",          Locale::LeftToRight },
   { "bn", "Bengali",            Locale::LeftToRight },
@@ -72,6 +72,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "gl", "Galician",           Locale::LeftToRight },
   { "gn", "Guarani",            Locale::LeftToRight },
   { "gu", "Gujarati",           Locale::LeftToRight },
+  { "ha", "Hausa",              Locale::LeftToRight },
   { "he", "Hebrew",             Locale::RightToLeft },
   { "hi", "Hindi",              Locale::LeftToRight },
   { "hr", "Croatian",           Locale::LeftToRight },
@@ -86,7 +87,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "km", "Khmer",              Locale::LeftToRight },
   { "kn", "Kannada",            Locale::LeftToRight },
   { "ko", "Korean",             Locale::LeftToRight },
-  { "ks", "Kashmiri",           Locale::RightToLeft },
+  { "ks", "Kashmiri",           Locale::LeftToRight },
   { "la", "Latin",              Locale::LeftToRight },
   { "lo", "Lao",                Locale::LeftToRight },
   { "lt", "Lithuanian",         Locale::LeftToRight },
@@ -123,7 +124,7 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
   { "sw", "Swahili",            Locale::LeftToRight },
   { "ta", "Tamil",              Locale::LeftToRight },
   { "te", "Telugu",             Locale::LeftToRight },
-  { "tg", "Tajik",              Locale::RightToLeft },
+  { "tg", "Tajik",              Locale::LeftToRight },
   { "th", "Thai",               Locale::LeftToRight },
   { "tk", "Turkmen",            Locale::LeftToRight },
   { "tn", "Setsuana",           Locale::LeftToRight },

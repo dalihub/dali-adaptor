@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor-vk
 Summary:    The DALi Tizen Adaptor
-Version:    1.3.52
+Version:    1.4.5
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT

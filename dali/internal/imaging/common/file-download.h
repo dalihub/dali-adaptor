@@ -2,7 +2,7 @@
 #define __DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H__
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <string>
 #include <mutex> //c++11
 #include <stdint.h> // uint8
+#include <openssl/crypto.h>
 
 namespace Dali
 {
@@ -67,7 +68,7 @@ public:
   /**
    * Gets thread id for libcurl with openssl
    */
-  static unsigned long GetThreadId();
+  static void GetThreadId( CRYPTO_THREADID* tid );
 
 private:
 

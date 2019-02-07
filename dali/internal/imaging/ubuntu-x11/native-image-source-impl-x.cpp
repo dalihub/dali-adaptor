@@ -72,7 +72,7 @@ namespace
   };
 }
 
-NativeImageSourceX* NativeImageSourceX::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceX* NativeImageSourceX::New( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
   NativeImageSourceX* image = new NativeImageSourceX( width, height, depth, nativeImageSource );
   DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
@@ -86,7 +86,7 @@ NativeImageSourceX* NativeImageSourceX::New(unsigned int width, unsigned int hei
   return image;
 }
 
-NativeImageSourceX::NativeImageSourceX( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceX::NativeImageSourceX( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth( width ),
   mHeight( height ),
   mOwnPixmap( true ),
@@ -325,7 +325,7 @@ void NativeImageSourceX::GlExtensionDestroy()
 #endif
 }
 
-unsigned int NativeImageSourceX::TargetTexture()
+uint32_t NativeImageSourceX::TargetTexture()
 {
 #if 0
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);

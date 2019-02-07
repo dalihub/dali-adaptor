@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -813,6 +813,18 @@ std::string Framework::GetResourcePath()
 #endif //TIZEN_PLATFORM_CONFIG_SUPPORTED
 
   return resourcePath;
+}
+
+std::string Framework::GetDataPath()
+{
+  std::string result;
+  char* dataPath = app_get_data_path();
+  if( dataPath )
+  {
+    result = dataPath;
+    free(dataPath);
+  }
+  return result;
 }
 
 void Framework::SetBundleId(const std::string& id)

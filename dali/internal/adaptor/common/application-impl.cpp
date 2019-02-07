@@ -48,6 +48,13 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+
+const float DEFAULT_STEREO_BASE( 65.0f );
+
+} // unnamed namespace
+
 ApplicationPtr Application::gPreInitializedApplication( NULL );
 
 ApplicationPtr Application::New(
@@ -101,7 +108,9 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mEnvironmentOptions(),
   mWindowPositionSize( positionSize ),
   mLaunchpadState( Launchpad::NONE ),
-  mSlotDelegate( this )
+  mSlotDelegate( this ),
+  mViewMode( MONO ),
+  mStereoBase( DEFAULT_STEREO_BASE )
 {
   // Get mName from environment options
   mMainWindowName = mEnvironmentOptions.GetWindowName();
@@ -396,6 +405,28 @@ Dali::Window Application::GetWindow()
   return mMainWindow;
 }
 
+// Stereoscopy
+
+void Application::SetViewMode( ViewMode viewMode )
+{
+  mViewMode = viewMode;
+}
+
+ViewMode Application::GetViewMode() const
+{
+  return mViewMode;
+}
+
+void Application::SetStereoBase( float stereoBase )
+{
+  mStereoBase = stereoBase;
+}
+
+float Application::GetStereoBase() const
+{
+  return mStereoBase;
+}
+
 void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
   Dali::Window newWindow = Dali::Window::New( positionSize, name, mMainWindowMode == Dali::Application::TRANSPARENT );
@@ -419,6 +450,11 @@ void Application::ReplaceWindow( const PositionSize& positionSize, const std::st
 std::string Application::GetResourcePath()
 {
   return Internal::Adaptor::Framework::GetResourcePath();
+}
+
+std::string Application::GetDataPath()
+{
+  return Internal::Adaptor::Framework::GetDataPath();
 }
 
 void Application::SetStyleSheet( const std::string& stylesheet )

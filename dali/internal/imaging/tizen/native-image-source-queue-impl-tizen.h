@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/images/native-image-interface-extension.h>
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
@@ -55,7 +56,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueueTizen* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -63,9 +64,9 @@ public:
   Any GetNativeImageSourceQueue() const override;
 
   /**
-   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
+   * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  void SetSource( Any source ) override;
+  void SetSize( uint32_t width, uint32_t height ) override;
 
   /**
    * destructor
@@ -85,7 +86,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -95,7 +96,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  unsigned int GetWidth() const override
+  uint32_t GetWidth() const override
   {
     return mWidth;
   }
@@ -103,7 +104,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  unsigned int GetHeight() const override
+  uint32_t GetHeight() const override
   {
     return mHeight;
   }
@@ -148,11 +149,11 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  NativeImageSourceQueueTizen( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   void Initialize( Dali::NativeImageSourceQueue::ColorDepth depth );
 
-  void DestroyQueue();
+  void ResetEglImageList();
 
   tbm_surface_queue_h GetSurfaceFromAny( Any source ) const;
 
@@ -162,8 +163,9 @@ private:
 
   typedef std::pair< tbm_surface_h, void* > EglImagePair;
 
-  unsigned int                     mWidth;                ///< image width
-  unsigned int                     mHeight;               ///< image height
+  Dali::Mutex                      mMutex;                ///< Mutex
+  uint32_t                         mWidth;                ///< image width
+  uint32_t                         mHeight;               ///< image height
   tbm_surface_queue_h              mTbmQueue;             ///< Tbm surface queue handle
   tbm_surface_h                    mConsumeSurface;       ///< The current tbm surface
 //  std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector

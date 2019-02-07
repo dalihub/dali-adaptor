@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,9 +60,19 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 {
 }
 
-void VectorAnimationRenderer::Initialize( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height )
+void VectorAnimationRenderer::Initialize( const std::string& url )
 {
-  mPlugin.CreateRenderer( url, renderer, width, height );
+  mPlugin.SetUrl( url );
+}
+
+void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
+{
+  mPlugin.SetRenderer( renderer );
+}
+
+void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
+{
+  mPlugin.SetSize( width, height );
 }
 
 bool VectorAnimationRenderer::StartRender()

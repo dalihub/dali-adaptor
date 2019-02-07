@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@ public:
    * @param[in] nativeImageSource contains tbm_surface_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceTizen* New(unsigned int width,
-                          unsigned int height,
+  static NativeImageSourceTizen* New(uint32_t width,
+                          uint32_t height,
                           Dali::NativeImageSource::ColorDepth depth,
                           Any nativeImageSource);
 
@@ -68,7 +68,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const  override;
+  bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const  override;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
@@ -103,7 +103,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -113,7 +113,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  unsigned int GetWidth() const override
+  uint32_t GetWidth() const override
   {
     return mWidth;
   }
@@ -121,7 +121,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  unsigned int GetHeight() const override
+  uint32_t GetHeight() const override
   {
     return mHeight;
   }
@@ -166,7 +166,7 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  NativeImageSourceTizen(unsigned int width,
+  NativeImageSourceTizen(uint32_t width,
               unsigned  int height,
               Dali::NativeImageSource::ColorDepth depth,
               Any nativeImageSource);
@@ -179,8 +179,8 @@ private:
 
 private:
 
-  unsigned int mWidth;                        ///< image width
-  unsigned int mHeight;                       ///< image height
+  uint32_t mWidth;                        ///< image width
+  uint32_t mHeight;                       ///< image height
   bool mOwnTbmSurface;                        ///< Whether we created pixmap or not
   tbm_surface_h mTbmSurface;
   tbm_format mTbmFormat;

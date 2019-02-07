@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,19 @@ public:
   ~VectorAnimationRendererPluginProxy();
 
   /**
-   * @copydoc Dali::VectorAnimationRendererPlugin::CreateRenderer()
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetUrl()
    */
-  bool CreateRenderer( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height );
+  void SetUrl( const std::string& url );
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetRenderer()
+   */
+  void SetRenderer( Dali::Renderer renderer );
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetSize()
+   */
+  void SetSize( uint32_t width, uint32_t height );
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::StartRender()
@@ -71,6 +81,12 @@ public:
    * @copydoc Dali::VectorAnimationRendererPlugin::GetTotalFrameNumber()
    */
   uint32_t GetTotalFrameNumber();
+
+  // Not copyable or movable
+  VectorAnimationRendererPluginProxy( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy constructor
+  VectorAnimationRendererPluginProxy( VectorAnimationRendererPluginProxy&& ) = delete; ///< Deleted move constructor
+  VectorAnimationRendererPluginProxy& operator=( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy assignment operator
+  VectorAnimationRendererPluginProxy& operator=( VectorAnimationRendererPluginProxy&& ) = delete; ///< Deleted move assignment operator
 
 private:
 

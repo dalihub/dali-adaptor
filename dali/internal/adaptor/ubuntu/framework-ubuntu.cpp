@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,6 +220,19 @@ std::string Framework::GetResourcePath()
   }
 
   return resourcePath;
+}
+
+std::string Framework::GetDataPath()
+{
+  const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
+  char* value = getenv( ubuntuEnvironmentVariable );
+  std::string dataPath;
+  if ( value != NULL )
+  {
+    dataPath = value;
+  }
+
+  return dataPath;
 }
 
 void Framework::SetBundleId(const std::string& id)

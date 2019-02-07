@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -273,6 +273,19 @@ static Eina_Bool EcoreEventRotate( void* data, int type, void* event )
   if( windowBase )
   {
     windowBase->OnRotation( data, type, event );
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when configure event is recevied.
+ */
+static Eina_Bool EcoreEventConfigure( void* data, int type, void* event )
+{
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+  if( windowBase )
+  {
+    windowBase->OnConfiguration( data, type, event );
   }
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -689,6 +702,9 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
   // Register Rotate event
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ROTATE,               EcoreEventRotate,                    this ) );
 
+  // Register Configure event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_CONFIGURE,            EcoreEventConfigure,                 this ) );
+
   // Register Touch events
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,               EcoreEventMouseButtonDown,           this ) );
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,                 EcoreEventMouseButtonUp,             this ) );
@@ -861,6 +877,18 @@ void WindowBaseEcoreWl2::OnRotation( void* data, int type, void* event )
   }
 }
 
+void WindowBaseEcoreWl2::OnConfiguration( void* data, int type, void* event )
+{
+  Ecore_Wl2_Event_Window_Configure* ev( static_cast< Ecore_Wl2_Event_Window_Configure* >( event ) );
+
+  if( ev->win == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
+  {
+    // Note: To comply with the wayland protocol, Dali should make an ack_configure
+    // by calling ecore_wl2_window_commit
+    ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
+  }
+}
+
 void WindowBaseEcoreWl2::OnMouseButtonDown( void* data, int type, void* event )
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast< Ecore_Event_Mouse_Button* >( event );
@@ -1008,6 +1036,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyDown\n" );
 
     std::string keyName( keyEvent->keyname );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -1015,6 +1044,12 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     if( keyEvent->compose )
     {
       compose = keyEvent->compose;
+    }
+
+    // Ensure key symbol is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->key )
+    {
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
@@ -1040,7 +1075,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
     GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
     GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, deviceName, deviceClass, deviceSubclass );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, deviceName, deviceClass, deviceSubclass );
 
      mKeyEventSignal.Emit( keyEvent );
   }
@@ -1055,6 +1090,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp\n" );
 
     std::string keyName( keyEvent->keyname );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -1062,6 +1098,12 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     if( keyEvent->compose )
     {
       compose = keyEvent->compose;
+    }
+
+    // Ensure key symbol is not NULL as keys like SHIFT have a null string.
+    if( keyEvent->key )
+    {
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
@@ -1087,7 +1129,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
     GetDeviceClass( ecore_device_class_get( keyEvent->dev ), deviceClass );
     GetDeviceSubclass( ecore_device_subclass_get( keyEvent->dev ), deviceSubclass );
 
-    Integration::KeyEvent keyEvent( keyName, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, deviceName, deviceClass, deviceSubclass );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, deviceName, deviceClass, deviceSubclass );
 
      mKeyEventSignal.Emit( keyEvent );
   }

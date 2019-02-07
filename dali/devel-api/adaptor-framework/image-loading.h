@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,15 @@ DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   FittingMode::Type fittingMode = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR ,
   bool orientationCorrection = true );
+
+/**
+ * @brief Get the size of an original image
+ * @param[in] filename name of the image.
+ *
+ * @return dimensions to original image
+ */
+DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
+  const std::string& filename);
 
 /**
  * @brief Load an image synchronously from a remote resource.

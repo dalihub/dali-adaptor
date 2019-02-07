@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,10 +42,10 @@ public:
   NativeImageSourceFactory() = default;
   virtual ~NativeImageSourceFactory() = default;
 
-  virtual std::unique_ptr< NativeImageSource > CreateNativeImageSource( unsigned int width, unsigned int height,
+  virtual std::unique_ptr< NativeImageSource > CreateNativeImageSource( uint32_t width, uint32_t height,
                                                                         Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource ) = 0;
 
-  virtual std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
+  virtual std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( uint32_t width, uint32_t height,
                                                                                   Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue ) = 0;
 
 };
