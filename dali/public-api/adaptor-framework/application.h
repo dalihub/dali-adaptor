@@ -324,7 +324,7 @@ public: // Stereoscopy
    * @brief Sets the viewing mode for the application.
    * @SINCE_1_0.0
    * @param[in] viewMode The new viewing mode
-   * @DEPRECATED_1_3.51
+   * @DEPRECATED_1_3_51
    */
   void SetViewMode( ViewMode viewMode );
 
@@ -332,7 +332,7 @@ public: // Stereoscopy
    * @brief Gets the current viewing mode.
    * @SINCE_1_0.0
    * @return The current viewing mode
-   * @DEPRECATED_1_3.51
+   * @DEPRECATED_1_3_51
    */
   ViewMode GetViewMode() const;
 
@@ -343,7 +343,7 @@ public: // Stereoscopy
    * between 50mm and 70mm. The default value is 65mm.
    * @SINCE_1_0.0
    * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
-   * @DEPRECATED_1_3.51
+   * @DEPRECATED_1_3_51
    */
   void SetStereoBase( float stereoBase );
 
@@ -352,7 +352,7 @@ public: // Stereoscopy
    *
    * @SINCE_1_0.0
    * @return The stereo base (eye separation) for Stereoscopic 3D
-   * @DEPRECATED_1_3.51
+   * @DEPRECATED_1_3_51
    */
   float GetStereoBase() const;
 
@@ -398,7 +398,7 @@ public:  // Signals
   AppSignalType& ResetSignal();
 
   /**
-   * @DEPRECATED_1_1.43 Use Window::ResizedSignal() instead.
+   * @DEPRECATED_1_4.6 Use Window::ResizedSignal() instead.
    * @brief This signal is emitted when the window application rendering on is resized.
    * @SINCE_1_0.0
    * @return The signal to connect to
