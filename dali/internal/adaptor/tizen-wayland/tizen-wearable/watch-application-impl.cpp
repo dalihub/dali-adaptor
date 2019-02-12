@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/adaptor/tizen-wayland/tizen-wearable/watch-application-impl.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
 {
@@ -26,6 +27,18 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace
+{
+
+unsigned int GetEnvWatchRenderRefreshRate()
+{
+  const char* envVariable = std::getenv( DALI_WATCH_REFRESH_RATE );
+
+  return envVariable ? std::atoi( envVariable ) : 2u; // Default 30 fps
+}
+
+} // unnamed namespace
 
 WatchApplicationPtr WatchApplication::New(
   int* argc,
@@ -51,7 +64,7 @@ void WatchApplication::OnInit()
 {
   Application::OnInit();
 
-  Dali::Adaptor::Get().SetRenderRefreshRate( 2 ); // make 30 fps for watch applications
+  Dali::Adaptor::Get().SetRenderRefreshRate( GetEnvWatchRenderRefreshRate() );
 
   mState = INITIALIZED;
 }

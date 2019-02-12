@@ -48,9 +48,14 @@ public:
   ~VectorAnimationRendererPluginProxy();
 
   /**
-   * @copydoc Dali::VectorAnimationRendererPlugin::CreateRenderer()
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetUrl()
    */
-  bool CreateRenderer( const std::string& url, Dali::Renderer renderer, uint32_t width, uint32_t height );
+  void SetUrl( const std::string& url );
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetRenderer()
+   */
+  void SetRenderer( Dali::Renderer renderer );
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::SetSize()

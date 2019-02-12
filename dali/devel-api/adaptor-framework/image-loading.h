@@ -72,6 +72,15 @@ DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   bool orientationCorrection = true );
 
 /**
+ * @brief Get the size of an original image
+ * @param[in] filename name of the image.
+ *
+ * @return dimensions to original image
+ */
+DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
+  const std::string& filename);
+
+/**
  * @brief Load an image synchronously from a remote resource.
  *
  * @param [in] url The URL of the image file to load.

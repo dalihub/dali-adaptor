@@ -43,6 +43,7 @@ namespace // unnamed namespace
 {
 
 const int CONNECTION_TIMEOUT_SECONDS( 30L );
+const int TIMEOUT_SECONDS( 120L );
 const long VERBOSE_MODE = 0L;                // 0 == off, 1 == on
 const long CLOSE_CONNECTION_ON_ERROR = 1L;   // 0 == off, 1 == on
 const long EXCLUDE_HEADER = 0L;
@@ -64,6 +65,7 @@ void ConfigureCurlOptions( CURL* curlHandle, const std::string& url )
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
   // Removed CURLOPT_FAILONERROR option
   curl_easy_setopt( curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
+  curl_easy_setopt( curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS );
   curl_easy_setopt( curlHandle, CURLOPT_HEADER, INCLUDE_HEADER );
   curl_easy_setopt( curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY );
 
