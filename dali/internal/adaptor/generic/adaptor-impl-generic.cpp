@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace Adaptor
 
 void Adaptor::GetDataStoragePath( std::string& path)
 {
-  path = DALI_SHADERBIN_DIR;
+  path = "";
 }
 
 void Adaptor::GetAppId( std::string& appId )
