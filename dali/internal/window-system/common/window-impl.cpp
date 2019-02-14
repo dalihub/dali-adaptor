@@ -20,7 +20,6 @@
 
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/system-overlay.h>
 #include <dali/integration-api/render-task-list-integ.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/render-tasks/render-task.h>
@@ -77,7 +76,6 @@ Window::Window()
   mIndicatorOrientation( Dali::Window::PORTRAIT ),
   mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
   mIndicatorOpacityMode( Dali::Window::OPAQUE ),
-  mOverlay( NULL ),
   mAdaptor( NULL ),
   mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
@@ -92,10 +90,6 @@ Window::~Window()
 {
   if( mIndicator )
   {
-    mOverlay->Remove( mIndicator->GetActor() );
-    Dali::RenderTaskList taskList = mOverlay->GetOverlayRenderTasks();
-    Dali::RenderTask indicatorTask = taskList.GetTask(0);
-    mOverlay->GetOverlayRenderTasks().RemoveTask(indicatorTask);
     mIndicator->Close();
   }
 
@@ -148,21 +142,6 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create one overlay for the main window only
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
-  Integration::Core& core = adaptorImpl.GetCore();
-  mOverlay = &core.GetSystemOverlay();
-
-  // Only create render task list for the overlay once
-  if (!mOverlay->GetOverlayRenderTasks())
-  {
-    Dali::RenderTaskList overlayRenderTaskList = Integration::RenderTaskList::New();
-
-    Dali::Actor overlayRootActor = mOverlay->GetDefaultRootActor();
-    Dali::CameraActor overlayCameraActor = mOverlay->GetDefaultCameraActor();
-    Integration::RenderTaskList::CreateTask( overlayRenderTaskList, overlayRootActor, overlayCameraActor );
-
-    mOverlay->SetOverlayRenderTasks( overlayRenderTaskList );
-  }
-
   mAdaptor = &adaptorImpl;
   mAdaptor->AddObserver( *this );
 
@@ -611,7 +590,6 @@ void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
         mIndicator->SetOpacityMode( mIndicatorOpacityMode );
         Dali::Actor actor = mIndicator->GetActor();
         SetIndicatorActorRotation();
-        mOverlay->Add(actor);
       }
     }
     // else don't create a hidden indicator
