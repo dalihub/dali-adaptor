@@ -43,6 +43,7 @@ namespace // unnamed namespace
 {
 
 const int CONNECTION_TIMEOUT_SECONDS( 30L );
+const int TIMEOUT_SECONDS( 120L );
 const long VERBOSE_MODE = 0L;                // 0 == off, 1 == on
 const long CLOSE_CONNECTION_ON_ERROR = 1L;   // 0 == off, 1 == on
 const long EXCLUDE_HEADER = 0L;
@@ -64,6 +65,7 @@ void ConfigureCurlOptions( CURL* curlHandle, const std::string& url )
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
   // Removed CURLOPT_FAILONERROR option
   curl_easy_setopt( curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS );
+  curl_easy_setopt( curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS );
   curl_easy_setopt( curlHandle, CURLOPT_HEADER, INCLUDE_HEADER );
   curl_easy_setopt( curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY );
 
@@ -286,6 +288,8 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
                                    size_t& dataSize,
                                    size_t maximumAllowedSizeBytes )
 {
+  bool result = false;
+
   if( url.empty() )
   {
     DALI_LOG_WARNING("empty url requested \n");
@@ -296,17 +300,18 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
   CURL* curlHandle = curl_easy_init();
+  if ( curlHandle )
+  {
+    result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
 
-  bool result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
-
-  // clean up session
-  curl_easy_cleanup( curlHandle );
+    // clean up session
+    curl_easy_cleanup( curlHandle );
 
 #ifdef TPK_CURL_ENABLED
-  // Clean up tpkp(the module for certificate pinning) resources on Tizen
-  tpkp_curl_cleanup();
+    // Clean up tpkp(the module for certificate pinning) resources on Tizen
+    tpkp_curl_cleanup();
 #endif // TPK_CURL_ENABLED
-
+  }
   return result;
 }
 

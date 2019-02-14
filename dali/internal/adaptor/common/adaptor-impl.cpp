@@ -30,6 +30,7 @@
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/processor-interface.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -936,6 +937,16 @@ void Adaptor::RenderOnce()
 const LogFactoryInterface& Adaptor::GetLogFactory()
 {
   return *mEnvironmentOptions;
+}
+
+void Adaptor::RegisterProcessor( Integration::Processor& processor )
+{
+  GetCore().RegisterProcessor(processor);
+}
+
+void Adaptor::UnregisterProcessor( Integration::Processor& processor )
+{
+  GetCore().UnregisterProcessor(processor);
 }
 
 void Adaptor::RequestUpdateOnce()

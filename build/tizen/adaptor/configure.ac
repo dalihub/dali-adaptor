@@ -208,7 +208,6 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([ECORE_WAYLAND2], [test x$enable_ecore_wayland2 = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
-AM_CONDITIONAL([USE_APPFW_EFL_BASE], [test x$enable_tizen_major_version = x3])
 AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
 AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
 

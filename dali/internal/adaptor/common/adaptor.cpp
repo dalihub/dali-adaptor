@@ -193,6 +193,16 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return mImpl->GetLogFactory();
 }
 
+void Adaptor::RegisterProcessor( Integration::Processor& processor )
+{
+  mImpl->RegisterProcessor( processor );
+}
+
+void Adaptor::UnregisterProcessor( Integration::Processor& processor )
+{
+  mImpl->UnregisterProcessor( processor );
+}
+
 Adaptor::Adaptor()
 : mImpl( NULL )
 {
