@@ -414,6 +414,9 @@ private:
 
   /**
    * @brief Gets the FontDescription which matches the given pattern.
+   *
+   * @note The reference counter of the @p characterSet has been increased. Call FcCharSetDestroy to decrease it.
+   *
    * @param[in] pattern pattern to match against.
    * @param[out] fontDescription the resultant fontDescription that matched.
    * @param[out] characterSet The character set for that pattern.
@@ -424,6 +427,8 @@ private:
   /**
    * @brief Creates a font family pattern used to match fonts.
    *
+   * @note Need to call FcPatternDestroy to free the resources.
+   *
    * @param[in] fontDescription The font to cache.
    *
    * @return The pattern.
@@ -431,14 +436,16 @@ private:
   _FcPattern* CreateFontFamilyPattern( const FontDescription& fontDescription ) const;
 
   /**
-   * Retrieves the fonts present in the platform.
+   * @brief Retrieves the fonts present in the platform.
+   *
+   * @note Need to call FcFontSetDestroy to free the allocated resources.
    *
    * @return A font fonfig data structure with the platform's fonts.
    */
   _FcFontSet* GetFcFontSet() const;
 
   /**
-   * Retrieves a font config object's value from a pattern.
+   * @brief Retrieves a font config object's value from a pattern.
    *
    * @param[in] pattern The font config pattern.
    * @param[in] n The object.
@@ -449,7 +456,7 @@ private:
   bool GetFcString( const _FcPattern* const pattern, const char* const n, std::string& string );
 
   /**
-   * Retrieves a font config object's value from a pattern.
+   * @brief Retrieves a font config object's value from a pattern.
    *
    * @param[in] pattern The font config pattern.
    * @param[in] n The object.
@@ -563,11 +570,13 @@ private:
                      FontDescriptionId& validatedFontId );
 
   /**
-   * Helper for GetDefaultFonts etc.
+   * @brief Helper for GetDefaultFonts etc.
+   *
+   * @note CharacterSetList is a vector of FcCharSet that are reference counted. It's needed to call FcCharSetDestroy to decrease the reference counter.
    *
    * @param[in] fontDescription A font description.
    * @param[out] fontList A list of the fonts which are a close match for fontDescription.
-   * @param[out] characterSetList A list of the character sets which are a close match for fontDescription.
+   * @param[out] characterSetList A list of character sets which are a close match for fontDescription.
    */
   void SetFontList( const FontDescription& fontDescription, FontList& fontList, CharacterSetList& characterSetList );
 
@@ -584,6 +593,8 @@ private:
   /**
    * @brief Creates a character set from a given font's @p description.
    *
+   * @note Need to call FcCharSetDestroy to free the resources.
+   *
    * @param[in] description The font's description.
    *
    * @return A character set.
@@ -591,10 +602,16 @@ private:
   _FcCharSet* CreateCharacterSetFromDescription( const FontDescription& description );
 
   /**
-   * @brief Destroy all matched Patterns.
+   * @brief Free the resources allocated in the fallback cache.
    *
+   * @param[in] fallbackCache The fallback cache.
    */
-  void DestroyMatchedPatterns();
+  void ClearFallbackCache( std::vector<FallbackCacheItem>& fallbackCache );
+
+  /**
+   * @brief Free the resources allocated by the FcCharSet objects.
+   */
+  void ClearCharacterSetFromFontFaceCache();
 
 private:
 
@@ -625,9 +642,9 @@ private:
   CharacterSetList                          mCharacterSetCache;        ///< Caches character set lists for the validated font.
   std::vector<FontDescriptionSizeCacheItem> mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
-  VectorFontCache* mVectorFontCache;            ///< Separate cache for vector data blobs etc.
-  Vector<EllipsisItem> mEllipsisCache;          ///< Caches ellipsis glyphs for a particular point size.
-  Vector<_FcPattern*>  mMatchedFcPatternCache;  ///< Contain matched FcPattern pointer.
+  VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
+
+  Vector<EllipsisItem> mEllipsisCache;      ///< Caches ellipsis glyphs for a particular point size.
   std::vector<PixelBufferCacheItem> mPixelBufferCache; ///< Caches the pixel buffer of a url.
   Vector<EmbeddedItem> mEmbeddedItemCache; ///< Cache embedded items.
   std::vector<BitmapFontCacheItem> mBitmapFontCache; ///< Stores bitmap fonts.
