@@ -39,7 +39,6 @@ class Controller;
 namespace Internal
 {
 class Pipeline;
-
 } // Internal
 
 class Controller;
@@ -78,9 +77,6 @@ public:
   void Compile();
 
 private:
-
-  friend class PipelineCacheDebug;
-
   /**
    * Computes pipeline cache size
    * @return
@@ -93,9 +89,11 @@ private:
   {
     std::unique_ptr< Internal::Pipeline > pipelineImpl;
     std::unique_ptr< PipelineFactory::Info > info{}; // to compare if hash collision occurs
+    int32_t age{0}; // To increment if only 1 ref left
   };
 
   std::map< uint32_t, std::vector< CacheEntry>> mCacheMap;
+  size_t prevSize{0u};
 };
 } // VulkanAPI
 } // Graphics

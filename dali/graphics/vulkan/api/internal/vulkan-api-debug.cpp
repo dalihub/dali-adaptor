@@ -192,8 +192,6 @@ std::ostream& operator<<(std::ostream& ss, const RenderCommand::PushConstantsBin
 std::ostream& operator<<(std::ostream& ss, const RenderCommand& object)
 {
   ss << "RenderCommand {\n";
-  ss << "  mDebugString = " << object.mDebugString << std::endl;
-  ss << "  mDebugObject = " << object.mDebugObject << std::endl;
   ss << "  mVertexBufferBindings = " << std::endl;
   for( auto i = 0u; i < object.mVertexBufferBindings.size(); ++i )
   {
@@ -246,7 +244,6 @@ std::ostream& operator<<(std::ostream& ss, const RenderCommand& object)
 
   return ss;
 }
-
 
 } // Graphics
 } // Dali

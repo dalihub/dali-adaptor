@@ -18,6 +18,7 @@
  *
  */
 
+#include <dali/graphics-api/graphics-api-types.h>
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
 #include <atomic>
 
@@ -33,14 +34,13 @@ class Graphics;
 namespace VulkanAPI
 {
 class Pipeline;
-
 class Controller;
-
 class PipelineFactory;
-
 class PipelineCache;
+
 namespace Internal
 {
+
 class Pipeline
 {
 public:
@@ -56,6 +56,11 @@ public:
   void Reference();
 
   void Dereference();
+
+  int32_t GetReferenceCount()
+  {
+    return mRefCounter;
+  }
 
   void Destroy();
 
@@ -104,7 +109,7 @@ private:
 
   std::atomic_int mRefCounter{ 0u };
 
-  // wrapper for copy of cSreate data
+  // wrapper for copy of create data
   struct PipelineCreateInfo;
   std::unique_ptr< PipelineCreateInfo > mCreateInfo;
 
