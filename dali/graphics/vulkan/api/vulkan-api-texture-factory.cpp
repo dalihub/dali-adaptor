@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include <dali/graphics/vulkan/api/vulkan-api-texture-factory.h>
 #include <dali/graphics/vulkan/api/vulkan-api-texture.h>
+#include <dali/graphics/vulkan/api/vulkan-api-native-texture.h>
 #include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 #include <dali/graphics/vulkan/vulkan-graphics.h>
 
@@ -29,10 +30,10 @@ namespace VulkanAPI
 
 struct TextureFactory::Impl
 {
-  Impl( TextureFactory& api, VulkanAPI::Controller& controller )
-  : mApi( api ),
-    mController( controller ),
-    mGraphics( controller.GetGraphics() )
+  Impl( Dali::Graphics::TextureFactory& api, VulkanAPI::Controller& controller )
+    : mApi( api ),
+      mController( controller ),
+      mGraphics( controller.GetGraphics() )
   {
 
   }
@@ -41,7 +42,9 @@ struct TextureFactory::Impl
 
   std::unique_ptr< Graphics::Texture > Create()
   {
-    auto retval = std::make_unique< VulkanAPI::Texture >( static_cast<Graphics::TextureFactory&>(mApi) );
+    auto retval = mNativeImageInterface ?
+                  std::make_unique< VulkanAPI::NativeTexture >( static_cast<Graphics::TextureFactory&>(mApi) ) :
+                  std::make_unique< VulkanAPI::Texture >( static_cast<Graphics::TextureFactory&>(mApi) );
 
     if( retval->Initialise() )
     {
@@ -51,7 +54,7 @@ struct TextureFactory::Impl
     return nullptr;
   }
 
-  TextureFactory& mApi;
+  Dali::Graphics::TextureFactory& mApi;
   VulkanAPI::Controller& mController;
   Vulkan::Graphics& mGraphics;
 
@@ -62,7 +65,7 @@ struct TextureFactory::Impl
   Dali::Graphics::TextureDetails::MipMapFlag mMipmapFlags;
   void* mData;
   uint32_t mDataSizeInBytes;
-
+  Dali::NativeImageInterfacePtr mNativeImageInterface;
 };
 
 TextureFactory::TextureFactory( VulkanAPI::Controller& controller )
@@ -108,6 +111,12 @@ Graphics::TextureFactory& TextureFactory::SetData( void* pData )
   return *this;
 }
 
+Graphics::TextureFactory& TextureFactory::SetNativeImage(  NativeImageInterfacePtr nativeImageInterface )
+{
+  mImpl->mNativeImageInterface = nativeImageInterface;
+  return *this;
+}
+
 Graphics::TextureFactory& TextureFactory::SetDataSize( uint32_t dataSizeInBytes )
 {
   mImpl->mDataSizeInBytes = dataSizeInBytes;
@@ -149,6 +158,11 @@ const void* TextureFactory::GetData() const
   return mImpl->mData;
 }
 
+const NativeImageInterfacePtr TextureFactory::GetNativeImage() const
+{
+  return mImpl->mNativeImageInterface;
+}
+
 uint32_t TextureFactory::GetDataSize() const
 {
   return mImpl->mDataSizeInBytes;
@@ -163,7 +177,6 @@ VulkanAPI::Controller& TextureFactory::GetController() const
 {
   return mImpl->mController;
 }
-
 
 }
 }

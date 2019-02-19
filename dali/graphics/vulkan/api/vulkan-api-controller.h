@@ -69,6 +69,8 @@ enum class TransferRequestType
   IMAGE_TO_IMAGE,
   BUFFER_TO_BUFFER,
   IMAGE_TO_BUFFER,
+  USE_TBM_SURFACE,
+  LAYOUT_TRANSITION_ONLY,
   UNDEFINED
 };
 
@@ -96,6 +98,18 @@ struct ResourceTransferRequest
     Vulkan::RefCountedImage                    dstImage    { nullptr };  /// Destination image
     vk::ImageCopy                              copyInfo    { };          /// Vulkan specific copy info
   } imageToImageInfo;
+
+  struct
+  {
+    Vulkan::RefCountedImage                    image;
+    vk::ImageLayout                            srcLayout;
+    vk::ImageLayout                            dstLayout;
+  } imageLayoutTransitionInfo;
+
+  struct
+  {
+    Vulkan::RefCountedImage                    srcImage    { nullptr };  /// Source image
+  } useTBMSurfaceInfo;
 
   bool                                         deferredTransferMode{ true }; // Vulkan implementation prefers deferred mode
 

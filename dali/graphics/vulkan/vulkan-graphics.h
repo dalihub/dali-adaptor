@@ -170,7 +170,8 @@ public: // Create methods
                                        vk::ImageViewType viewType,
                                        vk::Format format,
                                        vk::ComponentMapping components,
-                                       vk::ImageSubresourceRange subresourceRange );
+                                       vk::ImageSubresourceRange subresourceRange,
+                                       void* pNext = nullptr );
 
   RefCountedImageView CreateImageView( RefCountedImage image );
 

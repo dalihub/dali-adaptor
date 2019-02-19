@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_API_TEXTURE_FACTORY_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,19 +38,21 @@ public:
 
   explicit TextureFactory( VulkanAPI::Controller& controller );
 
-  Graphics::TextureFactory& SetType( Dali::Graphics::TextureDetails::Type type ) override;
+  Graphics::TextureFactory& SetType( Graphics::TextureDetails::Type type ) override;
 
-  Graphics::TextureFactory& SetSize( const Dali::Graphics::Extent2D& size ) override;
+  Graphics::TextureFactory& SetSize( const Graphics::Extent2D& size ) override;
 
-  Graphics::TextureFactory& SetFormat( Dali::Graphics::TextureDetails::Format format ) override;
+  Graphics::TextureFactory& SetFormat( Graphics::Format format ) override;
 
-  Graphics::TextureFactory& SetMipMapFlag( Dali::Graphics::TextureDetails::MipMapFlag mipMSapFlag ) override;
+  Graphics::TextureFactory& SetMipMapFlag( Graphics::TextureDetails::MipMapFlag mipMSapFlag ) override;
 
-  Graphics::TextureFactory& SetUsage( Dali::Graphics::TextureDetails::Usage usage ) override;
+  Graphics::TextureFactory& SetUsage( Graphics::TextureDetails::Usage usage ) override;
 
   Graphics::TextureFactory& SetData( void* pData ) override;
 
   Graphics::TextureFactory& SetDataSize( uint32_t dataSizeInBytes ) override;
+
+  Graphics::TextureFactory& SetNativeImage( Dali::NativeImageInterfacePtr nativeImageInterface ) override;
 
   // not copyable
   TextureFactory( const TextureFactory& ) = delete;
@@ -62,17 +64,19 @@ public:
   std::unique_ptr< Graphics::Texture > Create() const override;
 
   /** Internal interface */
-  const Dali::Graphics::TextureDetails::Type& GetType() const;
+  const TextureDetails::Type& GetType() const;
 
-  const Dali::Graphics::Extent2D& GetSize() const;
+  const Graphics::Extent2D& GetSize() const;
 
-  const Dali::Graphics::TextureDetails::Format& GetFormat() const;
+  const Format& GetFormat() const;
 
-  const Dali::Graphics::TextureDetails::Usage& GetUsage() const;
+  const TextureDetails::Usage& GetUsage() const;
 
-  const Dali::Graphics::TextureDetails::MipMapFlag& GetMipMapFlag() const;
+  const TextureDetails::MipMapFlag& GetMipMapFlag() const;
 
   const void* GetData() const;
+
+  const Dali::NativeImageInterfacePtr GetNativeImage() const;
 
   uint32_t GetDataSize() const;
 
@@ -84,7 +88,7 @@ protected:
   /// @brief default constructor
   TextureFactory() = default;
 
-  // derived types should not be moved direcly to prevent slicing
+  // derived types should not be moved directly to prevent slicing
   TextureFactory( TextureFactory&& ) = default;
 
   TextureFactory& operator=( TextureFactory&& ) = default;

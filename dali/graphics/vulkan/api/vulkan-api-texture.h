@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_API_TEXTURE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,10 @@ class Graphics;
 }
 namespace VulkanAPI
 {
+
+vk::ComponentMapping GetVkComponentMapping( Dali::Graphics::Format format );
+vk::Format ConvertApiToVk( Dali::Graphics::Format format );
+
 class TextureFactory;
 class Controller;
 
@@ -44,11 +48,15 @@ class Texture : public Dali::Graphics::Texture
 {
 public:
 
+  Texture() = delete;
+
   explicit Texture( Dali::Graphics::TextureFactory& factory );
 
   ~Texture() override;
 
-  bool Initialise();
+  virtual bool Initialise();
+
+  virtual bool IsSamplerImmutable() const;
 
   Vulkan::RefCountedImage GetImageRef() const;
 
@@ -62,13 +70,13 @@ public:
 
   void CopyBuffer( const Dali::Graphics::Buffer &srcBuffer, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode) override;
 
-private:
+protected:
 
   void CreateSampler();
   void CreateImageView();
   bool InitialiseTexture();
 
-private:
+protected:
 
   VulkanAPI::TextureFactory& mTextureFactory;
   VulkanAPI::Controller& mController;
@@ -78,12 +86,14 @@ private:
   Vulkan::RefCountedImageView   mImageView;
   Vulkan::RefCountedSampler     mSampler;
 
-  uint32_t    mWidth;
-  uint32_t    mHeight;
-  vk::Format  mFormat;
-  vk::ImageUsageFlags mUsage;
-  vk::ImageLayout mLayout;
+  uint32_t    mWidth {};
+  uint32_t    mHeight {};
+  vk::Format  mFormat {};
+  vk::ImageUsageFlags mUsage {};
+  vk::ImageLayout mLayout {};
   vk::ComponentMapping mComponentMapping{};
+
+  bool mDisableStagingBuffer { false };
 };
 
 } // namespace VulkanAPI
