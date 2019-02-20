@@ -47,6 +47,7 @@ PKG_CHECK_MODULES(LIBCURL, libcurl)
 PKG_CHECK_MODULES(LIBCRYPTO, libcrypto)
 PKG_CHECK_MODULES(HARFBUZZ, harfbuzz)
 PKG_CHECK_MODULES(FRIBIDI, fribidi)
+PKG_CHECK_MODULES(CAIRO, cairo)
 PKG_CHECK_MODULES(EVAS, evas)
 PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available]),
                   [ AC_MSG_NOTICE([Tizen Trace not avaiable]) ]
