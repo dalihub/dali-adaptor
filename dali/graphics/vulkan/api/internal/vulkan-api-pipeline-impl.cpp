@@ -319,13 +319,26 @@ uint32_t GetLocationIndex( const std::vector< Vulkan::SpirV::SPIRVVertexInputAtt
 
 bool Pipeline::Initialise()
 {
-  if( mVulkanPipelineState )
+  if( !mVulkanPipelineState )
+  {
+    mVulkanPipelineState = std::unique_ptr< VulkanPipelineState >( new VulkanPipelineState() );
+  }
+
+  if( !mVulkanPipelineState->pipelineLayout )
+  {
+    mVulkanPipelineState->pipelineLayout = PreparePipelineLayout();
+  }
+
+  return bool(mVulkanPipelineState->pipelineLayout);
+}
+
+
+bool Pipeline::Compile()
+{
+  if( mVulkanPipelineState->pipeline )
   {
     return false;
   }
-
-  mVulkanPipelineState = std::unique_ptr< VulkanPipelineState >( new VulkanPipelineState() );
-
   // get shaders
   const auto& shader = static_cast<const VulkanAPI::Shader*>(mCreateInfo->info.shaderState.shaderProgram);
   auto vertexShader = shader->GetShader( vk::ShaderStageFlagBits::eVertex );
@@ -394,8 +407,6 @@ bool Pipeline::Initialise()
   auto framebuffer = static_cast<const VulkanAPI::Framebuffer*>(mCreateInfo->info.framebufferState.framebuffer);
   auto swapchain = mGraphics.GetSwapchainForFBID( 0 );
   auto framebufferObject = framebuffer ? framebuffer->GetFramebufferRef() : swapchain->GetCurrentFramebuffer();
-
-  mVulkanPipelineState->pipelineLayout = PreparePipelineLayout();
 
   vk::GraphicsPipelineCreateInfo pipelineInfo;
   pipelineInfo

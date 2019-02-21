@@ -18,6 +18,7 @@
 #include <dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.h>
 #include <dali/graphics/vulkan/api/internal/vulkan-api-pipeline-impl.h>
 #include <dali/graphics/vulkan/api/vulkan-api-pipeline.h>
+#include <dali/graphics/vulkan/internal/vulkan-debug.h>
 
 namespace Dali
 {
@@ -31,7 +32,11 @@ namespace
 const int32_t CACHE_AGE_LIMIT = 5; // Number of frames a pipeline can stay alive with no handles.
 }
 
-PipelineCache::PipelineCache() = default;
+PipelineCache::PipelineCache()
+{
+  mThreadPool = std::make_unique<Graphics::ThreadPool>();
+  mThreadPool->Initialize(0u); // max threads
+}
 
 PipelineCache::~PipelineCache() = default;
 
@@ -90,31 +95,51 @@ bool PipelineCache::SavePipeline( const VulkanAPI::PipelineFactory& factory, std
   return true;
 }
 
-void PipelineCache::Compile()
+Dali::Graphics::UniqueFutureGroup PipelineCache::Compile( bool parallel )
 {
-  int initialized = 0;
-
+//  parallel = bool(Vulkan::GetVulkanEnv( "DALI_PIPELINE_PARALLEL", true ));
+//  printf("Pipelines parallel = %d\n", int(parallel));
   std::vector<Internal::Pipeline*> pipelinesToRemove;
-
+  std::vector<Graphics::Task> tasks;
   for( auto& item : mCacheMap )
   {
     for( auto& pipeline : item.second )
     {
-      initialized += ( pipeline.pipelineImpl->Initialise() ? 1 : 0 );
-      int32_t refCount = pipeline.pipelineImpl->GetReferenceCount();
+      auto pipelineImpl = pipeline.pipelineImpl.get();
 
-      if( refCount == 1 )
+      // initialise now
+      bool isInitialized = pipelineImpl->Initialise();
+      if( !isInitialized )
       {
-        pipeline.age++;
-      }
-      else if( refCount > 1 )
-      {
-        pipeline.age=0u;
-      }
+        int32_t refCount = pipeline.pipelineImpl->GetReferenceCount();
 
-      if( pipeline.age >= CACHE_AGE_LIMIT )
+        // if this is a pre-existing pipeline, check if it's still in use - if the cache is the only
+        // entity holding a reference to it after CACHE_AGE_LIMIT frames, then can drop it.
+        if( refCount > 1 )
+        {
+          pipeline.age = 0u;
+        }
+        else
+        {
+          ++pipeline.age;
+
+          if( pipeline.age > CACHE_AGE_LIMIT )
+          {
+            pipelinesToRemove.push_back( pipeline.pipelineImpl.get() );
+          }
+        }
+      }
+      else
       {
-        pipelinesToRemove.push_back( pipeline.pipelineImpl.get() );
+        pipeline.age = 0u;
+        /**
+         * If pipeline has just been initialized then schedule the compilation
+         */
+        auto workerFunc = [&, pipelineImpl](int workerIndex)
+        {
+          pipelineImpl->Compile();
+        };
+        parallel ? tasks.emplace_back( workerFunc ) : workerFunc(0);
       }
     }
   }
@@ -123,6 +148,12 @@ void PipelineCache::Compile()
   {
     pipeline->Dereference();
   }
+
+  if( !tasks.empty() )
+  {
+    return mThreadPool->SubmitTasks( tasks, 0u );
+  }
+  return {};
 }
 
 bool PipelineCache::RemovePipeline( Internal::Pipeline* pipeline )
@@ -147,7 +178,6 @@ bool PipelineCache::RemovePipeline( Internal::Pipeline* pipeline )
     {
       if( entry.pipelineImpl.get() == pipeline )
       {
-
         iter->second.erase( iter->second.begin() + i );
         if( iter->second.empty() )
         {

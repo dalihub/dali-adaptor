@@ -173,7 +173,7 @@ struct Controller::Impl
   void CompilePipelines()
   {
     // could be using another thread...could be...
-    mDefaultPipelineCache->Compile();
+    mPipelineCompileFuture = mDefaultPipelineCache->Compile( true );
   }
 
   void BeginFrame()
@@ -613,6 +613,12 @@ struct Controller::Impl
 
   void ProcessRenderPassData( Vulkan::RefCountedCommandBuffer commandBuffer, const RenderPassData& renderPassData )
   {
+    if( mPipelineCompileFuture )
+    {
+      mPipelineCompileFuture->Wait();
+      mPipelineCompileFuture.reset( nullptr );
+    }
+
     commandBuffer->Begin( vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
     commandBuffer->BeginRenderPass( renderPassData.beginInfo, vk::SubpassContents::eInline );
 
@@ -809,6 +815,8 @@ struct Controller::Impl
   void*                              mTextureStagingBufferMappedPtr{ nullptr };
 
   bool mDrawOnResume{ false };
+
+  Graphics::UniqueFutureGroup        mPipelineCompileFuture{};
 };
 
 // TODO: @todo temporarily ignore missing return type, will be fixed later
@@ -1082,7 +1090,8 @@ Graphics::SharedFuture Controller::InitialiseTextureStagingBuffer( uint32_t size
   /**
    * Check if we can reuse existing staging buffer for that frame
    */
-  if( !mImpl->mTextureStagingBuffer ||
+  bool doNotKeepStagingBuffer = true;
+  if( doNotKeepStagingBuffer || !mImpl->mTextureStagingBuffer ||
       mImpl->mTextureStagingBuffer->GetBufferRef()->GetSize() < size )
   {
     auto workerFunc = [&, size](auto workerIndex){
@@ -1188,18 +1197,10 @@ void Controller::UpdateTextures( const std::vector<Dali::Graphics::TextureUpdate
   }
 
   /**
-   * Check if we can reuse existing staging buffer for that frame
+   * Initialise new staging buffer. Since caller function is parallelized, initialisation
+   * stays on the caller thread.
    */
-
-  if( !mImpl->mTextureStagingBuffer ||
-      mImpl->mTextureStagingBuffer->GetBufferRef()->GetSize() < totalStagingBufferSize )
-  {
-    /**
-     * Initialise new staging buffer. Since caller function is parallelized, initialisation
-     * stays on the caller thread.
-     */
-    InitialiseTextureStagingBuffer( totalStagingBufferSize, false );
-  }
+  InitialiseTextureStagingBuffer( totalStagingBufferSize, false );
 
   /** Write into memory in parallel */
   stagingBufferMappedPtr = mImpl->mTextureStagingBuffer->Map();
