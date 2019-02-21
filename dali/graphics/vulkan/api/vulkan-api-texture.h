@@ -113,6 +113,15 @@ public:
    */
   bool TryConvertPixelData( const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer );
 
+  /**
+   * Direct copy memory to memory, used when linear tiling is enabled. This function
+   * doesn't check if data is valid and doesn't perform format conversion.
+   * @param info
+   * @param sourceInfo
+   * @param keepMapped if true, the memory stays mapped after the call
+   */
+  void CopyMemoryDirect( const Dali::Graphics::TextureUpdateInfo& info, const Dali::Graphics::TextureUpdateSourceInfo& sourceInfo, bool keepMapped );
+
 private:
   /**
    * Validates initial format
@@ -145,6 +154,7 @@ protected:
   vk::ComponentMapping mComponentMapping{};
 
   bool mDisableStagingBuffer { false };
+  Dali::Graphics::TextureTiling  mTiling { Dali::Graphics::TextureTiling::OPTIMAL };
   std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
 };
 
