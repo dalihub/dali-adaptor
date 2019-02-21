@@ -54,6 +54,8 @@ public:
 
   Graphics::TextureFactory& SetNativeImage( Dali::NativeImageInterfacePtr nativeImageInterface ) override;
 
+  Graphics::TextureFactory& SetTiling( Graphics::TextureTiling tiling ) override;
+
   // not copyable
   TextureFactory( const TextureFactory& ) = delete;
 
@@ -73,6 +75,8 @@ public:
   const TextureDetails::Usage& GetUsage() const;
 
   const TextureDetails::MipMapFlag& GetMipMapFlag() const;
+
+  Graphics::TextureTiling GetTiling() const;
 
   const void* GetData() const;
 

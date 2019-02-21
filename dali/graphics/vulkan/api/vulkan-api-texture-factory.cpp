@@ -47,6 +47,7 @@ struct TextureFactory::Impl
     mSize( rhs.mSize ),
     mFormat( rhs.mFormat ),
     mMipmapFlags( rhs.mMipmapFlags ),
+    mTiling( rhs.mTiling ),
     mData( rhs.mData ),
     mDataSizeInBytes( rhs.mDataSizeInBytes ),
     mNativeImageInterface( rhs.mNativeImageInterface )
@@ -78,6 +79,7 @@ struct TextureFactory::Impl
   Dali::Graphics::Extent2D mSize;
   Dali::Graphics::Format mFormat;
   Dali::Graphics::TextureDetails::MipMapFlag mMipmapFlags;
+  Dali::Graphics::TextureTiling mTiling;
   void* mData;
   uint32_t mDataSizeInBytes;
   Dali::NativeImageInterfacePtr mNativeImageInterface;
@@ -138,6 +140,12 @@ Graphics::TextureFactory& TextureFactory::SetDataSize( uint32_t dataSizeInBytes 
   return *this;
 }
 
+Graphics::TextureFactory& TextureFactory::SetTiling( Dali::Graphics::TextureTiling tiling )
+{
+  mImpl->mTiling = tiling;
+  return *this;
+}
+
 std::unique_ptr< Graphics::Texture > TextureFactory::Create() const
 {
   return mImpl->Create();
@@ -181,6 +189,11 @@ const NativeImageInterfacePtr TextureFactory::GetNativeImage() const
 uint32_t TextureFactory::GetDataSize() const
 {
   return mImpl->mDataSizeInBytes;
+}
+
+Dali::Graphics::TextureTiling TextureFactory::GetTiling() const
+{
+  return mImpl->mTiling;
 }
 
 Vulkan::Graphics& TextureFactory::GetGraphics() const
