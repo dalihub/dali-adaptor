@@ -23,6 +23,7 @@
 #include <dali/graphics/vulkan/internal/vulkan-buffer.h>
 #include <dali/graphics/vulkan/internal/vulkan-image.h>
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/devel-api/threading/thread-pool.h>
 
 namespace Dali
 {
@@ -41,7 +42,7 @@ namespace VulkanAPI
 class Controller;
 class UboManager;
 class DescriptorSetList;
-
+class Buffer;
 /**
  * Structure describes deferred memory transfer
  * Source memory is owned by the buffer and will be discarded
@@ -249,6 +250,8 @@ public:
 
   Dali::Graphics::SamplerFactory& GetSamplerFactory() override;
 
+  void UpdateTextures( const std::vector<Dali::Graphics::TextureUpdateInfo>& updateInfoList, const std::vector<Dali::Graphics::TextureUpdateSourceInfo>& sourceList ) override;
+
 public:
   // not copyable
   Controller( const Controller& ) = delete;
@@ -262,6 +265,16 @@ protected:
   Controller( Controller&& ) noexcept = default;
 
   Controller& operator=( Controller&& ) noexcept;
+
+private:
+
+  /**
+   * Initialises texture staging buffer of given size. May be delegated to the worker thread.
+   * @param size size of the buffer
+   * @param useWorkerThread if true, it will run on the worker thread
+   * @return Returns Future if running parallel or empty shared_ptr
+   */
+  Dali::Graphics::SharedFuture InitialiseTextureStagingBuffer( uint32_t size, bool useWorkerThread );
 
 private:
   struct Impl;

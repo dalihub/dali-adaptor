@@ -104,6 +104,16 @@ int NativeImageSourceQueueX::GetEglImageTextureTarget()
   return 0;
 }
 
+Any NativeImageSourceQueueX::GetNativeImageHandle() const
+{
+  return 0;
+}
+
+bool NativeImageSourceQueueX::IsSetSource() const
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace internal

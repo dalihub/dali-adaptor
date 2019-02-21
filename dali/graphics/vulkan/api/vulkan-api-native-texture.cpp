@@ -116,13 +116,11 @@ NativeTexture::~NativeTexture()
 
 bool NativeTexture::Initialise()
 {
-  auto size = mTextureFactory.GetSize();
+  auto size = mTextureFactory->GetSize();
   mWidth = uint32_t( size.width );
   mHeight = uint32_t( size.height );
-  auto sizeInBytes = mTextureFactory.GetDataSize();
-  auto data = mTextureFactory.GetData();
   mLayout = vk::ImageLayout::eUndefined;
-  switch( mTextureFactory.GetUsage())
+  switch( mTextureFactory->GetUsage())
   {
     case Dali::Graphics::TextureDetails::Usage::COLOR_ATTACHMENT:
     {
@@ -141,11 +139,11 @@ bool NativeTexture::Initialise()
     }
   }
 
-  mFormat = ConvertApiToVk( mTextureFactory.GetFormat() );
-  mComponentMapping = GetVkComponentMapping( mTextureFactory.GetFormat() );
+  mFormat = ConvertApiToVk( mTextureFactory->GetFormat() );
+  mComponentMapping = GetVkComponentMapping( mTextureFactory->GetFormat() );
 
 #ifdef NATIVE_IMAGE_SUPPORT
-  NativeImageInterfacePtr nativeImage = mTextureFactory.GetNativeImage();
+  NativeImageInterfacePtr nativeImage = mTextureFactory->GetNativeImage();
   if ( !gCreateSamplerYcbcrConversionKHR && !gGetPhysicalDeviceFormatProperties2KHR )
   {
     gCreateSamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkCreateSamplerYcbcrConversionKHR>(
@@ -200,11 +198,8 @@ bool NativeTexture::Initialise()
   {
     if( InitialiseTexture() )
     {
-      // copy data to the image
-      if( data )
-      {
-        CopyMemory(data, sizeInBytes, {mWidth, mHeight}, {0, 0}, 0, 0, Dali::Graphics::TextureDetails::UpdateMode::UNDEFINED );
-      }
+      // force generating properties
+      GetProperties();
       result = true;
     }
   }

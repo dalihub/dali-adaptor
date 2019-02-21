@@ -136,6 +136,10 @@ public:
    */
   int GetEglImageTextureTarget() override;
 
+  Any GetNativeImageHandle() const override;
+
+  bool IsSetSource() const override;
+
 private:
 
   /**

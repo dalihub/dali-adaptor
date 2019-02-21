@@ -66,9 +66,61 @@ public:
 
   void CopyMemory( const void *srcMemory, uint32_t maxDataSize, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode ) override;
 
-  void CopyTexture( const Dali::Graphics::Texture &srcTexture, Dali::Graphics::Rect2D srcRegion, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode ) override;
+  void CopyTexture( const Graphics::Texture &srcTexture, Dali::Graphics::Rect2D srcRegion, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode ) override;
 
-  void CopyBuffer( const Dali::Graphics::Buffer &srcBuffer, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode) override;
+  void CopyBuffer(const Dali::Graphics::Buffer& buffer,
+                  uint32_t bufferOffset,
+                  Dali::Graphics::Extent2D extent2D,
+                  Dali::Graphics::Offset2D textureOffset2D,
+                  uint32_t layer,
+                  uint32_t level,
+                  Dali::Graphics::TextureUpdateFlags flags ) override;
+
+  Dali::Graphics::MemoryRequirements GetMemoryRequirements() const override;
+
+  /**
+   * Returns structure with texture properties
+   * @return The reference to immutable TextureProperties object
+   */
+  const Dali::Graphics::TextureProperties& GetProperties() override;
+
+  /**
+   * Initialises resources like memory, image view and samplers for previously
+   * initialised image object. Used when lazy allocation is needed.
+   */
+  void InitialiseResources();
+
+  /**
+   * Tries to convert pixel data to the compatible format. As result it returns new buffer.
+   * @param pData source data
+   * @param sizeInBytes size of source data in bytes
+   * @param width width in pixels
+   * @param height height in pixels
+   * @param outputBuffer reference to an output buffer
+   * @return True if conversion was successful
+   */
+  bool TryConvertPixelData( const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer );
+
+  /**
+   * Tries to convert pixel data to the compatible format. The result is written into the specified memory area.
+   * The memory must be allocated and large enough to accomodate output data.
+   * @param pData  source data
+   * @param sizeInBytes  size of source data in bytes
+   * @param width width in pixels
+   * @param height height in pixels
+   * @param pOutputBuffer pointer to a valid output buffer
+   * @return True if conversion was successful
+   */
+  bool TryConvertPixelData( const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer );
+
+private:
+  /**
+   * Validates initial format
+   * @return if valid, returns existing format
+   *         if possible conversion, returns new converted format
+   *         if not supported returns vk::Format::eUndefined
+   */
+  vk::Format ValidateFormat( vk::Format sourceFormat );
 
 protected:
 
@@ -76,9 +128,7 @@ protected:
   void CreateImageView();
   bool InitialiseTexture();
 
-protected:
-
-  VulkanAPI::TextureFactory& mTextureFactory;
+  std::unique_ptr<VulkanAPI::TextureFactory> mTextureFactory;
   VulkanAPI::Controller& mController;
   Vulkan::Graphics& mGraphics;
 
@@ -86,14 +136,16 @@ protected:
   Vulkan::RefCountedImageView   mImageView;
   Vulkan::RefCountedSampler     mSampler;
 
-  uint32_t    mWidth {};
-  uint32_t    mHeight {};
-  vk::Format  mFormat {};
-  vk::ImageUsageFlags mUsage {};
-  vk::ImageLayout mLayout {};
+  uint32_t    mWidth;
+  uint32_t    mHeight;
+  vk::Format  mFormat;
+  vk::Format  mConvertFromFormat { vk::Format::eUndefined };
+  vk::ImageUsageFlags mUsage;
+  vk::ImageLayout mLayout;
   vk::ComponentMapping mComponentMapping{};
 
   bool mDisableStagingBuffer { false };
+  std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
 };
 
 } // namespace VulkanAPI

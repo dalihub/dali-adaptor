@@ -40,9 +40,7 @@ graphics_vulkan_src_files = \
     $(graphics_src_dir)/vulkan/internal/vulkan-shader.cpp \
     $(graphics_src_dir)/vulkan/internal/vulkan-surface.cpp \
     $(graphics_src_dir)/vulkan/internal/vulkan-swapchain.cpp \
-    $(graphics_src_dir)/vulkan/vulkan-graphics.cpp \
-    $(graphics_src_dir)/thread-pool.cpp
-
+    $(graphics_src_dir)/vulkan/vulkan-graphics.cpp
 
 # module: graphics, backend: vulkan/x11
 graphics_vulkan_x11_src_files=\
