@@ -1025,7 +1025,8 @@ Texture::Texture( Dali::Graphics::TextureFactory& factory )
     mFormat( vk::Format::eUndefined ),
     mUsage( vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst ),
     mLayout( vk::ImageLayout::eUndefined ),
-    mComponentMapping()
+    mComponentMapping(),
+    mTiling( mTextureFactory->GetTiling() )
 {
   // Check env variable in order to disable staging buffers
   auto var = getenv( "DALI_DISABLE_TEXTURE_STAGING_BUFFERS" );
@@ -1095,6 +1096,70 @@ bool Texture::Initialize()
   }
 
   return false;
+}
+
+void Texture::CopyMemoryDirect( const Dali::Graphics::TextureUpdateInfo& info, const Dali::Graphics::TextureUpdateSourceInfo& sourceInfo, bool keepMapped )
+{
+  /**
+   * Early return if the texture doesn't use linear tiling and
+   * the memory isn't host writable.
+   */
+  if( mTiling != Dali::Graphics::TextureTiling::LINEAR )
+  {
+    return;
+  }
+
+  // try to initialise resource
+  InitialiseResources();
+
+  auto memory = mImage->GetMemory();
+
+  /**
+   * @todo: The texture modified frequently could stay mapped for longer
+   */
+  auto ptr = memory->MapTyped<char>();
+
+  /**
+   * Get subresource layout to find out the rowPitch size
+   */
+  auto subresourceLayout = mGraphics.GetDevice().getImageSubresourceLayout( mImage->GetVkHandle(),
+                                                                            vk::ImageSubresource{}
+                                                                              .setAspectMask( vk::ImageAspectFlagBits::eColor )
+                                                                              .setMipLevel( info.level )
+                                                                              .setArrayLayer( info.layer ));
+
+  auto formatInfo = Vulkan::GetFormatInfo( mImage->GetFormat() );
+  int  sizeInBytes = int( formatInfo.blockSizeInBits / 8);
+  auto dstRowLength = subresourceLayout.rowPitch;
+  auto dstPtr = ptr + int(dstRowLength)*info.dstOffset2D.y + sizeInBytes*info.dstOffset2D.x;
+  auto srcPtr = reinterpret_cast<const char*>( sourceInfo.memorySource.pMemory );
+  auto srcRowLength = int(info.srcExtent2D.width)*sizeInBytes;
+
+  if ( formatInfo.compressed )
+  {
+    std::copy( reinterpret_cast<const char*>(srcPtr), reinterpret_cast<const char*>(srcPtr)+info.srcSize, ptr );
+  }
+  else
+  {
+    /**
+     * Copy content line by line
+     */
+    for( auto i = 0u; i < info.srcExtent2D.height; ++i )
+    {
+      std::copy( srcPtr, srcPtr + int( info.srcExtent2D.width )*sizeInBytes, dstPtr );
+      dstPtr += dstRowLength;
+      srcPtr += srcRowLength;
+    }
+  }
+
+  if( !keepMapped )
+  {
+    // Unmap
+    memory->Unmap();
+
+    // ...and flush
+    memory->Flush();
+  }
 }
 
 void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
@@ -1305,7 +1370,7 @@ bool Texture::InitialiseTexture()
     .setExtent( { mWidth, mHeight, 1 } )
     .setArrayLayers( 1 )
     .setImageType( vk::ImageType::e2D )
-    .setTiling( mDisableStagingBuffer ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal )
+    .setTiling( mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal )
     .setMipLevels( 1 );
 
   // Create the image handle
@@ -1330,7 +1395,7 @@ void Texture::InitialiseResources()
   {
     // allocate memory for the image
     auto memory = mGraphics.AllocateMemory( mImage,
-                                            mDisableStagingBuffer ?
+                                            mDisableStagingBuffer | ( mTiling == Dali::Graphics::TextureTiling::LINEAR ) ?
                                             vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent :
                                             vk::MemoryPropertyFlagBits::eDeviceLocal );
 
@@ -1429,6 +1494,7 @@ const Dali::Graphics::TextureProperties& Texture::GetProperties()
     mProperties->format = mTextureFactory->GetFormat();
     mProperties->format1 = mTextureFactory->GetFormat();
     mProperties->extent2D = { mWidth, mHeight };
+    mProperties->directWriteAccessEnabled = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
   }
   return *mProperties;
 }

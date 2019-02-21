@@ -1114,54 +1114,128 @@ void Controller::UpdateTextures( const std::vector<Dali::Graphics::TextureUpdate
 
   void* stagingBufferMappedPtr = nullptr;
 
-  // make a copy of update info lists by storing additional information
+  /**
+   * If a texture appears more than once we need to process it preserving the order
+   * of updates. It's necessary to make sure that all updates will run on
+   * the same thread.
+   */
+  struct TextureTask
+  {
+    TextureTask( const Dali::Graphics::TextureUpdateInfo* i, const Dali::Task& t )
+      : pInfo( i ), copyTask( t ) {}
+    const Dali::Graphics::TextureUpdateInfo* pInfo;
+    Dali::Task                copyTask;
+  };
+
+  std::map<Dali::Graphics::Texture*, std::vector<TextureTask>> updateMap;
   for( auto& info : updateInfoList )
   {
-    const auto& source = sourceList[ info.srcReference ];
-    if( source.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::Memory )
+    updateMap[info.dstTexture].emplace_back( &info, nullptr );
+  }
+
+  // make a copy of update info lists by storing additional information
+  for( auto& aTextureInfo : updateMap )
+  {
+    auto texture = aTextureInfo.first;
+    for( auto& textureTask : aTextureInfo.second )
     {
-      const auto size = info.dstTexture->GetMemoryRequirements().size;
-      auto currentOffset = totalStagingBufferSize;
-      relevantUpdates.emplace_back( &info, currentOffset );
-      totalStagingBufferSize += uint32_t(size);
+      auto& info = *textureTask.pInfo;
+      const auto& source = sourceList[ info.srcReference ];
+      if( source.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::Memory )
+      {
+        auto sourcePtr = reinterpret_cast<char*>(source.memorySource.pMemory);
+        auto sourceInfoPtr = &source;
+        auto pInfo = textureTask.pInfo;
 
-      auto sourcePtr = reinterpret_cast<char*>(source.memorySource.pMemory);
-      auto ppStagingMemory = &stagingBufferMappedPtr; // this pointer will be set later!
-      auto texture = info.dstTexture;
-      auto pInfo = &info;
-
-      // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
-      // at staging buffer right before executing tasks. The function will either perform direct copy
-      // or will do suitable conversion if source format isn't supported and emulation is available.
-      auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture ]( auto workerThread ){
-
-        char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
-
-        auto vulkanTexture = static_cast<VulkanAPI::Texture*>( texture );
-
-        // Try to initialise texture resources explicitly if they are not yet initialised
-        vulkanTexture->InitialiseResources();
-
-        // If texture is 'emulated' convert pixel data otherwise do direct copy
-        if( vulkanTexture->GetProperties().emulated )
+        // If the texture supports direct write access, then we can
+        // schedule direct copy task and skip the GPU upload. The update
+        // should be fully complete.
+        if( info.dstTexture->GetProperties().directWriteAccessEnabled )
         {
-          vulkanTexture->TryConvertPixelData( sourcePtr, pInfo->srcSize, pInfo->srcExtent2D.width, pInfo->srcExtent2D.height, &pStagingMemory[currentOffset] );
+          auto taskLambda = [ pInfo, sourcePtr, sourceInfoPtr, texture ]( auto workerIndex )
+          {
+            auto vulkanTexture = static_cast<VulkanAPI::Texture*>( texture );
+            const auto& properties = vulkanTexture->GetProperties();
+
+            if( properties.emulated )
+            {
+              std::vector<char> data;
+              data.resize( vulkanTexture->GetMemoryRequirements().size );
+              vulkanTexture->TryConvertPixelData( sourcePtr, pInfo->srcSize, pInfo->srcExtent2D.width, pInfo->srcExtent2D.height, &data[0] );
+
+              // substitute temporary source
+              Dali::Graphics::TextureUpdateSourceInfo newSource{};
+              newSource.memorySource.pMemory = data.data();
+              vulkanTexture->CopyMemoryDirect( *pInfo, newSource, false );
+            }
+            else
+            {
+              vulkanTexture->CopyMemoryDirect( *pInfo, *sourceInfoPtr, false );
+            }
+          };
+          textureTask.copyTask = taskLambda;
         }
         else
         {
-          std::copy( sourcePtr, sourcePtr + pInfo->srcSize, &pStagingMemory[currentOffset] );
-        }
-      };
+          const auto size = info.dstTexture->GetMemoryRequirements().size;
+          auto currentOffset = totalStagingBufferSize;
 
-      // Add task
-      copyTasks.emplace_back( taskLambda );
-      relevantUpdates.emplace_back( &info, currentOffset );
+          relevantUpdates.emplace_back( &info, currentOffset );
+          totalStagingBufferSize += uint32_t(size);
+          auto ppStagingMemory = &stagingBufferMappedPtr; // this pointer will be set later!
+
+          // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
+          // at staging buffer right before executing tasks. The function will either perform direct copy
+          // or will do suitable conversion if source format isn't supported and emulation is available.
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture ]( auto workerThread ){
+
+            char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
+
+            auto vulkanTexture = static_cast<VulkanAPI::Texture*>( texture );
+
+            // Try to initialise` texture resources explicitly if they are not yet initialised
+            vulkanTexture->InitialiseResources();
+
+            // If texture is 'emulated' convert pixel data otherwise do direct copy
+            const auto& properties = vulkanTexture->GetProperties();
+
+            if( properties.emulated )
+            {
+              vulkanTexture->TryConvertPixelData( sourcePtr, pInfo->srcSize, pInfo->srcExtent2D.width, pInfo->srcExtent2D.height, &pStagingMemory[currentOffset] );
+            }
+            else
+            {
+              std::copy( sourcePtr, sourcePtr + pInfo->srcSize, &pStagingMemory[currentOffset] );
+            }
+          };
+
+          // Add task
+          textureTask.copyTask = taskLambda;
+          relevantUpdates.emplace_back( &info, currentOffset );
+        }
+      }
+      else
+      {
+        // for other source types offset within staging buffer doesn't matter
+        relevantUpdates.emplace_back( &info, 1u );
+      }
     }
-    else
+  }
+
+  // Prepare one task per each texture to make sure sequential order of updates
+  // for the same texture.
+  // @todo: this step probably can be avoid in case of using optimal tiling!
+  for( auto& item : updateMap )
+  {
+    auto pUpdates = &item.second;
+    auto task = [ pUpdates ]( auto workerIndex )
     {
-      // for other source types offset within staging buffer doesn't matter
-      relevantUpdates.emplace_back( &info, 0u );
-    }
+      for( auto& update : *pUpdates )
+      {
+        update.copyTask( workerIndex );
+      }
+    };
+    copyTasks.emplace_back( task );
   }
 
   // Allocate staging buffer for all updates using CPU memory
@@ -1175,24 +1249,33 @@ void Controller::UpdateTextures( const std::vector<Dali::Graphics::TextureUpdate
     mImpl->mTextureStagingBufferFuture.reset();
   }
 
-  // Check if we can reuse existing staging buffer for that frame
-  if( !mImpl->mTextureStagingBuffer ||
-      mImpl->mTextureStagingBuffer->GetBufferRef()->GetSize() < totalStagingBufferSize )
+  // Check whether we need staging buffer and if we can reuse existing staging buffer for that frame.
+  if( totalStagingBufferSize )
   {
-    //Initialise new staging buffer. Since caller function is parallelized, initialisation
-    // stays on the caller thread.
-    InitializeTextureStagingBuffer( totalStagingBufferSize, false );
+    if( !mImpl->mTextureStagingBuffer ||
+        mImpl->mTextureStagingBuffer->GetBufferRef()->GetSize() < totalStagingBufferSize )
+    {
+      // Initialise new staging buffer. Since caller function is parallelized, initialisation
+      // stays on the caller thread.
+      InitializeTextureStagingBuffer( totalStagingBufferSize, false );
+    }
+
+    // Write into memory in parallel
+    stagingBufferMappedPtr = mImpl->mTextureStagingBuffer->Map();
   }
 
-  // Write into memory in parallel
-  stagingBufferMappedPtr = mImpl->mTextureStagingBuffer->Map();
-
   // Submit tasks
-  auto futures = threadPool.SubmitTasks( copyTasks, 1u );
+  auto futures = threadPool.SubmitTasks( copyTasks, 100u );
   futures->Wait();
 
   // Unmap memory
-  mImpl->mTextureStagingBuffer->Unmap();
+  // mImpl->mTextureStagingBuffer->Unmap();
+
+  // Nothing to update on the GPU, then exit now
+  if( relevantUpdates.empty() )
+  {
+    return;
+  }
 
   for( auto& pair : relevantUpdates )
   {
