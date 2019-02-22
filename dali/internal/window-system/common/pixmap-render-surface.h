@@ -19,7 +19,14 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/render-surface.h>
+
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/render-surface-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#else
+#include <dali/integration-api/adaptors/render-surface-interface.h>
+#endif
+
 
 namespace Dali
 {
@@ -34,7 +41,7 @@ namespace Adaptor
 /**
  * Pixmap interface of render surface.
  */
-class PixmapRenderSurface : public Dali::RenderSurface
+class PixmapRenderSurface : public Dali::RenderSurfaceInterface
 {
 public:
 
@@ -61,6 +68,22 @@ public: // API
    * @param renderNotification to use
    */
   virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) = 0;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::GetDepthBufferRequired()
+   */
+  Integration::DepthBufferAvailable GetDepthBufferRequired() override
+  {
+    return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
+  }
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::GetStencilBufferRequired()
+   */
+  Integration::StencilBufferAvailable GetStencilBufferRequired() override
+  {
+    return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
+  }
 
 private:
 

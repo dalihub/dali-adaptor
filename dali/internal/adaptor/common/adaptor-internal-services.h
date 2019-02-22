@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/trigger-event-interface.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>
+#include <dali/integration-api/render-surface-interface.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-factory-interface.h>
@@ -33,7 +34,6 @@
 #include <dali/internal/graphics/common/vsync-monitor-interface.h>
 #include <dali/internal/network/common/trace-interface.h>
 #include <dali/integration-api/render-surface.h>
-
 
 namespace Dali
 {
@@ -97,7 +97,7 @@ public:
   /**
    * @return render surface
    */
-  virtual RenderSurface* GetRenderSurfaceInterface() = 0;
+  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface() = 0;
 
   /**
    * @return vsync monitor interface
