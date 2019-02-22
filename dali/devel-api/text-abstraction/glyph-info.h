@@ -1,8 +1,8 @@
-#ifndef __DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
-#define __DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
+#ifndef DALI_TEXT_ABSTRACTION_GLYPH_INFO_H
+#define DALI_TEXT_ABSTRACTION_GLYPH_INFO_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,20 +44,20 @@ struct DALI_ADAPTOR_API GlyphInfo
    */
   GlyphInfo( FontId font, GlyphIndex i );
 
-  FontId fontId;       ///< Identifies the font containing the glyph
-  GlyphIndex index;    ///< Uniquely identifies a glyph for a given FontId
-  float width;         ///< The width of the glyph
-  float height;        ///< The height of the glyph
-  float xBearing;      ///< The distance from the cursor position to the leftmost border of the glyph
-  float yBearing;      ///< The distance from the baseline to the topmost border of the glyph
-  float advance;       ///< The distance to move the cursor for this glyph
-  float scaleFactor;   ///< The scaling applied (fixed-size fonts only)
-  bool softwareItalic; ///< Whether glyph needs software support to draw italic style
-  bool softwareBold;   ///< Whether glyph needs software support to draw bold style
+  FontId fontId;           ///< Identifies the font containing the glyph
+  GlyphIndex index;        ///< Uniquely identifies a glyph for a given FontId
+  float width;             ///< The width of the glyph
+  float height;            ///< The height of the glyph
+  float xBearing;          ///< The distance from the cursor position to the leftmost border of the glyph
+  float yBearing;          ///< The distance from the baseline to the topmost border of the glyph
+  float advance;           ///< The distance to move the cursor for this glyph
+  float scaleFactor;       ///< The scaling applied (fixed-size fonts only)
+  bool isItalicRequired:1; ///< Whether the italic style is required.
+  bool isBoldRequired:1;   ///< Whether the bold style is required.
 };
 
 } // Dali
 
 } // TextAbstraction
 
-#endif //__DALI_TEXT_ABSTRACTION_GLYPH_INFO_H__
+#endif //DALI_TEXT_ABSTRACTION_GLYPH_INFO_H

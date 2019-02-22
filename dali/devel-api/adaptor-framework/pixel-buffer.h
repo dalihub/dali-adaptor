@@ -134,6 +134,17 @@ public:
   unsigned char* GetBuffer();
 
   /**
+   * @brief Gets the pixel buffer. This is a pointer to the internal
+   * pixel buffer.
+   *
+   * @warning If there is no pixel buffer (e.g. this object has been
+   * converted to a PixelData), this method will return NULL.
+   *
+   * @return The pixel buffer, or NULL.
+   */
+  const unsigned char* const GetBuffer() const;
+
+  /**
    * @brief Gets the width of the buffer in pixels.
    *
    * @SINCE_1_2.46

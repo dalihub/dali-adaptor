@@ -1,3 +1,6 @@
+#ifndef DALI_INTERNAL_TEXT_ABSTRACTION_CAIRO_RENDERER_H
+#define DALI_INTERNAL_TEXT_ABSTRACTION_CAIRO_RENDERER_H
+
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
@@ -15,8 +18,8 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/devel-api/text-abstraction/glyph-info.h>
+// INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/text-renderer.h>
 
 namespace Dali
 {
@@ -24,34 +27,20 @@ namespace Dali
 namespace TextAbstraction
 {
 
-GlyphInfo::GlyphInfo()
-: fontId{ 0u },
-  index{ 0u },
-  width( 0.f ),
-  height{ 0.f },
-  xBearing{ 0.f },
-  yBearing{ 0.f },
-  advance{ 0.f },
-  scaleFactor{ 0.f },
-  isItalicRequired{ false },
-  isBoldRequired{ false }
+namespace Internal
 {
-}
+/**
+ * @brief Cairo implementation of the Dali::TextAbstraction::TextRenderer interface.
+ *
+ * @see Dali::TextAbstraction::TextRenderer.
+ */
+Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Parameters& parameters );
 
-GlyphInfo::GlyphInfo( FontId font, GlyphIndex i )
-: fontId{ font },
-  index{ i },
-  width( 0.f ),
-  height{ 0.f },
-  xBearing{ 0.f },
-  yBearing{ 0.f },
-  advance{ 0.f },
-  scaleFactor{ 0.f },
-  isItalicRequired{ false },
-  isBoldRequired{ false }
-{
-}
+} // namespace Internal
 
 } // namespace TextAbstraction
 
 } // namespace Dali
+
+#endif // DALI_INTERNAL_TEXT_ABSTRACTION_CAIRO_RENDERER_H
+

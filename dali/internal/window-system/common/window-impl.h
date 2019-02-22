@@ -34,11 +34,6 @@ namespace Dali
 {
 class Adaptor;
 
-namespace Integration
-{
-class SystemOverlay;
-}
-
 namespace Internal
 {
 namespace Adaptor
@@ -483,7 +478,6 @@ private:
   Dali::Window::WindowOrientation       mIndicatorOrientation;
   Dali::Window::WindowOrientation       mNextIndicatorOrientation;
   Dali::Window::IndicatorBgOpacity      mIndicatorOpacityMode;
-  Integration::SystemOverlay*           mOverlay;
   Adaptor*                              mAdaptor;
   Dali::DragAndDropDetector             mDragAndDropDetector;
   Dali::Window::Type                    mType;

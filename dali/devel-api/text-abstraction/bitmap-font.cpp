@@ -15,8 +15,8 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/devel-api/text-abstraction/glyph-info.h>
+// FILE HEADER
+#include <dali/devel-api/text-abstraction/bitmap-font.h>
 
 namespace Dali
 {
@@ -24,34 +24,36 @@ namespace Dali
 namespace TextAbstraction
 {
 
-GlyphInfo::GlyphInfo()
-: fontId{ 0u },
-  index{ 0u },
-  width( 0.f ),
-  height{ 0.f },
-  xBearing{ 0.f },
-  yBearing{ 0.f },
-  advance{ 0.f },
-  scaleFactor{ 0.f },
-  isItalicRequired{ false },
-  isBoldRequired{ false }
-{
-}
+BitmapGlyph::BitmapGlyph()
+: url{},
+  utf32{ 0u },
+  ascender{ 0.f },
+  descender{ 0.f }
+{}
 
-GlyphInfo::GlyphInfo( FontId font, GlyphIndex i )
-: fontId{ font },
-  index{ i },
-  width( 0.f ),
-  height{ 0.f },
-  xBearing{ 0.f },
-  yBearing{ 0.f },
-  advance{ 0.f },
-  scaleFactor{ 0.f },
-  isItalicRequired{ false },
-  isBoldRequired{ false }
-{
-}
+BitmapGlyph::BitmapGlyph( const std::string& url, GlyphIndex utf32, float ascender, float descender )
+: url{ url },
+  utf32{ utf32 },
+  ascender{ ascender },
+  descender{ descender }
+{}
+
+BitmapGlyph::~BitmapGlyph()
+{}
+
+BitmapFont::BitmapFont()
+: glyphs{},
+  name{},
+  ascender{ 0.f },
+  descender{ 0.f },
+  underlinePosition{ 0.f },
+  underlineThickness{ 1.f }
+{}
+
+BitmapFont::~BitmapFont()
+{}
 
 } // namespace TextAbstraction
 
 } // namespace Dali
+

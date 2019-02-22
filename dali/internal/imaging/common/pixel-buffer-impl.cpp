@@ -119,6 +119,11 @@ unsigned char* PixelBuffer::GetBuffer() const
   return mBuffer;
 }
 
+const unsigned char* const PixelBuffer::GetConstBuffer() const
+{
+  return mBuffer;
+}
+
 unsigned int PixelBuffer::GetBufferSize() const
 {
   return mBufferSize;
