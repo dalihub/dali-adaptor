@@ -40,7 +40,7 @@ class AccessibilityGestureHandler;
 class TouchPoint;
 
 /**
- * @brief The AccessibilityAdaptor provides communication to the indicator and the accessibility manager interface (implemented in toolkit).
+ * @brief The AccessibilityAdaptor provides communication to the accessibility manager interface (implemented in toolkit).
  *
  */
 class DALI_ADAPTOR_API AccessibilityAdaptor : public BaseHandle
@@ -302,14 +302,6 @@ public:
    * @return Whether the action is performed successfully or not.
    */
   bool HandleActionZoomEvent();
-
-  /**
-   * @brief Handle the accessibility action to read the information in the indicator
-   * (by two fingers triple tap).
-   *
-   * @return Whether the action is performed successfully or not.
-   */
-  bool HandleActionReadIndicatorInformationEvent();
 
   /**
    * @brief Handle the accessibility action to pause/resume the current speech

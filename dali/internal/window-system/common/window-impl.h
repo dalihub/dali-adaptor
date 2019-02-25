@@ -28,7 +28,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/drag-and-drop-detector.h>
@@ -53,7 +52,7 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
  */
-class Window : public Dali::BaseObject, public IndicatorInterface::Observer, public LifeCycleObserver, public ConnectionTracker
+class Window : public Dali::BaseObject, public LifeCycleObserver, public ConnectionTracker
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
@@ -92,11 +91,6 @@ public:
    * @copydoc Dali::Window::SetIndicatorBgOpacity()
    */
   void SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacity );
-
-  /**
-   * Set the indicator visible mode
-   */
-  void SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode );
 
   /**
    * @copydoc Dali::Window::RotateIndicator()
@@ -393,28 +387,6 @@ private:
   void Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className);
 
   /**
-   * Shows / hides the indicator bar.
-   * Handles close/open if rotation changes whilst hidden
-   */
-  void DoShowIndicator( Dali::Window::WindowOrientation lastOrientation );
-
-  /**
-   * Close current indicator and open a connection onto the new indicator service.
-   * Effect may not be synchronous if waiting for an indicator update on existing connection.
-   */
-  void DoRotateIndicator( Dali::Window::WindowOrientation orientation );
-
-  /**
-   * Change the indicator actor's rotation to match the current orientation
-   */
-  void SetIndicatorActorRotation();
-
-  /**
-   * Set the indicator properties on the window
-   */
-  void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation );
-
-  /**
    * Called when the window becomes iconified or deiconified.
    */
   void OnIconifyChanged( bool iconified );
@@ -433,28 +405,6 @@ private:
    * Called when the window receives a delete request.
    */
   void OnDeleteRequest();
-
-  /**
-   * Called when the Ecore indicator event is received.
-   */
-  void OnIndicatorFlicked();
-
-private: // IndicatorInterface::Observer interface
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorTypeChanged()
-   */
-  virtual void IndicatorTypeChanged( IndicatorInterface::Type type );
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorClosed()
-   */
-  virtual void IndicatorClosed( IndicatorInterface* indicator);
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorVisibilityChanged()
-   */
-  virtual void IndicatorVisibilityChanged( bool isVisible );
 
 private: // Adaptor::Observer interface
 
@@ -512,9 +462,6 @@ private:
   std::unique_ptr< WindowRenderSurface > mSurface;
   Dali::Integration::Scene              mScene;
   WindowBase*                           mWindowBase;
-  Dali::Window::IndicatorVisibleMode    mIndicatorVisible; ///< public state
-  bool                                  mIndicatorIsShown:1; ///< private state
-  bool                                  mShowRotatedIndicatorOnClose:1;
   bool                                  mStarted:1;
   bool                                  mIsTransparent:1;
   bool                                  mIsFocusAcceptable:1;
@@ -522,10 +469,6 @@ private:
   bool                                  mIconified:1;
   bool                                  mOpaqueState:1;
   bool                                  mResizeEnabled:1;
-  std::unique_ptr< IndicatorInterface > mIndicator;
-  Dali::Window::WindowOrientation       mIndicatorOrientation;
-  Dali::Window::WindowOrientation       mNextIndicatorOrientation;
-  Dali::Window::IndicatorBgOpacity      mIndicatorOpacityMode;
   Adaptor*                              mAdaptor;
   Dali::DragAndDropDetector             mDragAndDropDetector;
   Dali::Window::Type                    mType;

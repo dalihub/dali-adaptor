@@ -160,12 +160,6 @@ void Application::CreateWindow()
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
   mMainWindow = Dali::Window::New( mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT );
 
-  int indicatorVisibleMode = mEnvironmentOptions.GetIndicatorVisibleMode();
-  if( indicatorVisibleMode >= Dali::Window::INVISIBLE && indicatorVisibleMode <= Dali::Window::AUTO )
-  {
-    GetImplementation( mMainWindow ).SetIndicatorVisibleMode( static_cast< Dali::Window::IndicatorVisibleMode >( indicatorVisibleMode ) );
-  }
-
   // Quit the application when the window is closed
   GetImplementation( mMainWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
 }
@@ -405,12 +399,6 @@ void Application::ReplaceWindow( const PositionSize& positionSize, const std::st
   Dali::Window newWindow = Dali::Window::New( positionSize, name, mMainWindowMode == Dali::Application::TRANSPARENT );
   Window& windowImpl = GetImplementation(newWindow);
   windowImpl.SetAdaptor(*mAdaptor);
-
-  int indicatorVisibleMode = mEnvironmentOptions.GetIndicatorVisibleMode();
-  if( indicatorVisibleMode >= Dali::Window::INVISIBLE && indicatorVisibleMode <= Dali::Window::AUTO )
-  {
-    GetImplementation( newWindow ).SetIndicatorVisibleMode( static_cast< Dali::Window::IndicatorVisibleMode >( indicatorVisibleMode ) );
-  }
 
   Internal::Adaptor::WindowRenderSurface* renderSurface = windowImpl.GetSurface();
 
