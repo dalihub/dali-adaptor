@@ -182,6 +182,8 @@ void CombinedUpdateRenderController::Start()
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
   RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }
 
 void CombinedUpdateRenderController::Pause()
@@ -193,6 +195,8 @@ void CombinedUpdateRenderController::Pause()
   PauseUpdateRenderThread();
 
   AddPerformanceMarker( PerformanceInterface::PAUSED );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Pause\n" );
 }
 
 void CombinedUpdateRenderController::Resume()
@@ -210,6 +214,8 @@ void CombinedUpdateRenderController::Resume()
     mRunning = TRUE;
     mForceClear = TRUE;
   }
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
 }
 
 void CombinedUpdateRenderController::Stop()
@@ -237,6 +243,8 @@ void CombinedUpdateRenderController::Stop()
   }
 
   mRunning = FALSE;
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Stop\n" );
 }
 
 void CombinedUpdateRenderController::RequestUpdate()
@@ -563,15 +571,20 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mCore.Render( renderStatus, mForceClear );
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
-    mForceClear = false;
-
     if( renderStatus.NeedsPostRender() )
     {
       if( currentSurface )
       {
         currentSurface->PostRender( isRenderingToFbo, ( mNewSurface != NULL ), surfaceResized );
+
+        if( mForceClear )
+        {
+          DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::UpdateRenderThread: PostRender is called after resume\n" );
+        }
       }
     }
+
+    mForceClear = false;
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )

@@ -388,6 +388,12 @@ void Adaptor::Pause()
 
     // Ensure any messages queued during pause callbacks are processed by doing another update.
     RequestUpdateOnce();
+
+    DALI_LOG_RELEASE_INFO( "Adaptor::Pause: Paused\n" );
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO( "Adaptor::Pause: Not paused [%d]\n", mState );
   }
 }
 
@@ -416,6 +422,12 @@ void Adaptor::Resume()
 
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
+
+    DALI_LOG_RELEASE_INFO( "Adaptor::Resume: Resumed\n");
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO( "Adaptor::Resume: Not resumed [%d]\n", mState );
   }
 }
 
@@ -456,6 +468,8 @@ void Adaptor::Stop()
     mCallbackManager->Stop();
 
     mState = STOPPED;
+
+    DALI_LOG_RELEASE_INFO( "Adaptor::Stop\n" );
   }
 }
 
@@ -873,6 +887,10 @@ void Adaptor::OnWindowShown()
     // Force a render task
     RequestUpdateOnce();
   }
+  else
+  {
+    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Not shown [%d]\n", mState );
+  }
 }
 
 void Adaptor::OnWindowHidden()
@@ -883,6 +901,10 @@ void Adaptor::OnWindowHidden()
 
     // Adaptor cannot be resumed until the window is shown
     mState = PAUSED_WHILE_HIDDEN;
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Not hidden [%d]\n", mState );
   }
 }
 
@@ -921,6 +943,8 @@ void Adaptor::NotifySceneCreated()
   SurfaceInitialized();
 
   mState = RUNNING;
+
+  DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated\n" );
 }
 
 void Adaptor::NotifyLanguageChanged()
