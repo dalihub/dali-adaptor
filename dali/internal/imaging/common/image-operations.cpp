@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2174,6 +2174,7 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
     if( !fastRotationPerformed )
     {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "fast rotation failed\n");
       // The fast rotation failed.
       return;
     }
@@ -2195,6 +2196,7 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
     if( !fastRotationPerformed )
     {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "fast rotation failed\n");
       // The fast rotation failed.
       return;
     }
@@ -2220,6 +2222,7 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
     if( !fastRotationPerformed )
     {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "fast rotation failed\n");
       // The fast rotation failed.
       return;
     }
@@ -2265,6 +2268,8 @@ void RotateByShear( const uint8_t* const pixelsIn,
     widthOut = 0u;
     heightOut = 0u;
 
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "malloc failed to allocate memory\n");
+
     // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Fast rotations'.
     // Nothing else to do if the memory allocation fails.
     return;
@@ -2301,6 +2306,7 @@ void RotateByShear( const uint8_t* const pixelsIn,
     widthOut = 0u;
     heightOut = 0u;
 
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "malloc failed to allocate memory\n");
     // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'First Horizontal Skew'.
     // Nothing else to do if the memory allocation fails.
     return;
@@ -2337,6 +2343,7 @@ void RotateByShear( const uint8_t* const pixelsIn,
     widthOut = 0u;
     heightOut = 0u;
 
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "malloc failed to allocate memory\n");
     // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
     // Nothing else to do if the memory allocation fails.
     return;
@@ -2352,6 +2359,53 @@ void RotateByShear( const uint8_t* const pixelsIn,
 
   // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
   // @note Allocated memory by the last 'Horizontal Skew' has to be freed by the caller to this function.
+}
+
+void HorizontalShear( const uint8_t* const pixelsIn,
+                      unsigned int widthIn,
+                      unsigned int heightIn,
+                      unsigned int pixelSize,
+                      float radians,
+                      uint8_t*& pixelsOut,
+                      unsigned int& widthOut,
+                      unsigned int& heightOut )
+{
+  // Calculate the destination image dimensions.
+
+  const float absRadians = fabs( radians );
+
+  if( absRadians > Math::PI_4 )
+  {
+    // Can't shear more than 45 degrees.
+    widthOut = 0u;
+    heightOut = 0u;
+
+    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Can't shear more than 45 degrees (PI/4 radians). radians : %f\n", radians );
+    return;
+  }
+
+  widthOut = widthIn + static_cast<unsigned int>( absRadians * static_cast<float>( heightIn ) );
+  heightOut = heightIn;
+
+  // Allocate the buffer for the shear.
+  pixelsOut = static_cast<uint8_t*>( malloc( widthOut * heightOut * pixelSize ) );
+
+  if( nullptr == pixelsOut )
+  {
+    widthOut = 0u;
+    heightOut = 0u;
+
+    DALI_LOG_INFO( gImageOpsLogFilter, Dali::Integration::Log::Verbose, "malloc failed to allocate memory\n" );
+    return;
+  }
+
+  for( unsigned int y = 0u; y < heightOut; ++y )
+  {
+    const float shear = radians * ( ( radians >= 0.f ) ? ( 0.5f + static_cast<float>( y ) ) : ( 0.5f + static_cast<float>( y ) - static_cast<float>( heightOut ) ) );
+
+    const int intShear = static_cast<int>( floor( shear ) );
+    HorizontalSkew( pixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>( intShear ) );
+  }
 }
 
 } /* namespace Platform */

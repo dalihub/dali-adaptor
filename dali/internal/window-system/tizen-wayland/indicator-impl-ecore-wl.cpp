@@ -444,8 +444,7 @@ IndicatorEcoreWl::IndicatorEcoreWl( Adaptor* adaptor, Dali::Window::WindowOrient
   mIsShowing( true ),
   mIsAnimationPlaying( false ),
   mCurrentSharedFile( 0 ),
-  mBackgroundVisible( false ),
-  mTopMargin( 0 )
+  mBackgroundVisible( false )
 {
   mIndicatorContentActor = Dali::Actor::New();
   mIndicatorContentActor.SetParentOrigin( ParentOrigin::TOP_CENTER );
@@ -592,7 +591,6 @@ void IndicatorEcoreWl::SetOpacityMode( Dali::Window::IndicatorBgOpacity mode )
     mIndicatorContentActor.RemoveRenderer( mBackgroundRenderer );
     mBackgroundVisible = false;
   }
-  UpdateTopMargin();
 }
 
 void IndicatorEcoreWl::SetVisible( Dali::Window::IndicatorVisibleMode visibleMode, bool forceUpdate )
@@ -623,7 +621,6 @@ void IndicatorEcoreWl::SetVisible( Dali::Window::IndicatorVisibleMode visibleMod
     }
 
     mVisible = visibleMode;
-    UpdateTopMargin();
 
     if( mForegroundRenderer && mForegroundRenderer.GetTextures().GetTexture( 0u ) )
     {
@@ -820,7 +817,6 @@ void IndicatorEcoreWl::Resize( int width, int height )
     mIndicatorContentActor.SetSize( mImageWidth, mImageHeight );
     mIndicatorActor.SetSize( mImageWidth, mImageHeight );
     mEventActor.SetSize(mImageWidth, mImageHeight);
-    UpdateTopMargin();
   }
 }
 
@@ -931,16 +927,6 @@ void IndicatorEcoreWl::LoadSharedImage( Ecore_Ipc_Event_Server_Data *epcEvent )
         UpdateVisibility();
       }
     }
-  }
-}
-
-void IndicatorEcoreWl::UpdateTopMargin()
-{
-  int newMargin = (mVisible == Dali::Window::VISIBLE && mOpacityMode == Dali::Window::OPAQUE) ? mImageHeight : 0;
-  if (mTopMargin != newMargin)
-  {
-    mTopMargin = newMargin;
-    mAdaptor->IndicatorSizeChanged( mTopMargin );
   }
 }
 

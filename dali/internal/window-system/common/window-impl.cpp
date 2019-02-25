@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/render-task-list-integ.h>
+#include <dali/public-api/actors/actor.h>
+#include <dali/public-api/actors/layer.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/public-api/rendering/frame-buffer.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
 
 // INTERNAL HEADERS
@@ -41,6 +44,8 @@ namespace Internal
 {
 namespace Adaptor
 {
+
+uint32_t Window::mWindowCounter = 0;
 
 namespace
 {
@@ -60,13 +65,13 @@ Window* Window::New( const PositionSize& positionSize, const std::string& name, 
 }
 
 Window::Window()
-: mSurface( NULL ),
+: mId( mWindowCounter++ ),
+  mSurface( nullptr ),
   mWindowBase(),
   mIndicatorVisible( Dali::Window::INVISIBLE ),   // TODO: Enable this after indicator implementation based on tizen 5.
   mIndicatorIsShown( false ),
   mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
-  mIsTransparent( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
   mIconified( false ),
@@ -97,10 +102,11 @@ Window::~Window()
   {
     mAdaptor->RemoveObserver( *this );
     mAdaptor->SetDragAndDropDetector( NULL );
+    mAdaptor->RemoveWindow( this );
     mAdaptor = NULL;
   }
 
-  delete mSurface;
+  mSurface.reset( nullptr );
 }
 
 void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
@@ -108,8 +114,7 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   // Create a window render surface
   Any surface;
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  auto windowRenderSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, mIsTransparent );
-  mSurface = windowRenderSurface.release();
+  mSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, mIsTransparent );
 
   // Get a window base
   mWindowBase = mSurface->GetWindowBase();
@@ -140,6 +145,16 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   DALI_ASSERT_ALWAYS( !mStarted && "Adaptor already started" );
   mStarted = true;
 
+  PositionSize positionSize = mSurface->GetPositionSize();
+  mScene = Dali::Integration::Scene::New( Vector2(positionSize.width, positionSize.height) );
+  mScene.SetSurface( *mSurface.get() );
+
+  unsigned int dpiHorizontal, dpiVertical;
+  dpiHorizontal = dpiVertical = 0;
+
+  mSurface->GetDpi( dpiHorizontal, dpiVertical );
+  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
+
   // Create one overlay for the main window only
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor = &adaptorImpl;
@@ -158,11 +173,13 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   {
     mIndicator->SetAdaptor(mAdaptor);
   }
+
+  mSurface->SetAdaptor( *mAdaptor );
 }
 
 WindowRenderSurface* Window::GetSurface()
 {
-  return mSurface;
+  return mSurface.get();
 }
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
@@ -216,6 +233,44 @@ void Window::Lower()
 void Window::Activate()
 {
   mWindowBase->Activate();
+}
+
+void Window::Add( Dali::Actor actor )
+{
+  mScene.Add( actor );
+}
+
+void Window::Remove( Dali::Actor actor )
+{
+  mScene.Remove( actor );
+}
+
+Dali::Layer Window::GetRootLayer() const
+{
+  return mScene.GetRootLayer();
+}
+
+uint32_t Window::GetLayerCount() const
+{
+  return mScene.GetLayerCount();
+}
+
+Dali::Layer Window::GetLayer( uint32_t depth ) const
+{
+  return mScene.GetLayer( depth );
+}
+
+void Window::SetBackgroundColor( Vector4 color )
+{
+  if ( mSurface )
+  {
+    mSurface->SetBackgroundColor( color );
+  }
+}
+
+Vector4 Window::GetBackgroundColor() const
+{
+  return mSurface ? mSurface->GetBackgroundColor() : Vector4();
 }
 
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
@@ -478,11 +533,11 @@ void Window::SetSize( Dali::Window::WindowSize size )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
-    mAdaptor->SurfaceResizePrepare( newSize );
+    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
 
-    mAdaptor->SurfaceResizeComplete( newSize );
+    mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
 }
 
@@ -532,11 +587,11 @@ void Window::SetPositionSize( PositionSize positionSize )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
-    mAdaptor->SurfaceResizePrepare( newSize );
+    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
 
-    mAdaptor->SurfaceResizeComplete( newSize );
+    mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
 }
 
@@ -569,12 +624,12 @@ void Window::RotationDone( int orientation, int width, int height )
 {
   mSurface->RequestRotation( orientation, width, height );
 
-  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( width, height ) );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
 
   // Emit signal
   mResizedSignal.Emit( Dali::Window::WindowSize( width, height ) );
 
-  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( width, height ) );
+  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
 }
 
 void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
@@ -710,8 +765,8 @@ void Window::OnFocusChanged( bool focusIn )
 void Window::OnOutputTransformed()
 {
   PositionSize positionSize = mSurface->GetPositionSize();
-  mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-  mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 }
 
 void Window::OnDeleteRequest()
@@ -787,6 +842,11 @@ void Window::OnStop()
 void Window::OnDestroy()
 {
   mAdaptor = NULL;
+}
+
+uint32_t Window::GetId() const
+{
+  return mId;
 }
 
 } // Adaptor

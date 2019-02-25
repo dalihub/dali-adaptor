@@ -436,6 +436,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(OPENGLES20_CFLAGS) \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
+                      $(CAIRO_CFLAGS) \
                       $(PNG_CFLAGS) \
                       $(DLOG_CFLAGS) \
                       $(VCONF_CFLAGS) \
@@ -465,6 +466,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
                       $(FONTCONFIG_LIBS) \
+                      $(CAIRO_LIBS) \
                       $(PNG_LIBS) \
                       $(DLOG_LIBS) \
                       $(VCONF_LIBS) \

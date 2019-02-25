@@ -41,14 +41,14 @@ Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
   return *adaptor;
 }
 
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface )
+Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurfaceInterface& surface )
 {
   return New( nativeWindow, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
 }
 
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration )
+Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
 {
-  Dali::RenderSurface* pSurface = const_cast<Dali::RenderSurface *>(&surface);
+  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
   Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, configuration, NULL );
   return *adaptor;
 }
@@ -88,7 +88,7 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mImpl->RemoveIdle( callback );
 }
 
-void Adaptor::ReplaceSurface( Any nativeWindow, Dali::RenderSurface& surface )
+void Adaptor::ReplaceSurface( Any nativeWindow, Dali::RenderSurfaceInterface& surface )
 {
   mImpl->ReplaceSurface(nativeWindow, surface);
 }
@@ -103,7 +103,7 @@ Adaptor::AdaptorSignalType& Adaptor::LanguageChangedSignal()
   return mImpl->LanguageChangedSignal();
 }
 
-RenderSurface& Adaptor::GetSurface()
+Dali::RenderSurfaceInterface& Adaptor::GetSurface()
 {
   return mImpl->GetSurface();
 }

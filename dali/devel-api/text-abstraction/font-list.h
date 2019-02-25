@@ -1,8 +1,8 @@
-#ifndef __DALI_TEXT_ABSTRACTION_FONT_LIST_H__
-#define __DALI_TEXT_ABSTRACTION_FONT_LIST_H__
+#ifndef DALI_TEXT_ABSTRACTION_FONT_LIST_H
+#define DALI_TEXT_ABSTRACTION_FONT_LIST_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,12 +139,20 @@ namespace FontSlant
 
 struct FontDescription
 {
+  enum Type
+  {
+    INVALID,     ///< Not valid font.
+    FACE_FONT,   ///< A face font.
+    BITMAP_FONT, ///< A bitmap font. Each glyph has a url with the bitmap.
+  };
+
   FontDescription()
   : path(),
     family(),
     width( FontWidth::NONE ),
     weight( FontWeight::NONE ),
-    slant( FontSlant::NONE )
+    slant( FontSlant::NONE ),
+    type( INVALID )
   {}
 
   ~FontDescription()
@@ -155,6 +163,7 @@ struct FontDescription
   FontWidth::Type  width;  ///< The font's width.
   FontWeight::Type weight; ///< The font's weight.
   FontSlant::Type  slant;  ///< The font's slant.
+  Type             type;   ///< The type of font.
 };
 
 typedef std::vector<FontDescription> FontList;
@@ -165,4 +174,4 @@ DALI_ADAPTOR_API std::ostream& operator<<( std::ostream& o, const FontList& font
 
 } // namespace Dali
 
-#endif // __DALI_TEXT_ABSTRACTION_FONT_LIST_H__
+#endif // DALI_TEXT_ABSTRACTION_FONT_LIST_H

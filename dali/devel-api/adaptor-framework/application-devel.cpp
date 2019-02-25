@@ -25,10 +25,6 @@ namespace Dali
 namespace DevelApplication
 {
 
-void PreInitialize( int* argc, char** argv[] )
-{
-  Internal::Adaptor::Application::PreInitialize( argc, argv );
-}
 
 bool AddIdleWithReturnValue( Application application, CallbackBase* callback )
 {
@@ -66,3 +62,10 @@ std::string GetDataPath()
 } // namespace DevelApplication
 
 } // namespace Dali
+
+extern "C"
+void PreInitialize( int* argc, char** argv[] )
+{
+  Dali::Internal::Adaptor::Application::PreInitialize( argc, argv );
+}
+
