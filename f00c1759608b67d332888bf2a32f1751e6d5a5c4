@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "247ec63a_9a05ae87",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-25T14:26:26Z",
+      "side": 1,
+      "message": "Remove #ifdef",
+      "range": {
+        "startLine": 82,
+        "startChar": 7,
+        "endLine": 82,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53c0828c_765121d4",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-25T14:26:26Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 5,
+        "startChar": 17,
+        "endLine": 5,
+        "endChar": 21
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b018f8cf_43323ee2",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-25T14:26:26Z",
+      "side": 1,
+      "message": "remove #ifdef \u0026 fix the order of definitions.",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 6
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c06f7c91_2132ae86",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-25T14:26:26Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 5,
+        "startChar": 16,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
