@@ -86,11 +86,18 @@ public:
   virtual void Render( uint32_t frameNumber ) = 0;
 
   /**
-   * @brief Gets the total number of frames of the file
+   * @brief Gets the total number of frames of the file.
    *
    * @return The total number of frames
    */
-  virtual uint32_t GetTotalFrameNumber() = 0;
+  virtual uint32_t GetTotalFrameNumber() const = 0;
+
+  /**
+   * @brief Gets the frame rate of the file.
+   *
+   * @return The frame rate of the file
+   */
+  virtual float GetFrameRate() const = 0;
 
   /**
    * @brief Function pointer called in adaptor to create a plugin instance.

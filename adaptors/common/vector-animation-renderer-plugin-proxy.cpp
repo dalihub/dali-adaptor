@@ -149,13 +149,22 @@ void VectorAnimationRendererPluginProxy::Render( uint32_t frameNumber )
   }
 }
 
-uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber()
+uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber() const
 {
   if( mPlugin )
   {
     return mPlugin->GetTotalFrameNumber();
   }
   return 0;
+}
+
+float VectorAnimationRendererPluginProxy::GetFrameRate() const
+{
+  if( mPlugin )
+  {
+    return mPlugin->GetFrameRate();
+  }
+  return 0.0f;
 }
 
 } // namespace Adaptor
