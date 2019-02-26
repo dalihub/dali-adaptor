@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87c18c59_b57edc0d",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-26T19:37:03Z",
+      "side": 0,
+      "message": "What does removing this have to do with parallel pipelines?",
+      "range": {
+        "startLine": 1193,
+        "startChar": 0,
+        "endLine": 1196,
+        "endChar": 3
+      },
+      "revId": "80fa120dadb11b93d41d4a9eaae1c096ed806980",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c8263da_8357d2da",
+        "filename": "dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-26T19:37:03Z",
+      "side": 1,
+      "message": "Remove commented out code",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 55
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18e6e731_070f6893",
+        "filename": "dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-26T19:37:03Z",
+      "side": 1,
+      "message": "Do we want to do this in the main thread, or in the worker thread?",
+      "range": {
+        "startLine": 116,
+        "startChar": 1,
+        "endLine": 130,
+        "endChar": 9
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ccc1abc_9db4f89f",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-26T19:37:03Z",
+      "side": 1,
+      "message": "It is now! Remove the comment",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 50
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58dacbdf_c428a813",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1094,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-26T19:37:03Z",
+      "side": 1,
+      "message": "Huh? Seems redundant - remove.",
+      "range": {
+        "startLine": 1093,
+        "startChar": 2,
+        "endLine": 1094,
+        "endChar": 32
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
