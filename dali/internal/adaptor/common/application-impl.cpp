@@ -217,8 +217,10 @@ void Application::QuitFromMainLoop()
   // This will trigger OnTerminate(), below, after the main loop has completed.
 }
 
-void Application::DoInit()
+void Application::OnInit()
 {
+  mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
+
   CreateAdaptorBuilder();
 
   // If an application was pre-initialized, a window was made in advance
@@ -242,44 +244,6 @@ void Application::DoInit()
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
   }
-}
-
-void Application::DoStart()
-{
-  mAdaptor->NotifySceneCreated();
-}
-
-void Application::DoTerminate()
-{
-  if( mAdaptor )
-  {
-    // Ensure that the render-thread is not using the surface(window) after we delete it
-    mAdaptor->Stop();
-  }
-
-  mMainWindow.Reset(); // This only resets (clears) the default Window
-}
-
-void Application::DoPause()
-{
-  mAdaptor->Pause();
-}
-
-void Application::DoResume()
-{
-  mAdaptor->Resume();
-}
-
-void Application::DoLanguageChange()
-{
-  mAdaptor->NotifyLanguageChanged();
-}
-
-void Application::OnInit()
-{
-  mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
-
-  DoInit();
 
   // Wire up the LifecycleController
   Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
@@ -295,7 +259,7 @@ void Application::OnInit()
   Dali::Application application(this);
   mInitSignal.Emit( application );
 
-  DoStart();
+  mAdaptor->NotifySceneCreated();
 }
 
 void Application::OnTerminate()
@@ -306,7 +270,13 @@ void Application::OnTerminate()
   Dali::Application application(this);
   mTerminateSignal.Emit( application );
 
-  DoTerminate();
+  if( mAdaptor )
+  {
+    // Ensure that the render-thread is not using the surface(window) after we delete it
+    mAdaptor->Stop();
+  }
+
+  mMainWindow.Reset(); // This only resets (clears) the default Window
 }
 
 void Application::OnPause()
@@ -351,7 +321,7 @@ void Application::OnAppControl(void *data)
 
 void Application::OnLanguageChanged()
 {
-  DoLanguageChange();
+  mAdaptor->NotifyLanguageChanged();
   Dali::Application application(this);
   mLanguageChangedSignal.Emit( application );
 }
