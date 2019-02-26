@@ -1,5 +1,5 @@
-#ifndef DALI_RENDER_SURFACE_INTERFACE_H
-#define DALI_RENDER_SURFACE_INTERFACE_H
+#ifndef DALI_RENDER_SURFACE_H
+#define DALI_RENDER_SURFACE_H
 
 /*
  * Copyright (c) 2018 Samsung Electronics Co., Ltd.
@@ -19,11 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/render-surface.h>
-#include <dali/integration-api/core-enumerations.h>
-#include <dali/public-api/math/vector4.h>
+#include <dali/public-api/math/rect.h>
+#include <dali/public-api/object/any.h>
+#include <dali/public-api/common/view-mode.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 
 namespace Dali
 {
@@ -33,12 +35,27 @@ class ThreadSynchronizationInterface;
 
 namespace Internal
 {
+
 namespace Adaptor
 {
-class AdaptorInternalServices;
+
 class GraphicsInterface;
-}
-}
+
+} // namespace Adaptor
+
+} // namespace Internal
+
+namespace Integration
+{
+
+class GlAbstraction;
+
+} // namespace Integration
+
+/**
+ * @brief The position and size of the render surface.
+ */
+typedef Dali::Rect<int> PositionSize;
 
 /**
  * @brief Interface for a render surface onto which Dali draws.
@@ -53,34 +70,34 @@ class GraphicsInterface;
  * implementation of RenderSurface for the given platform
  */
 
-class RenderSurfaceInterface : public Dali::Integration::RenderSurface
+class RenderSurface
 {
 public:
+
+  enum Type
+  {
+    WINDOW_RENDER_SURFACE,
+    PIXMAP_RENDER_SURFACE,
+    NATIVE_RENDER_SURFACE
+  };
 
   /**
    * @brief Constructor
    * Inlined as this is a pure abstract interface
    */
-  RenderSurfaceInterface()
-  : mAdaptor( nullptr ),
-    mGraphics( nullptr ),
-    mDisplayConnection( nullptr ),
-    mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
-    mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE ),
-    mBackgroundColor()
-  {}
+  RenderSurface() {}
 
   /**
    * @brief Virtual Destructor.
    * Inlined as this is a pure abstract interface
    */
-  virtual ~RenderSurfaceInterface() {}
+  virtual ~RenderSurface() {}
 
   /**
    * @brief Return the size and position of the surface.
    * @return The position and size
    */
-  virtual Dali::PositionSize GetPositionSize() const = 0;
+  virtual PositionSize GetPositionSize() const = 0;
 
   /**
    * @brief Get DPI
@@ -91,8 +108,10 @@ public:
 
   /**
    * @brief InitializeGraphics the platform specific graphics surface interfaces
+   * @param[in] graphics The abstracted graphics interface
+   * @param[in] displayConnection The display connection interface
    */
-  virtual void InitializeGraphics() = 0;
+  virtual void InitializeGraphics( Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::DisplayConnection& displayConnection ) = 0;
 
   /**
    * @brief Creates the Surface
@@ -157,86 +176,21 @@ public:
   /**
    * @brief Gets the surface type
    */
-  virtual Dali::Integration::RenderSurface::Type GetSurfaceType() = 0;
-
-  /**
-   * @brief Makes the graphics context current
-   */
-  virtual void MakeContextCurrent() = 0;
-
-  /**
-   * @brief Get whether the depth buffer is required
-   * @return TRUE if the depth buffer is required
-   */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() = 0;
-
-  /**
-   * @brief Get whether the stencil buffer is required
-   * @return TRUE if the stencil buffer is required
-   */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
-
-  /**
-   * @brief Sets the background color of the surface.
-   * @param[in] color The new background color
-   */
-  virtual void SetBackgroundColor( Vector4 color ) override
-  {
-    mBackgroundColor = color;
-  }
-
-  /**
-   * @brief Gets the background color of the surface.
-   * @return The background color
-   */
-  virtual Vector4 GetBackgroundColor() override
-  {
-    return mBackgroundColor;
-  }
-
-public:
-
-  void SetAdaptor( Dali::Internal::Adaptor::AdaptorInternalServices& adaptor )
-  {
-    mAdaptor = &adaptor;
-  }
-
-  void SetGraphicsInterface( Dali::Internal::Adaptor::GraphicsInterface& graphics )
-  {
-    mGraphics = &graphics;
-  }
-
-  void SetDisplayConnection( Dali::DisplayConnection& displayConnection )
-  {
-    mDisplayConnection = &displayConnection;
-  }
+  virtual RenderSurface::Type GetSurfaceType() = 0;
 
 private:
 
   /**
    * @brief Undefined copy constructor. RenderSurface cannot be copied
    */
-  RenderSurfaceInterface( const RenderSurfaceInterface& rhs );
+  RenderSurface( const RenderSurface& rhs );
 
   /**
    * @brief Undefined assignment operator. RenderSurface cannot be copied
    */
-  RenderSurfaceInterface& operator=( const RenderSurfaceInterface& rhs );
-
-protected:
-
-  Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
-  Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
-  Dali::DisplayConnection* mDisplayConnection;
-
-private:
-
-  Integration::DepthBufferAvailable mDepthBufferRequired;       ///< Whether the depth buffer is required
-  Integration::StencilBufferAvailable mStencilBufferRequired;   ///< Whether the stencil buffer is required
-
-  Vector4 mBackgroundColor;                                     ///< The background color of the surface
+  RenderSurface& operator=( const RenderSurface& rhs );
 };
 
 } // namespace Dali
 
-#endif // DALI_RENDER_SURFACE_INTERFACE_H
+#endif // DALI_RENDER_SURFACE_H

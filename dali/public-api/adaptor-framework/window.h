@@ -23,7 +23,6 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
@@ -50,8 +49,6 @@ class Window;
 
 class DragAndDropDetector;
 class Orientation;
-class Actor;
-class Layer;
 
 /**
  * @brief The window class is used internally for drawing.

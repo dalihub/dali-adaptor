@@ -20,13 +20,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-
 #ifdef DALI_ADAPTOR_COMPILATION
 #include <dali/integration-api/egl-interface.h>
-#include <dali/integration-api/render-surface-interface.h>
+#include <dali/integration-api/render-surface.h>
 #else
 #include <dali/integration-api/adaptors/egl-interface.h>
-#include <dali/integration-api/adaptors/render-surface-interface.h>
+#include <dali/integration-api/adaptors/render-surface.h>
 #endif
 
 namespace Dali
@@ -37,7 +36,7 @@ class TriggerEventInterface;
 /**
  * Native interface of render surface.
  */
-class DALI_ADAPTOR_API NativeRenderSurface : public Dali::RenderSurfaceInterface
+class DALI_ADAPTOR_API NativeRenderSurface : public Dali::RenderSurface
 {
 public:
 

@@ -49,7 +49,7 @@
 namespace Dali
 {
 
-class RenderSurfaceInterface;
+class RenderSurface;
 class Window;
 
 namespace Integration
@@ -106,7 +106,7 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( Any nativeWindow,
-                             Dali::RenderSurfaceInterface* surface,
+                             RenderSurface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
@@ -132,7 +132,7 @@ public:
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
                              Any nativeWindow,
-                             Dali::RenderSurfaceInterface* surface,
+                             RenderSurface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
@@ -224,12 +224,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Any nativeWindow, Dali::RenderSurfaceInterface& surface );
+  virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual Dali::RenderSurfaceInterface& GetSurface() const;
+  virtual RenderSurface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -282,12 +282,6 @@ public: // AdaptorInternalServices implementation
    * Sets a pre-render callback.
    */
   void SetPreRenderCallback( CallbackBase* callback );
-
-  /**
-   * Removes an existing Window instance from the Adaptor
-   * @param[in]  childWindow The Window instance
-   */
-  bool RemoveWindow( Dali::Internal::Adaptor::Window* childWindow );
 
 public:
 
@@ -386,6 +380,11 @@ public:
   void RequestUpdateOnce();
 
   /**
+   * Request adaptor to update indicator's height
+   */
+  void IndicatorSizeChanged(int height);
+
+  /**
    * @copydoc Dali::Adaptor::NotifySceneCreated()
    */
   void NotifySceneCreated();
@@ -403,12 +402,12 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+  void SurfaceResizePrepare( SurfaceSize surfaceSize );
 
   /**
    * Informs ThreadController the surface size has changed
    */
-  void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+  void SurfaceResizeComplete( SurfaceSize surfaceSize );
 
   /**
    * Sets layout direction of root by system language
@@ -471,7 +470,7 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
-  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
+  virtual RenderSurface* GetRenderSurfaceInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
@@ -566,7 +565,7 @@ private:
    * Assigns the render surface to the adaptor
    *
    */
-  void SetSurface(Dali::RenderSurfaceInterface *surface);
+  void SetSurface(RenderSurface *surface);
 
   /**
    * called after surface is created
@@ -616,7 +615,7 @@ private:
    *                          - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
+  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions );
 
 private: // Types
 
@@ -637,8 +636,7 @@ private: // Types
     std::string    class_name;   ///< Class name that the window belongs to
     bool           window_mode;  ///< Display mode of the window
     Any            nativeWindow; ///< window identifier
-    uint32_t       id;           ///< unique Window ID
-    Dali::RenderSurfaceInterface* surface;      ///< The surface the Window is bound to
+    RenderSurface* surface;      ///< The surface the Window is bound to
   } WindowPane;
 
   typedef std::vector<WindowPane> WindowFrames;

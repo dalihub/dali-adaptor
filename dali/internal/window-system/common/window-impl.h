@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/actors/layer.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
-#include <dali/integration-api/scene.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
@@ -36,7 +33,6 @@
 namespace Dali
 {
 class Adaptor;
-class Actor;
 
 namespace Internal
 {
@@ -122,41 +118,6 @@ public:
    * @copydoc Dali::Window::Activate()
    */
   void Activate();
-
-  /**
-   * @copydoc Dali::Window::Add()
-   */
-  void Add( Dali::Actor actor );
-
-  /**
-   * @copydoc Dali::Window::Remove()
-   */
-  void Remove( Dali::Actor remove );
-
-  /**
-   * @copydoc Dali::Window::SetBackgroundColor()
-   */
-  void SetBackgroundColor(Vector4 color);
-
-  /**
-   * @copydoc Dali::Window::GetBackgroundColor()
-   */
-  Vector4 GetBackgroundColor() const;
-
-  /**
-   * @copydoc Dali::Window::GetRootLayer()
-   */
-  Dali::Layer GetRootLayer() const;
-
-  /**
-   * @copydoc Dali::Window::GetLayerCount()
-   */
-  uint32_t GetLayerCount() const;
-
-  /**
-   * @copydoc Dali::Window::GetLayer()
-   */
-  Dali::Layer GetLayer( uint32_t depth ) const;
 
   /**
    * @copydoc Dali::Window::AddAvailableOrientation()
@@ -368,12 +329,6 @@ public:
    */
   void RotationDone( int orientation, int width, int height );
 
-  /**
-   * @brief Retrieves the unique ID of the window.
-   * @return The ID
-   */
-  uint32_t GetId() const;
-
 private:
 
   /**
@@ -507,10 +462,7 @@ public: // Signals
 
 private:
 
-  static uint32_t                       mWindowCounter;    ///< A counter to track the window creation
-  uint32_t                              mId;               ///< A unique ID to identify the window starting from 0
-  std::unique_ptr< WindowRenderSurface > mSurface;
-  Dali::Integration::Scene              mScene;
+  WindowRenderSurface*                  mSurface;
   WindowBase*                           mWindowBase;
   Dali::Window::IndicatorVisibleMode    mIndicatorVisible; ///< public state
   bool                                  mIndicatorIsShown:1; ///< private state
@@ -533,8 +485,6 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
-
-  Vector4                               mBackgroundColor;
 
   // Signals
   IndicatorSignalType mIndicatorVisibilityChangedSignal;

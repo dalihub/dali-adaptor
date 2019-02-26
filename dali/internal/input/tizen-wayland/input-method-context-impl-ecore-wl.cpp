@@ -329,7 +329,7 @@ void InputMethodContextEcoreWl::CreateContext()
       // If we fail to get window id, we can't use the InputMethodContext correctly.
       // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
       // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-      Dali::RenderSurfaceInterface& renderSurface = Dali::Adaptor::Get().GetSurface();
+      RenderSurface& renderSurface = Dali::Adaptor::Get().GetSurface();
       WindowRenderSurface& windowRenderSurface = static_cast< WindowRenderSurface& >( renderSurface );
 
       int windowId = windowRenderSurface.GetNativeWindowId();

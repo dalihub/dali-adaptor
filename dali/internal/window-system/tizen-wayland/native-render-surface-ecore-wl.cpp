@@ -38,8 +38,6 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 
 namespace Dali
 {
@@ -57,9 +55,6 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( Dali::PositionSize posit
 : mPosition( positionSize ),
   mRenderNotification( NULL ),
   mGraphics( NULL ),
-  mEGL( nullptr ),
-  mEGLSurface( nullptr ),
-  mEGLContext( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
   mOwnSurface( false ),
@@ -137,25 +132,31 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics()
+void NativeRenderSurfaceEcoreWl::InitializeGraphics( Internal::Adaptor::GraphicsInterface& graphics, DisplayConnection& displayConnection )
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
   unsetenv( "EGL_PLATFORM" );
 
-  mGraphics = &mAdaptor->GetGraphicsInterface();
+  mGraphics = &graphics;
+
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
 
-  mEGL = &eglGraphics->GetEglInterface();
+  EglInterface* mEGL = eglGraphics->Create();
 
-  if ( mEGLContext == NULL )
-  {
-    // Create the OpenGL context for this window
-    Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
-    eglImpl.CreateWindowContext( mEGLContext );
+  // Initialize EGL & OpenGL
+  displayConnection.Initialize();
 
-    // Create the OpenGL surface
-    CreateSurface();
-  }
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
+  eglImpl.ChooseConfig(true, mColorDepth);
+
+  // Create the OpenGL context
+  mEGL->CreateContext();
+
+  // Create the OpenGL surface
+  CreateSurface();
+
+  // Make it current
+  mEGL->MakeContextCurrent();
 }
 
 void NativeRenderSurfaceEcoreWl::CreateSurface()
@@ -165,7 +166,7 @@ void NativeRenderSurfaceEcoreWl::CreateSurface()
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-  mEGLSurface = eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mColorDepth );
+  eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mColorDepth );
 }
 
 void NativeRenderSurfaceEcoreWl::DestroySurface()
@@ -175,7 +176,7 @@ void NativeRenderSurfaceEcoreWl::DestroySurface()
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-  eglImpl.DestroySurface( mEGLSurface );
+  eglImpl.DestroySurface();
 }
 
 bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
@@ -190,7 +191,7 @@ bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mEGLSurface, mEGLContext );
+  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ) );
 }
 
 void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
@@ -214,7 +215,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    eglImpl.SwapBuffers( mEGLSurface );
+    eglImpl.SwapBuffers();
   }
 
   if( mThreadSynchronization )
@@ -268,27 +269,9 @@ void NativeRenderSurfaceEcoreWl::SetThreadSynchronization( ThreadSynchronization
   mThreadSynchronization = &threadSynchronization;
 }
 
-Integration::RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
+RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
 {
-  return Integration::RenderSurface::NATIVE_RENDER_SURFACE;
-}
-
-void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
-{
-  if ( mEGL != nullptr )
-  {
-    mEGL->MakeContextCurrent( mEGLSurface, mEGLContext );
-  }
-}
-
-Integration::DepthBufferAvailable NativeRenderSurfaceEcoreWl::GetDepthBufferRequired()
-{
-  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
-}
-
-Integration::StencilBufferAvailable NativeRenderSurfaceEcoreWl::GetStencilBufferRequired()
-{
-  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
+  return RenderSurface::NATIVE_RENDER_SURFACE;
 }
 
 void NativeRenderSurfaceEcoreWl::ReleaseLock()

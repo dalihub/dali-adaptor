@@ -193,20 +193,12 @@ struct Framework::Impl
     mApplicationType = type;
     mCallbackManager = CallbackManager::New();
 
-    char* region = nullptr;
-    char* language = nullptr;
+    char* region;
+    char* language;
     system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region );
     system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language );
-
-    if (region != nullptr)
-    {
-      mRegion = std::string( region );
-    }
-
-    if ( language != nullptr)
-    {
-      mLanguage = std::string( language );
-    }
+    mRegion = std::string( region );
+    mLanguage = std::string( language );
   }
 
   ~Impl()
