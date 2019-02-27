@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5ac1151_c018f2df",
+        "filename": "dali/graphics/file.list",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T14:03:35Z",
+      "side": 0,
+      "message": "Should remove in the correct patch...",
+      "range": {
+        "startLine": 44,
+        "startChar": 1,
+        "endLine": 44,
+        "endChar": 39
+      },
+      "revId": "881c3f50573092d5e13639ac5e200fe29755a958",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
