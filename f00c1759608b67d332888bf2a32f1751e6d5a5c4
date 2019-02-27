@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "b653fe61_a457e613",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Remove #ifdef. If native image support is not required, should be done at compilation level, and factory should return normal texture.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52019729_02972206",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Fix the order of includes - this should be first.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 63
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bad1a37d_72f940e6",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Action this todo.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 54
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "247ec63a_9a05ae87",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
@@ -18,6 +87,138 @@
         "startChar": 7,
         "endLine": 82,
         "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78c0d4a1_0f88b852",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Some of this is common with super class. Should refactor.",
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db991cd8_02453cd8",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Remove #ifdef NATIVE_IMAGE_SUPPORT throughout",
+      "range": {
+        "startLine": 174,
+        "startChar": 7,
+        "endLine": 174,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97fb0049_5d1817cb",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Use our style of initialization",
+      "range": {
+        "startLine": 298,
+        "startChar": 2,
+        "endLine": 312,
+        "endChar": 4
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee066018_1572f1a4",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Don\u0027t use c style variable names, also don\u0027t use abbreviations.",
+      "range": {
+        "startLine": 333,
+        "startChar": 11,
+        "endLine": 333,
+        "endChar": 18
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f68cf65_0ae5bfb2",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Use camel case",
+      "range": {
+        "startLine": 335,
+        "startChar": 15,
+        "endLine": 335,
+        "endChar": 26
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3d7fcca_77717a03",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Change to our initialization style",
+      "range": {
+        "startLine": 508,
+        "startChar": 0,
+        "endLine": 526,
+        "endChar": 6
       },
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -48,6 +249,52 @@
     },
     {
       "key": {
+        "uuid": "6ee30ecf_6db38378",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Do you plan to do more work to it? If not, remove this comment",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 13
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe192426_3ce07bcb",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Can you change your dictionary to US English? (Zzzz)",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b018f8cf_43323ee2",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
         "patchSetId": 1
@@ -64,6 +311,29 @@
         "startChar": 0,
         "endLine": 79,
         "endChar": 6
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "693a9cbb_d4460eef",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 1,
+      "message": "Match the opening guards",
+      "range": {
+        "startLine": 85,
+        "startChar": 10,
+        "endLine": 85,
+        "endChar": 44
       },
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",

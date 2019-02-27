@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44d3f131_0b8f4d11",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-02-27T12:19:54Z",
+      "side": 0,
+      "message": "Rather than removing the constexpr, can you add a class method to call this constexpr function. Then you can call it from the derived class.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 9
+      },
+      "revId": "c97a7610232c7a7dbb0b6e3179073763685e954d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
