@@ -97,7 +97,7 @@ static unsigned int GetCurrentMilliSeconds(void)
 
 } // unnamed namespace
 
-EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
+EventHandler::EventHandler( Integration::RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
 : mCoreEventInterface( coreEventInterface ),
   mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),
@@ -533,7 +533,7 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     case 20: // TwoFingersTripleTap
     {
       // Read information from indicator
-      accessibilityAdaptor->HandleActionReadIndicatorInformationEvent();
+      // Not supported
       break;
     }
     case 21: // ThreeFingersSingleTap

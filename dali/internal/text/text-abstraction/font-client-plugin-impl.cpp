@@ -139,6 +139,19 @@ FontSlant::Type IntToSlantType( int slant )
   return static_cast<FontSlant::Type>( ValueToIndex( slant, FONT_SLANT_TYPE_TO_INT, NUM_FONT_SLANT_TYPE - 1u ) );
 }
 
+/**
+ * @brief Free the resources allocated by the FcCharSet objects.
+ *
+ * @param[in] characterSets The vector of character sets.
+ */
+void DestroyCharacterSets( CharacterSetList& characterSets )
+{
+  for( auto& item : characterSets )
+  {
+    FcCharSetDestroy( item );
+  }
+}
+
 FontClient::Plugin::FallbackCacheItem::FallbackCacheItem( FontDescription&& font, FontList* fallbackFonts, CharacterSetList* characterSets )
 : fontDescription{ std::move( font ) },
   fallbackFonts{ fallbackFonts },
@@ -249,21 +262,16 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 
 FontClient::Plugin::~Plugin()
 {
-  for( auto& item : mFallbackCache )
-  {
-    if( item.fallbackFonts )
-    {
-      delete item.fallbackFonts;
-      delete item.characterSets;
-      item.fallbackFonts = nullptr;
-      item.characterSets = nullptr;
-    }
-  }
+  ClearFallbackCache( mFallbackCache );
+
+  // Free the resources allocated by the FcCharSet objects.
+  DestroyCharacterSets( mDefaultFontCharacterSets );
+  DestroyCharacterSets( mCharacterSetCache );
+  ClearCharacterSetFromFontFaceCache();
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   delete mVectorFontCache;
 #endif
-  DestroyMatchedPatterns();
   FT_Done_FreeType( mFreeTypeLibrary );
 }
 
@@ -289,7 +297,7 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
 
   fontList.clear();
 
-  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription ); // Creates a pattern that needs to be destroyed by calling FcPatternDestroy.
 
   FcResult result = FcResultMatch;
 
@@ -298,7 +306,7 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
                                    fontFamilyPattern,
                                    false /* don't trim */,
                                    nullptr,
-                                   &result );
+                                   &result ); // FcFontSort creates a font set that needs to be destroyed by calling FcFontSetDestroy.
 
   if( nullptr != fontSet )
   {
@@ -315,10 +323,13 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
       // Skip fonts with no path
       if( GetFcString( fontPattern, FC_FILE, path ) )
       {
+        // Retrieve the character set. Need to call FcCharSetDestroy to free the resources.
         FcCharSet* characterSet = nullptr;
         FcPatternGetCharSet( fontPattern, FC_CHARSET, 0u, &characterSet );
 
-        characterSetList.PushBack( characterSet );
+        // Increase the reference counter of the character set.
+        characterSetList.PushBack( FcCharSetCopy( characterSet ) );
+
         fontList.push_back( FontDescription() );
         FontDescription& newFontDescription = fontList.back();
 
@@ -343,6 +354,7 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
       }
     }
 
+    // Destroys the font set created by FcFontSort.
     FcFontSetDestroy( fontSet );
   }
   else
@@ -350,7 +362,9 @@ void FontClient::Plugin::SetFontList( const FontDescription& fontDescription, Fo
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "  No fonts found.\n" );
   }
 
+  // Destroys the pattern created by FcPatternCreate in CreateFontFamilyPattern.
   FcPatternDestroy( fontFamilyPattern );
+
   DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::SetFontList\n" );
 }
 
@@ -381,32 +395,41 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
   if( !mDefaultFontDescriptionCached )
   {
     // Clear any font config stored info in the caches.
+
+    // Decrease the reference counter and eventually free the resources allocated by FcCharSet objects.
+    DestroyCharacterSets( mDefaultFontCharacterSets );
+    DestroyCharacterSets( mCharacterSetCache );
     mDefaultFontCharacterSets.Clear();
     mCharacterSetCache.Clear();
 
     for( auto& item : mFallbackCache )
     {
-      item.characterSets->Clear();
+      // Decrease the reference counter and eventually free the resources allocated by FcCharSet objects.
+      DestroyCharacterSets( *item.characterSets );
+
+      delete item.characterSets;
+      item.characterSets = nullptr;
     }
 
-    for( auto& item : mFontFaceCache )
-    {
-      // Set the character set pointer as null. Will be created again the next time IsCharacterSupportedByFont()
-      item.mCharacterSet = nullptr;
-    }
+    // Set the character set pointer as null. Will be created again the next time IsCharacterSupportedByFont()
+    ClearCharacterSetFromFontFaceCache();
 
     // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
     FcInitReinitialize();
 
-    FcPattern* matchPattern = FcPatternCreate();
+    FcPattern* matchPattern = FcPatternCreate(); // Creates a pattern that needs to be destroyed by calling FcPatternDestroy.
 
-    if( matchPattern )
+    if( nullptr != matchPattern )
     {
       FcConfigSubstitute( nullptr, matchPattern, FcMatchPattern );
       FcDefaultSubstitute( matchPattern );
 
       FcCharSet* characterSet = nullptr;
       MatchFontDescriptionToPattern( matchPattern, mDefaultFontDescription, &characterSet );
+      // Decrease the reference counter of the character set as it's not stored.
+      FcCharSetDestroy( characterSet );
+
+      // Destroys the pattern created.
       FcPatternDestroy( matchPattern );
     }
 
@@ -414,12 +437,12 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 
     for( const auto& description : mDefaultFonts )
     {
-      mDefaultFontCharacterSets.PushBack( CreateCharacterSetFromDescription( description ) );
+      mDefaultFontCharacterSets.PushBack( FcCharSetCopy( CreateCharacterSetFromDescription( description ) ) );
     }
 
     for( const auto& description : mFontDescriptionCache )
     {
-      mCharacterSetCache.PushBack( CreateCharacterSetFromDescription( description ) );
+      mCharacterSetCache.PushBack( FcCharSetCopy( CreateCharacterSetFromDescription( description ) ) );
     }
 
     for( auto& item : mFallbackCache )
@@ -433,7 +456,7 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription( FontDescription& fon
 
         for( const auto& description : *( item.fallbackFonts ) )
         {
-          item.characterSets->PushBack( CreateCharacterSetFromDescription( description ) );
+          item.characterSets->PushBack( FcCharSetCopy( CreateCharacterSetFromDescription( description ) ) );
         }
       }
     }
@@ -566,7 +589,7 @@ bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character ch
 
   if( ( fontId < 1u ) || ( fontId > mFontIdCache.Count() ) )
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font id. Number of items in the cache: %d\n",mFontFaceCache.size());
+    DALI_LOG_INFO( gLogFilter, Debug::General, "  Invalid font id. Number of items in the cache: %d\n",mFontIdCache.Count());
     DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::IsCharacterSupportedByFont\n");
     return false;
   }
@@ -581,34 +604,37 @@ bool FontClient::Plugin::IsCharacterSupportedByFont( FontId fontId, Character ch
   {
     case FontDescription::FACE_FONT:
     {
-      FontFaceCacheItem& cacheItem = mFontFaceCache[fontIdCacheItem.id];
-
-      if( nullptr == cacheItem.mCharacterSet )
+      if( fontIdCacheItem.id < mFontFaceCache.size() )
       {
-        // Create again the character set.
-        // It can be null if the ResetSystemDefaults() method has been called.
+        FontFaceCacheItem& cacheItem = mFontFaceCache[fontIdCacheItem.id];
 
-        FontDescription description;
-        description.path = cacheItem.mPath;
-        description.family = std::move( FontFamily( cacheItem.mFreeTypeFace->family_name ) );
-        description.weight = FontWeight::NONE;
-        description.width = FontWidth::NONE;
-        description.slant = FontSlant::NONE;
-
-        // Note FreeType doesn't give too much info to build a proper font style.
-        if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_ITALIC )
+        if( nullptr == cacheItem.mCharacterSet )
         {
-          description.slant = FontSlant::ITALIC;
-        }
-        if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_BOLD )
-        {
-          description.weight = FontWeight::BOLD;
+          // Create again the character set.
+          // It can be null if the ResetSystemDefaults() method has been called.
+
+          FontDescription description;
+          description.path = cacheItem.mPath;
+          description.family = std::move( FontFamily( cacheItem.mFreeTypeFace->family_name ) );
+          description.weight = FontWeight::NONE;
+          description.width = FontWidth::NONE;
+          description.slant = FontSlant::NONE;
+
+          // Note FreeType doesn't give too much info to build a proper font style.
+          if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_ITALIC )
+          {
+            description.slant = FontSlant::ITALIC;
+          }
+          if( cacheItem.mFreeTypeFace->style_flags & FT_STYLE_FLAG_BOLD )
+          {
+            description.weight = FontWeight::BOLD;
+          }
+
+          cacheItem.mCharacterSet = FcCharSetCopy( CreateCharacterSetFromDescription( description ) );
         }
 
-        cacheItem.mCharacterSet = CreateCharacterSetFromDescription( description );
+        isSupported = FcCharSetHasChar( cacheItem.mCharacterSet, character );
       }
-
-      isSupported = FcCharSetHasChar( cacheItem.mCharacterSet, character );
       break;
     }
     case FontDescription::BITMAP_FONT:
@@ -990,6 +1016,8 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
     // Add the path to the cache.
     description.type = FontDescription::FACE_FONT;
     mFontDescriptionCache.push_back( description );
+
+    // The reference counter of the character set has already been increased in MatchFontDescriptionToPattern.
     mCharacterSetCache.PushBack( characterSet );
 
     // Cache the index and the matched font's description.
@@ -1727,7 +1755,7 @@ void FontClient::Plugin::InitSystemFonts()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::InitSystemFonts\n" );
 
-  FcFontSet* fontSet = GetFcFontSet();
+  FcFontSet* fontSet = GetFcFontSet(); // Creates a FcFontSet that needs to be destroyed by calling FcFontSetDestroy.
 
   if( fontSet )
   {
@@ -1769,6 +1797,7 @@ void FontClient::Plugin::InitSystemFonts()
       }
     }
 
+    // Destroys the font set created.
     FcFontSetDestroy( fontSet );
   }
   DALI_LOG_INFO( gLogFilter, Debug::General, "<--FontClient::Plugin::InitSystemFonts\n" );
@@ -1779,7 +1808,7 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
   DALI_LOG_INFO( gLogFilter, Debug::General, "-->FontClient::Plugin::MatchFontDescriptionToPattern\n" );
 
   FcResult result = FcResultMatch;
-  FcPattern* match = FcFontMatch( nullptr /* use default configure */, pattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, pattern, &result ); // Creates a new font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   const bool matched = nullptr != match;
   DALI_LOG_INFO( gLogFilter, Debug::General, "  pattern matched : %s\n", ( matched ? "true" : "false" ) );
@@ -1798,8 +1827,9 @@ bool FontClient::Plugin::MatchFontDescriptionToPattern( FcPattern* pattern, Dali
     fontDescription.weight = IntToWeightType( weight );
     fontDescription.slant = IntToSlantType( slant );
 
-    // Cache the character ranges.
+    // Retrieve the character set and increase the reference counter.
     FcPatternGetCharSet( match, FC_CHARSET, 0u, characterSet );
+    *characterSet = FcCharSetCopy( *characterSet );
 
     // destroyed the matched pattern
     FcPatternDestroy( match );
@@ -1819,7 +1849,7 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
 {
   // create the cached font family lookup pattern
   // a pattern holds a set of names, each name refers to a property of the font
-  FcPattern* fontFamilyPattern = FcPatternCreate();
+  FcPattern* fontFamilyPattern = FcPatternCreate(); // FcPatternCreate creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
   if( !fontFamilyPattern )
   {
@@ -1876,34 +1906,35 @@ FcPattern* FontClient::Plugin::CreateFontFamilyPattern( const FontDescription& f
 
 _FcFontSet* FontClient::Plugin::GetFcFontSet() const
 {
+  FcFontSet* fontset = nullptr;
+
   // create a new pattern.
   // a pattern holds a set of names, each name refers to a property of the font
   FcPattern* pattern = FcPatternCreate();
 
-  FcFontSet* fontset = NULL;
-
-  // create an object set used to define which properties are to be returned in the patterns from FcFontList.
-  FcObjectSet* objectSet = FcObjectSetCreate();
-
-  if( objectSet )
+  if( nullptr != pattern )
   {
-    // build an object set from a list of property names
-    FcObjectSetAdd( objectSet, FC_FILE );
-    FcObjectSetAdd( objectSet, FC_FAMILY );
-    FcObjectSetAdd( objectSet, FC_WIDTH );
-    FcObjectSetAdd( objectSet, FC_WEIGHT );
-    FcObjectSetAdd( objectSet, FC_SLANT );
+    // create an object set used to define which properties are to be returned in the patterns from FcFontList.
+    FcObjectSet* objectSet = FcObjectSetCreate();
 
-    // get a list of fonts
-    // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
-    fontset = FcFontList( NULL /* the default configuration is checked to be up to date, and used */, pattern, objectSet );
+    if( nullptr != objectSet )
+    {
+      // build an object set from a list of property names
+      FcObjectSetAdd( objectSet, FC_FILE );
+      FcObjectSetAdd( objectSet, FC_FAMILY );
+      FcObjectSetAdd( objectSet, FC_WIDTH );
+      FcObjectSetAdd( objectSet, FC_WEIGHT );
+      FcObjectSetAdd( objectSet, FC_SLANT );
 
-    // clear up the object set
-    FcObjectSetDestroy( objectSet );
-  }
-  // clear up the pattern
-  if( pattern )
-  {
+      // get a list of fonts
+      // creates patterns from those fonts containing only the objects in objectSet and returns the set of unique such patterns
+      fontset = FcFontList( nullptr /* the default configuration is checked to be up to date, and used */, pattern, objectSet ); // Creates a FcFontSet that needs to be destroyed by calling FcFontSetDestroy.
+
+      // clear up the object set
+      FcObjectSetDestroy( objectSet );
+    }
+
+    // clear up the pattern
     FcPatternDestroy( pattern );
   }
 
@@ -2403,12 +2434,12 @@ bool FontClient::Plugin::IsScalable( const FontPath& path )
 bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
 {
   // Create a font pattern.
-  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription ); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result ); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
   bool isScalable = false;
 
   if( match )
@@ -2422,8 +2453,11 @@ bool FontClient::Plugin::IsScalable( const FontDescription& fontDescription )
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::IsScalable. FreeType Cannot check font: [%s]\n", fontDescription.family.c_str() );
   }
-  FcPatternDestroy( fontFamilyPattern );
+
+  // Destroys the created patterns.
   FcPatternDestroy( match );
+  FcPatternDestroy( fontFamilyPattern );
+
   return isScalable;
 }
 
@@ -2456,12 +2490,12 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
                                         Vector< PointSize26Dot6 >& sizes )
 {
   // Create a font pattern.
-  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription );
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern( fontDescription ); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result );
+  FcPattern* match = FcFontMatch( nullptr /* use default configure */, fontFamilyPattern, &result ); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   if( match )
   {
@@ -2474,6 +2508,8 @@ void FontClient::Plugin::GetFixedSizes( const FontDescription& fontDescription,
   {
     DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetFixedSizes. FreeType Cannot check font: [%s]\n", fontDescription.family.c_str() );
   }
+
+  // Destroys the created patterns.
   FcPatternDestroy( match );
   FcPatternDestroy( fontFamilyPattern );
 }
@@ -2530,25 +2566,27 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
 
-    FcPattern* pattern = CreateFontFamilyPattern( description );
+    FcPattern* pattern = CreateFontFamilyPattern( description ); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
     FcResult result = FcResultMatch;
-    FcPattern* match = FcFontMatch( nullptr, pattern, &result );
+    FcPattern* match = FcFontMatch( nullptr, pattern, &result ); // FcFontMatch creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
     FcCharSet* characterSet = nullptr;
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
 
-    FcPatternDestroy( pattern );
-
-    mMatchedFcPatternCache.PushBack( match );
-
     const FontId fontFaceId = id - 1u;
-    mFontFaceCache[fontFaceId].mCharacterSet = characterSet;
+    mFontFaceCache[fontFaceId].mCharacterSet = FcCharSetCopy( characterSet ); // Increases the reference counter.
+
+    // Destroys the created patterns.
+    FcPatternDestroy( match );
+    FcPatternDestroy( pattern );
 
     // Add the path to the cache.
     description.type = FontDescription::FACE_FONT;
     mFontDescriptionCache.push_back( description );
-    mCharacterSetCache.PushBack( characterSet );
+
+    // Increase the reference counter and add the character set to the cache.
+    mCharacterSetCache.PushBack( FcCharSetCopy( characterSet ) );
 
     // Cache the index and the font's description.
     mValidatedFontCache.push_back( std::move( FontDescriptionCacheItem( std::move( description ),
@@ -2565,29 +2603,48 @@ FcCharSet* FontClient::Plugin::CreateCharacterSetFromDescription( const FontDesc
 {
   FcCharSet* characterSet = nullptr;
 
-  FcPattern* pattern = CreateFontFamilyPattern( description );
+  FcPattern* pattern = CreateFontFamilyPattern( description ); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
   if( nullptr != pattern )
   {
     FcResult result = FcResultMatch;
-    FcPattern* match = FcFontMatch( nullptr, pattern, &result );
+    FcPattern* match = FcFontMatch( nullptr, pattern, &result ); // FcFontMatch creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
     FcPatternGetCharSet( match, FC_CHARSET, 0u, &characterSet );
-    mMatchedFcPatternCache.PushBack( match );
 
+    // Destroys the created patterns.
+    FcPatternDestroy( match );
     FcPatternDestroy( pattern );
   }
 
   return characterSet;
 }
 
-void FontClient::Plugin::DestroyMatchedPatterns()
+void FontClient::Plugin::ClearFallbackCache( std::vector<FallbackCacheItem>& fallbackCache )
 {
-  for (auto & object : mMatchedFcPatternCache)
+  for( auto& item : fallbackCache )
   {
-    FcPatternDestroy(reinterpret_cast<FcPattern*>(object));
+    if( nullptr != item.fallbackFonts )
+    {
+      delete item.fallbackFonts;
+    }
+
+    if( nullptr != item.characterSets )
+    {
+      // Free the resources allocated by the FcCharSet objects in the 'characterSets' vector.
+      DestroyCharacterSets( *item.characterSets );
+      delete item.characterSets;
+    }
   }
-  mMatchedFcPatternCache.Clear();
+}
+
+void FontClient::Plugin::ClearCharacterSetFromFontFaceCache()
+{
+  for( auto& item : mFontFaceCache )
+  {
+    FcCharSetDestroy( item.mCharacterSet );
+    item.mCharacterSet = nullptr;
+  }
 }
 
 } // namespace Internal

@@ -35,6 +35,8 @@
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 
 
 namespace Dali
@@ -146,10 +148,11 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-void PixmapRenderSurfaceEcoreX::InitializeGraphics( GraphicsInterface& graphics, Dali::DisplayConnection& displayConnection )
+void PixmapRenderSurfaceEcoreX::InitializeGraphics()
 {
-  mGraphics = &graphics;
-  mDisplayConnection = &displayConnection;
+  mGraphics = &mAdaptor->GetGraphicsInterface();
+  mDisplayConnection = &mAdaptor->GetDisplayConnectionInterface();
+
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
@@ -185,7 +188,7 @@ void PixmapRenderSurfaceEcoreX::DestroySurface()
     // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
     XPixmap pixmap = static_cast<XPixmap>( mX11Pixmaps[i] );
     eglImpl.MakeCurrent( EGLNativePixmapType( pixmap ), mEglSurfaces[i] );
-    eglImpl.DestroySurface();
+    eglImpl.DestroySurface( mEglSurfaces[i] );
   }
 }
 
@@ -307,9 +310,13 @@ void PixmapRenderSurfaceEcoreX::ReleaseLock()
   }
 }
 
-RenderSurface::Type PixmapRenderSurfaceEcoreX::GetSurfaceType()
+Integration::RenderSurface::Type PixmapRenderSurfaceEcoreX::GetSurfaceType()
 {
-  return RenderSurface::PIXMAP_RENDER_SURFACE;
+  return Integration::RenderSurface::PIXMAP_RENDER_SURFACE;
+}
+
+void PixmapRenderSurfaceEcoreX::MakeContextCurrent()
+{
 }
 
 void PixmapRenderSurfaceEcoreX::CreateRenderable()

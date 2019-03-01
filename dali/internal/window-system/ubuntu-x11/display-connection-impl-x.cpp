@@ -97,9 +97,9 @@ bool DisplayConnectionX11::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionX11::SetSurfaceType( RenderSurface::Type type )
+void DisplayConnectionX11::SetSurfaceType( Integration::RenderSurface::Type type )
 {
-  if( type == RenderSurface::WINDOW_RENDER_SURFACE )
+  if( type == Integration::RenderSurface::WINDOW_RENDER_SURFACE )
   {
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);

@@ -74,7 +74,7 @@ public:
    * Sets the render surface type
    * @param[in] type The render surface type
    */
-  virtual void SetSurfaceType( RenderSurface::Type type ) = 0;
+  virtual void SetSurfaceType( Integration::RenderSurface::Type type ) = 0;
 
   /**
    * Sets the graphics interface

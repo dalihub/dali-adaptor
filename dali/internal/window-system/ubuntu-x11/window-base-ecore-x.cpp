@@ -683,49 +683,6 @@ void WindowBaseEcoreX::MoveResize( PositionSize positionSize )
   ecore_x_window_move_resize( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
-void WindowBaseEcoreX::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
-{
-  DALI_LOG_TRACE_METHOD_FMT( gWindowBaseLogFilter, "visible : %d\n", visibleMode );
-
-  if( visibleMode == Dali::Window::VISIBLE )
-  {
-    // when the indicator is visible, set proper mode for indicator server according to bg mode
-    if( opacityMode == Dali::Window::OPAQUE )
-    {
-      ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_OPAQUE );
-    }
-    else if( opacityMode == Dali::Window::TRANSLUCENT )
-    {
-      ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_TRANSLUCENT );
-    }
-  }
-  else
-  {
-    // when the indicator is not visible, set TRANSPARENT mode for indicator server
-    ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_TRANSPARENT ); // it means hidden indicator
-  }
-}
-
-void WindowBaseEcoreX::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
-{
-  int show_state = static_cast< int >( isShow );
-  ecore_x_window_prop_property_set( mEcoreWindow, ECORE_X_ATOM_E_ILLUME_INDICATOR_STATE,
-                                    ECORE_X_ATOM_CARDINAL, 32, &show_state, 1 );
-
-  if( isShow )
-  {
-    ecore_x_e_illume_indicator_state_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_STATE_ON );
-  }
-  else
-  {
-    ecore_x_e_illume_indicator_state_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_STATE_OFF );
-  }
-}
-
-void WindowBaseEcoreX::IndicatorTypeChanged( IndicatorInterface::Type type )
-{
-}
-
 void WindowBaseEcoreX::SetClass( const std::string& name, const std::string& className )
 {
   ecore_x_icccm_title_set( mEcoreWindow, name.c_str() );
