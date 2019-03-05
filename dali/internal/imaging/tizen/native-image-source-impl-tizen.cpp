@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,6 @@ namespace Adaptor
 
 namespace
 {
-const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
-const char* SAMPLER_TYPE = "samplerExternalOES";
 
 tbm_format FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
@@ -62,7 +60,7 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceTizen* NativeImageSourceTizen::New( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceTizen* NativeImageSourceTizen::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 {
   NativeImageSourceTizen* image = new NativeImageSourceTizen( width, height, depth, nativeImageSource );
   DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
@@ -75,24 +73,17 @@ NativeImageSourceTizen* NativeImageSourceTizen::New( uint32_t width, uint32_t he
   return image;
 }
 
-NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
-: mWidth( width ),
-  mHeight( height ),
-  mOwnTbmSurface( false ),
-  mTbmSurface( NULL ),
-  mTbmFormat( 0 ),
-  mBlendingRequired( false ),
-  mColorDepth( depth )
-  //mEglImageKHR( NULL ),
-  //mEglGraphics( NULL ),
-  //mEglImageExtensions( NULL ),
-  //mSetSource( false )
+NativeImageSourceTizen::NativeImageSourceTizen( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+  : mWidth( width ),
+    mHeight( height ),
+    mOwnTbmSurface( false ),
+    mTbmSurface( NULL ),
+    mTbmFormat( 0 ),
+    mBlendingRequired( false ),
+    mColorDepth( depth ),
+    mSetSource( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-#if 0
-  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  mEglGraphics = static_cast<EglGraphics *>(graphics);
-
   mTbmSurface = GetSurfaceFromAny( nativeImageSource );
 
   if( mTbmSurface != NULL )
@@ -102,7 +93,6 @@ NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height,
     mWidth = tbm_surface_get_width( mTbmSurface );
     mHeight = tbm_surface_get_height( mTbmSurface );
   }
-#endif
 }
 
 void NativeImageSourceTizen::Initialize()
@@ -336,7 +326,7 @@ void NativeImageSourceTizen::SetSource( Any source )
 
   if( mTbmSurface != NULL )
   {
-    //mSetSource = true;
+    mSetSource = true;
     tbm_surface_internal_ref( mTbmSurface );
     mBlendingRequired = CheckBlending( tbm_surface_get_format( mTbmSurface ) );
     mWidth = tbm_surface_get_width( mTbmSurface );
@@ -397,74 +387,50 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
 
 bool NativeImageSourceTizen::GlExtensionCreate()
 {
-#if 0
-  // casting from an unsigned int to a void *, which should then be cast back
-  // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
-  if( !eglBuffer )
-  {
-    return false;
-  }
-
-  mEglImageExtensions = mEglGraphics->GetImageExtensions();
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
-
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
-#endif
-  return false;// mEglImageKHR != NULL;
+  return false;
 }
 
 void NativeImageSourceTizen::GlExtensionDestroy()
 {
-#if 0
-  if( mEglImageKHR )
-  {
-    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
-    mEglImageKHR = NULL;
-  }
-#endif
 }
 
-uint32_t NativeImageSourceTizen::TargetTexture()
+unsigned int NativeImageSourceTizen::TargetTexture()
 {
-  //mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
-
   return 0;
 }
 
 void NativeImageSourceTizen::PrepareTexture()
 {
-#if 0
   if( mSetSource )
   {
-    void* eglImage = mEglImageKHR;
-
-    if( GlExtensionCreate() )
-    {
-      TargetTexture();
-    }
-
-    mEglImageExtensions->DestroyImageKHR( eglImage );
-
     mSetSource = false;
   }
-#endif
 }
 
 const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
 {
-  return FRAGMENT_PREFIX;
+  return 0;
 }
 
 const char* NativeImageSourceTizen::GetCustomSamplerTypename()
 {
-  return SAMPLER_TYPE;
+  return 0;
 }
 
 int NativeImageSourceTizen::GetEglImageTextureTarget()
 {
   return -1;
+}
+
+Any NativeImageSourceTizen::GetNativeImageHandle() const
+{
+  return Any( mTbmSurface );
+}
+
+bool NativeImageSourceTizen::IsSetSource() const
+{
+  return mSetSource;
 }
 
 bool NativeImageSourceTizen::CheckBlending( tbm_format format )

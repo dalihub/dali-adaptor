@@ -65,6 +65,10 @@ Any NativeImageSourceQueueX::GetNativeImageSourceQueue() const
   return Any();
 }
 
+void NativeImageSourceQueueX::SetSource( Any source )
+{
+}
+
 void NativeImageSourceQueueX::SetSize( uint32_t width, uint32_t height )
 {
   mWidth = width;
@@ -102,6 +106,16 @@ const char* NativeImageSourceQueueX::GetCustomSamplerTypename()
 int NativeImageSourceQueueX::GetEglImageTextureTarget()
 {
   return 0;
+}
+
+Any NativeImageSourceQueueX::GetNativeImageHandle() const
+{
+  return Any( 0 );
+}
+
+bool NativeImageSourceQueueX::IsSetSource() const
+{
+  return false;
 }
 
 } // namespace Adaptor

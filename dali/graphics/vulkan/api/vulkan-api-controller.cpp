@@ -450,7 +450,14 @@ struct Controller::Impl
         {
           image = req.imageToImageInfo.dstImage;
         }
-
+        else if ( req.requestType == TransferRequestType::USE_TBM_SURFACE )
+        {
+          image = req.useTBMSurfaceInfo.srcImage;
+        }
+        else if ( req.requestType == TransferRequestType::LAYOUT_TRANSITION_ONLY )
+        {
+          image = req.imageLayoutTransitionInfo.image;
+        }
         assert( image );
 
         auto predicate = [&]( auto& item )->bool {

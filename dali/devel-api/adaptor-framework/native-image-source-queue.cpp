@@ -25,25 +25,17 @@
 namespace Dali
 {
 
-NativeImageSourceQueuePtr NativeImageSourceQueue::New( uint32_t width, uint32_t height, ColorDepth depth )
+NativeImageSourceQueuePtr NativeImageSourceQueue::New( unsigned int width, unsigned int height, ColorDepth depth )
 {
   Any empty;
   NativeImageSourceQueuePtr image = new NativeImageSourceQueue( width, height, depth, empty );
-  if( image->mImpl )
-  {
-    return image;
-  }
-  return nullptr;
+  return image;
 }
 
 NativeImageSourceQueuePtr NativeImageSourceQueue::New( Any nativeImageSourceQueue )
 {
   NativeImageSourceQueuePtr image = new NativeImageSourceQueue( 0, 0, COLOR_DEPTH_DEFAULT, nativeImageSourceQueue );
-  if( image->mImpl )
-  {
-    return image;
-  }
-  return nullptr;
+  return image;
 }
 
 Any NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -51,9 +43,9 @@ Any NativeImageSourceQueue::GetNativeImageSourceQueue()
   return mImpl->GetNativeImageSourceQueue();
 }
 
-void NativeImageSourceQueue::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueue::SetSource( Any source )
 {
-  return mImpl->SetSize( width, height );
+  mImpl->SetSource( source );
 }
 
 bool NativeImageSourceQueue::GlExtensionCreate()
@@ -66,7 +58,7 @@ void NativeImageSourceQueue::GlExtensionDestroy()
   mImpl->GlExtensionDestroy();
 }
 
-uint32_t NativeImageSourceQueue::TargetTexture()
+unsigned int NativeImageSourceQueue::TargetTexture()
 {
   return mImpl->TargetTexture();
 }
@@ -76,12 +68,12 @@ void NativeImageSourceQueue::PrepareTexture()
   mImpl->PrepareTexture();
 }
 
-uint32_t NativeImageSourceQueue::GetWidth() const
+unsigned int NativeImageSourceQueue::GetWidth() const
 {
   return mImpl->GetWidth();
 }
 
-uint32_t NativeImageSourceQueue::GetHeight() const
+unsigned int NativeImageSourceQueue::GetHeight() const
 {
   return mImpl->GetHeight();
 }
@@ -96,7 +88,7 @@ NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSourceQueue::NativeImageSourceQueue( uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueue::NativeImageSourceQueue( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSourceQueue )
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
   mImpl = factory->CreateNativeImageSourceQueue( width, height, depth, nativeImageSourceQueue );

@@ -60,9 +60,14 @@ public:
   Any GetNativeImageSourceQueue() const override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
+   */
+  void SetSource( Any source ) override;
+
+  /**
    * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  void SetSize( uint32_t width, uint32_t height ) override;
+  void SetSize( uint32_t width, uint32_t height );
 
   /**
    * destructor
@@ -135,6 +140,16 @@ public:
    * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
    */
   int GetEglImageTextureTarget() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::IsSetSource()
+   */
+  bool IsSetSource() const override;
 
 private:
 

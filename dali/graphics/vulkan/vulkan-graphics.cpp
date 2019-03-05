@@ -741,9 +741,11 @@ RefCountedImageView Graphics::CreateImageView( const vk::ImageViewCreateFlags& f
                                                vk::ImageViewType viewType,
                                                vk::Format format,
                                                vk::ComponentMapping components,
-                                               vk::ImageSubresourceRange subresourceRange )
+                                               vk::ImageSubresourceRange subresourceRange,
+                                               void* pNext )
 {
   auto imageViewCreateInfo = vk::ImageViewCreateInfo{}
+          .setPNext( pNext )
           .setFlags( flags )
           .setImage( image->GetVkHandle() )
           .setViewType( viewType )

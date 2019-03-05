@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ namespace Internal
 namespace Adaptor
 {
 
-//class EglGraphics;
-//class EglImageExtensions;
+class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -55,10 +54,10 @@ public:
    * @param[in] nativeImageSource contains tbm_surface_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceTizen* New(uint32_t width,
-                          uint32_t height,
-                          Dali::NativeImageSource::ColorDepth depth,
-                          Any nativeImageSource);
+  static NativeImageSourceTizen* New(unsigned int width,
+                                     unsigned int height,
+                                     Dali::NativeImageSource::ColorDepth depth,
+                                     Any nativeImageSource);
 
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
@@ -68,7 +67,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const  override;
+  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const  override;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
@@ -103,7 +102,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  uint32_t TargetTexture() override;
+  unsigned int TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -113,7 +112,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  uint32_t GetWidth() const override
+  unsigned int GetWidth() const override
   {
     return mWidth;
   }
@@ -121,7 +120,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  uint32_t GetHeight() const override
+  unsigned int GetHeight() const override
   {
     return mHeight;
   }
@@ -157,6 +156,16 @@ public:
    */
   int GetEglImageTextureTarget() override;
 
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::IsSetSource()
+   */
+  bool IsSetSource() const override;
+
 private:
 
   /**
@@ -166,10 +175,10 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    */
-  NativeImageSourceTizen(uint32_t width,
-              unsigned  int height,
-              Dali::NativeImageSource::ColorDepth depth,
-              Any nativeImageSource);
+  NativeImageSourceTizen(unsigned int width,
+                         unsigned  int height,
+                         Dali::NativeImageSource::ColorDepth depth,
+                         Any nativeImageSource);
 
   void Initialize();
 
@@ -179,17 +188,14 @@ private:
 
 private:
 
-  uint32_t mWidth;                        ///< image width
-  uint32_t mHeight;                       ///< image height
+  unsigned int mWidth;                        ///< image width
+  unsigned int mHeight;                       ///< image height
   bool mOwnTbmSurface;                        ///< Whether we created pixmap or not
   tbm_surface_h mTbmSurface;
   tbm_format mTbmFormat;
   bool mBlendingRequired;                      ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
-//  void* mEglImageKHR;                         ///< From EGL extension
-//  EglGraphics* mEglGraphics;                  ///< EGL Graphics
-//  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
-//  bool mSetSource;
+  bool mSetSource;
 };
 
 } // namespace Adaptor

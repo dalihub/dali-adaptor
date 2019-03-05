@@ -52,3 +52,6 @@ graphics_vulkan_x11_src_files=\
 # module: graphics, backend: vulkan/wayland
 graphics_vulkan_wayland_src_files=\
     $(graphics_src_dir)/vulkan/wayland/vk-surface-wayland.cpp
+
+graphics_vulkan_tizen_src_files=\
+    $(graphics_src_dir)/vulkan/api/vulkan-api-native-texture.cpp

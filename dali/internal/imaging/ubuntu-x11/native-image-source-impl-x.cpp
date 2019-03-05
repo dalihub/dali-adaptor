@@ -337,6 +337,16 @@ void NativeImageSourceX::PrepareTexture()
 {
 }
 
+const char* NativeImageSourceX::GetCustomFragmentPreFix()
+{
+  return 0;
+}
+
+const char* NativeImageSourceX::GetCustomSamplerTypename()
+{
+  return 0;
+}
+
 int NativeImageSourceX::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
 {
   switch (depth)
@@ -406,6 +416,21 @@ void NativeImageSourceX::GetPixmapDetails()
      If depth = 32, Pixel::RGBA8888 */
   int depth = ecore_x_pixmap_depth_get(mPixmap);
   mBlendingRequired = ( depth == 32 || depth == 8 );
+}
+
+int NativeImageSourceX::GetEglImageTextureTarget()
+{
+  return -1;
+}
+
+Any NativeImageSourceX::GetNativeImageHandle() const
+{
+  return nullptr;
+}
+
+bool NativeImageSourceX::IsSetSource() const
+{
+  return false;
 }
 
 } // namespace Adaptor

@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/images/native-image-interface-extension.h>
-#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
@@ -37,8 +36,7 @@ namespace Internal
 namespace Adaptor
 {
 
-//class EglGraphics;
-//class EglImageExtensions;
+class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
@@ -56,7 +54,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueueTizen* New(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -64,9 +62,9 @@ public:
   Any GetNativeImageSourceQueue() const override;
 
   /**
-   * @copydoc Dali::NativeImageSourceQueue::SetSize
+   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
    */
-  void SetSize( uint32_t width, uint32_t height ) override;
+  void SetSource( Any source ) override;
 
   /**
    * destructor
@@ -86,7 +84,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  uint32_t TargetTexture() override;
+  unsigned int TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -96,7 +94,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  uint32_t GetWidth() const override
+  unsigned int GetWidth() const override
   {
     return mWidth;
   }
@@ -104,7 +102,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  uint32_t GetHeight() const override
+  unsigned int GetHeight() const override
   {
     return mHeight;
   }
@@ -140,6 +138,16 @@ public:
    */
   int GetEglImageTextureTarget() override;
 
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::IsSetSource()
+   */
+  bool IsSetSource() const override;
+
 private:
 
   /**
@@ -149,11 +157,11 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  NativeImageSourceQueueTizen( unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
 
   void Initialize( Dali::NativeImageSourceQueue::ColorDepth depth );
 
-  void ResetEglImageList();
+  void DestroyQueue();
 
   tbm_surface_queue_h GetSurfaceFromAny( Any source ) const;
 
@@ -163,14 +171,10 @@ private:
 
   typedef std::pair< tbm_surface_h, void* > EglImagePair;
 
-  Dali::Mutex                      mMutex;                ///< Mutex
-  uint32_t                         mWidth;                ///< image width
-  uint32_t                         mHeight;               ///< image height
+  unsigned int                     mWidth;                ///< image width
+  unsigned int                     mHeight;               ///< image height
   tbm_surface_queue_h              mTbmQueue;             ///< Tbm surface queue handle
   tbm_surface_h                    mConsumeSurface;       ///< The current tbm surface
-//  std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector
-//  EglGraphics*                     mEglGraphics;          ///< EGL Graphics
-//  EglImageExtensions*              mEglImageExtensions;   ///< The EGL Image Extensions
   bool                             mOwnTbmQueue;          ///< Whether we created tbm queue
   bool                             mBlendingRequired;     ///< Whether blending is required
 };
