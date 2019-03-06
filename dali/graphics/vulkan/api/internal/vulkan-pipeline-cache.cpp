@@ -26,6 +26,11 @@ namespace Graphics
 namespace VulkanAPI
 {
 
+namespace
+{
+const int32_t CACHE_AGE_LIMIT = 5; // Number of frames a pipeline can stay alive with no handles.
+}
+
 PipelineCache::PipelineCache() = default;
 
 PipelineCache::~PipelineCache() = default;
@@ -78,6 +83,8 @@ bool PipelineCache::SavePipeline( const VulkanAPI::PipelineFactory& factory, std
   // pass the ownership to the cache
   CacheEntry entry;
   entry.pipelineImpl = std::move( pipeline );
+  entry.pipelineImpl->Reference();
+  entry.age = 0;
   entry.info = std::unique_ptr< PipelineFactory::Info >( new PipelineFactory::Info( factory.GetCreateInfo() ) );
   cacheEntries->push_back( std::move( entry ) );
   return true;
@@ -85,12 +92,36 @@ bool PipelineCache::SavePipeline( const VulkanAPI::PipelineFactory& factory, std
 
 void PipelineCache::Compile()
 {
+  int initialized = 0;
+
+  std::vector<Internal::Pipeline*> pipelinesToRemove;
+
   for( auto& item : mCacheMap )
   {
     for( auto& pipeline : item.second )
     {
-      pipeline.pipelineImpl->Initialise();
+      initialized += ( pipeline.pipelineImpl->Initialise() ? 1 : 0 );
+      int32_t refCount = pipeline.pipelineImpl->GetReferenceCount();
+
+      if( refCount == 1 )
+      {
+        pipeline.age++;
+      }
+      else if( refCount > 1 )
+      {
+        pipeline.age=0u;
+      }
+
+      if( pipeline.age >= CACHE_AGE_LIMIT )
+      {
+        pipelinesToRemove.push_back( pipeline.pipelineImpl.get() );
+      }
     }
+  }
+
+  for( auto& pipeline : pipelinesToRemove )
+  {
+    pipeline->Dereference();
   }
 }
 
