@@ -31,13 +31,11 @@ namespace Graphics
 namespace Vulkan
 {
 
-VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb( Dali::RenderSurface& renderSurface )
+VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb( NativeWindowInterface& nativeWindow )
 : SurfaceFactory()
 {
-  auto ecoreSurface = dynamic_cast< Dali::Internal::Adaptor::WindowRenderSurface* >( &renderSurface );
-  assert( ecoreSurface != nullptr && "This is not ecore surface!");
   mConnection = XGetXCBConnection( XOpenDisplay(nullptr) );
-  mWindow = static_cast<decltype( mWindow )>( ecoreSurface->GetNativeWindowId() );
+  mWindow = static_cast<decltype( mWindow )>( nativeWindow.GetNativeWindowId() );
 }
 
 VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb( Display* display, Window window )
@@ -58,9 +56,9 @@ vk::SurfaceKHR VkSurfaceXlib2Xcb::Create( vk::Instance instance, const vk::Alloc
 
 } // Vulkan
 
-std::unique_ptr<SurfaceFactory> SurfaceFactory::New(Dali::RenderSurface& renderSurface)
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New( NativeWindowInterface& nativeWindow )
 {
-  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXlib2Xcb>( new Graphics::Vulkan::VkSurfaceXlib2Xcb( renderSurface ) );
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXlib2Xcb>( new Graphics::Vulkan::VkSurfaceXlib2Xcb( nativeWindow ) );
   return std::move( surfaceFactory );
 }
 

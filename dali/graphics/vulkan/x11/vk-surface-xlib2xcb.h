@@ -48,7 +48,7 @@ namespace Vulkan
 class VkSurfaceXlib2Xcb final : public Graphics::Vulkan::SurfaceFactory
 {
 public:
-  VkSurfaceXlib2Xcb( Dali::RenderSurface& renderSurface );
+  VkSurfaceXlib2Xcb( NativeWindowInterface& nativeWindow );
 
   VkSurfaceXlib2Xcb( Display* display, Window window );
 

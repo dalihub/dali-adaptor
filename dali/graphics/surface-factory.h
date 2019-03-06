@@ -18,12 +18,35 @@
  *
  */
 
+#include <dali/public-api/object/any.h>
+#include <memory>
+
 namespace Dali
 {
 class RenderSurface;
 
 namespace Graphics
 {
+
+/**
+ * Native window interface
+ */
+class NativeWindowInterface
+{
+public:
+
+  /**
+   * @brief Get the native window handle
+   * @return The native window handle
+   */
+  virtual Any GetNativeWindow() = 0;
+
+  /**
+   * @brief Get the native window id
+   * @return The native window id
+   */
+  virtual int GetNativeWindowId() = 0;
+};
 
 class SurfaceFactory
 {
@@ -35,7 +58,7 @@ public:
    * Create a new surface factory
    * @param[in] renderSurface The render surface for which the surface factory will create a graphics surface.
    */
-  static std::unique_ptr<SurfaceFactory> New( Dali::RenderSurface& renderSurface );
+  static std::unique_ptr<SurfaceFactory> New( NativeWindowInterface& renderSurface );
 
   SurfaceFactory( const SurfaceFactory& ) = delete;
   SurfaceFactory& operator=( const SurfaceFactory& ) = delete;

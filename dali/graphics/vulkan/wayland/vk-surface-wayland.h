@@ -42,7 +42,7 @@ class VkSurfaceWayland final : public SurfaceFactory
 {
 public:
 
-  VkSurfaceWayland(Dali::RenderSurface& renderSurface);
+  VkSurfaceWayland(NativeWindowInterface& renderSurface);
 
   VkSurfaceWayland(::wl_display* display, ::wl_surface* surface);
 

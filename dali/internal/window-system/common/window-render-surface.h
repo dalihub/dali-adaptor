@@ -24,6 +24,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/graphics/graphics-interface.h>
+#include <dali/graphics/surface-factory.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <memory>
@@ -47,7 +48,7 @@ class WindowBase;
 /**
  * Window interface of render surface.
  */
-class WindowRenderSurface : public Dali::RenderSurface, public ConnectionTracker
+class WindowRenderSurface : public Dali::RenderSurface, public ConnectionTracker, public Graphics::NativeWindowInterface
 {
 public:
 
@@ -72,13 +73,13 @@ public: // API
    * @brief Get the native window handle
    * @return The native window handle
    */
-  Any GetNativeWindow();
+  Any GetNativeWindow() override;
 
   /**
    * @brief Get the native window id
    * @return The native window id
    */
-  int GetNativeWindowId();
+  int GetNativeWindowId() override;
 
   /**
    * @brief Map window

@@ -45,19 +45,17 @@ namespace Graphics
 namespace Vulkan
 {
 
-VkSurfaceWayland::VkSurfaceWayland(Dali::RenderSurface& renderSurface)
+VkSurfaceWayland::VkSurfaceWayland( NativeWindowInterface& nativeWindow )
 : SurfaceFactory()
 {
-  auto ecoreWlSurface = dynamic_cast<Dali::Internal::Adaptor::WindowRenderSurface*>(&renderSurface);
-  assert( ecoreWlSurface != nullptr && "This is not ecore wayland surface!");
 #ifdef ECORE_WAYLAND2
-  Ecore_Wl2_Window *ecoreWl2Window = AnyCast< Ecore_Wl2_Window* >(ecoreWlSurface->GetNativeWindow());
+  Ecore_Wl2_Window *ecoreWl2Window = AnyCast< Ecore_Wl2_Window* >(nativeWindow.GetNativeWindow());
   w_surface = ecore_wl2_window_surface_get(ecoreWl2Window);
 
   Ecore_Wl2_Display* wl2_display = ecore_wl2_window_display_get(ecoreWl2Window);
   w_display = ecore_wl2_display_get(wl2_display);
 #else
-  Ecore_Wl_Window* ecoreWlWindow = AnyCast< Ecore_Wl_Window* >(ecoreWlSurface->GetNativeWindow());
+  Ecore_Wl_Window* ecoreWlWindow = AnyCast< Ecore_Wl_Window* >(nativeWindow.GetNativeWindow());
 
   w_surface = ecore_wl_window_surface_get(ecoreWlWindow);
   w_display = ecore_wl_display_get();
@@ -89,9 +87,9 @@ vk::SurfaceKHR VkSurfaceWayland::Create(
 
 } // Vulkan
 
-std::unique_ptr<SurfaceFactory> SurfaceFactory::New( Dali::RenderSurface& renderSurface )
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New( NativeWindowInterface& nativeWindow )
 {
-  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceWayland>( new Graphics::Vulkan::VkSurfaceWayland( renderSurface ) );
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceWayland>( new Graphics::Vulkan::VkSurfaceWayland( nativeWindow ) );
   return std::move( surfaceFactory );
 }
 

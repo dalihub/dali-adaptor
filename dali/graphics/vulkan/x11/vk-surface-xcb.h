@@ -41,7 +41,7 @@ public:
    * Instantiates surface factory
    * @param[in] renderSurface
    */
-  VkSurfaceXcb( Dali::RenderSurface& renderSurface );
+  VkSurfaceXcb( NativeWindowInterface& nativeWindow );
 
   virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
                                  vk::PhysicalDevice physicalDevice) const override;
