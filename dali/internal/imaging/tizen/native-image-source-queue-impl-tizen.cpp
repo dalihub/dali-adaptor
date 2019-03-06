@@ -282,7 +282,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList()
     }
     mConsumeSurface = NULL;
   }
-
+#if 0
   for( auto&& iter : mEglImages )
   {
     mEglImageExtensions->DestroyImageKHR( iter.second );
@@ -290,6 +290,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList()
     tbm_surface_internal_unref( iter.first );
   }
   mEglImages.clear();
+#endif
 }
 
 bool NativeImageSourceQueueTizen::CheckBlending( int format )

@@ -284,12 +284,12 @@ public:
   /**
    * @return Whether the depth buffer is required.
    */
-  bool DepthBufferRequired() const;
+  bool DALI_CORE_API DepthBufferRequired() const;
 
   /**
    * @return Whether the stencil buffer is required.
    */
-  bool StencilBufferRequired() const;
+  bool DALI_CORE_API StencilBufferRequired() const;
 
   /// Deleted copy constructor.
   EnvironmentOptions( const EnvironmentOptions& ) = delete;
