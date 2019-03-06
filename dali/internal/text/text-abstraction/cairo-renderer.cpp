@@ -261,7 +261,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
 
   FT_Library ftLibrary;
-  FT_Init_FreeType(&ftLibrary);
+  auto error = FT_Init_FreeType(&ftLibrary);
+  if( error )
+  {
+    DALI_LOG_ERROR( "Error initializing FT library\n" );
+    return CreateVoidPixelBuffer( parameters );
+  }
 
   // Vector used to store the FreeType font faces, its size and the run of glyphs that use the font.
   std::vector<GlyphRun> glyphRuns;
@@ -325,7 +330,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           case FontDescription::FACE_FONT:
           {
             // Create a FreeType font's face.
-            FT_New_Face(ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace);
+            error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
+            if( error )
+            {
+              DALI_LOG_ERROR( "Error in FT while creating new face\n" );
+              return CreateVoidPixelBuffer( parameters );
+            }
 
             // Set the font's size. It needs to be set in the Freetype font and in the Cairo's context.
             unsigned int fontSize = fontClient.GetPointSize( fontId );
