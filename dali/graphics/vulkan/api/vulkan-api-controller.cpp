@@ -46,7 +46,7 @@
 #include <dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.h>
 #include <dali/graphics/vulkan/api/internal/vulkan-api-descriptor-set-allocator.h>
 
-#include <dali/graphics/thread-pool.h>
+#include <dali/devel-api/threading/thread-pool.h>
 
 namespace Dali
 {
