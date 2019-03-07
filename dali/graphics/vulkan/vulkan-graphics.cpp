@@ -500,7 +500,7 @@ RefCountedBuffer Graphics::CreateBuffer( size_t size, vk::BufferUsageFlags usage
   auto info = vk::BufferCreateInfo{};
   info.setSharingMode( vk::SharingMode::eExclusive );
   info.setSize( size );
-  info.setUsage( usageFlags | vk::BufferUsageFlagBits::eTransferDst );
+  info.setUsage( usageFlags );
 
   auto buffer = new Buffer( *this, info );
 
