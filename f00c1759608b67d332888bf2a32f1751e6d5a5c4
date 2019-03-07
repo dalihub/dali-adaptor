@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ae768ec8_60eaba45",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b653fe61_a457e613",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52019729_02972206",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aacf3067_05ec62be",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52019729_02972206",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 63
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1b48e652_79c680b2",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bad1a37d_72f940e6",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 54
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "247ec63a_9a05ae87",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "3b08ecb0_c8ab8e7c",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "247ec63a_9a05ae87",
+      "range": {
+        "startLine": 82,
+        "startChar": 7,
+        "endLine": 82,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78c0d4a1_0f88b852",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
@@ -108,6 +204,24 @@
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b573b3c_7e9f4f70",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78c0d4a1_0f88b852",
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "800a3a89_eaef0af2",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db991cd8_02453cd8",
+      "range": {
+        "startLine": 174,
+        "startChar": 7,
+        "endLine": 174,
+        "endChar": 27
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "97fb0049_5d1817cb",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
@@ -145,6 +283,30 @@
       "writtenOn": "2019-02-27T12:19:54Z",
       "side": 1,
       "message": "Use our style of initialization",
+      "range": {
+        "startLine": 298,
+        "startChar": 2,
+        "endLine": 312,
+        "endChar": 4
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a67f6a_86271b8f",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "that\u0027s bit tricky. only one of these structs exists in the c++ implementation. not sure whether passing pointer to C++ version as pNext will work either. something to find out.",
+      "parentUuid": "97fb0049_5d1817cb",
       "range": {
         "startLine": 298,
         "startChar": 2,
@@ -226,6 +388,30 @@
     },
     {
       "key": {
+        "uuid": "f441f3cd_428fed48",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3d7fcca_77717a03",
+      "range": {
+        "startLine": 508,
+        "startChar": 0,
+        "endLine": 526,
+        "endChar": 6
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53c0828c_765121d4",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
         "patchSetId": 1
@@ -246,6 +432,30 @@
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32977adb_e447185a",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53c0828c_765121d4",
+      "range": {
+        "startLine": 5,
+        "startChar": 17,
+        "endLine": 5,
+        "endChar": 21
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -272,6 +482,30 @@
     },
     {
       "key": {
+        "uuid": "1c48efc1_6c467854",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ee30ecf_6db38378",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 13
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe192426_3ce07bcb",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
         "patchSetId": 1
@@ -292,6 +526,30 @@
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c5a67b2_77e5bfad",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe192426_3ce07bcb",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 52,
+        "endChar": 17
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -318,6 +576,30 @@
     },
     {
       "key": {
+        "uuid": "9b449448_f89e81b6",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b018f8cf_43323ee2",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 6
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "693a9cbb_d4460eef",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
         "patchSetId": 1
@@ -341,6 +623,30 @@
     },
     {
       "key": {
+        "uuid": "73f72345_768a9953",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "693a9cbb_d4460eef",
+      "range": {
+        "startLine": 85,
+        "startChar": 10,
+        "endLine": 85,
+        "endChar": 44
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c06f7c91_2132ae86",
         "filename": "dali/graphics/vulkan/api/vulkan-api-texture.h",
         "patchSetId": 1
@@ -361,6 +667,30 @@
       "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e74006d_f47a184a",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-texture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c06f7c91_2132ae86",
+      "range": {
+        "startLine": 5,
+        "startChar": 16,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
