@@ -88,6 +88,8 @@ RenderCommand::RenderCommand( VulkanAPI::Controller& controller, Vulkan::Graphic
 
 void RenderCommand::PrepareResources()
 {
+  auto pipeline = static_cast<const VulkanAPI::Pipeline *>( mPipeline );
+  mVulkanPipeline = pipeline->GetVkPipeline();
   if( mUpdateFlags )
   {
     if( mUpdateFlags & (Dali::Graphics::RENDER_COMMAND_UPDATE_UNIFORM_BUFFER_BIT ))
@@ -133,7 +135,6 @@ void RenderCommand::UpdateDescriptorSetAllocationRequirements( std::vector<Descr
     {
       return;
     }
-    mVulkanPipeline = pipeline->GetVkPipeline();
     mData->descriptorSetLayoutSignatures = pipeline->GetDescriptorSetLayoutSignatures();
     mData->descriptorSetLayouts = pipeline->GetVkDescriptorSetLayouts();
 
