@@ -53,6 +53,8 @@ public:
 
   bool Initialise();
 
+  bool Compile();
+
   void Reference();
 
   void Dereference();

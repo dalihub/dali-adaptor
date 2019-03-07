@@ -20,6 +20,7 @@
 
 #include <dali/graphics-api/graphics-api-pipeline.h>
 #include <dali/graphics/vulkan/api/vulkan-api-pipeline-factory.h>
+#include <dali/devel-api/threading/thread-pool.h>
 
 #include <memory>
 #include <map>
@@ -74,7 +75,7 @@ public:
   /**
    * Compiles all pending pipelines
    */
-  void Compile();
+  Dali::UniqueFutureGroup Compile( bool parallel = true );
 
 private:
   /**
@@ -95,7 +96,7 @@ public:
   };
 
   std::map< uint32_t, std::vector< CacheEntry>> mCacheMap;
-  size_t prevSize{0u};
+  std::unique_ptr<Dali::ThreadPool> mThreadPool;
 };
 } // VulkanAPI
 } // Graphics

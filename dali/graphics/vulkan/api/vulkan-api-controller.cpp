@@ -172,8 +172,7 @@ struct Controller::Impl
 
   void CompilePipelines()
   {
-    // could be using another thread...could be...
-    mDefaultPipelineCache->Compile();
+    mPipelineCompileFuture = mDefaultPipelineCache->Compile( true );
   }
 
   void BeginFrame()
@@ -606,6 +605,12 @@ struct Controller::Impl
 
   void ProcessRenderPassData( Vulkan::RefCountedCommandBuffer commandBuffer, const RenderPassData& renderPassData )
   {
+    if( mPipelineCompileFuture )
+    {
+      mPipelineCompileFuture->Wait();
+      mPipelineCompileFuture.reset( nullptr );
+    }
+
     commandBuffer->Begin( vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
     commandBuffer->BeginRenderPass( renderPassData.beginInfo, vk::SubpassContents::eInline );
 
@@ -802,6 +807,8 @@ struct Controller::Impl
   void*                              mTextureStagingBufferMappedPtr{ nullptr };
 
   bool mDrawOnResume{ false };
+
+  Dali::UniqueFutureGroup            mPipelineCompileFuture{};
 };
 
 // TODO: @todo temporarily ignore missing return type, will be fixed later

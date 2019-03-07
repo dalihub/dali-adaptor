@@ -343,6 +343,11 @@ void Graphics::CreateDevice()
       // todo: present queue
     }
   }
+
+  if( !mVulkanPipelineCache )
+  {
+    mVulkanPipelineCache = mDevice.createPipelineCache( vk::PipelineCacheCreateInfo{}, GetAllocator() ).value;
+  }
 }
 
 FBID Graphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
@@ -1412,11 +1417,6 @@ bool Graphics::HasStencilEnabled() const
 // Vulkan pipeline cache
 const vk::PipelineCache& Graphics::GetVulkanPipelineCache()
 {
-  if( !mVulkanPipelineCache )
-  {
-    mVulkanPipelineCache = mDevice.createPipelineCache( vk::PipelineCacheCreateInfo{}, GetAllocator() ).value;
-  }
-
   return mVulkanPipelineCache;
 }
 
