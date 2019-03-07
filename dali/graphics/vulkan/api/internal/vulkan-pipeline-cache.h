@@ -83,7 +83,7 @@ private:
    */
   uint32_t GetCacheSize() const;
 
-private:
+public:
 
   friend class PipelineCacheDebug;
 
