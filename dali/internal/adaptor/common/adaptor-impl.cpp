@@ -954,6 +954,10 @@ void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
 
+  // Flush the event queue to give the update-render thread chance
+  // to start processing messages for new camera setup etc as soon as possible
+  ProcessCoreEvents();
+
   // Start thread controller after the scene has been created
   mThreadController->Start();
 
