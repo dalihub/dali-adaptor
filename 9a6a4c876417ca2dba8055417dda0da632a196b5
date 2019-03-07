@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7d6d47ce_34557893",
+        "filename": "dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:11:14Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "6c8263da_8357d2da",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 55
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18e6e731_070f6893",
         "filename": "dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-26T19:37:03Z",
       "side": 1,
       "message": "Do we want to do this in the main thread, or in the worker thread?",
+      "range": {
+        "startLine": 116,
+        "startChar": 1,
+        "endLine": 130,
+        "endChar": 9
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2bcd284_cb219f45",
+        "filename": "dali/graphics/vulkan/api/internal/vulkan-pipeline-cache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:11:14Z",
+      "side": 1,
+      "message": "there is no point to do ageing and collecting expired pipelines in the worker thread, this operation takes literally no time. probably, would take longer to create a task and wake up worker thread.\n\nIn the case, the pipeline needs to be compiled, we create the task and put it in the container which later will be executed by the thread pool.",
+      "parentUuid": "18e6e731_070f6893",
       "range": {
         "startLine": 116,
         "startChar": 1,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "0ed857c5_b31c4916",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:11:14Z",
+      "side": 1,
+      "message": "Yes, but it was just too good to be true! I left the comment in case I was dreaming :P Comment removed now :)",
+      "parentUuid": "5ccc1abc_9db4f89f",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 50
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "58dacbdf_c428a813",
         "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2019-02-26T19:37:03Z",
       "side": 1,
       "message": "Huh? Seems redundant - remove.",
+      "range": {
+        "startLine": 1093,
+        "startChar": 2,
+        "endLine": 1094,
+        "endChar": 32
+      },
+      "revId": "9a6a4c876417ca2dba8055417dda0da632a196b5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d69ea63c_1dae0c57",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-controller.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1094,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-07T15:11:14Z",
+      "side": 1,
+      "message": "Leftover code. Many moons ago there was the environmental variable for this. Will remove.",
+      "parentUuid": "58dacbdf_c428a813",
       "range": {
         "startLine": 1093,
         "startChar": 2,
