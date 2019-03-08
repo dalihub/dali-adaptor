@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_GL_IMPLEMENTATION_H__
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,35 @@ public:
   void PostRender()
   {
     /* Do nothing in main implementation */
+  }
+
+  void ConvertTexture( uint8_t* buffer, GLenum& imageGlFormat, const uint32_t dataSize, const GLenum textureGlFormat, const bool isSubImage )
+  {
+    bool convert = ( ( imageGlFormat == GL_RGB ) && ( textureGlFormat == GL_RGBA ) );
+#if DALI_GLES_VERSION >= 30
+    // Don't convert manually from RGB to RGBA if GLES >= 3.0 and a sub-image is uploaded.
+    convert = convert && !isSubImage;
+#endif // DALI_GLES_VERSION >= 30
+
+    if( convert )
+    {
+      //This buffer is only used if manually converting from RGB to RGBA
+      uint8_t* tempBuffer(0);
+
+      tempBuffer = new uint8_t[dataSize*4u];
+      for( uint32_t i = 0u; i < dataSize; ++i )
+      {
+        tempBuffer[i*4u]   = buffer[i*3u];
+        tempBuffer[i*4u+1] = buffer[i*3u+1];
+        tempBuffer[i*4u+2] = buffer[i*3u+2];
+        tempBuffer[i*4u+3] = 0xFF;
+      }
+      buffer = tempBuffer;
+      imageGlFormat = textureGlFormat; // Set the glFormat to GL_RGBA
+
+      //Destroy temp buffer used for conversion RGB->RGBA
+      delete[] tempBuffer;
+    }
   }
 
   /* OpenGL ES 2.0 */
