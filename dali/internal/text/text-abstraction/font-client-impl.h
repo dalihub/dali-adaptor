@@ -59,6 +59,11 @@ public:
   static Dali::TextAbstraction::FontClient Get();
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
+   */
+  void ClearCache();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
    */
   void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );

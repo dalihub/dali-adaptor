@@ -332,8 +332,9 @@ void Window::Show()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowShown();
-    DALI_LOG_RELEASE_INFO( "Window (%p) ::Show()\n", this );
   }
+
+  DALI_LOG_RELEASE_INFO( "Window (%p) Show(): iconified = %d\n", this, mIconified );
 }
 
 void Window::Hide()
@@ -346,8 +347,9 @@ void Window::Hide()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowHidden();
-    DALI_LOG_RELEASE_INFO( "Window (%p) ::Hide() \n", this );
   }
+
+  DALI_LOG_RELEASE_INFO( "Window (%p) Hide(): iconified = %d\n", this, mIconified );
 }
 
 bool Window::IsVisible() const
@@ -602,8 +604,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowHidden();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", this );
     }
+
+    DALI_LOG_RELEASE_INFO( "Window (%p) Iconified: visible = %d\n", this, mVisible );
   }
   else
   {
@@ -613,8 +616,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowShown();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", this );
     }
+
+    DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified: visible = %d\n", this, mVisible );
   }
 }
 
