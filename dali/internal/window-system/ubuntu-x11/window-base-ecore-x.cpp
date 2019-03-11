@@ -519,7 +519,7 @@ void WindowBaseEcoreX::OnKeyDown( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnKeyDown\n" );
 
     std::string keyName( keyEvent->keyname );
-    std::string key( "" );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -532,7 +532,7 @@ void WindowBaseEcoreX::OnKeyDown( void* data, int type, void* event )
     // Ensure key symbol is not NULL as keys like SHIFT have a null string.
     if( keyEvent->key )
     {
-      key = keyEvent->key;
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = ecore_x_keysym_keycode_get( keyEvent->keyname );
@@ -545,7 +545,7 @@ void WindowBaseEcoreX::OnKeyDown( void* data, int type, void* event )
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent( keyName, key, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -560,7 +560,7 @@ void WindowBaseEcoreX::OnKeyUp( void* data, int type, void* event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, " WindowBaseEcoreX::OnKeyUp\n" );
 
     std::string keyName( keyEvent->keyname );
-    std::string key( "" );
+    std::string logicalKey( "" );
     std::string keyString( "" );
     std::string compose( "" );
 
@@ -572,7 +572,7 @@ void WindowBaseEcoreX::OnKeyUp( void* data, int type, void* event )
     // Ensure key symbol is not NULL as keys like SHIFT have a null string.
     if( keyEvent->key )
     {
-      key = keyEvent->key;
+      logicalKey = keyEvent->key;
     }
 
     int keyCode = ecore_x_keysym_keycode_get( keyEvent->keyname );
@@ -585,7 +585,7 @@ void WindowBaseEcoreX::OnKeyUp( void* data, int type, void* event )
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent( keyName, key, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }

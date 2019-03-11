@@ -947,7 +947,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
   if ( mIMFContext )
   {
     Integration::KeyEvent integKeyEvent( keyEvent );
-    std::string key = integKeyEvent.key;
+    std::string key = integKeyEvent.logicalKey;
 
     std::string compose = keyEvent.GetCompose();
     std::string deviceName = keyEvent.GetDeviceName();
@@ -1000,7 +1000,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
   if( mIMFContext )
   {
     Integration::KeyEvent integKeyEvent( keyEvent );
-    std::string key = integKeyEvent.key;
+    std::string key = integKeyEvent.logicalKey;
 
     std::string compose = keyEvent.GetCompose();
     std::string deviceName = keyEvent.GetDeviceName();
