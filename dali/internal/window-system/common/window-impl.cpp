@@ -68,23 +68,15 @@ Window::Window()
 : mId( mWindowCounter++ ),
   mSurface( nullptr ),
   mWindowBase(),
-  mIndicatorVisible( Dali::Window::INVISIBLE ),   // TODO: Enable this after indicator implementation based on tizen 5.
-  mIndicatorIsShown( false ),
-  mShowRotatedIndicatorOnClose( false ),
   mStarted( false ),
   mIsFocusAcceptable( true ),
   mVisible( true ),
   mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( false ),
-  mIndicator(),
-  mIndicatorOrientation( Dali::Window::PORTRAIT ),
-  mNextIndicatorOrientation( Dali::Window::PORTRAIT ),
-  mIndicatorOpacityMode( Dali::Window::OPAQUE ),
   mAdaptor( NULL ),
   mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
-  mIndicatorVisibilityChangedSignal(),
   mFocusChangedSignal(),
   mResizedSignal(),
   mDeleteRequestSignal()
@@ -93,11 +85,6 @@ Window::Window()
 
 Window::~Window()
 {
-  if( mIndicator )
-  {
-    mIndicator->Close();
-  }
-
   if ( mAdaptor )
   {
     mAdaptor->RemoveObserver( *this );
@@ -123,7 +110,6 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   mWindowBase->IconifyChangedSignal().Connect( this, &Window::OnIconifyChanged );
   mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
-  mWindowBase->IndicatorFlickedSignal().Connect( this, &Window::OnIndicatorFlicked );
 
   mSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
@@ -169,11 +155,6 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
     mOrientation->SetAdaptor(adaptor);
   }
 
-  if( mIndicator != NULL )
-  {
-    mIndicator->SetAdaptor(mAdaptor);
-  }
-
   mSurface->SetAdaptor( *mAdaptor );
 }
 
@@ -184,35 +165,14 @@ WindowRenderSurface* Window::GetSurface()
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
 {
-  // TODO: Enable this after indicator implementation based on tizen 5.
-//  mIndicatorVisible = visibleMode;
-
-  mWindowBase->ShowIndicator( mIndicatorVisible, mIndicatorOpacityMode );
-
-  DoShowIndicator( mIndicatorOrientation );
 }
 
 void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode )
 {
-  mIndicatorOpacityMode = opacityMode;
-
-  if( mIndicator != NULL )
-  {
-    mIndicator->SetOpacityMode( opacityMode );
-  }
-}
-
-void Window::SetIndicatorVisibleMode( Dali::Window::IndicatorVisibleMode mode )
-{
-  // TODO: Enable this after indicator implementation based on tizen 5.
-//  mIndicatorVisible = mode;
 }
 
 void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
 {
-  DALI_LOG_TRACE_METHOD_FMT( gWindowLogFilter, "Orientation: %d\n", orientation );
-
-  DoRotateIndicator( orientation );
 }
 
 void Window::SetClass( std::string name, std::string className )
@@ -372,8 +332,9 @@ void Window::Show()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowShown();
-    DALI_LOG_RELEASE_INFO( "Window (%p) ::Show()\n", this );
   }
+
+  DALI_LOG_RELEASE_INFO( "Window (%p) Show(): iconified = %d\n", this, mIconified );
 }
 
 void Window::Hide()
@@ -386,8 +347,9 @@ void Window::Hide()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowHidden();
-    DALI_LOG_RELEASE_INFO( "Window (%p) ::Hide() \n", this );
   }
+
+  DALI_LOG_RELEASE_INFO( "Window (%p) Hide(): iconified = %d\n", this, mIconified );
 }
 
 bool Window::IsVisible() const
@@ -632,105 +594,6 @@ void Window::RotationDone( int orientation, int width, int height )
   mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
 }
 
-void Window::DoShowIndicator( Dali::Window::WindowOrientation lastOrientation )
-{
-  if( mIndicator == NULL )
-  {
-    if( mIndicatorVisible != Dali::Window::INVISIBLE )
-    {
-      auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
-      mIndicator = windowFactory->CreateIndicator( mAdaptor, mIndicatorOrientation, this );
-      if( mIndicator )
-      {
-        mIndicator->SetOpacityMode( mIndicatorOpacityMode );
-        Dali::Actor actor = mIndicator->GetActor();
-        SetIndicatorActorRotation();
-      }
-    }
-    // else don't create a hidden indicator
-  }
-  else // Already have indicator
-  {
-    if( mIndicatorVisible == Dali::Window::VISIBLE )
-    {
-      // If we are resuming, and rotation has changed,
-      if( mIndicatorIsShown == false && mIndicatorOrientation != mNextIndicatorOrientation )
-      {
-        // then close current indicator and open new one
-        mShowRotatedIndicatorOnClose = true;
-        mIndicator->Close(); // May synchronously call IndicatorClosed() callback & 1 level of recursion
-        // Don't show actor - will contain indicator for old orientation.
-      }
-    }
-  }
-
-  // set indicator visible mode
-  if( mIndicator != NULL )
-  {
-    mIndicator->SetVisible( mIndicatorVisible );
-  }
-
-  bool show = (mIndicatorVisible != Dali::Window::INVISIBLE );
-  SetIndicatorProperties( show, lastOrientation );
-  mIndicatorIsShown = show;
-}
-
-void Window::DoRotateIndicator( Dali::Window::WindowOrientation orientation )
-{
-  if( mIndicatorIsShown )
-  {
-    mShowRotatedIndicatorOnClose = true;
-    mNextIndicatorOrientation = orientation;
-    if( mIndicator )
-    {
-      mIndicator->Close(); // May synchronously call IndicatorClosed() callback
-    }
-  }
-  else
-  {
-    // Save orientation for when the indicator is next shown
-    mShowRotatedIndicatorOnClose = false;
-    mNextIndicatorOrientation = orientation;
-  }
-}
-
-void Window::SetIndicatorActorRotation()
-{
-  DALI_LOG_TRACE_METHOD( gWindowLogFilter );
-  if( mIndicator )
-  {
-    Dali::Actor actor = mIndicator->GetActor();
-    switch( mIndicatorOrientation )
-    {
-      case Dali::Window::PORTRAIT:
-        actor.SetParentOrigin( ParentOrigin::TOP_CENTER );
-        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-        actor.SetOrientation( Degree(0), Vector3::ZAXIS );
-        break;
-      case Dali::Window::PORTRAIT_INVERSE:
-        actor.SetParentOrigin( ParentOrigin::BOTTOM_CENTER );
-        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-        actor.SetOrientation( Degree(180), Vector3::ZAXIS );
-        break;
-      case Dali::Window::LANDSCAPE:
-        actor.SetParentOrigin( ParentOrigin::CENTER_LEFT );
-        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-        actor.SetOrientation( Degree(270), Vector3::ZAXIS );
-        break;
-      case Dali::Window::LANDSCAPE_INVERSE:
-        actor.SetParentOrigin( ParentOrigin::CENTER_RIGHT );
-        actor.SetAnchorPoint(  AnchorPoint::TOP_CENTER );
-        actor.SetOrientation( Degree(90), Vector3::ZAXIS );
-        break;
-    }
-  }
-}
-
-void Window::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
-{
-  mWindowBase->SetIndicatorProperties( isShow, lastOrientation );
-}
-
 void Window::OnIconifyChanged( bool iconified )
 {
   if( iconified )
@@ -741,8 +604,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowHidden();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Iconified\n", this );
     }
+
+    DALI_LOG_RELEASE_INFO( "Window (%p) Iconified: visible = %d\n", this, mVisible );
   }
   else
   {
@@ -752,8 +616,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowShown();
-      DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified\n", this );
     }
+
+    DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified: visible = %d\n", this, mVisible );
   }
 }
 
@@ -774,44 +639,8 @@ void Window::OnDeleteRequest()
   mDeleteRequestSignal.Emit();
 }
 
-void Window::OnIndicatorFlicked()
-{
-  if( mIndicator )
-  {
-    mIndicator->Flicked();
-  }
-}
-
-void Window::IndicatorTypeChanged( IndicatorInterface::Type type )
-{
-  mWindowBase->IndicatorTypeChanged( type );
-}
-
-void Window::IndicatorClosed( IndicatorInterface* indicator )
-{
-  DALI_LOG_TRACE_METHOD( gWindowLogFilter );
-
-  if( mShowRotatedIndicatorOnClose )
-  {
-    Dali::Window::WindowOrientation currentOrientation = mIndicatorOrientation;
-    if( mIndicator )
-    {
-      mIndicator->Open( mNextIndicatorOrientation );
-    }
-    mIndicatorOrientation = mNextIndicatorOrientation;
-    SetIndicatorActorRotation();
-    DoShowIndicator( currentOrientation );
-  }
-}
-
-void Window::IndicatorVisibilityChanged( bool isVisible )
-{
-  mIndicatorVisibilityChangedSignal.Emit( isVisible );
-}
-
 void Window::OnStart()
 {
-  DoShowIndicator( mIndicatorOrientation );
 }
 
 void Window::OnPause()
@@ -820,23 +649,10 @@ void Window::OnPause()
 
 void Window::OnResume()
 {
-  // resume indicator status
-  if( mIndicator != NULL )
-  {
-    // Restore own indicator opacity
-    // Send opacity mode to indicator service when app resumed
-    mIndicator->SetOpacityMode( mIndicatorOpacityMode );
-  }
 }
 
 void Window::OnStop()
 {
-  if( mIndicator )
-  {
-    mIndicator->Close();
-  }
-
-  mIndicator.release();
 }
 
 void Window::OnDestroy()

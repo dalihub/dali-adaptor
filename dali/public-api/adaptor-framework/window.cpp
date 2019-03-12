@@ -59,21 +59,29 @@ Window& Window::operator=(const Window& rhs)
 
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ShowIndicator is deprecated and will be removed from next release.\n" );
+
   GetImplementation(*this).ShowIndicator( visibleMode );
 }
 
 Window::IndicatorSignalType& Window::IndicatorVisibilityChangedSignal()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: IndicatorVisibilityChangedSignal is deprecated and will be removed from next release.\n" );
+
   return GetImplementation(*this).IndicatorVisibilityChangedSignal();
 }
 
 void Window::SetIndicatorBgOpacity( IndicatorBgOpacity opacity )
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: SetIndicatorBgOpacity is deprecated and will be removed from next release.\n" );
+
   GetImplementation(*this).SetIndicatorBgOpacity( opacity );
 }
 
 void Window::RotateIndicator( WindowOrientation orientation )
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: RotateIndicator is deprecated and will be removed from next release.\n" );
+
   GetImplementation(*this).RotateIndicator( orientation );
 }
 

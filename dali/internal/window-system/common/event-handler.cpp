@@ -533,7 +533,7 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     case 20: // TwoFingersTripleTap
     {
       // Read information from indicator
-      accessibilityAdaptor->HandleActionReadIndicatorInformationEvent();
+      // Not supported
       break;
     }
     case 21: // ThreeFingersSingleTap

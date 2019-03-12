@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,6 +126,17 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     mIsOwnSurface = isOwnSurface;
   }
 
+  // We want to display this information all the time, so use the LogMessage directly
+  Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
+      "            Vendor:        %s\n"
+      "            Version:       %s\n"
+      "            Client APIs:   %s\n"
+      "            Extensions:    %s\n",
+      eglQueryString( mEglDisplay, EGL_VENDOR ),
+      eglQueryString( mEglDisplay, EGL_VERSION ),
+      eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
+      eglQueryString( mEglDisplay, EGL_EXTENSIONS ));
+
   return mGlesInitialized;
 }
 
@@ -205,17 +216,6 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
     DALI_ASSERT_ALWAYS(false && "MakeContextCurrent failed!");
   }
-
-  // We want to display this information all the time, so use the LogMessage directly
-  Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
-      "            Vendor:        %s\n"
-      "            Version:       %s\n"
-      "            Client APIs:   %s\n"
-      "            Extensions:    %s\n",
-      eglQueryString(mEglDisplay, EGL_VENDOR),
-      eglQueryString(mEglDisplay, EGL_VERSION),
-      eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
-      eglQueryString(mEglDisplay, EGL_EXTENSIONS));
 }
 
 void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface )

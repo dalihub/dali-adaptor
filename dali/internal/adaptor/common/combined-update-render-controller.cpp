@@ -183,6 +183,8 @@ void CombinedUpdateRenderController::Start()
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
   RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }
 
 void CombinedUpdateRenderController::Pause()
@@ -194,6 +196,8 @@ void CombinedUpdateRenderController::Pause()
   PauseUpdateRenderThread();
 
   AddPerformanceMarker( PerformanceInterface::PAUSED );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Pause\n" );
 }
 
 void CombinedUpdateRenderController::Resume()
@@ -211,6 +215,8 @@ void CombinedUpdateRenderController::Resume()
     mRunning = TRUE;
     mForceClear = TRUE;
   }
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
 }
 
 void CombinedUpdateRenderController::Stop()
@@ -238,6 +244,8 @@ void CombinedUpdateRenderController::Stop()
   }
 
   mRunning = FALSE;
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Stop\n" );
 }
 
 void CombinedUpdateRenderController::RequestUpdate()

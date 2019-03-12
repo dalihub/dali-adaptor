@@ -48,7 +48,6 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
 
   // After DALi can support multi window, this part should be changed.
   Dali::Window window = application->GetWindow();
-  window.ShowIndicator(Dali::Window::INVISIBLE);
   Any nativeHandle = window.GetNativeHandle();
 
 #ifdef ECORE_WAYLAND2
