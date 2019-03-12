@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {
@@ -119,7 +122,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   SetRenderRefreshRate( environmentOptions.GetRenderRefreshRate() );
 
   // Set the thread-synchronization interface on the render-surface
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->SetThreadSynchronization( *this );
@@ -169,7 +172,7 @@ void CombinedUpdateRenderController::Start()
     sem_wait( &mEventThreadSemaphore );
   }
 
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StartRender();
@@ -215,7 +218,7 @@ void CombinedUpdateRenderController::Stop()
   LOG_EVENT_TRACE;
 
   // Stop Rendering and the Update/Render Thread
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StopRender();
@@ -275,7 +278,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce()
   }
 }
 
-void CombinedUpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
+void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
 {
   LOG_EVENT_TRACE;
 
@@ -407,11 +410,37 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   LOG_UPDATE_RENDER( "THREAD CREATED" );
 
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  // Initialize EGL & OpenGL
+  Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
+  displayConnection.Initialize();
+
+  RenderSurfaceInterface* currentSurface = nullptr;
+
+#if DALI_GLES_VERSION >= 30
+
+  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics *>(&graphics);
+
+  // This will only be created once
+  EglInterface* eglInterface = &eglGraphics->GetEglInterface();
+
+  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( *eglInterface );
+  eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ); // Always use this for shared context???
+
+  // Create a surfaceless OpenGL context for shared resources
+  eglImpl.CreateContext();
+  eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
+
+#else // DALI_GLES_VERSION >= 30
+
+  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
-    currentSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface(), mAdaptorInterfaces.GetDisplayConnectionInterface() );
+    currentSurface->InitializeGraphics();
+    currentSurface->MakeContextCurrent();
   }
+
+#endif
 
   // Tell core it has a context
   mCore.ContextCreated();
@@ -458,7 +487,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // REPLACE SURFACE
     //////////////////////////////
 
-    RenderSurface* newSurface = ShouldSurfaceBeReplaced();
+    Integration::RenderSurface* newSurface = ShouldSurfaceBeReplaced();
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
@@ -469,7 +498,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // If the new surface has a different display connection, then the context will be lost
 
       mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
-      newSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface(), mAdaptorInterfaces.GetDisplayConnectionInterface() );
+      newSurface->InitializeGraphics();
       newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
@@ -516,7 +545,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     // Check resize
-    bool surfaceResized = false;
     bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
     if( DALI_UNLIKELY( shouldSurfaceBeResized ) )
     {
@@ -524,7 +552,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       {
         LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
         SurfaceResized();
-        surfaceResized = true;
       }
     }
 
@@ -547,11 +574,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-    if( currentSurface )
-    {
-      currentSurface->PreRender( surfaceResized );
-    }
+#if DALI_GLES_VERSION >= 30
+    // Make the shared surfaceless context as current before rendering
+    eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
+#endif
 
     Integration::RenderStatus renderStatus;
 
@@ -560,14 +586,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
     mForceClear = false;
-
-    if( renderStatus.NeedsPostRender() )
-    {
-      if( currentSurface )
-      {
-        currentSurface->PostRender( isRenderingToFbo, ( mNewSurface != NULL ), surfaceResized );
-      }
-    }
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )
@@ -691,11 +709,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   return ! mDestroyUpdateRenderThread;
 }
 
-RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
+Integration::RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
 
-  RenderSurface* newSurface = mNewSurface;
+  Integration::RenderSurface* newSurface = mNewSurface;
   mNewSurface = NULL;
 
   return newSurface;

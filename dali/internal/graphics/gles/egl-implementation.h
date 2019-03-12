@@ -22,6 +22,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
@@ -69,25 +70,31 @@ public:
   bool InitializeGles( EGLNativeDisplayType display, bool isOwnSurface = true );
 
   /**
-    * Create the OpenGL context.
+    * Create the OpenGL context for the shared resource.
     * @return true if successful
     */
   virtual bool CreateContext();
 
   /**
+    * Create the OpenGL context for the window.
+    * @return true if successful
+    */
+  bool CreateWindowContext( EGLContext& mEglContext );
+
+  /**
     * Destroy the OpenGL context.
     */
-  void DestroyContext();
+  void DestroyContext( EGLContext& eglContext );
 
   /**
     * Destroy the OpenGL surface.
     */
-  void DestroySurface();
+  void DestroySurface( EGLSurface& eglSurface );
 
   /**
    * Make the OpenGL context current
    */
-  virtual void MakeContextCurrent();
+  virtual void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext );
 
   /**
    * clear the OpenGL context
@@ -116,12 +123,12 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers();
+  virtual void SwapBuffers( EGLSurface& eglSurface );
 
   /**
    * Performs an OpenGL copy buffers command
    */
-  virtual void CopyBuffers();
+  virtual void CopyBuffers( EGLSurface& eglSurface );
 
   /**
    * Performs an EGL wait GL command
@@ -139,9 +146,9 @@ public:
     * Create an OpenGL surface using a window
     * @param window The window to create the surface on
     * @param colorDepth Bit per pixel value (ex. 32 or 24)
-    * @return true on success, false on failure
+    * @return Handle to an on-screen EGL window surface (the requester has an ownership of this egl surface)
     */
-  void CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth );
+  EGLSurface CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth );
 
   /**
    * Create the OpenGL surface using a pixmap
@@ -157,7 +164,7 @@ public:
    * @return true if the context was lost due to a change in display
    *         between old surface and new surface
    */
-  bool ReplaceSurfaceWindow( EGLNativeWindowType window );
+  bool ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext );
 
   /**
    * Replaces the render surface
@@ -192,8 +199,15 @@ private:
 
   EGLDisplay           mEglDisplay;
   EGLConfig            mEglConfig;
-  EGLContext           mEglContext;
+  EGLContext           mEglContext;                            ///< The resource context holding assets such as textures to be shared
+
+  typedef std::vector<EGLContext> EglWindowContextContainer;
+  EglWindowContextContainer mEglWindowContexts;                ///< The EGL context for the window
+
   EGLSurface           mCurrentEglSurface;
+
+  typedef std::vector<EGLSurface> EglWindowSurfaceContainer;
+  EglWindowSurfaceContainer mEglWindowSurfaces;                ///< The EGL surface for the window
 
   int                  mMultiSamplingLevel;
 
@@ -201,7 +215,6 @@ private:
 
   bool                 mGlesInitialized;
   bool                 mIsOwnSurface;
-  bool                 mContextCurrent;
   bool                 mIsWindow;
   bool                 mDepthBufferRequired;
   bool                 mStencilBufferRequired;

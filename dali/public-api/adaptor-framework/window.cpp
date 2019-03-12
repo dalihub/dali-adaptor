@@ -19,6 +19,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 

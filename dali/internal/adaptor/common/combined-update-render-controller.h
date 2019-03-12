@@ -36,7 +36,7 @@
 namespace Dali
 {
 
-class RenderSurface;
+class RenderSurfaceInterface;
 class TriggerEventInterface;
 
 namespace Internal
@@ -124,7 +124,7 @@ public:
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( RenderSurface* surface );
+  virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
@@ -217,7 +217,7 @@ private:
    *
    * @return Pointer to the new surface, NULL otherwise
    */
-  RenderSurface* ShouldSurfaceBeReplaced();
+  Integration::RenderSurface* ShouldSurfaceBeReplaced();
 
   /**
    * Called by the Update/Render thread after a surface has been replaced.
@@ -334,7 +334,7 @@ private:
 
   volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
-  RenderSurface* volatile           mNewSurface;                       ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Integration::RenderSurface* volatile mNewSurface;                    ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
