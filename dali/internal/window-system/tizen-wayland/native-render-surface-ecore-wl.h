@@ -32,7 +32,6 @@ namespace Dali
 {
 
 class DisplayConnection;
-class EglInterface;
 
 /**
  * Ecore Wayland Native implementation of render surface.
@@ -70,92 +69,77 @@ public: // from WindowRenderSurface
    */
   virtual void WaitUntilSurfaceReplaced() override;
 
-public: // from Dali::Integration::RenderSurface
+public: // from Dali::RenderSurface
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetPositionSize()
+   * @copydoc Dali::RenderSurface::GetPositionSize()
    */
   virtual PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetDpi()
+   * @copydoc Dali::RenderSurface::GetDpi()
    */
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
+   * @copydoc Dali::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics() override;
+  virtual void InitializeGraphics( Internal::Adaptor::GraphicsInterface& graphics, DisplayConnection& displayConnection ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::CreateSurface()
+   * @copydoc Dali::RenderSurface::CreateSurface()
    */
   virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::DestroySurface()
+   * @copydoc Dali::RenderSurface::DestroySurface()
    */
   virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::ReplaceGraphicsSurface()
+   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
    */
   virtual bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::MoveResize()
+   * @copydoc Dali::RenderSurface::MoveResize()
    */
   virtual void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::StartRender()
+   * @copydoc Dali::RenderSurface::StartRender()
    */
   virtual void StartRender() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::PreRender()
+   * @copydoc Dali::RenderSurface::PreRender()
    */
   virtual bool PreRender( bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::PostRender()
+   * @copydoc Dali::RenderSurface::PostRender()
    */
   virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::StopRender()
+   * @copydoc Dali::RenderSurface::StopRender()
    */
   virtual void StopRender() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::SetThreadSynchronization
+   * @copydoc Dali::RenderSurface::SetThreadSynchronization
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetSurfaceType()
+   * @copydoc Dali::RenderSurface::GetSurfaceType()
    */
-  virtual Integration::RenderSurface::Type GetSurfaceType() override;
-
-  /**
-   * @copydoc Dali::Integration::RenderSurface::MakeContextCurrent()
-   */
-  virtual void MakeContextCurrent() override;
-
-  /**
-   * @copydoc Dali::Integration::RenderSurface::GetDepthBufferRequired()
-   */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() override;
-
-  /**
-   * @copydoc Dali::Integration::RenderSurface::GetStencilBufferRequired()
-   */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
+  virtual RenderSurface::Type GetSurfaceType() override;
 
 private:
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::ReleaseLock()
+   * @copydoc Dali::RenderSurface::ReleaseLock()
    */
   virtual void ReleaseLock() override;
 
@@ -174,9 +158,6 @@ private: // Data
   PositionSize                           mPosition;
   TriggerEventInterface*                 mRenderNotification;
   Internal::Adaptor::GraphicsInterface*  mGraphics;                  ///< The graphics interface
-  EglInterface*                          mEGL;
-  EGLSurface                             mEGLSurface;
-  EGLContext                             mEGLContext;
   ColorDepth                             mColorDepth;
   tbm_format                             mTbmFormat;
   bool                                   mOwnSurface;

@@ -97,7 +97,7 @@ static unsigned int GetCurrentMilliSeconds(void)
 
 } // unnamed namespace
 
-EventHandler::EventHandler( Integration::RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
+EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
 : mCoreEventInterface( coreEventInterface ),
   mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),

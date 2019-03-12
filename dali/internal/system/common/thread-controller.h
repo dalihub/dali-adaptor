@@ -25,7 +25,7 @@
 namespace Dali
 {
 
-class RenderSurfaceInterface;
+class RenderSurface;
 
 namespace Internal
 {
@@ -105,7 +105,7 @@ public:
    *
    * @param surface new surface
    */
-  void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
+  void ReplaceSurface( RenderSurface* surface );
 
   /**
    * Resize the surface.

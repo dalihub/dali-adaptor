@@ -46,14 +46,14 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay( NULL ),
-  mSurfaceType( Integration::RenderSurface::WINDOW_RENDER_SURFACE ),
+  mSurfaceType( RenderSurface::WINDOW_RENDER_SURFACE ),
   mGraphics( nullptr )
 {
 }
 
 DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 {
-  if( mSurfaceType == Integration::RenderSurface::NATIVE_RENDER_SURFACE )
+  if( mSurfaceType == RenderSurface::NATIVE_RENDER_SURFACE )
   {
     ReleaseNativeDisplay();
   }
@@ -82,11 +82,11 @@ bool DisplayConnectionEcoreWl::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionEcoreWl::SetSurfaceType( Integration::RenderSurface::Type type )
+void DisplayConnectionEcoreWl::SetSurfaceType( RenderSurface::Type type )
 {
   mSurfaceType = type;
 
-  if( mSurfaceType == Integration::RenderSurface::NATIVE_RENDER_SURFACE )
+  if( mSurfaceType == RenderSurface::NATIVE_RENDER_SURFACE )
   {
     mDisplay = GetNativeDisplay();
   }

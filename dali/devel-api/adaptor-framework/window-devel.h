@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,71 +34,6 @@ namespace DevelWindow
  * @param[in] positionSize The new window position and size
  */
 DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
-
-/**
- * @brief Adds a child Actor to the Window.
- *
- * The child will be referenced.
- * @param[in] window The window instance
- * @param[in] actor The child
- * @pre The actor has been initialized.
- * @pre The actor does not have a parent.
- */
-DALI_ADAPTOR_API void Add( Window window, Dali::Actor actor );
-
-/**
- * @brief Removes a child Actor from the Window.
- *
- * The child will be unreferenced.
- * @param[in] window The window instance
- * @param[in] actor The child
- * @pre The actor has been added to the stage.
- */
-DALI_ADAPTOR_API void Remove( Window window, Dali::Actor actor );
-
-/**
- * @brief Sets the background color of the window.
- *
- * @param[in] window The window instance
- * @param[in] color The new background color
- */
-DALI_ADAPTOR_API void SetBackgroundColor( Window window, Vector4 color );
-
-/**
- * @brief Gets the background color of the surface.
- *
- * @param[in] window The window instance
- * @return The background color
- */
-DALI_ADAPTOR_API Vector4 GetBackgroundColor( Window window );
-
-/**
- * @brief Returns the Scene's Root Layer.
- *
- * @param[in] window The window instance
- * @return The root layer
- */
-DALI_ADAPTOR_API Dali::Layer GetRootLayer( Window window );
-
-/**
- * @brief Queries the number of on-stage layers.
- *
- * Note that a default layer is always provided (count >= 1).
- * @param[in] window The window instance
- * @return The number of layers
- */
-DALI_ADAPTOR_API uint32_t GetLayerCount( Window window );
-
-/**
- * @brief Retrieves the layer at a specified depth.
- *
- * @param[in] window The window instance
- * @param[in] depth The depth
- * @return The layer found at the given depth
- * @pre Depth is less than layer count; see GetLayerCount().
- */
-DALI_ADAPTOR_API Dali::Layer GetLayer( Window window, uint32_t depth );
-
 
 } // namespace DevelWindow
 
