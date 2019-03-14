@@ -273,7 +273,7 @@ public:
   bool AddIdle( CallbackBase* callback );
 
   /**
-   * @brief Retrieves the window used by the Application class.
+   * @brief Retrieves the main window used by the Application class.
    *
    * The application writer can use the window to change indicator and orientation
    * properties.
@@ -283,6 +283,7 @@ public:
   Window GetWindow();
 
   /**
+   * @DEPRECATED_1_4.12
    * @brief Replaces the current window.
    *
    * This will force context loss.
@@ -292,7 +293,7 @@ public:
    * @param[in] windowPosition The position and size parameters of the new window
    * @param[in] name The name of the new window
    */
-  void ReplaceWindow(PositionSize windowPosition, const std::string& name);
+  void ReplaceWindow(PositionSize windowPosition, const std::string& name)  DALI_DEPRECATED_API;
 
   /**
    * @brief Get path application resources are stored at

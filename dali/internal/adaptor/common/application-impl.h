@@ -391,6 +391,8 @@ private:
   Dali::Application::WINDOW_MODE           mMainWindowMode;   ///< Window mode of the main window
   std::string                              mMainWindowName;   ///< Name of the main window as obtained from environment options
 
+  bool                                     mMainWindowReplaced;   ///< Whether the main window has been replaced
+
   std::string                              mStylesheet;
   EnvironmentOptions                       mEnvironmentOptions;
   PositionSize                             mWindowPositionSize;
