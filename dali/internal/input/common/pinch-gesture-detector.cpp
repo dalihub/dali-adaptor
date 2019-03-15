@@ -246,7 +246,10 @@ void PinchGestureDetector::SendPinch(Gesture::State state, const Integration::To
 
   gesture.time = currentEvent.time;
 
-  mCoreEventInterface.QueueCoreEvent(gesture);
+  if( mScene )
+  {
+    mScene->QueueEvent(gesture);
+  }
 }
 
 } // namespace Adaptor

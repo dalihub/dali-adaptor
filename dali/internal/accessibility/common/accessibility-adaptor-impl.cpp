@@ -26,6 +26,7 @@
 #include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/system-settings.h>
 
 namespace Dali

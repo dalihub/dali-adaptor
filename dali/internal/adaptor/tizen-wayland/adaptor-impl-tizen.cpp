@@ -112,12 +112,11 @@ void Adaptor::SurfaceInitialized()
   // Use strdup() in app_get_id(), so need to free memory
   if( appId )
   {
-    WindowPane defaultWindow = mWindowFrame.front();
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Window* ecoreWlWindow = AnyCast< Ecore_Wl2_Window* >( defaultWindow.nativeWindow );
+    Ecore_Wl2_Window* ecoreWlWindow = AnyCast< Ecore_Wl2_Window* >( mWindows.front()->GetNativeHandle() );
     screen_connector_provider_remote_enable( appId, ecore_wl2_window_surface_get( ecoreWlWindow ) );
 #else
-    Ecore_Wl_Window* ecoreWlWindow = AnyCast< Ecore_Wl_Window* >( defaultWindow.nativeWindow );
+    Ecore_Wl_Window* ecoreWlWindow = AnyCast< Ecore_Wl_Window* >( mWindows.front()->GetNativeHandle() );
     screen_connector_provider_remote_enable( appId, ecore_wl_window_surface_get( ecoreWlWindow ) );
 #endif
     free( appId );

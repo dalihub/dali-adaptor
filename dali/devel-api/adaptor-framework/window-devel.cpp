@@ -15,6 +15,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/events/key-event.h>
+#include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/events/wheel-event.h>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -63,6 +68,26 @@ uint32_t GetLayerCount( Window window )
 Dali::Layer GetLayer( Window window, uint32_t depth )
 {
   return GetImplementation( window ).GetLayer( depth );
+}
+
+EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window )
+{
+  return GetImplementation( window ).EventProcessingFinishedSignal();
+}
+
+KeyEventSignalType& KeyEventSignal( Window window )
+{
+  return GetImplementation( window ).KeyEventSignal();
+}
+
+TouchSignalType& TouchSignal( Window window )
+{
+  return GetImplementation( window ).TouchSignal();
+}
+
+WheelEventSignalType& WheelEventSignal( Window window )
+{
+  return GetImplementation( window ).WheelEventSignal();
 }
 
 } // namespace DevelWindow

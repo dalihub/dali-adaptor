@@ -232,7 +232,10 @@ void LongPressGestureDetector::EmitGesture(Gesture::State state)
       longPress.time += GetSystemValue();
     }
 
-    mCoreEventInterface.QueueCoreEvent(longPress);
+    if( mScene )
+    {
+      mScene->QueueEvent( longPress );
+    }
   }
 }
 

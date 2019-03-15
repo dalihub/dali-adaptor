@@ -186,7 +186,10 @@ void TapGestureDetector::EmitPossibleState( const Integration::TouchEvent& event
   Integration::TapGestureEvent tapEvent( Gesture::Possible );
   tapEvent.point = mTouchPosition;
   tapEvent.time = event.time;
-  mCoreEventInterface.QueueCoreEvent(tapEvent);
+  if( mScene )
+  {
+    mScene->QueueEvent( tapEvent );
+  }
 }
 
 
@@ -230,7 +233,10 @@ void TapGestureDetector::EmitTap( unsigned int time, Integration::TapGestureEven
   event.numberOfTaps = mTapsRegistered;
   event.point = mTouchPosition;
   event.time = time;
-  mCoreEventInterface.QueueCoreEvent(event);
+  if( mScene )
+  {
+    mScene->QueueEvent( event );
+  }
 }
 
 } // namespace Adaptor

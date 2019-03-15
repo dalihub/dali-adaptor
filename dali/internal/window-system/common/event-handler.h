@@ -19,16 +19,20 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/intrusive-ptr.h>
+
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
+#include <dali/devel-api/adaptor-framework/clipboard.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
+#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
+#include <dali/internal/system/common/core-event-interface.h>
+#include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
 #include <dali/internal/window-system/common/window-base.h>
 
@@ -39,7 +43,7 @@ namespace Integration
 {
 
 class RenderSurface;
-
+class Scene;
 }
 
 namespace Internal
@@ -48,7 +52,6 @@ namespace Internal
 namespace Adaptor
 {
 
-class CoreEventInterface;
 class GestureManager;
 class StyleMonitor;
 
@@ -58,19 +61,18 @@ class StyleMonitor;
  *
  * These TouchEvents are then passed on to Core.
  */
-class EventHandler : public ConnectionTracker
+class EventHandler : public ConnectionTracker, public Dali::RefObject
 {
 public:
 
   /**
    * Constructor.
-   * @param[in]  surface                  The surface where events will be sent to.
+   * @param[in]  scene                    The scene where events will be sent to.
    * @param[in]  coreEventInterface       Used to send events to Core.
    * @param[in]  gestureManager           The Gesture Manager.
    * @param[in]  damageObserver           The damage observer (to pass damage events to).
-   * @param[in]  dndDetector              The Drag & Drop listener (to pass DnD events to).
    */
-  EventHandler( Integration::RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector );
+  EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver );
 
   /**
    * Destructor.
@@ -110,12 +112,6 @@ public:
    * Called when the adaptor is resumed (from pause).
    */
   void Resume();
-
-  /**
-   * Sets the Drag & Drop detector.
-   * @param[in]  detector  An intrusive pointer to the Drag & Drop listener to set. To unset pass in NULL.
-   */
-  void SetDragAndDropDetector( DragAndDropDetectorPtr detector );
 
   /**
    * Set the rotation observer (note, some adaptors may not have a rotation observer)
@@ -235,6 +231,7 @@ private:
 
 private:
 
+  Dali::Integration::Scene mScene; ///< The scene the event handler is created for.
   CoreEventInterface& mCoreEventInterface; ///< Used to send events to Core.
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
   GestureManager& mGestureManager; ///< Reference to the GestureManager, set on construction, to send touch events to for analysis.
@@ -242,7 +239,6 @@ private:
   DamageObserver& mDamageObserver; ///< Reference to the DamageObserver, set on construction, to sent damage events to.
   RotationObserver* mRotationObserver; ///< Pointer to rotation observer, if present.
 
-  DragAndDropDetectorPtr mDragAndDropDetector; ///< Pointer to the drag & drop detector, to send Drag & Drop events to.
   Dali::AccessibilityAdaptor mAccessibilityAdaptor; ///< Pointer to the accessibility adaptor
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard

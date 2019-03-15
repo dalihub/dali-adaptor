@@ -23,9 +23,20 @@
 
 namespace Dali
 {
+class KeyEvent;
+class TouchData;
+class WheelEvent;
 
 namespace DevelWindow
 {
+
+typedef Signal< void () > EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
+
+typedef Signal< void (const KeyEvent&) > KeyEventSignalType;       ///< Key event signal type
+
+typedef Signal< void (const TouchData&) > TouchSignalType;         ///< Touch signal type
+
+typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
 
 /**
  * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
@@ -99,6 +110,55 @@ DALI_ADAPTOR_API uint32_t GetLayerCount( Window window );
  */
 DALI_ADAPTOR_API Dali::Layer GetLayer( Window window, uint32_t depth );
 
+/**
+ * @brief This signal is emitted just after the event processing is finished.
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window );
+
+/**
+ * @brief This signal is emitted when key event is received.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName(const KeyEvent& event);
+ * @endcode
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API KeyEventSignalType& KeyEventSignal( Window window );
+
+/**
+ * @brief This signal is emitted when the screen is touched and when the touch ends
+ * (i.e. the down & up touch events only).
+ *
+ * If there are multiple touch points, then this will be emitted when the first touch occurs and
+ * then when the last finger is lifted.
+ * An interrupted event will also be emitted (if it occurs).
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( TouchData event );
+ * @endcode
+ *
+ * @param[in] window The window instance
+ * @return The touch signal to connect to
+ * @note Motion events are not emitted.
+ */
+DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
+
+/**
+ * @brief This signal is emitted when wheel event is received.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName(const WheelEvent& event);
+ * @endcode
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
 
 } // namespace DevelWindow
 

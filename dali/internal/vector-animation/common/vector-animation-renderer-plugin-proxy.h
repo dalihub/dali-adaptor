@@ -80,7 +80,12 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::GetTotalFrameNumber()
    */
-  uint32_t GetTotalFrameNumber();
+  uint32_t GetTotalFrameNumber() const;
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::GetFrameRate()
+   */
+  float GetFrameRate() const;
 
   // Not copyable or movable
   VectorAnimationRendererPluginProxy( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy constructor
