@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,9 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 
 // EXTERNAL INCLUDES
-#if DALI_GLES_VERSION >= 30
-#include <GLES3/gl3.h>
-
-#else
 #include <GLES2/gl2.h>
-#endif // DALI_GLES_VERSION >= 30
-
 #include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
 
 #include <EGL/eglext.h>
 

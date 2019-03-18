@@ -66,6 +66,7 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mCurrentEglSurface( 0 ),
   mCurrentEglContext( EGL_NO_CONTEXT ),
   mMultiSamplingLevel( multiSamplingLevel ),
+  mGlesVersion( 30 ),
   mColorDepth( COLOR_DEPTH_24 ),
   mGlesInitialized( false ),
   mIsOwnSurface( true ),
@@ -102,26 +103,6 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       return false;
     }
     eglBindAPI(EGL_OPENGL_ES_API);
-
-    mContextAttribs.Clear();
-
-#if DALI_GLES_VERSION >= 30
-
-    mContextAttribs.Reserve(5);
-    mContextAttribs.PushBack( EGL_CONTEXT_MAJOR_VERSION_KHR );
-    mContextAttribs.PushBack( DALI_GLES_VERSION / 10 );
-    mContextAttribs.PushBack( EGL_CONTEXT_MINOR_VERSION_KHR );
-    mContextAttribs.PushBack( DALI_GLES_VERSION % 10 );
-
-#else // DALI_GLES_VERSION >= 30
-
-    mContextAttribs.Reserve(3);
-    mContextAttribs.PushBack( EGL_CONTEXT_CLIENT_VERSION );
-    mContextAttribs.PushBack( 2 );
-
-#endif // DALI_GLES_VERSION >= 30
-
-    mContextAttribs.PushBack( EGL_NONE );
 
     mGlesInitialized = true;
     mIsOwnSurface = isOwnSurface;
@@ -319,15 +300,16 @@ void EglImplementation::WaitGL()
   eglWaitGL();
 }
 
-void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
+bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 {
   if(mEglConfig && isWindowType == mIsWindow && mColorDepth == depth)
   {
-    return;
+    return true;
   }
 
   bool isTransparent = ( depth == COLOR_DEPTH_32 );
 
+  mColorDepth = depth;
   mIsWindow = isWindowType;
 
   EGLint numConfigs;
@@ -347,29 +329,22 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   configAttribs.PushBack( EGL_RENDERABLE_TYPE );
 
-#if DALI_GLES_VERSION >= 30
-
+  if( mGlesVersion >= 30 )
+  {
 #ifdef _ARCH_ARM_
-  configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
+    configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
 #else
-  // There is a bug in the desktop emulator
-  // Requesting for ES3 causes eglCreateContext even though it allows to ask
-  // for a configuration that supports GLES 3.0
-  configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
+    configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
 #endif // _ARCH_ARM_
+  }
+  else
+  {
+    configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
+  }
 
-#else // DALI_GLES_VERSION >= 30
-
-  Integration::Log::LogMessage( Integration::Log::DebugInfo, "Using OpenGL ES 2 \n" );
-  configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
-
-#endif //DALI_GLES_VERSION >= 30
-
-#if DALI_GLES_VERSION >= 30
 // TODO: enable this flag when it becomes supported
 //  configAttribs.PushBack( EGL_CONTEXT_FLAGS_KHR );
 //  configAttribs.PushBack( EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR );
-#endif //DALI_GLES_VERSION >= 30
 
   configAttribs.PushBack( EGL_RED_SIZE );
   configAttribs.PushBack( 8 );
@@ -409,6 +384,13 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if ( eglChooseConfig( mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs ) != EGL_TRUE )
   {
+    if( mGlesVersion >= 30 )
+    {
+      mEglConfig = NULL;
+      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retring to use OpenGL es 2.0.");
+      return false;
+    }
+
     EGLint error = eglGetError();
     switch (error)
     {
@@ -438,7 +420,26 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
       }
     }
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
+    return false;
   }
+  Integration::Log::LogMessage(Integration::Log::DebugInfo, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10 );
+
+  mContextAttribs.Clear();
+  if( mGlesVersion >= 30 )
+  {
+    mContextAttribs.Reserve(5);
+    mContextAttribs.PushBack( EGL_CONTEXT_MAJOR_VERSION_KHR );
+    mContextAttribs.PushBack( mGlesVersion / 10 );
+    mContextAttribs.PushBack( EGL_CONTEXT_MINOR_VERSION_KHR );
+    mContextAttribs.PushBack( mGlesVersion % 10 );
+  }
+  else
+  {
+    mContextAttribs.Reserve(3);
+    mContextAttribs.PushBack( EGL_CONTEXT_CLIENT_VERSION );
+    mContextAttribs.PushBack( 2 );
+  }
+  mContextAttribs.PushBack( EGL_NONE );
 
   if ( numConfigs != 1 )
   {
@@ -446,6 +447,8 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
     TEST_EGL_ERROR("eglChooseConfig");
   }
+
+  return true;
 }
 
 EGLSurface EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
@@ -516,6 +519,11 @@ bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSur
   return contextLost;
 }
 
+void EglImplementation::SetGlesVersion( const int32_t glesVersion )
+{
+  mGlesVersion = glesVersion;
+}
+
 EGLDisplay EglImplementation::GetDisplay() const
 {
   return mEglDisplay;
@@ -524,6 +532,11 @@ EGLDisplay EglImplementation::GetDisplay() const
 EGLContext EglImplementation::GetContext() const
 {
   return mEglContext;
+}
+
+int32_t EglImplementation::GetGlesVersion() const
+{
+  return mGlesVersion;
 }
 
 } // namespace Adaptor

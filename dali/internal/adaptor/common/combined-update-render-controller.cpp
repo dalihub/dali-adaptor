@@ -424,8 +424,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   RenderSurfaceInterface* currentSurface = nullptr;
 
-#if DALI_GLES_VERSION >= 30
-
   GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
   EglGraphics* eglGraphics = static_cast<EglGraphics *>(&graphics);
 
@@ -433,22 +431,25 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   EglInterface* eglInterface = &eglGraphics->GetEglInterface();
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( *eglInterface );
-  eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ); // Always use this for shared context???
-
-  // Create a surfaceless OpenGL context for shared resources
-  eglImpl.CreateContext();
-  eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
-
-#else // DALI_GLES_VERSION >= 30
-
-  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+  // Try to use OpenGL es 3.0
+  // ChooseConfig returns false here when the device only support gles 2.0.
+  // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
+  if( eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ) )
   {
-    currentSurface->InitializeGraphics();
-    currentSurface->MakeContextCurrent();
+    // Create a surfaceless OpenGL context for shared resources
+    eglImpl.CreateContext();
+    eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
   }
-
-#endif
+  else // Retry to use OpenGL es 2.0
+  {
+    eglGraphics->SetGlesVersion( 20 );
+    currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+    if( currentSurface )
+    {
+      currentSurface->InitializeGraphics();
+      currentSurface->MakeContextCurrent();
+    }
+  }
 
   // Tell core it has a context
   mCore.ContextCreated();
@@ -582,10 +583,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-#if DALI_GLES_VERSION >= 30
-    // Make the shared surfaceless context as current before rendering
-    eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
-#endif
+    if( eglImpl.GetGlesVersion() >= 30 )
+    {
+      // Make the shared surfaceless context as current before rendering
+      eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
+    }
 
     Integration::RenderStatus renderStatus;
 

@@ -39,20 +39,6 @@ Then run the following commands:
          $ ./configure --prefix=$DESKTOP_PREFIX
          $ make install -j8
 
-### Build target options
-
-OpenGL ES context:
-
-When building, the OpenGL ES version of the target should be specified.
-
-Valid version options are 20, 30, 31 for OpenGL ES versions 2.0, 3.0 and 3.1 respectively.
-
-With configure:
-Add: *--enable-gles=X*
-
-With gbs:
-Add to the gbs build line: *--define "%target_gles_version X"*
-
 ### Building and executing test cases
 
 See the README.md in dali-adaptor/automated-tests.
