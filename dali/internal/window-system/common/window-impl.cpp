@@ -94,8 +94,10 @@ Window::~Window()
     mAdaptor = NULL;
   }
 
-  // Do we need to do it?
-  mEventHandler->SetRotationObserver( nullptr );
+  if ( mEventHandler )
+  {
+    mEventHandler->SetRotationObserver( nullptr );
+  }
 }
 
 void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
