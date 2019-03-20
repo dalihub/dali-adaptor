@@ -20,10 +20,14 @@
 
 // EXTERNAL INCLUDES
 #ifndef DALI_PROFILE_UBUNTU
+#ifndef ANDROID
 // Dlog uses C style casts internally
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <dlog.h>
+#else
+#include <log.h>
+#endif
 #else // DALI_PROFILE_UBUNTU
 #include <cstdio>
 #endif
@@ -38,24 +42,7 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
 {
   const char* DALI_TAG = "DALI";
 
-#ifndef DALI_PROFILE_UBUNTU
-  switch(level)
-  {
-    case Dali::Integration::Log::DebugInfo:
-      LOG(LOG_INFO, DALI_TAG, "%s", message.c_str());
-      break;
-    case Dali::Integration::Log::DebugWarning:
-      LOG(LOG_WARN, DALI_TAG, "%s", message.c_str());
-      break;
-    case Dali::Integration::Log::DebugError:
-      LOG(LOG_ERROR, DALI_TAG, "%s", message.c_str());
-      break;
-    default:
-      LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
-      break;
-  }
-#pragma GCC diagnostic pop
-#else // DALI_PROFILE_UBUNTU
+#ifdef DALI_PROFILE_UBUNTU
   const char *format = NULL;
   switch(level)
   {
@@ -73,7 +60,41 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
       break;
   }
   printf(format, DALI_TAG, message.c_str());
-#endif // DALI_PROFILE_UBUNTU
+#elif ANDROID
+  switch(level)
+  {
+    case Dali::Integration::Log::DebugInfo:
+      __android_log_print(ANDROID_LOG_INFO, DALI_TAG, "%s", message.c_str());
+      break;
+    case Dali::Integration::Log::DebugWarning:
+      __android_log_print(ANDROID_LOG_WARN, DALI_TAG, "%s", message.c_str());
+      break;
+    case Dali::Integration::Log::DebugError:
+      __android_log_print(ANDROID_LOG_DEBUG, DALI_TAG, "%s", message.c_str());
+      break;
+    default:
+      __android_log_print(ANDROID_LOG_DEBUG, DALI_TAG, "%s", message.c_str());
+      break;
+  }
+#else
+  switch(level)
+  {
+    case Dali::Integration::Log::DebugInfo:
+      LOG(LOG_INFO, DALI_TAG, "%s", message.c_str());
+      break;
+    case Dali::Integration::Log::DebugWarning:
+      LOG(LOG_WARN, DALI_TAG, "%s", message.c_str());
+      break;
+    case Dali::Integration::Log::DebugError:
+      LOG(LOG_ERROR, DALI_TAG, "%s", message.c_str());
+      break;
+    default:
+      LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
+      break;
+  }
+  #pragma GCC diagnostic pop
+#endif
+
 }
 
 } // namespace TizenPlatform

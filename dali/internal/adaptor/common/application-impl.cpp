@@ -229,7 +229,6 @@ void Application::OnInit()
   mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
 
   CreateAdaptorBuilder();
-
   // If an application was pre-initialized, a window was made in advance
   if( mLaunchpadState == Launchpad::NONE )
   {
@@ -288,6 +287,13 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
+#ifdef ANDROID
+  if( mAdaptor )
+  {
+    mAdaptor->Pause();
+  }
+#endif
+
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
   // Pausing DALi core only occurs on the Window Hidden framework event
@@ -297,6 +303,13 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
+#ifdef ANDROID
+  if( mAdaptor )
+  {
+    mAdaptor->Resume();
+  }
+#endif
+
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
@@ -354,6 +367,49 @@ void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
 
   mLowMemorySignal.Emit( status );
 }
+
+#ifdef ANDROID
+void Application::OnSurfaceCreated( Any newSurface )
+{
+  void* newWindow = AnyCast< void* >( newSurface );
+  void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
+  if( oldWindow != newWindow )
+  {
+    Any surface;
+    auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+    std::unique_ptr< WindowRenderSurface > newSurfacePtr
+      = renderSurfaceFactory->CreateWindowRenderSurface( PositionSize(), newSurface, true );
+
+    mAdaptor->ReplaceSurface( mMainWindow, *newSurfacePtr.release() );
+  }
+}
+
+void Application::OnSurfaceDestroyed( Any oldSurface )
+{
+  mAdaptor->Pause();
+}
+
+void Application::OnTimeTick()
+{
+
+}
+
+void Application::OnTouchEvent( TouchPoint& touchPoint, int timeStamp )
+{
+  if( mAdaptor )
+  {
+    mAdaptor->FeedTouchPoint( touchPoint, timeStamp );
+  }
+}
+
+void Application::OnKeyEvent( KeyEvent& keyEvent )
+{
+  if( mAdaptor )
+  {
+    mAdaptor->FeedKeyEvent( keyEvent );
+  }
+}
+#endif
 
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
@@ -434,6 +490,16 @@ std::string Application::GetResourcePath()
 std::string Application::GetDataPath()
 {
   return Internal::Adaptor::Framework::GetDataPath();
+}
+
+void Application::SetApplicationContext(void* context)
+{
+  Internal::Adaptor::Framework::SetApplicationContext( context );
+}
+
+void* Application::GetApplicationContext()
+{
+  return Internal::Adaptor::Framework::GetApplicationContext();
 }
 
 void Application::SetStyleSheet( const std::string& stylesheet )

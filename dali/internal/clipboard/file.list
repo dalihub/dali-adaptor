@@ -11,3 +11,8 @@ adaptor_clipboard_tizen_wayland_src_files=\
 # module: clipboard, backend: ubuntu-x11
 adaptor_clipboard_ubuntu_x11_src_files=\
     ${adaptor_clipboard_dir}/ubuntu-x11/clipboard-impl-x.cpp
+
+# module: clipboard, backend: android
+adaptor_clipboard_android_src_files=\
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+

@@ -19,3 +19,8 @@ adaptor_graphics_tizen_src_files=\
 adaptor_graphics_ubuntu_src_files=\
     ${adaptor_graphics_dir}/ubuntu/egl-image-extensions-ubuntu.cpp \
     ${adaptor_graphics_dir}/ubuntu/vsync-monitor-ubuntu.cpp
+
+# module: graphics, backend: android
+adaptor_graphics_android_src_files=\
+    ${adaptor_graphics_dir}/android/egl-image-extensions-android.cpp \
+    ${adaptor_graphics_dir}/android/vsync-monitor-android.cpp

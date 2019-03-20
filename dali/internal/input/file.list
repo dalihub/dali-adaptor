@@ -7,10 +7,10 @@ adaptor_input_common_src_files=\
     ${adaptor_input_dir}/common/key-impl.cpp \
     ${adaptor_input_dir}/common/keyboard.cpp \
     ${adaptor_input_dir}/common/physical-keyboard-impl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
 
 # module: input, backend: tizen-wayland
 adaptor_input_tizen_wayland_src_files=\
+    ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp \
     ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp \
     ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp \
     ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp \
@@ -21,4 +21,11 @@ adaptor_input_ubuntu_x11_src_files=\
     ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp \
     ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp \
     ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp \
-    ${adaptor_input_dir}/ubuntu-x11/virtual-keyboard-impl-x.cpp
+    ${adaptor_input_dir}/ubuntu-x11/virtual-keyboard-impl-x.cpp \
+
+# module: input, backend: android
+adaptor_input_android_src_files=\
+    ${adaptor_input_dir}/android/input-method-context-factory-android.cpp \
+    ${adaptor_input_dir}/android/input-method-context-impl-android.cpp \
+    ${adaptor_input_dir}/android/key-mapping-android.cpp \
+    ${adaptor_input_dir}/android/virtual-keyboard-impl-android.cpp \

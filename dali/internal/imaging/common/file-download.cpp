@@ -21,7 +21,9 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <pthread.h>
+#ifndef ANDROID
 #include <curl/curl.h>
+#endif
 #include <cstring>
 
 // INTERNAL INCLUDES
@@ -38,7 +40,7 @@ namespace Dali
 
 namespace TizenPlatform
 {
-
+#ifndef ANDROID
 namespace // unnamed namespace
 {
 
@@ -209,7 +211,7 @@ bool DownloadFile( CURL* curlHandle,
 
 
 } // unnamed namespace
-
+#endif
 
 namespace Network
 {
@@ -220,8 +222,9 @@ CurlEnvironment::CurlEnvironment()
 {
   // Must be called before we attempt any loads. e.g. by using curl_easy_init()
   // and before we start any threads.
+#ifndef ANDROID
   curl_global_init(CURL_GLOBAL_ALL);
-
+#endif
  // libcurl with openssl needs locking_function and thread id for threadsafe
  // https://curl.haxx.se/libcurl/c/threadsafe.html
  // https://www.openssl.org/docs/man1.0.2/crypto/threads.html#DESCRIPTION
@@ -232,8 +235,9 @@ CurlEnvironment::CurlEnvironment()
 CurlEnvironment::~CurlEnvironment()
 {
   UnsetLockingFunction();
-
+#ifndef ANDROID
   curl_global_cleanup();
+#endif
 }
 
 // libcurl with openssl needs locking_function and thread id for threadsafe
@@ -241,6 +245,7 @@ CurlEnvironment::~CurlEnvironment()
 // https://www.openssl.org/docs/man1.0.2/crypto/threads.html#DESCRIPTION
 void CurlEnvironment::OnOpenSSLLocking( int mode, int n, const char* file, int line )
 {
+#ifndef ANDROID
   if( mode & CRYPTO_LOCK )
   {
     mMutexs[n].lock();
@@ -249,16 +254,20 @@ void CurlEnvironment::OnOpenSSLLocking( int mode, int n, const char* file, int l
   {
     mMutexs[n].unlock();
   }
+#endif
 }
 
+#ifndef ANDROID
 void CurlEnvironment::GetThreadId( CRYPTO_THREADID* tid )
 {
   // If dali uses c++ thread, we may replace pthread_self() to this_thread::get_id()
   CRYPTO_THREADID_set_numeric( tid, static_cast< unsigned long > ( pthread_self() ) );
 }
+#endif
 
 void CurlEnvironment::SetLockingFunction()
 {
+#ifndef ANDROID
   if( mMutexs != NULL )
   {
     return;
@@ -268,10 +277,12 @@ void CurlEnvironment::SetLockingFunction()
 
   CRYPTO_THREADID_set_callback( &CurlEnvironment::GetThreadId );
   CRYPTO_set_locking_callback( &CurlEnvironment::OnOpenSSLLocking );
+#endif
 }
 
 void CurlEnvironment::UnsetLockingFunction()
 {
+#ifndef ANDROID
   if( mMutexs == NULL )
   {
     return;
@@ -281,6 +292,7 @@ void CurlEnvironment::UnsetLockingFunction()
   CRYPTO_set_locking_callback( NULL );
   delete [] mMutexs;
   mMutexs = NULL;
+#endif
 }
 
 bool DownloadRemoteFileIntoMemory( const std::string& url,
@@ -295,7 +307,7 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
     DALI_LOG_WARNING("empty url requested \n");
     return false;
   }
-
+#ifndef ANDROID
   // start a libcurl easy session, this internally calls curl_global_init, if we ever have more than one download
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
@@ -312,6 +324,7 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
     tpkp_curl_cleanup();
 #endif // TPK_CURL_ENABLED
   }
+#endif
   return result;
 }
 

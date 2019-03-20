@@ -18,10 +18,10 @@
 #include <dali/internal/imaging/common/loader-png.h>
 
 #include <cstring>
-
+#ifndef ANDROID
 #include <zlib.h>
 #include <png.h>
-
+#endif
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/image.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
@@ -31,7 +31,7 @@ namespace Dali
 {
 namespace TizenPlatform
 {
-
+#ifndef ANDROID
 namespace
 {
 
@@ -109,9 +109,10 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
 }
 
 } // namespace - anonymous
-
+#endif
 bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
+#ifndef ANDROID
   png_structp png = NULL;
   png_infop info = NULL;
   auto_png autoPng(png, info);
@@ -119,10 +120,13 @@ bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, 
   bool success = LoadPngHeader( input.file, width, height, png, info );
 
   return success;
+#endif
+  return false;
 }
 
 bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
+#ifndef ANDROID
   png_structp png = NULL;
   png_infop info = NULL;
   auto_png autoPng(png, info);
@@ -319,8 +323,10 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   free(rows);
 
   return true;
+#endif
+  return false;
 }
-
+#ifndef ANDROID
 // simple class to enforce clean-up of PNG structures
 struct AutoPngWrite
 {
@@ -390,7 +396,7 @@ namespace
 #endif // DEBUG_ENABLED
   }
 }
-
+#endif
 /**
  * Potential improvements:
  * 1. Detect <= 256 colours and write in palette mode.
@@ -405,6 +411,7 @@ namespace
  */
 bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat )
 {
+#ifndef ANDROID
   // Translate pixel format enum:
   int pngPixelFormat = -1;
   unsigned pixelBytes = 0;
@@ -513,6 +520,8 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>&
   /* Clean up after the write, and free any memory allocated */
   png_destroy_write_struct(&png_ptr, &info_ptr);
   return true;
+#endif
+  return false;
 }
 
 } // namespace TizenPlatform

@@ -1,4 +1,4 @@
-devel_api_src_files = \
+adaptor_devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.cpp \

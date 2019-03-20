@@ -53,6 +53,10 @@ DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackB
 DALI_ADAPTOR_API std::string GetDataPath();
 
 
+DALI_ADAPTOR_API void SetApplicationContext( void* context );
+
+DALI_ADAPTOR_API void* GetApplicationContext();
+
 } // namespace DevelApplication
 
 } // namespace Dali

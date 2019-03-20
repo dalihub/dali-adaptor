@@ -32,6 +32,9 @@
 namespace Dali
 {
 
+class TouchPoint;
+class KeyEvent;
+
 namespace Internal
 {
 
@@ -131,6 +134,18 @@ public:
     * Invoked when the memory level of the device is low.
     */
     virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) {}
+
+#ifdef ANDROID
+    virtual void OnSurfaceCreated( Any newSurface ) {};
+
+    virtual void OnSurfaceDestroyed( Any oldSurface ) {};
+
+    virtual void OnTimeTick() {}
+
+    virtual void OnTouchEvent( Dali::TouchPoint& touchPoint, int timeStamp ) {}
+
+    virtual void OnKeyEvent( Dali::KeyEvent& keyEvent ) {}
+#endif
   };
 
 public:
@@ -195,6 +210,10 @@ public:
    */
   static std::string GetDataPath();
 
+  static void* GetApplicationContext();
+
+  static void SetApplicationContext(void* data);
+
   /**
    * Sets system language.
    */
@@ -258,6 +277,7 @@ private:
 private:
   Observer&          mObserver;
   bool               mInitialised;
+  bool               mResume;
   bool               mRunning;
   int*               mArgc;
   char***            mArgv;

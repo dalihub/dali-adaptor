@@ -19,7 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#if !defined(ANDROID)
 #include <xf86drm.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/vsync-monitor-interface.h>
@@ -87,8 +89,12 @@ private: // From Dali::Internal::Adaptor::VSyncMonitorInterface
 
 private:
 
-  int       mFileDescriptor;  ///< DRM dev node file descriptor
+#if !defined(ANDROID)
+  int mFileDescriptor;  ///< DRM dev node file descriptor
   drmVBlank mVBlankInfo;
+#else
+  int mFileDescriptor;
+#endif
   // NOTE cannot use booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
   unsigned int mUseHardwareVSync; ///< Whether to use hardware vsync
   unsigned int mHardwareVSyncAvailable; ///< Whether hardware vsync is available

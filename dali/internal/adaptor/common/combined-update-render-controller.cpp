@@ -515,15 +515,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
-
-      // This is designed for replacing pixmap surfaces, but should work for window as well
-      // we need to delete the surface and renderable (pixmap / window)
-      // Then create a new pixmap/window and new surface
-      // If the new surface has a different display connection, then the context will be lost
-
-      mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
-      newSurface->InitializeGraphics();
-      newSurface->ReplaceGraphicsSurface();
+      currentSurface = static_cast< RenderSurfaceInterface* >( newSurface );
+      if( currentSurface )
+      {
+        currentSurface->InitializeGraphics();
+        currentSurface->MakeContextCurrent();
+      }
+      mForceClear = true;
       SurfaceReplaced();
     }
 

@@ -26,7 +26,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#ifndef ANDROID
 #include <gif_lib.h>
+#endif
 #include <cstring>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel-data.h>
@@ -45,7 +47,7 @@
 
 namespace Dali
 {
-
+#ifndef ANDROID
 namespace
 {
 #if defined(DEBUG_ENABLED)
@@ -1234,6 +1236,29 @@ public:
   ImageProperties imageProperties;
 };
 
+#else
+struct GifLoading::Impl
+{
+public:
+  Impl( const std::string& url, bool isLocalResource )
+  : mUrl( url )
+  {
+  }
+
+  // Moveable but not copyable
+  Impl( const Impl& ) = delete;
+  Impl& operator=( const Impl& ) = delete;
+  Impl( Impl&& ) = default;
+  Impl& operator=( Impl&& ) = default;
+
+  ~Impl()
+  {
+  }
+
+  std::string mUrl;
+};
+#endif
+
 std::unique_ptr<GifLoading> GifLoading::New( const std::string &url, bool isLocalResource )
 {
   return std::unique_ptr<GifLoading>( new GifLoading( url, isLocalResource ) );
@@ -1254,7 +1279,7 @@ bool GifLoading::LoadNextNFrames( int frameStartIndex, int count, std::vector<Da
 {
   int error;
   bool ret = false;
-
+#ifndef ANDROID
   const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof( uint32_t );
 
   DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameStartIndex:%d, count:%d )\n", frameStartIndex, count );
@@ -1276,39 +1301,49 @@ bool GifLoading::LoadNextNFrames( int frameStartIndex, int count, std::vector<Da
       }
     }
   }
-
+#endif
   return ret;
 }
 
 bool GifLoading::LoadAllFrames( std::vector<Dali::PixelData> &pixelData, Dali::Vector<uint32_t> &frameDelays )
 {
+#ifndef ANDROID
   if( LoadFrameDelays( frameDelays ) )
   {
     return LoadNextNFrames( 0, mImpl->loaderInfo.animated.frameCount, pixelData );
   }
+#endif
   return false;
 }
 
 ImageDimensions GifLoading::GetImageSize()
 {
+#ifndef ANDROID
   return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.h );
+#else
+  return ImageDimensions( 0, 0 );
+#endif
 }
 
 int GifLoading::GetImageCount()
 {
+#ifndef ANDROID
   return mImpl->loaderInfo.animated.frameCount;
+#else
+  return 0;
+#endif
 }
 
 bool GifLoading::LoadFrameDelays( Dali::Vector<uint32_t> &frameDelays )
 {
   frameDelays.Clear();
-
+#ifndef ANDROID
   for( auto &&elem : mImpl->loaderInfo.animated.frames )
   {
     // Read frame delay time, multiply 10 to change time unit to milliseconds
     frameDelays.PushBack( elem.info.delay * 10 );
   }
-
+#endif
   return true;
 }
 

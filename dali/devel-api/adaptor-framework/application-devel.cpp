@@ -42,6 +42,16 @@ std::string GetDataPath()
   return Internal::Adaptor::Application::GetDataPath();
 }
 
+void SetApplicationContext( void* context )
+{
+  Internal::Adaptor::Application::SetApplicationContext( context );
+}
+
+void* GetApplicationContext()
+{
+  return Internal::Adaptor::Application::GetApplicationContext();
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

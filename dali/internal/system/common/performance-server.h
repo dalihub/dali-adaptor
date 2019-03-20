@@ -29,6 +29,10 @@
 #include <dali/internal/system/common/performance-marker.h>
 #include <dali/internal/system/common/stat-context-manager.h>
 
+#ifdef ANDROID
+#undef NETWORK_LOGGING_ENABLED
+#endif
+
 namespace Dali
 {
 

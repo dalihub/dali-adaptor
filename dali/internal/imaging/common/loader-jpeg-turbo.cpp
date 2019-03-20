@@ -23,11 +23,13 @@
 #include <array>
 #include <utility>
 #include <memory>
+#ifndef ANDROID
 #include <libexif/exif-data.h>
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
 #include <turbojpeg.h>
 #include <jpeglib.h>
+#endif
 #include <cstring>
 #include <setjmp.h>
 
@@ -41,7 +43,7 @@
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
-
+#ifndef ANDROID
 namespace
 {
 using Dali::Vector;
@@ -473,22 +475,23 @@ void Rotate270(PixelArray buffer, int width, int height)
 }
 
 } // namespace
-
+#endif
 namespace Dali
 {
 
 namespace TizenPlatform
 {
-
+#ifndef ANDROID
 JpegTransform ConvertExifOrientation(ExifData* exifData);
 bool TransformSize( int requiredWidth, int requiredHeight,
                     FittingMode::Type fittingMode, SamplingMode::Type samplingMode,
                     JpegTransform transform,
                     int& preXformImageWidth, int& preXformImageHeight,
                     int& postXformImageWidth, int& postXformImageHeight );
-
+#endif
 bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
 {
+#ifndef ANDROID
   // using libjpeg API to avoid having to read the whole file in a buffer
   struct jpeg_decompress_struct cinfo;
   struct JpegErrorState jerr;
@@ -526,10 +529,14 @@ bool LoadJpegHeader( FILE *fp, unsigned int &width, unsigned int &height )
 
   jpeg_destroy_decompress( &cinfo );
   return true;
+#else
+  return false;
+#endif
 }
 
 bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
+#ifndef ANDROID
   const int flags= 0;
   FILE* const fp = input.file;
 
@@ -816,12 +823,15 @@ bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   }
 
   return result;
+#else
+  return false;
+#endif
 }
 
 bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char >& encodedPixels,
                    const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality )
 {
-
+#ifndef ANDROID
   if( !pixelBuffer )
   {
     DALI_LOG_ERROR("Null input buffer\n");
@@ -902,9 +912,12 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
     memcpy( encodedPixels.Begin(), dstBuffer.get(), dstBufferSize );
   }
   return true;
+#else
+  return false;
+#endif
 }
 
-
+#ifndef ANDROID
 JpegTransform ConvertExifOrientation(ExifData* exifData)
 {
   auto transform = JpegTransform::NONE;
@@ -1113,6 +1126,7 @@ ExifHandle LoadExifData( FILE* fp )
 
   return exifData;
 }
+#endif
 
 bool LoadJpegHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
@@ -1132,6 +1146,7 @@ bool LoadJpegHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
     unsigned int headerHeight;
     if( LoadJpegHeader( fp, headerWidth, headerHeight ) )
     {
+#ifndef ANDROID
       auto transform = JpegTransform::NONE;
 
       if( input.reorientationRequested )
@@ -1160,11 +1175,11 @@ bool LoadJpegHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
         width = headerWidth;
         height = headerHeight;
       }
+#endif
     }
   }
   return success;
 }
-
 
 } // namespace TizenPlatform
 

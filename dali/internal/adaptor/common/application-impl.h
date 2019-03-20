@@ -152,6 +152,10 @@ public:
    */
   static std::string GetDataPath();
 
+  static void SetApplicationContext(void* data);
+
+  static void* GetApplicationContext();
+
   /**
    * Retrieves the pre-initialized application.
    *
@@ -233,6 +237,18 @@ public: // From Framework::Observer
   * Called when the framework informs the application that the memory level of the device is low.
   */
   virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status );
+
+#ifdef ANDROID
+  virtual void OnSurfaceCreated( Any newSurface );
+
+  virtual void OnSurfaceDestroyed( Any oldSurface );
+
+  virtual void OnTimeTick();
+
+  virtual void OnTouchEvent( TouchPoint& touchPoint, int timeStamp );
+
+  virtual void OnKeyEvent( KeyEvent& keyEvent );
+#endif
 
 public:
 

@@ -51,10 +51,16 @@ adaptor_system_tizen_wearable_src_files=\
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 
-
 # module: system, backend: ubuntu-x11
 adaptor_system_ubuntu_x11_src_files=\
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp \
     ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp \
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
+
+# module: system, backend: android
+adaptor_system_android_src_files=\
+    ${adaptor_system_dir}/android/callback-manager-android.cpp \
+    ${adaptor_system_dir}/android/file-descriptor-monitor-android.cpp \
+    ${adaptor_system_dir}/android/system-settings-android.cpp \
+    ${adaptor_system_dir}/android/timer-impl-android.cpp
 

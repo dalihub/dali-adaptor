@@ -14,3 +14,9 @@ adaptor_trace_ubuntu_src_files=\
 adaptor_trace_tizen_src_files=\
     ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp \
     ${adaptor_trace_dir}/tizen/trace-factory-tizen.cpp
+
+# module: trace, backend: android
+adaptor_trace_android_src_files=\
+    ${adaptor_trace_dir}/android/trace-manager-impl-android.cpp \
+    ${adaptor_trace_dir}/android/trace-factory-android.cpp
+

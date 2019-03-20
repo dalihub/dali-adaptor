@@ -24,3 +24,9 @@ adaptor_adaptor_ubuntu_src_files=\
     ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp \
     ${adaptor_adaptor_dir}/ubuntu/framework-ubuntu.cpp
 
+# module: adaptor, backend: android
+adaptor_adaptor_android_src_files=\
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp \
+    ${adaptor_adaptor_dir}/android/framework-android.cpp
+
+

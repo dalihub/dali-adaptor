@@ -96,9 +96,9 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
   {
     mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
   }
-
+#ifndef ANDROID
   mFileDescriptor = shm_open( filename, O_RDONLY, mode );
-
+#endif
   if( mFileDescriptor >= 0 )
   {
     mFilename = filename;

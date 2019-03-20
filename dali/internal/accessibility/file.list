@@ -37,3 +37,9 @@ adaptor_accessibility_ubuntu_src_files=\
     ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp \
     ${adaptor_accessibility_dir}/ubuntu/tts-player-factory-ubuntu.cpp \
     ${adaptor_accessibility_dir}/ubuntu/tts-player-impl-ubuntu.cpp
+
+# module: accessibility, backend: android
+adaptor_accessibility_android_src_files=\
+    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp \
+    ${adaptor_accessibility_dir}/android/tts-player-factory-android.cpp \
+    ${adaptor_accessibility_dir}/android/tts-player-impl-android.cpp

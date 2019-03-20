@@ -12,12 +12,14 @@ adaptor_window_system_common_src_files=\
 
 # module: window-system, backend: tizen-wayland
 adaptor_window_system_tizen_wayland_src_files=\
+    ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/display-connection-factory-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/display-connection-impl-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl.cpp
 
 # module: window-system, backend: ecore-wl
 adaptor_window_system_ecore_wl_src_files=\
+    ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/render-surface-factory-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-base-ecore-wl.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-factory-ecore-wl.cpp \
@@ -25,6 +27,7 @@ adaptor_window_system_ecore_wl_src_files=\
 
 # module: window-system, backend: ecore-wl2
 adaptor_window_system_ecore_wl2_src_files=\
+    ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-base-ecore-wl2.cpp \
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.cpp \
@@ -32,6 +35,7 @@ adaptor_window_system_ecore_wl2_src_files=\
 
 # module: window-system, backend: ubuntu-x11
 adaptor_window_system_ubuntu_x11_src_files=\
+    ${adaptor_window_system_dir}/common/ecore-server-connection.cpp \
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-factory-x.cpp \
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-impl-x.cpp \
     ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp \
@@ -40,4 +44,15 @@ adaptor_window_system_ubuntu_x11_src_files=\
     ${adaptor_window_system_dir}/ubuntu-x11/window-base-ecore-x.cpp \
     ${adaptor_window_system_dir}/ubuntu-x11/window-factory-ecore-x.cpp \
     ${adaptor_window_system_dir}/ubuntu-x11/window-system-ecore-x.cpp
+
+# module: window-system, backend: android
+adaptor_window_system_android_src_files=\
+    ${adaptor_window_system_dir}/android/display-connection-factory-android.cpp \
+    ${adaptor_window_system_dir}/android/display-connection-impl-android.cpp \
+    ${adaptor_window_system_dir}/android/pixmap-render-surface-android.cpp \
+    ${adaptor_window_system_dir}/android/render-surface-factory-android.cpp \
+    ${adaptor_window_system_dir}/android/window-interface-android.cpp \
+    ${adaptor_window_system_dir}/android/window-base-android.cpp \
+    ${adaptor_window_system_dir}/android/window-factory-android.cpp \
+    ${adaptor_window_system_dir}/android/window-system-android.cpp
 
