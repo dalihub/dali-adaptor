@@ -174,6 +174,8 @@ Window Application::GetWindow()
 
 void Application::ReplaceWindow(PositionSize windowPosition, const std::string& name)
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ReplaceWindow is deprecated and will be removed from next release.\n" );
+
   Internal::Adaptor::GetImplementation(*this).ReplaceWindow(windowPosition, name);
 }
 
