@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <EGL/egl.h>
+
 namespace Dali
 {
 
@@ -42,7 +45,7 @@ public:
   /**
    * Make the OpenGL context current
    */
-  virtual void MakeContextCurrent() = 0;
+  virtual void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext ) = 0;
 
   /**
    * Terminate GL
@@ -52,12 +55,12 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers() = 0;
+  virtual void SwapBuffers( EGLSurface& eglSurface ) = 0;
 
   /**
    * Performs an OpenGL copy buffers command
    */
-  virtual void CopyBuffers() = 0;
+  virtual void CopyBuffers( EGLSurface& eglSurface ) = 0;
 
   /**
    * Performs an EGL wait GL command

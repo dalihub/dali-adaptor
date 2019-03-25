@@ -35,7 +35,12 @@
 namespace Dali
 {
 
+namespace Integration
+{
+
 class RenderSurface;
+
+}
 
 namespace Internal
 {
@@ -65,7 +70,7 @@ public:
    * @param[in]  damageObserver           The damage observer (to pass damage events to).
    * @param[in]  dndDetector              The Drag & Drop listener (to pass DnD events to).
    */
-  EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector );
+  EventHandler( Integration::RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector );
 
   /**
    * Destructor.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer
 } // unnamed namespace
 
 
-Dali::Adaptor* Adaptor::New( Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( Any nativeWindow, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
   Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions );
@@ -108,7 +108,7 @@ Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLo
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Any nativeWindow, RenderSurface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Any nativeWindow, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
   Adaptor* impl = new Adaptor( nativeWindow, *adaptor, surface, environmentOptions ); // Impl adaptor
@@ -166,12 +166,17 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   PositionSize size = defaultWindow.surface->GetPositionSize();
 
+  defaultWindow.surface->SetAdaptor(*this);
+
   mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
 
   mGraphics = &( graphicsFactory.Create() );
   mGraphics->Initialize( mEnvironmentOptions );
 
   auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+
+  // This will only be created once
+  eglGraphics->Create();
 
   GlImplementation& mGLES = eglGraphics->GetGlesInterface();
   EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
@@ -271,8 +276,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
-
-  SetupSystemInformation();
 }
 
 Adaptor::~Adaptor()
@@ -321,6 +324,10 @@ void Adaptor::Start()
     return;
   }
 
+  mCore->Initialize();
+
+  SetupSystemInformation();
+
   // Start the callback manager
   mCallbackManager->Start();
 
@@ -340,17 +347,12 @@ void Adaptor::Start()
 
   defaultWindow.surface->GetDpi( dpiHor, dpiVer );
 
-  // tell core about the DPI value
-  mCore->SetDpi(dpiHor, dpiVer);
-
   // set the DPI value for font rendering
   FontClient fontClient = FontClient::Get();
   fontClient.SetDpi( dpiHor, dpiVer );
 
   // Tell the core the size of the surface just before we start the render-thread
-  PositionSize size = defaultWindow.surface->GetPositionSize();
-
-  mCore->SurfaceResized( size.width, size.height );
+  mCore->SurfaceResized( defaultWindow.surface );
 
   // Initialize the thread controller
   mThreadController->Initialize();
@@ -502,18 +504,17 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
   mEventHandler->FeedKeyEvent( keyEvent );
 }
 
-void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
+void Adaptor::ReplaceSurface( Any nativeWindow, Dali::RenderSurfaceInterface& newSurface )
 {
-  PositionSize positionSize = newSurface.GetPositionSize();
-
   // Let the core know the surface size has changed
-  mCore->SurfaceResized( positionSize.width, positionSize.height );
+  mCore->SurfaceResized( &newSurface );
 
   mResizedSignal.Emit( mAdaptor );
 
   WindowPane newDefaultWindow;
   newDefaultWindow.nativeWindow = nativeWindow;
   newDefaultWindow.surface = &newSurface;
+  newDefaultWindow.surface->SetAdaptor(*this);
 
   WindowPane oldDefaultWindow = mWindowFrame.front();
 
@@ -533,7 +534,7 @@ void Adaptor::ReplaceSurface( Any nativeWindow, RenderSurface& newSurface )
   oldDefaultWindow.surface = nullptr;
 }
 
-RenderSurface& Adaptor::GetSurface() const
+Dali::RenderSurfaceInterface& Adaptor::GetSurface() const
 {
   WindowPane defaultWindow = mWindowFrame.front();
   return *(defaultWindow.surface);
@@ -581,18 +582,20 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
 
 bool Adaptor::AddWindow( Dali::Window* childWindow, const std::string& childWindowName, const std::string& childWindowClassName, const bool& childWindowMode )
 {
+  Window& windowImpl = Dali::GetImplementation( *childWindow );
+  windowImpl.SetAdaptor( Get() );
+
   // This is any Window that is not the main (default) one
   WindowPane additionalWindow;
   additionalWindow.instance = childWindow;
   additionalWindow.window_name = childWindowName;
   additionalWindow.class_name = childWindowClassName;
   additionalWindow.window_mode = childWindowMode;
+  additionalWindow.surface = windowImpl.GetSurface();
+  additionalWindow.id = windowImpl.GetId();
 
   // Add the new Window to the Frame - the order is not important
   mWindowFrame.push_back( additionalWindow );
-
-  Window& windowImpl = Dali::GetImplementation( *childWindow );
-  windowImpl.SetAdaptor( Get() );
 
   return true;
 }
@@ -616,6 +619,20 @@ bool Adaptor::RemoveWindow( std::string childWindowName )
   for ( WindowFrames::iterator iter = mWindowFrame.begin(); iter != mWindowFrame.end(); ++iter )
   {
     if( iter->window_name == childWindowName )
+    {
+      mWindowFrame.erase( iter );
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool Adaptor::RemoveWindow( Window* childWindow )
+{
+  for ( WindowFrames::iterator iter = mWindowFrame.begin(); iter != mWindowFrame.end(); ++iter )
+  {
+    if( iter->id == childWindow->GetId() )
     {
       mWindowFrame.erase( iter );
       return true;
@@ -688,7 +705,7 @@ SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
   return mSocketFactory;
 }
 
-RenderSurface* Adaptor::GetRenderSurfaceInterface()
+Dali::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
 {
   if( !mWindowFrame.empty())
   {
@@ -916,15 +933,15 @@ void Adaptor::OnDamaged( const DamageArea& area )
   RequestUpdate( false );
 }
 
-void Adaptor::SurfaceResizePrepare( SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
   // Let the core know the surface size has changed
-  mCore->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
+  mCore->SurfaceResized( surface );
 
   mResizedSignal.Emit( mAdaptor );
 }
 
-void Adaptor::SurfaceResizeComplete( SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
@@ -985,12 +1002,6 @@ void Adaptor::RequestUpdateOnce()
   }
 }
 
-void Adaptor::IndicatorSizeChanged(int height)
-{
-  // Let the core know the indicator height is changed
-  mCore->SetTopMargin(height);
-}
-
 bool Adaptor::ProcessCoreEventsFromIdle()
 {
   ProcessCoreEvents();
@@ -1001,7 +1012,7 @@ bool Adaptor::ProcessCoreEventsFromIdle()
   return false;
 }
 
-Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions)
+Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mAdaptor( adaptor ),
@@ -1039,6 +1050,7 @@ Adaptor::Adaptor(Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surfac
   WindowPane defaultWindow;
   defaultWindow.nativeWindow = nativeWindow;
   defaultWindow.surface = surface;
+  defaultWindow.id = 0;
 
   std::vector<WindowPane>::iterator iter = mWindowFrame.begin();
   iter = mWindowFrame.insert( iter, defaultWindow );
