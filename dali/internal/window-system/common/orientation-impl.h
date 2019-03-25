@@ -36,6 +36,7 @@ namespace Internal
 
 namespace Adaptor
 {
+class Adaptor;
 class Window;
 class Orientation;
 
@@ -66,6 +67,12 @@ public:
    * @param[in] adaptor The adaptor
    */
   void SetAdaptor(Dali::Adaptor& adaptor);
+
+  /**
+   * Set the adaptor for basic setup
+   * @param[in] adaptor The adaptor
+   */
+  void SetAdaptor(Adaptor& adaptor);
 
   /**
    * Returns the actual orientation in degrees

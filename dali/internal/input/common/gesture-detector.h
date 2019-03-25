@@ -23,6 +23,7 @@
 #include <dali/public-api/events/gesture.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/integration-api/scene.h>
 
 namespace Dali
 {
@@ -69,6 +70,12 @@ public:
    */
   Gesture::Type GetType() const { return mType; }
 
+  void SendEvent(Integration::Scene& scene, const Integration::TouchEvent& event)
+  {
+    mScene = &scene;
+    SendEvent(event);
+  }
+
 protected:
 
   /**
@@ -77,7 +84,7 @@ protected:
    * @param[in]  detectorType  The type of gesture detector.
    */
   GestureDetector(Vector2 screenSize, Gesture::Type detectorType)
-  : mScreenSize(screenSize), mType(detectorType) {}
+  : mScreenSize(screenSize), mType(detectorType), mScene(nullptr) {}
 
   /**
    * Virtual destructor.
@@ -88,6 +95,7 @@ protected:
 
   Vector2 mScreenSize;
   Gesture::Type mType;
+  Integration::Scene* mScene;
 };
 
 typedef IntrusivePtr<GestureDetector> GestureDetectorPtr;

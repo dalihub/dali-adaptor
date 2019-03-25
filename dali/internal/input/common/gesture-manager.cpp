@@ -111,7 +111,7 @@ GestureManager::~GestureManager()
   DALI_LOG_INFO( gLogFilter, Debug::Verbose, "Destroying GestureManager\n" );
 }
 
-void GestureManager::SendEvent(const Integration::TouchEvent& event)
+void GestureManager::SendEvent(Integration::Scene& scene, const Integration::TouchEvent& event)
 {
   if (mRunning)
   {
@@ -125,7 +125,7 @@ void GestureManager::SendEvent(const Integration::TouchEvent& event)
     // Send the event to all gesture detectors.
     for ( GestureDetectorContainer::iterator iter = detectors.begin(), endIter = detectors.end(); iter != endIter; ++iter )
     {
-      (*iter)->SendEvent(event);
+      (*iter)->SendEvent(scene, event);
     }
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "SendEvent: END\n" );
   }

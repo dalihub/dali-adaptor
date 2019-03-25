@@ -34,11 +34,9 @@ class NativeRenderSurface;
  * A native surface is created.
  *
  * @param [in] positionSize the position and size of the surface to create
- * @param [in] name Name of surface passed in
  * @param [in] isTransparent Whether the surface has an alpha channel
  */
 NativeRenderSurface* CreateNativeSurface( PositionSize positionSize,
-                                          const std::string& name,
                                           bool isTransparent );
 
 } // namespace Dali

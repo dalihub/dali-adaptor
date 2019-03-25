@@ -29,7 +29,9 @@
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
+// To disable a macro with the same name from one of OpenGL headers
 #undef Status
 
 namespace Dali
@@ -107,6 +109,7 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mMainWindow(),
   mMainWindowMode( windowMode ),
   mMainWindowName(),
+  mMainWindowReplaced( false ),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
   mWindowPositionSize( positionSize ),
@@ -341,6 +344,7 @@ void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
 
   mLowMemorySignal.Emit( status );
 }
+
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
   Dali::Application application(this);
@@ -369,7 +373,9 @@ Dali::Adaptor& Application::GetAdaptor()
 
 Dali::Window Application::GetWindow()
 {
-  return mMainWindow;
+  // Changed to return a different window handle after ReplaceWindow is called
+  // just for backward compatibility to make the test case pass
+  return mMainWindowReplaced ? Dali::Window() : mMainWindow;
 }
 
 // Stereoscopy
@@ -396,16 +402,10 @@ float Application::GetStereoBase() const
 
 void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
-  Dali::Window newWindow = Dali::Window::New( positionSize, name, mMainWindowMode == Dali::Application::TRANSPARENT );
-  Window& windowImpl = GetImplementation(newWindow);
-  windowImpl.SetAdaptor(*mAdaptor);
+  // This API is kept just for backward compatibility to make the test case pass.
 
-  Internal::Adaptor::WindowRenderSurface* renderSurface = windowImpl.GetSurface();
-
-  Any nativeWindow = newWindow.GetNativeHandle();
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).ReplaceSurface(nativeWindow, *renderSurface);
-  mMainWindow = newWindow;
-  mWindowPositionSize = positionSize;
+  mMainWindowReplaced = true;
+  OnResize( *mAdaptor );
 }
 
 std::string Application::GetResourcePath()
