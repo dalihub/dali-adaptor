@@ -139,6 +139,8 @@ void Window::SetAdaptor(Dali::Adaptor& adaptor)
   {
     mOrientation->SetAdaptor(adaptor);
   }
+
+  mSurface->SetAdaptor( *mAdaptor );
 }
 
 WindowRenderSurface* Window::GetSurface()
