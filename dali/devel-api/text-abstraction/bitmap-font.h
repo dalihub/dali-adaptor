@@ -97,6 +97,7 @@ struct DALI_ADAPTOR_API BitmapFont
   float descender;                 ///< The descender in pixels. Minimum descender of all the glyphs.
   float underlinePosition;         ///< The position in pixels of the underline from the base line.
   float underlineThickness;        ///< The thickness in pixels of the underline.
+  bool isColorFont:1;              ///< Whether the glyphs of this font have their own colors.
 };
 
 } // namespace TextAbstraction
