@@ -588,7 +588,10 @@ inline double Arc::extended_dist (const Point &p) const {
   Point m = p0.lerp (.5, p1);
   Vector dp = p1 - p0;
   Vector pp = dp.ortho ();
-  float d2 = tan2atan (d);
+  /*
+   * In the original file, there was no explicit cast to float.
+   */
+  float d2 = static_cast<float>( tan2atan (d) );
   if ((p - m) * (p1 - m) < 0)
     return (p - p0) * (pp + dp * d2).normalized ();
   else

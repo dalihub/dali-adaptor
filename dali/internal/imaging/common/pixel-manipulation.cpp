@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -413,20 +413,20 @@ void WriteChannel( unsigned char* pixelData,
     {
       if( channel == RED )
       {
-        *pixelData &= ~0xF8;
+        *pixelData &= static_cast<unsigned char>( ~0xF8 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x07;
+        *pixelData &= static_cast<unsigned char>( ~0x07 );
         *pixelData |= static_cast<unsigned char>( (channelValue >> 3) & 0x07 );
 
-        *(pixelData+1) &= ~0xE0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xE0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 5) & 0xE0 );
       }
       else if( channel == BLUE )
       {
-        *(pixelData+1) &= ~0x1F;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x1F );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x1F );
       }
       break;
@@ -436,20 +436,20 @@ void WriteChannel( unsigned char* pixelData,
     {
       if( channel == BLUE )
       {
-        *pixelData &= ~0xF8;
+        *pixelData &= static_cast<unsigned char>( ~0xF8 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x07;
+        *pixelData &= static_cast<unsigned char>( ~0x07 );
         *pixelData |= static_cast<unsigned char>( (channelValue >> 3) & 0x07 );
 
-        *(pixelData+1) &= ~0xE0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xE0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 5) & 0xE0 );
       }
       else if( channel == RED )
       {
-        *(pixelData+1) &= ~0x1F;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x1F );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x1F );
       }
       break;
@@ -536,22 +536,22 @@ void WriteChannel( unsigned char* pixelData,
     {
       if( channel == RED )
       {
-        *pixelData &= ~0xF0;
+        *pixelData &= static_cast<unsigned char>( ~0xF0 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x0F;
+        *pixelData &= static_cast<unsigned char>( ~0x0F );
         *pixelData |= static_cast<unsigned char>( channelValue & 0x0F );
       }
       else if( channel == BLUE )
       {
-        *(pixelData+1) &= ~0xF0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xF0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
       }
       else if( channel == ALPHA )
       {
-        *(pixelData+1) &= ~0x0F;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x0F );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x0F );
       }
       break;
@@ -561,22 +561,22 @@ void WriteChannel( unsigned char* pixelData,
     {
       if( channel == BLUE )
       {
-        *pixelData &= ~0xF0;
+        *pixelData &= static_cast<unsigned char>( ~0xF0 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x0F;
+        *pixelData &= static_cast<unsigned char>( ~0x0F );
         *pixelData |= static_cast<unsigned char>( channelValue & 0x0F );
       }
       else if( channel == RED )
       {
-        *(pixelData+1) &= ~0xF0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xF0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
       }
       else if( channel == ALPHA )
       {
-        *(pixelData+1) &= ~0x0F;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x0F );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x0F );
       }
       break;
@@ -588,25 +588,25 @@ void WriteChannel( unsigned char* pixelData,
       //    F8  7 C0  3E 1
       if( channel == RED )
       {
-        *pixelData &= ~0xF8;
+        *pixelData &= static_cast<unsigned char>( ~0xF8 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x07;
+        *pixelData &= static_cast<unsigned char>( ~0x07 );
         *pixelData |= static_cast<unsigned char>( (channelValue >> 2) & 0x07 );
 
-        *(pixelData+1) &= ~0xC0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xC0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 6) & 0xC0 );
       }
       else if( channel == BLUE )
       {
-        *(pixelData+1) &= ~0x3E;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x3E );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 1) & 0x3E );
       }
       else if( channel == ALPHA )
       {
-        *(pixelData+1) &= ~0x01;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
       }
       break;
@@ -616,25 +616,25 @@ void WriteChannel( unsigned char* pixelData,
     {
       if( channel == BLUE )
       {
-        *pixelData &= ~0xF8;
+        *pixelData &= static_cast<unsigned char>( ~0xF8 );
         *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
       }
       else if( channel == GREEN )
       {
-        *pixelData &= ~0x07;
+        *pixelData &= static_cast<unsigned char>( ~0x07 );
         *pixelData |= static_cast<unsigned char>( (channelValue >> 2) & 0x07 );
 
-        *(pixelData+1) &= ~0xC0;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0xC0 );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 6) & 0xC0 );
       }
       else if( channel == RED )
       {
-        *(pixelData+1) &= ~0x3E;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x3E );
         *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 1 ) & 0x3E );
       }
       else if( channel == ALPHA )
       {
-        *(pixelData+1) &= ~0x01;
+        *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
       }
       break;

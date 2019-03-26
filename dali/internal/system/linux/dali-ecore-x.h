@@ -1,3 +1,6 @@
+#ifndef DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_X_H
+#define DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_X_H
+
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
@@ -15,30 +18,9 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/system-settings.h>
+#pragma GCC system_header
+#include <Ecore_X.h>
 
-namespace Dali
-{
 
-namespace Internal
-{
 
-namespace Adaptor
-{
-
-int GetElmAccessActionOver()
-{
-  return 0;
-}
-
-int GetLongPressTime( int defaultTime )
-{
-  return defaultTime;
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+#endif /* DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_X_H */

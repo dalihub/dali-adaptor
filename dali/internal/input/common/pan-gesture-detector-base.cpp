@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,8 @@ PanGestureDetectorBase::PanGestureDetectorBase(Vector2 screenSize, const Integra
 
       // Usually, we do not want to apply the threshold straight away, but phased over the first few pans
       // Set our distance to threshold adjustments ratio here.
-      mThresholdTotalAdjustments = minimumDistance * MINIMUM_MOTION_DISTANCE_TO_THRESHOLD_ADJUSTMENTS_RATIO;
+      float fMinimumDistance = static_cast<float>( minimumDistance );
+      mThresholdTotalAdjustments = static_cast<unsigned int>( fMinimumDistance * MINIMUM_MOTION_DISTANCE_TO_THRESHOLD_ADJUSTMENTS_RATIO );
     }
 
     int minimumEvents = environmentOptions->GetMinimumPanEvents();
@@ -135,7 +136,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
             Vector2 delta(event.points[0].GetScreenPosition() - mPrimaryTouchDownLocation);
 
             if ( ( mMotionEvents >= mMinimumMotionEvents ) &&
-                 ( delta.LengthSquared() >= mMinimumDistanceSquared ) )
+                 ( delta.LengthSquared() >= static_cast<float>( mMinimumDistanceSquared ) ) )
             {
               // If the touch point(s) have moved enough distance to be considered a pan, then tell Core that the pan gesture has started and change our state accordingly.
               mState = Started;
@@ -145,7 +146,7 @@ void PanGestureDetectorBase::SendEvent(const Integration::TouchEvent& event)
           else if (primaryPointState == PointState::UP)
           {
             Vector2 delta(event.points[0].GetScreenPosition() - mPrimaryTouchDownLocation);
-            if(delta.LengthSquared() >= mMinimumDistanceSquared)
+            if (delta.LengthSquared() >= static_cast<float>( mMinimumDistanceSquared ) )
             {
               SendPan(Gesture::Started, event);
               mTouchEvents.push_back(event);
@@ -277,7 +278,7 @@ void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::To
     const Integration::TouchEvent& previousEvent( *( mTouchEvents.rbegin() + 1 ) );
 
     Vector2 previousPosition( mPreviousPosition );
-    unsigned long previousTime( previousEvent.time );
+    uint32_t previousTime( previousEvent.time );
 
     // If we've just started then we want to remove the threshold from Core calculations.
     if ( state == Gesture::Started )
@@ -290,7 +291,7 @@ void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::To
       if ( ( currentEvent.time - previousTime ) > MINIMUM_TIME_BEFORE_THRESHOLD_ADJUSTMENTS )
       {
         mThresholdAdjustmentsRemaining = mThresholdTotalAdjustments;
-        mThresholdAdjustmentPerFrame = ( gesture.currentPosition - previousPosition ) / mThresholdTotalAdjustments;
+        mThresholdAdjustmentPerFrame = ( gesture.currentPosition - previousPosition ) / static_cast<float>( mThresholdTotalAdjustments );
       }
       else
       {
@@ -306,7 +307,7 @@ void PanGestureDetectorBase::SendPan(Gesture::State state, const Integration::To
     if ( mThresholdAdjustmentsRemaining > 0 )
     {
       --mThresholdAdjustmentsRemaining;
-      gesture.currentPosition -= mThresholdAdjustmentPerFrame * mThresholdAdjustmentsRemaining;
+      gesture.currentPosition -= mThresholdAdjustmentPerFrame * static_cast<float>( mThresholdAdjustmentsRemaining );
     }
 
     mPreviousPosition = gesture.currentPosition;

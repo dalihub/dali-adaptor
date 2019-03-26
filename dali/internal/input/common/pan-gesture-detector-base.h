@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H__
-#define __DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H__
+#ifndef DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H
+#define DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint> // uint32_t
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/integration-api/events/pan-gesture-event.h>
@@ -116,7 +117,7 @@ private:
   unsigned int mThresholdAdjustmentsRemaining; ///< No. of threshold adjustments still to apply (for a slow-pan).
   unsigned int mThresholdTotalAdjustments;     ///< The total number of adjustments required.
 
-  unsigned long mPrimaryTouchDownTime;  ///< The initial touch down time.
+  uint32_t mPrimaryTouchDownTime;       ///< The initial touch down time.
   unsigned int mMinimumTouchesRequired; ///< The minimum touches required before a pan should be emitted.
   unsigned int mMaximumTouchesRequired; ///< The maximum touches after which a pan should not be emitted.
 
@@ -131,4 +132,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H__
+#endif // DALI_INTERNAL_PAN_GESTURE_DETECTOR_BASE_H

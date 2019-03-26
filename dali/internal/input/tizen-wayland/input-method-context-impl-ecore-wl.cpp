@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
  */
 
 // CLASS HEADER
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <dali/internal/input/tizen-wayland/input-method-context-impl-ecore-wl.h>
 
@@ -977,7 +974,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
     {
       eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                     ECORE_IMF_EVENT_KEY_DOWN,
-                                                    (Ecore_IMF_Event *) &ecoreKeyDownEvent);
+                                                    reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyDownEvent ) );
     }
 
     // If the event has not been handled by InputMethodContext then check if we should reset our input method context
@@ -1020,7 +1017,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,
-                                                  (Ecore_IMF_Event *) &ecoreKeyUpEvent);
+                                                  reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyUpEvent ) );
   }
   return eventHandled;
 }
@@ -1084,5 +1081,3 @@ Ecore_IMF_Keyboard_Locks InputMethodContextEcoreWl::EcoreInputModifierToEcoreIMF
 } // Internal
 
 } // Dali
-
-#pragma GCC diagnostic pop

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ namespace
 {
 
 // Copied from x server
-static unsigned int GetCurrentMilliSeconds(void)
+static uint32_t GetCurrentMilliSeconds(void)
 {
   struct timeval tv;
 
@@ -89,11 +89,11 @@ static unsigned int GetCurrentMilliSeconds(void)
   }
   if (clockid != ~0L && clock_gettime(clockid, &tp) == 0)
   {
-    return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000L);
+    return static_cast<uint32_t>( (tp.tv_sec * 1000 ) + (tp.tv_nsec / 1000000L) );
   }
 
   gettimeofday(&tv, NULL);
-  return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+  return static_cast<uint32_t>( (tv.tv_sec * 1000 ) + (tv.tv_usec / 1000) );
 }
 
 } // unnamed namespace
@@ -138,7 +138,7 @@ EventHandler::~EventHandler()
   mGestureManager.Stop();
 }
 
-void EventHandler::SendEvent( Integration::Point& point, unsigned long timeStamp )
+void EventHandler::SendEvent( Integration::Point& point, uint32_t timeStamp )
 {
   if( timeStamp < 1 )
   {
@@ -224,7 +224,7 @@ void EventHandler::SendRotationRequestEvent( )
   // No need to separate event into prepare and request
 }
 
-void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
+void EventHandler::FeedTouchPoint( TouchPoint& point, uint32_t timeStamp)
 {
   Integration::Point convertedPoint( point );
   SendEvent( convertedPoint, timeStamp );
@@ -283,7 +283,7 @@ void EventHandler::SetRotationObserver( RotationObserver* observer )
   mRotationObserver = observer;
 }
 
-void EventHandler::OnTouchEvent( Integration::Point& point, unsigned long timeStamp )
+void EventHandler::OnTouchEvent( Integration::Point& point, uint32_t timeStamp )
 {
   SendEvent( point, timeStamp );
 }
@@ -627,20 +627,20 @@ void EventHandler::ConvertTouchPosition( Integration::Point& point )
   {
     case 90:
     {
-      convertedPosition.x = mWindowWidth - position.y;
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.y;
       convertedPosition.y = position.x;
       break;
     }
     case 180:
     {
-      convertedPosition.x = mWindowWidth - position.x;
-      convertedPosition.y = mWindowHeight - position.y;
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.x;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.y;
       break;
     }
     case 270:
     {
       convertedPosition.x = position.y;
-      convertedPosition.y = mWindowHeight - position.x;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.x;
       break;
     }
     default:

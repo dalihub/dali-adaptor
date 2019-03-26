@@ -161,7 +161,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   PositionSize size = defaultWindow->GetSurface()->GetPositionSize();
 
-  mGestureManager = new GestureManager(*this, Vector2(size.width, size.height), mCallbackManager, *mEnvironmentOptions);
+  mGestureManager = new GestureManager(*this, Vector2(static_cast<float>(size.width), static_cast<float>(size.height)), mCallbackManager, *mEnvironmentOptions);
 
   mGraphics = &( graphicsFactory.Create() );
   mGraphics->Initialize( mEnvironmentOptions );
