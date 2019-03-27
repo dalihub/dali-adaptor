@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "12c51dd7_b4292f1b",
+        "filename": "dali/devel-api/adaptor-framework/native-image-source-queue.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-03-27T11:15:15Z",
+      "side": 1,
+      "message": "This is in the original code in devel/master. No need to change it.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 17
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7132cf8c_97a5dbec",
+        "filename": "dali/devel-api/adaptor-framework/native-image-source-queue.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1007394
+      },
+      "writtenOn": "2019-03-27T11:15:15Z",
+      "side": 1,
+      "message": "This is original code in devel/master.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 17
+      },
+      "revId": "f00c1759608b67d332888bf2a32f1751e6d5a5c4",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b653fe61_a457e613",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 1
