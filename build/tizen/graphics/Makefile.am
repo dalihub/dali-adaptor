@@ -93,6 +93,7 @@ libdali_graphics_vk_la_SOURCES = $(graphics_vulkan_src_files)
 
 if WAYLAND
 libdali_graphics_vk_la_SOURCES += $(graphics_vulkan_wayland_src_files)
+libdali_graphics_vk_la_SOURCES += $(graphics_vulkan_tizen_src_files)
 else  # WAYLAND
 libdali_graphics_vk_la_SOURCES += $(graphics_vulkan_x11_src_files)
 endif # WAYLAND

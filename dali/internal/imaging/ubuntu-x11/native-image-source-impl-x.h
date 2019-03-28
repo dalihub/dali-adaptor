@@ -25,7 +25,7 @@
 #include <dali/graphics/graphics-interface.h>
 
 #include <dali/public-api/adaptor-framework/native-image-source.h>
-
+#include <dali/devel-api/images/native-image-interface-extension.h>
 #include <dali/internal/imaging/common/native-image-source-impl.h>
 
 namespace Dali
@@ -41,7 +41,7 @@ class EglImageExtensions;
 /**
  * Dali internal NativeImageSource.
  */
-class NativeImageSourceX : public Internal::Adaptor::NativeImageSource
+class NativeImageSourceX : public Internal::Adaptor::NativeImageSource, public NativeImageInterface::Extension
 {
 public:
 
@@ -139,6 +139,31 @@ public:
   {
     return nullptr;
   }
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetCustomFragmentPreFix()
+   */
+  const char* GetCustomFragmentPreFix() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
+   */
+  int GetEglImageTextureTarget() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::Extension::IsSetSource()
+   */
+  bool IsSetSource() const override;
 
 private:
 

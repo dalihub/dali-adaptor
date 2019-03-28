@@ -48,9 +48,9 @@ public:
   virtual Any GetNativeImageSourceQueue() const = 0;
 
   /**
-   * @copydoc Dali::NativeImageSourceQueue::SetSize
+   * @copydoc Dali::NativeImageSourceQueue::SetSource( Any source )
    */
-  virtual void SetSize( uint32_t width, uint32_t height ) = 0;
+  virtual void SetSource( Any source ) = 0;
 
   /**
    * destructor

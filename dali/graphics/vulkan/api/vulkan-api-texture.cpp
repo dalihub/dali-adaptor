@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,10 @@
 #include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 #include <dali/graphics/vulkan/api/vulkan-api-buffer.h>
 #include <dali/graphics/vulkan/api/vulkan-api-texture-factory.h>
+#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
 
 #include <algorithm>
+
 
 namespace Dali
 {
@@ -46,7 +48,7 @@ using namespace Dali::Graphics::Vulkan;
 /**
  * Remaps components
  */
-inline vk::ComponentMapping GetVkComponentMapping( Dali::Graphics::Format format )
+inline vk::ComponentMapping GetVkComponentMappingInlined( Dali::Graphics::Format format )
 {
   switch( format )
   {
@@ -83,7 +85,7 @@ inline vk::ComponentMapping GetVkComponentMapping( Dali::Graphics::Format format
 /**
  * Converts API pixel format to Vulkan
  */
-constexpr vk::Format ConvertApiToVk( Dali::Graphics::Format format )
+constexpr vk::Format ConvertApiToVkConst( Dali::Graphics::Format format )
 {
   switch( format )
   {
@@ -872,7 +874,7 @@ constexpr vk::Format ConvertApiToVk( Dali::Graphics::Format format )
 }
 
 Texture::Texture( Dali::Graphics::TextureFactory& factory )
-  : mTextureFactory( dynamic_cast<VulkanAPI::TextureFactory&>( factory ) ),
+  : mTextureFactory( static_cast<VulkanAPI::TextureFactory&>( factory ) ),
     mController( mTextureFactory.GetController() ),
     mGraphics( mTextureFactory.GetGraphics() ),
     mImage(),
@@ -885,20 +887,21 @@ Texture::Texture( Dali::Graphics::TextureFactory& factory )
     mLayout( vk::ImageLayout::eUndefined ),
     mComponentMapping()
 {
+  // Check env variable in order to disable staging buffers
+  auto var = getenv( "DALI_DISABLE_TEXTURE_STAGING_BUFFERS" );
+  if( var && var[0] != '0')
+  {
+    mDisableStagingBuffer = true;
+  }
 }
 
-Texture::~Texture()
-{
+Texture::~Texture() = default;
 
-}
-
-bool Texture::Initialise()
+void Texture::SetFormatAndUsage()
 {
   auto size = mTextureFactory.GetSize();
   mWidth = uint32_t( size.width );
   mHeight = uint32_t( size.height );
-  auto sizeInBytes = mTextureFactory.GetDataSize();
-  auto data = mTextureFactory.GetData();
   mLayout = vk::ImageLayout::eUndefined;
   switch( mTextureFactory.GetUsage())
   {
@@ -921,17 +924,25 @@ bool Texture::Initialise()
 
   mFormat = ConvertApiToVk( mTextureFactory.GetFormat() );
   mComponentMapping = GetVkComponentMapping( mTextureFactory.GetFormat() );
+}
+
+bool Texture::Initialize()
+{
+  SetFormatAndUsage();
 
   /**
    * Lots of Vulkan drivers DO NOT SUPPORT R8G8B8 format therefore we are forced
    * to implement a fallback as lots of textures comes as RGB ( ie. jpg ). In case
    * the valid format is supported we're going to use it as it is.
    */
+  auto sizeInBytes = mTextureFactory.GetDataSize();
+  auto data = mTextureFactory.GetData();
+
   std::vector<uint8_t> rgbaBuffer{};
   if(mTextureFactory.GetFormat() == Dali::Graphics::Format::R8G8B8_UNORM )
   {
     auto formatProperties = mGraphics.GetPhysicalDevice().getFormatProperties( mFormat );
-    if( !formatProperties.optimalTilingFeatures )
+    if( !formatProperties.optimalTilingFeatures && !formatProperties.linearTilingFeatures )
     {
       if( data && sizeInBytes > 0 )
       {
@@ -962,9 +973,9 @@ bool Texture::Initialise()
   if( InitialiseTexture() )
   {
     // copy data to the image
-    if( data )
+    if( mTextureFactory.GetData() )
     {
-      CopyMemory(data, sizeInBytes, {mWidth, mHeight}, {0, 0}, 0, 0, Dali::Graphics::TextureDetails::UpdateMode::UNDEFINED );
+      CopyMemory( data, sizeInBytes, {mWidth, mHeight}, {0, 0}, 0, 0, Dali::Graphics::TextureDetails::UpdateMode::UNDEFINED );
     }
     return true;
   }
@@ -974,50 +985,104 @@ bool Texture::Initialise()
 
 void Texture::CopyMemory(const void *srcMemory, uint32_t srcMemorySize, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
 {
-  // @todo transient buffer memory could be persistently mapped and aliased ( work like a per-frame stack )
-  uint32_t allocationSize = 0u;
+  if( !mDisableStagingBuffer )
+  {
+    // @todo transient buffer memory could be persistently mapped and aliased ( work like a per-frame stack )
+    uint32_t allocationSize{};
 
-  auto requirements = mGraphics.GetDevice().getImageMemoryRequirements( mImage->GetVkHandle() );
-  allocationSize = uint32_t( requirements.size );
+    auto requirements = mGraphics.GetDevice().getImageMemoryRequirements( mImage->GetVkHandle() );
+    allocationSize = uint32_t( requirements.size );
 
-  // allocate transient buffer
-  auto buffer = mGraphics.CreateBuffer( vk::BufferCreateInfo{}
-                            .setSize( allocationSize )
-                            .setSharingMode( vk::SharingMode::eExclusive )
-                            .setUsage( vk::BufferUsageFlagBits::eTransferSrc));
+    // allocate transient buffer
+    auto buffer = mGraphics.CreateBuffer( vk::BufferCreateInfo{}
+                                            .setSize( allocationSize )
+                                            .setSharingMode( vk::SharingMode::eExclusive )
+                                            .setUsage( vk::BufferUsageFlagBits::eTransferSrc));
 
-  // bind memory
-  mGraphics.BindBufferMemory( buffer,
-                              mGraphics.AllocateMemory( buffer, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent ),
-                              0u );
+    // bind memory
+    mGraphics.BindBufferMemory( buffer,
+                                mGraphics.AllocateMemory( buffer, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent ),
+                                0u );
 
-  // write into the buffer
-  auto ptr = buffer->GetMemory()->MapTyped<char>();
-  std::copy( reinterpret_cast<const char*>(srcMemory), reinterpret_cast<const char*>(srcMemory)+srcMemorySize, ptr );
-  buffer->GetMemory()->Unmap();
+    // write into the buffer
+    auto ptr = buffer->GetMemory()->MapTyped<char>();
+    std::copy( reinterpret_cast<const char*>(srcMemory), reinterpret_cast<const char*>(srcMemory)+srcMemorySize, ptr );
+    buffer->GetMemory()->Unmap();
 
-  ResourceTransferRequest transferRequest( TransferRequestType::BUFFER_TO_IMAGE );
+    ResourceTransferRequest transferRequest( TransferRequestType::BUFFER_TO_IMAGE );
 
-  transferRequest.bufferToImageInfo.copyInfo
-          .setImageSubresource( vk::ImageSubresourceLayers{}
-                                    .setBaseArrayLayer( layer )
-                                    .setLayerCount( 1 )
-                                    .setAspectMask( vk::ImageAspectFlagBits::eColor )
-                                    .setMipLevel( level ) )
-          .setImageOffset({ dstOffset.x, dstOffset.y, 0 } )
-          .setImageExtent({ srcExtent.width, srcExtent.height, 1 } )
-          .setBufferRowLength({ 0u })
-          .setBufferOffset({ 0u })
-          .setBufferImageHeight( 0u );
+    transferRequest.bufferToImageInfo.copyInfo
+                   .setImageSubresource( vk::ImageSubresourceLayers{}
+                                           .setBaseArrayLayer( layer )
+                                           .setLayerCount( 1 )
+                                           .setAspectMask( vk::ImageAspectFlagBits::eColor )
+                                           .setMipLevel( level ) )
+                   .setImageOffset({ dstOffset.x, dstOffset.y, 0 } )
+                   .setImageExtent({ srcExtent.width, srcExtent.height, 1 } )
+                   .setBufferRowLength({ 0u })
+                   .setBufferOffset({ 0u })
+                   .setBufferImageHeight( 0u );
 
-  transferRequest.bufferToImageInfo.dstImage = mImage;
-  transferRequest.bufferToImageInfo.srcBuffer = std::move(buffer);
-  transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
+    transferRequest.bufferToImageInfo.dstImage = mImage;
+    transferRequest.bufferToImageInfo.srcBuffer = std::move(buffer);
+    transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
 
-  assert( transferRequest.bufferToImageInfo.srcBuffer.GetRefCount() == 1 && "Too many transient buffer owners, buffer will be released automatically!" );
+    assert( transferRequest.bufferToImageInfo.srcBuffer.GetRefCount() == 1 && "Too many transient buffer owners, buffer will be released automatically!" );
 
-  // schedule transfer
-  mController.ScheduleResourceTransfer( std::move(transferRequest) );
+    // schedule transfer
+    mController.ScheduleResourceTransfer( std::move(transferRequest) );
+  }
+  else
+  {
+    auto memory = mImage->GetMemory();
+    if( !memory )
+    {
+      return;
+    }
+    auto ptr = mImage->GetMemory()->MapTyped<char>();
+    auto subresourceLayout = mGraphics.GetDevice().
+      getImageSubresourceLayout( mImage->GetVkHandle(),
+                                 vk::ImageSubresource{}
+                                   .setAspectMask( vk::ImageAspectFlagBits::eColor )
+                                   .setMipLevel( 0 )
+                                   .setArrayLayer( 0 ));
+
+    auto format = mImage->GetFormat();
+    auto formatInfo = Vulkan::GetFormatInfo( format );
+    auto sizeInBytes = int(formatInfo.blockSizeInBits / 8);
+    auto dstRowLength = subresourceLayout.rowPitch;
+    auto dstPtr = ptr + int(dstRowLength)*dstOffset.y + sizeInBytes*dstOffset.x;
+    auto srcPtr = reinterpret_cast<const char*>( srcMemory );
+    auto srcRowLength = int(srcExtent.width)*sizeInBytes;
+
+    // for compressed texture
+    if ( formatInfo.compressed )
+    {
+      std::copy( reinterpret_cast<const char*>(srcMemory), reinterpret_cast<const char*>(srcMemory)+srcMemorySize, ptr );
+    }
+    else
+    {
+      for( auto i = 0u; i < srcExtent.height; ++i )
+      {
+        std::copy( srcPtr, srcPtr + int(srcExtent.width)*sizeInBytes, dstPtr );
+
+        dstPtr += dstRowLength;
+        srcPtr += srcRowLength;
+      }
+    }
+
+    mImage->GetMemory()->Unmap();
+
+    ResourceTransferRequest transferRequest( TransferRequestType::LAYOUT_TRANSITION_ONLY );
+
+    transferRequest.imageLayoutTransitionInfo.image = mImage;
+    transferRequest.imageLayoutTransitionInfo.srcLayout = mImage->GetImageLayout();
+    transferRequest.imageLayoutTransitionInfo.dstLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+    transferRequest.deferredTransferMode = !( updateMode == Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
+
+    // schedule transfer
+    mController.ScheduleResourceTransfer( std::move(transferRequest) );
+  }
 }
 
 void Texture::CopyTexture(const Dali::Graphics::Texture &srcTexture, Dali::Graphics::Rect2D srcRegion, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode )
@@ -1025,10 +1090,10 @@ void Texture::CopyTexture(const Dali::Graphics::Texture &srcTexture, Dali::Graph
   ResourceTransferRequest transferRequest( TransferRequestType::IMAGE_TO_IMAGE );
 
   auto imageSubresourceLayers = vk::ImageSubresourceLayers{}
-       .setAspectMask( vk::ImageAspectFlagBits::eColor )
-       .setBaseArrayLayer( layer )
-       .setLayerCount( 1 )
-       .setMipLevel( level );
+    .setAspectMask( vk::ImageAspectFlagBits::eColor )
+    .setBaseArrayLayer( layer )
+    .setLayerCount( 1 )
+    .setMipLevel( level );
 
   transferRequest.imageToImageInfo.srcImage = static_cast<const VulkanAPI::Texture&>( srcTexture ).GetImageRef();
   transferRequest.imageToImageInfo.dstImage = mImage;
@@ -1092,14 +1157,16 @@ bool Texture::InitialiseTexture()
     .setExtent( { mWidth, mHeight, 1 } )
     .setArrayLayers( 1 )
     .setImageType( vk::ImageType::e2D )
-    .setTiling( vk::ImageTiling::eOptimal )
+    .setTiling( mDisableStagingBuffer ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal )
     .setMipLevels( 1 );
 
   // Create the image handle
   mImage = mGraphics.CreateImage( imageCreateInfo );
 
   // allocate memory for the image
-  auto memory = mGraphics.AllocateMemory( mImage, vk::MemoryPropertyFlagBits::eDeviceLocal );
+  auto memory = mGraphics.AllocateMemory( mImage, mDisableStagingBuffer ?
+                                                  vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent :
+                                                  vk::MemoryPropertyFlagBits::eDeviceLocal );
 
   // bind the allocated memory to the image
   mGraphics.BindImageMemory( mImage, std::move(memory), 0 );
@@ -1122,7 +1189,8 @@ void Texture::CreateImageView()
       .setBaseArrayLayer( 0 )
       .setBaseMipLevel( 0 )
       .setLevelCount( mImage->GetMipLevelCount() )
-      .setLayerCount( mImage->GetLayerCount() )
+      .setLayerCount( mImage->GetLayerCount() ),
+    nullptr
   );
 }
 
@@ -1139,7 +1207,14 @@ void Texture::CreateSampler()
     .setMipmapMode( vk::SamplerMipmapMode::eLinear )
     .setMaxAnisotropy( 1.0f ); // must be 1.0f when anisotropy feature isn't enabled
 
+  samplerCreateInfo.setBorderColor( vk::BorderColor::eFloatTransparentBlack );
+
   mSampler = mGraphics.CreateSampler( samplerCreateInfo );
+}
+
+bool Texture::IsSamplerImmutable() const
+{
+  return false;
 }
 
 Vulkan::RefCountedImage Texture::GetImageRef() const
@@ -1155,6 +1230,16 @@ Vulkan::RefCountedImageView Texture::GetImageViewRef() const
 Vulkan::RefCountedSampler Texture::GetSamplerRef() const
 {
   return mSampler;
+}
+
+vk::Format Texture::ConvertApiToVk( Dali::Graphics::Format format )
+{
+  return ConvertApiToVkConst( format );
+}
+
+vk::ComponentMapping Texture::GetVkComponentMapping( Dali::Graphics::Format format )
+{
+  return GetVkComponentMappingInlined( format );
 }
 
 } // namespace VulkanAPI

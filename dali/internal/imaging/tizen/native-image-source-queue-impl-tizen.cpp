@@ -38,8 +38,6 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE  3
 
-//const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
-//const char* SAMPLER_TYPE = "samplerExternalOES";
 
 int FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
@@ -71,81 +69,66 @@ NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New( uint32_t width, u
 }
 
 NativeImageSourceQueueTizen::NativeImageSourceQueueTizen( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
-: mMutex(),
-  mWidth( width ),
-  mHeight( height ),
-  mTbmQueue( NULL ),
-  mConsumeSurface( NULL ),
-//  mEglImages(),
-//  mEglGraphics( NULL ),
-//  mEglImageExtensions( NULL ),
-  mOwnTbmQueue( false ),
-  mBlendingRequired( false )
+  : mWidth( width ),
+    mHeight( height ),
+    mTbmQueue( NULL ),
+    mConsumeSurface( NULL ),
+    mOwnTbmQueue( false ),
+    mBlendingRequired( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-#if 0
-  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  mEglGraphics = static_cast<EglGraphics *>(graphics);
-
   mTbmQueue = GetSurfaceFromAny( nativeImageSourceQueue );
 
   if( mTbmQueue != NULL )
   {
     mBlendingRequired = CheckBlending( tbm_surface_queue_get_format( mTbmQueue ) );
-    mWidth = tbm_surface_queue_get_width( mTbmQueue );
-    mHeight = tbm_surface_queue_get_height( mTbmQueue );
+    mWidth = uint32_t(tbm_surface_queue_get_width( mTbmQueue ));
+    mHeight = uint32_t(tbm_surface_queue_get_height( mTbmQueue ));
   }
-#endif
 }
 
 NativeImageSourceQueueTizen::~NativeImageSourceQueueTizen()
 {
   if( mOwnTbmQueue )
   {
-    if( mTbmQueue != NULL )
-    {
-      tbm_surface_queue_destroy( mTbmQueue );
-    }
+    DestroyQueue();
   }
 }
 
 void NativeImageSourceQueueTizen::Initialize( Dali::NativeImageSourceQueue::ColorDepth depth )
 {
-  if( mWidth == 0 || mHeight == 0 )
+  if( mTbmQueue != NULL || mWidth == 0 || mHeight == 0 )
   {
     return;
   }
 
-  if( mTbmQueue == NULL )
+  int format = TBM_FORMAT_ARGB8888;
+
+  switch( depth )
   {
-    int format = TBM_FORMAT_ARGB8888;
-
-    switch( depth )
+    case Dali::NativeImageSourceQueue::COLOR_DEPTH_DEFAULT:
+    case Dali::NativeImageSourceQueue::COLOR_DEPTH_32:
     {
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_DEFAULT:
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_32:
-      {
-        format = TBM_FORMAT_ARGB8888;
-        mBlendingRequired = true;
-        break;
-      }
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_24:
-      {
-        format = TBM_FORMAT_RGB888;
-        mBlendingRequired = false;
-        break;
-      }
-      default:
-      {
-        DALI_LOG_WARNING( "Wrong color depth.\n" );
-        return;
-      }
+      format = TBM_FORMAT_ARGB8888;
+      mBlendingRequired = true;
+      break;
     }
-
-    mTbmQueue = tbm_surface_queue_create( TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, format, 0 );
-
-    mOwnTbmQueue = true;
+    case Dali::NativeImageSourceQueue::COLOR_DEPTH_24:
+    {
+      format = TBM_FORMAT_RGB888;
+      mBlendingRequired = false;
+      break;
+    }
+    default:
+    {
+      DALI_LOG_WARNING( "Wrong color depth.\n" );
+      return;
+    }
   }
+
+  mTbmQueue = tbm_surface_queue_create( TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, format, 0 );
+
+  mOwnTbmQueue = true;
 }
 
 tbm_surface_queue_h NativeImageSourceQueueTizen::GetSurfaceFromAny( Any source ) const
@@ -170,101 +153,70 @@ Any NativeImageSourceQueueTizen::GetNativeImageSourceQueue() const
   return Any( mTbmQueue );
 }
 
-void NativeImageSourceQueueTizen::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueueTizen::SetSource( Any source )
 {
-  Dali::Mutex::ScopedLock lock( mMutex );
+  if( mOwnTbmQueue )
+  {
+    DestroyQueue();
+  }
 
-  tbm_surface_queue_reset( mTbmQueue, width, height, tbm_surface_queue_get_format( mTbmQueue ) );
+  mTbmQueue = GetSurfaceFromAny( source );
 
-  mWidth = width;
-  mHeight = height;
-
-  ResetEglImageList();
+  if( mTbmQueue != NULL )
+  {
+    mBlendingRequired = CheckBlending( tbm_surface_queue_get_format( mTbmQueue ) );
+    mWidth = uint32_t(tbm_surface_queue_get_width( mTbmQueue ));
+    mHeight = uint32_t(tbm_surface_queue_get_height( mTbmQueue ));
+  }
 }
 
 bool NativeImageSourceQueueTizen::GlExtensionCreate()
 {
-  //mEglImageExtensions = mEglGraphics->GetImageExtensions();
-  //DALI_ASSERT_DEBUG( mEglImageExtensions );
-
   return true;
 }
 
 void NativeImageSourceQueueTizen::GlExtensionDestroy()
 {
-#if 0
-  Dali::Mutex::ScopedLock lock( mMutex );
 
-  ResetEglImageList();
-#endif
 }
 
-uint32_t NativeImageSourceQueueTizen::TargetTexture()
+unsigned int NativeImageSourceQueueTizen::TargetTexture()
 {
   return 0;
 }
 
 void NativeImageSourceQueueTizen::PrepareTexture()
 {
-  Dali::Mutex::ScopedLock lock( mMutex );
-
   tbm_surface_h oldSurface = mConsumeSurface;
 
-  if( tbm_surface_queue_can_acquire( mTbmQueue, 0 ) )
+  bool needToWait = ( mConsumeSurface == NULL ) ? true : false;
+
+  if( tbm_surface_queue_can_acquire( mTbmQueue, needToWait ) )
   {
     if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
       DALI_LOG_ERROR( "Failed to aquire a tbm_surface\n" );
       return;
     }
+  }
 
-    if( oldSurface )
+  if( oldSurface && oldSurface != mConsumeSurface )
+  {
+    if( tbm_surface_internal_is_valid( oldSurface ) )
     {
-      if( tbm_surface_internal_is_valid( oldSurface ) )
-      {
-        tbm_surface_queue_release( mTbmQueue, oldSurface );
-      }
+      tbm_surface_queue_release( mTbmQueue, oldSurface );
     }
-#if 0
-    if( mConsumeSurface )
-    {
-      bool existing = false;
-      for( auto&& iter : mEglImages )
-      {
-        if( iter.first == mConsumeSurface )
-        {
-          // Find the surface in the existing list
-          existing = true;
-          mEglImageExtensions->TargetTextureKHR( iter.second );
-          break;
-        }
-      }
-
-      if( !existing )
-      {
-        // Push the surface
-        tbm_surface_internal_ref( mConsumeSurface );
-
-        void* eglImageKHR = mEglImageExtensions->CreateImageKHR( reinterpret_cast< EGLClientBuffer >( mConsumeSurface ) );
-        mEglImageExtensions->TargetTextureKHR( eglImageKHR );
-
-        mEglImages.push_back( EglImagePair( mConsumeSurface, eglImageKHR) );
-      }
-    }
-#endif
   }
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomFragmentPreFix()
 {
-  //return FRAGMENT_PREFIX;
-  return nullptr;
+  return "";
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename()
 {
-  //return SAMPLER_TYPE;
-  return nullptr;
+  return "";
 }
 
 int NativeImageSourceQueueTizen::GetEglImageTextureTarget()
@@ -272,25 +224,35 @@ int NativeImageSourceQueueTizen::GetEglImageTextureTarget()
   return -1;
 }
 
-void NativeImageSourceQueueTizen::ResetEglImageList()
+Any NativeImageSourceQueueTizen::GetNativeImageHandle() const
+{
+  return Any( 0 );
+}
+
+bool NativeImageSourceQueueTizen::IsSetSource() const
+{
+  return false;
+}
+
+void NativeImageSourceQueueTizen::DestroyQueue()
 {
   if( mConsumeSurface )
   {
+    tbm_surface_internal_unref( mConsumeSurface );
+
     if( tbm_surface_internal_is_valid( mConsumeSurface ) )
     {
       tbm_surface_queue_release( mTbmQueue, mConsumeSurface );
     }
-    mConsumeSurface = NULL;
   }
-#if 0
-  for( auto&& iter : mEglImages )
-  {
-    mEglImageExtensions->DestroyImageKHR( iter.second );
 
-    tbm_surface_internal_unref( iter.first );
+  if( mTbmQueue != NULL )
+  {
+    tbm_surface_queue_destroy( mTbmQueue );
   }
-  mEglImages.clear();
-#endif
+
+  mTbmQueue = NULL;
+  mOwnTbmQueue = false;
 }
 
 bool NativeImageSourceQueueTizen::CheckBlending( int format )

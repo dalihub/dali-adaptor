@@ -33,22 +33,28 @@ class Graphics;
 }
 namespace VulkanAPI
 {
+
+
+
 class TextureFactory;
 class Controller;
 
 /**
- * This is temporary implementation. It should be using graphics-texture as base
- * interface.
+ * Implementation of Texture class for Vulkan backend
  */
 class Texture : public Dali::Graphics::Texture
 {
 public:
 
+  Texture() = delete;
+
   explicit Texture( Dali::Graphics::TextureFactory& factory );
 
   ~Texture() override;
 
-  bool Initialise();
+  virtual bool Initialize();
+
+  virtual bool IsSamplerImmutable() const;
 
   Vulkan::RefCountedImage GetImageRef() const;
 
@@ -62,13 +68,19 @@ public:
 
   void CopyBuffer( const Dali::Graphics::Buffer &srcBuffer, Dali::Graphics::Extent2D srcExtent, Dali::Graphics::Offset2D dstOffset, uint32_t layer, uint32_t level, Dali::Graphics::TextureDetails::UpdateMode updateMode) override;
 
-private:
+  vk::Format ConvertApiToVk( Dali::Graphics::Format format );
+
+  vk::ComponentMapping GetVkComponentMapping( Dali::Graphics::Format format );
+
+protected:
 
   void CreateSampler();
   void CreateImageView();
   bool InitialiseTexture();
 
-private:
+  void SetFormatAndUsage();
+
+protected:
 
   VulkanAPI::TextureFactory& mTextureFactory;
   VulkanAPI::Controller& mController;
@@ -78,12 +90,14 @@ private:
   Vulkan::RefCountedImageView   mImageView;
   Vulkan::RefCountedSampler     mSampler;
 
-  uint32_t    mWidth;
-  uint32_t    mHeight;
-  vk::Format  mFormat;
-  vk::ImageUsageFlags mUsage;
-  vk::ImageLayout mLayout;
+  uint32_t    mWidth {};
+  uint32_t    mHeight {};
+  vk::Format  mFormat {};
+  vk::ImageUsageFlags mUsage {};
+  vk::ImageLayout mLayout {};
   vk::ComponentMapping mComponentMapping{};
+
+  bool mDisableStagingBuffer { false };
 };
 
 } // namespace VulkanAPI

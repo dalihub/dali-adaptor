@@ -51,9 +51,9 @@ Any NativeImageSourceQueue::GetNativeImageSourceQueue()
   return mImpl->GetNativeImageSourceQueue();
 }
 
-void NativeImageSourceQueue::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueue::SetSource( Any source )
 {
-  return mImpl->SetSize( width, height );
+  mImpl->SetSource( source );
 }
 
 bool NativeImageSourceQueue::GlExtensionCreate()
