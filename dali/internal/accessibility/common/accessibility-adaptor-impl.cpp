@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,8 +160,8 @@ bool AccessibilityAdaptor::HandleActionReadEvent(unsigned int x, unsigned int y,
 
   DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %d , %d\n", __FUNCTION__, __LINE__, x, y);
 
-  mReadPosition.x = x;
-  mReadPosition.y = y;
+  mReadPosition.x = static_cast< float > (x);
+  mReadPosition.y = static_cast< float > (y);
 
   if( mActionHandler )
   {
@@ -242,7 +242,7 @@ bool AccessibilityAdaptor::HandleActionClearFocusEvent()
   return ret;
 }
 
-bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, uint32_t timeStamp)
 {
   bool ret = false;
 
@@ -271,7 +271,7 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsi
   return ret;
 }
 
-bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp)
 {
   bool ret = false;
 

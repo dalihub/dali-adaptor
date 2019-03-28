@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -233,8 +233,8 @@ void PinchGestureDetector::SendPinch(Gesture::State state, const Integration::To
     gesture.scale = currentDistance / mStartingDistance;
 
     float distanceDelta = fabsf(firstDistance - currentDistance);
-    unsigned long timeDelta = currentEvent.time - firstEvent.time;
-    gesture.speed = (distanceDelta / timeDelta) * 1000.0f;
+    float timeDelta = static_cast<float> ( currentEvent.time - firstEvent.time );
+    gesture.speed = ( distanceDelta / timeDelta ) * 1000.0f;
 
     gesture.centerPoint = GetCenterPoint(currentPoint1, currentPoint2);
   }

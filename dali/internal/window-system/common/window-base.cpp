@@ -118,5 +118,3 @@ WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

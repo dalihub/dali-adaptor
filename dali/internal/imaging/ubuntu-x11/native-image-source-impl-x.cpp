@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <dali/internal/imaging/ubuntu-x11/native-image-source-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
 #include <dali/integration-api/debug.h>

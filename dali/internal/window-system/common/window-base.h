@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@
 #include <dali/public-api/events/wheel-event.h>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace Dali
 {
@@ -70,7 +71,7 @@ public:
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
 
   // Input events
-  typedef Signal< void ( Integration::Point&, unsigned long ) > TouchEventSignalType;
+  typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
   typedef Signal< void ( WheelEvent& ) > WheelEventSignalType;
   typedef Signal< void( Integration::KeyEvent& ) > KeyEventSignalType;
 

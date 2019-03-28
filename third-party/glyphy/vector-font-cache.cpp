@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,15 +104,15 @@ struct VectorGlyph
 
     if( endpoints.size() )
     {
-      glyphy_outline_winding_from_even_odd( &endpoints[0], endpoints.size (), false );
+      glyphy_outline_winding_from_even_odd( &endpoints[0], static_cast<unsigned int>( endpoints.size() ), false );
     }
 
     unsigned int blobLength( 0 );
     double averageFetchAchieved( 0.0 );
     if (!glyphy_arc_list_encode_blob( endpoints.size() ? &endpoints[0] : NULL,
-                                      endpoints.size(),
+                                      static_cast<unsigned int>( endpoints.size() ),
                                       &newGlyph->blobData[0],
-                                      newGlyph->blobData.capacity(),
+                                      static_cast<unsigned int>( newGlyph->blobData.capacity() ),
                                       upem / ( MIN_FONT_SIZE * M_SQRT2 ),
                                       4,
                                       &averageFetchAchieved,
@@ -142,14 +142,14 @@ struct VectorGlyph
     }
     else
     {
-      newGlyph->glyphInfo.width  = (newGlyph->extents.max_x - newGlyph->extents.min_x);
-      newGlyph->glyphInfo.height = (newGlyph->extents.max_y - newGlyph->extents.min_y);
+      newGlyph->glyphInfo.width  = static_cast<float>( newGlyph->extents.max_x - newGlyph->extents.min_x );
+      newGlyph->glyphInfo.height = static_cast<float>( newGlyph->extents.max_y - newGlyph->extents.min_y );
 
-      newGlyph->glyphInfo.xBearing = newGlyph->extents.min_x;
-      newGlyph->glyphInfo.yBearing = newGlyph->glyphInfo.height + (newGlyph->extents.min_y);
+      newGlyph->glyphInfo.xBearing = static_cast<float>( newGlyph->extents.min_x );
+      newGlyph->glyphInfo.yBearing = newGlyph->glyphInfo.height + static_cast<float>( newGlyph->extents.min_y );
     }
 
-    newGlyph->glyphInfo.advance = face->glyph->metrics.horiAdvance / upem;
+    newGlyph->glyphInfo.advance = static_cast<float>( static_cast<double>( face->glyph->metrics.horiAdvance ) / upem );
     newGlyph->glyphInfo.scaleFactor = 0.0f;
 
     return newGlyph;
@@ -332,7 +332,7 @@ void VectorFontCache::GetVectorBlob( FontId vectorFontId,
         VectorGlyph* glyph = cache[foundIndex];
 
         blob          = &glyph->blobData[0];
-        blobLength    = glyph->blobData.size();
+        blobLength    = static_cast<unsigned int>( glyph->blobData.size() );
         nominalWidth  = glyph->nominalWidth;
         nominalHeight = glyph->nominalHeight;
       }
@@ -343,7 +343,7 @@ void VectorFontCache::GetVectorBlob( FontId vectorFontId,
         if( newGlyph )
         {
           blob          = &newGlyph->blobData[0];
-          blobLength    = newGlyph->blobData.size();
+          blobLength    = static_cast<unsigned int>( newGlyph->blobData.size() );
           nominalWidth  = newGlyph->nominalWidth;
           nominalHeight = newGlyph->nominalHeight;
 
@@ -386,7 +386,7 @@ FontId VectorFontCache::CreateFont( const string& url )
   if( FT_Err_Ok == error )
   {
     mImpl->mIdLookup.push_back( url );
-    id = mImpl->mIdLookup.size();
+    id = static_cast<FontId>( mImpl->mIdLookup.size() );
 
     VectorFont* newFont = new VectorFont( face );
     mImpl->mVectorFonts.push_back( newFont );

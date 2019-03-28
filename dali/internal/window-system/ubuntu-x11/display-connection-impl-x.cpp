@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <dali/internal/window-system/ubuntu-x11/display-connection-impl-x.h>
 
 // EXTERNAL_HEADERS
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS

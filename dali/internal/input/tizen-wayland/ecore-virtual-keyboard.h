@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H__
-#define __DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H__
+#ifndef DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H
+#define DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <Ecore_IMF.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/virtual-keyboard.h>
@@ -61,4 +61,4 @@ void DisconnectCallbacks( Ecore_IMF_Context *imfContext );
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H__
+#endif // DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H
