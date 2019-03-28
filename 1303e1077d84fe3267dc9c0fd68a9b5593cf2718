@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "83063380_ebcc54e8",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb25d330_ff149b1a",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 332,
+        "endChar": 18
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61db7f5e_713fb18a",
         "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
         "patchSetId": 2
@@ -91,6 +115,30 @@
       "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8aaee6b_706e0607",
+        "filename": "dali/graphics/vulkan/api/vulkan-api-native-texture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61db7f5e_713fb18a",
+      "range": {
+        "startLine": 334,
+        "startChar": 15,
+        "endLine": 334,
+        "endChar": 26
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "1f87a3f7_9f86c35e",
+        "filename": "dali/internal/imaging/common/native-image-source-queue-impl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31b9352b_5f18eec9",
+      "range": {
+        "startLine": 43,
+        "startChar": 38,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4344110_0fb4f09c",
         "filename": "dali/internal/imaging/tizen/native-image-source-factory-tizen.cpp",
         "patchSetId": 2
@@ -137,6 +209,30 @@
       "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e44fe09_8125fa77",
+        "filename": "dali/internal/imaging/tizen/native-image-source-factory-tizen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4344110_0fb4f09c",
+      "range": {
+        "startLine": 32,
+        "startChar": 93,
+        "endLine": 32,
+        "endChar": 105
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "28bfd290_a039c5aa",
+        "filename": "dali/internal/imaging/tizen/native-image-source-impl-tizen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8eaf0633_00016a34",
+      "range": {
+        "startLine": 63,
+        "startChar": 52,
+        "endLine": 63,
+        "endChar": 64
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e362f72c_9f1b036e",
         "filename": "dali/internal/imaging/tizen/native-image-source-impl-tizen.h",
         "patchSetId": 2
@@ -183,6 +303,30 @@
       "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf553e2e_d00c2a09",
+        "filename": "dali/internal/imaging/tizen/native-image-source-impl-tizen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e362f72c_9f1b036e",
+      "range": {
+        "startLine": 57,
+        "startChar": 37,
+        "endLine": 57,
+        "endChar": 49
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "80a1bc4b_941d2b72",
+        "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffc2eedc_2fafaa76",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 48
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28f97aec_e4ca60ae",
         "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.cpp",
         "patchSetId": 2
@@ -229,6 +397,30 @@
       "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d988661_283a2238",
+        "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28f97aec_e4ca60ae",
+      "range": {
+        "startLine": 60,
+        "startChar": 63,
+        "endLine": 60,
+        "endChar": 75
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +447,30 @@
     },
     {
       "key": {
+        "uuid": "54d35de1_bdeb520a",
+        "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34b39253_24280064",
+      "range": {
+        "startLine": 39,
+        "startChar": 1,
+        "endLine": 39,
+        "endChar": 25
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b68b0aef_1eb2a26f",
         "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h",
         "patchSetId": 2
@@ -278,6 +494,30 @@
     },
     {
       "key": {
+        "uuid": "94ce89db_7fcf2570",
+        "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b68b0aef_1eb2a26f",
+      "range": {
+        "startLine": 57,
+        "startChar": 42,
+        "endLine": 57,
+        "endChar": 54
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0253e4b3_3cecdd3e",
         "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h",
         "patchSetId": 2
@@ -298,6 +538,30 @@
       "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8187422_21ecacc9",
+        "filename": "dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1010808
+      },
+      "writtenOn": "2019-03-28T18:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0253e4b3_3cecdd3e",
+      "range": {
+        "startLine": 87,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 14
+      },
+      "revId": "1303e1077d84fe3267dc9c0fd68a9b5593cf2718",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
