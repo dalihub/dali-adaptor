@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_TAP_GESTURE_DETECTOR_H__
-#define __DALI_INTERNAL_TAP_GESTURE_DETECTOR_H__
+#ifndef DALI_INTERNAL_TAP_GESTURE_DETECTOR_H
+#define DALI_INTERNAL_TAP_GESTURE_DETECTOR_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint> // uint32_t
 #include <dali/integration-api/events/tap-gesture-event.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/integration-api/events/point.h>
@@ -83,7 +84,7 @@ private:
    * @param[in] state current state of incomplete gesture
    * @param[in] time time of this latest touch event
    */
-  void EmitGesture( Gesture::State state, unsigned int time );
+  void EmitGesture( Gesture::State state, uint32_t time );
 
   /**
    * Initialises tap gesture detector for next tap sequence
@@ -106,7 +107,7 @@ private:
    * @param[in] time time of this latest touch event
    * @param[in] point position touch event occurred
     */
-  void EmitSingleTap( unsigned int time, const Integration::Point& point );
+  void EmitSingleTap( uint32_t time, const Integration::Point& point );
 
   /**
    * Emit a tap event
@@ -114,7 +115,7 @@ private:
    * @param[in] time time of this latest touch event
    * @param[in] event registered touch event
    */
-  void EmitTap( unsigned int time, Integration::TapGestureEvent& event );
+  void EmitTap( uint32_t time, Integration::TapGestureEvent& event );
 
 private:
 
@@ -137,8 +138,8 @@ private:
   int mTapsRegistered;      ///< In current detection, the number of taps registered.
 
   Vector2 mTouchPosition;   ///< The initial touch down position.
-  unsigned long mTouchTime; ///< The initial touch down time.
-  unsigned long mLastTapTime; ///< Time last tap gesture was registered
+  uint32_t mTouchTime;      ///< The initial touch down time.
+  uint32_t mLastTapTime;    ///< Time last tap gesture was registered
 
 };
 
@@ -148,4 +149,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TAP_GESTURE_DETECTOR_H__
+#endif // DALI_INTERNAL_TAP_GESTURE_DETECTOR_H

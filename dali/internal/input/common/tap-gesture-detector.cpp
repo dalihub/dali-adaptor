@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
 
       case Touched:
       {
-        unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
+        uint32_t deltaBetweenTouchDownTouchUp = event.time - mTouchTime;
 
         if ( pointState == PointState::UP )
         {
@@ -108,12 +108,12 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
       {
         if ( pointState == PointState::UP )
         {
-          unsigned long deltaBetweenTouchDownTouchUp = abs( event.time - mTouchTime ) ;
+          uint32_t deltaBetweenTouchDownTouchUp = event.time - mTouchTime;
 
           if ( deltaBetweenTouchDownTouchUp < MAXIMUM_TIME_ALLOWED )
           {
             // This is a possible multiple tap, so has it been quick enough ?
-            unsigned long timeDelta = abs( event.time - mLastTapTime );
+            uint32_t timeDelta = event.time - mLastTapTime;
             if ( timeDelta > MAXIMUM_TIME_ALLOWED ) // If exceeded time between taps then just a single tap.
             {
               mLastTapTime = event.time;
@@ -138,7 +138,7 @@ void TapGestureDetector::SendEvent(const Integration::TouchEvent& event)
           Vector2 distanceDelta(abs(mTouchPosition.x - screen.x),
                                 abs(mTouchPosition.y - screen.y));
 
-          unsigned long timeDelta = abs( event.time - mLastTapTime );
+          uint32_t timeDelta = event.time - mLastTapTime;
 
           if (distanceDelta.x > MAXIMUM_MOTION_ALLOWED ||
               distanceDelta.y > MAXIMUM_MOTION_ALLOWED ||
@@ -201,7 +201,7 @@ void TapGestureDetector::Update(const Integration::GestureRequest& request)
   mMaximumTapsRequired = tap.maxTaps;
 }
 
-void TapGestureDetector::EmitGesture( Gesture::State state, unsigned int time )
+void TapGestureDetector::EmitGesture( Gesture::State state, uint32_t time )
 {
   if ( (state == Gesture::Cancelled) ||
        (mTapsRegistered >= mMinimumTapsRequired && mTapsRegistered <= mMaximumTapsRequired) )
@@ -212,7 +212,7 @@ void TapGestureDetector::EmitGesture( Gesture::State state, unsigned int time )
   }
 }
 
-void TapGestureDetector::EmitSingleTap( unsigned int time, const Integration::Point& point )
+void TapGestureDetector::EmitSingleTap( uint32_t time, const Integration::Point& point )
 {
   Integration::TapGestureEvent event( Gesture::Started );
   const Vector2& screen( point.GetScreenPosition() );
@@ -228,7 +228,7 @@ void TapGestureDetector::EmitSingleTap( unsigned int time, const Integration::Po
   EmitTap( time, event );
 }
 
-void TapGestureDetector::EmitTap( unsigned int time, Integration::TapGestureEvent& event )
+void TapGestureDetector::EmitTap( uint32_t time, Integration::TapGestureEvent& event )
 {
   event.numberOfTaps = mTapsRegistered;
   event.point = mTouchPosition;

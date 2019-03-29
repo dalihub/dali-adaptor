@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@ bool LongPressGestureDetector::TimerCallback()
 
 void LongPressGestureDetector::EmitGesture(Gesture::State state)
 {
-  unsigned int touchPoints ( mTouchPositions.size() );
+  unsigned int touchPoints ( static_cast<unsigned int>( mTouchPositions.size() ) );
 
   // We should tell Core about the Possible and Cancelled states regardless of whether we have satisfied long press requirements.
   if ( (state == Gesture::Possible) ||
@@ -224,7 +224,7 @@ void LongPressGestureDetector::EmitGesture(Gesture::State state)
     {
       longPress.point += iter->second;
     }
-    longPress.point /= touchPoints;
+    longPress.point /= static_cast<float>( touchPoints );
 
     longPress.time = mTouchTime;
     if ( state != Gesture::Possible )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore_IMF.h>
-#include <Ecore_Input.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
+#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
@@ -33,9 +33,6 @@
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 #include <dali/internal/input/common/key-impl.h>
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 
 namespace Dali
@@ -357,7 +354,7 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
           const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
           if ( byteIndex == attr->end_index )
           {
-            cursorPosition = visualCharacterIndex;
+            cursorPosition = static_cast<int>( visualCharacterIndex );
             break;
             // end loop as found cursor position that matches byte position
           }
@@ -785,7 +782,7 @@ bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
     {
       eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                     ECORE_IMF_EVENT_KEY_DOWN,
-                                                    (Ecore_IMF_Event *) &ecoreKeyDownEvent);
+                                                    reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyDownEvent ));
     }
 
     // If the event has not been handled by InputMethodContext then check if we should reset our IMFcontext
@@ -827,7 +824,7 @@ bool InputMethodContextX::ProcessEventKeyUp( const KeyEvent& keyEvent )
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,
-                                                  (Ecore_IMF_Event *) &ecoreKeyUpEvent);
+                                                  reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyUpEvent ));
   }
   return eventHandled;
 }
@@ -891,5 +888,3 @@ Ecore_IMF_Keyboard_Locks InputMethodContextX::EcoreInputModifierToEcoreIMFLock( 
 } // Internal
 
 } // Dali
-
-#pragma GCC diagnostic pop
