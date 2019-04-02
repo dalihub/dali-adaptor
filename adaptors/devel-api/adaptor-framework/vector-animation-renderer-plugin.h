@@ -45,11 +45,11 @@ public:
   virtual ~VectorAnimationRendererPlugin() {}
 
   /**
-   * @brief Sets the url of the animation file.
+   * @brief Second-phase constructor.
    *
    * @param[in] url The url of the animation file
    */
-  virtual void SetUrl( const std::string& url ) = 0;
+  virtual bool Initialize( const std::string& url ) = 0;
 
   /**
    * @brief Sets the renderer used to display the result image.
@@ -65,13 +65,6 @@ public:
    * @param[in] height The target image height
    */
   virtual void SetSize( uint32_t width, uint32_t height ) = 0;
-
-  /**
-   * @brief Starts the rendering.
-   *
-   * @return True if the renderer is successfully started, false otherwise
-   */
-  virtual bool StartRender() = 0;
 
   /**
    * @brief Stops the rendering.
@@ -98,6 +91,13 @@ public:
    * @return The frame rate of the file
    */
   virtual float GetFrameRate() const = 0;
+
+  /**
+   * @brief Gets the default size of the file,.
+   *
+   * @return The default size of the file
+   */
+  virtual void GetDefaultSize( uint32_t& width, uint32_t& height ) const = 0;
 
   /**
    * @brief Function pointer called in adaptor to create a plugin instance.
