@@ -67,11 +67,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @copydoc Dali::VectorAnimationRenderer::StartRender()
-   */
-  bool StartRender();
-
-  /**
    * @copydoc Dali::VectorAnimationRenderer::StopRender()
    */
   void StopRender();
@@ -90,6 +85,11 @@ public:
    * @copydoc Dali::VectorAnimationRenderer::GetFrameRate()
    */
   float GetFrameRate() const;
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::GetDefaultSize()
+   */
+  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
 
 private:
 
