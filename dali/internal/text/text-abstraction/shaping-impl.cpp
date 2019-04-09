@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@
 // EXTERNAL INCLUDES
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ft.h>
+
+namespace
+{
+
+#if defined(DEBUG_ENABLED)
+Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_FONT_CLIENT");
+#endif
+
+}
 
 namespace Dali
 {
@@ -136,118 +145,158 @@ struct Shaping::Plugin
     mOffset.Clear();
     mFontId = fontId;
 
-    // Reserve some space to avoid reallocations.
-    const Length numberOfGlyphs = static_cast<Length>( 1.3f * static_cast<float>( numberOfCharacters ) );
-    mIndices.Reserve( numberOfGlyphs );
-    mAdvance.Reserve( numberOfGlyphs );
-    mCharacterMap.Reserve( numberOfGlyphs );
-    mOffset.Reserve( 2u * numberOfGlyphs );
-
     TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
     TextAbstraction::Internal::FontClient& fontClientImpl = TextAbstraction::GetImplementation( fontClient );
 
-    // Create a FreeType font's face.
-    FT_Face face;
+    const FontDescription::Type type = fontClientImpl.GetFontType( fontId );
 
-    face = fontClientImpl.GetFreetypeFace( fontId );
-    if( nullptr == face )
+    switch( type )
     {
-      // Nothing to do if the face is null.
-      return 0u;
-    }
-
-    /* Get our harfbuzz font struct */
-    hb_font_t* harfBuzzFont;
-    harfBuzzFont = hb_ft_font_create( face, NULL );
-
-    /* Create a buffer for harfbuzz to use */
-    hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
-
-    const bool rtlDirection = IsRightToLeftScript( script );
-    hb_buffer_set_direction( harfBuzzBuffer,
-                             rtlDirection ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
-
-    hb_buffer_set_script( harfBuzzBuffer,
-                          SCRIPT_TO_HARFBUZZ[ script ] ); /* see hb-unicode.h */
-
-
-    char* currentLocale = setlocale(LC_MESSAGES,NULL);
-
-    std::istringstream stringStream( currentLocale );
-    std::string localeString;
-    std::getline(stringStream, localeString, '_');
-    hb_buffer_set_language( harfBuzzBuffer, hb_language_from_string( localeString.c_str(), localeString.size() ) );
-
-    /* Layout the text */
-    hb_buffer_add_utf32( harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters );
-
-    hb_shape( harfBuzzFont, harfBuzzBuffer, NULL, 0u );
-
-    /* Get glyph data */
-    unsigned int glyphCount;
-    hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
-    hb_glyph_position_t *glyphPositions = hb_buffer_get_glyph_positions( harfBuzzBuffer, &glyphCount );
-    const GlyphIndex lastGlyphIndex = glyphCount - 1u;
-    for( GlyphIndex i = 0u; i < glyphCount; )
+    case FontDescription::FACE_FONT:
     {
-      if( rtlDirection )
+      // Reserve some space to avoid reallocations.
+      const Length numberOfGlyphs = static_cast<Length>( 1.3f * static_cast<float>( numberOfCharacters ) );
+      mIndices.Reserve( numberOfGlyphs );
+      mAdvance.Reserve( numberOfGlyphs );
+      mCharacterMap.Reserve( numberOfGlyphs );
+      mOffset.Reserve( 2u * numberOfGlyphs );
+
+      // Retrieve a FreeType font's face.
+      FT_Face face = fontClientImpl.GetFreetypeFace( fontId );
+      if( nullptr == face )
       {
-        // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
-        // The glyphs are needed in the logical order to layout the text in lines.
-        // Do not change the order of the glyphs if they belong to the same cluster.
-        GlyphIndex rtlIndex = lastGlyphIndex - i;
-
-        unsigned int cluster = glyphInfo[rtlIndex].cluster;
-        unsigned int previousCluster = cluster;
-        Length numberOfGlyphsInCluster = 0u;
-
-        while( ( cluster == previousCluster ) )
-        {
-          ++numberOfGlyphsInCluster;
-          previousCluster = cluster;
-
-          if( rtlIndex > 0u )
-          {
-            --rtlIndex;
-
-            cluster = glyphInfo[rtlIndex].cluster;
-          }
-          else
-          {
-            break;
-          }
-        }
-
-        rtlIndex = lastGlyphIndex - ( i + ( numberOfGlyphsInCluster - 1u ) );
-
-        for( GlyphIndex j = 0u; j < numberOfGlyphsInCluster; ++j )
-        {
-          const GlyphIndex index = rtlIndex + j;
-
-          mIndices.PushBack( glyphInfo[index].codepoint );
-          mAdvance.PushBack( floor( glyphPositions[index].x_advance * FROM_266 ) );
-          mCharacterMap.PushBack( glyphInfo[index].cluster );
-          mOffset.PushBack( floor( glyphPositions[index].x_offset * FROM_266 ) );
-          mOffset.PushBack( floor( glyphPositions[index].y_offset * FROM_266 ) );
-        }
-
-        i += numberOfGlyphsInCluster;
+        // Nothing to do if the face is null.
+        return 0u;
       }
-      else
+
+      unsigned int horizontalDpi = 0u;
+      unsigned int verticalDpi = 0u;
+      fontClient.GetDpi( horizontalDpi, verticalDpi );
+
+      FT_Set_Char_Size( face,
+          0u,
+          fontClient.GetPointSize( fontId ),
+          horizontalDpi,
+          verticalDpi );
+
+      /* Get our harfbuzz font struct */
+      hb_font_t* harfBuzzFont;
+      harfBuzzFont = hb_ft_font_create( face, NULL );
+
+      /* Create a buffer for harfbuzz to use */
+      hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
+
+      const bool rtlDirection = IsRightToLeftScript( script );
+      hb_buffer_set_direction( harfBuzzBuffer,
+          rtlDirection ? HB_DIRECTION_RTL : HB_DIRECTION_LTR ); /* or LTR */
+
+      hb_buffer_set_script( harfBuzzBuffer,
+          SCRIPT_TO_HARFBUZZ[ script ] ); /* see hb-unicode.h */
+
+
+      char* currentLocale = setlocale(LC_MESSAGES,NULL);
+
+      std::istringstream stringStream( currentLocale );
+      std::string localeString;
+      std::getline(stringStream, localeString, '_');
+      hb_buffer_set_language( harfBuzzBuffer, hb_language_from_string( localeString.c_str(), localeString.size() ) );
+
+      /* Layout the text */
+      hb_buffer_add_utf32( harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters );
+
+      hb_shape( harfBuzzFont, harfBuzzBuffer, NULL, 0u );
+
+      /* Get glyph data */
+      unsigned int glyphCount;
+      hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos( harfBuzzBuffer, &glyphCount );
+      hb_glyph_position_t *glyphPositions = hb_buffer_get_glyph_positions( harfBuzzBuffer, &glyphCount );
+      const GlyphIndex lastGlyphIndex = glyphCount - 1u;
+      for( GlyphIndex i = 0u; i < glyphCount; )
       {
-        mIndices.PushBack( glyphInfo[i].codepoint );
-        mAdvance.PushBack( floor( glyphPositions[i].x_advance * FROM_266 ) );
-        mCharacterMap.PushBack( glyphInfo[i].cluster );
-        mOffset.PushBack( floor( glyphPositions[i].x_offset * FROM_266 ) );
-        mOffset.PushBack( floor( glyphPositions[i].y_offset * FROM_266 ) );
+        if( rtlDirection )
+        {
+          // If the direction is right to left, Harfbuzz retrieves the glyphs in the visual order.
+          // The glyphs are needed in the logical order to layout the text in lines.
+          // Do not change the order of the glyphs if they belong to the same cluster.
+          GlyphIndex rtlIndex = lastGlyphIndex - i;
 
-        ++i;
+          unsigned int cluster = glyphInfo[rtlIndex].cluster;
+          unsigned int previousCluster = cluster;
+          Length numberOfGlyphsInCluster = 0u;
+
+          while( ( cluster == previousCluster ) )
+          {
+            ++numberOfGlyphsInCluster;
+            previousCluster = cluster;
+
+            if( rtlIndex > 0u )
+            {
+              --rtlIndex;
+
+              cluster = glyphInfo[rtlIndex].cluster;
+            }
+            else
+            {
+              break;
+            }
+          }
+
+          rtlIndex = lastGlyphIndex - ( i + ( numberOfGlyphsInCluster - 1u ) );
+
+          for( GlyphIndex j = 0u; j < numberOfGlyphsInCluster; ++j )
+          {
+            const GlyphIndex index = rtlIndex + j;
+
+            mIndices.PushBack( glyphInfo[index].codepoint );
+            mAdvance.PushBack( floor( glyphPositions[index].x_advance * FROM_266 ) );
+            mCharacterMap.PushBack( glyphInfo[index].cluster );
+            mOffset.PushBack( floor( glyphPositions[index].x_offset * FROM_266 ) );
+            mOffset.PushBack( floor( glyphPositions[index].y_offset * FROM_266 ) );
+          }
+
+          i += numberOfGlyphsInCluster;
+        }
+        else
+        {
+          mIndices.PushBack( glyphInfo[i].codepoint );
+          mAdvance.PushBack( floor( glyphPositions[i].x_advance * FROM_266 ) );
+          mCharacterMap.PushBack( glyphInfo[i].cluster );
+          mOffset.PushBack( floor( glyphPositions[i].x_offset * FROM_266 ) );
+          mOffset.PushBack( floor( glyphPositions[i].y_offset * FROM_266 ) );
+
+          ++i;
+        }
       }
+
+      /* Cleanup */
+      hb_buffer_destroy( harfBuzzBuffer );
+      hb_font_destroy( harfBuzzFont );
+      break;
     }
+    case FontDescription::BITMAP_FONT:
+    {
+      // Reserve some space to avoid reallocations.
+      // The advance and offset tables can be initialized with zeros as it's not needed to get metrics from the bitmaps here.
+      mIndices.Resize( numberOfCharacters );
+      mAdvance.Resize( numberOfCharacters, 0u );
+      mCharacterMap.Reserve( numberOfCharacters );
+      mOffset.Resize( 2u * numberOfCharacters, 0.f );
 
-    /* Cleanup */
-    hb_buffer_destroy( harfBuzzBuffer );
-    hb_font_destroy( harfBuzzFont );
+      // The utf32 character can be used as the glyph's index.
+      std::copy( text, text + numberOfCharacters, mIndices.Begin() );
+
+      // The glyph to character map is 1 to 1.
+      for( unsigned int index = 0u; index < numberOfCharacters; ++index )
+      {
+        mCharacterMap.PushBack( index );
+      }
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
+    }
+    }
 
     return mIndices.Count();
   }

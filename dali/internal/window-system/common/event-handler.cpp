@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/integration-api/scene.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/gesture-manager.h>
@@ -60,7 +61,7 @@ namespace
 {
 
 // Copied from x server
-static unsigned int GetCurrentMilliSeconds(void)
+static uint32_t GetCurrentMilliSeconds(void)
 {
   struct timeval tv;
 
@@ -88,22 +89,22 @@ static unsigned int GetCurrentMilliSeconds(void)
   }
   if (clockid != ~0L && clock_gettime(clockid, &tp) == 0)
   {
-    return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000L);
+    return static_cast<uint32_t>( (tp.tv_sec * 1000 ) + (tp.tv_nsec / 1000000L) );
   }
 
   gettimeofday(&tv, NULL);
-  return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+  return static_cast<uint32_t>( (tv.tv_sec * 1000 ) + (tv.tv_usec / 1000) );
 }
 
 } // unnamed namespace
 
-EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver, DragAndDropDetectorPtr dndDetector )
-: mCoreEventInterface( coreEventInterface ),
+EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver )
+: mScene( scene ),
+  mCoreEventInterface( coreEventInterface ),
   mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
   mRotationObserver( NULL ),
-  mDragAndDropDetector( dndDetector ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard( Clipboard::Get() ),
@@ -113,7 +114,7 @@ EventHandler::EventHandler( RenderSurface* surface, CoreEventInterface& coreEven
   mPaused( false )
 {
   // this code only works with the WindowRenderSurface so need to downcast
-  WindowRenderSurface* windowRenderSurface = static_cast< WindowRenderSurface* >( surface );
+  WindowRenderSurface* windowRenderSurface = static_cast< WindowRenderSurface* >( scene.GetSurface() );
   if( windowRenderSurface )
   {
     WindowBase* windowBase = windowRenderSurface->GetWindowBase();
@@ -137,9 +138,9 @@ EventHandler::~EventHandler()
   mGestureManager.Stop();
 }
 
-void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
+void EventHandler::SendEvent( Integration::Point& point, uint32_t timeStamp )
 {
-  if(timeStamp < 1)
+  if( timeStamp < 1 )
   {
     timeStamp = GetCurrentMilliSeconds();
   }
@@ -149,20 +150,19 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
   Integration::TouchEvent touchEvent;
   Integration::HoverEvent hoverEvent;
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
-  if(type != Integration::TouchEventCombiner::DispatchNone )
+  if( type != Integration::TouchEventCombiner::DispatchNone )
   {
-    DALI_LOG_INFO(gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y);
-
+    DALI_LOG_INFO( gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
     // First the touch and/or hover event & related gesture events are queued
-    if(type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth)
+    if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth )
     {
-      mCoreEventInterface.QueueCoreEvent( touchEvent );
-      mGestureManager.SendEvent(touchEvent);
+      mScene.QueueEvent( touchEvent );
+      mGestureManager.SendEvent( mScene, touchEvent );
     }
 
-    if(type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth)
+    if( type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth )
     {
-      mCoreEventInterface.QueueCoreEvent( hoverEvent );
+      mScene.QueueEvent( hoverEvent );
     }
 
     // Next the events are processed with a single call into Core
@@ -173,16 +173,16 @@ void EventHandler::SendEvent(Integration::Point& point, unsigned long timeStamp)
 void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
 {
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
-  if ( physicalKeyboard )
+  if( physicalKeyboard )
   {
-    if ( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
+    if( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
     {
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
 
   // Create send KeyEvent to Core.
-  mCoreEventInterface.QueueCoreEvent( keyEvent );
+  mScene.QueueEvent( keyEvent );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -190,7 +190,8 @@ void EventHandler::SendWheelEvent( WheelEvent& wheelEvent )
 {
   // Create WheelEvent and send to Core.
   Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
-  mCoreEventInterface.QueueCoreEvent( event );
+
+  mScene.QueueEvent( event );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -223,10 +224,10 @@ void EventHandler::SendRotationRequestEvent( )
   // No need to separate event into prepare and request
 }
 
-void EventHandler::FeedTouchPoint( TouchPoint& point, int timeStamp)
+void EventHandler::FeedTouchPoint( TouchPoint& point, uint32_t timeStamp)
 {
   Integration::Point convertedPoint( point );
-  SendEvent(convertedPoint, timeStamp);
+  SendEvent( convertedPoint, timeStamp );
 }
 
 void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
@@ -242,7 +243,7 @@ void EventHandler::FeedKeyEvent( KeyEvent& event )
 
 void EventHandler::FeedEvent( Integration::Event& event )
 {
-  mCoreEventInterface.QueueCoreEvent( event );
+  mScene.QueueEvent( event );
   mCoreEventInterface.ProcessCoreEvents();
 }
 
@@ -257,8 +258,9 @@ void EventHandler::Reset()
   event.AddPoint( point );
 
   // First the touch event & related gesture events are queued
-  mCoreEventInterface.QueueCoreEvent( event );
-  mGestureManager.SendEvent( event );
+  mScene.QueueEvent( event );
+
+  mGestureManager.SendEvent( mScene, event );
 
   // Next the events are processed with a single call into Core
   mCoreEventInterface.ProcessCoreEvents();
@@ -276,17 +278,12 @@ void EventHandler::Resume()
   Reset();
 }
 
-void EventHandler::SetDragAndDropDetector( DragAndDropDetectorPtr detector )
-{
-  mDragAndDropDetector = detector;
-}
-
 void EventHandler::SetRotationObserver( RotationObserver* observer )
 {
   mRotationObserver = observer;
 }
 
-void EventHandler::OnTouchEvent( Integration::Point& point, unsigned long timeStamp )
+void EventHandler::OnTouchEvent( Integration::Point& point, uint32_t timeStamp )
 {
   SendEvent( point, timeStamp );
 }
@@ -533,7 +530,7 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     case 20: // TwoFingersTripleTap
     {
       // Read information from indicator
-      accessibilityAdaptor->HandleActionReadIndicatorInformationEvent();
+      // Not supported
       break;
     }
     case 21: // ThreeFingersSingleTap
@@ -630,20 +627,20 @@ void EventHandler::ConvertTouchPosition( Integration::Point& point )
   {
     case 90:
     {
-      convertedPosition.x = mWindowWidth - position.y;
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.y;
       convertedPosition.y = position.x;
       break;
     }
     case 180:
     {
-      convertedPosition.x = mWindowWidth - position.x;
-      convertedPosition.y = mWindowHeight - position.y;
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.x;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.y;
       break;
     }
     case 270:
     {
       convertedPosition.x = position.y;
-      convertedPosition.y = mWindowHeight - position.x;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.x;
       break;
     }
     default:

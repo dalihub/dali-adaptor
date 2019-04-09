@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/system-settings.h>
 
 namespace Dali
@@ -49,9 +50,7 @@ Debug::Filter* gAccessibilityAdaptorLogFilter = Debug::Filter::New(Debug::NoLogg
 AccessibilityAdaptor::AccessibilityAdaptor()
 : mReadPosition(),
   mActionHandler( NULL ),
-  mIndicator( NULL ),
-  mIsEnabled( false ),
-  mIndicatorFocused( false )
+  mIsEnabled( false )
 {
   mAccessibilityGestureDetector = new AccessibilityGestureDetector();
 }
@@ -113,11 +112,6 @@ void AccessibilityAdaptor::SetGestureHandler(AccessibilityGestureHandler& handle
   }
 }
 
-void AccessibilityAdaptor::SetIndicator(IndicatorInterface* indicator)
-{
-  mIndicator = indicator;
-}
-
 bool AccessibilityAdaptor::HandleActionNextEvent(bool allowEndFeedback)
 {
   bool ret = false;
@@ -166,8 +160,8 @@ bool AccessibilityAdaptor::HandleActionReadEvent(unsigned int x, unsigned int y,
 
   DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %d , %d\n", __FUNCTION__, __LINE__, x, y);
 
-  mReadPosition.x = x;
-  mReadPosition.y = y;
+  mReadPosition.x = static_cast< float > (x);
+  mReadPosition.y = static_cast< float > (y);
 
   if( mActionHandler )
   {
@@ -248,7 +242,7 @@ bool AccessibilityAdaptor::HandleActionClearFocusEvent()
   return ret;
 }
 
-bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, uint32_t timeStamp)
 {
   bool ret = false;
 
@@ -277,7 +271,7 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsi
   return ret;
 }
 
-bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
+bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp)
 {
   bool ret = false;
 
@@ -463,20 +457,6 @@ bool AccessibilityAdaptor::HandleActionZoomEvent()
   if( mActionHandler )
   {
     ret = mActionHandler->AccessibilityActionZoom();
-  }
-
-  DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
-
-  return ret;
-}
-
-bool AccessibilityAdaptor::HandleActionReadIndicatorInformationEvent()
-{
-  bool ret = false;
-
-  if( mActionHandler )
-  {
-    ret = mActionHandler->AccessibilityActionReadIndicatorInformation();
   }
 
   DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");

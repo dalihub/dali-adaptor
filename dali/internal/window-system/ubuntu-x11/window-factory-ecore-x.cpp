@@ -34,11 +34,6 @@ std::unique_ptr< WindowBase > WindowFactoryEcoreX::CreateWindowBase( Dali::Posit
   return Utils::MakeUnique< WindowBaseEcoreX >( positionSize, surface, isTransparent );
 }
 
-std::unique_ptr< IndicatorInterface > WindowFactoryEcoreX::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
-{
-  return std::unique_ptr< IndicatorInterface >( nullptr );
-}
-
 // this should be created from Window impl
 std::unique_ptr< WindowFactory > GetWindowFactory()
 {

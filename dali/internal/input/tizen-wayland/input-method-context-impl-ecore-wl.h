@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
-#define __DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
+#ifndef DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
+#define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <Ecore_IMF.h>
-#include <Ecore.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
@@ -317,4 +317,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
+#endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H

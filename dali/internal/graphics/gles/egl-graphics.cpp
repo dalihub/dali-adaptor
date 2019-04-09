@@ -72,7 +72,6 @@ void EglGraphics::Destroy()
 {
 }
 
-//Dali::Integration::GlAbstraction& EglGraphics::GetGlesInterface()
 GlImplementation& EglGraphics::GetGlesInterface()
 {
   return *mGLES;

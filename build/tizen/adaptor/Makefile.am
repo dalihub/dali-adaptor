@@ -436,6 +436,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(OPENGLES20_CFLAGS) \
                       $(FREETYPE_CFLAGS) \
                       $(FONTCONFIG_CFLAGS) \
+                      $(CAIRO_CFLAGS) \
                       $(PNG_CFLAGS) \
                       $(DLOG_CFLAGS) \
                       $(VCONF_CFLAGS) \
@@ -465,6 +466,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(OPENGLES20_LIBS) \
                       $(FREETYPE_LIBS) \
                       $(FONTCONFIG_LIBS) \
+                      $(CAIRO_LIBS) \
                       $(PNG_LIBS) \
                       $(DLOG_LIBS) \
                       $(VCONF_LIBS) \
@@ -499,34 +501,26 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS += $(CAPI_APPFW_APPLICATION_CFLAGS) \
                                $(CAPI_SYSTEM_SYSTEM_SETTINGS_CFLAGS) \
                                $(CAPI_SYSTEM_INFO_CFLAGS) \
                                $(TTS_CFLAGS) \
-                               $(SENSOR_CFLAGS)
+                               $(SENSOR_CFLAGS) \
+                               $(BUNDLE_CFLAGS) \
+                               $(CAPI_APPFW_COMMON_CFLAGS) \
+                               $(CAPI_APPFW_CONTROL_CFLAGS) \
+                               $(CAPI_APPFW_WIDGET_BASE_CFLAGS) \
+                               $(ECORE_IMF_CFLAGS) \
+                               $(FRIBIDI_CFLAGS)
 
 LIBDALI_ADAPTOR_LA_LIBADD += $(CAPI_APPFW_APPLICATION_LIBS) \
                              $(CAPI_SYSTEM_SYSTEM_SETTINGS_LIBS) \
                              $(CAPI_SYSTEM_INFO_LIBS) \
                              $(TTS_LIBS) \
-                             $(SENSOR_LIBS)
-if USE_APPFW_EFL_BASE
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
-
-LIBDALI_ADAPTOR_LA_LIBADD += $(ELEMENTARY_LIBS)
-
-else
-LIBDALI_ADAPTOR_LA_CXXFLAGS += $(BUNDLE_CFLAGS) \
-                               $(CAPI_APPFW_COMMON_CFLAGS) \
-                               $(CAPI_APPFW_CONTROL_CFLAGS) \
-                               $(CAPI_APPFW_WIDGET_BASE_CFLAGS) \
-                               $(ECORE_IMF_CFLAGS) \
-                               $(FRIBIDI_CFLAGS) \
-                               -DWIDGET_SUPPOERTED
-
-LIBDALI_ADAPTOR_LA_LIBADD += $(BUNDLE_LIBS) \
+                             $(SENSOR_LIBS) \
+                             $(BUNDLE_LIBS) \
                              $(CAPI_APPFW_COMMON_LIBS) \
                              $(CAPI_APPFW_CONTROL_LIBS) \
                              $(CAPI_APPFW_WIDGET_BASE_LIBS) \
                              $(ECORE_IMF_LIBS) \
                              $(FRIBIDI_LIBS)
-endif
+
 else
 LIBDALI_ADAPTOR_LA_CXXFLAGS += $(ELEMENTARY_CFLAGS)
 

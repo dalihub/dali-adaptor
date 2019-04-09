@@ -72,7 +72,7 @@ public:
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType( RenderSurface::Type type );
+  void SetSurfaceType( Integration::RenderSurface::Type type );
 
   /**
    * @brief Sets the graphics interface
@@ -107,7 +107,7 @@ protected:
 
 private:
   EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
-  RenderSurface::Type mSurfaceType;     ///< The surface type
+  Integration::RenderSurface::Type mSurfaceType;     ///< The surface type
   GraphicsInterface* mGraphics;         ///< The graphics interface
 };
 

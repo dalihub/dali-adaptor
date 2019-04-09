@@ -40,8 +40,7 @@ WindowBase::WindowBase()
   mSelectionDataSendSignal(),
   mSelectionDataReceivedSignal(),
   mStyleChangedSignal(),
-  mAccessibilitySignal(),
-  mIndicatorFlickedSignal()
+  mAccessibilitySignal()
 {
 }
 
@@ -114,15 +113,8 @@ WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
   return mAccessibilitySignal;
 }
 
-WindowBase::IndicatorSignalType& WindowBase::IndicatorFlickedSignal()
-{
-  return mIndicatorFlickedSignal;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

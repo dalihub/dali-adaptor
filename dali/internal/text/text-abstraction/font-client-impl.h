@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@ public:
    * @copydoc Dali::TextAbstraction::FontClient::Get()
    */
   static Dali::TextAbstraction::FontClient Get();
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
+   */
+  void ClearCache();
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
@@ -136,6 +141,11 @@ public:
                     FaceIndex faceIndex );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const BitmapFont& bitmapFont )
+   */
+  FontId GetFontId( const BitmapFont& bitmapFont );
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::IsScalable( const FontPath& path )
    */
   bool IsScalable( const FontPath& path );
@@ -157,6 +167,11 @@ public:
                       Dali::Vector< PointSize26Dot6 >& sizes );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::HasItalicStyle()
+   */
+  bool HasItalicStyle( FontId fontId ) const;
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::GetFontMetrics()
    */
   void GetFontMetrics( FontId fontId, FontMetrics& metrics );
@@ -172,9 +187,9 @@ public:
   bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal );
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+   * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth );
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
@@ -197,6 +212,11 @@ public:
   bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::CreateEmbeddedItem()
+   */
+  GlyphIndex CreateEmbeddedItem( const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat );
+
+  /**
    * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
    *
    * @param[in] fontId The font id.
@@ -204,6 +224,15 @@ public:
    * @return The pointer to the FreeType Font Face.
    */
   FT_FaceRec_* GetFreetypeFace( FontId fontId );
+
+  /**
+   * @brief Retrieves the type of font.
+   *
+   * @param[in] fontId The font id.
+   *
+   * @return FACE_FONT if the font has been loaded by FreeType, BITMAP_FONT if it's a font that has been loaded from images or INVALID if it's a non valid font.
+   */
+  FontDescription::Type GetFontType( FontId fontId );
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()

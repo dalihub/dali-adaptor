@@ -28,6 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/scene.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
 
@@ -39,6 +40,7 @@
 #include <dali/internal/system/common/core-event-interface.h>
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/system/common/kernel-trace.h>
 #include <dali/internal/system/common/system-trace.h>
@@ -49,13 +51,14 @@
 namespace Dali
 {
 
-class RenderSurface;
+class RenderSurfaceInterface;
 class Window;
 
 namespace Integration
 {
 class Core;
 class GlAbstraction;
+class Processor;
 }
 
 namespace Internal
@@ -65,7 +68,6 @@ namespace Adaptor
 {
 class DisplayConnection;
 class GraphicsFactory;
-class EventHandler;
 class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
@@ -97,21 +99,21 @@ public:
 
   /**
    * Creates a New Adaptor
-   * @param[in]  nativeWindow        Native window handle
+   * @param[in]  window              The window handle
    * @param[in]  surface             A render surface can be one of the following
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( Any nativeWindow,
-                             RenderSurface* surface,
+  static Dali::Adaptor* New( Dali::Window window,
+                             Dali::RenderSurfaceInterface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
    * Creates a New Adaptor
-   * @param[in]  nativeWindow        native window handle
+   * @param[in]  window              The window handle
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
@@ -122,7 +124,7 @@ public:
   /**
    * Creates a New Adaptor
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
-   * @param[in]  nativeWindow        Native window handle
+   * @param[in]  window              The window handle
    * @param[in]  surface             A render surface can be one of the following
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
@@ -130,15 +132,15 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
-                             Any nativeWindow,
-                             RenderSurface* surface,
+                             Dali::Window window,
+                             Dali::RenderSurfaceInterface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
    * Creates a New Adaptor
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
-   * @param[in]  nativeWindow        native window handle
+   * @param[in]  window              The window handle
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
@@ -223,12 +225,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc AdaptorInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Any nativeWindow, RenderSurface& surface );
+  virtual void ReplaceSurface( Dali::Window window, Dali::RenderSurfaceInterface& surface );
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual RenderSurface& GetSurface() const;
+  virtual Dali::RenderSurfaceInterface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -281,6 +283,12 @@ public: // AdaptorInternalServices implementation
    * Sets a pre-render callback.
    */
   void SetPreRenderCallback( CallbackBase* callback );
+
+  /**
+   * Removes an existing Window instance from the Adaptor
+   * @param[in]  childWindow The Window instance
+   */
+  bool RemoveWindow( Dali::Internal::Adaptor::Window* childWindow );
 
 public:
 
@@ -379,11 +387,6 @@ public:
   void RequestUpdateOnce();
 
   /**
-   * Request adaptor to update indicator's height
-   */
-  void IndicatorSizeChanged(int height);
-
-  /**
    * @copydoc Dali::Adaptor::NotifySceneCreated()
    */
   void NotifySceneCreated();
@@ -401,12 +404,12 @@ public:
   /**
    * Informs core the surface size has changed
    */
-  void SurfaceResizePrepare( SurfaceSize surfaceSize );
+  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
    * Informs ThreadController the surface size has changed
    */
-  void SurfaceResizeComplete( SurfaceSize surfaceSize );
+  void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
    * Sets layout direction of root by system language
@@ -423,6 +426,16 @@ public:
    * @copydoc Dali::Adaptor::GetLogFactory
    */
   const LogFactoryInterface& GetLogFactory();
+
+  /**
+   * @copydoc Dali::Adaptor::RegisterProcessor
+   */
+  void RegisterProcessor( Integration::Processor& processor );
+
+  /**
+   * @coydoc Dali::Adaptor::UnregisterProcessor
+   */
+  void UnregisterProcessor( Integration::Processor& processor );
 
 public:  //AdaptorInternalServices
 
@@ -459,7 +472,7 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
-  virtual RenderSurface* GetRenderSurfaceInterface();
+  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
@@ -497,6 +510,15 @@ public: // Signals
   AdaptorSignalType& LanguageChangedSignal()
   {
     return mLanguageChangedSignal;
+  }
+
+  /**
+   * Gets the gesture manager.
+   * @return The GestureManager
+   */
+  GestureManager* GetGestureManager() const
+  {
+    return mGestureManager;
   }
 
 private: // From Dali::Internal::Adaptor::CoreEventInterface
@@ -554,7 +576,7 @@ private:
    * Assigns the render surface to the adaptor
    *
    */
-  void SetSurface(RenderSurface *surface);
+  void SetSurface(Dali::RenderSurfaceInterface *surface);
 
   /**
    * called after surface is created
@@ -597,14 +619,14 @@ private:
 
   /**
    * Constructor
-   * @param[in]  nativeWindow native window handle
+   * @param[in]  window       window handle
    * @param[in]  adaptor      The public adaptor
    * @param[in]  surface      A render surface can be one of the following
    *                          - Pixmap, adaptor will use existing Pixmap to draw on to
    *                          - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  Adaptor( Any nativeWindow, Dali::Adaptor& adaptor, RenderSurface* surface, EnvironmentOptions* environmentOptions );
+  Adaptor( Dali::Window window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
 
 private: // Types
 
@@ -617,20 +639,9 @@ private: // Types
     STOPPED,             ///< Adaptor has been stopped.
   };
 
-  // A structure to encapsulate each Window instance for the Adaptor to track them
-  typedef struct WindowPane
-  {
-    Dali::Window*  instance;     ///< Window object
-    std::string    window_name;  ///< Name (title)_of the window
-    std::string    class_name;   ///< Class name that the window belongs to
-    bool           window_mode;  ///< Display mode of the window
-    Any            nativeWindow; ///< window identifier
-    RenderSurface* surface;      ///< The surface the Window is bound to
-  } WindowPane;
-
-  typedef std::vector<WindowPane> WindowFrames;
-
-  typedef std::vector<LifeCycleObserver*>  ObserverContainer;
+  using WindowPtr = IntrusivePtr< Window >;
+  using WindowContainer = std::vector<WindowPtr>;
+  using ObserverContainer = std::vector<LifeCycleObserver*>;
 
 private: // Data
 
@@ -645,11 +656,10 @@ private: // Data
 
   GraphicsInterface*                    mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
-  WindowFrames                          mWindowFrame;                 ///< A container of all the Windows that are currently created
+  WindowContainer                       mWindows;                     ///< A container of all the Windows that are currently created
 
   TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;      ///< Platform abstraction
 
-  EventHandler*                         mEventHandler;                ///< event handler
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEventInterface*                mNotificationTrigger;         ///< Notification event trigger

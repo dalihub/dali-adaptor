@@ -19,7 +19,6 @@
 #include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/indicator-impl-ecore-wl.h>
 #include <dali/internal/window-system/tizen-wayland/ecore-wl2/window-base-ecore-wl2.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
@@ -33,11 +32,6 @@ namespace Adaptor
 std::unique_ptr< WindowBase > WindowFactoryEcoreWl2::CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 {
   return Utils::MakeUnique< WindowBaseEcoreWl2 >( positionSize, surface, isTransparent );
-}
-
-std::unique_ptr< IndicatorInterface > WindowFactoryEcoreWl2::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
-{
-  return Utils::MakeUnique< IndicatorEcoreWl >( adaptor, orientation, observer );
 }
 
 // this should be created from Window impl

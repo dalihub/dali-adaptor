@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,6 @@
  *
  */
 
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-
 // CLASS HEADER
 #include <dali/internal/window-system/ubuntu-x11/window-base-ecore-x.h>
 
@@ -31,7 +27,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/integration-api/debug.h>
-#include <Ecore_Input.h>
+#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 
 namespace Dali
 {
@@ -468,7 +464,7 @@ void WindowBaseEcoreX::OnMouseButtonUp( void* data, int type, void* event )
     point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
     point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
     point.SetPressure( touchEvent->multi.pressure );
-    point.SetAngle( Degree( touchEvent->multi.angle ) );
+    point.SetAngle( Degree( static_cast<float>( touchEvent->multi.angle ) ) );
     if( touchEvent->buttons)
     {
       point.SetMouseButton( static_cast< MouseButton::Type >( touchEvent->buttons) );
@@ -487,10 +483,10 @@ void WindowBaseEcoreX::OnMouseButtonMove( void* data, int type, void* event )
     Integration::Point point;
     point.SetDeviceId( touchEvent->multi.device );
     point.SetState( PointState::MOTION );
-    point.SetScreenPosition( Vector2( touchEvent->x, touchEvent->y ) );
-    point.SetRadius( touchEvent->multi.radius, Vector2( touchEvent->multi.radius_x, touchEvent->multi.radius_y ) );
-    point.SetPressure( touchEvent->multi.pressure );
-    point.SetAngle( Degree( touchEvent->multi.angle ) );
+    point.SetScreenPosition( Vector2( static_cast<float>( touchEvent->x ), static_cast<float>( touchEvent->y ) ) );
+    point.SetRadius( static_cast<float>( touchEvent->multi.radius ), Vector2( static_cast<float>( touchEvent->multi.radius_x ), static_cast<float>( touchEvent->multi.radius_y ) ) );
+    point.SetPressure( static_cast<float>( touchEvent->multi.pressure ) );
+    point.SetAngle( Degree( static_cast<float>( touchEvent->multi.angle ) ) );
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
   }
@@ -504,7 +500,7 @@ void WindowBaseEcoreX::OnMouseWheel( void* data, int type, void* event )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
 
-    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( mouseWheelEvent->x, mouseWheelEvent->y ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( static_cast<float>( mouseWheelEvent->x ), static_cast<float>( mouseWheelEvent->y ) ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
 
     mWheelEventSignal.Emit( wheelEvent );
   }
@@ -683,49 +679,6 @@ void WindowBaseEcoreX::MoveResize( PositionSize positionSize )
   ecore_x_window_move_resize( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
-void WindowBaseEcoreX::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
-{
-  DALI_LOG_TRACE_METHOD_FMT( gWindowBaseLogFilter, "visible : %d\n", visibleMode );
-
-  if( visibleMode == Dali::Window::VISIBLE )
-  {
-    // when the indicator is visible, set proper mode for indicator server according to bg mode
-    if( opacityMode == Dali::Window::OPAQUE )
-    {
-      ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_OPAQUE );
-    }
-    else if( opacityMode == Dali::Window::TRANSLUCENT )
-    {
-      ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_TRANSLUCENT );
-    }
-  }
-  else
-  {
-    // when the indicator is not visible, set TRANSPARENT mode for indicator server
-    ecore_x_e_illume_indicator_opacity_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_TRANSPARENT ); // it means hidden indicator
-  }
-}
-
-void WindowBaseEcoreX::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
-{
-  int show_state = static_cast< int >( isShow );
-  ecore_x_window_prop_property_set( mEcoreWindow, ECORE_X_ATOM_E_ILLUME_INDICATOR_STATE,
-                                    ECORE_X_ATOM_CARDINAL, 32, &show_state, 1 );
-
-  if( isShow )
-  {
-    ecore_x_e_illume_indicator_state_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_STATE_ON );
-  }
-  else
-  {
-    ecore_x_e_illume_indicator_state_set( mEcoreWindow, ECORE_X_ILLUME_INDICATOR_STATE_OFF );
-  }
-}
-
-void WindowBaseEcoreX::IndicatorTypeChanged( IndicatorInterface::Type type )
-{
-}
-
 void WindowBaseEcoreX::SetClass( const std::string& name, const std::string& className )
 {
   ecore_x_icccm_title_set( mEcoreWindow, name.c_str() );
@@ -869,15 +822,11 @@ bool WindowBaseEcoreX::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali
 
 void WindowBaseEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  // calculate DPI
-  float xres, yres;
-
   // 1 inch = 25.4 millimeters
-  xres = ecore_x_dpi_get();
-  yres = ecore_x_dpi_get();
+  // ecore does not account for differing DPI in the x and y axes, so only get for x is available
 
-  dpiHorizontal = int( xres + 0.5f );  // rounding
-  dpiVertical   = int( yres + 0.5f );
+  dpiHorizontal = ecore_x_dpi_get();
+  dpiVertical   = ecore_x_dpi_get();
 }
 
 int WindowBaseEcoreX::GetScreenRotationAngle()
@@ -913,7 +862,7 @@ unsigned int WindowBaseEcoreX::GetSurfaceId( Any surface ) const
     }
     else
     {
-      surfaceId = AnyCast< XWindow >( surface );
+      surfaceId = static_cast<unsigned int>( AnyCast< XWindow >( surface ) );
     }
   }
   return surfaceId;
@@ -944,5 +893,3 @@ void WindowBaseEcoreX::CreateWindow( PositionSize positionSize, bool isTranspare
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

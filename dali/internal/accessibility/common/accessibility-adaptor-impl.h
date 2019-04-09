@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ACCESSIBILITY_ADAPTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@
 #include <dali/devel-api/adaptor-framework/accessibility-adaptor.h>
 #include <dali/devel-api/adaptor-framework/accessibility-action-handler.h>
 #include <dali/devel-api/adaptor-framework/accessibility-gesture-handler.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/accessibility/common/accessibility-gesture-detector.h>
 
 namespace Dali
@@ -95,12 +94,6 @@ public:
   void SetGestureHandler(AccessibilityGestureHandler& handler);
 
   /**
-   * @brief Set the Indicator
-   * @param[in] Indiciator interface
-   */
-  void SetIndicator( IndicatorInterface* indicator );
-
-  /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionNextEvent()
    */
   virtual bool HandleActionNextEvent( bool allowEndFeedback = true);
@@ -148,12 +141,12 @@ public:
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionScrollEvent()
    */
-  bool HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionScrollEvent(const TouchPoint& point, uint32_t timeStamp);
 
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionTouchEvent()
    */
-  bool HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp);
 
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionBackEvent()
@@ -226,11 +219,6 @@ public:
   bool HandleActionZoomEvent();
 
   /**
-   * @copydoc Dali::AccessibilityAdaptor::HandleActionReadIndicatorInformationEvent()
-   */
-  bool HandleActionReadIndicatorInformationEvent();
-
-  /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionReadPauseResumeEvent()
    */
   bool HandleActionReadPauseResumeEvent();
@@ -271,10 +259,7 @@ protected:
 
   AccessibilityGestureDetectorPtr mAccessibilityGestureDetector; ///< The accessibility gesture detector
 
-  IndicatorInterface* mIndicator; ///< The indicator
-
   bool mIsEnabled        : 1; ///< enable/disable the accessibility action
-  bool mIndicatorFocused : 1; ///< Whether the Indicator is focused
 
 public:
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ namespace TextAbstraction
 {
 
 const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
+const float FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
 
 FontClient::GlyphBufferData::GlyphBufferData()
 : buffer( nullptr ),
@@ -63,6 +64,11 @@ FontClient& FontClient::operator=( const FontClient& handle )
 {
   BaseHandle::operator=( handle );
   return *this;
+}
+
+void FontClient::ClearCache()
+{
+  GetImplementation(*this).ClearCache();
 }
 
 void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
@@ -146,6 +152,11 @@ FontId FontClient::GetFontId( const FontDescription& fontDescription,
                                              faceIndex );
 }
 
+FontId FontClient::GetFontId( const BitmapFont& bitmapFont )
+{
+  return GetImplementation(*this).GetFontId( bitmapFont );
+}
+
 bool FontClient::IsScalable( const FontPath& path )
 {
   return GetImplementation(*this).IsScalable( path );
@@ -167,6 +178,11 @@ void FontClient::GetFixedSizes( const FontDescription& fontDescription,
   GetImplementation(*this).GetFixedSizes( fontDescription, sizes );
 }
 
+bool FontClient::HasItalicStyle( FontId fontId ) const
+{
+  return GetImplementation(*this).HasItalicStyle( fontId );
+}
+
 void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
 {
   GetImplementation(*this).GetFontMetrics( fontId, metrics );
@@ -182,9 +198,9 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth )
 {
-  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, softwareItalic, softwareBold, data, outlineWidth );
+  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth );
 }
 
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
@@ -210,6 +226,11 @@ bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 bool FontClient::AddCustomFontDirectory( const FontPath& path )
 {
   return GetImplementation(*this).AddCustomFontDirectory( path );
+}
+
+GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
+{
+  return GetImplementation(*this).CreateEmbeddedItem( description, pixelFormat);
 }
 
 FontClient::FontClient( Internal::FontClient* internal )

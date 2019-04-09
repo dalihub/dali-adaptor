@@ -26,14 +26,7 @@ namespace Dali
 
 namespace DevelApplication
 {
-/**
- * @brief This is used to improve application launch performance.
- * It preloads so files, initializes some functions in advance and makes a window in advance.
- *
- * @param[in,out]  argc         A pointer to the number of arguments
- * @param[in,out]  argv         A pointer to the argument list
- */
-DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
+
 
 /**
  * @brief Ensures that the function passed in is called from the main loop when it is idle.
@@ -94,5 +87,17 @@ DALI_ADAPTOR_API std::string GetDataPath();
 } // namespace DevelApplication
 
 } // namespace Dali
+
+/**
+ * @brief This is used to improve application launch performance.
+ * It preloads so files, initializes some functions in advance and makes a window in advance.
+ * @param[in,out]  argc A pointer to the number of arguments
+ * @param[in,out]  argv A pointer to the argument list
+ *
+ * @note Declared in C style for calling from app-launcher.
+ *
+ */
+extern "C"
+DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
 
 #endif // DALI_APPLICATION_DEVEL_H

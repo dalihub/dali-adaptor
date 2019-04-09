@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
-#include <system_settings.h>
-#endif // DALI_PROFILE_UBUNTU
-#include <Elementary.h>
-
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-settings.h>
 
@@ -35,12 +29,7 @@ namespace Adaptor
 
 int GetElmAccessActionOver()
 {
-#ifndef DALI_PROFILE_UBUNTU
-  // ELM_ACCESS_ACTION_OVER not available in common profile
-  return ELM_ACCESS_ACTION_LAST;
-#else // DALI_PROFILE_UBUNTU
   return 0;
-#endif // DALI_PROFILE_UBUNTU
 }
 
 int GetLongPressTime( int defaultTime )

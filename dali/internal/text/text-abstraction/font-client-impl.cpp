@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,15 @@ Dali::TextAbstraction::FontClient FontClient::Get()
 
   return fontClientHandle;
 }
+
+void FontClient::ClearCache()
+{
+  if( mPlugin )
+  {
+    mPlugin->ClearCache();
+  }
+}
+
 
 void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
 {
@@ -204,6 +213,16 @@ void FontClient::GetFixedSizes( const FontDescription& fontDescription,
   mPlugin->GetFixedSizes( fontDescription, sizes );
 }
 
+bool FontClient::HasItalicStyle( FontId fontId ) const
+{
+  if( !mPlugin )
+  {
+    return false;
+  }
+
+  return mPlugin->HasItalicStyle( fontId );
+}
+
 FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
 {
   CreatePlugin();
@@ -225,11 +244,18 @@ FontId FontClient::GetFontId( const FontDescription& fontDescription,
                              faceIndex );
 }
 
+FontId FontClient::GetFontId( const BitmapFont& bitmapFont )
+{
+  CreatePlugin();
+
+  return mPlugin->GetFontId( bitmapFont );
+}
+
 void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
 {
   CreatePlugin();
 
-  return mPlugin->GetFontMetrics( fontId, metrics );
+  mPlugin->GetFontMetrics( fontId, metrics );
 }
 
 GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
@@ -246,11 +272,11 @@ bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType typ
   return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
 {
   CreatePlugin();
 
-  mPlugin->CreateBitmap( fontId, glyphIndex, softwareItalic, softwareBold, data, outlineWidth );
+  mPlugin->CreateBitmap( fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth );
 }
 
 PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
@@ -264,7 +290,7 @@ void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorB
 {
   CreatePlugin();
 
-  return mPlugin->CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
+  mPlugin->CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
 }
 
 const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
@@ -281,11 +307,25 @@ bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
   return mPlugin->IsColorGlyph( fontId, glyphIndex );
 }
 
+GlyphIndex FontClient::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
+{
+  CreatePlugin();
+
+  return mPlugin->CreateEmbeddedItem( description, pixelFormat );
+}
+
 FT_FaceRec_* FontClient::GetFreetypeFace( FontId fontId )
 {
   CreatePlugin();
 
   return mPlugin->GetFreetypeFace( fontId );
+}
+
+FontDescription::Type FontClient::GetFontType( FontId fontId )
+{
+  CreatePlugin();
+
+  return mPlugin->GetFontType( fontId );
 }
 
 bool FontClient::AddCustomFontDirectory( const FontPath& path )

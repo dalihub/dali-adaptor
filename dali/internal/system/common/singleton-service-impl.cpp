@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/processor-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 // INTERNAL INCLUDES
