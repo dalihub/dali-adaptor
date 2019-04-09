@@ -3,8 +3,7 @@ static_libraries_glyphy_src_files = \
   ${adaptor_thirdparty_dir}/glyphy/glyphy-blob-impl.cc \
   ${adaptor_thirdparty_dir}/glyphy/glyphy-extents.cc \
   ${adaptor_thirdparty_dir}/glyphy/glyphy-outline.cc \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc \
-  ${adaptor_thirdparty_dir}/glyphy/vector-font-cache.cpp
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc
   
 static_libraries_libunibreak_src_files = \
   ${adaptor_thirdparty_dir}/libunibreak/linebreak.c \

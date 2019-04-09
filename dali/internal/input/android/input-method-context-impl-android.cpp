@@ -335,6 +335,15 @@ bool InputMethodContextAndroid::IsTextPredictionAllowed() const
   return prediction;
 }
 
+void InputMethodContextAndroid::CreateContext( struct android_app* app )
+{
+
+}
+
+void InputMethodContextAndroid::DeleteContext()
+{
+}
+
 bool InputMethodContextAndroid::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );

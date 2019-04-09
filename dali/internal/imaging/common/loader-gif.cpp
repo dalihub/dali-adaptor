@@ -16,9 +16,7 @@
  */
 
 #include <dali/internal/imaging/common/loader-gif.h>
-#ifndef ANDROID
 #include <gif_lib.h>
-#endif
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <memory>
@@ -33,7 +31,7 @@ namespace Dali
 
 namespace TizenPlatform
 {
-#ifndef ANDROID
+
 namespace
 {
 
@@ -194,7 +192,7 @@ bool HandleImageDescriptionRecordType( Dali::Devel::PixelBuffer& bitmap, GifFile
 
   Pixel::Format pixelFormat( Pixel::RGB888 );
 
-  SavedImage* imagloader-gif.cppe( &gifInfo->SavedImages[ gifInfo->ImageCount - 1 ] );
+  SavedImage* image( &gifInfo->SavedImages[ gifInfo->ImageCount - 1 ] );
   const GifImageDesc& desc( image->ImageDesc );
 
   auto decodedData = new unsigned char[ width * height * sizeof( GifPixelType ) ];
@@ -270,23 +268,17 @@ bool HandleExtensionRecordType( GifFileType* gifInfo )
 }
 
 } // unnamed namespace
-#endif
 
 bool LoadGifHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
 {
-#ifndef ANDROID
   GifFileType* gifInfo = NULL;
   AutoCleanupGif autoCleanupGif(gifInfo);
   FILE* const fp = input.file;
   return LoadGifHeader(fp, width, height, &gifInfo);
-#else
-  return false;
-#endif
 }
 
 bool LoadBitmapFromGif( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
-#ifndef ANDROID
   FILE* const fp = input.file;
   // Load the GIF Header file.
 
@@ -330,9 +322,6 @@ bool LoadBitmapFromGif( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   }
 
   return true;
-#else
-  return false;
-#endif
 }
 
 } // namespace TizenPlatform
