@@ -375,7 +375,7 @@ Dali::Window Application::GetWindow()
 {
   // Changed to return a different window handle after ReplaceWindow is called
   // just for backward compatibility to make the test case pass
-  return mMainWindowReplaced ? Dali::Window::New( PositionSize(), "ReplacedWindow" ) : mMainWindow;
+  return mMainWindowReplaced ? Dali::Window() : mMainWindow;
 }
 
 // Stereoscopy
