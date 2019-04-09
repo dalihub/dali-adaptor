@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@
 #include <dali/internal/system/linux/callback-manager-ecore.h>
 
 // EXTERNAL INCLUDES
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#include <Ecore.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -270,5 +267,3 @@ CallbackManager* CallbackManager::New()
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

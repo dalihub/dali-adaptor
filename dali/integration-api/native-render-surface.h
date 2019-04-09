@@ -22,10 +22,8 @@
 #include <dali/public-api/dali-adaptor-common.h>
 
 #ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/render-surface-interface.h>
 #else
-#include <dali/integration-api/adaptors/egl-interface.h>
 #include <dali/integration-api/adaptors/render-surface-interface.h>
 #endif
 

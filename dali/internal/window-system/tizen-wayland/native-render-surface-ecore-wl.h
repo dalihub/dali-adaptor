@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/integration-api/egl-interface.h>
 #include <dali/integration-api/native-render-surface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 

@@ -315,6 +315,7 @@ private:
   pthread_t*                        mUpdateRenderThread;               ///< The Update/Render thread.
 
   float                             mDefaultFrameDelta;                ///< Default time delta between each frame (used for animations). Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  // TODO: mDefaultFrameDurationMilliseconds is defined as uint64_t, the only place where it is used, it is converted to an unsigned int!!!
   uint64_t                          mDefaultFrameDurationMilliseconds; ///< Default duration of a frame (used for predicting the time of the next frame). Not protected by lock, but written to rarely so not worth adding a lock when reading.
   uint64_t                          mDefaultFrameDurationNanoseconds;  ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
   uint64_t                          mDefaultHalfFrameNanoseconds;      ///< Is half of mDefaultFrameDurationNanoseconds. Using a member variable avoids having to do the calculation every frame. Not protected by lock, but written to rarely so not worth adding a lock when reading.

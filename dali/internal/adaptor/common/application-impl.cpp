@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
@@ -83,6 +84,11 @@ void Application::PreInitialize( int* argc, char** argv[] )
     gPreInitializedApplication->CreateWindow();    // Only create window
 
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
+
+    //Make DefaultFontDescription cached
+    Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
+    Dali::TextAbstraction::FontDescription defaultFontDescription;
+    fontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
   }
 }
 
@@ -375,7 +381,7 @@ Dali::Window Application::GetWindow()
 {
   // Changed to return a different window handle after ReplaceWindow is called
   // just for backward compatibility to make the test case pass
-  return mMainWindowReplaced ? Dali::Window() : mMainWindow;
+  return mMainWindowReplaced ? Dali::Window::New( PositionSize(), "ReplacedWindow" ) : mMainWindow;
 }
 
 // Stereoscopy

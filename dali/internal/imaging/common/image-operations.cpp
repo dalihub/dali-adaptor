@@ -1268,9 +1268,9 @@ void HalveScanlineInPlaceRGB888( unsigned char * const pixels, const unsigned in
     const unsigned int c23 = pixels[pixel * 3 + 5];
 
     // Save the averaged byte pixel components:
-    pixels[outPixel * 3]     = AverageComponent( c11, c21 );
-    pixels[outPixel * 3 + 1] = AverageComponent( c12, c22 );
-    pixels[outPixel * 3 + 2] = AverageComponent( c13, c23 );
+    pixels[outPixel * 3]     = static_cast<unsigned char>( AverageComponent( c11, c21 ) );
+    pixels[outPixel * 3 + 1] = static_cast<unsigned char>( AverageComponent( c12, c22 ) );
+    pixels[outPixel * 3 + 2] = static_cast<unsigned char>( AverageComponent( c13, c23 ) );
   }
 }
 
@@ -1321,8 +1321,8 @@ void HalveScanlineInPlace2Bytes( unsigned char * const pixels, const unsigned in
     const unsigned int c22 = pixels[pixel * 2 + 3];
 
     // Save the averaged byte pixel components:
-    pixels[outPixel * 2]     = AverageComponent( c11, c21 );
-    pixels[outPixel * 2 + 1] = AverageComponent( c12, c22 );
+    pixels[outPixel * 2]     = static_cast<unsigned char>( AverageComponent( c11, c21 ) );
+    pixels[outPixel * 2 + 1] = static_cast<unsigned char>( AverageComponent( c12, c22 ) );
   }
 }
 
@@ -1339,7 +1339,7 @@ void HalveScanlineInPlace1Byte( unsigned char * const pixels, const unsigned int
     const unsigned int c2 = pixels[pixel + 1];
 
     // Save the averaged byte pixel component:
-    pixels[outPixel] = AverageComponent( c1, c2 );
+    pixels[outPixel] = static_cast<unsigned char>( AverageComponent( c1, c2 ) );
   }
 }
 
@@ -1356,7 +1356,7 @@ void AverageScanlines1( const unsigned char * const scanline1,
 
   for( unsigned int component = 0; component < width; ++component )
   {
-    outputScanline[component] = AverageComponent( scanline1[component], scanline2[component] );
+    outputScanline[component] = static_cast<unsigned char>( AverageComponent( scanline1[component], scanline2[component] ) );
   }
 }
 
@@ -1369,7 +1369,7 @@ void AverageScanlines2( const unsigned char * const scanline1,
 
   for( unsigned int component = 0; component < width * 2; ++component )
   {
-    outputScanline[component] = AverageComponent( scanline1[component], scanline2[component] );
+    outputScanline[component] = static_cast<unsigned char>( AverageComponent( scanline1[component], scanline2[component] ) );
   }
 }
 
@@ -1382,7 +1382,7 @@ void AverageScanlines3( const unsigned char * const scanline1,
 
   for( unsigned int component = 0; component < width * 3; ++component )
   {
-    outputScanline[component] = AverageComponent( scanline1[component], scanline2[component] );
+    outputScanline[component] = static_cast<unsigned char>( AverageComponent( scanline1[component], scanline2[component] ) );
   }
 }
 
@@ -1684,9 +1684,9 @@ void PointSample3BPP( const uint8_t * inPixels,
       ///@ToDo: Optimise - Benchmark one 32bit load that will be unaligned 2/3 of the time + 3 rotate and masks, versus these three aligned byte loads, versus using an RGB packed, aligned(1) struct and letting compiler pick a strategy.
 
       // Output the pixel components:
-      outScanline[outX]     = c0;
-      outScanline[outX + 1] = c1;
-      outScanline[outX + 2] = c2;
+      outScanline[outX]     = static_cast<uint8_t>( c0 );
+      outScanline[outX + 1] = static_cast<uint8_t>( c1 );
+      outScanline[outX + 2] = static_cast<uint8_t>( c2 );
 
       // Increment the fixed-point input coordinate:
       inX += deltaX;
@@ -1743,15 +1743,15 @@ namespace
 /** @brief Blend 4 pixels together using horizontal and vertical weights. */
 inline uint8_t BilinearFilter1BPPByte( uint8_t tl, uint8_t tr, uint8_t bl, uint8_t br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
 {
-  return BilinearFilter1Component( tl, tr, bl, br, fractBlendHorizontal, fractBlendVertical );
+  return static_cast<uint8_t>( BilinearFilter1Component( tl, tr, bl, br, fractBlendHorizontal, fractBlendVertical ) );
 }
 
 /** @copydoc BilinearFilter1BPPByte */
 inline Pixel2Bytes BilinearFilter2Bytes( Pixel2Bytes tl, Pixel2Bytes tr, Pixel2Bytes bl, Pixel2Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
 {
   Pixel2Bytes pixel;
-  pixel.l = BilinearFilter1Component( tl.l, tr.l, bl.l, br.l, fractBlendHorizontal, fractBlendVertical );
-  pixel.a = BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical );
+  pixel.l = static_cast<uint8_t>( BilinearFilter1Component( tl.l, tr.l, bl.l, br.l, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.a = static_cast<uint8_t>( BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical ) );
   return pixel;
 }
 
@@ -1759,18 +1759,18 @@ inline Pixel2Bytes BilinearFilter2Bytes( Pixel2Bytes tl, Pixel2Bytes tr, Pixel2B
 inline Pixel3Bytes BilinearFilterRGB888( Pixel3Bytes tl, Pixel3Bytes tr, Pixel3Bytes bl, Pixel3Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
 {
   Pixel3Bytes pixel;
-  pixel.r = BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical );
-  pixel.g = BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical );
-  pixel.b = BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical );
+  pixel.r = static_cast<uint8_t>( BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.g = static_cast<uint8_t>( BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.b = static_cast<uint8_t>( BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical ) );
   return pixel;
 }
 
 /** @copydoc BilinearFilter1BPPByte */
 inline PixelRGB565 BilinearFilterRGB565( PixelRGB565 tl, PixelRGB565 tr, PixelRGB565 bl, PixelRGB565 br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
 {
-  const PixelRGB565 pixel = (BilinearFilter1Component( tl >> 11u, tr >> 11u, bl >> 11u, br >> 11u, fractBlendHorizontal, fractBlendVertical ) << 11u) +
+  const PixelRGB565 pixel = static_cast<PixelRGB565>( (BilinearFilter1Component( tl >> 11u, tr >> 11u, bl >> 11u, br >> 11u, fractBlendHorizontal, fractBlendVertical ) << 11u) +
                             (BilinearFilter1Component( (tl >> 5u) & 63u, (tr >> 5u) & 63u, (bl >> 5u) & 63u, (br >> 5u) & 63u, fractBlendHorizontal, fractBlendVertical ) << 5u) +
-                             BilinearFilter1Component( tl & 31u, tr & 31u, bl & 31u, br & 31u, fractBlendHorizontal, fractBlendVertical );
+                             BilinearFilter1Component( tl & 31u, tr & 31u, bl & 31u, br & 31u, fractBlendHorizontal, fractBlendVertical ) );
   return pixel;
 }
 
@@ -1778,10 +1778,10 @@ inline PixelRGB565 BilinearFilterRGB565( PixelRGB565 tl, PixelRGB565 tr, PixelRG
 inline Pixel4Bytes BilinearFilter4Bytes( Pixel4Bytes tl, Pixel4Bytes tr, Pixel4Bytes bl, Pixel4Bytes br, unsigned int fractBlendHorizontal, unsigned int fractBlendVertical )
 {
   Pixel4Bytes pixel;
-  pixel.r = BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical );
-  pixel.g = BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical );
-  pixel.b = BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical );
-  pixel.a = BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical );
+  pixel.r = static_cast<uint8_t>( BilinearFilter1Component( tl.r, tr.r, bl.r, br.r, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.g = static_cast<uint8_t>( BilinearFilter1Component( tl.g, tr.g, bl.g, br.g, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.b = static_cast<uint8_t>( BilinearFilter1Component( tl.b, tr.b, bl.b, br.b, fractBlendHorizontal, fractBlendVertical ) );
+  pixel.a = static_cast<uint8_t>( BilinearFilter1Component( tl.a, tr.a, bl.a, br.a, fractBlendHorizontal, fractBlendVertical ) );
   return pixel;
 }
 

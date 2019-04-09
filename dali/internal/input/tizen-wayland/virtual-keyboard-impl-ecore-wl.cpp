@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore.h>
-#include <Ecore_IMF.h>
+#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <algorithm>
 
 #include <dali/public-api/common/vector-wrapper.h>

@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_EVENT_HANDLER_H__
-#define __DALI_INTERNAL_EVENT_HANDLER_H__
+#ifndef DALI_INTERNAL_EVENT_HANDLER_H
+#define DALI_INTERNAL_EVENT_HANDLER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint> // uint32_t
 #include <dali/public-api/common/intrusive-ptr.h>
 
 #include <dali/integration-api/events/key-event-integ.h>
@@ -83,7 +84,7 @@ public:
    * Feed (Send) touch event to core and gesture manager
    * @param[in] touchEvent  The touch event holding the touch point information.
    */
-  void FeedTouchPoint( TouchPoint& point, int timeStamp );
+  void FeedTouchPoint( TouchPoint& point, uint32_t timeStamp );
 
   /**
    * Feed (Send) wheel event to core and gesture manager
@@ -126,7 +127,7 @@ private:
    * @param[in]  point      The touch point information.
    * @param[in]  timeStamp  The time the touch occurred.
    */
-  void SendEvent(Integration::Point& point, unsigned long timeStamp);
+  void SendEvent(Integration::Point& point, uint32_t timeStamp);
 
   /**
    * Send key event to core.
@@ -172,7 +173,7 @@ private:
   /**
    * Called when a touch event is received.
    */
-  void OnTouchEvent( Integration::Point& point, unsigned long timeStamp );
+  void OnTouchEvent( Integration::Point& point, uint32_t timeStamp );
 
   /**
    * Called when a mouse wheel is received.
@@ -256,4 +257,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_EVENT_HANDLER_H__
+#endif // DALI_INTERNAL_EVENT_HANDLER_H

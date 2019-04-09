@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_ACCESSIBILITY_ADAPTOR_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,12 +141,12 @@ public:
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionScrollEvent()
    */
-  bool HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionScrollEvent(const TouchPoint& point, uint32_t timeStamp);
 
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionTouchEvent()
    */
-  bool HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp);
+  bool HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp);
 
   /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionBackEvent()
