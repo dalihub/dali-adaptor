@@ -1240,12 +1240,28 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
           else
 #endif
           {
+            // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
+            // i.e. with the SNum-3R font.
+            // @todo: add an option to use the FT_LOAD_DEFAULT if required?
             int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_NO_AUTOHINT );
+
+            // Keep the width of the glyph before doing the software emboldening.
+            // It will be used to calculate a scale factor to be applied to the
+            // advance as Harfbuzz doesn't apply any SW emboldening to calculate
+            // the advance of the glyph.
+            const float width = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
 
             if( FT_Err_Ok == error )
             {
+              const bool isEmboldeningRequired = glyph.isBoldRequired && !( ftFace->style_flags & FT_STYLE_FLAG_BOLD );
+              if( isEmboldeningRequired )
+              {
+                // Does the software bold.
+                FT_GlyphSlot_Embolden( ftFace->glyph );
+              }
+
               glyph.width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
-              glyph.height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
+              glyph.height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266;
               if( horizontal )
               {
                 glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
@@ -1256,6 +1272,31 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
                 glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
                 glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
               }
+
+              if( isEmboldeningRequired && !Dali::EqualsZero( width ) )
+              {
+                // If the glyph is emboldened by software, the advance is multiplied by a
+                // scale factor to make it slightly bigger.
+                glyph.advance *= ( glyph.width / width );
+              }
+
+              // Use the bounding box of the bitmap to correct the metrics.
+              // For some fonts i.e the SNum-3R the metrics need to be corrected,
+              // otherwise the glyphs 'dance' up and down depending on the
+              // font's point size.
+
+              FT_Glyph ftGlyph;
+              error = FT_Get_Glyph( ftFace->glyph, &ftGlyph );
+
+              FT_BBox bbox;
+              FT_Glyph_Get_CBox( ftGlyph, FT_GLYPH_BBOX_GRIDFIT, &bbox );
+
+              const float descender = glyph.height - glyph.yBearing;
+              glyph.height = ( bbox.yMax -  bbox.yMin) * FROM_266;
+              glyph.yBearing = glyph.height - std::round( descender );
+
+              // Created FT_Glyph object must be released with FT_Done_Glyph
+              FT_Done_Glyph( ftGlyph );
             }
             else
             {
@@ -1399,6 +1440,9 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
         else
 #endif
         {
+          // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
+          // i.e. with the SNum-3R font.
+          // @todo: add an option to use the FT_LOAD_DEFAULT if required?
           error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_NO_AUTOHINT );
         }
         if( FT_Err_Ok == error )
