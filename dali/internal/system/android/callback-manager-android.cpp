@@ -19,11 +19,12 @@
 #include <dali/internal/system/android/callback-manager-android.h>
 
 // EXTERNAL INCLUDES
+#include <android_native_app_glue.h>
 
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
+#include <dali/internal/adaptor/common/framework.h>
 
 namespace Dali
 {
@@ -68,10 +69,10 @@ namespace
 
 /**
  * Called from the main thread while idle.
- 
-Eina_Bool IdleCallback(void *data)
+ */
+bool IdleCallback(void *data)
 {
-  Eina_Bool ret = ECORE_CALLBACK_CANCEL;    // CALLBACK Cancel will delete the idler so we don't need to call ecore_idler_del
+  bool ret = false;
   CallbackData *callbackData = static_cast< CallbackData * >( data );
 
   if( callbackData->mHasReturnValue )
@@ -81,7 +82,7 @@ Eina_Bool IdleCallback(void *data)
     if( retValue )
     {
       // keep the callback
-      ret = ECORE_CALLBACK_RENEW;
+      ret = true;
     }
     else
     {
@@ -105,7 +106,7 @@ Eina_Bool IdleCallback(void *data)
   }
 
   return ret;
-}*/
+}
 
 } // unnamed namespace
 
@@ -142,7 +143,9 @@ bool AndroidCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasRe
 
   CallbackData* callbackData = new CallbackData( callback, hasReturnValue );
   callbackData->mRemoveFromContainerFunction =  MakeCallback( this, &AndroidCallbackManager::RemoveCallbackFromContainer );
-  // TODO: add android idle
+
+  Framework* framework = Framework::GetApplicationFramework();
+  framework->AddIdle( 0, callbackData, IdleCallback );
 
   // add the call back to the container
   mCallbackContainer.push_front(callbackData);

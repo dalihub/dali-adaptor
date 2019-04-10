@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <unistd.h>
+#include <queue>
 #include <android_native_app_glue.h>
 
 #include <dali/integration-api/debug.h>
@@ -61,6 +62,42 @@ struct ApplicationContext
 
 struct ApplicationContext applicationContext;
 
+// Copied from x server
+static unsigned int GetCurrentMilliSeconds(void)
+{
+  struct timeval tv;
+
+  struct timespec tp;
+  static clockid_t clockid;
+
+  if (!clockid)
+  {
+#ifdef CLOCK_MONOTONIC_COARSE
+    if (clock_getres(CLOCK_MONOTONIC_COARSE, &tp) == 0 &&
+      (tp.tv_nsec / 1000) <= 1000 && clock_gettime(CLOCK_MONOTONIC_COARSE, &tp) == 0)
+    {
+      clockid = CLOCK_MONOTONIC_COARSE;
+    }
+    else
+#endif
+    if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
+    {
+      clockid = CLOCK_MONOTONIC;
+    }
+    else
+    {
+      clockid = ~0L;
+    }
+  }
+  if (clockid != ~0L && clock_gettime(clockid, &tp) == 0)
+  {
+    return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000L);
+  }
+
+  gettimeofday(&tv, NULL);
+  return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+}
+
 } // Unnamed namespace
 
 /**
@@ -68,6 +105,33 @@ struct ApplicationContext applicationContext;
  */
 struct Framework::Impl
 {
+
+  struct IdleCallback
+  {
+    int timestamp;
+    int timeout;
+    void* data;
+    bool ( *callback )( void *data );
+
+    IdleCallback( int timeout, void* data, bool ( *callback )( void *data ) )
+    : timestamp( GetCurrentMilliSeconds() + timeout ),
+      timeout( timeout ),
+      data( data ),
+      callback( callback )
+    {
+    }
+
+    bool operator()()
+    {
+      return callback( data );
+    }
+
+    bool operator<( const IdleCallback& rhs ) const
+    {
+      return rhs.timestamp > timestamp;
+    }
+  };
+
   // Constructor
 
   Impl(void* data)
@@ -75,13 +139,29 @@ struct Framework::Impl
     mCallbackManager( CallbackManager::New() ),
     mLanguage( "NOT_SUPPORTED" ),
     mRegion( "NOT_SUPPORTED" ),
-    mDestroyRequested( false )
+    mDestroyRequested( false ),
+    mIdleReadPipe( -1 ),
+    mIdleWritePipe( -1 )
+
   {
     applicationContext.framework = static_cast<Framework*>( data );
+    int idlepipe[2];
+    if( pipe( idlepipe ) )
+    {
+      DALI_LOG_ERROR( "Failed to open idle pipe\n" );
+    }
+    else
+    {
+      mIdleReadPipe = idlepipe[0];
+      mIdleWritePipe = idlepipe[1];
+    }
   }
 
   ~Impl()
   {
+    close( mIdleReadPipe );
+    close( mIdleWritePipe );
+
     delete mAbortCallBack;
 
     // we're quiting the main loop so
@@ -100,12 +180,64 @@ struct Framework::Impl
     return mRegion;
   }
 
+  void OnIdle()
+  {
+    int8_t msg;
+    read( mIdleReadPipe, &msg, sizeof( int8_t ) );
+
+    unsigned int ts = GetCurrentMilliSeconds();
+
+    if ( !mIdleCallbacks.empty() )
+    {
+      IdleCallback callback = mIdleCallbacks.top();
+      if( callback.timestamp <= ts )
+      {
+        mIdleCallbacks.pop();
+        if ( callback() ) // keep the callback
+        {
+          AddIdle( callback.timeout, callback.data, callback.callback );
+        }
+      }
+    }
+  }
+
+  void AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+  {
+    int8_t msg = 1;
+    if( write( mIdleWritePipe, &msg, sizeof( msg ) ) == sizeof( msg ) )
+    {
+      mIdleCallbacks.push( IdleCallback( timeout, data, callback ) );
+    }
+  }
+
+  int GetIdleTimeout()
+  {
+    int timeout = -1;
+    unsigned int timestamp = GetCurrentMilliSeconds();
+
+    if ( !mIdleCallbacks.empty() )
+    {
+      IdleCallback idleTimeout = mIdleCallbacks.top();
+      timeout = idleTimeout.timestamp - timestamp;
+      if( timeout < 0 )
+      {
+         timeout = 0;
+      }
+    }
+
+    return timeout;
+  }
+
   // Data
   CallbackBase* mAbortCallBack;
-  CallbackManager *mCallbackManager;
+  CallbackManager* mCallbackManager;
   std::string mLanguage;
   std::string mRegion;
   bool mDestroyRequested;
+
+  int mIdleReadPipe;
+  int mIdleWritePipe;
+  std::priority_queue<IdleCallback> mIdleCallbacks;
 
   // Static methods
 
@@ -292,6 +424,15 @@ struct Framework::Impl
 
     return 0;
   }
+
+  static void HandleAppIdle(struct android_app* app, struct android_poll_source* source) {
+    struct ApplicationContext* context = static_cast< struct ApplicationContext* >( app->userData );
+    if( context )
+    {
+      context->framework->mImpl->OnIdle();
+    }
+  }
+
 };
 
 Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
@@ -333,8 +474,16 @@ void Framework::Run()
     int id;
     int events;
     struct android_poll_source* source;
+    struct android_poll_source idlePollSource;
+    idlePollSource.id = LOOPER_ID_USER;
+    idlePollSource.app = applicationContext.androidApplication;
+    idlePollSource.process = Impl::HandleAppIdle;
 
-    while( ( id = ALooper_pollAll( -1, NULL, &events, (void**)&source) ) >= 0 )
+    ALooper_addFd(applicationContext.androidApplication->looper,
+        mImpl->mIdleReadPipe, LOOPER_ID_USER, ALOOPER_EVENT_INPUT, NULL, &idlePollSource);
+
+    int idleTimeout = -1;
+    while( ( id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source) ) >= 0 )
     {
       // Process this event.
       if( source != NULL )
@@ -344,6 +493,7 @@ void Framework::Run()
 
       if( id == LOOPER_ID_USER )
       {
+        idleTimeout = mImpl->GetIdleTimeout();
       }
 
       // Check if we are exiting.
@@ -353,6 +503,14 @@ void Framework::Run()
         return;
       }
     }
+  }
+}
+
+void Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+{
+  if( mImpl )
+  {
+    mImpl->AddIdle( timeout, data, callback );
   }
 }
 
@@ -401,7 +559,7 @@ std::string Framework::GetDataPath()
 
 void Framework::SetApplicationContext(void* context)
 {
-  memset(&applicationContext, 0, sizeof(ApplicationContext));
+  memset( &applicationContext, 0, sizeof( ApplicationContext ) );
   struct android_app* app = static_cast<android_app*>( context );
   app->userData = &applicationContext;
   app->onAppCmd = Framework::Impl::HandleAppCmd;
@@ -412,6 +570,11 @@ void Framework::SetApplicationContext(void* context)
 void* Framework::GetApplicationContext()
 {
   return applicationContext.androidApplication;
+}
+
+Framework* Framework::GetApplicationFramework()
+{
+  return applicationContext.framework;
 }
 
 void Framework::SetBundleId(const std::string& id)

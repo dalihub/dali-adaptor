@@ -140,8 +140,6 @@ public:
 
     virtual void OnSurfaceDestroyed( Any oldSurface ) {};
 
-    virtual void OnTimeTick() {}
-
     virtual void OnTouchEvent( Dali::TouchPoint& touchPoint, int timeStamp ) {}
 
     virtual void OnKeyEvent( Dali::KeyEvent& keyEvent ) {}
@@ -210,9 +208,14 @@ public:
    */
   static std::string GetDataPath();
 
+  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
   static void* GetApplicationContext();
 
+  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
   static void SetApplicationContext(void* data);
+
+  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
+  static Framework* GetApplicationFramework();
 
   /**
    * Sets system language.
@@ -233,6 +236,8 @@ public:
    * Gets system region.
    */
   std::string GetRegion() const;
+
+  void AddIdle( int timeout, void* data, bool ( *callback )( void *data ) );
 
 private:
 
