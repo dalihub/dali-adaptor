@@ -146,11 +146,6 @@ public:
   void OnDataReceive( void* data, int type, void* event );
 
   /**
-   * @brief Called when the indicator event is received.
-   */
-  void OnIndicatorFlicked( void* data, int type, void* event );
-
-  /**
    * @brief Called when a font name is changed.
    */
   void OnFontNameChanged();
@@ -253,21 +248,6 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
    */
   virtual void MoveResize( PositionSize positionSize ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::ShowIndicator()
-   */
-  virtual void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetIndicatorProperties()
-   */
-  virtual void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IndicatorTypeChanged()
-   */
-  virtual void IndicatorTypeChanged( IndicatorInterface::Type type ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()

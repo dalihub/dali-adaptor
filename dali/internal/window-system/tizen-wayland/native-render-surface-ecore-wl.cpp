@@ -35,6 +35,8 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 
 namespace Dali
 {
@@ -176,7 +178,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    eglImpl.SwapBuffers();
+    eglImpl.SwapBuffers( mEGLSurface );
   }
 
   if( mThreadSynchronization )
@@ -231,9 +233,27 @@ void NativeRenderSurfaceEcoreWl::SetThreadSynchronization( ThreadSynchronization
   mThreadSynchronization = &threadSynchronization;
 }
 
-RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
+Integration::RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
 {
-  return RenderSurface::NATIVE_RENDER_SURFACE;
+  return Integration::RenderSurface::NATIVE_RENDER_SURFACE;
+}
+
+void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
+{
+  if ( mEGL != nullptr )
+  {
+    mEGL->MakeContextCurrent( mEGLSurface, mEGLContext );
+  }
+}
+
+Integration::DepthBufferAvailable NativeRenderSurfaceEcoreWl::GetDepthBufferRequired()
+{
+  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
+}
+
+Integration::StencilBufferAvailable NativeRenderSurfaceEcoreWl::GetStencilBufferRequired()
+{
+  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
 }
 
 void NativeRenderSurfaceEcoreWl::ReleaseLock()

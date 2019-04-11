@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_GESTURE_MANAGER_H__
-#define __DALI_INTERNAL_GESTURE_MANAGER_H__
+#ifndef DALI_INTERNAL_GESTURE_MANAGER_H
+#define DALI_INTERNAL_GESTURE_MANAGER_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public:
    * Used by the event handler to send touch events to the Gesture Manager.
    * @param[in]  event  The latest touch event.
    */
-  void SendEvent(const Integration::TouchEvent& event);
+  void SendEvent(Integration::Scene& scene, const Integration::TouchEvent& event);
 
   /**
    * Used by the event handler to stop the GestureManager detection.
@@ -132,4 +132,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_GESTURE_MANAGER_H__
+#endif // DALI_INTERNAL_GESTURE_MANAGER_H

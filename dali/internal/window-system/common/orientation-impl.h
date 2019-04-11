@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ORIENTATION_H__
-#define __DALI_INTERNAL_ORIENTATION_H__
+#ifndef DALI_INTERNAL_ORIENTATION_H
+#define DALI_INTERNAL_ORIENTATION_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ namespace Internal
 
 namespace Adaptor
 {
+class Adaptor;
 class Window;
 class Orientation;
 
@@ -66,6 +67,12 @@ public:
    * @param[in] adaptor The adaptor
    */
   void SetAdaptor(Dali::Adaptor& adaptor);
+
+  /**
+   * Set the adaptor for basic setup
+   * @param[in] adaptor The adaptor
+   */
+  void SetAdaptor(Adaptor& adaptor);
 
   /**
    * Returns the actual orientation in degrees
@@ -142,4 +149,4 @@ inline const Orientation& GetImplementation(const Dali::Orientation& orientation
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ORIENTATION_H__
+#endif // DALI_INTERNAL_ORIENTATION_H

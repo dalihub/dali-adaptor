@@ -133,6 +133,11 @@ public:
   unsigned char* GetBuffer() const;
 
   /**
+   * @copydoc Devel::PixelBuffer::GetBuffer()
+   */
+  const unsigned char* const GetConstBuffer() const;
+
+  /**
    * Get the size of the buffer in bytes
    * @return The size of the buffer
    */

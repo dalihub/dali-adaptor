@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,12 @@
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 
 // EXTERNAL INCLUDES
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#include <Ecore.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 #ifdef ECORE_WAYLAND2
-#include <Ecore_Wl2.h>
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #else
-#include <Ecore_Wayland.h>
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wayland.h>
 #endif
 
 #include <dali/public-api/object/any.h>
@@ -135,9 +132,9 @@ struct Clipboard::Impl
   char *ExcuteSend( void *event )
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Event_Data_Source_Send *ev = (Ecore_Wl2_Event_Data_Source_Send *)event;
+    Ecore_Wl2_Event_Data_Source_Send *ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send *>( event );
 #else
-    Ecore_Wl_Event_Data_Source_Send *ev = (Ecore_Wl_Event_Data_Source_Send *)event;
+    Ecore_Wl_Event_Data_Source_Send *ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send *>( event );
 #endif
 
     int len_buf = mSendBuffer.length();
@@ -160,12 +157,12 @@ struct Clipboard::Impl
   char *ExcuteReceive( void *event )
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Event_Selection_Data_Ready *ev = (Ecore_Wl2_Event_Selection_Data_Ready *)event;
+    Ecore_Wl2_Event_Selection_Data_Ready *ev = reinterpret_cast<Ecore_Wl2_Event_Selection_Data_Ready *>( event );
 #else
-    Ecore_Wl_Event_Selection_Data_Ready *ev = (Ecore_Wl_Event_Selection_Data_Ready *)event;
+    Ecore_Wl_Event_Selection_Data_Ready *ev = reinterpret_cast<Ecore_Wl_Event_Selection_Data_Ready *>( event );
 #endif
 
-    return (char *)ev->data;
+    return reinterpret_cast<char *>( ev->data );
   }
 
   int GetCount()
@@ -328,5 +325,3 @@ char* Clipboard::ExcuteBuffered( bool type, void *event )
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

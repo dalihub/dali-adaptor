@@ -182,11 +182,6 @@ bool AccessibilityAdaptor::HandleActionZoomEvent()
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionZoomEvent();
 }
 
-bool AccessibilityAdaptor::HandleActionReadIndicatorInformationEvent()
-{
-  return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionReadIndicatorInformationEvent();
-}
-
 bool AccessibilityAdaptor::HandleActionReadPauseResumeEvent()
 {
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionReadPauseResumeEvent();

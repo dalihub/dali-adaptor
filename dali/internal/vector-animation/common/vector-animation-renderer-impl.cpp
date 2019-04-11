@@ -90,9 +90,14 @@ void VectorAnimationRenderer::Render( uint32_t frameNumber )
   mPlugin.Render( frameNumber );
 }
 
-uint32_t VectorAnimationRenderer::GetTotalFrameNumber()
+uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
 {
   return mPlugin.GetTotalFrameNumber();
+}
+
+float VectorAnimationRenderer::GetFrameRate() const
+{
+  return mPlugin.GetFrameRate();
 }
 
 } // namespace Adaptor

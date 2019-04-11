@@ -19,17 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#ifdef WIDGET_SUPPOERTED
 #include <widget_base.h>
-#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/widget-application-impl.h>
-
-#ifndef WIDGET_SUPPOERTED
-typedef void* widget_base_instance_h;
-#endif
 
 namespace Dali
 {
@@ -63,6 +57,10 @@ public:
   static WidgetApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet );
 
 public:
+  /**
+   * @copydoc Dali::Internal::Adaptor::Application::OnInit()
+   */
+  virtual void OnInit();
 
   /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()

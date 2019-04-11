@@ -29,6 +29,9 @@
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
+#include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/devel-api/adaptor-framework/thread-settings.h>
+#include <dali/graphics/graphics-interface.h>
 
 namespace Dali
 {
@@ -122,7 +125,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   SetRenderRefreshRate( environmentOptions.GetRenderRefreshRate() );
 
   // Set the thread-synchronization interface on the render-surface
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->SetThreadSynchronization( *this );
@@ -172,7 +175,7 @@ void CombinedUpdateRenderController::Start()
     sem_wait( &mEventThreadSemaphore );
   }
 
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StartRender();
@@ -183,6 +186,8 @@ void CombinedUpdateRenderController::Start()
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
   RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }
 
 void CombinedUpdateRenderController::Pause()
@@ -194,6 +199,8 @@ void CombinedUpdateRenderController::Pause()
   PauseUpdateRenderThread();
 
   AddPerformanceMarker( PerformanceInterface::PAUSED );
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Pause\n" );
 }
 
 void CombinedUpdateRenderController::Resume()
@@ -211,6 +218,8 @@ void CombinedUpdateRenderController::Resume()
     mRunning = TRUE;
     mForceClear = TRUE;
   }
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
 }
 
 void CombinedUpdateRenderController::Stop()
@@ -218,7 +227,7 @@ void CombinedUpdateRenderController::Stop()
   LOG_EVENT_TRACE;
 
   // Stop Rendering and the Update/Render Thread
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StopRender();
@@ -238,6 +247,8 @@ void CombinedUpdateRenderController::Stop()
   }
 
   mRunning = FALSE;
+
+  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Stop\n" );
 }
 
 void CombinedUpdateRenderController::RequestUpdate()
@@ -278,7 +289,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce()
   }
 }
 
-void CombinedUpdateRenderController::ReplaceSurface( RenderSurface* newSurface )
+void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
 {
   LOG_EVENT_TRACE;
 
@@ -415,7 +426,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   graphics.Create();
 
   // Create Graphics surface
-  RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->InitializeGraphics( graphics );
@@ -463,7 +474,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // REPLACE SURFACE
     //////////////////////////////
 
-    RenderSurface* newSurface = ShouldSurfaceBeReplaced();
+    Integration::RenderSurface* newSurface = ShouldSurfaceBeReplaced();
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
@@ -699,11 +710,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   return ! mDestroyUpdateRenderThread;
 }
 
-RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
+Integration::RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
 
-  RenderSurface* newSurface = mNewSurface;
+  Integration::RenderSurface* newSurface = mNewSurface;
   mNewSurface = NULL;
 
   return newSurface;

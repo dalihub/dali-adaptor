@@ -19,8 +19,11 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/render-surface.h>
-#include <dali/integration-api/egl-interface.h>
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/render-surface-interface.h>
+#else
+#include <dali/integration-api/adaptors/render-surface-interface.h>
+#endif
 
 // EXTERNAL INCLUDES
 #include <dali/graphics/graphics-interface.h>
@@ -31,6 +34,7 @@
 
 namespace Dali
 {
+
 namespace Integration
 {
 class Surface;
@@ -44,11 +48,12 @@ namespace Adaptor
 {
 
 class WindowBase;
+class AdaptorInternalServices;
 
 /**
  * Window interface of render surface.
  */
-class WindowRenderSurface : public Dali::RenderSurface, public ConnectionTracker, public Graphics::NativeWindowInterface
+class WindowRenderSurface : public Dali::RenderSurfaceInterface, public ConnectionTracker, public Graphics::NativeWindowInterface
 {
 public:
 
@@ -117,10 +122,10 @@ public: // API
    */
   OutputSignalType& OutputTransformedSignal();
 
-public: // from Dali::RenderSurface
+public: // from Dali::Integration::RenderSurface
 
   /**
-   * @copydoc Dali::RenderSurface::GetPositionSize()
+   * @copydoc Dali::Integration::RenderSurface::GetPositionSize()
    */
   virtual PositionSize GetPositionSize() const override;
 
@@ -129,64 +134,79 @@ public: // from Dali::RenderSurface
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::InitializeGraphics()
+   * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
    */
   virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::CreateSurface()
+   * @copydoc Dali::Integration::RenderSurface::CreateSurface()
    */
   virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::DestroySurface()
+   * @copydoc Dali::Integration::RenderSurface::DestroySurface()
    */
   virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReplaceGraphicsSurface()
+   * @copydoc Dali::Integration::RenderSurface::ReplaceGraphicsSurface()
    */
   virtual bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurface::MoveResize()
+   * @copydoc Dali::Integration::RenderSurface::MoveResize()
    */
   virtual void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
-   * @copydoc Dali::RenderSurface::StartRender()
+   * @copydoc Dali::Integration::RenderSurface::StartRender()
    */
   virtual void StartRender() override;
 
   /**
-   * @copydoc Dali::RenderSurface::PreRender()
+   * @copydoc Dali::Integration::RenderSurface::PreRender()
    */
   virtual bool PreRender( bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::PostRender()
+   * @copydoc Dali::Integration::RenderSurface::PostRender()
    */
   virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
 
   /**
-   * @copydoc Dali::RenderSurface::StopRender()
+   * @copydoc Dali::Integration::RenderSurface::StopRender()
    */
   virtual void StopRender() override;
 
   /**
-   * @copydoc Dali::RenderSurface::SetThreadSynchronization
+   * @copydoc Dali::Integration::RenderSurface::SetThreadSynchronization
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
-   * @copydoc Dali::RenderSurface::ReleaseLock()
+   * @copydoc Dali::Integration::RenderSurface::ReleaseLock()
    */
   virtual void ReleaseLock() override;
 
   /**
-   * @copydoc Dali::RenderSurface::GetSurfaceType()
+   * @copydoc Dali::Integration::RenderSurface::GetSurfaceType()
    */
-  virtual RenderSurface::Type GetSurfaceType() override;
+  virtual Integration::RenderSurface::Type GetSurfaceType() override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::MakeContextCurrent()
+   */
+  virtual void MakeContextCurrent() override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurfacsudo e::GetDepthBufferRequired()
+   */
+  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::GetStencilBufferRequired()
+   */
+  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
 
@@ -215,6 +235,7 @@ protected:
 
 private: // Data
 
+  Dali::DisplayConnection*        mDisplayConnection;
   PositionSize                    mPositionSize;       ///< Position
   std::unique_ptr< WindowBase >   mWindowBase;
   ThreadSynchronizationInterface* mThreadSynchronization;

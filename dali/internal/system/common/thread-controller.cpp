@@ -85,7 +85,7 @@ void ThreadController::RequestUpdateOnce()
   mThreadControllerInterface->RequestUpdateOnce();
 }
 
-void ThreadController::ReplaceSurface( RenderSurface* newSurface )
+void ThreadController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
 {
   mThreadControllerInterface->ReplaceSurface( newSurface );
 }

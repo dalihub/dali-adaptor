@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H__
-#define __DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H__
+#ifndef DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H
+#define DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ private:
   unsigned int mMaximumTouchesRequired;   ///< The maximum touches allowable. Any more and a long press is not emitted.
 
   std::map<int, Vector2> mTouchPositions; ///< A map with all the touch down positions.
-  unsigned long mTouchTime;               ///< The time we first pressed down.
+  uint32_t mTouchTime;               ///< The time we first pressed down.
 
   Dali::Timer mTimer;                     ///< The timer used to determine a long press.
   SlotDelegate< LongPressGestureDetector > mTimerSlot;
@@ -128,4 +128,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H__
+#endif // DALI_INTERNAL_LONG_PRESS_GESTURE_DETECTOR_H
