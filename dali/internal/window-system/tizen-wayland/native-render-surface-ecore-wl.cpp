@@ -240,10 +240,12 @@ Integration::RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
 
 void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
 {
+#if 0
   if ( mEGL != nullptr )
   {
     mEGL->MakeContextCurrent( mEGLSurface, mEGLContext );
   }
+#endif
 }
 
 Integration::DepthBufferAvailable NativeRenderSurfaceEcoreWl::GetDepthBufferRequired()
