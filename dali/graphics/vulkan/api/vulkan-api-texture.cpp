@@ -1049,11 +1049,13 @@ void Texture::SetFormatAndUsage()
     case Dali::Graphics::TextureDetails::Usage::COLOR_ATTACHMENT:
     {
       mUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
       break;
     }
     case Dali::Graphics::TextureDetails::Usage::DEPTH_ATTACHMENT:
     {
       mUsage = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
       break;
     }
     case Dali::Graphics::TextureDetails::Usage::SAMPLE:
