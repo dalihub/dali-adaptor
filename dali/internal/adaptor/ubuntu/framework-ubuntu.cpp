@@ -19,8 +19,8 @@
 #include <dali/internal/adaptor/common/framework.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore.h>
-#include <Elementary.h>
+#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/system/linux/dali-elementary.h>
 #include <X11/Xlib.h>
 
 #include <dali/integration-api/debug.h>

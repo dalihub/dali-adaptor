@@ -22,7 +22,6 @@
 #include <dali/devel-api/adaptor-framework/accessibility-adaptor.h>
 #include <dali/devel-api/adaptor-framework/accessibility-action-handler.h>
 #include <dali/devel-api/adaptor-framework/accessibility-gesture-handler.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/accessibility/common/accessibility-gesture-detector.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 

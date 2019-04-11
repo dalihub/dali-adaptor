@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ namespace TextAbstraction
 
 struct FontMetrics;
 struct GlyphInfo;
+struct BitmapFont;
 
 namespace Internal DALI_INTERNAL
 {
@@ -64,6 +65,7 @@ class DALI_ADAPTOR_API FontClient : public BaseHandle
 {
 public:
   static const PointSize26Dot6 DEFAULT_POINT_SIZE; ///< The default point size.
+  static const float DEFAULT_ITALIC_ANGLE;         ///< The default software italic angle in radians.
 
   /**
    * @brief Struct used to retrieve the glyph's bitmap.
@@ -86,6 +88,17 @@ public:
     unsigned int   width;  ///< The width of the bitmap.
     unsigned int   height; ///< The height of the bitmap.
     Pixel::Format  format; ///< The pixel's format of the bitmap.
+  };
+
+  /**
+   * @brief Used to load an embedded item into the font client.
+   */
+  struct EmbeddedItemDescription
+  {
+    std::string       url;               ///< The url path of the image.
+    unsigned int      width;             ///< The width of the item.
+    unsigned int      height;            ///< The height of the item.
+    ColorBlendingMode colorblendingMode; ///< Whether the color of the image is multiplied by the color of the text.
   };
 
 public:
@@ -127,6 +140,12 @@ public:
   ////////////////////////////////////////
   // Font management and validation.
   ////////////////////////////////////////
+
+  /**
+   * @brief Clear all caches in FontClient
+   *
+   */
+  void ClearCache();
 
   /**
    * @brief Set the DPI of the target window.
@@ -273,6 +292,15 @@ public:
                     FaceIndex faceIndex = 0 );
 
   /**
+   * @brief Retrieves a unique font identifier for a given bitmap font.
+   *
+   * @param[in] bitmapFont A bitmap font.
+   *
+   * @return A valid font identifier, or zero if no bitmap font is created.
+   */
+  FontId GetFontId( const BitmapFont& bitmapFont );
+
+  /**
    * @brief Check to see if a font is scalable.
    *
    * @param[in] path The path to a font file.
@@ -309,6 +337,15 @@ public:
    */
   void GetFixedSizes( const FontDescription& fontDescription,
                       Dali::Vector< PointSize26Dot6 >& sizes );
+
+  /**
+   * @brief Whether the font has Italic style.
+   *
+   * @param[in] fontId The font identifier.
+   *
+   * @return true if the font has italic style.
+   */
+  bool HasItalicStyle( FontId fontId ) const;
 
   ////////////////////////////////////////
   // Font metrics, glyphs and bitmaps.
@@ -351,14 +388,14 @@ public:
    *
    * @note The caller is responsible for deallocating the bitmap data @p data.buffer using delete[].
    *
-   * @param[in]  fontId          The identifier of the font.
-   * @param[in]  glyphIndex      The index of a glyph within the specified font.
-   * @param[in]  softwareItalic  Whether glyph needs software support to draw italic style.
-   * @param[in]  softwareBold    Whether glyph needs software support to draw bold style.
-   * @param[out] data            The bitmap data.
-   * @param[in]  outlineWidth    The width of the glyph outline in pixels.
+   * @param[in]  fontId           The identifier of the font.
+   * @param[in]  glyphIndex       The index of a glyph within the specified font.
+   * @param[in]  isItalicRequired Whether the glyph requires italic style.
+   * @param[in]  isBoldRequired   Whether the glyph requires bold style.
+   * @param[out] data             The bitmap data.
+   * @param[in]  outlineWidth     The width of the glyph outline in pixels.
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool softwareItalic, bool softwareBold, GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth );
 
   /**
    * @brief Create a bitmap representation of a glyph.
@@ -416,6 +453,21 @@ public:
    * @return true if the fonts can be added.
    */
   bool AddCustomFontDirectory( const FontPath& path );
+
+  /**
+   * @brief Creates and stores an embedded item and it's metrics.
+   *
+   * If in the @p description there is a non empty url, it calls Dali::LoadImageFromFile() internally.
+   * If in the @p description there is a url and @e width or @e height are zero it stores the default size. Otherwise the image is resized.
+   * If the url in the @p description is empty it stores the size.
+   *
+   * @param[in] description The description of the embedded item.
+   * @param[out] pixelFormat The pixel format of the image.
+   *
+   * return The index within the vector of embedded items.
+   */
+  GlyphIndex CreateEmbeddedItem( const EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
+
 
 public: // Not intended for application developers
   /**

@@ -69,7 +69,7 @@ cxx_warnings_to_preserve = \
                            -Wno-weak-vtables
 
 # vulkan.hpp doesn't pass all -Weffc++ checks, don't add it :/
-cxx_flags = -fPIC -std=c++14 -Werror -Wall -Wextra -Wpedantic \
+cxx_flags = -DDALI_ADAPTOR_COMPILATION -fPIC -std=c++14 -Werror -Wall -Wextra -Wpedantic \
             $(cxx_more_warnings) $(cxx_warnings_to_remove) $(cxx_warnings_to_preserve)
 
 if VULKAN_ENABLED

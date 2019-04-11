@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include <dali/internal/window-system/common/window-base.h>
 
 // EXTERNAL HEADERS
-#include <Ecore.h>
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 
 namespace Dali
 {
@@ -177,21 +177,6 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
    */
   virtual void MoveResize( PositionSize positionSize ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::ShowIndicator()
-   */
-  virtual void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetIndicatorProperties()
-   */
-  virtual void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IndicatorTypeChanged()
-   */
-  virtual void IndicatorTypeChanged( IndicatorInterface::Type type ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()

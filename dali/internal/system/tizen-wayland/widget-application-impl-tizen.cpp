@@ -21,12 +21,12 @@
 // INTERNAL INCLUDE
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
-#ifdef WIDGET_SUPPOERTED
+// EXTERNAL INCLUDES
 #include <bundle.h>
 #include <widget_base.h>
-#endif
 
 namespace Dali
 {
@@ -34,7 +34,6 @@ namespace Dali
 namespace Internal
 {
 
-#ifdef WIDGET_SUPPOERTED
 namespace
 {
 
@@ -49,7 +48,6 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
 
   // After DALi can support multi window, this part should be changed.
   Dali::Window window = application->GetWindow();
-  window.ShowIndicator(Dali::Window::INVISIBLE);
   Any nativeHandle = window.GetNativeHandle();
 
 #ifdef ECORE_WAYLAND2
@@ -192,14 +190,17 @@ int OnInstanceUpdate(widget_base_instance_h instanceHandle, bundle *content, int
   return 0;
 }
 
-} // anonymous namespace
+unsigned int GetEnvWidgetRenderRefreshRate()
+{
+  const char* envVariable = std::getenv( DALI_WIDGET_REFRESH_RATE );
 
-#endif
+  return envVariable ? std::atoi( envVariable ) : 1u; // Default 60 fps
+}
+
+} // anonymous namespace
 
 namespace Adaptor
 {
-
-#ifdef WIDGET_SUPPOERTED
 
 WidgetApplicationPtr WidgetApplicationTizen::New(
   int* argc,
@@ -282,7 +283,12 @@ void WidgetApplicationTizen::DeleteWidget( widget_base_instance_h widgetBaseInst
   }
 }
 
-#endif
+void WidgetApplicationTizen::OnInit()
+{
+  WidgetApplication::OnInit();
+
+  Dali::Adaptor::Get().SetRenderRefreshRate( GetEnvWidgetRenderRefreshRate() );
+}
 
 // factory function, must be implemented
 namespace WidgetApplicationFactory
@@ -295,11 +301,7 @@ namespace WidgetApplicationFactory
  */
 Dali::Internal::Adaptor::WidgetApplicationPtr Create( int* argc, char **argv[], const std::string& stylesheet )
 {
-#ifdef WIDGET_SUPPOERTED
   return WidgetApplicationTizen::New( argc, argv, stylesheet );
-#else
-  return nullptr;
-#endif
 }
 
 } // namespace Factory

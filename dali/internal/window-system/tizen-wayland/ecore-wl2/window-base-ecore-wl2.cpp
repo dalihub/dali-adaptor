@@ -434,25 +434,6 @@ static Eina_Bool EcoreEventDataReceive( void* data, int type, void* event )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// Indicator Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined (DALI_PROFILE_MOBILE)
-  /**
-   * Called when the Ecore indicator event is received.
-   */
-  static Eina_Bool EcoreEventIndicator( void* data, int type, void* event )
-  {
-    WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
-    if( windowBase )
-    {
-      windowBase->OnIndicatorFlicked( data, type, event );
-    }
-    return ECORE_CALLBACK_PASS_ON;
-  }
-#endif // DALI_PROFILE_MOBILE
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 // Font Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -724,11 +705,6 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
   // Register Selection event - clipboard selection
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_DATA_SOURCE_SEND,            EcoreEventDataSend,                  this ) );
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SELECTION_DATA_READY,        EcoreEventDataReceive,               this ) );
-
-#if defined (DALI_PROFILE_MOBILE)
-  // Register indicator event
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_INDICATOR_FLICK,             EcoreEventIndicator,                 this ) );
-#endif
 
   // Register Vconf notify - font name and size
   vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this );
@@ -1145,11 +1121,6 @@ void WindowBaseEcoreWl2::OnDataReceive( void* data, int type, void* event )
   mSelectionDataReceivedSignal.Emit( event  );
 }
 
-void WindowBaseEcoreWl2::OnIndicatorFlicked( void* data, int type, void* event )
-{
-  mIndicatorFlickedSignal.Emit();
-}
-
 void WindowBaseEcoreWl2::OnFontNameChanged()
 {
   mStyleChangedSignal.Emit( StyleChange::DEFAULT_FONT_CHANGE );
@@ -1411,69 +1382,6 @@ void WindowBaseEcoreWl2::Resize( PositionSize positionSize )
 void WindowBaseEcoreWl2::MoveResize( PositionSize positionSize )
 {
   ecore_wl2_window_sync_geometry_set( mEcoreWindow, ++mMoveResizeSerial, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
-}
-
-void WindowBaseEcoreWl2::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
-{
-  DALI_LOG_TRACE_METHOD_FMT( gWindowBaseLogFilter, "visible : %d\n", visibleMode );
-
-  if( visibleMode == Dali::Window::VISIBLE )
-  {
-    // when the indicator is visible, set proper mode for indicator server according to bg mode
-    if( opacityMode == Dali::Window::OPAQUE )
-    {
-      ecore_wl2_window_indicator_opacity_set( mEcoreWindow, ECORE_WL2_INDICATOR_OPAQUE );
-    }
-    else if( opacityMode == Dali::Window::TRANSLUCENT )
-    {
-      ecore_wl2_window_indicator_opacity_set( mEcoreWindow, ECORE_WL2_INDICATOR_TRANSLUCENT );
-    }
-    else if( opacityMode == Dali::Window::TRANSPARENT )
-    {
-      ecore_wl2_window_indicator_opacity_set( mEcoreWindow, ECORE_WL2_INDICATOR_OPAQUE );
-    }
-  }
-  else
-  {
-    // when the indicator is not visible, set TRANSPARENT mode for indicator server
-    ecore_wl2_window_indicator_opacity_set( mEcoreWindow, ECORE_WL2_INDICATOR_TRANSPARENT); // it means hidden indicator
-  }
-}
-
-void WindowBaseEcoreWl2::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
-{
-  if( isShow )
-  {
-    ecore_wl2_window_indicator_state_set( mEcoreWindow, ECORE_WL2_INDICATOR_STATE_ON );
-  }
-  else
-  {
-    ecore_wl2_window_indicator_state_set( mEcoreWindow, ECORE_WL2_INDICATOR_STATE_OFF );
-  }
-}
-
-void WindowBaseEcoreWl2::IndicatorTypeChanged( IndicatorInterface::Type type )
-{
-#if defined(DALI_PROFILE_MOBILE)
-  switch( type )
-  {
-    case IndicatorInterface::INDICATOR_TYPE_1:
-    {
-      ecore_wl2_indicator_visible_type_set( mEcoreWindow, ECORE_WL2_INDICATOR_VISIBLE_TYPE_SHOWN );
-      break;
-    }
-    case IndicatorInterface::INDICATOR_TYPE_2:
-    {
-      ecore_wl2_indicator_visible_type_set( mEcoreWindow, ECORE_WL2_INDICATOR_VISIBLE_TYPE_HIDDEN );
-      break;
-    }
-    case IndicatorInterface::INDICATOR_TYPE_UNKNOWN:
-    default:
-    {
-      break;
-    }
-  }
-#endif //MOBILE
 }
 
 void WindowBaseEcoreWl2::SetClass( const std::string& name, const std::string& className )

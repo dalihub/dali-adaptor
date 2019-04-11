@@ -24,6 +24,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/common/view-mode.h>
+#include <dali/integration-api/processor-interface.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -40,7 +41,7 @@
 namespace Dali
 {
 
-class RenderSurface;
+class RenderSurfaceInterface;
 
 namespace Internal
 {
@@ -136,21 +137,21 @@ public:
   /**
    * @brief Create a new adaptor using render surface.
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to draw onto
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Any nativeWindow, const Dali::RenderSurface& surface );
+  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface );
 
   /**
    * @brief Create a new adaptor using render surface.
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to draw onto
    * @param[in] surface The surface to draw onto
    * @param[in] configuration The context loss configuration.
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
+  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
 
   /**
    * @brief Virtual Destructor.
@@ -217,17 +218,17 @@ public:
   /**
    * @brief Replaces the rendering surface
    *
-   * @param[in] nativeWindow native window handle
+   * @param[in] window The window to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface( Any nativeWindow, Dali::RenderSurface& surface );
+  void ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface );
 
   /**
    * @brief Get the render surface the adaptor is using to render to.
    *
    * @return reference to current render surface
    */
-  RenderSurface& GetSurface();
+  Dali::RenderSurfaceInterface& GetSurface();
 
   /**
    * @brief Gets native window handle
@@ -369,6 +370,19 @@ public:
    * @return An interface to a logging factory
    */
   const LogFactoryInterface& GetLogFactory();
+
+  /**
+   * @brief Register a processor implementing the Integration::Processor interface with dali-core.
+   * @param[in] processor the Processor to register
+   * @note using this api does not maintain the processor's lifecycle, must be done elsewhere.
+   */
+  void RegisterProcessor( Integration::Processor& processor );
+
+  /**
+   * @brief Unregister a previously registered processor from dali-core.
+   * @param[in] processor the Processor to unregister
+   */
+  void UnregisterProcessor( Integration::Processor& processor );
 
 public:  // Signals
 

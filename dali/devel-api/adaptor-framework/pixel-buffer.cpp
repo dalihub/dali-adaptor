@@ -96,6 +96,11 @@ unsigned char* PixelBuffer::GetBuffer()
   return GetImplementation(*this).GetBuffer();
 }
 
+const unsigned char* const PixelBuffer::GetBuffer() const
+{
+  return GetImplementation(*this).GetConstBuffer();
+}
+
 void PixelBuffer::ApplyMask( PixelBuffer mask, float contentScale, bool cropToMask )
 {
   GetImplementation(*this).ApplyMask( GetImplementation( mask ), contentScale, cropToMask );

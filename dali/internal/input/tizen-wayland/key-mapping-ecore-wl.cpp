@@ -81,8 +81,8 @@ KeyLookup KeyLookupTable[]=
   { "BackSpace",             DALI_KEY_BACKSPACE,                                         false },
   { "Left",                  DALI_KEY_CURSOR_LEFT,                                       false },
   { "Right",                 DALI_KEY_CURSOR_RIGHT,                                      false },
-  { "left",                  DALI_KEY_CURSOR_LEFT,                                       false }, // To be removed after the key name is fixed in the platform
-  { "right",                 DALI_KEY_CURSOR_RIGHT,                                      false }, // To be removed after the key name is fixed in the platform
+  { "Up",                    DALI_KEY_CURSOR_UP,                                         false },
+  { "Down",                  DALI_KEY_CURSOR_DOWN,                                       false },
   { "Shift_L",               DALI_KEY_SHIFT_LEFT,                                        false },
   { "Shift_R",               DALI_KEY_SHIFT_RIGHT,                                       false },
   { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },

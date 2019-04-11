@@ -120,7 +120,14 @@ public:
    *
    * @return The total number of frames
    */
-  uint32_t GetTotalFrameNumber();
+  uint32_t GetTotalFrameNumber() const;
+
+  /**
+   * @brief Gets the frame rate of the file.
+   *
+   * @return The frame rate of the file
+   */
+  float GetFrameRate() const;
 
 public: // Signals
 

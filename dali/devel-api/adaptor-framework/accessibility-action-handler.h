@@ -187,12 +187,6 @@ public:
   virtual bool AccessibilityActionZoom() = 0;
 
   /**
-   * Perform the accessibility action to read the information in the indicator (by two fingers triple tap).
-   * @return whether the accessibility action is performed or not.
-   */
-  virtual bool AccessibilityActionReadIndicatorInformation() = 0;
-
-  /**
    * Perform the accessibility action to pause/resume the current read out (by two fingers single tap).
    * @return whether the accessibility action is performed or not.
    */

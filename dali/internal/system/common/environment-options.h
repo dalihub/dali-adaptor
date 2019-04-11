@@ -270,11 +270,6 @@ public:
   unsigned int GetMaxTextureSize() const;
 
   /**
-   * @return The maximum texture size
-   */
-  int GetIndicatorVisibleMode() const;
-
-  /**
    * @brief Retrieves the interval of frames to be rendered into the Frame Buffer Object and the Frame Buffer.
    *
    * @return The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
@@ -348,7 +343,6 @@ private: // Data
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
   int mGlesCallTime;                              ///< time in seconds between status updates
   int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
-  int mIndicatorVisibleMode;                      ///< Indicator visible mode
   ThreadingMode::Type mThreadingMode;             ///< threading mode
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   bool mDepthBufferRequired;                      ///< Whether the depth buffer is required

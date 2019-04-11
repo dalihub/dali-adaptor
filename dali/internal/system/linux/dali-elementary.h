@@ -1,5 +1,8 @@
+#ifndef DALI_INTERNAL_SYSTEM_LINUX_DALI_ELEMENTARY_H
+#define DALI_INTERNAL_SYSTEM_LINUX_DALI_ELEMENTARY_H
+
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +17,9 @@
  * limitations under the License.
  *
  */
+#pragma GCC system_header
+#include <Elementary.h>
 
-// CLASS HEADER
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
-{
 
-namespace Internal
-{
-
-namespace Adaptor
-{
-
-void Adaptor::GetDataStoragePath( std::string& path)
-{
-  path = DALI_SHADERBIN_DIR;
-}
-
-void Adaptor::GetAppId( std::string& appId )
-{
-  appId = "";
-}
-
-void Adaptor::SurfaceInitialized()
-{
-}
-
-void Adaptor::SetupSystemInformation()
-{
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+#endif /* DALI_INTERNAL_SYSTEM_LINUX_DALI_ELEMENTARY_H */

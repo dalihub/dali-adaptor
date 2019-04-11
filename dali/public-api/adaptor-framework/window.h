@@ -23,6 +23,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
@@ -49,6 +50,8 @@ class Window;
 
 class DragAndDropDetector;
 class Orientation;
+class Actor;
+class Layer;
 
 /**
  * @brief The window class is used internally for drawing.
@@ -64,7 +67,7 @@ public:
   typedef Uint16Pair WindowSize;          ///< Window size type @SINCE_1_2.60
   typedef Uint16Pair WindowPosition;      ///< Window position type @SINCE_1_2.60
 
-  typedef Signal< void (bool) > IndicatorSignalType;  ///< Indicator state signal type @SINCE_1_0.0
+  typedef Signal< void (bool) > IndicatorSignalType;  ///< @DEPRECATED_1_4.9 @brief Indicator state signal type @SINCE_1_0.0
   typedef Signal< void (bool) > FocusSignalType;         ///< Window focus signal type @SINCE_1_2.60
   typedef Signal< void (WindowSize) > ResizedSignalType; ///< Window resized signal type @SINCE_1_2.60
 
@@ -85,25 +88,27 @@ public:
   };
 
   /**
+   * @DEPRECATED_1_4.9
    * @brief Enumeration for opacity of the indicator.
    * @SINCE_1_0.0
    */
   enum IndicatorBgOpacity
   {
-    OPAQUE = 100, ///< Fully opaque indicator Bg @SINCE_1_0.0
-    TRANSLUCENT = 50, ///< Semi translucent indicator Bg @SINCE_1_0.0
-    TRANSPARENT = 0 ///< Fully transparent indicator Bg @SINCE_1_0.0
+    OPAQUE = 100, ///< @DEPRECATED_1_4.9 @brief Fully opaque indicator Bg @SINCE_1_0.0
+    TRANSLUCENT = 50, ///< @DEPRECATED_1_4.9 @brief Semi translucent indicator Bg @SINCE_1_0.0
+    TRANSPARENT = 0 ///< @DEPRECATED_1_4.9 @brief Fully transparent indicator Bg @SINCE_1_0.0
   };
 
   /**
+   * @DEPRECATED_1_4.9
    * @brief Enumeration for visible mode of the indicator.
    * @SINCE_1_0.0
    */
   enum IndicatorVisibleMode
   {
-    INVISIBLE = 0, ///< Hide indicator @SINCE_1_0.0
-    VISIBLE = 1, ///< Show indicator @SINCE_1_0.0
-    AUTO = 2 ///< Hide in default, will show when necessary @SINCE_1_0.0
+    INVISIBLE = 0, ///< @DEPRECATED_1_4.9 @brief Hide indicator @SINCE_1_0.0
+    VISIBLE = 1, ///< @DEPRECATED_1_4.9 @brief Show indicator @SINCE_1_0.0
+    AUTO = 2 ///< @DEPRECATED_1_4.9 @brief Hide in default, will show when necessary @SINCE_1_0.0
   };
 
   /**
@@ -215,27 +220,30 @@ public:
   Window& operator=(const Window& rhs);
 
   /**
+   * @DEPRECATED_1_4.9
    * @brief This sets whether the indicator bar should be shown or not.
    * @SINCE_1_0.0
    * @param[in] visibleMode Visible mode for indicator bar, VISIBLE in default
    */
-  void ShowIndicator( IndicatorVisibleMode visibleMode );
+  void ShowIndicator( IndicatorVisibleMode visibleMode ) DALI_DEPRECATED_API;
 
   /**
+   * @DEPRECATED_1_4.9
    * @brief This sets the opacity mode of indicator bar.
    * @SINCE_1_0.0
    * @param[in] opacity The opacity mode
    */
-  void SetIndicatorBgOpacity( IndicatorBgOpacity opacity );
+  void SetIndicatorBgOpacity( IndicatorBgOpacity opacity ) DALI_DEPRECATED_API;
 
   /**
+   * @DEPRECATED_1_4.9
    * @brief This sets the orientation of indicator bar.
    *
    * It does not implicitly show the indicator if it is currently hidden.
    * @SINCE_1_0.0
    * @param[in] orientation The orientation
    */
-  void RotateIndicator(WindowOrientation orientation);
+  void RotateIndicator(WindowOrientation orientation) DALI_DEPRECATED_API;
 
   /**
    * @brief Sets the window name and class string.
@@ -551,11 +559,12 @@ public:
 
 public: // Signals
   /**
+   * @DEPRECATED_1_4.9
    * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
-  IndicatorSignalType& IndicatorVisibilityChangedSignal();
+  IndicatorSignalType& IndicatorVisibilityChangedSignal() DALI_DEPRECATED_API;
 
   /**
    * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.

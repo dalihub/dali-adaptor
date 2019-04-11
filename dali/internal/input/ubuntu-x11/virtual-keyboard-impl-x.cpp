@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <algorithm>
 
 #include <dali/integration-api/debug.h>
@@ -75,7 +75,7 @@ void RotateTo(int angle)
     // Get Focus window
     XGetInputFocus(display, &focusWindow, &revert);
 
-    ecore_x_window_prop_property_set( focusWindow,
+    ecore_x_window_prop_property_set( static_cast<Ecore_X_Window>( focusWindow ),
                                       ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
                                       ECORE_X_ATOM_CARDINAL, 32, &angle, 1 );
     XCloseDisplay(display);

@@ -26,6 +26,7 @@
 #include <dali/integration-api/thread-synchronization-interface.h>
 
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -194,6 +195,9 @@ void WindowRenderSurface::CreateSurface()
 
   mGraphicsSurface = std::move( mGraphics->CreateSurface( *surfaceFactory.get() ) );
 
+  // Check rotation capability
+  mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
+
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
@@ -298,9 +302,23 @@ void WindowRenderSurface::ReleaseLock()
   // Nothing to do.
 }
 
-RenderSurface::Type WindowRenderSurface::GetSurfaceType()
+Integration::RenderSurface::Type WindowRenderSurface::GetSurfaceType()
 {
   return RenderSurface::WINDOW_RENDER_SURFACE;
+}
+
+void WindowRenderSurface::MakeContextCurrent()
+{
+}
+
+Integration::DepthBufferAvailable WindowRenderSurface::GetDepthBufferRequired()
+{
+  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
+}
+
+Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequired()
+{
+  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
 }
 
 void WindowRenderSurface::OutputTransformed()

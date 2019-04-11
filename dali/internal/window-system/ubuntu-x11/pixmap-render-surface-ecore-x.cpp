@@ -33,6 +33,8 @@
 #include <dali/integration-api/thread-synchronization-interface.h>
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 
 namespace Dali
 {
@@ -183,7 +185,7 @@ void PixmapRenderSurfaceEcoreX::DestroySurface()
     // need to cast to X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
     XPixmap pixmap = static_cast<XPixmap>( mX11Pixmaps[i] );
     eglImpl.MakeCurrent( EGLNativePixmapType( pixmap ), mEglSurfaces[i] );
-    eglImpl.DestroySurface();
+    eglImpl.DestroySurface( mEglSurfaces[i] );
   }
 #endif
 }
@@ -311,9 +313,13 @@ void PixmapRenderSurfaceEcoreX::ReleaseLock()
   }
 }
 
-RenderSurface::Type PixmapRenderSurfaceEcoreX::GetSurfaceType()
+Integration::RenderSurface::Type PixmapRenderSurfaceEcoreX::GetSurfaceType()
 {
-  return RenderSurface::PIXMAP_RENDER_SURFACE;
+  return Integration::RenderSurface::PIXMAP_RENDER_SURFACE;
+}
+
+void PixmapRenderSurfaceEcoreX::MakeContextCurrent()
+{
 }
 
 void PixmapRenderSurfaceEcoreX::CreateRenderable()

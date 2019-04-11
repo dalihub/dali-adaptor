@@ -84,7 +84,12 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRenderer::GetTotalFrameNumber()
    */
-  uint32_t GetTotalFrameNumber();
+  uint32_t GetTotalFrameNumber() const;
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::GetFrameRate()
+   */
+  float GetFrameRate() const;
 
 private:
 

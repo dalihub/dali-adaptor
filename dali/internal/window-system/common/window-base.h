@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,8 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/key-event-integ.h>
@@ -33,6 +31,9 @@
 #include <dali/public-api/events/wheel-event.h>
 #include <string>
 #include <vector>
+#include <cstdint>
+
+using EGLNativeWindowType = Dali::Any;
 
 namespace Dali
 {
@@ -71,7 +72,7 @@ public:
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
 
   // Input events
-  typedef Signal< void ( Integration::Point&, unsigned long ) > TouchEventSignalType;
+  typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
   typedef Signal< void ( WheelEvent& ) > WheelEventSignalType;
   typedef Signal< void( Integration::KeyEvent& ) > KeyEventSignalType;
 
@@ -81,9 +82,6 @@ public:
   // Accessibility
   typedef Signal< void ( StyleChange::Type ) > StyleSignalType;
   typedef Signal< void ( const AccessibilityInfo& ) > AccessibilitySignalType;
-
-  // Indicator
-  typedef Signal< void ( ) > IndicatorSignalType;
 
   /**
    * @brief Default constructor
@@ -158,21 +156,6 @@ public:
    * @brief Move and resize the window
    */
   virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
-
-  /**
-   * @copydoc Dali::Window::ShowIndicator()
-   */
-  virtual void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode ) = 0;
-
-  /**
-   * Set the indicator properties on the window
-   */
-  virtual void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation ) = 0;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::IndicatorInterface::Observer::IndicatorTypeChanged()
-   */
-  virtual void IndicatorTypeChanged( IndicatorInterface::Type type ) = 0;
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -413,11 +396,6 @@ public:
    */
   AccessibilitySignalType& AccessibilitySignal();
 
-  /**
-   * @brief This signal is emitted when an indicator is flicked.
-   */
-  IndicatorSignalType& IndicatorFlickedSignal();
-
 protected:
 
   // Undefined
@@ -441,7 +419,6 @@ protected:
   SelectionSignalType                  mSelectionDataReceivedSignal;
   StyleSignalType                      mStyleChangedSignal;
   AccessibilitySignalType              mAccessibilitySignal;
-  IndicatorSignalType                  mIndicatorFlickedSignal;
 };
 
 } // namespace Adaptor

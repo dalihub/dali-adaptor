@@ -41,15 +41,15 @@ Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
   return *adaptor;
 }
 
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface )
+Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface )
 {
-  return New( nativeWindow, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
+  return New( window, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
 }
 
-Adaptor& Adaptor::New( Any nativeWindow, const Dali::RenderSurface& surface, Configuration::ContextLoss configuration )
+Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
 {
-  Dali::RenderSurface* pSurface = const_cast<Dali::RenderSurface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( nativeWindow, pSurface, configuration, NULL );
+  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, configuration, NULL );
   return *adaptor;
 }
 
@@ -88,9 +88,9 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mImpl->RemoveIdle( callback );
 }
 
-void Adaptor::ReplaceSurface( Any nativeWindow, Dali::RenderSurface& surface )
+void Adaptor::ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface )
 {
-  mImpl->ReplaceSurface(nativeWindow, surface);
+  mImpl->ReplaceSurface( window, surface );
 }
 
 Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()
@@ -103,7 +103,7 @@ Adaptor::AdaptorSignalType& Adaptor::LanguageChangedSignal()
   return mImpl->LanguageChangedSignal();
 }
 
-RenderSurface& Adaptor::GetSurface()
+Dali::RenderSurfaceInterface& Adaptor::GetSurface()
 {
   return mImpl->GetSurface();
 }
@@ -191,6 +191,16 @@ void Adaptor::RenderOnce()
 const LogFactoryInterface& Adaptor::GetLogFactory()
 {
   return mImpl->GetLogFactory();
+}
+
+void Adaptor::RegisterProcessor( Integration::Processor& processor )
+{
+  mImpl->RegisterProcessor( processor );
+}
+
+void Adaptor::UnregisterProcessor( Integration::Processor& processor )
+{
+  mImpl->UnregisterProcessor( processor );
 }
 
 Adaptor::Adaptor()

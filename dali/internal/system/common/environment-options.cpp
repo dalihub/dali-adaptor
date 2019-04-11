@@ -121,7 +121,6 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumEvents( -1 ),
   mGlesCallTime( 0 ),
   mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
-  mIndicatorVisibleMode( -1 ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mGlesCallAccumulate( false ),
   mDepthBufferRequired( DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING ),
@@ -332,11 +331,6 @@ int EnvironmentOptions::GetMultiSamplingLevel() const
 unsigned int EnvironmentOptions::GetMaxTextureSize() const
 {
   return mMaxTextureSize;
-}
-
-int EnvironmentOptions::GetIndicatorVisibleMode() const
-{
-  return mIndicatorVisibleMode;
 }
 
 unsigned int EnvironmentOptions::GetRenderToFboInterval() const
@@ -570,15 +564,6 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( maxTextureSize > 0 )
     {
       mMaxTextureSize = maxTextureSize;
-    }
-  }
-
-  int indicatorVisibleMode( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_INDICATOR_VISIBLE_MODE, indicatorVisibleMode ) )
-  {
-    if( indicatorVisibleMode > -1 )
-    {
-      mIndicatorVisibleMode = indicatorVisibleMode;
     }
   }
 
