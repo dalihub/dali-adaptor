@@ -22,7 +22,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/pan-gesture-detector-base.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/accessibility-gesture-handler.h>
 
 namespace Dali
@@ -79,7 +78,7 @@ private:
   bool mPanning;    ///< Keep track of panning state, when panning is occuring, this is true.
 };
 
-typedef IntrusivePtr<AccessibilityGestureDetector> AccessibilityGestureDetectorPtr;
+using AccessibilityGestureDetectorPtr = Dali::IntrusivePtr<AccessibilityGestureDetector>;
 
 } // namespace Adaptor
 

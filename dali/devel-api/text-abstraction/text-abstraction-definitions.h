@@ -38,6 +38,7 @@ typedef uint32_t BidiInfoIndex;      ///< Index to the bidirectional info for a 
 typedef char     LineBreakInfo;      ///< Line break info (must break, allow break, no break).
 typedef char     WordBreakInfo;      ///< Word break info (break, no break).
 typedef bool     CharacterDirection; ///< The character's direction: @e false is left to right, @e true is right to left.
+typedef uint32_t ColorIndex;         ///< An index into an array of colors.
 
 /**
  * @brief Enumerates the possible line break info values.
@@ -70,6 +71,15 @@ struct VectorBlob
   unsigned char g;
   unsigned char b;
   unsigned char a;
+};
+
+/**
+* @brief Defines how a color is blended.
+*/
+enum class ColorBlendingMode
+{
+  NONE,     ///< No blend.
+  MULTIPLY  ///< The color is multiplied by another one.
 };
 
 } // namespace TextAbstraction

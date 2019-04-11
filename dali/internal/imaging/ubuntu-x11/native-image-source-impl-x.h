@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
-#define __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
+#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
+#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL INCLUDES
 #include <dali/graphics/graphics-interface.h>
@@ -222,4 +222,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H__
+#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H

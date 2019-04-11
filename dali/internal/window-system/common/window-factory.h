@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/internal/window-system/common/indicator-interface.h>
 
 // EXTERNAL INCLUDES
 #include <memory>
@@ -43,8 +42,6 @@ public:
   virtual ~WindowFactory() = default;
 
   virtual std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) = 0;
-
-  virtual std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) = 0;
 };
 
 extern std::unique_ptr< WindowFactory > GetWindowFactory();

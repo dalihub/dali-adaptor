@@ -20,11 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
+#include <widget_base.h>
 
 // INTERNAL INCLUDES
-#ifdef WIDGET_SUPPOERTED
-#include <widget_base.h>
-#endif
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/internal/system/common/widget-controller.h>
 
@@ -43,10 +41,6 @@ namespace Adaptor
 class WidgetImplTizen : public Widget::Impl
 {
 public:
-
-#ifndef WIDGET_SUPPOERTED
-  typedef void* widget_base_instance_h;
-#endif
 
   /**
    * Constructor

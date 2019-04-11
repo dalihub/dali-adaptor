@@ -19,7 +19,7 @@
 #include <dali/internal/imaging/ubuntu-x11/native-image-source-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore_X.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
 #include <dali/integration-api/debug.h>

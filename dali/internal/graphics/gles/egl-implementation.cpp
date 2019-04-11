@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,6 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mColorDepth( COLOR_DEPTH_24 ),
   mGlesInitialized( false ),
   mIsOwnSurface( true ),
-  mContextCurrent( false ),
   mIsWindow( true ),
   mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
   mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE )
@@ -126,6 +125,17 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     mIsOwnSurface = isOwnSurface;
   }
 
+  // We want to display this information all the time, so use the LogMessage directly
+  Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
+      "            Vendor:        %s\n"
+      "            Version:       %s\n"
+      "            Client APIs:   %s\n"
+      "            Extensions:    %s\n",
+      eglQueryString( mEglDisplay, EGL_VENDOR ),
+      eglQueryString( mEglDisplay, EGL_VERSION ),
+      eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
+      eglQueryString( mEglDisplay, EGL_EXTENSIONS ));
+
   return mGlesInitialized;
 }
 
@@ -142,32 +152,53 @@ bool EglImplementation::CreateContext()
   return true;
 }
 
-void EglImplementation::DestroyContext()
+bool EglImplementation::CreateWindowContext( EGLContext& eglContext )
+{
+  // make sure a context isn't created twice
+  DALI_ASSERT_ALWAYS( (eglContext == 0) && "EGL context recreated" );
+
+  eglContext = eglCreateContext(mEglDisplay, mEglConfig, mEglContext, &(mContextAttribs[0]));
+  TEST_EGL_ERROR("eglCreateContext render thread");
+
+  DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != eglContext && "EGL context not created" );
+
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", glGetString(GL_VENDOR));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", glGetString(GL_RENDERER));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VERSION : %s ***\n", glGetString(GL_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
+
+  mEglWindowContexts.push_back( eglContext );
+
+  return true;
+}
+
+void EglImplementation::DestroyContext( EGLContext& eglContext )
 {
   DALI_ASSERT_ALWAYS( mEglContext && "no EGL context" );
 
-  eglDestroyContext( mEglDisplay, mEglContext );
-  mEglContext = 0;
+  eglDestroyContext( mEglDisplay, eglContext );
+  eglContext = 0;
 }
 
-void EglImplementation::DestroySurface()
+void EglImplementation::DestroySurface( EGLSurface& eglSurface )
 {
-  if(mIsOwnSurface && mCurrentEglSurface)
+  if(mIsOwnSurface && eglSurface)
   {
     // Make context null to prevent crash in driver side
     MakeContextNull();
-    eglDestroySurface( mEglDisplay, mCurrentEglSurface );
-    mCurrentEglSurface = 0;
+    eglDestroySurface( mEglDisplay, eglSurface );
+    eglSurface = 0;
   }
 }
 
-void EglImplementation::MakeContextCurrent()
+void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext )
 {
-  mContextCurrent = true;
+  mCurrentEglSurface = eglSurface;
 
   if(mIsOwnSurface)
   {
-    eglMakeCurrent( mEglDisplay, mCurrentEglSurface, mCurrentEglSurface, mEglContext );
+    eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
   }
 
   EGLint error = eglGetError();
@@ -178,17 +209,6 @@ void EglImplementation::MakeContextCurrent()
 
     DALI_ASSERT_ALWAYS(false && "MakeContextCurrent failed!");
   }
-
-  // We want to display this information all the time, so use the LogMessage directly
-  Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
-      "            Vendor:        %s\n"
-      "            Version:       %s\n"
-      "            Client APIs:   %s\n"
-      "            Extensions:    %s\n",
-      eglQueryString(mEglDisplay, EGL_VENDOR),
-      eglQueryString(mEglDisplay, EGL_VERSION),
-      eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
-      eglQueryString(mEglDisplay, EGL_EXTENSIONS));
 }
 
 void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface )
@@ -198,7 +218,7 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
   if(mIsOwnSurface)
   {
-    eglMakeCurrent( mEglDisplay, mCurrentEglSurface, mCurrentEglSurface, mEglContext );
+    eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
   }
 
   EGLint error = eglGetError();
@@ -213,7 +233,6 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
 void EglImplementation::MakeContextNull()
 {
-  mContextCurrent = false;
   // clear the current context
   eglMakeCurrent( mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
 }
@@ -225,11 +244,18 @@ void EglImplementation::TerminateGles()
     // Make context null to prevent crash in driver side
     MakeContextNull();
 
-    if(mIsOwnSurface && mCurrentEglSurface)
+    for ( auto eglSurface : mEglWindowSurfaces )
     {
-      eglDestroySurface(mEglDisplay, mCurrentEglSurface);
+      if(mIsOwnSurface && eglSurface)
+      {
+        eglDestroySurface(mEglDisplay, eglSurface);
+      }
     }
     eglDestroyContext(mEglDisplay, mEglContext);
+    for ( auto eglContext : mEglWindowContexts )
+    {
+      eglDestroyContext(mEglDisplay, eglContext);
+    }
 
     eglTerminate(mEglDisplay);
 
@@ -247,14 +273,17 @@ bool EglImplementation::IsGlesInitialized() const
   return mGlesInitialized;
 }
 
-void EglImplementation::SwapBuffers()
+void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
 {
-  eglSwapBuffers( mEglDisplay, mCurrentEglSurface );
+  if ( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
+  {
+    eglSwapBuffers( mEglDisplay, eglSurface );
+  }
 }
 
-void EglImplementation::CopyBuffers()
+void EglImplementation::CopyBuffers( EGLSurface& eglSurface )
 {
-  eglCopyBuffers( mEglDisplay, mCurrentEglSurface, mCurrentEglNativePixmap );
+  eglCopyBuffers( mEglDisplay, eglSurface, mCurrentEglNativePixmap );
 }
 
 void EglImplementation::WaitGL()
@@ -268,6 +297,8 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   {
     return;
   }
+
+  bool isTransparent = ( depth == COLOR_DEPTH_32 );
 
   mIsWindow = isWindowType;
 
@@ -319,15 +350,18 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( EGL_BLUE_SIZE );
   configAttribs.PushBack( 8 );
 
-  configAttribs.PushBack( EGL_ALPHA_SIZE );
+  if ( isTransparent )
+  {
+    configAttribs.PushBack( EGL_ALPHA_SIZE );
 #ifdef _ARCH_ARM_
-  // For underlay video playback, we also need to set the alpha value of the 24/32bit window.
-  configAttribs.PushBack( 8 );
+    // For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+    configAttribs.PushBack( 8 );
 #else
-  // There is a bug in the desktop emulator
-  // setting EGL_ALPHA_SIZE to 8 results in eglChooseConfig failing
-  configAttribs.PushBack( 0 );
+    // There is a bug in the desktop emulator
+    // setting EGL_ALPHA_SIZE to 8 results in eglChooseConfig failing
+    configAttribs.PushBack( 8 );
 #endif // _ARCH_ARM_
+  }
 
   configAttribs.PushBack( EGL_DEPTH_SIZE );
   configAttribs.PushBack( mDepthBufferRequired ? 24 : 0 );
@@ -386,10 +420,8 @@ void EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   }
 }
 
-void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
+EGLSurface EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
 {
-  DALI_ASSERT_ALWAYS( ( mCurrentEglSurface == 0 ) && "EGL surface already exists" );
-
   mEglNativeWindow = window;
   mColorDepth = depth;
   mIsWindow = true;
@@ -401,6 +433,8 @@ void EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDe
   TEST_EGL_ERROR("eglCreateWindowSurface");
 
   DALI_ASSERT_ALWAYS( mCurrentEglSurface && "Create window surface failed" );
+
+  return mCurrentEglSurface;
 }
 
 EGLSurface EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth )
@@ -420,7 +454,7 @@ EGLSurface EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, C
   return mCurrentEglSurface;
 }
 
-bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
+bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext )
 {
   bool contextLost = false;
 
@@ -429,13 +463,13 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window )
   MakeContextNull();
 
   // destroy the surface
-  DestroySurface();
+  DestroySurface( eglSurface );
 
   // create the EGL surface
   CreateSurfaceWindow( window, mColorDepth );
 
   // set the context to be current with the new surface
-  MakeContextCurrent();
+  MakeContextCurrent( eglSurface, eglContext );
 
   return contextLost;
 }
@@ -459,7 +493,7 @@ EGLDisplay EglImplementation::GetDisplay() const
   return mEglDisplay;
 }
 
-EGLDisplay EglImplementation::GetContext() const
+EGLContext EglImplementation::GetContext() const
 {
   return mEglContext;
 }

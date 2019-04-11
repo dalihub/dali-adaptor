@@ -18,6 +18,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/native-render-surface.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {

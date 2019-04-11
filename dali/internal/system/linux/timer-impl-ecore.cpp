@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#include <Ecore.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {
@@ -90,7 +87,8 @@ void Timer::Start()
   {
     Stop();
   }
-  mImpl->mId = ecore_timer_add( (double)mImpl->mInterval/1000.0f, (Ecore_Task_Cb)TimerSourceFunc, this );
+  double interval = static_cast<double> ( mImpl->mInterval ) / 1000.0f;
+  mImpl->mId = ecore_timer_add( interval, reinterpret_cast<Ecore_Task_Cb>( TimerSourceFunc ), this );
 }
 
 void Timer::Stop()
@@ -196,5 +194,3 @@ bool Timer::IsRunning() const
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

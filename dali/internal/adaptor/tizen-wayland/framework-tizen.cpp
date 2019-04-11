@@ -23,7 +23,7 @@
 #include <app_control_internal.h>
 #include <app_common.h>
 #include <bundle.h>
-#include <Ecore.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 #include <system_info.h>
 #include <system_settings.h>
@@ -193,12 +193,20 @@ struct Framework::Impl
     mApplicationType = type;
     mCallbackManager = CallbackManager::New();
 
-    char* region;
-    char* language;
+    char* region = nullptr;
+    char* language = nullptr;
     system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region );
     system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language );
-    mRegion = std::string( region );
-    mLanguage = std::string( language );
+
+    if (region != nullptr)
+    {
+      mRegion = std::string( region );
+    }
+
+    if ( language != nullptr)
+    {
+      mLanguage = std::string( language );
+    }
   }
 
   ~Impl()

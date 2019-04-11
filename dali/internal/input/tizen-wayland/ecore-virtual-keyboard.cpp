@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,6 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-// Ecore is littered with C style cast
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 #include <dali/integration-api/adaptor.h>
 #include <dali/internal/system/common/locale-utils.h>
@@ -154,7 +151,7 @@ void ApplySettings( const Property::Map& settingsMap )
 {
   using namespace InputMethod; // Allows exclusion of namespace in TOKEN_STRING.
 
-  for ( unsigned int i = 0, count = settingsMap.Count(); i < count; ++i )
+  for ( unsigned long i = 0, count = settingsMap.Count(); i < count; ++i )
   {
     Property::Key key = settingsMap.GetKeyAt( i );
     if( key.type == Property::Key::INDEX )
@@ -211,5 +208,3 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

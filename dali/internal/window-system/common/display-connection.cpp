@@ -38,7 +38,7 @@ DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& gr
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics, RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics, Integration::RenderSurface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();

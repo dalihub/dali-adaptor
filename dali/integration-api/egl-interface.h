@@ -18,14 +18,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <EGL/egl.h>
+
 namespace Dali
 {
-
-enum ColorDepth
-{
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
 
 /**
  * EglInterface provides an interface for managing EGL contexts
@@ -42,7 +39,7 @@ public:
   /**
    * Make the OpenGL context current
    */
-  virtual void MakeContextCurrent() = 0;
+  virtual void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext ) = 0;
 
   /**
    * Terminate GL
@@ -52,12 +49,12 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers() = 0;
+  virtual void SwapBuffers( EGLSurface& eglSurface ) = 0;
 
   /**
    * Performs an OpenGL copy buffers command
    */
-  virtual void CopyBuffers() = 0;
+  virtual void CopyBuffers( EGLSurface& eglSurface ) = 0;
 
   /**
    * Performs an EGL wait GL command
