@@ -64,6 +64,7 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mEglConfig( 0 ),
   mEglContext( 0 ),
   mCurrentEglSurface( 0 ),
+  mCurrentEglContext( EGL_NO_CONTEXT ),
   mMultiSamplingLevel( multiSamplingLevel ),
   mColorDepth( COLOR_DEPTH_24 ),
   mGlesInitialized( false ),
@@ -201,11 +202,20 @@ void EglImplementation::DestroySurface( EGLSurface& eglSurface )
 
 void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext )
 {
+  if (mCurrentEglContext == eglContext)
+  {
+    return;
+  }
+
   mCurrentEglSurface = eglSurface;
 
   if(mIsOwnSurface)
   {
+    glFinish();
+
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
+
+    mCurrentEglContext = eglContext;
   }
 
   EGLint error = eglGetError();
@@ -220,12 +230,21 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
 void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface )
 {
+  if (mCurrentEglContext == mEglContext)
+  {
+    return;
+  }
+
   mCurrentEglNativePixmap = pixmap;
   mCurrentEglSurface = eglSurface;
 
   if(mIsOwnSurface)
   {
+    glFinish();
+
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
+
+    mCurrentEglContext = mEglContext;
   }
 
   EGLint error = eglGetError();
@@ -242,6 +261,7 @@ void EglImplementation::MakeContextNull()
 {
   // clear the current context
   eglMakeCurrent( mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
+  mCurrentEglContext = EGL_NO_CONTEXT;
 }
 
 void EglImplementation::TerminateGles()
@@ -270,6 +290,7 @@ void EglImplementation::TerminateGles()
     mEglConfig  = NULL;
     mEglContext = NULL;
     mCurrentEglSurface = NULL;
+    mCurrentEglContext = EGL_NO_CONTEXT;
 
     mGlesInitialized = false;
   }

@@ -205,6 +205,7 @@ private:
   EglWindowContextContainer mEglWindowContexts;                ///< The EGL context for the window
 
   EGLSurface           mCurrentEglSurface;
+  EGLContext           mCurrentEglContext;
 
   typedef std::vector<EGLSurface> EglWindowSurfaceContainer;
   EglWindowSurfaceContainer mEglWindowSurfaces;                ///< The EGL surface for the window
