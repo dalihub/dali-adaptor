@@ -1,8 +1,8 @@
-#ifndef __DALI_ACCESSIBILITY_GESTURE_HANDLER_H__
-#define __DALI_ACCESSIBILITY_GESTURE_HANDLER_H__
+#ifndef DALI_ACCESSIBILITY_GESTURE_HANDLER_H
+#define DALI_ACCESSIBILITY_GESTURE_HANDLER_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/events/pan-gesture-event.h>
+#include <dali/devel-api/adaptor-framework/accessibility-gesture-event.h>
 
 namespace Dali
 {
@@ -37,10 +37,10 @@ public:
    * @param[in]  panEvent  The pan event to be handled.
    * @return whether the gesture is handled successfully or not.
    */
-  virtual bool HandlePanGesture( const Integration::PanGestureEvent& panEvent ) = 0;
+  virtual bool HandlePanGesture( const AccessibilityGestureEvent& panEvent ) = 0;
 
 }; // class AccessibilityGestureHandler
 
 } // namespace Dali
 
-#endif // __DALI_ACCESSIBILITY_GESTURE_HANDLER_H__
+#endif // DALI_ACCESSIBILITY_GESTURE_HANDLER_H

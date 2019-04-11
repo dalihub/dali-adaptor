@@ -332,14 +332,6 @@ public:
   void DestroyTtsPlayer(Dali::TtsPlayer::Mode mode);
 
   /**
-   * @brief Sets minimum distance in pixels that the fingers must move towards/away from each other in order to
-   * trigger a pinch gesture
-   *
-   * @param[in] distance The minimum pinch distance in pixels
-   */
-  void SetMinimumPinchDistance(float distance);
-
-  /**
    * Gets native window handle
    *
    * @return native window handle
@@ -511,15 +503,6 @@ public: // Signals
     return mLanguageChangedSignal;
   }
 
-  /**
-   * Gets the gesture manager.
-   * @return The GestureManager
-   */
-  GestureManager* GetGestureManager() const
-  {
-    return mGestureManager;
-  }
-
 private: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
@@ -662,7 +645,6 @@ private: // Data
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEventInterface*                mNotificationTrigger;         ///< Notification event trigger
-  GestureManager*                       mGestureManager;              ///< Gesture manager
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support

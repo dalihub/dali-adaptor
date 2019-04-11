@@ -25,7 +25,6 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp
     ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
     ../dali-adaptor/dali-test-suite-utils/test-application.cpp
-    ../dali-adaptor/dali-test-suite-utils/test-gesture-manager.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp

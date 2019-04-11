@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,6 +215,11 @@ public:
   int GetMinimumPanEvents() const;
 
   /**
+   * @return The minimum pixels before a pinch can be started (-1 means it's not set)
+   */
+  float GetMinimumPinchDistance() const;
+
+  /**
    * @return The width of the window
    */
   unsigned int GetWindowWidth() const;
@@ -341,6 +346,7 @@ private: // Data
   int mPanGestureMultitapSmoothingRange;          ///< The range in time (ms) of points in the history to smooth the final output against.
   int mPanMinimumDistance;                        ///< minimum distance required before pan starts
   int mPanMinimumEvents;                          ///< minimum events required before pan starts
+  float mPinchMinimumDistance;                    ///< minimum number of pixels moved before a pinch starts
   int mGlesCallTime;                              ///< time in seconds between status updates
   int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
   ThreadingMode::Type mThreadingMode;             ///< threading mode
