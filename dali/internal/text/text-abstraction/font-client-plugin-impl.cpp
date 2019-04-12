@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1376,6 +1376,9 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
   if( ( fontId > 0u ) &&
       ( index < mFontIdCache.Count() ) )
   {
+    data.isColorBitmap = false;
+    data.isColorEmoji = false;
+
     const FontIdCacheItem& fontIdCacheItem = mFontIdCache[index];
 
     switch( fontIdCacheItem.type )
@@ -1466,6 +1469,8 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
             ConvertBitmap( data, ftFace->glyph->bitmap, isShearRequired );
           }
 
+          data.isColorEmoji = fontFaceCacheItem.mIsFixedSizeBitmap;
+
           // Created FT_Glyph object must be released with FT_Done_Glyph
           FT_Done_Glyph( glyph );
         }
@@ -1493,6 +1498,8 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
 
           data.width = pixelBuffer.GetWidth();
           data.height = pixelBuffer.GetHeight();
+
+          data.isColorBitmap = bitmapFontCacheItem.font.isColorFont;
 
           ConvertBitmap( data, data.width, data.height, pixelBuffer.GetBuffer() );
 
@@ -1630,7 +1637,6 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 
   const FontId index = fontId - 1u;
 
-#ifdef FREETYPE_BITMAP_SUPPORT
   if( ( fontId > 0u ) &&
       ( index < mFontIdCache.Count() ) )
   {
@@ -1640,6 +1646,7 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
     {
     case FontDescription::FACE_FONT:
     {
+#ifdef FREETYPE_BITMAP_SUPPORT
       const FontFaceCacheItem& item = mFontFaceCache[fontIdCacheItem.id];
       FT_Face ftFace = item.mFreeTypeFace;
 
@@ -1648,6 +1655,7 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
       {
         error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
       }
+#endif
       break;
     }
     case FontDescription::BITMAP_FONT:
@@ -1661,7 +1669,6 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
     }
     }
   }
-#endif
 
   return FT_Err_Ok == error;
 }

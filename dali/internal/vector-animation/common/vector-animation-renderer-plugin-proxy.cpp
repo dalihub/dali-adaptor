@@ -100,12 +100,13 @@ void VectorAnimationRendererPluginProxy::Initialize()
   }
 }
 
-void VectorAnimationRendererPluginProxy::SetUrl( const std::string& url )
+bool VectorAnimationRendererPluginProxy::Initialize( const std::string& url )
 {
   if( mPlugin )
   {
-    mPlugin->SetUrl( url );
+    return mPlugin->Initialize( url );
   }
+  return false;
 }
 
 void VectorAnimationRendererPluginProxy::SetRenderer( Dali::Renderer renderer )
@@ -122,15 +123,6 @@ void VectorAnimationRendererPluginProxy::SetSize( uint32_t width, uint32_t heigh
   {
     mPlugin->SetSize( width, height );
   }
-}
-
-bool VectorAnimationRendererPluginProxy::StartRender()
-{
-  if( mPlugin )
-  {
-    return mPlugin->StartRender();
-  }
-  return false;
 }
 
 void VectorAnimationRendererPluginProxy::StopRender()
@@ -165,6 +157,14 @@ float VectorAnimationRendererPluginProxy::GetFrameRate() const
     return mPlugin->GetFrameRate();
   }
   return 0.0f;
+}
+
+void VectorAnimationRendererPluginProxy::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+{
+  if( mPlugin )
+  {
+    mPlugin->GetDefaultSize( width, height );
+  }
 }
 
 } // namespace Adaptor
