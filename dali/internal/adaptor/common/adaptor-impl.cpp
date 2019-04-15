@@ -330,12 +330,6 @@ void Adaptor::Start()
 
   WindowPtr defaultWindow = mWindows.front();
 
-  if( mDeferredRotationObserver != NULL )
-  {
-    defaultWindow->SetRotationObserver( mDeferredRotationObserver );
-    mDeferredRotationObserver = NULL;
-  }
-
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
 
@@ -718,16 +712,6 @@ void Adaptor::SetDragAndDropDetector( DragAndDropDetectorPtr detector )
   mDragAndDropDetector = detector;
 }
 
-void Adaptor::SetRotationObserver( RotationObserver* observer )
-{
-  WindowPtr defaultWindow = mWindows.front();
-  if( !defaultWindow->SetRotationObserver( observer ) && mState == READY )
-  {
-    // Set once event handler exists
-    mDeferredRotationObserver = observer;
-  }
-}
-
 void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
 {
   if( mTtsPlayers[mode] )
@@ -993,7 +977,6 @@ Adaptor::Adaptor(Dali::Window window, Dali::Adaptor& adaptor, Dali::RenderSurfac
   mTtsPlayers(),
   mObservers(),
   mDragAndDropDetector(),
-  mDeferredRotationObserver( nullptr ),
   mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
   mPerformanceInterface( nullptr ),
   mKernelTracer(),
