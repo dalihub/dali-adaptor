@@ -92,8 +92,6 @@ const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / size
 
 } // namespace
 
-
-
 using Dali::Vector;
 
 namespace Dali
@@ -260,7 +258,6 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   mVectorFontCache = new VectorFontCache( mFreeTypeLibrary );
 #endif
-
 }
 
 FontClient::Plugin::~Plugin()
@@ -1198,108 +1195,108 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
 
       switch( fontIdCacheItem.type )
       {
-      case FontDescription::FACE_FONT:
-      {
-        const FontFaceCacheItem& font = mFontFaceCache[fontIdCacheItem.id];
+        case FontDescription::FACE_FONT:
+        {
+          const FontFaceCacheItem& font = mFontFaceCache[fontIdCacheItem.id];
 
-        FT_Face ftFace = font.mFreeTypeFace;
+          FT_Face ftFace = font.mFreeTypeFace;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
-        // Check to see if we should be loading a Fixed Size bitmap?
-        if( font.mIsFixedSizeBitmap )
-        {
-          FT_Select_Size( ftFace, font.mFixedSizeIndex ); ///< @todo: needs to be investigated why it's needed to select the size again.
-          int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_COLOR );
-          if ( FT_Err_Ok == error )
+          // Check to see if we should be loading a Fixed Size bitmap?
+          if( font.mIsFixedSizeBitmap )
           {
-            glyph.width = font.mFixedWidthPixels;
-            glyph.height = font.mFixedHeightPixels;
-            glyph.advance = font.mFixedWidthPixels;
-            glyph.xBearing = 0.0f;
-            glyph.yBearing = font.mFixedHeightPixels;
-
-            // Adjust the metrics if the fixed-size font should be down-scaled
-            const float desiredFixedSize =  static_cast<float>( font.mRequestedPointSize ) * FROM_266 / POINTS_PER_INCH * mDpiVertical;
-
-            if( desiredFixedSize > 0.f )
+            FT_Select_Size( ftFace, font.mFixedSizeIndex ); ///< @todo: needs to be investigated why it's needed to select the size again.
+            int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_COLOR );
+            if ( FT_Err_Ok == error )
             {
-              const float scaleFactor = desiredFixedSize / font.mFixedHeightPixels;
+              glyph.width = font.mFixedWidthPixels;
+              glyph.height = font.mFixedHeightPixels;
+              glyph.advance = font.mFixedWidthPixels;
+              glyph.xBearing = 0.0f;
+              glyph.yBearing = font.mFixedHeightPixels;
 
-              glyph.width = glyph.width * scaleFactor ;
-              glyph.height = glyph.height * scaleFactor;
-              glyph.advance = glyph.advance * scaleFactor;
-              glyph.xBearing = glyph.xBearing * scaleFactor;
-              glyph.yBearing = glyph.yBearing * scaleFactor;
+              // Adjust the metrics if the fixed-size font should be down-scaled
+              const float desiredFixedSize =  static_cast<float>( font.mRequestedPointSize ) * FROM_266 / POINTS_PER_INCH * mDpiVertical;
 
-              glyph.scaleFactor = scaleFactor;
-            }
-          }
-          else
-          {
-            DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetBitmapMetrics. FreeType Bitmap Load_Glyph error %d\n", error );
-            success = false;
-          }
-        }
-        else
-#endif
-        {
-          int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_NO_AUTOHINT );
+              if( desiredFixedSize > 0.f )
+              {
+                const float scaleFactor = desiredFixedSize / font.mFixedHeightPixels;
 
-          if( FT_Err_Ok == error )
-          {
-            glyph.width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
-            glyph.height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
-            if( horizontal )
-            {
-              glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
-              glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
+                glyph.width = glyph.width * scaleFactor ;
+                glyph.height = glyph.height * scaleFactor;
+                glyph.advance = glyph.advance * scaleFactor;
+                glyph.xBearing = glyph.xBearing * scaleFactor;
+                glyph.yBearing = glyph.yBearing * scaleFactor;
+
+                glyph.scaleFactor = scaleFactor;
+              }
             }
             else
             {
-              glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
-              glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
+              DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::GetBitmapMetrics. FreeType Bitmap Load_Glyph error %d\n", error );
+              success = false;
             }
           }
           else
+#endif
           {
-            success = false;
-          }
-        }
-        break;
-      }
-      case FontDescription::BITMAP_FONT:
-      {
-        BitmapFontCacheItem& bitmapFontCacheItem = mBitmapFontCache[fontIdCacheItem.id];
+            int error = FT_Load_Glyph( ftFace, glyph.index, FT_LOAD_NO_AUTOHINT );
 
-        unsigned int index = 0u;
-        for( auto& item : bitmapFontCacheItem.font.glyphs )
-        {
-          if( item.utf32 == glyph.index )
-          {
-            Devel::PixelBuffer& pixelBuffer = bitmapFontCacheItem.pixelBuffers[index];
-            if( !pixelBuffer )
+            if( FT_Err_Ok == error )
             {
-              pixelBuffer = LoadImageFromFile( item.url );
+              glyph.width  = static_cast< float >( ftFace->glyph->metrics.width ) * FROM_266;
+              glyph.height = static_cast< float >( ftFace->glyph->metrics.height ) * FROM_266 ;
+              if( horizontal )
+              {
+                glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingX ) * FROM_266;
+                glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.horiBearingY ) * FROM_266;
+              }
+              else
+              {
+                glyph.xBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingX ) * FROM_266;
+                glyph.yBearing += static_cast< float >( ftFace->glyph->metrics.vertBearingY ) * FROM_266;
+              }
             }
-
-            glyph.width  = static_cast< float >( pixelBuffer.GetWidth() );
-            glyph.height = static_cast< float >( pixelBuffer.GetHeight() );
-            glyph.xBearing = 0.f;
-            glyph.yBearing = glyph.height + item.descender;
-            glyph.advance = glyph.width;
-            glyph.scaleFactor = 1.f;
-            break;
+            else
+            {
+              success = false;
+            }
           }
-          ++index;
+          break;
         }
+        case FontDescription::BITMAP_FONT:
+        {
+          BitmapFontCacheItem& bitmapFontCacheItem = mBitmapFontCache[fontIdCacheItem.id];
 
-        success = true;
-        break;
-      }
-      default:
-      {
-        DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
-      }
+          unsigned int index = 0u;
+          for( auto& item : bitmapFontCacheItem.font.glyphs )
+          {
+            if( item.utf32 == glyph.index )
+            {
+              Devel::PixelBuffer& pixelBuffer = bitmapFontCacheItem.pixelBuffers[index];
+              if( !pixelBuffer )
+              {
+                pixelBuffer = LoadImageFromFile( item.url );
+              }
+
+              glyph.width  = static_cast< float >( pixelBuffer.GetWidth() );
+              glyph.height = static_cast< float >( pixelBuffer.GetHeight() );
+              glyph.xBearing = 0.f;
+              glyph.yBearing = glyph.height + item.descender;
+              glyph.advance = glyph.width;
+              glyph.scaleFactor = 1.f;
+              break;
+            }
+            ++index;
+          }
+
+          success = true;
+          break;
+        }
+        default:
+        {
+          DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
+        }
       }
     }
     else
@@ -1383,138 +1380,138 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
 
     switch( fontIdCacheItem.type )
     {
-    case FontDescription::FACE_FONT:
-    {
-      // For the software italics.
-      bool isShearRequired = false;
+      case FontDescription::FACE_FONT:
+      {
+        // For the software italics.
+        bool isShearRequired = false;
 
-      const FontFaceCacheItem& fontFaceCacheItem = mFontFaceCache[fontIdCacheItem.id];
-      FT_Face ftFace = fontFaceCacheItem.mFreeTypeFace;
+        const FontFaceCacheItem& fontFaceCacheItem = mFontFaceCache[fontIdCacheItem.id];
+        FT_Face ftFace = fontFaceCacheItem.mFreeTypeFace;
 
-      FT_Error error;
+        FT_Error error;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
-      // Check to see if this is fixed size bitmap
-      if( fontFaceCacheItem.mIsFixedSizeBitmap )
-      {
-        error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
-      }
-      else
+        // Check to see if this is fixed size bitmap
+        if( fontFaceCacheItem.mIsFixedSizeBitmap )
+        {
+          error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
+        }
+        else
 #endif
-      {
-        error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_NO_AUTOHINT );
-      }
-      if( FT_Err_Ok == error )
-      {
-        if( isBoldRequired && !( ftFace->style_flags & FT_STYLE_FLAG_BOLD ) )
         {
-          // Does the software bold.
-          FT_GlyphSlot_Embolden( ftFace->glyph );
+          error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_NO_AUTOHINT );
         }
-
-        if( isItalicRequired && !( ftFace->style_flags & FT_STYLE_FLAG_ITALIC ) )
+        if( FT_Err_Ok == error )
         {
-          // Will do the software italic.
-          isShearRequired = true;
-        }
-
-        FT_Glyph glyph;
-        error = FT_Get_Glyph( ftFace->glyph, &glyph );
-
-        // Convert to bitmap if necessary
-        if ( FT_Err_Ok == error )
-        {
-          if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
+          if( isBoldRequired && !( ftFace->style_flags & FT_STYLE_FLAG_BOLD ) )
           {
-            // Check whether we should create a bitmap for the outline
-            if( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 )
-            {
-              // Set up a stroker
-              FT_Stroker stroker;
-              error = FT_Stroker_New( mFreeTypeLibrary, &stroker );
+            // Does the software bold.
+            FT_GlyphSlot_Embolden( ftFace->glyph );
+          }
 
-              if( FT_Err_Ok == error )
+          if( isItalicRequired && !( ftFace->style_flags & FT_STYLE_FLAG_ITALIC ) )
+          {
+            // Will do the software italic.
+            isShearRequired = true;
+          }
+
+          FT_Glyph glyph;
+          error = FT_Get_Glyph( ftFace->glyph, &glyph );
+
+          // Convert to bitmap if necessary
+          if( FT_Err_Ok == error )
+          {
+            if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
+            {
+              // Check whether we should create a bitmap for the outline
+              if( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 )
               {
-                FT_Stroker_Set( stroker, outlineWidth * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0 );
-                error = FT_Glyph_StrokeBorder( &glyph, stroker, 0, 1 );
+                // Set up a stroker
+                FT_Stroker stroker;
+                error = FT_Stroker_New( mFreeTypeLibrary, &stroker );
 
                 if( FT_Err_Ok == error )
                 {
-                  FT_Stroker_Done( stroker );
+                  FT_Stroker_Set( stroker, outlineWidth * 64, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0 );
+                  error = FT_Glyph_StrokeBorder( &glyph, stroker, 0, 1 );
+
+                  if( FT_Err_Ok == error )
+                  {
+                    FT_Stroker_Done( stroker );
+                  }
+                  else
+                  {
+                    DALI_LOG_ERROR( "FT_Glyph_StrokeBorder Failed with error: %d\n", error );
+                  }
                 }
                 else
                 {
-                  DALI_LOG_ERROR( "FT_Glyph_StrokeBorder Failed with error: %d\n", error );
+                  DALI_LOG_ERROR( "FT_Stroker_New Failed with error: %d\n", error );
                 }
+              }
+
+              error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+              if( FT_Err_Ok == error )
+              {
+                FT_BitmapGlyph bitmapGlyph = reinterpret_cast< FT_BitmapGlyph >( glyph );
+                ConvertBitmap( data, bitmapGlyph->bitmap, isShearRequired );
               }
               else
               {
-                DALI_LOG_ERROR( "FT_Stroker_New Failed with error: %d\n", error );
+                DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Get_Glyph Failed with error: %d\n", error );
               }
-            }
-
-            error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, 0, 1 );
-            if( FT_Err_Ok == error )
-            {
-              FT_BitmapGlyph bitmapGlyph = reinterpret_cast< FT_BitmapGlyph >( glyph );
-              ConvertBitmap( data, bitmapGlyph->bitmap, isShearRequired );
             }
             else
             {
-              DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Get_Glyph Failed with error: %d\n", error );
+              ConvertBitmap( data, ftFace->glyph->bitmap, isShearRequired );
             }
-          }
-          else
-          {
-            ConvertBitmap( data, ftFace->glyph->bitmap, isShearRequired );
-          }
 
-          data.isColorEmoji = fontFaceCacheItem.mIsFixedSizeBitmap;
+            data.isColorEmoji = fontFaceCacheItem.mIsFixedSizeBitmap;
 
-          // Created FT_Glyph object must be released with FT_Done_Glyph
-          FT_Done_Glyph( glyph );
+            // Created FT_Glyph object must be released with FT_Done_Glyph
+            FT_Done_Glyph( glyph );
+          }
         }
-      }
-      else
-      {
-        DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Load_Glyph Failed with error: %d\n", error );
-      }
-      break;
-    }
-    case FontDescription::BITMAP_FONT:
-    {
-      BitmapFontCacheItem& bitmapFontCacheItem = mBitmapFontCache[fontIdCacheItem.id];
-
-      unsigned int index = 0u;
-      for( auto& item : bitmapFontCacheItem.font.glyphs )
-      {
-        if( item.utf32 == glyphIndex )
+        else
         {
-          Devel::PixelBuffer& pixelBuffer = bitmapFontCacheItem.pixelBuffers[index];
-          if( !pixelBuffer )
-          {
-            pixelBuffer = LoadImageFromFile( item.url );
-          }
-
-          data.width = pixelBuffer.GetWidth();
-          data.height = pixelBuffer.GetHeight();
-
-          data.isColorBitmap = bitmapFontCacheItem.font.isColorFont;
-
-          ConvertBitmap( data, data.width, data.height, pixelBuffer.GetBuffer() );
-
-          // Sets the pixel format.
-          data.format = pixelBuffer.GetPixelFormat();
-          break;
+          DALI_LOG_INFO( gLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Load_Glyph Failed with error: %d\n", error );
         }
-        ++index;
+        break;
       }
-      break;
-    }
-    default:
-    {
-      DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
-    }
+      case FontDescription::BITMAP_FONT:
+      {
+        BitmapFontCacheItem& bitmapFontCacheItem = mBitmapFontCache[fontIdCacheItem.id];
+
+        unsigned int index = 0u;
+        for( auto& item : bitmapFontCacheItem.font.glyphs )
+        {
+          if( item.utf32 == glyphIndex )
+          {
+            Devel::PixelBuffer& pixelBuffer = bitmapFontCacheItem.pixelBuffers[index];
+            if( !pixelBuffer )
+            {
+              pixelBuffer = LoadImageFromFile( item.url );
+            }
+
+            data.width = pixelBuffer.GetWidth();
+            data.height = pixelBuffer.GetHeight();
+
+            data.isColorBitmap = bitmapFontCacheItem.font.isColorFont;
+
+            ConvertBitmap( data, data.width, data.height, pixelBuffer.GetBuffer() );
+
+            // Sets the pixel format.
+            data.format = pixelBuffer.GetPixelFormat();
+            break;
+          }
+          ++index;
+        }
+        break;
+      }
+      default:
+      {
+        DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
+      }
     }
   }
   else
@@ -1644,29 +1641,29 @@ bool FontClient::Plugin::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
 
     switch( fontIdCacheItem.type )
     {
-    case FontDescription::FACE_FONT:
-    {
-#ifdef FREETYPE_BITMAP_SUPPORT
-      const FontFaceCacheItem& item = mFontFaceCache[fontIdCacheItem.id];
-      FT_Face ftFace = item.mFreeTypeFace;
-
-      // Check to see if this is fixed size bitmap
-      if( item.mHasColorTables )
+      case FontDescription::FACE_FONT:
       {
-        error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
-      }
+#ifdef FREETYPE_BITMAP_SUPPORT
+        const FontFaceCacheItem& item = mFontFaceCache[fontIdCacheItem.id];
+        FT_Face ftFace = item.mFreeTypeFace;
+
+        // Check to see if this is fixed size bitmap
+        if( item.mHasColorTables )
+        {
+          error = FT_Load_Glyph( ftFace, glyphIndex, FT_LOAD_COLOR );
+        }
 #endif
-      break;
-    }
-    case FontDescription::BITMAP_FONT:
-    {
-      error = FT_Err_Ok; // Will return true;
-      break;
-    }
-    default:
-    {
-      DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
-    }
+        break;
+      }
+      case FontDescription::BITMAP_FONT:
+      {
+        error = FT_Err_Ok; // Will return true;
+        break;
+      }
+      default:
+      {
+        DALI_LOG_INFO(gLogFilter, Debug::General, "  Invalid type of font\n");
+      }
     }
   }
 

@@ -258,10 +258,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
 
   FT_Library ftLibrary;
-  auto error = FT_Init_FreeType(&ftLibrary);
+  auto error = FT_Init_FreeType( &ftLibrary );
   if( error )
   {
     DALI_LOG_ERROR( "Error initializing FT library\n" );
+
+    // return a pixel buffer with all pixels set to transparent.
     return CreateVoidPixelBuffer( parameters );
   }
 
@@ -327,10 +329,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           case FontDescription::FACE_FONT:
           {
             // Create a FreeType font's face.
-            error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
+            auto error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
             if( error )
             {
-              DALI_LOG_ERROR( "Error in FT while creating new face\n" );
+              DALI_LOG_ERROR( "Error in FT while creating a new face\n" );
+
+              // return a pixel buffer with all pixels set to transparent.
               return CreateVoidPixelBuffer( parameters );
             }
 
@@ -791,7 +795,7 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
       cairo_status_t status = cairo_font_face_set_user_data( fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>( FT_Done_Face ) );
       if( status )
       {
-        cairo_font_face_destroy(fontFace);
+        cairo_font_face_destroy( fontFace );
       }
 
       unsigned int ftSynthesizeFlag = 0u;
