@@ -239,7 +239,7 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   mFontIdCache(),
   mFontFaceCache(),
   mValidatedFontCache(),
-  mFontDescriptionCache( 1u ),
+  mFontDescriptionCache(),
   mCharacterSetCache(),
   mFontDescriptionSizeCache(),
   mVectorFontCache( nullptr ),
@@ -247,8 +247,6 @@ FontClient::Plugin::Plugin( unsigned int horizontalDpi,
   mEmbeddedItemCache(),
   mDefaultFontDescriptionCached( false )
 {
-  mCharacterSetCache.Resize( 1u );
-
   int error = FT_Init_FreeType( &mFreeTypeLibrary );
   if( FT_Err_Ok != error )
   {
@@ -295,11 +293,9 @@ void FontClient::Plugin::ClearCache()
 
   mValidatedFontCache.clear();
   mFontDescriptionCache.clear();
-  mFontDescriptionCache.resize( 1u );
 
   DestroyCharacterSets( mCharacterSetCache );
   mCharacterSetCache.Clear();
-  mCharacterSetCache.Resize( 1u );
 
   mFontDescriptionSizeCache.clear();
 
@@ -546,7 +542,7 @@ void FontClient::Plugin::GetDescription( FontId id,
         {
           if( item.fontId == fontIdCacheItem.id )
           {
-            fontDescription = *( mFontDescriptionCache.begin() + item.validatedFontId );
+            fontDescription = *( mFontDescriptionCache.begin() + item.validatedFontId - 1u );
 
             DALI_LOG_INFO( gLogFilter, Debug::General, "  description; family : [%s]\n", fontDescription.family.c_str() );
             DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                 path : [%s]\n", fontDescription.path.c_str() );
@@ -941,7 +937,7 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
   if( !FindFont( validatedFontId, requestedPointSize, fontFaceId ) )
   {
     // Retrieve the font file name path.
-    const FontDescription& description = *( mFontDescriptionCache.begin() + validatedFontId );
+    const FontDescription& description = *( mFontDescriptionCache.begin() + validatedFontId - 1u );
 
     // Retrieve the font id. Do not cache the description as it has been already cached.
     fontId = GetFontId( description.path,
@@ -950,7 +946,7 @@ FontId FontClient::Plugin::GetFontId( const FontDescription& fontDescription,
                         false );
 
     fontFaceId = mFontIdCache[fontId-1u].id;
-    mFontFaceCache[fontFaceId].mCharacterSet = FcCharSetCopy( mCharacterSetCache[validatedFontId] );
+    mFontFaceCache[fontFaceId].mCharacterSet = FcCharSetCopy( mCharacterSetCache[validatedFontId - 1u] );
 
     // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
     mFontDescriptionSizeCache.push_back( FontDescriptionSizeCacheItem( validatedFontId,
@@ -1039,6 +1035,10 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
 
   if( matched && ( nullptr != characterSet ) )
   {
+    // Add the path to the cache.
+    description.type = FontDescription::FACE_FONT;
+    mFontDescriptionCache.push_back( description );
+
     // Set the index to the vector of paths to font file names.
     validatedFontId = mFontDescriptionCache.size();
 
@@ -1048,10 +1048,6 @@ void FontClient::Plugin::ValidateFont( const FontDescription& fontDescription,
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                       weight : [%s]\n", FontWeight::Name[description.weight] );
     DALI_LOG_INFO( gLogFilter, Debug::Verbose, "                        slant : [%s]\n\n", FontSlant::Name[description.slant] );
     DALI_LOG_INFO( gLogFilter, Debug::General, "  validatedFontId : %d\n", validatedFontId );
-
-    // Add the path to the cache.
-    description.type = FontDescription::FACE_FONT;
-    mFontDescriptionCache.push_back( description );
 
     // The reference counter of the character set has already been increased in MatchFontDescriptionToPattern.
     mCharacterSetCache.PushBack( characterSet );
@@ -2647,9 +2643,6 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
   if( !FindValidatedFont( description,
                           validatedFontId ) )
   {
-    // Set the index to the vector of paths to font file names.
-    validatedFontId = mFontDescriptionCache.size();
-
     FcPattern* pattern = CreateFontFamilyPattern( description ); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
     FcResult result = FcResultMatch;
@@ -2668,6 +2661,9 @@ void FontClient::Plugin::CacheFontPath( FT_Face ftFace, FontId id, PointSize26Do
     // Add the path to the cache.
     description.type = FontDescription::FACE_FONT;
     mFontDescriptionCache.push_back( description );
+
+    // Set the index to the vector of paths to font file names.
+    validatedFontId = mFontDescriptionCache.size();
 
     // Increase the reference counter and add the character set to the cache.
     mCharacterSetCache.PushBack( FcCharSetCopy( characterSet ) );
