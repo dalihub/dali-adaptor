@@ -2,7 +2,7 @@
 #define __DALI_INTERNAL_GL_EXTENSION_H__
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,9 @@
 
 // EXTERNAL INCLUDES
 
-#if DALI_GLES_VERSION >= 30
 #include <GLES3/gl3.h>
-#else
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#endif
 
 
 namespace Dali
@@ -59,8 +56,6 @@ public:
 
 
 public:
-
-#if DALI_GLES_VERSION < 30
 
   /**
    * If the GL extension is available this function discards specified data in attachments
@@ -96,16 +91,12 @@ public:
    */
   void ProgramBinaryOES (GLuint program, GLenum binaryFormat, const GLvoid *binary, GLint length);
 
-#endif // DALI_GLES_VERSION < 30
-
 private:
 
   /**
    * Lazy Initialize extensions on first use
    */
   void Initialize();
-
-#if DALI_GLES_VERSION < 30
 
 #ifdef GL_EXT_discard_framebuffer
   PFNGLDISCARDFRAMEBUFFEREXTPROC mGlDiscardFramebuffer;
@@ -115,8 +106,6 @@ private:
   PFNGLGETPROGRAMBINARYOESPROC mGlGetProgramBinaryOES;
   PFNGLPROGRAMBINARYOESPROC mGlProgramBinaryOES;
 #endif
-
-#endif // DALI_GLES_VERSION < 30
 
   bool mInitialized;
 

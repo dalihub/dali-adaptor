@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,34 +161,34 @@ struct FontClient::Plugin
     GlyphInfo glyph;
   };
 
- /**
-  * @brief Caches pixel buffers.
-  */
- struct PixelBufferCacheItem
- {
-   Devel::PixelBuffer pixelBuffer; ///< The pixel buffer loaded from the url.
-   std::string url;                ///< The url.
- };
+  /**
+   * @brief Caches pixel buffers.
+   */
+  struct PixelBufferCacheItem
+  {
+    Devel::PixelBuffer pixelBuffer; ///< The pixel buffer loaded from the url.
+    std::string url;                ///< The url.
+  };
 
   /**
    * @brief Caches embedded items.
    */
- struct EmbeddedItem
- {
-   PixelBufferId pixelBufferId; ///< Index to the vector of pixel buffers
-   unsigned int width;          ///< The desired width.
-   unsigned int height;         ///< The desired height.
- };
+  struct EmbeddedItem
+  {
+    PixelBufferId pixelBufferId; ///< Index to the vector of pixel buffers
+    unsigned int width;          ///< The desired width.
+    unsigned int height;         ///< The desired height.
+  };
 
- /**
-  * @brief Stores a bitmap font and its pixel buffers per glyph.
-  */
- struct BitmapFontCacheItem
- {
-   BitmapFont font;                              ///< The bitmap font.
-   std::vector<Devel::PixelBuffer> pixelBuffers; ///< The pixel buffers of the glyphs.
-   FontId id;                                    ///< Index to the vector with the cache of font's ids.
- };
+  /**
+   * @brief Stores a bitmap font and its pixel buffers per glyph.
+   */
+  struct BitmapFontCacheItem
+  {
+    BitmapFont font;                              ///< The bitmap font.
+    std::vector<Devel::PixelBuffer> pixelBuffers; ///< The pixel buffers of the glyphs.
+    FontId id;                                    ///< Index to the vector with the cache of font's ids.
+  };
 
   /**
    * Constructor.

@@ -53,16 +53,6 @@ Orientation::~Orientation()
   // so it will live longer than adaptor. (hence, no need to remove rotation observer)
 }
 
-void Orientation::SetAdaptor(Dali::Adaptor& adaptor)
-{
-  SetAdaptor( Adaptor::GetImplementation( adaptor ) );
-}
-
-void Orientation::SetAdaptor(Adaptor& adaptor)
-{
-  adaptor.SetRotationObserver(this);
-}
-
 int Orientation::GetDegrees() const
 {
   return mOrientation;
