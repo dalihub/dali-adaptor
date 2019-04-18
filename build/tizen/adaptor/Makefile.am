@@ -49,6 +49,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_ubuntu_x11_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_ubuntu_x11_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -104,6 +105,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -168,6 +170,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -231,6 +234,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -293,6 +297,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \
@@ -358,6 +363,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_imaging_tizen_src_files) \
                   $(adaptor_input_common_src_files) \
                   $(adaptor_input_tizen_wayland_src_files) \
+                  $(adaptor_integration_api_src_files) \
                   $(adaptor_legacy_common_src_files) \
                   $(adaptor_network_common_src_files) \
                   $(adaptor_public_api_src_files) \

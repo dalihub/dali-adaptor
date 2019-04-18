@@ -29,6 +29,12 @@
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
 
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/render-surface-interface.h>
+#else
+#include <dali/integration-api/adaptors/render-surface-interface.h>
+#endif
+
 // INTERNAL HEADERS
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
@@ -45,8 +51,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-uint32_t Window::mWindowCounter = 0;
 
 namespace
 {
@@ -66,17 +70,13 @@ Window* Window::New( const PositionSize& positionSize, const std::string& name, 
 }
 
 Window::Window()
-: mId( mWindowCounter++ ),
-  mSurface( nullptr ),
+: mWindowSurface( nullptr ),
   mWindowBase(),
-  mStarted( false ),
   mIsTransparent( false ),
   mIsFocusAcceptable( true ),
-  mVisible( true ),
   mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( false ),
-  mAdaptor( NULL ),
   mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mFocusChangedSignal(),
@@ -87,13 +87,6 @@ Window::Window()
 
 Window::~Window()
 {
-  if ( mAdaptor )
-  {
-    mAdaptor->RemoveObserver( *this );
-    mAdaptor->RemoveWindow( this );
-    mAdaptor = NULL;
-  }
-
   if ( mEventHandler )
   {
     mEventHandler->SetRotationObserver( nullptr );
@@ -106,16 +99,17 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   Any surface;
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
   mSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, mIsTransparent );
+  mWindowSurface = static_cast<WindowRenderSurface*>( mSurface.get() );
 
   // Get a window base
-  mWindowBase = mSurface->GetWindowBase();
+  mWindowBase = mWindowSurface->GetWindowBase();
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect( this, &Window::OnIconifyChanged );
   mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
 
-  mSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
+  mWindowSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
   if( !positionSize.IsEmpty() )
   {
@@ -125,44 +119,15 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
   SetClass( name, className );
 
-  mSurface->Map();
+  mWindowSurface->Map();
 
   mOrientation = Orientation::New( this );
 }
 
-void Window::SetAdaptor(Dali::Adaptor& adaptor)
+void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  Window::SetAdaptor( Internal::Adaptor::Adaptor::GetImplementation( adaptor ) );
-}
-
-void Window::SetAdaptor(Adaptor& adaptor)
-{
-  if( mStarted )
-  {
-    return;
-  }
-
-  mStarted = true;
-
-  // Create scene for the window
-  PositionSize positionSize = mSurface->GetPositionSize();
-  mScene = Dali::Integration::Scene::New( Vector2( positionSize.width, positionSize.height ) );
-  mScene.SetSurface( *mSurface.get() );
-
-  unsigned int dpiHorizontal, dpiVertical;
-  dpiHorizontal = dpiVertical = 0;
-
-  mSurface->GetDpi( dpiHorizontal, dpiVertical );
-  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
-
-  // Add the window to the adaptor observers
-  mAdaptor = &adaptor;
-  mAdaptor->AddObserver( *this );
-
   // Can only create the detector when we know the Core has been instantiated.
   mDragAndDropDetector = DragAndDropDetector::New();
-
-  mSurface->SetAdaptor( *mAdaptor );
 
   mEventHandler = EventHandlerPtr(
       new EventHandler( mScene, *mAdaptor, *mAdaptor->GetGestureManager(), *mAdaptor ) );
@@ -174,24 +139,9 @@ void Window::SetAdaptor(Adaptor& adaptor)
   }
 }
 
-WindowRenderSurface* Window::GetSurface() const
+void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
 {
-  return mSurface.get();
-}
-
-void Window::SetSurface(WindowRenderSurface* surface)
-{
-  mSurface.reset( surface );
-
-  mScene.SetSurface( *mSurface.get() );
-
-  unsigned int dpiHorizontal, dpiVertical;
-  dpiHorizontal = dpiVertical = 0;
-
-  mSurface->GetDpi( dpiHorizontal, dpiVertical );
-  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
-
-  mSurface->SetAdaptor( *mAdaptor );
+  mWindowSurface = static_cast<WindowRenderSurface*>( surface );
 }
 
 void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
@@ -211,11 +161,6 @@ void Window::SetClass( std::string name, std::string className )
   mName = name;
   mClassName = className;
   mWindowBase->SetClass( name, className );
-}
-
-std::string Window::GetName() const
-{
-  return mName;
 }
 
 std::string Window::GetClassName() const
@@ -238,21 +183,6 @@ void Window::Activate()
   mWindowBase->Activate();
 }
 
-void Window::Add( Dali::Actor actor )
-{
-  mScene.Add( actor );
-}
-
-void Window::Remove( Dali::Actor actor )
-{
-  mScene.Remove( actor );
-}
-
-Dali::Layer Window::GetRootLayer() const
-{
-  return mScene.GetRootLayer();
-}
-
 uint32_t Window::GetLayerCount() const
 {
   return mScene.GetLayerCount();
@@ -261,19 +191,6 @@ uint32_t Window::GetLayerCount() const
 Dali::Layer Window::GetLayer( uint32_t depth ) const
 {
   return mScene.GetLayer( depth );
-}
-
-void Window::SetBackgroundColor( Vector4 color )
-{
-  if ( mSurface )
-  {
-    mSurface->SetBackgroundColor( color );
-  }
-}
-
-Vector4 Window::GetBackgroundColor() const
-{
-  return mSurface ? mSurface->GetBackgroundColor() : Vector4();
 }
 
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
@@ -350,7 +267,7 @@ Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
 
 Dali::Any Window::GetNativeHandle() const
 {
-  return mSurface->GetNativeWindow();
+  return mWindowSurface->GetNativeWindow();
 }
 
 void Window::SetAcceptFocus( bool accept )
@@ -529,7 +446,7 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
   PositionSize oldRect = mSurface->GetPositionSize();
 
-  mSurface->MoveResize( PositionSize( oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight() ) );
+  mWindowSurface->MoveResize( PositionSize( oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight() ) );
 
   PositionSize newRect = mSurface->GetPositionSize();
 
@@ -563,7 +480,7 @@ void Window::SetPosition( Dali::Window::WindowPosition position )
 
   PositionSize oldRect = mSurface->GetPositionSize();
 
-  mSurface->MoveResize( PositionSize( position.GetX(), position.GetY(), oldRect.width, oldRect.height ) );
+  mWindowSurface->MoveResize( PositionSize( position.GetX(), position.GetY(), oldRect.width, oldRect.height ) );
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -583,7 +500,7 @@ void Window::SetPositionSize( PositionSize positionSize )
 
   PositionSize oldRect = mSurface->GetPositionSize();
 
-  mSurface->MoveResize( positionSize );
+  mWindowSurface->MoveResize( positionSize );
 
   PositionSize newRect = mSurface->GetPositionSize();
 
@@ -607,7 +524,7 @@ Dali::Layer Window::GetRootLayer()
 
 void Window::SetTransparency( bool transparent )
 {
-  mSurface->SetTransparency( transparent );
+  mWindowSurface->SetTransparency( transparent );
 }
 
 bool Window::GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode )
@@ -632,7 +549,7 @@ bool Window::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< 
 
 void Window::RotationDone( int orientation, int width, int height )
 {
-  mSurface->RequestRotation( orientation, width, height );
+  mWindowSurface->RequestRotation( orientation, width, height );
 
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
 
@@ -687,32 +604,6 @@ void Window::OnDeleteRequest()
   mDeleteRequestSignal.Emit();
 }
 
-void Window::OnStart()
-{
-}
-
-void Window::OnPause()
-{
-}
-
-void Window::OnResume()
-{
-}
-
-void Window::OnStop()
-{
-}
-
-void Window::OnDestroy()
-{
-  mAdaptor = NULL;
-}
-
-uint32_t Window::GetId() const
-{
-  return mId;
-}
-
 void Window::FeedTouchPoint( TouchPoint& point, int timeStamp )
 {
   if( mEventHandler )
@@ -737,7 +628,7 @@ void Window::FeedKeyEvent( KeyEvent& keyEvent )
   }
 }
 
-void Window::Pause()
+void Window::OnPause()
 {
   if( mEventHandler )
   {
@@ -745,7 +636,7 @@ void Window::Pause()
   }
 }
 
-void Window::Resume()
+void Window::OnResume()
 {
   if( mEventHandler )
   {

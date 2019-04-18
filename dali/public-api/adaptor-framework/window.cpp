@@ -28,22 +28,22 @@ namespace Dali
 
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
-  Internal::Adaptor::Window* windowImpl = Internal::Adaptor::Window::New(posSize, name, "", isTransparent);
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, "", isTransparent);
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  Dali::Window window = Dali::Window( windowImpl );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &window, name, "", isTransparent );
+  Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, "", isTransparent );
 
   return Window(window);
 }
 
 Window Window::New(PositionSize posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  Internal::Adaptor::Window* windowImpl = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  Dali::Window window = Dali::Window( windowImpl );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &window, name, className, isTransparent );
+  Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, className, isTransparent );
 
   return Window(window);
 }
