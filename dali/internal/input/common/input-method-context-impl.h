@@ -245,6 +245,17 @@ public:
    * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
    */
   virtual bool IsTextPredictionAllowed() const { return false; }
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
+   */
+  virtual void SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language ) {}
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
+   */
+  virtual Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const { return Dali::InputMethodContext::InputPanelLanguage(); }
+
 public:  // Signals
 
   /**

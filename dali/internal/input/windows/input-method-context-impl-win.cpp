@@ -355,6 +355,17 @@ bool InputMethodContextWin::FilterEventKey( const Dali::KeyEvent& keyEvent )
   return eventHandled;
 }
 
+void InputMethodContextWin::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelLanguage\n" );
+}
+
+Dali::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPanelLanguage() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelLanguage\n" );
+  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+}
+
 bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
