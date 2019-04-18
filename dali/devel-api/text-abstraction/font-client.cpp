@@ -31,10 +31,12 @@ const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
 const float FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
 
 FontClient::GlyphBufferData::GlyphBufferData()
-: buffer( nullptr ),
-  width( 0u ),
-  height( 0u ),
-  format( Pixel::A8 )
+: buffer{ nullptr },
+  width{ 0u },
+  height{ 0u },
+  format{ Pixel::A8 },
+  isColorEmoji{ false },
+  isColorBitmap{ false }
 {
 }
 

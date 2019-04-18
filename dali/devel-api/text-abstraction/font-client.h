@@ -84,10 +84,12 @@ public:
      */
     ~GlyphBufferData();
 
-    unsigned char* buffer; ///< The glyph's bitmap buffer data.
-    unsigned int   width;  ///< The width of the bitmap.
-    unsigned int   height; ///< The height of the bitmap.
-    Pixel::Format  format; ///< The pixel's format of the bitmap.
+    unsigned char* buffer;          ///< The glyph's bitmap buffer data.
+    unsigned int   width;           ///< The width of the bitmap.
+    unsigned int   height;          ///< The height of the bitmap.
+    Pixel::Format  format;          ///< The pixel's format of the bitmap.
+    bool           isColorEmoji:1;  ///< Whether the glyph is an emoji.
+    bool           isColorBitmap:1; ///< Whether the glyph is a color bitmap.
   };
 
   /**

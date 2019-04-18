@@ -97,13 +97,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @brief Starts the rendering.
-   *
-   * @return True if the renderer is successfully started, false otherwise.
-   */
-  bool StartRender();
-
-  /**
    * @brief Stops the rendering.
    */
   void StopRender();
@@ -128,6 +121,13 @@ public:
    * @return The frame rate of the file
    */
   float GetFrameRate() const;
+
+  /**
+   * @brief Gets the default size of the file,.
+   *
+   * @return The default size of the file
+   */
+  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
 
 public: // Signals
 

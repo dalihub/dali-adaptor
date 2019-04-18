@@ -76,7 +76,6 @@ class TriggerEvent;
 class CallbackManager;
 class FeedbackPluginProxy;
 class FeedbackController;
-class RotationObserver;
 class VSyncMonitor;
 class PerformanceInterface;
 class LifeCycleObserver;
@@ -308,13 +307,6 @@ public:
    * @param[in] detector The detector to send Drag & Drop events to.
    */
   void SetDragAndDropDetector( DragAndDropDetectorPtr detector );
-
-  /**
-   * Sets a rotation observer, or set to NULL to remove.
-   * @pre Adaptor::Start() has been called ( to create EventHandler )
-   * @param[in] observer The observer to listen for window rotation events
-   */
-  void SetRotationObserver( RotationObserver* observer );
 
   /**
    * Destroy the TtsPlayer of specific mode.
@@ -660,7 +652,6 @@ private: // Data
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
   DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
-  RotationObserver*                     mDeferredRotationObserver;    ///< deferred Rotation observer needs event handler
   EnvironmentOptions*                   mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
