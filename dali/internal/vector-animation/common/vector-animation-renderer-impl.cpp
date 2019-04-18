@@ -62,7 +62,7 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 
 void VectorAnimationRenderer::Initialize( const std::string& url )
 {
-  mPlugin.SetUrl( url );
+  mPlugin.Initialize( url );
 }
 
 void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
@@ -73,11 +73,6 @@ void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
 void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
 {
   mPlugin.SetSize( width, height );
-}
-
-bool VectorAnimationRenderer::StartRender()
-{
-  return mPlugin.StartRender();
 }
 
 void VectorAnimationRenderer::StopRender()
@@ -98,6 +93,11 @@ uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
 float VectorAnimationRenderer::GetFrameRate() const
 {
   return mPlugin.GetFrameRate();
+}
+
+void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+{
+  mPlugin.GetDefaultSize( width, height );
 }
 
 } // namespace Adaptor

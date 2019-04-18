@@ -134,19 +134,11 @@ if test "x$ecore_imf_1_13" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DECORE_IMF_1_13"
 fi
 
-AC_ARG_ENABLE([gles],
-              [AC_HELP_STRING([--enable-gles],
-                              [Specify the OpenGL ES version for backwards compatibility])],
-              [enable_gles=$enableval],
-              [enable_gles=30])
-
 AC_ARG_ENABLE([vulkan],
               [AC_HELP_STRING([--enable-vulkan],
                               [Enable Vulkan support])],
               [enable_vulkan=$enableval],
               [enable_vulkan=no])
-
-DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DDALI_GLES_VERSION=${enable_gles}"
 
 # Currently, dali-adaptor requires appfw on Tizen
 # and does not require it on Ubuntu.
@@ -457,7 +449,6 @@ Configuration
   Network logging enabled:          $enable_networklogging
   Font config file:                 $fontConfigurationFile
   Using Tizen APP FW libraries:     $enable_appfw
-  OpenGL ES version:                $enable_gles
   Tizen Platform Config supported   $tizenPlatformConfigSupported
   Graphics backend:                 ${DALI_GRAPHICS_LIBS}
   Vulkan Support:                   ${enable_vulkan}"

@@ -66,6 +66,12 @@ public:
   EglInterface* Create();
 
   /**
+   * Set gles version
+   * Default version is gles 3.0
+   */
+  void SetGlesVersion( const int32_t glesVersion );
+
+  /**
    * Gets the GL abstraction
    * @return The GL abstraction
    */

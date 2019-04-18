@@ -53,7 +53,8 @@ Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose
 } // unnamed namespace
 
 WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
-: mPositionSize( positionSize ),
+: mDisplayConnection( nullptr ),
+  mPositionSize( positionSize ),
   mWindowBase(),
   mThreadSynchronization( NULL ),
   mRenderNotification( NULL ),
