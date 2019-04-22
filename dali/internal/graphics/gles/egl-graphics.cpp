@@ -38,6 +38,11 @@ EglGraphics::~EglGraphics()
 {
 }
 
+void EglGraphics::SetGlesVersion( const int32_t glesVersion )
+{
+  mEglImplementation->SetGlesVersion( glesVersion );
+  mGLES->SetGlesVersion( glesVersion );
+}
 
 void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
 {

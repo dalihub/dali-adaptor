@@ -19,7 +19,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.14
+Version:    1.4.16
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -480,7 +480,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -525,7 +525,7 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -569,7 +569,7 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -613,7 +613,7 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -659,7 +659,7 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -712,7 +712,7 @@ make clean
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -758,7 +758,7 @@ make clean
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -803,7 +803,7 @@ make clean
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -848,7 +848,7 @@ make clean
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3
@@ -894,7 +894,7 @@ make clean
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 
-%configure --prefix=$PREFIX --with-jpeg-turbo --enable-gles=%{target_gles_version} \
+%configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
            --enable-tizen-major-version=%{tizen_version_major} \
 %if 0%{?tizen_version_major} >= 3

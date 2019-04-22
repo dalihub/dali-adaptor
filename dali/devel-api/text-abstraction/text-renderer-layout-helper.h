@@ -39,34 +39,27 @@ struct DALI_ADAPTOR_API CircularTextParameters
     radius{ 0.0 },
     invRadius{ 0.0 },
     beginAngle{ 0.0 },
-    isClockwise{ true }
+    isClockwise{ true },
+    synthesizeItalic{ false }
   {}
 
-  double centerX;     ///< The 'x' center of the circular path.
-  double centerY;     ///< The 'y' center of the circular path.
-  double radius;      ///< The radius in pixels.
-  double invRadius;   ///< 1.0 / radius.
-  double beginAngle;  ///< The angle in radians where the circular text begins.
-  bool isClockwise:1; ///< Whether the circular text layout is clockwise.
+  double centerX;          ///< The 'x' center of the circular path.
+  double centerY;          ///< The 'y' center of the circular path.
+  double radius;           ///< The radius in pixels.
+  double invRadius;        ///< 1.0 / radius.
+  double beginAngle;       ///< The angle in radians where the circular text begins.
+  bool isClockwise:1;      ///< Whether the circular text layout is clockwise.
+  bool synthesizeItalic:1; ///< Whether to synthesize italic.
 };
 
 /**
- * @brief Transforms a vertex to wrap a clockwise circular path.
+ * @brief Transforms a vertex to wrap a circular path.
  *
  * @param[in] parameters The parameters of the circular path.
  * @param[in,out] x The 'x' coordinate of the vertex.
  * @param[in,out] y The 'y' coordinate of the vertex.
  */
-DALI_ADAPTOR_API void TransformToArcClockwise( const CircularTextParameters& parameters, double& x, double& y );
-
-/**
- * @brief Transforms a vertex to wrap an anti clockwise circular path.
- *
- * @param[in] parameters The parameters of the circular path.
- * @param[in,out] x The 'x' coordinate of the vertex.
- * @param[in,out] y The 'y' coordinate of the vertex.
- */
-DALI_ADAPTOR_API void TransformToArcAntiClockwise( const CircularTextParameters& parameters, double& x, double& y );
+DALI_ADAPTOR_API void TransformToArc( const CircularTextParameters& parameters, double& x, double& y );
 
 } // namespace TextAbstraction
 

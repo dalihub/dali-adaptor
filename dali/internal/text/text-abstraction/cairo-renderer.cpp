@@ -154,9 +154,6 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
   // Copy the path to get a cairo_path_t pointer used to iterate through all its items.
   std::unique_ptr<cairo_path_t, void(*)(cairo_path_t*)> path( cairo_copy_path( circularCr ), cairo_path_destroy );
 
-  void ( *transformToArc )( const Dali::TextAbstraction::CircularTextParameters&, double&, double& );
-  transformToArc = parameters.isClockwise ? &Dali::TextAbstraction::TransformToArcClockwise : &Dali::TextAbstraction::TransformToArcAntiClockwise;
-
   // Iterates through all the path items and transform each vertex to follow the circle.
   // Transformed vertices are added to a new path in the 'cr' context (the one used to render the circular text)
   for( int i = 0; i < path->num_data; i += path->data[i].header.length )
@@ -175,7 +172,7 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
         first = false;
         double x = data[1].point.x;
         double y = data[1].point.y;
-        transformToArc( parameters, x, y );
+        Dali::TextAbstraction::TransformToArc( parameters, x, y );
         cairo_move_to( cr, x, y );
         break;
       }
@@ -183,7 +180,7 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
       {
         double x = data[1].point.x;
         double y = data[1].point.y;
-        transformToArc( parameters, x, y );
+        Dali::TextAbstraction::TransformToArc( parameters, x, y );
         cairo_line_to( cr, x, y );
         break;
       }
@@ -195,9 +192,9 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
         double y2 = data[2].point.y;
         double x3 = data[3].point.x;
         double y3 = data[3].point.y;
-        transformToArc( parameters, x1, y1 );
-        transformToArc( parameters, x2, y2 );
-        transformToArc( parameters, x3, y3 );
+        Dali::TextAbstraction::TransformToArc( parameters, x1, y1 );
+        Dali::TextAbstraction::TransformToArc( parameters, x2, y2 );
+        Dali::TextAbstraction::TransformToArc( parameters, x3, y3 );
         cairo_curve_to( cr, x1, y1, x2, y2, x3, y3 );
         break;
       }
@@ -261,10 +258,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
 
   FT_Library ftLibrary;
-  auto error = FT_Init_FreeType(&ftLibrary);
+  auto error = FT_Init_FreeType( &ftLibrary );
   if( error )
   {
     DALI_LOG_ERROR( "Error initializing FT library\n" );
+
+    // return a pixel buffer with all pixels set to transparent.
     return CreateVoidPixelBuffer( parameters );
   }
 
@@ -330,10 +329,12 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           case FontDescription::FACE_FONT:
           {
             // Create a FreeType font's face.
-            error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
+            auto error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
             if( error )
             {
-              DALI_LOG_ERROR( "Error in FT while creating new face\n" );
+              DALI_LOG_ERROR( "Error in FT while creating a new face\n" );
+
+              // return a pixel buffer with all pixels set to transparent.
               return CreateVoidPixelBuffer( parameters );
             }
 
@@ -541,10 +542,7 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
             radians = fmod( radians, TWO_PI );
             radians += ( radians < 0.f ) ? TWO_PI : 0.f;
 
-            void ( *transformToArc )( const CircularTextParameters&, double&, double& );
-            transformToArc = circularTextParameters.isClockwise ? &TransformToArcClockwise : &TransformToArcAntiClockwise;
-
-            transformToArc( circularTextParameters, centerX, centerY );
+            TransformToArc( circularTextParameters, centerX, centerY );
 
             uint8_t* pixelsOut = nullptr;
             unsigned int widthOut = data.width;
@@ -788,14 +786,16 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
                              static_cast<double>( color.a ) );
 
       // Create the Cairo's font from the FreeType font.
-      std::unique_ptr<cairo_font_face_t, void(*)(cairo_font_face_t*)> fontFacePtr( cairo_ft_font_face_create_for_ft_face( run.fontFace, 0 ), cairo_font_face_destroy );
+      int options = 0;
+      options = CAIRO_HINT_STYLE_SLIGHT;
+      std::unique_ptr<cairo_font_face_t, void(*)(cairo_font_face_t*)> fontFacePtr( cairo_ft_font_face_create_for_ft_face( run.fontFace, options ), cairo_font_face_destroy );
       cairo_font_face_t* fontFace = fontFacePtr.get();
 
       static const cairo_user_data_key_t key = { 0 };
       cairo_status_t status = cairo_font_face_set_user_data( fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>( FT_Done_Face ) );
       if( status )
       {
-        cairo_font_face_destroy(fontFace);
+        cairo_font_face_destroy( fontFace );
       }
 
       unsigned int ftSynthesizeFlag = 0u;
@@ -824,12 +824,21 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
       // Render the glyphs.
       if( isCircularText )
       {
-        // Create a new path where the text is laid out on a horizontal straight line.
-        cairo_new_path( circularCr );
-        cairo_move_to( circularCr, 0.0, 0.0 );
+        circularTextParameters.synthesizeItalic = synthesizeItalic;
 
-        cairo_glyph_path( circularCr, ( cairoGlyphsBuffer + run.glyphIndex ), run.numberOfGlyphs );
-        WrapToCircularPath( cr, circularCr, circularTextParameters );
+        const unsigned int glyphJump = circularTextParameters.synthesizeItalic ? 1u : run.numberOfGlyphs;
+
+        for( unsigned int index = 0u; index < run.numberOfGlyphs; index += glyphJump )
+        {
+          // Clears the current path where the text is laid out on a horizontal straight line.
+          cairo_new_path( circularCr );
+          cairo_move_to( circularCr, 0.0, 0.0 );
+
+          cairo_glyph_path( circularCr, ( cairoGlyphsBuffer + run.glyphIndex + index ), glyphJump );
+
+          WrapToCircularPath( cr, circularCr, circularTextParameters );
+          cairo_fill( cr );
+        }
       }
       else
       {
@@ -864,8 +873,9 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           cairo_matrix_init_identity( &matrix );
           cairo_set_matrix( cr, &matrix );
         }
+
+        cairo_fill( cr );
       }
-      cairo_fill( cr );
     }
   }
 

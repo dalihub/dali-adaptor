@@ -47,7 +47,8 @@ BitmapFont::BitmapFont()
   ascender{ 0.f },
   descender{ 0.f },
   underlinePosition{ 0.f },
-  underlineThickness{ 1.f }
+  underlineThickness{ 1.f },
+  isColorFont{ false }
 {}
 
 BitmapFont::~BitmapFont()

@@ -21,38 +21,50 @@
 // EXTERNAL INCLUDES
 #include <cmath>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/font-client.h>
+
 namespace Dali
 {
 
 namespace TextAbstraction
 {
 
-void TransformToArcClockwise( const CircularTextParameters& parameters, double& x, double& y )
+void TransformToArc( const CircularTextParameters& parameters, double& x, double& y )
 {
+  double yP = y;
+
+  // Does the italic synthesization for circular layout.
+  if( parameters.synthesizeItalic )
+  {
+    const double xP = -yP * sin( TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE );
+    yP *= cos( TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE );
+
+    x += xP;
+  }
+
+  double angle = 0.0;
   double radius = parameters.radius;
-  double angle = parameters.beginAngle;
 
-  angle -= parameters.invRadius * x;
+  // Transform to a circular layout.
+  if( parameters.isClockwise )
+  {
+    angle = parameters.beginAngle - parameters.invRadius * x;
+    radius -= yP;
 
-  radius -= y;
-  x =  radius * cos( angle );
-  y = -radius * sin( angle );
+    x = radius * cos( angle );
+    y = -radius * sin( angle );
+  }
+  else
+  {
+    angle = parameters.beginAngle + parameters.invRadius * x;
+    radius += yP;
 
-  x += parameters.centerX;
-  y += parameters.centerY;
-}
+    x = radius * cos( angle );
+    y = radius * sin( -angle );
+  }
 
-void TransformToArcAntiClockwise( const CircularTextParameters& parameters, double& x, double& y )
-{
-  double radius = parameters.radius;
-  double angle = parameters.beginAngle;
-
-  angle += parameters.invRadius * x;
-
-  radius += y;
-  x = radius * cos( angle );
-  y = radius * sin( -angle );
-
+  // Transforms to the text area coordinate system.
   x += parameters.centerX;
   y += parameters.centerY;
 }

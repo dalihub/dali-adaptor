@@ -69,11 +69,6 @@ void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
   GetImplementation( *this ).SetSize( width, height );
 }
 
-bool VectorAnimationRenderer::StartRender()
-{
-  return GetImplementation( *this ).StartRender();
-}
-
 void VectorAnimationRenderer::StopRender()
 {
   GetImplementation( *this ).StopRender();
@@ -92,6 +87,11 @@ uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
 float VectorAnimationRenderer::GetFrameRate() const
 {
   return GetImplementation( *this ).GetFrameRate();
+}
+
+void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+{
+  GetImplementation( *this ).GetDefaultSize( width, height );
 }
 
 } // namespace Dali

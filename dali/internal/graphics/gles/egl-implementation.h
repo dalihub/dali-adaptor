@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,8 +139,9 @@ public:
    * Choose config of egl
    * @param isWindowType whether the config for window or pixmap
    * @param colorDepth Bit per pixel value (ex. 32 or 24)
+   * @return true if the eglChooseConfig is succeed.
   */
-  void ChooseConfig( bool isWindowType, ColorDepth depth );
+  bool ChooseConfig( bool isWindowType, ColorDepth depth );
 
   /**
     * Create an OpenGL surface using a window
@@ -176,6 +177,11 @@ public:
   bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSurface& eglSurface );
 
   /**
+   * Sets gles version
+   */
+  void SetGlesVersion( const int32_t glesVersion );
+
+  /**
    * returns the display with which this object was initialized
    * @return the EGL Display.
    */
@@ -186,6 +192,12 @@ public:
    * @return the EGL context.
    */
   EGLContext GetContext() const;
+
+  /**
+   * Returns the gles version
+   * @return the gles version
+   */
+  int32_t GetGlesVersion() const;
 
 private:
 
@@ -205,11 +217,13 @@ private:
   EglWindowContextContainer mEglWindowContexts;                ///< The EGL context for the window
 
   EGLSurface           mCurrentEglSurface;
+  EGLContext           mCurrentEglContext;
 
   typedef std::vector<EGLSurface> EglWindowSurfaceContainer;
   EglWindowSurfaceContainer mEglWindowSurfaces;                ///< The EGL surface for the window
 
-  int                  mMultiSamplingLevel;
+  int32_t              mMultiSamplingLevel;
+  int32_t              mGlesVersion;
 
   ColorDepth           mColorDepth;
 
