@@ -26,10 +26,8 @@
 #include "font-client-impl.h"
 
 // EXTERNAL INCLUDES
-#ifndef ANDROID
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ft.h>
-#endif
 
 namespace
 {
@@ -52,7 +50,7 @@ namespace Internal
 const char* const  DEFAULT_LANGUAGE = "en";
 const unsigned int DEFAULT_LANGUAGE_LENGTH = 2u;
 const float        FROM_266 = 1.0f / 64.0f;
-#ifndef ANDROID
+
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
 {
   HB_SCRIPT_COMMON,
@@ -120,7 +118,7 @@ const hb_script_t SCRIPT_TO_HARFBUZZ[] =
   HB_SCRIPT_UNKNOWN, // SYMBOLS5
   HB_SCRIPT_UNKNOWN
 };
-#endif
+
 struct Shaping::Plugin
 {
   Plugin()
@@ -163,7 +161,6 @@ struct Shaping::Plugin
         mCharacterMap.Reserve( numberOfGlyphs );
         mOffset.Reserve( 2u * numberOfGlyphs );
 
-#ifndef ANDROID
         // Retrieve a FreeType font's face.
         FT_Face face = fontClientImpl.GetFreetypeFace( fontId );
         if( nullptr == face )
@@ -275,7 +272,6 @@ struct Shaping::Plugin
         /* Cleanup */
         hb_buffer_destroy( harfBuzzBuffer );
         hb_font_destroy( harfBuzzFont );
-#endif
         break;
       }
       case FontDescription::BITMAP_FONT:

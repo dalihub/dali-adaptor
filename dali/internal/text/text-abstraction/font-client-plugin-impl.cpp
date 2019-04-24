@@ -148,7 +148,10 @@ void DestroyCharacterSets( CharacterSetList& characterSets )
 {
   for( auto& item : characterSets )
   {
-    FcCharSetDestroy( item );
+    if( item )
+    {
+      FcCharSetDestroy( item );
+    }
   }
 }
 
