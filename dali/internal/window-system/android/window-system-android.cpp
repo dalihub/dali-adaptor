@@ -46,11 +46,6 @@ void Shutdown()
 void GetScreenSize( int& width, int& height )
 {
   struct android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-  if( androidApp == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android application context" );
-  }
-
   if( androidApp->window == nullptr )
   {
     DALI_ASSERT_ALWAYS( 0 && "Failed to get Android window" );

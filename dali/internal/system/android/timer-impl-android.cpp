@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/framework.h>
 #include <dali/public-api/dali-adaptor-common.h>
-
-// TODO: implement POSIX timer thread
 
 namespace Dali
 {
@@ -36,13 +35,15 @@ namespace Adaptor
 struct Timer::Impl
 {
   Impl( unsigned int milliSec )
-  : mId(0),
-    mInterval(milliSec)
+  : mInterval( milliSec ),
+    mRunning( false ),
+    mId( 0 )
   {
   }
 
-  int mId;
   unsigned int mInterval;
+  bool mRunning;
+  unsigned int mId;
 };
 
 TimerPtr Timer::New( unsigned int milliSec )
@@ -52,14 +53,25 @@ TimerPtr Timer::New( unsigned int milliSec )
 }
 
 Timer::Timer( unsigned int milliSec )
-: mImpl(new Impl(milliSec))
+: mImpl( new Impl( milliSec ) )
 {
 }
 
 Timer::~Timer()
 {
-  ResetTimerData();
+  Stop();
   delete mImpl;
+}
+
+bool TimerCallback( void *data )
+{
+  Timer* timer = static_cast<Timer*>( data );
+  if( timer->IsRunning() )
+  {
+    return timer->Tick();
+  }
+
+  return false;
 }
 
 void Timer::Start()
@@ -67,18 +79,24 @@ void Timer::Start()
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
 
-  if( mImpl->mId != 0 )
+  if( mImpl->mRunning )
   {
     Stop();
   }
 
-  mImpl->mId = 0;
+  mImpl->mId = Framework::GetApplicationFramework()->AddIdle( mImpl->mInterval, this, TimerCallback );
+  mImpl->mRunning = true;
 }
 
 void Timer::Stop()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+
+  if( mImpl->mId != 0 )
+  {
+    Framework::GetApplicationFramework()->RemoveIdle( mImpl->mId );
+  }
 
   ResetTimerData();
 }
@@ -88,8 +106,10 @@ void Timer::Pause()
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
 
-  if( mImpl->mId != 0 )
+  if( mImpl->mRunning )
   {
+    Framework::GetApplicationFramework()->RemoveIdle( mImpl->mId );
+    mImpl->mId = 0;
   }
 }
 
@@ -98,8 +118,9 @@ void Timer::Resume()
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
 
-  if( mImpl->mId != 0 )
+  if( mImpl->mRunning && mImpl->mId == 0 )
   {
+    mImpl->mId = Framework::GetApplicationFramework()->AddIdle( mImpl->mInterval, this, TimerCallback );
   }
 }
 
@@ -159,15 +180,14 @@ Dali::Timer::TimerSignalType& Timer::TickSignal()
 
 void Timer::ResetTimerData()
 {
-  if( mImpl->mId != 0 )
-  {
-    mImpl->mId = 0;
-  }
+  mImpl->mRunning = false;
+  mImpl->mInterval = 0;
+  mImpl->mId = 0;
 }
 
 bool Timer::IsRunning() const
 {
-  return mImpl->mId != 0;
+  return mImpl->mRunning;
 }
 
 } // namespace Adaptor
@@ -175,5 +195,3 @@ bool Timer::IsRunning() const
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

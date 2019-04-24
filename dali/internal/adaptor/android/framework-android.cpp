@@ -110,12 +110,14 @@ struct Framework::Impl
   {
     int timestamp;
     int timeout;
+    int id;
     void* data;
     bool ( *callback )( void *data );
 
-    IdleCallback( int timeout, void* data, bool ( *callback )( void *data ) )
+    IdleCallback( int timeout, int id, void* data, bool ( *callback )( void *data ) )
     : timestamp( GetCurrentMilliSeconds() + timeout ),
       timeout( timeout ),
+      id ( id ),
       data( data ),
       callback( callback )
     {
@@ -141,7 +143,8 @@ struct Framework::Impl
     mRegion( "NOT_SUPPORTED" ),
     mDestroyRequested( false ),
     mIdleReadPipe( -1 ),
-    mIdleWritePipe( -1 )
+    mIdleWritePipe( -1 ),
+    mIdleId( 0 )
 
   {
     applicationContext.framework = static_cast<Framework*>( data );
@@ -187,26 +190,58 @@ struct Framework::Impl
 
     unsigned int ts = GetCurrentMilliSeconds();
 
-    if ( !mIdleCallbacks.empty() )
+    while ( !mIdleCallbacks.empty() )
     {
       IdleCallback callback = mIdleCallbacks.top();
-      if( callback.timestamp <= ts )
+      if( callback.timestamp > ts )
+        break;
+
+      mIdleCallbacks.pop();
+
+      auto i = mRemovedIdleCallbacks.begin();
+      auto last = mRemovedIdleCallbacks.end();
+      while( i != last )
       {
-        mIdleCallbacks.pop();
-        if ( callback() ) // keep the callback
+        if ( *i == callback.id )
         {
-          AddIdle( callback.timeout, callback.data, callback.callback );
+          mRemovedIdleCallbacks.erase( i );
+          break;
         }
       }
+
+      if ( i == last && callback() ) // keep the callback
+      {
+        AddIdle( callback.timeout, callback.data, callback.callback );
+      }
+    }
+
+    if ( mIdleCallbacks.empty() )
+    {
+      mRemovedIdleCallbacks.clear();
     }
   }
 
-  void AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
   {
     int8_t msg = 1;
     if( write( mIdleWritePipe, &msg, sizeof( msg ) ) == sizeof( msg ) )
     {
-      mIdleCallbacks.push( IdleCallback( timeout, data, callback ) );
+      ++mIdleId;
+      if( mIdleId == 0)
+      {
+        ++mIdleId;
+      }
+      mIdleCallbacks.push( IdleCallback( timeout, mIdleId, data, callback ) );
+    }
+
+    return mIdleId;
+  }
+
+  void RemoveIdle( unsigned int id )
+  {
+    if( id != 0 )
+    {
+      mRemovedIdleCallbacks.push_back( id );
     }
   }
 
@@ -237,7 +272,9 @@ struct Framework::Impl
 
   int mIdleReadPipe;
   int mIdleWritePipe;
+  unsigned int mIdleId;
   std::priority_queue<IdleCallback> mIdleCallbacks;
+  std::list<int> mRemovedIdleCallbacks;
 
   // Static methods
 
@@ -506,11 +543,20 @@ void Framework::Run()
   }
 }
 
-void Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+unsigned int Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
 {
   if( mImpl )
   {
-    mImpl->AddIdle( timeout, data, callback );
+    return mImpl->AddIdle( timeout, data, callback );
+  }
+
+  return -1;
+}
+void Framework::RemoveIdle( unsigned int id )
+{
+  if( mImpl )
+  {
+    mImpl->RemoveIdle( id );
   }
 }
 
@@ -569,11 +615,19 @@ void Framework::SetApplicationContext(void* context)
 
 void* Framework::GetApplicationContext()
 {
+  if( applicationContext.androidApplication == nullptr )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android context" );
+  }
   return applicationContext.androidApplication;
 }
 
 Framework* Framework::GetApplicationFramework()
 {
+  if( applicationContext.framework == nullptr )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android framework" );
+  }
   return applicationContext.framework;
 }
 

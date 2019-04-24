@@ -237,7 +237,8 @@ public:
    */
   std::string GetRegion() const;
 
-  void AddIdle( int timeout, void* data, bool ( *callback )( void *data ) );
+  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) );
+  void RemoveIdle( unsigned int id );
 
 private:
 

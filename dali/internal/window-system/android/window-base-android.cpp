@@ -61,11 +61,6 @@ void WindowBaseAndroid::Initialize( PositionSize positionSize, Any surface, bool
   else
   {
     android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-    if( androidApp == nullptr )
-    {
-      DALI_ASSERT_ALWAYS( 0 && "Failed to get Android application context" );
-    }
-
     mWindow = androidApp->window;
     if( mWindow == nullptr )
     {
@@ -315,11 +310,6 @@ bool WindowBaseAndroid::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dal
 void WindowBaseAndroid::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
   android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-  if( androidApp == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android application context" );
-  }
-
   AConfiguration* config = AConfiguration_new();
 
   AConfiguration_fromAssetManager( config, androidApp->activity->assetManager );

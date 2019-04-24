@@ -45,9 +45,10 @@ struct CallbackData
    * Constructor
    */
   CallbackData( CallbackBase* callback, bool hasReturnValue )
-  :  mCallback( callback ),
-     mRemoveFromContainerFunction( NULL ),
-     mHasReturnValue( hasReturnValue )
+  : mIdleId( 0 ),
+    mCallback( callback ),
+    mRemoveFromContainerFunction( NULL ),
+    mHasReturnValue( hasReturnValue )
   {
   }
   /**
@@ -59,6 +60,7 @@ struct CallbackData
     delete mRemoveFromContainerFunction;
   }
 
+  unsigned int                    mIdleId;
   CallbackBase*                   mCallback;       ///< call back
   CallbackBase*                   mRemoveFromContainerFunction; ///< Called to remove the callbackdata from the callback container
   bool                            mHasReturnValue; ///< true if the callback function has a return value.
@@ -142,13 +144,11 @@ bool AndroidCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasRe
   }
 
   CallbackData* callbackData = new CallbackData( callback, hasReturnValue );
-  callbackData->mRemoveFromContainerFunction =  MakeCallback( this, &AndroidCallbackManager::RemoveCallbackFromContainer );
-
-  Framework* framework = Framework::GetApplicationFramework();
-  framework->AddIdle( 0, callbackData, IdleCallback );
+  callbackData->mRemoveFromContainerFunction = MakeCallback( this, &AndroidCallbackManager::RemoveCallbackFromContainer );
+  callbackData->mIdleId = Framework::GetApplicationFramework()->AddIdle( 0, callbackData, IdleCallback );
 
   // add the call back to the container
-  mCallbackContainer.push_front(callbackData);
+  mCallbackContainer.push_front( callbackData );
   return true;
 }
 
@@ -165,6 +165,7 @@ void AndroidCallbackManager::RemoveIdleCallback( CallbackBase* callback )
     {
       // remove callback data from the container.
       CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
+      Framework::GetApplicationFramework()->RemoveIdle( data->mIdleId );
       return;
     }
   }
@@ -180,6 +181,7 @@ bool AndroidCallbackManager::AddIdleEntererCallback( CallbackBase* callback )
   CallbackData* callbackData = new CallbackData( callback, true );
 
   callbackData->mRemoveFromContainerFunction = MakeCallback( this, &AndroidCallbackManager::RemoveCallbackFromContainer );
+  callbackData->mIdleId = Framework::GetApplicationFramework()->AddIdle( 0, callbackData, IdleCallback );
 
   // add the call back to the container
   mCallbackContainer.push_front( callbackData );
@@ -199,22 +201,24 @@ void AndroidCallbackManager::RemoveIdleEntererCallback( CallbackBase* callback )
     {
       // remove callback data from the container.
       CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
+      Framework::GetApplicationFramework()->RemoveIdle( data->mIdleId );
       return;
     }
   }
 }
 
-void AndroidCallbackManager::RemoveCallbackFromContainer(CallbackData *callbackData)
+void AndroidCallbackManager::RemoveCallbackFromContainer( CallbackData *callbackData )
 {
-  mCallbackContainer.remove(callbackData);
+  mCallbackContainer.remove( callbackData );
 }
 
 void AndroidCallbackManager::RemoveAllCallbacks()
 {
   // always called from main thread
-  for( CallbackList::iterator  iter =  mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter)
+  for( CallbackList::iterator  iter =  mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter )
   {
     CallbackData* data = (*iter);
+    Framework::GetApplicationFramework()->RemoveIdle( data->mIdleId );
     delete data;
   }
   mCallbackContainer.clear();
