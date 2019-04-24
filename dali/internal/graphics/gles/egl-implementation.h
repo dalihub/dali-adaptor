@@ -199,6 +199,12 @@ public:
    */
   int32_t GetGlesVersion() const;
 
+  /**
+   * Returns whether the surfaceless context is supported
+   * @return true if the surfaceless context is supported
+   */
+  bool IsSurfacelessContextSupported() const;
+
 private:
 
   Vector<EGLint>       mContextAttribs;
@@ -232,6 +238,7 @@ private:
   bool                 mIsWindow;
   bool                 mDepthBufferRequired;
   bool                 mStencilBufferRequired;
+  bool                 mIsSurfacelessContextSupported;
 };
 
 } // namespace Adaptor
