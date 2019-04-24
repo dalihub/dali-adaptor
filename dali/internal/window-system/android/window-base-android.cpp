@@ -314,15 +314,26 @@ bool WindowBaseAndroid::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dal
 
 void WindowBaseAndroid::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  // calculate DPI
-  float xres, yres;
+  android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
+  if( androidApp == nullptr )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android application context" );
+  }
 
-  // 1 inch = 25.4 millimeters
-  xres = 0;
-  yres = 0;
+  AConfiguration* config = AConfiguration_new();
 
-  dpiHorizontal = int(xres + 0.5f);  // rounding
-  dpiVertical   = int(yres + 0.5f);
+  AConfiguration_fromAssetManager( config, androidApp->activity->assetManager );
+  int32_t density = AConfiguration_getDensity( config );
+  if( density == ACONFIGURATION_DENSITY_ANY || density == ACONFIGURATION_DENSITY_ANY )
+  {
+    DALI_LOG_ERROR( "Failed to get Android DPI, use 0 instead." );
+    density = 0;
+  }
+
+  AConfiguration_delete( config );
+
+  dpiHorizontal = density;
+  dpiVertical   = density;
 }
 
 int WindowBaseAndroid::GetScreenRotationAngle()
