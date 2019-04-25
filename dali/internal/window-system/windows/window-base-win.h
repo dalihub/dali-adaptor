@@ -167,21 +167,6 @@ public:
   virtual void MoveResize( PositionSize positionSize ) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::ShowIndicator()
-   */
-  virtual void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetIndicatorProperties()
-   */
-  virtual void SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IndicatorTypeChanged()
-   */
-  virtual void IndicatorTypeChanged( IndicatorInterface::Type type ) override;
-
-  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
   virtual void SetClass( const std::string& name, const std::string& className ) override;

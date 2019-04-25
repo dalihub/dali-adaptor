@@ -34,11 +34,6 @@ std::unique_ptr< WindowBase > WindowFactoryWin::CreateWindowBase( Dali::Position
   return Utils::MakeUnique< WindowBaseWin >( positionSize, surface, isTransparent );
 }
 
-std::unique_ptr< IndicatorInterface > WindowFactoryWin::CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer )
-{
-  return std::unique_ptr< IndicatorInterface >( nullptr );
-}
-
 // this should be created from Window impl
 std::unique_ptr< WindowFactory > GetWindowFactory()
 {
