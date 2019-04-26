@@ -72,6 +72,12 @@ public:
   void SetGlesVersion( const int32_t glesVersion );
 
   /**
+   * Set whether the surfaceless context is supported
+   * @param[in] isSupported Whether the surfaceless context is supported
+   */
+  void SetIsSurfacelessContextSupported( const bool isSupported );
+
+  /**
    * Gets the GL abstraction
    * @return The GL abstraction
    */

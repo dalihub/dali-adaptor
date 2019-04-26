@@ -431,18 +431,29 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   EglInterface* eglInterface = &eglGraphics->GetEglInterface();
 
   Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( *eglInterface );
+
   // Try to use OpenGL es 3.0
   // ChooseConfig returns false here when the device only support gles 2.0.
   // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
-  if( eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ) )
+  if( !eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ) )
+  {
+    // Retry to use OpenGL es 2.0
+    eglGraphics->SetGlesVersion( 20 );
+    eglImpl.ChooseConfig( true, COLOR_DEPTH_32 );
+  }
+
+  // Check whether surfaceless context is supported
+  bool isSurfacelessContextSupported = eglImpl.IsSurfacelessContextSupported();
+  eglGraphics->SetIsSurfacelessContextSupported( isSurfacelessContextSupported );
+
+  if ( isSurfacelessContextSupported )
   {
     // Create a surfaceless OpenGL context for shared resources
     eglImpl.CreateContext();
     eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
   }
-  else // Retry to use OpenGL es 2.0
+  else
   {
-    eglGraphics->SetGlesVersion( 20 );
     currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
     if( currentSurface )
     {
@@ -583,7 +594,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    if( eglImpl.GetGlesVersion() >= 30 )
+    if( eglImpl.IsSurfacelessContextSupported() )
     {
       // Make the shared surfaceless context as current before rendering
       eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );

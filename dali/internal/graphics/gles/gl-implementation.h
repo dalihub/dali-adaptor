@@ -48,7 +48,8 @@ class GlImplementation : public Dali::Integration::GlAbstraction
 
 public:
   GlImplementation()
-    : mGlesVersion( 30 )
+    : mGlesVersion( 30 ),
+      mIsSurfacelessContextSupported( false )
   {
     mImpl.reset( new Gles3Implementation() );
   }
@@ -81,9 +82,14 @@ public:
     }
   }
 
+  void SetIsSurfacelessContextSupported( const bool isSupported )
+  {
+    mIsSurfacelessContextSupported = isSupported;
+  }
+
   bool IsSurfacelessContextSupported() const
   {
-    return ( mGlesVersion >= 30 );
+    return mIsSurfacelessContextSupported;
   }
 
   bool TextureRequiresConverting( const GLenum imageGlFormat, const GLenum textureGlFormat, const bool isSubImage ) const
@@ -1333,6 +1339,7 @@ public:
 
 private:
   int32_t mGlesVersion;
+  bool mIsSurfacelessContextSupported;
   std::unique_ptr<GlesAbstraction> mImpl;
 };
 

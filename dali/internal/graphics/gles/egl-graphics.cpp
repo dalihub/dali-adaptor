@@ -44,6 +44,11 @@ void EglGraphics::SetGlesVersion( const int32_t glesVersion )
   mGLES->SetGlesVersion( glesVersion );
 }
 
+void EglGraphics::SetIsSurfacelessContextSupported( const bool isSupported )
+{
+  mGLES->SetIsSurfacelessContextSupported( isSupported );
+}
+
 void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
 {
   if( environmentOptions->GetGlesCallTime() > 0 )
