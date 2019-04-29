@@ -20,6 +20,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
+#include <sstream>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-vector.h>
 
@@ -31,6 +32,11 @@
 // EGL constants use C style casts
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+
+namespace
+{
+  const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
+}
 
 namespace Dali
 {
@@ -71,7 +77,8 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mIsOwnSurface( true ),
   mIsWindow( true ),
   mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
-  mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE )
+  mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
+  mIsSurfacelessContextSupported( false )
 {
 }
 
@@ -107,6 +114,19 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     mIsOwnSurface = isOwnSurface;
   }
 
+  // Query EGL extensions to check whether surfaceless context is supported
+  const char* const extensionStr = eglQueryString( mEglDisplay, EGL_EXTENSIONS );
+  std::istringstream stream(extensionStr);
+  std::string currentExtension;
+  while ( std::getline( stream, currentExtension, ' ' ) )
+  {
+    if ( currentExtension == EGL_KHR_SURFACELESS_CONTEXT )
+    {
+      mIsSurfacelessContextSupported = true;
+      break;
+    }
+  }
+
   // We want to display this information all the time, so use the LogMessage directly
   Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
       "            Vendor:        %s\n"
@@ -116,7 +136,7 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       eglQueryString( mEglDisplay, EGL_VENDOR ),
       eglQueryString( mEglDisplay, EGL_VERSION ),
       eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
-      eglQueryString( mEglDisplay, EGL_EXTENSIONS ));
+      extensionStr);
 
   return mGlesInitialized;
 }
@@ -536,6 +556,11 @@ EGLContext EglImplementation::GetContext() const
 int32_t EglImplementation::GetGlesVersion() const
 {
   return mGlesVersion;
+}
+
+bool EglImplementation::IsSurfacelessContextSupported() const
+{
+  return mIsSurfacelessContextSupported;
 }
 
 } // namespace Adaptor

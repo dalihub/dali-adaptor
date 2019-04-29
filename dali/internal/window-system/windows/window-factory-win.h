@@ -31,8 +31,6 @@ class WindowFactoryWin : public WindowFactory
 {
 public:
   std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) override;
-
-  std::unique_ptr< IndicatorInterface > CreateIndicator( Adaptor* adaptor, Dali::Window::WindowOrientation orientation, IndicatorInterface::Observer* observer ) override;
 };
 
 } // namespace Adaptor

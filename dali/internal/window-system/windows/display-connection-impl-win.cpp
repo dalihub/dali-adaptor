@@ -85,9 +85,9 @@ bool DisplayConnectionWin::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionWin::SetSurfaceType( RenderSurface::Type type )
+void DisplayConnectionWin::SetSurfaceType( Dali::Integration::RenderSurface::Type type )
 {
-  if( type == RenderSurface::WINDOW_RENDER_SURFACE )
+  if( type == Dali::Integration::RenderSurface::WINDOW_RENDER_SURFACE )
   {
      mDisplay = GetDC( GetForegroundWindow() );
   }

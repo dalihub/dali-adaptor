@@ -859,10 +859,25 @@ void Adaptor::OnWindowHidden()
 {
   if ( RUNNING == mState )
   {
-    Pause();
+    bool allWindowsHidden = true;
 
-    // Adaptor cannot be resumed until the window is shown
-    mState = PAUSED_WHILE_HIDDEN;
+    for( WindowPtr window : mWindows )
+    {
+      if ( window->IsVisible() )
+      {
+        allWindowsHidden = false;
+        break;
+      }
+    }
+
+    // Only pause the adaptor when all the windows are hidden
+    if ( allWindowsHidden )
+    {
+      Pause();
+
+      // Adaptor cannot be resumed until any window is shown
+      mState = PAUSED_WHILE_HIDDEN;
+    }
   }
   else
   {
