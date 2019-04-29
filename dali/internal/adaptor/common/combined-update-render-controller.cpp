@@ -203,7 +203,8 @@ void CombinedUpdateRenderController::Resume()
 {
   LOG_EVENT_TRACE;
 
-  if( !mRunning && IsUpdateRenderThreadPaused() )
+  // Disable if statement to ensure rendering here
+//  if( !mRunning && IsUpdateRenderThreadPaused() )
   {
     LOG_EVENT( "Resuming" );
 
@@ -211,11 +212,11 @@ void CombinedUpdateRenderController::Resume()
 
     AddPerformanceMarker( PerformanceInterface::RESUME );
 
+    DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume: [%d, %d, %d]\n", mRunning, mUpdateRenderRunCount, mUpdateRenderThreadCanSleep );
+
     mRunning = TRUE;
     mForceClear = TRUE;
   }
-
-  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
 }
 
 void CombinedUpdateRenderController::Stop()
