@@ -397,7 +397,7 @@ void Window::Hide()
 
 bool Window::IsVisible() const
 {
-  return mVisible;
+  return mVisible && !mIconified;
 }
 
 unsigned int Window::GetSupportedAuxiliaryHintCount() const
