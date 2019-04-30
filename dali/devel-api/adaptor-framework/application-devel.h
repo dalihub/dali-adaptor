@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,37 +45,6 @@ namespace DevelApplication
  * @note Ownership of the callback is passed onto this class.
  */
 DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackBase* callback );
-
-/**
- * @brief Create and Add a child window to the application instance
- * @param[in] application A handle to the Application
- * @param[in] childPosSize The position and size of the child window to be created
- * @param[in] childWindowName The title of the child window
- * @param[in] childWindowClassName The class name of the child window
- * @param[in] childWindowMode The mode of the newly created child window
- * @return @c a window handle if added successfully, @c null otherwise
- *
- * @note Function must be called from main event thread only
- */
-DALI_ADAPTOR_API Dali::Window CreateWindow( Application application, PositionSize childPosSize, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode );
-
-/**
- * @brief Removes a previously created Window instance from the Adaptor internal list
- * @note Function must be called from the main event thread only.
- * @param[in] application A handle to the Application
- * @param[in] childWindow The created Window instance
- * @return true if removed successfully, false otherwise
- */
-DALI_ADAPTOR_API bool DestroyWindow( Application application, Dali::Window* childWindow );
-
-/**
- * @brief Removes a previously created Window instance from the Adaptor internal list
- * @note Function must be called from the main event thread only.
- * @param[in] application A handle to the Application
- * @param[in] childWindowName The title of the window
- * @return true if removed successfully, false otherwise
- */
-DALI_ADAPTOR_API bool DestroyWindow( Application application, const std::string& childWindowName );
 
 /**
 * @brief Gets the absolute path to the application's data directory which is used to store private data of the application.

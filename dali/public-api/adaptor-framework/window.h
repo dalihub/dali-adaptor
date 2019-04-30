@@ -171,6 +171,7 @@ public:
    * @param[in] name The Window title
    * @param[in] isTransparent Whether Window is transparent
    * @return A new window
+   * @note This creates an extra window in addition to the default main window
    */
   static Window New(PositionSize windowPosition, const std::string& name, bool isTransparent = false);
 
@@ -181,6 +182,7 @@ public:
    * @param[in] name The Window title
    * @param[in] className The Window class name
    * @param[in] isTransparent Whether Window is transparent
+   * @note This creates an extra window in addition to the default main window
    * @return A new Window
    */
   static Window New(PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);

@@ -167,7 +167,9 @@ void Application::CreateWindow()
   }
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
-  mMainWindow = Dali::Window::New( mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT );
+
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New( mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT );
+  mMainWindow = Dali::Window( window );
 
   // Quit the application when the window is closed
   GetImplementation( mMainWindow ).DeleteRequestSignal().Connect( mSlotDelegate, &Application::Quit );
@@ -381,7 +383,15 @@ Dali::Window Application::GetWindow()
 {
   // Changed to return a different window handle after ReplaceWindow is called
   // just for backward compatibility to make the test case pass
-  return mMainWindowReplaced ? Dali::Window::New( PositionSize(), "ReplacedWindow" ) : mMainWindow;
+  if ( mMainWindowReplaced )
+  {
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New( PositionSize(), "ReplacedWindow", "", false );
+    return Dali::Window( window );
+  }
+  else
+  {
+    return mMainWindow;
+  }
 }
 
 // Stereoscopy
