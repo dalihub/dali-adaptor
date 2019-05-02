@@ -297,18 +297,6 @@ void WindowBaseWin::MoveResize( PositionSize positionSize )
 {
 }
 
-void WindowBaseWin::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode, Dali::Window::IndicatorBgOpacity opacityMode )
-{
-}
-
-void WindowBaseWin::SetIndicatorProperties( bool isShow, Dali::Window::WindowOrientation lastOrientation )
-{
-}
-
-void WindowBaseWin::IndicatorTypeChanged( IndicatorInterface::Type type )
-{
-}
-
 void WindowBaseWin::SetClass( const std::string& name, const std::string& className )
 {
 }
