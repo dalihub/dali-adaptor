@@ -849,7 +849,6 @@ Dali::InputMethodContext::KeyboardType InputMethodContextEcoreWl::GetKeyboardTyp
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetKeyboardType\n" );
 
-#ifdef OVER_TIZEN_VERSION_4
   if( mIMFContext )
   {
     int value;
@@ -869,7 +868,7 @@ Dali::InputMethodContext::KeyboardType InputMethodContextEcoreWl::GetKeyboardTyp
       }
     }
   }
-#endif // OVER_TIZEN_VERSION_4
+
   return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
 }
 

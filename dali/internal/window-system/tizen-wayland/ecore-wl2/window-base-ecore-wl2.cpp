@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,7 +180,6 @@ void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcl
       deviceSubclass = Device::Subclass::TRACKBALL;
       break;
     }
-#ifdef OVER_TIZEN_VERSION_4
     case ECORE_DEVICE_SUBCLASS_REMOCON:
     {
       deviceSubclass = Device::Subclass::REMOCON;
@@ -191,7 +190,6 @@ void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcl
       deviceSubclass = Device::Subclass::VIRTUAL_KEYBOARD;
       break;
     }
-#endif
     default:
     {
       deviceSubclass = Device::Subclass::NONE;

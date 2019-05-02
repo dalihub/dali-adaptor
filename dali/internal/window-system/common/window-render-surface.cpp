@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -331,7 +331,6 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
 
   if( resizingSurface )
   {
-#ifdef OVER_TIZEN_VERSION_4
     // Window rotate or screen rotate
     if( !mRotationFinished || !mScreenRotationFinished )
     {
@@ -351,7 +350,6 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
     {
       mWindowBase->SetEglWindowTransform( mRotationAngle );
     }
-#endif
 
     // Resize case
     if( !mResizeFinished )
