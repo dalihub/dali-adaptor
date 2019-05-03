@@ -2,7 +2,7 @@
 #define __DALI_WINDOW_H__
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,6 +220,73 @@ public:
    * @return A reference to this
    */
   Window& operator=(const Window& rhs);
+
+  /**
+   * @brief Adds a child Actor to the Window.
+   *
+   * The child will be referenced.
+   *
+   * @SINCE_1_4.19
+   * @param[in] actor The child
+   * @pre The actor has been initialized.
+   * @pre The actor does not have a parent.
+   */
+  void Add( Actor actor );
+
+  /**
+   * @brief Removes a child Actor from the Window.
+   *
+   * The child will be unreferenced.
+   *
+   * @SINCE_1_4.19
+   * @param[in] actor The child
+   * @pre The actor has been added to the stage.
+   */
+  void Remove( Actor actor );
+
+  /**
+   * @brief Sets the background color of the Window.
+   *
+   * @SINCE_1_4.19
+   * @param[in] color The new background color
+   */
+  void SetBackgroundColor( const Vector4& color );
+
+  /**
+   * @brief Gets the background color of the Window.
+   *
+   * @SINCE_1_4.19
+   * @return The background color
+   */
+  Vector4 GetBackgroundColor() const;
+
+  /**
+   * @brief Returns the root Layer of the Window.
+   *
+   * @SINCE_1_4.19
+   * @return The root layer
+   */
+  Layer GetRootLayer() const;
+
+  /**
+   * @brief Queries the number of on-scene layers in the Window.
+   *
+   * Note that a default layer is always provided (count >= 1).
+   *
+   * @SINCE_1_4.19
+   * @return The number of layers
+   */
+  uint32_t GetLayerCount() const;
+
+  /**
+   * @brief Retrieves the layer at a specified depth in the Window.
+   *
+   * @SINCE_1_4.19
+   * @param[in] depth The depth
+   * @return The layer found at the given depth
+   * @pre Depth is less than layer count; see GetLayerCount().
+   */
+  Layer GetLayer( uint32_t depth ) const;
 
   /**
    * @DEPRECATED_1_4.9
