@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 Samsung Electronics Co., Ltd.
+# Copyright (c) 2019 Samsung Electronics Co., Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,11 +69,7 @@ fi
 AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
 
-if test "x$enable_cxx03_abi" = "xyes"; then
-PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl-deprecated, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
-else
 PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
-fi
 
 if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
@@ -142,13 +138,6 @@ AC_ARG_ENABLE([appfw],
               [enable_appfw=$enableval],
               [enable_appfw=no])
 
-# Option to allow building with Tizen SDK 2.2
-AC_ARG_WITH([tizen-2-2-compatibility],
-            [AC_HELP_STRING([--with-tizen-2-2-compatibility],
-                            [Use Tizen SDK 2.2 compatibility])],
-            [with_tizen_2_2_compatibility=$withval],
-            [with_tizen_2_2_compatibility=no])
-
 # Tizen Profile options
 AC_ARG_ENABLE([profile],
               [AC_HELP_STRING([--enable-profile=COMMON,MOBILE,WEARABLE,TV,IVI,UBUNTU],
@@ -178,12 +167,6 @@ AC_ARG_ENABLE(ecore_wayland2,
               enable_ecore_wayland2=yes,
               enable_ecore_wayland2=no)
 
-AC_ARG_ENABLE([cxx03_abi],
-              [AC_HELP_STRING([--enable-cxx03-abi],
-                              [Specify abi for the build])],
-              [enable_cxx03_abi=$enableval],
-              [enable_cxx03_abi=no])
-
 AC_ARG_ENABLE([rename_so],
               [AC_HELP_STRING([--enable-rename-so],
                               [Specify whether so file is renamed or not])],
@@ -201,7 +184,6 @@ AM_CONDITIONAL([UBUNTU_PROFILE], [test x$enable_profile = xUBUNTU])
 AM_CONDITIONAL([WAYLAND], [test x$enable_wayland = xyes])
 AM_CONDITIONAL([ECORE_WAYLAND2], [test x$enable_ecore_wayland2 = xyes])
 AM_CONDITIONAL([USE_APPFW], [test x$enable_appfw = xyes])
-AM_CONDITIONAL([ENABLE_CXX03_ABI], [test x$enable_cxx03_abi = xyes])
 AM_CONDITIONAL([ENABLE_RENAME_SO], [test x$enable_rename_so = xyes])
 
 # Platforms with highp shader support can use vector based text
@@ -228,11 +210,7 @@ if test "x$enable_profile" = "xLITE"; then
 PKG_CHECK_MODULES(OPENGLES20, gles20)
 fi
 
-if test "x$enable_cxx03_abi" = "xyes"; then
-PKG_CHECK_MODULES(DALICORE, dali-core-cxx03)
-else
 PKG_CHECK_MODULES(DALICORE, dali-core)
-fi
 
 if test "x$enable_profile" = "xWEARABLE"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2)
@@ -257,22 +235,14 @@ if test "x$enable_profile" = "xUBUNTU"; then
 PKG_CHECK_MODULES(OPENGLES20, glesv2 egl)
 else
 
-if test "x$enable_cxx03_abi" = "xyes"; then
- DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
-fi
-
 PKG_CHECK_MODULES(DLOG, dlog)
 PKG_CHECK_MODULES(TTS, tts)
 PKG_CHECK_MODULES(VCONF, vconf)
-
-if test "x$with_tizen_2_2_compatibility" = "xno"; then
 PKG_CHECK_MODULES(CAPI_SYSTEM_INFO, capi-system-info)
 PKG_CHECK_MODULES(CAPI_SYSTEM_SENSOR, capi-system-sensor, [ capi_system_sensor_support=yes ], [ capi_system_sensor_support=no ] )
 
 if test "x$capi_system_sensor_support" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DCAPI_SYSTEM_SENSOR_SUPPORT"
-fi
-
 fi
 
 fi # ubuntu profile test
@@ -354,13 +324,11 @@ AC_SUBST(tizenPlatformConfigSupported)
 devincludepath=${includedir}
 AC_SUBST(devincludepath)
 
-AC_CONFIG_FILES([Makefile])
-
-if test "x$enable_cxx03_abi" = "xyes"; then
-AC_CONFIG_FILES([dali-adaptor-cxx03.pc dali-adaptor-integration-cxx03.pc])
-else
-AC_CONFIG_FILES([dali-adaptor.pc dali-adaptor-integration.pc])
-fi
+AC_CONFIG_FILES([
+  Makefile
+  dali-adaptor.pc
+  dali-adaptor-integration.pc
+])
 
 if test "x$freetype_bitmap_support" = "xyes"; then
 DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DFREETYPE_BITMAP_SUPPORT"
@@ -380,7 +348,6 @@ Configuration
   Profile:                          $enable_profile
   Data Dir (Read/Write):            $dataReadWriteDir
   Data Dir (Read Only):             $dataReadOnlyDir
-  Tizen SDK 2.2 compatibility:      $with_tizen_2_2_compatibility
   EldBus:                           $eldbus_available
   Shader Binary Cache:              $enable_shaderbincache
   Ecore Version At Least 1.13.0     $ecore_imf_1_13
