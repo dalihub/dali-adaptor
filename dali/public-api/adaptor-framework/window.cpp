@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/window.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -25,6 +28,8 @@
 
 namespace Dali
 {
+
+class DALI_INTERNAL DragAndDropDetector : public BaseHandle {}; // Empty class only required to compile Deprecated API GetDragAndDropDetector
 
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
@@ -172,7 +177,9 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 
 DragAndDropDetector Window::GetDragAndDropDetector() const
 {
-  return GetImplementation(*this).GetDragAndDropDetector();
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetDragAndDropDetector is deprecated and will be removed from the next release.\n" );
+  DALI_ASSERT_ALWAYS( &GetImplementation( *this ) == GetObjectPtr() && "Empty Handle" );
+  return Dali::DragAndDropDetector();
 }
 
 Any Window::GetNativeHandle() const

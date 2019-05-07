@@ -707,11 +707,6 @@ Integration::PlatformAbstraction& Adaptor::GetPlatformAbstraction() const
   return *mPlatformAbstraction;
 }
 
-void Adaptor::SetDragAndDropDetector( DragAndDropDetectorPtr detector )
-{
-  mDragAndDropDetector = detector;
-}
-
 void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
 {
   if( mTtsPlayers[mode] )
@@ -991,7 +986,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mFeedbackController( nullptr ),
   mTtsPlayers(),
   mObservers(),
-  mDragAndDropDetector(),
   mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
   mPerformanceInterface( nullptr ),
   mKernelTracer(),

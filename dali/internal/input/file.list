@@ -2,7 +2,6 @@
 
 # module: input, backend: common
 adaptor_input_common_src_files=\
-    ${adaptor_input_dir}/common/drag-and-drop-detector-impl.cpp \
     ${adaptor_input_dir}/common/gesture-manager.cpp \
     ${adaptor_input_dir}/common/input-method-context-impl.cpp \
     ${adaptor_input_dir}/common/key-grab.cpp \

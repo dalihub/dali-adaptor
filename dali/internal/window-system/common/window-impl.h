@@ -33,7 +33,6 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
-#include <dali/devel-api/adaptor-framework/drag-and-drop-detector.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 
 namespace Dali
@@ -158,11 +157,6 @@ public:
    * @copydoc Dali::Window::GetPreferredOrientation()
    */
   Dali::Window::WindowOrientation GetPreferredOrientation();
-
-  /**
-   * @copydoc Dali::Window::GetDragAndDropDetector() const
-   */
-  Dali::DragAndDropDetector GetDragAndDropDetector() const;
 
   /**
    * @copydoc Dali::Window::SetAcceptFocus()
@@ -481,7 +475,6 @@ private:
   bool                                  mIconified:1;
   bool                                  mOpaqueState:1;
   bool                                  mResizeEnabled:1;
-  Dali::DragAndDropDetector             mDragAndDropDetector;
   Dali::Window::Type                    mType;
 
   OrientationPtr                               mOrientation;

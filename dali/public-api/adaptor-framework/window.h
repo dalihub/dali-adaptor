@@ -1,5 +1,5 @@
-#ifndef __DALI_WINDOW_H__
-#define __DALI_WINDOW_H__
+#ifndef DALI_WINDOW_H
+#define DALI_WINDOW_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -370,10 +370,11 @@ public:
   WindowOrientation GetPreferredOrientation();
 
   /**
-   * @brief Returns the Drag & drop detector which can be used to receive drag & drop events.
+   * @DEPRECATED_1_4.19 Was not intended for Application developers
+   * @brief Returns an empty handle.
    * @note  Not intended for application developers.
    * @SINCE_1_0.0
-   * @return A handle to the DragAndDropDetector
+   * @return An empty handle
    */
   DragAndDropDetector GetDragAndDropDetector() const;
 

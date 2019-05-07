@@ -45,7 +45,6 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/core-event-interface.h>
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/system/common/kernel-trace.h>
@@ -317,12 +316,6 @@ public:
    * @return The PlatformAbstraction.
    */
   Integration::PlatformAbstraction& GetPlatformAbstraction() const;
-
-  /**
-   * Sets the Drag & Drop Listener.
-   * @param[in] detector The detector to send Drag & Drop events to.
-   */
-  void SetDragAndDropDetector( DragAndDropDetectorPtr detector );
 
   /**
    * Destroy the TtsPlayer of specific mode.
@@ -666,7 +659,6 @@ private: // Data
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
-  DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
   EnvironmentOptions*                   mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer

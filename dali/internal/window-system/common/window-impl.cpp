@@ -36,7 +36,6 @@
 #endif
 
 // INTERNAL HEADERS
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
@@ -126,9 +125,6 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  // Can only create the detector when we know the Core has been instantiated.
-  mDragAndDropDetector = DragAndDropDetector::New();
-
   mEventHandler = EventHandlerPtr(
       new EventHandler( mScene, *mAdaptor, *mAdaptor->GetGestureManager(), *mAdaptor ) );
 
@@ -258,11 +254,6 @@ void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientatio
 Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 {
   return mPreferredOrientation;
-}
-
-Dali::DragAndDropDetector Window::GetDragAndDropDetector() const
-{
-  return mDragAndDropDetector;
 }
 
 Dali::Any Window::GetNativeHandle() const
