@@ -20,7 +20,12 @@
 // INTERNAL INCLUDES
 
 // EXTERNAL INCLUDES
+#ifndef ANDROID
 #include <cstdio>
+#else
+#include <android_native_app_glue.h>
+#include <dali/internal/system/android/file-wrapper.h>
+#endif
 
 namespace Dali
 {
@@ -40,7 +45,11 @@ protected: // prevent this class being directly instantiated
    * @brief Construct a FileCloser guarding a new FILE* for accessing the path passed in.
    */
   FileCloser( const char * const filename, const char * const mode )
-  : mFile(fopen(filename, mode))
+#ifndef ANDROID
+  : mFile( fopen( filename, mode ) )
+#else
+  : mFile( fopen_wrapper( filename, mode ) )
+#endif
   {
     DALI_ASSERT_DEBUG( filename != 0 && "Cant open a null filename." );
     DALI_ASSERT_DEBUG( mode != 0 && "Null mode is undefined behaviour in spec." );
