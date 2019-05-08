@@ -67,17 +67,15 @@ Dali::TypeRegistration type( typeid( Dali::WebEngine ), typeid( Dali::BaseHandle
 
 WebEnginePtr WebEngine::New()
 {
-  WebEnginePtr ptr;
-  WebEngine* engine = new WebEngine();
+  WebEngine* instance = new WebEngine();
 
-  if ( !engine->Initialize() )
+  if( !instance->Initialize() )
   {
-    delete engine;
-    engine = nullptr;
+    delete instance;
+    return nullptr;
   }
 
-  ptr = engine;
-  return ptr;
+  return instance;
 }
 
 WebEngine::WebEngine()
@@ -104,15 +102,15 @@ WebEngine::~WebEngine()
 
 bool WebEngine::InitializePluginHandle()
 {
-  if ( pluginName.length() == 0 )
+  if( pluginName.length() == 0 )
   {
     // pluginName is not initialized yet.
     const char* name = EnvironmentVariable::GetEnvironmentVariable( DALI_ENV_WEB_ENGINE_NAME );
-    if ( name )
+    if( name )
     {
       pluginName = MakePluginName( name );
       mHandle = dlopen( pluginName.c_str(), RTLD_LAZY );
-      if ( mHandle )
+      if( mHandle )
       {
         return true;
       }
@@ -121,7 +119,7 @@ bool WebEngine::InitializePluginHandle()
   }
 
   mHandle = dlopen( pluginName.c_str(), RTLD_LAZY );
-  if ( !mHandle )
+  if( !mHandle )
   {
     DALI_LOG_ERROR( "Can't load %s : %s\n", pluginName.c_str(), dlerror() );
     return false;
@@ -134,7 +132,7 @@ bool WebEngine::Initialize()
 {
   char* error = NULL;
 
-  if ( !InitializePluginHandle() )
+  if( !InitializePluginHandle() )
   {
     return false;
   }
@@ -146,6 +144,14 @@ bool WebEngine::Initialize()
     return false;
   }
 
+  mDestroyWebEnginePtr = reinterpret_cast< DestroyWebEngineFunction >( dlsym( mHandle, "DestroyWebEnginePlugin" ) );
+
+  if( mDestroyWebEnginePtr == NULL )
+  {
+    DALI_LOG_ERROR( "Can't load symbol DestroyWebEnginePlugin(), error: %s\n", error );
+    return false;
+  }
+
   mPlugin = mCreateWebEnginePtr();
 
   if( mPlugin == NULL )
@@ -154,32 +160,17 @@ bool WebEngine::Initialize()
     return false;
   }
 
-  mDestroyWebEnginePtr = reinterpret_cast< DestroyWebEngineFunction >( dlsym( mHandle, "DestroyWebEnginePlugin" ) );
-
-  if( mDestroyWebEnginePtr == NULL )
-  {
-
-    DALI_LOG_ERROR( "Can't load symbol DestroyWebEnginePlugin(), error: %s\n", error );
-    return false;
-  }
-
   return true;
 }
 
 void WebEngine::Create( int width, int height, const std::string& locale, const std::string& timezoneId )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->Create( width, height, locale, timezoneId );
-  }
+  mPlugin->Create( width, height, locale, timezoneId );
 }
 
 void WebEngine::Destroy()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->Destroy();
-  }
+  mPlugin->Destroy();
 }
 
 Dali::NativeImageInterfacePtr WebEngine::GetNativeImageSource()
@@ -189,136 +180,182 @@ Dali::NativeImageInterfacePtr WebEngine::GetNativeImageSource()
 
 void WebEngine::LoadUrl( const std::string& url )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->LoadUrl( url );
-  }
+  mPlugin->LoadUrl( url );
 }
 
 const std::string& WebEngine::GetUrl()
 {
-  static std::string emptyUrl;
-  return mPlugin ? mPlugin->GetUrl() : emptyUrl;
+  return mPlugin->GetUrl();
 }
 
 void WebEngine::LoadHTMLString( const std::string& htmlString )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->LoadHTMLString( htmlString );
-  }
+  mPlugin->LoadHTMLString( htmlString );
 }
 
 void WebEngine::Reload()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->Reload();
-  }
+  mPlugin->Reload();
 }
 
 void WebEngine::StopLoading()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->StopLoading();
-  }
+  mPlugin->StopLoading();
+}
+
+void WebEngine::Suspend()
+{
+  mPlugin->Suspend();
+}
+
+void WebEngine::Resume()
+{
+  mPlugin->Resume();
 }
 
 bool WebEngine::CanGoForward()
 {
-  return mPlugin ? mPlugin->CanGoForward() : false;
+  return mPlugin->CanGoForward();
 }
 
 void WebEngine::GoForward()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->GoForward();
-  }
+  mPlugin->GoForward();
 }
 
 bool WebEngine::CanGoBack()
 {
-  return mPlugin ? mPlugin->CanGoBack() : false;
+  return mPlugin->CanGoBack();
 }
 
 void WebEngine::GoBack()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->GoBack();
-  }
+  mPlugin->GoBack();
 }
 
-void WebEngine::EvaluateJavaScript( const std::string& script )
+void WebEngine::EvaluateJavaScript( const std::string& script, std::function< void( const std::string& ) > resultHandler )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->EvaluateJavaScript( script );
-  }
+  mPlugin->EvaluateJavaScript( script, resultHandler );
 }
 
 void WebEngine::AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void(const std::string&) > handler )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->AddJavaScriptMessageHandler( exposedObjectName, handler );
-  }
+  mPlugin->AddJavaScriptMessageHandler( exposedObjectName, handler );
 }
 
 void WebEngine::ClearHistory()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->ClearHistory();
-  }
+  mPlugin->ClearHistory();
 }
 
 void WebEngine::ClearCache()
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->ClearCache();
-  }
+  mPlugin->ClearCache();
+}
+
+void WebEngine::ClearCookies()
+{
+  mPlugin->ClearCookies();
+}
+
+Dali::WebEnginePlugin::CacheModel WebEngine::GetCacheModel() const
+{
+  return mPlugin->GetCacheModel();
+}
+
+void WebEngine::SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel )
+{
+  mPlugin->SetCacheModel( cacheModel );
+}
+
+Dali::WebEnginePlugin::CookieAcceptPolicy WebEngine::GetCookieAcceptPolicy() const
+{
+  return mPlugin->GetCookieAcceptPolicy();
+}
+
+void WebEngine::SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy )
+{
+  mPlugin->SetCookieAcceptPolicy( policy );
+}
+
+const std::string& WebEngine::GetUserAgent() const
+{
+  return mPlugin->GetUserAgent();
+}
+
+void WebEngine::SetUserAgent( const std::string& userAgent )
+{
+  mPlugin->SetUserAgent( userAgent );
+}
+
+bool WebEngine::IsJavaScriptEnabled() const
+{
+  return mPlugin->IsJavaScriptEnabled();
+}
+
+void WebEngine::EnableJavaScript( bool enabled )
+{
+  mPlugin->EnableJavaScript( enabled );
+}
+
+bool WebEngine::AreImagesAutomaticallyLoaded() const
+{
+  return mPlugin->AreImagesAutomaticallyLoaded();
+}
+
+void WebEngine::LoadImagesAutomatically( bool automatic )
+{
+  mPlugin->LoadImagesAutomatically( automatic );
+}
+
+const std::string& WebEngine::GetDefaultTextEncodingName() const
+{
+  return mPlugin->GetDefaultTextEncodingName();
+}
+
+void WebEngine::SetDefaultTextEncodingName( const std::string& defaultTextEncodingName )
+{
+  mPlugin->SetDefaultTextEncodingName( defaultTextEncodingName );
+}
+
+int WebEngine::GetDefaultFontSize() const
+{
+  return mPlugin->GetDefaultFontSize();
+}
+
+void WebEngine::SetDefaultFontSize( int defaultFontSize )
+{
+  mPlugin->SetDefaultFontSize( defaultFontSize );
 }
 
 void WebEngine::SetSize( int width, int height )
 {
-  if( mPlugin != NULL )
-  {
-    mPlugin->SetSize( width, height );
-  }
+  mPlugin->SetSize( width, height );
 }
 
 bool WebEngine::SendTouchEvent( const Dali::TouchData& touch )
 {
-  if( mPlugin != NULL )
-  {
-    return mPlugin->SendTouchEvent( touch );
-  }
-
-  return false;
+  return mPlugin->SendTouchEvent( touch );
 }
 
 bool WebEngine::SendKeyEvent( const Dali::KeyEvent& event )
 {
-  if( mPlugin != NULL )
-  {
-    return mPlugin->SendKeyEvent( event );
-  }
-
-  return false;
+  return mPlugin->SendKeyEvent( event );
 }
 
-Dali::WebEnginePlugin::WebEngineSignalType& WebEngine::PageLoadStartedSignal()
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return mPlugin->PageLoadStartedSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineSignalType& WebEngine::PageLoadFinishedSignal()
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedSignal()
 {
   return mPlugin->PageLoadFinishedSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErrorSignal()
+{
+  return mPlugin->PageLoadErrorSignal();
 }
 
 } // namespace Adaptor;

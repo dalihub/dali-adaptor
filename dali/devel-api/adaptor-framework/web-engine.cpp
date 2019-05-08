@@ -103,6 +103,16 @@ void WebEngine::StopLoading()
   GetImplementation( *this ).StopLoading();
 }
 
+void WebEngine::Suspend()
+{
+  GetImplementation( *this ).Suspend();
+}
+
+void WebEngine::Resume()
+{
+  GetImplementation( *this ).Resume();
+}
+
 bool WebEngine::CanGoForward()
 {
   return GetImplementation( *this ).CanGoForward();
@@ -123,9 +133,9 @@ void WebEngine::GoBack()
   GetImplementation( *this ).GoBack();
 }
 
-void WebEngine::EvaluateJavaScript( const std::string& script )
+void WebEngine::EvaluateJavaScript( const std::string& script, std::function< void( const std::string& ) > resultHandler )
 {
-  GetImplementation( *this ).EvaluateJavaScript( script );
+  GetImplementation( *this ).EvaluateJavaScript( script, resultHandler );
 }
 
 void WebEngine::AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void( const std::string& ) > handler )
@@ -143,6 +153,81 @@ void WebEngine::ClearCache()
   return GetImplementation( *this ).ClearCache();
 }
 
+void WebEngine::ClearCookies()
+{
+  return GetImplementation( *this ).ClearCookies();
+}
+
+Dali::WebEnginePlugin::CacheModel WebEngine::GetCacheModel() const
+{
+  return GetImplementation( *this ).GetCacheModel();
+}
+
+void WebEngine::SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel )
+{
+  GetImplementation( *this ).SetCacheModel( cacheModel );
+}
+
+Dali::WebEnginePlugin::CookieAcceptPolicy WebEngine::GetCookieAcceptPolicy() const
+{
+  return GetImplementation( *this ).GetCookieAcceptPolicy();
+}
+
+void WebEngine::SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy )
+{
+  GetImplementation( *this ).SetCookieAcceptPolicy( policy );
+}
+
+const std::string& WebEngine::GetUserAgent() const
+{
+  return GetImplementation( *this ).GetUserAgent();
+}
+
+void WebEngine::SetUserAgent( const std::string& userAgent )
+{
+  GetImplementation( *this ).SetUserAgent( userAgent );
+}
+
+bool WebEngine::IsJavaScriptEnabled() const
+{
+  return GetImplementation( *this ).IsJavaScriptEnabled();
+}
+
+void WebEngine::EnableJavaScript( bool enabled )
+{
+  GetImplementation( *this ).EnableJavaScript( enabled );
+}
+
+bool WebEngine::AreImagesAutomaticallyLoaded() const
+{
+  return GetImplementation( *this ).AreImagesAutomaticallyLoaded();
+}
+
+void WebEngine::LoadImagesAutomatically( bool automatic )
+{
+  GetImplementation( *this ).LoadImagesAutomatically( automatic );
+}
+
+const std::string& WebEngine::GetDefaultTextEncodingName() const
+{
+  return GetImplementation( *this ).GetDefaultTextEncodingName();
+}
+
+void WebEngine::SetDefaultTextEncodingName( const std::string& defaultTextEncodingName )
+{
+  GetImplementation( *this ).SetDefaultTextEncodingName( defaultTextEncodingName );
+}
+
+int WebEngine::GetDefaultFontSize() const
+{
+  return GetImplementation( *this ).GetDefaultFontSize();
+}
+
+void WebEngine::SetDefaultFontSize( int defaultFontSize )
+{
+  GetImplementation( *this ).SetDefaultFontSize( defaultFontSize );
+}
+
 void WebEngine::SetSize( int width, int height )
 {
   return GetImplementation( *this ).SetSize( width, height );
@@ -158,14 +243,19 @@ bool WebEngine::SendKeyEvent( const KeyEvent& event )
   return GetImplementation( *this ).SendKeyEvent( event );
 }
 
-Dali::WebEnginePlugin::WebEngineSignalType& WebEngine::PageLoadStartedSignal()
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return GetImplementation( *this ).PageLoadStartedSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineSignalType& WebEngine::PageLoadFinishedSignal()
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedSignal()
 {
   return GetImplementation( *this ).PageLoadFinishedSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErrorSignal()
+{
+  return GetImplementation( *this ).PageLoadErrorSignal();
 }
 
 } // namespace Dali;
