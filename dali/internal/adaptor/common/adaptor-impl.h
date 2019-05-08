@@ -295,6 +295,14 @@ public: // AdaptorInternalServices implementation
    */
   bool RemoveWindow( Dali::Internal::Adaptor::SceneHolder* childWindow );
 
+  /**
+   * @brief Retrieve the window that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return The window the actor is added to or a null pointer if the actor is not added to any widnow.
+   */
+  Dali::Internal::Adaptor::SceneHolder* GetWindow( Dali::Actor& actor );
+
 public:
 
   /**

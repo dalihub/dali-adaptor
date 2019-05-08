@@ -47,6 +47,14 @@ typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched 
 DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
 
 /**
+ * @brief Retrieve the window that the given actor is added to.
+ *
+ * @param[in] actor The actor
+ * @return The window the actor is added to or an empty handle if the actor is not added to any window.
+ */
+DALI_ADAPTOR_API Window Get( Actor actor );
+
+/**
  * @brief This signal is emitted just after the event processing is finished.
  *
  * @param[in] window The window instance
