@@ -966,6 +966,21 @@ bool Adaptor::ProcessCoreEventsFromIdle()
   return false;
 }
 
+Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow( Dali::Actor& actor )
+{
+  Dali::Integration::Scene scene = Dali::Integration::Scene::Get( actor );
+
+  for( auto window : mWindows )
+  {
+    if ( scene == window->GetScene() )
+    {
+      return window.Get();
+    }
+  }
+
+  return nullptr;
+}
+
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)
 : mResizedSignal(),
   mLanguageChangedSignal(),

@@ -646,6 +646,18 @@ bool Window::SetRotationObserver( RotationObserver* observer )
   return false;
 }
 
+Dali::Window Window::Get( Dali::Actor actor )
+{
+  Internal::Adaptor::Window* windowImpl = nullptr;
+
+  if ( Internal::Adaptor::Adaptor::IsAvailable() )
+  {
+    Dali::Internal::Adaptor::Adaptor& adaptor = Internal::Adaptor::Adaptor::GetImplementation( Internal::Adaptor::Adaptor::Get() );
+    windowImpl = static_cast<Internal::Adaptor::Window*>( adaptor.GetWindow( actor ) );
+  }
+
+  return Dali::Window( windowImpl );
+}
 
 } // Adaptor
 

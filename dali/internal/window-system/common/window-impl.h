@@ -335,6 +335,11 @@ public:
    */
   bool SetRotationObserver( RotationObserver* observer );
 
+  /**
+   * @copydoc Dali::DevelWindow::Get()
+   */
+  static Dali::Window Get( Dali::Actor actor );
+
 public: // Dali::Internal::Adaptor::SceneHolder
 
   /**
