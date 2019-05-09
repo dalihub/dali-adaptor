@@ -376,7 +376,7 @@ public:
    * @SINCE_1_0.0
    * @return An empty handle
    */
-  DragAndDropDetector GetDragAndDropDetector() const;
+  DragAndDropDetector GetDragAndDropDetector() const DALI_DEPRECATED_API;
 
   /**
    * @brief Gets the native handle of the window.
