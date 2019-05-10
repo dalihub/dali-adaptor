@@ -31,7 +31,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/system/common/core-event-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>

@@ -19,6 +19,12 @@
 #include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/scene-holder.h>
+#else
+#include <dali/integration-api/adaptors/scene-holder.h>
+#endif
+
 namespace Dali
 {
 

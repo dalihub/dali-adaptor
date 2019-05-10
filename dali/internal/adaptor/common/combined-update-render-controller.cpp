@@ -214,9 +214,13 @@ void CombinedUpdateRenderController::Resume()
 
     mRunning = TRUE;
     mForceClear = TRUE;
-  }
 
-  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
+    DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume: Already resumed [%d, %d, %d]\n", mRunning, mUpdateRenderRunCount, mUpdateRenderThreadCanSleep );
+  }
 }
 
 void CombinedUpdateRenderController::Stop()

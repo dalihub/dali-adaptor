@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/window.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -26,24 +29,26 @@
 namespace Dali
 {
 
+class DALI_INTERNAL DragAndDropDetector : public BaseHandle {}; // Empty class only required to compile Deprecated API GetDragAndDropDetector
+
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
-  Internal::Adaptor::Window* windowImpl = Internal::Adaptor::Window::New(posSize, name, "", isTransparent);
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, "", isTransparent);
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  Dali::Window window = Dali::Window( windowImpl );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &window, name, "", isTransparent );
+  Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, "", isTransparent );
 
   return Window(window);
 }
 
 Window Window::New(PositionSize posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  Internal::Adaptor::Window* windowImpl = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  Dali::Window window = Dali::Window( windowImpl );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &window, name, className, isTransparent );
+  Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, className, isTransparent );
 
   return Window(window);
 }
@@ -65,6 +70,41 @@ Window& Window::operator=(const Window& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
+}
+
+void Window::Add( Dali::Actor actor )
+{
+  GetImplementation( *this ).Add( actor );
+}
+
+void Window::Remove( Dali::Actor actor )
+{
+  GetImplementation( *this ).Remove( actor );
+}
+
+void Window::SetBackgroundColor( const Vector4& color )
+{
+  GetImplementation( *this ).SetBackgroundColor( color );
+}
+
+Vector4 Window::GetBackgroundColor() const
+{
+  return GetImplementation( *this ).GetBackgroundColor();
+}
+
+Layer Window::GetRootLayer() const
+{
+  return GetImplementation( *this ).GetRootLayer();
+}
+
+uint32_t Window::GetLayerCount() const
+{
+  return GetImplementation( *this ).GetLayerCount();
+}
+
+Layer Window::GetLayer( uint32_t depth ) const
+{
+  return GetImplementation( *this ).GetLayer( depth );
 }
 
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
@@ -137,7 +177,9 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 
 DragAndDropDetector Window::GetDragAndDropDetector() const
 {
-  return GetImplementation(*this).GetDragAndDropDetector();
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetDragAndDropDetector is deprecated and will be removed from the next release.\n" );
+  DALI_ASSERT_ALWAYS( &GetImplementation( *this ) == GetObjectPtr() && "Empty Handle" );
+  return Dali::DragAndDropDetector();
 }
 
 Any Window::GetNativeHandle() const

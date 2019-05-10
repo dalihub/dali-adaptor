@@ -181,11 +181,13 @@ void Application::CreateAdaptor()
 
   auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
-  mAdaptor = Dali::Internal::Adaptor::Adaptor::New( graphicsFactory, mMainWindow, mContextLossConfiguration, &mEnvironmentOptions );
+  Integration::SceneHolder sceneHolder = Integration::SceneHolder( &Dali::GetImplementation( mMainWindow ) );
+
+  mAdaptor = Adaptor::New( graphicsFactory, sceneHolder, mContextLossConfiguration, &mEnvironmentOptions );
 
   mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
 
-  Internal::Adaptor::Adaptor::GetImplementation( *mAdaptor ).SetUseRemoteSurface( mUseRemoteSurface );
+  Adaptor::GetImplementation( *mAdaptor ).SetUseRemoteSurface( mUseRemoteSurface );
 }
 
 void Application::CreateAdaptorBuilder()

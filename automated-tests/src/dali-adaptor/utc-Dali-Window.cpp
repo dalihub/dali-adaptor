@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,12 @@
 
 #include <dali/dali.h>
 #include <Ecore_X.h>
-#include <devel-api/adaptor-framework/drag-and-drop-detector.h>
 #include <dali-test-suite-utils.h>
+
+namespace Dali
+{
+class DragAndDropDetector : public BaseHandle {}; // For UtcDaliWindowGetDragAndDropDetectorN
+}
 
 using namespace Dali;
 
