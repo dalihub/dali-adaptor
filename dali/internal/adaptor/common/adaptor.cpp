@@ -196,11 +196,6 @@ void Adaptor::NotifyLanguageChanged()
   mImpl->NotifyLanguageChanged();
 }
 
-void Adaptor::SetMinimumPinchDistance(float distance)
-{
-  mImpl->SetMinimumPinchDistance(distance);
-}
-
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
 {
   mImpl->FeedTouchPoint(point, timeStamp);

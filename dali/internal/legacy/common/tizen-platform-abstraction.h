@@ -1,8 +1,8 @@
-#ifndef __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
-#define __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
+#ifndef DALI_TIZEN_PLATFORM_ABSTRACTION_H
+#define DALI_TIZEN_PLATFORM_ABSTRACTION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,22 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
+
 // EXTERNAL INCLUDES
+#include <cstdint>
 #include <string>
 #include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
 {
 
+class CallbackBase;
+
 namespace TizenPlatform
 {
-
 class ResourceLoader;
 
 /**
@@ -92,18 +96,42 @@ public: // PlatformAbstraction overrides
   virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
 
   /**
+   * @copydoc PlatformAbstraction::StartTimer()
+   */
+  virtual uint32_t StartTimer( uint32_t milliseconds, CallbackBase* callback );
+
+  /**
+   * @copydoc PlatformAbstraction::CancelTimer()
+   */
+  virtual void CancelTimer ( uint32_t timerId );
+
+  /**
    * Sets path for data/resource storage.
    * @param[in] path data/resource storage path
    */
   void SetDataStoragePath( const std::string& path );
 
+  /**
+   * Clears the timers that have completed
+   */
+  void CleanupTimers();
+
 private:
+
+  struct TimerCallback;
+
+  /*
+   * Executes callback function and cleans up timer
+   */
+  void RunTimerFunction(TimerCallback& timerPtr);
 
   TizenPlatformAbstraction( const TizenPlatformAbstraction& ); ///< Undefined
   TizenPlatformAbstraction& operator=( const TizenPlatformAbstraction& ); ///< Undefined
 
   std::string mDataStoragePath;
 
+  std::vector<TimerCallback*> mTimerPairsWaiting;
+  std::vector<TimerCallback*> mTimerPairsSpent;
 };
 
 /**
@@ -125,4 +153,4 @@ bool SaveFile( const std::string& filename, const unsigned char * buffer, unsign
 
 }  // namespace Dali
 
-#endif // __DALI_TIZEN_PLATFORM_ABSTRACTION_H__
+#endif // DALI_TIZEN_PLATFORM_ABSTRACTION_H

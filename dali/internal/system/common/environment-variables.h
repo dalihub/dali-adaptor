@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,8 @@ namespace Adaptor
 #define DALI_ENV_LOG_PAN_GESTURE                      "DALI_LOG_PAN_GESTURE"
 #define DALI_ENV_PAN_MINIMUM_DISTANCE                 "DALI_PAN_MINIMUM_DISTANCE"
 #define DALI_ENV_PAN_MINIMUM_EVENTS                   "DALI_PAN_MINIMUM_EVENTS"
+
+#define DALI_ENV_PINCH_MINIMUM_DISTANCE               "DALI_PINCH_MINIMUM_DISTANCE"
 
 #define DALI_GLES_CALL_TIME "DALI_GLES_CALL_TIME"
 

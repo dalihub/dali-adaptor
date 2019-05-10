@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ EnvironmentOptions::EnvironmentOptions()
   mPanGestureMultitapSmoothingRange( -1 ),
   mPanMinimumDistance( -1 ),
   mPanMinimumEvents( -1 ),
+  mPinchMinimumDistance( -1.0f ),
   mGlesCallTime( 0 ),
   mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
@@ -281,6 +282,11 @@ int EnvironmentOptions::GetMinimumPanDistance() const
 int EnvironmentOptions::GetMinimumPanEvents() const
 {
   return mPanMinimumEvents;
+}
+
+float EnvironmentOptions::GetMinimumPinchDistance() const
+{
+  return mPinchMinimumDistance;
 }
 
 unsigned int EnvironmentOptions::GetWindowWidth() const
@@ -496,6 +502,12 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
   {
     mPanMinimumEvents = minimumEvents;
+  }
+
+  float pinchMinimumDistance = -1.0f;
+  if( GetFloatEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_DISTANCE, pinchMinimumDistance ) )
+  {
+    mPinchMinimumDistance = pinchMinimumDistance;
   }
 
   int glesCallTime(0);
