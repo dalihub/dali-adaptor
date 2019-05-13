@@ -40,6 +40,41 @@ Window Get( Actor actor )
   return Internal::Adaptor::Window::Get( actor );
 }
 
+void Add( Window window, Dali::Actor actor )
+{
+  GetImplementation( window ).Add( actor );
+}
+
+void Remove( Window window, Dali::Actor actor )
+{
+  GetImplementation( window ).Remove( actor );
+}
+
+void SetBackgroundColor( Window window, Vector4 color )
+{
+  GetImplementation( window ).SetBackgroundColor( color );
+}
+
+Vector4 GetBackgroundColor( Window window )
+{
+  return GetImplementation( window ).GetBackgroundColor();
+}
+
+Dali::Layer GetRootLayer( Window window )
+{
+  return GetImplementation( window ).GetRootLayer();
+}
+
+uint32_t GetLayerCount( Window window )
+{
+  return GetImplementation( window ).GetLayerCount();
+}
+
+Dali::Layer GetLayer( Window window, uint32_t depth )
+{
+  return GetImplementation( window ).GetLayer( depth );
+}
+
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window )
 {
   return GetImplementation( window ).EventProcessingFinishedSignal();

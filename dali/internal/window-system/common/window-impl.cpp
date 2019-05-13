@@ -507,7 +507,7 @@ void Window::SetPositionSize( PositionSize positionSize )
   }
 }
 
-Dali::Layer Window::GetRootLayer() const
+Dali::Layer Window::GetRootLayer()
 {
   return mScene.GetRootLayer();
 }

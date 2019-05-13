@@ -144,7 +144,7 @@ Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
   return mSurface.get();
 }
 
-void SceneHolder::SetBackgroundColor( const Vector4& color )
+void SceneHolder::SetBackgroundColor( Vector4 color )
 {
   if ( mSurface )
   {

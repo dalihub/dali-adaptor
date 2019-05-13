@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,41 +70,6 @@ Window& Window::operator=(const Window& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
-}
-
-void Window::Add( Dali::Actor actor )
-{
-  GetImplementation( *this ).Add( actor );
-}
-
-void Window::Remove( Dali::Actor actor )
-{
-  GetImplementation( *this ).Remove( actor );
-}
-
-void Window::SetBackgroundColor( const Vector4& color )
-{
-  GetImplementation( *this ).SetBackgroundColor( color );
-}
-
-Vector4 Window::GetBackgroundColor() const
-{
-  return GetImplementation( *this ).GetBackgroundColor();
-}
-
-Layer Window::GetRootLayer() const
-{
-  return GetImplementation( *this ).GetRootLayer();
-}
-
-uint32_t Window::GetLayerCount() const
-{
-  return GetImplementation( *this ).GetLayerCount();
-}
-
-Layer Window::GetLayer( uint32_t depth ) const
-{
-  return GetImplementation( *this ).GetLayer( depth );
 }
 
 void Window::ShowIndicator( IndicatorVisibleMode visibleMode )

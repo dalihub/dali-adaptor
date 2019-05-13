@@ -124,7 +124,7 @@ public:
   /**
    * @copydoc Dali::Integration::SceneHolder::SetBackgroundColor
    */
-  void SetBackgroundColor( const Dali::Vector4& color );
+  void SetBackgroundColor( Dali::Vector4 color );
 
   /**
    * @copydoc Dali::Integration::SceneHolder::GetBackgroundColor
