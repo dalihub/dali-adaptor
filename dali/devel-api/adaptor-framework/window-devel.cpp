@@ -35,39 +35,9 @@ void SetPositionSize( Window window, PositionSize positionSize )
   GetImplementation( window ).SetPositionSize( positionSize );
 }
 
-void Add( Window window, Dali::Actor actor )
+Window Get( Actor actor )
 {
-  GetImplementation( window ).Add( actor );
-}
-
-void Remove( Window window, Dali::Actor actor )
-{
-  GetImplementation( window ).Remove( actor );
-}
-
-void SetBackgroundColor( Window window, Vector4 color )
-{
-  GetImplementation( window ).SetBackgroundColor( color );
-}
-
-Vector4 GetBackgroundColor( Window window )
-{
-  return GetImplementation( window ).GetBackgroundColor();
-}
-
-Dali::Layer GetRootLayer( Window window )
-{
-  return GetImplementation( window ).GetRootLayer();
-}
-
-uint32_t GetLayerCount( Window window )
-{
-  return GetImplementation( window ).GetLayerCount();
-}
-
-Dali::Layer GetLayer( Window window, uint32_t depth )
-{
-  return GetImplementation( window ).GetLayer( depth );
+  return Internal::Adaptor::Window::Get( actor );
 }
 
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window )

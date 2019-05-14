@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,13 @@
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/integration-api/render-surface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/window-system/common/window-impl.h>
+
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/scene-holder.h>
+#else
+#include <dali/integration-api/adaptors/scene-holder.h>
+#endif
 
 namespace Dali
 {
@@ -37,7 +44,8 @@ Adaptor& Adaptor::New( Window window )
 
 Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
 {
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, configuration, NULL );
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), configuration, NULL );
   return *adaptor;
 }
 
@@ -47,6 +55,30 @@ Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surfac
 }
 
 Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
+{
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
+  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, configuration, NULL );
+  return *adaptor;
+}
+
+Adaptor& Adaptor::New( Dali::Integration::SceneHolder window )
+{
+  return New( window, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
+}
+
+Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, Configuration::ContextLoss configuration )
+{
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, configuration, NULL );
+  return *adaptor;
+}
+
+Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface )
+{
+  return New( window, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
+}
+
+Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
 {
   Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
   Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, configuration, NULL );
@@ -89,6 +121,12 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
 }
 
 void Adaptor::ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface )
+{
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
+  mImpl->ReplaceSurface( Dali::Integration::SceneHolder( sceneHolder ), surface );
+}
+
+void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface )
 {
   mImpl->ReplaceSurface( window, surface );
 }
@@ -156,11 +194,6 @@ void Adaptor::NotifySceneCreated()
 void Adaptor::NotifyLanguageChanged()
 {
   mImpl->NotifyLanguageChanged();
-}
-
-void Adaptor::SetMinimumPinchDistance(float distance)
-{
-  mImpl->SetMinimumPinchDistance(distance);
 }
 
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )

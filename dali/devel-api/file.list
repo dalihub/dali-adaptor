@@ -5,7 +5,6 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.cpp \
@@ -38,13 +37,13 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.h \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-action-handler.h \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-event.h \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/color-controller.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.h \
   $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.h \
   $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.h \
   $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.h \

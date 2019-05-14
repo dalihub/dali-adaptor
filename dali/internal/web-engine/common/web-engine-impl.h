@@ -93,6 +93,16 @@ public:
   void StopLoading();
 
   /**
+   * @copydoc Dali::WebEngine::Suspend()
+   */
+  void Suspend();
+
+  /**
+   * @copydoc Dali::WebEngine::Resume()
+   */
+  void Resume();
+
+  /**
    * @copydoc Dali::WebEngine::CanGoForward()
    */
   bool CanGoForward();
@@ -115,7 +125,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::EvaluateJavaScript()
    */
-  void EvaluateJavaScript( const std::string& script );
+  void EvaluateJavaScript( const std::string& script, std::function< void(const std::string&) > resultHandler );
 
   /**
    * @copydoc Dali::WebEngine::AddJavaScriptMessageHandler()
@@ -131,6 +141,81 @@ public:
    * @copydoc Dali::WebEngine::ClearCache()
    */
   void ClearCache();
+
+  /**
+   * @copydoc Dali::WebEngine::ClearCookies()
+   */
+  void ClearCookies();
+
+  /**
+   * @copydoc Dali::WebEngine::GetCacheModel()
+   */
+  Dali::WebEnginePlugin::CacheModel GetCacheModel() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetCacheModel()
+   */
+  void SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel );
+
+  /**
+   * @copydoc Dali::WebEngine::GetCookieAcceptPolicy()
+   */
+  Dali::WebEnginePlugin::CookieAcceptPolicy GetCookieAcceptPolicy() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetCookieAcceptPolicy()
+   */
+  void SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy );
+
+  /**
+   * @copydoc Dali::WebEngine::GetUserAgent()
+   */
+  const std::string& GetUserAgent() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetUserAgent()
+   */
+  void SetUserAgent( const std::string& userAgent );
+
+  /**
+   * @copydoc Dali::WebEngine::IsJavaScriptEnabled()
+   */
+  bool IsJavaScriptEnabled() const;
+
+  /**
+   * @copydoc Dali::WebEngine::EnableJavaScript()
+   */
+  void EnableJavaScript( bool enabled );
+
+  /**
+   * @copydoc Dali::WebEngine::AreImagesAutomaticallyLoaded()
+   */
+  bool AreImagesAutomaticallyLoaded() const;
+
+  /**
+   * @copydoc Dali::WebEngine::LoadImagesAutomatically()
+   */
+  void LoadImagesAutomatically( bool automatic );
+
+  /**
+   * @copydoc Dali::WebEngine::GetDefaultTextEncodingName()
+   */
+  const std::string& GetDefaultTextEncodingName() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetDefaultTextEncodingName()
+   */
+  void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName );
+
+  /**
+   * @copydoc Dali::WebEngine::GetDefaultFontSize()
+   */
+  int GetDefaultFontSize() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetDefaultFontSize()
+   */
+  void SetDefaultFontSize( int defaultFontSize );
 
   /**
    * @copydoc Dali::WebEngine::SetSize()
@@ -150,12 +235,17 @@ public:
   /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()
    */
-  Dali::WebEnginePlugin::WebEngineSignalType& PageLoadStartedSignal();
+  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
 
   /**
    * @copydoc Dali::WebEngine::PageLoadFinishedSignal()
    */
-  Dali::WebEnginePlugin::WebEngineSignalType& PageLoadFinishedSignal();
+  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::PageLoadErrorSignal()
+   */
+  Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
 
 private:
 
@@ -191,14 +281,13 @@ private:
 
 private:
 
-  Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
-  void* mHandle; ///< Handle for the loaded library
-
   typedef Dali::WebEnginePlugin* (*CreateWebEngineFunction)();
   typedef void (*DestroyWebEngineFunction)( Dali::WebEnginePlugin* plugin );
 
-  CreateWebEngineFunction mCreateWebEnginePtr;
-  DestroyWebEngineFunction mDestroyWebEnginePtr;
+  Dali::WebEnginePlugin*                                  mPlugin; ///< WebEnginePlugin instance
+  void*                                                   mHandle; ///< Handle for the loaded library
+  CreateWebEngineFunction                                 mCreateWebEnginePtr;  ///< Function to create plugin instance
+  DestroyWebEngineFunction                                mDestroyWebEnginePtr; ///< Function to destroy plugin instance
 };
 
 } // namespace Adaptor

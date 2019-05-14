@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,13 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
 #include <dali/integration-api/scene.h>
+
+#ifdef DALI_ADAPTOR_COMPILATION
+#include <dali/integration-api/scene-holder-impl.h>
+#else
+#include <dali/integration-api/adaptors/scene-holder-impl.h>
+#endif
+
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
 
@@ -38,9 +45,7 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/core-event-interface.h>
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/system/common/kernel-trace.h>
 #include <dali/internal/system/common/system-trace.h>
@@ -52,7 +57,6 @@ namespace Dali
 {
 
 class RenderSurfaceInterface;
-class Window;
 
 namespace Integration
 {
@@ -80,6 +84,7 @@ class VSyncMonitor;
 class PerformanceInterface;
 class LifeCycleObserver;
 class ObjectProfiler;
+class SceneHolder;
 
 /**
  * Implementation of the Adaptor class.
@@ -105,7 +110,7 @@ public:
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( Dali::Window window,
+  static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
@@ -116,7 +121,7 @@ public:
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New( Dali::Window window,
+  static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
@@ -131,7 +136,7 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
-                             Dali::Window window,
+                             Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
@@ -144,7 +149,7 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
-                             Dali::Window window,
+                             Dali::Integration::SceneHolder window,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
@@ -222,9 +227,9 @@ public: // AdaptorInternalServices implementation
   virtual void FeedKeyEvent( KeyEvent& keyEvent );
 
   /**
-   * @copydoc AdaptorInterface::ReplaceSurface()
+   * @copydoc Dali::Adaptor::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Dali::Window window, Dali::RenderSurfaceInterface& surface );
+  virtual void ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface );
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
@@ -255,7 +260,7 @@ public: // AdaptorInternalServices implementation
    * @param[in]  childWindowClassName The class name that the child window belongs to
    * @param[in]  childWindowMode The mode of the child window
    */
-  virtual bool AddWindow( Dali::Window* childWindow,
+  virtual bool AddWindow( Dali::Integration::SceneHolder* childWindow,
                           const std::string& childWindowName,
                           const std::string& childWindowClassName,
                           const bool& childWindowMode );
@@ -264,7 +269,7 @@ public: // AdaptorInternalServices implementation
    * Removes an existing Window instance from the Adaptor
    * @param[in]  window The Window instance
    */
-  virtual bool RemoveWindow( Dali::Window* childWindow );
+  virtual bool RemoveWindow( Dali::Integration::SceneHolder* childWindow );
 
   /**
    * Removes an existing Window instance from the Adaptor
@@ -287,7 +292,15 @@ public: // AdaptorInternalServices implementation
    * Removes an existing Window instance from the Adaptor
    * @param[in]  childWindow The Window instance
    */
-  bool RemoveWindow( Dali::Internal::Adaptor::Window* childWindow );
+  bool RemoveWindow( Dali::Internal::Adaptor::SceneHolder* childWindow );
+
+  /**
+   * @brief Retrieve the window that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return The window the actor is added to or a null pointer if the actor is not added to any widnow.
+   */
+  Dali::Internal::Adaptor::SceneHolder* GetWindow( Dali::Actor& actor );
 
 public:
 
@@ -313,24 +326,10 @@ public:
   Integration::PlatformAbstraction& GetPlatformAbstraction() const;
 
   /**
-   * Sets the Drag & Drop Listener.
-   * @param[in] detector The detector to send Drag & Drop events to.
-   */
-  void SetDragAndDropDetector( DragAndDropDetectorPtr detector );
-
-  /**
    * Destroy the TtsPlayer of specific mode.
    * @param[in] mode The mode of TtsPlayer to destroy
    */
   void DestroyTtsPlayer(Dali::TtsPlayer::Mode mode);
-
-  /**
-   * @brief Sets minimum distance in pixels that the fingers must move towards/away from each other in order to
-   * trigger a pinch gesture
-   *
-   * @param[in] distance The minimum pinch distance in pixels
-   */
-  void SetMinimumPinchDistance(float distance);
 
   /**
    * Gets native window handle
@@ -504,15 +503,6 @@ public: // Signals
     return mLanguageChangedSignal;
   }
 
-  /**
-   * Gets the gesture manager.
-   * @return The GestureManager
-   */
-  GestureManager* GetGestureManager() const
-  {
-    return mGestureManager;
-  }
-
 private: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
@@ -618,7 +608,7 @@ private:
    *                          - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  Adaptor( Dali::Window window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
+  Adaptor( Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
 
 private: // Types
 
@@ -631,8 +621,8 @@ private: // Types
     STOPPED,             ///< Adaptor has been stopped.
   };
 
-  using WindowPtr = IntrusivePtr< Window >;
-  using WindowContainer = std::vector<WindowPtr>;
+  using SceneHolderPtr = IntrusivePtr< Dali::Internal::Adaptor::SceneHolder >;
+  using WindowContainer = std::vector<SceneHolderPtr>;
   using ObserverContainer = std::vector<LifeCycleObserver*>;
 
 private: // Data
@@ -655,12 +645,10 @@ private: // Data
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
   bool                                  mNotificationOnIdleInstalled; ///< whether the idle handler is installed to send an notification event
   TriggerEventInterface*                mNotificationTrigger;         ///< Notification event trigger
-  GestureManager*                       mGestureManager;              ///< Gesture manager
   FeedbackPluginProxy*                  mDaliFeedbackPlugin;          ///< Used to access feedback support
   FeedbackController*                   mFeedbackController;          ///< Plays feedback effects for Dali-Toolkit UI Controls.
   Dali::TtsPlayer                       mTtsPlayers[Dali::TtsPlayer::MODE_NUM];                   ///< Provides TTS support
   ObserverContainer                     mObservers;                   ///< A list of adaptor observer pointers
-  DragAndDropDetectorPtr                mDragAndDropDetector;         ///< The Drag & Drop detector
   EnvironmentOptions*                   mEnvironmentOptions;          ///< environment options
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer

@@ -2,18 +2,11 @@
 
 # module: input, backend: common
 adaptor_input_common_src_files=\
-    ${adaptor_input_dir}/common/drag-and-drop-detector-impl.cpp \
-    ${adaptor_input_dir}/common/gesture-manager.cpp \
     ${adaptor_input_dir}/common/input-method-context-impl.cpp \
     ${adaptor_input_dir}/common/key-grab.cpp \
     ${adaptor_input_dir}/common/key-impl.cpp \
     ${adaptor_input_dir}/common/keyboard.cpp \
-    ${adaptor_input_dir}/common/long-press-gesture-detector.cpp \
-    ${adaptor_input_dir}/common/pan-gesture-detector-base.cpp \
-    ${adaptor_input_dir}/common/pan-gesture-detector.cpp \
     ${adaptor_input_dir}/common/physical-keyboard-impl.cpp \
-    ${adaptor_input_dir}/common/pinch-gesture-detector.cpp \
-    ${adaptor_input_dir}/common/tap-gesture-detector.cpp \
     ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
 
 # module: input, backend: tizen-wayland

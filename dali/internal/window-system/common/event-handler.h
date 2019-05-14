@@ -31,7 +31,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
-#include <dali/internal/input/common/drag-and-drop-detector-impl.h>
 #include <dali/internal/system/common/core-event-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-observer.h>
@@ -70,10 +69,9 @@ public:
    * Constructor.
    * @param[in]  scene                    The scene where events will be sent to.
    * @param[in]  coreEventInterface       Used to send events to Core.
-   * @param[in]  gestureManager           The Gesture Manager.
    * @param[in]  damageObserver           The damage observer (to pass damage events to).
    */
-  EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver );
+  EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, DamageObserver& damageObserver );
 
   /**
    * Destructor.
@@ -235,7 +233,6 @@ private:
   Dali::Integration::Scene mScene; ///< The scene the event handler is created for.
   CoreEventInterface& mCoreEventInterface; ///< Used to send events to Core.
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
-  GestureManager& mGestureManager; ///< Reference to the GestureManager, set on construction, to send touch events to for analysis.
   Dali::StyleMonitor mStyleMonitor; ///< Handle to the style monitor, set on construction, to send font size and font change events to.
   DamageObserver& mDamageObserver; ///< Reference to the DamageObserver, set on construction, to sent damage events to.
   RotationObserver* mRotationObserver; ///< Pointer to rotation observer, if present.
