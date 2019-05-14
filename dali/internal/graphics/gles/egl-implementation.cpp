@@ -350,11 +350,11 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if( mGlesVersion >= 30 )
   {
-#ifdef _ARCH_ARM_
+#if defined(_ARCH_ARM_) || defined(ANDROID)
     configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
 #else
     configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
-#endif // _ARCH_ARM_
+#endif // _ARCH_ARM_ || ANDROID
   }
   else
   {

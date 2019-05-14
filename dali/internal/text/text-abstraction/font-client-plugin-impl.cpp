@@ -1292,7 +1292,11 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
 
               const float descender = glyph.height - glyph.yBearing;
               glyph.height = ( bbox.yMax -  bbox.yMin) * FROM_266;
+#ifdef ANDROID
+              glyph.yBearing = glyph.height - roundf( descender );
+#else
               glyph.yBearing = glyph.height - std::round( descender );
+#endif
 
               // Created FT_Glyph object must be released with FT_Done_Glyph
               FT_Done_Glyph( ftGlyph );
