@@ -24,9 +24,11 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/integration-api/scene.h>
+#include <dali/integration-api/events/key-event-integ.h>
+#include <dali/integration-api/events/point.h>
+#include <dali/integration-api/events/touch-event-combiner.h>
 
 // INTERNAL INCLUDES
-
 #ifdef DALI_ADAPTOR_COMPILATION
 #include <dali/integration-api/render-surface-interface.h>
 #include <dali/integration-api/scene-holder.h>
@@ -50,6 +52,9 @@ namespace Integration
 {
 
 class Scene;
+struct Point;
+struct KeyEvent;
+struct WheelEvent;
 
 }
 
@@ -142,6 +147,21 @@ public:
    */
   void Resume();
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
+   */
+  void FeedTouchPoint( Dali::Integration::Point& point, int timeStamp );
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
+   */
+  void FeedWheelEvent( Dali::Integration::WheelEvent& wheelEvent );
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
+   */
+  void FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent );
+
 public: // The following methods can be overridden if required
 
   /**
@@ -156,21 +176,6 @@ public: // The following methods must be overridden
    * @copydoc Dali::Integration::SceneHolder::GetNativeHandle
    */
   virtual Dali::Any GetNativeHandle() const = 0;
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
-   */
-  virtual void FeedTouchPoint( Dali::TouchPoint& point, int timeStamp ) = 0;
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
-   */
-  virtual void FeedWheelEvent( Dali::WheelEvent& wheelEvent ) = 0;
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
-   */
-  virtual void FeedKeyEvent( Dali::KeyEvent& keyEvent ) = 0;
 
 protected:
 
@@ -212,6 +217,19 @@ private: // The following methods can be overridden if required
    */
   virtual void OnResume() {};
 
+  /**
+   * Recalculate the touch position if required
+   * @param[in,out] point The touch point
+   */
+  virtual void RecalculateTouchPosition( Integration::Point& point ) {};
+
+private:
+
+  /**
+   * Resets the event handling.
+   */
+  void Reset();
+
 private:
 
   static uint32_t                                 mSceneHolderCounter; ///< A counter to track the SceneHolder creation
@@ -227,6 +245,8 @@ protected:
 
   std::unique_ptr< Dali::RenderSurfaceInterface > mSurface;            ///< The window rendering surface
   Adaptor*                                        mAdaptor;            ///< The adaptor
+
+  Dali::Integration::TouchEventCombiner           mCombiner;           ///< Combines multi-touch events.
 
   bool                                            mAdaptorStarted:1;   ///< Whether the adaptor has started or not
   bool                                            mVisible:1;          ///< Whether the scene is visible or not

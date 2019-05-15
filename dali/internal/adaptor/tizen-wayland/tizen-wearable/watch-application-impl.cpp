@@ -17,6 +17,9 @@
 
 // CLASS HEADER
 #include <dali/internal/adaptor/tizen-wayland/tizen-wearable/watch-application-impl.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali

@@ -18,6 +18,12 @@
 // CLASS HEADER
 #include <dali/integration-api/scene-holder.h>
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/events/wheel-event.h>
+#include <dali/integration-api/events/key-event-integ.h>
+#include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/wheel-event-integ.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/scene-holder-impl.h>
@@ -79,17 +85,20 @@ Vector4 SceneHolder::GetBackgroundColor() const
 
 void SceneHolder::FeedTouchPoint( Dali::TouchPoint& point, int timeStamp )
 {
-  GetImplementation(*this).FeedTouchPoint( point, timeStamp );
+  Integration::Point convertedPoint( point );
+  GetImplementation(*this).FeedTouchPoint( convertedPoint, timeStamp );
 }
 
 void SceneHolder::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
 {
-  GetImplementation(*this).FeedWheelEvent( wheelEvent );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
+  GetImplementation(*this).FeedWheelEvent( event );
 }
 
 void SceneHolder::FeedKeyEvent( Dali::KeyEvent& keyEvent )
 {
-  GetImplementation(*this).FeedKeyEvent( keyEvent );
+  Integration::KeyEvent convertedEvent( keyEvent );
+  GetImplementation(*this).FeedKeyEvent( convertedEvent );
 }
 
 }// Integration
