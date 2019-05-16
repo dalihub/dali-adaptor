@@ -50,7 +50,7 @@ public:
    * @brief Returns whether panel layout type is password or not
    * @return true if panel layout type is password, false otherwise.
    */
-  bool IsPassword();
+  bool IsPassword() const;
 
   /**
    * @brief Apply property map to attribute class, this class will keep the virtualKeyboard settings.

@@ -718,25 +718,35 @@ void InputMethodContextEcoreWl::ApplyOptions( const InputMethodOptions& options 
 
   int index;
 
-  if (mIMFContext == NULL)
+  if( mIMFContext == NULL )
   {
     DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
     return;
   }
 
-  if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
+  if( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
   {
     ecore_imf_context_input_panel_layout_set( mIMFContext, panelLayoutMap[index] );
+
+    // Sets the input hint which allows input methods to fine-tune their behavior.
+    if( panelLayoutMap[index] == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD )
+    {
+      ecore_imf_context_input_hint_set( mIMFContext, static_cast< Ecore_IMF_Input_Hints >( ecore_imf_context_input_hint_get( mIMFContext ) | ECORE_IMF_INPUT_HINT_SENSITIVE_DATA ) );
+    }
+    else
+    {
+      ecore_imf_context_input_hint_set( mIMFContext, static_cast< Ecore_IMF_Input_Hints >( ecore_imf_context_input_hint_get( mIMFContext ) & ~ECORE_IMF_INPUT_HINT_SENSITIVE_DATA ) );
+    }
   }
-  if ( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
+  if( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
   {
     ecore_imf_context_input_panel_return_key_type_set( mIMFContext, returnKeyTypeMap[index] );
   }
-  if ( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
+  if( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
   {
     ecore_imf_context_autocapital_type_set( mIMFContext, autoCapitalMap[index] );
   }
-  if ( mOptions.CompareAndSet(VARIATION, options, index) )
+  if( mOptions.CompareAndSet(VARIATION, options, index) )
   {
     ecore_imf_context_input_panel_layout_variation_set( mIMFContext, index );
   }
