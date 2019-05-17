@@ -46,7 +46,6 @@
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
-#include <dali/internal/input/common/gesture-manager.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -159,10 +158,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   DALI_ASSERT_DEBUG( defaultWindow->GetSurface() && "Surface not initialized" );
 
-  PositionSize size = defaultWindow->GetSurface()->GetPositionSize();
-
-  mGestureManager = new GestureManager(*this, Vector2(static_cast<float>(size.width), static_cast<float>(size.height)), mCallbackManager, *mEnvironmentOptions);
-
   mGraphics = &( graphicsFactory.Create() );
   mGraphics->Initialize( mEnvironmentOptions );
 
@@ -178,7 +173,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   *mPlatformAbstraction,
                                   mGLES,
                                   eglSyncImpl,
-                                  *mGestureManager,
                                   dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
@@ -265,6 +259,18 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Integration::SetPanGestureMultitapSmoothingRange( mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() );
   }
+  if( mEnvironmentOptions->GetMinimumPanDistance() >= 0 )
+  {
+    Integration::SetPanGestureMinimumDistance( mEnvironmentOptions->GetMinimumPanDistance() );
+  }
+  if( mEnvironmentOptions->GetMinimumPanEvents() >= 0 )
+  {
+    Integration::SetPanGestureMinimumPanEvents( mEnvironmentOptions->GetMinimumPanEvents() );
+  }
+  if( mEnvironmentOptions->GetMinimumPinchDistance() >= 0 )
+  {
+    Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
+  }
 
   // Set max texture size
   if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
@@ -295,7 +301,6 @@ Adaptor::~Adaptor()
 
   delete mCore;
 
-  delete mGestureManager;
   delete mDisplayConnection;
   delete mPlatformAbstraction;
   delete mCallbackManager;
@@ -715,14 +720,6 @@ void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
   }
 }
 
-void Adaptor::SetMinimumPinchDistance(float distance)
-{
-  if( mGestureManager )
-  {
-    mGestureManager->SetMinimumPinchDistance(distance);
-  }
-}
-
 Any Adaptor::GetNativeWindowHandle()
 {
   return mWindows.front()->GetNativeHandle();
@@ -996,7 +993,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mCallbackManager( nullptr ),
   mNotificationOnIdleInstalled( false ),
   mNotificationTrigger( nullptr ),
-  mGestureManager( nullptr ),
   mDaliFeedbackPlugin(),
   mFeedbackController( nullptr ),
   mTtsPlayers(),

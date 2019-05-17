@@ -125,8 +125,7 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  mEventHandler = EventHandlerPtr(
-      new EventHandler( mScene, *mAdaptor, *mAdaptor->GetGestureManager(), *mAdaptor ) );
+  mEventHandler = EventHandlerPtr(new EventHandler( mScene, *mAdaptor, *mAdaptor ) );
 
   // TODO: Orientation should be passed into the constructor of EventHandler
   if( mOrientation )

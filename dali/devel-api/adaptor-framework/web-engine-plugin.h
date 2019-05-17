@@ -37,7 +37,57 @@ class WebEnginePlugin
 {
 public:
 
-  typedef Signal< void( const std::string& ) > WebEngineSignalType;
+  /**
+   * @brief WebEngine signal type related with page loading.
+   */
+  typedef Signal< void( const std::string& ) > WebEnginePageLoadSignalType;
+
+  /**
+   * @brief WebView signal type related with page loading error.
+   */
+  typedef Signal< void( const std::string&, int ) > WebEnginePageLoadErrorSignalType;
+
+  /**
+   * @brief Enumeration for cache model options.
+   */
+  enum class CacheModel
+  {
+    /**
+     * @brief Use the smallest cache capacity.
+     */
+    DOCUMENT_VIEWER,
+
+    /**
+     * @brief Use the bigger cache capacity than DocumentBrowser.
+     */
+    DOCUMENT_BROWSER,
+
+    /**
+     * @brief Use the biggest cache capacity.
+     */
+    PRIMARY_WEB_BROWSER
+  };
+
+  /**
+   * @brief Enumeration for the cookies accept policies.
+   */
+  enum class CookieAcceptPolicy
+  {
+    /**
+     * @brief Accepts every cookie sent from any page.
+     */
+    ALWAYS,
+
+    /**
+     * @brief Rejects all the cookies.
+     */
+    NEVER,
+
+    /**
+     * @brief Accepts only cookies set by the main document that is loaded.
+     */
+    NO_THIRD_PARTY
+  };
 
   /**
    * @brief Constructor.
@@ -105,6 +155,16 @@ public:
   virtual void StopLoading() = 0;
 
   /**
+   * @brief Suspends the operation associated with the view.
+   */
+  virtual void Suspend() = 0;
+
+  /**
+   * @brief Resumes the operation associated with the view object after calling Suspend().
+   */
+  virtual void Resume() = 0;
+
+  /**
    * @brief Returns whether forward is possible.
    *
    * @return True if forward is possible, false otherwise
@@ -132,8 +192,9 @@ public:
    * @brief Evaluates JavaScript code represented as a string.
    *
    * @param[in] script The JavaScript code
+   * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  virtual void EvaluateJavaScript( const std::string& script ) = 0;
+  virtual void EvaluateJavaScript( const std::string& script, std::function< void( const std::string& ) > resultHandler ) = 0;
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -152,6 +213,109 @@ public:
    * @brief Clears the cache of Web.
    */
   virtual void ClearCache() = 0;
+
+  /**
+   * @brief Clears all the cookies of Web.
+   */
+  virtual void ClearCookies() = 0;
+
+  /**
+   * @brief Get cache model option. The default is DOCUMENT_VIEWER.
+   *
+   * @return The cache model option
+   */
+  virtual CacheModel GetCacheModel() const = 0;
+
+  /**
+   * @brief Set cache model option. The default is DOCUMENT_VIEWER.
+   *
+   * @param[in] cacheModel The cache model option
+   */
+  virtual void SetCacheModel( CacheModel cacheModel ) = 0;
+
+  /**
+   * @brief Gets the cookie acceptance policy. The default is NO_THIRD_PARTY.
+   *
+   * @return The cookie acceptance policy
+   */
+  virtual CookieAcceptPolicy GetCookieAcceptPolicy() const = 0;
+
+  /**
+   * @brief Sets the cookie acceptance policy. The default is NO_THIRD_PARTY.
+   *
+   * @param[in] policy The cookie acceptance policy
+   */
+  virtual void SetCookieAcceptPolicy( CookieAcceptPolicy policy ) = 0;
+
+  /**
+   * @brief Get user agent string.
+   *
+   * @return The string value of user agent
+   */
+  virtual const std::string& GetUserAgent() const = 0;
+
+  /**
+   * @brief Set user agent string.
+   *
+   * @param[in] userAgent The string value of user agent
+   */
+  virtual void SetUserAgent( const std::string& userAgent ) = 0;
+
+  /**
+   * @brief Returns whether JavaScript can be executable. The default is true.
+   *
+   * @return true if JavaScript executing is enabled, false otherwise
+   */
+  virtual bool IsJavaScriptEnabled() const = 0;
+
+  /**
+   * @brief Enables/disables JavaScript executing. The default is enabled.
+   *
+   * @param[in] enabled True if JavaScript executing is enabled, false otherwise
+   */
+  virtual void EnableJavaScript( bool enabled ) = 0;
+
+  /**
+   * @brief Returns whether images can be loaded automatically. The default is true.
+   *
+   * @return true if images are loaded automatically, false otherwise
+   */
+  virtual bool AreImagesAutomaticallyLoaded() const = 0;
+
+  /**
+   * @brief Enables/disables auto loading of images. The default is enabled.
+   *
+   * @param[in] automatic True if images are loaded automatically, false otherwise
+   */
+  virtual void LoadImagesAutomatically( bool automatic ) = 0;
+
+  /**
+   * @brief Gets the default text encoding name (e.g. UTF-8).
+   *
+   * @return The default text encoding name
+   */
+  virtual const std::string& GetDefaultTextEncodingName() const = 0;
+
+  /**
+   * @brief Sets the default text encoding name (e.g. UTF-8).
+   *
+   * @param[in] defaultTextEncodingName The default text encoding name
+   */
+  virtual void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName ) = 0;
+
+  /**
+   * @brief Returns the default font size in pixel. The default value is 16.
+   *
+   * @return The default font size
+   */
+  virtual int GetDefaultFontSize() const = 0;
+
+  /**
+   * @brief Sets the default font size in pixel. The default value is 16.
+   *
+   * @param[in] defaultFontSize A new default font size to set
+   */
+  virtual void SetDefaultFontSize( int defaultFontSize ) = 0;
 
   /**
    * @brief Sets size of Web Page.
@@ -173,14 +337,21 @@ public:
    *
    * @return A signal object to connect with.
    */
-  virtual WebEngineSignalType& PageLoadStartedSignal() = 0;
+  virtual WebEnginePageLoadSignalType& PageLoadStartedSignal() = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is finished.
    *
    * @return A signal object to connect with.
    */
-  virtual WebEngineSignalType& PageLoadFinishedSignal() = 0;
+  virtual WebEnginePageLoadSignalType& PageLoadFinishedSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when an error occurs in page loading.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
 
 };
 

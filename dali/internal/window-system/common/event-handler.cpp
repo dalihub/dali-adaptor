@@ -33,7 +33,6 @@
 #include <dali/integration-api/scene.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/input/common/gesture-manager.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
@@ -98,10 +97,9 @@ static uint32_t GetCurrentMilliSeconds(void)
 
 } // unnamed namespace
 
-EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, GestureManager& gestureManager, DamageObserver& damageObserver )
+EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, DamageObserver& damageObserver )
 : mScene( scene ),
   mCoreEventInterface( coreEventInterface ),
-  mGestureManager( gestureManager ),
   mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
   mRotationObserver( NULL ),
@@ -135,7 +133,6 @@ EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& 
 
 EventHandler::~EventHandler()
 {
-  mGestureManager.Stop();
 }
 
 void EventHandler::SendEvent( Integration::Point& point, uint32_t timeStamp )
@@ -157,7 +154,6 @@ void EventHandler::SendEvent( Integration::Point& point, uint32_t timeStamp )
     if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth )
     {
       mScene.QueueEvent( touchEvent );
-      mGestureManager.SendEvent( mScene, touchEvent );
     }
 
     if( type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth )
@@ -259,8 +255,6 @@ void EventHandler::Reset()
 
   // First the touch event & related gesture events are queued
   mScene.QueueEvent( event );
-
-  mGestureManager.SendEvent( mScene, event );
 
   // Next the events are processed with a single call into Core
   mCoreEventInterface.ProcessCoreEvents();

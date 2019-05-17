@@ -31,7 +31,6 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/singleton-service-impl.h>

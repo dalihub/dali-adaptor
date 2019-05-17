@@ -745,6 +745,52 @@ bool InputMethodContextX::IsTextPredictionAllowed() const
   return prediction;
 }
 
+void InputMethodContextX::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelLanguage\n" );
+  if( mIMFContext )
+  {
+    switch (language)
+    {
+      case Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC:
+      {
+        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC );
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelLanguage::ALPHABET:
+      {
+        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET );
+        break;
+      }
+    }
+  }
+}
+
+Dali::InputMethodContext::InputPanelLanguage InputMethodContextX::GetInputPanelLanguage() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLanguage\n" );
+  if( mIMFContext )
+  {
+    int value;
+    value =  ecore_imf_context_input_panel_language_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC:
+      {
+        return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+        break;
+      }
+      case ECORE_IMF_INPUT_PANEL_LANG_ALPHABET:
+      {
+        return Dali::InputMethodContext::InputPanelLanguage::ALPHABET;
+        break;
+      }
+    }
+  }
+  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+}
+
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );

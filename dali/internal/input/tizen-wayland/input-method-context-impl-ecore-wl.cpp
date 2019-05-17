@@ -718,25 +718,35 @@ void InputMethodContextEcoreWl::ApplyOptions( const InputMethodOptions& options 
 
   int index;
 
-  if (mIMFContext == NULL)
+  if( mIMFContext == NULL )
   {
     DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
     return;
   }
 
-  if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
+  if( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
   {
     ecore_imf_context_input_panel_layout_set( mIMFContext, panelLayoutMap[index] );
+
+    // Sets the input hint which allows input methods to fine-tune their behavior.
+    if( panelLayoutMap[index] == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD )
+    {
+      ecore_imf_context_input_hint_set( mIMFContext, static_cast< Ecore_IMF_Input_Hints >( ecore_imf_context_input_hint_get( mIMFContext ) | ECORE_IMF_INPUT_HINT_SENSITIVE_DATA ) );
+    }
+    else
+    {
+      ecore_imf_context_input_hint_set( mIMFContext, static_cast< Ecore_IMF_Input_Hints >( ecore_imf_context_input_hint_get( mIMFContext ) & ~ECORE_IMF_INPUT_HINT_SENSITIVE_DATA ) );
+    }
   }
-  if ( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
+  if( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
   {
     ecore_imf_context_input_panel_return_key_type_set( mIMFContext, returnKeyTypeMap[index] );
   }
-  if ( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
+  if( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
   {
     ecore_imf_context_autocapital_type_set( mIMFContext, autoCapitalMap[index] );
   }
-  if ( mOptions.CompareAndSet(VARIATION, options, index) )
+  if( mOptions.CompareAndSet(VARIATION, options, index) )
   {
     ecore_imf_context_input_panel_layout_variation_set( mIMFContext, index );
   }
@@ -935,6 +945,52 @@ bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
     prediction = ecore_imf_context_prediction_allow_get( mIMFContext );
   }
   return prediction;
+}
+
+void InputMethodContextEcoreWl::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLanguage\n" );
+  if( mIMFContext )
+  {
+    switch (language)
+    {
+      case Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC:
+      {
+        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC );
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelLanguage::ALPHABET:
+      {
+        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET );
+        break;
+      }
+    }
+  }
+}
+
+Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInputPanelLanguage() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLanguage\n" );
+  if( mIMFContext )
+  {
+    int value;
+    value =  ecore_imf_context_input_panel_language_get( mIMFContext );
+
+    switch (value)
+    {
+      case ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC:
+      {
+        return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+        break;
+      }
+      case ECORE_IMF_INPUT_PANEL_LANG_ALPHABET:
+      {
+        return Dali::InputMethodContext::InputPanelLanguage::ALPHABET;
+        break;
+      }
+    }
+  }
+  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
 bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@
 // EXTERNAL INCLUDES
 #include <dirent.h>
 #include <fstream>
+#include <algorithm>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
+#include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
@@ -36,8 +39,39 @@ namespace Dali
 namespace TizenPlatform
 {
 
+struct TizenPlatformAbstraction::TimerCallback : ConnectionTracker
+{
+  Dali::Timer mTimer;
+  TizenPlatformAbstraction* mOwner;
+  CallbackBase* mCallback;
+  const uint32_t mIdNumber;
+
+  static uint32_t sNextTimerId;
+
+  TimerCallback(TizenPlatformAbstraction* owner, CallbackBase* callback, uint32_t ms)
+  : mTimer(Dali::Timer::New(ms)),
+    mOwner(owner),
+    mCallback(callback),
+    mIdNumber(sNextTimerId++)
+  {
+    mTimer.TickSignal().Connect( this, &TimerCallback::Tick );
+    mTimer.Start();
+  }
+
+  bool Tick()
+  {
+    mOwner->RunTimerFunction(*this);
+    return false;
+  }
+};
+
+uint32_t TizenPlatformAbstraction::TimerCallback::sNextTimerId = 0;
+
 TizenPlatformAbstraction::TizenPlatformAbstraction()
-: mDataStoragePath( "" )
+: mDataStoragePath( "" ),
+  mTimerPairsWaiting(),
+  mTimerPairsSpent()
+
 {
 }
 
@@ -154,6 +188,63 @@ void TizenPlatformAbstraction::SetDataStoragePath( const std::string& path )
 {
   mDataStoragePath = path;
 }
+
+uint32_t TizenPlatformAbstraction::StartTimer( uint32_t milliseconds, CallbackBase* callback )
+{
+  TimerCallback* timerCallbackPtr = new TimerCallback(this, callback, milliseconds);
+
+  // Stick it in the list
+  mTimerPairsWaiting.push_back(timerCallbackPtr);
+
+  return timerCallbackPtr->mIdNumber;
+}
+
+void TizenPlatformAbstraction::CancelTimer ( uint32_t timerId )
+{
+  auto iter = std::remove_if(
+    mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(),
+    [&timerId]( TimerCallback* timerCallbackPtr )
+    {
+      if( timerCallbackPtr->mIdNumber == timerId )
+      {
+        timerCallbackPtr->mTimer.Stop();
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+  );
+
+  mTimerPairsWaiting.erase( iter, mTimerPairsWaiting.end() );
+}
+
+void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
+{
+  CallbackBase::Execute( *timerPtr.mCallback );
+
+  std::vector<TimerCallback*>::iterator timerIter = std::find( mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), &timerPtr );
+
+  if( timerIter == std::end(mTimerPairsWaiting) )
+  {
+    DALI_ASSERT_DEBUG(false);
+  }
+
+  // ...and move it
+  std::move(timerIter, timerIter+1, std::back_inserter(mTimerPairsSpent));
+
+  mTimerPairsWaiting.erase(timerIter, timerIter+1);
+
+  Dali::Adaptor::Get().AddIdle( MakeCallback( this, &TizenPlatformAbstraction::CleanupTimers ), false );
+}
+
+
+void TizenPlatformAbstraction::CleanupTimers()
+{
+  mTimerPairsSpent.clear();
+}
+
 
 TizenPlatformAbstraction* CreatePlatformAbstraction()
 {

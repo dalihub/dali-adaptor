@@ -23,7 +23,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
-#include <dali/integration-api/events/gesture-requests.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
