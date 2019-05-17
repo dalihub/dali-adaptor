@@ -1,8 +1,8 @@
-#ifndef __DALI_DEVICE_STATUS_H__
-#define __DALI_DEVICE_STATUS_H__
+#ifndef DALI_DEVICE_STATUS_H
+#define DALI_DEVICE_STATUS_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,4 +70,4 @@ struct Memory
  */
 } // namespace Dali
 
-#endif // __DALI_DEVICE_STATUS_H__
+#endif // DALI_DEVICE_STATUS_H

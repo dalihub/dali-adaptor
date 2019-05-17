@@ -1,8 +1,8 @@
 // resampler.h, Separable filtering image rescaler v2.21, Rich Geldreich - richgel99@gmail.com
 // See unlicense.org text at the bottom of this file.
 // Modified to specify filters as enum rather than char *
-#ifndef __RESAMPLER_H__
-#define __RESAMPLER_H__
+#ifndef RESAMPLER_H
+#define RESAMPLER_H
 
 #define RESAMPLER_DEBUG_OPS 0
 
@@ -187,7 +187,7 @@ private:
    }
 };
 
-#endif // __RESAMPLER_H__
+#endif // RESAMPLER_H
 
 // This is free and unencumbered software released into the public domain.
 //

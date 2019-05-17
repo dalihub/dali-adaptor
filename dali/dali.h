@@ -1,8 +1,8 @@
-#ifndef __DALI_H__
-#define __DALI_H__
+#ifndef DALI_H
+#define DALI_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,4 +34,4 @@
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/dali-adaptor-version.h>
 
-#endif //__DALI_H__
+#endif //DALI_H

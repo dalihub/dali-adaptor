@@ -1,5 +1,5 @@
-#ifndef __DALI_INTERNAL_GL_EXTENSION_H__
-#define __DALI_INTERNAL_GL_EXTENSION_H__
+#ifndef DALI_INTERNAL_GL_EXTENSION_H
+#define DALI_INTERNAL_GL_EXTENSION_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -119,4 +119,4 @@ private:
 
 } // namespace Dali
 
-#endif /* __DALI_INTERNAL_GL_EXTENSION_H__ */
+#endif /* DALI_INTERNAL_GL_EXTENSION_H */
