@@ -23,6 +23,7 @@
 #include <dali/public-api/actors/layer.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 
 namespace Dali

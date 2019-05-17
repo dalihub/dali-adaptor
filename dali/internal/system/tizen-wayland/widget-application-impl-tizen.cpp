@@ -21,6 +21,7 @@
 // INTERNAL INCLUDE
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 

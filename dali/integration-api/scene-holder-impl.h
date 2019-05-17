@@ -20,20 +20,20 @@
 
 // EXTERNAL INCLUDES
 #include <memory>
+#include <vector>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/integration-api/scene.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/scene-holder.h>
-#include <dali/integration-api/scene.h>
 
 #ifdef DALI_ADAPTOR_COMPILATION
 #include <dali/integration-api/render-surface-interface.h>
+#include <dali/integration-api/scene-holder.h>
 #else
 #include <dali/integration-api/adaptors/render-surface-interface.h>
+#include <dali/integration-api/adaptors/scene-holder.h>
 #endif
-
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -59,6 +59,7 @@ namespace Internal
 namespace Adaptor
 {
 
+class Adaptor;
 class SceneHolder;
 using SceneHolderPtr = IntrusivePtr< SceneHolder >;
 
