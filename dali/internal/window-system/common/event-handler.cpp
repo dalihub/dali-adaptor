@@ -30,12 +30,9 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
-#include <dali/integration-api/scene.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/clipboard/common/clipboard-impl.h>
-#include <dali/internal/input/common/key-impl.h>
-#include <dali/internal/input/common/physical-keyboard-impl.h>
 #include <dali/internal/styling/common/style-monitor-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -51,11 +48,11 @@ namespace Adaptor
 #if defined(DEBUG_ENABLED)
 namespace
 {
-Integration::Log::Filter* gTouchEventLogFilter  = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_TOUCH");
 Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_SELECTION");
 } // unnamed namespace
 #endif
 
+#ifdef DALI_ELDBUS_AVAILABLE
 namespace
 {
 
@@ -96,31 +93,24 @@ static uint32_t GetCurrentMilliSeconds(void)
 }
 
 } // unnamed namespace
+#endif
 
-EventHandler::EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, DamageObserver& damageObserver )
-: mScene( scene ),
-  mCoreEventInterface( coreEventInterface ),
-  mStyleMonitor( StyleMonitor::Get() ),
+EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damageObserver )
+: mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
-  mRotationObserver( NULL ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard( Clipboard::Get() ),
-  mRotationAngle( 0 ),
-  mWindowWidth( 0 ),
-  mWindowHeight( 0 ),
   mPaused( false )
 {
-  // this code only works with the WindowRenderSurface so need to downcast
-  WindowRenderSurface* windowRenderSurface = static_cast< WindowRenderSurface* >( scene.GetSurface() );
-  if( windowRenderSurface )
+  if( surface )
   {
-    WindowBase* windowBase = windowRenderSurface->GetWindowBase();
+    WindowBase* windowBase = surface->GetWindowBase();
 
     // Connect signals
     windowBase->WindowDamagedSignal().Connect( this, &EventHandler::OnWindowDamaged );
     windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
-    windowBase->RotationSignal().Connect( this, &EventHandler::SendRotationPrepareEvent );
+    windowBase->RotationSignal().Connect( this, &EventHandler::OnRotation );
     windowBase->TouchEventSignal().Connect( this, &EventHandler::OnTouchEvent );
     windowBase->WheelEventSignal().Connect( this, &EventHandler::OnWheelEvent );
     windowBase->KeyEventSignal().Connect( this, &EventHandler::OnKeyEvent );
@@ -135,62 +125,6 @@ EventHandler::~EventHandler()
 {
 }
 
-void EventHandler::SendEvent( Integration::Point& point, uint32_t timeStamp )
-{
-  if( timeStamp < 1 )
-  {
-    timeStamp = GetCurrentMilliSeconds();
-  }
-
-  ConvertTouchPosition( point );
-
-  Integration::TouchEvent touchEvent;
-  Integration::HoverEvent hoverEvent;
-  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
-  if( type != Integration::TouchEventCombiner::DispatchNone )
-  {
-    DALI_LOG_INFO( gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
-    // First the touch and/or hover event & related gesture events are queued
-    if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth )
-    {
-      mScene.QueueEvent( touchEvent );
-    }
-
-    if( type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth )
-    {
-      mScene.QueueEvent( hoverEvent );
-    }
-
-    // Next the events are processed with a single call into Core
-    mCoreEventInterface.ProcessCoreEvents();
-  }
-}
-
-void EventHandler::SendEvent(Integration::KeyEvent& keyEvent)
-{
-  Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
-  if( physicalKeyboard )
-  {
-    if( ! KeyLookup::IsDeviceButton( keyEvent.keyName.c_str() ) )
-    {
-      GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
-    }
-  }
-
-  // Create send KeyEvent to Core.
-  mScene.QueueEvent( keyEvent );
-  mCoreEventInterface.ProcessCoreEvents();
-}
-
-void EventHandler::SendWheelEvent( WheelEvent& wheelEvent )
-{
-  // Create WheelEvent and send to Core.
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
-
-  mScene.QueueEvent( event );
-  mCoreEventInterface.ProcessCoreEvents();
-}
-
 void EventHandler::SendEvent( StyleChange::Type styleChange )
 {
   DALI_ASSERT_DEBUG( mStyleMonitor && "StyleMonitor Not Available" );
@@ -202,94 +136,40 @@ void EventHandler::SendEvent( const DamageArea& area )
   mDamageObserver.OnDamaged( area );
 }
 
-void EventHandler::SendRotationPrepareEvent( const RotationEvent& event )
-{
-  if( mRotationObserver != NULL )
-  {
-    mRotationAngle = event.angle;
-    mWindowWidth = event.width;
-    mWindowHeight = event.height;
-
-    mRotationObserver->OnRotationPrepare( event );
-    mRotationObserver->OnRotationRequest();
-  }
-}
-
-void EventHandler::SendRotationRequestEvent( )
-{
-  // No need to separate event into prepare and request
-}
-
-void EventHandler::FeedTouchPoint( TouchPoint& point, uint32_t timeStamp)
-{
-  Integration::Point convertedPoint( point );
-  SendEvent( convertedPoint, timeStamp );
-}
-
-void EventHandler::FeedWheelEvent( WheelEvent& wheelEvent )
-{
-  SendWheelEvent( wheelEvent );
-}
-
-void EventHandler::FeedKeyEvent( KeyEvent& event )
-{
-  Integration::KeyEvent convertedEvent( event );
-  SendEvent( convertedEvent );
-}
-
-void EventHandler::FeedEvent( Integration::Event& event )
-{
-  mScene.QueueEvent( event );
-  mCoreEventInterface.ProcessCoreEvents();
-}
-
-void EventHandler::Reset()
-{
-  mCombiner.Reset();
-
-  // Any touch listeners should be told of the interruption.
-  Integration::TouchEvent event;
-  Integration::Point point;
-  point.SetState( PointState::INTERRUPTED );
-  event.AddPoint( point );
-
-  // First the touch event & related gesture events are queued
-  mScene.QueueEvent( event );
-
-  // Next the events are processed with a single call into Core
-  mCoreEventInterface.ProcessCoreEvents();
-}
-
 void EventHandler::Pause()
 {
   mPaused = true;
-  Reset();
 }
 
 void EventHandler::Resume()
 {
   mPaused = false;
-  Reset();
-}
-
-void EventHandler::SetRotationObserver( RotationObserver* observer )
-{
-  mRotationObserver = observer;
 }
 
 void EventHandler::OnTouchEvent( Integration::Point& point, uint32_t timeStamp )
 {
-  SendEvent( point, timeStamp );
+  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  {
+    (*iter)->OnTouchPoint( point, timeStamp );
+  }
 }
 
 void EventHandler::OnWheelEvent( WheelEvent& wheelEvent )
 {
-  SendWheelEvent( wheelEvent );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
+
+  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  {
+    (*iter)->OnWheelEvent( event );
+  }
 }
 
 void EventHandler::OnKeyEvent( Integration::KeyEvent& keyEvent )
 {
-  SendEvent( keyEvent );
+  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  {
+    (*iter)->OnKeyEvent( keyEvent );
+  }
 }
 
 void EventHandler::OnFocusChanged( bool focusIn )
@@ -312,6 +192,14 @@ void EventHandler::OnFocusChanged( bool focusIn )
       Clipboard& clipBoardImpl( GetImplementation( clipboard ) );
       clipBoardImpl.HideClipboard(true);
     }
+  }
+}
+
+void EventHandler::OnRotation( const RotationEvent& event )
+{
+  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  {
+    (*iter)->OnRotation( event );
   }
 }
 
@@ -612,39 +500,24 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
 #endif
 }
 
-void EventHandler::ConvertTouchPosition( Integration::Point& point )
+void EventHandler::AddObserver( Observer& observer )
 {
-  Vector2 position = point.GetScreenPosition();
-  Vector2 convertedPosition;
+  ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
 
-  switch( mRotationAngle )
+  if ( match == mObservers.end() )
   {
-    case 90:
-    {
-      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.y;
-      convertedPosition.y = position.x;
-      break;
-    }
-    case 180:
-    {
-      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.x;
-      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.y;
-      break;
-    }
-    case 270:
-    {
-      convertedPosition.x = position.y;
-      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.x;
-      break;
-    }
-    default:
-    {
-      convertedPosition = position;
-      break;
-    }
+    mObservers.push_back( &observer );
   }
+}
 
-  point.SetScreenPosition( convertedPosition );
+void EventHandler::RemoveObserver( Observer& observer )
+{
+  ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
+
+  if ( match != mObservers.end() )
+  {
+    mObservers.erase( match );
+  }
 }
 
 } // namespace Adaptor

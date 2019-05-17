@@ -23,7 +23,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 
