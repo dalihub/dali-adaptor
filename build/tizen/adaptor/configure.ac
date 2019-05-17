@@ -312,6 +312,13 @@ if test x$FONT_CONFIGURATION_FILE != x; then
   fontConfigurationFile=$FONT_CONFIGURATION_FILE
 fi
 
+if test "x$enable_profile" = "xUBUNTU"; then
+  cachePath=$HOME
+else
+  cachePath="/home/owner"
+fi # ubuntu profile test
+
+AC_SUBST(cachePath)
 AC_SUBST(dataReadWriteDir)
 AC_SUBST(dataReadOnlyDir)
 AC_SUBST(DALI_ADAPTOR_CFLAGS)
@@ -328,6 +335,7 @@ AC_CONFIG_FILES([
   Makefile
   dali-adaptor.pc
   dali-adaptor-integration.pc
+  ../../../dali/internal/adaptor/common/system-cache-path.cpp:./system-cache-path.in
 ])
 
 if test "x$freetype_bitmap_support" = "xyes"; then
