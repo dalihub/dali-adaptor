@@ -836,7 +836,7 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 
 void Adaptor::OnWindowShown()
 {
-  if ( PAUSED_WHILE_HIDDEN == mState )
+  if( PAUSED_WHILE_HIDDEN == mState )
   {
     // Adaptor can now be resumed
     mState = PAUSED;
@@ -848,13 +848,13 @@ void Adaptor::OnWindowShown()
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Not shown [%d]\n", mState );
+    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Adaptor is not paused state.[%d]\n", mState );
   }
 }
 
 void Adaptor::OnWindowHidden()
 {
-  if ( RUNNING == mState )
+  if( RUNNING == mState || READY == mState )
   {
     bool allWindowsHidden = true;
 
@@ -868,17 +868,29 @@ void Adaptor::OnWindowHidden()
     }
 
     // Only pause the adaptor when all the windows are hidden
-    if ( allWindowsHidden )
+    if( allWindowsHidden )
     {
-      Pause();
+      if( mState == RUNNING )
+      {
+        Pause();
 
-      // Adaptor cannot be resumed until any window is shown
-      mState = PAUSED_WHILE_HIDDEN;
+        // Adaptor cannot be resumed until any window is shown
+        mState = PAUSED_WHILE_HIDDEN;
+      }
+      else  // mState is READY
+      {
+        // Pause the adaptor after the state gets RUNNING
+        mState = PAUSED_WHILE_INITIALIZING;
+      }
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Some windows are shown. Don't pause adaptor.\n" );
     }
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Not hidden [%d]\n", mState );
+    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Adaptor is not running state.[%d]\n", mState );
   }
 }
 
@@ -920,9 +932,22 @@ void Adaptor::NotifySceneCreated()
   // Process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
 
-  mState = RUNNING;
+  if( mState != PAUSED_WHILE_INITIALIZING )
+  {
+    mState = RUNNING;
 
-  DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated\n" );
+    DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated: Adaptor is running\n" );
+  }
+  else
+  {
+    mState = RUNNING;
+
+    Pause();
+
+    mState = PAUSED_WHILE_HIDDEN;
+
+    DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated: Adaptor is paused\n" );
+  }
 }
 
 void Adaptor::NotifyLanguageChanged()
