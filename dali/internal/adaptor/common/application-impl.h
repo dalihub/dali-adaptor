@@ -243,8 +243,6 @@ public: // From Framework::Observer
 
   virtual void OnSurfaceDestroyed( Any oldSurface );
 
-  virtual void OnTimeTick();
-
   virtual void OnTouchEvent( TouchPoint& touchPoint, int timeStamp );
 
   virtual void OnKeyEvent( KeyEvent& keyEvent );

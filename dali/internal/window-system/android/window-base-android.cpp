@@ -39,6 +39,10 @@ namespace Internal
 namespace Adaptor
 {
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_WINDOW_BASE" );
+#endif
+
 WindowBaseAndroid::WindowBaseAndroid( Dali::PositionSize positionSize, Any surface, bool isTransparent )
 : mWindow( nullptr ),
   mOwnSurface( false ),
@@ -56,18 +60,19 @@ void WindowBaseAndroid::Initialize( PositionSize positionSize, Any surface, bool
 {
   if( !surface.Empty() )
   {
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Initialising using Android native window\n" );
     mWindow = static_cast< ANativeWindow* >( AnyCast< void* >( surface ) );
   }
   else
   {
     android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
     mWindow = androidApp->window;
-    if( mWindow == nullptr )
-    {
-      DALI_ASSERT_ALWAYS( 0 && "Failed to get Android window" );
-    }
   }
 
+  if( mWindow == nullptr )
+  {
+    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android window" );
+  }
   mIsTransparent = true;
 }
 

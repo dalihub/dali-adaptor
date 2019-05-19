@@ -375,7 +375,6 @@ void Application::OnSurfaceCreated( Any newSurface )
   void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
   if( oldWindow != newWindow )
   {
-    Any surface;
     auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
     std::unique_ptr< WindowRenderSurface > newSurfacePtr
       = renderSurfaceFactory->CreateWindowRenderSurface( PositionSize(), newSurface, true );
@@ -386,12 +385,6 @@ void Application::OnSurfaceCreated( Any newSurface )
 
 void Application::OnSurfaceDestroyed( Any oldSurface )
 {
-  mAdaptor->Pause();
-}
-
-void Application::OnTimeTick()
-{
-
 }
 
 void Application::OnTouchEvent( TouchPoint& touchPoint, int timeStamp )

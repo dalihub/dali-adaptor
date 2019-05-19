@@ -137,40 +137,32 @@ struct Framework::Impl
   // Constructor
 
   Impl(void* data)
-  : mAbortCallBack( NULL ),
+  : mAbortCallBack( nullptr ),
     mCallbackManager( CallbackManager::New() ),
     mLanguage( "NOT_SUPPORTED" ),
     mRegion( "NOT_SUPPORTED" ),
-    mDestroyRequested( false ),
+    mFinishRequested( false ),
+    mIdleId( 0 ),
     mIdleReadPipe( -1 ),
-    mIdleWritePipe( -1 ),
-    mIdleId( 0 )
+    mIdleWritePipe( -1 )
+
 
   {
     applicationContext.framework = static_cast<Framework*>( data );
-    int idlepipe[2];
-    if( pipe( idlepipe ) )
-    {
-      DALI_LOG_ERROR( "Failed to open idle pipe\n" );
-    }
-    else
-    {
-      mIdleReadPipe = idlepipe[0];
-      mIdleWritePipe = idlepipe[1];
-    }
   }
 
   ~Impl()
   {
-    close( mIdleReadPipe );
-    close( mIdleWritePipe );
+    applicationContext.framework = nullptr;
 
     delete mAbortCallBack;
+    mAbortCallBack = nullptr;
 
     // we're quiting the main loop so
     // mCallbackManager->RemoveAllCallBacks() does not need to be called
     // to delete our abort handler
     delete mCallbackManager;
+    mCallbackManager = nullptr;
   }
 
   std::string GetLanguage() const
@@ -268,7 +260,7 @@ struct Framework::Impl
   CallbackManager* mCallbackManager;
   std::string mLanguage;
   std::string mRegion;
-  bool mDestroyRequested;
+  bool mFinishRequested;
 
   int mIdleReadPipe;
   int mIdleWritePipe;
@@ -279,11 +271,14 @@ struct Framework::Impl
   // Static methods
 
   /**
-   * Called by AppCore when the application window is createds.
+   * Called by AppCore when the application window is created.
    */
-  static bool NativeWindowCreated( Framework* framework, ANativeWindow* window )
+  static void NativeWindowCreated( Framework* framework, ANativeWindow* window )
   {
-    return framework->AppStatusHandler( APP_WINDOW_CREATED, window );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_WINDOW_CREATED, window );
+    }
   }
 
   /**
@@ -291,7 +286,10 @@ struct Framework::Impl
    */
   static void NativeWindowDestroyed( Framework* framework, ANativeWindow* window )
   {
-    framework->AppStatusHandler( APP_WINDOW_DESTROYED, window );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_WINDOW_DESTROYED, window );
+    }
   }
 
   /**
@@ -299,7 +297,10 @@ struct Framework::Impl
    */
   static void NativeAppPaused( Framework* framework )
   {
-    framework->AppStatusHandler( APP_PAUSE, NULL );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_PAUSE, NULL );
+    }
   }
 
   /**
@@ -307,17 +308,26 @@ struct Framework::Impl
    */
   static void NativeAppResumed( Framework* framework )
   {
-    framework->AppStatusHandler( APP_RESUME, NULL );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_RESUME, NULL );
+    }
   }
 
   static void NativeAppTouchEvent( Framework* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp )
   {
-    framework->mObserver.OnTouchEvent( touchPoint, timeStamp );
+    if( framework )
+    {
+      framework->mObserver.OnTouchEvent( touchPoint, timeStamp );
+    }
   }
 
   static void NativeAppKeyEvent( Framework* framework, Dali::KeyEvent& keyEvent )
   {
-    framework->mObserver.OnKeyEvent( keyEvent );
+    if( framework )
+    {
+      framework->mObserver.OnKeyEvent( keyEvent );
+    }
   }
 
   /**
@@ -325,7 +335,10 @@ struct Framework::Impl
    */
   static void AppLanguageChange( Framework* framework )
   {
-    framework->AppStatusHandler( APP_LANGUAGE_CHANGE, NULL );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_LANGUAGE_CHANGE, NULL );
+    }
   }
 
   /**
@@ -333,23 +346,22 @@ struct Framework::Impl
    */
   static void NativeAppDestroyed( Framework* framework )
   {
-    framework->AppStatusHandler( APP_DESTROYED, NULL );
+    if( framework )
+    {
+      framework->AppStatusHandler( APP_DESTROYED, NULL );
+    }
   }
 /*
-  Start
-  Resume
-  InitWindow
-  GainedFocus
+  APP_CMD_START
+  APP_CMD_RESUME
+  APP_CMD_INIT_WINDOW
+  APP_CMD_GAINED_FOCUS
 
-  Pause
-  LostFocus
-  Stop
-  SaveState
-
-  Start
-  Resume
-  TermWindow
-  InitWindow
+  APP_CMD_PAUSE
+  APP_CMD_LOST_FOCUS
+  APP_CMD_SAVE_STATE
+  APP_CMD_STOP
+  APP_CMD_TERM_WINDOW
 */
   static void HandleAppCmd(struct android_app* app, int32_t cmd)
   {
@@ -358,11 +370,6 @@ struct Framework::Impl
     switch (cmd)
     {
       case APP_CMD_SAVE_STATE:
-        // The system has asked us to save our current state.  Do so.
-        // TODO: replace surface doesn't work without major refactoring, postpone for now, just kill the app
-        context->framework->mImpl->mDestroyRequested = true;
-        tmp = APP_CMD_DESTROY;
-        write( app->msgwrite, &tmp, sizeof( tmp ) );
         break;
       case APP_CMD_START:
         break;
@@ -387,19 +394,7 @@ struct Framework::Impl
       case APP_CMD_LOST_FOCUS:
         break;
       case APP_CMD_DESTROY:
-        if( context->framework->mImpl->mDestroyRequested ) // not requested by system
-        {
-          context->framework->mImpl->mDestroyRequested = false;
-          app->destroyRequested = 0;
-
-          sleep(1); // wait for the state to be saved
-
-          context->framework->Quit();
-        }
-        else
-        {
-          Dali::Internal::Adaptor::Framework::Impl::NativeAppDestroyed( context->framework );
-        }
+        Dali::Internal::Adaptor::Framework::Impl::NativeAppDestroyed( context->framework );
         break;
     }
   }
@@ -464,7 +459,7 @@ struct Framework::Impl
 
   static void HandleAppIdle(struct android_app* app, struct android_poll_source* source) {
     struct ApplicationContext* context = static_cast< struct ApplicationContext* >( app->userData );
-    if( context )
+    if( context && context->framework && context->framework->mImpl )
     {
       context->framework->mImpl->OnIdle();
     }
@@ -493,9 +488,6 @@ Framework::~Framework()
   if( mRunning )
   {
     Quit();
-
-    // Wait for app destroyed command
-    Run();
   }
 
   delete mImpl;
@@ -504,43 +496,64 @@ Framework::~Framework()
 
 void Framework::Run()
 {
+  // Read all pending events.
+  int id;
+  int events;
+  struct android_poll_source* source;
+  struct android_poll_source idlePollSource;
+  idlePollSource.id = LOOPER_ID_USER;
+  idlePollSource.app = applicationContext.androidApplication;
+  idlePollSource.process = Impl::HandleAppIdle;
+
+  int idlePipe[2];
+  if( pipe( idlePipe ) )
+  {
+    DALI_LOG_ERROR( "Failed to open idle pipe\n" );
+    return;
+  }
+
+  mImpl->mIdleReadPipe = idlePipe[0];
+  mImpl->mIdleWritePipe = idlePipe[1];
+  ALooper_addFd( applicationContext.androidApplication->looper,
+      idlePipe[0], LOOPER_ID_USER, ALOOPER_EVENT_INPUT, NULL, &idlePollSource );
+
   mRunning = true;
 
-  while( 1 ) {
-    // Read all pending events.
-    int id;
-    int events;
-    struct android_poll_source* source;
-    struct android_poll_source idlePollSource;
-    idlePollSource.id = LOOPER_ID_USER;
-    idlePollSource.app = applicationContext.androidApplication;
-    idlePollSource.process = Impl::HandleAppIdle;
-
-    ALooper_addFd(applicationContext.androidApplication->looper,
-        mImpl->mIdleReadPipe, LOOPER_ID_USER, ALOOPER_EVENT_INPUT, NULL, &idlePollSource);
-
-    int idleTimeout = -1;
-    while( ( id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source) ) >= 0 )
+  int idleTimeout = -1;
+  while( ( id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source) ) >= 0 )
+  {
+    // Process this event.
+    if( source != NULL )
     {
-      // Process this event.
-      if( source != NULL )
-      {
-        source->process( applicationContext.androidApplication, source );
-      }
+      source->process( applicationContext.androidApplication, source );
+    }
 
-      if( id == LOOPER_ID_USER )
+    // Check if we are exiting.
+    if( applicationContext.androidApplication->destroyRequested )
+    {
+      break;
+    }
+
+    idleTimeout = -1;
+    if( id == LOOPER_ID_USER )
+    {
+      if ( mImpl )
       {
         idleTimeout = mImpl->GetIdleTimeout();
       }
-
-      // Check if we are exiting.
-      if( applicationContext.androidApplication->destroyRequested != 0 )
-      {
-        mRunning = false;
-        return;
-      }
     }
   }
+
+  ALooper_removeFd( applicationContext.androidApplication->looper, idlePipe[0] );
+  if ( mImpl )
+  {
+    mImpl->mIdleReadPipe = -1;
+    mImpl->mIdleWritePipe = -1;
+  }
+  close( idlePipe[0] );
+  close( idlePipe[1] );
+
+  mRunning = false;
 }
 
 unsigned int Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
@@ -562,8 +575,9 @@ void Framework::RemoveIdle( unsigned int id )
 
 void Framework::Quit()
 {
-  if( applicationContext.androidApplication )
+  if( applicationContext.androidApplication && !applicationContext.androidApplication->destroyRequested && !mImpl->mFinishRequested )
   {
+    mImpl->mFinishRequested = true;
     ANativeActivity_finish( applicationContext.androidApplication->activity );
   }
 }
