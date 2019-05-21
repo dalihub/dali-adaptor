@@ -71,7 +71,7 @@ using SceneHolderPtr = IntrusivePtr< SceneHolder >;
 /**
  * @brief SceneHolder creates a Scene for rendering.
  */
-class SceneHolder : public BaseObject
+class DALI_ADAPTOR_API SceneHolder : public BaseObject
 {
 
 public:
