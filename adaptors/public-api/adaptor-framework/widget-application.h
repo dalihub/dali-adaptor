@@ -26,6 +26,10 @@
 #endif
 namespace Dali
 {
+/**
+ * @addtogroup dali_adaptor_framework
+ * @{
+ */
 
 namespace Internal DALI_INTERNAL
 {
@@ -170,6 +174,9 @@ public: // Not intended for application developers
   /// @endcond
 };
 
+/**
+ * @}
+ */
 } // namespace Dali
 
 #endif // DALI_WIDGET_APPLICATION_H
