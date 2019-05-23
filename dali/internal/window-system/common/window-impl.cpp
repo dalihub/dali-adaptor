@@ -20,7 +20,6 @@
 
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/render-task-list-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/actors/camera-actor.h>
@@ -185,6 +184,11 @@ uint32_t Window::GetLayerCount() const
 Dali::Layer Window::GetLayer( uint32_t depth ) const
 {
   return mScene.GetLayer( depth );
+}
+
+Dali::RenderTaskList Window::GetRenderTaskList() const
+{
+  return mScene.GetRenderTaskList();
 }
 
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )

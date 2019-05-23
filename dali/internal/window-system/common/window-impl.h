@@ -129,6 +129,11 @@ public:
   Dali::Layer GetLayer( uint32_t depth ) const;
 
   /**
+   * @copydoc Dali::DevelWindow::GetRenderTaskList()
+   */
+  Dali::RenderTaskList GetRenderTaskList() const;
+
+  /**
    * @copydoc Dali::Window::AddAvailableOrientation()
    */
   void AddAvailableOrientation(Dali::Window::WindowOrientation orientation);
