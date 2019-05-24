@@ -1,8 +1,8 @@
-#ifndef __DALI_FILE_LOADER_H__
-#define __DALI_FILE_LOADER_H__
+#ifndef DALI_FILE_LOADER_H
+#define DALI_FILE_LOADER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,4 +73,4 @@ DALI_ADAPTOR_API std::streampos GetFileSize(const std::string& filename);
 };
 
 } // Dali
-#endif // __DALI_FILE_LOADER_H__
+#endif // DALI_FILE_LOADER_H

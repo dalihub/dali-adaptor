@@ -20,6 +20,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
 // EXTERNAL_HEADERS
+#include <tbm_dummy_display.h>
 #include <dali/integration-api/debug.h>
 
 #ifdef ECORE_WAYLAND2
@@ -108,12 +109,15 @@ void DisplayConnectionEcoreWl::SetGraphicsInterface( GraphicsInterface& graphics
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  return EGLNativeDisplayType();
+  return reinterpret_cast< EGLNativeDisplayType >( tbm_dummy_display_create() );
 }
 
 void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
 {
-
+  if( mDisplay )
+  {
+     tbm_dummy_display_destroy( reinterpret_cast< tbm_dummy_display* >( mDisplay ) );
+  }
 }
 
 } // namespace Adaptor

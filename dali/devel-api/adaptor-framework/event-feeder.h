@@ -1,8 +1,8 @@
-#ifndef __DALI_EVENT_FEEDER_H_
-#define __DALI_EVENT_FEEDER_H_
+#ifndef DALI_EVENT_FEEDER_H
+#define DALI_EVENT_FEEDER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,4 +63,4 @@ DALI_ADAPTOR_API void FeedKeyEvent( KeyEvent& keyEvent );
 
 } // namespace Dali
 
-#endif // __DALI_EVENT_FEEDER_H_
+#endif // DALI_EVENT_FEEDER_H

@@ -1,8 +1,8 @@
-#ifndef __DALI_TILT_SENSOR_H__
-#define __DALI_TILT_SENSOR_H__
+#ifndef DALI_TILT_SENSOR_H
+#define DALI_TILT_SENSOR_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,4 +200,4 @@ public: // Not intended for application developers
 
 } // namespace Dali
 
-#endif // __DALI_TILT_SENSOR_H__
+#endif // DALI_TILT_SENSOR_H

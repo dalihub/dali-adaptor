@@ -27,7 +27,6 @@
 #include <dali/devel-api/adaptor-framework/singleton-service.h>
 
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 

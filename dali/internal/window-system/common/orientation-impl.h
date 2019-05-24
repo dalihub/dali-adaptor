@@ -25,7 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/orientation.h>
-#include <dali/internal/window-system/common/rotation-observer.h>
+#include <dali/internal/window-system/common/rotation-event.h>
 
 namespace Dali
 {
@@ -40,7 +40,7 @@ class Orientation;
 
 typedef IntrusivePtr<Orientation> OrientationPtr;
 
-class Orientation : public BaseObject, public RotationObserver
+class Orientation : public BaseObject
 {
 public:
 
@@ -73,6 +73,12 @@ public:
    */
   float GetRadians() const;
 
+  /**
+   * Called by the Window when orientation is changed
+   * @param[in] rotation The rotation event
+   */
+  void OnOrientationChange( const RotationEvent& rotation );
+
 public: // Signals
 
   /**
@@ -81,25 +87,10 @@ public: // Signals
   OrientationSignalType& ChangedSignal();
 
 private:
-  /**
-   * @copydoc Dali::Internal::Adaptor::RotationObserver::OnRotationPrepare()
-   */
-  virtual void OnRotationPrepare( const RotationEvent& rotation );
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::RotationObserver::OnRotationRequest()
-   */
-  virtual void OnRotationRequest( );
 
   // Undefined
   Orientation(const Orientation&);
   Orientation& operator=(Orientation&);
-
-private:
-  /**
-   * Signals and sends event of orientation change.
-   */
-  void EmitOrientationChange();
 
 private:
 

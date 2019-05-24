@@ -22,18 +22,13 @@
 #include <cstdint> // uint32_t
 #include <dali/public-api/common/intrusive-ptr.h>
 
-#include <dali/integration-api/events/key-event-integ.h>
-#include <dali/integration-api/events/point.h>
-#include <dali/integration-api/events/touch-event-combiner.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
-#include <dali/internal/system/common/core-event-interface.h>
 #include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/rotation-observer.h>
 #include <dali/internal/window-system/common/window-base.h>
 
 namespace Dali
@@ -42,8 +37,10 @@ namespace Dali
 namespace Integration
 {
 
-class RenderSurface;
-class Scene;
+struct Point;
+struct KeyEvent;
+struct WheelEvent;
+
 }
 
 namespace Internal
@@ -52,8 +49,8 @@ namespace Internal
 namespace Adaptor
 {
 
-class GestureManager;
 class StyleMonitor;
+class WindowRenderSurface;
 
 /**
  * The Event Handler class is responsible for setting up receiving of Ecore events and then converts them
@@ -66,41 +63,63 @@ class EventHandler : public ConnectionTracker, public Dali::RefObject
 public:
 
   /**
+   * The observer can be overridden in order to listen to the events.
+   */
+  class Observer
+  {
+  public:
+
+    /**
+     * Deriving classes should override this to be notified when we receive a touch point event.
+     * @param[in] point The touch point
+     * @param[in] timeStamp The time stamp
+     */
+    virtual void OnTouchPoint( Dali::Integration::Point& point, int timeStamp ) = 0;
+
+    /**
+     * Deriving classes should override this to be notified when we receive a wheel event.
+     * @param[in] wheelEvent The wheel event
+     */
+    virtual void OnWheelEvent( Dali::Integration::WheelEvent& wheelEvent ) = 0;
+
+    /**
+     * Deriving classes should override this to be notified when we receive a key event.
+     * @param[in] keyEvent The key event holding the key information.
+     */
+    virtual void OnKeyEvent( Dali::Integration::KeyEvent& keyEvent ) = 0;
+
+    /**
+     * Deriving classes should override this to be notified when the window is rotated.
+     * @param[in] rotation The rotation event.
+     */
+    virtual void OnRotation( const RotationEvent& rotation ) = 0;
+
+  protected:
+
+    /**
+     * Protected Constructor.
+     */
+    Observer() {}
+
+    /**
+     * Protected virtual destructor.
+     */
+    virtual ~Observer() {}
+  };
+
+public:
+
+  /**
    * Constructor.
-   * @param[in]  scene                    The scene where events will be sent to.
-   * @param[in]  coreEventInterface       Used to send events to Core.
+   * @param[in]  surface                  The render surface of the window.
    * @param[in]  damageObserver           The damage observer (to pass damage events to).
    */
-  EventHandler( Dali::Integration::Scene scene, CoreEventInterface& coreEventInterface, DamageObserver& damageObserver );
+  EventHandler( WindowRenderSurface* surface, DamageObserver& damageObserver );
 
   /**
    * Destructor.
    */
   ~EventHandler();
-
-  /**
-   * Feed (Send) touch event to core and gesture manager
-   * @param[in] touchEvent  The touch event holding the touch point information.
-   */
-  void FeedTouchPoint( TouchPoint& point, uint32_t timeStamp );
-
-  /**
-   * Feed (Send) wheel event to core and gesture manager
-   * @param[in]  wheelEvent The wheel event
-   */
-  void FeedWheelEvent( WheelEvent& wheelEvent );
-
-  /**
-   * Feed (Send) key event to core
-   * @param[in] keyEvent The key event holding the key information.
-   */
-  void FeedKeyEvent( KeyEvent& keyEvent );
-
-  /**
-   * Feed (Send) an event to core
-   * @param[in] event  The event information.
-   */
-  void FeedEvent( Integration::Event& event );
 
   /**
    * Called when the adaptor is paused.
@@ -113,31 +132,19 @@ public:
   void Resume();
 
   /**
-   * Set the rotation observer (note, some adaptors may not have a rotation observer)
-   * @param[in] observer The rotation observer
+   * Adds an observer so that we can observe the events.
+   * @param[in] observer The observer.
    */
-  void SetRotationObserver( RotationObserver* observer );
+  void AddObserver( Observer& observer );
+
+  /**
+   * Removes the observer from the EventHandler.
+   * @param[in] observer The observer to remove.
+   * @note Observers should remove themselves when they are destroyed.
+   */
+  void RemoveObserver( Observer& observer );
 
 private:
-
-  /**
-   * Send touch event to core.
-   * @param[in]  point      The touch point information.
-   * @param[in]  timeStamp  The time the touch occurred.
-   */
-  void SendEvent(Integration::Point& point, uint32_t timeStamp);
-
-  /**
-   * Send key event to core.
-   * @param[in]  keyEvent The KeyEvent to send.
-   */
-  void SendEvent(Integration::KeyEvent& keyEvent);
-
-  /**
-   * Send wheel event to core.
-   * @param[in]  wheelEvent The wheel event
-   */
-  void SendWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * Send a style change event to the style monitor.
@@ -150,23 +157,6 @@ private:
    * @param[in]  area  Damaged area.
    */
   void SendEvent( const DamageArea& area );
-
-  /**
-   * Inform rotation observer of rotation prepare event
-   * @param[in] rotation The rotation event
-   */
-  void SendRotationPrepareEvent( const RotationEvent& rotation );
-
-  /**
-   * Inform rotation observer of rotation prepare event
-   */
-  void SendRotationRequestEvent();
-
-  /**
-   * Resets the event handler.
-   * Called when the adaptor is paused or resumed.
-   */
-  void Reset();
 
   /**
    * Called when a touch event is received.
@@ -187,6 +177,12 @@ private:
    * Called when the window focus is changed.
    */
   void OnFocusChanged( bool focusIn );
+
+  /**
+   * Called when the window is rotated.
+   * @param[in] event The rotation event
+   */
+  void OnRotation( const RotationEvent& event );
 
   /**
    * Called when the window is damaged.
@@ -215,13 +211,6 @@ private:
 
 private:
 
-  /**
-   * Convert touch event position
-   */
-  void ConvertTouchPosition( Integration::Point& point );
-
-private:
-
   // Undefined
   EventHandler( const EventHandler& eventHandler );
 
@@ -230,20 +219,15 @@ private:
 
 private:
 
-  Dali::Integration::Scene mScene; ///< The scene the event handler is created for.
-  CoreEventInterface& mCoreEventInterface; ///< Used to send events to Core.
-  Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
   Dali::StyleMonitor mStyleMonitor; ///< Handle to the style monitor, set on construction, to send font size and font change events to.
   DamageObserver& mDamageObserver; ///< Reference to the DamageObserver, set on construction, to sent damage events to.
-  RotationObserver* mRotationObserver; ///< Pointer to rotation observer, if present.
 
   Dali::AccessibilityAdaptor mAccessibilityAdaptor; ///< Pointer to the accessibility adaptor
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard
 
-  int mRotationAngle;
-  int mWindowWidth;
-  int mWindowHeight;
+  using ObserverContainer = std::vector<Observer*>;
+  ObserverContainer mObservers;   ///< A list of event observer pointers
 
   bool mPaused; ///< The paused state of the adaptor.
 };

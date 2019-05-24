@@ -29,7 +29,9 @@
 #include <dali/integration-api/context-notifier.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/input-options.h>
+#include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/integration-api/processor-interface.h>
 
 // INTERNAL INCLUDES
@@ -478,17 +480,20 @@ void Adaptor::ContextRegained()
 
 void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
 {
-  mWindows.front()->FeedTouchPoint( point, timeStamp );
+  Integration::Point convertedPoint( point );
+  mWindows.front()->FeedTouchPoint( convertedPoint, timeStamp );
 }
 
 void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
 {
-  mWindows.front()->FeedWheelEvent( wheelEvent );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
+  mWindows.front()->FeedWheelEvent( event );
 }
 
 void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 {
-  mWindows.front()->FeedKeyEvent( keyEvent );
+  Integration::KeyEvent convertedEvent( keyEvent );
+  mWindows.front()->FeedKeyEvent( convertedEvent );
 }
 
 void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& newSurface )

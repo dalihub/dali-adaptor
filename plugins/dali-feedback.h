@@ -1,8 +1,8 @@
-#ifndef __FEEDBACK_PLUGIN_H__
-#define __FEEDBACK_PLUGIN_H__
+#ifndef FEEDBACK_PLUGIN_H
+#define FEEDBACK_PLUGIN_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,4 +82,4 @@ public: // FeedbackPlugin overrides
 
 }  // namespace Dali
 
-#endif // __FEEDBACK_PLUGIN_H__
+#endif // FEEDBACK_PLUGIN_H

@@ -31,9 +31,11 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/window-system/common/event-handler.h>
 
 namespace Dali
 {
@@ -45,9 +47,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-class EventHandler;
 class Orientation;
-class RotationObserver;
 class WindowRenderSurface;
 class WindowBase;
 
@@ -59,7 +59,7 @@ using EventHandlerPtr = IntrusivePtr< EventHandler >;
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
  */
-class Window : public Dali::Internal::Adaptor::SceneHolder, public ConnectionTracker
+class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
@@ -324,18 +324,6 @@ public:
   bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result );
 
   /**
-   * Called from Orientation after the Change signal has been sent
-   */
-  void RotationDone( int orientation, int width, int height );
-
-  /**
-   * Set the rotation observer (note, some adaptors may not have a rotation observer)
-   * @param[in] observer The rotation observer
-   * @return If the rotation observer is set
-   */
-  bool SetRotationObserver( RotationObserver* observer );
-
-  /**
    * @copydoc Dali::DevelWindow::Get()
    */
   static Dali::Window Get( Dali::Actor actor );
@@ -393,21 +381,6 @@ private:
 private: // Dali::Internal::Adaptor::SceneHolder
 
   /**
-   * @copydoc Dali::Internal::Adaptor::SceneHolder::FeedTouchPoint
-   */
-  void FeedTouchPoint( TouchPoint& point, int timeStamp ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::SceneHolder::FeedWheelEvent
-   */
-  void FeedWheelEvent( WheelEvent& wheelEvent ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::SceneHolder::FeedKeyEvent
-   */
-  void FeedKeyEvent( KeyEvent& keyEvent ) override;
-
-  /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
    */
   void OnAdaptorSet( Dali::Adaptor& adaptor ) override;
@@ -426,6 +399,33 @@ private: // Dali::Internal::Adaptor::SceneHolder
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnResume
    */
   void OnResume() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::SceneHolder::RecalculateTouchPosition
+   */
+  void RecalculateTouchPosition( Integration::Point& point ) override;
+
+private: // Dali::Internal::Adaptor::EventHandler::Observer
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnTouchPoint
+   */
+  void OnTouchPoint( Dali::Integration::Point& point, int timeStamp ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnWheelEvent
+   */
+  void OnWheelEvent( Dali::Integration::WheelEvent& wheelEvent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnKeyEvent
+   */
+  void OnKeyEvent( Dali::Integration::KeyEvent& keyEvent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnRotation
+   */
+  void OnRotation( const RotationEvent& rotation ) override;
 
 public: // Signals
 
@@ -485,6 +485,10 @@ private:
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
   Dali::Window::WindowOrientation              mPreferredOrientation;
+
+  int                                   mRotationAngle;     ///< The angle of the rotation
+  int                                   mWindowWidth;       ///< The width of the window
+  int                                   mWindowHeight;      ///< The height of the window
 
   EventHandlerPtr                       mEventHandler;      ///< The window events handler
 
