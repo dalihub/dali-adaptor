@@ -571,9 +571,9 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
   mThreadController->SetPreRenderCallback( callback );
 }
 
-bool Adaptor::AddWindow( Dali::Integration::SceneHolder* childWindow, const std::string& childWindowName, const std::string& childWindowClassName, const bool& childWindowMode )
+bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( *childWindow );
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
   windowImpl.SetAdaptor( Get() );
 
   // Add the new Window to the container - the order is not important

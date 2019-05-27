@@ -261,10 +261,10 @@ public: // AdaptorInternalServices implementation
    * @param[in]  childWindowClassName The class name that the child window belongs to
    * @param[in]  childWindowMode The mode of the child window
    */
-  virtual bool AddWindow( Dali::Integration::SceneHolder* childWindow,
+  virtual bool AddWindow( Dali::Integration::SceneHolder childWindow,
                           const std::string& childWindowName,
                           const std::string& childWindowClassName,
-                          const bool& childWindowMode );
+                          bool childWindowMode );
 
   /**
    * Removes an existing Window instance from the Adaptor
@@ -399,12 +399,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
-   * Informs core the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
-   * Informs ThreadController the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizeComplete
    */
   void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
@@ -543,7 +543,7 @@ private: // From Dali::Integration::RenderController
    */
   virtual void RequestProcessEventsOnIdle( bool forceProcess );
 
-private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
+public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
   /**
    * Called when the window becomes fully or partially visible.

@@ -115,6 +115,11 @@ bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue )
   return mImpl->AddIdle( callback, hasReturnValue, false );
 }
 
+bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
+{
+  return mImpl->AddWindow( childWindow, childWindowName, childWindowClassName, childWindowMode );
+}
+
 void Adaptor::RemoveIdle( CallbackBase* callback )
 {
   mImpl->RemoveIdle( callback );
@@ -221,6 +226,16 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
+void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+{
+  mImpl->SurfaceResizePrepare( surface, surfaceSize );
+}
+
+void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+{
+  mImpl->SurfaceResizeComplete( surface, surfaceSize );
+}
+
 void Adaptor::RenderOnce()
 {
   mImpl->RenderOnce();
@@ -244,6 +259,16 @@ void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 Dali::WindowContainer Adaptor::GetWindows() const
 {
   return mImpl->GetWindows();
+}
+
+void Adaptor::OnWindowShown()
+{
+  mImpl->OnWindowShown();
+}
+
+void Adaptor::OnWindowHidden()
+{
+  mImpl->OnWindowHidden();
 }
 
 Adaptor::Adaptor()
