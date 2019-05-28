@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <unistd.h>
 #include <queue>
+#include <unordered_set>
 #include <android_native_app_glue.h>
 
 #include <dali/integration-api/debug.h>
@@ -130,7 +131,7 @@ struct Framework::Impl
 
     bool operator<( const IdleCallback& rhs ) const
     {
-      return rhs.timestamp > timestamp;
+      return timestamp > rhs.timestamp;
     }
   };
 
@@ -177,53 +178,59 @@ struct Framework::Impl
 
   void OnIdle()
   {
-    int8_t msg;
-    read( mIdleReadPipe, &msg, sizeof( int8_t ) );
+    DALI_LOG_ERROR( ">>\n" );
+    int8_t msg = -1;
+    read( mIdleReadPipe, &msg, sizeof( msg ) );
 
     unsigned int ts = GetCurrentMilliSeconds();
 
-    while ( !mIdleCallbacks.empty() )
+    if ( !mIdleCallbacks.empty() )
     {
       IdleCallback callback = mIdleCallbacks.top();
-      if( callback.timestamp > ts )
-        break;
-
-      mIdleCallbacks.pop();
-
-      auto i = mRemovedIdleCallbacks.begin();
-      auto last = mRemovedIdleCallbacks.end();
-      while( i != last )
+      if( callback.timestamp <= ts )
       {
-        if ( *i == callback.id )
+        DALI_LOG_ERROR( "Pop callback %d\n", callback.id );
+        mIdleCallbacks.pop();
+
+        if( mRemovedIdleCallbacks.find( callback.id ) == mRemovedIdleCallbacks.end() )
+        {
+          DALI_LOG_ERROR( "Call callback %d\n", callback.id );
+          if ( callback() ) // keep the callback
+          {
+            AddIdle( callback.timeout, callback.data, callback.callback );
+          }
+        }
+
+        auto i = mRemovedIdleCallbacks.find( callback.id );
+        if ( i != mRemovedIdleCallbacks.end() )
         {
           mRemovedIdleCallbacks.erase( i );
-          break;
         }
-      }
-
-      if ( i == last && callback() ) // keep the callback
-      {
-        AddIdle( callback.timeout, callback.data, callback.callback );
       }
     }
 
-    if ( mIdleCallbacks.empty() )
+    if( mIdleCallbacks.empty() )
     {
       mRemovedIdleCallbacks.clear();
     }
+    DALI_LOG_ERROR( "<<\n" );
   }
 
   unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
   {
-    int8_t msg = 1;
-    if( write( mIdleWritePipe, &msg, sizeof( msg ) ) == sizeof( msg ) )
+    ++mIdleId;
+    if( mIdleId == 0 )
     {
       ++mIdleId;
-      if( mIdleId == 0)
-      {
-        ++mIdleId;
-      }
-      mIdleCallbacks.push( IdleCallback( timeout, mIdleId, data, callback ) );
+    }
+
+    DALI_LOG_ERROR( "%d %d\n", mIdleId, timeout  );
+    mIdleCallbacks.push( IdleCallback( timeout, mIdleId, data, callback ) );
+
+    if( timeout == 0 ) // trigger OnIdle now
+    {
+      int8_t msg = 1;
+      write( mIdleWritePipe, &msg, sizeof( msg ) );
     }
 
     return mIdleId;
@@ -231,9 +238,10 @@ struct Framework::Impl
 
   void RemoveIdle( unsigned int id )
   {
+    DALI_LOG_ERROR( "%d\n", id );
     if( id != 0 )
     {
-      mRemovedIdleCallbacks.push_back( id );
+      mRemovedIdleCallbacks.insert( id );
     }
   }
 
@@ -266,7 +274,7 @@ struct Framework::Impl
   int mIdleWritePipe;
   unsigned int mIdleId;
   std::priority_queue<IdleCallback> mIdleCallbacks;
-  std::list<int> mRemovedIdleCallbacks;
+  std::unordered_set<int> mRemovedIdleCallbacks;
 
   // Static methods
 
@@ -497,7 +505,6 @@ Framework::~Framework()
 void Framework::Run()
 {
   // Read all pending events.
-  int id;
   int events;
   struct android_poll_source* source;
   struct android_poll_source idlePollSource;
@@ -520,12 +527,30 @@ void Framework::Run()
   mRunning = true;
 
   int idleTimeout = -1;
-  while( ( id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source) ) >= 0 )
+  while( true )
   {
-    // Process this event.
-    if( source != NULL )
+    int id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source );
+
+    // Process the error.
+    if( id == ALOOPER_POLL_ERROR )
+    {
+       DALI_LOG_ERROR( "ALooper error\n" );
+       Quit();
+       std::abort();
+    }
+
+    // Process the application event.
+    if( id >= 0 && source != NULL )
     {
       source->process( applicationContext.androidApplication, source );
+    }
+
+    // Process the timeout.
+    if( id == ALOOPER_POLL_TIMEOUT )
+    {
+      DALI_LOG_ERROR( "ALooper timed out\n" );
+      int8_t msg = 1;
+      write( mImpl->mIdleWritePipe, &msg, sizeof( msg ) );
     }
 
     // Check if we are exiting.
@@ -535,12 +560,13 @@ void Framework::Run()
     }
 
     idleTimeout = -1;
-    if( id == LOOPER_ID_USER )
+    if( id == LOOPER_ID_USER || id == ALOOPER_POLL_TIMEOUT )
     {
       if ( mImpl )
       {
         idleTimeout = mImpl->GetIdleTimeout();
       }
+      DALI_LOG_ERROR( "idle timeout %d\n", idleTimeout );
     }
   }
 
@@ -609,7 +635,7 @@ std::string Framework::GetBundleId() const
 
 std::string Framework::GetResourcePath()
 {
-  return "";
+  return APPLICATION_RESOURCE_PATH;
 }
 
 std::string Framework::GetDataPath()
