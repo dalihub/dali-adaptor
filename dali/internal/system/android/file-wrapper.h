@@ -20,6 +20,12 @@
 // EXTERNAL INCLUDES
 #include <cstdio>
 
-FILE* fopen_wrapper(const char* path, const char* mode);
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
+
+FILE* openFile(const char* path, const char* mode);
+long getFileSize(const std::string& filename, int& error);
+int readFile(const std::string& filename, std::string& output);
+int readFile(const std::string& filename, Dali::Vector<char>& memblock);
 
 #endif /* _DALI_INTERNAL_ANDROID_FILE_WRAPPER_H__ */

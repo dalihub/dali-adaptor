@@ -48,7 +48,7 @@ protected: // prevent this class being directly instantiated
 #ifndef ANDROID
   : mFile( fopen( filename, mode ) )
 #else
-  : mFile( fopen_wrapper( filename, mode ) )
+  : mFile( openFile( filename, mode ) )
 #endif
   {
     DALI_ASSERT_DEBUG( filename != 0 && "Cant open a null filename." );

@@ -27,6 +27,9 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
+#ifdef ANDROID
+#include <dali/internal/system/android/file-wrapper.h>
+#endif
 
 namespace Dali
 {
@@ -156,6 +159,9 @@ void StyleMonitor::SetTheme(const std::string& path)
 
 bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
 {
+#ifdef ANDROID
+  return ( readFile( filename, output ) != 0 );
+#else
   bool retval( false );
   std::ifstream in( filename.c_str(), std::ios::in );
   if( in )
@@ -169,6 +175,7 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
     retval = true;
   }
   return retval;
+#endif
 }
 
 Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()

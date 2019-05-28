@@ -24,6 +24,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/singleton-service-impl.h>
+#ifdef ANDROID
+#include <dali/internal/system/android/file-wrapper.h>
+#endif
 
 namespace Dali
 {
@@ -109,6 +112,9 @@ void FeedbackPlayer::PlayFeedbackPattern( int type, int pattern )
 
 bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
 {
+#ifdef ANDROID
+  return ( readFile( filename, data ) != 0 );
+#else
   bool loaded = false;
 
   std::ifstream stream(filename.c_str());
@@ -121,6 +127,7 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
   }
 
   return loaded;
+#endif
 }
 
 FeedbackPlayer::FeedbackPlayer()

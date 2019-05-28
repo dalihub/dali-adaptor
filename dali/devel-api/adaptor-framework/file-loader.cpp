@@ -21,24 +21,33 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef ANDROID
+#include <dali/internal/system/android/file-wrapper.h>
+#endif
+
 namespace Dali
 {
 
 namespace FileLoader
 {
 
-int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, FileLoader::FileType fileType)
+int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, FileLoader::FileType fileType)
 {
   std::streampos size;
-
+#ifdef ANDROID
+  return readFile( filename, memblock );
+#else
   return ReadFile( filename, size, memblock, fileType);
+#endif
 }
 
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, FileLoader::FileType fileType)
 {
+#ifdef ANDROID
+  return readFile( filename, memblock );
+#else
   int errorCode = 0;
   std::ifstream * file;
-
 
   if( fileType == BINARY )
   {
@@ -69,11 +78,16 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   }
 
   return errorCode;
+#endif
 }
 
 
 std::streampos GetFileSize(const std::string& filename)
 {
+#ifdef ANDROID
+  int errorCode = 0;
+  return getFileSize( filename, errorCode );
+#else
   std::streampos size = 0;
 
   std::ifstream file (filename.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
@@ -83,6 +97,7 @@ std::streampos GetFileSize(const std::string& filename)
     file.close();
   }
   return size;
+#endif
 }
 
 } //FileLoader
