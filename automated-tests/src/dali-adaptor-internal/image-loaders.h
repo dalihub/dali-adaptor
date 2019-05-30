@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef __DALI_ADAPTOR_TET_IMAGE_LOADERS_H_
-#define __DALI_ADAPTOR_TET_IMAGE_LOADERS_H_
+#ifndef DALI_ADAPTOR_TET_IMAGE_LOADERS_H
+#define DALI_ADAPTOR_TET_IMAGE_LOADERS_H
 
 #include <dali/dali.h>
 #include <dali/integration-api/bitmap.h>
@@ -122,4 +122,4 @@ void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& fun
  */
 void DumpImageBufferToTempFile( std::string filename, std::string targetFilename, const LoadFunctions& functions );
 
-#endif // __DALI_ADAPTOR_TET_IMAGE_LOADERS_H_
+#endif // DALI_ADAPTOR_TET_IMAGE_LOADERS_H

@@ -503,17 +503,19 @@ public: // Signals
     return mLanguageChangedSignal;
   }
 
+public: // From Dali::Internal::Adaptor::CoreEventInterface
+
+  /**
+   * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
+   */
+  virtual void ProcessCoreEvents();
+
 private: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
    * @copydoc Dali::Internal::Adaptor::CoreEventInterface::QueueCoreEvent()
    */
   virtual void QueueCoreEvent(const Dali::Integration::Event& event);
-
-  /**
-   * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
-   */
-  virtual void ProcessCoreEvents();
 
 private: // From Dali::Integration::RenderController
 

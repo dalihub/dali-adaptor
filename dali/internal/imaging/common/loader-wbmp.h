@@ -1,8 +1,8 @@
-#ifndef __DALI_TIZEN_PLATFORM_LOADER_WBMP_H__
-#define __DALI_TIZEN_PLATFORM_LOADER_WBMP_H__
+#ifndef DALI_TIZEN_PLATFORM_LOADER_WBMP_H
+#define DALI_TIZEN_PLATFORM_LOADER_WBMP_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ bool LoadBitmapFromWbmp( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
  */
 bool LoadWbmpHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
 
-}
+} // namespace TizenPlatform
 
-}
-#endif
+} // namespace Dali
+
+#endif // DALI_TIZEN_PLATFORM_LOADER_WBMP_H

@@ -1,5 +1,5 @@
-#ifndef __DALI_INPUT_METHOD_CONTEXT_H__
-#define __DALI_INPUT_METHOD_CONTEXT_H__
+#ifndef DALI_INPUT_METHOD_CONTEXT_H
+#define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -519,4 +519,4 @@ public:
 
 } // namespace Dali
 
-#endif // __DALI_INPUT_METHOD_CONTEXT_H__
+#endif // DALI_INPUT_METHOD_CONTEXT_H

@@ -1,7 +1,7 @@
-#ifndef _DALI_INTERNAL_PLATFORM_FILECLOSER_H__
-#define _DALI_INTERNAL_PLATFORM_FILECLOSER_H__
+#ifndef DALI_INTERNAL_PLATFORM_FILECLOSER_H
+#define DALI_INTERNAL_PLATFORM_FILECLOSER_H
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,8 +130,10 @@ private:
   FILE* mFile;
 };
 
-} /* namespace Platform */
-} /* namespace Internal */
-} /* namespace Dali */
+} // namespace Platform
 
-#endif /* _DALI_INTERNAL_PLATFORM_FILECLOSER_H__ */
+} // namespace Internal
+
+} // namespace Dali
+
+#endif // DALI_INTERNAL_PLATFORM_FILECLOSER_H

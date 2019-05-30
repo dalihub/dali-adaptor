@@ -157,7 +157,7 @@ public: // Not intended for application developers
    *
    * @param[in] sceneHolder A pointer to a newly allocated Dali resource
    */
-  explicit DALI_INTERNAL SceneHolder( Internal::Adaptor::SceneHolder* sceneHolder );
+  explicit SceneHolder( Internal::Adaptor::SceneHolder* sceneHolder );
 
 };
 
