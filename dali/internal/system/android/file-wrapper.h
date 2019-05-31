@@ -23,9 +23,26 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 
-FILE* openFile(const char* path, const char* mode);
-long getFileSize(const std::string& filename, int& error);
-int readFile(const std::string& filename, std::string& output);
-int readFile(const std::string& filename, Dali::Vector<char>& memblock);
+namespace Dali
+{
 
+namespace Internal
+{
+
+namespace Android
+{
+
+FILE* OpenFile(const char* path, const char* mode);
+
+long GetFileSize(const std::string& filename, int& error);
+
+int ReadFile(const std::string& filename, std::string& output);
+
+int ReadFile(const std::string& filename, long& size, Dali::Vector<char>& memblock);
+
+}
+
+}
+
+}
 #endif /* _DALI_INTERNAL_ANDROID_FILE_WRAPPER_H__ */

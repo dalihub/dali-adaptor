@@ -113,7 +113,7 @@ void FeedbackPlayer::PlayFeedbackPattern( int type, int pattern )
 bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
 {
 #ifdef ANDROID
-  return ( readFile( filename, data ) != 0 );
+  return ( Dali::Internal::Android::ReadFile( filename, data ) != 0 );
 #else
   bool loaded = false;
 

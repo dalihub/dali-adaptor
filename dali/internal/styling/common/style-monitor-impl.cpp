@@ -160,7 +160,7 @@ void StyleMonitor::SetTheme(const std::string& path)
 bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
 {
 #ifdef ANDROID
-  return ( readFile( filename, output ) != 0 );
+  return ( Dali::Internal::Android::ReadFile( filename, output ) != 0 );
 #else
   bool retval( false );
   std::ifstream in( filename.c_str(), std::ios::in );

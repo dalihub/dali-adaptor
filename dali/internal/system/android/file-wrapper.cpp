@@ -24,7 +24,16 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/integration-api/debug.h>
 
-FILE* openFile(const char* path, const char* mode)
+namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Android
+{
+
+FILE* OpenFile(const char* path, const char* mode)
 {
   const int assetsOffset = ( sizeof("assets/") - sizeof( char ) ) / sizeof( char );
   if( !strncmp( path, "assets/", assetsOffset ) )
@@ -58,11 +67,10 @@ FILE* openFile(const char* path, const char* mode)
   {
     DALI_LOG_ERROR( "File not found %s\n", path );
   }
-
   return file;
 }
 
-long getFileSize(const std::string& filename, int& errorCode)
+long GetFileSize(const std::string& filename, int& errorCode)
 {
   const char* path = filename.c_str();
   const int assetsOffset = ( sizeof("assets/") - sizeof( char ) ) / sizeof( char );
@@ -103,7 +111,7 @@ long getFileSize(const std::string& filename, int& errorCode)
   return size;
 }
 
-int readFile(const std::string& filename, char* output, long size)
+int ReadFile(const std::string& filename, char* output, long size)
 {
   const char* path = filename.c_str();
   const int assetsOffset = ( sizeof("assets/") - sizeof( char ) ) / sizeof( char );
@@ -132,33 +140,39 @@ int readFile(const std::string& filename, char* output, long size)
   return read;
 }
 
-int readFile(const std::string& filename, Dali::Vector<char>& memblock)
+int ReadFile(const std::string& filename, long& size, Dali::Vector<char>& memblock)
 {
   int errorCode = 0;
-  long size = getFileSize( filename, errorCode );
+  size = GetFileSize( filename, errorCode );
 
   if( size )
   {
     memblock.Resize( size );
-    size = readFile( filename, memblock.Begin(), size );
+    size = ReadFile( filename, memblock.Begin(), size );
   }
 
   return errorCode;
 }
 
-int readFile(const std::string& filename, std::string& output)
+int ReadFile(const std::string& filename, std::string& output)
 {
   int errorCode = 0;
-  long size = getFileSize( filename, errorCode );
+  long size = GetFileSize( filename, errorCode );
 
   if( size )
   {
     char* buffer = new char[ size ];
-    size = readFile( filename, buffer, size );
+    size = ReadFile( filename, buffer, size );
     output.assign( buffer, buffer+size );
     delete[] buffer;
   }
 
   return errorCode;
+}
+
+}
+
+}
+
 }
 

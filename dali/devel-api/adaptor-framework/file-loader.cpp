@@ -33,10 +33,11 @@ namespace FileLoader
 
 int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, FileLoader::FileType fileType)
 {
-  std::streampos size;
 #ifdef ANDROID
-  return readFile( filename, memblock );
+  long size = 0;
+  return Dali::Internal::Android::ReadFile( filename, size, memblock );
 #else
+  std::streampos size;
   return ReadFile( filename, size, memblock, fileType);
 #endif
 }
@@ -44,7 +45,10 @@ int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, FileLoad
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, FileLoader::FileType fileType)
 {
 #ifdef ANDROID
-  return readFile( filename, memblock );
+  long size = 0;
+  int errorCode = Dali::Internal::Android::ReadFile( filename, size, memblock );
+  fileSize = size;
+  return errorCode;
 #else
   int errorCode = 0;
   std::ifstream * file;
@@ -86,7 +90,7 @@ std::streampos GetFileSize(const std::string& filename)
 {
 #ifdef ANDROID
   int errorCode = 0;
-  return getFileSize( filename, errorCode );
+  return Dali::Internal::Android::GetFileSize( filename, errorCode );
 #else
   std::streampos size = 0;
 
