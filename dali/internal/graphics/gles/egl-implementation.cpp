@@ -400,21 +400,14 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   }
 #endif // DALI_PROFILE_UBUNTU
   configAttribs.PushBack( EGL_NONE );
-  if ( ( eglChooseConfig( mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs ) != EGL_TRUE ) ||
-       ( numConfigs != 1 ) )
+
+  if ( eglChooseConfig( mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs ) != EGL_TRUE )
   {
     if( mGlesVersion >= 30 )
     {
       mEglConfig = NULL;
       DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retring to use OpenGL es 2.0.");
       return false;
-    }
-
-    if ( numConfigs != 1 )
-    {
-      DALI_LOG_ERROR("No configurations found.\n");
-
-      TEST_EGL_ERROR("eglChooseConfig");
     }
 
     EGLint error = eglGetError();
@@ -466,6 +459,13 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     mContextAttribs.PushBack( 2 );
   }
   mContextAttribs.PushBack( EGL_NONE );
+
+  if ( numConfigs != 1 )
+  {
+    DALI_LOG_ERROR("No configurations found.\n");
+
+    TEST_EGL_ERROR("eglChooseConfig");
+  }
 
   return true;
 }
