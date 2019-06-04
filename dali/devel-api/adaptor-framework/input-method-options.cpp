@@ -53,7 +53,7 @@ InputMethodOptions::~InputMethodOptions()
   // for unique_ptr to work with forward declaration
 }
 
-bool InputMethodOptions::IsPassword()
+bool InputMethodOptions::IsPassword() const
 {
   return (mImpl->mPanelLayout == Dali::InputMethod::PanelLayout::PASSWORD);
 }

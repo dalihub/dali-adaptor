@@ -1,8 +1,8 @@
-#ifndef __DALI_WEARABLE_H__
-#define __DALI_WEARABLE_H__
+#ifndef DALI_WEARABLE_H
+#define DALI_WEARABLE_H
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,4 +22,4 @@
 #include <dali/public-api/watch/watch-application.h>
 #include <dali/public-api/capture/capture.h>
 
-#endif // __DALI_WEARABLE_H__
+#endif // DALI_WEARABLE_H

@@ -18,14 +18,6 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/adaptor-framework/key-grab.h>
-#include <dali/public-api/adaptor-framework/style-change.h>
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/rotation-observer.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
-
 // EXTERNAL INCLUDES
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
@@ -33,6 +25,14 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/public-api/adaptor-framework/style-change.h>
+#include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/rotation-event.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 
 namespace Dali
 {

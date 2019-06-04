@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_THREADING_MODE_H__
-#define __DALI_INTERNAL_ADAPTOR_THREADING_MODE_H__
+#ifndef DALI_INTERNAL_ADAPTOR_THREADING_MODE_H
+#define DALI_INTERNAL_ADAPTOR_THREADING_MODE_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,4 +41,4 @@ struct ThreadingMode
 
 } // Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_THREADING_MODE_H__
+#endif // DALI_INTERNAL_ADAPTOR_THREADING_MODE_H

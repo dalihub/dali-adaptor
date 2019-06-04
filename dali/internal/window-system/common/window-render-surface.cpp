@@ -411,6 +411,12 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
     {
       mRenderNotification->Trigger();
     }
+
+    if ( eglImpl.IsSurfacelessContextSupported() )
+    {
+      // Switch to the shared context after rendering this surface
+      eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
+    }
   }
 }
 

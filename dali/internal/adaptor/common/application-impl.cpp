@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/singleton-service-impl.h>

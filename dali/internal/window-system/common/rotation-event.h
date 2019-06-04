@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_ROTATION_OBSERVER_H
-#define DALI_INTERNAL_ROTATION_OBSERVER_H
+#ifndef DALI_INTERNAL_ROTATION_EVENT_H
+#define DALI_INTERNAL_ROTATION_EVENT_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -37,46 +37,10 @@ struct RotationEvent
   int height;    ///< new window height
 };
 
-
-/**
- * The RotationObserver can be overridden in order to listen to rotation events.
- */
-class RotationObserver
-{
-public:
-
-  /**
-   * Deriving classes should override this to be notified when we receive a RotationPrepare event.
-   * @param[in]  area  The area that has been rotationd.
-   */
-  virtual void OnRotationPrepare( const RotationEvent& rotation ) = 0;
-
-  /**
-   * Deriving classes should override this to be notifed when a RotationRequest event is received
-   */
-  virtual void OnRotationRequest( ) = 0;
-
-protected:
-
-  /**
-   * Protected Constructor.
-   */
-  RotationObserver()
-  {
-  }
-
-  /**
-   * Protected virtual destructor.
-   */
-  virtual ~RotationObserver()
-  {
-  }
-};
-
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_ROTATION_OBSERVER_H
+#endif // DALI_INTERNAL_ROTATION_EVENT_H

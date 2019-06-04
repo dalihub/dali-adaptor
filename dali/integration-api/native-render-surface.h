@@ -1,8 +1,8 @@
-#ifndef __DALI_NATIVE_RENDER_SURFACE_H__
-#define __DALI_NATIVE_RENDER_SURFACE_H__
+#ifndef DALI_NATIVE_RENDER_SURFACE_H
+#define DALI_NATIVE_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,4 +93,4 @@ protected:
 
 } // namespace Dali
 
-#endif // __DALI_NATIVE_RENDER_SURFACE_H__
+#endif // DALI_NATIVE_RENDER_SURFACE_H

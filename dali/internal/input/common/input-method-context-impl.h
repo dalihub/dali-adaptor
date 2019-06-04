@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -245,6 +245,17 @@ public:
    * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
    */
   virtual bool IsTextPredictionAllowed() const { return false; }
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
+   */
+  virtual void SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language ) {}
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
+   */
+  virtual Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const { return Dali::InputMethodContext::InputPanelLanguage(); }
+
 public:  // Signals
 
   /**
@@ -332,4 +343,4 @@ public:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_INPUT_METHOD_CONTEXT_H
+#endif // DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_IMPL_H

@@ -503,17 +503,19 @@ public: // Signals
     return mLanguageChangedSignal;
   }
 
+public: // From Dali::Internal::Adaptor::CoreEventInterface
+
+  /**
+   * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
+   */
+  virtual void ProcessCoreEvents();
+
 private: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
    * @copydoc Dali::Internal::Adaptor::CoreEventInterface::QueueCoreEvent()
    */
   virtual void QueueCoreEvent(const Dali::Integration::Event& event);
-
-  /**
-   * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
-   */
-  virtual void ProcessCoreEvents();
 
 private: // From Dali::Integration::RenderController
 
@@ -614,11 +616,12 @@ private: // Types
 
   enum State
   {
-    READY,               ///< Initial state before Adaptor::Start is called.
-    RUNNING,             ///< Adaptor is running.
-    PAUSED,              ///< Adaptor has been paused.
-    PAUSED_WHILE_HIDDEN, ///< Adaptor is paused while window is hidden (& cannot be resumed until window is shown).
-    STOPPED,             ///< Adaptor has been stopped.
+    READY,                     ///< Initial state before Adaptor::Start is called.
+    RUNNING,                   ///< Adaptor is running.
+    PAUSED,                    ///< Adaptor has been paused.
+    PAUSED_WHILE_HIDDEN,       ///< Adaptor is paused while window is hidden (& cannot be resumed until window is shown).
+    PAUSED_WHILE_INITIALIZING, ///< Adaptor is paused while application is initializing.
+    STOPPED,                   ///< Adaptor has been stopped.
   };
 
   using SceneHolderPtr = IntrusivePtr< Dali::Internal::Adaptor::SceneHolder >;

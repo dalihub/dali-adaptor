@@ -20,7 +20,6 @@
 
 // EXTERNAL HEADERS
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/render-task-list-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/actors/camera-actor.h>
@@ -28,6 +27,7 @@
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
+#include <dali/integration-api/events/touch-event-integ.h>
 
 #ifdef DALI_ADAPTOR_COMPILATION
 #include <dali/integration-api/render-surface-interface.h>
@@ -78,6 +78,9 @@ Window::Window()
   mResizeEnabled( false ),
   mType( Dali::Window::NORMAL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
+  mRotationAngle( 0 ),
+  mWindowWidth( 0 ),
+  mWindowHeight( 0 ),
   mFocusChangedSignal(),
   mResizedSignal(),
   mDeleteRequestSignal()
@@ -88,7 +91,7 @@ Window::~Window()
 {
   if ( mEventHandler )
   {
-    mEventHandler->SetRotationObserver( nullptr );
+    mEventHandler->RemoveObserver( *this );
   }
 }
 
@@ -125,13 +128,8 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  mEventHandler = EventHandlerPtr(new EventHandler( mScene, *mAdaptor, *mAdaptor ) );
-
-  // TODO: Orientation should be passed into the constructor of EventHandler
-  if( mOrientation )
-  {
-    SetRotationObserver( &(*mOrientation) );
-  }
+  mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface, *mAdaptor ) );
+  mEventHandler->AddObserver( *this );
 }
 
 void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
@@ -186,6 +184,11 @@ uint32_t Window::GetLayerCount() const
 Dali::Layer Window::GetLayer( uint32_t depth ) const
 {
   return mScene.GetLayer( depth );
+}
+
+Dali::RenderTaskList Window::GetRenderTaskList() const
+{
+  return mScene.GetRenderTaskList();
 }
 
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
@@ -537,18 +540,6 @@ bool Window::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< 
   return mWindowBase->UngrabKeyList( key, result );
 }
 
-void Window::RotationDone( int orientation, int width, int height )
-{
-  mWindowSurface->RequestRotation( orientation, width, height );
-
-  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
-
-  // Emit signal
-  mResizedSignal.Emit( Dali::Window::WindowSize( width, height ) );
-
-  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( width, height ) );
-}
-
 void Window::OnIconifyChanged( bool iconified )
 {
   if( iconified )
@@ -594,28 +585,38 @@ void Window::OnDeleteRequest()
   mDeleteRequestSignal.Emit();
 }
 
-void Window::FeedTouchPoint( TouchPoint& point, int timeStamp )
+void Window::OnTouchPoint( Dali::Integration::Point& point, int timeStamp )
 {
-  if( mEventHandler )
-  {
-    mEventHandler->FeedTouchPoint( point, timeStamp );
-  }
+  FeedTouchPoint( point, timeStamp );
 }
 
-void Window::FeedWheelEvent( WheelEvent& wheelEvent )
+void Window::OnWheelEvent( Dali::Integration::WheelEvent& wheelEvent )
 {
-  if( mEventHandler )
-  {
-    mEventHandler->FeedWheelEvent( wheelEvent );
-  }
+  FeedWheelEvent( wheelEvent );
 }
 
-void Window::FeedKeyEvent( KeyEvent& keyEvent )
+void Window::OnKeyEvent( Dali::Integration::KeyEvent& keyEvent )
 {
-  if( mEventHandler )
-  {
-    mEventHandler->FeedKeyEvent( keyEvent );
-  }
+  FeedKeyEvent( keyEvent );
+}
+
+void Window::OnRotation( const RotationEvent& rotation )
+{
+  mRotationAngle = rotation.angle;
+  mWindowWidth = rotation.width;
+  mWindowHeight = rotation.height;
+
+  // Notify that the orientation is changed
+  mOrientation->OnOrientationChange( rotation );
+
+  mWindowSurface->RequestRotation( mRotationAngle, mWindowWidth, mWindowHeight );
+
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
+
+  // Emit signal
+  mResizedSignal.Emit( Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
+
+  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 }
 
 void Window::OnPause()
@@ -634,15 +635,39 @@ void Window::OnResume()
   }
 }
 
-bool Window::SetRotationObserver( RotationObserver* observer )
+void Window::RecalculateTouchPosition( Integration::Point& point )
 {
-  if( mEventHandler )
+  Vector2 position = point.GetScreenPosition();
+  Vector2 convertedPosition;
+
+  switch( mRotationAngle )
   {
-    mEventHandler->SetRotationObserver( observer );
-    return true;
+    case 90:
+    {
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.y;
+      convertedPosition.y = position.x;
+      break;
+    }
+    case 180:
+    {
+      convertedPosition.x = static_cast<float>( mWindowWidth ) - position.x;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.y;
+      break;
+    }
+    case 270:
+    {
+      convertedPosition.x = position.y;
+      convertedPosition.y = static_cast<float>( mWindowHeight ) - position.x;
+      break;
+    }
+    default:
+    {
+      convertedPosition = position;
+      break;
+    }
   }
 
-  return false;
+  point.SetScreenPosition( convertedPosition );
 }
 
 Dali::Window Window::Get( Dali::Actor actor )

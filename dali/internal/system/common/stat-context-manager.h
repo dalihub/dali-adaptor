@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H__
-#define __DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H__
+#ifndef DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H
 
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,5 +166,5 @@ public:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H__
+#endif // DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_MANAGER_H
 

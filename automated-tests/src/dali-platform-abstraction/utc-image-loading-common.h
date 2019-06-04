@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef __DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H__
-#define __DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H__
+#ifndef DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H
+#define DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H
 #include <unistd.h>
 #include <iostream>
 #include <stdlib.h>
@@ -77,4 +77,4 @@ double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction ); ///
 void utc_dali_loading_startup(void);
 void utc_dali_loading_cleanup(void);
 
-#endif // __DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H__
+#endif // DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,25 +68,17 @@ Orientation::OrientationSignalType& Orientation::ChangedSignal()
   return mChangedSignal;
 }
 
-void Orientation::OnRotationPrepare( const RotationEvent& rotation )
+void Orientation::OnOrientationChange( const RotationEvent& rotation )
 {
   mOrientation  = rotation.angle;
   mWindowWidth  = rotation.width;
   mWindowHeight = rotation.height;
-}
 
-void Orientation::OnRotationRequest()
-{
   // Emit signal
   if( !mChangedSignal.Empty() )
   {
     Dali::Orientation handle( this );
     mChangedSignal.Emit( handle );
-  }
-
-  if( mWindow != NULL )
-  {
-    mWindow->RotationDone( mOrientation, mWindowWidth, mWindowHeight );
   }
 }
 

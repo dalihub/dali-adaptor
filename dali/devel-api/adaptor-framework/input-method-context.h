@@ -1,8 +1,8 @@
-#ifndef __DALI_INPUT_METHOD_CONTEXT_H__
-#define __DALI_INPUT_METHOD_CONTEXT_H__
+#ifndef DALI_INPUT_METHOD_CONTEXT_H
+#define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,12 @@ public:
   {
     SOFTWARE_KEYBOARD,  ///< Software keyboard (Virtual keyboard) is default
     HARDWARE_KEYBOARD   ///< Hardware keyboard
+  };
+
+  enum class InputPanelLanguage
+  {
+    AUTOMATIC,    ///< IME Language automatically set depending on the system display
+    ALPHABET      ///< Latin alphabet at all times
   };
 
   /**
@@ -411,6 +417,22 @@ public:
    * @return Whether the IM allow text prediction or not.
    */
   bool IsTextPredictionAllowed() const;
+
+  /**
+   * @brief Sets the language of the input panel.
+   *
+   * This method can be used when you want to show the English keyboard.
+   * @param[in] language The language to be set to the input panel
+   */
+  void SetInputPanelLanguage( InputPanelLanguage language );
+
+  /**
+   * @brief Gets the language of the input panel.
+   *
+   * @return The language of the input panel
+   */
+  InputPanelLanguage GetInputPanelLanguage() const;
+
 public:
 
   // Signals
@@ -497,4 +519,4 @@ public:
 
 } // namespace Dali
 
-#endif // __DALI_INPUT_METHOD_CONTEXT_H__
+#endif // DALI_INPUT_METHOD_CONTEXT_H

@@ -1,8 +1,8 @@
-#ifndef __DALI_APPLICATION_CONFIGURATION_H__
-#define __DALI_APPLICATION_CONFIGURATION_H__
+#ifndef DALI_APPLICATION_CONFIGURATION_H
+#define DALI_APPLICATION_CONFIGURATION_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ enum ContextLoss
 /**
  * @}
  */
+
 } // namespace Dali
 
-#endif
+#endif // DALI_APPLICATION_CONFIGURATION_H

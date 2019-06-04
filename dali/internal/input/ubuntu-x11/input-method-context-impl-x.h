@@ -240,6 +240,17 @@ public:
    * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
    */
   bool IsTextPredictionAllowed() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
+   */
+  void SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language ) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
+   */
+  Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const override;
+
 private:
   /**
    * Context created the first time and kept until deleted.

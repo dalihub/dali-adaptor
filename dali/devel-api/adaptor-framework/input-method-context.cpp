@@ -196,6 +196,17 @@ bool InputMethodContext::IsTextPredictionAllowed() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).IsTextPredictionAllowed();
 }
 
+void InputMethodContext::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelLanguage( language );
+}
+
+Dali::InputMethodContext::InputPanelLanguage InputMethodContext::GetInputPanelLanguage() const
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelLanguage();
+}
+
+// Signals
 InputMethodContext::ActivatedSignalType& InputMethodContext::ActivatedSignal()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).ActivatedSignal();

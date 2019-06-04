@@ -1,8 +1,8 @@
-#ifndef __DALI_VIRTUAL_KEYBOARD_OPTIONS_H__
-#define __DALI_VIRTUAL_KEYBOARD_OPTIONS_H__
+#ifndef DALI_VIRTUAL_KEYBOARD_OPTIONS_H
+#define DALI_VIRTUAL_KEYBOARD_OPTIONS_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public:
    * @brief Returns whether panel layout type is password or not
    * @return true if panel layout type is password, false otherwise.
    */
-  bool IsPassword();
+  bool IsPassword() const;
 
   /**
    * @brief Apply property map to attribute class, this class will keep the virtualKeyboard settings.
@@ -82,4 +82,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_VIRTUAL_KEYBOARD_OPTIONS_H__
+#endif // DALI_VIRTUAL_KEYBOARD_OPTIONS_H
