@@ -294,9 +294,9 @@ public:
   void SetPositionSize( PositionSize positionSize );
 
   /**
-   * @copydoc Dali::DevelWindow::GetRootLayer()
+   * @copydoc Dali::Window::GetRootLayer()
    */
-  Dali::Layer GetRootLayer();
+  Dali::Layer GetRootLayer() const;
 
   /**
    * @copydoc Dali::Window::SetTransparency()
