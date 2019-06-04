@@ -818,6 +818,12 @@ std::string Framework::GetResourcePath()
   {
     resourcePath = value;
   }
+
+  if( resourcePath.back() != '/' )
+  {
+    resourcePath+="/";
+  }
+
 #endif //TIZEN_PLATFORM_CONFIG_SUPPORTED
 
   return resourcePath;
