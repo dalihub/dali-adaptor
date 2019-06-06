@@ -412,6 +412,7 @@ struct Framework::Impl
       TouchPoint::State state = TouchPoint::Down;
       int32_t action = AMotionEvent_getAction( event );
       int64_t timeStamp = AMotionEvent_getEventTime( event );
+
       switch ( action & AMOTION_EVENT_ACTION_MASK )
       {
       case AMOTION_EVENT_ACTION_DOWN:
@@ -430,7 +431,7 @@ struct Framework::Impl
         break;
       }
 
-      Dali::TouchPoint point( deviceId, state, x, y);
+      Dali::TouchPoint point( deviceId, state, x, y );
       Dali::Internal::Adaptor::Framework::Impl::NativeAppTouchEvent( context->framework, point, timeStamp );
       return 1;
     }
@@ -440,6 +441,7 @@ struct Framework::Impl
       int32_t keyCode = AKeyEvent_getKeyCode( event );
       int32_t action = AKeyEvent_getAction( event );
       int64_t timeStamp = AKeyEvent_getEventTime( event );
+
       KeyEvent::State state = KeyEvent::Down;
       switch ( action )
       {
@@ -450,7 +452,16 @@ struct Framework::Impl
         break;
       }
 
-      Dali::KeyEvent keyEvent( "", "", keyCode, 0, timeStamp, state );
+      std::string keyName = "";
+      switch( keyCode )
+      {
+      case 4:
+        keyName = "XF86Back";
+        break;
+      default:
+        break;
+      }
+      Dali::KeyEvent keyEvent( keyName, "", keyCode, 0, timeStamp, state );
       Dali::Internal::Adaptor::Framework::Impl::NativeAppKeyEvent( context->framework, keyEvent );
       return 1;
     }
