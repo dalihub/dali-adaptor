@@ -178,7 +178,7 @@ struct Framework::Impl
 
   void OnIdle()
   {
-    DALI_LOG_ERROR( ">>\n" );
+    // Dequeue the pipe
     int8_t msg = -1;
     read( mIdleReadPipe, &msg, sizeof( msg ) );
 
@@ -189,20 +189,20 @@ struct Framework::Impl
       IdleCallback callback = mIdleCallbacks.top();
       if( callback.timestamp <= ts )
       {
-        DALI_LOG_ERROR( "Pop callback %d\n", callback.id );
         mIdleCallbacks.pop();
 
+        // Callback wasn't removed
         if( mRemovedIdleCallbacks.find( callback.id ) == mRemovedIdleCallbacks.end() )
         {
-          DALI_LOG_ERROR( "Call callback %d\n", callback.id );
           if ( callback() ) // keep the callback
           {
             AddIdle( callback.timeout, callback.data, callback.callback );
           }
         }
 
+        // Callback cane be also removed during the callback call
         auto i = mRemovedIdleCallbacks.find( callback.id );
-        if ( i != mRemovedIdleCallbacks.end() )
+        if( i != mRemovedIdleCallbacks.end() )
         {
           mRemovedIdleCallbacks.erase( i );
         }
@@ -213,7 +213,6 @@ struct Framework::Impl
     {
       mRemovedIdleCallbacks.clear();
     }
-    DALI_LOG_ERROR( "<<\n" );
   }
 
   unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
@@ -224,21 +223,17 @@ struct Framework::Impl
       ++mIdleId;
     }
 
-    DALI_LOG_ERROR( "%d %d\n", mIdleId, timeout  );
     mIdleCallbacks.push( IdleCallback( timeout, mIdleId, data, callback ) );
 
-    if( timeout == 0 ) // trigger OnIdle now
-    {
-      int8_t msg = 1;
-      write( mIdleWritePipe, &msg, sizeof( msg ) );
-    }
+    // To wake up the idle pipe and to trigger OnIdle
+    int8_t msg = 1;
+    write( mIdleWritePipe, &msg, sizeof( msg ) );
 
     return mIdleId;
   }
 
   void RemoveIdle( unsigned int id )
   {
-    DALI_LOG_ERROR( "%d\n", id );
     if( id != 0 )
     {
       mRemovedIdleCallbacks.insert( id );
@@ -248,12 +243,11 @@ struct Framework::Impl
   int GetIdleTimeout()
   {
     int timeout = -1;
-    unsigned int timestamp = GetCurrentMilliSeconds();
 
-    if ( !mIdleCallbacks.empty() )
+    if( !mIdleCallbacks.empty() )
     {
       IdleCallback idleTimeout = mIdleCallbacks.top();
-      timeout = idleTimeout.timestamp - timestamp;
+      timeout = idleTimeout.timestamp - GetCurrentMilliSeconds();
       if( timeout < 0 )
       {
          timeout = 0;
@@ -374,8 +368,7 @@ struct Framework::Impl
   static void HandleAppCmd(struct android_app* app, int32_t cmd)
   {
     struct ApplicationContext* context = static_cast< struct ApplicationContext* >( app->userData );
-    int8_t tmp;
-    switch (cmd)
+    switch( cmd )
     {
       case APP_CMD_SAVE_STATE:
         break;
@@ -529,6 +522,11 @@ void Framework::Run()
   int idleTimeout = -1;
   while( true )
   {
+    if ( mImpl )
+    {
+      idleTimeout = mImpl->GetIdleTimeout();
+    }
+
     int id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source );
 
     // Process the error.
@@ -539,34 +537,23 @@ void Framework::Run()
        std::abort();
     }
 
+    // Process the timeout, trigger OnIdle.
+    if( id == ALOOPER_POLL_TIMEOUT )
+    {
+      int8_t msg = 1;
+      write( mImpl->mIdleWritePipe, &msg, sizeof( msg ) );
+    }
+
     // Process the application event.
     if( id >= 0 && source != NULL )
     {
       source->process( applicationContext.androidApplication, source );
     }
 
-    // Process the timeout.
-    if( id == ALOOPER_POLL_TIMEOUT )
-    {
-      DALI_LOG_ERROR( "ALooper timed out\n" );
-      int8_t msg = 1;
-      write( mImpl->mIdleWritePipe, &msg, sizeof( msg ) );
-    }
-
     // Check if we are exiting.
     if( applicationContext.androidApplication->destroyRequested )
     {
       break;
-    }
-
-    idleTimeout = -1;
-    if( id == LOOPER_ID_USER || id == ALOOPER_POLL_TIMEOUT )
-    {
-      if ( mImpl )
-      {
-        idleTimeout = mImpl->GetIdleTimeout();
-      }
-      DALI_LOG_ERROR( "idle timeout %d\n", idleTimeout );
     }
   }
 
