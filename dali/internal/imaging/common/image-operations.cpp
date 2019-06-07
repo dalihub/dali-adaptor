@@ -1470,7 +1470,7 @@ void DownscaleInPlacePow2( unsigned char * const pixels,
       }
       else
       {
-        DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+        DALI_ASSERT_DEBUG( false && "Inner branch conditions don't match outer branch." );
       }
     }
   }
@@ -1726,7 +1726,7 @@ void PointSample( const unsigned char * inPixels,
     }
     else
     {
-      DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+      DALI_ASSERT_DEBUG( 0 == "Inner branch conditions don't match outer branch." );
     }
   }
   else
@@ -2135,7 +2135,7 @@ void LinearSample( const unsigned char * __restrict__ inPixels,
     }
     else
     {
-      DALI_ASSERT_DEBUG( false == "Inner branch conditions don't match outer branch." );
+      DALI_ASSERT_DEBUG( 0 == "Inner branch conditions don't match outer branch." );
     }
   }
   else
