@@ -141,6 +141,11 @@ Adaptor::AdaptorSignalType& Adaptor::LanguageChangedSignal()
   return mImpl->LanguageChangedSignal();
 }
 
+Adaptor::WindowCreatedSignalType& Adaptor::WindowCreatedSignal()
+{
+  return mImpl->WindowCreatedSignal();
+}
+
 Dali::RenderSurfaceInterface& Adaptor::GetSurface()
 {
   return mImpl->GetSurface();
@@ -234,6 +239,11 @@ void Adaptor::RegisterProcessor( Integration::Processor& processor )
 void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 {
   mImpl->UnregisterProcessor( processor );
+}
+
+Dali::WindowContainer Adaptor::GetWindows() const
+{
+  return mImpl->GetWindows();
 }
 
 Adaptor::Adaptor()
