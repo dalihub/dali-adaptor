@@ -32,6 +32,11 @@ class GlesAbstraction
 
 public:
 
+  /**
+   * Destructor
+   */
+  virtual ~GlesAbstraction() {};
+
   virtual void ReadBuffer( GLenum mode ) = 0;
 
   virtual void DrawRangeElements( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices ) = 0;
