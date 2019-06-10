@@ -52,7 +52,8 @@ PixelBuffer::PixelBuffer( unsigned char* buffer,
   mBufferSize( bufferSize ),
   mWidth( width ),
   mHeight( height ),
-  mPixelFormat( pixelFormat )
+  mPixelFormat( pixelFormat ),
+  mPreMultiplied( false )
 {
 }
 
@@ -466,6 +467,12 @@ void PixelBuffer::MultiplyColorByAlpha()
       pixel += bytesPerPixel;
     }
   }
+  mPreMultiplied = true;
+}
+
+bool PixelBuffer::IsAlphaPreMultiplied() const
+{
+  return mPreMultiplied;
 }
 
 }// namespace Adaptor

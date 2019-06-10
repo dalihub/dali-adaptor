@@ -222,6 +222,11 @@ public:
    */
   bool Rotate( Degree angle );
 
+  /**
+   * @copydoc Devel::PixelBuffer::IsAlphaPreMultiplied()
+   */
+  bool IsAlphaPreMultiplied() const;
+
 private:
   /*
    * Undefined copy constructor.
@@ -283,6 +288,7 @@ private:
   unsigned int                    mWidth;            ///< Buffer width in pixels
   unsigned int                    mHeight;           ///< Buffer height in pixels
   Pixel::Format                   mPixelFormat;      ///< Pixel format
+  bool                            mPreMultiplied; ///< PreMultiplied
 };
 
 } // namespace Adaptor
