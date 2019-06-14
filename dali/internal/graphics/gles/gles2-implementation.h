@@ -40,7 +40,7 @@ class Gles2Implementation : public GlesAbstraction
 public:
   Gles2Implementation() {}
 
-  ~Gles2Implementation() {}
+  ~Gles2Implementation() override {}
 
   void ReadBuffer( GLenum mode ) override
   {
