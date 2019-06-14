@@ -44,8 +44,6 @@ namespace Dali
 
 class RenderSurfaceInterface;
 
-using WindowContainer = std::vector<Window>;
-
 namespace Integration
 {
 class SceneHolder;
@@ -124,7 +122,6 @@ class DALI_ADAPTOR_API Adaptor
 public:
 
   typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
-  typedef Signal< void (Window&) > WindowCreatedSignalType;  ///< Window created signal type
 
 public:
   /**
@@ -430,12 +427,6 @@ public:
    */
   void UnregisterProcessor( Integration::Processor& processor );
 
-  /**
-   * @brief Get the list of windows created.
-   * @return The list of windows
-   */
-  Dali::WindowContainer GetWindows() const;
-
 public:  // Signals
 
   /**
@@ -452,13 +443,6 @@ public:  // Signals
    * @return The signal to connect to
    */
   AdaptorSignalType& LanguageChangedSignal();
-
-  /**
-   * @brief This signal is emitted when a new window is created
-   *
-   * @return The signal to connect to
-   */
-  WindowCreatedSignalType& WindowCreatedSignal();
 
 private:
 
