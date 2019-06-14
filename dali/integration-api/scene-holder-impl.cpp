@@ -188,7 +188,7 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 {
   mSurface.reset( surface );
 
-  mScene.SetSurface( *mSurface.get() );
+  mScene.SetSurface( *mSurface.get(), false );
 
   unsigned int dpiHorizontal, dpiVertical;
   dpiHorizontal = dpiVertical = 0;
@@ -232,7 +232,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   // Create the scene
   PositionSize positionSize = mSurface->GetPositionSize();
   mScene = Dali::Integration::Scene::New( Vector2( positionSize.width, positionSize.height ) );
-  mScene.SetSurface( *mSurface.get() );
+  mScene.SetSurface( *mSurface.get(), false );
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation( adaptor );
   mAdaptor = &adaptorImpl;
