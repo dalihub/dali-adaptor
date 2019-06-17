@@ -78,6 +78,7 @@ struct Window::EventHandler
     mEventQueue( NULL ),
     mTizenPolicy( NULL ),
     mTizenDisplayPolicy( NULL ),
+    mScreenRotationAngle( 0 ),
     mNotificationLevel( -1 ),
     mNotificationChangeState( 0 ),
     mNotificationLevelChangeDone( true ),
@@ -225,24 +226,31 @@ struct Window::EventHandler
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        wlSurface->OutputTransformed();
+        int transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( handler->mEcoreWindow ) );
+        int screenRotationAngle = transform * 90;
 
-        bool forceUpdate = false;
-        int orientation = wlSurface->GetOrientation();
-
-        // If PreRotation is supported, don't work client rotation by core.
-        // Client rotation means both window resize and camera rotation.
-        if( wlSurface->IsPreRotationSupported() )
+        if( handler->mScreenRotationAngle != screenRotationAngle)
         {
-          forceUpdate = true;
-          orientation = 0;
+          handler->mScreenRotationAngle = screenRotationAngle;
+
+          wlSurface->OutputTransformed();
+
+          bool forceUpdate = false;
+          int orientation = wlSurface->GetOrientation();
+
+          // If PreRotation is supported, don't work client rotation by core.
+          // Client rotation means both window resize and camera rotation.
+          if( wlSurface->IsPreRotationSupported() )
+          {
+            forceUpdate = true;
+            orientation = 0;
+          }
+
+          PositionSize positionSize = wlSurface->GetPositionSize();
+          handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
+          handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
         }
-
-        PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
-        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-
-        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
       }
     }
 
@@ -260,24 +268,31 @@ struct Window::EventHandler
       ECore::WindowRenderSurface* wlSurface( dynamic_cast< ECore::WindowRenderSurface * >( handler->mWindow->mSurface ) );
       if( wlSurface )
       {
-        wlSurface->OutputTransformed();
+        int transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( handler->mEcoreWindow ) );
+        int screenRotationAngle = transform * 90;
 
-        bool forceUpdate = false;
-        int orientation = wlSurface->GetOrientation();
-
-        // If PreRotation is supported, don't work client rotation by core.
-        // Client rotation means both window resize and camera rotation.
-        if( wlSurface->IsPreRotationSupported() )
+        if( handler->mScreenRotationAngle != screenRotationAngle)
         {
-          forceUpdate = true;
-          orientation = 0;
+          handler->mScreenRotationAngle = screenRotationAngle;
+          wlSurface->OutputTransformed();
+
+          bool forceUpdate = false;
+          int orientation = wlSurface->GetOrientation();
+
+          // If PreRotation is supported, don't work client rotation by core.
+          // Client rotation means both window resize and camera rotation.
+          if( wlSurface->IsPreRotationSupported() )
+          {
+            forceUpdate = true;
+            orientation = 0;
+          }
+
+          PositionSize positionSize = wlSurface->GetPositionSize();
+          handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
+          handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
+
+          DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
         }
-
-        PositionSize positionSize = wlSurface->GetPositionSize();
-        handler->mWindow->mAdaptor->SurfaceResizePrepare( Adaptor::SurfaceSize( positionSize.width, positionSize.height ), orientation, forceUpdate );
-        handler->mWindow->mAdaptor->SurfaceResizeComplete( Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
-
-        DALI_LOG_INFO( gWindowLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform [%d, %d]\n", handler->mEcoreWindow, positionSize.width, positionSize.height );
       }
     }
 
@@ -424,6 +439,8 @@ struct Window::EventHandler
   wl_event_queue* mEventQueue;
   tizen_policy* mTizenPolicy;
   tizen_display_policy* mTizenDisplayPolicy;
+
+  int mScreenRotationAngle;
 
   int mNotificationLevel;
   uint32_t mNotificationChangeState;
