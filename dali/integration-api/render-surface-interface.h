@@ -66,7 +66,8 @@ public:
     mGraphics( nullptr ),
     mDisplayConnection( nullptr ),
     mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
-    mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
+    mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE ),
+    mBackgroundColor()
   {}
 
   /**
@@ -174,6 +175,24 @@ public:
    * @return TRUE if the stencil buffer is required
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
+
+  /**
+   * @brief Sets the background color of the surface.
+   * @param[in] color The new background color
+   */
+  virtual void SetBackgroundColor( Vector4 color ) override
+  {
+    mBackgroundColor = color;
+  }
+
+  /**
+   * @brief Gets the background color of the surface.
+   * @return The background color
+   */
+  virtual Vector4 GetBackgroundColor() override
+  {
+    return mBackgroundColor;
+  }
 
 public:
 

@@ -200,15 +200,15 @@ Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
 
 void SceneHolder::SetBackgroundColor( const Vector4& color )
 {
-  if( mScene )
+  if ( mSurface )
   {
-    mScene.SetBackgroundColor( color );
+    mSurface->SetBackgroundColor( color );
   }
 }
 
 Vector4 SceneHolder::GetBackgroundColor() const
 {
-  return mScene ? mScene.GetBackgroundColor() : Vector4();
+  return mSurface ? mSurface->GetBackgroundColor() : Vector4();
 }
 
 void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
