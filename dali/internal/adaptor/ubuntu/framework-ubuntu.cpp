@@ -219,6 +219,11 @@ std::string Framework::GetResourcePath()
     resourcePath = value;
   }
 
+  if( resourcePath.back() != '/' )
+  {
+    resourcePath+="/";
+  }
+
   return resourcePath;
 }
 
