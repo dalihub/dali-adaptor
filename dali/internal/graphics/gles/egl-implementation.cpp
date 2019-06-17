@@ -147,17 +147,6 @@ bool EglImplementation::CreateContext()
   DALI_ASSERT_ALWAYS( (mEglContext == 0) && "EGL context recreated" );
 
   mEglContext = eglCreateContext(mEglDisplay, mEglConfig, NULL, &(mContextAttribs[0]));
-  if ( eglGetError() != EGL_SUCCESS )
-  {
-    if( mGlesVersion >= 30 )
-    {
-      eglDestroySurface( mEglDisplay, mEglContext );
-      mEglContext = NULL;
-      mEglConfig = NULL;
-      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
-      return false;
-    }
-  }
   TEST_EGL_ERROR("eglCreateContext render thread");
 
   DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != mEglContext && "EGL context not created" );
@@ -222,10 +211,7 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
+    glFinish();
 
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
 
@@ -254,10 +240,7 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
+    glFinish();
 
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
 
@@ -365,7 +348,11 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if( mGlesVersion >= 30 )
   {
+#ifdef _ARCH_ARM_
     configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
+#else
+    configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
+#endif // _ARCH_ARM_
   }
   else
   {
@@ -412,7 +399,7 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     if( mGlesVersion >= 30 )
     {
       mEglConfig = NULL;
-      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
+      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retring to use OpenGL es 2.0.");
       return false;
     }
 
