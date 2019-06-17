@@ -53,7 +53,7 @@ DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize 
  * @param[in] window The window instance
  * @return A valid handle to a RenderTaskList
  */
-Dali::RenderTaskList GetRenderTaskList( Window window );
+DALI_ADAPTOR_API Dali::RenderTaskList GetRenderTaskList( Window window );
 
 /**
  * @brief Retrieve the window that the given actor is added to.
