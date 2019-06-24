@@ -181,11 +181,6 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
   mImpl->SetPreRenderCallback( callback );
 }
 
-void Adaptor::SetUseHardwareVSync(bool useHardware)
-{
-  mImpl->SetUseHardwareVSync( useHardware );
-}
-
 Adaptor& Adaptor::Get()
 {
   return Internal::Adaptor::Adaptor::Get();

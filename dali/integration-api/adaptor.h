@@ -353,14 +353,6 @@ public:
   void SetPreRenderCallback( CallbackBase* callback );
 
   /**
-   * @brief Set whether the frame count per render is managed using the hardware VSync or
-   * manually timed.
-   *
-   * @param[in] useHardware True if the hardware VSync should be used
-   */
-  void SetUseHardwareVSync(bool useHardware);
-
-  /**
    * @brief Returns a reference to the instance of the adaptor used by the current thread.
    *
    * @return A reference to the adaptor.

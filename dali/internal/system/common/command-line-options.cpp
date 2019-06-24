@@ -56,7 +56,6 @@ struct Argument
 
 Argument EXPECTED_ARGS[] =
 {
-  { "no-vsync",    "Disable VSync on Render" },
   { "width",       "Stage Width"             },
   { "height",      "Stage Height"            },
   { "dpi",         "Emulated DPI"            },
@@ -66,8 +65,7 @@ Argument EXPECTED_ARGS[] =
 
 enum Option
 {
-  OPTION_NO_VSYNC = 0,
-  OPTION_STAGE_WIDTH,
+  OPTION_STAGE_WIDTH = 0,
   OPTION_STAGE_HEIGHT,
   OPTION_DPI,
   OPTION_HELP
@@ -89,8 +87,8 @@ void ShowHelp()
 } // unnamed namespace
 
 CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
-: noVSyncOnRender(0),
-  stageWidth(0), stageHeight(0)
+: stageWidth(0),
+  stageHeight(0)
 {
   // Exit gracefully if no arguments provided
   if ( !argc || !argv )
@@ -108,7 +106,6 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
 
     const struct option options[]=
     {
-      { EXPECTED_ARGS[OPTION_NO_VSYNC].opt,     no_argument,       &noVSyncOnRender, 1   },  // "--no-vsync"
       { EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt,  required_argument, NULL,             'w' },  // "--width"
       { EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL,             'h' },  // "--height"
       { EXPECTED_ARGS[OPTION_DPI].opt,          required_argument, NULL,             'd' },  // "--dpi"

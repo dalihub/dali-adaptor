@@ -321,11 +321,6 @@ public:
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
 
   /**
-   * @copydoc Dali::Adaptor::SetUseHardwareVSync()
-   */
-  void SetUseHardwareVSync(bool useHardware);
-
-  /**
    * Return the PlatformAbstraction.
    * @return The PlatformAbstraction.
    */
@@ -470,11 +465,6 @@ public:  //AdaptorInternalServices
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
   virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
-   */
-  virtual VSyncMonitorInterface* GetVSyncMonitorInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
@@ -653,7 +643,6 @@ private: // Data
   State                                 mState;                       ///< Current state of the adaptor
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
-  VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
   GraphicsInterface*                    mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection

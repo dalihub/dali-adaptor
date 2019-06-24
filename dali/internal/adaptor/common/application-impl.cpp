@@ -242,12 +242,6 @@ void Application::OnInit()
   // Run the adaptor
   mAdaptor->Start();
 
-  // Check if user requires no vsyncing and set Adaptor
-  if (mCommandLineOptions->noVSyncOnRender)
-  {
-    mAdaptor->SetUseHardwareVSync(false);
-  }
-
   if( ! mStylesheet.empty() )
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
