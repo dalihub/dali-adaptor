@@ -72,7 +72,6 @@ namespace Adaptor
 {
 class DisplayConnection;
 class GraphicsFactory;
-class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
 class ThreadController;
