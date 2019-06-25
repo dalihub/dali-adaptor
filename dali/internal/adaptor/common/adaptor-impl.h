@@ -628,9 +628,8 @@ private: // Types
     STOPPED,                   ///< Adaptor has been stopped.
   };
 
-  // There is no weak handle for BaseHandle in DALi, but we can't ref count the window here,
-  // so we have to store the raw pointer.
-  using WindowContainer = std::vector<Dali::Internal::Adaptor::SceneHolder*>;
+  using SceneHolderPtr = IntrusivePtr< Dali::Internal::Adaptor::SceneHolder >;
+  using WindowContainer = std::vector<SceneHolderPtr>;
   using ObserverContainer = std::vector<LifeCycleObserver*>;
 
 private: // Data
