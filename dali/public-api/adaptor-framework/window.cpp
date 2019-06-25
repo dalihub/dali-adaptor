@@ -37,7 +37,7 @@ Window Window::New(PositionSize posSize, const std::string& name, bool isTranspa
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
   Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, "", isTransparent );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( sceneHolder, name, "", isTransparent );
 
   return Window(window);
 }
@@ -48,7 +48,7 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
 
   Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
   Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
-  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( &sceneHolder, name, className, isTransparent );
+  Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( sceneHolder, name, className, isTransparent );
 
   return Window(window);
 }

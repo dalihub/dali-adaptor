@@ -53,7 +53,6 @@ int UtcDaliCommandLineOptionsNoArgs(void)
   DALI_TEST_EQUALS( argc, 1, TEST_LOCATION );
 
   // Check values
-  DALI_TEST_EQUALS( options.noVSyncOnRender, 0, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageWidth, 0, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageHeight, 0, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageDPI, "", TEST_LOCATION );
@@ -81,7 +80,6 @@ int UtcDaliCommandLineOptionsDaliShortArgs(void)
   DALI_TEST_EQUALS( argc, 1, TEST_LOCATION );
 
   // Check values
-  DALI_TEST_EQUALS( options.noVSyncOnRender, 0, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageWidth, 800, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageHeight, 1000, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageDPI, "4x5", TEST_LOCATION );
@@ -99,7 +97,6 @@ int UtcDaliCommandLineOptionsDaliLongArgsEqualsSign(void)
       "--width=800",
       "--height=1000",
       "--dpi=3x4",
-      "--no-vsync",
       "--help"
   };
   int argc( sizeof( argList ) / sizeof( argList[0] ) );
@@ -111,7 +108,6 @@ int UtcDaliCommandLineOptionsDaliLongArgsEqualsSign(void)
   DALI_TEST_EQUALS( argc, 1, TEST_LOCATION );
 
   // Check values
-  DALI_TEST_EQUALS( options.noVSyncOnRender, 1, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageWidth, 800, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageHeight, 1000, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageDPI, "3x4", TEST_LOCATION );
@@ -129,7 +125,6 @@ int UtcDaliCommandLineOptionsDaliLongArgsSpaces(void)
       "--width", "800",
       "--height", "1000",
       "--dpi", "3x4",
-      "--no-vsync",
       "--help"
   };
   int argc( sizeof( argList ) / sizeof( argList[0] ) );
@@ -141,7 +136,6 @@ int UtcDaliCommandLineOptionsDaliLongArgsSpaces(void)
   DALI_TEST_EQUALS( argc, 1, TEST_LOCATION );
 
   // Check values
-  DALI_TEST_EQUALS( options.noVSyncOnRender, 1, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageWidth, 800, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageHeight, 1000, TEST_LOCATION );
   DALI_TEST_EQUALS( options.stageDPI, "3x4", TEST_LOCATION );

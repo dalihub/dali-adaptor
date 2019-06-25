@@ -18,6 +18,7 @@ devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/pixel-buffer.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/sound-player.cpp \

@@ -94,6 +94,13 @@ enum Key
 
 };
 
+/**
+ * @brief Get the key code from a key name.
+ * @param[in] keyName The key name
+ * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
+ */
+DALI_ADAPTOR_API int GetDaliKeyCode( const char* keyName );
+
 } // namespace DevelKey
 
 } // namespace Dali

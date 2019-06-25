@@ -81,9 +81,6 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     EGL_NONE
   };
 
-// EGL constants use C casts
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
   EGLImageKHR eglImage  = eglCreateImageKHRProc( mEglImplementation->GetDisplay(),
                                              EGL_NO_CONTEXT,
                                              EGL_NATIVE_PIXMAP_KHR,
@@ -135,7 +132,6 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
     }
   }
-#pragma GCC diagnostic pop
 
   return eglImage;
 }

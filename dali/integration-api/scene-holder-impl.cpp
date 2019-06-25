@@ -133,6 +133,11 @@ SceneHolder::~SceneHolder()
     mAdaptor->RemoveWindow( this );
     mAdaptor = nullptr;
   }
+
+  if ( mScene )
+  {
+    mScene.Discard();
+  }
 }
 
 void SceneHolder::Add( Dali::Actor actor )
@@ -200,15 +205,15 @@ Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
 
 void SceneHolder::SetBackgroundColor( const Vector4& color )
 {
-  if ( mSurface )
+  if( mScene )
   {
-    mSurface->SetBackgroundColor( color );
+    mScene.SetBackgroundColor( color );
   }
 }
 
 Vector4 SceneHolder::GetBackgroundColor() const
 {
-  return mSurface ? mSurface->GetBackgroundColor() : Vector4();
+  return mScene ? mScene.GetBackgroundColor() : Color::BLACK;
 }
 
 void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)

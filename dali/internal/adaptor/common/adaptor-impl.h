@@ -261,10 +261,10 @@ public: // AdaptorInternalServices implementation
    * @param[in]  childWindowClassName The class name that the child window belongs to
    * @param[in]  childWindowMode The mode of the child window
    */
-  virtual bool AddWindow( Dali::Integration::SceneHolder* childWindow,
+  virtual bool AddWindow( Dali::Integration::SceneHolder childWindow,
                           const std::string& childWindowName,
                           const std::string& childWindowClassName,
-                          const bool& childWindowMode );
+                          bool childWindowMode );
 
   /**
    * Removes an existing Window instance from the Adaptor
@@ -319,11 +319,6 @@ public:
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
-
-  /**
-   * @copydoc Dali::Adaptor::SetUseHardwareVSync()
-   */
-  void SetUseHardwareVSync(bool useHardware);
 
   /**
    * Return the PlatformAbstraction.
@@ -399,12 +394,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
-   * Informs core the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
-   * Informs ThreadController the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizeComplete
    */
   void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
@@ -470,11 +465,6 @@ public:  //AdaptorInternalServices
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
   virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
-   */
-  virtual VSyncMonitorInterface* GetVSyncMonitorInterface();
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
@@ -543,7 +533,7 @@ private: // From Dali::Integration::RenderController
    */
   virtual void RequestProcessEventsOnIdle( bool forceProcess );
 
-private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
+public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
   /**
    * Called when the window becomes fully or partially visible.
@@ -638,8 +628,9 @@ private: // Types
     STOPPED,                   ///< Adaptor has been stopped.
   };
 
-  using SceneHolderPtr = IntrusivePtr< Dali::Internal::Adaptor::SceneHolder >;
-  using WindowContainer = std::vector<SceneHolderPtr>;
+  // There is no weak handle for BaseHandle in DALi, but we can't ref count the window here,
+  // so we have to store the raw pointer.
+  using WindowContainer = std::vector<Dali::Internal::Adaptor::SceneHolder*>;
   using ObserverContainer = std::vector<LifeCycleObserver*>;
 
 private: // Data
@@ -652,7 +643,6 @@ private: // Data
   State                                 mState;                       ///< Current state of the adaptor
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
-  VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
   GraphicsInterface*                    mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
