@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 #include <dali/internal/accessibility/common/tts-player-factory.h>
-#include <dali/internal/accessibility/ubuntu/tts-player-impl-ubuntu.h>
+#include <dali/internal/accessibility/generic/tts-player-impl-generic.h>
 
 namespace Dali
 {
@@ -32,7 +32,7 @@ namespace TtsPlayerFactory
 
 std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
 {
-  return TtsPlayerUbuntu::New(mode);
+  return TtsPlayerGeneric::New(mode);
 }
 
 } // namespace TtsPlayerFactory
