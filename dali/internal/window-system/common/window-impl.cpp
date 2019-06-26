@@ -694,7 +694,6 @@ Dali::Window Window::Get( Dali::Actor actor )
   return Dali::Window( windowImpl );
 }
 
-
 void Window::SetParent( Dali::Window& parent )
 {
   if ( DALI_UNLIKELY( parent ) )

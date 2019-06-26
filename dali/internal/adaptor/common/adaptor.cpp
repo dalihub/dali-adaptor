@@ -161,6 +161,11 @@ Any Adaptor::GetNativeWindowHandle()
   return mImpl->GetNativeWindowHandle();
 }
 
+Any Adaptor::GetNativeWindowHandle( Actor actor )
+{
+  return mImpl->GetNativeWindowHandle( actor );
+}
+
 Any Adaptor::GetGraphicsDisplay()
 {
   return mImpl->GetGraphicsDisplay();

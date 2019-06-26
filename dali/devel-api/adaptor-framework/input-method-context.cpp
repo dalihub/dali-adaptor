@@ -32,7 +32,12 @@ InputMethodContext::~InputMethodContext() = default;
 
 InputMethodContext InputMethodContext::New()
 {
-  Internal::Adaptor::InputMethodContextPtr inputMethodContext = Internal::Adaptor::InputMethodContext::New();
+  return InputMethodContext::New( Actor() );
+}
+
+InputMethodContext InputMethodContext::New( Actor actor )
+{
+  Internal::Adaptor::InputMethodContextPtr inputMethodContext = Internal::Adaptor::InputMethodContext::New( actor );
 
   if( inputMethodContext )
   {
