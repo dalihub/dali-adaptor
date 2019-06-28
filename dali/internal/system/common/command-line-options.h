@@ -38,7 +38,6 @@ namespace Adaptor
  * The following options are supported:
  *
  * @code
- *     --no-vsync       Disable VSync on Render
  *  -w|--width          Stage Width
  *  -h|--height         Stage Height
  *  -d|--dpi            Emulated DPI
@@ -66,7 +65,6 @@ public:
 
 public: // Command line parsed values
 
-  int32_t noVSyncOnRender; ///< If 1, then the user does not want VSync on Render
   int32_t stageWidth;      ///< The width of the stage required.  0 if not set.
   int32_t stageHeight;     ///< The height of the stage required.   0 if not set.
   std::string stageDPI;    ///< DPI stored as hxv, where h is horizontal DPI and v is vertical DPI

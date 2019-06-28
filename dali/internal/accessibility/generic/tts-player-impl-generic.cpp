@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/accessibility/ubuntu/tts-player-impl-ubuntu.h>
+#include <dali/internal/accessibility/generic/tts-player-impl-generic.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/type-registry.h>
@@ -32,46 +32,46 @@ namespace Adaptor
 {
 
 #if defined(DEBUG_ENABLED)
-Debug::Filter* TtsPlayerUbuntu::gLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_TTS_PLAYER");
+Debug::Filter* TtsPlayerGeneric::gLogFilter = Debug::Filter::New(Debug::Concise, false, "LOG_TTS_PLAYER");
 #endif
 
-std::unique_ptr<TtsPlayerUbuntu> TtsPlayerUbuntu::New(Dali::TtsPlayer::Mode mode)
+std::unique_ptr<TtsPlayerGeneric> TtsPlayerGeneric::New(Dali::TtsPlayer::Mode mode)
 {
-  return std::unique_ptr<TtsPlayerUbuntu>(new TtsPlayerUbuntu(mode));
+  return std::unique_ptr<TtsPlayerGeneric>(new TtsPlayerGeneric(mode));
 }
 
-TtsPlayerUbuntu::TtsPlayerUbuntu(Dali::TtsPlayer::Mode mode)
+TtsPlayerGeneric::TtsPlayerGeneric(Dali::TtsPlayer::Mode mode)
 : mStateChangedSignal()
 {
-  DALI_LOG_ERROR("TTS is not implemented in UBUNTU profile.\n");
+  DALI_LOG_ERROR("TTS is not implemented in GENERIC profile.\n");
 }
 
-TtsPlayerUbuntu::~TtsPlayerUbuntu()
+TtsPlayerGeneric::~TtsPlayerGeneric()
 {
 }
 
-void TtsPlayerUbuntu::Play(const std::string& text)
+void TtsPlayerGeneric::Play(const std::string& text)
 {
 }
 
-void TtsPlayerUbuntu::Stop()
+void TtsPlayerGeneric::Stop()
 {
 }
 
-void TtsPlayerUbuntu::Pause()
+void TtsPlayerGeneric::Pause()
 {
 }
 
-void TtsPlayerUbuntu::Resume()
+void TtsPlayerGeneric::Resume()
 {
 }
 
-Dali::TtsPlayer::State TtsPlayerUbuntu::GetState()
+Dali::TtsPlayer::State TtsPlayerGeneric::GetState()
 {
   return Dali::TtsPlayer::UNAVAILABLE;
 }
 
-Dali::TtsPlayer::StateChangedSignalType& TtsPlayerUbuntu::StateChangedSignal()
+Dali::TtsPlayer::StateChangedSignalType& TtsPlayerGeneric::StateChangedSignal()
 {
   return mStateChangedSignal;
 }

@@ -195,6 +195,16 @@ bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
 
 void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
 {
+  tbm_surface_queue_error_e error = TBM_SURFACE_QUEUE_ERROR_NONE;
+
+  error = tbm_surface_queue_reset( mTbmQueue, positionSize.width, positionSize.height, mTbmFormat );
+
+  if( error != TBM_SURFACE_QUEUE_ERROR_NONE )
+  {
+    DALI_LOG_ERROR( "Failed to resize tbm_surface_queue" );
+  }
+
+  mPosition = positionSize;
 }
 
 void NativeRenderSurfaceEcoreWl::StartRender()

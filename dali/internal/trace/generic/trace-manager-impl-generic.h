@@ -33,25 +33,25 @@ namespace Adaptor
 {
 class PerformanceInterface;
 
-class TraceManagerUbuntu : public Dali::Internal::Adaptor::TraceManager
+class TraceManagerGeneric : public Dali::Internal::Adaptor::TraceManager
 {
 public:
   /**
    * Static member to hold TraceManagerUbuntu instance. This allows
    * to access PerformanceInterface for network logging.
    */
-  static TraceManagerUbuntu* traceManagerUbuntu;
+  static TraceManagerGeneric* traceManagerGeneric;
 
   /**
    * Explicit Constructor
    */
-  explicit TraceManagerUbuntu( PerformanceInterface* performanceInterface );
+  explicit TraceManagerGeneric( PerformanceInterface* performanceInterface );
 
 protected:
   /**
    * Destructor
    */
-  ~TraceManagerUbuntu() override = default;
+  ~TraceManagerGeneric() override = default;
 
   /**
    * Obtain the LogContextFunction method (Ubuntu specific) used for tracing

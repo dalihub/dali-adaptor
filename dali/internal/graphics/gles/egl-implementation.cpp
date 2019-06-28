@@ -519,10 +519,10 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSur
   DestroySurface( eglSurface );
 
   // create the EGL surface
-  CreateSurfaceWindow( window, mColorDepth );
+  EGLSurface newEglSurface = CreateSurfaceWindow( window, mColorDepth );
 
   // set the context to be current with the new surface
-  MakeContextCurrent( eglSurface, eglContext );
+  MakeContextCurrent( newEglSurface, eglContext );
 
   return contextLost;
 }

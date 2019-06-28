@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,20 @@
  *
  */
 
-#include <dali/internal/accessibility/common/tts-player-factory.h>
-#include <dali/internal/accessibility/ubuntu/tts-player-impl-ubuntu.h>
+// INTERNAL INCLUDES
+#include <dali/internal/input/common/key-impl.h>
 
 namespace Dali
 {
 
-namespace Internal
+namespace DevelKey
 {
 
-namespace Adaptor
+int GetDaliKeyCode( const char* keyName )
 {
-class TtsPlayer;
-namespace TtsPlayerFactory
-{
-
-std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
-{
-  return TtsPlayerUbuntu::New(mode);
+  return Internal::Adaptor::KeyLookup::GetDaliKeyCode( keyName );
 }
 
-} // namespace TtsPlayerFactory
-
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace DevelKey
 
 } // namespace Dali

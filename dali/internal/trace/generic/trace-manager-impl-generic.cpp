@@ -16,8 +16,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/trace/ubuntu/trace-manager-impl-ubuntu.h>
 #include <dali/internal/system/common/performance-interface.h>
+#include "trace-manager-impl-generic.h"
 
 // INTERNAL INCLUDES
 
@@ -31,30 +31,30 @@ namespace Internal
 namespace Adaptor
 {
 
-TraceManagerUbuntu* TraceManagerUbuntu::traceManagerUbuntu = nullptr;
+TraceManagerGeneric* TraceManagerGeneric::traceManagerGeneric = nullptr;
 
-TraceManagerUbuntu::TraceManagerUbuntu( PerformanceInterface* performanceInterface )
+TraceManagerGeneric::TraceManagerGeneric( PerformanceInterface* performanceInterface )
 : TraceManager( performanceInterface )
 {
-  TraceManagerUbuntu::traceManagerUbuntu = this;
+  TraceManagerGeneric::traceManagerGeneric = this;
 }
 
-Dali::Integration::Trace::LogContextFunction TraceManagerUbuntu::GetLogContextFunction()
+Dali::Integration::Trace::LogContextFunction TraceManagerGeneric::GetLogContextFunction()
 {
   return LogContext;
 }
 
-void TraceManagerUbuntu::LogContext( bool start, const char* tag )
+void TraceManagerGeneric::LogContext( bool start, const char* tag )
 {
   if( start )
   {
-    unsigned short contextId = traceManagerUbuntu->mPerformanceInterface->AddContext( tag );
-    traceManagerUbuntu->mPerformanceInterface->AddMarker( PerformanceInterface::START, contextId );
+    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
+    traceManagerGeneric->mPerformanceInterface->AddMarker( PerformanceInterface::START, contextId );
   }
   else
   {
-    unsigned short contextId = traceManagerUbuntu->mPerformanceInterface->AddContext( tag );
-    traceManagerUbuntu->mPerformanceInterface->AddMarker( PerformanceInterface::END, contextId );
+    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
+    traceManagerGeneric->mPerformanceInterface->AddMarker( PerformanceInterface::END, contextId );
   }
 }
 

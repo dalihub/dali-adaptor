@@ -16,7 +16,7 @@
  */
 
 #include <dali/internal/trace/common/trace-factory.h>
-#include <dali/internal/trace/ubuntu/trace-manager-impl-ubuntu.h>
+#include <dali/internal/trace/generic/trace-manager-impl-generic.h>
 
 namespace Dali
 {

@@ -242,12 +242,6 @@ void Application::OnInit()
   // Run the adaptor
   mAdaptor->Start();
 
-  // Check if user requires no vsyncing and set Adaptor
-  if (mCommandLineOptions->noVSyncOnRender)
-  {
-    mAdaptor->SetUseHardwareVSync(false);
-  }
-
   if( ! mStylesheet.empty() )
   {
     Dali::StyleMonitor::Get().SetTheme( mStylesheet );
@@ -440,6 +434,15 @@ std::string Application::GetDataPath()
 void Application::SetStyleSheet( const std::string& stylesheet )
 {
   mStylesheet = stylesheet;
+}
+
+void Application::SetCommandLineOptions( int* argc, char **argv[] )
+{
+  delete mCommandLineOptions;
+
+  mCommandLineOptions = new CommandLineOptions( argc, argv );
+
+  mFramework->SetCommandLineOptions( argc, argv );
 }
 
 ApplicationPtr Application::GetPreInitializedApplication()

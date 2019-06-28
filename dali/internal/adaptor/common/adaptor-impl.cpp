@@ -54,7 +54,6 @@
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
-#include <dali/internal/graphics/common/vsync-monitor.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -196,8 +195,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mNotificationTrigger = mTriggerEventFactory.CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
-  mVSyncMonitor = new VSyncMonitor;
-
   mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow->GetSurface()->GetSurfaceType() );
 
   mThreadController = new ThreadController( *this, *mEnvironmentOptions );
@@ -304,7 +301,6 @@ Adaptor::~Adaptor()
   mWindows.clear();
 
   delete mThreadController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
-  delete mVSyncMonitor;
   delete mObjectProfiler;
 
   delete mCore;
@@ -571,9 +567,9 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
   mThreadController->SetPreRenderCallback( callback );
 }
 
-bool Adaptor::AddWindow( Dali::Integration::SceneHolder* childWindow, const std::string& childWindowName, const std::string& childWindowClassName, const bool& childWindowMode )
+bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( *childWindow );
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
   windowImpl.SetAdaptor( Get() );
 
   // Add the new Window to the container - the order is not important
@@ -657,11 +653,6 @@ void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
   mThreadController->SetRenderRefreshRate( numberOfVSyncsPerRender );
 }
 
-void Adaptor::SetUseHardwareVSync( bool useHardware )
-{
-  mVSyncMonitor->SetUseHardwareVSync( useHardware );
-}
-
 Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 {
   DALI_ASSERT_DEBUG( mDisplayConnection && "Display connection not created" );
@@ -702,11 +693,6 @@ Dali::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
   }
 
   return nullptr;
-}
-
-VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
-{
-  return mVSyncMonitor;
 }
 
 TraceInterface& Adaptor::GetKernelTraceInterface()
@@ -1046,7 +1032,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mState( READY ),
   mCore( nullptr ),
   mThreadController( nullptr ),
-  mVSyncMonitor( nullptr ),
   mGraphics( nullptr ),
   mDisplayConnection( nullptr ),
   mWindows(),
