@@ -133,6 +133,11 @@ SceneHolder::~SceneHolder()
     mAdaptor->RemoveWindow( this );
     mAdaptor = nullptr;
   }
+
+  if ( mScene )
+  {
+    mScene.Discard();
+  }
 }
 
 void SceneHolder::Add( Dali::Actor actor )
