@@ -464,6 +464,11 @@ public: // Signals
    */
   Dali::DevelWindow::KeyEventSignalType& KeyEventSignal() { return mScene.KeyEventSignal(); };
 
+    /**
+   * @copydoc Dali::Window::KeyEventGeneratedSignal()
+   */
+  Dali::DevelWindow::KeyEventGeneratedSignalType& KeyEventGeneratedSignal() { return mScene.KeyEventGeneratedSignal(); };
+
   /**
     * @copydoc Dali::Window::TouchSignal()
     */
