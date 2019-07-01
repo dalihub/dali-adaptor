@@ -51,40 +51,6 @@ namespace
 Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_NATIVE_RENDER_SURFACE");
 #endif
 
-inline void PrintTBMSurfaceQueueError( int errorCode )
-{
-  switch( errorCode )
-  {
-    case TBM_SURFACE_QUEUE_ERROR_EMPTY:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_EMPTY" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_INVALID_QUEUE:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_INVALID_QUEUE" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_INVALID_SURFACE:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_INVALID_SURFACE" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_SURFACE_ALLOC_FAILED:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_SURFACE_ALLOC_FAILED" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_ALREADY_EXIST:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_ALREADY_EXIST" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_UNKNOWN_SURFACE:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_UNKNOWN_SURFACE" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_INVALID_SEQUENCE:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_INVALID_SEQUENCE" );
-      break;
-    case TBM_SURFACE_QUEUE_ERROR_TIMEOUT:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_TIMEOUT" );
-      break;
-    default:
-      DALI_LOG_ERROR( "TBM_SURFACE_QUEUE_ERROR_UNKNOWN" );
-      break;
-  }
-}
-
 } // unnamed namespace
 
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize, bool isTransparent )
@@ -236,8 +202,6 @@ void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
   if( error != TBM_SURFACE_QUEUE_ERROR_NONE )
   {
     DALI_LOG_ERROR( "Failed to resize tbm_surface_queue" );
-
-    PrintTBMSurfaceQueueError( error );
   }
 
   mPosition = positionSize;

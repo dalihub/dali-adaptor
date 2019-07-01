@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_ACCESSIBILITY_UBUNTU_TTS_PLAYER_IMPL_UBUNTU_H
-#define DALI_INTERNAL_ACCESSIBILITY_UBUNTU_TTS_PLAYER_IMPL_UBUNTU_H
+#ifndef DALI_INTERNAL_ACCESSIBILITY_GENERIC_TTS_PLAYER_IMPL_GENERIC_H
+#define DALI_INTERNAL_ACCESSIBILITY_GENERIC_TTS_PLAYER_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace Adaptor
 /**
  * Text-to-speech player
  */
-class TtsPlayerUbuntu : public Dali::Internal::Adaptor::TtsPlayer
+class TtsPlayerGeneric : public Dali::Internal::Adaptor::TtsPlayer
 {
 
 public:
@@ -53,7 +53,7 @@ public:
    * @param mode the mode of tts-player
    * @return A newly created TtsPlayer.
    */
-  static std::unique_ptr<TtsPlayerUbuntu> New(Dali::TtsPlayer::Mode mode);
+  static std::unique_ptr<TtsPlayerGeneric> New(Dali::TtsPlayer::Mode mode);
 
   /**
    * @copydoc TtsPlayer::Play()
@@ -89,12 +89,12 @@ public:
    * Private Constructor; see also TtsPlayer::New()
    * @param mode the mode of tts-player
    */
-  TtsPlayerUbuntu(Dali::TtsPlayer::Mode mode);
+  TtsPlayerGeneric(Dali::TtsPlayer::Mode mode);
 
   /**
    * Destructor
    */
-  virtual ~TtsPlayerUbuntu();
+  virtual ~TtsPlayerGeneric();
 
 private:
 
@@ -112,4 +112,4 @@ public:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_ACCESSIBILITY_UBUNTU_TTS_PLAYER_IMPL_UBUNTU_H
+#endif // DALI_INTERNAL_ACCESSIBILITY_GENERIC_TTS_PLAYER_IMPL_GENERIC_H
