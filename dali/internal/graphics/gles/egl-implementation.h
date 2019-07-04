@@ -239,7 +239,6 @@ private:
   bool                 mDepthBufferRequired;
   bool                 mStencilBufferRequired;
   bool                 mIsSurfacelessContextSupported;
-  bool                 mIsKhrCreateContextSupported;
 };
 
 } // namespace Adaptor

@@ -35,9 +35,7 @@
 
 namespace
 {
-  const uint32_t CHECK_EXTENSION_NUMBER = 2;
   const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
-  const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
 }
 
 namespace Dali
@@ -80,8 +78,7 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mIsWindow( true ),
   mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
   mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
-  mIsSurfacelessContextSupported( false ),
-  mIsKhrCreateContextSupported( false )
+  mIsSurfacelessContextSupported( false )
 {
 }
 
@@ -119,20 +116,14 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
 
   // Query EGL extensions to check whether surfaceless context is supported
   const char* const extensionStr = eglQueryString( mEglDisplay, EGL_EXTENSIONS );
-  std::istringstream stream( extensionStr );
+  std::istringstream stream(extensionStr);
   std::string currentExtension;
-  uint32_t extensionCheckCount = 0;
-  while( std::getline( stream, currentExtension, ' ' ) || extensionCheckCount < CHECK_EXTENSION_NUMBER )
+  while ( std::getline( stream, currentExtension, ' ' ) )
   {
-    if( currentExtension == EGL_KHR_SURFACELESS_CONTEXT )
+    if ( currentExtension == EGL_KHR_SURFACELESS_CONTEXT )
     {
       mIsSurfacelessContextSupported = true;
-      extensionCheckCount++;
-    }
-    if( currentExtension == EGL_KHR_CREATE_CONTEXT )
-    {
-      mIsKhrCreateContextSupported = true;
-      extensionCheckCount++;
+      break;
     }
   }
 
@@ -220,10 +211,7 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
+    glFinish();
 
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
 
@@ -252,10 +240,7 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
+    glFinish();
 
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
 
@@ -365,7 +350,11 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
 
   if( mGlesVersion >= 30 )
   {
+#ifdef _ARCH_ARM_
     configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
+#else
+    configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
+#endif // _ARCH_ARM_
   }
   else
   {
@@ -420,7 +409,7 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     if( mGlesVersion >= 30 )
     {
       mEglConfig = NULL;
-      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
+      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retring to use OpenGL es 2.0.");
       return false;
     }
 
@@ -465,7 +454,7 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   Integration::Log::LogMessage(Integration::Log::DebugInfo, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10 );
 
   mContextAttribs.Clear();
-  if( mIsKhrCreateContextSupported )
+  if( mGlesVersion >= 30 )
   {
     mContextAttribs.Reserve(5);
     mContextAttribs.PushBack( EGL_CONTEXT_MAJOR_VERSION_KHR );
@@ -477,7 +466,7 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   {
     mContextAttribs.Reserve(3);
     mContextAttribs.PushBack( EGL_CONTEXT_CLIENT_VERSION );
-    mContextAttribs.PushBack( mGlesVersion / 10 );
+    mContextAttribs.PushBack( 2 );
   }
   mContextAttribs.PushBack( EGL_NONE );
 
