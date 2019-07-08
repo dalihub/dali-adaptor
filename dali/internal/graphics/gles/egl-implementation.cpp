@@ -156,6 +156,17 @@ bool EglImplementation::CreateContext()
   DALI_ASSERT_ALWAYS( (mEglContext == 0) && "EGL context recreated" );
 
   mEglContext = eglCreateContext(mEglDisplay, mEglConfig, NULL, &(mContextAttribs[0]));
+  if ( eglGetError() != EGL_SUCCESS )
+  {
+    if( mGlesVersion >= 30 )
+    {
+      eglDestroySurface( mEglDisplay, mEglContext );
+      mEglContext = NULL;
+      mEglConfig = NULL;
+      DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
+      return false;
+    }
+  }
   TEST_EGL_ERROR("eglCreateContext render thread");
 
   DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != mEglContext && "EGL context not created" );
