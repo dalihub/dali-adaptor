@@ -83,6 +83,11 @@ WindowRenderSurface::~WindowRenderSurface()
   {
     delete mRotationTrigger;
   }
+
+  if ( mEGLSurface )
+  {
+    DestroySurface();
+  }
 }
 
 void WindowRenderSurface::Initialize( Any surface )
