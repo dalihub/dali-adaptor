@@ -845,6 +845,13 @@ void Adaptor::OnWindowShown()
     // Force a render task
     RequestUpdateOnce();
   }
+  else if( RUNNING == mState )
+  {
+    // Force a render task
+    RequestUpdateOnce();
+
+    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Update requested.\n" );
+  }
   else
   {
     DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Adaptor is not paused state.[%d]\n", mState );

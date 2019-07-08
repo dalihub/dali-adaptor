@@ -35,6 +35,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_ubuntu_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_ubuntu_x11_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -91,6 +92,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -155,6 +157,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -220,6 +223,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -283,6 +287,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wayland_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
@@ -349,6 +354,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_adaptor_tizen_wearable_src_files) \
                   $(adaptor_clipboard_common_src_files) \
                   $(adaptor_clipboard_tizen_wayland_src_files) \
+                  $(adaptor_framework_generic_src_files) \
                   $(devel_api_src_files) \
                   $(adaptor_devel_api_text_abstraction_src_files) \
                   $(adaptor_graphics_common_src_files) \
