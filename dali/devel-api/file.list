@@ -1,6 +1,9 @@
 devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-group.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-item.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-manager.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
@@ -40,6 +43,9 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
   $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-event.h \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-group.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-item.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/autofill-manager.h \
   $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.h \
   $(adaptor_devel_api_dir)/adaptor-framework/clipboard.h \
