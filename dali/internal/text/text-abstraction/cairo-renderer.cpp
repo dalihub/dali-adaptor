@@ -234,6 +234,30 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
     return CreateVoidPixelBuffer( parameters );
   }
 
+  // Choose the pixel format to be used.
+  //
+  // @note Behdad wrote "Upper 8 bits maps to the fourth byte in a little-endian machine like the intels."
+  //       https://lists.cairographics.org/archives/cairo/2006-March/006563.html
+  //
+  //       Here in practice Cairo's ARGB32 is like DALi's RGBA8888.
+  //
+  const bool isDstRgba = TextAbstraction::TextRenderer::Parameters::RGBA8888 == parameters.pixelFormat;
+  const Pixel::Format pixelFormat = isDstRgba ? Pixel::Format::RGBA8888 : Pixel::Format::A8;
+  const cairo_format_t cairoFormat = isDstRgba ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_A8;
+
+  const int bpp = Pixel::GetBytesPerPixel( pixelFormat );
+  if( 0u == bpp )
+  {
+    // return a pixel buffer with all pixels set to transparent.
+    return CreateVoidPixelBuffer( parameters );
+  }
+
+  // This function provides a stride value that will respect all alignment requirements of the
+  // accelerated image-rendering code within cairo.
+  const int stride = cairo_format_stride_for_width( cairoFormat,
+                                                    static_cast<int>( parameters.width ) );
+  const int strideWidth = stride / bpp;
+
   // Convert from DALi glyphs to Cairo glyphs.
   std::vector<cairo_glyph_t> cairoGlyphs;
   cairoGlyphs.resize( numberOfGlyphs );
@@ -370,23 +394,6 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   {
     glyphRuns.push_back( currentGlyphRun );
   }
-
-  // Choose the pixel format to be used.
-  //
-  // @note Behdad wrote "Upper 8 bits maps to the fourth byte in a little-endian machine like the intels."
-  //       https://lists.cairographics.org/archives/cairo/2006-March/006563.html
-  //
-  //       Here in practice Cairo's ARGB32 is like DALi's RGBA8888.
-  //
-  const bool isDstRgba = TextAbstraction::TextRenderer::Parameters::RGBA8888 == parameters.pixelFormat;
-  const Pixel::Format pixelFormat = isDstRgba ? Pixel::Format::RGBA8888 : Pixel::Format::A8;
-  const cairo_format_t cairoFormat = isDstRgba ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_A8;
-
-  // This function provides a stride value that will respect all alignment requirements of the
-  // accelerated image-rendering code within cairo.
-  const int stride = cairo_format_stride_for_width( cairoFormat,
-                                                    static_cast<int>( parameters.width ) );
-  const int strideWidth = stride / Pixel::GetBytesPerPixel( pixelFormat );
 
   // Creates the pixel buffer and retrieves the buffer pointer used to create the Cairo's surface.
   Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New( strideWidth, parameters.height, pixelFormat );
