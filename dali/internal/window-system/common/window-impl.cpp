@@ -164,16 +164,19 @@ std::string Window::GetClassName() const
 void Window::Raise()
 {
   mWindowBase->Raise();
+  DALI_LOG_RELEASE_INFO( "Window (%p) Raise() \n", this );
 }
 
 void Window::Lower()
 {
   mWindowBase->Lower();
+  DALI_LOG_RELEASE_INFO( "Window (%p) Lower() \n", this );
 }
 
 void Window::Activate()
 {
   mWindowBase->Activate();
+  DALI_LOG_RELEASE_INFO( "Window (%p) Activate() \n", this );
 }
 
 uint32_t Window::GetLayerCount() const
