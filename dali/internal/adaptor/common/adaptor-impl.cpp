@@ -169,11 +169,13 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   GlImplementation& mGLES = eglGraphics->GetGlesInterface();
   EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
+  EglContextHelperImplementation& eglContextHelperImpl = eglGraphics->GetContextHelperImplementation();
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   mGLES,
                                   eglSyncImpl,
+                                  eglContextHelperImpl,
                                   dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
