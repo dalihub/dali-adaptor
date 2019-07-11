@@ -336,27 +336,26 @@ void AutofillManagerEcoreWl::ReceiveAuthInfo( autofill_auth_info_h authInfoHandl
                                                 serviceName, serviceLogoImagePath, serviceMessage );
 
     // Sets the authentication service information in order to use in other components.
-    mAuthenticationServiceName = serviceName;
-    mAuthenticationServiceMessage = serviceMessage;
-    mAuthenticationServiceImagePath = serviceLogoImagePath;
-
-    // Emits the signal to receive the authentication information.
-    mAuthReceivedSignal.Emit();
+    if( serviceName )
+    {
+      mAuthenticationServiceName = serviceName;
+      free( serviceName );
+    }
 
     if( serviceMessage )
     {
+      mAuthenticationServiceMessage = serviceMessage;
       free( serviceMessage );
-    }
-
-    if( serviceName )
-    {
-      free( serviceName );
     }
 
     if( serviceLogoImagePath )
     {
+      mAuthenticationServiceImagePath = serviceLogoImagePath;
       free( serviceLogoImagePath );
     }
+
+    // Emits the signal to receive the authentication information.
+    mAuthReceivedSignal.Emit();
   }
   else
   {
@@ -381,32 +380,31 @@ void AutofillManagerEcoreWl::FillGroupItem( autofill_fill_response_item_h itemHa
                                               id, value, presentationText );
 
   // Sets the fill response information in order to use in other components.
-  mFillItemId = id;
-  mFillItemPresentationText = presentationText;
-  mFillItemValue = value;
-
-  Dali::AutofillItem item = mAutofillGroup.GetAutofillItem( id );
-  Internal::Adaptor::AutofillItem& itemImpl = Internal::Adaptor::GetImplementation( item );
-  itemImpl.AddPresentationList( presentationText );
-  itemImpl.AddFillValueList( value );
-
-  // Emits the signal to fill the data in text input field.
-  mFillReceivedSignal.Emit( item );
-
   if( id )
   {
+    mFillItemId = id;
     free( id );
-  }
-
-  if( value )
-  {
-    free( value );
   }
 
   if( presentationText )
   {
+    mFillItemPresentationText = presentationText;
     free( presentationText );
   }
+
+  if( value )
+  {
+    mFillItemValue = value;
+    free( value );
+  }
+
+  Dali::AutofillItem item = mAutofillGroup.GetAutofillItem( mFillItemId );
+  Internal::Adaptor::AutofillItem& itemImpl = Internal::Adaptor::GetImplementation( item );
+  itemImpl.AddPresentationList( mFillItemPresentationText );
+  itemImpl.AddFillValueList( mFillItemValue );
+
+  // Emits the signal to fill the data in text input field.
+  mFillReceivedSignal.Emit( item );
 
 }
 
@@ -426,29 +424,29 @@ void AutofillManagerEcoreWl::FillMultipleGroupItem( autofill_fill_response_item_
                                               id, value, presentationText );
 
   // Sets the fill response information in order to use in other components.
-  mFillItemId = id;
-  mFillItemPresentationText = presentationText;
-  mFillItemValue = value;
-
-  Dali::AutofillItem item = mAutofillGroup.GetAutofillItem( id );
-  Internal::Adaptor::AutofillItem& itemImpl = Internal::Adaptor::GetImplementation( item );
-  itemImpl.AddPresentationList( presentationText );
-  itemImpl.AddFillValueList( value );
-
   if( id )
   {
+    mFillItemId = id;
     free( id );
-  }
-
-  if( value )
-  {
-    free( value );
   }
 
   if( presentationText )
   {
+    mFillItemPresentationText = presentationText;
     free( presentationText );
   }
+
+  if( value )
+  {
+    mFillItemValue = value;
+    free( value );
+  }
+
+  Dali::AutofillItem item = mAutofillGroup.GetAutofillItem( mFillItemId );
+  Internal::Adaptor::AutofillItem& itemImpl = Internal::Adaptor::GetImplementation( item );
+  itemImpl.AddPresentationList( mFillItemPresentationText );
+  itemImpl.AddFillValueList( mFillItemValue );
+
 }
 #endif // CAPI_AUTOFILL_SUPPORT
 
