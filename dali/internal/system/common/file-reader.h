@@ -18,7 +18,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/file-closer.h>
+#include <dali/devel-api/adaptor-framework/file-stream.h>
 
 // EXTERNAL INCLUDES
 
@@ -29,26 +29,26 @@ namespace Internal
 namespace Platform
 {
 
-class FileReader : public FileCloser
+class FileReader : public FileStream
 {
 public:
   FileReader( const std::string& filename )
-  : FileCloser( filename.c_str(), "rb" )
+  : FileStream( filename, FileStream::READ | FileStream::BINARY )
   {
   }
 
   FileReader( Dali::Vector<uint8_t>& vector )
-  : FileCloser( &vector[0], vector.Size(), "rb" )
+  : FileStream( &vector[0], vector.Size(), FileStream::READ | FileStream::BINARY )
   {
   }
 
   FileReader( Dali::Vector<uint8_t>& vector, size_t dataSize )
-  : FileCloser( &vector[0], dataSize, "rb" )
+  : FileStream( &vector[0], dataSize, FileStream::READ | FileStream::BINARY )
   {
   }
 
   FileReader( uint8_t* data, size_t dataSize )
-  : FileCloser( data, dataSize, "rb" )
+  : FileStream( data, dataSize, FileStream::READ | FileStream::BINARY )
   {
   }
 };
