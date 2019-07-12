@@ -33,7 +33,7 @@ namespace TraceManagerFactory
 // TraceManager Factory to be implemented by the platform
 TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface )
 {
-  return TraceManagerUPtr( new Dali::Internal::Adaptor::TraceManagerUbuntu( performanceInterface ) );
+  return TraceManagerUPtr( new Dali::Internal::Adaptor::TraceManagerGeneric( performanceInterface ) );
 }
 
 } // namespace TraceManagerFactory
