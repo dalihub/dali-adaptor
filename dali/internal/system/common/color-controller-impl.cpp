@@ -74,6 +74,16 @@ ColorController::ColorController()
 
 ColorController::~ColorController()
 {
+  if( mPlugin )
+  {
+    delete mPlugin;
+    mPlugin = NULL;
+
+    if( mLibHandle && dlclose( mLibHandle ) )
+    {
+      DALI_LOG_ERROR( "Error closing color controller plugin library: %s\n", dlerror() );
+    }
+  }
 }
 
 void ColorController::Initialize()
