@@ -19,9 +19,8 @@
 #include <dali/internal/styling/common/style-monitor-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/public-api/object/type-registry.h>
-#include <fstream>
-#include <sstream>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -163,17 +162,15 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
   return ( Dali::Internal::Android::ReadFile( filename, output ) != 0 );
 #else
   bool retval( false );
-  std::ifstream in( filename.c_str(), std::ios::in );
-  if( in )
+
+  std::streampos bufferSize = 0;
+  Dali::Vector<char> fileBuffer;
+  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT ) )
   {
-    std::stringstream buffer;
-    buffer << in.rdbuf();
-
-    output = buffer.str();
-
-    in.close();
+    output.assign( &fileBuffer[0], bufferSize );
     retval = true;
   }
+
   return retval;
 #endif
 }

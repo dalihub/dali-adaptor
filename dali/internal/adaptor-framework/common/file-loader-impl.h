@@ -1,3 +1,6 @@
+#ifndef DALI_FILE_LOADER_IMPL_GENERIC_H
+#define DALI_FILE_LOADER_IMPL_GENERIC_H
+
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
@@ -12,11 +15,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-#include <dali/internal/trace/common/trace-factory.h>
-#include <dali/internal/trace/android/trace-manager-impl-android.h>
+// EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
+
+// INTERNAL INCLUDES
 
 namespace Dali
 {
@@ -27,19 +31,15 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace TraceManagerFactory
-{
+int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
 
-// TraceManager Factory to be implemented by the platform
-TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface )
-{
-  return TraceManagerUPtr( new Dali::Internal::Adaptor::TraceManagerAndroid( performanceInterface ) );
-}
+int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
 
-} // namespace TraceManagerFactory
+std::streampos GetFileSize(const std::string& filename);
 
-} // namespace Adaptor
+} // Adaptor
 
-} // namespace Internal
+} // Internal
 
-} // namespace Dali // namespace Dali
+} // Dali
+#endif // DALI_FILE_LOADER_IMPL_GENERIC_H

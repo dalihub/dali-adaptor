@@ -136,6 +136,11 @@ bool PixelBuffer::Rotate( Degree angle )
   return GetImplementation(*this).Rotate( angle );
 }
 
+bool PixelBuffer::IsAlphaPreMultiplied() const
+{
+  return GetImplementation(*this).IsAlphaPreMultiplied();
+}
+
 } // namespace Devel
 
 } // namespace Dali

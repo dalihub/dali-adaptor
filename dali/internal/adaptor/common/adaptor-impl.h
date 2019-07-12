@@ -72,7 +72,6 @@ namespace Adaptor
 {
 class DisplayConnection;
 class GraphicsFactory;
-class GestureManager;
 class GlImplementation;
 class GlSyncImplementation;
 class ThreadController;
@@ -97,9 +96,10 @@ class Adaptor : public Integration::RenderController,
 {
 public:
 
-  typedef Dali::Adaptor::AdaptorSignalType AdaptorSignalType;
+  using AdaptorSignalType =  Dali::Adaptor::AdaptorSignalType;
+  using WindowCreatedSignalType = Dali::Adaptor::WindowCreatedSignalType;
 
-  typedef Uint16Pair SurfaceSize;          ///< Surface size type
+  using SurfaceSize = Uint16Pair;          ///< Surface size type
 
   /**
    * Creates a New Adaptor
@@ -260,10 +260,10 @@ public: // AdaptorInternalServices implementation
    * @param[in]  childWindowClassName The class name that the child window belongs to
    * @param[in]  childWindowMode The mode of the child window
    */
-  virtual bool AddWindow( Dali::Integration::SceneHolder* childWindow,
+  virtual bool AddWindow( Dali::Integration::SceneHolder childWindow,
                           const std::string& childWindowName,
                           const std::string& childWindowClassName,
-                          const bool& childWindowMode );
+                          bool childWindowMode );
 
   /**
    * Removes an existing Window instance from the Adaptor
@@ -295,12 +295,23 @@ public: // AdaptorInternalServices implementation
   bool RemoveWindow( Dali::Internal::Adaptor::SceneHolder* childWindow );
 
   /**
+   * @brief Deletes the rendering surface
+   * @param[in] surface to delete
+   */
+  void DeleteSurface( Dali::RenderSurfaceInterface& surface );
+
+  /**
    * @brief Retrieve the window that the given actor is added to.
    *
    * @param[in] actor The actor
    * @return The window the actor is added to or a null pointer if the actor is not added to any widnow.
    */
   Dali::Internal::Adaptor::SceneHolder* GetWindow( Dali::Actor& actor );
+
+  /**
+   * @copydoc Dali::Adaptor::GetWindows()
+   */
+  Dali::WindowContainer GetWindows() const;
 
 public:
 
@@ -313,11 +324,6 @@ public:
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
   void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
-
-  /**
-   * @copydoc Dali::Adaptor::SetUseHardwareVSync()
-   */
-  void SetUseHardwareVSync(bool useHardware);
 
   /**
    * Return the PlatformAbstraction.
@@ -393,12 +399,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
-   * Informs core the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
-   * Informs ThreadController the surface size has changed
+   * @copydoc Dali::Adaptor::SurfaceResizeComplete
    */
   void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
@@ -466,11 +472,6 @@ public:  //AdaptorInternalServices
   virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
-   */
-  virtual VSyncMonitorInterface* GetVSyncMonitorInterface();
-
-  /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
    */
   virtual PerformanceInterface* GetPerformanceInterface();
@@ -503,6 +504,14 @@ public: // Signals
     return mLanguageChangedSignal;
   }
 
+  /**
+   * @copydoc Dali::Adaptor::WindowCreatedSignal
+   */
+  WindowCreatedSignalType& WindowCreatedSignal()
+  {
+    return mWindowCreatedSignal;
+  }
+
 public: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
@@ -529,7 +538,7 @@ private: // From Dali::Integration::RenderController
    */
   virtual void RequestProcessEventsOnIdle( bool forceProcess );
 
-private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
+public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
   /**
    * Called when the window becomes fully or partially visible.
@@ -616,27 +625,29 @@ private: // Types
 
   enum State
   {
-    READY,               ///< Initial state before Adaptor::Start is called.
-    RUNNING,             ///< Adaptor is running.
-    PAUSED,              ///< Adaptor has been paused.
-    PAUSED_WHILE_HIDDEN, ///< Adaptor is paused while window is hidden (& cannot be resumed until window is shown).
-    STOPPED,             ///< Adaptor has been stopped.
+    READY,                     ///< Initial state before Adaptor::Start is called.
+    RUNNING,                   ///< Adaptor is running.
+    PAUSED,                    ///< Adaptor has been paused.
+    PAUSED_WHILE_HIDDEN,       ///< Adaptor is paused while window is hidden (& cannot be resumed until window is shown).
+    PAUSED_WHILE_INITIALIZING, ///< Adaptor is paused while application is initializing.
+    STOPPED,                   ///< Adaptor has been stopped.
   };
 
-  using SceneHolderPtr = IntrusivePtr< Dali::Internal::Adaptor::SceneHolder >;
-  using WindowContainer = std::vector<SceneHolderPtr>;
+  // There is no weak handle for BaseHandle in DALi, but we can't ref count the window here,
+  // so we have to store the raw pointer.
+  using WindowContainer = std::vector<Dali::Internal::Adaptor::SceneHolder*>;
   using ObserverContainer = std::vector<LifeCycleObserver*>;
 
 private: // Data
 
   AdaptorSignalType                     mResizedSignal;               ///< Resized signal.
   AdaptorSignalType                     mLanguageChangedSignal;       ///< Language changed signal.
+  WindowCreatedSignalType               mWindowCreatedSignal;         ///< Window created signal.
 
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
-  VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
   GraphicsInterface*                    mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection

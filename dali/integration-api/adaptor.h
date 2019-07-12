@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/common/view-mode.h>
@@ -43,6 +44,8 @@ namespace Dali
 {
 
 class RenderSurfaceInterface;
+
+using WindowContainer = std::vector<Window>;
 
 namespace Integration
 {
@@ -122,6 +125,9 @@ class DALI_ADAPTOR_API Adaptor
 public:
 
   typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
+  typedef Signal< void (Window&) > WindowCreatedSignalType;  ///< Window created signal type
+
+  using SurfaceSize = Uint16Pair; ///< Surface size type
 
 public:
   /**
@@ -249,6 +255,19 @@ public:
   bool AddIdle( CallbackBase* callback, bool hasReturnValue );
 
   /**
+   * @brief Adds a new Window instance to the Adaptor
+   *
+   * @param[in]  childWindow The child window instance
+   * @param[in]  childWindowName The child window title/name
+   * @param[in]  childWindowClassName The class name that the child window belongs to
+   * @param[in]  childWindowMode The mode of the child window
+   */
+  bool AddWindow( Dali::Integration::SceneHolder childWindow,
+                  const std::string& childWindowName,
+                  const std::string& childWindowClassName,
+                  bool childWindowMode );
+
+  /**
    * @brief Removes a previously added @p callback.
    * @note Function must be called from the main event thread only.
    *
@@ -334,14 +353,6 @@ public:
   void SetPreRenderCallback( CallbackBase* callback );
 
   /**
-   * @brief Set whether the frame count per render is managed using the hardware VSync or
-   * manually timed.
-   *
-   * @param[in] useHardware True if the hardware VSync should be used
-   */
-  void SetUseHardwareVSync(bool useHardware);
-
-  /**
    * @brief Returns a reference to the instance of the adaptor used by the current thread.
    *
    * @return A reference to the adaptor.
@@ -403,6 +414,22 @@ public:
   void SceneCreated();
 
   /**
+   * @brief Informs core the surface size has changed.
+   *
+   * @param[in] surface The current render surface
+   * @param[in] surfaceSize The new surface size
+   */
+  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+
+  /**
+   * @brief Informs ThreadController the surface size has changed.
+   *
+   * @param[in] surface The current render surface
+   * @param[in] surfaceSize The new surface size
+   */
+  void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+
+  /**
    * @brief Renders once more even if we're paused
    * @note Will not work if the window is hidden.
    */
@@ -427,6 +454,22 @@ public:
    */
   void UnregisterProcessor( Integration::Processor& processor );
 
+  /**
+   * @brief Get the list of windows created.
+   * @return The list of windows
+   */
+  Dali::WindowContainer GetWindows() const;
+
+  /**
+   * @brief Called when the window becomes fully or partially visible.
+   */
+  void OnWindowShown();
+
+  /**
+   * @brief Called when the window is fully hidden.
+   */
+  void OnWindowHidden();
+
 public:  // Signals
 
   /**
@@ -443,6 +486,13 @@ public:  // Signals
    * @return The signal to connect to
    */
   AdaptorSignalType& LanguageChangedSignal();
+
+  /**
+   * @brief This signal is emitted when a new window is created
+   *
+   * @return The signal to connect to
+   */
+  WindowCreatedSignalType& WindowCreatedSignal();
 
 private:
 

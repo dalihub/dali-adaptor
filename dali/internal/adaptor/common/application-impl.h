@@ -262,6 +262,14 @@ public:
    */
   void SetStyleSheet( const std::string& stylesheet );
 
+  /**
+   * Sets a command line options.
+   * This is used in case of the preinitialized application.
+   * @param[in] argc A pointer to the number of arguments
+   * @param[in] argv A pointer to the argument list
+   */
+  void SetCommandLineOptions( int* argc, char **argv[] );
+
 public:  // Signals
 
   /**

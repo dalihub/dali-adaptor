@@ -11,6 +11,10 @@ include ../../../dali/internal/adaptor/file.list
 adaptor_clipboard_dir = ../../../dali/internal/clipboard
 include ../../../dali/internal/clipboard/file.list
 
+# module: adaptor-framework
+adaptor_framework_dir = ../../../dali/internal/adaptor-framework
+include ../../../dali/internal/adaptor-framework/file.list
+
 # Module: graphics
 adaptor_graphics_dir = ../../../dali/internal/graphics
 include ../../../dali/internal/graphics/file.list

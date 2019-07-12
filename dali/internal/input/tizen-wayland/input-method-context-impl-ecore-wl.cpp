@@ -22,6 +22,12 @@
 // EXTERNAL INCLUDES
 #include <Ecore_Input.h>
 
+#ifdef ECORE_WAYLAND2
+#include <Ecore_Wl2.h>
+#else
+#include <Ecore_Wayland.h>
+#endif
+
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
@@ -269,7 +275,6 @@ InputMethodContextPtr InputMethodContextEcoreWl::New()
     Any nativeWindow = Dali::Adaptor::Get().GetNativeWindowHandle();
 
     // The window needs to use the InputMethodContext.
-    // Only when the render surface is window, we can get the window.
     if( !nativeWindow.Empty() )
     {
       inputMethodContext = new InputMethodContextEcoreWl();
@@ -325,11 +330,15 @@ void InputMethodContextEcoreWl::CreateContext()
     {
       // If we fail to get window id, we can't use the InputMethodContext correctly.
       // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-      Dali::RenderSurfaceInterface& renderSurface = Dali::Adaptor::Get().GetSurface();
-      WindowRenderSurface& windowRenderSurface = static_cast< WindowRenderSurface& >( renderSurface );
 
-      int windowId = windowRenderSurface.GetNativeWindowId();
+      Any nativeWindowHandle = Dali::Adaptor::Get().GetNativeWindowHandle();
+
+#ifdef ECORE_WAYLAND2
+      int windowId = ecore_wl2_window_id_get( AnyCast< Ecore_Wl2_Window* >( nativeWindowHandle ) );
+#else
+      int windowId = ecore_wl_window_id_get( AnyCast< Ecore_Wl_Window* >( nativeWindowHandle ) );
+#endif
+
       if( windowId != 0 )
       {
         ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast< void* >( windowId ) );

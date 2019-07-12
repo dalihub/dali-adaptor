@@ -93,7 +93,6 @@ class Application;
  * This class accepts command line arguments as well. The following options are supported:
  *
  * @code
- *     --no-vsync       Disable VSync on Render
  *  -w|--width          Stage Width
  *  -h|--height         Stage Height
  *  -d|--dpi            Emulated DPI

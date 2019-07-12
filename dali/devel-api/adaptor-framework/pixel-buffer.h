@@ -242,6 +242,12 @@ public:
    */
   bool Rotate( Degree angle );
 
+  /**
+   * @brief Returns pixel-buffer is premultiplied or not.
+   * @return true if alpha is pre-multiplied.
+   */
+  bool IsAlphaPreMultiplied() const;
+
 public:
 
   /**

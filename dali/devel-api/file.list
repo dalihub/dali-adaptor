@@ -10,6 +10,7 @@ adaptor_devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/file-stream.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.cpp \
@@ -18,6 +19,7 @@ adaptor_devel_api_src_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.cpp \
+  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/pixel-buffer.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/sound-player.cpp \
@@ -50,6 +52,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.h \
   $(adaptor_devel_api_dir)/adaptor-framework/file-loader.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/file-stream.h \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loader-input.h \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loader-plugin.h \
   $(adaptor_devel_api_dir)/adaptor-framework/image-loading.h \

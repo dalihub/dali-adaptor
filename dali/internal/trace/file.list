@@ -7,16 +7,16 @@ adaptor_trace_common_src_files=\
 
 # module: trace, backend: ubuntu
 adaptor_trace_ubuntu_src_files=\
-    ${adaptor_trace_dir}/ubuntu/trace-manager-impl-ubuntu.cpp \
-    ${adaptor_trace_dir}/ubuntu/trace-factory-ubuntu.cpp
+    ${adaptor_trace_dir}/generic/trace-manager-impl-generic.cpp \
+    ${adaptor_trace_dir}/generic/trace-factory-generic.cpp
 
 # module: trace, backend: tizen
 adaptor_trace_tizen_src_files=\
     ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp \
     ${adaptor_trace_dir}/tizen/trace-factory-tizen.cpp
 
-# module: trace, backend: android
+# module: trace, backend: generic
 adaptor_trace_android_src_files=\
-    ${adaptor_trace_dir}/android/trace-manager-impl-android.cpp \
-    ${adaptor_trace_dir}/android/trace-factory-android.cpp
+    ${adaptor_trace_dir}/generic/trace-manager-impl-generic.cpp \
+    ${adaptor_trace_dir}/generic/trace-factory-generic.cpp
 

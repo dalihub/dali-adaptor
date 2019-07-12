@@ -115,6 +115,11 @@ bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue )
   return mImpl->AddIdle( callback, hasReturnValue, false );
 }
 
+bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
+{
+  return mImpl->AddWindow( childWindow, childWindowName, childWindowClassName, childWindowMode );
+}
+
 void Adaptor::RemoveIdle( CallbackBase* callback )
 {
   mImpl->RemoveIdle( callback );
@@ -139,6 +144,11 @@ Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()
 Adaptor::AdaptorSignalType& Adaptor::LanguageChangedSignal()
 {
   return mImpl->LanguageChangedSignal();
+}
+
+Adaptor::WindowCreatedSignalType& Adaptor::WindowCreatedSignal()
+{
+  return mImpl->WindowCreatedSignal();
 }
 
 Dali::RenderSurfaceInterface& Adaptor::GetSurface()
@@ -169,11 +179,6 @@ void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 void Adaptor::SetPreRenderCallback( CallbackBase* callback )
 {
   mImpl->SetPreRenderCallback( callback );
-}
-
-void Adaptor::SetUseHardwareVSync(bool useHardware)
-{
-  mImpl->SetUseHardwareVSync( useHardware );
 }
 
 Adaptor& Adaptor::Get()
@@ -216,6 +221,16 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
+void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+{
+  mImpl->SurfaceResizePrepare( surface, surfaceSize );
+}
+
+void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+{
+  mImpl->SurfaceResizeComplete( surface, surfaceSize );
+}
+
 void Adaptor::RenderOnce()
 {
   mImpl->RenderOnce();
@@ -234,6 +249,21 @@ void Adaptor::RegisterProcessor( Integration::Processor& processor )
 void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 {
   mImpl->UnregisterProcessor( processor );
+}
+
+Dali::WindowContainer Adaptor::GetWindows() const
+{
+  return mImpl->GetWindows();
+}
+
+void Adaptor::OnWindowShown()
+{
+  mImpl->OnWindowShown();
+}
+
+void Adaptor::OnWindowHidden()
+{
+  mImpl->OnWindowHidden();
 }
 
 Adaptor::Adaptor()

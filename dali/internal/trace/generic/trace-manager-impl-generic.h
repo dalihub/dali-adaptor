@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_TRACE_MANAGER_IMPL_ANDROID_H
-#define DALI_INTERNAL_TRACE_MANAGER_IMPL_ANDROID_H
+#ifndef DALI_INTERNAL_TRACE_MANAGER_IMPL_UBUNTU_H
+#define DALI_INTERNAL_TRACE_MANAGER_IMPL_UBUNTU_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,35 +33,35 @@ namespace Adaptor
 {
 class PerformanceInterface;
 
-class TraceManagerAndroid : public Dali::Internal::Adaptor::TraceManager
+class TraceManagerGeneric : public Dali::Internal::Adaptor::TraceManager
 {
 public:
   /**
-   * Static member to hold TraceManagerAndroid instance. This allows
+   * Static member to hold TraceManagerUbuntu instance. This allows
    * to access PerformanceInterface for network logging.
    */
-  static TraceManagerAndroid* traceManagerAndroid;
+  static TraceManagerGeneric* traceManagerGeneric;
 
   /**
    * Explicit Constructor
    */
-  explicit TraceManagerAndroid( PerformanceInterface* performanceInterface );
+  explicit TraceManagerGeneric( PerformanceInterface* performanceInterface );
 
 protected:
   /**
    * Destructor
    */
-  ~TraceManagerAndroid() override = default;
+  ~TraceManagerGeneric() override = default;
 
   /**
-   * Obtain the LogContextFunction method (Android specific) used for tracing
+   * Obtain the LogContextFunction method (Ubuntu specific) used for tracing
    */
   virtual Dali::Integration::Trace::LogContextFunction GetLogContextFunction() final;
 
 private:
 
   /**
-   * LogContext method (Android specific) used for tracing
+   * LogContext method (Ubuntu specific) used for tracing
    */
   static void LogContext( bool start, const char* tag );
 };
@@ -72,4 +72,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_TRACE_MANAGER_IMPL_ANDROID_H
+#endif // DALI_INTERNAL_TRACE_MANAGER_IMPL_UBUNTU_H

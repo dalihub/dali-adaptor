@@ -1237,38 +1237,38 @@ void WindowBaseEcoreWl2::DestroyEglWindow()
 
 void WindowBaseEcoreWl2::SetEglWindowRotation( int angle )
 {
-  wl_egl_window_rotation rotation;
+  wl_egl_window_tizen_rotation rotation;
 
   switch( angle )
   {
     case 0:
     {
-      rotation = ROTATION_0;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_0 ;
       break;
     }
     case 90:
     {
-      rotation = ROTATION_270;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_90;
       break;
     }
     case 180:
     {
-      rotation = ROTATION_180;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_180;
       break;
     }
     case 270:
     {
-      rotation = ROTATION_90;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_90;
       break;
     }
     default:
     {
-      rotation = ROTATION_0;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_0 ;
       break;
     }
   }
 
-  wl_egl_window_set_rotation( mEglWindow, rotation );
+  wl_egl_window_tizen_set_rotation( mEglWindow, rotation );
 }
 
 void WindowBaseEcoreWl2::SetEglWindowBufferTransform( int angle )
@@ -1304,7 +1304,7 @@ void WindowBaseEcoreWl2::SetEglWindowBufferTransform( int angle )
     }
   }
 
-  wl_egl_window_set_buffer_transform( mEglWindow, bufferTransform );
+  wl_egl_window_tizen_set_buffer_transform( mEglWindow, bufferTransform );
 }
 
 void WindowBaseEcoreWl2::SetEglWindowTransform( int angle )
@@ -1340,7 +1340,7 @@ void WindowBaseEcoreWl2::SetEglWindowTransform( int angle )
     }
   }
 
-  wl_egl_window_set_window_transform( mEglWindow, windowTransform );
+  wl_egl_window_tizen_set_window_transform( mEglWindow, windowTransform );
 }
 
 void WindowBaseEcoreWl2::ResizeEglWindow( PositionSize positionSize )
@@ -1358,8 +1358,8 @@ void WindowBaseEcoreWl2::ResizeEglWindow( PositionSize positionSize )
 bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
 {
   // Check capability
-  wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
-  if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
+  wl_egl_window_tizen_capability capability = static_cast< wl_egl_window_tizen_capability >( wl_egl_window_tizen_get_capabilities( mEglWindow ) );
+  if( capability == WL_EGL_WINDOW_TIZEN_CAPABILITY_ROTATION_SUPPORTED )
   {
     return true;
   }
