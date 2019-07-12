@@ -2,3 +2,8 @@
 adaptor_framework_generic_src_files=\
     ${adaptor_framework_dir}/generic/file-loader-impl-generic.cpp \
     ${adaptor_framework_dir}/generic/file-stream-impl-generic.cpp
+
+# module: adaptor-framework, backend: android
+adaptor_framework_android_src_files=\
+    ${adaptor_framework_dir}/android/file-loader-impl-android.cpp \
+    ${adaptor_framework_dir}/android/file-stream-impl-android.cpp
