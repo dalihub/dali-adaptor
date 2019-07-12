@@ -1,0 +1,4 @@
+# module: adaptor-framework, backend: generic
+adaptor_framework_generic_src_files=\
+    ${adaptor_framework_dir}/generic/file-loader-impl-generic.cpp \
+    ${adaptor_framework_dir}/generic/file-stream-impl-generic.cpp

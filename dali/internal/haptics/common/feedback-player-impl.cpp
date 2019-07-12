@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@
 #include <dali/internal/haptics/common/feedback-player-impl.h>
 
 // EXTERNAL INCLUDES
-#include <fstream>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/adaptor-framework/file-loader.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/singleton-service-impl.h>
@@ -111,12 +112,11 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
 {
   bool loaded = false;
 
-  std::ifstream stream(filename.c_str());
-
-  if( stream.is_open() )
+  std::streampos bufferSize = 0;
+  Dali::Vector<char> fileBuffer;
+  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT ) )
   {
-    data.assign((std::istreambuf_iterator<char>(stream)),
-                std::istreambuf_iterator<char>());
+    data.assign( &fileBuffer[0], bufferSize );
     loaded = true;
   }
 

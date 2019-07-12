@@ -295,6 +295,12 @@ public: // AdaptorInternalServices implementation
   bool RemoveWindow( Dali::Internal::Adaptor::SceneHolder* childWindow );
 
   /**
+   * @brief Deletes the rendering surface
+   * @param[in] surface to delete
+   */
+  void DeleteSurface( Dali::RenderSurfaceInterface& surface );
+
+  /**
    * @brief Retrieve the window that the given actor is added to.
    *
    * @param[in] actor The actor

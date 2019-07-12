@@ -18,6 +18,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 
 // EXTERNAL INCLUDES
 #include <cstdio>
@@ -39,22 +40,51 @@ protected: // prevent this class being directly instantiated
   /**
    * @brief Construct a FileCloser guarding a new FILE* for accessing the path passed in.
    */
-  FileCloser( const char * const filename, const char * const mode )
-  : mFile(fopen(filename, mode))
+  FileCloser( const char* const filename, const char* const mode )
   {
-    DALI_ASSERT_DEBUG( filename != 0 && "Cant open a null filename." );
+    DALI_ASSERT_DEBUG( filename != 0 && "Can't open a null filename." );
     DALI_ASSERT_DEBUG( mode != 0 && "Null mode is undefined behaviour in spec." );
 
-    if( mFile == 0 )
+    Dali::FileLoader::FileType fileType = Dali::FileLoader::FileType::TEXT;
+
+    const char* modeStr = mode;
+    while( *modeStr )
     {
-      DALI_LOG_WARNING( "File open failed for: \"%s\" in mode: \"%s\".\n", filename, mode );
+      switch ( *modeStr )
+      {
+      case 'r':
+        break;
+      case 'b':
+        fileType = FileLoader::FileType::BINARY;
+        break;
+      // Still has to use fopen for append and write modes
+      case 'a':
+      case 'w':
+      case '+':
+        mFile = fopen( filename, mode );
+        return;
+      default:
+        break;
+      }
+
+      ++modeStr;
+    }
+
+    std::streampos bufferSize = 0;
+    if( !Dali::FileLoader::ReadFile( filename, bufferSize, mFileBuffer, fileType ) )
+    {
+      mFile = nullptr;
+    }
+    else
+    {
+      mFile = fmemopen( &mFileBuffer[0], bufferSize, mode );
     }
   }
 
   /**
    * @brief Construct a FileCloser guarding a FILE* for reading out of the memory buffer passed in.
    */
-  FileCloser( uint8_t* buffer, size_t dataSize, const char * const mode )
+  FileCloser( uint8_t* buffer, size_t dataSize, const char* const mode )
   : mFile( fmemopen( buffer, dataSize, mode) )
   {
   }
@@ -119,6 +149,7 @@ private:
 
 private:
   FILE* mFile;
+  Dali::Vector<char> mFileBuffer;
 };
 
 } // namespace Platform
