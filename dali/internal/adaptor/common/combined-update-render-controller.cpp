@@ -445,15 +445,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     eglGraphics->SetGlesVersion( 20 );
     eglImpl.ChooseConfig( true, COLOR_DEPTH_32 );
   }
-  else
-  {
-    if( !eglImpl.CreateContext() )
-    {
-      // Retry to use OpenGL es 2.0
-      eglGraphics->SetGlesVersion( 20 );
-      eglImpl.ChooseConfig( true, COLOR_DEPTH_32 );
-    }
-  }
 
   // Check whether surfaceless context is supported
   bool isSurfacelessContextSupported = eglImpl.IsSurfacelessContextSupported();
@@ -462,10 +453,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   if ( isSurfacelessContextSupported )
   {
     // Create a surfaceless OpenGL context for shared resources
-    if( eglImpl.GetContext() == 0 )
-    {
-      eglImpl.CreateContext();
-    }
+    eglImpl.CreateContext();
     eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
   }
   else
