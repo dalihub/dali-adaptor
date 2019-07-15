@@ -155,7 +155,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mCallbackManager = CallbackManager::New();
 
-  SceneHolderPtr defaultWindow = mWindows.front();
+  Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
   DALI_ASSERT_DEBUG( defaultWindow->GetSurface() && "Surface not initialized" );
 
@@ -181,7 +181,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   defaultWindow->SetAdaptor( Get() );
 
-  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( ( &defaultWindow )->Get() ) );
+  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( defaultWindow ) );
   if ( window )
   {
     mWindowCreatedSignal.Emit( window );
@@ -337,7 +337,7 @@ void Adaptor::Start()
   // Start the callback manager
   mCallbackManager->Start();
 
-  SceneHolderPtr defaultWindow = mWindows.front();
+  Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
@@ -378,7 +378,7 @@ void Adaptor::Pause()
     }
 
     // Pause all windows event handlers when adaptor paused
-    for( SceneHolderPtr window : mWindows )
+    for( auto window : mWindows )
     {
       window->Pause();
     }
@@ -406,7 +406,7 @@ void Adaptor::Resume()
     mState = RUNNING;
 
     // Reset the event handlers when adaptor resumed
-    for( SceneHolderPtr window : mWindows )
+    for( auto window : mWindows )
     {
       window->Resume();
     }
@@ -501,9 +501,9 @@ void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& newSurface )
 {
   Internal::Adaptor::SceneHolder* windowImpl = &Dali::GetImplementation( window );
-  for( SceneHolderPtr windowPtr : mWindows )
+  for( auto windowPtr : mWindows )
   {
-    if( windowPtr.Get() == windowImpl ) // the window is not deleted
+    if( windowPtr == windowImpl ) // the window is not deleted
     {
       // Let the core know the surface size has changed
       mCore->SurfaceResized( &newSurface );
@@ -573,7 +573,7 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::
   windowImpl.SetAdaptor( Get() );
 
   // Add the new Window to the container - the order is not important
-  mWindows.push_back( SceneHolderPtr( &windowImpl ) );
+  mWindows.push_back( &windowImpl );
 
   Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( &windowImpl ) );
   if ( window )
@@ -864,7 +864,7 @@ void Adaptor::OnWindowHidden()
   {
     bool allWindowsHidden = true;
 
-    for( SceneHolderPtr window : mWindows )
+    for( auto window : mWindows )
     {
       if ( window->IsVisible() )
       {
@@ -1007,7 +1007,7 @@ Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow( Dali::Actor& actor )
   {
     if ( scene == window->GetScene() )
     {
-      return window.Get();
+      return window;
     }
   }
 
@@ -1021,7 +1021,7 @@ Dali::WindowContainer Adaptor::GetWindows() const
   for ( auto iter = mWindows.begin(); iter != mWindows.end(); ++iter )
   {
     // Downcast to Dali::Window
-    Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( iter->Get() ) );
+    Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( *iter ) );
     if ( window )
     {
       windows.push_back( window );
@@ -1061,7 +1061,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mUseRemoteSurface( false )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
-  mWindows.insert( mWindows.begin(), SceneHolderPtr( &Dali::GetImplementation( window ) ) );
+  mWindows.insert( mWindows.begin(), &Dali::GetImplementation( window ) );
 
   gThreadLocalAdaptor = this;
 }
