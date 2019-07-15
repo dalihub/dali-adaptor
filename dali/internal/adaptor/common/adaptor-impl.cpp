@@ -523,6 +523,16 @@ void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::Rende
   }
 }
 
+void Adaptor::DeleteSurface( Dali::RenderSurfaceInterface& surface )
+{
+  // Flush the event queue to give the update-render thread chance
+  // to start processing messages for new camera setup etc as soon as possible
+  ProcessCoreEvents();
+
+  // This method blocks until the render thread has finished rendering the current surface.
+  mThreadController->DeleteSurface( &surface );
+}
+
 Dali::RenderSurfaceInterface& Adaptor::GetSurface() const
 {
   return *mWindows.front()->GetSurface();

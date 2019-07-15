@@ -18,7 +18,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/file-closer.h>
+#include <dali/devel-api/adaptor-framework/file-stream.h>
 
 // EXTERNAL INCLUDES
 
@@ -29,7 +29,7 @@ namespace Internal
 namespace Platform
 {
 
-class FileWriter : public FileCloser
+class FileWriter : public FileStream
 {
 public:
   /**
@@ -39,7 +39,7 @@ public:
    * @param[in] dataSize the amount of data to be written
    */
   FileWriter( Dali::Vector<uint8_t>& vector, size_t dataSize )
-  : FileCloser( vector, dataSize, "wb" )
+  : FileStream( vector, dataSize, FileStream::WRITE | FileStream::BINARY )
   {
   }
 };
