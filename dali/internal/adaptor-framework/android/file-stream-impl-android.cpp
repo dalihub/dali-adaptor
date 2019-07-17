@@ -126,22 +126,24 @@ std::iostream& FileStream::Impl::GetStream()
 
   if( !mFileName.empty() )
   {
-    if ( !mMode & Dali::FileStream::WRITE )
+    if ( !(mMode & Dali::FileStream::WRITE) )
     {
       std::streampos fileSize;
       if ( ReadFile( mFileName, fileSize, mFileBuffer, Dali::FileLoader::BINARY ) )
       {
         mBuffer = reinterpret_cast<uint8_t*>( &mFileBuffer[0] );
-        mBufferStream.rdbuf()->pubsetbuf( reinterpret_cast<char*>( mBuffer ), fileSize );
+        mDataSize = fileSize;
+        mBufferStream.rdbuf()->pubsetbuf( reinterpret_cast<char*>( mBuffer ), mDataSize );
         if( !mBufferStream.rdbuf()->in_avail() )
         {
-          DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+          DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
+              static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), static_cast<int>( openMode ) );
         }
         return mBufferStream;
       }
       else
       {
-        DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
       }
     }
     else
@@ -149,7 +151,7 @@ std::iostream& FileStream::Impl::GetStream()
       mFileStream.open( mFileName, openMode );
       if( !mFileStream.is_open() )
       {
-        DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName, static_cast<int>( openMode ) );
+        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName, static_cast<int>( openMode ) );
       }
     }
     return mFileStream;
@@ -159,7 +161,7 @@ std::iostream& FileStream::Impl::GetStream()
     mBufferStream.rdbuf()->pubsetbuf( reinterpret_cast<char*>( mBuffer ), mDataSize );
     if( !mBufferStream.rdbuf()->in_avail() )
     {
-      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
+      DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
           static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), static_cast<int>( openMode ) );
     }
   }
@@ -201,17 +203,23 @@ FILE* FileStream::Impl::GetFile()
 
   if( !mFileName.empty() )
   {
-    if ( !mMode & Dali::FileStream::WRITE )
+    if ( !( mMode & Dali::FileStream::WRITE ) )
     {
       std::streampos fileSize;
       if ( ReadFile( mFileName, fileSize, mFileBuffer, Dali::FileLoader::BINARY ) )
       {
         mBuffer = reinterpret_cast<uint8_t*>( &mFileBuffer[0] );
+        mDataSize = fileSize;
         mFile = fmemopen( mBuffer, mDataSize, openMode );
+        if( !mFile )
+        {
+          DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
+              static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
+        }
       }
       else
       {
-        DALI_LOG_WARNING( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+        DALI_LOG_ERROR( "read file failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode );
       }
     }
     else
@@ -219,7 +227,7 @@ FILE* FileStream::Impl::GetFile()
       mFile = fopen( mFileName.c_str(), openMode );
       if( !mFile )
       {
-        DALI_LOG_WARNING( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+        DALI_LOG_ERROR( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode );
       }
     }
   }
@@ -228,7 +236,7 @@ FILE* FileStream::Impl::GetFile()
     mFile = fmemopen( mBuffer, mDataSize, openMode );
     if( !mFile )
     {
-      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
+      DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
           static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
     }
   }

@@ -82,12 +82,13 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
       DALI_LOG_ERROR( "Asset not found %s\n", path );
     }
   }
-  else {
+  else
+  {
     FILE* file = fopen( path,  mode );
     if( file )
     {
       fseek( file, 0, SEEK_END );
-      fileSize = ftell( file );
+      length = ftell( file );
       memblock.Resize( length + 1 ); // 1 for extra zero at the end
 
       char* buffer = &memblock[0];
