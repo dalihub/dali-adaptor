@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,8 @@ void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
   mMultiSamplingLevel = environmentOptions->GetMultiSamplingLevel();
 
   mEglSync = Utils::MakeUnique< EglSyncImplementation >();
+
+  mEglContextHelper = Utils::MakeUnique< EglContextHelperImplementation >();
 }
 
 EglInterface* EglGraphics::Create()
@@ -74,6 +76,8 @@ EglInterface* EglGraphics::Create()
   mEglImageExtensions = Utils::MakeUnique< EglImageExtensions >( mEglImplementation.get() );
 
   mEglSync->Initialize( mEglImplementation.get() ); // The sync impl needs the EglDisplay
+
+  mEglContextHelper->Initialize( mEglImplementation.get() ); // The context helper impl needs the EglContext
 
   return mEglImplementation.get();
 }
@@ -110,6 +114,12 @@ EglSyncImplementation& EglGraphics::GetSyncImplementation()
 {
   DALI_ASSERT_DEBUG( mEglSync && "EglSyncImplementation not created" );
   return *mEglSync;
+}
+
+EglContextHelperImplementation& EglGraphics::GetContextHelperImplementation()
+{
+  DALI_ASSERT_DEBUG( mEglContextHelper && "EglContextHelperImplementation not created" );
+  return *mEglContextHelper;
 }
 
 EglImageExtensions* EglGraphics::GetImageExtensions()

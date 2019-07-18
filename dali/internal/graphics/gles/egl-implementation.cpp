@@ -220,11 +220,6 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
-
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
 
     mCurrentEglContext = eglContext;
@@ -252,11 +247,6 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
-
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
 
     mCurrentEglContext = mEglContext;
@@ -575,6 +565,15 @@ int32_t EglImplementation::GetGlesVersion() const
 bool EglImplementation::IsSurfacelessContextSupported() const
 {
   return mIsSurfacelessContextSupported;
+}
+
+void EglImplementation::WaitClient()
+{
+  // Wait for EGL to finish executing all rendering calls for the current context
+  if ( eglWaitClient() != EGL_TRUE )
+  {
+    TEST_EGL_ERROR("eglWaitClient");
+  }
 }
 
 } // namespace Adaptor
