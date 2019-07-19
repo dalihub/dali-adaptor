@@ -44,7 +44,8 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask )
 
   int destAlphaByteOffset=0;
   int destAlphaMask=0;
-  Dali::Pixel::GetAlphaOffsetAndMask( buffer.GetPixelFormat(), destAlphaByteOffset, destAlphaMask );
+  Dali::Pixel::Format destPixelFormat = buffer.GetPixelFormat();
+  Dali::Pixel::GetAlphaOffsetAndMask( destPixelFormat, destAlphaByteOffset, destAlphaMask );
 
   unsigned int srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel( srcPixelFormat );
   unsigned char* srcBuffer = mask.GetBuffer();
@@ -57,21 +58,49 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask )
 
   float srcAlphaValue = 1.0f;
 
-  for( unsigned int row = 0; row < buffer.GetHeight(); ++row )
+  // if image is premultiplied, the other channels of the image need to multiply by alpha.
+  if( buffer.IsAlphaPreMultiplied() )
   {
-    for( unsigned int col = 0; col < buffer.GetWidth(); ++col )
+    for( unsigned int row = 0; row < buffer.GetHeight(); ++row )
     {
-      unsigned char alpha = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
-      srcAlphaValue = float(alpha)/255.0f;
+      for( unsigned int col = 0; col < buffer.GetWidth(); ++col )
+      {
+        auto srcAlpha      = ReadChannel( srcBuffer + srcOffset, srcPixelFormat, Adaptor::ALPHA);
+        auto destRed       = ReadChannel( destBuffer + destOffset, destPixelFormat, Adaptor::RED);
+        auto destGreen     = ReadChannel( destBuffer + destOffset, destPixelFormat, Adaptor::GREEN);
+        auto destBlue      = ReadChannel( destBuffer + destOffset, destPixelFormat, Adaptor::BLUE);
+        auto destLuminance = ReadChannel( destBuffer + destOffset, destPixelFormat, Adaptor::LUMINANCE);
+        auto destAlpha     = ReadChannel( destBuffer + destOffset, destPixelFormat, Adaptor::ALPHA);
 
-      unsigned char destAlpha = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
-      float destAlphaValue = Clamp(float(destAlpha) * srcAlphaValue, 0.0f, 255.0f);
-      destAlpha = destAlphaValue;
-      destBuffer[destOffset + destAlphaByteOffset] &= ~destAlphaMask;
-      destBuffer[destOffset + destAlphaByteOffset] |= ( destAlpha & destAlphaMask );
+        WriteChannel( destBuffer + destOffset, destPixelFormat, Adaptor::RED, destRed*srcAlpha / 255 );
+        WriteChannel( destBuffer + destOffset, destPixelFormat, Adaptor::GREEN, destGreen*srcAlpha/255 );
+        WriteChannel( destBuffer + destOffset, destPixelFormat, Adaptor::BLUE, destBlue*srcAlpha/255 );
+        WriteChannel( destBuffer + destOffset, destPixelFormat, Adaptor::LUMINANCE, destLuminance*srcAlpha/255 );
+        WriteChannel( destBuffer + destOffset, destPixelFormat, Adaptor::ALPHA, destAlpha*srcAlpha/255 );
 
-      srcOffset  += srcBytesPerPixel;
-      destOffset += destBytesPerPixel;
+        srcOffset  += srcBytesPerPixel;
+        destOffset += destBytesPerPixel;
+      }
+    }
+  }
+  else
+  {
+    for( unsigned int row = 0; row < buffer.GetHeight(); ++row )
+    {
+      for( unsigned int col = 0; col < buffer.GetWidth(); ++col )
+      {
+        unsigned char alpha = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
+        srcAlphaValue = float(alpha)/255.0f;
+
+        unsigned char destAlpha = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
+        float destAlphaValue = Clamp(float(destAlpha) * srcAlphaValue, 0.0f, 255.0f);
+        destAlpha = destAlphaValue;
+        destBuffer[destOffset + destAlphaByteOffset] &= ~destAlphaMask;
+        destBuffer[destOffset + destAlphaByteOffset] |= ( destAlpha & destAlphaMask );
+
+        srcOffset  += srcBytesPerPixel;
+        destOffset += destBytesPerPixel;
+      }
     }
   }
 }
