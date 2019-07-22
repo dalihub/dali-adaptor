@@ -143,7 +143,7 @@ std::iostream& FileStream::Impl::GetStream()
       }
       else
       {
-        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), static_cast<int>( openMode ) );
       }
     }
     else
@@ -151,7 +151,7 @@ std::iostream& FileStream::Impl::GetStream()
       mFileStream.open( mFileName, openMode );
       if( !mFileStream.is_open() )
       {
-        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName, static_cast<int>( openMode ) );
+        DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), static_cast<int>( openMode ) );
       }
     }
     return mFileStream;
