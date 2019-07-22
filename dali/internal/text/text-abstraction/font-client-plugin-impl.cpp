@@ -1632,7 +1632,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph( PointSize26Dot6 requested
   // First look into the cache if there is an ellipsis glyph for the requested point size.
   for( const auto& item : mEllipsisCache )
   {
-    if( item.requestedPointSize != requestedPointSize )
+    if( item.requestedPointSize == requestedPointSize )
     {
       // Use the glyph in the cache.
 
