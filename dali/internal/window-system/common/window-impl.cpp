@@ -451,6 +451,8 @@ void Window::SetSize( Dali::Window::WindowSize size )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
+    SurfaceResized();
+
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
