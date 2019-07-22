@@ -414,6 +414,16 @@ public:
    */
   virtual void SetTransparency( bool transparent ) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
+   */
+  virtual void SetParent( Any parent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsMatchedWindow()
+   */
+  virtual bool IsMatchedWindow( Any window ) override;
+
 private:
 
   /**
@@ -473,6 +483,7 @@ private:
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection*                   mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
+
 };
 
 } // namespace Adaptor
