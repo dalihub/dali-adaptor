@@ -205,6 +205,11 @@ public:
    */
   bool IsSurfacelessContextSupported() const;
 
+  /**
+   * @brief Wait until all rendering calls for the currently context are executed
+   */
+  void WaitClient();
+
 private:
 
   Vector<EGLint>       mContextAttribs;

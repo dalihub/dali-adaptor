@@ -5,6 +5,7 @@ adaptor_graphics_gles_src_files=\
     ${adaptor_graphics_dir}/gles/egl-debug.cpp \
     ${adaptor_graphics_dir}/gles/egl-implementation.cpp \
     ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp \
+    ${adaptor_graphics_dir}/gles/egl-context-helper-implementation.cpp \
     ${adaptor_graphics_dir}/gles/gl-extensions.cpp \
     ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp \
     ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp \
