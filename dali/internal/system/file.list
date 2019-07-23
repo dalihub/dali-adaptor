@@ -61,7 +61,6 @@ adaptor_system_ubuntu_x11_src_files=\
 adaptor_system_android_src_files=\
     ${adaptor_system_dir}/android/callback-manager-android.cpp \
     ${adaptor_system_dir}/android/file-descriptor-monitor-android.cpp \
-    ${adaptor_system_dir}/android/file-wrapper.cpp \
     ${adaptor_system_dir}/android/system-settings-android.cpp \
     ${adaptor_system_dir}/android/timer-impl-android.cpp
 
