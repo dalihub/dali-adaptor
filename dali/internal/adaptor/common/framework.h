@@ -221,13 +221,34 @@ public:
    */
   static std::string GetDataPath();
 
-  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
+  /**
+   *  Gets the application platform context.
+   */
   static void* GetApplicationContext();
 
-  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
-  static void SetApplicationContext(void* data);
+  /**
+   *  Sets the application platform context.
+   */
+  static void SetApplicationContext(void* context);
 
-  // TODO For demo for simplicity I made a  static function to avoid changing different API levels.
+  /**
+   *  Gets the application platform assets.
+   */
+  static void* GetApplicationAssets();
+
+  /**
+   *  Gets the application platform configuration.
+   */
+  static void* GetApplicationConfiguration();
+
+  /**
+   *  Gets the application platform window.
+   */
+  static void* GetApplicationWindow();
+
+  /**
+   *  Gets the application framework.
+   */
   static Framework* GetApplicationFramework();
 
   /**

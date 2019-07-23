@@ -28,7 +28,9 @@
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/integration-api/debug.h>
 
-#include <android_native_app_glue.h>
+// Android
+#include <configuration.h>
+#include <native_window.h>
 
 namespace Dali
 {
@@ -60,19 +62,16 @@ void WindowBaseAndroid::Initialize( PositionSize positionSize, Any surface, bool
 {
   if( !surface.Empty() )
   {
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Initialising using Android native window\n" );
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Initialising using supplied Android native window\n" );
     mWindow = static_cast< ANativeWindow* >( AnyCast< void* >( surface ) );
   }
   else
   {
-    android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-    mWindow = androidApp->window;
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "Initialising using default Android native window\n" );
+    mWindow = static_cast< ANativeWindow* >( Dali::Internal::Adaptor::Framework::GetApplicationWindow() );
   }
 
-  if( mWindow == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android window" );
-  }
+  DALI_ASSERT_ALWAYS( mWindow && "Failed to get Android window" );
   mIsTransparent = true;
 }
 
@@ -314,18 +313,14 @@ bool WindowBaseAndroid::UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dal
 
 void WindowBaseAndroid::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-  AConfiguration* config = AConfiguration_new();
+  AConfiguration* config = static_cast<AConfiguration*>( Framework::GetApplicationConfiguration() );
 
-  AConfiguration_fromAssetManager( config, androidApp->activity->assetManager );
   int32_t density = AConfiguration_getDensity( config );
-  if( density == ACONFIGURATION_DENSITY_ANY || density == ACONFIGURATION_DENSITY_ANY )
+  if( density == ACONFIGURATION_DENSITY_ANY )
   {
     DALI_LOG_ERROR( "Failed to get Android DPI, use 0 instead." );
     density = 0;
   }
-
-  AConfiguration_delete( config );
 
   dpiHorizontal = density;
   dpiVertical   = density;

@@ -22,7 +22,9 @@
 #include <string>
 #include <fstream>
 
-#include <android_native_app_glue.h>
+// Android
+#include <asset_manager.h>
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -64,8 +66,8 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   const int assetsOffset = ( sizeof("assets/") - sizeof( char ) ) / sizeof( char );
   if( !strncmp( path, "assets/", assetsOffset ) )
   {
-    android_app* androidApp = static_cast<android_app*>( Dali::Internal::Adaptor::Framework::GetApplicationContext() );
-    AAsset* asset = AAssetManager_open( androidApp->activity->assetManager, path + assetsOffset, AASSET_MODE_BUFFER );
+    AAssetManager* assetManager = static_cast<AAssetManager*>( Dali::Internal::Adaptor::Framework::GetApplicationAssets() );
+    AAsset* asset = AAssetManager_open( assetManager, path + assetsOffset, AASSET_MODE_BUFFER );
     if( asset )
     {
       length = AAsset_getLength( asset );
@@ -115,8 +117,8 @@ std::streampos GetFileSize(const std::string& filename)
   const int assetsOffset = ( sizeof("assets/") - sizeof( char ) ) / sizeof( char );
   if( !strncmp( path, "assets/", assetsOffset ) )
   {
-    android_app* androidApp = static_cast<android_app*>( Dali::Internal::Adaptor::Framework::GetApplicationContext() );
-    AAsset* asset = AAssetManager_open( androidApp->activity->assetManager, path + assetsOffset, AASSET_MODE_BUFFER );
+    AAssetManager* assetManager = static_cast<AAssetManager*>( Dali::Internal::Adaptor::Framework::GetApplicationAssets() );
+    AAsset* asset = AAssetManager_open( assetManager, path + assetsOffset, AASSET_MODE_BUFFER );
     if( asset )
     {
       size = AAsset_getLength( asset );

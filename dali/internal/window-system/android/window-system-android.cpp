@@ -21,7 +21,10 @@
 #include <dali/devel-api/adaptor-framework/keyboard.h>
 
 // EXTERNAL_HEADERS
-#include <android_native_app_glue.h>
+#include <dali/integration-api/debug.h>
+
+// Android
+#include <native_window.h>
 
 namespace Dali
 {
@@ -45,14 +48,10 @@ void Shutdown()
 
 void GetScreenSize( int& width, int& height )
 {
-  struct android_app* androidApp = static_cast<android_app*>( Framework::GetApplicationContext() );
-  if( androidApp->window == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android window" );
-  }
-
-  width = ANativeWindow_getWidth( androidApp->window );
-  height = ANativeWindow_getHeight( androidApp->window );
+  ANativeWindow* window = static_cast<ANativeWindow*>( Framework::GetApplicationWindow() );
+  width = ANativeWindow_getWidth( window );
+  height = ANativeWindow_getHeight( window );
+  DALI_LOG_INFO( "Native window width %d, height %d", width, height );
 }
 
 bool SetKeyboardRepeatInfo( float rate, float delay )

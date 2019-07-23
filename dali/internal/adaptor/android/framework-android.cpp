@@ -653,20 +653,32 @@ void Framework::SetApplicationContext(void* context)
 
 void* Framework::GetApplicationContext()
 {
-  if( applicationContext.androidApplication == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android context" );
-  }
+  DALI_ASSERT_ALWAYS( applicationContext.androidApplication && "Failed to get Android context" );
   return applicationContext.androidApplication;
 }
 
 Framework* Framework::GetApplicationFramework()
 {
-  if( applicationContext.framework == nullptr )
-  {
-    DALI_ASSERT_ALWAYS( 0 && "Failed to get Android framework" );
-  }
+  DALI_ASSERT_ALWAYS( applicationContext.framework && "Failed to get Android framework" );
   return applicationContext.framework;
+}
+
+void* Framework::GetApplicationAssets()
+{
+  DALI_ASSERT_ALWAYS( applicationContext.androidApplication && "Failed to get Android context" );
+  return applicationContext.androidApplication->activity->assetManager;
+}
+
+void* Framework::GetApplicationConfiguration()
+{
+  DALI_ASSERT_ALWAYS( applicationContext.androidApplication && "Failed to get Android context" );
+  return applicationContext.androidApplication->config;
+}
+
+void* Framework::GetApplicationWindow()
+{
+  DALI_ASSERT_ALWAYS( applicationContext.androidApplication && "Failed to get Android context" );
+  return applicationContext.androidApplication->window;
 }
 
 void Framework::SetBundleId(const std::string& id)
