@@ -135,15 +135,11 @@ public:
     */
     virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) {}
 
-#ifdef ANDROID
-    virtual void OnSurfaceCreated( Any newSurface ) {};
+    virtual void OnReplaceSurface( Any newSurface ) {}
 
-    virtual void OnSurfaceDestroyed( Any oldSurface ) {};
+    virtual void OnTouchEvent( TouchPoint& touchPoint, int timeStamp ) {}
 
-    virtual void OnTouchEvent( Dali::TouchPoint& touchPoint, int timeStamp ) {}
-
-    virtual void OnKeyEvent( Dali::KeyEvent& keyEvent ) {}
-#endif
+    virtual void OnKeyEvent( KeyEvent& keyEvent ) {}
   };
 
 public:
@@ -222,7 +218,7 @@ public:
   static std::string GetDataPath();
 
   /**
-   *  Gets the application platform context.
+   *  Gets the application platform assets.
    */
   static void* GetApplicationContext();
 
@@ -237,9 +233,19 @@ public:
   static void* GetApplicationAssets();
 
   /**
+   *  Sets the application platform assets.
+   */
+  static void SetApplicationAssets(void* assets);
+
+  /**
    *  Gets the application platform configuration.
    */
   static void* GetApplicationConfiguration();
+
+  /**
+   *  Gets the application platform configuration.
+   */
+  static void SetApplicationConfiguration(void* configuration);
 
   /**
    *  Gets the application platform window.
@@ -271,7 +277,17 @@ public:
    */
   std::string GetRegion() const;
 
+  /**
+   * Called by the App framework when an application lifecycle event occurs.
+   * @param[in] type The type of event occurred.
+   * @param[in] data The data of event occurred.
+   */
+  bool AppStatusHandler(int type, void* data);
+
+
   unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) );
+
+
   void RemoveIdle( unsigned int id );
 
 private:
@@ -286,13 +302,6 @@ private:
    * Called when the application is created.
    */
   bool Create();
-
-  /**
-   * Called by the App framework when an application lifecycle event occurs.
-   * @param[in] type The type of event occurred.
-   * @param[in] bundleData The bundle data of event occurred.
-   */
-  bool AppStatusHandler(int type, void *bundleData);
 
   /**
    * Called app_reset callback was called with bundle.
@@ -318,6 +327,7 @@ private:
   Observer&          mObserver;
   bool               mInitialised;
   bool               mResume;
+  bool               mSurfaceCreated;
   bool               mRunning;
   int*               mArgc;
   char***            mArgv;

@@ -301,7 +301,7 @@ struct Framework::Impl
   {
     if( framework )
     {
-      framework->AppStatusHandler( APP_PAUSE, NULL );
+      framework->AppStatusHandler( APP_PAUSE, nullptr );
     }
   }
 
@@ -312,7 +312,7 @@ struct Framework::Impl
   {
     if( framework )
     {
-      framework->AppStatusHandler( APP_RESUME, NULL );
+      framework->AppStatusHandler( APP_RESUME, nullptr );
     }
   }
 
@@ -339,7 +339,7 @@ struct Framework::Impl
   {
     if( framework )
     {
-      framework->AppStatusHandler( APP_LANGUAGE_CHANGE, NULL );
+      framework->AppStatusHandler( APP_LANGUAGE_CHANGE, nullptr );
     }
   }
 
@@ -350,7 +350,7 @@ struct Framework::Impl
   {
     if( framework )
     {
-      framework->AppStatusHandler( APP_DESTROYED, NULL );
+      framework->AppStatusHandler( APP_DESTROYED, nullptr );
     }
   }
 /*
@@ -483,6 +483,7 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
 : mObserver( observer ),
   mInitialised( false ),
   mResume( false ),
+  mSurfaceCreated( false ),
   mRunning( false ),
   mArgc( argc ),
   mArgv( argv ),
@@ -669,10 +670,18 @@ void* Framework::GetApplicationAssets()
   return applicationContext.androidApplication->activity->assetManager;
 }
 
+void Framework::SetApplicationAssets( void* assets )
+{
+}
+
 void* Framework::GetApplicationConfiguration()
 {
   DALI_ASSERT_ALWAYS( applicationContext.androidApplication && "Failed to get Android context" );
   return applicationContext.androidApplication->config;
+}
+
+void Framework::SetApplicationConfiguration( void* configuration )
+{
 }
 
 void* Framework::GetApplicationWindow()
@@ -709,11 +718,10 @@ bool Framework::AppStatusHandler(int type, void* data)
       {
         mObserver.OnInit();
         mInitialised = true;
-        mResume = false;
-        break;
       }
 
-      mObserver.OnSurfaceCreated( data );
+      mObserver.OnReplaceSurface( data );
+      mSurfaceCreated = true;
 
       if( mResume )
       {
@@ -729,13 +737,20 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_RESUME:
     {
+      if( mSurfaceCreated )
+      {
+        mObserver.OnResume();
+        break;
+      }
       mResume = true;
       break;
     }
 
     case APP_WINDOW_DESTROYED:
     {
-      mObserver.OnSurfaceDestroyed( data );
+      mSurfaceCreated = false;
+      mObserver.OnPause();
+      mResume = true;
       break;
     }
 

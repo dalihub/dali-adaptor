@@ -121,6 +121,10 @@ public:
    */
   Dali::Adaptor& GetAdaptor();
 
+  // Internal use only
+  Dali::Internal::Adaptor::Framework& GetAdaptorFramework();
+
+
   /**
    * @copydoc Dali::Application::GetWindow();
    */
@@ -151,9 +155,35 @@ public:
    */
   static std::string GetDataPath();
 
-  static void SetApplicationContext(void* data);
-
+  /**
+   *  Gets the application platform assets.
+   */
   static void* GetApplicationContext();
+
+  /**
+   *  Sets the application platform context.
+   */
+  static void SetApplicationContext(void* context);
+
+  /**
+   *  Gets the application platform assets.
+   */
+  static void* GetApplicationAssets();
+
+  /**
+   *  Sets the application platform assets.
+   */
+  static void SetApplicationAssets(void* assets);
+
+  /**
+   *  Gets the application platform configuration.
+   */
+  static void* GetApplicationConfiguration();
+
+  /**
+   *  Gets the application platform configuration.
+   */
+  static void SetApplicationConfiguration(void* configuration);
 
   /**
    * Retrieves the pre-initialized application.
@@ -183,6 +213,13 @@ public: // Stereoscopy
    * @copydoc Dali::Application::GetStereoBase()
    */
   float GetStereoBase() const;
+
+  /**
+   * Called by the app when an application lifecycle event occurs.
+   * @param[in] type The type of event occurred.
+   * @param[in] data The data of event occurred.
+   */
+  bool AppStatusHandler( int type, void* data );
 
 public: // From Framework::Observer
 
@@ -237,15 +274,11 @@ public: // From Framework::Observer
   */
   virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status );
 
-#ifdef ANDROID
-  virtual void OnSurfaceCreated( Any newSurface );
-
-  virtual void OnSurfaceDestroyed( Any oldSurface );
+  virtual void OnReplaceSurface( Any newSurface );
 
   virtual void OnTouchEvent( TouchPoint& touchPoint, int timeStamp );
 
   virtual void OnKeyEvent( KeyEvent& keyEvent );
-#endif
 
 public:
 

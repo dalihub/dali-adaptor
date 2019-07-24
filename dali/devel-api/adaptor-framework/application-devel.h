@@ -52,10 +52,50 @@ DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackB
 */
 DALI_ADAPTOR_API std::string GetDataPath();
 
-
+/**
+* @brief Sets the application context (for example Android native app glue struct)
+*/
 DALI_ADAPTOR_API void SetApplicationContext( void* context );
 
+/**
+* @brief Gets the application context
+* @return The context
+*/
 DALI_ADAPTOR_API void* GetApplicationContext();
+
+/**
+ *  Sets the application platform assets.
+ */
+DALI_ADAPTOR_API void SetApplicationAssets(void* assets);
+
+/**
+ *  Gets the application platform assets.
+ */
+DALI_ADAPTOR_API void* GetApplicationAssets();
+
+/**
+ *  Gets the application platform configuration.
+ */
+DALI_ADAPTOR_API void SetApplicationConfiguration(void* configuration);
+
+/**
+ *  Gets the application platform configuration.
+ */
+DALI_ADAPTOR_API void* GetApplicationConfiguration();
+
+/**
+* @brief Handles the application platform events
+* @param[in] application A handle to the Application
+* @param[in] type A type of event
+* @param[in] data The event data
+* @return true if success, false otherwise
+*/
+DALI_ADAPTOR_API bool AppEventHandler( Application application, int type, void* data );
+
+/**
+ *  Converts ref object to Application.
+ */
+Application Get( Dali::RefObject* refObject );
 
 } // namespace DevelApplication
 

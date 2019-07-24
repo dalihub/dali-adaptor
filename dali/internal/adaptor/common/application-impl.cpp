@@ -282,13 +282,6 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
-#ifdef ANDROID
-  if( mAdaptor )
-  {
-    mAdaptor->Pause();
-  }
-#endif
-
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
   // Pausing DALi core only occurs on the Window Hidden framework event
@@ -298,13 +291,6 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
-#ifdef ANDROID
-  if( mAdaptor )
-  {
-    mAdaptor->Resume();
-  }
-#endif
-
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
@@ -363,8 +349,7 @@ void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
   mLowMemorySignal.Emit( status );
 }
 
-#ifdef ANDROID
-void Application::OnSurfaceCreated( Any newSurface )
+void Application::OnReplaceSurface( Any newSurface )
 {
   void* newWindow = AnyCast< void* >( newSurface );
   void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
@@ -376,10 +361,6 @@ void Application::OnSurfaceCreated( Any newSurface )
 
     mAdaptor->ReplaceSurface( mMainWindow, *newSurfacePtr.release() );
   }
-}
-
-void Application::OnSurfaceDestroyed( Any oldSurface )
-{
 }
 
 void Application::OnTouchEvent( TouchPoint& touchPoint, int timeStamp )
@@ -397,7 +378,6 @@ void Application::OnKeyEvent( KeyEvent& keyEvent )
     mAdaptor->FeedKeyEvent( keyEvent );
   }
 }
-#endif
 
 void Application::OnResize(Dali::Adaptor& adaptor)
 {
@@ -423,6 +403,11 @@ std::string Application::GetLanguage() const
 Dali::Adaptor& Application::GetAdaptor()
 {
   return *mAdaptor;
+}
+
+Dali::Internal::Adaptor::Framework& Application::GetAdaptorFramework()
+{
+  return *mFramework;
 }
 
 Dali::Window Application::GetWindow()
@@ -462,6 +447,11 @@ float Application::GetStereoBase() const
   return mStereoBase;
 }
 
+bool Application::AppStatusHandler( int type, void* data )
+{
+  return mFramework->AppStatusHandler( type, data );
+}
+
 void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
 {
   // This API is kept just for backward compatibility to make the test case pass.
@@ -488,6 +478,26 @@ void Application::SetApplicationContext(void* context)
 void* Application::GetApplicationContext()
 {
   return Internal::Adaptor::Framework::GetApplicationContext();
+}
+
+void Application::SetApplicationAssets(void* assets)
+{
+  Internal::Adaptor::Framework::SetApplicationAssets( assets );
+}
+
+void* Application::GetApplicationAssets()
+{
+  return Internal::Adaptor::Framework::GetApplicationAssets();
+}
+
+void Application::SetApplicationConfiguration(void* configuration)
+{
+  Internal::Adaptor::Framework::SetApplicationConfiguration( configuration );
+}
+
+void* Application::GetApplicationConfiguration()
+{
+  return Internal::Adaptor::Framework::GetApplicationConfiguration();
 }
 
 void Application::SetStyleSheet( const std::string& stylesheet )
