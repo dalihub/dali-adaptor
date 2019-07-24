@@ -29,4 +29,9 @@ adaptor_adaptor_android_src_files=\
     ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp \
     ${adaptor_adaptor_dir}/android/framework-android.cpp
 
+# module: adaptor, backend: androidjni
+adaptor_adaptor_androidjni_src_files=\
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp \
+    ${adaptor_adaptor_dir}/android/framework-androidjni.cpp
+
 
