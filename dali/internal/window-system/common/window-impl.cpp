@@ -451,7 +451,7 @@ void Window::SetSize( Dali::Window::WindowSize size )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
-    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize, false );
+    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
 
@@ -505,7 +505,7 @@ void Window::SetPositionSize( PositionSize positionSize )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
-    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize, false );
+    mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
 
@@ -578,13 +578,8 @@ void Window::OnFocusChanged( bool focusIn )
 
 void Window::OnOutputTransformed()
 {
-  bool forceUpdate = false;
-  if( mWindowBase->IsEglWindowRotationSupported() )
-  {
-    forceUpdate = true;
-  }
   PositionSize positionSize = mSurface->GetPositionSize();
-  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ), forceUpdate );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 }
 
@@ -619,13 +614,7 @@ void Window::OnRotation( const RotationEvent& rotation )
 
   mWindowSurface->RequestRotation( mRotationAngle, mWindowWidth, mWindowHeight );
 
-  bool forceUpdate = false;
-  if( mWindowBase->IsEglWindowRotationSupported() )
-  {
-    forceUpdate = true;
-  }
-
-  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ), forceUpdate );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 
   // Emit signal
   mResizedSignal.Emit( Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );

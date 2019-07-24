@@ -401,7 +401,7 @@ public:
   /**
    * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
-  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize, bool forceUpdate );
+  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
    * @copydoc Dali::Adaptor::SurfaceResizeComplete

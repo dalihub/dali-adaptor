@@ -221,9 +221,9 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
-void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize, bool forceUpdate )
+void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
-  mImpl->SurfaceResizePrepare( surface, surfaceSize, forceUpdate );
+  mImpl->SurfaceResizePrepare( surface, surfaceSize );
 }
 
 void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )

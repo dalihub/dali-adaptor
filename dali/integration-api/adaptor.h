@@ -419,7 +419,7 @@ public:
    * @param[in] surface The current render surface
    * @param[in] surfaceSize The new surface size
    */
-  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize, bool forceUpdate );
+  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
 
   /**
    * @brief Informs ThreadController the surface size has changed.
