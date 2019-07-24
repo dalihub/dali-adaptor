@@ -169,11 +169,13 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   GlImplementation& mGLES = eglGraphics->GetGlesInterface();
   EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
+  EglContextHelperImplementation& eglContextHelperImpl = eglGraphics->GetContextHelperImplementation();
 
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   mGLES,
                                   eglSyncImpl,
+                                  eglContextHelperImpl,
                                   dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
@@ -348,9 +350,6 @@ void Adaptor::Start()
   FontClient fontClient = FontClient::Get();
   fontClient.SetDpi( dpiHor, dpiVer );
 
-  // Tell the core the size of the surface just before we start the render-thread
-  mCore->SurfaceResized( defaultWindow->GetSurface() );
-
   // Initialize the thread controller
   mThreadController->Initialize();
 
@@ -505,9 +504,6 @@ void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::Rende
   {
     if( windowPtr == windowImpl ) // the window is not deleted
     {
-      // Let the core know the surface size has changed
-      mCore->SurfaceResized( &newSurface );
-
       mResizedSignal.Emit( mAdaptor );
 
       windowImpl->SetSurface( &newSurface );
@@ -919,9 +915,6 @@ void Adaptor::OnDamaged( const DamageArea& area )
 
 void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
-  // Let the core know the surface size has changed
-  mCore->SurfaceResized( surface );
-
   mResizedSignal.Emit( mAdaptor );
 }
 

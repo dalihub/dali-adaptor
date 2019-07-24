@@ -29,7 +29,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
-
+#include <dali/internal/graphics/gles/egl-context-helper-implementation.h>
 
 namespace Dali
 {
@@ -107,6 +107,12 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
+   * Gets the implementation of GlContextHelperAbstraction for EGL.
+   * @return The implementation of GlContextHelperAbstraction for EGL.
+   */
+  EglContextHelperImplementation& GetContextHelperImplementation();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable& GetDepthBufferRequired();
@@ -138,6 +144,7 @@ private:
   std::unique_ptr< EglImplementation > mEglImplementation;      ///< EGL implementation
   std::unique_ptr< EglImageExtensions > mEglImageExtensions;    ///< EGL image extension
   std::unique_ptr< EglSyncImplementation > mEglSync;            ///< GlSyncAbstraction implementation for EGL
+  std::unique_ptr< EglContextHelperImplementation > mEglContextHelper; ///< GlContextHelperAbstraction implementation for EGL
 
   int mMultiSamplingLevel;                                      ///< The multiple sampling level
 };

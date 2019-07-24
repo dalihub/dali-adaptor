@@ -201,6 +201,11 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   OnSurfaceSet( surface );
 }
 
+void SceneHolder::SurfaceResized()
+{
+  mScene.SurfaceResized();
+}
+
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
 {
   return mSurface.get();

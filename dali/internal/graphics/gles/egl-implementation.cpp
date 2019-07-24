@@ -220,11 +220,6 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
-
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
 
     mCurrentEglContext = eglContext;
@@ -252,11 +247,6 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 
   if(mIsOwnSurface)
   {
-    if( mCurrentEglContext != EGL_NO_CONTEXT )
-    {
-      glFinish();
-    }
-
     eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
 
     mCurrentEglContext = mEglContext;
@@ -341,8 +331,6 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     return true;
   }
 
-  bool isTransparent = ( depth == COLOR_DEPTH_32 );
-
   mColorDepth = depth;
   mIsWindow = isWindowType;
 
@@ -383,18 +371,9 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   configAttribs.PushBack( EGL_BLUE_SIZE );
   configAttribs.PushBack( 8 );
 
-  if ( isTransparent )
-  {
-    configAttribs.PushBack( EGL_ALPHA_SIZE );
-#ifdef _ARCH_ARM_
-    // For underlay video playback, we also need to set the alpha value of the 24/32bit window.
-    configAttribs.PushBack( 8 );
-#else
-    // There is a bug in the desktop emulator
-    // setting EGL_ALPHA_SIZE to 8 results in eglChooseConfig failing
-    configAttribs.PushBack( 8 );
-#endif // _ARCH_ARM_
-  }
+//  For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+  configAttribs.PushBack( EGL_ALPHA_SIZE );
+  configAttribs.PushBack( 8 );
 
   configAttribs.PushBack( EGL_DEPTH_SIZE );
   configAttribs.PushBack( mDepthBufferRequired ? 24 : 0 );
@@ -575,6 +554,15 @@ int32_t EglImplementation::GetGlesVersion() const
 bool EglImplementation::IsSurfacelessContextSupported() const
 {
   return mIsSurfacelessContextSupported;
+}
+
+void EglImplementation::WaitClient()
+{
+  // Wait for EGL to finish executing all rendering calls for the current context
+  if ( eglWaitClient() != EGL_TRUE )
+  {
+    TEST_EGL_ERROR("eglWaitClient");
+  }
 }
 
 } // namespace Adaptor
