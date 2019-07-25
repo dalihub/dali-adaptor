@@ -177,6 +177,7 @@ public:
   typedef Signal< void ( KeyboardType ) > KeyboardTypeSignalType; ///< keyboard type
   typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
   typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
+  typedef Signal< void ( const std::string&, const std::string&, const std::string& ) > ContentReceivedSignalType; ///< Content received signal
 
 public:
 
@@ -397,6 +398,16 @@ public:
   std::string GetInputPanelLocale();
 
   /**
+   * @brief Sets the allowed MIME Types to deliver to the input panel.
+   *
+   * ex) std::string mimeTypes = "text/plain,image/png,image/gif,application/pdf";
+   *
+   * You can receive a media content URI and its MIME type from ContentReceivedSignal(). @see ContentReceivedSignal
+   * @param[in] mimeTypes The allowed MIME types
+   */
+  void SetContentMIMETypes( const std::string& mimeTypes );
+
+  /**
    * @brief Process event key down or up, whether filter a key to isf.
    *
    * @param[in] keyEvent The event key to be handled.
@@ -503,6 +514,18 @@ public:
    * @return The signal to connect to.
    */
   KeyboardTypeSignalType& KeyboardTypeChangedSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when the content, such as images, of input method is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( const std::string& contentUri, const std::string& description, const std::string& contentMIMEType );
+   * @endcode
+   *
+   * @return The signal to connect to.
+   */
+  ContentReceivedSignalType& ContentReceivedSignal();
 
 public:
 

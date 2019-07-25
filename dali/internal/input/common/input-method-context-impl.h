@@ -54,6 +54,7 @@ public:
   using KeyboardTypeSignalType = Dali::InputMethodContext::KeyboardTypeSignalType;
   using LanguageChangedSignalType = Dali::InputMethodContext::LanguageChangedSignalType;
   using KeyboardResizedSignalType = Dali::InputMethodContext::KeyboardResizedSignalType;
+  using ContentReceivedSignalType = Dali::InputMethodContext::ContentReceivedSignalType;
 
 public:
 
@@ -117,12 +118,12 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::PreEditChanged()
    */
-  virtual void PreEditChanged( void *data, ImfContext* imfContext, void *event_info ) {}
+  virtual void PreEditChanged( void *data, ImfContext* imfContext, void *eventInfo ) {}
 
   /**
    * @copydoc Dali::InputMethodContext::CommitReceived()
    */
-  virtual void CommitReceived( void *data, ImfContext* imfContext, void *event_info ) {}
+  virtual void CommitReceived( void *data, ImfContext* imfContext, void *eventInfo ) {}
 
   /**
    * @copydoc Dali::InputMethodContext::RetrieveSurrounding()
@@ -133,12 +134,17 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::DeleteSurrounding()
    */
-  virtual void DeleteSurrounding( void *data, ImfContext* imfContext, void *event_info ) {}
+  virtual void DeleteSurrounding( void *data, ImfContext* imfContext, void *eventInfo ) {}
 
   /**
    * @copydoc Dali::InputMethodContext::SendPrivateCommand()
    */
-  virtual void SendPrivateCommand( void* data, ImfContext* imfContext, void* event_info ) {}
+  virtual void SendPrivateCommand( void* data, ImfContext* imfContext, void* eventInfo ) {}
+
+  /**
+   * @copydoc Dali::InputMethodContext::SendCommitContent()
+   */
+  virtual void SendCommitContent( void* data, ImfContext* imfContext, void* eventInfo ) {}
 
   // Cursor related
   /**
@@ -232,6 +238,11 @@ public:
   virtual std::string GetInputPanelLocale() { return std::string(); }
 
   /**
+   * @copydoc Dali::InputMethodContext::SetContentMIMETypes()
+   */
+  virtual void SetContentMIMETypes( const std::string& mimeTypes ) {}
+
+  /**
    * @copydoc Dali::InputMethodContext::FilterEventKey()
    */
   virtual bool FilterEventKey( const Dali::KeyEvent& keyEvent ) { return false; }
@@ -288,6 +299,11 @@ public:  // Signals
    */
   KeyboardTypeSignalType& KeyboardTypeChangedSignal() { return mKeyboardTypeChangedSignal; }
 
+  /**
+   * @copydoc Dali::InputMethodContext::ContentReceivedSignal()
+   */
+  ContentReceivedSignalType& ContentReceivedSignal() { return mContentReceivedSignal; }
+
 public:
 
   /**
@@ -313,6 +329,7 @@ protected:
   KeyboardResizedSignalType  mKeyboardResizeSignal;
   LanguageChangedSignalType  mKeyboardLanguageChangedSignal;
   KeyboardTypeSignalType     mKeyboardTypeChangedSignal;
+  ContentReceivedSignalType  mContentReceivedSignal;
 
 public:
 

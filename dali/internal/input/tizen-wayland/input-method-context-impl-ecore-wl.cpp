@@ -123,21 +123,21 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 }
 
 // Static function calls used by ecore 'c' style callback registration
-void Commit( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void Commit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
-    inputMethodContext->CommitReceived( data, imfContext, event_info );
+    inputMethodContext->CommitReceived( data, imfContext, eventInfo );
   }
 }
 
-void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
-    inputMethodContext->PreEditChanged( data, imfContext, event_info );
+    inputMethodContext->PreEditChanged( data, imfContext, eventInfo );
   }
 }
 
@@ -235,24 +235,36 @@ void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *conte
  * Called when an IMF delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
-    inputMethodContext->DeleteSurrounding( data, imfContext, event_info );
+    inputMethodContext->DeleteSurrounding( data, imfContext, eventInfo );
   }
 }
 
 /**
  * Called when the input method sends a private command.
  */
-void PrivateCommand( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void PrivateCommand( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
-    inputMethodContext->SendPrivateCommand( data, imfContext, event_info );
+    inputMethodContext->SendPrivateCommand( data, imfContext, eventInfo );
+  }
+}
+
+/**
+ * Called when the input method commits content, such as an image.
+ */
+void CommitContent( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
+{
+  if ( data )
+  {
+    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    inputMethodContext->SendCommitContent( data, imfContext, eventInfo );
   }
 }
 
@@ -377,6 +389,7 @@ void InputMethodContextEcoreWl::ConnectCallbacks()
     ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,               Commit,     this );
     ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING,   ImfDeleteSurrounding, this );
     ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this );
+    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT,       CommitContent, this );
 
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback, this );
     ecore_imf_context_input_panel_event_callback_add( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this );
@@ -397,6 +410,7 @@ void InputMethodContextEcoreWl::DisconnectCallbacks()
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,               Commit );
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING,   ImfDeleteSurrounding );
     ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand );
+    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT,       CommitContent );
 
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT,    InputPanelStateChangeCallback     );
     ecore_imf_context_input_panel_event_callback_del( mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback  );
@@ -470,7 +484,7 @@ void InputMethodContextEcoreWl::SetRestoreAfterFocusLost( bool toggle )
  * We are still predicting what the user is typing.  The latest string is what the InputMethodContext module thinks
  * the user wants to type.
  */
-void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, void* event_info )
+void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::PreEditChanged\n" );
   auto context = reinterpret_cast<Ecore_IMF_Context*>(imfContext);
@@ -548,13 +562,13 @@ void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, v
   free( preEditString );
 }
 
-void InputMethodContextEcoreWl::CommitReceived( void*, ImfContext* imfContext, void* event_info )
+void InputMethodContextEcoreWl::CommitReceived( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::CommitReceived\n" );
 
   if ( Dali::Adaptor::IsAvailable() )
   {
-    const std::string keyString( static_cast<char*>( event_info ) );
+    const std::string keyString( static_cast<char*>( eventInfo ) );
 
     Dali::InputMethodContext handle( this );
     Dali::InputMethodContext::EventData eventData( Dali::InputMethodContext::COMMIT, keyString, 0, 0 );
@@ -605,13 +619,13 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding( void* data, ImfContext* imf
  * Called when an InputMethodContext delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void InputMethodContextEcoreWl::DeleteSurrounding( void* data, ImfContext* imfContext, void* event_info )
+void InputMethodContextEcoreWl::DeleteSurrounding( void* data, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::DeleteSurrounding\n" );
 
   if( Dali::Adaptor::IsAvailable() )
   {
-    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( event_info );
+    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( eventInfo );
 
     Dali::InputMethodContext::EventData imfData( Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars );
     Dali::InputMethodContext handle( this );
@@ -622,17 +636,36 @@ void InputMethodContextEcoreWl::DeleteSurrounding( void* data, ImfContext* imfCo
 /**
  * Called when the input method sends a private command.
  */
-void InputMethodContextEcoreWl::SendPrivateCommand( void* data, ImfContext* imfContext, void* event_info )
+void InputMethodContextEcoreWl::SendPrivateCommand( void* data, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendPrivateCommand\n" );
 
   if( Dali::Adaptor::IsAvailable() )
   {
-    const char* privateCommandSendEvent = static_cast<const char*>( event_info );
+    const char* privateCommandSendEvent = static_cast<const char*>( eventInfo );
 
     Dali::InputMethodContext::EventData imfData( Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0 );
     Dali::InputMethodContext handle( this );
     mEventSignal.Emit( handle, imfData );
+  }
+}
+
+/**
+ * Called when the input method commits content, such as an image.
+ */
+void InputMethodContextEcoreWl::SendCommitContent( void* data, ImfContext* imfContext, void* eventInfo )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent\n" );
+
+  if( Dali::Adaptor::IsAvailable() )
+  {
+    Ecore_IMF_Event_Commit_Content* commitContent = static_cast<Ecore_IMF_Event_Commit_Content *>( eventInfo );
+    if( commitContent )
+    {
+      DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent commit content : %s, description : %s, mime type : %s\n",
+                                                 commitContent->content_uri, commitContent->description, commitContent->mime_types );
+      mContentReceivedSignal.Emit( commitContent->content_uri, commitContent->description, commitContent->mime_types );
+    }
   }
 }
 
@@ -912,6 +945,16 @@ std::string InputMethodContextEcoreWl::GetInputPanelLocale()
     }
   }
   return locale;
+}
+
+void InputMethodContextEcoreWl::SetContentMIMETypes( const std::string& mimeTypes )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetContentMIMETypes\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_mime_type_accept_set( mIMFContext, mimeTypes.c_str() );
+  }
 }
 
 bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
