@@ -317,7 +317,6 @@ void Framework::SetApplicationConfiguration(void* configuration)
 
 void* Framework::GetApplicationWindow()
 {
-  DALI_ASSERT_ALWAYS( applicationContext.window && "Failed to get Android native window" );
   return applicationContext.window;
 }
 

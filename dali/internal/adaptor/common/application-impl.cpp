@@ -500,6 +500,11 @@ void* Application::GetApplicationConfiguration()
   return Internal::Adaptor::Framework::GetApplicationConfiguration();
 }
 
+void* Application::GetApplicationWindow()
+{
+  return Internal::Adaptor::Framework::GetApplicationWindow();
+}
+
 void Application::SetStyleSheet( const std::string& stylesheet )
 {
   mStylesheet = stylesheet;

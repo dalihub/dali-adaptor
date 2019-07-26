@@ -47,55 +47,72 @@ namespace DevelApplication
 DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackBase* callback );
 
 /**
-* @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
-* @return The absolute path to the application's data directory
-*/
+ * @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
+ * @return The absolute path to the application's data directory
+ */
 DALI_ADAPTOR_API std::string GetDataPath();
 
 /**
-* @brief Sets the application context (for example Android native app glue struct)
-*/
+ * @brief Sets the application context (for example Android native app glue struct)
+ * @param[in] context A pointer to platform application context
+ */
 DALI_ADAPTOR_API void SetApplicationContext( void* context );
 
 /**
-* @brief Gets the application context
-* @return The context
-*/
+ * @brief Gets the application context
+ * @return A platform context
+ */
 DALI_ADAPTOR_API void* GetApplicationContext();
 
 /**
  *  Sets the application platform assets.
+ *  @param[in] assets A pointer to platform assets
  */
 DALI_ADAPTOR_API void SetApplicationAssets(void* assets);
 
 /**
- *  Gets the application platform assets.
+ * @brief Gets the application platform assets
+ * @return platform assets
  */
 DALI_ADAPTOR_API void* GetApplicationAssets();
 
 /**
- *  Gets the application platform configuration.
+ * @brief Sets the application platform configuration
+ * @param[in] configuration A pointer to platform configuration
  */
 DALI_ADAPTOR_API void SetApplicationConfiguration(void* configuration);
 
 /**
- *  Gets the application platform configuration.
+ * @brief Gets the application platform configuration
+ * @return A platform configuration
  */
 DALI_ADAPTOR_API void* GetApplicationConfiguration();
 
 /**
-* @brief Handles the application platform events
-* @param[in] application A handle to the Application
-* @param[in] type A type of event
-* @param[in] data The event data
-* @return true if success, false otherwise
-*/
+ * @brief Gets the application platform window
+ * @return A platform window
+ */
+DALI_ADAPTOR_API void* GetApplicationWindow();
+
+/**
+ * @brief Handles the application platform events
+ * @param[in] application A handle to the Application
+ * @param[in] type A type of event
+ * @param[in] data The event data
+ * @return true if success, false otherwise
+ */
 DALI_ADAPTOR_API bool AppEventHandler( Application application, int type, void* data );
 
 /**
- *  Converts ref object to Application.
+ * @brief Downcasts a ref object to Application handle
+ *
+ * If handle points to an Actor object, the downcast produces valid handle
+ * If not, the returned handle is left uninitialized
+ *
+ * @param[in] refObject to An application
+ * @return handle to a Application object or an uninitialized handle
  */
-Application Get( Dali::RefObject* refObject );
+DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
 
 } // namespace DevelApplication
 

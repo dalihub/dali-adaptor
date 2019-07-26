@@ -186,6 +186,11 @@ public:
   static void SetApplicationConfiguration(void* configuration);
 
   /**
+   *  Gets the application platform window.
+   */
+  static void* GetApplicationWindow();
+
+  /**
    * Retrieves the pre-initialized application.
    *
    * @return A pointer to the pre-initialized application

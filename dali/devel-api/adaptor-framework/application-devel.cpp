@@ -72,12 +72,17 @@ void* GetApplicationConfiguration()
   return Internal::Adaptor::Application::GetApplicationConfiguration();
 }
 
+void* GetApplicationWindow()
+{
+  return Internal::Adaptor::Application::GetApplicationWindow();
+}
+
 bool AppEventHandler( Application application, int type, void* data )
 {
   return Internal::Adaptor::GetImplementation( application ).AppStatusHandler( type, data );
 }
 
-Application Get( Dali::RefObject* refObject )
+Application DownCast( Dali::RefObject* refObject )
 {
   return Application( dynamic_cast<Dali::Internal::Adaptor::Application*>( refObject ) );
 }
