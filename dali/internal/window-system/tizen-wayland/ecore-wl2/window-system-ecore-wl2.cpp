@@ -50,6 +50,8 @@ void GetScreenSize( int& width, int& height )
   if( display )
   {
     ecore_wl2_display_screen_size_get( display, &width, &height );
+    DALI_ASSERT_ALWAYS((width>0) && "screen width is 0");
+    DALI_ASSERT_ALWAYS((height>0) && "screen height is 0");
   }
 }
 

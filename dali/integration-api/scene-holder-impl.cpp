@@ -201,6 +201,11 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   OnSurfaceSet( surface );
 }
 
+void SceneHolder::SurfaceResized()
+{
+  mScene.SurfaceResized();
+}
+
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
 {
   return mSurface.get();
@@ -230,9 +235,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   mAdaptorStarted = true;
 
   // Create the scene
-  PositionSize positionSize = mSurface->GetPositionSize();
-  mScene = Dali::Integration::Scene::New( Vector2( positionSize.width, positionSize.height ) );
-  mScene.SetSurface( *mSurface.get() );
+  mScene = Dali::Integration::Scene::New( *mSurface );
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation( adaptor );
   mAdaptor = &adaptorImpl;

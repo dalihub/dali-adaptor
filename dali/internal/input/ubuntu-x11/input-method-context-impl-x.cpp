@@ -76,21 +76,21 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 }
 
 // Static function calls used by ecore 'c' style callback registration
-void Commit( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void Commit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
-    inputMethodContext->CommitReceived( data, imfContext, event_info );
+    inputMethodContext->CommitReceived( data, imfContext, eventInfo );
   }
 }
 
-void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
-    inputMethodContext->PreEditChanged( data, imfContext, event_info );
+    inputMethodContext->PreEditChanged( data, imfContext, eventInfo );
   }
 }
 
@@ -111,12 +111,12 @@ Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char
  * Called when an InputMethodContext delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *event_info )
+void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
     InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
-    inputMethodContext->DeleteSurrounding( data, imfContext, event_info );
+    inputMethodContext->DeleteSurrounding( data, imfContext, eventInfo );
   }
 }
 
@@ -314,7 +314,7 @@ void InputMethodContextX::SetRestoreAfterFocusLost( bool toggle )
  * We are still predicting what the user is typing.  The latest string is what the InputMethodContext module thinks
  * the user wants to type.
  */
-void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* event_info )
+void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::PreEditChanged\n" );
   auto context = reinterpret_cast<Ecore_IMF_Context*>(imfContext);
@@ -391,13 +391,13 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
   free( preEditString );
 }
 
-void InputMethodContextX::CommitReceived( void*, ImfContext* imfContext, void* event_info )
+void InputMethodContextX::CommitReceived( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::CommitReceived\n" );
 
   if ( Dali::Adaptor::IsAvailable() )
   {
-    const std::string keyString( static_cast<char*>( event_info ) );
+    const std::string keyString( static_cast<char*>( eventInfo ) );
 
     Dali::InputMethodContext handle( this );
     Dali::InputMethodContext::EventData eventData( Dali::InputMethodContext::COMMIT, keyString, 0, 0 );
@@ -446,13 +446,13 @@ bool InputMethodContextX::RetrieveSurrounding( void* data, ImfContext* imfContex
  * Called when an InputMethodContext delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void InputMethodContextX::DeleteSurrounding( void* data, ImfContext* imfContext, void* event_info )
+void InputMethodContextX::DeleteSurrounding( void* data, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::DeleteSurrounding\n" );
 
   if( Dali::Adaptor::IsAvailable() )
   {
-    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( event_info );
+    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( eventInfo );
 
     Dali::InputMethodContext::EventData imfData( Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars );
     Dali::InputMethodContext handle( this );
@@ -701,6 +701,12 @@ std::string InputMethodContextX::GetInputPanelLocale()
     }
   }
   return locale;
+}
+
+void InputMethodContextX::SetContentMIMETypes( const std::string& mimeTypes )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetContentMIMETypes\n" );
+  // ecore_imf_context_mime_type_accept_set() is supported from ecore-imf 1.20.0 version.
 }
 
 bool InputMethodContextX::FilterEventKey( const Dali::KeyEvent& keyEvent )
