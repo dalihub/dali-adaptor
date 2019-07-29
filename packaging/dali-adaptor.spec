@@ -65,7 +65,6 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
-BuildRequires:  pkgconfig(libcrypto)
 BuildRequires:  pkgconfig(cairo)
 
 BuildRequires:  pkgconfig(wayland-egl)
