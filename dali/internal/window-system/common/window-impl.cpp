@@ -507,6 +507,8 @@ void Window::SetPositionSize( PositionSize positionSize )
   {
     Uint16Pair newSize( newRect.width, newRect.height );
 
+    SurfaceResized();
+
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
     mResizedSignal.Emit( newSize );
@@ -581,6 +583,7 @@ void Window::OnFocusChanged( bool focusIn )
 void Window::OnOutputTransformed()
 {
   PositionSize positionSize = mSurface->GetPositionSize();
+  SurfaceResized();
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
   mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( positionSize.width, positionSize.height ) );
 }
@@ -615,6 +618,8 @@ void Window::OnRotation( const RotationEvent& rotation )
   mOrientation->OnOrientationChange( rotation );
 
   mWindowSurface->RequestRotation( mRotationAngle, mWindowWidth, mWindowHeight );
+
+  SurfaceResized();
 
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 
