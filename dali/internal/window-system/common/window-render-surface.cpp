@@ -179,16 +179,7 @@ PositionSize WindowRenderSurface::GetPositionSize() const
 
 void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  const char* environmentDpiX = std::getenv("DALI_ENV_DPI_HORIZONTAL");
-  dpiHorizontal = environmentDpiX ? std::atoi(environmentDpiX) : 0;
-
-  const char* environmentDpiY = std::getenv("DALI_ENV_DPI_VERTICAL");
-  dpiVertical = environmentDpiY ? std::atoi(environmentDpiY) : 0;
-
-  if( dpiHorizontal == 0 || dpiVertical == 0 )
-  {
-    mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
-  }
+  mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
 }
 
 int WindowRenderSurface::GetOrientation() const
