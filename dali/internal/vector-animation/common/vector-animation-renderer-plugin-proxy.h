@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::Render()
    */
-  void Render( uint32_t frameNumber );
+  bool Render( uint32_t frameNumber );
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::GetTotalFrameNumber()
