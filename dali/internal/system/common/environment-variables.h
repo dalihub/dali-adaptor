@@ -118,6 +118,10 @@ namespace Adaptor
 
 #define DALI_ENV_WEB_ENGINE_NAME "DALI_WEB_ENGINE_NAME"
 
+#define DALI_ENV_DPI_HORIZONTAL "DALI_DPI_HORIZONTAL"
+
+#define DALI_ENV_DPI_VERTICAL "DALI_DPI_VERTICAL"
+
 } // namespace Adaptor
 
 } // namespace Internal
