@@ -181,6 +181,11 @@ std::string InputMethodContext::GetInputPanelLocale()
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelLocale();
 }
 
+void InputMethodContext::SetContentMIMETypes( const std::string& mimeTypes )
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetContentMIMETypes( mimeTypes );
+}
+
 bool InputMethodContext::FilterEventKey( const Dali::KeyEvent& keyEvent )
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).FilterEventKey( keyEvent );
@@ -235,6 +240,11 @@ InputMethodContext::LanguageChangedSignalType& InputMethodContext::LanguageChang
 InputMethodContext::KeyboardTypeSignalType& InputMethodContext::KeyboardTypeChangedSignal()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).KeyboardTypeChangedSignal();
+}
+
+InputMethodContext::ContentReceivedSignalType& InputMethodContext::ContentReceivedSignal()
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).ContentReceivedSignal();
 }
 
 InputMethodContext::InputMethodContext(Internal::Adaptor::InputMethodContext *impl)

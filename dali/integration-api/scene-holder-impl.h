@@ -116,6 +116,11 @@ public:
   void SetSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
+   * @brief Called when the surface set is resized.
+   */
+  void SurfaceResized();
+
+  /**
    * @brief Get the render surface
    * @return The render surface
    */
