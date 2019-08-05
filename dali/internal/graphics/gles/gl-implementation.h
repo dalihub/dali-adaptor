@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <GLES2/gl2.h>
 #include <dali/integration-api/gl-abstraction.h>
-#include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/gles-abstraction.h>
@@ -50,10 +49,7 @@ class GlImplementation : public Dali::Integration::GlAbstraction
 public:
   GlImplementation()
     : mGlesVersion( 30 ),
-      mIsSurfacelessContextSupported( false ),
-      mIsContextCreated( false ),
-      mContextCreatedWaitCondition(),
-      mMaxTextureSize( 0 )
+      mIsSurfacelessContextSupported( false )
   {
     mImpl.reset( new Gles3Implementation() );
   }
@@ -68,17 +64,6 @@ public:
   void PostRender()
   {
     /* Do nothing in main implementation */
-  }
-
-  void ContextCreated()
-  {
-    glGetIntegerv( GL_MAX_TEXTURE_SIZE, &mMaxTextureSize );
-
-    if( !mIsContextCreated )
-    {
-      mContextCreatedWaitCondition.Notify();
-    }
-    mIsContextCreated = true;
   }
 
   void SetGlesVersion( const int32_t glesVersion )
@@ -116,15 +101,6 @@ public:
       convert = ( convert && !isSubImage );
     }
     return convert;
-  }
-
-  int GetMaxTextureSize()
-  {
-    if( !mIsContextCreated )
-    {
-      mContextCreatedWaitCondition.Wait();
-    }
-    return mMaxTextureSize;
   }
 
   /* OpenGL ES 2.0 */
@@ -1364,9 +1340,6 @@ public:
 private:
   int32_t mGlesVersion;
   bool mIsSurfacelessContextSupported;
-  bool mIsContextCreated;
-  ConditionalWait mContextCreatedWaitCondition;
-  GLint mMaxTextureSize;
   std::unique_ptr<GlesAbstraction> mImpl;
 };
 

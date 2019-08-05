@@ -68,8 +68,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_window_system_ubuntu_x11_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ENABLE_NETWORK_LOGGING
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -126,8 +125,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ECORE_WAYLAND2
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -193,8 +191,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ECORE_WAYLAND2
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -259,8 +256,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ECORE_WAYLAND2
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -324,8 +320,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ECORE_WAYLAND2
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -392,8 +387,7 @@ LIBDALI_ADAPTOR_LA_SOURCES = \
                   $(adaptor_thread_common_src_files) \
                   $(devel_api_text_abstraction_src_files) \
                   $(static_libraries_glyphy_src_files) \
-                  $(static_libraries_libunibreak_src_files) \
-                  $(adaptor_dali_src_file)
+                  $(static_libraries_libunibreak_src_files)
 
 if ECORE_WAYLAND2
 LIBDALI_ADAPTOR_LA_SOURCES += \
@@ -414,6 +408,7 @@ LIBDALI_ADAPTOR_LA_SOURCES += \
 endif
 
 endif
+
 
 # Package doc
 package_doxy_dir = ../../../doc
