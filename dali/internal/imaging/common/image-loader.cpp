@@ -47,6 +47,8 @@ Integration::Log::Filter* gLogFilter = Debug::Filter::New( Debug::Concise, false
 
 static unsigned int gMaxTextureSize = 4096;
 
+static bool gMaxTextureSizeUpdated = false;
+
 /**
  * Enum for file formats, has to be in sync with BITMAP_LOADER_LOOKUP_TABLE
  */
@@ -418,11 +420,17 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
 void SetMaxTextureSize( unsigned int size )
 {
   gMaxTextureSize = size;
+  gMaxTextureSizeUpdated = true;
 }
 
 unsigned int GetMaxTextureSize()
 {
   return gMaxTextureSize;
+}
+
+bool MaxTextureSizeUpdated()
+{
+  return gMaxTextureSizeUpdated;
 }
 
 } // ImageLoader

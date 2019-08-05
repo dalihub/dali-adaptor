@@ -95,6 +95,13 @@ void SetMaxTextureSize( unsigned int size );
  */
 unsigned int GetMaxTextureSize();
 
+/**
+ * @brief Check the gMaxTextureSize is updated or not.
+ *
+ * @return Whether the gMaxTextureSize is updated or not.
+ */
+bool MaxTextureSizeUpdated();
+
 } // ImageLoader
 } // TizenPlatform
 } // Dali
