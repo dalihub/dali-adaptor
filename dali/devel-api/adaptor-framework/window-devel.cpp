@@ -55,6 +55,11 @@ KeyEventSignalType& KeyEventSignal( Window window )
   return GetImplementation( window ).KeyEventSignal();
 }
 
+KeyEventGeneratedSignalType& KeyEventGeneratedSignal( Window window )
+{
+  return GetImplementation( window ).KeyEventGeneratedSignal();
+}
+
 TouchSignalType& TouchSignal( Window window )
 {
   return GetImplementation( window ).TouchSignal();
