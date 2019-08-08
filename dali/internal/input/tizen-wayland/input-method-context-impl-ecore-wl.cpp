@@ -127,7 +127,7 @@ void Commit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     inputMethodContext->CommitReceived( data, imfContext, eventInfo );
   }
 }
@@ -136,7 +136,7 @@ void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     inputMethodContext->PreEditChanged( data, imfContext, eventInfo );
   }
 }
@@ -145,7 +145,7 @@ Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     return inputMethodContext->RetrieveSurrounding( data, imfContext, text, cursorPosition );
   }
   else
@@ -160,7 +160,7 @@ void InputPanelStateChangeCallback( void* data, Ecore_IMF_Context* context, int 
   {
     return;
   }
-  InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+  InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
   switch (value)
   {
     case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
@@ -190,7 +190,7 @@ void InputPanelLanguageChangeCallback( void* data, Ecore_IMF_Context* context, i
   {
     return;
   }
-  InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+  InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
   // Emit the signal that the language has changed
   inputMethodContext->LanguageChangedSignal().Emit(value);
 }
@@ -201,7 +201,7 @@ void InputPanelGeometryChangedCallback ( void *data, Ecore_IMF_Context *context,
   {
     return;
   }
-  InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+  InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
   // Emit signal that the keyboard is resized
   inputMethodContext->ResizedSignal().Emit(value);
 }
@@ -213,7 +213,7 @@ void InputPanelKeyboardTypeChangedCallback( void *data, Ecore_IMF_Context *conte
     return;
   }
 
-  InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+  InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
   switch (value)
   {
     case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
@@ -239,7 +239,7 @@ void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *even
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     inputMethodContext->DeleteSurrounding( data, imfContext, eventInfo );
   }
 }
@@ -251,7 +251,7 @@ void PrivateCommand( void *data, Ecore_IMF_Context *imfContext, void *eventInfo 
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     inputMethodContext->SendPrivateCommand( data, imfContext, eventInfo );
   }
 }
@@ -263,7 +263,7 @@ void CommitContent( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
-    InputMethodContextEcoreWl* inputMethodContext = reinterpret_cast< InputMethodContextEcoreWl* > ( data );
+    InputMethodContextEcoreWl* inputMethodContext = static_cast< InputMethodContextEcoreWl* >( data );
     inputMethodContext->SendCommitContent( data, imfContext, eventInfo );
   }
 }
@@ -487,7 +487,7 @@ void InputMethodContextEcoreWl::SetRestoreAfterFocusLost( bool toggle )
 void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::PreEditChanged\n" );
-  auto context = reinterpret_cast<Ecore_IMF_Context*>(imfContext);
+  auto context = static_cast<Ecore_IMF_Context*>( imfContext );
 
   char* preEditString( NULL );
   int cursorPosition( 0 );
@@ -601,8 +601,21 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding( void* data, ImfContext* imf
   {
     if( text )
     {
+      const char* plainText = callbackData.currentText.c_str();
+      if( plainText )
+      {
+        // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
+        if( ecore_imf_context_input_hint_get( mIMFContext ) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA )
+        {
+          char* iter = NULL;
+          for( iter = const_cast<char*>( plainText ); iter && *iter; ++iter )
+          {
+            *iter = '*';
+          }
+        }
+      }
       // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
-      *text = strdup( callbackData.currentText.c_str() );
+      *text = strdup( plainText );
     }
 
     if( cursorPosition )
