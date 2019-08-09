@@ -80,7 +80,7 @@ void Commit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
-    InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
+    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
     inputMethodContext->CommitReceived( data, imfContext, eventInfo );
   }
 }
@@ -89,7 +89,7 @@ void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
 {
   if ( data )
   {
-    InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
+    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
     inputMethodContext->PreEditChanged( data, imfContext, eventInfo );
   }
 }
@@ -98,7 +98,7 @@ Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char
 {
   if ( data )
   {
-    InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
+    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
     return inputMethodContext->RetrieveSurrounding( data, imfContext, text, cursorPosition );
   }
   else
@@ -115,7 +115,7 @@ void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *even
 {
   if ( data )
   {
-    InputMethodContextX* inputMethodContext = reinterpret_cast< InputMethodContextX* > ( data );
+    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
     inputMethodContext->DeleteSurrounding( data, imfContext, eventInfo );
   }
 }
@@ -317,7 +317,7 @@ void InputMethodContextX::SetRestoreAfterFocusLost( bool toggle )
 void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* eventInfo )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::PreEditChanged\n" );
-  auto context = reinterpret_cast<Ecore_IMF_Context*>(imfContext);
+  auto context = static_cast<Ecore_IMF_Context*>( imfContext );
 
   char* preEditString( NULL );
   int cursorPosition( 0 );
