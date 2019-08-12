@@ -287,6 +287,10 @@ void SceneHolder::FeedTouchPoint( Dali::Integration::Point& point, int timeStamp
   {
     DALI_LOG_INFO( gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
 
+    // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
+    // Keep the handle alive until the core events are processed.
+    Dali::BaseHandle sceneHolder( this );
+
     // First the touch and/or hover event & related gesture events are queued
     if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth )
     {
@@ -305,6 +309,10 @@ void SceneHolder::FeedTouchPoint( Dali::Integration::Point& point, int timeStamp
 
 void SceneHolder::FeedWheelEvent( Dali::Integration::WheelEvent& wheelEvent )
 {
+  // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
+  // Keep the handle alive until the core events are processed.
+  Dali::BaseHandle sceneHolder( this );
+
   mScene.QueueEvent( wheelEvent );
   mAdaptor->ProcessCoreEvents();
 }
@@ -319,6 +327,10 @@ void SceneHolder::FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent )
       GetImplementation( physicalKeyboard ).KeyReceived( keyEvent.time > 1 );
     }
   }
+
+  // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
+  // Keep the handle alive until the core events are processed.
+  Dali::BaseHandle sceneHolder( this );
 
   // Create send KeyEvent to Core.
   mScene.QueueEvent( keyEvent );

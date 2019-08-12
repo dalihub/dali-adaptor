@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,8 +105,9 @@ public:
    * @brief Renders the content to the target buffer synchronously.
    *
    * @param[in] frameNumber The frame number to be rendered
+   * @return True if the rendering success, false otherwise.
    */
-  void Render( uint32_t frameNumber );
+  bool Render( uint32_t frameNumber );
 
   /**
    * @brief Gets the total number of frames of the file
