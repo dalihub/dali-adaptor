@@ -114,6 +114,7 @@ void WindowRenderSurface::Initialize( Any surface )
   if( mScreenRotationAngle != 0 )
   {
     mScreenRotationFinished = false;
+    mResizeFinished = false;
   }
 }
 
@@ -144,12 +145,6 @@ void WindowRenderSurface::SetTransparency( bool transparent )
 
 void WindowRenderSurface::RequestRotation( int angle, int width, int height )
 {
-  if( !mRotationSupported )
-  {
-    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: Rotation is not supported!\n" );
-    return;
-  }
-
   if( !mRotationTrigger )
   {
     TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
@@ -194,6 +189,11 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   {
     mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
   }
+}
+
+int WindowRenderSurface::GetOrientation() const
+{
+  return mWindowBase->GetOrientation();
 }
 
 void WindowRenderSurface::InitializeGraphics()
@@ -348,11 +348,11 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
 
   if( resizingSurface )
   {
+    int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
+
     // Window rotate or screen rotate
     if( !mRotationFinished || !mScreenRotationFinished )
     {
-      int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
-
       mWindowBase->SetEglWindowRotation( totalAngle );
       mWindowBase->SetEglWindowBufferTransform( totalAngle );
 
@@ -369,9 +369,23 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
     }
 
     // Resize case
-    if( !mResizeFinished )
+    if ( !mResizeFinished )
     {
-      mWindowBase->ResizeEglWindow( mPositionSize );
+      Dali::PositionSize positionSize;
+      positionSize.x = mPositionSize.x;
+      positionSize.y = mPositionSize.y;
+      if( totalAngle == 0 || totalAngle == 180 )
+      {
+        positionSize.width = mPositionSize.width;
+        positionSize.height = mPositionSize.height;
+      }
+      else
+      {
+        positionSize.width = mPositionSize.height;
+        positionSize.height = mPositionSize.width;
+      }
+
+      mWindowBase->ResizeEglWindow( positionSize );
       mResizeFinished = true;
 
       DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
@@ -478,6 +492,7 @@ void WindowRenderSurface::OutputTransformed()
   {
     mScreenRotationAngle = screenRotationAngle;
     mScreenRotationFinished = false;
+    mResizeFinished = false;
 
     mOutputTransformedSignal.Emit();
 
