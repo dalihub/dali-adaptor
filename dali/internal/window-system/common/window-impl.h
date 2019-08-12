@@ -457,22 +457,27 @@ public: // Signals
   /**
    * @copydoc Dali::Window::SignalEventProcessingFinished()
    */
-  Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal() { return mScene.EventProcessingFinishedSignal(); };
+  Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal() { return mScene.EventProcessingFinishedSignal(); }
 
   /**
    * @copydoc Dali::Window::KeyEventSignal()
    */
-  Dali::DevelWindow::KeyEventSignalType& KeyEventSignal() { return mScene.KeyEventSignal(); };
+  Dali::DevelWindow::KeyEventSignalType& KeyEventSignal() { return mScene.KeyEventSignal(); }
+
+  /**
+   * @copydoc Dali::Window::KeyEventGeneratedSignal()
+   */
+  Dali::DevelWindow::KeyEventGeneratedSignalType& KeyEventGeneratedSignal() { return mScene.KeyEventGeneratedSignal(); }
 
   /**
     * @copydoc Dali::Window::TouchSignal()
     */
-  Dali::DevelWindow::TouchSignalType& TouchSignal() { return mScene.TouchSignal(); };
+  Dali::DevelWindow::TouchSignalType& TouchSignal() { return mScene.TouchSignal(); }
 
   /**
    * @copydoc Dali::Window::WheelEventSignal()
    */
-  Dali::DevelWindow::WheelEventSignalType& WheelEventSignal() { return mScene.WheelEventSignal(); };
+  Dali::DevelWindow::WheelEventSignalType& WheelEventSignal() { return mScene.WheelEventSignal(); }
 
 private:
 
