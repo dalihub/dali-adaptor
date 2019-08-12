@@ -493,8 +493,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  eglGraphics->GetGlesInterface().ContextCreated();
-
   // Tell core it has a context
   mCore.ContextCreated();
 
