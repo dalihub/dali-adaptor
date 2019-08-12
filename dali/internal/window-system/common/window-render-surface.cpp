@@ -32,6 +32,7 @@
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 
 namespace Dali
@@ -179,11 +180,11 @@ PositionSize WindowRenderSurface::GetPositionSize() const
 
 void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  const char* environmentDpiX = std::getenv("DALI_ENV_DPI_HORIZONTAL");
-  dpiHorizontal = environmentDpiX ? std::atoi(environmentDpiX) : 0;
+  const char* environmentDpiHorizontal = std::getenv( DALI_ENV_DPI_HORIZONTAL );
+  dpiHorizontal = environmentDpiHorizontal ? std::atoi( environmentDpiHorizontal ) : 0;
 
-  const char* environmentDpiY = std::getenv("DALI_ENV_DPI_VERTICAL");
-  dpiVertical = environmentDpiY ? std::atoi(environmentDpiY) : 0;
+  const char* environmentDpiVertical = std::getenv( DALI_ENV_DPI_VERTICAL );
+  dpiVertical = environmentDpiVertical ? std::atoi( environmentDpiVertical ) : 0;
 
   if( dpiHorizontal == 0 || dpiVertical == 0 )
   {
