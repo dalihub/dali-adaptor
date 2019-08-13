@@ -145,6 +145,11 @@ void NativeImageSourceQueueTizen::Initialize( Dali::NativeImageSourceQueue::Colo
     }
 
     mTbmQueue = tbm_surface_queue_create( TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, format, 0 );
+    if( !mTbmQueue )
+    {
+      DALI_LOG_ERROR( "NativeImageSourceQueueTizen::Initialize: tbm_surface_queue_create is failed! [%p]\n", mTbmQueue );
+      return;
+    }
 
     mOwnTbmQueue = true;
   }

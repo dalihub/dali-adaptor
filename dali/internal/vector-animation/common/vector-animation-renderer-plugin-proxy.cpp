@@ -125,14 +125,6 @@ void VectorAnimationRendererPluginProxy::SetSize( uint32_t width, uint32_t heigh
   }
 }
 
-void VectorAnimationRendererPluginProxy::StopRender()
-{
-  if( mPlugin )
-  {
-    mPlugin->StopRender();
-  }
-}
-
 bool VectorAnimationRendererPluginProxy::Render( uint32_t frameNumber )
 {
   if( mPlugin )

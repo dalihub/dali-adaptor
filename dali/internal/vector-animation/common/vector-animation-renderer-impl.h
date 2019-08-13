@@ -67,11 +67,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @copydoc Dali::VectorAnimationRenderer::StopRender()
-   */
-  void StopRender();
-
-  /**
    * @copydoc Dali::VectorAnimationRenderer::Render()
    */
   bool Render( uint32_t frameNumber );

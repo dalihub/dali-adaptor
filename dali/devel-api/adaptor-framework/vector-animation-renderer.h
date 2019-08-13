@@ -97,11 +97,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @brief Stops the rendering.
-   */
-  void StopRender();
-
-  /**
    * @brief Renders the content to the target buffer synchronously.
    *
    * @param[in] frameNumber The frame number to be rendered
