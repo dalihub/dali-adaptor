@@ -77,6 +77,7 @@ Window::Window()
   mOpaqueState( false ),
   mResizeEnabled( false ),
   mType( Dali::Window::NORMAL ),
+  mParentWindow( NULL ),
   mPreferredOrientation( Dali::Window::PORTRAIT ),
   mRotationAngle( 0 ),
   mWindowWidth( 0 ),
@@ -691,6 +692,33 @@ Dali::Window Window::Get( Dali::Actor actor )
   }
 
   return Dali::Window( windowImpl );
+}
+
+
+void Window::SetParent( Dali::Window& parent )
+{
+  if ( DALI_UNLIKELY( parent ) )
+  {
+    mParentWindow = parent;
+    Dali::Window grandParent = Dali::DevelWindow::GetParent( parent );
+    // check circular parent window setting
+    if ( DALI_UNLIKELY( grandParent ) && mWindowBase->IsMatchedWindow( grandParent.GetNativeHandle() ) )
+    {
+      Dali::DevelWindow::Unparent( parent );
+    }
+    mWindowBase->SetParent( parent.GetNativeHandle() );
+  }
+}
+
+void Window::Unparent()
+{
+  Any parent;
+  mWindowBase->SetParent( parent );
+}
+
+Dali::Window Window::GetParent()
+{
+  return mParentWindow;
 }
 
 } // Adaptor

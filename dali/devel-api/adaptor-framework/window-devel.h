@@ -127,6 +127,33 @@ DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
  */
 DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
 
+/**
+ * @brief Sets parent window of the window.
+ *
+ * After setting that, these windows do together when raise-up, lower and iconified/deiconified.
+ *
+ * @param[in] window The window instance
+ * @param[in] parent The parent window instance
+ */
+DALI_ADAPTOR_API void SetParent( Window window, Window parent );
+
+/**
+ * @brief Unsets parent window of the window.
+ *
+ * After unsetting, the window is disconnected his parent window.
+ *
+ * @param[in] window The window instance
+ */
+DALI_ADAPTOR_API void Unparent( Window window );
+
+/**
+ * @brief Gets parent window of the window.
+ *
+ * @param[in] window The window instance
+ * @return The parent window of the window
+ */
+DALI_ADAPTOR_API Window GetParent( Window window );
+
 } // namespace DevelWindow
 
 } // namespace Dali
