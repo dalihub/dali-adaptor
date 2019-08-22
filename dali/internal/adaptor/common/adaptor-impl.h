@@ -313,6 +313,11 @@ public: // AdaptorInternalServices implementation
    */
   Dali::WindowContainer GetWindows() const;
 
+  /**
+   * @copydoc Dali::Adaptor::GetSceneHolders()
+   */
+  Dali::SceneHolderList GetSceneHolders() const;
+
 public:
 
   /**
@@ -650,7 +655,7 @@ private: // Data
 
   AdaptorSignalType                     mResizedSignal;               ///< Resized signal.
   AdaptorSignalType                     mLanguageChangedSignal;       ///< Language changed signal.
-  WindowCreatedSignalType               mWindowCreatedSignal;         ///< Window created signal.
+  WindowCreatedSignalType               mWindowCreatedSignal;    ///< Window created signal.
 
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor
