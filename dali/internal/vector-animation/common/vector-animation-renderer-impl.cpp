@@ -95,6 +95,11 @@ void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height 
   mPlugin.GetDefaultSize( width, height );
 }
 
+Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
+{
+  return mPlugin.UploadCompletedSignal();
+}
+
 } // namespace Adaptor
 
 } // namespace internal
