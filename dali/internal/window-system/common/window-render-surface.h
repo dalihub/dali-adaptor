@@ -251,6 +251,9 @@ private: // Data
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
 
+  uint32_t                        mDpiHorizontal;
+  uint32_t                        mDpiVertical;
+
 }; // class WindowRenderSurface
 
 } // namespace Adaptor

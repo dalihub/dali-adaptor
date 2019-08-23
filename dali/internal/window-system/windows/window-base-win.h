@@ -336,6 +336,16 @@ public:
    */
   virtual void SetTransparency( bool transparent ) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
+   */
+  virtual void SetParent( Any parent ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsMatchedWindow()
+   */
+  virtual bool IsMatchedWindow( Any window ) override;
+
 private:
 
   /**

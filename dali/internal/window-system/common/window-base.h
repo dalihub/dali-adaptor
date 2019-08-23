@@ -328,6 +328,17 @@ public:
    */
   virtual void SetTransparency( bool transparent ) = 0;
 
+  /**
+   * @copydoc Dali::Window::SetParent()
+   */
+  virtual void SetParent( Any parent ) = 0;
+
+  /**
+   * @brief Check whether the window is matched or not.
+   * @return The result of matched.
+   */
+  virtual bool IsMatchedWindow( Any window ) = 0;
+
   // Signals
 
   /**

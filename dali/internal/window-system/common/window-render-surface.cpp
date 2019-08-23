@@ -32,6 +32,7 @@
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 
 namespace Dali
@@ -71,7 +72,9 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true )
+  mResizeFinished( true ),
+  mDpiHorizontal( 0 ),
+  mDpiVertical( 0 )
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -184,7 +187,22 @@ PositionSize WindowRenderSurface::GetPositionSize() const
 
 void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
 {
-  mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
+  if( mDpiHorizontal == 0 || mDpiVertical == 0 )
+  {
+    const char* environmentDpiHorizontal = std::getenv( DALI_ENV_DPI_HORIZONTAL );
+    mDpiHorizontal = environmentDpiHorizontal ? std::atoi( environmentDpiHorizontal ) : 0;
+
+    const char* environmentDpiVertical = std::getenv( DALI_ENV_DPI_VERTICAL );
+    mDpiVertical = environmentDpiVertical ? std::atoi( environmentDpiVertical ) : 0;
+
+    if( mDpiHorizontal == 0 || mDpiVertical == 0 )
+    {
+      mWindowBase->GetDpi( mDpiHorizontal, mDpiVertical );
+    }
+  }
+
+  dpiHorizontal = mDpiHorizontal;
+  dpiVertical = mDpiVertical;
 }
 
 void WindowRenderSurface::InitializeGraphics()

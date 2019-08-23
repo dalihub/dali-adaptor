@@ -333,6 +333,21 @@ public:
    */
   static Dali::Window Get( Dali::Actor actor );
 
+  /**
+   * @copydoc Dali::DevelWindow::SetParent()
+   */
+  void SetParent( Dali::Window& parent );
+
+  /**
+   * @copydoc Dali::DevelWindow::Unparent()
+   */
+  void Unparent();
+
+  /**
+   * @copydoc Dali::DevelWindow::GetParent()
+   */
+  Dali::Window GetParent();
+
 public: // Dali::Internal::Adaptor::SceneHolder
 
   /**
@@ -491,6 +506,7 @@ private:
   bool                                  mOpaqueState:1;
   bool                                  mResizeEnabled:1;
   Dali::Window::Type                    mType;
+  Dali::Window                          mParentWindow;
 
   OrientationPtr                               mOrientation;
   std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
