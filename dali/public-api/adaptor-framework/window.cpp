@@ -189,7 +189,13 @@ Any Window::GetNativeHandle() const
 
 Window::FocusSignalType& Window::FocusChangedSignal()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: FocusChangedSignal is deprecated and will be removed from next release.\n" );
   return GetImplementation(*this).FocusChangedSignal();
+}
+
+Window::FocusChangeSignalType& Window::FocusChangeSignal()
+{
+  return GetImplementation(*this).FocusChangeSignal();
 }
 
 void Window::SetAcceptFocus( bool accept )
@@ -309,7 +315,13 @@ int Window::GetBrightness() const
 
 Window::ResizedSignalType& Window::ResizedSignal()
 {
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal is deprecated and will be removed from next release.\n" );
   return GetImplementation(*this).ResizedSignal();
+}
+
+Window::ResizeSignalType& Window::ResizeSignal()
+{
+  return GetImplementation(*this).ResizeSignal();
 }
 
 void Window::SetSize( Window::WindowSize size )

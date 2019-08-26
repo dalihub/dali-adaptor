@@ -80,6 +80,10 @@ Window GetParent( Window window )
   return GetImplementation( window ).GetParent();
 }
 
+Window DownCast( BaseHandle handle )
+{
+  return Window( dynamic_cast<Dali::Internal::Adaptor::Window*>( handle.GetObjectPtr()) );
+}
 } // namespace DevelWindow
 
 } // namespace Dali

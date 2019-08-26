@@ -68,9 +68,10 @@ public:
   typedef Uint16Pair WindowPosition;      ///< Window position type @SINCE_1_2.60
 
   typedef Signal< void (bool) > IndicatorSignalType;  ///< @DEPRECATED_1_4.9 @brief Indicator state signal type @SINCE_1_0.0
-  typedef Signal< void (bool) > FocusSignalType;         ///< Window focus signal type @SINCE_1_2.60
-  typedef Signal< void (WindowSize) > ResizedSignalType; ///< Window resized signal type @SINCE_1_2.60
-
+  typedef Signal< void (bool) > FocusSignalType;         ///< @DEPRECATED_1_4.35 @brief Window focus signal type @SINCE_1_2.60
+  typedef Signal< void (WindowSize) > ResizedSignalType; ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
+  typedef Signal< void (Window,bool) > FocusChangeSignalType;         ///< Window focus signal type @SINCE_1_4.35
+  typedef Signal< void (Window,WindowSize) > ResizeSignalType; ///< Window resized signal type @SINCE_1_4.35
 public:
 
   // Enumerations
@@ -637,6 +638,7 @@ public: // Signals
   IndicatorSignalType& IndicatorVisibilityChangedSignal() DALI_DEPRECATED_API;
 
   /**
+   * @DEPRECATED_1_4.35
    * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
    *
    * A callback of the following type may be connected:
@@ -648,7 +650,7 @@ public: // Signals
    * @SINCE_1_2.60
    * @return The signal to connect to
    */
-  FocusSignalType& FocusChangedSignal();
+  FocusSignalType& FocusChangedSignal() DALI_DEPRECATED_API;
 
   /**
    * @brief This signal is emitted when the window is resized.
@@ -662,7 +664,37 @@ public: // Signals
    * @SINCE_1_2.60
    * @return The signal to connect to
    */
-  ResizedSignalType& ResizedSignal();
+  ResizedSignalType& ResizedSignal() DALI_DEPRECATED_API;
+
+  /**
+   * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( Window window, bool focusIn );
+   * @endcode
+   * The parameter is true if window gains focus, otherwise false.
+   * and window means this signal was called from what window
+   *
+   * @SINCE_1_4.35
+   * @return The signal to connect to
+   */
+  FocusChangeSignalType& FocusChangeSignal();
+
+  /**
+   * @brief This signal is emitted when the window is resized.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( Window window, int width, int height );
+   * @endcode
+   * The parameters are the resized width and height.
+   * and window means this signal was called from what window
+   *
+   * @SINCE_1_4.35
+   * @return The signal to connect to
+   */
+  ResizeSignalType& ResizeSignal();
 
 public: // Not intended for application developers
   /// @cond internal
