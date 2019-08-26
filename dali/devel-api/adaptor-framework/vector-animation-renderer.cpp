@@ -89,4 +89,9 @@ void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height 
   GetImplementation( *this ).GetDefaultSize( width, height );
 }
 
+VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
+{
+  return GetImplementation( *this ).UploadCompletedSignal();
+}
+
 } // namespace Dali

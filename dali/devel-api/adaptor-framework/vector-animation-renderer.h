@@ -47,6 +47,9 @@ class DALI_ADAPTOR_API VectorAnimationRenderer : public BaseHandle
 {
 public:
 
+  /// @brief UploadCompleted signal type.
+  using UploadCompletedSignalType = Signal< void () >;
+
   /**
    * @brief Creates an initialized handle to a new VectorAnimationRenderer.
    *
@@ -126,6 +129,13 @@ public:
   void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
 
 public: // Signals
+
+  /**
+   * @brief Connect to this signal to be notified when the texture upload is completed.
+   *
+   * @return The signal to connect to.
+   */
+  UploadCompletedSignalType& UploadCompletedSignal();
 
 public: // Not intended for application developers
 

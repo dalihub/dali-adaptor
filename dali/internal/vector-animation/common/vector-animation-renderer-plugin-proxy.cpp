@@ -43,7 +43,8 @@ VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy( const st
 : mSharedObjectName(),
   mLibHandle( NULL ),
   mPlugin( NULL ),
-  mCreateVectorAnimationRendererPtr( NULL )
+  mCreateVectorAnimationRendererPtr( NULL ),
+  mDefaultSignal()
 {
   if( !sharedObjectName.empty() )
   {
@@ -158,6 +159,15 @@ void VectorAnimationRendererPluginProxy::GetDefaultSize( uint32_t& width, uint32
   {
     mPlugin->GetDefaultSize( width, height );
   }
+}
+
+VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
+{
+  if( mPlugin )
+  {
+    return mPlugin->UploadCompletedSignal();
+  }
+  return mDefaultSignal;
 }
 
 } // namespace Adaptor
