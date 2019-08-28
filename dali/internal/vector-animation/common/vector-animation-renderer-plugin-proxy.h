@@ -63,11 +63,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @copydoc Dali::VectorAnimationRendererPlugin::StopRender()
-   */
-  void StopRender();
-
-  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::Render()
    */
   bool Render( uint32_t frameNumber );
@@ -86,6 +81,11 @@ public:
    * @copydoc Dali::VectorAnimationRendererPlugin::GetDefaultSize()
    */
   void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()
+   */
+  VectorAnimationRendererPlugin::UploadCompletedSignalType& UploadCompletedSignal();
 
   // Not copyable or movable
   VectorAnimationRendererPluginProxy( const VectorAnimationRendererPluginProxy& ) = delete; ///< Deleted copy constructor
@@ -109,6 +109,7 @@ private:
   Dali::VectorAnimationRendererPlugin*   mPlugin;             ///< Plugin handle
 
   CreateVectorAnimationRendererFunction  mCreateVectorAnimationRendererPtr;   ///< Function pointer called in adaptor to create a plugin instance
+  VectorAnimationRendererPlugin::UploadCompletedSignalType mDefaultSignal;
 
 };
 

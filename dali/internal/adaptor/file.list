@@ -7,7 +7,8 @@ adaptor_adaptor_common_src_files=\
     ${adaptor_adaptor_dir}/common/adaptor.cpp \
     ${adaptor_adaptor_dir}/common/adaptor-builder-impl.cpp \
     ${adaptor_adaptor_dir}/common/application-impl.cpp \
-    ${adaptor_adaptor_dir}/common/combined-update-render-controller.cpp
+    ${adaptor_adaptor_dir}/common/combined-update-render-controller.cpp \
+    ${adaptor_adaptor_dir}/common/system-cache-path.cpp
 
 # module: adaptor, backend: tizen-wayland
 adaptor_adaptor_tizen_wayland_src_files=\

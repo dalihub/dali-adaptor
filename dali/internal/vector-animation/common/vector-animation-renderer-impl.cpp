@@ -75,11 +75,6 @@ void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
   mPlugin.SetSize( width, height );
 }
 
-void VectorAnimationRenderer::StopRender()
-{
-  mPlugin.StopRender();
-}
-
 bool VectorAnimationRenderer::Render( uint32_t frameNumber )
 {
   return mPlugin.Render( frameNumber );
@@ -98,6 +93,11 @@ float VectorAnimationRenderer::GetFrameRate() const
 void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
 {
   mPlugin.GetDefaultSize( width, height );
+}
+
+Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
+{
+  return mPlugin.UploadCompletedSignal();
 }
 
 } // namespace Adaptor

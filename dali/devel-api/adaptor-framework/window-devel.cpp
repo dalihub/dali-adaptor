@@ -70,6 +70,21 @@ WheelEventSignalType& WheelEventSignal( Window window )
   return GetImplementation( window ).WheelEventSignal();
 }
 
+void SetParent( Window window, Window parent )
+{
+  GetImplementation( window ).SetParent( parent );
+}
+
+void Unparent( Window window )
+{
+  GetImplementation( window ).Unparent();
+}
+
+Window GetParent( Window window )
+{
+  return GetImplementation( window ).GetParent();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

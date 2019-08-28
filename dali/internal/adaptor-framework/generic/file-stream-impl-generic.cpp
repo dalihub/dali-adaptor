@@ -106,19 +106,19 @@ std::iostream& FileStream::Impl::GetStream()
     return mBufferStream;
   }
 
-  std::ios_base::openmode openMode = std::ios::ate;
-  if( mMode & Dali::FileStream::BINARY )
-  {
-    openMode |= std::ios::binary;
-  }
-
+  std::ios_base::openmode openMode;
   if( mMode & Dali::FileStream::WRITE )
   {
-    openMode |= std::ios::out;
+    openMode = ( std::ios::out | std::ios::ate );
   }
   else
   {
-    openMode |= std::ios::in;
+    openMode = std::ios::in;
+  }
+
+  if( mMode & Dali::FileStream::BINARY )
+  {
+    openMode |= std::ios::binary;
   }
 
   if( !mFileName.empty() )

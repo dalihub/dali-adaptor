@@ -2132,6 +2132,37 @@ void WindowBaseEcoreWl::CreateWindow( PositionSize positionSize )
   }
 }
 
+void WindowBaseEcoreWl::SetParent( Any parent )
+{
+  Ecore_Wl_Window* mEcoreParent;
+  if( parent.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( parent.GetType() == typeid (Ecore_Wl_Window *) ) && "Parent's surface type is invalid" );
+    mEcoreParent = AnyCast< Ecore_Wl_Window* >( parent );
+  }
+  else
+  {
+    mEcoreParent = NULL;
+  }
+  ecore_wl_window_parent_set( mEcoreWindow, mEcoreParent );
+}
+
+bool WindowBaseEcoreWl::IsMatchedWindow( Any window )
+{
+  bool ret = false;
+  if ( window.Empty() == false )
+  {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( window.GetType() == typeid (Ecore_Wl_Window *) ) && "Window's surface type is invalid" );
+    if ( AnyCast< Ecore_Wl_Window* >( window ) == mEcoreWindow )
+    {
+      ret = true;
+    }
+  }
+  return ret;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

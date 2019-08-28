@@ -34,6 +34,8 @@
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/integration-api/processor-interface.h>
 
+#include <fstream>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/thread-controller.h>
@@ -65,8 +67,11 @@
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
 
+#include <dali/devel-api/adaptor-framework/file-stream.h>
 
 using Dali::TextAbstraction::FontClient;
+
+extern std::string GetSystemCachePath();
 
 namespace Dali
 {
@@ -284,6 +289,40 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
   }
+
+  std::string systemCachePath = GetSystemCachePath();
+  if ( systemCachePath.c_str() != NULL )
+  {
+    Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::READ | Dali::FileStream::TEXT );
+    std::fstream& stream = dynamic_cast<std::fstream&>( fileStream.GetStream() );
+    if( stream.is_open() )
+    {
+      std::string line;
+      while( std::getline( stream, line ) )
+      {
+        line.erase( line.find_last_not_of( " \t\r\n" ) + 1 );
+        line.erase( 0, line.find_first_not_of( " \t\r\n" ) );
+        if( '#' == *( line.cbegin() ) || line == "" )
+        {
+          continue;
+        }
+
+        std::istringstream stream( line );
+        std::string environmentVariableName, environmentVariableValue;
+        std::getline(stream, environmentVariableName, ' ');
+        if( environmentVariableName == "DALI_ENV_MAX_TEXTURE_SIZE" && mEnvironmentOptions->GetMaxTextureSize() == 0 )
+        {
+          std::getline(stream, environmentVariableValue);
+          setenv( environmentVariableName.c_str() , environmentVariableValue.c_str(), 1 );
+          Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( std::atoi( environmentVariableValue.c_str() ) );
+        }
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR( "Fail to open file : %s\n", ( systemCachePath + "gpu-environment.conf" ).c_str() );
+    }
+  }
 }
 
 Adaptor::~Adaptor()
@@ -352,6 +391,31 @@ void Adaptor::Start()
 
   // Initialize the thread controller
   mThreadController->Initialize();
+
+  if( !Dali::TizenPlatform::ImageLoader::MaxTextureSizeUpdated() )
+  {
+    auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
+    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mGLES.GetMaxTextureSize() );
+
+    std::string systemCachePath = GetSystemCachePath();
+    if( systemCachePath.c_str() != NULL )
+    {
+      const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
+      if (-1 == dir_err)
+      {
+          printf("Error creating directory!n");
+          exit(1);
+      }
+
+      Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::WRITE | Dali::FileStream::TEXT );
+      std::fstream& configFile = dynamic_cast<std::fstream&>( fileStream.GetStream() );
+      if( configFile.is_open() )
+      {
+        configFile << "DALI_ENV_MAX_TEXTURE_SIZE " << mGLES.GetMaxTextureSize() << std::endl;
+      }
+    }
+  }
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
