@@ -131,6 +131,8 @@ DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
  * @brief Sets parent window of the window.
  *
  * After setting that, these windows do together when raise-up, lower and iconified/deiconified.
+ * Initially, the window is located on top of the parent. The window can go below parent by calling Lower().
+ * If parent's window stack is changed by calling Raise() or Lower(), child windows are located on top of the parent again.
  *
  * @param[in] window The window instance
  * @param[in] parent The parent window instance

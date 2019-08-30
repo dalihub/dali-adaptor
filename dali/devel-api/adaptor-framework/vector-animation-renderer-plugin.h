@@ -22,6 +22,9 @@
 #include <dali/public-api/rendering/renderer.h>
 #include <string>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/vector-animation-renderer.h>
+
 namespace Dali
 {
 
@@ -33,6 +36,8 @@ namespace Dali
 class VectorAnimationRendererPlugin
 {
 public:
+
+  using UploadCompletedSignalType = Dali::VectorAnimationRenderer::UploadCompletedSignalType;
 
   /**
    * @brief Constructor
@@ -67,11 +72,6 @@ public:
   virtual void SetSize( uint32_t width, uint32_t height ) = 0;
 
   /**
-   * @brief Stops the rendering.
-   */
-  virtual void StopRender() = 0;
-
-  /**
    * @brief Renders the content to the target buffer synchronously.
    *
    * @param[in] frameNumber The frame number to be rendered
@@ -99,6 +99,13 @@ public:
    * @return The default size of the file
    */
   virtual void GetDefaultSize( uint32_t& width, uint32_t& height ) const = 0;
+
+  /**
+   * @brief Connect to this signal to be notified when the texture upload is completed.
+   *
+   * @return The signal to connect to.
+   */
+  virtual UploadCompletedSignalType& UploadCompletedSignal() = 0;
 
   /**
    * @brief Function pointer called in adaptor to create a plugin instance.

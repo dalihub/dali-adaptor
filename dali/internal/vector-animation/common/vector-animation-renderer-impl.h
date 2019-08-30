@@ -40,7 +40,7 @@ using VectorAnimationRendererPtr = IntrusivePtr< VectorAnimationRenderer >;
 /**
  * Dali internal VectorAnimationRenderer.
  */
-class VectorAnimationRenderer : public BaseObject
+class VectorAnimationRenderer : public BaseObject, public ConnectionTracker
 {
 public:
 
@@ -67,11 +67,6 @@ public:
   void SetSize( uint32_t width, uint32_t height );
 
   /**
-   * @copydoc Dali::VectorAnimationRenderer::StopRender()
-   */
-  void StopRender();
-
-  /**
    * @copydoc Dali::VectorAnimationRenderer::Render()
    */
   bool Render( uint32_t frameNumber );
@@ -90,6 +85,11 @@ public:
    * @copydoc Dali::VectorAnimationRenderer::GetDefaultSize()
    */
   void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::UploadCompletedSignal()
+   */
+  Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();
 
 private:
 
