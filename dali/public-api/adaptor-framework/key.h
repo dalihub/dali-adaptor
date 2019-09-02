@@ -1,5 +1,5 @@
-#ifndef DALI_KEY_H
-#define DALI_KEY_H
+#ifndef __DALI_KEY_H__
+#define __DALI_KEY_H__
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -97,4 +97,4 @@ DALI_ADAPTOR_API bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
  */
 } // namespace Dali
 
-#endif // DALI_KEY_H
+#endif // __DALI_KEY_H__
