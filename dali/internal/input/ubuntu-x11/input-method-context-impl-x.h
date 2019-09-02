@@ -39,21 +39,22 @@ namespace Internal
 namespace Adaptor
 {
 
-class InputMethodContextX : public Dali::Internal::Adaptor::InputMethodContext
+class InputMethodContextX : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
 public:
   /**
    * @brief Creates a new InputMethodContext handle
    *
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
    * @return InputMethodContext pointer
    */
-  static InputMethodContextPtr New();
+  static InputMethodContextPtr New( Dali::Actor actor );
 
   /**
    * Constructor
-   * @param[in] ecoreXwin, The window is created by application.
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
    */
-  explicit InputMethodContextX( Ecore_X_Window ecoreXwin );
+  explicit InputMethodContextX( Dali::Actor actor );
 
 public:
 
@@ -265,9 +266,8 @@ public:
 private:
   /**
    * Context created the first time and kept until deleted.
-   * @param[in] ecoreXwin, The window is created by application.
    */
-  void CreateContext( Ecore_X_Window ecoreXwin );
+  void CreateContext();
 
   /**
    * @copydoc Dali::InputMethodContext::DeleteContext()
@@ -306,6 +306,11 @@ private:
    * @return the Ecore_IMF_Keyboard_Locks output.
    */
   Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock( unsigned int modifier );
+
+  /**
+   * Called when the binded actor is added to a window.
+   */
+  void OnStaged( Dali::Actor actor );
 
 public:
 

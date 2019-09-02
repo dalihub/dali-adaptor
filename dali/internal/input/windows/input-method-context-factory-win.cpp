@@ -31,9 +31,9 @@ namespace InputMethodContextFactory
 {
 
 // InputMethodContext Factory to be implemented by the platform
-InputMethodContextPtr CreateInputMethodContext()
+InputMethodContextPtr CreateInputMethodContext( Dali::Actor actor )
 {
-  return Dali::Internal::Adaptor::InputMethodContextWin::New();
+  return Dali::Internal::Adaptor::InputMethodContextWin::New( actor );
 }
 
 }

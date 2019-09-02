@@ -167,6 +167,11 @@ public:
    */
   void FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent );
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::Get()
+   */
+  static Dali::Integration::SceneHolder Get( Dali::Actor actor );
+
 public: // The following methods can be overridden if required
 
   /**

@@ -308,6 +308,14 @@ public:
   Any GetNativeWindowHandle();
 
   /**
+   * @brief Retrieve native window handle that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return native window handle
+   */
+  Any GetNativeWindowHandle( Actor actor );
+
+  /**
    * @brief Get the native display associated with the graphics backend
    *
    * @return A handle to the native display

@@ -150,6 +150,14 @@ public:
    */
   void FeedKeyEvent( Dali::KeyEvent& keyEvent );
 
+  /**
+   * @brief Retrieve the SceneHolder that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return The SceneHolder the actor is added to or an empty handle if the actor is not added to any SceneHolder.
+   */
+  static SceneHolder Get( Actor actor );
+
 public: // Not intended for application developers
 
   /**
