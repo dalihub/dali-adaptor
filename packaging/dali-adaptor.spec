@@ -96,6 +96,11 @@ BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
+# for autofill
+%if 0%{?tizen_version_major} >= 5 && 0%{?tizen_version_minor} >= 5
+BuildRequires:  pkgconfig(capi-ui-autofill)
+%endif
+
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
@@ -283,6 +288,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 %configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
            --enable-tizen-major-version=%{tizen_version_major} \
+           --enable-tizen-minor-version=%{tizen_version_minor} \
            --enable-feedback \
            --enable-efl=no \
 %if 0%{?enable_debug}
@@ -319,6 +325,7 @@ make clean
 %configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=TV \
            --enable-tizen-major-version=%{tizen_version_major} \
+           --enable-tizen-minor-version=%{tizen_version_minor} \
            --enable-feedback \
            --enable-efl=no \
 %if 0%{?enable_debug}
@@ -354,6 +361,7 @@ make clean
 %configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
            --enable-tizen-major-version=%{tizen_version_major} \
+           --enable-tizen-minor-version=%{tizen_version_minor} \
            --enable-feedback \
            --enable-efl=no \
 %if 0%{?enable_debug}
@@ -389,6 +397,7 @@ make clean
 %configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=IVI \
            --enable-tizen-major-version=%{tizen_version_major} \
+           --enable-tizen-minor-version=%{tizen_version_minor} \
            --enable-feedback \
            --enable-efl=no \
 %if 0%{?enable_debug}
@@ -426,6 +435,7 @@ make clean
 %configure --prefix=$PREFIX --with-jpeg-turbo \
            --enable-shaderbincache=DISABLE --enable-profile=COMMON \
            --enable-tizen-major-version=%{tizen_version_major} \
+           --enable-tizen-minor-version=%{tizen_version_minor} \
            --enable-feedback \
            --enable-efl=no \
 %if 0%{?enable_debug}
