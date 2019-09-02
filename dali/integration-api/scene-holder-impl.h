@@ -118,7 +118,7 @@ public:
   /**
    * @brief Called when the surface set is resized.
    */
-  void SurfaceResized();
+  void SurfaceResized( bool forceUpdate );
 
   /**
    * @brief Get the render surface
