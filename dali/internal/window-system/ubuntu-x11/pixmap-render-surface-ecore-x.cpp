@@ -234,6 +234,16 @@ bool PixmapRenderSurfaceEcoreX::PreRender( bool )
   return true;
 }
 
+Rect<int32_t> PixmapRenderSurfaceEcoreX::SetDamagedRect( Rect<int32_t> damagedRect )
+{
+  return damagedRect;
+}
+
+int PixmapRenderSurfaceEcoreX::GetBufferAge()
+{
+  return 0;
+}
+
 void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);

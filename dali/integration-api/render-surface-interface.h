@@ -181,6 +181,16 @@ public:
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
 
+  /**
+   * @brief Sets currentframe updated/damaged rects
+   */
+  virtual Rect<int32_t> SetDamagedRect( Rect<int32_t> damagedRect ) = 0;
+
+  /**
+   * @brief Gets buffer age
+   */
+  virtual int32_t GetBufferAge() = 0;
+
 public:
 
   void SetAdaptor( Dali::Internal::Adaptor::AdaptorInternalServices& adaptor )
