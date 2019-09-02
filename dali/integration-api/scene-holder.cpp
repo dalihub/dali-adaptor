@@ -83,6 +83,11 @@ Vector4 SceneHolder::GetBackgroundColor() const
   return GetImplementation(*this).GetBackgroundColor();
 }
 
+Any SceneHolder::GetNativeHandle() const
+{
+  return GetImplementation(*this).GetNativeHandle();
+}
+
 void SceneHolder::FeedTouchPoint( Dali::TouchPoint& point, int timeStamp )
 {
   Integration::Point convertedPoint( point );
@@ -99,6 +104,11 @@ void SceneHolder::FeedKeyEvent( Dali::KeyEvent& keyEvent )
 {
   Integration::KeyEvent convertedEvent( keyEvent );
   GetImplementation(*this).FeedKeyEvent( convertedEvent );
+}
+
+SceneHolder SceneHolder::Get( Actor actor )
+{
+  return Internal::Adaptor::SceneHolder::Get( actor );
 }
 
 }// Integration

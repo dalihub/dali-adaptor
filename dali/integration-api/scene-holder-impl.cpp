@@ -337,6 +337,19 @@ void SceneHolder::FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent )
   mAdaptor->ProcessCoreEvents();
 }
 
+Dali::Integration::SceneHolder SceneHolder::Get( Dali::Actor actor )
+{
+  SceneHolder* sceneHolderImpl = nullptr;
+
+  if ( Internal::Adaptor::Adaptor::IsAvailable() )
+  {
+    Dali::Internal::Adaptor::Adaptor& adaptor = Internal::Adaptor::Adaptor::GetImplementation( Internal::Adaptor::Adaptor::Get() );
+    sceneHolderImpl = adaptor.GetWindow( actor );
+  }
+
+  return Dali::Integration::SceneHolder( sceneHolderImpl );
+}
+
 void SceneHolder::Reset()
 {
   mCombiner.Reset();

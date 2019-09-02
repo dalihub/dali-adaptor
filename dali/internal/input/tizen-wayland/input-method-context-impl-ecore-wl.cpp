@@ -35,6 +35,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/scene-holder.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
@@ -96,6 +97,8 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT");
 #endif
+
+const int kUninitializedWindowId = 0;
 
 // Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
 size_t Utf8SequenceLength(const unsigned char leadByte)
@@ -268,33 +271,41 @@ void CommitContent( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
   }
 }
 
+int GetWindowIdFromActor( Dali::Actor actor )
+{
+  int windowId = kUninitializedWindowId;
+
+  if( actor.OnStage() )
+  {
+    Any nativeWindowHandle = Dali::Integration::SceneHolder::Get( actor ).GetNativeHandle();
+
+#ifdef ECORE_WAYLAND2
+    windowId = ecore_wl2_window_id_get( AnyCast< Ecore_Wl2_Window* >( nativeWindowHandle ) );
+#else
+    windowId = ecore_wl_window_id_get( AnyCast< Ecore_Wl_Window* >( nativeWindowHandle ) );
+#endif
+  }
+
+  return windowId;
+}
+
 BaseHandle Create()
 {
-  return Dali::InputMethodContext::New();
+  return Dali::InputMethodContext::New( Dali::Actor() );
 }
 
 Dali::TypeRegistration type( typeid(Dali::InputMethodContext), typeid(Dali::BaseHandle), Create );
 
 } // unnamed namespace
 
-InputMethodContextPtr InputMethodContextEcoreWl::New()
+InputMethodContextPtr InputMethodContextEcoreWl::New( Dali::Actor actor )
 {
   InputMethodContextPtr inputMethodContext;
 
-  // Create instance only if the adaptor is available
-  if ( Dali::Adaptor::IsAvailable() )
+  // Create instance only if the adaptor is available and the valid actor exists
+  if ( actor && Dali::Adaptor::IsAvailable() )
   {
-    Any nativeWindow = Dali::Adaptor::Get().GetNativeWindowHandle();
-
-    // The window needs to use the InputMethodContext.
-    if( !nativeWindow.Empty() )
-    {
-      inputMethodContext = new InputMethodContextEcoreWl();
-    }
-    else
-    {
-      DALI_LOG_ERROR("Failed to get native window handle, can't create InputMethodContext instance.\n");
-    }
+    inputMethodContext = new InputMethodContextEcoreWl( actor );
   }
   return inputMethodContext;
 }
@@ -307,14 +318,17 @@ void InputMethodContextEcoreWl::Finalize()
   DeleteContext();
 }
 
-InputMethodContextEcoreWl::InputMethodContextEcoreWl()
+InputMethodContextEcoreWl::InputMethodContextEcoreWl( Dali::Actor actor )
 : mIMFContext(),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false )
+  mIdleCallbackConnected( false ),
+  mWindowId( GetWindowIdFromActor( actor ) )
 {
   ecore_imf_init();
+
+  actor.OnStageSignal().Connect( this, &InputMethodContextEcoreWl::OnStaged );
 }
 
 InputMethodContextEcoreWl::~InputMethodContextEcoreWl()
@@ -333,6 +347,11 @@ void InputMethodContextEcoreWl::CreateContext()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContext::CreateContext\n" );
 
+  if( mWindowId == kUninitializedWindowId )
+  {
+    return;
+  }
+
   const char *contextId = ecore_imf_context_default_id_get();
   if( contextId )
   {
@@ -340,30 +359,16 @@ void InputMethodContextEcoreWl::CreateContext()
 
     if( mIMFContext )
     {
-      // If we fail to get window id, we can't use the InputMethodContext correctly.
-      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-
-      Any nativeWindowHandle = Dali::Adaptor::Get().GetNativeWindowHandle();
-
-#ifdef ECORE_WAYLAND2
-      int windowId = ecore_wl2_window_id_get( AnyCast< Ecore_Wl2_Window* >( nativeWindowHandle ) );
-#else
-      int windowId = ecore_wl_window_id_get( AnyCast< Ecore_Wl_Window* >( nativeWindowHandle ) );
-#endif
-
-      if( windowId != 0 )
-      {
-        ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast< void* >( windowId ) );
-      }
+      ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast< void* >( mWindowId ) );
     }
     else
     {
-      DALI_LOG_WARNING("InputMethodContext Unable to get IMFContext\n");
+      DALI_LOG_WARNING( "InputMethodContext Unable to get IMFContext\n" );
     }
   }
   else
   {
-    DALI_LOG_WARNING("InputMethodContext Unable to get IMFContext\n");
+    DALI_LOG_WARNING( "InputMethodContext Unable to get IMFContext\n" );
   }
 }
 
@@ -722,11 +727,14 @@ const std::string& InputMethodContextEcoreWl::GetSurroundingText() const
 
 void InputMethodContextEcoreWl::NotifyTextInputMultiLine( bool multiLine )
 {
-  Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
-  ecore_imf_context_input_hint_set( mIMFContext,
-                                    static_cast< Ecore_IMF_Input_Hints >( multiLine ?
-                                      (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
-                                      (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+  if( mIMFContext )
+  {
+    Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
+    ecore_imf_context_input_hint_set( mIMFContext,
+                                      static_cast< Ecore_IMF_Input_Hints >( multiLine ?
+                                        (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
+                                        (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
+  }
 }
 
 Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
@@ -1194,6 +1202,20 @@ Ecore_IMF_Keyboard_Locks InputMethodContextEcoreWl::EcoreInputModifierToEcoreIMF
     }
 
     return static_cast<Ecore_IMF_Keyboard_Locks>( lock );
+}
+
+void InputMethodContextEcoreWl::OnStaged( Dali::Actor actor )
+{
+  int windowId = GetWindowIdFromActor( actor );
+
+  if( mWindowId != windowId )
+  {
+    mWindowId = windowId;
+
+    // Reset
+    Finalize();
+    Initialize();
+  }
 }
 
 } // Adaptor

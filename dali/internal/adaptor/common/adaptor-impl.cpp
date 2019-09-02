@@ -799,6 +799,24 @@ Any Adaptor::GetNativeWindowHandle()
   return mWindows.front()->GetNativeHandle();
 }
 
+Any Adaptor::GetNativeWindowHandle( Dali::Actor actor )
+{
+  Any nativeWindowHandle;
+
+  Dali::Integration::Scene scene = Dali::Integration::Scene::Get( actor );
+
+  for( auto sceneHolder : mWindows )
+  {
+    if ( scene == sceneHolder->GetScene() )
+    {
+      nativeWindowHandle = sceneHolder->GetNativeHandle();
+      break;
+    }
+  }
+
+  return nativeWindowHandle;
+}
+
 Any Adaptor::GetGraphicsDisplay()
 {
   Any display;

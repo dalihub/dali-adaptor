@@ -37,6 +37,8 @@ class InputMethodContext;
 }
 }
 
+class Actor;
+
 /**
  * @brief The InputMethodContext class
  *
@@ -199,6 +201,13 @@ public:
    * @brief Create a new instance of an InputMethodContext.
    */
   static InputMethodContext New();
+
+  /**
+   * @brief Create a new instance of an InputMethodContext.
+   *
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
+   */
+  static InputMethodContext New( Actor actor );
 
   /**
    * @brief Copy constructor.

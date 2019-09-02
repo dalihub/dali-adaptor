@@ -40,16 +40,17 @@ namespace Internal
 namespace Adaptor
 {
 
-class InputMethodContextEcoreWl : public Dali::Internal::Adaptor::InputMethodContext
+class InputMethodContextEcoreWl : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
 public:
 
   /**
    * @brief Creates a new InputMethodContext handle
    *
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
    * @return InputMethodContext pointer
    */
-  static InputMethodContextPtr New();
+  static InputMethodContextPtr New( Dali::Actor actor );
 
   /**
    * @brief Initializes member data.
@@ -300,11 +301,16 @@ private:
    */
   Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock( unsigned int modifier );
 
+  /**
+   * Called when the binded actor is added to a window.
+   */
+  void OnStaged( Dali::Actor actor );
+
 private:
   /**
    * @brief Constructor.
    */
-  explicit InputMethodContextEcoreWl();
+  explicit InputMethodContextEcoreWl( Dali::Actor actor );
 
 protected:
   /**
@@ -328,7 +334,9 @@ private:
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
 
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
-  InputMethodOptions        mOptions;
+  InputMethodOptions mOptions;
+
+  int mWindowId;
 };
 
 
