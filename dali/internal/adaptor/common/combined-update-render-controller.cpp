@@ -633,11 +633,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
     }
 
-    if( timeToSleepUntil == 0 )
-    {
-      eglImpl.SetFirstFrameAfterResume();
-    }
-
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker( PerformanceInterface::RENDER_START );
