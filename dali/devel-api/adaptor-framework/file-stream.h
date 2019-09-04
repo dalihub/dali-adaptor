@@ -107,6 +107,7 @@ public:
   /**
    * @brief Returns the file stream
    * @return FILE.
+   * @note This class is responsible for closing the file so the caller SHOULD NOT call fclose() on the returned pointer.
    */
   FILE* GetFile();
 
