@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <pthread.h>
-#include <openssl/crypto.h>
 #include <cstring>
 #include <curl/curl.h>
 #include <../ExInclude/InternalFileOperation.h>
@@ -224,68 +223,16 @@ bool DownloadFile( CURL* curlHandle,
 namespace Network
 {
 
-std::mutex* CurlEnvironment::mMutexs = NULL;
-
 CurlEnvironment::CurlEnvironment()
 {
   // Must be called before we attempt any loads. e.g. by using curl_easy_init()
   // and before we start any threads.
   curl_global_init(CURL_GLOBAL_ALL);
-
- // libcurl with openssl needs locking_function and thread id for threadsafe
- // https://curl.haxx.se/libcurl/c/threadsafe.html
- // https://www.openssl.org/docs/man1.0.2/crypto/threads.html#DESCRIPTION
- // SetLockingFunction sets locking_function and get thread id by the guide.
-  SetLockingFunction();
 }
 
 CurlEnvironment::~CurlEnvironment()
 {
-  UnsetLockingFunction();
-
   curl_global_cleanup();
-}
-
-// libcurl with openssl needs locking_function and thread id for threadsafe
-// https://curl.haxx.se/libcurl/c/threadsafe.html
-// https://www.openssl.org/docs/man1.0.2/crypto/threads.html#DESCRIPTION
-void CurlEnvironment::OnOpenSSLLocking( int mode, int n, const char* file, int line )
-{
-  if( mode & CRYPTO_LOCK )
-  {
-    mMutexs[n].lock();
-  }
-  else
-  {
-    mMutexs[n].unlock();
-  }
-}
-
-void CurlEnvironment::SetLockingFunction()
-{
-  if( mMutexs != NULL )
-  {
-    return;
-  }
-
-  mMutexs = new std::mutex[ CRYPTO_num_locks() ];
-
-  CRYPTO_set_id_callback( &CurlEnvironment::GetThreadId );
-  CRYPTO_set_locking_callback( &CurlEnvironment::OnOpenSSLLocking );
-}
-
-void CurlEnvironment::UnsetLockingFunction()
-{
-  if( mMutexs == NULL )
-  {
-    return;
-  }
-
-  CRYPTO_set_id_callback( NULL );
-  CRYPTO_set_locking_callback( NULL );
-
-  delete [] mMutexs;
-  mMutexs = NULL;
 }
 
 bool DownloadRemoteFileIntoMemory( const std::string& url,

@@ -23,7 +23,6 @@
 #include <string>
 #include <mutex> //c++11
 #include <stdint.h> // uint8
-#include <openssl/crypto.h>
 
 namespace Dali
 {
@@ -59,24 +58,6 @@ public:
   CurlEnvironment& operator=( const CurlEnvironment& ) = delete;
   CurlEnvironment( CurlEnvironment&& ) = default;
   CurlEnvironment& operator=( CurlEnvironment&& ) = default;
-
-  /**
-   * Locking function for libcurl with openssl
-   */
-  static void OnOpenSSLLocking( int mode, int n, const char* file, int line );
-
-  /**
-   * Gets thread id for libcurl with openssl
-   */
-  static void GetThreadId( CRYPTO_THREADID* tid );
-
-private:
-
-  void SetLockingFunction();
-
-  void UnsetLockingFunction();
-
-  static std::mutex* mMutexs;
 };
 
 
