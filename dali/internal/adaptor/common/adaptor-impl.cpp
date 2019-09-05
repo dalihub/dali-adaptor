@@ -289,7 +289,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   }
 
   std::string systemCachePath = GetSystemCachePath();
-  if ( systemCachePath.c_str() != NULL )
+  if ( ! systemCachePath.empty() )
   {
     Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::READ | Dali::FileStream::TEXT );
     std::fstream& stream = dynamic_cast<std::fstream&>( fileStream.GetStream() );
