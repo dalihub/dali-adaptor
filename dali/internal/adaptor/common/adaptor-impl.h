@@ -313,6 +313,11 @@ public: // AdaptorInternalServices implementation
    */
   Dali::WindowContainer GetWindows() const;
 
+  /**
+   * @copydoc Dali::Adaptor::GetSceneHolders()
+   */
+  Dali::SceneHolderList GetSceneHolders() const;
+
 public:
 
   /**
@@ -343,6 +348,14 @@ public:
    * @return native window handle
    */
   Any GetNativeWindowHandle();
+
+  /**
+   * @brief Retrieve native window handle that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return native window handle
+   */
+  Any GetNativeWindowHandle( Dali::Actor actor );
 
   /**
    * Get the native display associated with the graphics backend
@@ -642,7 +655,7 @@ private: // Data
 
   AdaptorSignalType                     mResizedSignal;               ///< Resized signal.
   AdaptorSignalType                     mLanguageChangedSignal;       ///< Language changed signal.
-  WindowCreatedSignalType               mWindowCreatedSignal;         ///< Window created signal.
+  WindowCreatedSignalType               mWindowCreatedSignal;    ///< Window created signal.
 
   Dali::Adaptor&                        mAdaptor;                     ///< Reference to public adaptor instance.
   State                                 mState;                       ///< Current state of the adaptor

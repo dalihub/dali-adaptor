@@ -41,27 +41,13 @@ namespace Internal
 namespace Adaptor
 {
 
-InputMethodContextPtr InputMethodContextWin::New()
+InputMethodContextPtr InputMethodContextWin::New( Dali::Actor actor )
 {
   InputMethodContextPtr manager;
 
-  if ( Adaptor::IsAvailable() )
+  if ( actor && Adaptor::IsAvailable() )
   {
-    // Create instance and register singleton only if the adaptor is available
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-    Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
-
-    // The Win_Window_Handle needs to use the InputMethodContext.
-    // Only when the render surface is window, we can get the Win_Window_Handle.
-    WinWindowHandle winWindow( AnyCast<WinWindowHandle>(nativeWindow) );
-    if ( winWindow )
-    {
-      manager = new InputMethodContextWin( winWindow );
-    }
-    else
-    {
-      DALI_LOG_ERROR("Failed to get native window handle\n");
-    }
+    manager = new InputMethodContextWin( actor );
   }
 
   return manager;
@@ -71,13 +57,15 @@ void InputMethodContextWin::Finalize()
 {
 }
 
-InputMethodContextWin::InputMethodContextWin( WinWindowHandle winWindow )
-: mWin32Window( winWindow ),
+InputMethodContextWin::InputMethodContextWin( Dali::Actor actor )
+: mWin32Window( 0 ),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
+
+  actor.OnStageSignal().Connect( this, &InputMethodContextWin::OnStaged );
 }
 
 InputMethodContextWin::~InputMethodContextWin()
@@ -381,6 +369,20 @@ bool InputMethodContextWin::ProcessEventKeyUp( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
   return eventHandled;
+}
+
+void InputMethodContextWin::OnStaged( Dali::Actor actor )
+{
+  WinWindowHandle winWindow( AnyCast< WinWindowHandle >( Dali::Integration::SceneHolder::Get( actor ).GetNativeHandle() ) );
+
+  if( mWin32Window != winWindow )
+  {
+    mWin32Window = winWindow;
+
+    // Reset
+    Finalize();
+    Initialize();
+  }
 }
 
 } // Adaptor

@@ -37,21 +37,22 @@ namespace Internal
 namespace Adaptor
 {
 
-class InputMethodContextWin : public Dali::Internal::Adaptor::InputMethodContext
+class InputMethodContextWin : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
 public:
   /**
    * @brief Creates a new InputMethodContext handle
    *
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
    * @return InputMethodContext pointer
    */
-  static InputMethodContextPtr New();
+  static InputMethodContextPtr New( Dali::Actor actor );
 
   /**
    * Constructor
    * @param[in] win32Window, The window is created by application.
    */
-  explicit InputMethodContextWin( WinWindowHandle win32Window );
+  explicit InputMethodContextWin( Dali::Actor actor );
 
 public:
 
@@ -279,6 +280,11 @@ private:
    * @return Whether the event key is handled.
    */
   bool ProcessEventKeyUp( const KeyEvent& keyEvent );
+
+  /**
+   * Called when the binded actor is added to a window.
+   */
+  void OnStaged( Dali::Actor actor );
 
 public:
 

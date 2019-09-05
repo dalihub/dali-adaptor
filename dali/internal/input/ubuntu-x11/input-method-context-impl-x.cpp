@@ -122,31 +122,13 @@ void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *even
 
 } // unnamed namespace
 
-InputMethodContextPtr InputMethodContextX::New()
+InputMethodContextPtr InputMethodContextX::New( Dali::Actor actor )
 {
   InputMethodContextPtr manager;
 
-  if ( Adaptor::IsAvailable() )
+  if( actor && Dali::Adaptor::IsAvailable() )
   {
-    // Create instance and register singleton only if the adaptor is available
-    Adaptor& adaptorImpl( Adaptor::GetImplementation( Adaptor::Get() ) );
-    Any nativeWindow = adaptorImpl.GetNativeWindowHandle();
-
-    // The Ecore_X_Window needs to use the InputMethodContext.
-    // Only when the render surface is window, we can get the Ecore_X_Window.
-    Ecore_X_Window ecoreXwin( AnyCast<Ecore_X_Window>(nativeWindow) );
-    if (ecoreXwin)
-    {
-      // If we fail to get Ecore_X_Window, we can't use the InputMethodContext correctly.
-      // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
-      // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-
-      manager = new InputMethodContextX( ecoreXwin );
-    }
-    else
-    {
-      DALI_LOG_ERROR("Failed to get native window handle\n");
-    }
+    manager = new InputMethodContextX( actor );
   }
 
   return manager;
@@ -160,15 +142,17 @@ void InputMethodContextX::Finalize()
   DeleteContext();
 }
 
-InputMethodContextX::InputMethodContextX( Ecore_X_Window ecoreXwin )
+InputMethodContextX::InputMethodContextX( Dali::Actor actor )
 : mIMFContext(),
-  mEcoreXwin( ecoreXwin ),
+  mEcoreXwin( 0 ),
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false )
 {
   ecore_imf_init();
+
+  actor.OnStageSignal().Connect( this, &InputMethodContextX::OnStaged );
 }
 
 InputMethodContextX::~InputMethodContextX()
@@ -179,14 +163,19 @@ InputMethodContextX::~InputMethodContextX()
 
 void InputMethodContextX::Initialize()
 {
-  CreateContext( mEcoreXwin );
+  CreateContext();
   ConnectCallbacks();
   VirtualKeyboard::ConnectCallbacks( mIMFContext );
 }
 
-void InputMethodContextX::CreateContext( Ecore_X_Window ecoreXwin )
+void InputMethodContextX::CreateContext()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::CreateContext\n" );
+
+  if( !mEcoreXwin )
+  {
+    return;
+  }
 
   const char *contextId = ecore_imf_context_default_id_get();
   if( contextId )
@@ -195,10 +184,7 @@ void InputMethodContextX::CreateContext( Ecore_X_Window ecoreXwin )
 
     if( mIMFContext )
     {
-      if( ecoreXwin )
-      {
-        ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast<void*>( ecoreXwin ) );
-      }
+      ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast<void*>( mEcoreXwin ) );
     }
     else
     {
@@ -933,6 +919,20 @@ Ecore_IMF_Keyboard_Locks InputMethodContextX::EcoreInputModifierToEcoreIMFLock( 
     }
 
     return static_cast<Ecore_IMF_Keyboard_Locks>( lock );
+}
+
+void InputMethodContextX::OnStaged( Dali::Actor actor )
+{
+  Ecore_X_Window ecoreXwin( AnyCast< Ecore_X_Window >( Dali::Integration::SceneHolder::Get( actor ).GetNativeHandle() ) );
+
+  if( mEcoreXwin != ecoreXwin )
+  {
+    mEcoreXwin = ecoreXwin;
+
+    // Reset
+    Finalize();
+    Initialize();
+  }
 }
 
 } // Adaptor

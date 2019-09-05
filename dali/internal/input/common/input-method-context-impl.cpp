@@ -28,9 +28,9 @@ namespace Internal
 namespace Adaptor
 {
 
-InputMethodContextPtr InputMethodContext::New()
+InputMethodContextPtr InputMethodContext::New( Dali::Actor actor )
 {
-  return Dali::Internal::Adaptor::InputMethodContextFactory::CreateInputMethodContext();
+  return Dali::Internal::Adaptor::InputMethodContextFactory::CreateInputMethodContext( actor );
 }
 
 const std::string& InputMethodContext::GetSurroundingText() const

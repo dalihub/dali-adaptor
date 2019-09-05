@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/integration-api/events/key-event-integ.h>
@@ -61,7 +62,7 @@ public:
   /**
    * Create a new input method context instance.
    */
-  static InputMethodContextPtr New();
+  static InputMethodContextPtr New( Dali::Actor actor );
 
   /**
    * Initialize the object.

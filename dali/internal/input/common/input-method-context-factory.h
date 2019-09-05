@@ -32,7 +32,7 @@ namespace InputMethodContextFactory
 
 // Factory function creating new InputMethodContext
 // Symbol exists but may be overriden during linking
-InputMethodContextPtr CreateInputMethodContext();
+InputMethodContextPtr CreateInputMethodContext( Dali::Actor actor );
 
 }
 }

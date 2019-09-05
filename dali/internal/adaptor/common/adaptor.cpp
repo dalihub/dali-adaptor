@@ -161,6 +161,11 @@ Any Adaptor::GetNativeWindowHandle()
   return mImpl->GetNativeWindowHandle();
 }
 
+Any Adaptor::GetNativeWindowHandle( Actor actor )
+{
+  return mImpl->GetNativeWindowHandle( actor );
+}
+
 Any Adaptor::GetGraphicsDisplay()
 {
   return mImpl->GetGraphicsDisplay();
@@ -254,6 +259,11 @@ void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 Dali::WindowContainer Adaptor::GetWindows() const
 {
   return mImpl->GetWindows();
+}
+
+SceneHolderList Adaptor::GetSceneHolders() const
+{
+  return mImpl->GetSceneHolders();
 }
 
 void Adaptor::OnWindowShown()

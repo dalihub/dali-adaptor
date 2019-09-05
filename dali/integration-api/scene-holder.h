@@ -22,6 +22,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/math/vector4.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -29,6 +30,7 @@ namespace Dali
 class Actor;
 class Layer;
 class Any;
+class TouchData;
 struct TouchPoint;
 struct WheelEvent;
 struct KeyEvent;
@@ -54,6 +56,14 @@ namespace Integration
 class DALI_ADAPTOR_API SceneHolder : public BaseHandle
 {
 public:
+
+  typedef Signal< void (const Dali::KeyEvent&) > KeyEventSignalType;          ///< Key event signal type
+
+  typedef Signal< bool (const Dali::KeyEvent&) > KeyEventGeneratedSignalType; ///< Key event generated signal type
+
+  typedef Signal< void (const Dali::TouchData&) > TouchSignalType;            ///< Touch signal type
+
+  typedef Signal< void (const Dali::WheelEvent&) > WheelEventSignalType;      ///< Touched signal type
 
   /**
    * @brief Create an uninitialized SceneHolder handle.
@@ -149,6 +159,63 @@ public:
    * @param[in] keyEvent The key event holding the key information.
    */
   void FeedKeyEvent( Dali::KeyEvent& keyEvent );
+
+  /**
+   * @brief Retrieve the SceneHolder that the given actor is added to.
+   *
+   * @param[in] actor The actor
+   * @return The SceneHolder the actor is added to or an empty handle if the actor is not added to any SceneHolder.
+   */
+  static SceneHolder Get( Actor actor );
+
+  /**
+   * @brief This signal is emitted when key event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const KeyEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  KeyEventSignalType& KeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when key event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallbackName(const KeyEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  KeyEventGeneratedSignalType& KeyEventGeneratedSignal();
+
+  /**
+   * @brief This signal is emitted when the screen is touched and when the touch ends
+   * (i.e. the down & up touch events only).
+   *
+   * If there are multiple touch points, then this will be emitted when the first touch occurs and
+   * then when the last finger is lifted.
+   * An interrupted event will also be emitted (if it occurs).
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( TouchData event );
+   * @endcode
+   * @return The touch signal to connect to
+   * @note Motion events are not emitted.
+   */
+  TouchSignalType& TouchSignal();
+
+  /**
+   * @brief This signal is emitted when wheel event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const WheelEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  WheelEventSignalType& WheelEventSignal();
 
 public: // Not intended for application developers
 

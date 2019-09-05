@@ -167,6 +167,31 @@ public:
    */
   void FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent );
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::Get()
+   */
+  static Dali::Integration::SceneHolder Get( Dali::Actor actor );
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::KeyEventSignal()
+   */
+  Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventSignal() { return mScene.KeyEventSignal(); }
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::KeyEventGeneratedSignal()
+   */
+  Dali::Integration::SceneHolder::KeyEventGeneratedSignalType& KeyEventGeneratedSignal() { return mScene.KeyEventGeneratedSignal(); }
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::TouchSignal()
+   */
+  Dali::Integration::SceneHolder::TouchSignalType& TouchSignal() { return mScene.TouchSignal(); }
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::WheelEventSignal()
+   */
+  Dali::Integration::SceneHolder::WheelEventSignalType& WheelEventSignal() { return mScene.WheelEventSignal(); }
+
 public: // The following methods can be overridden if required
 
   /**
