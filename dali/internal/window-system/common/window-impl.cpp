@@ -84,7 +84,9 @@ Window::Window()
   mWindowHeight( 0 ),
   mFocusChangedSignal(),
   mResizedSignal(),
-  mDeleteRequestSignal()
+  mDeleteRequestSignal(),
+  mFocusChangeSignal(),
+  mResizeSignal()
 {
 }
 
@@ -456,7 +458,9 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
+    Dali::Window handle( this );
     mResizedSignal.Emit( newSize );
+    mResizeSignal.Emit( handle, newSize );
 
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
@@ -512,8 +516,9 @@ void Window::SetPositionSize( PositionSize positionSize )
 
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
+    Dali::Window handle( this );
     mResizedSignal.Emit( newSize );
-
+    mResizeSignal.Emit( handle, newSize );
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
 }
@@ -578,7 +583,9 @@ void Window::OnIconifyChanged( bool iconified )
 
 void Window::OnFocusChanged( bool focusIn )
 {
+  Dali::Window handle( this );
   mFocusChangedSignal.Emit( focusIn );
+  mFocusChangeSignal.Emit( handle, focusIn );
 }
 
 void Window::OnOutputTransformed()
@@ -625,7 +632,9 @@ void Window::OnRotation( const RotationEvent& rotation )
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 
   // Emit signal
+  Dali::Window handle( this );
   mResizedSignal.Emit( Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
+  mResizeSignal.Emit( handle, Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
 
   mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 }

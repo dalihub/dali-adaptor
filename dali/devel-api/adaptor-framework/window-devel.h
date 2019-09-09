@@ -142,6 +142,14 @@ DALI_ADAPTOR_API void Unparent( Window window );
  */
 DALI_ADAPTOR_API Window GetParent( Window window );
 
+/**
+ * @brief Downcast sceneHolder to window
+ *
+ * @param[in] handle The handle need to downcast
+ * @return The window cast from SceneHolder
+ */
+DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
+
 } // namespace DevelWindow
 
 } // namespace Dali
