@@ -65,6 +65,8 @@ public:
   typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
   typedef Dali::Window::FocusSignalType FocusSignalType;
   typedef Dali::Window::ResizedSignalType ResizedSignalType;
+  typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
+  typedef Dali::Window::ResizeSignalType ResizeSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -460,9 +462,17 @@ public: // Signals
   FocusSignalType& FocusChangedSignal() { return mFocusChangedSignal; }
 
   /**
+   * @copydoc Dali::Window::WindowFocusChangedSignal()
+   */
+  FocusChangeSignalType& FocusChangeSignal() { return mFocusChangeSignal; }
+  /**
    * @copydoc Dali::Window::ResizedSignal()
    */
   ResizedSignalType& ResizedSignal() { return mResizedSignal; }
+  /**
+   * @copydoc Dali::Window::ResizedSignal()
+   */
+  ResizeSignalType& ResizeSignal() { return mResizeSignal; }
 
   /**
    * This signal is emitted when the window is requesting to be deleted
@@ -473,26 +483,6 @@ public: // Signals
    * @copydoc Dali::Window::SignalEventProcessingFinished()
    */
   Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal() { return mScene.EventProcessingFinishedSignal(); }
-
-  /**
-   * @copydoc Dali::Window::KeyEventSignal()
-   */
-  Dali::DevelWindow::KeyEventSignalType& KeyEventSignal() { return mScene.KeyEventSignal(); }
-
-  /**
-   * @copydoc Dali::Window::KeyEventGeneratedSignal()
-   */
-  Dali::DevelWindow::KeyEventGeneratedSignalType& KeyEventGeneratedSignal() { return mScene.KeyEventGeneratedSignal(); }
-
-  /**
-    * @copydoc Dali::Window::TouchSignal()
-    */
-  Dali::DevelWindow::TouchSignalType& TouchSignal() { return mScene.TouchSignal(); }
-
-  /**
-   * @copydoc Dali::Window::WheelEventSignal()
-   */
-  Dali::DevelWindow::WheelEventSignalType& WheelEventSignal() { return mScene.WheelEventSignal(); }
 
 private:
 
@@ -523,8 +513,8 @@ private:
   FocusSignalType                       mFocusChangedSignal;
   ResizedSignalType                     mResizedSignal;
   SignalType                            mDeleteRequestSignal;
-
-
+  FocusChangeSignalType                 mFocusChangeSignal;
+  ResizeSignalType                      mResizeSignal;
 };
 
 } // namespace Adaptor

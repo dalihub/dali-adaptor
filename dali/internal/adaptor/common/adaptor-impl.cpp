@@ -188,11 +188,9 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   defaultWindow->SetAdaptor( Get() );
 
-  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( defaultWindow ) );
-  if ( window )
-  {
-    mWindowCreatedSignal.Emit( window );
-  }
+  Dali::Integration::SceneHolder defaultSceneHolder( defaultWindow );
+
+  mWindowCreatedSignal.Emit( defaultSceneHolder );
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -291,7 +289,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   }
 
   std::string systemCachePath = GetSystemCachePath();
-  if ( systemCachePath.c_str() != NULL )
+  if ( ! systemCachePath.empty() )
   {
     Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::READ | Dali::FileStream::TEXT );
     std::fstream& stream = dynamic_cast<std::fstream&>( fileStream.GetStream() );
@@ -645,11 +643,7 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
 
-  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( &windowImpl ) );
-  if ( window )
-  {
-    mWindowCreatedSignal.Emit( window );
-  }
+  mWindowCreatedSignal.Emit( childWindow );
 
   return true;
 }
@@ -1114,6 +1108,18 @@ Dali::WindowContainer Adaptor::GetWindows() const
   }
 
   return windows;
+}
+
+Dali::SceneHolderList Adaptor::GetSceneHolders() const
+{
+  Dali::SceneHolderList sceneHolderList;
+
+  for( auto iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  {
+    sceneHolderList.push_back( Dali::Integration::SceneHolder( *iter ) );
+  }
+
+  return sceneHolderList;
 }
 
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)

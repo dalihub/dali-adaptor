@@ -35,8 +35,6 @@ typedef Signal< void () > EventProcessingFinishedSignalType;       ///< Event Pr
 
 typedef Signal< void (const KeyEvent&) > KeyEventSignalType;       ///< Key event signal type
 
-typedef Signal< bool (const KeyEvent&) > KeyEventGeneratedSignalType;       ///< Key event generated signal type
-
 typedef Signal< void (const TouchData&) > TouchSignalType;         ///< Touch signal type
 
 typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
@@ -84,18 +82,6 @@ DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSigna
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API KeyEventSignalType& KeyEventSignal( Window window );
-
-/**
- * @brief This signal is emitted when key event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   bool YourCallbackName(const KeyEvent& event);
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API KeyEventGeneratedSignalType& KeyEventGeneratedSignal( Window window );
 
 /**
  * @brief This signal is emitted when the screen is touched and when the touch ends
@@ -155,6 +141,14 @@ DALI_ADAPTOR_API void Unparent( Window window );
  * @return The parent window of the window
  */
 DALI_ADAPTOR_API Window GetParent( Window window );
+
+/**
+ * @brief Downcast sceneHolder to window
+ *
+ * @param[in] handle The handle need to downcast
+ * @return The window cast from SceneHolder
+ */
+DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
 
 } // namespace DevelWindow
 
