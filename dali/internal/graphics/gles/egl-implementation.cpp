@@ -81,8 +81,7 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
   mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
   mIsSurfacelessContextSupported( false ),
-  mIsKhrCreateContextSupported( false ),
-  mIsFirstFrameAfterResume( false )
+  mIsKhrCreateContextSupported( false )
 {
 }
 
@@ -311,11 +310,6 @@ void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
 {
   if ( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
   {
-    if( mIsFirstFrameAfterResume )
-    {
-      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers: First SwapBuffers call.\n" );
-      mIsFirstFrameAfterResume = false;
-    }
     eglSwapBuffers( mEglDisplay, eglSurface );
   }
 }
@@ -540,11 +534,6 @@ bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSur
 void EglImplementation::SetGlesVersion( const int32_t glesVersion )
 {
   mGlesVersion = glesVersion;
-}
-
-void EglImplementation::SetFirstFrameAfterResume()
-{
-  mIsFirstFrameAfterResume = true;
 }
 
 EGLDisplay EglImplementation::GetDisplay() const
