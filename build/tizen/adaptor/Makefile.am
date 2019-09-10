@@ -460,6 +460,7 @@ LIBDALI_ADAPTOR_LA_CXXFLAGS = \
                       $(LIBDRM_CFLAGS) \
                       $(LIBEXIF_CFLAGS) \
                       $(LIBCURL_CFLAGS) \
+                      $(LIBCRYPTO_CFLAGS) \
                       $(TPKP_CURL_CFLAGS) \
                       $(UTILX_CFLAGS)
 
@@ -488,6 +489,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(LIBDRM_LIBS) \
                       $(LIBEXIF_LIBS) \
                       $(LIBCURL_LIBS) \
+                      $(LIBCRYPTO_LIBS) \
                       $(HARFBUZZ_LIBS) \
                       $(AUTOFILL_LIBS) \
                       $(TPKP_CURL_LIBS) \
