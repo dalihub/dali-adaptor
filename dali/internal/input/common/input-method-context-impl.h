@@ -268,6 +268,11 @@ public:
    */
   virtual Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const { return Dali::InputMethodContext::InputPanelLanguage(); }
 
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPosition()
+   */
+  virtual void SetInputPanelPosition( unsigned int x, unsigned int y ) {}
+
 public:  // Signals
 
   /**

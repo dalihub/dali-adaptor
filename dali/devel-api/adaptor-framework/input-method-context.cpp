@@ -216,6 +216,11 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContext::GetInputPanelLa
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelLanguage();
 }
 
+void InputMethodContext::SetInputPanelPosition( unsigned int x, unsigned int y )
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition( x, y );
+}
+
 // Signals
 InputMethodContext::ActivatedSignalType& InputMethodContext::ActivatedSignal()
 {
