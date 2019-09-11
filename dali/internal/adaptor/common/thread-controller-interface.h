@@ -31,6 +31,12 @@ namespace Internal
 namespace Adaptor
 {
 
+enum class UpdateMode
+{
+  NORMAL,                     ///< Update and render
+  SKIP_RENDER                 ///< Update and resource upload but no rendering
+};
+
 /**
  * Interface Class for all controlling threads.
  */
@@ -75,9 +81,10 @@ public:
 
   /**
    * Called by the adaptor when core requires one update
-   * If Adaptor is paused, we do one update and return to pause
+   * If Adaptor is paused, we do one update/render and return to pause
+   * @param updateMode The update mode (i.e. i.e. either update & render or skip rendering)
    */
-  virtual void RequestUpdateOnce() = 0;
+  virtual void RequestUpdateOnce( UpdateMode updateMode ) = 0;
 
   /**
    * Replaces the surface.

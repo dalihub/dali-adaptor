@@ -41,6 +41,7 @@
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
+#include <dali/internal/adaptor/common/thread-controller-interface.h>
 
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h> // Temporary until Core is abstracted
@@ -889,11 +890,10 @@ void Adaptor::RequestUpdate( bool forceUpdate )
     case PAUSED:
     case PAUSED_WHILE_HIDDEN:
     {
-      // When Dali applications are partially visible behind the lock-screen,
-      // the indicator must be updated (therefore allow updates in the PAUSED state)
       if( forceUpdate )
       {
-        mThreadController->RequestUpdateOnce();
+        // Update (and resource upload) without rendering
+        mThreadController->RequestUpdateOnce( UpdateMode::SKIP_RENDER );
       }
       break;
     }
@@ -1064,7 +1064,7 @@ void Adaptor::RequestUpdateOnce()
 {
   if( mThreadController )
   {
-    mThreadController->RequestUpdateOnce();
+    mThreadController->RequestUpdateOnce( UpdateMode::NORMAL );
   }
 }
 
