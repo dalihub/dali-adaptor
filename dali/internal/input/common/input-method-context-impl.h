@@ -273,6 +273,11 @@ public:
    */
   virtual void SetInputPanelPosition( unsigned int x, unsigned int y ) {}
 
+  /**
+   * @copydoc Dali::InputMethodContext::GetPreeditStyle()
+   */
+  virtual Dali::InputMethodContext::PreeditStyle GetPreeditStyle() const { return Dali::InputMethodContext::PreeditStyle(); }
+
 public:  // Signals
 
   /**
