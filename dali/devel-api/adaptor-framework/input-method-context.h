@@ -90,10 +90,24 @@ public:
     HARDWARE_KEYBOARD   ///< Hardware keyboard
   };
 
+  /**
+   * @brief Enumeration for the language mode of the input panel.
+   */
   enum class InputPanelLanguage
   {
     AUTOMATIC,    ///< IME Language automatically set depending on the system display
     ALPHABET      ///< Latin alphabet at all times
+  };
+
+  /**
+   * @brief Enumeration for the preedit style types.
+   */
+  enum class PreeditStyle
+  {
+    NONE,         ///< None style
+    UNDERLINE,    ///< Underline substring style
+    REVERSE,      ///< Reverse substring style
+    HIGHLIGHT     ///< Highlight substring style
   };
 
   /**
@@ -460,6 +474,13 @@ public:
    * @param[in] y The top-left y coordinate of the input panel
    */
   void SetInputPanelPosition( unsigned int x, unsigned int y );
+
+  /**
+   * @brief Gets the preedit type.
+   *
+   * @return The preedit style type
+   */
+  PreeditStyle GetPreeditStyle() const;
 
 public:
 
