@@ -604,33 +604,36 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding( void* data, ImfContext* imf
 
   if( callbackData.update )
   {
-    if( text )
-    {
-      const char* plainText = callbackData.currentText.c_str();
-      if( plainText )
-      {
-        // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
-        if( ecore_imf_context_input_hint_get( mIMFContext ) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA )
-        {
-          char* iter = NULL;
-          for( iter = const_cast<char*>( plainText ); iter && *iter; ++iter )
-          {
-            *iter = '*';
-          }
-        }
-      }
-      // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
-      *text = strdup( plainText );
-    }
-
     if( cursorPosition )
     {
       mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
       *cursorPosition = mIMFCursorPosition;
     }
+
+    if( text )
+    {
+      const char* plainText = callbackData.currentText.c_str();
+
+      if( plainText )
+      {
+        // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
+        *text = strdup( plainText );
+
+        // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
+        if( ecore_imf_context_input_hint_get( mIMFContext ) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA )
+        {
+          for( char* iter = *text; *iter; ++iter )
+          {
+            *iter = '*';
+          }
+        }
+
+        return EINA_TRUE;
+      }
+    }
   }
 
-  return EINA_TRUE;
+  return EINA_FALSE;
 }
 
 /**

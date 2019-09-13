@@ -167,7 +167,7 @@ void Framework::Run()
 {
   mRunning = true;
 
-  elm_init(*mArgc, *mArgv);
+  elm_init( mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr );
 
   Impl::AppCreate(this);
 
