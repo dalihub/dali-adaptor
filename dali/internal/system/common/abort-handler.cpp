@@ -47,7 +47,7 @@ AbortHandler::~AbortHandler()
   int signum;
   for ( signum = 1; signum < _NSIG; signum++ )
   {
-    if ( mSignalMask & (1 << (signum-1) ) )
+    if ( mSignalMask & (1ULL << (signum-1) ) )
     {
       // set signals back to default handling
       signal( signum, mSignalOldHandlers[signum-1] );
@@ -70,7 +70,7 @@ bool AbortHandler::AbortOnSignal( int signum )
   if ( SIG_ERR != signalHandlerPrevious )
     {
       mSignalOldHandlers[signum-1] = signalHandlerPrevious;
-      mSignalMask |= ( 1 << (signum-1) );
+      mSignalMask |= ( 1ULL << (signum-1) );
       status = true;
     }
   }
