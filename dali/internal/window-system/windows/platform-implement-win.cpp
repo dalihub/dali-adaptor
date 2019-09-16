@@ -75,6 +75,11 @@ void GetDPI( uint64_t hWnd, float &xDpi, float &yDpi )
   yDpi = static_cast<float>( iY ) / static_cast<float>( iPhsY ) * INCH;
 }
 
+int GetOrientation()
+{
+  return 0;
+}
+
 CallbackBase *listener = NULL;
 
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

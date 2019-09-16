@@ -130,6 +130,12 @@ public: // from Dali::Integration::RenderSurface
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @brief Return the orientation of the surface.
+   * @return The orientation
+   */
+  virtual int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
    */
   virtual void InitializeGraphics() override;
