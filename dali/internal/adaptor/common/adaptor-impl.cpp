@@ -397,7 +397,7 @@ void Adaptor::Start()
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mGLES.GetMaxTextureSize() );
 
     std::string systemCachePath = GetSystemCachePath();
-    if( systemCachePath.c_str() != NULL )
+    if( ! systemCachePath.empty() )
     {
       const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
       if (-1 == dir_err)
