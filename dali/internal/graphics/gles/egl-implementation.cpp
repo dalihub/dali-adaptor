@@ -35,10 +35,9 @@
 
 namespace
 {
-  const uint32_t CHECK_EXTENSION_NUMBER = 3;
+  const uint32_t CHECK_EXTENSION_NUMBER = 2;
   const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
   const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
-  const std::string EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
 }
 
 namespace Dali
@@ -63,8 +62,7 @@ namespace Adaptor
 
 EglImplementation::EglImplementation( int multiSamplingLevel,
                                       Integration::DepthBufferAvailable depthBufferRequired,
-                                      Integration::StencilBufferAvailable stencilBufferRequired,
-                                      Integration::PartialUpdateAvailable partialUpdateAvailable )
+                                      Integration::StencilBufferAvailable stencilBufferRequired )
 : mContextAttribs(),
   mEglNativeDisplay( 0 ),
   mEglNativeWindow( 0 ),
@@ -76,7 +74,6 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mCurrentEglContext( EGL_NO_CONTEXT ),
   mMultiSamplingLevel( multiSamplingLevel ),
   mGlesVersion( 30 ),
-  mDamagedRectArray( 0 ),
   mColorDepth( COLOR_DEPTH_24 ),
   mGlesInitialized( false ),
   mIsOwnSurface( true ),
@@ -85,24 +82,8 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
   mIsSurfacelessContextSupported( false ),
   mIsKhrCreateContextSupported( false ),
-  mIsFirstFrameAfterResume( false ),
-  mIsKhrPartialUpdateSupported( false ),
-  mPartialUpdateAvailable( partialUpdateAvailable == Integration::PartialUpdateAvailable::TRUE )
+  mIsFirstFrameAfterResume( false )
 {
-  if( mPartialUpdateAvailable )
-  {
-    mEglSetDamageRegionKHR =  reinterpret_cast< PFNEGLSETDAMAGEREGIONKHRPROC >( eglGetProcAddress( "eglSetDamageRegionKHR" ) );
-    mSwapBuffersWithDamage = reinterpret_cast< PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC >( eglGetProcAddress( "eglSwapBuffersWithDamageEXT" ) );
-    if( !mEglSetDamageRegionKHR || !mSwapBuffersWithDamage )
-    {
-      mPartialUpdateAvailable = false;
-      DALI_LOG_ERROR("Initialization of partial update failed.\n");
-    }
-    else
-    {
-      DALI_LOG_RELEASE_INFO("Initialization of partial update success!\n");
-    }
-  }
 }
 
 EglImplementation::~EglImplementation()
@@ -154,16 +135,6 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       mIsKhrCreateContextSupported = true;
       extensionCheckCount++;
     }
-    if( currentExtension == EGL_KHR_PARTIAL_UPDATE )
-    {
-      mIsKhrPartialUpdateSupported = true;
-      extensionCheckCount++;
-    }
-  }
-
-  if( !mIsKhrPartialUpdateSupported )
-  {
-    mPartialUpdateAvailable = false;
   }
 
   // We want to display this information all the time, so use the LogMessage directly
@@ -336,31 +307,6 @@ bool EglImplementation::IsGlesInitialized() const
   return mGlesInitialized;
 }
 
-
-const char* GetEglErrorString(EGLint error)
-{
-    switch(error)
-    {
-    case EGL_SUCCESS: return "No error";
-    case EGL_NOT_INITIALIZED: return "EGL not initialized or failed to initialize";
-    case EGL_BAD_ACCESS: return "Resource inaccessible";
-    case EGL_BAD_ALLOC: return "Cannot allocate resources";
-    case EGL_BAD_ATTRIBUTE: return "Unrecognized attribute or attribute value";
-    case EGL_BAD_CONTEXT: return "Invalid EGL context";
-    case EGL_BAD_CONFIG: return "Invalid EGL frame buffer configuration";
-    case EGL_BAD_CURRENT_SURFACE: return "Current surface is no longer valid";
-    case EGL_BAD_DISPLAY: return "Invalid EGL display";
-    case EGL_BAD_SURFACE: return "Invalid surface";
-    case EGL_BAD_MATCH: return "Inconsistent arguments";
-    case EGL_BAD_PARAMETER: return "Invalid argument";
-    case EGL_BAD_NATIVE_PIXMAP: return "Invalid native pixmap";
-    case EGL_BAD_NATIVE_WINDOW: return "Invalid native window";
-    case EGL_CONTEXT_LOST: return "Context lost";
-    }
-    return "Unknown error ";
-}
-
-
 void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
 {
   if ( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
@@ -370,40 +316,7 @@ void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
       DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers: First SwapBuffers call.\n" );
       mIsFirstFrameAfterResume = false;
     }
-    if( mPartialUpdateAvailable && mSwapBuffersWithDamage )
-    {
-      mSwapBuffersWithDamage( mEglDisplay, eglSurface, &mDamagedRectArray[0], mDamagedRectArray.size()/4 );
-    }
-    else
-    {
-      eglSwapBuffers( mEglDisplay, eglSurface );
-    }
-  }
-}
-
-
-int EglImplementation::GetBufferAge( EGLSurface& eglSurface )
-{
-  int bufferAge = 0;
-  if ( eglSurface != EGL_NO_SURFACE && mIsKhrPartialUpdateSupported )
-  {
-    if( !eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_KHR, &bufferAge) )
-    {
-      DALI_LOG_ERROR("EglImplementation::GetBufferAge() eglQuerySurface %s ",  GetEglErrorString(eglGetError()) );
-    }
-  }
-  return bufferAge;
-}
-
-void EglImplementation::SetDamagedRect( std::vector<int> damagedRectArray, EGLSurface& eglSurface )
-{
-  mDamagedRectArray = damagedRectArray;
-  if ( eglSurface != EGL_NO_SURFACE && mPartialUpdateAvailable && mEglSetDamageRegionKHR )
-  {
-    if( !mEglSetDamageRegionKHR( mEglDisplay, eglSurface, &damagedRectArray[0], damagedRectArray.size() / 4 ) )
-    {
-      DALI_LOG_ERROR("EglImplementation::mEglSetDamageRegionKHR() error %s ",  GetEglErrorString(eglGetError()) );
-    }
+    eglSwapBuffers( mEglDisplay, eglSurface );
   }
 }
 

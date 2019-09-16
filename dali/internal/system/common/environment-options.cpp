@@ -125,8 +125,7 @@ EnvironmentOptions::EnvironmentOptions()
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mGlesCallAccumulate( false ),
   mDepthBufferRequired( DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING ),
-  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING ),
-  mPartialUpdateAvailable( false )
+  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING )
 {
   ParseEnvironmentOptions();
 }
@@ -360,11 +359,6 @@ bool EnvironmentOptions::DepthBufferRequired() const
 bool EnvironmentOptions::StencilBufferRequired() const
 {
   return mStencilBufferRequired;
-}
-
-bool EnvironmentOptions::PartialUpdateAvailable() const
-{
-  return mPartialUpdateAvailable;
 }
 
 void EnvironmentOptions::ParseEnvironmentOptions()
@@ -604,15 +598,6 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( stencilBufferRequired > 0 )
     {
       mStencilBufferRequired = false;
-    }
-  }
-
-  int partialUpdateRequired( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PARTIAL_UPDATE_AVAILABLE, partialUpdateRequired ) )
-  {
-    if( partialUpdateRequired > 0 )
-    {
-      mPartialUpdateAvailable = true;
     }
   }
 }
