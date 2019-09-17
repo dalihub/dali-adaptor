@@ -43,6 +43,7 @@
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali
 {
@@ -92,6 +93,17 @@ Window::Window()
 
 Window::~Window()
 {
+  if ( mAdaptor )
+  {
+		auto bridge = Accessibility::Bridge::GetCurrentBridge();
+		auto accessible2 = mScene.GetRootLayer();
+		auto accessible = Accessibility::Accessible::Get( accessible2 );
+		bridge->RemoveTopLevelWindow( accessible );
+
+    mAdaptor->RemoveWindow( this );
+    mAdaptor = NULL;
+  }
+
   if ( mEventHandler )
   {
     mEventHandler->RemoveObserver( *this );
@@ -133,6 +145,14 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
   mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface, *mAdaptor ) );
   mEventHandler->AddObserver( *this );
+
+  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  auto v = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get( v, true );
+  bridge->AddTopLevelWindow( accessible );
+
+  //FIXME: line below is temporary solution for missing "activate" signal and should be removed
+  Show();
 }
 
 void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
@@ -598,6 +618,18 @@ void Window::OnFocusChanged( bool focusIn )
   Dali::Window handle( this );
   mFocusChangedSignal.Emit( focusIn );
   mFocusChangeSignal.Emit( handle, focusIn );
+
+  if (auto b = Dali::Accessibility::Bridge::GetCurrentBridge())
+  {
+    if (focusIn)
+    {
+      b->ApplicationShown();
+    }
+    else
+    {
+      b->ApplicationHidden();
+    }
+  }
 }
 
 void Window::OnOutputTransformed()

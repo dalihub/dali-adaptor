@@ -52,11 +52,16 @@
 #include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/network/common/socket-factory.h>
 
+#include <string>
 
 namespace Dali
 {
 
 class RenderSurfaceInterface;
+namespace Accessibility
+{
+class Bridge;
+}
 
 namespace Integration
 {
@@ -179,6 +184,8 @@ public:
    * @copydoc Dali::Core::SceneCreated();
    */
   void SceneCreated();
+
+  static std::string GetApplicationPackageName();
 
 public: // AdaptorInternalServices implementation
   /**
@@ -684,6 +691,13 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+
+  class AccessibilityObserver : public ConnectionTracker
+  {
+  public:
+    void OnAccessibleKeyEvent( const KeyEvent& event );
+  };
+  AccessibilityObserver accessibilityObserver;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }

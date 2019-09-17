@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -219,6 +220,8 @@ void Application::Quit()
 
 void Application::QuitFromMainLoop()
 {
+  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+
   mAdaptor->Stop();
 
   mFramework->Quit();

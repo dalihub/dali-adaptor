@@ -139,7 +139,7 @@ std::size_t ObjectProfiler::GetMemorySize( const std::string& name, uint32_t cou
   struct MemoryMemorySize
   {
     std::string name;
-    std::size_t memorySize;
+    decltype(ANIMATION_MEMORY_SIZE) memorySize;
   };
   MemoryMemorySize memoryMemorySizes[] =
     {
@@ -161,7 +161,7 @@ std::size_t ObjectProfiler::GetMemorySize( const std::string& name, uint32_t cou
   {
     if( memoryMemorySizes[i].name.compare(name) == 0 )
     {
-      return count * memoryMemorySizes[i].memorySize;
+      return count * static_cast<size_t>( memoryMemorySizes[i].memorySize );
     }
   }
   return 0;
