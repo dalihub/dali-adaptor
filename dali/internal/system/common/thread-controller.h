@@ -33,6 +33,8 @@ namespace Internal
 namespace Adaptor
 {
 
+enum class UpdateMode;
+
 class AdaptorInternalServices;
 class EnvironmentOptions;
 class ThreadControllerInterface;
@@ -97,8 +99,10 @@ public:
    * @brief Called by the adaptor when core requires one update
    *
    * @note If Adaptor is paused, we do one update/render only
+   *
+   * @param updateMode The update mode (i.e. either update and render, or update and upload without rendering)
    */
-  void RequestUpdateOnce();
+  void RequestUpdateOnce( UpdateMode updateMode );
 
   /**
    * @brief Replaces the surface.

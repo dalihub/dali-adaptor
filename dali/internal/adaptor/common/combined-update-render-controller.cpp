@@ -115,7 +115,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mDeletedSurface( nullptr ),
   mPostRendering( FALSE ),
   mSurfaceResized( FALSE ),
-  mForceClear( FALSE )
+  mForceClear( FALSE ),
+  mUploadWithoutRendering( FALSE )
 {
   LOG_EVENT_TRACE;
 
@@ -183,7 +184,7 @@ void CombinedUpdateRenderController::Start()
 
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
-  RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
+  RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
 
   DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }
@@ -209,7 +210,7 @@ void CombinedUpdateRenderController::Resume()
   {
     LOG_EVENT( "Resuming" );
 
-    RunUpdateRenderThread( CONTINUOUS, true /* Animation progression required while we were paused */ );
+    RunUpdateRenderThread( CONTINUOUS, AnimationProgression::USE_ELAPSED_TIME, UpdateMode::NORMAL );
 
     AddPerformanceMarker( PerformanceInterface::RESUME );
 
@@ -267,14 +268,14 @@ void CombinedUpdateRenderController::RequestUpdate()
   {
     LOG_EVENT( "Processing" );
 
-    RunUpdateRenderThread( CONTINUOUS, false /* No animation progression */ );
+    RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
   }
 
   ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
   mPendingRequestUpdate = TRUE;
 }
 
-void CombinedUpdateRenderController::RequestUpdateOnce()
+void CombinedUpdateRenderController::RequestUpdateOnce( UpdateMode updateMode )
 {
   // Increment the update-request count to the maximum
   if( mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS )
@@ -287,7 +288,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce()
     LOG_EVENT_TRACE;
 
     // Run Update/Render once
-    RunUpdateRenderThread( ONCE, false /* No animation progression */ );
+    RunUpdateRenderThread( ONCE, AnimationProgression::NONE, updateMode );
   }
 }
 
@@ -382,12 +383,13 @@ void CombinedUpdateRenderController::SetPreRenderCallback( CallbackBase* callbac
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, bool useElapsedTime )
+void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode )
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   mUpdateRenderRunCount = numberOfCycles;
   mUpdateRenderThreadCanSleep = FALSE;
-  mUseElapsedTimeAfterWait = useElapsedTime;
+  mUseElapsedTimeAfterWait = ( animationProgression == AnimationProgression::USE_ELAPSED_TIME );
+  mUploadWithoutRendering = ( updateMode == UpdateMode::SKIP_RENDER );
   LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait );
   mUpdateRenderThreadWaitCondition.Notify( lock );
 }
@@ -636,7 +638,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    mCore.Render( renderStatus, mForceClear );
+    mCore.Render( renderStatus, mForceClear, mUploadWithoutRendering );
 
     //////////////////////////////
     // DELETE SURFACE

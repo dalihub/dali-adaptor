@@ -80,9 +80,9 @@ void ThreadController::RequestUpdate()
   mThreadControllerInterface->RequestUpdate();
 }
 
-void ThreadController::RequestUpdateOnce()
+void ThreadController::RequestUpdateOnce(   UpdateMode updateMode )
 {
-  mThreadControllerInterface->RequestUpdateOnce();
+  mThreadControllerInterface->RequestUpdateOnce( updateMode );
 }
 
 void ThreadController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
