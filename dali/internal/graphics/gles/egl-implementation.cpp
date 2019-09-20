@@ -35,6 +35,7 @@
 
 namespace
 {
+  const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
   const uint32_t CHECK_EXTENSION_NUMBER = 2;
   const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
   const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
@@ -81,7 +82,8 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
   mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
   mIsSurfacelessContextSupported( false ),
-  mIsKhrCreateContextSupported( false )
+  mIsKhrCreateContextSupported( false ),
+  mSwapBufferCountAfterResume( 0 )
 {
 }
 
@@ -310,7 +312,22 @@ void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
 {
   if ( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
   {
+#ifndef DALI_PROFILE_UBUNTU
+    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    {
+      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers started.\n" );
+    }
+#endif //DALI_PROFILE_UBUNTU
+
     eglSwapBuffers( mEglDisplay, eglSurface );
+
+#ifndef DALI_PROFILE_UBUNTU
+    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    {
+      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers finished.\n" );
+      mSwapBufferCountAfterResume++;
+    }
+#endif //DALI_PROFILE_UBUNTU
   }
 }
 
@@ -534,6 +551,11 @@ bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSur
 void EglImplementation::SetGlesVersion( const int32_t glesVersion )
 {
   mGlesVersion = glesVersion;
+}
+
+void EglImplementation::SetFirstFrameAfterResume()
+{
+  mSwapBufferCountAfterResume = 0;
 }
 
 EGLDisplay EglImplementation::GetDisplay() const

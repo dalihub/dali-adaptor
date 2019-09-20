@@ -119,7 +119,7 @@ public:
   /**
    * @copydoc ThreadControllerInterface::RequestUpdateOnce()
    */
-  virtual void RequestUpdateOnce();
+  virtual void RequestUpdateOnce( UpdateMode updateMode );
 
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
@@ -158,14 +158,21 @@ private:
   // EventThread
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  enum AnimationProgression
+  {
+    USE_ELAPSED_TIME,          ///< Animation progression using elapsed time
+    NONE                       ///< No animation progression
+  };
+
   /**
    * Runs the Update/Render Thread.
    * This will lock the mutex in mUpdateRenderThreadWaitCondition.
    *
    * @param[in]  numberOfCycles           The number of times the update/render cycle should run. If -1, then it will run continuously.
-   * @param[in]  useElapsedTimeAfterWait  If true, then the elapsed time during wait is used for animations, otherwise no animation progression is made.
+   * @param[in]  animationProgression     Whether to progress animation using time elapsed since the last frame.
+   * @param[in]  updateMode               The update mode (i.e. either update & render or skip rendering)
    */
-  inline void RunUpdateRenderThread( int numberOfCycles, bool useElapsedTimeAfterWait );
+  inline void RunUpdateRenderThread( int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode );
 
   /**
    * Pauses the Update/Render Thread.
@@ -361,6 +368,8 @@ private:
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
   volatile unsigned int             mForceClear;                       ///< Will be set to clear forcibly
+
+  volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
 };
 
 } // namespace Adaptor
