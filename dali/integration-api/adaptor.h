@@ -52,8 +52,6 @@ namespace Integration
 class SceneHolder;
 }
 
-using SceneHolderList = std::vector<Dali::Integration::SceneHolder>;
-
 
 namespace Internal
 {
@@ -127,7 +125,7 @@ class DALI_ADAPTOR_API Adaptor
 public:
 
   typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
-  typedef Signal< void (Dali::Integration::SceneHolder&) > WindowCreatedSignalType;  ///< SceneHolder created signal type
+  typedef Signal< void (Window&) > WindowCreatedSignalType;  ///< Window created signal type
 
   using SurfaceSize = Uint16Pair; ///< Surface size type
 
@@ -471,12 +469,6 @@ public:
   Dali::WindowContainer GetWindows() const;
 
   /**
-   * @brief Get the list of scene holders.
-   * @return The list of scene holers
-   */
-  SceneHolderList GetSceneHolders() const;
-
-  /**
    * @brief Called when the window becomes fully or partially visible.
    */
   void OnWindowShown();
@@ -504,7 +496,7 @@ public:  // Signals
   AdaptorSignalType& LanguageChangedSignal();
 
   /**
-   * @brief This signal is emitted when a new window (scene holder) is created
+   * @brief This signal is emitted when a new window is created
    *
    * @return The signal to connect to
    */

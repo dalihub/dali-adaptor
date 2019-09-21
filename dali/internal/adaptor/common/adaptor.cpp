@@ -260,11 +260,6 @@ Dali::WindowContainer Adaptor::GetWindows() const
   return mImpl->GetWindows();
 }
 
-SceneHolderList Adaptor::GetSceneHolders() const
-{
-  return mImpl->GetSceneHolders();
-}
-
 void Adaptor::OnWindowShown()
 {
   mImpl->OnWindowShown();

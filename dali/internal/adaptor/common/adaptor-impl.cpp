@@ -189,9 +189,11 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   defaultWindow->SetAdaptor( Get() );
 
-  Dali::Integration::SceneHolder defaultSceneHolder( defaultWindow );
-
-  mWindowCreatedSignal.Emit( defaultSceneHolder );
+  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( defaultWindow ) );
+  if ( window )
+  {
+    mWindowCreatedSignal.Emit( window );
+  }
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
@@ -670,7 +672,11 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
 
-  mWindowCreatedSignal.Emit( childWindow );
+  Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( &windowImpl ) );
+  if ( window )
+  {
+    mWindowCreatedSignal.Emit( window );
+  }
 
   return true;
 }
@@ -1139,18 +1145,6 @@ Dali::WindowContainer Adaptor::GetWindows() const
   }
 
   return windows;
-}
-
-Dali::SceneHolderList Adaptor::GetSceneHolders() const
-{
-  Dali::SceneHolderList sceneHolderList;
-
-  for( auto iter = mWindows.begin(); iter != mWindows.end(); ++iter )
-  {
-    sceneHolderList.push_back( Dali::Integration::SceneHolder( *iter ) );
-  }
-
-  return sceneHolderList;
 }
 
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)
