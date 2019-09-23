@@ -1,4 +1,5 @@
 devel_api_src_files = \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/autofill-group.cpp \
   $(adaptor_devel_api_dir)/adaptor-framework/autofill-item.cpp \
@@ -38,6 +39,10 @@ devel_api_src_files = \
 
 
 devel_api_adaptor_framework_header_files = \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-action-handler.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
+  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-event.h \
   $(adaptor_devel_api_dir)/adaptor-framework/application-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/autofill-group.h \
   $(adaptor_devel_api_dir)/adaptor-framework/autofill-item.h \
@@ -81,8 +86,7 @@ devel_api_adaptor_framework_header_files = \
   $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
   $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
   $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility.h
+  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.h
 
 devel_api_text_abstraction_src_files = \
    $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
@@ -111,3 +115,4 @@ text_abstraction_header_files = \
    $(adaptor_devel_api_dir)/text-abstraction/text-abstraction-definitions.h \
    $(adaptor_devel_api_dir)/text-abstraction/text-renderer.h \
    $(adaptor_devel_api_dir)/text-abstraction/text-renderer-layout-helper.h
+

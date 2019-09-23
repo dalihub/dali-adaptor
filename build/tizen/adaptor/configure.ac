@@ -58,8 +58,8 @@ PKG_CHECK_MODULES(TTRACE,  ttrace, AC_DEFINE(ENABLE_TTRACE, 1, [ttrace available
 PKG_CHECK_MODULES(ECORE, ecore)
 PKG_CHECK_MODULES(ECORE_IPC, ecore-ipc)
 PKG_CHECK_MODULES(ECORE_IMF, [ecore-imf >= 1.13], [ecore_imf_1_13=yes], [ecore_imf_1_13=no])
-# Check for EldBus.h in ECore, required for ATSPI
-PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ])
+# Check for EldBus.h in ECore
+PKG_CHECK_MODULES(ELDBUS, eldbus, [ eldbus_available=yes ],  [ eldbus_available=no ] )
 
 DALI_ELDBUS_AVAILABLE=
 if test "x$eldbus_available" = "xyes"; then

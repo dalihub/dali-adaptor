@@ -49,6 +49,7 @@
 
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
+#include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -60,7 +61,6 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/internal/system/common/logging.h>
 
 #include <dali/internal/system/common/locale-utils.h>
@@ -324,36 +324,10 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
       DALI_LOG_ERROR( "Fail to open file : %s\n", ( systemCachePath + "gpu-environment.conf" ).c_str() );
     }
   }
-  auto appName = GetApplicationPackageName();
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
-  bridge->SetApplicationName( appName );
-  bridge->Initialize();
-  Dali::Stage stage = Dali::Stage::GetCurrent();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect( &accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent );
-}
-
-void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent( const KeyEvent& event )
-{
-  Accessibility::KeyEventType type;
-  if( event.state == KeyEvent::Down )
-  {
-    type = Accessibility::KeyEventType::KEY_PRESSED;
-  }
-  else if( event.state == KeyEvent::Up )
-  {
-    type = Accessibility::KeyEventType::KEY_RELEASED;
-  }
-  else
-  {
-    return;
-  }
-  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit( type, event.keyCode, event.keyPressedName, event.time, !event.keyPressed.empty() );
 }
 
 Adaptor::~Adaptor()
 {
-  Accessibility::Bridge::GetCurrentBridge()->Terminate();
-
   // Ensure stop status
   Stop();
 
@@ -950,8 +924,6 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 
 void Adaptor::OnWindowShown()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationShown();
-
   if( PAUSED_WHILE_HIDDEN == mState )
   {
     // Adaptor can now be resumed
@@ -977,8 +949,6 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
-
   if( RUNNING == mState || READY == mState )
   {
     bool allWindowsHidden = true;

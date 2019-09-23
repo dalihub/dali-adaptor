@@ -33,9 +33,6 @@
 #endif
 
 
-#include <aul.h>
-#include <unistd.h>
-
 namespace Dali
 {
 
@@ -68,14 +65,6 @@ static void OnSystemLanguageChanged( system_settings_key_e key, void* data )
 }
 
 } // namesapce
-
-std::string Adaptor::GetApplicationPackageName()
-{
-  char appname[4096] = {0};
-  int pid = getpid();
-  aul_app_get_pkgname_bypid( pid, appname, sizeof( appname ) );
-  return appname;
-}
 
 void Adaptor::GetDataStoragePath( std::string& path)
 {

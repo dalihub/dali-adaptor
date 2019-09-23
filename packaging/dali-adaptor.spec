@@ -99,8 +99,6 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 # for autofill
 %if 0%{?tizen_version_major} >= 5 && 0%{?tizen_version_minor} >= 5
 BuildRequires:  pkgconfig(capi-ui-autofill)
-# for ATSPI (Accessibility) support
-BuildRequires:  pkgconfig(eldbus)
 %endif
 
 # for feedback plugin

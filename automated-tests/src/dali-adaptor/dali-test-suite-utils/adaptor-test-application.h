@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include "test-application.h"
 #include "adaptor-test-adaptor-impl.h"
-#include <dali/public-api/adaptor-framework/accessibility.h>
 
 namespace Dali
 {
@@ -39,8 +38,6 @@ public:
                           float  verticalDpi   = DEFAULT_VERTICAL_DPI )
   : TestApplication( surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi )
   {
-    //Dali::Accessibility::DBusWrapper::Install(std::unique_ptr<Dali::Accessibility::DBusWrapper>(new Dali::Accessibility::TestDBusWrapper()));
-
     Internal::Adaptor::Adaptor::SetAvailable();
   }
 
