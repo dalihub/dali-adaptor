@@ -111,6 +111,26 @@ SceneHolder SceneHolder::Get( Actor actor )
   return Internal::Adaptor::SceneHolder::Get( actor );
 }
 
+SceneHolder::KeyEventSignalType& SceneHolder::KeyEventSignal()
+{
+  return GetImplementation(*this).KeyEventSignal();
+}
+
+SceneHolder::KeyEventGeneratedSignalType& SceneHolder::KeyEventGeneratedSignal()
+{
+  return GetImplementation(*this).KeyEventGeneratedSignal();
+}
+
+SceneHolder::TouchSignalType& SceneHolder::TouchSignal()
+{
+  return GetImplementation(*this).TouchSignal();
+}
+
+SceneHolder::WheelEventSignalType& SceneHolder::WheelEventSignal()
+{
+  return GetImplementation(*this).WheelEventSignal();
+}
+
 }// Integration
 
 } // Dali
