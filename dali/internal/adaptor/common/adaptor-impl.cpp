@@ -49,7 +49,6 @@
 
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
