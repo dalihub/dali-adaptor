@@ -783,6 +783,13 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextX::GetInputPanelL
   return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
+void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPosition\n" );
+
+  // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
+}
+
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );

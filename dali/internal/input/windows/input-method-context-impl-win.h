@@ -251,6 +251,11 @@ public:
    */
   Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const override;
 
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPosition()
+   */
+  void SetInputPanelPosition( unsigned int x, unsigned int y ) override;
+
 private:
   /**
    * Context created the first time and kept until deleted.
