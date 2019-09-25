@@ -359,6 +359,11 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPane
   return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
+void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int y )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
+}
+
 bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );

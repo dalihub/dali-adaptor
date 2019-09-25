@@ -1069,6 +1069,16 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInput
   return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
+void InputMethodContextEcoreWl::SetInputPanelPosition( unsigned int x, unsigned int y )
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelPosition\n" );
+
+  if( mIMFContext )
+  {
+    ecore_imf_context_input_panel_position_set( mIMFContext, x, y );
+  }
+}
+
 bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );

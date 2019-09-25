@@ -252,10 +252,8 @@ void WindowRenderSurface::CreateSurface()
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
 
-  int screenWidth, screenHeight;
-  WindowSystem::GetScreenSize( screenWidth, screenHeight );
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: w = %d h = %d screenWidth = %d screenHeight = %d angle = %d screen rotation = %d\n",
-      mPositionSize.width, mPositionSize.height, screenWidth, screenHeight, mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n",
+      mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
 void WindowRenderSurface::DestroySurface()
