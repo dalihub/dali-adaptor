@@ -170,16 +170,6 @@ private: // from PixmapRenderSurface
    */
   virtual void UseExistingRenderable( unsigned int surfaceId ) override;
 
-  /**
-   * @copydoc Dali::Integration::RenderSurface::SetDamagedRect()
-   */
-  virtual Rect<int32_t> SetDamagedRect( const Rect<int32_t>& damagedRect ) override;
-
-  /**
-   * @copydoc Dali::Integration::RenderSurface::GetBufferAge()
-   */
-  virtual int32_t GetBufferAge() override;
-
 private:
 
   /**
