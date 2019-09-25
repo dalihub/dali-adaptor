@@ -182,11 +182,6 @@ public:
   void SetGlesVersion( const int32_t glesVersion );
 
   /**
-   * Sets Whether the frame is the first after Resume.
-   */
-  void SetFirstFrameAfterResume();
-
-  /**
    * returns the display with which this object was initialized
    * @return the EGL Display.
    */
@@ -250,8 +245,6 @@ private:
   bool                 mStencilBufferRequired;
   bool                 mIsSurfacelessContextSupported;
   bool                 mIsKhrCreateContextSupported;
-
-  bool                 mIsFirstFrameAfterResume;
 };
 
 } // namespace Adaptor
