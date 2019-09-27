@@ -453,6 +453,14 @@ public:
    */
   InputPanelLanguage GetInputPanelLanguage() const;
 
+  /**
+   * @brief Sets the x,y coordinates of the input panel.
+   *
+   * @param[in] x The top-left x coordinate of the input panel
+   * @param[in] y The top-left y coordinate of the input panel
+   */
+  void SetInputPanelPosition( unsigned int x, unsigned int y );
+
 public:
 
   // Signals
