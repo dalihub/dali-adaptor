@@ -71,6 +71,13 @@ AC_SUBST(DALI_ELDBUS_AVAILABLE)
 
 PKG_CHECK_MODULES(TPKP_CURL, tpkp-curl, [ tpkp_curl_available=yes ], [ tpkp_curl_available=no ] )
 
+if test "x$enable_tizen_major_version" = "x5"; then
+if test "x$enable_tizen_minor_version" = "x5"; then
+PKG_CHECK_MODULES(AUTOFILL, capi-ui-autofill)
+  DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DCAPI_AUTOFILL_SUPPORT"
+fi
+fi
+
 if test "x$tpkp_curl_available" = "xyes"; then
   DALI_ADAPTOR_CFLAGS="$DALI_ADAPTOR_CFLAGS -DTPK_CURL_ENABLED "
 fi
@@ -151,6 +158,13 @@ AC_ARG_ENABLE([tizen-major-version],
                               [Specify the Tizen Major version for backwards compatibility])],
               [enable-tizen-major-version=$enableval],
               [enable-tizen-major-version=0])
+
+# Tizen Minor version
+AC_ARG_ENABLE([tizen-minor-version],
+              [AC_HELP_STRING([--enable-tizen-minor-version],
+                              [Specify the Tizen Minor version for backwards compatibility])],
+              [enable-tizen-minor-version=$enableval],
+              [enable-tizen-minor-version=0])
 
 # Ensure valid profile selected
 if test "x$enable_profile" != "xCOMMON" -a "x$enable_profile" != "xMOBILE" -a "x$enable_profile" != "xWEARABLE" -a "x$enable_profile" != "xTV" -a "x$enable_profile" != "xIVI" -a "x$enable_profile" != "xUBUNTU"; then
