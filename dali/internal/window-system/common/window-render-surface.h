@@ -210,6 +210,16 @@ public: // from Dali::Integration::RenderSurface
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
+  /**
+   * @copydoc Dali::Integration::RenderSurface::SetDamagedRect()
+   */
+  virtual Rect<int32_t> SetDamagedRect( const Rect<int32_t>& damagedRectArray ) override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::GetBufferAge()
+   */
+  virtual int32_t GetBufferAge() override;
+
 private:
 
   /**
@@ -226,6 +236,11 @@ private:
    * @brief Used as the callback for the rotation-trigger.
    */
   void ProcessRotationRequest();
+
+  /*
+   *  @brief MergeRect
+   */
+  std::vector<int32_t> MergeRect( const Rect<int32_t>& damagedRectArray, int bufferAge );
 
 protected:
 
@@ -251,6 +266,8 @@ private: // Data
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
+  int                             mBufferAge;
+  int                             mPreBufferAge;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
   bool                            mRotationSupported;
   bool                            mRotationFinished;
@@ -260,6 +277,7 @@ private: // Data
   uint32_t                        mDpiHorizontal;
   uint32_t                        mDpiVertical;
 
+  Rect<int32_t>                   mPreDamagedRect[5];  ///< The GPU driver can has up to four buffers. And one is for area calculation.
 }; // class WindowRenderSurface
 
 } // namespace Adaptor

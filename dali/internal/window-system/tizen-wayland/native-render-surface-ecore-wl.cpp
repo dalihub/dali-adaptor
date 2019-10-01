@@ -227,6 +227,16 @@ bool NativeRenderSurfaceEcoreWl::PreRender( bool )
   return true;
 }
 
+Rect<int32_t> NativeRenderSurfaceEcoreWl::SetDamagedRect( const Rect<int32_t>& damagedRect )
+{
+  return damagedRect;
+}
+
+int32_t NativeRenderSurfaceEcoreWl::GetBufferAge()
+{
+  return 0;
+}
+
 void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
