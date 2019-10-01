@@ -174,7 +174,7 @@ public:
    *
    * @details The timezone ID, according to the IANA(Internet Assigned Numbers Authority)
    * If you want to see more information, please refer to the site :
-   * https://en.wikipedia.org/wiki/List_of_tz_database_time_zones/
+   * https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
    *
    * @SINCE_1_2_32
    * @return The ID of timezone
