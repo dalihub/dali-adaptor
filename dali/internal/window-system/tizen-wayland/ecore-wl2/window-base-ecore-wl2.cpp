@@ -432,6 +432,46 @@ static Eina_Bool EcoreEventDataReceive( void* data, int type, void* event )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// Effect Start/End Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when transition animation of the window's shown/hidden is started by window manager.
+ */
+static Eina_Bool EcoreEventEffectStart(void *data, int type, void *event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+  Ecore_Wl2_Event_Effect_Start *effectStart = static_cast<Ecore_Wl2_Event_Effect_Start*>( event );
+  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventEffectStart, effect type[ %d ]\n", effectStart->type );
+  if( windowBase )
+  {
+    if( effectStart->type < 3 ) // only under restack
+    {
+      windowBase->OnTransitionEffectEvent( DevelWindow::EffectState::START, static_cast<DevelWindow::EffectType>( effectStart->type ) );
+    }
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when transition animation of the window's shown/hidden is ended by window manager.
+ */
+static Eina_Bool EcoreEventEffectEnd(void *data, int type, void *event)
+{
+  Ecore_Wl2_Event_Effect_Start *effectEnd = static_cast<Ecore_Wl2_Event_Effect_Start*>( event );
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventEffectEnd, effect type[ %d ]\n", effectEnd->type );
+  if( windowBase )
+  {
+    if( effectEnd->type < 3 ) // only under restack
+    {
+      windowBase->OnTransitionEffectEvent( DevelWindow::EffectState::END, static_cast<DevelWindow::EffectType>( effectEnd->type ) );
+    }
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 // Font Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -706,6 +746,10 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
   // Register Selection event - clipboard selection
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_DATA_SOURCE_SEND,            EcoreEventDataSend,                  this ) );
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SELECTION_DATA_READY,        EcoreEventDataReceive,               this ) );
+
+  // Register Effect Start/End event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_START,                EcoreEventEffectStart,               this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_END,                  EcoreEventEffectEnd,                 this ) );
 
   // Register Vconf notify - font name and size
   vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this );
@@ -1145,6 +1189,11 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification( void* context, 
 
   mAccessibilitySignal.Emit( info );
 #endif
+}
+
+void WindowBaseEcoreWl2::OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type )
+{
+  mTransitionEffectEventSignal.Emit( state, type );
 }
 
 void WindowBaseEcoreWl2::RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version )
