@@ -731,20 +731,20 @@ void Window::SetParent( Dali::Window& parent )
   if ( DALI_UNLIKELY( parent ) )
   {
     mParentWindow = parent;
-    Dali::Window grandParent = Dali::DevelWindow::GetParent( parent );
+    Dali::Window self = Dali::Window( this );
     // check circular parent window setting
-    if ( DALI_UNLIKELY( grandParent ) && mWindowBase->IsMatchedWindow( grandParent.GetNativeHandle() ) )
+    if ( Dali::DevelWindow::GetParent( parent ) == self )
     {
       Dali::DevelWindow::Unparent( parent );
     }
-    mWindowBase->SetParent( parent.GetNativeHandle() );
+    mWindowBase->SetParent( GetImplementation( mParentWindow ).mWindowBase );
   }
 }
 
 void Window::Unparent()
 {
-  Any parent;
-  mWindowBase->SetParent( parent );
+  mWindowBase->SetParent( nullptr );
+  mParentWindow.Reset();
 }
 
 Dali::Window Window::GetParent()
