@@ -629,14 +629,14 @@ void Window::OnRotation( const RotationEvent& rotation )
 
   SurfaceResized();
 
-  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
 
   // Emit signal
   Dali::Window handle( this );
-  mResizedSignal.Emit( Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
-  mResizeSignal.Emit( handle, Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
+  mResizedSignal.Emit( Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
+  mResizeSignal.Emit( handle, Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
 
-  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
+  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
 }
 
 void Window::OnPause()
@@ -708,20 +708,20 @@ void Window::SetParent( Dali::Window& parent )
   if ( DALI_UNLIKELY( parent ) )
   {
     mParentWindow = parent;
-    Dali::Window grandParent = Dali::DevelWindow::GetParent( parent );
+    Dali::Window self = Dali::Window( this );
     // check circular parent window setting
-    if ( DALI_UNLIKELY( grandParent ) && mWindowBase->IsMatchedWindow( grandParent.GetNativeHandle() ) )
+    if ( Dali::DevelWindow::GetParent( parent ) == self )
     {
       Dali::DevelWindow::Unparent( parent );
     }
-    mWindowBase->SetParent( parent.GetNativeHandle() );
+    mWindowBase->SetParent( GetImplementation( mParentWindow ).mWindowBase );
   }
 }
 
 void Window::Unparent()
 {
-  Any parent;
-  mWindowBase->SetParent( parent );
+  mWindowBase->SetParent( nullptr );
+  mParentWindow.Reset();
 }
 
 Dali::Window Window::GetParent()
