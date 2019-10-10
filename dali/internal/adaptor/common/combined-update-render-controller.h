@@ -370,6 +370,8 @@ private:
   volatile unsigned int             mForceClear;                       ///< Will be set to clear forcibly
 
   volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
+
+  volatile unsigned int             mFirstFrameAfterResume;            ///< Will be set to check the first frame after resume (for log)
 };
 
 } // namespace Adaptor

@@ -116,7 +116,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mPostRendering( FALSE ),
   mSurfaceResized( FALSE ),
   mForceClear( FALSE ),
-  mUploadWithoutRendering( FALSE )
+  mUploadWithoutRendering( FALSE ),
+  mFirstFrameAfterResume( FALSE )
 {
   LOG_EVENT_TRACE;
 
@@ -216,6 +217,7 @@ void CombinedUpdateRenderController::Resume()
 
     mRunning = TRUE;
     mForceClear = TRUE;
+    mFirstFrameAfterResume = TRUE;
 
     DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
   }
@@ -635,11 +637,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
     }
 
-    if( timeToSleepUntil == 0 )
+    if( mFirstFrameAfterResume )
     {
-      // timeToSleepUntil is set to 0 when the thread is initalized or resumed
+      // mFirstFrameAfterResume is set to true when the thread is resumed
       // Let eglImplementation know the first frame after thread initialized or resumed.
       eglImpl.SetFirstFrameAfterResume();
+      mFirstFrameAfterResume = FALSE;
     }
 
     Integration::RenderStatus renderStatus;
