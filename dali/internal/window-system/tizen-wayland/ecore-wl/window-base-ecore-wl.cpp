@@ -2132,35 +2132,15 @@ void WindowBaseEcoreWl::CreateWindow( PositionSize positionSize )
   }
 }
 
-void WindowBaseEcoreWl::SetParent( Any parent )
+void WindowBaseEcoreWl::SetParent( WindowBase* parentWinBase )
 {
-  Ecore_Wl_Window* mEcoreParent;
-  if( parent.Empty() == false )
+  Ecore_Wl_Window* ecoreParent = NULL;
+  if( parentWinBase )
   {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( parent.GetType() == typeid (Ecore_Wl_Window *) ) && "Parent's surface type is invalid" );
-    mEcoreParent = AnyCast< Ecore_Wl_Window* >( parent );
+    WindowBaseEcoreWl* winBaseEcore = static_cast<WindowBaseEcoreWl*>( parentWinBase );
+    ecoreParent = winBaseEcore->mEcoreWindow;
   }
-  else
-  {
-    mEcoreParent = NULL;
-  }
-  ecore_wl_window_parent_set( mEcoreWindow, mEcoreParent );
-}
-
-bool WindowBaseEcoreWl::IsMatchedWindow( Any window )
-{
-  bool ret = false;
-  if ( window.Empty() == false )
-  {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( window.GetType() == typeid (Ecore_Wl_Window *) ) && "Window's surface type is invalid" );
-    if ( AnyCast< Ecore_Wl_Window* >( window ) == mEcoreWindow )
-    {
-      ret = true;
-    }
-  }
-  return ret;
+  ecore_wl_window_parent_set( mEcoreWindow, ecoreParent );
 }
 
 } // namespace Adaptor
