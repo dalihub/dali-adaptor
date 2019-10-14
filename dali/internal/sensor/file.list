@@ -1,16 +1,19 @@
 
-
 # module: sensor, backend: common
-adaptor_sensor_common_src_files=\
-    ${adaptor_sensor_dir}/common/tilt-sensor-factory.cpp \
+SET( adaptor_sensor_common_src_files 
+    ${adaptor_sensor_dir}/common/tilt-sensor-factory.cpp 
     ${adaptor_sensor_dir}/common/tilt-sensor-impl.cpp
+)
 
 # module: sensor, backend: tizen
-adaptor_sensor_tizen_src_files=\
-    ${adaptor_sensor_dir}/tizen/tilt-sensor-factory-tizen.cpp \
+SET( adaptor_sensor_tizen_src_files 
+    ${adaptor_sensor_dir}/tizen/tilt-sensor-factory-tizen.cpp 
     ${adaptor_sensor_dir}/tizen/tilt-sensor-impl-tizen.cpp
+)
 
 # module: sensor, backend: ubuntu
-adaptor_sensor_ubuntu_src_files=\
-    ${adaptor_sensor_dir}/ubuntu/tilt-sensor-factory-ubuntu.cpp \
+SET( adaptor_sensor_ubuntu_src_files 
+    ${adaptor_sensor_dir}/ubuntu/tilt-sensor-factory-ubuntu.cpp 
     ${adaptor_sensor_dir}/ubuntu/tilt-sensor-impl-ubuntu.cpp
+)
+

@@ -1,8 +1,8 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@
 apiversion=@DALI_ADAPTOR_VERSION@
-libdir=@libdir@
-includedir=@devincludepath@
+libdir=@LIB_DIR@
+includedir=@DEV_INCLUDE_PATH@
 
 Name: dali-adaptor
 Description: DALi adaptor using ecore
