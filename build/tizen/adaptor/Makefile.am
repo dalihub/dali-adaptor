@@ -489,6 +489,7 @@ LIBDALI_ADAPTOR_LA_LIBADD = \
                       $(LIBEXIF_LIBS) \
                       $(LIBCURL_LIBS) \
                       $(HARFBUZZ_LIBS) \
+                      $(AUTOFILL_LIBS) \
                       $(TPKP_CURL_LIBS) \
                       $(UTILX_LIBS) \
                       -lgif \
@@ -684,6 +685,7 @@ linker_test_LDADD = \
   $(DALICORE_LIBS) \
   $(VCONF_LIBS) \
   $(HARFBUZZ_LIBS) \
+  $(AUTOFILL_LIBS) \
   -L${prefix}/lib
 
 linker_test_LDADD += libdali-adaptor-cxx11.la
