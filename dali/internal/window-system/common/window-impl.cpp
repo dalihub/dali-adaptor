@@ -652,14 +652,14 @@ void Window::OnRotation( const RotationEvent& rotation )
 
   SurfaceResized( forceUpdate );
 
-  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
+  mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 
   // Emit signal
   Dali::Window handle( this );
-  mResizedSignal.Emit( Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
-  mResizeSignal.Emit( handle, Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
+  mResizedSignal.Emit( Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
+  mResizeSignal.Emit( handle, Dali::Window::WindowSize( mRotationAngle, mWindowHeight ) );
 
-  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
+  mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mRotationAngle, mWindowHeight ) );
 }
 
 void Window::OnPause()
