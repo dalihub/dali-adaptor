@@ -809,11 +809,17 @@ bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
     ecoreKeyDownEvent.timestamp = keyEvent.time;
     ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-#ifdef ECORE_IMF_1_13
+
+#ifdef defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#ifdef (ECORE_VERSION_MINOR >= 14)
     ecoreKeyDownEvent.dev_name  = "";
     ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
+#endif // Since ecore_imf 1.14 version
+#ifdef (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyDownEvent.keycode = keyEvent.keyCode;
+#endif // Since ecore_imf 1.22 version
+#endif // Since ecore_imf Version 1
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if ((keyEvent.GetDeviceName() == "ime") && ((!strncmp(keyEvent.keyPressedName.c_str(), "Left", 4)) ||
@@ -863,9 +869,14 @@ bool InputMethodContextX::ProcessEventKeyUp( const KeyEvent& keyEvent )
     ecoreKeyUpEvent.timestamp = keyEvent.time;
     ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-#ifdef ECORE_IMF_1_13
+#ifdef defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#ifdef (ECORE_VERSION_MINOR >= 14)
     ecoreKeyUpEvent.dev_name  = "";
-#endif // ECORE_IMF_1_13
+#endif // Since ecore_imf 1.14 version
+#ifdef (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyUpEvent.keycode = keyEvent.keyCode;
+#endif // Since ecore_imf 1.22 version
+#endif // Since ecore_imf Version 1
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,
