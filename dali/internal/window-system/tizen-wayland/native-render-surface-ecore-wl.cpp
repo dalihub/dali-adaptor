@@ -227,15 +227,6 @@ bool NativeRenderSurfaceEcoreWl::PreRender( bool )
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::SetDamagedRect( const Dali::DamagedRect& damagedRect, Dali::DamagedRect& mergedRect )
-{
-}
-
-int32_t NativeRenderSurfaceEcoreWl::GetBufferAge()
-{
-  return 0;
-}
-
 void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
