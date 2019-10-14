@@ -888,46 +888,20 @@ void WindowBaseEcoreX::CreateWindow( PositionSize positionSize, bool isTranspare
  }
 }
 
-void WindowBaseEcoreX::SetParent( Any parent )
+void WindowBaseEcoreX::SetParent( WindowBase* parentWinBase )
 {
-  Ecore_X_Window mEcoreParent;
-  if ( parent.Empty() == false )
+  Ecore_X_Window ecoreParent = 0;
+  if( parentWinBase )
   {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( (parent.GetType() == typeid (Ecore_X_Window) ) )
-                        && "Surface type is invalid" );
-
-    if ( parent.GetType() == typeid (Ecore_X_Window) )
-    {
-      mEcoreParent = AnyCast< Ecore_X_Window >( parent );
-      ecore_x_icccm_transient_for_set( mEcoreWindow, mEcoreParent );
-    }
-    else
-    {
-      mEcoreParent = 0;
-      ecore_x_icccm_transient_for_unset( mEcoreWindow );
-    }
+    WindowBaseEcoreX* winBaseEcoreX = static_cast<WindowBaseEcoreX*>( parentWinBase );
+    ecoreParent = winBaseEcoreX->mEcoreWindow;
+    ecore_x_icccm_transient_for_set( mEcoreWindow, ecoreParent );
   }
   else
   {
-    mEcoreParent = 0;
+    ecoreParent = 0;
     ecore_x_icccm_transient_for_unset( mEcoreWindow );
   }
-}
-
-bool WindowBaseEcoreX::IsMatchedWindow( Any window )
-{
-  bool ret = false;
-  if ( window.Empty() == false )
-  {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( (window.GetType() == typeid (Ecore_X_Window) ) ) && "Surface type is invalid" );
-    if ( AnyCast< Ecore_X_Window >( window ) == mEcoreWindow )
-    {
-      ret = true;
-    }
-  }
-  return ret;
 }
 
 } // namespace Adaptor
