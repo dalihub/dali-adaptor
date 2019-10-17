@@ -249,7 +249,7 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
-configure_flags=" -DENABLE_WAYLAND=ON"
+cmake_flags=" -DENABLE_WAYLAND=ON"
 
 # Use this conditional when Tizen version is 5.x or greater
 %if 0%{?tizen_version_major} >= 5
@@ -258,7 +258,15 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_5"
 # Need Ecore-Wayland2 when Tizen version is 5.x or greater
 CFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
 CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
-configure_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
+cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
+%endif
+
+%if 0%{?enable_debug}
+cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
+%endif
+
+%if 0%{?enable_trace}
+cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
 libtoolize --force
@@ -274,6 +282,13 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TIZEN_PLATFORM_CONFIG_SUPPORTED
 %endif
 
+cmake_flags+=" -DCMAKE_INSTALL_PREFIX=$PREFIX"
+cmake_flags+=" -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
+cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
+cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
+cmake_flags+=" -DENABLE_FEEDBACK=YES"
+cmake_flags+=" -DENABLE_APPFW=YES"
+
 # Set up the build via Cmake
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -283,22 +298,7 @@ TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TI
 mkdir mobile
 pushd mobile
 
-cmake \
-%if 0%{?enable_debug}
-      -DCMAKE_BUILD_TYPE=Debug \
-%endif
-%if 0%{?enable_trace}
-      -DENABLE_TRACE=ON \
-%endif
-      -DCMAKE_INSTALL_PREFIX=$PREFIX \
-      -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
-      -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
-      -DENABLE_PROFILE=MOBILE \
-      -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major} \
-      -DENABLE_FEEDBACK=YES \
-      -DENABLE_APPFW=YES \
-      $configure_flags \
-      ..
+cmake -DENABLE_PROFILE=MOBILE $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
@@ -314,22 +314,7 @@ popd
 mkdir tv
 pushd tv
 
-cmake \
-%if 0%{?enable_debug}
-      -DCMAKE_BUILD_TYPE=Debug \
-%endif
-%if 0%{?enable_trace}
-      -DENABLE_TRACE=ON \
-%endif
-      -DCMAKE_INSTALL_PREFIX=$PREFIX \
-      -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
-      -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
-      -DENABLE_PROFILE=TV \
-      -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major} \
-      -DENABLE_FEEDBACK=YES \
-      -DENABLE_APPFW=YES \
-      $configure_flags \
-      ..
+cmake -DENABLE_PROFILE=TV $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
@@ -345,22 +330,7 @@ popd
 mkdir wearable
 pushd wearable
 
-cmake \
-%if 0%{?enable_debug}
-      -DCMAKE_BUILD_TYPE=Debug \
-%endif
-%if 0%{?enable_trace}
-      -DENABLE_TRACE=ON \
-%endif
-      -DCMAKE_INSTALL_PREFIX=$PREFIX \
-      -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
-      -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
-      -DENABLE_PROFILE=WEARABLE \
-      -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major} \
-      -DENABLE_FEEDBACK=YES \
-      -DENABLE_APPFW=YES \
-      $configure_flags \
-      ..
+cmake -DENABLE_PROFILE=WEARABLE $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
@@ -376,22 +346,7 @@ popd
 mkdir ivi
 pushd ivi
 
-cmake \
-%if 0%{?enable_debug}
-      -DCMAKE_BUILD_TYPE=Debug \
-%endif
-%if 0%{?enable_trace}
-      -DENABLE_TRACE=ON \
-%endif
-      -DCMAKE_INSTALL_PREFIX=$PREFIX \
-      -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
-      -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
-      -DENABLE_PROFILE=IVI \
-      -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major} \
-      -DENABLE_FEEDBACK=YES \
-      -DENABLE_APPFW=YES \
-      $configure_flags \
-      ..
+cmake -DENABLE_PROFILE=IVI $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
@@ -408,22 +363,7 @@ popd
 mkdir common
 pushd common
 
-cmake \
-%if 0%{?enable_debug}
-      -DCMAKE_BUILD_TYPE=Debug \
-%endif
-%if 0%{?enable_trace}
-      -DENABLE_TRACE=ON \
-%endif
-      -DCMAKE_INSTALL_PREFIX=$PREFIX \
-      -DCMAKE_INSTALL_LIBDIR=%{_libdir} \
-      -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
-      -DENABLE_PROFILE=COMMON \
-      -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major} \
-      -DENABLE_FEEDBACK=YES \
-      -DENABLE_APPFW=YES \
-      $configure_flags \
-      ..
+cmake -DENABLE_PROFILE=COMMON $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
@@ -446,7 +386,9 @@ pushd mobile
 pushd  %{buildroot}%{_libdir}
 cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile
 popd
-make clean # So that we can gather symbol/size information for only one profile
+%if "%{?profile}" != "mobile"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
 popd
 %endif
 
@@ -457,7 +399,9 @@ pushd tv
 pushd  %{buildroot}%{_libdir}
 cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv
 popd
-make clean # So that we can gather symbol/size information for only one profile
+%if "%{?profile}" != "tv"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
 popd
 %endif
 
@@ -468,7 +412,9 @@ pushd wearable
 pushd  %{buildroot}%{_libdir}
 cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable
 popd
-make clean # So that we can gather symbol/size information for only one profile
+%if "%{?profile}" != "wearable"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
 popd
 %endif
 
@@ -479,7 +425,9 @@ pushd ivi
 pushd  %{buildroot}%{_libdir}
 cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi
 popd
-make clean # So that we can gather symbol/size information for only one profile
+%if "%{?profile}" != "ivi"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
 popd
 %endif
 
@@ -575,7 +523,7 @@ exit 0
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_ivi
 pushd %{_libdir}
-ln -sf libdali-adaptor.ivi libdali-adaptor.so.0.0.0
+ln -sf libdali-adaptor.so.ivi libdali-adaptor.so.0.0.0
 popd
 /sbin/ldconfig
 exit 0
