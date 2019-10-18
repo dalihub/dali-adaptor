@@ -34,6 +34,8 @@ FontClient::GlyphBufferData::GlyphBufferData()
 : buffer{ nullptr },
   width{ 0u },
   height{ 0u },
+  outlineOffsetX{ 0 },
+  outlineOffsetY{ 0 },
   format{ Pixel::A8 },
   isColorEmoji{ false },
   isColorBitmap{ false }
