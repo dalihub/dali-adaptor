@@ -1248,7 +1248,7 @@ void WindowBaseEcoreWl2::SetEglWindowRotation( int angle )
     }
     case 90:
     {
-      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_90;
+      rotation = WL_EGL_WINDOW_TIZEN_ROTATION_270;
       break;
     }
     case 180:
@@ -2187,35 +2187,15 @@ void WindowBaseEcoreWl2::CreateWindow( PositionSize positionSize )
   ecore_wl2_window_type_set( mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL );
 }
 
-void WindowBaseEcoreWl2::SetParent( Any parent )
+void WindowBaseEcoreWl2::SetParent( WindowBase* parentWinBase )
 {
-  Ecore_Wl2_Window* mEcoreParent;
-  if( parent.Empty() == false )
+  Ecore_Wl2_Window* ecoreParent = NULL;
+  if( parentWinBase )
   {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( parent.GetType() == typeid (Ecore_Wl2_Window *) ) && "Parent's surface type is invalid" );
-    mEcoreParent = AnyCast< Ecore_Wl2_Window* >( parent );
+    WindowBaseEcoreWl2* winBaseEcore2 = static_cast<WindowBaseEcoreWl2*>( parentWinBase );
+    ecoreParent = winBaseEcore2->mEcoreWindow;
   }
-  else
-  {
-    mEcoreParent = NULL;
-  }
-  ecore_wl2_window_parent_set( mEcoreWindow, mEcoreParent );
-}
-
-bool WindowBaseEcoreWl2::IsMatchedWindow( Any window )
-{
-  bool ret = false;
-  if ( window.Empty() == false )
-  {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( window.GetType() == typeid (Ecore_Wl2_Window *) ) && "Window's surface type is invalid" );
-    if ( AnyCast< Ecore_Wl2_Window*>( window ) == mEcoreWindow )
-    {
-      ret = true;
-    }
-  }
-  return ret;
+  ecore_wl2_window_parent_set( mEcoreWindow, ecoreParent );
 }
 
 } // namespace Adaptor

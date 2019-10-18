@@ -1,5 +1,6 @@
 
-
 # module: styling, backend: common
-adaptor_styling_common_src_files=\
+SET( adaptor_styling_common_src_files 
     ${adaptor_styling_dir}/common/style-monitor-impl.cpp
+)
+

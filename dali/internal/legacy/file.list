@@ -1,5 +1,6 @@
 
-
 # module: legacy, backend: common
-adaptor_legacy_common_src_files=\
+SET( adaptor_legacy_common_src_files 
     ${adaptor_legacy_dir}/common/tizen-platform-abstraction.cpp
+)
+

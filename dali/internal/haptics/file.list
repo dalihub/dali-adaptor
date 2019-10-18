@@ -1,7 +1,7 @@
 
-
 # module: haptics, backend: common
-adaptor_haptics_common_src_files=\
-    ${adaptor_haptics_dir}/common/feedback-player-impl.cpp \
+SET( adaptor_haptics_common_src_files 
+    ${adaptor_haptics_dir}/common/feedback-player-impl.cpp 
     ${adaptor_haptics_dir}/common/feedback-plugin-proxy.cpp
+)
 

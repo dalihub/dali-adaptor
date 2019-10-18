@@ -1,4 +1,6 @@
+
 # module: trace, backend: common
-adaptor_thread_common_src_files=\
+SET( adaptor_thread_common_src_files 
     ${adaptor_thread_dir}/common/thread-settings-impl.cpp
+)
 

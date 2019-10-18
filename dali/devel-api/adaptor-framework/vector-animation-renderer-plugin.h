@@ -94,11 +94,19 @@ public:
   virtual float GetFrameRate() const = 0;
 
   /**
-   * @brief Gets the default size of the file,.
+   * @brief Gets the default size of the file.
    *
-   * @return The default size of the file
+   * @param[out] width The default width of the file
+   * @param[out] height The default height of the file
    */
   virtual void GetDefaultSize( uint32_t& width, uint32_t& height ) const = 0;
+
+  /**
+   * @brief Gets the layer information of all the child layers.
+   *
+   * @param[out] map The layer information
+   */
+  virtual void GetLayerInfo( Property::Map& map ) const = 0;
 
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
