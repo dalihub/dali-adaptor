@@ -134,7 +134,7 @@ public:
    *
    * @param[out] map The layer information
    */
-  void GetLayerInfo( Property::Map& map ) const;
+  void GetLayerInfo( Property::Map& map );
 
 public: // Signals
 
