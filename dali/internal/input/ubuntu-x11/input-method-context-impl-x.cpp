@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
@@ -810,13 +811,13 @@ bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
     ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
 
-#ifdef defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#ifdef (ECORE_VERSION_MINOR >= 14)
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyDownEvent.dev_name  = "";
     ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #endif // Since ecore_imf 1.14 version
-#ifdef (ECORE_VERSION_MINOR >= 22)
+#if (ECORE_VERSION_MINOR >= 22)
     ecoreKeyDownEvent.keycode = keyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
@@ -869,11 +870,11 @@ bool InputMethodContextX::ProcessEventKeyUp( const KeyEvent& keyEvent )
     ecoreKeyUpEvent.timestamp = keyEvent.time;
     ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-#ifdef defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#ifdef (ECORE_VERSION_MINOR >= 14)
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyUpEvent.dev_name  = "";
 #endif // Since ecore_imf 1.14 version
-#ifdef (ECORE_VERSION_MINOR >= 22)
+#if (ECORE_VERSION_MINOR >= 22)
     ecoreKeyUpEvent.keycode = keyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
