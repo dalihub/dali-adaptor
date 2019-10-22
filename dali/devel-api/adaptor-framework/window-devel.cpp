@@ -65,6 +65,11 @@ WheelEventSignalType& WheelEventSignal( Window window )
   return GetImplementation( window ).WheelEventSignal();
 }
 
+VisibilityChangedSignalType& VisibilityChangedSignal( Window window )
+{
+  return GetImplementation( window ).VisibilityChangedSignal();
+}
+
 TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window )
 {
   return GetImplementation( window ).TransitionEffectEventSignal();
