@@ -34,12 +34,12 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
-#include <dali/integration-api/scene-holder.h>
+#include <dali/public-api/adaptor-framework/input-method.h>
+#include <dali/integration-api/adaptors/adaptor.h>
+#include <dali/integration-api/adaptors/scene-holder.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/public-api/adaptor-framework/input-method.h>
-#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #define TOKEN_STRING(x) #x

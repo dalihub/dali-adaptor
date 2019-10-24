@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/integration-api/adaptors/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/input/common/virtual-keyboard-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/internal/input/common/virtual-keyboard-impl.h>
-#include <dali/internal/input/common/key-impl.h>
 
 namespace Dali
 {

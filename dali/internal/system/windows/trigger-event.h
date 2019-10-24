@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/trigger-event-interface.h>
+#include <dali/integration-api/adaptors/trigger-event-interface.h>
 
 namespace Dali
 {
