@@ -221,6 +221,11 @@ void InputMethodContext::SetInputPanelPosition( unsigned int x, unsigned int y )
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition( x, y );
 }
 
+Dali::InputMethodContext::PreeditStyle InputMethodContext::GetPreeditStyle() const
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetPreeditStyle();
+}
+
 // Signals
 InputMethodContext::ActivatedSignalType& InputMethodContext::ActivatedSignal()
 {
