@@ -24,9 +24,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/render-surface.h>
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#include <dali/integration-api/adaptors/trigger-event-factory-interface.h>
-#include <dali/integration-api/adaptors/trigger-event-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-factory-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>

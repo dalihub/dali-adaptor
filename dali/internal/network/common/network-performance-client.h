@@ -25,7 +25,7 @@
 #include <dali/internal/system/common/performance-marker.h>
 #include <dali/internal/network/common/client-send-data-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
-#include <dali/integration-api/adaptors/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
 
 
 namespace Dali

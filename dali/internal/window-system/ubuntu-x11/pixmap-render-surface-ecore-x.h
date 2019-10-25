@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/adaptors/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>

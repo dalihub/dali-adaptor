@@ -17,7 +17,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/application-devel.h>
-#include <dali/integration-api/adaptors/scene-holder.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 
 namespace Dali

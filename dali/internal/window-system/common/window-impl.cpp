@@ -30,7 +30,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 
 // INTERNAL HEADERS
-#include <dali/integration-api/adaptors/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>

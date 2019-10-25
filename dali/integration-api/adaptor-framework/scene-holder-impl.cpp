@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/adaptors/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 
 // EXTERNAL INCLUDES
 #include <sys/time.h>

@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/application.h>
-#include <dali/integration-api/adaptors/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 using namespace Dali;
 

@@ -25,7 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/key.h>
-#include <dali/integration-api/adaptors/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/virtual-keyboard-impl.h>

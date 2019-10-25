@@ -1,23 +1,23 @@
 
 
 SET( adaptor_integration_api_src_files
-  ${adaptor_integration_api_dir}/adaptors/scene-holder.cpp
-  ${adaptor_integration_api_dir}/adaptors/scene-holder-impl.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.cpp
 )
 
 
 SET( adaptor_integration_api_header_files
-  ${adaptor_integration_api_dir}/adaptors/adaptor.h
-  ${adaptor_integration_api_dir}/adaptors/egl-interface.h
-  ${adaptor_integration_api_dir}/adaptors/log-factory-interface.h
-  ${adaptor_integration_api_dir}/adaptors/native-render-surface.h
-  ${adaptor_integration_api_dir}/adaptors/native-render-surface-factory.h
-  ${adaptor_integration_api_dir}/adaptors/render-surface-interface.h
-  ${adaptor_integration_api_dir}/adaptors/scene-holder.h
-  ${adaptor_integration_api_dir}/adaptors/scene-holder-impl.h
-  ${adaptor_integration_api_dir}/adaptors/thread-synchronization-interface.h
-  ${adaptor_integration_api_dir}/adaptors/trigger-event-interface.h
-  ${adaptor_integration_api_dir}/adaptors/trigger-event-factory-interface.h
-  ${adaptor_integration_api_dir}/adaptors/trigger-event-factory.h
+  ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
+  ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface-factory.h
+  ${adaptor_integration_api_dir}/adaptor-framework/render-surface-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.h
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.h
+  ${adaptor_integration_api_dir}/adaptor-framework/thread-synchronization-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory.h
 )
 

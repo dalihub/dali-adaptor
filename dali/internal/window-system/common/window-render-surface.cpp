@@ -23,8 +23,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptors/thread-synchronization-interface.h>
-#include <dali/integration-api/adaptors/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>

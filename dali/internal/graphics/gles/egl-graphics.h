@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptors/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
