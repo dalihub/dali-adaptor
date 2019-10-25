@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.42
+Version:    1.4.43
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -27,6 +27,9 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
+Provides: libdali-adaptor-cxx11.so
+Provides: libdali-adaptor-cxx11.so.0
+Provides: libdali-adaptor-cxx11.so.0.0.0
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)

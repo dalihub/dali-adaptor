@@ -324,6 +324,7 @@ InputMethodContextEcoreWl::InputMethodContextEcoreWl( Dali::Actor actor )
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false ),
+  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE ),
   mWindowId( GetWindowIdFromActor( actor ) )
 {
   ecore_imf_init();
@@ -510,6 +511,34 @@ void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, v
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
+      switch( attr->preedit_type )
+      {
+        case ECORE_IMF_PREEDIT_TYPE_NONE:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB1:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB2:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB3:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          break;
+        }
+        default:
+        {
+          break;
+        }
+      }
+
 #ifdef DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
 #else // DALI_PROFILE_UBUNTU
@@ -1079,6 +1108,12 @@ void InputMethodContextEcoreWl::SetInputPanelPosition( unsigned int x, unsigned 
   }
 }
 
+Dali::InputMethodContext::PreeditStyle InputMethodContextEcoreWl::GetPreeditStyle() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetPreeditStyle\n" );
+  return mPreeditType;
+}
+
 bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
@@ -1102,6 +1137,9 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
     ecoreKeyDownEvent.dev_name = deviceName.c_str();
     ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyDownEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+#endif // Since ecore_imf 1.22 version
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if ((keyEvent.GetDeviceName() == "ime") && ((!strncmp(keyEvent.keyPressedName.c_str(), "Left", 4)) ||
@@ -1155,6 +1193,9 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
     ecoreKeyUpEvent.dev_name = deviceName.c_str();
     ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyUpEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+#endif // Since ecore_imf 1.22 version
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,

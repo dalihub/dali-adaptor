@@ -86,7 +86,8 @@ Window::Window()
   mResizedSignal(),
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
-  mResizeSignal()
+  mResizeSignal(),
+  mVisibilityChangedSignal()
 {
 }
 
@@ -291,6 +292,9 @@ void Window::Show()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowShown();
+
+    Dali::Window handle( this );
+    mVisibilityChangedSignal.Emit( handle, true );
   }
 
   DALI_LOG_RELEASE_INFO( "Window (%p) Show(): iconified = %d\n", this, mIconified );
@@ -306,6 +310,9 @@ void Window::Hide()
   {
     WindowVisibilityObserver* observer( mAdaptor );
     observer->OnWindowHidden();
+
+    Dali::Window handle( this );
+    mVisibilityChangedSignal.Emit( handle, false );
   }
 
   DALI_LOG_RELEASE_INFO( "Window (%p) Hide(): iconified = %d\n", this, mIconified );
@@ -563,6 +570,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowHidden();
+
+      Dali::Window handle( this );
+      mVisibilityChangedSignal.Emit( handle, false );
     }
 
     DALI_LOG_RELEASE_INFO( "Window (%p) Iconified: visible = %d\n", this, mVisible );
@@ -575,6 +585,9 @@ void Window::OnIconifyChanged( bool iconified )
     {
       WindowVisibilityObserver* observer( mAdaptor );
       observer->OnWindowShown();
+
+      Dali::Window handle( this );
+      mVisibilityChangedSignal.Emit( handle, true );
     }
 
     DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified: visible = %d\n", this, mVisible );

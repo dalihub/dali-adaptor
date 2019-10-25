@@ -65,6 +65,11 @@ WheelEventSignalType& WheelEventSignal( Window window )
   return GetImplementation( window ).WheelEventSignal();
 }
 
+VisibilityChangedSignalType& VisibilityChangedSignal( Window window )
+{
+  return GetImplementation( window ).VisibilityChangedSignal();
+}
+
 void SetParent( Window window, Window parent )
 {
   GetImplementation( window ).SetParent( parent );
