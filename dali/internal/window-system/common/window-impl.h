@@ -28,7 +28,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
-#include <dali/integration-api/adaptors/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 

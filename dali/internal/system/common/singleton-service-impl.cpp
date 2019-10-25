@@ -24,7 +24,7 @@
 #include <dali/integration-api/processor-interface.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptors/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 #if defined(DEBUG_ENABLED)

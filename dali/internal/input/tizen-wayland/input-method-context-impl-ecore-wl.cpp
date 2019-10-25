@@ -35,8 +35,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/input-method.h>
-#include <dali/integration-api/adaptors/adaptor.h>
-#include <dali/integration-api/adaptors/scene-holder.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>

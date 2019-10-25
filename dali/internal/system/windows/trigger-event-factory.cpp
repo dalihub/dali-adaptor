@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/adaptors/trigger-event-factory.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/windows/trigger-event.h>

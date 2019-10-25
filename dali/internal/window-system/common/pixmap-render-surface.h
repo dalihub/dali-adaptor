@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptors/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali

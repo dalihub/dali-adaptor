@@ -168,7 +168,7 @@ ENDMACRO(INSTALL_HEADERS_WITH_DIRECTORY)
 # the automake counterpart.
 SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
 SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
-SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptors )
+SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
 SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )

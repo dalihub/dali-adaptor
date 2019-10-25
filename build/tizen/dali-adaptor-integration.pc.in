@@ -9,4 +9,4 @@ Description: Integration APIs for dali-adaptor
 Version: ${apiversion}
 Requires: dali-adaptor
 Libs: -L${libdir}
-Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptors/
+Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptor-framework/

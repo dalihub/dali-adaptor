@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <dali/integration-api/adaptors/native-render-surface.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
