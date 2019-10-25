@@ -36,7 +36,7 @@ SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_
 
 SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 
-ADD_DEFINITIONS(-DPLATFORM_TIZEN -DDALI_COMPILATION)
+ADD_DEFINITIONS(-DPLATFORM_TIZEN)
 ADD_DEFINITIONS(-DPIC -DSTDC_HEADERS)
 
 IF("${ARCH}" STREQUAL "arm")
@@ -80,7 +80,6 @@ INCLUDE( deps-check.cmake )
 ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
 
 ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES
-                 -DDALI_COMPILATION
                  ${DEFINITIONS} )
 
 # from root/build/tizen, get back to root
