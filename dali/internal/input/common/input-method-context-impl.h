@@ -320,7 +320,7 @@ public:
   /**
    * Constructor
    */
-  InputMethodContext() = default;
+  InputMethodContext();
 
   /**
    * Destructor
@@ -333,6 +333,33 @@ private:
   InputMethodContext& operator=( InputMethodContext& )  = delete;
 
 protected:
+  /**
+   * @brief Struct for providing Operation enumeration
+   */
+  struct Operation
+  {
+    enum Type
+    {
+      ALLOW_TEXT_PREDICTION = 0,
+      AUTO_ENABLE_INPUT_PANEL,
+      NOTIFY_TEXT_INPUT_MULTILINE,
+      SET_CONTENT_MIME_TYPES,
+      SET_INPUT_PANEL_DATA,
+      SET_INPUT_PANEL_LANGUAGE,
+      SET_INPUT_PANEL_POSITION,
+      SET_RETURN_KEY_STATE,
+      MAX_COUNT
+    };
+  };
+
+  using OperationList = std::vector< std::function<void()> >;
+
+  /**
+   * @brief Apply backup operations to the InputMethodContext
+   */
+  void ApplyBackupOperations();
+
+protected:
 
   ActivatedSignalType        mActivatedSignal;
   KeyboardEventSignalType    mEventSignal;
@@ -341,6 +368,7 @@ protected:
   LanguageChangedSignalType  mKeyboardLanguageChangedSignal;
   KeyboardTypeSignalType     mKeyboardTypeChangedSignal;
   ContentReceivedSignalType  mContentReceivedSignal;
+  OperationList              mBackupOperations;
 
 public:
 

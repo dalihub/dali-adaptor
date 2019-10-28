@@ -342,6 +342,7 @@ void InputMethodContextEcoreWl::Initialize()
 {
   CreateContext();
   ConnectCallbacks();
+  ApplyBackupOperations();
 }
 
 void InputMethodContextEcoreWl::CreateContext()
@@ -767,6 +768,8 @@ void InputMethodContextEcoreWl::NotifyTextInputMultiLine( bool multiLine )
                                         (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
                                         (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
   }
+
+  mBackupOperations[Operation::NOTIFY_TEXT_INPUT_MULTILINE] = std::bind( &InputMethodContextEcoreWl::NotifyTextInputMultiLine, this, multiLine );
 }
 
 Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
@@ -856,6 +859,8 @@ void InputMethodContextEcoreWl::SetInputPanelData( const std::string& data )
     int length = data.length();
     ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_DATA] = std::bind( &InputMethodContextEcoreWl::SetInputPanelData, this, data );
 }
 
 void InputMethodContextEcoreWl::GetInputPanelData( std::string& data )
@@ -918,6 +923,8 @@ void InputMethodContextEcoreWl::SetReturnKeyState( bool visible )
   {
     ecore_imf_context_input_panel_return_key_disabled_set( mIMFContext, !visible );
   }
+
+  mBackupOperations[Operation::SET_RETURN_KEY_STATE] = std::bind( &InputMethodContextEcoreWl::SetReturnKeyState, this, visible );
 }
 
 void InputMethodContextEcoreWl::AutoEnableInputPanel( bool enabled )
@@ -928,6 +935,8 @@ void InputMethodContextEcoreWl::AutoEnableInputPanel( bool enabled )
   {
     ecore_imf_context_input_panel_enabled_set( mIMFContext, enabled );
   }
+
+  mBackupOperations[Operation::AUTO_ENABLE_INPUT_PANEL] = std::bind( &InputMethodContextEcoreWl::AutoEnableInputPanel, this, enabled );
 }
 
 void InputMethodContextEcoreWl::ShowInputPanel()
@@ -1008,6 +1017,8 @@ void InputMethodContextEcoreWl::SetContentMIMETypes( const std::string& mimeType
   {
     ecore_imf_context_mime_type_accept_set( mIMFContext, mimeTypes.c_str() );
   }
+
+  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind( &InputMethodContextEcoreWl::SetContentMIMETypes, this, mimeTypes );
 }
 
 bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
@@ -1039,6 +1050,8 @@ void InputMethodContextEcoreWl::AllowTextPrediction( bool prediction )
   {
     ecore_imf_context_prediction_allow_set( mIMFContext, prediction );
   }
+
+  mBackupOperations[Operation::ALLOW_TEXT_PREDICTION] = std::bind( &InputMethodContextEcoreWl::AllowTextPrediction, this, prediction );
 }
 
 bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
@@ -1071,6 +1084,8 @@ void InputMethodContextEcoreWl::SetInputPanelLanguage( Dali::InputMethodContext:
       }
     }
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE] = std::bind( &InputMethodContextEcoreWl::SetInputPanelLanguage, this, language );
 }
 
 Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInputPanelLanguage() const
@@ -1106,6 +1121,8 @@ void InputMethodContextEcoreWl::SetInputPanelPosition( unsigned int x, unsigned 
   {
     ecore_imf_context_input_panel_position_set( mIMFContext, x, y );
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind( &InputMethodContextEcoreWl::SetInputPanelPosition, this, x, y );
 }
 
 Dali::InputMethodContext::PreeditStyle InputMethodContextEcoreWl::GetPreeditStyle() const
