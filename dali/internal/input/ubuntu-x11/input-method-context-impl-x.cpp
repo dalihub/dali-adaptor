@@ -19,22 +19,22 @@
 #include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <dali/internal/input/linux/dali-ecore-imf.h>
-#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/input/common/virtual-keyboard-impl.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
+#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
+#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/internal/input/common/virtual-keyboard-impl.h>
-#include <dali/internal/input/common/key-impl.h>
-#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {

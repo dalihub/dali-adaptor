@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,16 @@
 // EXTERNAL INCLUDES
 #include <semaphore.h>
 #include <stdint.h>
-#include <dali/integration-api/core.h>
 #include <dali/devel-api/threading/conditional-wait.h>
+#include <dali/integration-api/core.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/thread-synchronization-interface.h>
-#include <dali/internal/system/common/performance-interface.h>
-#include <dali/internal/system/common/fps-tracker.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/system/common/fps-tracker.h>
+#include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/system/common/update-status-logger.h>
 #include <dali/internal/window-system/common/display-connection.h>
-
 
 namespace Dali
 {

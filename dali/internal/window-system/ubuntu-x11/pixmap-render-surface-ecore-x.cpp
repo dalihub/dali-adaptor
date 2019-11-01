@@ -22,22 +22,19 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-
 #include <X11/extensions/Xfixes.h> // for damage notify
 #include <X11/extensions/Xdamage.h> // for damage notify
-
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/threading/mutex.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/thread-synchronization-interface.h>
-#include <dali/internal/system/common/trigger-event.h>
-#include <dali/internal/window-system/common/display-connection.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
-
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/system/common/trigger-event.h>
+#include <dali/internal/window-system/common/display-connection.h>
 
 namespace Dali
 {

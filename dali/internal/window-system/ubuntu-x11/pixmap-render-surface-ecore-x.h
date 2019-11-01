@@ -18,18 +18,17 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/integration-api/egl-interface.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
-#include <dali/internal/window-system/common/pixmap-render-surface.h>
-#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
-#include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/graphics/common/graphics-interface.h>
-
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/conditional-wait.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
+#include <dali/internal/window-system/common/pixmap-render-surface.h>
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 namespace Dali
 {

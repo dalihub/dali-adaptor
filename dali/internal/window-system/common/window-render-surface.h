@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,14 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/common/graphics-interface.h>
-
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/egl-interface.h>
-#include <dali/integration-api/render-surface-interface.h>
-#else
-#include <dali/integration-api/adaptors/egl-interface.h>
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#endif
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
+
+// INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {

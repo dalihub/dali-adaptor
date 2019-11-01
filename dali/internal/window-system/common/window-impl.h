@@ -24,17 +24,12 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/scene-holder-impl.h>
-#else
-#include <dali/integration-api/adaptors/scene-holder-impl.h>
-#endif
-
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 
 namespace Dali

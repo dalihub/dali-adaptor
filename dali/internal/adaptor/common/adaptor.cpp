@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -25,14 +25,9 @@
 #include <dali/devel-api/adaptor-framework/accessibility-adaptor.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
-
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/scene-holder.h>
-#else
-#include <dali/integration-api/adaptors/scene-holder.h>
-#endif
 
 namespace Dali
 {

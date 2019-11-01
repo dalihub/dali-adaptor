@@ -29,13 +29,8 @@
 #include <dali/integration-api/events/touch-event-combiner.h>
 
 // INTERNAL INCLUDES
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/render-surface-interface.h>
-#include <dali/integration-api/scene-holder.h>
-#else
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#include <dali/integration-api/adaptors/scene-holder.h>
-#endif
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 
 namespace Dali
 {

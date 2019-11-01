@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.43
+Version:    1.4.44
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -236,7 +236,6 @@ Feedback plugin to play haptic and audio feedback for Dali
 
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define dali_plugin_sound_files  /plugins/sounds/
-%define dev_include_path %{_includedir}
 
 ##############################
 # Build
@@ -449,6 +448,11 @@ ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0
 ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0.0.0
 popd
 
+# Create a symbolic link in integration-api to preserve legacy repo build
+pushd %{buildroot}%{_includedir}/dali/integration-api
+ln -sf adaptor-framework adaptors
+popd
+
 ##############################
 # Upgrade order:
 # 1 - Pre Install new package
@@ -617,13 +621,14 @@ exit 0
 
 %files devel
 %defattr(-,root,root,-)
-%{dev_include_path}/dali/dali.h
-%{dev_include_path}/dali/public-api/*
-%{dev_include_path}/dali/devel-api/*
-%{dev_include_path}/dali/doc/*
+%{_includedir}/dali/dali.h
+%{_includedir}/dali/public-api/*
+%{_includedir}/dali/devel-api/*
+%{_includedir}/dali/doc/*
 %{_libdir}/pkgconfig/dali-adaptor.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
-%{dev_include_path}/dali/integration-api/adaptors/*
+%{_includedir}/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali-adaptor-integration.pc

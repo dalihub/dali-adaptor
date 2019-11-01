@@ -232,8 +232,6 @@ SET( DALI_CFLAGS
   ${TPKP_CURL_CFLAGS}
   ${UTILX_CFLAGS}
   -Wall
-  -DDALI_COMPILATION
-  -DDALI_ADAPTOR_COMPILATION
 )
 
 # Default set of linked librarires

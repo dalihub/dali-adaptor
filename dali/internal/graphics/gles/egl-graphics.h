@@ -18,18 +18,15 @@
  *
  */
 
-// EXTERNAL INCLUDES
-
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
-#include <dali/integration-api/egl-interface.h>
-
-#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles/egl-sync-implementation.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/egl-context-helper-implementation.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 namespace Dali
 {

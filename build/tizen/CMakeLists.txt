@@ -36,7 +36,7 @@ SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_
 
 SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 
-ADD_DEFINITIONS(-DPLATFORM_TIZEN -DDALI_COMPILATION)
+ADD_DEFINITIONS(-DPLATFORM_TIZEN)
 ADD_DEFINITIONS(-DPIC -DSTDC_HEADERS)
 
 IF("${ARCH}" STREQUAL "arm")
@@ -80,8 +80,6 @@ INCLUDE( deps-check.cmake )
 ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
 
 ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES
-                 -DDALI_COMPILATION
-                 -DDALI_ADAPTOR_COMPILATION
                  ${DEFINITIONS} )
 
 # from root/build/tizen, get back to root
@@ -169,7 +167,7 @@ ENDMACRO(INSTALL_HEADERS_WITH_DIRECTORY)
 # the automake counterpart.
 SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
 SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
-SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptors )
+SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
 SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
@@ -287,8 +285,7 @@ SET( LINKER_TEST_SOURCES
 )
 ADD_EXECUTABLE( ${LINKER_TEST_NAME} ${LINKER_TEST_SOURCES} )
 MESSAGE(STATUS "libs: ${DALICORE_LDFLAGS}")
-TARGET_COMPILE_OPTIONS( ${LINKER_TEST_NAME} PRIVATE -DDALI_ADAPTOR_COMPILATION -I${ROOT_SRC_DIR} ${DALICORE_CFLAGS} )
-TARGET_COMPILE_DEFINITIONS(${LINKER_TEST_NAME} PUBLIC -DDALI_ADAPTOR_COMPILATION )
+TARGET_COMPILE_OPTIONS( ${LINKER_TEST_NAME} PRIVATE -I${ROOT_SRC_DIR} ${DALICORE_CFLAGS} )
 TARGET_LINK_LIBRARIES(${LINKER_TEST_NAME} ${name} ${DALICORE_LDFLAGS} ${VCONF_LDFLAGS} ${HARFBUZZ_LDFLAGS} )
 TARGET_INCLUDE_DIRECTORIES( ${LINKER_TEST_NAME} PRIVATE ${DALI_TEST_SUITE_DIR} )
 
