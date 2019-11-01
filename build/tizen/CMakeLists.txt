@@ -8,6 +8,13 @@ SET(PKG_NAME ${name})
 
 SET(name "dali-adaptor")
 
+SET(GCC_COMPILER_VERSION_REQUIRED "6")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_COMPILER_VERSION_REQUIRED)
+    message(FATAL_ERROR "The GCC required compiler version is " ${GCC_COMPILER_VERSION_REQUIRED})
+  endif()
+endif()
+
 # Include additional macros
 INCLUDE( common.cmake )
 
