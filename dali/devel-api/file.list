@@ -43,6 +43,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-handler.h 
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-event.h 
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h 
+  ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h 
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h 
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h 
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h 
