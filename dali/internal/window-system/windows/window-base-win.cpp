@@ -552,9 +552,14 @@ void WindowBaseWin::EventEntry( TWinEventInfo *event )
   }
 }
 
-void WindowBaseWin::SetParent( WindowBase* parentWinBase )
+void WindowBaseWin::SetParent( Any parent )
 {
 
+}
+
+bool WindowBaseWin::IsMatchedWindow( Any window )
+{
+  return false;
 }
 
 } // namespace Adaptor
