@@ -81,9 +81,7 @@ void Application::PreInitialize( int* argc, char** argv[] )
   if( !gPreInitializedApplication )
   {
     gPreInitializedApplication = new Application ( argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL );
-
     gPreInitializedApplication->CreateWindow();    // Only create window
-
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
 
     //Make DefaultFontDescription cached
@@ -230,7 +228,6 @@ void Application::OnInit()
   mFramework->AddAbortCallback( MakeCallback( this, &Application::QuitFromMainLoop ) );
 
   CreateAdaptorBuilder();
-
   // If an application was pre-initialized, a window was made in advance
   if( mLaunchpadState == Launchpad::NONE )
   {
@@ -348,6 +345,30 @@ void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
   mMemoryLowSignal.Emit( application );
 
   mLowMemorySignal.Emit( status );
+}
+
+void Application::OnSurfaceCreated( Any newSurface )
+{
+  void* newWindow = AnyCast< void* >( newSurface );
+  void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
+  if( oldWindow != newWindow )
+  {
+    auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+    std::unique_ptr< WindowRenderSurface > newSurfacePtr
+      = renderSurfaceFactory->CreateWindowRenderSurface( PositionSize(), newSurface, true );
+
+    mAdaptor->ReplaceSurface( mMainWindow, *newSurfacePtr.release() );
+  }
+}
+
+void Application::OnSurfaceDestroyed( Any surface )
+{
+  void* windowToDelete = AnyCast< void* >( surface );
+  void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
+  if( oldWindow == windowToDelete )
+  {
+    mAdaptor->DeleteSurface( mAdaptor->GetSurface() );
+  }
 }
 
 void Application::OnResize(Dali::Adaptor& adaptor)

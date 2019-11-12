@@ -52,6 +52,16 @@ DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackB
 */
 DALI_ADAPTOR_API std::string GetDataPath();
 
+/**
+ * @brief Downcasts a ref object to Application handle
+ *
+ * If handle points to an Application object, the downcast produces valid base handle
+ * If not, the returned base handle is left uninitialized
+ *
+ * @param[in] refObject to an Application
+ * @return handle to an Application object or an uninitialized base handle
+ */
+DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
 
 } // namespace DevelApplication
 

@@ -27,7 +27,6 @@
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/mman.h>
-
 #include <cstring>
 
 
@@ -89,6 +88,7 @@ unsigned char* SharedFile::GetAddress()
 bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
 {
   bool opened = false;
+
   mode_t mode;
 
   mode = S_IRUSR | S_IWUSR;
@@ -97,7 +97,7 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
     mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
   }
 
-  mFileDescriptor = shm_open( filename, O_RDONLY, mode );
+  mFileDescriptor = Open( filename, size, O_RDONLY, mode );
 
   if( mFileDescriptor >= 0 )
   {

@@ -233,6 +233,16 @@ public: // From Framework::Observer
   */
   virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status );
 
+  /**
+   * Called when the framework informs the application that the platform surface is created.
+   */
+  virtual void OnSurfaceCreated( Any newSurface );
+
+  /**
+   * Called when the framework informs the application that the platform surface is destroyed.
+   */
+  virtual void OnSurfaceDestroyed( Any newSurface );
+
 public:
 
   /**
