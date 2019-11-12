@@ -161,14 +161,6 @@ void VectorAnimationRendererPluginProxy::GetDefaultSize( uint32_t& width, uint32
   }
 }
 
-void VectorAnimationRendererPluginProxy::GetLayerInfo( Property::Map& map ) const
-{
-  if( mPlugin )
-  {
-    mPlugin->GetLayerInfo( map );
-  }
-}
-
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if( mPlugin )

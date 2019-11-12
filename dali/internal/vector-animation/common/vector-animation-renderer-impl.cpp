@@ -95,11 +95,6 @@ void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height 
   mPlugin.GetDefaultSize( width, height );
 }
 
-void VectorAnimationRenderer::GetLayerInfo( Property::Map& map ) const
-{
-  mPlugin.GetLayerInfo( map );
-}
-
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return mPlugin.UploadCompletedSignal();
