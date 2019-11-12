@@ -16,15 +16,15 @@
  */
 
 // CLASS HEADER
-#include <third-party/glyphy/vector-font-cache.h> // Replaced from: #include <dali/internal/glyphy/vector-font-cache.h>
+#include <third-party/glyphy/vector-font-cache.h>
 
 // EXTERNAL INCLUDES
 #include <vector>
 #include <math.h>
 
 // INTERNAL INCLUDES
-#include <third-party/glyphy/glyphy.h> // Replaced from: #include "../glyphy/glyphy.h"
-#include <third-party/glyphy/glyphy-freetype.h> // Replaced from: #include "../glyphy/glyphy-freetype.h"
+#include <third-party/glyphy/glyphy.h>
+#include <third-party/glyphy/glyphy-freetype.h>
 
 using namespace std;
 

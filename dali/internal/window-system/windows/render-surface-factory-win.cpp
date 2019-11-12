@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  *
  */
 
-// EXTERNAL HEADERS
-#include <dali/integration-api/debug.h>
-#include <dali/integration-api/native-render-surface.h>
+// CLASS HEADER
 #include <dali/internal/window-system/windows/render-surface-factory-win.h>
 
+// EXTERNAL HEADERS
+#include <dali/integration-api/debug.h>
+
 // INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/pixmap-render-surface.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/common/pixmap-render-surface.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali
 {

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/egl-interface.h>
-#include <dali/integration-api/native-render-surface.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali

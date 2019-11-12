@@ -20,11 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
-#include <dali/internal/system/common/file-descriptor-monitor.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/trigger-event-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
+#include <dali/internal/system/common/file-descriptor-monitor.h>
 
 namespace Dali
 {

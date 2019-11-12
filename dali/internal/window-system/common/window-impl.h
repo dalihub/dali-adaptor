@@ -24,17 +24,12 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/scene-holder-impl.h>
-#else
-#include <dali/integration-api/adaptors/scene-holder-impl.h>
-#endif
-
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 
 namespace Dali
@@ -67,6 +62,7 @@ public:
   typedef Dali::Window::ResizedSignalType ResizedSignalType;
   typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
   typedef Dali::Window::ResizeSignalType ResizeSignalType;
+  typedef Dali::DevelWindow::VisibilityChangedSignalType VisibilityChangedSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -469,6 +465,7 @@ public: // Signals
    * @copydoc Dali::Window::ResizedSignal()
    */
   ResizedSignalType& ResizedSignal() { return mResizedSignal; }
+
   /**
    * @copydoc Dali::Window::ResizedSignal()
    */
@@ -478,6 +475,11 @@ public: // Signals
    * This signal is emitted when the window is requesting to be deleted
    */
   SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
+
+  /**
+   * @copydoc Dali::DevelWindow::VisibilityChangedSignal()
+   */
+  VisibilityChangedSignalType& VisibilityChangedSignal() { return mVisibilityChangedSignal; }
 
   /**
    * @copydoc Dali::Window::SignalEventProcessingFinished()
@@ -515,6 +517,7 @@ private:
   SignalType                            mDeleteRequestSignal;
   FocusChangeSignalType                 mFocusChangeSignal;
   ResizeSignalType                      mResizeSignal;
+  VisibilityChangedSignalType           mVisibilityChangedSignal;
 };
 
 } // namespace Adaptor

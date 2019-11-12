@@ -1463,9 +1463,34 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
           {
             if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
             {
-              // Check whether we should create a bitmap for the outline
-              if( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 )
+              int offsetX, offsetY;
+              bool isOutlineGlyph = ( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 );
+
+              // Create a bitmap for the outline
+              if( isOutlineGlyph )
               {
+                // Retrieve the horizontal and vertical distance from the current pen position to the
+                // left and top border of the glyph bitmap for a normal glyph before applying the outline.
+                if( FT_Err_Ok == error )
+                {
+                  FT_Glyph normalGlyph;
+                  error = FT_Get_Glyph( ftFace->glyph, &normalGlyph );
+
+                  error = FT_Glyph_To_Bitmap( &normalGlyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+                  if( FT_Err_Ok == error )
+                  {
+                    FT_BitmapGlyph bitmapGlyph = reinterpret_cast< FT_BitmapGlyph >( normalGlyph );
+
+                    offsetX = bitmapGlyph->left;
+                    offsetY = bitmapGlyph->top;
+                  }
+
+                  // Created FT_Glyph object must be released with FT_Done_Glyph
+                  FT_Done_Glyph( normalGlyph );
+                }
+
+                // Now apply the outline
+
                 // Set up a stroker
                 FT_Stroker stroker;
                 error = FT_Stroker_New( mFreeTypeLibrary, &stroker );
@@ -1494,6 +1519,14 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
               if( FT_Err_Ok == error )
               {
                 FT_BitmapGlyph bitmapGlyph = reinterpret_cast< FT_BitmapGlyph >( glyph );
+
+                if( isOutlineGlyph )
+                {
+                  // Calculate the additional horizontal and vertical offsets needed for the position of the outline glyph
+                  data.outlineOffsetX = offsetX - bitmapGlyph->left - outlineWidth;
+                  data.outlineOffsetY = bitmapGlyph->top - offsetY - outlineWidth;
+                }
+
                 ConvertBitmap( data, bitmapGlyph->bitmap, isShearRequired );
               }
               else

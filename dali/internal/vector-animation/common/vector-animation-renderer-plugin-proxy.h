@@ -83,6 +83,11 @@ public:
   void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
 
   /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::GetLayerInfo()
+   */
+  void GetLayerInfo( Property::Map& map ) const;
+
+  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()
    */
   VectorAnimationRendererPlugin::UploadCompletedSignalType& UploadCompletedSignal();

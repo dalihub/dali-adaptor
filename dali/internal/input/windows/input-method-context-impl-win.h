@@ -256,6 +256,11 @@ public:
    */
   void SetInputPanelPosition( unsigned int x, unsigned int y ) override;
 
+  /**
+   * @copydoc Dali::InputMethodContext::GetPreeditStyle()
+   */
+  Dali::InputMethodContext::PreeditStyle GetPreeditStyle() const override;
+
 private:
   /**
    * Context created the first time and kept until deleted.
@@ -314,6 +319,7 @@ private:
   bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
   InputMethodOptions        mOptions;
+  Dali::InputMethodContext::PreeditStyle mPreeditType;
 };
 
 } // namespace Adaptor

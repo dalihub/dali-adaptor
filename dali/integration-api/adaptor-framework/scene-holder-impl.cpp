@@ -16,9 +16,9 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 
-// EXTERNAL HEADERS
+// EXTERNAL INCLUDES
 #include <sys/time.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -28,7 +28,7 @@
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
 
-// INTERNAL HEADERS
+// INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/input/common/key-impl.h>

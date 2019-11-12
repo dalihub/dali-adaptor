@@ -39,6 +39,25 @@ const std::string& InputMethodContext::GetSurroundingText() const
   return str;
 }
 
+InputMethodContext::InputMethodContext()
+: mBackupOperations( Operation::MAX_COUNT )
+{
+}
+
+void InputMethodContext::ApplyBackupOperations()
+{
+  // Items in mBackupOperations will be changed while the iteration
+  OperationList copiedList = mBackupOperations;
+
+  for( auto& operation : copiedList )
+  {
+    if( operation )
+    {
+      operation();
+    }
+  }
+}
+
 }
 }
 }

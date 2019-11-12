@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.40
+Version:    1.4.45
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -27,6 +27,9 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
+Provides: libdali-adaptor-cxx11.so
+Provides: libdali-adaptor-cxx11.so.0
+Provides: libdali-adaptor-cxx11.so.0.0.0
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
@@ -48,6 +51,7 @@ BuildRequires:  dali-integration-devel
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
+BuildRequires:  cmake
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
@@ -232,7 +236,6 @@ Feedback plugin to play haptic and audio feedback for Dali
 
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define dali_plugin_sound_files  /plugins/sounds/
-%define dev_include_path %{_includedir}
 
 ##############################
 # Build
@@ -248,7 +251,7 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
-configure_flags="--enable-wayland"
+cmake_flags=" -DENABLE_WAYLAND=ON"
 
 # Use this conditional when Tizen version is 5.x or greater
 %if 0%{?tizen_version_major} >= 5
@@ -257,12 +260,19 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_5"
 # Need Ecore-Wayland2 when Tizen version is 5.x or greater
 CFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
 CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
-configure_flags+=" --enable-ecore-wayland2"
+cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
+%endif
+
+%if 0%{?enable_debug}
+cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
+%endif
+
+%if 0%{?enable_trace}
+cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen
-autoreconf --install
 
 DALI_DATA_RW_DIR="%{dali_data_rw_dir}" ; export DALI_DATA_RW_DIR
 DALI_DATA_RO_DIR="%{dali_data_ro_dir}"  ; export DALI_DATA_RO_DIR
@@ -274,40 +284,27 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TIZEN_PLATFORM_CONFIG_SUPPORTED
 %endif
 
-# Set up the build via configure.
+cmake_flags+=" -DCMAKE_INSTALL_PREFIX=$PREFIX"
+cmake_flags+=" -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
+cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
+cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
+cmake_flags+=" -DENABLE_FEEDBACK=YES"
+cmake_flags+=" -DENABLE_APPFW=YES"
+
+# Set up the build via Cmake
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%configure --prefix=$PREFIX --with-jpeg-turbo \
-           --enable-shaderbincache=DISABLE --enable-profile=MOBILE \
-           --enable-tizen-major-version=%{tizen_version_major} \
-           --enable-feedback \
-           --enable-efl=no \
-%if 0%{?enable_debug}
-           --enable-debug \
-%endif
-%if 0%{?enable_trace}
-           --enable-trace \
-%endif
-           --enable-appfw=yes \
-           $configure_flags --libdir=%{_libdir} \
-           --enable-rename-so=no
+
+mkdir mobile
+pushd mobile
+
+cmake -DENABLE_PROFILE=MOBILE $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 popd
-
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.mobile"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
-popd
-
-make clean
 
 %endif
 
@@ -315,106 +312,48 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo \
-           --enable-shaderbincache=DISABLE --enable-profile=TV \
-           --enable-tizen-major-version=%{tizen_version_major} \
-           --enable-feedback \
-           --enable-efl=no \
-%if 0%{?enable_debug}
-           --enable-debug \
-%endif
-%if 0%{?enable_trace}
-           --enable-trace \
-%endif
-           --enable-appfw=yes \
-           $configure_flags --libdir=%{_libdir} \
-           --enable-rename-so=no
+
+mkdir tv
+pushd tv
+
+cmake -DENABLE_PROFILE=TV $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 popd
 
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.tv"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
-popd
-
-make clean
 %endif
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%configure --prefix=$PREFIX --with-jpeg-turbo \
-           --enable-shaderbincache=DISABLE --enable-profile=WEARABLE \
-           --enable-tizen-major-version=%{tizen_version_major} \
-           --enable-feedback \
-           --enable-efl=no \
-%if 0%{?enable_debug}
-           --enable-debug \
-%endif
-%if 0%{?enable_trace}
-           --enable-trace \
-%endif
-           --enable-appfw=yes \
-           $configure_flags --libdir=%{_libdir} \
-           --enable-rename-so=no
+
+mkdir wearable
+pushd wearable
+
+cmake -DENABLE_PROFILE=WEARABLE $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 popd
 
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.wearable"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
-popd
-
-make clean
 %endif
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo \
-           --enable-shaderbincache=DISABLE --enable-profile=IVI \
-           --enable-tizen-major-version=%{tizen_version_major} \
-           --enable-feedback \
-           --enable-efl=no \
-%if 0%{?enable_debug}
-           --enable-debug \
-%endif
-%if 0%{?enable_trace}
-           --enable-trace \
-%endif
-           --enable-appfw=yes \
-           $configure_flags --libdir=%{_libdir} \
-           --enable-rename-so=no
+
+mkdir ivi
+pushd ivi
+
+cmake -DENABLE_PROFILE=IVI $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 popd
 
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adaptor*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE.ivi"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-
-mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
-popd
-
-make clean
 %endif
 
 #######################################################################
@@ -422,36 +361,15 @@ make clean
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-%configure --prefix=$PREFIX --with-jpeg-turbo \
-           --enable-shaderbincache=DISABLE --enable-profile=COMMON \
-           --enable-tizen-major-version=%{tizen_version_major} \
-           --enable-feedback \
-           --enable-efl=no \
-%if 0%{?enable_debug}
-           --enable-debug \
-%endif
-%if 0%{?enable_trace}
-           --enable-trace \
-%endif
-           --enable-appfw=yes \
-           $configure_flags --libdir=%{_libdir} \
-           --enable-rename-so=no
+
+mkdir common
+pushd common
+
+cmake -DENABLE_PROFILE=COMMON $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-
-pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 popd
-
-pushd %{buildroot}%{_libdir}
-for FILE in libdali-adap*.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-for FILE in libdali-*plugin*-cxx11.so*; do mv "$FILE" "%{_builddir}/%{name}-%{version}/build/tizen/$FILE"; done
-
-mv pkgconfig/dali-adaptor*pc %{_builddir}/%{name}-%{version}/build/tizen/
-popd
-
-make clean
 
 %endif
 
@@ -462,62 +380,77 @@ make clean
 rm -rf %{buildroot}
 
 pushd %{_builddir}/%{name}-%{version}/build/tizen
-%make_install DALI_DATA_RW_DIR="%{dali_data_rw_dir}" DALI_DATA_RO_DIR="%{dali_data_ro_dir}"
 
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# !unified && (wearable || tv || ivi || mobile)
-%if "%{?profile}" == "wearable" || "%{?profile}" == "tv" || "%{?profile}" == "ivi" || "%{?profile}" == "mobile"
-rm -rf %{buildroot}%{_libdir}/libdali-adap*.so*
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# wearable || tv || ivi || mobile || unified
-%if "%{?profile}" != "common"
-for FILE in libdali-*.so*; do mv "$FILE" "%{buildroot}%{_libdir}/$FILE"; done
-mv dali-adaptor*.pc %{buildroot}%{_libdir}/pkgconfig/
-%endif
-popd
-
-################################################
-#rename
-###############################################
-pushd %{buildroot}%{_libdir}
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-#%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-rm -rf libdali-adaptor*.so
-ln -s libdali-adaptor-cxx11.so.0.0.0 libdali-adaptor.so
-#%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-rm -rf libdali-adaptor*.so.wearable
-ln -s libdali-adaptor-cxx11.so.0.0.*.wearable libdali-adaptor.so.wearable
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
-rm -rf libdali-adaptor*.so.tv
-ln -s libdali-adaptor-cxx11.so.0.0.*.tv libdali-adaptor.so.tv
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-rm -rf libdali-adaptor*.so.ivi
-ln -s libdali-adaptor-cxx11.so.0.0.*.ivi libdali-adaptor.so.ivi
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-rm -rf libdali-adaptor*.so.mobile
-ln -s libdali-adaptor-cxx11.so.0.0.*.mobile libdali-adaptor.so.mobile
+pushd mobile
+%make_install
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile
+popd
+%if "%{?profile}" != "mobile"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
+popd
+%endif
+
+# if tv ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+pushd tv
+%make_install
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv
+popd
+%if "%{?profile}" != "tv"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
+popd
+%endif
+
+# if wearable || "undefined"
+%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+pushd wearable
+%make_install
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable
+popd
+%if "%{?profile}" != "wearable"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
+popd
+%endif
+
+# if ivi ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
+pushd ivi
+%make_install
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi
+popd
+%if "%{?profile}" != "ivi"
+make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
+%endif
+popd
+%endif
+
+# if common ||"undefined"
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+pushd common
+%make_install
+# No clean so we can gather symbol/size information for the common profile
+popd
+%endif
+
+# Create links to ensure linking with cxx11 library is preserved
+pushd  %{buildroot}%{_libdir}
+ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so
+ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0
+ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0.0.0
+popd
+
+# Create a symbolic link in integration-api to preserve legacy repo build
+pushd %{buildroot}%{_includedir}/dali/integration-api
+ln -sf adaptor-framework adaptors
 popd
 
 ##############################
@@ -530,37 +463,29 @@ popd
 # 6 - Post uninstall old package
 ##############################
 
+##############################
+# Adaptor package Commands
 %pre
 exit 0
 
-##############################
-#  Post Install new package
-##############################
 %post
 /sbin/ldconfig
 exit 0
 
-##############################
-#  Pre Uninstall old package
-##############################
 %preun
 exit 0
 
-##############################
-#  Post Uninstall old package
-##############################
 %postun
 /sbin/ldconfig
 exit 0
 
 ##############################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
+# Mobile Profile Commands
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_mobile
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.mobile; do ln -sf "$FILE" "${FILE%.mobile}"; done
+ln -sf libdali-adaptor.so.mobile libdali-adaptor.so.0.0.0
 popd
 /sbin/ldconfig
 exit 0
@@ -571,13 +496,11 @@ exit 0
 %endif
 
 ##############################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if tv ||"undefined"
+# TV Profile Commands
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %post profile_tv
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.tv; do ln -sf "$FILE" "${FILE%.tv}"; done
+ln -sf libdali-adaptor.so.tv libdali-adaptor.so.0.0.0
 popd
 /sbin/ldconfig
 exit 0
@@ -588,13 +511,11 @@ exit 0
 %endif
 
 ##############################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
+# Wearable Profile Commands
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_wearable
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.wearable; do ln -sf "$FILE" "${FILE%.wearable}"; done
+ln -sf libdali-adaptor.so.wearable libdali-adaptor.so.0.0.0
 popd
 /sbin/ldconfig
 exit 0
@@ -605,18 +526,28 @@ exit 0
 %endif
 
 ##############################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if ivi ||"undefined"
+# IVI Profile Commands
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_ivi
 pushd %{_libdir}
-for FILE in libdali-adaptor-cxx11.so*.ivi; do ln -sf "$FILE" "${FILE%.ivi}"; done
+ln -sf libdali-adaptor.so.ivi libdali-adaptor.so.0.0.0
 popd
 /sbin/ldconfig
 exit 0
 
 %postun profile_ivi
+/sbin/ldconfig
+exit 0
+%endif
+
+##############################
+# Common Profile Commands
+%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%post profile_common
+/sbin/ldconfig
+exit 0
+
+%postun profile_common
 /sbin/ldconfig
 exit 0
 %endif
@@ -631,18 +562,13 @@ exit 0
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-#%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx11.so.0*
+%{_libdir}/libdali-adaptor-cxx11.so
+%{_libdir}/libdali-adaptor-cxx11.so.0
+%{_libdir}/libdali-adaptor-cxx11.so.0.0.0
 %{_libdir}/libdali-adaptor.so
-%exclude %{_libdir}/libdali-adap*.so*.mobile
-%exclude %{_libdir}/libdali-adap*.so*.wearable
-%exclude %{_libdir}/libdali-adap*.so*.tv
-%exclude %{_libdir}/libdali-adap*.so*.ivi
-#%endif
+%{_libdir}/libdali-adaptor.so.0
+%{_libdir}/libdali-adaptor.so.0.0.0
 
 #################################################
 
@@ -654,64 +580,55 @@ exit 0
 
 #################################################
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %files profile_common
+%manifest dali-adaptor.manifest
 # default .so files are housed in the main pkg.
 %endif
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %files profile_mobile
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.mobile
-%{_libdir}/libdali-adaptor-cxx11.so.0*.mobile
 %endif
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %files profile_tv
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.tv
-%{_libdir}/libdali-adaptor-cxx11.so.0*.tv
 %endif
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %files profile_wearable
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.wearable
-%{_libdir}/libdali-adaptor-cxx11.so.0*.wearable
 %endif
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %files profile_ivi
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali-adaptor.so.ivi
-%{_libdir}/libdali-adaptor-cxx11.so.0*.ivi
 %endif
-
 
 %files devel
 %defattr(-,root,root,-)
-%{dev_include_path}/dali/dali.h
-%{dev_include_path}/dali/public-api/*
-%{dev_include_path}/dali/devel-api/*
-%{dev_include_path}/dali/doc/*
+%{_includedir}/dali/dali.h
+%{_includedir}/dali/public-api/*
+%{_includedir}/dali/devel-api/*
+%{_includedir}/dali/doc/*
 %{_libdir}/pkgconfig/dali-adaptor.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
-%{dev_include_path}/dali/integration-api/adaptors/*
+%{_includedir}/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali-adaptor-integration.pc
-

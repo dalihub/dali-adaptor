@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@
 #include <dali/internal/system/common/singleton-service-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/processor-interface.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+
 #if defined(DEBUG_ENABLED)
 #include <dali/internal/system/common/logging.h>
 Debug::Filter* gSingletonServiceLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_SINGLETON_SERVICE" );

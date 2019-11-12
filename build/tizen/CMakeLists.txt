@@ -1,0 +1,321 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_POLICY(SET CMP0012 NEW) # Prevent dereferencing of OFF/ON as variables
+
+set(CMAKE_CXX_STANDARD 11)
+
+PROJECT(${name} CXX)
+SET(PKG_NAME ${name})
+
+SET(name "dali-adaptor")
+
+SET(GCC_COMPILER_VERSION_REQUIRED "6")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_COMPILER_VERSION_REQUIRED)
+    message(FATAL_ERROR "The GCC required compiler version is " ${GCC_COMPILER_VERSION_REQUIRED})
+  endif()
+endif()
+
+# Include additional macros
+INCLUDE( common.cmake )
+
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  MESSAGE( STATUS "CMAKE_BUILD_TYPE: " Debug )
+  SET( ENABLE_DEBUG "ON" CACHE STRING "" )
+  SET( ENABLE_EXPORTALL "ON" CACHE STRING "" )
+ELSE()
+  MESSAGE( STATUS "CMAKE_BUILD_TYPE: " Release )
+ENDIF()
+
+# from root/build/tizen, get back to root.
+# set the variable only if it's not set yet. it allows to access build script
+# from top-level directory
+IF( NOT ROOT_SRC_DIR )
+  SET(ROOT_SRC_DIR ${CMAKE_SOURCE_DIR}/../..)
+ENDIF()
+# Make sure the path is absolute
+GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)
+
+# API VERSION (Not DALi release version)
+SET(${name}_VERSION_MAJOR 0)
+SET(${name}_VERSION_MINOR 0)
+SET(${name}_VERSION_PATCH 0)
+SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_VERSION_PATCH})
+
+SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
+
+ADD_DEFINITIONS(-DPLATFORM_TIZEN)
+ADD_DEFINITIONS(-DPIC -DSTDC_HEADERS)
+
+IF("${ARCH}" STREQUAL "arm")
+  ADD_DEFINITIONS("-DTARGET")
+ENDIF("${ARCH}" STREQUAL "arm")
+
+# Deployment folder should come from spec file or command line:
+SET( PREFIX ${CMAKE_INSTALL_PREFIX})
+SET( EXEC_PREFIX ${CMAKE_INSTALL_PREFIX})
+
+# Set up the include dir
+SET( INCLUDE_DIR $ENV{includedir} )
+IF( NOT INCLUDE_DIR )
+  SET( INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR} )
+ENDIF()
+IF( NOT INCLUDE_DIR )
+  SET( INCLUDE_DIR ${PREFIX}/include )
+ENDIF()
+
+# Set up the lib dir
+SET( LIB_DIR $ENV{libdir} )
+IF( NOT LIB_DIR )
+  SET( LIB_DIR ${CMAKE_INSTALL_LIBDIR} )
+ENDIF()
+IF( NOT LIB_DIR )
+  SET( LIB_DIR ${PREFIX}/lib )
+ENDIF()
+
+INCLUDE( deps-check.cmake )
+
+# Set up compiler flags and warnings
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+#ADD_COMPILE_OPTIONS( -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast )
+
+# TODO: Clang is a lot more strict with warnings, we should address
+# those issues at some point.
+#IF( NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  #ADD_COMPILE_OPTIONS( -Werror )
+#ENDIF()
+
+ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
+
+ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES
+                 ${DEFINITIONS} )
+
+# from root/build/tizen, get back to root
+SET(ROOT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../)
+
+# Make sure the path is absolute
+GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)
+
+SET(SOURCE_DIR "${ROOT_SRC_DIR}/dali")
+SET(ADAPTOR_ROOT ${ROOT_SRC_DIR})
+SET(PACKAGE_DOXY_SRC_DIR "${ROOT_SRC_DIR}/doc")
+SET(SOURCES "")
+
+# Include list of modules
+INCLUDE( module-list.cmake )
+
+# Include profile specific setup
+INCLUDE( profiles/${PROFILE_LCASE}-profile.cmake )
+
+# Configure the pkg-config file
+# Requires the following variables to be setup:
+# @PREFIX@ @EXEC_PREFIX@ @DALI_ADAPTOR_VERSION@ @LIB_DIR@ @DEV_INCLUDE_PATH@
+SET( DEV_INCLUDE_PATH ${INCLUDE_DIR} )
+SET( ADAPTOR_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor.pc )
+SET( ADAPTOR_INTEGRATION_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor-integration.pc )
+CONFIGURE_FILE( ${ADAPTOR_PKG_CFG_FILE}.in ${ADAPTOR_PKG_CFG_FILE} @ONLY )
+CONFIGURE_FILE( ${ADAPTOR_INTEGRATION_PKG_CFG_FILE}.in ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} @ONLY )
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/system-cache-path.in ${ADAPTOR_ROOT}/dali/internal/adaptor/common/system-cache-path.cpp @ONLY)
+
+INCLUDE_DIRECTORIES(
+  ${ROOT_SRC_DIR}
+  ${PROFILE_INCLUDE_DIRECTORIES}
+)
+
+SET(LIBTYPE SHARED)
+IF(DEFINED STATIC)
+  SET(LIBTYPE STATIC)
+ENDIF()
+
+ADD_LIBRARY( ${name} ${LIBTYPE} ${SOURCES} )
+
+# pthread required due to gcc issue
+FIND_LIBRARY(PTHREAD pthread)
+IF(PTHREAD)
+  SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} -lpthread)
+ENDIF()
+
+TARGET_LINK_LIBRARIES( ${name}
+                       ${DALI_LDFLAGS}
+  ${REQUIRED_LIBS}
+  ${OPTIONAL_LIBS}
+  ${COVERAGE}
+)
+
+SET_TARGET_PROPERTIES( ${name}
+  PROPERTIES
+  VERSION ${DALI_ADAPTOR_VERSION}
+  SOVERSION ${${name}_VERSION_MAJOR}
+  CLEAN_DIRECT_OUPUT 1
+)
+
+# Install the library so file and symlinks
+INSTALL( TARGETS ${name} DESTINATION ${LIB_DIR} )
+
+# Install the pkg-config file
+INSTALL( FILES ${ADAPTOR_PKG_CFG_FILE} DESTINATION ${LIB_DIR}/pkgconfig )
+INSTALL( FILES ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} DESTINATION ${LIB_DIR}/pkgconfig )
+
+# macro for installing headers by replacing prefix. (TODO, investigate
+# if there is a CMAKE way of doing this automatically)
+MACRO(INSTALL_HEADERS_WITH_DIRECTORY HEADER_LIST STRIP_PREFIX REPLACE_PREFIX)
+  GET_FILENAME_COMPONENT( SPREFIX ${STRIP_PREFIX} ABSOLUTE )
+  FOREACH(HEADER ${${HEADER_LIST}})
+    STRING(REGEX MATCH "(.*)[/]" DIR ${HEADER})
+    STRING(REPLACE ${SPREFIX} ${REPLACE_PREFIX} NEWDIR ${DIR})
+    INSTALL(FILES ${HEADER} DESTINATION ${INCLUDE_DIR}/${NEWDIR})
+  ENDFOREACH(HEADER)
+ENDMACRO(INSTALL_HEADERS_WITH_DIRECTORY)
+
+
+########################################################################################
+# INSTALL:
+# Set deployment directories
+# Due to complicated adaptor deployment the install section is pretty much converted from
+# the automake counterpart.
+SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
+SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
+SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
+SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
+SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
+SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
+SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
+SET( tizenwatchpublicapidir ${tizenadaptorpublicapidir}/watch )
+SET( tizencapturepublicapidir ${tizenadaptorpublicapidir}/capture )
+
+# Install headers
+INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
+INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
+INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
+INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
+INSTALL( FILES ${text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
+
+# Install DOXY
+SET( packagedoxydir ${INCLUDE_DIR}/dali/doc )
+SET( package_doxy_dir ${ADAPTOR_ROOT}/doc )
+INCLUDE( ${ADAPTOR_ROOT}/doc/file.list )
+INSTALL( FILES ${package_doxy_files} DESTINATION ${packagedoxydir} )
+
+IF( NOT UBUNTU_PROFILE )
+  INSTALL( FILES ${public_api_adaptor_tizen_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
+  IF( NOT WAYLAND )
+    INSTALL( FILES ${devel_api_adaptor_tizen_x11_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
+  ENDIF()
+ENDIF()
+
+INSTALL( FILES ${adaptor_dali_header_file} DESTINATION ${tizenadaptordaliheaderdir} )
+INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptorpublicapidir} )
+INSTALL( FILES ${public_dali_watch_header_files} DESTINATION ${tizenwatchpublicapidir} )
+INSTALL( FILES ${public_dali_capture_header_files} DESTINATION ${tizencapturepublicapidir} )
+
+SET( daliShaderbinCacheDir ${CMAKE_BINARY_DIR}/${dataReadOnlyDir}/core/shaderbin/)
+
+#INSTALL( CODE "MESSAGE(\"INSTALLING $ENV{RPM_BUILD_ROOT}/${dataReadOnlyDir}/core/shaderbin/\")")
+#INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory $ENV{RPM_BUILD_ROOT}/${dataReadOnlyDir}/core/shaderbin/ )")
+#INSTALL( CODE "MESSAGE(\"INSTALLING ${dataReadOnlyDir}/core/shaderbin/\")")
+#INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${dataReadOnlyDir}/core/shaderbin/ )")
+#INSTALL( DIRECTORY ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
+INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+
+########################################################################################
+
+# The DALI_ADAPTOR_PREFIX must be set if this CMakeLists.txt is executed
+# from the top-level CMake script using ADD_SUBDIRECTORY() to avoid
+# target names duplication with other DALi modules.
+IF( UNIX )
+  FIND_PROGRAM( LCOV_BIN "lcov" )
+  IF( LCOV_BIN )
+
+    # Define custom rules for coverage
+    SET(COVERAGE_DIR .cov)
+    SET(COVERAGE_OUTPUT_DIR doc/coverage)
+
+    # lcov prior to 1.10 doesn't have -rc option; this and subsequent version don't output
+    # branch coverage. Determine the lcov version, and enable branch coverage accordingly.
+    EXECUTE_PROCESS( COMMAND bash -c "${LCOV_BIN} --version | cut -d' ' -f4" OUTPUT_VARIABLE LCOV_VERSION )
+    STRING( REPLACE "." ";" LCOV_VLIST ${LCOV_VERSION})
+    IF( NOT $<VERSION_LESS:${LCOV_VERSION},"1.10"> )
+      SET(LCOV_OPTS --rc lcov_branch_coverage=1)
+    ENDIF()
+
+    ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}rename_cov_data ./rename-cov-data )
+
+    ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}cov_data ${LCOV_BIN} ${LCOV_OPTS} --base-directory . --directory . -c -o dali.info
+      COMMAND ${LCOV_BIN} ${LCOV_OPTS} --remove dali.info \"*/dali-env/*\" \"/usr/include/*\" -o dali.info )
+
+    ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}coverage genhtml ${LCOV_OPTS} -o ${COVERAGE_OUTPUT_DIR} dali.info
+      DEPENDS cov_data )
+
+    ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}reset_coverage @${LCOV_BIN} -z --directory `pwd` )
+
+    # Define custom rule for distclean
+    ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}distclean @echo cleaning for source distribution )
+    ADD_CUSTOM_COMMAND(
+          DEPENDS clean
+          COMMENT "distribution clean"
+          COMMAND find
+          ARGS    .
+          -not -name config.cmake -and \(
+          -name tester.c -or
+          -name Testing -or
+          -name CMakeFiles -or
+          -name doc -or
+          -name cmake.depends -or
+          -name cmake.check_depends -or
+          -name CMakeCache.txt -or
+          -name cmake.check_cache -or
+          -name *.cmake -or
+          -name Makefile -or
+          -name core -or
+          -name core.* -or
+          -name gmon.out -or
+          -name install_manifest.txt -or
+          -name *.pc -or
+          -name *.gcov -or
+          -name *.gcno -or
+          -name *.gcda -or
+          -name *~ -or
+          -name libdali*.so* \)
+          | grep -v TC | xargs rm -rf
+          TARGET  ${DALI_ADAPTOR_PREFIX}distclean
+          VERBATIM
+          )
+
+  ENDIF( LCOV_BIN )
+ENDIF( UNIX )
+
+# Linker Test
+SET( DALI_TEST_SUITE_DIR ${ROOT_SRC_DIR}/automated-tests/src/dali/dali-test-suite-utils )
+SET( LINKER_TEST_NAME ${DALI_ADAPTOR_PREFIX}linker-test )
+SET( LINKER_TEST_SOURCES
+  linker-test.cpp
+)
+ADD_EXECUTABLE( ${LINKER_TEST_NAME} ${LINKER_TEST_SOURCES} )
+MESSAGE(STATUS "libs: ${DALICORE_LDFLAGS}")
+TARGET_COMPILE_OPTIONS( ${LINKER_TEST_NAME} PRIVATE -I${ROOT_SRC_DIR} ${DALICORE_CFLAGS} )
+TARGET_LINK_LIBRARIES(${LINKER_TEST_NAME} ${name} ${DALICORE_LDFLAGS} ${VCONF_LDFLAGS} ${HARFBUZZ_LDFLAGS} )
+TARGET_INCLUDE_DIRECTORIES( ${LINKER_TEST_NAME} PRIVATE ${DALI_TEST_SUITE_DIR} )
+
+# Configuration Messages
+MESSAGE( STATUS "Configuration:\n" )
+MESSAGE( STATUS "Prefix:                           ${PREFIX}")
+MESSAGE( STATUS "Lib Dir:                          ${LIB_DIR}" )
+MESSAGE( STATUS "Include Dir:                      ${INCLUDE_DIR}" )
+MESSAGE( STATUS "Coverage:                         ${ENABLE_COVERAGE}" )
+MESSAGE( STATUS "Debug Build:                      ${ENABLE_DEBUG}")
+MESSAGE( STATUS "Freetype bitmap support (Emoji):  ${freetype_bitmap_support_ENABLED}")
+MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
+MESSAGE( STATUS "Data Dir (Read/Write):            ${dataReadWriteDir}")
+MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
+MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
+MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
+MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")
+MESSAGE( STATUS "Font config file:                 \"${fontConfigurationFile}\"")
+MESSAGE( STATUS "Using Tizen APP FW libraries:     ${ENABLE_APPFW}")
+MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
+MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
+IF( enable_feedback )
+  ADD_SUBDIRECTORY( plugins )
+ENDIF()
+
+CLEAN_ARG_CACHE()

@@ -27,31 +27,22 @@
 #include <dali/integration-api/render-controller.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
-#include <dali/integration-api/scene.h>
-
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/scene-holder-impl.h>
-#else
-#include <dali/integration-api/adaptors/scene-holder-impl.h>
-#endif
-
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
-
-#include <dali/internal/graphics/common/graphics-interface.h>
-
-#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <dali/integration-api/scene.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
-#include <dali/internal/system/common/environment-options.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <dali/internal/network/common/socket-factory.h>
 #include <dali/internal/system/common/core-event-interface.h>
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/kernel-trace.h>
 #include <dali/internal/system/common/system-trace.h>
-#include <dali/integration-api/trigger-event-factory.h>
-#include <dali/internal/network/common/socket-factory.h>
-
+#include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/window-visibility-observer.h>
 
 namespace Dali
 {

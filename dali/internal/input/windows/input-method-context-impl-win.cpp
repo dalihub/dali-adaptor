@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/input/common/virtual-keyboard-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/internal/input/common/virtual-keyboard-impl.h>
-#include <dali/internal/input/common/key-impl.h>
 
 namespace Dali
 {
@@ -62,7 +62,8 @@ InputMethodContextWin::InputMethodContextWin( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false )
+  mIdleCallbackConnected( false ),
+  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
 {
 
   actor.OnStageSignal().Connect( this, &InputMethodContextWin::OnStaged );
@@ -362,6 +363,12 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPane
 void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int y )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
+}
+
+Dali::InputMethodContext::PreeditStyle InputMethodContextWin::GetPreeditStyle() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n" );
+  return mPreeditType;
 }
 
 bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )

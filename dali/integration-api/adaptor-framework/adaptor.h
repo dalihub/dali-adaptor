@@ -32,13 +32,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/application-configuration.h>
 #include <dali/public-api/dali-adaptor-common.h>
-
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/log-factory-interface.h>
-#else
-#include <dali/integration-api/adaptors/log-factory-interface.h>
-#endif
-
+#include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 
 namespace Dali
 {

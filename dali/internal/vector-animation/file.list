@@ -1,7 +1,7 @@
 
-
 # module: vector-animation, backend: common
-adaptor_vector_animation_common_src_files=\
-    ${adaptor_vector_animation_dir}/common/vector-animation-renderer-impl.cpp \
+SET( adaptor_vector_animation_common_src_files 
+    ${adaptor_vector_animation_dir}/common/vector-animation-renderer-impl.cpp 
     ${adaptor_vector_animation_dir}/common/vector-animation-renderer-plugin-proxy.cpp
+)
 
