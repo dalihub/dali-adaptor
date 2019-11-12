@@ -82,7 +82,8 @@ Window::Window()
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
   mResizeSignal(),
-  mVisibilityChangedSignal()
+  mVisibilityChangedSignal(),
+  mTransitionEffectEventSignal()
 {
 }
 
@@ -109,6 +110,7 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   mWindowBase->IconifyChangedSignal().Connect( this, &Window::OnIconifyChanged );
   mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
+  mWindowBase->TransitionEffectEventSignal().Connect( this, &Window::OnTransitionEffectEvent );
 
   mWindowSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
@@ -624,6 +626,12 @@ void Window::OnOutputTransformed()
 void Window::OnDeleteRequest()
 {
   mDeleteRequestSignal.Emit();
+}
+
+void Window::OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type )
+{
+  Dali::Window handle( this );
+  mTransitionEffectEventSignal.Emit( handle, state, type );
 }
 
 void Window::OnTouchPoint( Dali::Integration::Point& point, int timeStamp )
