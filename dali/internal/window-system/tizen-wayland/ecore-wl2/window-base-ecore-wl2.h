@@ -155,11 +155,6 @@ public:
    */
   void OnFontSizeChanged();
 
-  /**
-   * @brief Called when a transition effect-start/end event is received.
-   */
-  void OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type );
-
 #ifdef DALI_ELDBUS_AVAILABLE
   /**
    * @brief Called when Ecore ElDBus accessibility event is received.

@@ -65,11 +65,6 @@ WheelEventSignalType& WheelEventSignal( Window window )
   return GetImplementation( window ).WheelEventSignal();
 }
 
-TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window )
-{
-  return GetImplementation( window ).TransitionEffectEventSignal();
-}
-
 void SetParent( Window window, Window parent )
 {
   GetImplementation( window ).SetParent( parent );
