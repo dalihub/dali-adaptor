@@ -40,7 +40,8 @@ WindowBase::WindowBase()
   mSelectionDataSendSignal(),
   mSelectionDataReceivedSignal(),
   mStyleChangedSignal(),
-  mAccessibilitySignal()
+  mAccessibilitySignal(),
+  mTransitionEffectEventSignal()
 {
 }
 
@@ -111,6 +112,11 @@ WindowBase::StyleSignalType& WindowBase::StyleChangedSignal()
 WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
 {
   return mAccessibilitySignal;
+}
+
+WindowBase::TransitionEffectEventSignalType& WindowBase::TransitionEffectEventSignal()
+{
+  return mTransitionEffectEventSignal;
 }
 
 } // namespace Adaptor

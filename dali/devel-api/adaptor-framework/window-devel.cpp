@@ -70,6 +70,11 @@ VisibilityChangedSignalType& VisibilityChangedSignal( Window window )
   return GetImplementation( window ).VisibilityChangedSignal();
 }
 
+TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window )
+{
+  return GetImplementation( window ).TransitionEffectEventSignal();
+}
+
 void SetParent( Window window, Window parent )
 {
   GetImplementation( window ).SetParent( parent );
