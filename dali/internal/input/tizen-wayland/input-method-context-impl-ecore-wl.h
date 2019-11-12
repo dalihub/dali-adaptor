@@ -262,11 +262,6 @@ public:
    */
   void SetInputPanelPosition( unsigned int x, unsigned int y ) override;
 
-  /**
-   * @copydoc Dali::InputMethodContext::GetPreeditStyle()
-   */
-  Dali::InputMethodContext::PreeditStyle GetPreeditStyle() const override;
-
 private:
   /**
    * Context created the first time and kept until deleted.
@@ -345,7 +340,6 @@ private:
 
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
   InputMethodOptions mOptions;
-  Dali::InputMethodContext::PreeditStyle mPreeditType;
 
   int mWindowId;
 };

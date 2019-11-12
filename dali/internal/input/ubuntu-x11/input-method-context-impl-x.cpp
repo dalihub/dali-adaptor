@@ -148,8 +148,7 @@ InputMethodContextX::InputMethodContextX( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false ),
-  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
+  mIdleCallbackConnected( false )
 {
   ecore_imf_init();
 
@@ -322,34 +321,6 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
-      switch( attr->preedit_type )
-      {
-        case ECORE_IMF_PREEDIT_TYPE_NONE:
-        {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::NONE;
-          break;
-        }
-        case ECORE_IMF_PREEDIT_TYPE_SUB1:
-        {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
-          break;
-        }
-        case ECORE_IMF_PREEDIT_TYPE_SUB2:
-        {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
-          break;
-        }
-        case ECORE_IMF_PREEDIT_TYPE_SUB3:
-        {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
-          break;
-        }
-        default:
-        {
-          break;
-        }
-      }
-
 #ifdef DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
 #else // DALI_PROFILE_UBUNTU
@@ -817,12 +788,6 @@ void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y 
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPosition\n" );
 
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
-}
-
-Dali::InputMethodContext::PreeditStyle InputMethodContextX::GetPreeditStyle() const
-{
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n" );
-  return mPreeditType;
 }
 
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )

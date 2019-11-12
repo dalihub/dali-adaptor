@@ -62,8 +62,7 @@ InputMethodContextWin::InputMethodContextWin( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false ),
-  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
+  mIdleCallbackConnected( false )
 {
 
   actor.OnStageSignal().Connect( this, &InputMethodContextWin::OnStaged );
@@ -363,12 +362,6 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPane
 void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int y )
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
-}
-
-Dali::InputMethodContext::PreeditStyle InputMethodContextWin::GetPreeditStyle() const
-{
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n" );
-  return mPreeditType;
 }
 
 bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )
