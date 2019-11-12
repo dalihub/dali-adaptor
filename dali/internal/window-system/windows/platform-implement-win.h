@@ -77,8 +77,6 @@ void KillTimer(int id);
 
 void GetDPI( uint64_t hWnd, float &xDpi, float &yDpi );
 
-int GetOrientation() const;
-
 const char* GetKeyName( int keyCode );
 
 uint64_t GetCurrentThreadId();
