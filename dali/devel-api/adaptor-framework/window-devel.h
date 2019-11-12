@@ -39,6 +39,8 @@ typedef Signal< void (const TouchData&) > TouchSignalType;         ///< Touch si
 
 typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
 
+typedef Signal< void ( Window, bool ) > VisibilityChangedSignalType; ///< Visibility changed signal type
+
 /**
  * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
  *
@@ -112,6 +114,18 @@ DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
+
+/**
+ * @brief This signal is emitted when the window is shown or hidden.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, bool visible );
+ * @endcode
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal( Window window );
 
 /**
  * @brief Sets parent window of the window.

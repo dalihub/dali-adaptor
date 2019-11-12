@@ -1,18 +1,23 @@
-adaptor_integration_api_src_files = \
-  $(adaptor_integration_api_dir)/scene-holder.cpp \
-  $(adaptor_integration_api_dir)/scene-holder-impl.cpp
 
-adaptor_integration_api_header_files = \
-  $(adaptor_integration_api_dir)/adaptor.h \
-  $(adaptor_integration_api_dir)/egl-interface.h \
-  $(adaptor_integration_api_dir)/log-factory-interface.h \
-  $(adaptor_integration_api_dir)/native-render-surface.h \
-  $(adaptor_integration_api_dir)/native-render-surface-factory.h \
-  $(adaptor_integration_api_dir)/render-surface-interface.h \
-  $(adaptor_integration_api_dir)/scene-holder.h \
-  $(adaptor_integration_api_dir)/scene-holder-impl.h \
-  $(adaptor_integration_api_dir)/thread-synchronization-interface.h \
-  $(adaptor_integration_api_dir)/trigger-event-interface.h \
-  $(adaptor_integration_api_dir)/trigger-event-factory-interface.h \
-  $(adaptor_integration_api_dir)/trigger-event-factory.h
+
+SET( adaptor_integration_api_src_files
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.cpp
+)
+
+
+SET( adaptor_integration_api_header_files
+  ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
+  ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface-factory.h
+  ${adaptor_integration_api_dir}/adaptor-framework/render-surface-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.h
+  ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.h
+  ${adaptor_integration_api_dir}/adaptor-framework/thread-synchronization-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory.h
+)
 

@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/scene-holder.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/wheel-event.h>
@@ -26,7 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
-#include <dali/integration-api/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 
 namespace Dali
 {

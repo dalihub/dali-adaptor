@@ -20,14 +20,13 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
-
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
-#include <dali/integration-api/adaptor.h>
-#include <dali/internal/system/common/locale-utils.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/input/common/input-method-context-impl.h>
+#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
+#include <dali/internal/system/common/locale-utils.h>
 
 namespace Dali
 {

@@ -23,8 +23,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/internal/adaptor/common/threading-mode.h>
-#include <dali/integration-api/log-factory-interface.h>
 
 namespace Dali
 {

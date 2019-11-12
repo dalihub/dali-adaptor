@@ -1,2 +1,6 @@
-adaptor_dali_header_file = \
-  $(adaptor_dali_header_dir)/dali.h
+
+
+SET( adaptor_dali_header_file
+  ${adaptor_dali_header_dir}/dali.h
+)
+

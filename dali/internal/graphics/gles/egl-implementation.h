@@ -26,11 +26,10 @@
 #include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
 namespace Adaptor

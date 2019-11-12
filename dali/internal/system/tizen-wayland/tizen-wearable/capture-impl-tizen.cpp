@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
 #include <dali/internal/system/tizen-wayland/tizen-wearable/capture-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
-#include <dali/public-api/common/stage.h>
-#include <dali/integration-api/debug.h>
 #include <fstream>
 #include <string.h>
+#include <dali/public-api/common/stage.h>
+#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 namespace
 {

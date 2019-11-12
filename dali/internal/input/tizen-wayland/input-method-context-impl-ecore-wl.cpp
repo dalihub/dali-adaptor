@@ -34,12 +34,12 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
-#include <dali/integration-api/scene-holder.h>
+#include <dali/public-api/adaptor-framework/input-method.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/public-api/adaptor-framework/input-method.h>
-#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #define TOKEN_STRING(x) #x
@@ -324,6 +324,7 @@ InputMethodContextEcoreWl::InputMethodContextEcoreWl( Dali::Actor actor )
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
   mIdleCallbackConnected( false ),
+  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE ),
   mWindowId( GetWindowIdFromActor( actor ) )
 {
   ecore_imf_init();
@@ -341,6 +342,7 @@ void InputMethodContextEcoreWl::Initialize()
 {
   CreateContext();
   ConnectCallbacks();
+  ApplyBackupOperations();
 }
 
 void InputMethodContextEcoreWl::CreateContext()
@@ -510,6 +512,34 @@ void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, v
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
+      switch( attr->preedit_type )
+      {
+        case ECORE_IMF_PREEDIT_TYPE_NONE:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB1:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB2:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB3:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          break;
+        }
+        default:
+        {
+          break;
+        }
+      }
+
 #ifdef DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
 #else // DALI_PROFILE_UBUNTU
@@ -738,6 +768,8 @@ void InputMethodContextEcoreWl::NotifyTextInputMultiLine( bool multiLine )
                                         (currentHint | ECORE_IMF_INPUT_HINT_MULTILINE) :
                                         (currentHint & ~ECORE_IMF_INPUT_HINT_MULTILINE)));
   }
+
+  mBackupOperations[Operation::NOTIFY_TEXT_INPUT_MULTILINE] = std::bind( &InputMethodContextEcoreWl::NotifyTextInputMultiLine, this, multiLine );
 }
 
 Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
@@ -827,6 +859,8 @@ void InputMethodContextEcoreWl::SetInputPanelData( const std::string& data )
     int length = data.length();
     ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_DATA] = std::bind( &InputMethodContextEcoreWl::SetInputPanelData, this, data );
 }
 
 void InputMethodContextEcoreWl::GetInputPanelData( std::string& data )
@@ -889,6 +923,8 @@ void InputMethodContextEcoreWl::SetReturnKeyState( bool visible )
   {
     ecore_imf_context_input_panel_return_key_disabled_set( mIMFContext, !visible );
   }
+
+  mBackupOperations[Operation::SET_RETURN_KEY_STATE] = std::bind( &InputMethodContextEcoreWl::SetReturnKeyState, this, visible );
 }
 
 void InputMethodContextEcoreWl::AutoEnableInputPanel( bool enabled )
@@ -899,6 +935,8 @@ void InputMethodContextEcoreWl::AutoEnableInputPanel( bool enabled )
   {
     ecore_imf_context_input_panel_enabled_set( mIMFContext, enabled );
   }
+
+  mBackupOperations[Operation::AUTO_ENABLE_INPUT_PANEL] = std::bind( &InputMethodContextEcoreWl::AutoEnableInputPanel, this, enabled );
 }
 
 void InputMethodContextEcoreWl::ShowInputPanel()
@@ -979,6 +1017,8 @@ void InputMethodContextEcoreWl::SetContentMIMETypes( const std::string& mimeType
   {
     ecore_imf_context_mime_type_accept_set( mIMFContext, mimeTypes.c_str() );
   }
+
+  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind( &InputMethodContextEcoreWl::SetContentMIMETypes, this, mimeTypes );
 }
 
 bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
@@ -1010,6 +1050,8 @@ void InputMethodContextEcoreWl::AllowTextPrediction( bool prediction )
   {
     ecore_imf_context_prediction_allow_set( mIMFContext, prediction );
   }
+
+  mBackupOperations[Operation::ALLOW_TEXT_PREDICTION] = std::bind( &InputMethodContextEcoreWl::AllowTextPrediction, this, prediction );
 }
 
 bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
@@ -1042,6 +1084,8 @@ void InputMethodContextEcoreWl::SetInputPanelLanguage( Dali::InputMethodContext:
       }
     }
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE] = std::bind( &InputMethodContextEcoreWl::SetInputPanelLanguage, this, language );
 }
 
 Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInputPanelLanguage() const
@@ -1077,6 +1121,14 @@ void InputMethodContextEcoreWl::SetInputPanelPosition( unsigned int x, unsigned 
   {
     ecore_imf_context_input_panel_position_set( mIMFContext, x, y );
   }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind( &InputMethodContextEcoreWl::SetInputPanelPosition, this, x, y );
+}
+
+Dali::InputMethodContext::PreeditStyle InputMethodContextEcoreWl::GetPreeditStyle() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetPreeditStyle\n" );
+  return mPreeditType;
 }
 
 bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
@@ -1102,6 +1154,9 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
     ecoreKeyDownEvent.dev_name = deviceName.c_str();
     ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyDownEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+#endif // Since ecore_imf 1.22 version
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if ((keyEvent.GetDeviceName() == "ime") && ((!strncmp(keyEvent.keyPressedName.c_str(), "Left", 4)) ||
@@ -1155,6 +1210,9 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
     ecoreKeyUpEvent.dev_name = deviceName.c_str();
     ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyUpEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+#endif // Since ecore_imf 1.22 version
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,

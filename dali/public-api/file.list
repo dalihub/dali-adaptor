@@ -1,45 +1,55 @@
-adaptor_public_api_src_files = \
-  $(adaptor_public_api_dir)/adaptor-framework/application.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/key.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/window.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/timer.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/tts-player.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/native-image-source.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/widget.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/widget-application.cpp \
-  $(adaptor_public_api_dir)/adaptor-framework/widget-impl.cpp \
-  $(adaptor_public_api_dir)/dali-adaptor-version.cpp
 
 
-public_api_header_files = \
-  $(adaptor_public_api_dir)/dali-adaptor-version.h \
-  $(adaptor_public_api_dir)/dali-adaptor-common.h
+SET( adaptor_public_api_src_files
+  ${adaptor_public_api_dir}/adaptor-framework/application.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/key.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/window.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/timer.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/tts-player.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/native-image-source.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/widget.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/widget-application.cpp 
+  ${adaptor_public_api_dir}/adaptor-framework/widget-impl.cpp 
+  ${adaptor_public_api_dir}/dali-adaptor-version.cpp
+)
 
 
-public_api_adaptor_framework_header_files = \
-  $(adaptor_public_api_dir)/adaptor-framework/application.h \
-  $(adaptor_public_api_dir)/adaptor-framework/application-configuration.h \
-  $(adaptor_public_api_dir)/adaptor-framework/device-status.h \
-  $(adaptor_public_api_dir)/adaptor-framework/input-method.h \
-  $(adaptor_public_api_dir)/adaptor-framework/key.h \
-  $(adaptor_public_api_dir)/adaptor-framework/key-grab.h \
-  $(adaptor_public_api_dir)/adaptor-framework/style-change.h \
-  $(adaptor_public_api_dir)/adaptor-framework/timer.h \
-  $(adaptor_public_api_dir)/adaptor-framework/tts-player.h \
-  $(adaptor_public_api_dir)/adaptor-framework/native-image-source.h \
-  $(adaptor_public_api_dir)/adaptor-framework/window.h \
-  $(adaptor_public_api_dir)/adaptor-framework/widget.h \
-  $(adaptor_public_api_dir)/adaptor-framework/widget-application.h \
-  $(adaptor_public_api_dir)/adaptor-framework/widget-impl.h
+SET( public_api_header_files
+  ${adaptor_public_api_dir}/dali-adaptor-version.h 
+  ${adaptor_public_api_dir}/dali-adaptor-common.h
+)
+
+
+SET( public_api_adaptor_framework_header_files
+  ${adaptor_public_api_dir}/adaptor-framework/application.h 
+  ${adaptor_public_api_dir}/adaptor-framework/application-configuration.h 
+  ${adaptor_public_api_dir}/adaptor-framework/device-status.h 
+  ${adaptor_public_api_dir}/adaptor-framework/input-method.h 
+  ${adaptor_public_api_dir}/adaptor-framework/key.h 
+  ${adaptor_public_api_dir}/adaptor-framework/key-grab.h 
+  ${adaptor_public_api_dir}/adaptor-framework/style-change.h 
+  ${adaptor_public_api_dir}/adaptor-framework/timer.h 
+  ${adaptor_public_api_dir}/adaptor-framework/tts-player.h 
+  ${adaptor_public_api_dir}/adaptor-framework/native-image-source.h 
+  ${adaptor_public_api_dir}/adaptor-framework/window.h 
+  ${adaptor_public_api_dir}/adaptor-framework/widget.h 
+  ${adaptor_public_api_dir}/adaptor-framework/widget-application.h 
+  ${adaptor_public_api_dir}/adaptor-framework/widget-impl.h
+)
 
 # wearable and watch extra public headers
-adaptor_dali_wearable_header_file = \
-  $(adaptor_public_api_dir)/watch/dali-wearable.h
+SET( adaptor_dali_wearable_header_file
+  ${adaptor_public_api_dir}/watch/dali-wearable.h
+)
 
-public_dali_watch_header_files = \
-  $(adaptor_public_api_dir)/watch/watch-application.h \
-  $(adaptor_public_api_dir)/watch/watch-time.h
+# wearable and watch extra public headers
+SET( public_dali_watch_header_files
+  ${adaptor_public_api_dir}/watch/watch-application.h 
+  ${adaptor_public_api_dir}/watch/watch-time.h
+)
 
-public_dali_capture_header_files = \
-  $(adaptor_public_api_dir)/capture/capture.h
+# wearable and watch extra public headers
+SET( public_dali_capture_header_files
+  ${adaptor_public_api_dir}/capture/capture.h
+)
 

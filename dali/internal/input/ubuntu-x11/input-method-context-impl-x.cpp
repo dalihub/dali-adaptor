@@ -19,21 +19,22 @@
 #include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <dali/internal/input/linux/dali-ecore-imf.h>
-#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/input/common/virtual-keyboard-impl.h>
+#include <dali/internal/input/linux/dali-ecore-imf.h>
+#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
+#include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
-#include <dali/internal/input/common/virtual-keyboard-impl.h>
-#include <dali/internal/input/common/key-impl.h>
-#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {
@@ -148,7 +149,8 @@ InputMethodContextX::InputMethodContextX( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false )
+  mIdleCallbackConnected( false ),
+  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
 {
   ecore_imf_init();
 
@@ -321,6 +323,34 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
+      switch( attr->preedit_type )
+      {
+        case ECORE_IMF_PREEDIT_TYPE_NONE:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB1:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB2:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB3:
+        {
+          mPreeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          break;
+        }
+        default:
+        {
+          break;
+        }
+      }
+
 #ifdef DALI_PROFILE_UBUNTU
       if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
 #else // DALI_PROFILE_UBUNTU
@@ -790,6 +820,12 @@ void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y 
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
 }
 
+Dali::InputMethodContext::PreeditStyle InputMethodContextX::GetPreeditStyle() const
+{
+  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n" );
+  return mPreeditType;
+}
+
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
 {
   bool eventHandled( false );
@@ -809,11 +845,17 @@ bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
     ecoreKeyDownEvent.timestamp = keyEvent.time;
     ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-#ifdef ECORE_IMF_1_13
+
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyDownEvent.dev_name  = "";
     ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
-#endif // ECORE_IMF_1_13
+#endif // Since ecore_imf 1.14 version
+#if (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyDownEvent.keycode = keyEvent.keyCode;
+#endif // Since ecore_imf 1.22 version
+#endif // Since ecore_imf Version 1
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if ((keyEvent.GetDeviceName() == "ime") && ((!strncmp(keyEvent.keyPressedName.c_str(), "Left", 4)) ||
@@ -863,9 +905,14 @@ bool InputMethodContextX::ProcessEventKeyUp( const KeyEvent& keyEvent )
     ecoreKeyUpEvent.timestamp = keyEvent.time;
     ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
     ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
-#ifdef ECORE_IMF_1_13
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyUpEvent.dev_name  = "";
-#endif // ECORE_IMF_1_13
+#endif // Since ecore_imf 1.14 version
+#if (ECORE_VERSION_MINOR >= 22)
+    ecoreKeyUpEvent.keycode = keyEvent.keyCode;
+#endif // Since ecore_imf 1.22 version
+#endif // Since ecore_imf Version 1
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,

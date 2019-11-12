@@ -331,13 +331,7 @@ public:
   /**
    * @copydoc Dali::Window::SetParent()
    */
-  virtual void SetParent( Any parent ) = 0;
-
-  /**
-   * @brief Check whether the window is matched or not.
-   * @return The result of matched.
-   */
-  virtual bool IsMatchedWindow( Any window ) = 0;
+  virtual void SetParent( WindowBase* parentWinBase ) = 0;
 
   // Signals
 
