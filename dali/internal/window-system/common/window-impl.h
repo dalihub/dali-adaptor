@@ -67,7 +67,6 @@ public:
   typedef Dali::Window::ResizedSignalType ResizedSignalType;
   typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
   typedef Dali::Window::ResizeSignalType ResizeSignalType;
-  typedef Dali::DevelWindow::VisibilityChangedSignalType VisibilityChangedSignalType;
   typedef Dali::DevelWindow::TransitionEffectEventSignalType TransitionEffectEventSignalType;
   typedef Signal< void () > SignalType;
 
@@ -476,7 +475,6 @@ public: // Signals
    * @copydoc Dali::Window::ResizedSignal()
    */
   ResizedSignalType& ResizedSignal() { return mResizedSignal; }
-
   /**
    * @copydoc Dali::Window::ResizedSignal()
    */
@@ -486,11 +484,6 @@ public: // Signals
    * This signal is emitted when the window is requesting to be deleted
    */
   SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
-
-  /**
-   * @copydoc Dali::DevelWindow::VisibilityChangedSignal()
-   */
-  VisibilityChangedSignalType& VisibilityChangedSignal() { return mVisibilityChangedSignal; }
 
   /**
    * @copydoc Dali::Window::SignalEventProcessingFinished()
@@ -533,7 +526,6 @@ private:
   SignalType                            mDeleteRequestSignal;
   FocusChangeSignalType                 mFocusChangeSignal;
   ResizeSignalType                      mResizeSignal;
-  VisibilityChangedSignalType           mVisibilityChangedSignal;
   TransitionEffectEventSignalType       mTransitionEffectEventSignal;
 };
 
