@@ -85,7 +85,7 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::GetLayerInfo()
    */
-  void GetLayerInfo( Property::Map& map );
+  void GetLayerInfo( Property::Map& map ) const;
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()

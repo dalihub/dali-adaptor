@@ -106,7 +106,7 @@ public:
    *
    * @param[out] map The layer information
    */
-  virtual void GetLayerInfo( Property::Map& map ) = 0;
+  virtual void GetLayerInfo( Property::Map& map ) const = 0;
 
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
