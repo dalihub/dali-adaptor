@@ -30,25 +30,6 @@ class RenderTaskList;
 
 namespace DevelWindow
 {
-/**
- * @brief Enumeration for transition effect's state.
- */
-enum class EffectState
-{
-  NONE = 0,    ///< None state
-  START,       ///< Transition effect is started.
-  END          ///< Transition effect is ended.
-};
-
-/**
- * @brief Enumeration for transition effect's type.
- */
-enum class  EffectType
-{
-  NONE = 0,    ///< None type
-  SHOW,        ///< Window show effect.
-  HIDE,        ///< Window hide effect.
-};
 
 typedef Signal< void () > EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
 
@@ -57,8 +38,6 @@ typedef Signal< void (const KeyEvent&) > KeyEventSignalType;       ///< Key even
 typedef Signal< void (const TouchData&) > TouchSignalType;         ///< Touch signal type
 
 typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
-
-typedef Signal< void (Window, EffectState, EffectType) > TransitionEffectEventSignalType; ///< Effect signal type and state
 
 /**
  * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
@@ -133,21 +112,6 @@ DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
-
-/**
- * @brief This signal is emitted for transition effect.
- *
- * The transition animation is appeared when the window is shown/hidden.
- * When the animation is started, START signal is emitted.
- * Then the animation is ended, END signal is emitted, too.
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, EffectState state, EffectType type );
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window );
 
 /**
  * @brief Sets parent window of the window.
