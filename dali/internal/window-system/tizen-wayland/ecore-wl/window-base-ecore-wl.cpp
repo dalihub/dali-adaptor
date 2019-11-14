@@ -654,6 +654,11 @@ void WindowBaseEcoreWl::Initialize( PositionSize positionSize, Any surface, bool
     CreateWindow( positionSize );
   }
 
+  for( int i = 0; i < 4; ++i )
+  {
+    mAvaiableWindowOrientations[i] = 0;
+  }
+
   mWlSurface = ecore_wl_window_surface_create( mEcoreWindow );
 
   SetTransparency( isTransparent );
@@ -1366,12 +1371,12 @@ void WindowBaseEcoreWl::Activate()
 
 void WindowBaseEcoreWl::SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations )
 {
-  int rotations[4] = { 0 };
-  for( std::size_t i = 0; i < orientations.size(); ++i )
+  std::size_t size = orientations.size();
+  for( std::size_t i = 0; i < size; ++i )
   {
-    rotations[i] = static_cast< int >( orientations[i] );
+    mAvaiableWindowOrientations[i] = static_cast< int >( orientations[i] );
   }
-  ecore_wl_window_rotation_available_rotations_set( mEcoreWindow, rotations, orientations.size() );
+  ecore_wl_window_rotation_available_rotations_set( mEcoreWindow, mAvaiableWindowOrientations, size );
 }
 
 void WindowBaseEcoreWl::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
