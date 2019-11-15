@@ -40,9 +40,11 @@ FileStream::FileStream(Dali::Vector<uint8_t>& buffer, size_t dataSize, uint8_t m
   mImpl.reset( new Impl( buffer, dataSize, mode ) );
 }
 
-FileStream::~FileStream() = default;
+FileStream::FileStream(FileStream&&) = default;
 
 FileStream& FileStream::operator=(FileStream&&) = default;
+
+FileStream::~FileStream() = default;
 
 std::iostream& FileStream::GetStream()
 {

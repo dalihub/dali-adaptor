@@ -42,11 +42,6 @@ const long EXCLUDE_BODY = 1L;
 namespace Network
 {
 
-void CurlEnvironment::GetThreadId( CRYPTO_THREADID* tid )
-{
-  // If dali uses c++ thread, we may replace pthread_self() to this_thread::get_id()
-  tid->val = Internal::Adaptor::WindowsPlatformImplementation::GetCurrentThreadId();
-}
 }
 }
 }

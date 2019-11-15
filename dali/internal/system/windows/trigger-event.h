@@ -74,6 +74,7 @@ private:
 private:
 
   CallbackBase* mCallback;
+  CallbackBase* mSelfCallback;
   int32_t mThreadID;
   TriggerEventInterface::Options mOptions;
 };
