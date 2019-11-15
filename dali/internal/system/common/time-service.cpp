@@ -41,10 +41,15 @@ const uint64_t NANOSECONDS_PER_SECOND = 1e+9;
 void GetNanoseconds( uint64_t& timeInNanoseconds )
 {
   timespec timeSpec;
-  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
-
-  // Convert all values to uint64_t to match our return type
-  timeInNanoseconds = ( static_cast< uint64_t >( timeSpec.tv_sec ) * NANOSECONDS_PER_SECOND ) + static_cast< uint64_t >( timeSpec.tv_nsec );
+  if( clock_gettime( CLOCK_MONOTONIC, &timeSpec ) == 0 )
+  {
+    // Convert all values to uint64_t to match our return type
+    timeInNanoseconds = ( static_cast< uint64_t >( timeSpec.tv_sec ) * NANOSECONDS_PER_SECOND ) + static_cast< uint64_t >( timeSpec.tv_nsec );
+  }
+  else
+  {
+    timeInNanoseconds = 0;
+  }
 }
 
 void SleepUntil( uint64_t timeInNanoseconds )
