@@ -469,6 +469,9 @@ popd
 exit 0
 
 %post
+pushd %{_libdir}
+for i in mobile tv wearable ivi; do [[ -f libdali-adaptor.so.$i ]] && ln -sf libdali-adaptor.so.$i libdali-adaptor.so.0.0.0; done
+popd
 /sbin/ldconfig
 exit 0
 
