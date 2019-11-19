@@ -701,11 +701,11 @@ void WindowBaseEcoreX::Activate()
   ecore_x_netwm_client_active_request( ecore_x_window_root_get( mEcoreWindow ), mEcoreWindow, 1 /* request type, 1:application, 2:pager */, 0 );
 }
 
-void WindowBaseEcoreX::SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations )
+void WindowBaseEcoreX::SetAvailableAnlges( const std::vector< int >& angles )
 {
 }
 
-void WindowBaseEcoreX::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
+void WindowBaseEcoreX::SetPreferredAngle( int angle )
 {
 }
 

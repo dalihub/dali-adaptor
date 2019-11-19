@@ -270,6 +270,7 @@ static Eina_Bool EcoreEventRotate( void* data, int type, void* event )
   WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
   if( windowBase )
   {
+    DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::EcoreEventRotate\n" );
     windowBase->OnRotation( data, type, event );
   }
   return ECORE_CALLBACK_PASS_ON;
@@ -874,7 +875,7 @@ void WindowBaseEcoreWl2::OnRotation( void* data, int type, void* event )
 
   if( ev->win == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
   {
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl::OnRotation\n" );
+    DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::OnRotation, angle: %d, width: %d, height: %d\n", ev->angle, ev->w, ev->h );
 
     RotationEvent rotationEvent;
     rotationEvent.angle = ev->angle;
@@ -1453,19 +1454,22 @@ void WindowBaseEcoreWl2::Activate()
   ecore_wl2_window_activate( mEcoreWindow );
 }
 
-void WindowBaseEcoreWl2::SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations )
+void WindowBaseEcoreWl2::SetAvailableAnlges( const std::vector< int >& angles )
 {
   int rotations[4] = { 0 };
-  for( std::size_t i = 0; i < orientations.size(); ++i )
+  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetAvailableAnlges, angle's count: %d\n", angles.size() );
+  for( std::size_t i = 0; i < angles.size(); ++i )
   {
-    rotations[i] = static_cast< int >( orientations[i] );
+    rotations[i] = static_cast< int >( angles[i] );
+    DALI_LOG_RELEASE_INFO( "%d ", rotations[i] );
   }
-  ecore_wl2_window_available_rotations_set( mEcoreWindow, rotations, orientations.size() );
+  ecore_wl2_window_available_rotations_set( mEcoreWindow, rotations, angles.size() );
 }
 
-void WindowBaseEcoreWl2::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
+void WindowBaseEcoreWl2::SetPreferredAngle( int angle )
 {
-  ecore_wl2_window_preferred_rotation_set( mEcoreWindow, orientation );
+  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle );
+  ecore_wl2_window_preferred_rotation_set( mEcoreWindow, angle );
 }
 
 void WindowBaseEcoreWl2::SetAcceptFocus( bool accept )
