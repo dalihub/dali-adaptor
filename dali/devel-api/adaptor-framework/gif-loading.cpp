@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -482,7 +482,7 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
 {
   int intoffset[] = {0, 4, 2, 1};
   int intjump[] = {8, 8, 4, 2};
-  int i, xx, yy, pix;
+  int i, xx, yy, pix, gifW, gifH;
   GifRowType *rows = NULL;
   bool ret = false;
   ColorMapObject *colorMap;
@@ -495,21 +495,28 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   {
     goto on_error;
   }
-  w = sp->ImageDesc.Width;
-  h = sp->ImageDesc.Height;
+
+  gifW = sp->ImageDesc.Width;
+  gifH = sp->ImageDesc.Height;
+
+  if( ( gifW < w ) || ( gifH < h ) )
+  {
+    DALI_ASSERT_DEBUG( false && "Dimensions are bigger than the Gif image size");
+    goto on_error;
+  }
 
   // build a blob of memory to have pointers to rows of pixels
   // AND store the decoded gif pixels (1 byte per pixel) as welll
-  rows = static_cast<GifRowType *>(malloc( (h * sizeof(GifRowType) ) + ( w * h * sizeof(GifPixelType) )));
+  rows = static_cast<GifRowType *>(malloc( (gifH * sizeof(GifRowType) ) + ( gifW * gifH * sizeof(GifPixelType) )));
   if( !rows )
   {
     goto on_error;
   }
 
   // fill in the pointers at the start
-  for( yy = 0; yy < h; yy++ )
+  for( yy = 0; yy < gifH; yy++ )
   {
-    rows[yy] = reinterpret_cast<unsigned char *>(rows) + (h * sizeof(GifRowType)) + (yy * w * sizeof(GifPixelType));
+    rows[yy] = reinterpret_cast<unsigned char *>(rows) + (gifH * sizeof(GifRowType)) + (yy * gifW * sizeof(GifPixelType));
   }
 
   // if gif is interlaced, walk interlace pattern and decode into rows
@@ -517,9 +524,9 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   {
     for( i = 0; i < 4; i++ )
     {
-      for( yy = intoffset[i]; yy < h; yy += intjump[i] )
+      for( yy = intoffset[i]; yy < gifH; yy += intjump[i] )
       {
-        if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+        if( DGifGetLine( gif, rows[yy], gifW ) != GIF_OK )
         {
           goto on_error;
         }
@@ -529,9 +536,9 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   // normal top to bottom - decode into rows
   else
   {
-    for( yy = 0; yy < h; yy++ )
+    for( yy = 0; yy < gifH; yy++ )
     {
-      if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+      if( DGifGetLine( gif, rows[yy], gifW ) != GIF_OK )
       {
         goto on_error;
       }
