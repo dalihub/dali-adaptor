@@ -62,6 +62,7 @@ void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
 
   mDepthBufferRequired = static_cast< Integration::DepthBufferAvailable >( environmentOptions->DepthBufferRequired() );
   mStencilBufferRequired = static_cast< Integration::StencilBufferAvailable >( environmentOptions->StencilBufferRequired() );
+  mPartialUpdateAvailable = static_cast< Integration::PartialUpdateAvailable >( environmentOptions->PartialUpdateAvailable() );
 
   mMultiSamplingLevel = environmentOptions->GetMultiSamplingLevel();
 
@@ -72,7 +73,7 @@ void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
 
 EglInterface* EglGraphics::Create()
 {
-  mEglImplementation = Utils::MakeUnique< EglImplementation >( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired );
+  mEglImplementation = Utils::MakeUnique< EglImplementation >( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired, mPartialUpdateAvailable );
   mEglImageExtensions = Utils::MakeUnique< EglImageExtensions >( mEglImplementation.get() );
 
   mEglSync->Initialize( mEglImplementation.get() ); // The sync impl needs the EglDisplay
