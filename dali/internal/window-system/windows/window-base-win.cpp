@@ -61,7 +61,7 @@ WindowBaseWin::WindowBaseWin( Dali::PositionSize positionSize, Any surface, bool
 
 WindowBaseWin::~WindowBaseWin()
 {
-  WindowsPlatformImplementation::PostWinMessage( WM_CLOSE, 0, 0, mWin32Window );
+  mWindowImpl.PostWinMessage( WM_CLOSE, 0, 0 );
 }
 
 void WindowBaseWin::Initialize( PositionSize positionSize, Any surface, bool isTransparent )
@@ -82,7 +82,7 @@ void WindowBaseWin::Initialize( PositionSize positionSize, Any surface, bool isT
     mWin32Window = static_cast< WinWindowHandle >( surfaceId );
   }
 
-  WindowsPlatformImplementation::SetListener( MakeCallback( this, &WindowBaseWin::EventEntry ) );
+  mWindowImpl.SetListener( MakeCallback( this, &WindowBaseWin::EventEntry ) );
 }
 
 void WindowBaseWin::OnDeleteRequest()
@@ -128,7 +128,7 @@ void WindowBaseWin::OnMouseButtonDown( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatformImplementation::GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -152,7 +152,7 @@ void WindowBaseWin::OnMouseButtonUp( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatformImplementation::GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -176,7 +176,7 @@ void WindowBaseWin::OnMouseButtonMove( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatformImplementation::GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -239,7 +239,7 @@ void WindowBaseWin::OnKeyUp( int type, TWinEventInfo *event )
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back( event->wParam );
 
-    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -291,6 +291,7 @@ void WindowBaseWin::Move( PositionSize positionSize )
 
 void WindowBaseWin::Resize( PositionSize positionSize )
 {
+  ::SetWindowPos( (HWND)mWin32Window, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height, SWP_SHOWWINDOW );
 }
 
 void WindowBaseWin::MoveResize( PositionSize positionSize )
@@ -436,7 +437,7 @@ void WindowBaseWin::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertic
   float xres, yres;
 
   //// 1 inch = 25.4 millimeters
-  WindowsPlatformImplementation::GetDPI( mWin32Window, xres, yres );
+  mWindowImpl.GetDPI( xres, yres );
 
   xres *= 1.5f;
   yres *= 1.5f;
@@ -479,9 +480,7 @@ unsigned int WindowBaseWin::GetSurfaceId( Any surface ) const
 
 void WindowBaseWin::CreateWinWindow( PositionSize positionSize, bool isTransparent )
 {
-  long hWnd = WindowsPlatformImplementation::CreateHwnd( "Demo", "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
-
-  WindowsPlatformImplementation::ShowWindow( hWnd );
+  long hWnd = mWindowImpl.CreateHwnd( "Demo", "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
 
   mWin32Window = (WinWindowHandle)hWnd;
   DALI_ASSERT_ALWAYS( mWin32Window != 0 && "There is no Windows window" );

@@ -39,43 +39,17 @@ namespace WindowsPlatformImplementation
 
 void RunLoop();
 
-int GetEdgeHeight();
-
-int GetColorDepth();
-
-uint64_t CreateHwnd(
-    _In_opt_ const char *lpClassName,
-    _In_opt_ const char *lpWindowName,
-    _In_ int X,
-    _In_ int Y,
-    _In_ int nWidth,
-    _In_ int nHeight,
-    _In_opt_ uint64_t parent);
-
-void SetListener( CallbackBase *callback );
-
-bool PostWinMessage(
-    _In_ uint32_t Msg,
-    _In_ uint32_t wParam,
-    _In_ uint64_t lParam,
-    _In_ uint64_t hWnd);
-
 bool PostWinThreadMessage(
     _In_ uint32_t Msg,
     _In_ uint32_t wParam,
     _In_ uint64_t lParam,
     _In_ uint64_t threadID = -1 );
 
-void ShowWindow( uint64_t hWnd );
-void HideWindow( uint64_t hWnd );
-
 using timerCallback = bool(*)(void *data);
 
 int SetTimer(int interval, timerCallback callback, void *data);
 
 void KillTimer(int id);
-
-void GetDPI( uint64_t hWnd, float &xDpi, float &yDpi );
 
 const char* GetKeyName( int keyCode );
 
@@ -84,6 +58,54 @@ uint64_t GetCurrentThreadId();
 void GetNanoseconds( uint64_t& timeInNanoseconds );
 
 unsigned int GetCurrentMilliSeconds( void );
+
+class WindowImpl
+{
+public:
+  WindowImpl();
+
+  virtual ~WindowImpl();
+
+  static void ProcWinMessge( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam );
+
+  void GetDPI( float &xDpi, float &yDpi );
+
+  int GetColorDepth();
+
+  uint64_t CreateHwnd(
+    _In_opt_ const char *lpClassName,
+    _In_opt_ const char *lpWindowName,
+    _In_ int X,
+    _In_ int Y,
+    _In_ int nWidth,
+    _In_ int nHeight,
+    _In_opt_ uint64_t parent );
+
+  void SetListener( CallbackBase *callback );
+
+  bool PostWinMessage(
+    _In_ uint32_t Msg,
+    _In_ uint32_t wParam,
+    _In_ uint64_t lParam );
+
+  int32_t GetEdgeWidth();
+
+  int32_t GetEdgeHeight();
+
+protected:
+
+private:
+
+  void SetHWND( uint64_t inHWnd );
+
+  unsigned long windowStyle;
+
+  int colorDepth;
+  uint64_t mHWnd;
+  uint64_t mHdc;
+
+  CallbackBase *listener;
+};
 
 } // namespace WindowsPlatformImplement
 

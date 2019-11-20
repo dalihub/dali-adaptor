@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
 // EXTERNAL INCLUDES
+#include <map>
 #include <windows.h>
 
 // INTERNAL INCLUDES
@@ -62,9 +63,49 @@ void RunLoop()
   }
 }
 
-void GetDPI( uint64_t hWnd, float &xDpi, float &yDpi )
+LRESULT CALLBACK WinProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-  HDC hdcScreen = GetDC( reinterpret_cast<HWND>( hWnd ) );
+  WindowImpl::ProcWinMessge( reinterpret_cast<uint64_t>( hWnd ), uMsg, wParam, lParam );
+
+  LRESULT ret = DefWindowProc( hWnd, uMsg, wParam, lParam );
+  return ret;
+}
+
+std::map<uint64_t, WindowImpl*> mHWndToListener;
+
+WindowImpl::WindowImpl()
+{
+  colorDepth = -1;
+  mHWnd = 0;
+  mHdc = 0;
+  listener = NULL;
+  windowStyle = WS_OVERLAPPED;
+}
+
+WindowImpl::~WindowImpl()
+{
+  mHWndToListener.erase( mHWnd );
+}
+
+void WindowImpl::ProcWinMessge( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam )
+{
+  std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find( hWnd );
+
+  if( mHWndToListener.end() != x )
+  {
+    CallbackBase* listener = x->second->listener;
+
+    if( NULL != listener )
+    {
+      TWinEventInfo eventInfo( hWnd, uMsg, wParam, lParam );
+      CallbackBase::Execute( *listener, &eventInfo );
+    }
+  }
+}
+
+void WindowImpl::GetDPI( float &xDpi, float &yDpi )
+{
+  HDC hdcScreen = GetDC( reinterpret_cast<HWND>( mHWnd ) );
 
   int32_t iX = GetDeviceCaps( hdcScreen, HORZRES );    // pixel
   int32_t iY = GetDeviceCaps( hdcScreen, VERTRES );    // pixel
@@ -75,94 +116,20 @@ void GetDPI( uint64_t hWnd, float &xDpi, float &yDpi )
   yDpi = static_cast<float>( iY ) / static_cast<float>( iPhsY ) * INCH;
 }
 
-CallbackBase *listener = NULL;
-
-LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+int WindowImpl::GetColorDepth()
 {
-  if( NULL != listener )
-  {
-    TWinEventInfo eventInfo( reinterpret_cast<uint64_t>( hWnd ), uMsg, wParam, lParam);
-    CallbackBase::Execute( *listener, &eventInfo );
-  }
-
-  LRESULT ret = DefWindowProc( hWnd, uMsg, wParam, lParam );
-  return ret;
+  DALI_ASSERT_DEBUG( colorDepth >= 0 && "HWND hasn't been created, no color depth" );
+  return colorDepth;
 }
 
-DWORD windowStyle = WS_OVERLAPPED;
-
-int32_t GetEdgeWidth()
-{
-  switch( windowStyle )
-  {
-    case WS_OVERLAPPED:
-    {
-      return 8;
-    }
-    default:
-    {
-      return 0;
-    }
-  }
-}
-
-int32_t GetEdgeHeight()
-{
-  switch( windowStyle )
-  {
-    case WS_OVERLAPPED:
-    {
-      return 18;
-    }
-    default:
-    {
-      return 0;
-    }
-  }
-}
-
-class WindowsDisplayInfo
-{
-public:
-  static int GetColorDepth()
-  {
-    DALI_ASSERT_DEBUG(colorDepth >= 0 && "HWND hasn't been created, no color depth");
-    return colorDepth;
-  }
-
-  static void SetHWND( HWND inHWnd )
-  {
-    if( hWnd != inHWnd )
-    {
-      hWnd = inHWnd;
-      hdc = GetDC( hWnd );
-      colorDepth = GetDeviceCaps( WindowsDisplayInfo::hdc, BITSPIXEL ) * GetDeviceCaps( WindowsDisplayInfo::hdc, PLANES );
-    }
-  }
-
-private:
-  static int colorDepth;
-  static HWND hWnd;
-  static HDC hdc;
-};
-
-int WindowsDisplayInfo::colorDepth = -1;
-HWND WindowsDisplayInfo::hWnd = NULL;
-HDC WindowsDisplayInfo::hdc = NULL;
-
-int GetColorDepth()
-{
-  return WindowsDisplayInfo::GetColorDepth();
-}
-
-uint64_t CreateHwnd(
-    _In_opt_ const char *lpClassName,
-    _In_opt_ const char *lpWindowName,
-    _In_ int X,
-    _In_ int Y,
-    _In_ int nWidth,
-    _In_ int nHeight,
-    _In_opt_ uint64_t parent)
+uint64_t WindowImpl::CreateHwnd(
+  _In_opt_ const char *lpClassName,
+  _In_opt_ const char *lpWindowName,
+  _In_ int X,
+  _In_ int Y,
+  _In_ int nWidth,
+  _In_ int nHeight,
+  _In_opt_ uint64_t parent )
 {
   WNDCLASS cs = { 0 };
   cs.cbClsExtra = 0;
@@ -178,32 +145,82 @@ uint64_t CreateHwnd(
   RegisterClass( &cs );
 
   HWND hWnd = CreateWindow( lpClassName, lpWindowName, windowStyle, X, Y, nWidth + 2 * GetEdgeWidth(), nHeight + 2 * GetEdgeHeight(), NULL, NULL, cs.hInstance, NULL );
-  ShowWindow( hWnd, SW_SHOW );
+  ::ShowWindow( hWnd, SW_SHOW );
 
-  WindowsDisplayInfo::SetHWND( hWnd );
+  SetHWND( reinterpret_cast<uint64_t>(hWnd) );
 
-  return reinterpret_cast<uint64_t>( hWnd );
+  return mHWnd;
 }
 
-void SetListener( CallbackBase *callback )
+void WindowImpl::SetListener( CallbackBase *callback )
 {
   listener = callback;
 }
 
-bool PostWinMessage(
-    _In_ uint32_t Msg,
-    _In_ uint32_t wParam,
-    _In_ uint64_t lParam,
-    _In_ uint64_t hWnd)
+bool WindowImpl::PostWinMessage(
+  _In_ uint32_t Msg,
+  _In_ uint32_t wParam,
+  _In_ uint64_t lParam )
 {
-  return (bool)PostMessage( reinterpret_cast<HWND>( hWnd ), Msg, wParam, lParam );
+  return (bool)PostMessage( reinterpret_cast<HWND>( mHWnd ), Msg, wParam, lParam );
+}
+
+int32_t WindowImpl::GetEdgeWidth()
+{
+  switch( windowStyle )
+  {
+  case WS_OVERLAPPED:
+  {
+    return 8;
+  }
+  default:
+  {
+    return 0;
+  }
+  }
+}
+
+int32_t WindowImpl::GetEdgeHeight()
+{
+  switch( windowStyle )
+  {
+  case WS_OVERLAPPED:
+  {
+    return 18;
+  }
+  default:
+  {
+    return 0;
+  }
+  }
+}
+
+void WindowImpl::SetHWND( uint64_t inHWnd )
+{
+  if( mHWnd != inHWnd )
+  {
+    mHWnd = inHWnd;
+    mHdc = reinterpret_cast<uint64_t>( GetDC( reinterpret_cast<HWND>( mHWnd ) ) );
+    colorDepth = GetDeviceCaps( reinterpret_cast<HDC>( mHdc ), BITSPIXEL ) * GetDeviceCaps( reinterpret_cast<HDC>( mHdc ), PLANES );
+
+    std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find( mHWnd );
+
+    if( mHWndToListener.end() == x )
+    {
+      mHWndToListener.insert( std::make_pair( mHWnd, this ) );
+    }
+    else
+    {
+      x->second = this;
+    }
+  }
 }
 
 bool PostWinThreadMessage(
-    _In_ uint32_t Msg,
-    _In_ uint32_t wParam,
-    _In_ uint64_t lParam,
-    _In_ uint64_t threadID/* = -1*/ )
+  _In_ uint32_t Msg,
+  _In_ uint32_t wParam,
+  _In_ uint64_t lParam,
+  _In_ uint64_t threadID/* = -1*/ )
 {
   if( -1 == threadID )
   {
@@ -211,16 +228,6 @@ bool PostWinThreadMessage(
   }
 
   return (bool)PostThreadMessage( threadID, Msg, wParam, lParam );
-}
-
-void ShowWindow( uint64_t hWnd)
-{
-  ::ShowWindow( reinterpret_cast<HWND>( hWnd ), SW_SHOW);
-}
-
-void HideWindow( uint64_t hWnd)
-{
-  ::ShowWindow( reinterpret_cast<HWND>( hWnd ), SW_HIDE);
 }
 
 struct TTimerCallbackInfo
