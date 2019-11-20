@@ -1463,7 +1463,7 @@ void FontClient::Plugin::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, boo
           {
             if( glyph->format != FT_GLYPH_FORMAT_BITMAP )
             {
-              int offsetX = 0, offsetY = 0;
+              int offsetX, offsetY;
               bool isOutlineGlyph = ( glyph->format == FT_GLYPH_FORMAT_OUTLINE && outlineWidth > 0 );
 
               // Create a bitmap for the outline

@@ -650,7 +650,7 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding( void* data, ImfContext* imf
         *text = strdup( plainText );
 
         // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
-        if( ( ecore_imf_context_input_hint_get( mIMFContext ) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA ) && *text )
+        if( ecore_imf_context_input_hint_get( mIMFContext ) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA )
         {
           for( char* iter = *text; *iter; ++iter )
           {
