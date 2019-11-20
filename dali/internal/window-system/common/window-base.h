@@ -30,7 +30,6 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
@@ -70,7 +69,6 @@ public:
   typedef Signal< void ( ) > DeleteSignalType;
   typedef Signal< void ( const DamageArea& ) > DamageSignalType;
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
-  typedef Signal< void ( DevelWindow::EffectState, DevelWindow::EffectType ) > TransitionEffectEventSignalType;
 
   // Input events
   typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
@@ -413,11 +411,6 @@ public:
    */
   AccessibilitySignalType& AccessibilitySignal();
 
-  /**
-   * @brief This signal is emitted when window's transition animation is started or ended.
-   */
-  TransitionEffectEventSignalType& TransitionEffectEventSignal();
-
 protected:
 
   // Undefined
@@ -441,7 +434,6 @@ protected:
   SelectionSignalType                  mSelectionDataReceivedSignal;
   StyleSignalType                      mStyleChangedSignal;
   AccessibilitySignalType              mAccessibilitySignal;
-  TransitionEffectEventSignalType      mTransitionEffectEventSignal;
 };
 
 } // namespace Adaptor
