@@ -376,6 +376,8 @@ private:
   bool                                 mOwnSurface:1;       ///< Whether we own the surface (responsible for deleting it)
   bool                                 mIsTransparent:1;    ///< Whether the window is transparent (32 bit or 24 bit)
   bool                                 mRotationAppSet:1;
+
+  WindowsPlatformImplementation::WindowImpl mWindowImpl;
 };
 
 } // namespace Adaptor

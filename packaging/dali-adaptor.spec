@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.45
+Version:    1.4.46
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -469,6 +469,9 @@ popd
 exit 0
 
 %post
+pushd %{_libdir}
+for i in mobile tv wearable ivi; do [[ -f libdali-adaptor.so.$i ]] && ln -sf libdali-adaptor.so.$i libdali-adaptor.so.0.0.0; done
+popd
 /sbin/ldconfig
 exit 0
 
