@@ -59,6 +59,11 @@ VectorAnimationRenderer& VectorAnimationRenderer::operator=( const VectorAnimati
   return *this;
 }
 
+void VectorAnimationRenderer::Finalize()
+{
+  GetImplementation( *this ).Finalize();
+}
+
 void VectorAnimationRenderer::SetRenderer( Renderer renderer )
 {
   GetImplementation( *this ).SetRenderer( renderer );
