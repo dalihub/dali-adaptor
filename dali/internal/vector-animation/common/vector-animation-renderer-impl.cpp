@@ -65,6 +65,11 @@ void VectorAnimationRenderer::Initialize( const std::string& url )
   mPlugin.Initialize( url );
 }
 
+void VectorAnimationRenderer::Finalize()
+{
+  mPlugin.Finalize();
+}
+
 void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
 {
   mPlugin.SetRenderer( renderer );

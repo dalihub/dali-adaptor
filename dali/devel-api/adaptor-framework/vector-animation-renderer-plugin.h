@@ -57,6 +57,11 @@ public:
   virtual bool Initialize( const std::string& url ) = 0;
 
   /**
+   * @brief Finalizes the renderer. It will be called in the main thread.
+   */
+  virtual void Finalize() = 0;
+
+  /**
    * @brief Sets the renderer used to display the result image.
    *
    * @param[in] renderer The renderer used to display the result image
