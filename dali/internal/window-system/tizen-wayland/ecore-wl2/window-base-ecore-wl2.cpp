@@ -63,6 +63,13 @@ const char* BUS = "org.enlightenment.wm-screen-reader";
 const char* INTERFACE = "org.tizen.GestureNavigation";
 const char* PATH = "/org/tizen/GestureNavigation";
 
+struct KeyCodeMap
+{
+  xkb_keysym_t keySym;
+  xkb_keycode_t keyCode;
+  bool isKeyCode;
+};
+
 /**
  * Get the device name from the provided ecore key event
  */
@@ -194,6 +201,31 @@ void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcl
     {
       deviceSubclass = Device::Subclass::NONE;
       break;
+    }
+  }
+}
+
+
+void FindKeyCode( struct xkb_keymap* keyMap, xkb_keycode_t key, void* data )
+{
+  KeyCodeMap* foundKeyCode = static_cast< KeyCodeMap* >( data );
+  if( foundKeyCode->isKeyCode )
+  {
+    return;
+  }
+
+  xkb_keysym_t keySym = foundKeyCode->keySym;
+  int nsyms = 0;
+  const xkb_keysym_t* symsOut = NULL;
+
+  nsyms = xkb_keymap_key_get_syms_by_level( keyMap, key, 0, 0, &symsOut );
+
+  if( nsyms && symsOut )
+  {
+    if( *symsOut == keySym )
+    {
+      foundKeyCode->keyCode = key;
+      foundKeyCode->isKeyCode = true;
     }
   }
 }
@@ -473,6 +505,21 @@ static Eina_Bool EcoreEventEffectEnd(void *data, int type, void *event)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// Keymap Changed Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+static Eina_Bool EcoreEventSeatKeymapChanged(void *data, int type, void *event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+  if( windowBase )
+  {
+    windowBase->KeymapChanged( data, type, event );
+  }
+
+  return ECORE_CALLBACK_RENEW;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 // Font Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -629,6 +676,7 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2( Dali::PositionSize positionSize, Any sur
   mEventQueue( NULL ),
   mTizenPolicy( NULL ),
   mTizenDisplayPolicy( NULL ),
+  mKeyMap( NULL ),
   mSupportedAuxiliaryHints(),
   mAuxiliaryHints(),
   mNotificationLevel( -1 ),
@@ -774,6 +822,15 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
 
       wl_proxy_wrapper_destroy( displayWrapper );
     }
+  }
+
+  Ecore_Wl2_Input* ecoreWlInput = ecore_wl2_input_default_input_get( display );
+
+  if( ecoreWlInput )
+  {
+    mKeyMap = ecore_wl2_input_keymap_get( ecoreWlInput );
+
+    mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this ) );
   }
 
   // get auxiliary hint
@@ -1071,7 +1128,15 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
+    int keyCode = 0;
+    GetKeyCode( keyName, keyCode ); // Get key code dynamically.
+
+    if( keyCode == 0 )
+    {
+      // Get a specific key code from dali key look up table.
+      keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
+    }
+
     keyCode = ( keyCode == -1 ) ? 0 : keyCode;
     int modifier( keyEvent->modifiers );
     unsigned long time = keyEvent->timestamp;
@@ -1125,7 +1190,15 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
+    int keyCode = 0;
+    GetKeyCode( keyName, keyCode ); // Get key code dynamically.
+
+    if( keyCode == 0 )
+    {
+      // Get a specific key code from dali key look up table.
+      keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
+    }
+
     keyCode = ( keyCode == -1 ) ? 0 : keyCode;
     int modifier( keyEvent->modifiers );
     unsigned long time = keyEvent->timestamp;
@@ -1194,6 +1267,17 @@ void WindowBaseEcoreWl2::OnTransitionEffectEvent( DevelWindow::EffectState state
   mTransitionEffectEventSignal.Emit( state, type );
 }
 
+void WindowBaseEcoreWl2::KeymapChanged(void *data, int type, void *event)
+{
+  Ecore_Wl2_Event_Seat_Keymap_Changed *changed = static_cast<Ecore_Wl2_Event_Seat_Keymap_Changed*>( event );
+  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::KeymapChanged, keymap id[ %d ]\n", changed->id );
+  Ecore_Wl2_Input* ecoreWlInput = ecore_wl2_input_default_input_get( changed->display );
+  if( ecoreWlInput )
+  {
+    mKeyMap = ecore_wl2_input_keymap_get( ecoreWlInput );
+  }
+}
+
 void WindowBaseEcoreWl2::RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version )
 {
   if( strcmp( interface, tizen_policy_interface.name ) == 0 )
@@ -1257,6 +1341,24 @@ void WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone( void* data, struct t
   mBrightnessChangeDone = true;
 
   DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone: brightness = %d, state = %d\n", brightness, state );
+}
+
+void WindowBaseEcoreWl2::GetKeyCode( std::string keyName, int32_t& keyCode )
+{
+  xkb_keysym_t sym = XKB_KEY_NoSymbol;
+  KeyCodeMap foundKeyCode;
+
+  sym = xkb_keysym_from_name( keyName.c_str(), XKB_KEYSYM_NO_FLAGS );
+  if( sym == XKB_KEY_NoSymbol )
+  {
+    DALI_LOG_ERROR( "Failed to get keysym in WindowBaseEcoreWl2\n" );
+    return;
+  }
+
+  foundKeyCode.keySym = sym;
+  foundKeyCode.isKeyCode = false;
+  xkb_keymap_key_for_each( mKeyMap, FindKeyCode, &foundKeyCode );
+  keyCode = static_cast< int32_t >( foundKeyCode.keyCode );
 }
 
 Any WindowBaseEcoreWl2::GetNativeWindow()
