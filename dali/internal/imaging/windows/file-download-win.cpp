@@ -85,7 +85,7 @@ size_t __cdecl ChunkLoader(char *ptr, size_t size, size_t nmemb, void *userdata)
 
 static size_t __cdecl WriteFunction( void *input, size_t uSize, size_t uCount, void *avg )
 {
-  fwrite( input, uSize, uCount, (FILE*)avg );
+  fwrite( (const char*)input, uSize, uCount, (FILE*)avg );
   return uSize * uCount;
 }
 

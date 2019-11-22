@@ -76,7 +76,7 @@ public:
   /**
    * Default move constructor
    */
-  FileStream(FileStream&&) = default;
+  FileStream(FileStream&&);
 
   /**
    * Non copyable

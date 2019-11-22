@@ -19,6 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <functional>
+#include <memory>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
@@ -26,8 +28,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/input-method-context.h>
-
-#include <memory>
 
 namespace Dali
 {

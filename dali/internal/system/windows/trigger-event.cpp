@@ -48,11 +48,14 @@ TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Optio
   {
     DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
   }
+
+  mSelfCallback = MakeCallback( this, &TriggerEvent::Triggered );
 }
 
 TriggerEvent::~TriggerEvent()
 {
   delete mCallback;
+  delete mSelfCallback;
 
   if ( mThreadID >= 0)
   {
@@ -67,8 +70,7 @@ void TriggerEvent::Trigger()
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
-    CallbackBase *callback = MakeCallback( this, &TriggerEvent::Triggered );
-    WindowsPlatformImplementation::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>( callback ), 0, mThreadID );
+    WindowsPlatformImplementation::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>( mSelfCallback ), 0, mThreadID );
   }
   else
   {
