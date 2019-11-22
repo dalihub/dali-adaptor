@@ -26,6 +26,7 @@
 #include <Ecore_Wl2.h>
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
+#include <xkbcommon/xkbcommon.h>
 
 #ifdef DALI_ELDBUS_AVAILABLE
 #include <Eldbus.h>
