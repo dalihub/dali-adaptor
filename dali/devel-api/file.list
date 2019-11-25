@@ -84,6 +84,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/key-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.h
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.h
+  ${adaptor_devel_api_dir}/adaptor-framework/component-application.h
 )
 
 
@@ -117,4 +118,3 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.h
 )
-

@@ -41,6 +41,10 @@
 #include <tzplatform_config.h>
 #endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
 
+#ifdef COMPONENT_APPLICATION_SUPPORT
+#include <component_based_app_base.h>
+#endif
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -222,35 +226,60 @@ struct Framework::Impl
   int AppMain()
   {
     int ret;
-
-    if (mApplicationType == NORMAL)
+    switch ( mApplicationType )
     {
-      ret = AppNormalMain();
-    }
-    else if(mApplicationType == WIDGET)
-    {
-      ret = AppWidgetMain();
-    }
-    else
-    {
-      ret = AppWatchMain();
+      case NORMAL:
+      {
+        ret = AppNormalMain();
+        break;
+      }
+      case WIDGET:
+      {
+        ret = AppWidgetMain();
+        break;
+      }
+      case WATCH:
+      {
+        ret = AppWatchMain();
+        break;
+      }
+#ifdef COMPONENT_APPLICATION_SUPPORT
+      case COMPONENT:
+      {
+        ret = AppComponentMain();
+        break;
+      }
+#endif
     }
     return ret;
   }
 
   void AppExit()
   {
-    if (mApplicationType == NORMAL)
+    switch ( mApplicationType )
     {
-      AppNormalExit();
-    }
-    else if(mApplicationType == WIDGET)
-    {
-      AppWidgetExit();
-    }
-    else
-    {
-      AppWatchExit();
+      case NORMAL:
+      {
+        AppNormalExit();
+        break;
+      }
+      case WIDGET:
+      {
+        AppWidgetExit();
+        break;
+      }
+      case WATCH:
+      {
+        AppWatchExit();
+        break;
+      }
+#ifdef COMPONENT_APPLICATION_SUPPORT
+      case COMPONENT:
+      {
+        AppComponentExit();
+        break;
+      }
+#endif
     }
   }
 
@@ -696,6 +725,56 @@ struct Framework::Impl
     watch_app_exit();
 #endif
   }
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+  int AppComponentMain()
+  {
+    int ret;
+
+    /*Crate component_based_app_base_lifecycle_callback*/
+    component_based_app_base_lifecycle_callback_s callback;
+    callback.init = AppInit;
+    callback.run = AppRun;
+    callback.exit = AppExit;
+    callback.create = ComponentAppCreate;
+    callback.terminate = ComponentAppTerminate;
+    callback.fini = ComponentAppFinish;
+
+    return component_based_app_base_main(*mFramework->mArgc, *mFramework->mArgv, &callback, mFramework);;
+  }
+
+  static void* ComponentAppCreate( void *data )
+  {
+    Framework* framework = static_cast<Framework*>(data);
+    Observer *observer = &framework->mObserver;
+    observer->OnInit();
+
+    return Dali::AnyCast<void*>( observer->OnCreate() );
+  }
+
+  static void ComponentAppTerminate( void *data )
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    observer->OnTerminate();
+  }
+
+  static void ComponentAppFinish( void *data )
+  {
+    ecore_shutdown();
+
+    if(getenv("AUL_LOADER_INIT"))
+    {
+      setenv("AUL_LOADER_INIT", "0", 1);
+      ecore_shutdown();
+    }
+  }
+
+  void AppComponentExit()
+  {
+    component_based_app_base_exit();
+  }
+
+#endif
 
 private:
   // Undefined
