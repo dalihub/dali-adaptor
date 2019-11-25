@@ -24,6 +24,9 @@
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <dali/public-api/watch/watch-application.h>
 #endif
+#ifdef COMPONENT_APPLICATION_SUPPORT
+#include <component_based_app_base.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/abort-handler.h>
@@ -54,7 +57,8 @@ public:
   {
     NORMAL,       ///< normal appFramework
     WATCH,        ///< watch appFramework
-    WIDGET        ///< widget appFramework
+    WIDGET,       ///< widget appFramework
+    COMPONENT     ///< component appFramework
   };
 
   /**
@@ -141,6 +145,13 @@ public:
      * Invoked when the platform surface is destroyed.
      */
     virtual void OnSurfaceDestroyed( Any newSurface ) {}
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+    /**
+    * Invoked when the component application is created.
+    */
+    virtual void* OnCreate(void *) { return NULL; }
+#endif
   };
 
 public:
@@ -292,6 +303,13 @@ private:
    * Called for initializing on specified backend. (X11 or Wayland)
    */
   void InitThreads();
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+  /**
+   * Called when the component application is created.
+   */
+  component_class_h CreateComponent(void * data);
+#endif
 
 private:
   Observer&          mObserver;
