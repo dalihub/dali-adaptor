@@ -83,7 +83,6 @@ BuildRequires:  pkgconfig(wayland-egl-tizen)
 %else
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif
-
 # dali-adaptor needs tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
 
@@ -107,6 +106,10 @@ BuildRequires:  pkgconfig(capi-ui-autofill)
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
+
+%if 0%{?tizen_version_major} >= 5 && 0%{?tizen_version_minor} >= 5 || 0%{?tizen_version_major} >= 6
+BuildRequires:  pkgconfig(component-based-application)
+%endif
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -274,6 +277,11 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 
 %if 0%{?enable_trace}
 cmake_flags+=" -DENABLE_TRACE=ON"
+%endif
+
+%if 0%{?tizen_version_major} >= 5 && 0%{?tizen_version_minor} >= 5 || 0%{?tizen_version_major} >= 6
+CFLAGS+=" -DCOMPONENT_APPLICATION_SUPPORT"
+CXXFLAGS+=" -DCOMPONENT_APPLICATION_SUPPORT"
 %endif
 
 libtoolize --force
