@@ -204,7 +204,7 @@ std::string Framework::GetBundleId() const
 
 std::string Framework::GetResourcePath()
 {
-  return APPLICATION_RESOURCE_PATH;
+  return DALI_DATA_RO_DIR;
 }
 
 std::string Framework::GetDataPath()
