@@ -118,19 +118,29 @@ public:
     virtual void OnLanguageChanged() {}
 
     /**
-    * Invoked when the region is changed.
-    */
+     * Invoked when the region is changed.
+     */
     virtual void OnRegionChanged() {}
 
     /**
-    * Invoked when the battery level of the device is low.
-    */
+     * Invoked when the battery level of the device is low.
+     */
     virtual void OnBatteryLow( Dali::DeviceStatus::Battery::Status status ) {}
 
     /**
-    * Invoked when the memory level of the device is low.
-    */
+     * Invoked when the memory level of the device is low.
+     */
     virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) {}
+
+    /**
+     * Invoked when the platform surface is created.
+     */
+    virtual void OnSurfaceCreated( Any newSurface ) {}
+
+    /**
+     * Invoked when the platform surface is destroyed.
+     */
+    virtual void OnSurfaceDestroyed( Any newSurface ) {}
   };
 
 public:
@@ -228,6 +238,28 @@ public:
    */
   std::string GetRegion() const;
 
+  /**
+   * Called by the App framework when an application lifecycle event occurs.
+   * @param[in] type The type of event occurred.
+   * @param[in] data The data of event occurred.
+   */
+  bool AppStatusHandler(int type, void* data);
+
+  /**
+   * Called by the adaptor when an idle callback is added.
+   * @param[in] timeout The timeout of the callback.
+   * @param[in] data The data of of the callback.
+   * @param[in] callback The callback.
+   * @return The callback id.
+   */
+  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) );
+
+  /**
+   * Called by the adaptor when an idle callback is removed.
+   * @param[in] id The callback id.
+   */
+  void RemoveIdle( unsigned int id );
+
 private:
 
   // Undefined
@@ -240,13 +272,6 @@ private:
    * Called when the application is created.
    */
   bool Create();
-
-  /**
-   * Called by the App framework when an application lifecycle event occurs.
-   * @param[in] type The type of event occurred.
-   * @param[in] bundleData The bundle data of event occurred.
-   */
-  bool AppStatusHandler(int type, void *bundleData);
 
   /**
    * Called app_reset callback was called with bundle.
@@ -271,6 +296,7 @@ private:
 private:
   Observer&          mObserver;
   bool               mInitialised;
+  bool               mPaused;
   bool               mRunning;
   int*               mArgc;
   char***            mArgv;

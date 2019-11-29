@@ -45,3 +45,10 @@ SET( adaptor_accessibility_ubuntu_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
+# module: accessibility, backend: generic
+SET( adaptor_accessibility_android_src_files
+    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp
+    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
+    ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
+)
+

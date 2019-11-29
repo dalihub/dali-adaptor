@@ -19,13 +19,15 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID))
 #include <vconf.h>
 #endif
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/singleton-service.h>
 #include <dali/internal/text/text-abstraction/font-client-plugin-impl.h>
+
+#include <dali/devel-api/text-abstraction/glyph-info.h>
 
 namespace Dali
 {
@@ -104,9 +106,9 @@ int FontClient::GetDefaultFontSize()
 {
   int fontSize( -1 );
 
-#ifndef DALI_PROFILE_UBUNTU
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID))
   vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
-#endif // DALI_PROFILE_UBUNTU
+#endif
 
   return fontSize;
 }
@@ -219,7 +221,6 @@ bool FontClient::HasItalicStyle( FontId fontId ) const
   {
     return false;
   }
-
   return mPlugin->HasItalicStyle( fontId );
 }
 

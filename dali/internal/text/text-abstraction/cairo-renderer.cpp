@@ -38,6 +38,8 @@
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
+using namespace std;
+
 namespace
 {
 
@@ -274,8 +276,8 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
     cairo_glyph_t& cairoGlyph = *( cairoGlyphsBuffer + index );
 
     cairoGlyph.index = daliGlyph.index;
-    cairoGlyph.x = std::round( position.x );
-    cairoGlyph.y = std::round( position.y );
+    cairoGlyph.x = round( position.x );
+    cairoGlyph.y = round( position.y );
   }
 
   // Retrieve the FreeType fonts needed by Cairo from the font-client.
@@ -633,7 +635,7 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           unsigned int ySrcIndex = 0u;
           if( glyphX < 0.f )
           {
-            xSrcIndex = static_cast<unsigned int>( std::abs( glyphX ) );
+            xSrcIndex = static_cast<unsigned int>( abs( glyphX ) );
             srcWidth -= xSrcIndex;
           }
           else
@@ -648,7 +650,7 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
 
           if( glyphY - static_cast<float>( srcHeight ) < 0.f )
           {
-            ySrcIndex = static_cast<unsigned int>( std::abs( glyphY - static_cast<float>( srcHeight ) ) );
+            ySrcIndex = static_cast<unsigned int>( abs( glyphY - static_cast<float>( srcHeight ) ) );
             srcHeight -= ySrcIndex;
           }
           else

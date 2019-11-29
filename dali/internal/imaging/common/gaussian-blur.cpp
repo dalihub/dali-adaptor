@@ -16,6 +16,7 @@
 
 // EXTERNAL INCLUDES
 #include <memory.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/gaussian-blur.h>

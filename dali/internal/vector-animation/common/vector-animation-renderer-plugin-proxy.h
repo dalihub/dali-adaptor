@@ -53,6 +53,11 @@ public:
   bool Initialize( const std::string& url );
 
   /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::Finalize()
+   */
+  void Finalize();
+
+  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::SetRenderer()
    */
   void SetRenderer( Dali::Renderer renderer );
