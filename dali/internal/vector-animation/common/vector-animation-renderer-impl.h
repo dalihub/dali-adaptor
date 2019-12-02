@@ -57,11 +57,6 @@ public:
   void Initialize( const std::string& url );
 
   /**
-   * @copydoc Dali::VectorAnimationRenderer::Finalize()
-   */
-  void Finalize();
-
-  /**
    * @copydoc Dali::VectorAnimationRenderer::SetRenderer()
    */
   void SetRenderer( Dali::Renderer renderer );

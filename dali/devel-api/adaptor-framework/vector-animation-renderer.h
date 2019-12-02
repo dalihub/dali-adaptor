@@ -85,11 +85,6 @@ public:
   VectorAnimationRenderer& operator=( const VectorAnimationRenderer& rhs );
 
   /**
-   * @brief Finalizes the renderer.
-   */
-  void Finalize();
-
-  /**
    * @brief Sets the renderer used to display the result image.
    *
    * @param[in] renderer The renderer used to display the result image

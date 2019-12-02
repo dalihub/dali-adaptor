@@ -110,14 +110,6 @@ bool VectorAnimationRendererPluginProxy::Initialize( const std::string& url )
   return false;
 }
 
-void VectorAnimationRendererPluginProxy::Finalize()
-{
-  if( mPlugin )
-  {
-    mPlugin->Finalize();
-  }
-}
-
 void VectorAnimationRendererPluginProxy::SetRenderer( Dali::Renderer renderer )
 {
   if( mPlugin )
