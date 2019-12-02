@@ -642,7 +642,10 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2( Dali::PositionSize positionSize, Any sur
   mBrightnessChangeDone( true ),
   mOwnSurface( false ),
   mMoveResizeSerial( 0 ),
-  mLastSubmittedMoveResizeSerial( 0 )
+  mLastSubmittedMoveResizeSerial( 0 ),
+  mWindowRotationAngle( 0 ),
+  mScreenRotationAngle( 0 ),
+  mSupportedPreProtation( 0 )
 #ifdef DALI_ELDBUS_AVAILABLE
   , mSystemConnection( NULL )
 #endif
@@ -1014,7 +1017,7 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel( void* data, int type, void* event 
 
     mTouchEventSignal.Emit( point, touchEvent->timestamp );
 
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnMouseButtonCancel\n" );
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseButtonCancel\n" );
   }
 }
 
@@ -1024,7 +1027,7 @@ void WindowBaseEcoreWl2::OnMouseWheel( void* data, int type, void* event )
 
   if( mouseWheelEvent->window == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
   {
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
 
     WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( mouseWheelEvent->x, mouseWheelEvent->y ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
 
@@ -1036,7 +1039,7 @@ void WindowBaseEcoreWl2::OnDetentRotation( void* data, int type, void* event )
 {
   Ecore_Event_Detent_Rotate* detentEvent = static_cast< Ecore_Event_Detent_Rotate* >( event );
 
-  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl::OnDetentRotation\n" );
+  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl2::OnDetentRotation\n" );
 
   int direction = ( detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE ) ? 1 : -1;
   int timeStamp = detentEvent->timestamp;
@@ -1052,7 +1055,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
 
   if( keyEvent->window == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
   {
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyDown\n" );
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnKeyDown\n" );
 
     std::string keyName( keyEvent->keyname );
     std::string logicalKey( "" );
@@ -1106,7 +1109,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
 
   if( keyEvent->window == static_cast< unsigned int >( ecore_wl2_window_id_get( mEcoreWindow ) ) )
   {
-    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp\n" );
+    DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnKeyUp\n" );
 
     std::string keyName( keyEvent->keyname );
     std::string logicalKey( "" );
@@ -1411,9 +1414,10 @@ bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
   wl_egl_window_tizen_capability capability = static_cast< wl_egl_window_tizen_capability >( wl_egl_window_tizen_get_capabilities( mEglWindow ) );
   if( capability == WL_EGL_WINDOW_TIZEN_CAPABILITY_ROTATION_SUPPORTED )
   {
+    mSupportedPreProtation = true;
     return true;
   }
-
+  mSupportedPreProtation = false;
   return false;
 }
 
@@ -2158,6 +2162,16 @@ void WindowBaseEcoreWl2::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiV
   dpiVertical   = int( yres + 0.5f );
 }
 
+int WindowBaseEcoreWl2::GetOrientation() const
+{
+  int orientation = (mScreenRotationAngle + mWindowRotationAngle) % 360;
+  if( mSupportedPreProtation )
+  {
+    orientation = 0;
+  }
+  return orientation;
+}
+
 int WindowBaseEcoreWl2::GetScreenRotationAngle()
 {
   int transform = 0;
@@ -2170,13 +2184,19 @@ int WindowBaseEcoreWl2::GetScreenRotationAngle()
   {
     transform = ecore_wl2_output_transform_get( ecore_wl2_window_output_find( mEcoreWindow ) );
   }
-
-  return transform * 90;
+  mScreenRotationAngle = transform * 90;
+  return mScreenRotationAngle;
 }
 
 void WindowBaseEcoreWl2::SetWindowRotationAngle( int degree )
 {
+  mWindowRotationAngle = degree;
   ecore_wl2_window_rotation_set( mEcoreWindow, degree );
+}
+
+int WindowBaseEcoreWl2::GetWindowRotationAngle()
+{
+  return mWindowRotationAngle;
 }
 
 void WindowBaseEcoreWl2::WindowRotationCompleted( int degree, int width, int height )
