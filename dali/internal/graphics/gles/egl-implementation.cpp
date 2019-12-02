@@ -522,8 +522,11 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSur
   //  the surface is bound to the context, so set the context to null
   MakeContextNull();
 
-  // destroy the surface
-  DestroySurface( eglSurface );
+  if( eglSurface )
+  {
+    // destroy the surface
+    DestroySurface( eglSurface );
+  }
 
   // create the EGL surface
   EGLSurface newEglSurface = CreateSurfaceWindow( window, mColorDepth );

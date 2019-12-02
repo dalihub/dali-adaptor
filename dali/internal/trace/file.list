@@ -5,8 +5,8 @@ SET( adaptor_trace_common_src_files
     ${adaptor_trace_dir}/common/trace-factory.cpp
 )
 
-# module: trace, backend: ubuntu
-SET( adaptor_trace_ubuntu_src_files 
+# module: trace, backend: generic
+SET( adaptor_trace_generic_src_files 
     ${adaptor_trace_dir}/generic/trace-manager-impl-generic.cpp 
     ${adaptor_trace_dir}/generic/trace-factory-generic.cpp
 )

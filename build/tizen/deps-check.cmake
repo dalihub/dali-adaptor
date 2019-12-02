@@ -33,15 +33,16 @@ IF( print_help )
   EXIT()
 ENDIF()
 
-SET( FREETYPE_REQUIRED 9.16.3 )
-SET( FREETYPE_BITMAP_SUPPORT_VERSION 17.1.11 )
-
 IF( NOT enable_profile )
-  SET( enable_profile UBUNTU )
+  IF( ANDROID )
+    SET( enable_profile ANDROID )
+  ELSE()
+    SET( enable_profile UBUNTU )
+  ENDIF()
 ENDIF()
 
 # Test for profile and exit if something wrong
-SET( VALID_PROFILES COMMON MOBILE WEARABLE TV IVI UBUNTU)
+SET( VALID_PROFILES COMMON MOBILE WEARABLE TV IVI UBUNTU ANDROID )
 LIST( FIND VALID_PROFILES ${enable_profile} RESULT )
 IF( RESULT EQUAL -1 )
   MESSAGE( FATAL_ERROR "Invalid profile!" )
@@ -50,11 +51,20 @@ ENDIF()
 # Defines profile specific variable
 SET( ${enable_profile}_PROFILE 1 )
 
+# TODO check what version we really need for Android
+IF( ANDROID_PROFILE )
+  SET( FREETYPE_REQUIRED 6.16.0 )
+  SET( FREETYPE_BITMAP_SUPPORT_VERSION 6.16.0 )
+ELSE()
+  SET( FREETYPE_REQUIRED 9.16.3 )
+  SET( FREETYPE_BITMAP_SUPPORT_VERSION 17.1.11 )
+ENDIF()
+
 # checking all possibly used modules (required and optionals)
 CHECK_MODULE_AND_SET( EXIF exif exif_available )
 CHECK_MODULE_AND_SET( FREETYPE freetype2>=${FREETYPE_REQUIRED} freetype_available )
 CHECK_MODULE_AND_SET( FREETYPE_BITMAP_SUPPORT freetype2>=${FREETYPE_BITMAP_SUPPORT_VERSION} freetype_bitmap_support)
-CHECK_MODULE_AND_SET( FONT_CONFIG fontconfig fontconfig_available )
+CHECK_MODULE_AND_SET( FONTCONFIG fontconfig fontconfig_available )
 CHECK_MODULE_AND_SET( PNG libpng [] )
 CHECK_MODULE_AND_SET( LIBEXIF libexif [] )
 CHECK_MODULE_AND_SET( LIBDRM libdrm [] )
@@ -93,6 +103,15 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
 CHECK_MODULE_AND_SET( DALICORE dali-core [] )
+
+IF( ANDROID_PROFILE )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK} )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sources )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sources/android )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sources/android/native_app_glue )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sysroot/usr )
+  INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sysroot/usr/include/android )
+ENDIF()
 
 IF( enable_wayland )
   IF( enable_ecore_wayland2 )
@@ -173,7 +192,7 @@ ELSE()
   SET( dataReadWriteDir ${CMAKE_INSTALL_PREFIX}/share/dali/ )
 ENDIF()
 
-IF( DEFINED ENV{DALI_DATA_RO_DIR )
+IF( DEFINED ENV{DALI_DATA_RO_DIR} )
   SET( dataReadOnlyDir $ENV{DALI_DATA_RO_DIR} )
 ELSE()
   SET( dataReadOnlyDir ${CMAKE_INSTALL_PREFIX}/share/dali/ )
@@ -255,10 +274,41 @@ SET( DALI_LDFLAGS
   ${TPKP_CURL_LDFLAGS}
   ${UTILX_LDFLAGS}
   -lgif
-  -lpthread
   -lturbojpeg
   -ljpeg
 )
+
+# Android includes pthread with android lib
+if( NOT ANDROID_PROFILE )
+  SET( DALI_LDFLAGS ${DALI_LDFLAGS}
+    -lpthread
+  )
+ENDIF()
+
+# You need to include manually private and Android libs deps in order to link for Android
+IF( ANDROID_PROFILE )
+  CHECK_MODULE_AND_SET( PIXMAN pixman-1 [] )
+  CHECK_MODULE_AND_SET( EXPAT expat [] )
+
+  SET( DALI_CFLAGS ${DALI_CFLAGS}
+    ${PIXMAN_CFLAGS}
+    ${EXPAT_CFLAGS}
+    ${FRIBIDI_CFLAGS}
+  )
+
+  LIST( APPEND DALI_LDFLAGS
+    ${FRIBIDI_LDFLAGS}
+    ${FREETYPE_LDFLAGS}
+    ${PNG_LDFLAGS}
+    ${PIXMAN_LDFLAGS}
+    ${EXPAT_LDFLAGS}
+    z
+    android
+    log
+    EGL
+    GLESv3
+  )
+ENDIF()
 
 # EVAS used indicator
 SET( DALI_CFLAGS ${DALI_CFLAGS}
@@ -396,22 +446,27 @@ IF( NOT COMMON_PROFILE )
   ADD_DEFINITIONS( -DWAYLAND_EXTENSIONS_SUPPORTED )
 ENDIF()
 
-SET( daliDefaultThemeDir ${dataReadWriteDir}/theme/ )
+# had to do it here for Android by some reason, even if it is set above already
+IF( ANDROID_PROFILE )
+  SET( daliReadOnlyDir $ENV{DALI_DATA_RO_DIR} )
+  SET( daliReadWriteDir $ENV{DALI_DATA_RW_DIR} )
+ENDIF()
 
+SET( daliDefaultThemeDir ${dataReadWriteDir}/theme/ )
 SET( fontPreloadedPath $ENV{FONT_PRELOADED_PATH} )
 SET( fontDownloadedPath $ENV{FONT_DOWNLOADED_PATH} )
 SET( fontApplicationPath $ENV{FONT_APPLICATION_PATH} )
 
 # Configure paths
-ADD_DEFINITIONS(  -DDALI_DATA_RW_DIR="\"${daliReadWriteDir}\""
-                  -DDALI_DATA_RO_DIR="\"${daliReadOnlyDir}\""
-                  -DDALI_DEFAULT_FONT_CACHE_DIR="\"${daliDefaultFontCacheDir}\""
-                  -DDALI_USER_FONT_CACHE_DIR="\"${daliUserFontCacheDir}\""
-                  -DDALI_SHADERBIN_DIR="\"${daliShaderbinCacheDir}\""
-                  -DDALI_DEFAULT_THEME_DIR="\"${daliDefaultThemeDir}\""
-                  -DFONT_PRELOADED_PATH="\"${fontPreloadedPath}\""
-                  -DFONT_DOWNLOADED_PATH="\"${fontDownloadedPath}\""
-                  -DFONT_APPLICATION_PATH="\"${fontApplicationPath}\""
-                  -DFONT_CONFIGURATION_FILE="\"${fontConfigurationFile}\""
+ADD_DEFINITIONS(  -DDALI_DATA_RW_DIR="${daliReadWriteDir}"
+                  -DDALI_DATA_RO_DIR="${daliReadOnlyDir}"
+                  -DDALI_DEFAULT_FONT_CACHE_DIR="${daliDefaultFontCacheDir}"
+                  -DDALI_USER_FONT_CACHE_DIR="${daliUserFontCacheDir}"
+                  -DDALI_SHADERBIN_DIR="${daliShaderbinCacheDir}"
+                  -DDALI_DEFAULT_THEME_DIR="${daliDefaultThemeDir}"
+                  -DFONT_PRELOADED_PATH="${fontPreloadedPath}"
+                  -DFONT_DOWNLOADED_PATH="${fontDownloadedPath}"
+                  -DFONT_APPLICATION_PATH="${fontApplicationPath}"
+                  -DFONT_CONFIGURATION_FILE="${fontConfigurationFile}"
                   -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported}
 )

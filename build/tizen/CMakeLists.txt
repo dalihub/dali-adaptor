@@ -1,7 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 CMAKE_POLICY(SET CMP0012 NEW) # Prevent dereferencing of OFF/ON as variables
 
-set(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_C_STANDARD 99)
 
 PROJECT(${name} CXX)
 SET(PKG_NAME ${name})
@@ -129,9 +130,9 @@ ENDIF()
 ADD_LIBRARY( ${name} ${LIBTYPE} ${SOURCES} )
 
 # pthread required due to gcc issue
-FIND_LIBRARY(PTHREAD pthread)
-IF(PTHREAD)
-  SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} -lpthread)
+FIND_LIBRARY( PTHREAD pthread )
+IF( PTHREAD AND NOT ANDROID_PROFILE )
+  SET( OPTIONAL_LIBS ${OPTIONAL_LIBS} -lpthread )
 ENDIF()
 
 TARGET_LINK_LIBRARIES( ${name}
@@ -182,6 +183,9 @@ SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
 SET( tizenwatchpublicapidir ${tizenadaptorpublicapidir}/watch )
 SET( tizencapturepublicapidir ${tizenadaptorpublicapidir}/capture )
 
+# Android framework headers for Android build
+SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework/android )
+
 # Install headers
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
 INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
@@ -189,13 +193,16 @@ INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizena
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
 
+# Install Android framework headers for Android build
+INSTALL( FILES ${adaptor_integration_api_android_header_files} DESTINATION ${androidadaptorintegrationapidir} )
+
 # Install DOXY
 SET( packagedoxydir ${INCLUDE_DIR}/dali/doc )
 SET( package_doxy_dir ${ADAPTOR_ROOT}/doc )
 INCLUDE( ${ADAPTOR_ROOT}/doc/file.list )
 INSTALL( FILES ${package_doxy_files} DESTINATION ${packagedoxydir} )
 
-IF( NOT UBUNTU_PROFILE )
+IF( NOT UBUNTU_PROFILE AND NOT ANDROID_PROFILE )
   INSTALL( FILES ${public_api_adaptor_tizen_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
   IF( NOT WAYLAND )
     INSTALL( FILES ${devel_api_adaptor_tizen_x11_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
@@ -207,14 +214,14 @@ INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptorpu
 INSTALL( FILES ${public_dali_watch_header_files} DESTINATION ${tizenwatchpublicapidir} )
 INSTALL( FILES ${public_dali_capture_header_files} DESTINATION ${tizencapturepublicapidir} )
 
-SET( daliShaderbinCacheDir ${CMAKE_BINARY_DIR}/${dataReadOnlyDir}/core/shaderbin/)
+IF( ANDROID_PROFILE )
+  SET( daliShaderbinCacheDir ${CMAKE_INSTALL_PREFIX}/core/shaderbin/)
+  INSTALL( DIRECTORY DESTINATION ${daliShaderbinCacheDir} )
+ELSE()
+  SET( daliShaderbinCacheDir ${CMAKE_BINARY_DIR}/${dataReadOnlyDir}/core/shaderbin/)
+  INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
+ENDIF()
 
-#INSTALL( CODE "MESSAGE(\"INSTALLING $ENV{RPM_BUILD_ROOT}/${dataReadOnlyDir}/core/shaderbin/\")")
-#INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory $ENV{RPM_BUILD_ROOT}/${dataReadOnlyDir}/core/shaderbin/ )")
-#INSTALL( CODE "MESSAGE(\"INSTALLING ${dataReadOnlyDir}/core/shaderbin/\")")
-#INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${dataReadOnlyDir}/core/shaderbin/ )")
-#INSTALL( DIRECTORY ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
-INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
 INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 
 ########################################################################################
@@ -222,7 +229,7 @@ INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAK
 # The DALI_ADAPTOR_PREFIX must be set if this CMakeLists.txt is executed
 # from the top-level CMake script using ADD_SUBDIRECTORY() to avoid
 # target names duplication with other DALi modules.
-IF( UNIX )
+IF( UNIX AND NOT ANDROID )
   FIND_PROGRAM( LCOV_BIN "lcov" )
   IF( LCOV_BIN )
 
@@ -282,7 +289,7 @@ IF( UNIX )
           )
 
   ENDIF( LCOV_BIN )
-ENDIF( UNIX )
+ENDIF( UNIX AND NOT ANDROID )
 
 # Linker Test
 SET( DALI_TEST_SUITE_DIR ${ROOT_SRC_DIR}/automated-tests/src/dali/dali-test-suite-utils )
@@ -310,7 +317,7 @@ MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
 MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
 MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
 MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")
-MESSAGE( STATUS "Font config file:                 \"${fontConfigurationFile}\"")
+MESSAGE( STATUS "Font config file:                 ${fontConfigurationFile}")
 MESSAGE( STATUS "Using Tizen APP FW libraries:     ${ENABLE_APPFW}")
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
