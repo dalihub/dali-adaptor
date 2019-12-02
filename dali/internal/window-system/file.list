@@ -45,3 +45,12 @@ SET( adaptor_window_system_ubuntu_x11_src_files
     ${adaptor_window_system_dir}/ubuntu-x11/window-system-ecore-x.cpp
 )
 
+# module: window-system, backend: android
+SET( adaptor_window_system_android_src_files
+    ${adaptor_window_system_dir}/android/display-connection-factory-android.cpp
+    ${adaptor_window_system_dir}/android/display-connection-impl-android.cpp
+    ${adaptor_window_system_dir}/android/render-surface-factory-android.cpp
+    ${adaptor_window_system_dir}/android/window-base-android.cpp
+    ${adaptor_window_system_dir}/android/window-factory-android.cpp
+    ${adaptor_window_system_dir}/android/window-system-android.cpp
+)

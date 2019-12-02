@@ -1,0 +1,11 @@
+
+
+SET( adaptor_integration_api_android_src_files
+  ${adaptor_integration_api_dir}/adaptor-framework/android/android-framework.cpp
+)
+
+SET( adaptor_integration_api_android_header_files
+  ${adaptor_integration_api_dir}/adaptor-framework/android/android-framework.h
+  ${adaptor_integration_api_dir}/adaptor-framework/android/application-launcher.h
+)
+

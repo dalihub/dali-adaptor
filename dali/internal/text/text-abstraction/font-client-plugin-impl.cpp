@@ -93,6 +93,7 @@ const unsigned int NUM_FONT_SLANT_TYPE = sizeof( FONT_SLANT_TYPE_TO_INT ) / size
 } // namespace
 
 using Dali::Vector;
+using namespace std;
 
 namespace Dali
 {
@@ -148,7 +149,10 @@ void DestroyCharacterSets( CharacterSetList& characterSets )
 {
   for( auto& item : characterSets )
   {
-    FcCharSetDestroy( item );
+    if( item )
+    {
+      FcCharSetDestroy( item );
+    }
   }
 }
 
@@ -1289,7 +1293,7 @@ bool FontClient::Plugin::GetBitmapMetrics( GlyphInfo* array,
 
               const float descender = glyph.height - glyph.yBearing;
               glyph.height = ( bbox.yMax -  bbox.yMin) * FROM_266;
-              glyph.yBearing = glyph.height - std::round( descender );
+              glyph.yBearing = glyph.height - round( descender );
 
               // Created FT_Glyph object must be released with FT_Done_Glyph
               FT_Done_Glyph( ftGlyph );

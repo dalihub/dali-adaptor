@@ -28,3 +28,18 @@ SET( adaptor_adaptor_ubuntu_src_files
     ${adaptor_adaptor_dir}/ubuntu/framework-ubuntu.cpp
 )
 
+# module: adaptor, backend: android
+SET( adaptor_adaptor_android_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/android/android-framework-impl.cpp
+    ${adaptor_adaptor_dir}/android/framework-android.cpp
+)
+
+# module: adaptor, backend: androidjni
+SET( adaptor_adaptor_androidjni_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/android/android-framework-impl.cpp
+    ${adaptor_adaptor_dir}/androidjni/framework-androidjni.cpp
+)
+
+

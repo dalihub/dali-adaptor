@@ -37,6 +37,11 @@ std::string GetDataPath()
   return Internal::Adaptor::Application::GetDataPath();
 }
 
+Application DownCast( Dali::RefObject* refObject )
+{
+  return Application( dynamic_cast<Dali::Internal::Adaptor::Application*>( refObject ) );
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

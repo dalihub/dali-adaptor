@@ -58,7 +58,7 @@ ENDIF()
 
 IF( ENABLE_TRACE )
     SET( SOURCES ${SOURCES}
-        ${adaptor_trace_ubuntu_src_files}
+        ${adaptor_trace_generic_src_files}
       )
 ENDIF()
 

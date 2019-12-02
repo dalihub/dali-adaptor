@@ -21,3 +21,8 @@ SET( adaptor_graphics_ubuntu_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
 )
 
+# module: graphics, backend: android
+SET( adaptor_graphics_android_src_files
+    ${adaptor_graphics_dir}/android/egl-image-extensions-android.cpp
+)
+

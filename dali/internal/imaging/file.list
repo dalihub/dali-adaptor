@@ -35,3 +35,9 @@ SET( adaptor_imaging_ubuntu_x11_src_files
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
 )
 
+# module: imaging, backend: android
+SET( adaptor_imaging_android_src_files
+    ${adaptor_imaging_dir}/android/native-image-source-factory-android.cpp
+    ${adaptor_imaging_dir}/android/native-image-source-impl-android.cpp
+    ${adaptor_imaging_dir}/android/native-image-source-queue-impl-android.cpp
+)
