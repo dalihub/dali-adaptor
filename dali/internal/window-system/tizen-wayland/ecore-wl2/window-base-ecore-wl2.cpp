@@ -63,13 +63,6 @@ const char* BUS = "org.enlightenment.wm-screen-reader";
 const char* INTERFACE = "org.tizen.GestureNavigation";
 const char* PATH = "/org/tizen/GestureNavigation";
 
-struct KeyCodeMap
-{
-  xkb_keysym_t keySym;
-  xkb_keycode_t keyCode;
-  bool isKeyCode;
-};
-
 /**
  * Get the device name from the provided ecore key event
  */
@@ -203,67 +196,6 @@ void GetDeviceSubclass( Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcl
       break;
     }
   }
-}
-
-static void FindKeyCode( struct xkb_keymap* keyMap, xkb_keycode_t key, void* data )
-{
-  KeyCodeMap* foundKeyCode = static_cast< KeyCodeMap* >( data );
-  if( foundKeyCode->isKeyCode )
-  {
-    return;
-  }
-
-  xkb_keysym_t keySym = foundKeyCode->keySym;
-  int nsyms = 0;
-  const xkb_keysym_t* symsOut = NULL;
-
-  nsyms = xkb_keymap_key_get_syms_by_level( keyMap, key, 0, 0, &symsOut );
-
-  if( nsyms && symsOut )
-  {
-    if( *symsOut == keySym )
-    {
-      foundKeyCode->keyCode = key;
-      foundKeyCode->isKeyCode = true;
-    }
-  }
-}
-
-static void GetKeyCode( std::string keyName, int32_t& keyCode )
-{
-  xkb_keymap* keyMap = NULL;
-  xkb_keysym_t sym = XKB_KEY_NoSymbol;
-  KeyCodeMap foundKeyCode;
-
-  Ecore_Wl2_Input* ecoreWlInput = NULL;
-
-  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get( NULL );
-  ecoreWlInput = ecore_wl2_input_default_input_get( display );
-
-  if( !ecoreWlInput )
-  {
-    DALI_LOG_ERROR( "Failed to get Ecore_Wl2_Input in WindowBaseEcoreWl2\n" );
-    return;
-  }
-
-  keyMap = ecore_wl2_input_keymap_get( ecoreWlInput );
-  if( !keyMap )
-  {
-    DALI_LOG_ERROR( "Failed to get keymap in WindowBaseEcoreWl2\n" );
-    return;
-  }
-
-  sym = xkb_keysym_from_name( keyName.c_str(), XKB_KEYSYM_NO_FLAGS );
-  if( sym == XKB_KEY_NoSymbol )
-  {
-    DALI_LOG_ERROR( "Failed to get keysym in WindowBaseEcoreWl2\n" );
-    return;
-  }
-
-  foundKeyCode.keySym = sym;
-  foundKeyCode.isKeyCode = false;
-  xkb_keymap_key_for_each( keyMap, FindKeyCode, &foundKeyCode );
-  keyCode = static_cast< int32_t >( foundKeyCode.keyCode );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1146,14 +1078,7 @@ void WindowBaseEcoreWl2::OnKeyDown( void* data, int type, void* event )
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
-    GetKeyCode( keyName, keyCode );
-
-    if( keyCode == 0 )
-    {
-      keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
-    }
-
+    int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
     keyCode = ( keyCode == -1 ) ? 0 : keyCode;
     int modifier( keyEvent->modifiers );
     unsigned long time = keyEvent->timestamp;
@@ -1207,14 +1132,7 @@ void WindowBaseEcoreWl2::OnKeyUp( void* data, int type, void* event )
       logicalKey = keyEvent->key;
     }
 
-    int keyCode = 0;
-    GetKeyCode( keyName, keyCode );
-
-    if( keyCode == 0 )
-    {
-      keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
-    }
-
+    int keyCode = KeyLookup::GetDaliKeyCode( keyEvent->keyname );
     keyCode = ( keyCode == -1 ) ? 0 : keyCode;
     int modifier( keyEvent->modifiers );
     unsigned long time = keyEvent->timestamp;
