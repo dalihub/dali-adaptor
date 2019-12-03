@@ -489,6 +489,8 @@ private:
   int                                  mWindowRotationAngle;
   int                                  mScreenRotationAngle;
   int                                  mSupportedPreProtation;
+
+  int                                  mAvaiableWindowOrientations[4];
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection*                   mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
