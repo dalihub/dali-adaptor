@@ -14,8 +14,6 @@ SET( adaptor_adaptor_common_src_files
 SET( adaptor_adaptor_tizen_wayland_src_files 
     ${adaptor_adaptor_dir}/tizen-wayland/adaptor-impl-tizen.cpp 
     ${adaptor_adaptor_dir}/tizen-wayland/framework-tizen.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/component-application.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/component-application-impl.cpp
 )
 
 # module: adaptor, backend: tizen-wearable
