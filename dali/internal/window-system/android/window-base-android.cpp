@@ -190,11 +190,11 @@ void WindowBaseAndroid::Activate()
 {
 }
 
-void WindowBaseAndroid::SetAvailableAnlges( const std::vector< int >& angles )
+void WindowBaseAndroid::SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations )
 {
 }
 
-void WindowBaseAndroid::SetPreferredAngle( int angle )
+void WindowBaseAndroid::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
 {
 }
 

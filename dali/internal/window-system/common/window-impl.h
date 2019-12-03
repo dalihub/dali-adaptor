@@ -143,6 +143,16 @@ public:
   void RemoveAvailableOrientation(Dali::Window::WindowOrientation orientation);
 
   /**
+   * @copydoc Dali::Window::SetAvailableOrientations()
+   */
+  void SetAvailableOrientations(const std::vector<Dali::Window::WindowOrientation>& orientations);
+
+  /**
+   * @copydoc Dali::Window::GetAvailableOrientations()
+   */
+  const std::vector<Dali::Window::WindowOrientation>& GetAvailableOrientations();
+
+  /**
    * @copydoc Dali::Window::SetPreferredOrientation()
    */
   void SetPreferredOrientation(Dali::Window::WindowOrientation orientation);
@@ -352,18 +362,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
 private:
 
   /**
-   * @brief Enumeration for orietation mode.
-   * The Orientation Mode is related to screen size.
-   * If screen width is longer than height, the Orientation Mode will have LANDSCAPE.
-   * Otherwise screen width is shorter than height or same, the Orientation Mode will have PORTRAIT.
-   */
-  enum class OrientationMode
-  {
-    PORTRAIT = 0,
-    LANDSCAPE
-  };
-
-  /**
    * Private constructor.
    * @sa Window::New()
    */
@@ -403,21 +401,6 @@ private:
    * Called when the window receives a Transition effect-start/end event.
    */
   void OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type );
-
-  /**
-   * @brief Set available orientation to window base.
-   */
-  void SetAvailableAnlges( const std::vector< int >& angles );
-
-  /**
-   * @brief Convert from window orientation to angle using OrientationMode.
-   */
-  int ConvertToAngle( Dali::Window::WindowOrientation orientation );
-
-  /**
-   * @brief Convert from angle to window orientation using OrientationMode.
-   */
-  Dali::Window::WindowOrientation ConvertToOrientation( int angle );
 
 private: // Dali::Internal::Adaptor::SceneHolder
 
@@ -528,17 +511,15 @@ private:
   Dali::Window::Type                    mType;
   Dali::Window                          mParentWindow;
 
-  OrientationPtr                        mOrientation;
-  std::vector< int >                    mAvailableAngles;
-  int                                   mPreferredAngle;
+  OrientationPtr                               mOrientation;
+  std::vector<Dali::Window::WindowOrientation> mAvailableOrientations;
+  Dali::Window::WindowOrientation              mPreferredOrientation;
 
   int                                   mRotationAngle;     ///< The angle of the rotation
   int                                   mWindowWidth;       ///< The width of the window
   int                                   mWindowHeight;      ///< The height of the window
 
   EventHandlerPtr                       mEventHandler;      ///< The window events handler
-
-  OrientationMode                       mOrientationMode;
 
   // Signals
   IndicatorSignalType                   mIndicatorVisibilityChangedSignal;
