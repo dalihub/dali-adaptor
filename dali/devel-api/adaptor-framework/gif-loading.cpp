@@ -25,7 +25,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <gif_lib.h>
 #include <cstring>
 #include <dali/integration-api/debug.h>
@@ -133,7 +132,6 @@ struct LoaderInfo
     : fileName( nullptr ),
       globalMap ( nullptr ),
       length( 0 ),
-      fileDescriptor( -1 ),
       isLocalResource( true )
     {
     }
@@ -141,7 +139,6 @@ struct LoaderInfo
     const char *fileName;  /**< The absolute path of the file. */
     unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
     long long length;  /**< The length of the file in bytes. */
-    int fileDescriptor; /**< The file descriptor. */
     bool isLocalResource; /**< The flag whether the file is a local resource */
   };
 
@@ -648,33 +645,34 @@ bool ReadHeader( LoaderInfo &loaderInfo,
 
   if( fileData.isLocalResource )
   {
-    // local file
-    fileData.fileDescriptor = open( fileData.fileName, O_RDONLY );
-
-    if( fileData.fileDescriptor == -1 )
+    Internal::Platform::FileReader fileReader( fileData.fileName );
+    FILE *fp = fileReader.GetFile();
+    if( fp == NULL )
     {
       return false;
     }
 
-    fileData.length = lseek( fileData.fileDescriptor, 0, SEEK_END );
+    if( fseek( fp, 0, SEEK_END ) <= -1 )
+    {
+      return false;
+    }
+
+    fileData.length = ftell( fp );
     if( fileData.length <= -1 )
     {
-      close( fileData.fileDescriptor );
       return false;
     }
 
-    if( lseek( fileData.fileDescriptor, 0, SEEK_SET ) == -1 )
+    if( ( ! fseek( fp, 0, SEEK_SET ) ) )
     {
-      close( fileData.fileDescriptor );
+      fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * fileData.length ) );
+      fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), fileData.length, fp);
+      fileInfo.map = fileData.globalMap;
+    }
+    else
+    {
       return false;
     }
-
-    // map the file and store/track info
-    fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
-    fileInfo.map = fileData.globalMap ;
-
-    close(fileData.fileDescriptor);
-    fileData.fileDescriptor = -1;
   }
   else
   {
@@ -1213,14 +1211,7 @@ public:
   {
     if( loaderInfo.fileData.globalMap  )
     {
-      if( loaderInfo.fileData.isLocalResource )
-      {
-        munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
-      }
-      else
-      {
-        free( loaderInfo.fileData.globalMap );
-      }
+      free( loaderInfo.fileData.globalMap );
       loaderInfo.fileData.globalMap  = nullptr;
     }
 
