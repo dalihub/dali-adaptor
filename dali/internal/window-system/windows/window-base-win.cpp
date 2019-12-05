@@ -314,11 +314,11 @@ void WindowBaseWin::Activate()
 {
 }
 
-void WindowBaseWin::SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations )
+void WindowBaseWin::SetAvailableAnlges( const std::vector< int >& angles )
 {
 }
 
-void WindowBaseWin::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
+void WindowBaseWin::SetPreferredAngle( int angle )
 {
 }
 

@@ -100,7 +100,6 @@ void WindowRenderSurface::Initialize( Any surface )
     // Default window size == screen size
     mPositionSize.x = 0;
     mPositionSize.y = 0;
-
     WindowSystem::GetScreenSize( mPositionSize.width, mPositionSize.height );
   }
 
