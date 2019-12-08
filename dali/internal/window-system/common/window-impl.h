@@ -419,6 +419,11 @@ private:
    */
   Dali::Window::WindowOrientation ConvertToOrientation( int angle );
 
+  /**
+   * @brief Check available window orientation for Available orientation.
+   */
+  bool IsOrientationAvailable( Dali::Window::WindowOrientation orientation ) const;
+
 private: // Dali::Internal::Adaptor::SceneHolder
 
   /**
