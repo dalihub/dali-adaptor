@@ -79,6 +79,7 @@ Window::Window()
   mWindowWidth( 0 ),
   mWindowHeight( 0 ),
   mOrientationMode( Internal::Adaptor::Window::OrientationMode::PORTRAIT ),
+  mNativeWindowId( -1 ),
   mFocusChangedSignal(),
   mResizedSignal(),
   mDeleteRequestSignal(),
@@ -139,6 +140,8 @@ void Window::Initialize(const PositionSize& positionSize, const std::string& nam
   {
     mOrientationMode = Internal::Adaptor::Window::OrientationMode::PORTRAIT;
   }
+  // For Debugging
+  mNativeWindowId = mWindowBase->GetNativeWindowId();
 }
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
@@ -179,19 +182,19 @@ std::string Window::GetClassName() const
 void Window::Raise()
 {
   mWindowBase->Raise();
-  DALI_LOG_RELEASE_INFO( "Window (%p) Raise() \n", this );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Raise() \n", this, mNativeWindowId );
 }
 
 void Window::Lower()
 {
   mWindowBase->Lower();
-  DALI_LOG_RELEASE_INFO( "Window (%p) Lower() \n", this );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Lower() \n", this, mNativeWindowId );
 }
 
 void Window::Activate()
 {
   mWindowBase->Activate();
-  DALI_LOG_RELEASE_INFO( "Window (%p) Activate() \n", this );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Activate() \n", this, mNativeWindowId );
 }
 
 uint32_t Window::GetLayerCount() const
@@ -218,6 +221,7 @@ void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientatio
 
   bool found = false;
   int convertedAngle = ConvertToAngle( orientation );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), AddAvailableOrientation: %d\n", this, mNativeWindowId, convertedAngle );
   for( std::size_t i = 0; i < mAvailableAngles.size(); i++ )
   {
     if( mAvailableAngles[i] == convertedAngle )
@@ -242,6 +246,7 @@ void Window::RemoveAvailableOrientation( Dali::Window::WindowOrientation orienta
   }
 
   int convertedAngle = ConvertToAngle( orientation );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), RemoveAvailableOrientation: %d\n", this, mNativeWindowId, convertedAngle );
   for( std::vector< int >::iterator iter = mAvailableAngles.begin();
        iter != mAvailableAngles.end(); ++iter )
   {
@@ -259,14 +264,17 @@ void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientatio
 {
   if( orientation < Dali::Window::NO_ORIENTATION_PREFERENCE || orientation > Dali::Window::LANDSCAPE_INVERSE )
   {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::CheckOrientation: Invalid input orientation [%d]\n", orientation );
     return;
   }
   mPreferredAngle = ConvertToAngle( orientation );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetPreferredOrientation: %d\n", this, mNativeWindowId, mPreferredAngle );
   mWindowBase->SetPreferredAngle( mPreferredAngle );
 }
 
 Dali::Window::WindowOrientation Window::GetPreferredOrientation()
 {
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), GetPreferredOrientation: %d\n", this, mNativeWindowId, mPreferredAngle );
   Dali::Window::WindowOrientation preferredOrientation = ConvertToOrientation( mPreferredAngle );
   return preferredOrientation;
 }
@@ -398,7 +406,7 @@ void Window::Show()
     mVisibilityChangedSignal.Emit( handle, true );
   }
 
-  DALI_LOG_RELEASE_INFO( "Window (%p) Show(): iconified = %d\n", this, mIconified );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Show(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible );
 }
 
 void Window::Hide()
@@ -416,11 +424,12 @@ void Window::Hide()
     mVisibilityChangedSignal.Emit( handle, false );
   }
 
-  DALI_LOG_RELEASE_INFO( "Window (%p) Hide(): iconified = %d\n", this, mIconified );
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Hide(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible );
 }
 
 bool Window::IsVisible() const
 {
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), IsVisible(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible );
   return mVisible && !mIconified;
 }
 
@@ -566,6 +575,8 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
+    DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height );
+
     Dali::Window handle( this );
     mResizedSignal.Emit( newSize );
     mResizeSignal.Emit( handle, newSize );
@@ -624,6 +635,7 @@ void Window::SetPositionSize( PositionSize positionSize )
 
     mAdaptor->SurfaceResizePrepare( mSurface.get(), newSize );
 
+    DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height );
     Dali::Window handle( this );
     mResizedSignal.Emit( newSize );
     mResizeSignal.Emit( handle, newSize );
@@ -676,7 +688,7 @@ void Window::OnIconifyChanged( bool iconified )
       mVisibilityChangedSignal.Emit( handle, false );
     }
 
-    DALI_LOG_RELEASE_INFO( "Window (%p) Iconified: visible = %d\n", this, mVisible );
+    DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible );
   }
   else
   {
@@ -691,7 +703,7 @@ void Window::OnIconifyChanged( bool iconified )
       mVisibilityChangedSignal.Emit( handle, true );
     }
 
-    DALI_LOG_RELEASE_INFO( "Window (%p) Deiconified: visible = %d\n", this, mVisible );
+    DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible );
   }
 }
 
@@ -751,6 +763,7 @@ void Window::OnRotation( const RotationEvent& rotation )
 
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
 
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), OnRotation(): resize signal emit [%d x %d]\n", this, mNativeWindowId, mWindowWidth, mWindowHeight );
   // Emit signal
   Dali::Window handle( this );
   mResizedSignal.Emit( Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
