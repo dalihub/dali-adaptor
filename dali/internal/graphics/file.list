@@ -1,28 +1,33 @@
 
 # module: graphics, backend: gles
-SET( adaptor_graphics_gles_src_files 
-    ${adaptor_graphics_dir}/gles/egl-debug.cpp 
-    ${adaptor_graphics_dir}/gles/egl-implementation.cpp 
-    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp 
-    ${adaptor_graphics_dir}/gles/egl-context-helper-implementation.cpp 
-    ${adaptor_graphics_dir}/gles/gl-extensions.cpp 
-    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp 
-    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp 
+SET( adaptor_graphics_gles_src_files
+    ${adaptor_graphics_dir}/gles/egl-debug.cpp
+    ${adaptor_graphics_dir}/gles/egl-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-context-helper-implementation.cpp
+    ${adaptor_graphics_dir}/gles/gl-extensions.cpp
+    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
 )
 
 # module: graphics, backend: tizen
-SET( adaptor_graphics_tizen_src_files 
+SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
 )
 
 # module: graphics, backend: generic
-SET( adaptor_graphics_ubuntu_src_files 
+SET( adaptor_graphics_ubuntu_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
 )
 
 # module: graphics, backend: android
 SET( adaptor_graphics_android_src_files
     ${adaptor_graphics_dir}/android/egl-image-extensions-android.cpp
+)
+
+# module: graphics, backend: windows
+SET( adaptor_graphics_windows_src_files
+    ${adaptor_graphics_dir}/windows-gl/egl-image-extensions.cpp
 )
 
