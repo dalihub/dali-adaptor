@@ -392,7 +392,7 @@ pushd %{_builddir}/%{name}-%{version}/build/tizen
 pushd mobile
 %make_install
 pushd  %{buildroot}%{_libdir}
-ln -sf libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile
 popd
 %if "%{?profile}" != "mobile"
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
@@ -405,7 +405,7 @@ popd
 pushd tv
 %make_install
 pushd  %{buildroot}%{_libdir}
-ln -sf libdali-adaptor.so.*.*.* libdali-adaptor.so.tv
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv
 popd
 %if "%{?profile}" != "tv"
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
@@ -418,7 +418,7 @@ popd
 pushd wearable
 %make_install
 pushd  %{buildroot}%{_libdir}
-ln -sf libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable
 popd
 %if "%{?profile}" != "wearable"
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
@@ -431,7 +431,7 @@ popd
 pushd ivi
 %make_install
 pushd  %{buildroot}%{_libdir}
-ln -sf libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi
 popd
 %if "%{?profile}" != "ivi"
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
