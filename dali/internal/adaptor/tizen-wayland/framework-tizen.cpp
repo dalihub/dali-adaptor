@@ -41,6 +41,11 @@
 #include <tzplatform_config.h>
 #endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
 
+#ifdef COMPONENT_APPLICATION_SUPPORT
+#include <component_based_app.h>
+#include <component_based_app_base.h>
+#endif
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -231,10 +236,16 @@ struct Framework::Impl
     {
       ret = AppWidgetMain();
     }
-    else
+    else if(mApplicationType == WATCH)
     {
       ret = AppWatchMain();
     }
+#ifdef COMPONENT_APPLICATION_SUPPORT
+    else
+    {
+      ret = AppComponentMain();
+    }
+#endif
     return ret;
   }
 
@@ -248,10 +259,16 @@ struct Framework::Impl
     {
       AppWidgetExit();
     }
-    else
+    else if(mApplicationType == WATCH)
     {
       AppWatchExit();
     }
+#ifdef COMPONENT_APPLICATION_SUPPORT
+    else
+    {
+      AppComponentExit();
+    }
+#endif
   }
 
   void SetLanguage( const std::string& language )
@@ -697,6 +714,57 @@ struct Framework::Impl
 #endif
   }
 
+#ifdef COMPONENT_APPLICATION_SUPPORT
+  int AppComponentMain()
+  {
+    int ret;
+
+    /*Crate component_based_app_base_lifecycle_callback*/
+    component_based_app_base_lifecycle_callback_s callback;
+    callback.init = AppInit;
+    callback.run = AppRun;
+    callback.exit = AppExit;
+    callback.create = AppComponentCreate;
+    callback.terminate = AppComponentTerminate;
+    callback.fini = AppComponentFinish;
+
+    ret = component_based_app_base_main(*mFramework->mArgc, *mFramework->mArgv, &callback, mFramework);
+
+    if (ret != TIZEN_ERROR_NONE)
+    return ret;
+
+    return TIZEN_ERROR_NONE;
+  }
+
+  static void* AppComponentCreate( void *data )
+  {
+    return static_cast<component_class_h>( static_cast<Framework*>(data)->CreateComponent(data) );
+  }
+
+  static void AppComponentTerminate( void *data )
+  {
+    Observer *observer = &static_cast<Framework*>(data)->mObserver;
+    observer->OnTerminate();
+  }
+
+  static void AppComponentFinish( void *data )
+  {
+    ecore_shutdown();
+
+    if(getenv("AUL_LOADER_INIT"))
+    {
+      unsetenv("AUL_LOADER_INIT");
+      ecore_shutdown();
+    }
+  }
+
+  void AppComponentExit()
+  {
+    component_based_app_base_exit();
+  }
+
+#endif
+
 private:
   // Undefined
   Impl( const Impl& impl );
@@ -883,6 +951,15 @@ std::string Framework::GetRegion() const
 {
   return mImpl->GetRegion();
 }
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+component_class_h Framework::CreateComponent( void * data )
+{
+  mInitialised = true;
+  mObserver.OnInit();
+  return mObserver.OnCreate(data);
+}
+#endif
 
 } // namespace Adaptor
 
