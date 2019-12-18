@@ -74,7 +74,7 @@ Window::Window()
   mResizeEnabled( false ),
   mType( Dali::Window::NORMAL ),
   mParentWindow( NULL ),
-  mPreferredAngle( 0 ),
+  mPreferredAngle( Dali::Window::NO_ORIENTATION_PREFERENCE ),
   mRotationAngle( 0 ),
   mWindowWidth( 0 ),
   mWindowHeight( 0 ),
@@ -211,29 +211,36 @@ Dali::RenderTaskList Window::GetRenderTaskList() const
 
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
 {
-  bool found = false;
-  if( orientation <= Dali::Window::LANDSCAPE_INVERSE )
+  if( IsOrientationAvailable( orientation ) == false )
   {
-    int convertedAngle = ConvertToAngle( orientation );
-    for( std::size_t i = 0; i < mAvailableAngles.size(); i++ )
-    {
-      if( mAvailableAngles[i] == convertedAngle )
-      {
-        found = true;
-        break;
-      }
-    }
+    return;
+  }
 
-    if( !found )
+  bool found = false;
+  int convertedAngle = ConvertToAngle( orientation );
+  for( std::size_t i = 0; i < mAvailableAngles.size(); i++ )
+  {
+    if( mAvailableAngles[i] == convertedAngle )
     {
-      mAvailableAngles.push_back( convertedAngle );
-      SetAvailableAnlges( mAvailableAngles );
+      found = true;
+      break;
     }
+  }
+
+  if( !found )
+  {
+    mAvailableAngles.push_back( convertedAngle );
+    SetAvailableAnlges( mAvailableAngles );
   }
 }
 
 void Window::RemoveAvailableOrientation( Dali::Window::WindowOrientation orientation )
 {
+  if( IsOrientationAvailable( orientation ) == false )
+  {
+    return;
+  }
+
   int convertedAngle = ConvertToAngle( orientation );
   for( std::vector< int >::iterator iter = mAvailableAngles.begin();
        iter != mAvailableAngles.end(); ++iter )
@@ -250,6 +257,10 @@ void Window::RemoveAvailableOrientation( Dali::Window::WindowOrientation orienta
 
 void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
 {
+  if( orientation < Dali::Window::NO_ORIENTATION_PREFERENCE || orientation > Dali::Window::LANDSCAPE_INVERSE )
+  {
+    return;
+  }
   mPreferredAngle = ConvertToAngle( orientation );
   mWindowBase->SetPreferredAngle( mPreferredAngle );
 }
@@ -298,6 +309,11 @@ int Window::ConvertToAngle( Dali::Window::WindowOrientation orientation )
         convertAngle = 270;
         break;
       }
+      case Dali::Window::NO_ORIENTATION_PREFERENCE:
+      {
+        convertAngle = -1;
+        break;
+      }
     }
   }
   return convertAngle;
@@ -330,9 +346,24 @@ Dali::Window::WindowOrientation Window::ConvertToOrientation( int angle )
         orientation = Dali::Window::PORTRAIT_INVERSE;
         break;
       }
+      case -1:
+      {
+        orientation = Dali::Window::NO_ORIENTATION_PREFERENCE;
+        break;
+      }
     }
   }
   return orientation;
+}
+
+bool Window::IsOrientationAvailable( Dali::Window::WindowOrientation orientation ) const
+{
+  if( orientation <= Dali::Window::NO_ORIENTATION_PREFERENCE || orientation > Dali::Window::LANDSCAPE_INVERSE )
+  {
+    DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::IsOrientationAvailable: Invalid input orientation [%d]\n", orientation );
+    return false;
+  }
+  return true;
 }
 
 Dali::Any Window::GetNativeHandle() const
