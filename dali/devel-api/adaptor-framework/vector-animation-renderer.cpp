@@ -99,6 +99,11 @@ void VectorAnimationRenderer::GetLayerInfo( Property::Map& map ) const
   GetImplementation( *this ).GetLayerInfo( map );
 }
 
+bool VectorAnimationRenderer::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+{
+  return GetImplementation( *this ).GetMarkerInfo( marker, startFrame, endFrame );
+}
+
 VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return GetImplementation( *this ).UploadCompletedSignal();

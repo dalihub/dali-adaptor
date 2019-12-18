@@ -177,6 +177,15 @@ void VectorAnimationRendererPluginProxy::GetLayerInfo( Property::Map& map ) cons
   }
 }
 
+bool VectorAnimationRendererPluginProxy::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+{
+  if( mPlugin )
+  {
+    return mPlugin->GetMarkerInfo( marker, startFrame, endFrame );
+  }
+  return false;
+}
+
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if( mPlugin )
