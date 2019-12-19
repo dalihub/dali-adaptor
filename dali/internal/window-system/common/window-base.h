@@ -181,12 +181,12 @@ public:
   /**
    * @copydoc Dali::Window::SetAvailableOrientations()
    */
-  virtual void SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations ) = 0;
+  virtual void SetAvailableAnlges( const std::vector< int >& angles ) = 0;
 
   /**
    * @copydoc Dali::Window::SetPreferredOrientation()
    */
-  virtual void SetPreferredOrientation( Dali::Window::WindowOrientation orientation ) = 0;
+  virtual void SetPreferredAngle( int angle ) = 0;
 
   /**
    * @copydoc Dali::Window::SetAcceptFocus()

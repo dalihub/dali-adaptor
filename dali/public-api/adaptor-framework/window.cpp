@@ -165,7 +165,7 @@ void Window::RemoveAvailableOrientation( WindowOrientation orientation )
   GetImplementation(*this).RemoveAvailableOrientation( orientation );
 }
 
-void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
+void Window::SetPreferredOrientation( WindowOrientation orientation )
 {
   GetImplementation(*this).SetPreferredOrientation( orientation );
 }
