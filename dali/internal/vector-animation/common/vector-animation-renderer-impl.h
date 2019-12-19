@@ -97,6 +97,11 @@ public:
   void GetLayerInfo( Property::Map& map ) const;
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::GetMarkerInfo()
+   */
+  bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::UploadCompletedSignal()
    */
   Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();
