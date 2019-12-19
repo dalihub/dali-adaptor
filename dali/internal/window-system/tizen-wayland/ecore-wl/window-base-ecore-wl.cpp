@@ -1375,7 +1375,6 @@ void WindowBaseEcoreWl::SetAvailableAnlges( const std::vector< int >& angles )
 
 void WindowBaseEcoreWl::SetPreferredAngle( int angle )
 {
-  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl::SetPreferredAngle, angle: %d\n", angle );
   ecore_wl_window_rotation_preferred_rotation_set( mEcoreWindow, angle );
 }
 

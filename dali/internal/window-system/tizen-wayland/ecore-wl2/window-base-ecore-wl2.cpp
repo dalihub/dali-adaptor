@@ -1559,7 +1559,7 @@ void WindowBaseEcoreWl2::Activate()
 void WindowBaseEcoreWl2::SetAvailableAnlges( const std::vector< int >& angles )
 {
   int rotations[4] = { 0 };
-  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetAvailableAnlges, angle's count: %d\n", angles.size() );
+  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetAvailableAnlges, angle's count: %d, angles\n", angles.size() );
   for( std::size_t i = 0; i < angles.size(); ++i )
   {
     rotations[i] = static_cast< int >( angles[i] );
@@ -1570,7 +1570,6 @@ void WindowBaseEcoreWl2::SetAvailableAnlges( const std::vector< int >& angles )
 
 void WindowBaseEcoreWl2::SetPreferredAngle( int angle )
 {
-  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle );
   ecore_wl2_window_preferred_rotation_set( mEcoreWindow, angle );
 }
 

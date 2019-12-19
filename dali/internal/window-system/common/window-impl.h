@@ -545,6 +545,8 @@ private:
 
   OrientationMode                       mOrientationMode;
 
+  int                                   mNativeWindowId;          ///< The Native Window Id
+
   // Signals
   IndicatorSignalType                   mIndicatorVisibilityChangedSignal;
   FocusSignalType                       mFocusChangedSignal;
