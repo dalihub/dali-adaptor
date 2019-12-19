@@ -105,6 +105,11 @@ void VectorAnimationRenderer::GetLayerInfo( Property::Map& map ) const
   mPlugin.GetLayerInfo( map );
 }
 
+bool VectorAnimationRenderer::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+{
+  return mPlugin.GetMarkerInfo( marker, startFrame, endFrame );
+}
+
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return mPlugin.UploadCompletedSignal();

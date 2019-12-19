@@ -78,6 +78,11 @@ public:
 
   /**
    * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
+   *
+   * This Enumeration is used the available orientation APIs and the preferred orientation.
+   *
+   * Especially, NO_ORIENTATION_PREFERENCE only has the effect for the preferred orientation.
+   * It is used to unset the preferred orientation with SetPreferredOrientation.
    * @SINCE_1_0.0
    */
   enum WindowOrientation
@@ -85,7 +90,8 @@ public:
     PORTRAIT = 0,  ///< Portrait orientation. The height of the display area is greater than the width. @SINCE_1_0.0
     LANDSCAPE = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
     PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
-    LANDSCAPE_INVERSE = 270  ///< Landscape inverse orientation @SINCE_1_0.0
+    LANDSCAPE_INVERSE = 270,  ///< Landscape inverse orientation @SINCE_1_0.0
+    NO_ORIENTATION_PREFERENCE = -1 ///< No orientation. It is for the preferred orientation.  @SINCE_1_4.51
   };
 
   /**
@@ -360,6 +366,8 @@ public:
    * @SINCE_1_0.0
    * @param[in] orientation The preferred orientation
    * @pre Orientation is in the list of available orientations.
+   *
+   * @note To unset the preferred orientation, orientation should be set NO_ORIENTATION_PREFERENCE.
    */
   void SetPreferredOrientation( WindowOrientation orientation );
 

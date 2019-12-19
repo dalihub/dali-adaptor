@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <gif_lib.h>
 #include <cstring>
 #include <dali/integration-api/debug.h>
@@ -133,7 +132,6 @@ struct LoaderInfo
     : fileName( nullptr ),
       globalMap ( nullptr ),
       length( 0 ),
-      fileDescriptor( -1 ),
       isLocalResource( true )
     {
     }
@@ -141,7 +139,6 @@ struct LoaderInfo
     const char *fileName;  /**< The absolute path of the file. */
     unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
     long long length;  /**< The length of the file in bytes. */
-    int fileDescriptor; /**< The file descriptor. */
     bool isLocalResource; /**< The flag whether the file is a local resource */
   };
 
@@ -482,7 +479,7 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
 {
   int intoffset[] = {0, 4, 2, 1};
   int intjump[] = {8, 8, 4, 2};
-  int i, xx, yy, pix;
+  int i, xx, yy, pix, gifW, gifH;
   GifRowType *rows = NULL;
   bool ret = false;
   ColorMapObject *colorMap;
@@ -495,21 +492,28 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   {
     goto on_error;
   }
-  w = sp->ImageDesc.Width;
-  h = sp->ImageDesc.Height;
+
+  gifW = sp->ImageDesc.Width;
+  gifH = sp->ImageDesc.Height;
+
+  if( ( gifW < w ) || ( gifH < h ) )
+  {
+    DALI_ASSERT_DEBUG( false && "Dimensions are bigger than the Gif image size");
+    goto on_error;
+  }
 
   // build a blob of memory to have pointers to rows of pixels
   // AND store the decoded gif pixels (1 byte per pixel) as welll
-  rows = static_cast<GifRowType *>(malloc( (h * sizeof(GifRowType) ) + ( w * h * sizeof(GifPixelType) )));
+  rows = static_cast<GifRowType *>(malloc( (gifH * sizeof(GifRowType) ) + ( gifW * gifH * sizeof(GifPixelType) )));
   if( !rows )
   {
     goto on_error;
   }
 
   // fill in the pointers at the start
-  for( yy = 0; yy < h; yy++ )
+  for( yy = 0; yy < gifH; yy++ )
   {
-    rows[yy] = reinterpret_cast<unsigned char *>(rows) + (h * sizeof(GifRowType)) + (yy * w * sizeof(GifPixelType));
+    rows[yy] = reinterpret_cast<unsigned char *>(rows) + (gifH * sizeof(GifRowType)) + (yy * gifW * sizeof(GifPixelType));
   }
 
   // if gif is interlaced, walk interlace pattern and decode into rows
@@ -517,9 +521,9 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   {
     for( i = 0; i < 4; i++ )
     {
-      for( yy = intoffset[i]; yy < h; yy += intjump[i] )
+      for( yy = intoffset[i]; yy < gifH; yy += intjump[i] )
       {
-        if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+        if( DGifGetLine( gif, rows[yy], gifW ) != GIF_OK )
         {
           goto on_error;
         }
@@ -529,9 +533,9 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   // normal top to bottom - decode into rows
   else
   {
-    for( yy = 0; yy < h; yy++ )
+    for( yy = 0; yy < gifH; yy++ )
     {
-      if( DGifGetLine( gif, rows[yy], w ) != GIF_OK )
+      if( DGifGetLine( gif, rows[yy], gifW ) != GIF_OK )
       {
         goto on_error;
       }
@@ -641,33 +645,34 @@ bool ReadHeader( LoaderInfo &loaderInfo,
 
   if( fileData.isLocalResource )
   {
-    // local file
-    fileData.fileDescriptor = open( fileData.fileName, O_RDONLY );
-
-    if( fileData.fileDescriptor == -1 )
+    Internal::Platform::FileReader fileReader( fileData.fileName );
+    FILE *fp = fileReader.GetFile();
+    if( fp == NULL )
     {
       return false;
     }
 
-    fileData.length = lseek( fileData.fileDescriptor, 0, SEEK_END );
+    if( fseek( fp, 0, SEEK_END ) <= -1 )
+    {
+      return false;
+    }
+
+    fileData.length = ftell( fp );
     if( fileData.length <= -1 )
     {
-      close( fileData.fileDescriptor );
       return false;
     }
 
-    if( lseek( fileData.fileDescriptor, 0, SEEK_SET ) == -1 )
+    if( ( ! fseek( fp, 0, SEEK_SET ) ) )
     {
-      close( fileData.fileDescriptor );
+      fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * fileData.length ) );
+      fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), fileData.length, fp);
+      fileInfo.map = fileData.globalMap;
+    }
+    else
+    {
       return false;
     }
-
-    // map the file and store/track info
-    fileData.globalMap  = reinterpret_cast<unsigned char *>( mmap(NULL, fileData.length, PROT_READ, MAP_SHARED, fileData.fileDescriptor, 0 ));
-    fileInfo.map = fileData.globalMap ;
-
-    close(fileData.fileDescriptor);
-    fileData.fileDescriptor = -1;
   }
   else
   {
@@ -1206,14 +1211,7 @@ public:
   {
     if( loaderInfo.fileData.globalMap  )
     {
-      if( loaderInfo.fileData.isLocalResource )
-      {
-        munmap( loaderInfo.fileData.globalMap , loaderInfo.fileData.length );
-      }
-      else
-      {
-        free( loaderInfo.fileData.globalMap );
-      }
+      free( loaderInfo.fileData.globalMap );
       loaderInfo.fileData.globalMap  = nullptr;
     }
 

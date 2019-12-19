@@ -244,7 +244,6 @@ Dali::Timer::TimerSignalType& Timer::TickSignal()
 void Timer::ResetTimerData()
 {
   mImpl->mRunning = false;
-  mImpl->mInterval = 0;
   mImpl->mId = 0;
 }
 

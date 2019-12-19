@@ -26,6 +26,7 @@
 #include <Ecore_Wl2.h>
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
+#include <xkbcommon/xkbcommon.h>
 
 #ifdef DALI_ELDBUS_AVAILABLE
 #include <Eldbus.h>
@@ -168,6 +169,11 @@ public:
 #endif
 
   /**
+   * @brief Called when a keymap is changed.
+   */
+  void KeymapChanged(void *data, int type, void *event);
+
+  /**
    * @brief RegistryGlobalCallback
    */
   void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version );
@@ -191,6 +197,12 @@ public:
    * @brief DisplayPolicyBrightnessChangeDone
    */
   void DisplayPolicyBrightnessChangeDone( void* data, struct tizen_display_policy *displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state );
+
+
+  /**
+   * @brief Gets the key code by keyName.
+   */
+  void GetKeyCode( std::string keyName, int32_t& keyCode );
 
 public:
 
@@ -467,6 +479,7 @@ private:
   wl_event_queue*                      mEventQueue;
   tizen_policy*                        mTizenPolicy;
   tizen_display_policy*                mTizenDisplayPolicy;
+  xkb_keymap*                          mKeyMap;
 
   std::vector< std::string >           mSupportedAuxiliaryHints;
   AuxiliaryHints                       mAuxiliaryHints;
