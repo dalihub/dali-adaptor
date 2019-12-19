@@ -47,12 +47,10 @@ public:
    * @param[in] multiSamplingLevel The Multi-sampling level required
    * @param[in] depthBufferRequired Whether the depth buffer is required
    * @param[in] stencilBufferRequired Whether the stencil buffer is required
-   * @param[in] partialUpdateAvailable Whether the partial update is available
    */
   EglImplementation( int multiSamplingLevel,
                      Integration::DepthBufferAvailable depthBufferRequired,
-                     Integration::StencilBufferAvailable stencilBufferRequired,
-                     Integration::PartialUpdateAvailable partialUpdateAvailable );
+                     Integration::StencilBufferAvailable stencilBufferRequired );
 
   /**
    * Destructor
@@ -125,16 +123,6 @@ public:
    * Performs an OpenGL swap buffers command
    */
   virtual void SwapBuffers( EGLSurface& eglSurface );
-
- /**
-  * Get current buffer age
-  */
-  virtual int GetBufferAge( EGLSurface& eglSurface );
-
-  /**
-   * Set Damaged rect for Partial update
-  */
-  virtual void SetDamagedRect( std::vector<int> damagedRectArray, EGLSurface& eglSurface );
 
   /**
    * Performs an OpenGL copy buffers command
@@ -251,7 +239,6 @@ private:
 
   int32_t              mMultiSamplingLevel;
   int32_t              mGlesVersion;
-  std::vector<int>     mDamagedRectArray;
 
   ColorDepth           mColorDepth;
 
@@ -262,12 +249,8 @@ private:
   bool                 mStencilBufferRequired;
   bool                 mIsSurfacelessContextSupported;
   bool                 mIsKhrCreateContextSupported;
-  uint32_t             mSwapBufferCountAfterResume;
-  bool                 mIsKhrPartialUpdateSupported;
-  bool                 mPartialUpdateAvailable;
 
-  PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
-  PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mSwapBuffersWithDamage;
+  uint32_t              mSwapBufferCountAfterResume;
 };
 
 } // namespace Adaptor
