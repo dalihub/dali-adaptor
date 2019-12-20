@@ -283,6 +283,10 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
   }
+  if( mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0 )
+  {
+    Integration::SetLongPressMinimumHoldingTime( mEnvironmentOptions->GetLongPressMinimumHoldingTime() );
+  }
 
   // Set max texture size
   if( mEnvironmentOptions->GetMaxTextureSize() > 0 )

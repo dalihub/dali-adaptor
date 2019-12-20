@@ -120,6 +120,7 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance( -1 ),
   mPanMinimumEvents( -1 ),
   mPinchMinimumDistance( -1.0f ),
+  mLongPressMinimumHoldingTime( -1 ),
   mGlesCallTime( 0 ),
   mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
@@ -288,6 +289,11 @@ int EnvironmentOptions::GetMinimumPanEvents() const
 float EnvironmentOptions::GetMinimumPinchDistance() const
 {
   return mPinchMinimumDistance;
+}
+
+int32_t EnvironmentOptions::GetLongPressMinimumHoldingTime() const
+{
+  return mLongPressMinimumHoldingTime;
 }
 
 unsigned int EnvironmentOptions::GetWindowWidth() const
@@ -514,6 +520,12 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   if( GetFloatEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_DISTANCE, pinchMinimumDistance ) )
   {
     mPinchMinimumDistance = pinchMinimumDistance;
+  }
+
+  int longPressMinimumHoldingTime = -1;
+  if( GetIntegerEnvironmentVariable( DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, longPressMinimumHoldingTime ) )
+  {
+    mLongPressMinimumHoldingTime = longPressMinimumHoldingTime;
   }
 
   int glesCallTime(0);

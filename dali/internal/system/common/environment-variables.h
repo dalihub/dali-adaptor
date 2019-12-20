@@ -86,6 +86,11 @@ namespace Adaptor
 
 #define DALI_ENV_PINCH_MINIMUM_DISTANCE               "DALI_PINCH_MINIMUM_DISTANCE"
 
+/**
+ * The minimum holding time required to be recognized as a long press gesture (milliseconds)
+ */
+#define DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME      "DALI_LONG_PRESS_MINIMUM_HOLDING_TIME"
+
 #define DALI_GLES_CALL_TIME "DALI_GLES_CALL_TIME"
 
 #define DALI_GLES_CALL_ACCUMULATE "DALI_GLES_CALL_ACCUMULATE"
