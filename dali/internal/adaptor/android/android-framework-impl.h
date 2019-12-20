@@ -60,6 +60,11 @@ public:
   static Dali::Integration::AndroidFramework& New();
 
   /**
+   * @brief Delete an Android framework.
+   */
+  static void Delete();
+
+  /**
    * @copydoc Dali::Integration::AndroidFramework::SetNativeApplication()
    */
   void SetNativeApplication( android_app* application );
@@ -163,8 +168,8 @@ public:
   AndroidFramework& operator=( AndroidFramework&& ) = delete; ///< Deleted move assignment operator
 
 private:
-  AndroidFramework( Dali::Integration::AndroidFramework& androidFramework );
-  Dali::Integration::AndroidFramework& mAndroidFramework;
+  AndroidFramework( Dali::Integration::AndroidFramework* androidFramework );
+  Dali::Integration::AndroidFramework* mAndroidFramework;
   Framework* mFramework;
 
   android_app* mNativeApplication;
