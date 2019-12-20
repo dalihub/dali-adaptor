@@ -250,8 +250,8 @@ void WindowRenderSurface::CreateSurface()
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n",
-      mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
+      mWindowBase->GetNativeWindowId(), mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
 
 void WindowRenderSurface::DestroySurface()
@@ -259,6 +259,8 @@ void WindowRenderSurface::DestroySurface()
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   eglImpl.DestroySurface( mEGLSurface );

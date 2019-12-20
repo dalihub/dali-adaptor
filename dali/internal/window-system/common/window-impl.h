@@ -419,6 +419,11 @@ private:
    */
   Dali::Window::WindowOrientation ConvertToOrientation( int angle );
 
+  /**
+   * @brief Check available window orientation for Available orientation.
+   */
+  bool IsOrientationAvailable( Dali::Window::WindowOrientation orientation ) const;
+
 private: // Dali::Internal::Adaptor::SceneHolder
 
   /**
@@ -539,6 +544,8 @@ private:
   EventHandlerPtr                       mEventHandler;      ///< The window events handler
 
   OrientationMode                       mOrientationMode;
+
+  int                                   mNativeWindowId;          ///< The Native Window Id
 
   // Signals
   IndicatorSignalType                   mIndicatorVisibilityChangedSignal;

@@ -141,6 +141,21 @@ public:
    */
   void GetLayerInfo( Property::Map& map ) const;
 
+  /**
+   * @brief Gets the start frame and the end frame number of the composition marker.
+   *
+   * @param[in] marker The composition marker of the file
+   * @param[out] startFrame The start frame number of the specified marker
+   * @param[out] endFrame The end frame number of the specified marker
+   * @return True if the marker is found in the file, false otherwise.
+   *
+   * @note https://helpx.adobe.com/after-effects/using/layer-markers-composition-markers.html
+   * Markers exported from AfterEffect are used to describe a segment of an animation {comment/tag , startFrame, endFrame}
+   * Marker can be use to devide a resource in to separate animations by tagging the segment with comment string,
+   * start frame and duration of that segment.
+   */
+  bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
+
 public: // Signals
 
   /**
