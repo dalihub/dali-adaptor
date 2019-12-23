@@ -23,9 +23,18 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
+#include <dali/internal/imaging/common/file-download.h>
 
 namespace Dali
 {
+
+namespace
+{
+
+// limit maximum image down load size to 50 MB
+const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+
+}
 
 namespace FileLoader
 {
@@ -43,6 +52,12 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
 std::streampos GetFileSize(const std::string& filename)
 {
   return Dali::Internal::Adaptor::GetFileSize(filename);
+}
+
+bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t> &dataBuffer)
+{
+  size_t dataSize;
+  return TizenPlatform::Network::DownloadRemoteFileIntoMemory( filename, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE );
 }
 
 } //FileLoader
