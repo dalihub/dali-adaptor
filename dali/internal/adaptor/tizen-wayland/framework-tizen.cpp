@@ -708,7 +708,6 @@ private:
 Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
 : mObserver(observer),
   mInitialised(false),
-  mPaused(false),
   mRunning(false),
   mArgc(argc),
   mArgv(argv),
