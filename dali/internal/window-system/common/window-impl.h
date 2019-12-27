@@ -337,6 +337,11 @@ public:
    */
   Dali::Window GetParent();
 
+  /**
+   * @copydoc Dali::DevelWindow::GetCurrentOrientation()
+   */
+  Dali::Window::WindowOrientation GetCurrentOrientation() const;
+
 public: // Dali::Internal::Adaptor::SceneHolder
 
   /**
@@ -417,7 +422,7 @@ private:
   /**
    * @brief Convert from angle to window orientation using OrientationMode.
    */
-  Dali::Window::WindowOrientation ConvertToOrientation( int angle );
+  Dali::Window::WindowOrientation ConvertToOrientation( int angle ) const;
 
   /**
    * @brief Check available window orientation for Available orientation.

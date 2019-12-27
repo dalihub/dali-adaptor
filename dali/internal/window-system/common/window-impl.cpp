@@ -75,7 +75,7 @@ Window::Window()
   mType( Dali::Window::NORMAL ),
   mParentWindow( NULL ),
   mPreferredAngle( Dali::Window::NO_ORIENTATION_PREFERENCE ),
-  mRotationAngle( 0 ),
+  mRotationAngle( -1 ),
   mWindowWidth( 0 ),
   mWindowHeight( 0 ),
   mOrientationMode( Internal::Adaptor::Window::OrientationMode::PORTRAIT ),
@@ -327,7 +327,7 @@ int Window::ConvertToAngle( Dali::Window::WindowOrientation orientation )
   return convertAngle;
 }
 
-Dali::Window::WindowOrientation Window::ConvertToOrientation( int angle )
+Dali::Window::WindowOrientation Window::ConvertToOrientation( int angle ) const
 {
   Dali::Window::WindowOrientation orientation = static_cast< Dali::Window::WindowOrientation >( angle );
   if( mOrientationMode == Internal::Adaptor::Window::OrientationMode::LANDSCAPE )
@@ -860,6 +860,12 @@ void Window::Unparent()
 Dali::Window Window::GetParent()
 {
   return mParentWindow;
+}
+
+Dali::Window::WindowOrientation Window::GetCurrentOrientation() const
+{
+  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), GetCurrentOrientation(): %d\n", this, mNativeWindowId, mRotationAngle );
+  return ConvertToOrientation( mRotationAngle );
 }
 
 } // Adaptor

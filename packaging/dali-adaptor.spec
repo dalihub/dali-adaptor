@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.50
+Version:    1.4.51
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -30,6 +30,9 @@ Requires:       giflib
 Provides: libdali-adaptor-cxx11.so
 Provides: libdali-adaptor-cxx11.so.0
 Provides: libdali-adaptor-cxx11.so.0.0.0
+Provides: libdali-adaptor.so
+Provides: libdali-adaptor.so.0
+Provides: libdali-adaptor.so.0.0.0
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
@@ -125,6 +128,7 @@ Conflicts:      %{name}-profile_tv
 Conflicts:      %{name}-profile_wearable
 Conflicts:      %{name}-profile_ivi
 Conflicts:      %{name}-profile_common
+Requires:       %{name}
 %description profile_mobile
 The DALi Tizen Adaptor for mobile.
 %endif
@@ -139,6 +143,7 @@ Conflicts:      %{name}-profile_mobile
 Conflicts:      %{name}-profile_wearable
 Conflicts:      %{name}-profile_ivi
 Conflicts:      %{name}-profile_common
+Requires:       %{name}
 %description profile_tv
 The DALi Tizen Adaptor for tv.
 %endif
@@ -153,6 +158,7 @@ Conflicts:      %{name}-profile_mobile
 Conflicts:      %{name}-profile_tv
 Conflicts:      %{name}-profile_ivi
 Conflicts:      %{name}-profile_common
+Requires:       %{name}
 %description profile_wearable
 The DALi Tizen Adaptor for wearable.
 %endif
@@ -167,6 +173,7 @@ Conflicts:      %{name}-profile_mobile
 Conflicts:      %{name}-profile_wearable
 Conflicts:      %{name}-profile_tv
 Conflicts:      %{name}-profile_common
+Requires:       %{name}
 %description profile_ivi
 The DALi Tizen Adaptor for ivi.
 %endif
@@ -182,6 +189,7 @@ Conflicts:      %{name}-profile_mobile
 Conflicts:      %{name}-profile_wearable
 Conflicts:      %{name}-profile_tv
 Conflicts:      %{name}-profile_ivi
+Requires:       %{name}
 %description profile_common
 The DALi Tizen Adaptor for common.
 %endif
@@ -385,10 +393,10 @@ pushd %{_builddir}/%{name}-%{version}/build/tizen
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 pushd mobile
 %make_install
-pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile
-popd
 %if "%{?profile}" != "mobile"
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile # If we're only building this profile, then there's no need to copy the lib
+popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
 popd
@@ -398,10 +406,10 @@ popd
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 pushd tv
 %make_install
-pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv
-popd
 %if "%{?profile}" != "tv"
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv # If we're only building this profile, then there's no need to copy the lib
+popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
 popd
@@ -411,10 +419,10 @@ popd
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 pushd wearable
 %make_install
-pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable
-popd
 %if "%{?profile}" != "wearable"
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable # If we're only building this profile, then there's no need to copy the lib
+popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
 popd
@@ -424,10 +432,10 @@ popd
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 pushd ivi
 %make_install
-pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi
-popd
 %if "%{?profile}" != "ivi"
+pushd  %{buildroot}%{_libdir}
+cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi # If we're only building this profile, then there's no need to copy the lib
+popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
 popd
@@ -485,11 +493,14 @@ exit 0
 ##############################
 # Mobile Profile Commands
 # if mobile || "undefined"
+# No need to create a symbolic link on install required if only building this profile
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_mobile
+%if "%{?profile}" != "mobile"
 pushd %{_libdir}
 ln -sf libdali-adaptor.so.mobile libdali-adaptor.so.0.0.0
 popd
+%endif
 /sbin/ldconfig
 exit 0
 
@@ -500,11 +511,14 @@ exit 0
 
 ##############################
 # TV Profile Commands
+# No need to create a symbolic link on install required if only building this profile
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 %post profile_tv
+%if "%{?profile}" != "tv"
 pushd %{_libdir}
 ln -sf libdali-adaptor.so.tv libdali-adaptor.so.0.0.0
 popd
+%endif
 /sbin/ldconfig
 exit 0
 
@@ -515,11 +529,14 @@ exit 0
 
 ##############################
 # Wearable Profile Commands
+# No need to create a symbolic link on install required if only building this profile
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 %post profile_wearable
+%if "%{?profile}" != "wearable"
 pushd %{_libdir}
 ln -sf libdali-adaptor.so.wearable libdali-adaptor.so.0.0.0
 popd
+%endif
 /sbin/ldconfig
 exit 0
 
@@ -530,11 +547,14 @@ exit 0
 
 ##############################
 # IVI Profile Commands
+# No need to create a symbolic link on install required if only building this profile
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_ivi
+%if "%{?profile}" != "ivi"
 pushd %{_libdir}
 ln -sf libdali-adaptor.so.ivi libdali-adaptor.so.0.0.0
 popd
+%endif
 /sbin/ldconfig
 exit 0
 
@@ -595,7 +615,9 @@ exit 0
 %files profile_mobile
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
+%if "%{?profile}" != "mobile"
 %{_libdir}/libdali-adaptor.so.mobile
+%endif
 %endif
 
 # if tv ||"undefined"
@@ -603,7 +625,9 @@ exit 0
 %files profile_tv
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
+%if "%{?profile}" != "tv"
 %{_libdir}/libdali-adaptor.so.tv
+%endif
 %endif
 
 # if wearable || "undefined"
@@ -611,7 +635,9 @@ exit 0
 %files profile_wearable
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
+%if "%{?profile}" != "wearable"
 %{_libdir}/libdali-adaptor.so.wearable
+%endif
 %endif
 
 # if ivi ||"undefined"
@@ -619,7 +645,9 @@ exit 0
 %files profile_ivi
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
+%if "%{?profile}" != "ivi"
 %{_libdir}/libdali-adaptor.so.ivi
+%endif
 %endif
 
 %files devel

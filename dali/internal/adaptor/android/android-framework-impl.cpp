@@ -35,9 +35,17 @@ AndroidFramework* gAndroidFramework = nullptr; // raw specific pointer to allow 
 Dali::Integration::AndroidFramework& AndroidFramework::New()
 {
   Dali::Integration::AndroidFramework* androidFramework = new Dali::Integration::AndroidFramework;
-  AndroidFramework* impl = new AndroidFramework( *androidFramework );
+  AndroidFramework* impl = new AndroidFramework( androidFramework );
   androidFramework->mImpl = impl;
   return *androidFramework;
+}
+
+void AndroidFramework::Delete()
+{
+  DALI_ASSERT_ALWAYS( gAndroidFramework != nullptr && "Cannot delete already deleted AndroidFramework." );
+
+  delete gAndroidFramework->mAndroidFramework;
+  gAndroidFramework = nullptr;
 }
 
 void AndroidFramework::SetNativeApplication( android_app* application )
@@ -119,10 +127,10 @@ Dali::Integration::AndroidFramework& AndroidFramework::Get()
 {
   DALI_ASSERT_ALWAYS( gAndroidFramework != nullptr && "AndroidFramework not instantiated" );
 
-  return gAndroidFramework->mAndroidFramework;
+  return *gAndroidFramework->mAndroidFramework;
 }
 
-AndroidFramework::AndroidFramework( Dali::Integration::AndroidFramework& androidFramework )
+AndroidFramework::AndroidFramework( Dali::Integration::AndroidFramework* androidFramework )
  : mAndroidFramework( androidFramework ),
    mFramework( nullptr ),
    mNativeApplication( nullptr ),

@@ -19,7 +19,6 @@
 #include "widget-impl.h"
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/internal/system/common/widget-controller.h>
 
 namespace Dali

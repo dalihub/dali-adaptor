@@ -176,8 +176,8 @@ void Capture::CreateFrameBuffer()
 
   mNativeTexture = Dali::Texture::New( *mNativeImageSourcePtr );
 
-  // Create a FrameBuffer object with no default attachments.
-  mFrameBuffer = Dali::FrameBuffer::New( mNativeTexture.GetWidth(), mNativeTexture.GetHeight(), Dali::FrameBuffer::Attachment::NONE );
+  // Create a FrameBuffer object with depth attachments.
+  mFrameBuffer = Dali::FrameBuffer::New( mNativeTexture.GetWidth(), mNativeTexture.GetHeight(), Dali::FrameBuffer::Attachment::DEPTH );
   // Add a color attachment to the FrameBuffer object.
   mFrameBuffer.AttachColorTexture( mNativeTexture );
 }

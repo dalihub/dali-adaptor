@@ -37,8 +37,7 @@ AndroidFramework& AndroidFramework::New()
 
 void AndroidFramework::Delete()
 {
-  DALI_ASSERT_ALWAYS( &Get() != nullptr && "AndroidFramework not instantiated" );
-  delete &Get();
+  Internal::Adaptor::AndroidFramework::Delete();
 }
 
 void AndroidFramework::SetNativeApplication( android_app* application )
