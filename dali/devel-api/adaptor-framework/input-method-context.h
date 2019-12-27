@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
+#include <dali/public-api/common/dali-vector.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
@@ -104,10 +105,24 @@ public:
    */
   enum class PreeditStyle
   {
-    NONE,         ///< None style
-    UNDERLINE,    ///< Underline substring style
-    REVERSE,      ///< Reverse substring style
-    HIGHLIGHT     ///< Highlight substring style
+    NONE,             ///< None style
+    UNDERLINE,        ///< Underline substring style
+    REVERSE,          ///< Reverse substring style
+    HIGHLIGHT,        ///< Highlight substring style
+    HIGHLIGHT_SUB4,   ///< SUB4 substring style
+    HIGHLIGHT_SUB5,   ///< SUB5 substring style
+    HIGHLIGHT_SUB6,   ///< SUB6 substring style
+    HIGHLIGHT_SUB7    ///< SUB7 substring style
+  };
+
+  /**
+   * @brief This structure is for the preedit style types and indices.
+   */
+  struct PreeditAttrData
+  {
+    PreeditStyle preeditType; /// The preedit style type
+    unsigned int startIndex;  /// The start index of preedit
+    unsigned int endIndex;    /// The end index of preedit
   };
 
   /**
@@ -476,11 +491,11 @@ public:
   void SetInputPanelPosition( unsigned int x, unsigned int y );
 
   /**
-   * @brief Gets the preedit type.
+   * @brief Gets the preedit attrs data.
    *
-   * @return The preedit style type
+   * @param[out] attrs The preedit attrs data.
    */
-  PreeditStyle GetPreeditStyle() const;
+  void GetPreeditStyle( Vector<PreeditAttrData>& attrs ) const;
 
 public:
 
