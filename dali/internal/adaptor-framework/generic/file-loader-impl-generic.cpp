@@ -73,7 +73,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   }
   else
   {
-    DALI_LOG_WARNING( "file open failed for: \"%s\"", filename.c_str() );
+    DALI_LOG_WARNING( "file open failed for: \"%s\"", filename );
   }
 
   return errorCode;
