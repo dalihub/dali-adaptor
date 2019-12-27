@@ -46,7 +46,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-handler.h
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
-  ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h 
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-group.h
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-item.h
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-manager.h
