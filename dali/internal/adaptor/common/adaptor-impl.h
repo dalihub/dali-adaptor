@@ -438,6 +438,11 @@ public:
    */
   void UnregisterProcessor( Integration::Processor& processor );
 
+  /**
+   * Check MultipleWindow is supported
+   */
+  bool IsMultipleWindowSupported() const;
+
 public:  //AdaptorInternalServices
 
   /**

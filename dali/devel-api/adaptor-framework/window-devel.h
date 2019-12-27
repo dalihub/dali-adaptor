@@ -200,6 +200,14 @@ DALI_ADAPTOR_API Window GetParent( Window window );
  */
 DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
 
+/**
+ * @brief Gets current orientation of the window.
+ *
+ * @param[in] window The window instance
+ * @return The current window orientation if previously set, or none
+ */
+DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation( Window window );
+
 } // namespace DevelWindow
 
 } // namespace Dali

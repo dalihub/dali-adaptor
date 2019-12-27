@@ -94,6 +94,12 @@ Window DownCast( BaseHandle handle )
 {
   return Window( dynamic_cast<Dali::Internal::Adaptor::Window*>( handle.GetObjectPtr()) );
 }
+
+Dali::Window::WindowOrientation GetCurrentOrientation( Window window )
+{
+  return GetImplementation( window ).GetCurrentOrientation();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
