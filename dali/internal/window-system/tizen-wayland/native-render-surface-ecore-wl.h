@@ -159,6 +159,18 @@ public: // from Dali::Integration::RenderSurface
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
+  /**
+   * @copydoc Dali::Integration::RenderSurface::SetDamagedRect()
+   */
+  virtual void SetDamagedRect( const Dali::DamagedRect& damagedRect, Dali::DamagedRect& mergedRect ) override;
+
+  /**
+   * @copydoc Dali::Integration::RenderSurface::GetBufferAge()
+   */
+  virtual int32_t GetBufferAge() override;
+
+
+
 private:
 
   /**
