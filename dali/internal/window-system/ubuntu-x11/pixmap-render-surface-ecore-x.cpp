@@ -231,15 +231,6 @@ bool PixmapRenderSurfaceEcoreX::PreRender( bool )
   return true;
 }
 
-void PixmapRenderSurfaceEcoreX::SetDamagedRect( const Dali::DamagedRect& damagedRect, Dali::DamagedRect& mergedRect )
-{
-}
-
-int32_t PixmapRenderSurfaceEcoreX::GetBufferAge()
-{
-  return 0;
-}
-
 void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
