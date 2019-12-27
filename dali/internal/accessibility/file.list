@@ -11,27 +11,11 @@ SET( adaptor_accessibility_common_src_files
 SET( adaptor_accessibility_tizen_wayland_src_files 
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-factory-tizen.cpp 
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-impl-tizen.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/atspi-accessibility-tizen.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/accessibility-impl.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/accessible.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-accessible.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-action.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-base.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-collection.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-component.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-editable-text.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-impl.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-object.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-text.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-value.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/component.cpp 
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/dbus-tizen.cpp
-
 )
 
 # module: accessibility, backend: tizen-common profile
 SET( adaptor_accessibility_tizen_common_src_files 
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-common/accessibility-adaptor-impl-tizen.cpp 
+    ${adaptor_accessibility_dir}/tizen-wayland/tizen-common/accessibility-adaptor-impl-tizen.cpp
 )
 
 # module: accessibility, backend: tizen-ivi profile
@@ -57,14 +41,14 @@ SET( adaptor_accessibility_tizen_wearable_src_files
 # module: accessibility, backend: generic
 SET( adaptor_accessibility_ubuntu_src_files 
     ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp 
-    ${adaptor_accessibility_dir}/generic/atspi-accessibility-generic.cpp 
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp 
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
 # module: accessibility, backend: generic
-SET( adaptor_accessibility_android_src_files 
-    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp 
-    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp 
+SET( adaptor_accessibility_android_src_files
+    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp
+    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
+
