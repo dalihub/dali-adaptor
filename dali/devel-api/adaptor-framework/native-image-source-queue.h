@@ -104,6 +104,13 @@ public:
    */
   void SetSize( uint32_t width, uint32_t height );
 
+  /**
+   * @brief Ignores a source image which is inserted to the queue.
+   *
+   * @note This can be called from worker threads.
+   */
+  void IgnoreSourceImage();
+
 private:   // native image
 
   /**
