@@ -73,6 +73,10 @@ void NativeImageSourceQueueX::SetSize( uint32_t width, uint32_t height )
   mHeight = height;
 }
 
+void NativeImageSourceQueueX::IgnoreSourceImages()
+{
+}
+
 bool NativeImageSourceQueueX::GlExtensionCreate()
 {
   return true;

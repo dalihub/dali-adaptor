@@ -69,6 +69,11 @@ public:
   void SetSize( uint32_t width, uint32_t height ) override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::IgnoreSourceImages
+   */
+  void IgnoreSourceImages() override;
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueTizen() override;

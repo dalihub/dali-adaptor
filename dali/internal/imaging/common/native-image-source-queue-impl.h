@@ -53,6 +53,11 @@ public:
   virtual void SetSize( uint32_t width, uint32_t height ) = 0;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::IgnoreSourceImages
+   */
+  virtual void IgnoreSourceImages() = 0;
+
+  /**
    * destructor
    */
   virtual ~NativeImageSourceQueue() = default;

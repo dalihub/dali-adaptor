@@ -56,6 +56,11 @@ void NativeImageSourceQueue::SetSize( uint32_t width, uint32_t height )
   return mImpl->SetSize( width, height );
 }
 
+void NativeImageSourceQueue::IgnoreSourceImages()
+{
+  mImpl->IgnoreSourceImages();
+}
+
 bool NativeImageSourceQueue::GlExtensionCreate()
 {
   return mImpl->GlExtensionCreate();
