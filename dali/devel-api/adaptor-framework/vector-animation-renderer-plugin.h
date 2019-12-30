@@ -129,6 +129,11 @@ public:
   virtual bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const = 0;
 
   /**
+   * @brief Ignores rendered frames which are not shown yet.
+   */
+  virtual void IgnoreRenderedFrames() = 0;
+
+  /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
    *
    * @return The signal to connect to.

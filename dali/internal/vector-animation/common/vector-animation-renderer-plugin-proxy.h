@@ -98,6 +98,11 @@ public:
   bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
 
   /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::IgnoreRenderedFrames()
+   */
+  void IgnoreRenderedFrames();
+
+  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()
    */
   VectorAnimationRendererPlugin::UploadCompletedSignalType& UploadCompletedSignal();

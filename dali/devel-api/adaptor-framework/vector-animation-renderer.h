@@ -156,6 +156,11 @@ public:
    */
   bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
 
+  /**
+   * @brief Ignores rendered frames which are not shown yet.
+   */
+  void IgnoreRenderedFrames();
+
 public: // Signals
 
   /**
