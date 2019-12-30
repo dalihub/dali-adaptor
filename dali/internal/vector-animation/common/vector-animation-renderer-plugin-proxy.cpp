@@ -186,6 +186,14 @@ bool VectorAnimationRendererPluginProxy::GetMarkerInfo( const std::string& marke
   return false;
 }
 
+void VectorAnimationRendererPluginProxy::IgnoreRenderedFrame()
+{
+  if( mPlugin )
+  {
+    mPlugin->IgnoreRenderedFrame();
+  }
+}
+
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if( mPlugin )
