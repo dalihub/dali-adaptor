@@ -208,6 +208,16 @@ DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
  */
 DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation( Window window );
 
+/**
+ * @brief Sets available orientations of the window.
+ *
+ * This API is for setting several orientations one time.
+ *
+ * @param[in] window The window instance
+ * @param[in] orientations The available orientation list to add
+ */
+DALI_ADAPTOR_API void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
+
 } // namespace DevelWindow
 
 } // namespace Dali
