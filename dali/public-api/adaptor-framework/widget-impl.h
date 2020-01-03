@@ -24,10 +24,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/widget.h>
+#include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
 {
-class Window;
 
 /**
  * @addtogroup dali_adaptor_framework

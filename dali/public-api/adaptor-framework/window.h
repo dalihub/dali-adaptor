@@ -81,8 +81,6 @@ public:
    *
    * This Enumeration is used the available orientation APIs and the preferred orientation.
    *
-   * Especially, NO_ORIENTATION_PREFERENCE only has the effect for the preferred orientation.
-   * It is used to unset the preferred orientation with SetPreferredOrientation.
    * @SINCE_1_0.0
    */
   enum WindowOrientation
@@ -91,7 +89,7 @@ public:
     LANDSCAPE = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
     PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
     LANDSCAPE_INVERSE = 270,  ///< Landscape inverse orientation @SINCE_1_0.0
-    NO_ORIENTATION_PREFERENCE = -1 ///< No orientation. It is for the preferred orientation.  @SINCE_1_4.51
+    NO_ORIENTATION_PREFERENCE = -1 ///< No orientation. It is used to initialize or unset the preferred orientation.  @SINCE_1_4.51
   };
 
   /**

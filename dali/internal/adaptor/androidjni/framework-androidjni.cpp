@@ -114,6 +114,7 @@ Framework::~Framework()
 
 void Framework::Run()
 {
+  AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( this );
   mRunning = true;
 }
 
@@ -266,6 +267,8 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_DESTROYED:
       mObserver.OnTerminate();
+      mRunning = false;
+      mPaused = false;
       mInitialised = false;
       break;
 
