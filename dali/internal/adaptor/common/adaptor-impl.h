@@ -675,6 +675,7 @@ private: // Data
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+  int  mNotificationOnIdleInstalledCnt;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }

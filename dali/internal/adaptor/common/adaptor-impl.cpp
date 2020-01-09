@@ -917,6 +917,12 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
   if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
     mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
+    mNotificationOnIdleInstalledCnt++;
+    if( RUNNING == mState )
+    {
+      DALI_LOG_ERROR("gab_test mNotificationOnIdleInstalledCnt %d ", mNotificationOnIdleInstalledCnt);
+      mNotificationOnIdleInstalled = false;
+    }
   }
 }
 
@@ -1079,6 +1085,7 @@ bool Adaptor::ProcessCoreEventsFromIdle()
 
   // the idle handle automatically un-installs itself
   mNotificationOnIdleInstalled = false;
+  mNotificationOnIdleInstalledCnt--;
 
   return false;
 }
@@ -1154,7 +1161,8 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mObjectProfiler( nullptr ),
   mSocketFactory(),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
-  mUseRemoteSurface( false )
+  mUseRemoteSurface( false ),
+  mNotificationOnIdleInstalledCnt( 0 )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
   mWindows.insert( mWindows.begin(), &Dali::GetImplementation( window ) );
