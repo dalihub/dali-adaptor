@@ -283,6 +283,10 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
   }
+  if( mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0 )
+  {
+    Integration::SetLongPressMinimumHoldingTime( mEnvironmentOptions->GetLongPressMinimumHoldingTime() );
+  }
 
   // Set max texture size
   if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
@@ -913,6 +917,10 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
   if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
     mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
+    if( RUNNING == mState )
+    {
+      mNotificationOnIdleInstalled = false;
+    }
   }
 }
 
