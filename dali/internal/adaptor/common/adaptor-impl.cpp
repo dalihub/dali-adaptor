@@ -86,6 +86,8 @@ namespace Adaptor
 namespace
 {
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
+
+const uint32_t MAX_IDLE_COUNT = 10;
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
@@ -914,9 +916,9 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
+  if( ( mNotificationOnIdleInstalled < MAX_IDLE_COUNT ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
-    mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
+    mNotificationOnIdleInstalled += ( AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess ) ) ? 1 : 0;
   }
 }
 
@@ -1078,7 +1080,7 @@ bool Adaptor::ProcessCoreEventsFromIdle()
   ProcessCoreEvents();
 
   // the idle handle automatically un-installs itself
-  mNotificationOnIdleInstalled = false;
+  mNotificationOnIdleInstalled--;
 
   return false;
 }
@@ -1140,7 +1142,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mWindows(),
   mPlatformAbstraction( nullptr ),
   mCallbackManager( nullptr ),
-  mNotificationOnIdleInstalled( false ),
+  mNotificationOnIdleInstalled( 0 ),
   mNotificationTrigger( nullptr ),
   mDaliFeedbackPlugin(),
   mFeedbackController( nullptr ),
