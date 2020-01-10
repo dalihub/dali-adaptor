@@ -917,10 +917,6 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
   if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
   {
     mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
-    if( RUNNING == mState )
-    {
-      mNotificationOnIdleInstalled = false;
-    }
   }
 }
 
