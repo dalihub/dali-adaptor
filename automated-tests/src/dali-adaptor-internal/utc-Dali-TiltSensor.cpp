@@ -19,12 +19,12 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <Ecore.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
 #include <adaptor-test-application.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 using namespace Dali;
 
