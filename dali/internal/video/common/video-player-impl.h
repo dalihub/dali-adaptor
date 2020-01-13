@@ -184,6 +184,11 @@ public:
    */
   Dali::VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const;
 
+  /**
+   * @brief Dali::VideoPlayer::GetMediaPlayer()
+   */
+  Any GetMediaPlayer();
+
 private:
 
   /**

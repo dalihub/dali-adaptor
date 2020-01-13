@@ -272,6 +272,12 @@ public:
    */
   Dali::VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const;
 
+  /**
+   * @brief Gets the media player of video player
+   * @return player The media player
+   */
+  Any GetMediaPlayer();
+
 private: // Not intended for application developers
 
   /**
