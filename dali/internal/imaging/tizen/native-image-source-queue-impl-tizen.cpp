@@ -296,6 +296,14 @@ int NativeImageSourceQueueTizen::GetEglImageTextureTarget()
 
 void NativeImageSourceQueueTizen::ResetEglImageList()
 {
+  for( auto&& iter : mEglImages )
+  {
+    mEglImageExtensions->DestroyImageKHR( iter.second );
+
+    tbm_surface_internal_unref( iter.first );
+  }
+  mEglImages.clear();
+
   if( mConsumeSurface )
   {
     if( tbm_surface_internal_is_valid( mConsumeSurface ) )
@@ -304,14 +312,6 @@ void NativeImageSourceQueueTizen::ResetEglImageList()
     }
     mConsumeSurface = NULL;
   }
-
-  for( auto&& iter : mEglImages )
-  {
-    mEglImageExtensions->DestroyImageKHR( iter.second );
-
-    tbm_surface_internal_unref( iter.first );
-  }
-  mEglImages.clear();
 }
 
 bool NativeImageSourceQueueTizen::CheckBlending( int format )
