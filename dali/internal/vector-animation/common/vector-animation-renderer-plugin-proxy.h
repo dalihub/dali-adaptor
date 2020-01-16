@@ -115,6 +115,27 @@ public:
 
 private:
 
+  class LibraryLoader
+  {
+  public:
+
+    LibraryLoader( const std::string& name );
+
+    virtual ~LibraryLoader();
+
+    void* GetLibHandle();
+
+  private:
+
+    LibraryLoader( const LibraryLoader& loader ) = delete;
+    LibraryLoader& operator=( const LibraryLoader& loader ) = delete;
+
+  private:
+    void* mLibHandle;
+  };
+
+  static void* GetLibHandle( const std::string& name );
+
   /**
    * Dynamically loads the plugin.
    */
@@ -125,7 +146,6 @@ private:
   using CreateVectorAnimationRendererFunction = Dali::VectorAnimationRendererPlugin* (*)();
 
   std::string                            mSharedObjectName;   ///< Shared object name
-  void*                                  mLibHandle;          ///< Handle for the loaded library
   Dali::VectorAnimationRendererPlugin*   mPlugin;             ///< Plugin handle
 
   CreateVectorAnimationRendererFunction  mCreateVectorAnimationRendererPtr;   ///< Function pointer called in adaptor to create a plugin instance

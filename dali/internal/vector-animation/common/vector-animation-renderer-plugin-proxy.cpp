@@ -39,9 +39,39 @@ const char* DEFAULT_OBJECT_NAME( "libdali-vector-animation-renderer-plugin.so" )
 
 }
 
+VectorAnimationRendererPluginProxy::LibraryLoader::LibraryLoader( const std::string& name )
+: mLibHandle( NULL )
+{
+  mLibHandle = dlopen( name.c_str(), RTLD_LAZY );
+
+  char* error = dlerror();
+  if( mLibHandle == NULL || error != NULL )
+  {
+    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::LibraryLoader: dlopen error [%s]\n", error );
+  }
+}
+
+VectorAnimationRendererPluginProxy::LibraryLoader::~LibraryLoader()
+{
+  if( mLibHandle && dlclose( mLibHandle ) )
+  {
+    DALI_LOG_ERROR( "Error closing vector animation renderer plugin library: %s\n", dlerror() );
+  }
+}
+
+void* VectorAnimationRendererPluginProxy::LibraryLoader::GetLibHandle()
+{
+  return mLibHandle;
+}
+
+void* VectorAnimationRendererPluginProxy::GetLibHandle( const std::string& name )
+{
+  static VectorAnimationRendererPluginProxy::LibraryLoader loader( name );
+  return loader.GetLibHandle();
+}
+
 VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy( const std::string& sharedObjectName )
 : mSharedObjectName(),
-  mLibHandle( NULL ),
   mPlugin( NULL ),
   mCreateVectorAnimationRendererPtr( NULL ),
   mDefaultSignal()
@@ -64,29 +94,21 @@ VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
   {
     delete mPlugin;
     mPlugin = NULL;
-
-    if( mLibHandle && dlclose( mLibHandle ) )
-    {
-      DALI_LOG_ERROR( "Error closing vector animation renderer plugin library: %s\n", dlerror() );
-    }
   }
 }
 
 void VectorAnimationRendererPluginProxy::Initialize()
 {
-  mLibHandle = dlopen( mSharedObjectName.c_str(), RTLD_LAZY );
-
-  char* error = dlerror();
-  if( mLibHandle == NULL || error != NULL )
+  void* libHandle = VectorAnimationRendererPluginProxy::GetLibHandle( mSharedObjectName );
+  if( !libHandle )
   {
-    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: dlopen error [%s]\n", error );
-    return;
+    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: Cannot load library: %s\n", mSharedObjectName.c_str() );
   }
 
   // load plugin
-  mCreateVectorAnimationRendererPtr = reinterpret_cast< CreateVectorAnimationRendererFunction >( dlsym( mLibHandle, "CreateVectorAnimationRendererPlugin" ) );
+  mCreateVectorAnimationRendererPtr = reinterpret_cast< CreateVectorAnimationRendererFunction >( dlsym( libHandle, "CreateVectorAnimationRendererPlugin" ) );
 
-  error = dlerror();
+  char* error = dlerror();
   if( mCreateVectorAnimationRendererPtr == NULL || error != NULL )
   {
     DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error );
