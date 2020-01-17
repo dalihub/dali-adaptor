@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <pthread.h>
 #include <semaphore.h>
 #include <stdint.h>
 #include <dali/devel-api/threading/conditional-wait.h>

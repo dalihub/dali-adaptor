@@ -19,9 +19,9 @@
 #include <dali/internal/graphics/gles/gl-extensions.h>
 
 // EXTERNAL INCLUDES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
+// INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 namespace Dali

@@ -19,8 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/integration-api/gl-sync-abstraction.h>
 

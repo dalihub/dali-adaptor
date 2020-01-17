@@ -18,8 +18,7 @@
  *
  */
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali
 {

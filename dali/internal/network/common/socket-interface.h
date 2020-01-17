@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+#undef ERROR
+
 namespace Dali
 {
 namespace Internal
