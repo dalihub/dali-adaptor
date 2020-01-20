@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <tbm_surface.h>
 #include <dali/devel-api/images/native-image-interface-extension.h>
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
@@ -190,6 +191,7 @@ private:
   EglGraphics* mEglGraphics;                  ///< EGL Graphics
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
   bool mSetSource;
+  mutable Dali::Mutex mMutex;
 };
 
 } // namespace Adaptor
