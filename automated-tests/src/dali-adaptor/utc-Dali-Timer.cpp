@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <dali/dali.h>
-#include <dali/internal/system/linux/dali-ecore.h>
+#include <Ecore.h>
 #include <dali-test-suite-utils.h>
 #include <adaptor-test-application.h>
 
