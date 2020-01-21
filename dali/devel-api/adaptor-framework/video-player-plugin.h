@@ -267,6 +267,12 @@ public:
    */
   virtual VideoPlayerPlugin::DisplayMode::Type GetDisplayMode() const = 0;
 
+  /**
+   * @brief Returns the current internal media player.
+   * @return The current internal media player of video player
+   */
+  virtual Any GetMediaPlayer() = 0;
+
 };
 
 } // namespace Dali;

@@ -89,7 +89,8 @@ NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height,
   mEglImageKHR( NULL ),
   mEglGraphics( NULL ),
   mEglImageExtensions( NULL ),
-  mSetSource( false )
+  mSetSource( false ),
+  mMutex()
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
@@ -209,6 +210,7 @@ Any NativeImageSourceTizen::GetNativeImageSource() const
 
 bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   if( mTbmSurface != NULL )
   {
     tbm_surface_info_s surface_info;
@@ -315,6 +317,7 @@ bool NativeImageSourceTizen::EncodeToFile(const std::string& filename) const
 
 void NativeImageSourceTizen::SetSource( Any source )
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   if( mOwnTbmSurface )
   {
     if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
@@ -402,7 +405,7 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer >(mTbmSurface);
-  if( !eglBuffer )
+  if( !eglBuffer || !tbm_surface_internal_is_valid( mTbmSurface ) )
   {
     return false;
   }
@@ -417,6 +420,7 @@ bool NativeImageSourceTizen::GlExtensionCreate()
 
 void NativeImageSourceTizen::GlExtensionDestroy()
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   if( mEglImageKHR )
   {
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
@@ -434,6 +438,7 @@ uint32_t NativeImageSourceTizen::TargetTexture()
 
 void NativeImageSourceTizen::PrepareTexture()
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
   if( mSetSource )
   {
     void* eglImage = mEglImageKHR;

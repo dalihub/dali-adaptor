@@ -2384,7 +2384,7 @@ void HorizontalShear( const uint8_t* const pixelsIn,
     return;
   }
 
-  widthOut = widthIn + static_cast<unsigned int>( absRadians * static_cast<float>( heightIn ) );
+  widthOut = widthIn + static_cast<unsigned int>( ceil ( absRadians * static_cast<float>( heightIn ) ) );
   heightOut = heightIn;
 
   // Allocate the buffer for the shear.
