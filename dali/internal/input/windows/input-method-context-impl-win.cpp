@@ -41,6 +41,13 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT" );
+#endif
+}
+
 InputMethodContextPtr InputMethodContextWin::New( Dali::Actor actor )
 {
   InputMethodContextPtr manager;

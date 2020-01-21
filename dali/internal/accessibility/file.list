@@ -54,7 +54,7 @@ SET( adaptor_accessibility_tizen_wearable_src_files
     ${adaptor_accessibility_dir}/tizen-wayland/tizen-wearable/accessibility-adaptor-impl-wearable.cpp
 )
 
-# module: accessibility, backend: generic
+# module: accessibility, backend: ubuntu
 SET( adaptor_accessibility_ubuntu_src_files 
     ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp 
     ${adaptor_accessibility_dir}/generic/atspi-accessibility-generic.cpp 
@@ -62,7 +62,7 @@ SET( adaptor_accessibility_ubuntu_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
-# module: accessibility, backend: generic
+# module: accessibility, backend: android
 SET( adaptor_accessibility_android_src_files 
     ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp 
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp 

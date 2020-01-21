@@ -18,8 +18,8 @@
  *
  */
 
+#include <dali/internal/graphics/common/egl-include.h>
 // EXTERNAL INCLUDES
-#include <EGL/egl.h>
 #include <dali/integration-api/gl-context-helper-abstraction.h>
 
 // INTERNAL INCLUDES
