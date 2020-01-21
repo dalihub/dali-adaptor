@@ -47,26 +47,8 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
 
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(classData);
 
-  Dali::Window window;
-  if( application->GetWidgetCount() == 0)
-  {
-    window = application->GetWindow();
-    DALI_LOG_RELEASE_INFO("Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n",window, w, h, std::string(id).c_str());
-  }
-  else
-  {
-    window = Dali::Window::New(PositionSize(0,0,w,h) ,"", false);
-    if( window )
-    {
-      DALI_LOG_RELEASE_INFO("Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", window, application->GetWidgetCount(), w, h, std::string(id).c_str());
-    }
-    else
-    {
-      DALI_LOG_ERROR("This device can't support Multi Widget. it means UI may not be properly drawn.");
-      window = application->GetWindow();
-    }
-  }
-
+  // After DALi can support multi window, this part should be changed.
+  Dali::Window window = application->GetWindow();
   Any nativeHandle = window.GetNativeHandle();
 
 #ifdef ECORE_WAYLAND2
@@ -82,7 +64,7 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
   Dali::WidgetApplication::CreateWidgetFunction createFunction = pair.second;
 
   Dali::Widget widgetInstance = createFunction( pair.first );
-  application->AddWidget( instanceHandle, widgetInstance , window );
+  application->AddWidget( instanceHandle, widgetInstance );
 
   Dali::Internal::Adaptor::Widget::Impl *widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(instanceHandle);
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl( widgetImpl );
@@ -175,7 +157,8 @@ int OnInstanceResize(widget_base_instance_h instanceHandle, int w, int h, void *
 
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget( instanceHandle );
-  Dali::Window window = application->GetWindowFromWidget( instanceHandle );
+
+  Dali::Window window = application->GetWindow();
   window.SetSize( Dali::Window::WindowSize(w, h) );
   Internal::Adaptor::GetImplementation(widgetInstance).OnResize(window);
 
@@ -261,11 +244,9 @@ void WidgetApplicationTizen::AddWidgetCreatingFunctionPair( CreateWidgetFunction
 
 WidgetApplicationTizen::CreateWidgetFunctionPair WidgetApplicationTizen::GetWidgetCreatingFunctionPair( const std::string& widgetName )
 {
-  int idx = widgetName.find(":");
-  std::string widgetID = widgetName.substr( idx + 1 );
   for( CreateWidgetFunctionContainer::const_iterator iter = mCreateWidgetFunctionContainer.begin(); iter != mCreateWidgetFunctionContainer.end(); ++iter )
   {
-    if( widgetID.compare((*iter).first) == 0)
+    if( widgetName.find((*iter).first) != std::string::npos  )
     {
       return *iter;
     }
@@ -274,19 +255,18 @@ WidgetApplicationTizen::CreateWidgetFunctionPair WidgetApplicationTizen::GetWidg
   return CreateWidgetFunctionPair( "", NULL );
 }
 
-void WidgetApplicationTizen::AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget , Dali::Window window )
+void WidgetApplicationTizen::AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget )
 {
   mWidgetInstanceContainer.push_back( WidgetInstancePair(widgetBaseInstance, widget) );
-  mWindowInstanceContainer.push_back( WindowInstancePair(widgetBaseInstance, window) );
 }
 
-Dali::Widget WidgetApplicationTizen::GetWidget( widget_base_instance_h widgetBaseInstance ) const
+Dali::Widget WidgetApplicationTizen::GetWidget( widget_base_instance_h widgetBaseInstance )
 {
-  for( auto&& iter : mWidgetInstanceContainer )
+  for( WidgetInstanceContainer::const_iterator iter = mWidgetInstanceContainer.begin(); iter != mWidgetInstanceContainer.end(); ++iter )
   {
-    if( (iter).first == widgetBaseInstance  )
+    if( (*iter).first == widgetBaseInstance  )
     {
-      return (iter).second;
+      return (*iter).second;
     }
   }
   return Dali::Widget();
@@ -294,45 +274,14 @@ Dali::Widget WidgetApplicationTizen::GetWidget( widget_base_instance_h widgetBas
 
 void WidgetApplicationTizen::DeleteWidget( widget_base_instance_h widgetBaseInstance )
 {
-  // Delete WidgetInstance
-  auto widgetInstance = std::find_if( mWidgetInstanceContainer.begin(),
-                                      mWidgetInstanceContainer.end(),
-                                      [widgetBaseInstance]( WidgetInstancePair pair )
-                                      { return (pair.first == widgetBaseInstance); } );
-
-  if(widgetInstance != mWidgetInstanceContainer.end())
+  for( WidgetInstanceContainer::const_iterator iter = mWidgetInstanceContainer.begin(); iter != mWidgetInstanceContainer.end(); ++iter )
   {
-    mWidgetInstanceContainer.erase(widgetInstance);
-  }
-
-  // Delete WindowInstance
-  auto windowInstance = std::find_if( mWindowInstanceContainer.begin(),
-                                      mWindowInstanceContainer.end(),
-                                      [widgetBaseInstance]( WindowInstancePair pair )
-                                      { return (pair.first == widgetBaseInstance); } );
-
-  if(windowInstance != mWindowInstanceContainer.end())
-  {
-    mWindowInstanceContainer.erase(windowInstance);
-  }
-}
-
-Dali::Window WidgetApplicationTizen::GetWindowFromWidget( widget_base_instance_h widgetBaseInstance ) const
-{
-  for( auto&& iter : mWindowInstanceContainer )
-  {
-    if( (iter).first == widgetBaseInstance  )
+    if( (*iter).first == widgetBaseInstance  )
     {
-      Dali::Window ret = (iter).second;
-      return ret;
+      mWidgetInstanceContainer.erase(iter);
+      break;
     }
   }
-  return Dali::Window();
-}
-
-int WidgetApplicationTizen::GetWidgetCount()
-{
-  return mWidgetInstanceContainer.size();
 }
 
 void WidgetApplicationTizen::OnInit()
