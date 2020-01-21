@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/widget-application-impl.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 
 namespace Dali
 {
@@ -80,17 +81,27 @@ public:
   /**
    * Add widget_base_instance_h - Widget instance pair to container.
    */
-  void AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget );
+  void AddWidget( widget_base_instance_h widgetBaseInstance, Dali::Widget widget , Dali::Window window );
 
   /**
    * Find and get Widget instance in container by widget_base_instance_h.
    */
-  Dali::Widget GetWidget( widget_base_instance_h widgetBaseInstance );
+  Dali::Widget GetWidget( widget_base_instance_h widgetBaseInstance ) const;
 
   /**
    * Delete widget_base_instance_h - Widget instance pair in container.
    */
   void DeleteWidget( widget_base_instance_h widgetBaseInstance );
+
+  /**
+   * Find and get Window instance in container by widget_base_instance_h.
+   */
+  Dali::Window GetWindowFromWidget( widget_base_instance_h widgetBaseInstance ) const;
+
+  /**
+   * Get the number of created widget.
+   */
+  int32_t GetWidgetCount();
 
 protected:
 
@@ -118,6 +129,9 @@ private:
   CreateWidgetFunctionContainer  mCreateWidgetFunctionContainer;
   WidgetInstanceContainer        mWidgetInstanceContainer;
 
+  typedef std::pair< widget_base_instance_h, Dali::Window >  WindowInstancePair;
+  typedef std::vector< WindowInstancePair >                 WindowInstanceContainer;
+  WindowInstanceContainer mWindowInstanceContainer;
 };
 
 } // namespace Adaptor
