@@ -149,8 +149,7 @@ InputMethodContextX::InputMethodContextX( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false ),
-  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
+  mIdleCallbackConnected( false )
 {
   ecore_imf_init();
 
@@ -314,6 +313,8 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
 
   Ecore_IMF_Preedit_Attr* attr;
 
+  mPreeditAttrs.Clear();
+
   // Retrieves attributes as well as the string the cursor position offset from start of pre-edit string.
   // the attributes (attrs) is used in languages that use the soft arrows keys to insert characters into a current pre-edit string.
   ecore_imf_context_preedit_string_with_attributes_get( context, &preEditString, &attrs, &cursorPosition );
@@ -323,66 +324,85 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
     // iterate through the list of attributes getting the type, start and end position.
     for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
     {
+      Dali::InputMethodContext::PreeditAttributeData data;
+      data.startIndex = 0;
+      data.endIndex = 0;
+
+      size_t visualCharacterIndex = 0;
+      size_t byteIndex = 0;
+
+      // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
+      const char leadByte = preEditString[byteIndex];
+      while( leadByte != '\0' )
+      {
+        // attr->end_index is provided as a byte position not character and we need to know the character position.
+        const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
+        if( byteIndex <= attr->start_index )
+        {
+           data.startIndex = visualCharacterIndex;
+        }
+        if ( byteIndex >= attr->end_index )
+        {
+          data.endIndex = visualCharacterIndex;
+          break;
+          // end loop as found cursor position that matches byte position
+        }
+        else
+        {
+          byteIndex += currentSequenceLength; // jump to next character
+          visualCharacterIndex++;  // increment character count so we know our position for when we get a match
+        }
+      }
+
       switch( attr->preedit_type )
       {
         case ECORE_IMF_PREEDIT_TYPE_NONE:
         {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB1:
         {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB2:
         {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB3:
         {
-          mPreeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB4:
+        {
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_1;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB5:
+        {
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_2;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB6:
+        {
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_3;
+          break;
+        }
+        case ECORE_IMF_PREEDIT_TYPE_SUB7:
+        {
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_4;
           break;
         }
         default:
         {
+          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
           break;
         }
       }
-
-#ifdef DALI_PROFILE_UBUNTU
-      if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB3 ) // (Ecore_IMF)
-#else // DALI_PROFILE_UBUNTU
-      if ( attr->preedit_type == ECORE_IMF_PREEDIT_TYPE_SUB4 ) // (Ecore_IMF)
-#endif // DALI_PROFILE_UBUNTU
-      {
-        // check first byte so know how many bytes a character is represented by as keyboard returns cursor position in bytes. Which is different for some languages.
-
-        size_t visualCharacterIndex = 0;
-        size_t byteIndex = 0;
-
-        // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
-        const char leadByte = preEditString[byteIndex];
-        while( leadByte != '\0' )
-        {
-          // attr->end_index is provided as a byte position not character and we need to know the character position.
-          const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
-          if ( byteIndex == attr->end_index )
-          {
-            cursorPosition = static_cast<int>( visualCharacterIndex );
-            break;
-            // end loop as found cursor position that matches byte position
-          }
-          else
-          {
-            byteIndex += currentSequenceLength; // jump to next character
-            visualCharacterIndex++;  // increment character count so we know our position for when we get a match
-          }
-
-          DALI_ASSERT_DEBUG( visualCharacterIndex < strlen( preEditString ));
-        }
-      }
+      mPreeditAttrs.PushBack( data );
     }
   }
 
@@ -820,10 +840,10 @@ void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y 
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
 }
 
-Dali::InputMethodContext::PreeditStyle InputMethodContextX::GetPreeditStyle() const
+void InputMethodContextX::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n" );
-  return mPreeditType;
+  attrs = mPreeditAttrs;
 }
 
 bool InputMethodContextX::ProcessEventKeyDown( const KeyEvent& keyEvent )
