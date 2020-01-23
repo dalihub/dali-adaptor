@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ class PerformanceInterface;
 class LifeCycleObserver;
 class ObjectProfiler;
 class SceneHolder;
+class ConfigurationManager;
 
 /**
  * Implementation of the Adaptor class.
@@ -662,6 +663,8 @@ private: // Data
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowContainer                       mWindows;                     ///< A container of all the Windows that are currently created
 
+  std::unique_ptr<ConfigurationManager> mConfigurationManager;        ///< Configuration manager
+
   TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction;      ///< Platform abstraction
 
   CallbackManager*                      mCallbackManager;             ///< Used to install callbacks
@@ -679,7 +682,7 @@ private: // Data
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
-  bool                                  mUseRemoteSurface;            ///< whether the remoteSurface is used or not
+  bool                                  mUseRemoteSurface:1;          ///< whether the remoteSurface is used or not
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }

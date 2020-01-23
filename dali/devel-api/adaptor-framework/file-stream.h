@@ -2,7 +2,7 @@
 #define DALI_FILE_STREAM_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,10 +42,11 @@ public:
    */
   enum FileMode  ///< FileType format
   {
-    BINARY = 0x1,      ///< File stream will be opened as a binary
-    TEXT   = 0x2,      ///< File stream will be opened as text
-    READ   = 0x4,      ///< File stream will be opened for reading
-    WRITE  = 0x8,      ///< File stream will be opende for writing
+    BINARY = 1 << 0,      ///< File stream will be opened as a binary
+    TEXT   = 1 << 1,      ///< File stream will be opened as text
+    READ   = 1 << 2,      ///< File stream will be opened for reading
+    WRITE  = 1 << 3,      ///< File stream will be opened for writing
+    APPEND = 1 << 4,      ///< File stream will be opened for appending
   };
 
   /**
