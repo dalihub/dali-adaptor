@@ -42,4 +42,10 @@ SET( adaptor_adaptor_androidjni_src_files
     ${adaptor_adaptor_dir}/androidjni/framework-androidjni.cpp
 )
 
+# module: adaptor, backend: windows
+SET( adaptor_adaptor_windows_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/windows/framework-win.cpp
+)
+
 

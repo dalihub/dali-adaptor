@@ -33,3 +33,11 @@ SET( adaptor_input_generic_src_files
     ${adaptor_input_dir}/generic/key-mapping-generic.cpp
     ${adaptor_input_dir}/generic/virtual-keyboard-impl-generic.cpp
 )
+
+# module: input, backend: windows
+SET( adaptor_input_windows_src_files
+    ${adaptor_input_dir}/windows/input-method-context-factory-win.cpp
+    ${adaptor_input_dir}/windows/input-method-context-impl-win.cpp
+    ${adaptor_input_dir}/windows/key-mapping-win.cpp
+    ${adaptor_input_dir}/windows/virtual-keyboard-impl-win.cpp
+)
