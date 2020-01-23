@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <app_common.h>
 #include <system_settings.h>
+#include <vconf.h>
 
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <screen_connector_provider.h>
@@ -45,7 +46,7 @@ namespace Adaptor
 namespace
 {
 
-static void OnSystemLanguageChanged( system_settings_key_e key, void* data )
+static void OnSystemLanguageChanged( keynode_t *key, void* data )
 {
   char* locale = NULL;
   if( system_settings_get_value_string( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale ) != SYSTEM_SETTINGS_ERROR_NONE ||
@@ -126,7 +127,7 @@ void Adaptor::SurfaceInitialized()
 
 void Adaptor::SetupSystemInformation()
 {
-  if( system_settings_set_changed_cb( SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this ) != SYSTEM_SETTINGS_ERROR_NONE )
+  if( vconf_notify_key_changed( VCONFKEY_LANGSET, OnSystemLanguageChanged, this ) < 0)
   {
     DALI_LOG_ERROR( "DALI system_settings_set_changed_cb failed.\n" );
     return;
@@ -144,6 +145,11 @@ void Adaptor::SetupSystemInformation()
 
   free( locale );
 
+}
+
+void Adaptor::ResetSystemInformation()
+{
+  vconf_ignore_key_changed( VCONFKEY_LANGSET, OnSystemLanguageChanged );
 }
 
 } // namespace Adaptor

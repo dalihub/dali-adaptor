@@ -45,6 +45,12 @@ void Adaptor::SetupSystemInformation()
 {
 }
 
+void Adaptor::ResetSystemInformation()
+{
+}
+
+
+
 } // namespace Adaptor
 
 } // namespace Internal
