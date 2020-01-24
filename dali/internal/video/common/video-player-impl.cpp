@@ -338,6 +338,15 @@ Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
   return Dali::VideoPlayerPlugin::DisplayMode::DST_ROI;
 }
 
+Any VideoPlayer::GetMediaPlayer()
+{
+  if( mPlugin != NULL )
+  {
+    return mPlugin->GetMediaPlayer();
+  }
+  return NULL;
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;

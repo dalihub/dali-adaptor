@@ -54,3 +54,14 @@ SET( adaptor_window_system_android_src_files
     ${adaptor_window_system_dir}/android/window-factory-android.cpp
     ${adaptor_window_system_dir}/android/window-system-android.cpp
 )
+
+# module: window-system, backend: windows
+SET( adaptor_window_system_windows_src_files
+    ${adaptor_window_system_dir}/windows/display-connection-factory-win.cpp
+    ${adaptor_window_system_dir}/windows/display-connection-impl-win.cpp
+    ${adaptor_window_system_dir}/windows/platform-implement-win.cpp
+    ${adaptor_window_system_dir}/windows/render-surface-factory-win.cpp
+    ${adaptor_window_system_dir}/windows/window-base-win.cpp
+    ${adaptor_window_system_dir}/windows/window-factory-win.cpp
+    ${adaptor_window_system_dir}/windows/window-system-win.cpp
+)

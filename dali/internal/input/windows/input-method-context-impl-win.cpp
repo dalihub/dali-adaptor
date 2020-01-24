@@ -41,6 +41,13 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT" );
+#endif
+}
+
 InputMethodContextPtr InputMethodContextWin::New( Dali::Actor actor )
 {
   InputMethodContextPtr manager;
@@ -62,8 +69,7 @@ InputMethodContextWin::InputMethodContextWin( Dali::Actor actor )
   mIMFCursorPosition( 0 ),
   mSurroundingText(),
   mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false ),
-  mPreeditType( Dali::InputMethodContext::PreeditStyle::NONE )
+  mIdleCallbackConnected( false )
 {
 
   actor.OnStageSignal().Connect( this, &InputMethodContextWin::OnStaged );
@@ -365,10 +371,10 @@ void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int 
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
 }
 
-Dali::InputMethodContext::PreeditStyle InputMethodContextWin::GetPreeditStyle() const
+void InputMethodContextWin::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n" );
-  return mPreeditType;
+  attrs = mPreeditAttrs;
 }
 
 bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )

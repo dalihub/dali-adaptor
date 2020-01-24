@@ -31,6 +31,9 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
+#undef OPAQUE
+#undef TRANSPARENT
+
 namespace Dali
 {
 /**

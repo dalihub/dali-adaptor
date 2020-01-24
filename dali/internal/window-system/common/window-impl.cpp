@@ -830,10 +830,14 @@ Dali::Window Window::Get( Dali::Actor actor )
   if ( Internal::Adaptor::Adaptor::IsAvailable() )
   {
     Dali::Internal::Adaptor::Adaptor& adaptor = Internal::Adaptor::Adaptor::GetImplementation( Internal::Adaptor::Adaptor::Get() );
-    windowImpl = static_cast<Internal::Adaptor::Window*>( adaptor.GetWindow( actor ) );
+    windowImpl = dynamic_cast<Internal::Adaptor::Window*>( adaptor.GetWindow( actor ) );
+    if( windowImpl )
+    {
+      return Dali::Window( windowImpl );
+    }
   }
 
-  return Dali::Window( windowImpl );
+  return Dali::Window();
 }
 
 void Window::SetParent( Dali::Window& parent )

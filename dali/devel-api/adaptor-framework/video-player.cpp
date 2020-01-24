@@ -196,5 +196,10 @@ Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
   return GetImplementation( *this ).GetDisplayMode();
 }
 
+Any VideoPlayer::GetMediaPlayer()
+{
+  return GetImplementation( *this ).GetMediaPlayer();
+}
+
 } // namespace Dali;
 
