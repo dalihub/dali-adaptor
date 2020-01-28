@@ -166,7 +166,7 @@ void Application::CreateWindow()
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
 
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New( mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT );
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT);
   mMainWindow = Dali::Window( window );
 
   // Quit the application when the window is closed
@@ -396,7 +396,7 @@ Dali::Window Application::GetWindow()
   // just for backward compatibility to make the test case pass
   if ( mMainWindowReplaced )
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New( PositionSize(), "ReplacedWindow", "", false );
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(PositionSize(), "ReplacedWindow", "", false);
     return Dali::Window( window );
   }
   else
