@@ -334,9 +334,6 @@ Adaptor::~Adaptor()
   // Ensure stop status
   Stop();
 
-  // reset SystemInformation
-  ResetSystemInformation();
-
   // set to NULL first as we do not want any access to Adaptor as it is being destroyed.
   gThreadLocalAdaptor = NULL;
 

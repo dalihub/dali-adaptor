@@ -602,11 +602,6 @@ private:
   void SetupSystemInformation();
 
   /**
-   * Reset up system information if needs
-   */
-  void ResetSystemInformation();
-
-  /**
    * Adds a callback to be run when entering an idle state.
    *
    * A callback of the following type should be used:
