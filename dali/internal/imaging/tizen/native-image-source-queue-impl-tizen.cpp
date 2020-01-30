@@ -194,7 +194,7 @@ void NativeImageSourceQueueTizen::IgnoreSourceImages()
   Dali::Mutex::ScopedLock lock( mMutex );
   tbm_surface_h surface;
 
-  while( tbm_surface_queue_can_acquire( mTbmQueue, 0 ) )
+  if( tbm_surface_queue_can_acquire( mTbmQueue, 0 ) )
   {
     if( tbm_surface_queue_acquire( mTbmQueue, &surface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
     {
