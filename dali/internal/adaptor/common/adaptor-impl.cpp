@@ -282,6 +282,22 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   {
     Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
   }
+  if( mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0 )
+  {
+    Integration::SetPinchGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumPinchTouchEvents() );
+  }
+  if( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0 )
+  {
+    Integration::SetPinchGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() );
+  }
+  if( mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0 )
+  {
+    Integration::SetRotationGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumRotationTouchEvents() );
+  }
+  if( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0 )
+  {
+    Integration::SetRotationGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() );
+  }
   if( mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0 )
   {
     Integration::SetLongPressMinimumHoldingTime( mEnvironmentOptions->GetLongPressMinimumHoldingTime() );

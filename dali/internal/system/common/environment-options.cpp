@@ -120,6 +120,10 @@ EnvironmentOptions::EnvironmentOptions()
   mPanMinimumDistance( -1 ),
   mPanMinimumEvents( -1 ),
   mPinchMinimumDistance( -1.0f ),
+  mPinchMinimumTouchEvents( -1 ),
+  mPinchMinimumTouchEventsAfterStart( -1 ),
+  mRotationMinimumTouchEvents( -1 ),
+  mRotationMinimumTouchEventsAfterStart( -1 ),
   mLongPressMinimumHoldingTime( -1 ),
   mGlesCallTime( 0 ),
   mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
@@ -288,6 +292,26 @@ int EnvironmentOptions::GetMinimumPanEvents() const
 float EnvironmentOptions::GetMinimumPinchDistance() const
 {
   return mPinchMinimumDistance;
+}
+
+int EnvironmentOptions::GetMinimumPinchTouchEvents() const
+{
+  return mPinchMinimumTouchEvents;
+}
+
+int EnvironmentOptions::GetMinimumPinchTouchEventsAfterStart() const
+{
+  return mPinchMinimumTouchEventsAfterStart;
+}
+
+int EnvironmentOptions::GetMinimumRotationTouchEvents() const
+{
+  return mRotationMinimumTouchEvents;
+}
+
+int EnvironmentOptions::GetMinimumRotationTouchEventsAfterStart() const
+{
+  return mRotationMinimumTouchEventsAfterStart;
 }
 
 int EnvironmentOptions::GetLongPressMinimumHoldingTime() const
