@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.4.55
+Version:    1.4.56
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -277,6 +277,10 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 
 %if 0%{?enable_trace}
 cmake_flags+=" -DENABLE_TRACE=ON"
+%endif
+
+%if 0%{?enable_appfw}
+cmake_flags+=" -DUSE_APPFW"
 %endif
 
 libtoolize --force

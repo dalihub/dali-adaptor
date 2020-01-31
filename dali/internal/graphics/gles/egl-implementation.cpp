@@ -115,7 +115,6 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     }
     eglBindAPI(EGL_OPENGL_ES_API);
 
-    mGlesInitialized = true;
     mIsOwnSurface = isOwnSurface;
   }
 
@@ -137,6 +136,8 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       extensionCheckCount++;
     }
   }
+
+  mGlesInitialized = true;
 
   // We want to display this information all the time, so use the LogMessage directly
   Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"

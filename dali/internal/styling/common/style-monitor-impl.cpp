@@ -159,7 +159,7 @@ bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& outp
 
   std::streampos bufferSize = 0;
   Dali::Vector<char> fileBuffer;
-  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT ) )
+  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::BINARY ) )
   {
     output.assign( &fileBuffer[0], bufferSize );
     retval = true;

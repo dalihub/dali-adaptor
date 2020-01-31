@@ -4,6 +4,7 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/abort-handler.cpp
     ${adaptor_system_dir}/common/color-controller-impl.cpp
     ${adaptor_system_dir}/common/command-line-options.cpp
+    ${adaptor_system_dir}/common/configuration-manager.cpp
     ${adaptor_system_dir}/common/environment-options.cpp
     ${adaptor_system_dir}/common/fps-tracker.cpp
     ${adaptor_system_dir}/common/frame-time-stamp.cpp
