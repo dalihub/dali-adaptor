@@ -608,8 +608,7 @@ void WindowRenderSurface::ProcessRotationRequest()
 
   mWindowBase->WindowRotationCompleted( mRotationAngle, mPositionSize.width, mPositionSize.height );
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n" );
-
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessRotationRequest:  WinId (%d) Rotation Done\n", mWindowBase->GetNativeWindowId() );
   if( mThreadSynchronization )
   {
     mThreadSynchronization->PostRenderComplete();
