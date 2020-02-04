@@ -910,7 +910,6 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
   while( mPostRendering &&
          ! mNewSurface &&                // We should NOT wait if we're replacing the surface
          ! mDeletedSurface &&            // We should NOT wait if we're deleting the surface
-         ! mSurfaceResized &&            // We should NOT wait if we're resizing the surface
          ! mDestroyUpdateRenderThread )
   {
     mUpdateRenderThreadWaitCondition.Wait( lock );
