@@ -42,7 +42,6 @@ class Widget;
 
 }
 
-class Window;
 
 /**
  * @brief Widget class is the base class for custom widget.

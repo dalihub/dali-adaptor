@@ -1065,6 +1065,14 @@ void Adaptor::UnregisterProcessor( Integration::Processor& processor )
   GetCore().UnregisterProcessor(processor);
 }
 
+bool Adaptor::IsMultipleWindowSupported() const
+{
+  auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
+  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  bool ret = eglImpl.IsSurfacelessContextSupported();
+  return ret;
+}
+
 void Adaptor::RequestUpdateOnce()
 {
   if( mThreadController )
