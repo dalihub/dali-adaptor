@@ -399,6 +399,17 @@ void CombinedUpdateRenderController::SetPreRenderCallback( CallbackBase* callbac
   mPreRenderCallback = callback;
 }
 
+void CombinedUpdateRenderController::AddSurface( Dali::RenderSurfaceInterface* surface )
+{
+  LOG_EVENT_TRACE;
+  LOG_EVENT( "Surface is added" );
+  if( mUpdateRenderThread )
+  {
+    // Set the ThreadSyncronizationInterface on the added surface
+    surface->SetThreadSynchronization( *this );
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
