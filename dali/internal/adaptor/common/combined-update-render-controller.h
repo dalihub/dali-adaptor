@@ -145,6 +145,11 @@ public:
    */
   void SetPreRenderCallback( CallbackBase* callback ) override;
 
+  /**
+   * @copydoc ThreadControllerInterface::AddSurface()
+   */
+  virtual void AddSurface( Dali::RenderSurfaceInterface* surface );
+
 private:
 
   // Undefined copy constructor.

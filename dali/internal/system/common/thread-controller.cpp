@@ -110,6 +110,11 @@ void ThreadController::SetPreRenderCallback( CallbackBase* callback )
   mThreadControllerInterface->SetPreRenderCallback( callback );
 }
 
+void ThreadController::AddSurface( Dali::RenderSurfaceInterface* newSurface )
+{
+  mThreadControllerInterface->AddSurface( newSurface );
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

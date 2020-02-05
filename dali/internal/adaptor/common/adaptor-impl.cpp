@@ -649,6 +649,10 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
 
+  Dali::RenderSurfaceInterface* surface = windowImpl.GetSurface();
+
+  mThreadController->AddSurface( surface );
+
   mWindowCreatedSignal.Emit( childWindow );
 
   return true;
