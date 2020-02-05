@@ -259,7 +259,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  void GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const override;
+  void GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const override;
 
 private:
   /**
@@ -319,7 +319,7 @@ private:
   bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
   InputMethodOptions        mOptions;
-  Vector< Dali::InputMethodContext::PreeditAttributeData > mPreeditAttrs;
+  Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
 };
 
 } // namespace Adaptor

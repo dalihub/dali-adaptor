@@ -371,7 +371,7 @@ void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int 
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
 }
 
-void InputMethodContextWin::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
+void InputMethodContextWin::GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n" );
   attrs = mPreeditAttrs;
