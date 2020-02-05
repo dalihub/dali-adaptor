@@ -265,7 +265,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  void GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttrData >& attrs ) const override;
+  void GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const override;
 
 private:
   /**
@@ -345,7 +345,7 @@ private:
 
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
   InputMethodOptions mOptions;
-  Vector< Dali::InputMethodContext::PreeditAttrData > mPreeditAttrs; ///< Stores preedit attr data
+  Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
 
   int mWindowId;
 };

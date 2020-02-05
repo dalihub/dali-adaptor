@@ -221,7 +221,7 @@ void InputMethodContext::SetInputPanelPosition( unsigned int x, unsigned int y )
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition( x, y );
 }
 
-void InputMethodContext::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttrData >& attrs ) const
+void InputMethodContext::GetPreeditStyle( PreEditAttributeDataContainer& attrs ) const
 {
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetPreeditStyle( attrs );
 }
