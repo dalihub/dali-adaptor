@@ -70,6 +70,17 @@ DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileS
  * @return the size of the file or 0 if file not found
  */
 DALI_ADAPTOR_API std::streampos GetFileSize(const std::string& filename);
+
+
+/**
+ * @brief Download a requested file into a memory buffer.
+ *
+ * @param[in] filename  Filename of the file to download.
+ * @param[out] dataBuffer  A memory buffer object to be written with downloaded file data.
+ * @return error code. false - Error, true - Ok
+ */
+DALI_ADAPTOR_API bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t> &dataBuffer);
+
 };
 
 } // Dali

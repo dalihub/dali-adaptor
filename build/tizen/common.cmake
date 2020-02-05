@@ -1,10 +1,13 @@
 # Find dependencies ( linux, tizen )
-FIND_PACKAGE(PkgConfig REQUIRED)
+IF( ENABLE_PKG_CONFIGURE )
+  FIND_PACKAGE(PkgConfig REQUIRED)
+ENDIF()
 
 # Special constant for ARG_ENABLE function
 SET( ENABLE_VAL "#ENABLE_VAL" )
 SET( HELP_ENABLES "" )
 SET( CUSTOM_ARGUMENTS "" )
+
 # Macro checks if the module is available and sets user variable
 MACRO( CHECK_MODULE_AND_SET PKG_VAR PKG_LIB_REQUIREMENTS VAR_TO_SET )
   PKG_CHECK_MODULES(${PKG_VAR} "${PKG_LIB_REQUIREMENTS}")

@@ -19,6 +19,9 @@
 #include <string>
 #include <curl/curl.h>
 
+#undef TRANSPARENT
+#undef CopyMemory
+
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/integration-api/debug.h>

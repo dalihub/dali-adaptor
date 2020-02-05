@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <EGL/egl.h>
-
 #include <dali/public-api/images/pixel.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali
 {

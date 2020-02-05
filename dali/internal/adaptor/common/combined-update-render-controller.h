@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <pthread.h>
 #include <semaphore.h>
 #include <stdint.h>
 #include <dali/devel-api/threading/conditional-wait.h>
@@ -134,6 +135,11 @@ public:
    * @copydoc ThreadControllerInterface::ResizeSurface()
    */
   virtual void ResizeSurface();
+
+  /**
+   * @copydoc ThreadControllerInterface::WaitForGraphicsInitialization()
+   */
+  virtual void WaitForGraphicsInitialization();
 
   /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()
@@ -289,6 +295,11 @@ private:
   void NotifyThreadInitialised();
 
   /**
+   * Called by the update-render thread when graphics has been initialised.
+   */
+  void NotifyGraphicsInitialised();
+
+  /**
    * Helper to add a performance marker to the performance server (if it's active)
    * @param[in]  type  performance marker type
    */
@@ -327,6 +338,7 @@ private:
   UpdateStatusLogger                mUpdateStatusLogger;               ///< Object that logs the update-status as required.
 
   sem_t                             mEventThreadSemaphore;             ///< Used by the event thread to ensure all threads have been initialised, and when replacing the surface.
+  sem_t                             mGraphicsInitializeSemaphore;      ///< Used by the render thread to ensure the graphics has been initialised.
 
   ConditionalWait                   mUpdateRenderThreadWaitCondition;  ///< The wait condition for the update-render-thread.
 

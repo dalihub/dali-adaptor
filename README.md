@@ -54,4 +54,3 @@ See the README.md in dali-adaptor/automated-tests.
 ### DEBUG Builds
 
          $ gbs build -A [TARGET_ARCH] --define "%enable_debug 1"
-

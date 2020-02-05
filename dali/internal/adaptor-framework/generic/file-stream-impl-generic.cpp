@@ -106,14 +106,20 @@ std::iostream& FileStream::Impl::GetStream()
     return mBufferStream;
   }
 
-  std::ios_base::openmode openMode;
-  if( mMode & Dali::FileStream::WRITE )
+  int openMode = 0;
+
+  if( mMode & Dali::FileStream::APPEND )
   {
-    openMode = ( std::ios::out | std::ios::ate );
+    openMode |= ( std::ios::out | std::ios::app );
   }
-  else
+  else if( mMode & Dali::FileStream::WRITE )
   {
-    openMode = std::ios::in;
+    openMode |= ( std::ios::out | std::ios::ate );
+  }
+
+  if( mMode & Dali::FileStream::READ )
+  {
+    openMode |= std::ios::in;
   }
 
   if( mMode & Dali::FileStream::BINARY )
@@ -123,10 +129,10 @@ std::iostream& FileStream::Impl::GetStream()
 
   if( !mFileName.empty() )
   {
-    mFileStream.open( mFileName, openMode );
+    mFileStream.open( mFileName, static_cast<std::ios_base::openmode>( openMode ) );
     if( !mFileStream.is_open() )
     {
-      DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName, static_cast<int>( openMode ) );
+      DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode );
     }
     return mFileStream;
   }
@@ -136,7 +142,7 @@ std::iostream& FileStream::Impl::GetStream()
     if( !mBufferStream.rdbuf()->in_avail() )
     {
       DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
-          static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), static_cast<int>( openMode ) );
+          static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
     }
   }
 
@@ -159,7 +165,11 @@ FILE* FileStream::Impl::GetFile()
   char openMode[16] = { 0 };
   int i = 0;
 
-  if( mMode & Dali::FileStream::WRITE )
+  if( mMode & Dali::FileStream::APPEND )
+  {
+    openMode[i++] = 'a';
+  }
+  else if( mMode & Dali::FileStream::WRITE )
   {
     openMode[i++] = 'w';
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,6 @@
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/integration-api/processor-interface.h>
 
-#include <fstream>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/thread-controller.h>
@@ -59,6 +57,7 @@
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -68,7 +67,8 @@
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
 
-#include <dali/devel-api/adaptor-framework/file-stream.h>
+#include <dali/internal/system/common/configuration-manager.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 using Dali::TextAbstraction::FontClient;
 
@@ -85,7 +85,9 @@ namespace Adaptor
 
 namespace
 {
+
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
+
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
@@ -287,45 +289,18 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
     Integration::SetLongPressMinimumHoldingTime( mEnvironmentOptions->GetLongPressMinimumHoldingTime() );
   }
 
-  // Set max texture size
-  if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
-  {
-    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
-  }
-
   std::string systemCachePath = GetSystemCachePath();
-  if ( ! systemCachePath.empty() )
+  if( ! systemCachePath.empty() )
   {
-    Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::READ | Dali::FileStream::TEXT );
-    std::fstream& stream = dynamic_cast<std::fstream&>( fileStream.GetStream() );
-    if( stream.is_open() )
+    const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
+    if (-1 == dir_err)
     {
-      std::string line;
-      while( std::getline( stream, line ) )
-      {
-        line.erase( line.find_last_not_of( " \t\r\n" ) + 1 );
-        line.erase( 0, line.find_first_not_of( " \t\r\n" ) );
-        if( '#' == *( line.cbegin() ) || line == "" )
-        {
-          continue;
-        }
-
-        std::istringstream stream( line );
-        std::string environmentVariableName, environmentVariableValue;
-        std::getline(stream, environmentVariableName, ' ');
-        if( environmentVariableName == "DALI_ENV_MAX_TEXTURE_SIZE" && mEnvironmentOptions->GetMaxTextureSize() == 0 )
-        {
-          std::getline(stream, environmentVariableValue);
-          setenv( environmentVariableName.c_str() , environmentVariableValue.c_str(), 1 );
-          Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( std::atoi( environmentVariableValue.c_str() ) );
-        }
-      }
-    }
-    else
-    {
-      DALI_LOG_ERROR( "Fail to open file : %s\n", ( systemCachePath + "gpu-environment.conf" ).c_str() );
+        printf( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
+        exit(1);
     }
   }
+
+  mConfigurationManager = Utils::MakeUnique<ConfigurationManager>( systemCachePath, eglGraphics, mThreadController );
 }
 
 Adaptor::~Adaptor()
@@ -395,29 +370,16 @@ void Adaptor::Start()
   // Initialize the thread controller
   mThreadController->Initialize();
 
-  if( !Dali::TizenPlatform::ImageLoader::MaxTextureSizeUpdated() )
+  // Set max texture size
+  if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
   {
-    auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
-    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mGLES.GetMaxTextureSize() );
-
-    std::string systemCachePath = GetSystemCachePath();
-    if( ! systemCachePath.empty() )
-    {
-      const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
-      if (-1 == dir_err)
-      {
-          printf("Error creating directory!n");
-          exit(1);
-      }
-
-      Dali::FileStream fileStream( systemCachePath + "gpu-environment.conf", Dali::FileStream::WRITE | Dali::FileStream::TEXT );
-      std::fstream& configFile = dynamic_cast<std::fstream&>( fileStream.GetStream() );
-      if( configFile.is_open() )
-      {
-        configFile << "DALI_ENV_MAX_TEXTURE_SIZE " << mGLES.GetMaxTextureSize() << std::endl;
-      }
-    }
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
+  }
+  else
+  {
+    unsigned int maxTextureSize = mConfigurationManager->GetMaxTextureSize();
+    setenv( DALI_ENV_MAX_TEXTURE_SIZE, std::to_string( maxTextureSize ).c_str(), 1 );
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( maxTextureSize );
   }
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
@@ -1066,10 +1028,7 @@ void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 
 bool Adaptor::IsMultipleWindowSupported() const
 {
-  auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  bool ret = eglImpl.IsSurfacelessContextSupported();
-  return ret;
+  return mConfigurationManager->IsMultipleWindowSupported();
 }
 
 void Adaptor::RequestUpdateOnce()
@@ -1145,6 +1104,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mGraphics( nullptr ),
   mDisplayConnection( nullptr ),
   mWindows(),
+  mConfigurationManager( nullptr ),
   mPlatformAbstraction( nullptr ),
   mCallbackManager( nullptr ),
   mNotificationOnIdleInstalled( false ),

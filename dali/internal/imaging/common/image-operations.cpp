@@ -339,8 +339,8 @@ ImageDimensions FitToScalingMode( ImageDimensions requestedSize, ImageDimensions
  */
 void CalculateBordersFromFittingMode(  ImageDimensions sourceSize, FittingMode::Type fittingMode, ImageDimensions& requestedSize, int& scanlinesToCrop, int& columnsToCrop )
 {
-  const unsigned int sourceWidth( sourceSize.GetWidth() );
-  const unsigned int sourceHeight( sourceSize.GetHeight() );
+  const int sourceWidth( static_cast<int>( sourceSize.GetWidth() ) );
+  const int sourceHeight( static_cast<int>(sourceSize.GetHeight() ) );
   const float targetAspect( static_cast< float >( requestedSize.GetWidth() ) / static_cast< float >( requestedSize.GetHeight() ) );
   int finalWidth = 0;
   int finalHeight = 0;

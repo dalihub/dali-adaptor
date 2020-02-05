@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
   mEventThreadSemaphore(),
+  mGraphicsInitializeSemaphore(),
   mUpdateRenderThreadWaitCondition(),
   mAdaptorInterfaces( adaptorInterfaces ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
@@ -134,7 +135,9 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   TriggerEventFactoryInterface& triggerFactory = mAdaptorInterfaces.GetTriggerEventFactoryInterface();
   mSleepTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &CombinedUpdateRenderController::ProcessSleepRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
 
-  sem_init( &mEventThreadSemaphore, 0, 0 ); // Initialize to 0 so that it just waits if sem_post has not been called
+  // Initialize to 0 so that it just waits if sem_post has not been called
+  sem_init( &mEventThreadSemaphore, 0, 0 );
+  sem_init( &mGraphicsInitializeSemaphore, 0, 0 );
 }
 
 CombinedUpdateRenderController::~CombinedUpdateRenderController()
@@ -343,6 +346,21 @@ void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface
   }
 }
 
+void CombinedUpdateRenderController::WaitForGraphicsInitialization()
+{
+  LOG_EVENT_TRACE;
+
+  if( mUpdateRenderThread )
+  {
+    LOG_EVENT( "Waiting for graphics initialisation, event-thread blocked" );
+
+    // Wait until the graphics has been initialised
+    sem_wait( &mGraphicsInitializeSemaphore );
+
+    LOG_EVENT( "graphics initialised, event-thread continuing" );
+  }
+}
+
 void CombinedUpdateRenderController::ResizeSurface()
 {
   LOG_EVENT_TRACE;
@@ -456,6 +474,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Initialize EGL & OpenGL
   Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
   displayConnection.Initialize();
+
+  // EGL has been initialised at this point
+  NotifyGraphicsInitialised();
 
   RenderSurfaceInterface* currentSurface = nullptr;
 
@@ -847,6 +868,11 @@ void CombinedUpdateRenderController::NotifyThreadInitialised()
 {
   // Just increment the semaphore
   sem_post( &mEventThreadSemaphore );
+}
+
+void CombinedUpdateRenderController::NotifyGraphicsInitialised()
+{
+  sem_post( &mGraphicsInitializeSemaphore );
 }
 
 void CombinedUpdateRenderController::AddPerformanceMarker( PerformanceInterface::MarkerType type )

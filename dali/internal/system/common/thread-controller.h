@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,6 +121,11 @@ public:
    * Resize the surface.
    */
   void ResizeSurface();
+
+  /**
+   * Wait until the graphics is initialised.
+   */
+  void WaitForGraphicsInitialization();
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()

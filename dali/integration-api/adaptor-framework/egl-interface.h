@@ -18,8 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <EGL/egl.h>
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali
 {
