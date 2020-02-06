@@ -540,6 +540,30 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     mPinchMinimumDistance = pinchMinimumDistance;
   }
 
+  int pinchMinimumTouchEvents = -1;
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS, pinchMinimumTouchEvents ) )
+  {
+    mPinchMinimumTouchEvents = pinchMinimumTouchEvents;
+  }
+
+  int pinchMinimumTouchEventsAfterStart = -1;
+  if( GetIntegerEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS_AFTER_START, pinchMinimumTouchEventsAfterStart ) )
+  {
+    mPinchMinimumTouchEventsAfterStart = pinchMinimumTouchEventsAfterStart;
+  }
+
+  int rotationMinimumTouchEvents = -1;
+  if( GetIntegerEnvironmentVariable( DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS, rotationMinimumTouchEvents ) )
+  {
+    mRotationMinimumTouchEvents = rotationMinimumTouchEvents;
+  }
+
+  int rotationMinimumTouchEventsAfterStart = -1;
+  if( GetIntegerEnvironmentVariable( DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS_AFTER_START, rotationMinimumTouchEventsAfterStart ) )
+  {
+    mRotationMinimumTouchEventsAfterStart = rotationMinimumTouchEventsAfterStart;
+  }
+
   int longPressMinimumHoldingTime = -1;
   if( GetIntegerEnvironmentVariable( DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, longPressMinimumHoldingTime ) )
   {
