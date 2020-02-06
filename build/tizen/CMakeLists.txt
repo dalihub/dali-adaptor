@@ -49,8 +49,9 @@ SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 IF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   FIND_PACKAGE( dali-windows-dependencies REQUIRED)
   FIND_PACKAGE( dali-core REQUIRED)
-  FIND_PATH( SYSTEM_INCLUDE_DIR "dali-windows-dependencies.h" )
 ENDIF()
+
+SET( VCPKG_INCLUDE_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 
 IF( UNIX )
   ADD_DEFINITIONS(-DPLATFORM_TIZEN)
@@ -82,17 +83,21 @@ IF( NOT INCLUDE_DIR )
 ENDIF()
 
 # Set up the lib dir
-IF( SET_VCPKG_INSTALL_PREFIX )
+SET( LIB_DIR $ENV{libdir} )
+IF( NOT LIB_DIR )
+  SET( LIB_DIR ${CMAKE_INSTALL_LIBDIR} )
+ENDIF()
+IF( NOT LIB_DIR )
   SET( LIB_DIR ${PREFIX}/lib )
+ENDIF()
+
+# Set up the bin dir
+SET( BIN_DIR $ENV{bindir} )
+IF( NOT BIN_DIR )
+  SET( BIN_DIR ${CMAKE_INSTALL_BINDIR} )
+ENDIF()
+IF( NOT BIN_DIR )
   SET( BIN_DIR ${PREFIX}/bin )
-ELSE()
-  SET( LIB_DIR $ENV{libdir} )
-  IF( NOT LIB_DIR )
-    SET( LIB_DIR ${CMAKE_INSTALL_LIBDIR} )
-  ENDIF()
-  IF( NOT LIB_DIR )
-    SET( LIB_DIR ${PREFIX}/lib )
-  ENDIF()
 ENDIF()
 
 IF( UNIX )
@@ -107,7 +112,7 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   ADD_COMPILE_OPTIONS( /FIextern-definitions.h )        # Adds missing definitions.
   ADD_COMPILE_OPTIONS( /FIpreprocessor-definitions.h )  #
   ADD_COMPILE_OPTIONS( /vmg )                           # Avoids a 'reinterpret_cast' compile error while compiling signals and callbacks.
-  ADD_COMPILE_OPTIONS( /TP )                            # All files considered C++
+  ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
 ENDIF()
 
 ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES
@@ -152,7 +157,8 @@ INCLUDE_DIRECTORIES(
   ${ROOT_SRC_DIR}
   ${PROFILE_INCLUDE_DIRECTORIES}
   ${THIRD_PARTY_WINDOWS_PLATFORM}
-  ${SYSTEM_INCLUDE_DIR}
+  ${VCPKG_INCLUDE_DIR}
+  ${INCLUDE_DIR}
 )
 
 SET(LIBTYPE SHARED)
@@ -184,8 +190,13 @@ SET_TARGET_PROPERTIES( ${name}
   CLEAN_DIRECT_OUPUT 1
 )
 
-# Install the library so file and symlinks
 IF( INSTALL_CMAKE_MODULES )
+  IF( ENABLE_DEBUG )
+    SET( BIN_DIR "${BIN_DIR}/debug" )
+    SET( LIB_DIR "${LIB_DIR}/debug" )
+  ENDIF()
+
+  # Install the library files.
   INSTALL( TARGETS ${name}
     EXPORT ${name}-targets
     LIBRARY DESTINATION ${LIB_DIR}
@@ -193,6 +204,7 @@ IF( INSTALL_CMAKE_MODULES )
     RUNTIME DESTINATION ${BIN_DIR}
   )
 
+  # Install the cmake modules.
   INSTALL(
     EXPORT ${name}-targets
     NAMESPACE ${name}::
@@ -205,7 +217,13 @@ IF( INSTALL_CMAKE_MODULES )
     include(\${CMAKE_CURRENT_LIST_DIR}/${name}-targets.cmake)
   ")
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}-config.cmake DESTINATION share/${name})
+
+  # Install the pdb file.
+  IF( ENABLE_DEBUG )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/${name}.pdb DESTINATION ${BIN_DIR} )
+  ENDIF()
 ELSE()
+  # Install the library so file and symlinks
   INSTALL( TARGETS ${name} DESTINATION ${LIB_DIR} )
 ENDIF()
 
@@ -384,6 +402,7 @@ MESSAGE( STATUS "Use pkg configure:                ${ENABLE_PKG_CONFIGURE}" )
 MESSAGE( STATUS "Enable link test:                 ${ENABLE_LINK_TEST}" )
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
+MESSAGE( STATUS "Compile flags:                    ${CMAKE_C_FLAGS}")
 IF( enable_feedback )
   ADD_SUBDIRECTORY( plugins )
 ENDIF()
