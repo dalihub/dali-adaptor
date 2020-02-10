@@ -44,7 +44,7 @@ namespace
 const std::string SYSTEM_CACHE_FILE = "gpu-environment.conf";
 const std::string DALI_ENV_MULTIPLE_WINDOW_SUPPORT = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
 
-bool RetrieveKeyFromFile( std::fstream& stream, std::string key, std::string& value )
+bool RetrieveKeyFromConfigFile( std::iostream& stream, const std::string& key, std::string& value )
 {
   bool keyFound = false;
 
@@ -77,7 +77,6 @@ bool RetrieveKeyFromFile( std::fstream& stream, std::string key, std::string& va
 
 ConfigurationManager::ConfigurationManager( std::string systemCachePath, EglGraphics* eglGraphics, ThreadController* threadController )
 : mSystemCacheFilePath( systemCachePath + SYSTEM_CACHE_FILE ),
-  mFileStream( new Dali::FileStream( mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT ) ),
   mEglGraphics( eglGraphics ),
   mThreadController( threadController ),
   mMaxTextureSize( 0u ),
@@ -91,37 +90,51 @@ ConfigurationManager::~ConfigurationManager()
 {
 }
 
+void ConfigurationManager::RetrieveKeysFromConfigFile( const std::string& configFilePath )
+{
+  Dali::FileStream configFile( configFilePath, Dali::FileStream::READ | Dali::FileStream::TEXT );
+  std::iostream& stream = configFile.GetStream();
+  if( stream.rdbuf()->in_avail() )
+  {
+    std::string value;
+    if( !mMaxTextureSizeCached &&
+        RetrieveKeyFromConfigFile( stream, DALI_ENV_MAX_TEXTURE_SIZE, value ) )
+    {
+      mMaxTextureSize = std::atoi( value.c_str() );
+      mMaxTextureSizeCached = true;
+    }
+
+    if( !mIsMultipleWindowSupportedCached &&
+        RetrieveKeyFromConfigFile( stream, DALI_ENV_MULTIPLE_WINDOW_SUPPORT, value ) )
+    {
+      mIsMultipleWindowSupported = std::atoi( value.c_str() );
+      mIsMultipleWindowSupportedCached = true;
+    }
+  }
+}
+
 unsigned int ConfigurationManager::GetMaxTextureSize()
 {
-  if ( !mMaxTextureSizeCached )
+  if( !mMaxTextureSizeCached )
   {
-    std::fstream& configFile = dynamic_cast<std::fstream&>( mFileStream->GetStream() );
-    if( configFile.is_open() )
+    RetrieveKeysFromConfigFile( mSystemCacheFilePath );
+
+    if( !mMaxTextureSizeCached )
     {
-      std::string environmentVariableValue;
-      if( RetrieveKeyFromFile( configFile, DALI_ENV_MAX_TEXTURE_SIZE, environmentVariableValue ) )
+      GlImplementation& mGLES = mEglGraphics->GetGlesInterface();
+      mMaxTextureSize = mGLES.GetMaxTextureSize();
+      mMaxTextureSizeCached = true;
+
+      Dali::FileStream configFile( mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT );
+      std::fstream& stream = dynamic_cast<std::fstream&>( configFile.GetStream() );
+      if( stream.is_open() )
       {
-        mMaxTextureSize = std::atoi( environmentVariableValue.c_str() );
+        stream << DALI_ENV_MAX_TEXTURE_SIZE << " " << mMaxTextureSize << std::endl;
       }
       else
       {
-        GlImplementation& mGLES = mEglGraphics->GetGlesInterface();
-        mMaxTextureSize = mGLES.GetMaxTextureSize();
-
-        configFile.clear();
-        configFile << DALI_ENV_MAX_TEXTURE_SIZE << " " << mMaxTextureSize << std::endl;
+        DALI_LOG_ERROR( "Fail to open file : %s\n", mSystemCacheFilePath.c_str() );
       }
-
-      mMaxTextureSizeCached = true;
-
-      if ( mIsMultipleWindowSupportedCached )
-      {
-        configFile.close();
-      }
-    }
-    else
-    {
-      DALI_LOG_ERROR( "Fail to open file : %s\n", mSystemCacheFilePath.c_str() );
     }
   }
 
@@ -132,41 +145,32 @@ bool ConfigurationManager::IsMultipleWindowSupported()
 {
   if ( !mIsMultipleWindowSupportedCached )
   {
-    std::fstream& configFile = dynamic_cast<std::fstream&>( mFileStream->GetStream() );
-    if( configFile.is_open() )
+    RetrieveKeysFromConfigFile( mSystemCacheFilePath );
+
+    if ( !mIsMultipleWindowSupportedCached )
     {
-      std::string environmentVariableValue;
-      if( RetrieveKeyFromFile( configFile, DALI_ENV_MULTIPLE_WINDOW_SUPPORT, environmentVariableValue ) )
+      EglImplementation& eglImpl = mEglGraphics->GetEglImplementation();
+      if ( !eglImpl.IsGlesInitialized() )
       {
-        mIsMultipleWindowSupported = std::atoi( environmentVariableValue.c_str() );
+        // Wait until GLES is initialised, but this will happen once.
+        // This method blocks until the render thread has initialised the graphics.
+        mThreadController->WaitForGraphicsInitialization();
+      }
+
+      // Query from GLES and save the cache
+      mIsMultipleWindowSupported = eglImpl.IsSurfacelessContextSupported();
+      mIsMultipleWindowSupportedCached = true;
+
+      Dali::FileStream configFile( mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT );
+      std::fstream& stream = dynamic_cast<std::fstream&>( configFile.GetStream() );
+      if ( stream.is_open() )
+      {
+        stream << DALI_ENV_MULTIPLE_WINDOW_SUPPORT << " " << mIsMultipleWindowSupported << std::endl;
       }
       else
       {
-        EglImplementation& eglImpl = mEglGraphics->GetEglImplementation();
-        if ( !eglImpl.IsGlesInitialized() )
-        {
-          // Wait until GLES is initialised, but this will happen once.
-          // This method blocks until the render thread has initialised the graphics.
-          mThreadController->WaitForGraphicsInitialization();
-        }
-
-        // Query from GLES and save the cache
-        mIsMultipleWindowSupported = eglImpl.IsSurfacelessContextSupported();
-
-        configFile.clear();
-        configFile << DALI_ENV_MULTIPLE_WINDOW_SUPPORT << " " << mIsMultipleWindowSupported << std::endl;
+        DALI_LOG_ERROR( "Fail to open file : %s\n", mSystemCacheFilePath.c_str() );
       }
-
-      mIsMultipleWindowSupportedCached = true;
-
-      if ( mMaxTextureSizeCached )
-      {
-        configFile.close();
-      }
-    }
-    else
-    {
-      DALI_LOG_ERROR( "Fail to open file : %s\n", mSystemCacheFilePath.c_str() );
     }
   }
 

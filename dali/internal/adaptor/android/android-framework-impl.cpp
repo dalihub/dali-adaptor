@@ -78,6 +78,16 @@ AAssetManager* AndroidFramework::GetApplicationAssets() const
   return mAssets;
 }
 
+void AndroidFramework::SetInternalDataPath( const std::string& path )
+{
+  mInternalDataPath = path;
+}
+
+std::string AndroidFramework::GetInternalDataPath() const
+{
+  return mInternalDataPath;
+}
+
 void AndroidFramework::SetApplicationConfiguration( AConfiguration* configuration )
 {
   mConfiguration = configuration;
