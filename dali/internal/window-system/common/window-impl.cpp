@@ -872,6 +872,38 @@ Dali::Window::WindowOrientation Window::GetCurrentOrientation() const
   return ConvertToOrientation( mRotationAngle );
 }
 
+void Window::SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations )
+{
+  Dali::Vector<float>::SizeType count = orientations.Count();
+  for( Dali::Vector<float>::SizeType index = 0; index < count; ++index )
+  {
+    if( IsOrientationAvailable( orientations[index] ) == false )
+    {
+      DALI_LOG_ERROR("Window::SetAvailableOrientations, invalid orientation: %d\n", orientations[index]);
+      continue;
+    }
+
+    bool found = false;
+    int convertedAngle = ConvertToAngle( orientations[index] );
+
+    for( std::size_t i = 0; i < mAvailableAngles.size(); i++ )
+    {
+      if( mAvailableAngles[i] == convertedAngle )
+      {
+        found = true;
+        break;
+      }
+    }
+
+    if( !found )
+    {
+      DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetAvailableOrientations: %d\n", this, mNativeWindowId, convertedAngle );
+      mAvailableAngles.push_back( convertedAngle );
+    }
+  }
+  SetAvailableAnlges( mAvailableAngles );
+}
+
 } // Adaptor
 
 } // Internal
