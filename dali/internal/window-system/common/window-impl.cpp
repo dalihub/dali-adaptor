@@ -776,13 +776,7 @@ void Window::OnRotation( const RotationEvent& rotation )
 
   mWindowSurface->RequestRotation( mRotationAngle, mWindowWidth, mWindowHeight );
 
-  bool forceUpdate = false;
-  if( mWindowBase->IsEglWindowRotationSupported() )
-  {
-    forceUpdate = true;
-  }
-
-  SurfaceResized( forceUpdate );
+  SurfaceResized( true  );
 
   mAdaptor->SurfaceResizePrepare( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );
 
