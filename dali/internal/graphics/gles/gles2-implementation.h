@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GLES2_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -574,8 +574,13 @@ public:
     DALI_LOG_ERROR( "glGetInternalformativ is not supported in OpenGL es 2.0\n" );
   }
 
+  void BlendBarrier( void ) override
+  {
+    DALI_LOG_ERROR( "BlendBarrier is not supported in OpenGL es 2.0\n" );
+  }
+
 private:
-  ECoreX::GlExtensions mGlExtensions;
+  GlExtensions mGlExtensions;
 };
 
 } // namespace Adaptor

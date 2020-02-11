@@ -400,6 +400,13 @@ void Adaptor::Start()
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( maxTextureSize );
   }
 
+  // Set cached isAdvancedBlendEquationSupported
+  GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
+  auto eglGraphics = static_cast<EglGraphics *>( graphics );
+  GlImplementation& mGLES = eglGraphics->GetGlesInterface();
+  mGLES.SetIsAdvancedBlendEquationSupported( mConfigurationManager->IsAdvancedBlendEquationSupported() );
+  mGLES.SetShadingLanguageVersion( mConfigurationManager->GetShadingLanguageVersion() );
+
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   // Initialize the image loader plugin

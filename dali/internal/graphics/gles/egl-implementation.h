@@ -65,7 +65,7 @@ public:
 public:
 
   /**
-   * (Called from  ECoreX::RenderSurface, not RenderThread, so not in i/f, hence, not virtual)
+   * (Called from RenderSurface, not RenderThread, so not in i/f, hence, not virtual)
    * Initialize GL
    * @param display The display
    * @param isOwnSurface whether the surface is own or not
