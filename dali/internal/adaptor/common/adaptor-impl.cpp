@@ -145,14 +145,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   GetDataStoragePath( path );
   mPlatformAbstraction->SetDataStoragePath( path );
 
-  ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
-  if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
-  {
-    dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
-  }
-
-  // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from files automatically.
-
   if( mEnvironmentOptions->PerformanceServerRequired() )
   {
     mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
@@ -184,7 +176,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   mGLES,
                                   eglSyncImpl,
                                   eglContextHelperImpl,
-                                  dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
                                   mGraphics->GetStencilBufferRequired() );
