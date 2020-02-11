@@ -415,7 +415,13 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
       {
         if( !mRotationFinished )
         {
-          DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
+          if( mThreadSynchronization )
+          {
+            // Enable PostRender flag
+            mThreadSynchronization->PostRenderStarted();
+          }
+
+          DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n" );
 
           mRotationTrigger->Trigger();
 
