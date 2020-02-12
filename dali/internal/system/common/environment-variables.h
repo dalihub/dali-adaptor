@@ -127,8 +127,6 @@ namespace Adaptor
 
 #define DALI_ENV_DPI_VERTICAL "DALI_DPI_VERTICAL"
 
-#define DALI_ENV_PARTIAL_UPDATE_AVAILABLE "DALI_PARTIAL_UPDATE_AVAILABLE"
-
 } // namespace Adaptor
 
 } // namespace Internal

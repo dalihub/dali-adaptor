@@ -179,18 +179,6 @@ public:
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
 
-  /**
-   * @brief Sets currentframe damaged rects
-   * @param[in] Sets currentframe damaged rects
-   * @param[out] return merged rect
-   */
-  virtual void SetDamagedRect( const Dali::DamagedRect& damagedRect, Dali::DamagedRect& mergedRectArray ) = 0;
-
-  /**
-   * @brief Gets buffer age
-   */
-  virtual int32_t GetBufferAge() = 0;
-
 public:
 
   void SetAdaptor( Dali::Internal::Adaptor::AdaptorInternalServices& adaptor )
