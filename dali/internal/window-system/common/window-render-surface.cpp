@@ -45,6 +45,7 @@ namespace
 {
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
+const int TILE_SIZE = 16u;  ///< Unit of tile size at GPU driver
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
@@ -67,13 +68,16 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mOutputTransformedSignal(),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
+  mBufferAge( 0 ),
+  mPreBufferAge( 0 ),
   mOwnSurface( false ),
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
   mResizeFinished( true ),
   mDpiHorizontal( 0 ),
-  mDpiVertical( 0 )
+  mDpiVertical( 0 ),
+  mPreDamagedRect()
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -409,6 +413,92 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
   return true;
 }
 
+std::vector<int32_t> WindowRenderSurface::MergeRect( const Rect<int32_t>& damagedRect, int bufferAge )
+{
+  std::vector<int32_t> mergedRectArray;
+  // merge bounding
+  int dx1 = mPositionSize.width, dx2 = 0, dy1 = mPositionSize.height, dy2 = 0;
+  int checkWidth = mPositionSize.width - TILE_SIZE;
+  int checkHeight = mPositionSize.height - TILE_SIZE;
+
+  dx1 = std::min( damagedRect.x, dx1 );
+  dx2 = std::max( damagedRect.x + damagedRect.width, dx2);
+  dy1 = std::min( damagedRect.y, dy1 );
+  dy2 = std::max( damagedRect.y + damagedRect.height, dy2 );
+
+  for( int j = 0; j <= bufferAge; j++ )
+  {
+    if( !mPreDamagedRect[j].IsEmpty() )
+    {
+      dx1 = std::min( mPreDamagedRect[j].x, dx1 );
+      dx2 = std::max( mPreDamagedRect[j].x + mPreDamagedRect[j].width, dx2);
+      dy1 = std::min( mPreDamagedRect[j].y, dy1 );
+      dy2 = std::max( mPreDamagedRect[j].y + mPreDamagedRect[j].height, dy2 );
+
+      if( dx1 < TILE_SIZE && dx2 > checkWidth && dy1 < TILE_SIZE && dy2 > checkHeight )
+      {
+        dx1 = 0, dx2 = mPositionSize.width, dy1 = 0, dy2 = mPositionSize.height;
+        break;
+      }
+    }
+  }
+
+  dx1 = TILE_SIZE * (dx1 / TILE_SIZE);
+  dy1 = TILE_SIZE * (dy1 / TILE_SIZE);
+  dx2 = TILE_SIZE * ((dx2 + TILE_SIZE - 1) / TILE_SIZE);
+  dy2 = TILE_SIZE * ((dy2 + TILE_SIZE - 1) / TILE_SIZE);
+
+  mergedRectArray.push_back( dx1 );
+  mergedRectArray.push_back( dy1 );
+  mergedRectArray.push_back( dx2 - dx1 );
+  mergedRectArray.push_back( dy2 - dy1 );
+
+  return mergedRectArray;
+}
+
+
+void WindowRenderSurface::SetDamagedRect( const Dali::DamagedRect& damagedRect, Dali::DamagedRect& mergedRect )
+{
+  auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
+  std::vector<int32_t> rectArray;
+  if( eglGraphics )
+  {
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
+    rectArray = MergeRect( damagedRect, mBufferAge );
+
+    mPreDamagedRect[4] = std::move( mPreDamagedRect[3] );
+    mPreDamagedRect[3] = std::move( mPreDamagedRect[2] );
+    mPreDamagedRect[2] = std::move( mPreDamagedRect[1] );
+    mPreDamagedRect[1] = std::move( mPreDamagedRect[0] );
+    mPreDamagedRect[0] = std::move( damagedRect );
+
+    eglImpl.SetDamagedRect( rectArray, mEGLSurface );
+  }
+
+  if( !rectArray.empty() )
+  {
+    mergedRect.x = rectArray[0];
+    mergedRect.y = rectArray[1];
+    mergedRect.width = rectArray[2];
+    mergedRect.height = rectArray[3];
+  }
+}
+
+int32_t WindowRenderSurface::GetBufferAge()
+{
+  int result = mBufferAge = 0;
+  auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
+  if( eglGraphics )
+  {
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    mBufferAge = eglImpl.GetBufferAge( mEGLSurface );;
+    result = ( mBufferAge != mPreBufferAge ) ? 0 : mBufferAge;
+    mPreBufferAge = mBufferAge;
+  }
+  return result;
+}
+
 void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
   // Inform the gl implementation that rendering has finished before informing the surface
@@ -449,6 +539,7 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
     }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
     eglImpl.SwapBuffers( mEGLSurface );
 
     if( mRenderNotification )
