@@ -118,6 +118,12 @@ public:
    */
   virtual void SetPreRenderCallback( CallbackBase* callback ) = 0;
 
+  /**
+   * @brief Adds the new surface.
+   * @param surface new surface
+   */
+  virtual void AddSurface( Dali::RenderSurfaceInterface* surface ) = 0;
+
 protected:
 
   /**

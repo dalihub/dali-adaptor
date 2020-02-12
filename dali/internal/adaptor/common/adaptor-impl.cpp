@@ -145,14 +145,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   GetDataStoragePath( path );
   mPlatformAbstraction->SetDataStoragePath( path );
 
-  ResourcePolicy::DataRetention dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
-  if( configuration == Dali::Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS )
-  {
-    dataRetentionPolicy = ResourcePolicy::DALI_DISCARDS_ALL_DATA;
-  }
-
-  // Note, Tizen does not use DALI_RETAINS_ALL_DATA, as it can reload images from files automatically.
-
   if( mEnvironmentOptions->PerformanceServerRequired() )
   {
     mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
@@ -184,7 +176,6 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   mGLES,
                                   eglSyncImpl,
                                   eglContextHelperImpl,
-                                  dataRetentionPolicy ,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
                                   mGraphics->GetStencilBufferRequired() );
@@ -283,6 +274,22 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   if( mEnvironmentOptions->GetMinimumPinchDistance() >= 0 )
   {
     Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
+  }
+  if( mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0 )
+  {
+    Integration::SetPinchGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumPinchTouchEvents() );
+  }
+  if( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0 )
+  {
+    Integration::SetPinchGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() );
+  }
+  if( mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0 )
+  {
+    Integration::SetRotationGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumRotationTouchEvents() );
+  }
+  if( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0 )
+  {
+    Integration::SetRotationGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() );
   }
   if( mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0 )
   {
@@ -609,6 +616,10 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::
 
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
+
+  Dali::RenderSurfaceInterface* surface = windowImpl.GetSurface();
+
+  mThreadController->AddSurface( surface );
 
   mWindowCreatedSignal.Emit( childWindow );
 

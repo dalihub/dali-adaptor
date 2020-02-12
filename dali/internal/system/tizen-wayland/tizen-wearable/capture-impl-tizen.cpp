@@ -263,14 +263,9 @@ void Capture::UnsetRenderTask()
   mCameraActor.Unparent();
   mCameraActor.Reset();
 
-  DALI_ASSERT_ALWAYS(mRenderTask && "RenderTask is NULL.");
+  DALI_ASSERT_ALWAYS( mRenderTask && "RenderTask is NULL." );
 
   Dali::RenderTaskList taskList = Dali::Stage::GetCurrent().GetRenderTaskList();
-  Dali::RenderTask firstTask = taskList.GetTask( 0u );
-
-  // Stop rendering via frame-buffers as empty handle is used to clear target
-  firstTask.SetFrameBuffer( Dali::FrameBuffer() );
-
   taskList.RemoveTask( mRenderTask );
   mRenderTask.Reset();
 }
