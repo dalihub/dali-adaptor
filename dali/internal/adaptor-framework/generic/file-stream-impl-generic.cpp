@@ -180,7 +180,7 @@ FILE* FileStream::Impl::GetFile()
     mFile = fopen( mFileName.c_str(), openMode );
     if( !mFile )
     {
-      DALI_LOG_WARNING( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName, openMode );
+      DALI_LOG_ERROR( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode );
     }
   }
   else if( mBuffer )
@@ -188,7 +188,7 @@ FILE* FileStream::Impl::GetFile()
     mFile = fmemopen( mBuffer, mDataSize, openMode );
     if( !mFile )
     {
-      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
+      DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
           static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
     }
   }
