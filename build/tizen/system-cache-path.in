@@ -18,7 +18,15 @@
 #include <string>
 #include <cstdlib>
 
+#if ANDROID
+#include <dali/integration-api/adaptor-framework/android/android-framework.h>
+#endif
+
 std::string GetSystemCachePath()
 {
+#if ANDROID
+  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/";
+#else
   return std::string( "@cachePath@/.cache/dali_common_caches/" );
+#endif
 }
