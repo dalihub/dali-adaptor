@@ -23,6 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/public-api/object/property-array.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -341,6 +342,11 @@ public:
    * @copydoc Dali::DevelWindow::GetCurrentOrientation()
    */
   Dali::Window::WindowOrientation GetCurrentOrientation() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetAvailableOrientations()
+   */
+  void SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
 
 public: // Dali::Internal::Adaptor::SceneHolder
 

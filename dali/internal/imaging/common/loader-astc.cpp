@@ -138,7 +138,9 @@ bool LoadAstcHeader( FILE * const filePointer, unsigned int& width, unsigned int
   width = fileHeader.xsize[0] | ( fileHeader.xsize[1] << 8 ) | ( fileHeader.xsize[2] << 16 );
   height = fileHeader.ysize[0] | ( fileHeader.ysize[1] << 8 ) | ( fileHeader.ysize[2] << 16 );
 
-  const unsigned int zDepth = fileHeader.zsize[0] + ( fileHeader.zsize[1] << 8 ) + ( fileHeader.zsize[2] << 16 );
+  const unsigned int zDepth = static_cast<unsigned int>( fileHeader.zsize[0] )
+                              + ( static_cast<unsigned int>( fileHeader.zsize[1] ) << 8 )
+                              + ( static_cast<unsigned int>( fileHeader.zsize[2] ) << 16 );
 
   // Check image dimensions are within limits.
   if( ( width > MAX_TEXTURE_DIMENSION ) || ( height > MAX_TEXTURE_DIMENSION ) )

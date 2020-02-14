@@ -100,6 +100,11 @@ Dali::Window::WindowOrientation GetCurrentOrientation( Window window )
   return GetImplementation( window ).GetCurrentOrientation();
 }
 
+void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations )
+{
+  GetImplementation( window ).SetAvailableOrientations( orientations );
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

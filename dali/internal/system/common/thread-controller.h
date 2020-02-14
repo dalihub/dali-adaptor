@@ -137,6 +137,13 @@ public:
    */
   void SetPreRenderCallback( CallbackBase* callback );
 
+  /**
+   * @brief Adds the new surface.
+   *
+   * @param surface new surface
+   */
+  void AddSurface( Dali::RenderSurfaceInterface* surface );
+
 private:
 
   // Undefined copy constructor.
