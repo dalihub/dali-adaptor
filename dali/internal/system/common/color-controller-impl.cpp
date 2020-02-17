@@ -22,9 +22,7 @@
 #include <dlfcn.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/type-registry.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

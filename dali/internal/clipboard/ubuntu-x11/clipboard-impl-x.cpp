@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/ubuntu-x11/window-interface-ecore-x.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
 
 namespace //unnamed namespace

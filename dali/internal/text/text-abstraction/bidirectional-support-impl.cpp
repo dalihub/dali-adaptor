@@ -18,13 +18,11 @@
 // CLASS  HEADER
 #include <dali/internal/text/text-abstraction/bidirectional-support-impl.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
-
 // EXTERNAL INCLUDES
 #include <memory.h>
 #include <fribidi/fribidi.h>
 #include <dali/integration-api/debug.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

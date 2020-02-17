@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
@@ -27,7 +28,6 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -108,7 +108,6 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mFramework( nullptr ),
   mContextLossConfiguration( Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS ),
   mCommandLineOptions( nullptr ),
-  mSingletonService( SingletonService::New() ),
   mAdaptorBuilder( nullptr ),
   mAdaptor( nullptr ),
   mMainWindow(),
@@ -138,7 +137,12 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
 
 Application::~Application()
 {
-  mSingletonService.UnregisterAll();
+  SingletonService service = SingletonService::Get();
+  // Note this can be false i.e. if Application has never created a Core instance
+  if( service )
+  {
+    service.UnregisterAll();
+  }
 
   mMainWindow.Reset();
   delete mAdaptor;
