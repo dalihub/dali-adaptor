@@ -20,8 +20,8 @@
 // CLASS HEADER
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
+// EXTERNAL INCLUDES
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

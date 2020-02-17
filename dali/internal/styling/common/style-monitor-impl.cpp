@@ -20,12 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-loader.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 
 namespace Dali
 {

@@ -29,11 +29,10 @@
 #include <vconf.h>
 
 #include <dali/public-api/object/type-registry.h>
-#include <dali/integration-api/debug.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/system/common/system-settings.h>
 
 #ifndef WAYLAND

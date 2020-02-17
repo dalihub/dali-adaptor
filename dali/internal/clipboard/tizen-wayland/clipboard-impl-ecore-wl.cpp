@@ -29,15 +29,13 @@
 
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 #include <unistd.h>
 
 #ifdef DALI_ELDBUS_AVAILABLE
 #include <Eldbus.h>
 #endif // DALI_ELDBUS_AVAILABLE
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
 
 #define CBHM_DBUS_OBJPATH "/org/tizen/cbhm/dbus"
 #ifndef CBHM_DBUS_INTERFACE

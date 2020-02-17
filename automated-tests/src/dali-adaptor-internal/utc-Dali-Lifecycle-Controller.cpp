@@ -91,6 +91,7 @@ int UtcDaliLifecycleControllerGet(void)
   lifecycleController = LifecycleController::Get();
   DALI_TEST_CHECK( !lifecycleController );
 
+  TestApplication app;
   Application application = Application::New();
 
   lifecycleController = LifecycleController::Get();
@@ -101,6 +102,7 @@ int UtcDaliLifecycleControllerGet(void)
 
 int UtcDaliLifecycleControllerSignalInit(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnInitCalled );
@@ -118,6 +120,7 @@ int UtcDaliLifecycleControllerSignalInit(void)
 
 int UtcDaliLifecycleControllerSignalTerminate(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnTerminateCalled );
@@ -135,6 +138,7 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 
 int UtcDaliLifecycleControllerSignalPause(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnPauseCalled );
@@ -152,6 +156,7 @@ int UtcDaliLifecycleControllerSignalPause(void)
 
 int UtcDaliLifecycleControllerSignalResume(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnResumeCalled );
@@ -169,6 +174,7 @@ int UtcDaliLifecycleControllerSignalResume(void)
 
 int UtcDaliLifecycleControllerSignalReset(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnResetCalled );
@@ -186,6 +192,7 @@ int UtcDaliLifecycleControllerSignalReset(void)
 
 int UtcDaliLifecycleControllerSignalResize(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnResizeCalled );
@@ -203,6 +210,7 @@ int UtcDaliLifecycleControllerSignalResize(void)
 
 int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 {
+  TestApplication app;
   Application application = Application::New();
 
   DALI_TEST_CHECK( !g_OnLanguageChangedCalled );

@@ -17,7 +17,7 @@
 
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

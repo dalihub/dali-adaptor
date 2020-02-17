@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -33,7 +34,6 @@
 #include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali

@@ -16,7 +16,6 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/performance-logger-impl.cpp
     ${adaptor_system_dir}/common/performance-marker.cpp
     ${adaptor_system_dir}/common/performance-server.cpp
-    ${adaptor_system_dir}/common/singleton-service-impl.cpp
     ${adaptor_system_dir}/common/sound-player-impl.cpp
     ${adaptor_system_dir}/common/stat-context.cpp
     ${adaptor_system_dir}/common/stat-context-manager.cpp
