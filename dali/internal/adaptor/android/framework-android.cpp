@@ -551,6 +551,14 @@ void Framework::Run()
     }
   }
 
+  while (!mImpl->mIdleCallbacks.empty())
+  {
+    mImpl->mIdleCallbacks.pop();
+  }
+
+  mImpl->mRemovedIdleCallbacks.clear();
+  mImpl->mIdleId = 0;
+
   ALooper_removeFd( app->looper, idlePipe[0] );
   if ( mImpl )
   {

@@ -109,31 +109,38 @@ std::iostream& FileStream::Impl::GetStream()
     return mBufferStream;
   }
 
-  std::ios_base::openmode openMode = std::ios::ate;
+  int openMode = 0;
+
+  if( mMode & Dali::FileStream::APPEND )
+  {
+    openMode |= ( std::ios::out | std::ios::app );
+  }
+  else if( mMode & Dali::FileStream::WRITE )
+  {
+    openMode |= ( std::ios::out | std::ios::ate );
+  }
+
+  if( mMode & Dali::FileStream::READ )
+  {
+    openMode |= std::ios::in;
+  }
+
   if( mMode & Dali::FileStream::BINARY )
   {
     openMode |= std::ios::binary;
   }
 
-  if( mMode & Dali::FileStream::WRITE )
-  {
-    openMode |= std::ios::out;
-  }
-  else
-  {
-    openMode |= std::ios::in;
-  }
-
   if( !mFileName.empty() )
   {
-    if ( !(mMode & Dali::FileStream::WRITE) )
+    // TODO: it works only with text files, we need custom stream buffer implementation for binary and to avoid buffer copy
+    if( !( mMode & Dali::FileStream::WRITE ) && !( mMode & Dali::FileStream::APPEND ) && !( mMode & Dali::FileStream::BINARY ) )
     {
       std::streampos fileSize;
-      if ( ReadFile( mFileName, fileSize, mFileBuffer, Dali::FileLoader::BINARY ) )
+      if( ReadFile( mFileName, fileSize, mFileBuffer, Dali::FileLoader::TEXT ) )
       {
         mBuffer = reinterpret_cast<uint8_t*>( &mFileBuffer[0] );
         mDataSize = fileSize;
-        mBufferStream.rdbuf()->pubsetbuf( reinterpret_cast<char*>( mBuffer ), mDataSize );
+        mBufferStream.str( std::string ( &mFileBuffer[0], fileSize ) );
         if( !mBufferStream.rdbuf()->in_avail() )
         {
           DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
@@ -148,7 +155,7 @@ std::iostream& FileStream::Impl::GetStream()
     }
     else
     {
-      mFileStream.open( mFileName, openMode );
+      mFileStream.open( mFileName, static_cast<std::ios_base::openmode>( openMode ) );
       if( !mFileStream.is_open() )
       {
         DALI_LOG_ERROR( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), static_cast<int>( openMode ) );
@@ -185,7 +192,11 @@ FILE* FileStream::Impl::GetFile()
   char openMode[16] = { 0 };
   int i = 0;
 
-  if( mMode & Dali::FileStream::WRITE )
+  if( mMode & Dali::FileStream::APPEND )
+  {
+    openMode[i++] = 'a';
+  }
+  else if( mMode & Dali::FileStream::WRITE )
   {
     openMode[i++] = 'w';
   }
@@ -203,10 +214,10 @@ FILE* FileStream::Impl::GetFile()
 
   if( !mFileName.empty() )
   {
-    if ( !( mMode & Dali::FileStream::WRITE ) )
+    if ( !( mMode & Dali::FileStream::WRITE ) && !( mMode & Dali::FileStream::APPEND ) )
     {
       std::streampos fileSize;
-      if ( ReadFile( mFileName, fileSize, mFileBuffer, Dali::FileLoader::BINARY ) )
+      if ( ReadFile( mFileName, fileSize, mFileBuffer, ( mMode & Dali::FileStream::BINARY ) ? Dali::FileLoader::BINARY : Dali::FileLoader::TEXT ) )
       {
         mBuffer = reinterpret_cast<uint8_t*>( &mFileBuffer[0] );
         mDataSize = fileSize;

@@ -95,6 +95,16 @@ public:
   AAssetManager* GetApplicationAssets() const;
 
   /**
+   *  copydoc Dali::Integration::AndroidFramework::SetInternalDataPath()
+   */
+  void SetInternalDataPath( const std::string& path );
+
+  /**
+   *  copydoc Dali::Integration::AndroidFramework::GetInternalDataPath()
+   */
+  std::string GetInternalDataPath() const;
+
+  /**
    * @copydoc Dali::Integration::AndroidFramework::SetApplicationConfiguration()
    */
   void SetApplicationConfiguration( AConfiguration* configuration );
@@ -175,6 +185,7 @@ private:
   android_app* mNativeApplication;
   ANativeWindow* mWindow;
   AAssetManager* mAssets;
+  std::string mInternalDataPath;
   AConfiguration* mConfiguration;
   JavaVM* mJVM;
 

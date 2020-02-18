@@ -54,6 +54,11 @@ public:
   virtual ~ConfigurationManager();
 
   /**
+   * @brief Retrieve all keys from the config file if the file exists.
+   */
+  void RetrieveKeysFromConfigFile( const std::string& configFilePath );
+
+  /**
    * @brief Get the maximum texture size.
    * @return The maximum texture size
    */
@@ -80,7 +85,6 @@ public:
 private: // Data
 
   std::string mSystemCacheFilePath;              ///< The path of system cache file
-  std::unique_ptr<FileStream> mFileStream;       ///< The file stream to access the system cache
   EglGraphics* mEglGraphics;                     ///< EGL graphics
   ThreadController* mThreadController;           ///< The thread controller
   unsigned int mMaxTextureSize;                  ///< The largest texture that the GL can handle
