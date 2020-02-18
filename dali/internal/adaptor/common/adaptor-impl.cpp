@@ -178,8 +178,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   eglContextHelperImpl,
                                   ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
                                   mGraphics->GetDepthBufferRequired(),
-                                  mGraphics->GetStencilBufferRequired(),
-                                  mGraphics->PartialUpdateAvailable() );
+                                  mGraphics->GetStencilBufferRequired() );
 
   defaultWindow->SetAdaptor( Get() );
 
