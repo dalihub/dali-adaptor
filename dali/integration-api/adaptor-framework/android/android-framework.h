@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ANDROID_FRAMEWORK_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <string>
+
 #include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
@@ -106,6 +108,18 @@ public:
    * @return The application assets manager
    */
   AAssetManager* GetApplicationAssets() const;
+
+  /**
+   *  Sets the Android application internal data path.
+   *  @param[in] path A path to the application data path
+   */
+  void SetInternalDataPath( const std::string& path );
+
+  /**
+   *  Gets the Android application internal data path.
+   *  @return The application data path
+   */
+  std::string GetInternalDataPath() const;
 
   /**
    * @brief Sets the Android application configuration
