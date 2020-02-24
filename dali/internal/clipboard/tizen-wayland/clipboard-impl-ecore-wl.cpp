@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/devel-api/adaptor-framework/clipboard-event-notifier.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore.h>
@@ -127,6 +128,13 @@ struct Clipboard::Impl
     types[++i] = "text/plain;charset=utf-8";
     ecore_wl_dnd_selection_get(ecore_wl_input_get(), *types);
 #endif
+
+    Dali::ClipboardEventNotifier clipboardEventNotifier(Dali::ClipboardEventNotifier::Get());
+    if ( clipboardEventNotifier )
+    {
+      clipboardEventNotifier.SetContent( mSendBuffer );
+      clipboardEventNotifier.EmitContentSelectedSignal();
+    }
   }
 
   char *ExcuteSend( void *event )
