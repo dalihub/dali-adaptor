@@ -50,8 +50,8 @@ class DALI_ADAPTOR_API InputMethodContext : public BaseHandle
 public:
 
   /**
-  * @brief The direction of text.
-  */
+   * @brief The direction of text.
+   */
   enum TextDirection
   {
     LeftToRight,
@@ -105,24 +105,31 @@ public:
    */
   enum class PreeditStyle
   {
-    NONE,             ///< None style
-    UNDERLINE,        ///< Underline substring style
-    REVERSE,          ///< Reverse substring style
-    HIGHLIGHT,        ///< Highlight substring style
-    HIGHLIGHT_SUB4,   ///< SUB4 substring style
-    HIGHLIGHT_SUB5,   ///< SUB5 substring style
-    HIGHLIGHT_SUB6,   ///< SUB6 substring style
-    HIGHLIGHT_SUB7    ///< SUB7 substring style
+    NONE,                    ///< None style
+    UNDERLINE,               ///< Underline substring style
+    REVERSE,                 ///< Reverse substring style
+    HIGHLIGHT,               ///< Highlight substring style
+    CUSTOM_PLATFORM_STYLE_1, ///< Custom style for platform
+    CUSTOM_PLATFORM_STYLE_2, ///< Custom style for platform
+    CUSTOM_PLATFORM_STYLE_3, ///< Custom style for platform
+    CUSTOM_PLATFORM_STYLE_4  ///< Custom style for platform
   };
 
   /**
    * @brief This structure is for the preedit style types and indices.
    */
-  struct PreeditAttrData
+  struct PreeditAttributeData
   {
-    PreeditStyle preeditType; /// The preedit style type
-    unsigned int startIndex;  /// The start index of preedit
-    unsigned int endIndex;    /// The end index of preedit
+    PreeditAttributeData()
+    : preeditType( PreeditStyle::NONE ),
+      startIndex( 0 ),
+      endIndex( 0 )
+    {
+    }
+
+    PreeditStyle preeditType;  /// The preedit style type
+    unsigned int startIndex;   /// The start index of preedit
+    unsigned int endIndex;     /// The end index of preedit
   };
 
   /**
@@ -209,6 +216,8 @@ public:
   typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
   typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
   typedef Signal< void ( const std::string&, const std::string&, const std::string& ) > ContentReceivedSignalType; ///< Content received signal
+
+  using PreEditAttributeDataContainer = Vector< Dali::InputMethodContext::PreeditAttributeData >;
 
 public:
 
@@ -491,11 +500,11 @@ public:
   void SetInputPanelPosition( unsigned int x, unsigned int y );
 
   /**
-   * @brief Gets the preedit attrs data.
+   * @brief Gets the preedit attributes data.
    *
-   * @param[out] attrs The preedit attrs data.
+   * @param[out] attrs The preedit attributes data.
    */
-  void GetPreeditStyle( Vector<PreeditAttrData>& attrs ) const;
+  void GetPreeditStyle( PreEditAttributeDataContainer& attrs ) const;
 
 public:
 

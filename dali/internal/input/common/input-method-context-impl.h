@@ -276,7 +276,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  virtual void GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttrData >& attrs ) const {}
+  virtual void GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const {}
 
 public:  // Signals
 
