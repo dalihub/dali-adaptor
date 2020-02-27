@@ -267,7 +267,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  void GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const override;
+  void GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const override;
 
 public:
 
