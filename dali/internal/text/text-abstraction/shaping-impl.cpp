@@ -19,7 +19,6 @@
 #include <dali/internal/text/text-abstraction/shaping-impl.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
@@ -28,6 +27,7 @@
 // EXTERNAL INCLUDES
 #include <harfbuzz/hb.h>
 #include <harfbuzz/hb-ft.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace
 {

@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

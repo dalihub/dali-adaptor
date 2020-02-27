@@ -18,8 +18,10 @@
 // CLASS  HEADER
 #include <dali/internal/text/text-abstraction/text-renderer-impl.h>
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/common/singleton-service.h>
+
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/text/text-abstraction/cairo-renderer.h>
 
 namespace Dali

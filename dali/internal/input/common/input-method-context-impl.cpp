@@ -18,7 +18,7 @@
 #include <dali/internal/input/common/input-method-context-impl.h>
 #include <dali/internal/input/common/input-method-context-factory.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {

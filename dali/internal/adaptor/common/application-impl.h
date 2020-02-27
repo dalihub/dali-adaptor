@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
-#include <dali/devel-api/adaptor-framework/singleton-service.h>
+#include <dali/devel-api/common/singleton-service.h>
 
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/environment-options.h>
@@ -398,7 +398,6 @@ private:
   Dali::Configuration::ContextLoss      mContextLossConfiguration;
   CommandLineOptions*                   mCommandLineOptions;
 
-  Dali::SingletonService                   mSingletonService;
   Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder;   ///< The adaptor builder
   Dali::Adaptor*                           mAdaptor;
 

@@ -31,6 +31,7 @@
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -39,7 +40,6 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 Ecore_IMF_Input_Panel_Layout panelLayoutMap[] =

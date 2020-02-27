@@ -22,10 +22,8 @@
 // EXTERNAL INCLUDES
 #include <cmath>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
 
 namespace // unnamed namespace
 {
