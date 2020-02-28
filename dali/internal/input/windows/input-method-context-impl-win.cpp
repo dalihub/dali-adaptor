@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -30,7 +31,6 @@
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 
 namespace Dali
 {
@@ -371,7 +371,7 @@ void InputMethodContextWin::SetInputPanelPosition( unsigned int x, unsigned int 
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n" );
 }
 
-void InputMethodContextWin::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
+void InputMethodContextWin::GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n" );
   attrs = mPreeditAttrs;
