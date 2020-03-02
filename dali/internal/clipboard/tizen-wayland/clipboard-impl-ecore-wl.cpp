@@ -62,6 +62,7 @@ struct Clipboard::Impl
   Impl()
   {
     Eldbus_Object *eldbus_obj;
+    eldbus_init();
     cbhm_conn = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SESSION);
     eldbus_obj = eldbus_object_get(cbhm_conn, CBHM_DBUS_INTERFACE, CBHM_DBUS_OBJPATH);
     eldbus_proxy = eldbus_proxy_get(eldbus_obj, CBHM_DBUS_INTERFACE);
@@ -75,6 +76,7 @@ struct Clipboard::Impl
   {
     if (cbhm_conn)
       eldbus_connection_unref(cbhm_conn);
+    eldbus_shutdown();
   }
 
   Eldbus_Proxy* cbhm_proxy_get()

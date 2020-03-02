@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/adaptor/common/framework.h>
@@ -201,6 +202,8 @@ void Application::Quit()
 
 void Application::QuitFromMainLoop()
 {
+  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+
   mAdaptor->Stop();
 
   mFramework->Quit();
@@ -222,6 +225,7 @@ void Application::OnInit()
 
   // Run the adaptor
   mAdaptor->Start();
+  Accessibility::Accessible::SetObjectRegistry(mAdaptor->GetObjectRegistry());
 
   if( ! mStylesheet.empty() )
   {

@@ -393,7 +393,6 @@ MESSAGE( STATUS "Freetype bitmap support (Emoji):  ${freetype_bitmap_support_ENA
 MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
 MESSAGE( STATUS "Data Dir (Read/Write):            ${dataReadWriteDir}")
 MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
-MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
 MESSAGE( STATUS "WebP:                             ${webp_available_ENABLED}")
 MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
 MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")

@@ -43,10 +43,17 @@
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 
+#include <string>
+
 namespace Dali
 {
 
 class RenderSurfaceInterface;
+
+namespace Accessibility
+{
+class Bridge;
+}
 
 namespace Integration
 {
@@ -167,6 +174,8 @@ public:
    * @copydoc Dali::Core::SceneCreated();
    */
   void SceneCreated();
+
+  static std::string GetApplicationPackageName();
 
 public: // AdaptorInternalServices implementation
   /**
@@ -687,6 +696,13 @@ private: // Data
   Dali::LayoutDirection::Type           mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager;           ///< Pointer to the addon manager
+
+  class AccessibilityObserver : public ConnectionTracker
+  {
+  public:
+    void OnAccessibleKeyEvent( const Dali::KeyEvent& event );
+  };
+  AccessibilityObserver accessibilityObserver;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }

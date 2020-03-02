@@ -42,6 +42,7 @@ class TtsPlayer;
 
 /**
  * @brief The Text-to-speech (TTS) Player.
+ * @deprecated Instead of this class use Dali::Accessibility::Say() method
  * @SINCE_1_0.0
  */
 class DALI_ADAPTOR_API TtsPlayer : public BaseHandle
