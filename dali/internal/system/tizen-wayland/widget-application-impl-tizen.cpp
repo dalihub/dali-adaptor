@@ -55,9 +55,9 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle *content, int w
   }
   else
   {
-    if(Internal::Adaptor::Adaptor::GetImplementation(application->GetAdaptor()).IsMultipleWindowSupported())
+    window = Dali::Window::New(PositionSize(0,0,w,h) ,"", false);
+    if( window )
     {
-      window = Dali::Window::New(PositionSize(0,0,w,h) ,"", false);
       DALI_LOG_RELEASE_INFO("Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", window, application->GetWidgetCount(), w, h, std::string(id).c_str());
     }
     else
