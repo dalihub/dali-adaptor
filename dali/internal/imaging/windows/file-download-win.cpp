@@ -27,10 +27,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/file-writer.h>
 
-#ifdef TPK_CURL_ENABLED
-#include <tpkp_curl.h>
-#endif // TPK_CURL_ENABLED
-
 using namespace Dali::Integration;
 
 namespace Dali
@@ -254,11 +250,6 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
 
   // clean up session
   curl_easy_cleanup( curlHandle );
-
-#ifdef TPK_CURL_ENABLED
-  // Clean up tpkp(the module for certificate pinning) resources on Tizen
-  tpkp_curl_cleanup();
-#endif // TPK_CURL_ENABLED
 
   return result;
 }
