@@ -18,10 +18,8 @@
 // CLASS  HEADER
 #include <dali/internal/text/text-abstraction/segmentation-impl.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/singleton-service-impl.h>
-
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/singleton-service.h>
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
 

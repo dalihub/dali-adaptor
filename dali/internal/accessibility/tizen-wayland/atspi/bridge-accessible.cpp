@@ -602,11 +602,14 @@ Accessible* BridgeAccessible::CalculateNeighbor( Accessible* root, Accessible* s
     {
       auto deputy = DeputyOfProxyInParentGet( node );
       next_related_in_direction =
-          GetObjectInRelation( deputy, forward ? RelationType::FLOWS_TO : RelationType::FLOWS_FROM );
+          GetObjectInRelation( deputy, RelationType::FLOWS_TO );
     }
 
-    if( next_related_in_direction && start->GetStates()[State::DEFUNCT] )
+    if( next_related_in_direction && start && start->GetStates()[State::DEFUNCT] )
+    {
       next_related_in_direction = NULL;
+    }
+
     unsigned char want_cycle_detection = 0;
     if( next_related_in_direction )
     {

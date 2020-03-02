@@ -50,8 +50,8 @@ class DALI_ADAPTOR_API InputMethodContext : public BaseHandle
 public:
 
   /**
-  * @brief The direction of text.
-  */
+   * @brief The direction of text.
+   */
   enum TextDirection
   {
     LeftToRight,
@@ -120,9 +120,16 @@ public:
    */
   struct PreeditAttributeData
   {
-    PreeditStyle preeditType; /// The preedit style type
-    unsigned int startIndex;  /// The start index of preedit
-    unsigned int endIndex;    /// The end index of preedit
+    PreeditAttributeData()
+    : preeditType( PreeditStyle::NONE ),
+      startIndex( 0 ),
+      endIndex( 0 )
+    {
+    }
+
+    PreeditStyle preeditType;  /// The preedit style type
+    unsigned int startIndex;   /// The start index of preedit
+    unsigned int endIndex;     /// The end index of preedit
   };
 
   /**
@@ -209,6 +216,8 @@ public:
   typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
   typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
   typedef Signal< void ( const std::string&, const std::string&, const std::string& ) > ContentReceivedSignalType; ///< Content received signal
+
+  using PreEditAttributeDataContainer = Vector< Dali::InputMethodContext::PreeditAttributeData >;
 
 public:
 
@@ -491,11 +500,11 @@ public:
   void SetInputPanelPosition( unsigned int x, unsigned int y );
 
   /**
-   * @brief Gets the preedit attrs data.
+   * @brief Gets the preedit attributes data.
    *
-   * @param[out] attrs The preedit attrs data.
+   * @param[out] attrs The preedit attributes data.
    */
-  void GetPreeditStyle( Vector<PreeditAttributeData>& attrs ) const;
+  void GetPreeditStyle( PreEditAttributeDataContainer& attrs ) const;
 
 public:
 

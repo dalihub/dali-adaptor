@@ -31,6 +31,7 @@
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -39,10 +40,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-
-#define TOKEN_STRING(x) #x
 
 Ecore_IMF_Input_Panel_Layout panelLayoutMap[] =
 {
@@ -105,21 +103,29 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 {
   size_t length = 0;
 
-  if ((leadByte & 0x80) == 0 )          //ASCII character (lead bit zero)
+  if( ( leadByte & 0x80 ) == 0 )         //ASCII character (lead bit zero)
   {
     length = 1;
   }
-  else if (( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
+  else if( ( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
   {
     length = 2;
   }
-  else if (( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
+  else if( ( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
   {
     length = 3;
   }
-  else if (( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
+  else if( ( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
   {
     length = 4;
+  }
+  else if( ( leadByte & 0xfc ) == 0xf8 ) //1111 10xx
+  {
+    length = 5;
+  }
+  else if( ( leadByte & 0xfe ) == 0xfc ) //1111 110x
+  {
+    length = 6;
   }
 
   return length;
@@ -521,16 +527,19 @@ void InputMethodContextEcoreWl::PreEditChanged( void*, ImfContext* imfContext, v
       size_t byteIndex = 0;
 
       // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
-      const char leadByte = preEditString[byteIndex];
+      char leadByte = preEditString[byteIndex];
+
       while( leadByte != '\0' )
       {
+        leadByte = preEditString[byteIndex]; // Update the character to get the number of its byte
+
         // attr->end_index is provided as a byte position not character and we need to know the character position.
         const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
         if( byteIndex <= attr->start_index )
         {
            data.startIndex = visualCharacterIndex;
         }
-        if ( byteIndex >= attr->end_index )
+        if( byteIndex >= attr->end_index )
         {
           data.endIndex = visualCharacterIndex;
           break;
@@ -1145,7 +1154,7 @@ void InputMethodContextEcoreWl::SetInputPanelPosition( unsigned int x, unsigned 
   mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind( &InputMethodContextEcoreWl::SetInputPanelPosition, this, x, y );
 }
 
-void InputMethodContextEcoreWl::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
+void InputMethodContextEcoreWl::GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetPreeditStyle\n" );
   attrs = mPreeditAttrs;

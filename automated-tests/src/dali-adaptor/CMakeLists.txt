@@ -12,7 +12,6 @@ SET(TC_SOURCES
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
     utc-Dali-PixelBuffer.cpp
-    utc-Dali-SingletonService.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Window.cpp

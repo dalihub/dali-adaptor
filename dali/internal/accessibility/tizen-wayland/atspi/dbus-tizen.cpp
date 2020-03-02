@@ -756,9 +756,11 @@ struct DefaultDBusWrapper : public DBusWrapper
       destructors.push_back([=]()
         {
           DBUS_DEBUG( "unregistering interface %p", v );
+          {
+            std::lock_guard< std::mutex > lock( globalEntriesMutex );
+            globalEntries.erase( v );
+          }
           eldbus_service_interface_unregister( v );
-          std::lock_guard< std::mutex > lock( globalEntriesMutex );
-          globalEntries.erase( v );
         }
       );
     }

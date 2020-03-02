@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -33,7 +34,6 @@
 #include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/common/singleton-service-impl.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
@@ -56,21 +56,29 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 {
   size_t length = 0;
 
-  if ((leadByte & 0x80) == 0 )          //ASCII character (lead bit zero)
+  if( ( leadByte & 0x80 ) == 0 )         //ASCII character (lead bit zero)
   {
     length = 1;
   }
-  else if (( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
+  else if( ( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
   {
     length = 2;
   }
-  else if (( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
+  else if( ( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
   {
     length = 3;
   }
-  else if (( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
+  else if( ( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
   {
     length = 4;
+  }
+  else if( ( leadByte & 0xfc ) == 0xf8 ) //1111 10xx
+  {
+    length = 5;
+  }
+  else if( ( leadByte & 0xfe ) == 0xfc ) //1111 110x
+  {
+    length = 6;
   }
 
   return length;
@@ -332,16 +340,19 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
       size_t byteIndex = 0;
 
       // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
-      const char leadByte = preEditString[byteIndex];
+      char leadByte = preEditString[byteIndex];
+
       while( leadByte != '\0' )
       {
+        leadByte = preEditString[byteIndex]; // Update the character to get the number of its byte
+
         // attr->end_index is provided as a byte position not character and we need to know the character position.
         const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
         if( byteIndex <= attr->start_index )
         {
            data.startIndex = visualCharacterIndex;
         }
-        if ( byteIndex >= attr->end_index )
+        if( byteIndex >= attr->end_index )
         {
           data.endIndex = visualCharacterIndex;
           break;
@@ -840,7 +851,7 @@ void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y 
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
 }
 
-void InputMethodContextX::GetPreeditStyle( Vector< Dali::InputMethodContext::PreeditAttributeData >& attrs ) const
+void InputMethodContextX::GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n" );
   attrs = mPreeditAttrs;
