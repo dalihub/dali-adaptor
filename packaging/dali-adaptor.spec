@@ -90,8 +90,6 @@ BuildRequires:  pkgconfig(ecore-wayland)
 # dali-adaptor needs tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
 
-BuildRequires:  pkgconfig(tpkp-curl)
-
 # for dali-adaptor
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(appcore-widget-base)
