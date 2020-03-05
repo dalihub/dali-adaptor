@@ -2,7 +2,7 @@
 #define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,82 +69,82 @@ public: // from WindowRenderSurface
    */
   virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
 
-public: // from Dali::Integration::RenderSurface
+public: // from Dali::RenderSurfaceInterface
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetPositionSize()
+   * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
   virtual PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetDpi()
+   * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
+   * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
   virtual void InitializeGraphics() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::CreateSurface()
+   * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
    */
   virtual void CreateSurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::DestroySurface()
+   * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
    */
   virtual void DestroySurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::ReplaceGraphicsSurface()
+   * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
   virtual bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::MoveResize()
+   * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
   virtual void MoveResize( Dali::PositionSize positionSize) override {}
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::StartRender()
+   * @copydoc Dali::RenderSurfaceInterface::StartRender()
    */
   virtual void StartRender() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::PreRender()
+   * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
   virtual bool PreRender( bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::PostRender()
+   * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
   virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::StopRender()
+   * @copydoc Dali::RenderSurfaceInterface::StopRender()
    */
   virtual void StopRender() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::SetThreadSynchronization
+   * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
   virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetSurfaceType()
+   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
    */
-  virtual Integration::RenderSurface::Type GetSurfaceType() override;
+  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::MakeContextCurrent()
+   * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
    */
   virtual void MakeContextCurrent() override;
 
 private: // from PixmapRenderSurface
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::ReleaseLock()
+   * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
   virtual void ReleaseLock() override;
 

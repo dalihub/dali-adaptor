@@ -2,7 +2,7 @@
 #define DALI_RENDER_SURFACE_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/render-surface.h>
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/public-api/math/vector4.h>
+#include <dali/public-api/math/rect.h>
+#include <dali/public-api/object/any.h>
 
 namespace Dali
 {
@@ -39,6 +40,11 @@ class GraphicsInterface;
 }
 
 /**
+ * @brief The position and size of the render surface.
+ */
+typedef Dali::Rect<int> PositionSize;
+
+/**
  * @brief Interface for a render surface onto which Dali draws.
  *
  * Dali::Adaptor requires a render surface to draw on to. This is
@@ -51,9 +57,16 @@ class GraphicsInterface;
  * implementation of RenderSurface for the given platform
  */
 
-class RenderSurfaceInterface : public Dali::Integration::RenderSurface
+class RenderSurfaceInterface
 {
 public:
+
+  enum Type
+  {
+    WINDOW_RENDER_SURFACE,
+    PIXMAP_RENDER_SURFACE,
+    NATIVE_RENDER_SURFACE
+  };
 
   /**
    * @brief Constructor
@@ -154,7 +167,7 @@ public:
   /**
    * @brief Gets the surface type
    */
-  virtual Dali::Integration::RenderSurface::Type GetSurfaceType() = 0;
+  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() = 0;
 
   /**
    * @brief Makes the graphics context current

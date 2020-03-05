@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_DISPLAY_CONNECTION_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public:
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType( Integration::RenderSurface::Type type );
+  void SetSurfaceType( Dali::RenderSurfaceInterface::Type type );
 
   /**
    * @brief Sets the graphics interface
@@ -97,7 +97,7 @@ protected:
 
 private:
   EGLNativeDisplayType mDisplay;        ///< EGL display for rendering
-  Integration::RenderSurface::Type mSurfaceType;     ///< The surface type
+  Dali::RenderSurfaceInterface::Type mSurfaceType;     ///< The surface type
   GraphicsInterface* mGraphics;         ///< The graphics interface
 };
 

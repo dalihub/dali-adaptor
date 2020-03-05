@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIN_DIPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public:
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
   */
-  void SetSurfaceType( Dali::Integration::RenderSurface::Type type );
+  void SetSurfaceType( Dali::RenderSurfaceInterface::Type type );
 
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
