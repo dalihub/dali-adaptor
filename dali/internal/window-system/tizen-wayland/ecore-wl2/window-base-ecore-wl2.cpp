@@ -1098,7 +1098,7 @@ void WindowBaseEcoreWl2::OnDetentRotation( void* data, int type, void* event )
   int direction = ( detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE ) ? 1 : -1;
   int timeStamp = detentEvent->timestamp;
 
-  WheelEvent wheelEvent( WheelEvent::CUSTOM_WHEEL, 0, 0, Vector2( 0.0f, 0.0f ), direction, timeStamp );
+  WheelEvent wheelEvent( WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2( 0.0f, 0.0f ), 0, timeStamp );
 
   mWheelEventSignal.Emit( wheelEvent );
 }
