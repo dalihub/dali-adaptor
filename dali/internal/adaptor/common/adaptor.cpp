@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-adaptor.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
-#include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -129,11 +129,6 @@ void Adaptor::ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surfa
 void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface )
 {
   mImpl->ReplaceSurface( window, surface );
-}
-
-void Adaptor::DeleteSurface( Dali::RenderSurfaceInterface& surface )
-{
-  mImpl->DeleteSurface( surface );
 }
 
 Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()

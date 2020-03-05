@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,9 +85,9 @@ bool DisplayConnectionWin::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionWin::SetSurfaceType( Dali::Integration::RenderSurface::Type type )
+void DisplayConnectionWin::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
 {
-  if( type == Dali::Integration::RenderSurface::WINDOW_RENDER_SURFACE )
+  if( type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE )
   {
      mDisplay = GetDC( GetForegroundWindow() );
   }

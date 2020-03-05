@@ -32,6 +32,7 @@
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
@@ -113,7 +114,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mPendingRequestUpdate( FALSE ),
   mUseElapsedTimeAfterWait( FALSE ),
   mNewSurface( NULL ),
-  mDeletedSurface( nullptr ),
   mPostRendering( FALSE ),
   mSurfaceResized( FALSE ),
   mForceClear( FALSE ),
@@ -177,7 +177,7 @@ void CombinedUpdateRenderController::Start()
     sem_wait( &mEventThreadSemaphore );
   }
 
-  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StartRender();
@@ -234,7 +234,7 @@ void CombinedUpdateRenderController::Stop()
   LOG_EVENT_TRACE;
 
   // Stop Rendering and the Update/Render Thread
-  Integration::RenderSurface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
   {
     currentSurface->StopRender();
@@ -319,29 +319,6 @@ void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterfac
     sem_wait( &mEventThreadSemaphore );
 
     LOG_EVENT( "Surface replaced, event-thread continuing" );
-  }
-}
-
-void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface* surface )
-{
-  LOG_EVENT_TRACE;
-
-  if( mUpdateRenderThread )
-  {
-    LOG_EVENT( "Starting to delete the surface, event-thread blocked" );
-
-    // Start replacing the surface.
-    {
-      ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-      mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
-      mDeletedSurface = surface;
-      mUpdateRenderThreadWaitCondition.Notify( lock );
-    }
-
-    // Wait until the surface has been deleted
-    sem_wait( &mEventThreadSemaphore );
-
-    LOG_EVENT( "Surface deleted, event-thread continuing" );
   }
 }
 
@@ -575,7 +552,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // REPLACE SURFACE
     //////////////////////////////
 
-    Integration::RenderSurface* newSurface = ShouldSurfaceBeReplaced();
+    Dali::RenderSurfaceInterface* newSurface = ShouldSurfaceBeReplaced();
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
@@ -635,6 +612,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     // Check resize
+    bool surfaceResized = false;
     bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
     if( DALI_UNLIKELY( shouldSurfaceBeResized ) )
     {
@@ -642,6 +620,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       {
         LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
         SurfaceResized();
+        surfaceResized = true;
       }
     }
 
@@ -681,21 +660,40 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    mCore.Render( renderStatus, mForceClear, mUploadWithoutRendering );
 
-    //////////////////////////////
-    // DELETE SURFACE
-    //////////////////////////////
+    // Upload shared resources
+    mCore.PreRender( renderStatus, mForceClear, mUploadWithoutRendering );
 
-    Integration::RenderSurface* deletedSurface = ShouldSurfaceBeDeleted();
-    if( DALI_UNLIKELY( deletedSurface ) )
+    if ( !mUploadWithoutRendering )
     {
-      LOG_UPDATE_RENDER_TRACE_FMT( "Deleting Surface" );
+      // Go through each window
+      WindowContainer windows;
+      mAdaptorInterfaces.GetWindowContainerInterface( windows );
 
-      mCore.SurfaceDeleted( deletedSurface );
+      for ( auto&& iter = windows.begin(); iter != windows.end(); ++iter )
+      {
+        if (*iter)
+        {
+          Dali::Integration::Scene scene = (*iter)->GetScene();
 
-      SurfaceDeleted();
+          (*iter)->GetSurface()->InitializeGraphics();
+
+          // Render off-screen frame buffers first if any
+          mCore.RenderScene( scene, true );
+
+          // Switch to the EGL context of the surface
+          (*iter)->GetSurface()->PreRender( surfaceResized ); // Switch GL context
+
+          // Render the surface
+          mCore.RenderScene( scene, false );
+
+          (*iter)->GetSurface()->PostRender( false, false, surfaceResized ); // Swap Buffer
+        }
+      }
     }
+
+    mCore.PostRender( mUploadWithoutRendering );
+
 
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 
@@ -781,14 +779,12 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
            ( mUpdateRenderThreadCanSleep && ! updateRequired && ! mPendingRequestUpdate ) ) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
          ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
          ! mNewSurface &&  // Ensure we don't wait if we need to replace the surface
-         ! mDeletedSurface && // Ensure we don't wait if we need to delete the surface
          ! mSurfaceResized ) // Ensure we don't wait if we need to resize the surface
   {
     LOG_UPDATE_RENDER( "WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
     LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
     LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
     LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
-    LOG_UPDATE_RENDER( "      mDeletedSurface:             %d", mDeletedSurface );
     LOG_UPDATE_RENDER( "      mSurfaceResized:             %d", mSurfaceResized );
 
     // Reset the time when the thread is waiting, so the sleep-until time for
@@ -808,7 +804,6 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
   LOG_COUNTER_UPDATE_RENDER( "mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
   LOG_COUNTER_UPDATE_RENDER( "mNewSurface:                 %d", mNewSurface );
-  LOG_COUNTER_UPDATE_RENDER( "mDeletedSurface:             %d", mDeletedSurface );
   LOG_COUNTER_UPDATE_RENDER( "mSurfaceResized:             %d", mSurfaceResized );
 
   mUseElapsedTimeAfterWait = FALSE;
@@ -826,33 +821,17 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   return ! mDestroyUpdateRenderThread;
 }
 
-Integration::RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
+Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
 
-  Integration::RenderSurface* newSurface = mNewSurface;
+  Dali::RenderSurfaceInterface* newSurface = mNewSurface;
   mNewSurface = NULL;
 
   return newSurface;
 }
 
 void CombinedUpdateRenderController::SurfaceReplaced()
-{
-  // Just increment the semaphore
-  sem_post( &mEventThreadSemaphore );
-}
-
-Integration::RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
-{
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-
-  Integration::RenderSurface* deletedSurface = mDeletedSurface;
-  mDeletedSurface = NULL;
-
-  return deletedSurface;
-}
-
-void CombinedUpdateRenderController::SurfaceDeleted()
 {
   // Just increment the semaphore
   sem_post( &mEventThreadSemaphore );
@@ -919,7 +898,6 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
   while( mPostRendering &&
          ! mNewSurface &&                // We should NOT wait if we're replacing the surface
-         ! mDeletedSurface &&            // We should NOT wait if we're deleting the surface
          ! mDestroyUpdateRenderThread )
   {
     mUpdateRenderThreadWaitCondition.Wait( lock );
