@@ -19,11 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <list>
+#include <set>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
-
 
 namespace Dali
 {
@@ -63,6 +62,16 @@ public:
     virtual void RemoveIdleCallback( CallbackBase* callback );
 
     /**
+     * @copydoc CallbackManager::ProcessIdle()
+     */
+    virtual bool ProcessIdle();
+
+    /**
+     * @copydoc CallbackManager::ClearIdleCallbacks()
+     */
+    virtual void ClearIdleCallbacks();
+
+    /**
     * @brief Adds a @p callback to be run when entering an idle state.
     * @note Must be called from the main thread only.
     *
@@ -99,6 +108,7 @@ public:
     virtual void Stop();
 
 private:
+    std::set<CallbackBase*>        mCallbacks;
     bool                           mRunning;            ///< flag is set to true if when running
 };
 

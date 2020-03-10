@@ -276,6 +276,11 @@ public: // AdaptorInternalServices implementation
   virtual void RemoveIdle( CallbackBase* callback );
 
   /**
+   * @copydoc Dali::Adaptor::ProcessIdle()
+   */
+  virtual void ProcessIdle();
+
+  /**
    * Sets a pre-render callback.
    */
   void SetPreRenderCallback( CallbackBase* callback );

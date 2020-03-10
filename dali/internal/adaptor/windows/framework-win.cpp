@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <windows.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/platform-implement-win.h>
@@ -128,7 +129,26 @@ struct Framework::Impl
 
   void Run()
   {
-    WindowsPlatformImplementation::RunLoop();
+    MSG nMsg = { 0 };
+
+    while (GetMessage(&nMsg, 0, NULL, NULL))
+    {
+      if (WIN_CALLBACK_EVENT == nMsg.message)
+      {
+        Dali::CallbackBase *callback = (Dali::CallbackBase*)nMsg.wParam;
+        Dali::CallbackBase::Execute(*callback);
+      }
+
+      TranslateMessage(&nMsg);
+      DispatchMessage(&nMsg);
+
+      mCallbackManager->ClearIdleCallbacks();
+
+      if (WM_CLOSE == nMsg.message)
+      {
+        break;
+      }
+    }
   }
 
   void Quit()

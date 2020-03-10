@@ -120,6 +120,11 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mImpl->RemoveIdle( callback );
 }
 
+void Adaptor::ProcessIdle()
+{
+  mImpl->ProcessIdle();
+}
+
 void Adaptor::ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface )
 {
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );

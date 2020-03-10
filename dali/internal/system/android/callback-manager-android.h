@@ -65,6 +65,16 @@ public:
     virtual void RemoveIdleCallback( CallbackBase* callback );
 
     /**
+     * @copydoc CallbackManager::ProcessIdle()
+     */
+    virtual bool ProcessIdle();
+
+    /**
+     * @copydoc CallbackManager::ProcessIdle()
+     */
+    virtual void ClearIdleCallbacks();
+
+    /**
      * @copydoc CallbackManager::AddIdleEntererCallback()
      */
     virtual bool AddIdleEntererCallback( CallbackBase* callback );
