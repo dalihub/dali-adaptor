@@ -402,6 +402,17 @@ void NativeImageSourceX::GetPixmapDetails()
   mBlendingRequired = ( depth == 32 || depth == 8 );
 }
 
+uint8_t* NativeImageSourceX::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+{
+  return NULL;
+}
+
+
+bool NativeImageSourceX::ReleaseBuffer()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace internal

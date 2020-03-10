@@ -140,6 +140,16 @@ public:
     return nullptr;
   }
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
+   */
+  uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
+   */
+  bool ReleaseBuffer() override;
+
 private:
 
   /**
