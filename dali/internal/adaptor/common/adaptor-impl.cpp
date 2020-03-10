@@ -1005,11 +1005,12 @@ void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, Surfa
 
 void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
+  // Nofify surface resizing before flushing event queue
+  mThreadController->ResizeSurface();
+
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
-
-  mThreadController->ResizeSurface();
 }
 
 void Adaptor::NotifySceneCreated()
