@@ -17,7 +17,7 @@
 
 Name:       dali-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.5.1
+Version:    1.5.2
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -89,8 +89,6 @@ BuildRequires:  pkgconfig(ecore-wayland)
 
 # dali-adaptor needs tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
-
-BuildRequires:  pkgconfig(tpkp-curl)
 
 # for dali-adaptor
 BuildRequires:  pkgconfig(appcore-ui)
