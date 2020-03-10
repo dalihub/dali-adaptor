@@ -184,6 +184,17 @@ void EcoreCallbackManager::RemoveIdleCallback( CallbackBase* callback )
   }
 }
 
+bool EcoreCallbackManager::ProcessIdle()
+{
+  // @todo To be implemented.
+  return false;
+}
+
+void EcoreCallbackManager::ClearIdleCallbacks()
+{
+  // @todo To be implemented.
+}
+
 bool EcoreCallbackManager::AddIdleEntererCallback( CallbackBase* callback )
 {
   if( !mRunning )

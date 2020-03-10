@@ -84,6 +84,18 @@ public:
     virtual void RemoveIdleCallback( CallbackBase* callback ) = 0;
 
     /**
+     * @brief Processes the idle callbacks.
+     *
+     * @return whether a DALi callback has been processed.
+     */
+    virtual bool ProcessIdle() = 0;
+
+    /**
+     * @brief Clears the container of callbacks.
+     */
+    virtual void ClearIdleCallbacks() = 0;
+
+    /**
      * @brief Adds a @p callback to be run when entering an idle state.
      * @note Must be called from the main thread only.
      *

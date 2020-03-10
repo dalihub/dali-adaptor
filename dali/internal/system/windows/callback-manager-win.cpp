@@ -60,13 +60,34 @@ bool WinCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasReturn
     return false;
   }
 
+  mCallbacks.insert(callback);
+
   WindowsPlatformImplementation::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0 );
+
   return true;
 }
 
 void WinCallbackManager::RemoveIdleCallback( CallbackBase* callback )
 {
   //Wait for deal
+}
+
+bool WinCallbackManager::ProcessIdle()
+{
+  const bool idleProcessed = !mCallbacks.empty();
+
+  for (CallbackBase* cb : mCallbacks)
+  {
+    Dali::CallbackBase::Execute(*cb);
+  }
+  mCallbacks.clear();
+
+  return idleProcessed;
+}
+
+void WinCallbackManager::ClearIdleCallbacks()
+{
+  mCallbacks.clear();
 }
 
 bool WinCallbackManager::AddIdleEntererCallback( CallbackBase* callback )

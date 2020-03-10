@@ -25,9 +25,10 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/event-system-win.h>
 
+namespace
+{
 static constexpr float INCH = 25.4;
-
-using namespace std;
+}
 
 namespace Dali
 {
@@ -41,31 +42,9 @@ namespace Adaptor
 namespace WindowsPlatformImplementation
 {
 
-void RunLoop()
-{
-  MSG nMsg = { 0 };
-
-  while( GetMessage( &nMsg, 0, NULL, NULL ) )
-  {
-    if( WIN_CALLBACK_EVENT == nMsg.message )
-    {
-      Dali::CallbackBase *callback = ( Dali::CallbackBase* )nMsg.wParam;
-      Dali::CallbackBase::Execute( *callback );
-    }
-
-    TranslateMessage( &nMsg );
-    DispatchMessage( &nMsg );
-
-    if( WM_CLOSE == nMsg.message )
-    {
-      break;
-    }
-  }
-}
-
 LRESULT CALLBACK WinProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-  WindowImpl::ProcWinMessge( reinterpret_cast<uint64_t>( hWnd ), uMsg, wParam, lParam );
+  WindowImpl::ProcWinMessage( reinterpret_cast<uint64_t>( hWnd ), uMsg, wParam, lParam );
 
   LRESULT ret = DefWindowProc( hWnd, uMsg, wParam, lParam );
   return ret;
@@ -87,7 +66,7 @@ WindowImpl::~WindowImpl()
   mHWndToListener.erase( mHWnd );
 }
 
-void WindowImpl::ProcWinMessge( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam )
+void WindowImpl::ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam )
 {
   std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find( hWnd );
 
