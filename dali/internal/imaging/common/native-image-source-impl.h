@@ -119,6 +119,19 @@ public:
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;
+
+  /**
+   * @brief Dali::DevelNativeImageSource::AcquireBuffer()
+   */
+  virtual uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) = 0;
+
+  /**
+   * @brief Dali::DevelNativeImageSource::ReleaseBuffer()
+   */
+  virtual bool ReleaseBuffer() = 0;
+
+public:
+  inline static Internal::Adaptor::NativeImageSource& GetImplementation( Dali::NativeImageSource& image ) { return *image.mImpl; }
 };
 
 } // namespace Adaptor

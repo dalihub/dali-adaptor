@@ -90,7 +90,8 @@ NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height,
   mEglGraphics( NULL ),
   mEglImageExtensions( NULL ),
   mSetSource( false ),
-  mMutex()
+  mMutex(),
+  mIsBufferAcquired( false )
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
@@ -122,7 +123,7 @@ void NativeImageSourceTizen::Initialize()
   {
     case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
     {
-      format = TBM_FORMAT_RGBA8888;
+      format = TBM_FORMAT_ARGB8888;
       depth = 32;
       break;
     }
@@ -146,7 +147,7 @@ void NativeImageSourceTizen::Initialize()
     }
     case Dali::NativeImageSource::COLOR_DEPTH_32:
     {
-      format = TBM_FORMAT_RGBA8888;
+      format = TBM_FORMAT_ARGB8888;
       depth = 32;
       break;
     }
@@ -185,22 +186,31 @@ tbm_surface_h NativeImageSourceTizen::GetSurfaceFromAny( Any source ) const
   }
 }
 
-NativeImageSourceTizen::~NativeImageSourceTizen()
+void NativeImageSourceTizen::DestroySurface()
 {
-  if( mOwnTbmSurface )
+  if( mTbmSurface )
   {
-    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+    if( mIsBufferAcquired )
     {
-      DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+      ReleaseBuffer();
     }
-  }
-  else
-  {
-    if( mTbmSurface != NULL )
+    if( mOwnTbmSurface )
+    {
+      if( tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
+      {
+        DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
+      }
+    }
+    else
     {
       tbm_surface_internal_unref( mTbmSurface );
     }
   }
+}
+
+NativeImageSourceTizen::~NativeImageSourceTizen()
+{
+  DestroySurface();
 }
 
 Any NativeImageSourceTizen::GetNativeImageSource() const
@@ -278,6 +288,27 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
         }
         break;
       }
+      case TBM_FORMAT_ARGB8888:
+      {
+        lineSize = width*4;
+        pixelFormat = Pixel::RGBA8888;
+        pixbuf.resize( lineSize*height );
+        unsigned char* bufptr = &pixbuf[0];
+
+        for( unsigned int r = 0; r < height; ++r, bufptr += lineSize )
+        {
+          for( unsigned int c = 0; c < width; ++c )
+          {
+            cOffset = c*4;
+            offset = cOffset + r*stride;
+            *(bufptr+cOffset) = ptr[offset];
+            *(bufptr+cOffset+1) = ptr[offset+3];
+            *(bufptr+cOffset+2) = ptr[offset+2];
+            *(bufptr+cOffset+3) = ptr[offset+1];
+          }
+        }
+        break;
+      }
       default:
       {
         DALI_ASSERT_ALWAYS( 0 && "Tbm surface has unsupported pixel format.\n" );
@@ -318,25 +349,10 @@ bool NativeImageSourceTizen::EncodeToFile(const std::string& filename) const
 void NativeImageSourceTizen::SetSource( Any source )
 {
   Dali::Mutex::ScopedLock lock( mMutex );
-  if( mOwnTbmSurface )
-  {
-    if( mTbmSurface != NULL && tbm_surface_destroy( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
-    {
-      DALI_LOG_ERROR( "Failed to destroy tbm_surface\n" );
-    }
 
-    mTbmSurface = NULL;
-    mOwnTbmSurface = false;
-  }
-  else
-  {
-    if( mTbmSurface != NULL )
-    {
-      tbm_surface_internal_unref( mTbmSurface );
-      mTbmSurface = NULL;
-    }
-  }
+  DestroySurface();
 
+  mOwnTbmSurface = false;
   mTbmSurface = GetSurfaceFromAny( source );
 
   if( mTbmSurface != NULL )
@@ -359,7 +375,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
   {
     case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
     {
-      format = TBM_FORMAT_RGBA8888;
+      format = TBM_FORMAT_ARGB8888;
       break;
     }
     case Dali::NativeImageSource::COLOR_DEPTH_8:
@@ -379,7 +395,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
     }
     case Dali::NativeImageSource::COLOR_DEPTH_32:
     {
-      format = TBM_FORMAT_RGBA8888;
+      format = TBM_FORMAT_ARGB8888;
       break;
     }
   }
@@ -486,6 +502,53 @@ bool NativeImageSourceTizen::CheckBlending( tbm_format format )
 
   return mBlendingRequired;
 }
+
+uint8_t* NativeImageSourceTizen::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+{
+  Dali::Mutex::ScopedLock lock( mMutex );
+  if( mTbmSurface != NULL )
+  {
+    tbm_surface_info_s info;
+
+    if( tbm_surface_map( mTbmSurface, TBM_SURF_OPTION_READ, &info) != TBM_SURFACE_ERROR_NONE )
+    {
+      DALI_LOG_ERROR( "Fail to map tbm_surface\n" );
+
+      width = 0;
+      height = 0;
+
+      return NULL;
+    }
+    tbm_surface_internal_ref( mTbmSurface );
+    mIsBufferAcquired = true;
+
+    stride = info.planes[0].stride;
+    width = mWidth;
+    height = mHeight;
+
+    return info.planes[0].ptr;
+  }
+  return NULL;
+}
+
+
+bool NativeImageSourceTizen::ReleaseBuffer()
+{
+  Dali::Mutex::ScopedLock lock( mMutex );
+  bool ret = false;
+  if( mTbmSurface != NULL )
+  {
+    ret = ( tbm_surface_unmap( mTbmSurface ) != TBM_SURFACE_ERROR_NONE );
+    if( !ret )
+    {
+      DALI_LOG_ERROR( "Fail to unmap tbm_surface\n" );
+    }
+    tbm_surface_internal_unref( mTbmSurface );
+    mIsBufferAcquired = false;
+  }
+  return ret;
+}
+
 
 } // namespace Adaptor
 

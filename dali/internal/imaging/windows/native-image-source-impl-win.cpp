@@ -244,6 +244,17 @@ void NativeImageSourceWin::GetPixmapDetails()
 {
 }
 
+uint8_t* NativeImageSourceWin::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+{
+  return NULL;
+}
+
+
+bool NativeImageSourceWin::ReleaseBuffer()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace internal
