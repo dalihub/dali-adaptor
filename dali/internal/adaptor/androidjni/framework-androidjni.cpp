@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/devel-api/adaptor-framework/application-devel.h>
@@ -233,6 +234,7 @@ void Framework::AbortCallback( )
 
 bool Framework::AppStatusHandler(int type, void* data)
 {
+  Dali::Adaptor* adaptor = nullptr;
   switch (type)
   {
     case APP_WINDOW_CREATED:
@@ -255,9 +257,13 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_RESUME:
       mObserver.OnResume();
+      adaptor = &Dali::Adaptor::Get();
+      adaptor->Resume();
       break;
 
     case APP_PAUSE:
+      adaptor = &Dali::Adaptor::Get();
+      adaptor->Pause();
       mObserver.OnPause();
       break;
 
