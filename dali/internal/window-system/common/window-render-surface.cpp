@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -153,8 +153,7 @@ void WindowRenderSurface::RequestRotation( int angle, int width, int height )
 
   if( !mRotationTrigger )
   {
-    TriggerEventFactoryInterface& triggerFactory = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTriggerEventFactoryInterface();
-    mRotationTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+    mRotationTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
   }
 
   mPositionSize.width = width;

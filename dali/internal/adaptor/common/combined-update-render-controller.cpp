@@ -132,8 +132,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
     currentSurface->SetThreadSynchronization( *this );
   }
 
-  TriggerEventFactoryInterface& triggerFactory = mAdaptorInterfaces.GetTriggerEventFactoryInterface();
-  mSleepTrigger = triggerFactory.CreateTriggerEvent( MakeCallback( this, &CombinedUpdateRenderController::ProcessSleepRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+  mSleepTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &CombinedUpdateRenderController::ProcessSleepRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
 
   // Initialize to 0 so that it just waits if sem_post has not been called
   sem_init( &mEventThreadSemaphore, 0, 0 );
