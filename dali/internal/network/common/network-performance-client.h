@@ -25,7 +25,7 @@
 #include <dali/internal/system/common/performance-marker.h>
 #include <dali/internal/network/common/client-send-data-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 
 namespace Dali
@@ -64,14 +64,12 @@ public:
    * @param thread thread pointer
    * @param socket socket interface
    * @param clientId unique client id
-   * @param triggerEventFactory used to create trigger events
    * @param sendDataInterface used to send data to the socket from main thread
    * @param SocketFactoryInterface used to delete the socket when the client is destroyed
    */
   NetworkPerformanceClient( pthread_t* thread,
                             SocketInterface *socket,
                             unsigned int clientId,
-                            TriggerEventFactoryInterface& triggerEventFactory,
                             ClientSendDataInterface& sendDataInterface,
                             SocketFactoryInterface& socketFactory );
 
@@ -126,7 +124,6 @@ private:
   pthread_t* mThread;                                   ///< thread for the client
   SocketInterface* mSocket;                             ///< socket interface
   PerformanceMarker::MarkerFilter mMarkerBitmask;       ///< What markers are currently filtered
-  TriggerEventFactoryInterface& mTriggerEventFactory;   ///< Trigger event factory
   ClientSendDataInterface& mSendDataInterface;          ///< used to send data to a client from the main event thread
   SocketFactoryInterface& mSocketFactoryInterface;      ///< used to delete the socket
   unsigned int mClientId;                               ///< unique client id
