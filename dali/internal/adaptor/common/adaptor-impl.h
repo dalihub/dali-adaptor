@@ -467,11 +467,6 @@ public:  //AdaptorInternalServices
   virtual TriggerEventInterface& GetProcessCoreEventsTrigger();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventFactoryInterface()
-   */
-  virtual TriggerEventFactoryInterface& GetTriggerEventFactoryInterface();
-
-  /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSocketFactoryInterface()
    */
   virtual SocketFactoryInterface& GetSocketFactoryInterface();
@@ -678,7 +673,6 @@ private: // Data
   PerformanceInterface*                 mPerformanceInterface;        ///< Performance interface
   KernelTrace                           mKernelTracer;                ///< Kernel tracer
   SystemTrace                           mSystemTracer;                ///< System tracer
-  TriggerEventFactory                   mTriggerEventFactory;         ///< Trigger event factory
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
