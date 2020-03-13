@@ -18,7 +18,7 @@
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 namespace Dali
 {
@@ -31,21 +31,12 @@ struct EventThreadCallback::Impl
 EventThreadCallback::EventThreadCallback( CallbackBase* callback )
 : mImpl( new Impl() )
 {
-  mImpl->eventTrigger = NULL;
-  if ( Adaptor::IsAvailable() )
-  {
-    Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() );
-    mImpl->eventTrigger = adaptorImpl.GetTriggerEventFactoryInterface().CreateTriggerEvent( callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
-  }
+  mImpl->eventTrigger = TriggerEventFactory::CreateTriggerEvent( callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
 }
 
 EventThreadCallback::~EventThreadCallback()
 {
-  if ( Adaptor::IsAvailable() )
-  {
-    Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() );
-    adaptorImpl.GetTriggerEventFactoryInterface().DestroyTriggerEvent( mImpl->eventTrigger );
-  }
+  TriggerEventFactory::DestroyTriggerEvent( mImpl->eventTrigger );
   delete mImpl;
 }
 

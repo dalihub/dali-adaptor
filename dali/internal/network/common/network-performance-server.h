@@ -160,8 +160,6 @@ private:
   NetworkPerformanceServer( const NetworkPerformanceServer& );            ///< undefined copy constructor
   NetworkPerformanceServer& operator=( const NetworkPerformanceServer& ); ///< undefined assignment operator
 
-
-  TriggerEventFactoryInterface& mTriggerEventFactory;     ///< used to create trigger events
   SocketFactoryInterface& mSocketFactory;                 ///< used to create sockets
   const EnvironmentOptions& mLogOptions;                  ///< log options
   Dali::Vector< NetworkPerformanceClient* > mClients;     ///< list of connected clients
