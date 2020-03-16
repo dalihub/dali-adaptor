@@ -193,7 +193,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
     mObjectProfiler = new ObjectProfiler( timeInterval );
   }
 
-  mNotificationTrigger = mTriggerEventFactory.CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+  mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
   mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow->GetSurface()->GetSurfaceType() );
 
@@ -718,11 +718,6 @@ TriggerEventInterface& Adaptor::GetProcessCoreEventsTrigger()
   return *mNotificationTrigger;
 }
 
-TriggerEventFactoryInterface& Adaptor::GetTriggerEventFactoryInterface()
-{
-  return mTriggerEventFactory;
-}
-
 SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
 {
   return mSocketFactory;
@@ -1129,7 +1124,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mPerformanceInterface( nullptr ),
   mKernelTracer(),
   mSystemTracer(),
-  mTriggerEventFactory(),
   mObjectProfiler( nullptr ),
   mSocketFactory(),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),

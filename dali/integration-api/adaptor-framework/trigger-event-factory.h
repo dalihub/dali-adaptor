@@ -18,9 +18,12 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/signals/callback.h>
+
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 
 namespace Dali
 {
@@ -29,35 +32,19 @@ namespace Dali
  * @brief Trigger interface factory class
  *
  */
-class DALI_ADAPTOR_API TriggerEventFactory : public TriggerEventFactoryInterface
+class DALI_ADAPTOR_API TriggerEventFactory
 {
-
 public:
-
-  /**
-   * @brief Constructor
-   */
-  TriggerEventFactory()
-  {
-  }
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~TriggerEventFactory()
-  {
-  }
 
   /**
    * @copydoc TriggerEventFactoryInterface::CreateTriggerEvent
    */
-  virtual TriggerEventInterface* CreateTriggerEvent(  CallbackBase* callback, TriggerEventInterface::Options options );
-
+  static TriggerEventInterface* CreateTriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options );
 
   /**
    * @copydoc TriggerEventFactoryInterface::DestroyTriggerEvent
    */
-  virtual void DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface );
+  static void DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface );
 
 };
 

@@ -120,13 +120,11 @@ private:
 NetworkPerformanceClient::NetworkPerformanceClient(  pthread_t* thread,
                                                      SocketInterface *socket,
                                                      unsigned int clientId,
-                                                     TriggerEventFactoryInterface& triggerEventFactory,
                                                      ClientSendDataInterface& sendDataInterface,
                                                      SocketFactoryInterface& socketFactory )
 : mThread( thread ),
   mSocket( socket ),
   mMarkerBitmask( PerformanceMarker::FILTERING_DISABLED ),
-  mTriggerEventFactory( triggerEventFactory ),
   mSendDataInterface( sendDataInterface ),
   mSocketFactoryInterface( socketFactory ),
   mClientId( clientId ),
@@ -235,7 +233,7 @@ void NetworkPerformanceClient::ProcessCommand( char* buffer, unsigned int buffer
       callback->AssignDumpSceneCommand();
 
       // create a trigger event that automatically deletes itself after the callback has run in the main thread
-      TriggerEventInterface *interface = mTriggerEventFactory.CreateTriggerEvent( callback, TriggerEventInterface::DELETE_AFTER_TRIGGER );
+      TriggerEventInterface *interface = TriggerEventFactory::CreateTriggerEvent( callback, TriggerEventInterface::DELETE_AFTER_TRIGGER );
 
       // asynchronous call, the call back will be run sometime later on the main thread
       interface->Trigger();
@@ -249,7 +247,7 @@ void NetworkPerformanceClient::ProcessCommand( char* buffer, unsigned int buffer
       callback->AssignSetPropertyCommand( stringParam );
 
       // create a trigger event that automatically deletes itself after the callback has run in the main thread
-      TriggerEventInterface *interface = mTriggerEventFactory.CreateTriggerEvent( callback, TriggerEventInterface::DELETE_AFTER_TRIGGER );
+      TriggerEventInterface *interface = TriggerEventFactory::CreateTriggerEvent( callback, TriggerEventInterface::DELETE_AFTER_TRIGGER );
 
       // asynchronous call, the call back will be run sometime later on the main thread
       interface->Trigger();

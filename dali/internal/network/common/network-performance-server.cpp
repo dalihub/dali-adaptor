@@ -51,8 +51,7 @@ struct ClientThreadInfo
 
 NetworkPerformanceServer::NetworkPerformanceServer( AdaptorInternalServices& adaptorServices,
                                                     const EnvironmentOptions& logOptions )
-: mTriggerEventFactory( adaptorServices.GetTriggerEventFactoryInterface() ),
-  mSocketFactory( adaptorServices.GetSocketFactoryInterface() ),
+: mSocketFactory( adaptorServices.GetSocketFactoryInterface() ),
   mLogOptions( logOptions ),
   mServerThread( 0 ),
   mListeningSocket( NULL ),
@@ -243,7 +242,6 @@ NetworkPerformanceClient* NetworkPerformanceServer::AddClient( SocketInterface* 
   NetworkPerformanceClient* client= new NetworkPerformanceClient( clientThread,
                                                                   clientSocket,
                                                                   mClientUniqueId++,
-                                                                  mTriggerEventFactory,
                                                                   *this,
                                                                   mSocketFactory);
 
