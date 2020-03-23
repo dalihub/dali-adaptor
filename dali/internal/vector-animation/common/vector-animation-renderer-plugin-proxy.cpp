@@ -103,6 +103,7 @@ void VectorAnimationRendererPluginProxy::Initialize()
   if( !libHandle )
   {
     DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: Cannot load library: %s\n", mSharedObjectName.c_str() );
+    return;
   }
 
   // load plugin
