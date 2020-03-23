@@ -43,8 +43,7 @@ public:
    */
   GraphicsInterface()
 : mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
-  mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE ),
-  mPartialUpdateAvailable( Integration::PartialUpdateAvailable::FALSE )
+  mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
   {
   };
 
@@ -77,15 +76,6 @@ public:
     return mStencilBufferRequired;
   };
 
-  /**
-   * Get whether the partial update is available
-   * @return TRUE if the partial update is available
-   */
-  Integration::PartialUpdateAvailable PartialUpdateAvailable()
-  {
-    return mPartialUpdateAvailable;
-  };
-
 protected:
   /**
    * Virtual protected destructor - no deletion through this interface
@@ -97,7 +87,6 @@ protected:
 
   Integration::DepthBufferAvailable mDepthBufferRequired;       ///< Whether the depth buffer is required
   Integration::StencilBufferAvailable mStencilBufferRequired;   ///< Whether the stencil buffer is required
-  Integration::PartialUpdateAvailable mPartialUpdateAvailable; ///Whether the partial update is available
 };
 
 } // Adaptor
