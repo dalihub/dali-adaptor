@@ -47,7 +47,7 @@ Application DownCast( Dali::RefObject* refObject )
 } // namespace Dali
 
 extern "C"
-void PreInitialize( int* argc, char** argv[] )
+void ApplicationPreInitialize( int* argc, char** argv[] )
 {
   Dali::Internal::Adaptor::Application::PreInitialize( argc, argv );
 }
