@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/tizen-wayland/tizen-wearable/capture-impl.h>
+#include <dali/internal/system/common/capture-impl.h>
 
 // EXTERNAL INCLUDES
 #include <fstream>
@@ -46,8 +46,7 @@ namespace Adaptor
 Capture::Capture()
 : mTimer(),
   mPath(),
-  mNativeImageSourcePtr( NULL ),
-  mTbmSurface( NULL )
+  mNativeImageSourcePtr( NULL )
 {
 }
 
@@ -55,13 +54,13 @@ Capture::Capture( Dali::CameraActor cameraActor )
 : mCameraActor( cameraActor ),
   mTimer(),
   mPath(),
-  mNativeImageSourcePtr( NULL ),
-  mTbmSurface( NULL )
+  mNativeImageSourcePtr( NULL )
 {
 }
 
 Capture::~Capture()
 {
+  DeleteNativeImageSource();
 }
 
 CapturePtr Capture::New()
@@ -98,62 +97,16 @@ Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
   return mFinishedSignal;
 }
 
-void Capture::CreateSurface( const Vector2& size )
-{
-  DALI_ASSERT_ALWAYS(!mTbmSurface && "mTbmSurface is already created.");
-
-  mTbmSurface = tbm_surface_create( size.width, size.height, TBM_FORMAT_RGBA8888 );
-}
-
-void Capture::DeleteSurface()
-{
-  DALI_ASSERT_ALWAYS(mTbmSurface && "mTbmSurface is empty.");
-
-  tbm_surface_destroy( mTbmSurface );
-  mTbmSurface = NULL;
-}
-
-void Capture::ClearSurface( const Vector2& size )
-{
-  DALI_ASSERT_ALWAYS(mTbmSurface && "mTbmSurface is empty.");
-
-  tbm_surface_info_s surface_info;
-
-  if( tbm_surface_map( mTbmSurface, TBM_SURF_OPTION_WRITE, &surface_info ) == TBM_SURFACE_ERROR_NONE )
-  {
-    //DALI_ASSERT_ALWAYS(surface_info.bpp == 32 && "unsupported tbm format");
-
-    unsigned char* ptr = surface_info.planes[0].ptr;
-    memset( ptr, 0, surface_info.size ); // TODO: support color
-
-    if( tbm_surface_unmap( mTbmSurface ) != TBM_SURFACE_ERROR_NONE )
-    {
-      DALI_LOG_ERROR( "Fail to unmap tbm_surface\n" );
-    }
-  }
-  else
-  {
-     DALI_ASSERT_ALWAYS(0 && "tbm_surface_map failed");
-  }
-}
-
-bool Capture::IsSurfaceCreated()
-{
-  return mTbmSurface != 0;
-}
-
-void Capture::CreateNativeImageSource()
+void Capture::CreateNativeImageSource( const Vector2& size )
 {
   Dali::Adaptor& adaptor = Dali::Adaptor::Get();
 
   DALI_ASSERT_ALWAYS(adaptor.IsAvailable() && "Dali::Adaptor is not available.");
 
-  DALI_ASSERT_ALWAYS(mTbmSurface && "mTbmSurface is empty.");
-
   DALI_ASSERT_ALWAYS(!mNativeImageSourcePtr && "NativeImageSource is already created.");
 
   // create the NativeImageSource object with our surface
-  mNativeImageSourcePtr = Dali::NativeImageSource::New( mTbmSurface );
+  mNativeImageSourcePtr = Dali::NativeImageSource::New( size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT );
 }
 
 void Capture::DeleteNativeImageSource()
@@ -277,10 +230,7 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources( const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source )
 {
-  CreateSurface( size );
-  ClearSurface( size );
-
-  CreateNativeImageSource();
+  CreateNativeImageSource( size );
 
   CreateFrameBuffer();
 
@@ -298,16 +248,6 @@ void Capture::UnsetResources()
   {
     DeleteFrameBuffer();
   }
-
-  if( IsNativeImageSourceCreated() )
-  {
-    DeleteNativeImageSource();
-  }
-
-  if( IsSurfaceCreated() )
-  {
-    DeleteSurface();
-  }
 }
 
 void Capture::OnRenderFinished( Dali::RenderTask& task )
@@ -319,7 +259,7 @@ void Capture::OnRenderFinished( Dali::RenderTask& task )
   if( !Save() )
   {
     state = Dali::Capture::FinishState::FAILED;
-    DALI_LOG_ERROR("Fail to Capture mTbmSurface[%p] Path[%s]", mTbmSurface, mPath.c_str());
+    DALI_LOG_ERROR("Fail to Capture Path[%s]", mPath.c_str());
   }
 
   Dali::Capture handle( this );

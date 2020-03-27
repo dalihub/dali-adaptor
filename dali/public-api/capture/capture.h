@@ -2,7 +2,7 @@
 #define DALI_CAPTURE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class Capture;
 /**
  * @brief Capture snapshots the current scene and save as a file.
  *
- * @SINCE_1_3_4
+ * @SINCE_1_3.4
  *
  * Applications should follow the example below to create capture :
  *

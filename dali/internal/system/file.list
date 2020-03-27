@@ -2,6 +2,7 @@
 # module: system, backend: common
 SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/abort-handler.cpp
+    ${adaptor_system_dir}/common/capture-impl.cpp
     ${adaptor_system_dir}/common/color-controller-impl.cpp
     ${adaptor_system_dir}/common/command-line-options.cpp
     ${adaptor_system_dir}/common/configuration-manager.cpp
@@ -50,16 +51,7 @@ SET( adaptor_system_tizen_wayland_src_files
 
 # module: system, backend: tizen-wearable
 SET( adaptor_system_tizen_wearable_src_files
-    ${adaptor_system_dir}/common/shared-file.cpp
-    ${adaptor_system_dir}/common/trigger-event.cpp
-    ${adaptor_system_dir}/common/trigger-event-factory.cpp
-    ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture.cpp
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture-impl-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp
-    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
-    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
-    ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 )
 
 # module: system, backend: ubuntu-x11

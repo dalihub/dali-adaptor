@@ -19,7 +19,7 @@
 #include <dali/public-api/capture/capture.h>
 
 // INTERNAL HEADER
-#include <dali/internal/system/tizen-wayland/tizen-wearable/capture-impl.h>
+#include <dali/internal/system/common/capture-impl.h>
 
 namespace Dali
 {

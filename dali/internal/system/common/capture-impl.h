@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <memory>
-#include <tbm_surface.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/render-tasks/render-task.h>
@@ -85,35 +84,9 @@ protected:
 
 private:
   /**
-   * @brief Create surface.
-   *
-   * @param[in] size of surface.
-   */
-  void CreateSurface( const Dali::Vector2& size );
-
-  /**
-   * @brief Delete surface.
-   */
-  void DeleteSurface();
-
-  /**
-   * @brief Clear surface with color.
-   *
-   * @param[in] size of clear aread.
-   */
-  void ClearSurface( const Dali::Vector2& size );
-
-  /**
-   * @brief Query whether surface is created or not.
-   *
-   * @return True is surface is created.
-   */
-  bool IsSurfaceCreated();
-
-  /**
    * @brief Create native image source.
    */
-  void CreateNativeImageSource();
+  void CreateNativeImageSource( const Dali::Vector2& size );
 
   /**
    * @brief Delete native image source.
@@ -218,7 +191,6 @@ private:
   Dali::Capture::CaptureFinishedSignalType    mFinishedSignal;
   std::string                                 mPath;
   Dali::NativeImageSourcePtr                  mNativeImageSourcePtr;  ///< pointer to surface image
-  tbm_surface_h                               mTbmSurface;
 };
 
 }  // End of namespace Adaptor
