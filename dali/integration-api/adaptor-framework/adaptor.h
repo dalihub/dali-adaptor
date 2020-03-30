@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ADAPTOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,13 +288,6 @@ public:
    * @param[in] surface to use
    */
   void ReplaceSurface( Dali::Integration::SceneHolder sceneHolder, Dali::RenderSurfaceInterface& surface );
-
-  /**
-   * @brief Deletes the rendering surface
-   *
-   * @param[in] surface to delete
-   */
-  void DeleteSurface( Dali::RenderSurfaceInterface& surface );
 
   /**
    * @brief Get the render surface the adaptor is using to render to.

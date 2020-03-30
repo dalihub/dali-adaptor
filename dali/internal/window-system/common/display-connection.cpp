@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInte
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics, Integration::RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();

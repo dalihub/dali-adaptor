@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ DisplayConnection* DisplayConnectionAndroid::New()
 
 DisplayConnectionAndroid::DisplayConnectionAndroid()
 : mDisplay( NULL ),
-  mSurfaceType( Integration::RenderSurface::WINDOW_RENDER_SURFACE ),
+  mSurfaceType( RenderSurfaceInterface::WINDOW_RENDER_SURFACE ),
   mGraphics( nullptr )
 {
 }
@@ -70,7 +70,7 @@ bool DisplayConnectionAndroid::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionAndroid::SetSurfaceType( Integration::RenderSurface::Type type )
+void DisplayConnectionAndroid::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
 {
   mSurfaceType = type;
   mDisplay = EGL_DEFAULT_DISPLAY;
