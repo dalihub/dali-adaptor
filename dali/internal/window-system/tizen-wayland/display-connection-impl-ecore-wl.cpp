@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,14 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay( NULL ),
-  mSurfaceType( Integration::RenderSurface::WINDOW_RENDER_SURFACE ),
+  mSurfaceType( RenderSurfaceInterface::WINDOW_RENDER_SURFACE ),
   mGraphics( nullptr )
 {
 }
 
 DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 {
-  if( mSurfaceType == Integration::RenderSurface::NATIVE_RENDER_SURFACE )
+  if( mSurfaceType == RenderSurfaceInterface::NATIVE_RENDER_SURFACE )
   {
     ReleaseNativeDisplay();
   }
@@ -83,11 +83,11 @@ bool DisplayConnectionEcoreWl::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionEcoreWl::SetSurfaceType( Integration::RenderSurface::Type type )
+void DisplayConnectionEcoreWl::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
 {
   mSurfaceType = type;
 
-  if( mSurfaceType == Integration::RenderSurface::NATIVE_RENDER_SURFACE )
+  if( mSurfaceType == Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE )
   {
     mDisplay = GetNativeDisplay();
   }

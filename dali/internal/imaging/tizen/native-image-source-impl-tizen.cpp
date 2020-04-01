@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 // Allow this to be encoded and saved:
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>

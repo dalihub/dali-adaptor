@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public: // API
   virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) = 0;
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetDepthBufferRequired()
+   * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable GetDepthBufferRequired() override
   {
@@ -72,7 +72,7 @@ public: // API
   }
 
   /**
-   * @copydoc Dali::Integration::RenderSurface::GetStencilBufferRequired()
+   * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired() override
   {

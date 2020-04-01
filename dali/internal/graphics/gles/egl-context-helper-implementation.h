@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_CONTEXT_HELPER_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,11 +67,6 @@ public:
    * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeSurfacelessContextCurrent()
    */
   virtual void MakeSurfacelessContextCurrent() override;
-
-  /**
-   * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeContextCurrent()
-   */
-  virtual void MakeContextCurrent( Integration::RenderSurface* surface ) override;
 
   /**
    * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeContextNull()

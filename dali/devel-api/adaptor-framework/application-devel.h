@@ -69,7 +69,7 @@ DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
 
 /**
  * @brief This is used to improve application launch performance.
- * It preloads so files, initializes some functions in advance and makes a window in advance.
+ * Initializes some functions in advance and makes a window in advance.
  * @param[in,out]  argc A pointer to the number of arguments
  * @param[in,out]  argv A pointer to the argument list
  *
@@ -77,6 +77,6 @@ DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
  *
  */
 extern "C"
-DALI_ADAPTOR_API void PreInitialize( int* argc, char** argv[] );
+DALI_ADAPTOR_API void ApplicationPreInitialize( int* argc, char** argv[] );
 
 #endif // DALI_APPLICATION_DEVEL_H

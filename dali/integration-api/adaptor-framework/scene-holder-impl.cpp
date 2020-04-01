@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,8 +132,6 @@ SceneHolder::~SceneHolder()
     mAdaptor->RemoveObserver( *mLifeCycleObserver.get() );
     mAdaptor->RemoveWindow( this );
 
-    mAdaptor->DeleteSurface( *mSurface.get() );
-
     mAdaptor = nullptr;
   }
 
@@ -188,7 +186,9 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 {
   mSurface.reset( surface );
 
-  mScene.SetSurface( *mSurface.get() );
+  mScene.SurfaceReplaced();
+
+  SurfaceResized();
 
   unsigned int dpiHorizontal, dpiVertical;
   dpiHorizontal = dpiVertical = 0;
@@ -203,7 +203,8 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
 void SceneHolder::SurfaceResized()
 {
-  mScene.SurfaceResized();
+  PositionSize surfacePositionSize = mSurface->GetPositionSize();
+  mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ) );
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
@@ -235,7 +236,8 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   mAdaptorStarted = true;
 
   // Create the scene
-  mScene = Dali::Integration::Scene::New( *mSurface );
+  PositionSize surfacePositionSize = mSurface->GetPositionSize();
+  mScene = Dali::Integration::Scene::New( Size(static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height )) );
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation( adaptor );
   mAdaptor = &adaptorImpl;

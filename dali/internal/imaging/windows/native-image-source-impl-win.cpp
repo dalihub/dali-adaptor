@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/integration-api/render-surface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali
 {

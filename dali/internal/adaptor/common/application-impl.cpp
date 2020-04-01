@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,11 +83,6 @@ void Application::PreInitialize( int* argc, char** argv[] )
     gPreInitializedApplication = new Application ( argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL );
     gPreInitializedApplication->CreateWindow();    // Only create window
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
-
-    //Make DefaultFontDescription cached
-    Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
-    Dali::TextAbstraction::FontDescription defaultFontDescription;
-    fontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
   }
 }
 
@@ -367,12 +362,6 @@ void Application::OnSurfaceCreated( Any newSurface )
 
 void Application::OnSurfaceDestroyed( Any surface )
 {
-  void* windowToDelete = AnyCast< void* >( surface );
-  void* oldWindow = AnyCast< void* >( mMainWindow.GetNativeHandle() );
-  if( oldWindow == windowToDelete )
-  {
-    mAdaptor->DeleteSurface( mAdaptor->GetSurface() );
-  }
 }
 
 void Application::OnResize(Dali::Adaptor& adaptor)

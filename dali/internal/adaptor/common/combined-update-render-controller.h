@@ -127,11 +127,6 @@ public:
   virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
-   * @copydoc ThreadControllerInterface::DeleteSurface()
-   */
-  virtual void DeleteSurface( Dali::RenderSurfaceInterface* surface );
-
-  /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
    */
   virtual void ResizeSurface();
@@ -239,7 +234,7 @@ private:
    *
    * @return Pointer to the new surface, NULL otherwise
    */
-  Integration::RenderSurface* ShouldSurfaceBeReplaced();
+  Dali::RenderSurfaceInterface* ShouldSurfaceBeReplaced();
 
   /**
    * Called by the Update/Render thread after a surface has been replaced.
@@ -247,21 +242,6 @@ private:
    * This will lock the mutex in mEventThreadWaitCondition
    */
   void SurfaceReplaced();
-
-  /**
-   * Checks to see if the surface needs to be deleted.
-   * This will lock the mutex in mUpdateRenderThreadWaitCondition.
-   *
-   * @return Pointer to the deleted surface, nullptr otherwise
-   */
-  Integration::RenderSurface* ShouldSurfaceBeDeleted();
-
-  /**
-   * Called by the Update/Render thread after a surface has been deleted.
-   *
-   * This will lock the mutex in mEventThreadWaitCondition
-   */
-  void SurfaceDeleted();
 
   /**
    * Checks to see if the surface needs to be resized.
@@ -378,8 +358,7 @@ private:
 
   volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
-  Integration::RenderSurface* volatile mNewSurface;                    ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
-  Integration::RenderSurface* volatile mDeletedSurface;                ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Dali::RenderSurfaceInterface* volatile mNewSurface;                  ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
