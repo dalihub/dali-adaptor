@@ -188,7 +188,7 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
   mScene.SurfaceReplaced();
 
-  SurfaceResized();
+  SurfaceResized( false );
 
   unsigned int dpiHorizontal, dpiVertical;
   dpiHorizontal = dpiVertical = 0;
@@ -201,10 +201,11 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   OnSurfaceSet( surface );
 }
 
-void SceneHolder::SurfaceResized()
+void SceneHolder::SurfaceResized( bool forceUpdate )
 {
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ) );
+  int orientation = mSurface->GetOrientation();
+  mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ), orientation, forceUpdate );
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
