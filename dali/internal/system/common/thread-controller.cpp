@@ -90,11 +90,6 @@ void ThreadController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface 
   mThreadControllerInterface->ReplaceSurface( newSurface );
 }
 
-void ThreadController::DeleteSurface( Dali::RenderSurfaceInterface* surface )
-{
-  mThreadControllerInterface->DeleteSurface( surface );
-}
-
 void ThreadController::ResizeSurface()
 {
   mThreadControllerInterface->ResizeSurface();

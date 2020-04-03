@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -283,9 +283,9 @@ void NativeRenderSurfaceEcoreWl::SetThreadSynchronization( ThreadSynchronization
   mThreadSynchronization = &threadSynchronization;
 }
 
-Integration::RenderSurface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
+Dali::RenderSurfaceInterface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
 {
-  return Integration::RenderSurface::NATIVE_RENDER_SURFACE;
+  return Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE;
 }
 
 void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
