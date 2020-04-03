@@ -68,7 +68,7 @@ public:
   typedef Signal< void () > SignalType;
 
   /**
-   * Create a new Window. This should only be called once by the Application class
+   * @brief Create a new Window. This should only be called once by the Application class
    * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
@@ -76,6 +76,17 @@ public:
    * @return A newly allocated Window
    */
   static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
+
+  /**
+   * @brief Create a new Window. This should only be called once by the Application class
+   * @param[in] surface The surface used to render on.
+   * @param[in] positionSize The position and size of the window
+   * @param[in] name The window title
+   * @param[in] className The window class name
+   * @param[in] isTransparent Whether window is transparent
+   * @return A newly allocated Window
+   */
+  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @copydoc Dali::Window::ShowIndicator()
@@ -388,7 +399,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className);
+  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className);
 
   /**
    * Called when the window becomes iconified or deiconified.
