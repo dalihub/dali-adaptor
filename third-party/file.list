@@ -1,13 +1,12 @@
 
 
 SET( static_libraries_glyphy_src_files
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-arcs.cc 
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-blob-impl.cc 
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-extents.cc 
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-outline.cc 
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc 
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-arcs.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-blob-impl.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-extents.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-outline.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc
   ${adaptor_thirdparty_dir}/glyphy/vector-font-cache.cpp
-  
 )
 
 
@@ -30,7 +29,6 @@ SET( adaptor_windows_platform_src_files
     ${adaptor_thirdparty_dir}/windows-platform/network.cpp
     ${adaptor_thirdparty_dir}/windows-platform/thread.cpp
     ${adaptor_thirdparty_dir}/windows-platform/Win32File/CustomFile.cpp
-    ${adaptor_thirdparty_dir}/windows-platform/Win32File/GetRealFileName.cpp
     ${adaptor_thirdparty_dir}/windows-platform/Win32File/MemFile.cpp
     ${adaptor_thirdparty_dir}/windows-platform/Win32File/OriginalFile.cpp
 )
