@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -190,6 +191,13 @@ public:
    * @note Clear color is transparent.
    */
   void Start( Actor source, const Vector2& size, const std::string &path );
+
+  /**
+   * @brief Get NativeImageSourcePtr that is saved captured image.
+   *
+   * @SINCE_1_9.10
+   */
+  Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
    * @brief Get finished signal.

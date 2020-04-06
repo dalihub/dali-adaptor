@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,8 @@ namespace Adaptor
 Capture::Capture()
 : mTimer(),
   mPath(),
-  mNativeImageSourcePtr( NULL )
+  mNativeImageSourcePtr( NULL ),
+  mFileSave( false )
 {
 }
 
@@ -54,7 +55,8 @@ Capture::Capture( Dali::CameraActor cameraActor )
 : mCameraActor( cameraActor ),
   mTimer(),
   mPath(),
-  mNativeImageSourcePtr( NULL )
+  mNativeImageSourcePtr( NULL ),
+  mFileSave( false )
 {
 }
 
@@ -85,11 +87,22 @@ void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::s
   Reference();
 
   mPath = path;
+  if( mPath.size() > 0 )
+  {
+    mFileSave = true;
+  }
 
   DALI_ASSERT_ALWAYS(source && "Source is NULL.");
 
   UnsetResources();
   SetupResources( size, clearColor, source );
+}
+
+Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
+{
+  DALI_ASSERT_ALWAYS( mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL.");
+
+  return mNativeImageSourcePtr;
 }
 
 Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
@@ -256,10 +269,13 @@ void Capture::OnRenderFinished( Dali::RenderTask& task )
 
   mTimer.Stop();
 
-  if( !Save() )
+  if( mFileSave )
   {
-    state = Dali::Capture::FinishState::FAILED;
-    DALI_LOG_ERROR("Fail to Capture Path[%s]", mPath.c_str());
+    if( !SaveFile() )
+    {
+      state = Dali::Capture::FinishState::FAILED;
+      DALI_LOG_ERROR( "Fail to Capture Path[%s]", mPath.c_str() );
+    }
   }
 
   Dali::Capture handle( this );
@@ -286,7 +302,7 @@ bool Capture::OnTimeOut()
   return false;
 }
 
-bool Capture::Save()
+bool Capture::SaveFile()
 {
   DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL");
 
