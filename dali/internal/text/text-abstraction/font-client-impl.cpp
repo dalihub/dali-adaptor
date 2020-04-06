@@ -38,6 +38,8 @@ namespace TextAbstraction
 namespace Internal
 {
 
+Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient( NULL );
+
 FontClient::FontClient()
 : mPlugin( nullptr ),
   mDpiHorizontal( 0 ),
@@ -67,12 +69,32 @@ Dali::TextAbstraction::FontClient FontClient::Get()
     }
     else // create and register the object
     {
-      fontClientHandle = Dali::TextAbstraction::FontClient( new FontClient );
+      if( gPreInitializedFontClient )
+      {
+        fontClientHandle = gPreInitializedFontClient;
+        gPreInitializedFontClient.Reset(); // No longer needed
+      }
+      else
+      {
+        fontClientHandle = Dali::TextAbstraction::FontClient( new FontClient );
+      }
+
       service.Register( typeid( fontClientHandle ), fontClientHandle );
     }
   }
 
   return fontClientHandle;
+}
+
+Dali::TextAbstraction::FontClient FontClient::PreInitialize()
+{
+  gPreInitializedFontClient = Dali::TextAbstraction::FontClient( new FontClient );
+
+  // Make DefaultFontDescription cached
+  Dali::TextAbstraction::FontDescription defaultFontDescription;
+  gPreInitializedFontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
+
+  return gPreInitializedFontClient;
 }
 
 void FontClient::ClearCache()

@@ -80,6 +80,8 @@ void Application::PreInitialize( int* argc, char** argv[] )
 {
   if( !gPreInitializedApplication )
   {
+    Dali::TextAbstraction::FontClientPreInitialize();
+
     gPreInitializedApplication = new Application ( argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL );
     gPreInitializedApplication->CreateWindow();    // Only create window
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
