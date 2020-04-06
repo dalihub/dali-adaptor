@@ -17,24 +17,39 @@ extern int OriginalFSeek( const void *fp, int offset, int origin );
 extern int OriginalFTell( const void *fp );
 extern bool OriginalFEof( const void *fp );
 
-namespace std
+namespace
 {
-int GetRealFileMode(const char *path, int _Mode)
+std::string GetRealName(const char* name)
 {
-  std::string strPath = path;
-
-  if ((std::ios::in | std::ios::ate == _Mode) && strPath.find(".json") != std::string::npos)
+  if (nullptr != name && '*' == name[0])
   {
-    return std::ios::in | std::ios::binary | std::ios::ate;
+    std::string envName;
+
+    const char *p = name + 1;
+
+    while (0 != *p && '*' != *p)
+    {
+      envName.push_back(*p);
+      p++;
+    }
+
+    p++;
+
+    char *envValue = std::getenv(envName.c_str());
+
+    std::string realName;
+    realName = "";
+    realName += envValue;
+    realName += p;
+
+    return realName;
   }
   else
   {
-    return _Mode;
+    return std::string(name);
   }
 }
-
-extern const char* GetRealName(const char *name);
-}
+} // namespace
 
 namespace CustomFile
 {
@@ -42,7 +57,7 @@ FILE* FOpen( const char *name, const char *mode )
 {
   if( NULL != name && '*' == name[0] )
   {
-    std::string realName = std::GetRealName( name );
+    std::string realName = GetRealName( name );
     FILE* ret = (FILE*)OriginalFOpen( realName.c_str(), mode );
     if (NULL == ret)
     {
