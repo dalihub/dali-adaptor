@@ -1033,6 +1033,11 @@ bool Adaptor::IsMultipleWindowSupported() const
   return mConfigurationManager->IsMultipleWindowSupported();
 }
 
+bool Adaptor::IsRenderingWindows() const
+{
+  return ( mThreadController && mThreadController->IsRenderingWindows() );
+}
+
 void Adaptor::RequestUpdateOnce()
 {
   if( mThreadController )

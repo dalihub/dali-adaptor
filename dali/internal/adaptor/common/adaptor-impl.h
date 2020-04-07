@@ -438,6 +438,13 @@ public:
    */
   bool IsMultipleWindowSupported() const;
 
+  /**
+   * @brief Checks whether the windows are being rendered in the render thread.
+   *
+   * @return true if the windows are being rendered in the render thread, or false if not.
+   */
+  bool IsRenderingWindows() const;
+
 public:  //AdaptorInternalServices
 
   /**

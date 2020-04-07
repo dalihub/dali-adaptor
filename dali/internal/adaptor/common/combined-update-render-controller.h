@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <pthread.h>
 #include <semaphore.h>
+#include <atomic>
 #include <stdint.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/integration-api/core.h>
@@ -150,6 +151,11 @@ public:
    * @copydoc ThreadControllerInterface::AddSurface()
    */
   virtual void AddSurface( Dali::RenderSurfaceInterface* surface );
+
+  /**
+   * @copydoc ThreadControllerInterface::IsRenderingWindows()
+   */
+  bool IsRenderingWindows() const override { return mIsRenderingWindows; }
 
 private:
 
@@ -367,6 +373,8 @@ private:
   volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
 
   volatile unsigned int             mFirstFrameAfterResume;            ///< Will be set to check the first frame after resume (for log)
+
+  std::atomic<bool>                 mIsRenderingWindows;               ///< This is set only from the render thread and read only from the event thread
 };
 
 } // namespace Adaptor
