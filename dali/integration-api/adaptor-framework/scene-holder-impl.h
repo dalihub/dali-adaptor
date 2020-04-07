@@ -111,10 +111,9 @@ public:
   void SetSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
-   * @brief Called when the surface is resized.
-   * @param[in] forceUpdate The flag to update force
+   * @brief Called when the surface set is resized.
    */
-  void SurfaceResized( bool forceUpdate );
+  void SurfaceResized();
 
   /**
    * @brief Get the render surface
