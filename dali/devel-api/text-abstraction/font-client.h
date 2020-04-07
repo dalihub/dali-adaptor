@@ -482,6 +482,13 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL FontClient( Internal::FontClient* fontClient );
 };
 
+/**
+ * @brief This is used to improve application launch performance
+ *
+ * @return A pre-initialized FontClient
+ */
+DALI_ADAPTOR_API FontClient FontClientPreInitialize();
+
 } // namespace TextAbstraction
 
 } // namespace Dali

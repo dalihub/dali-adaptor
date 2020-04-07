@@ -63,6 +63,31 @@ typedef Signal< void ( Window, bool ) > VisibilityChangedSignalType; ///< Visibi
 typedef Signal< void (Window, EffectState, EffectType) > TransitionEffectEventSignalType; ///< Effect signal type and state
 
 /**
+ * @brief Creates an initialized handle to a new Window.
+ *
+ * @param[in] surface Can be a window or pixmap.
+ * @param[in] windowPosition The position and size of the Window
+ * @param[in] name The Window title
+ * @param[in] isTransparent Whether Window is transparent
+ * @return A new window
+ * @note This creates an extra window in addition to the default main window
+*/
+DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent = false);
+
+/**
+ * @brief Creates an initialized handle to a new Window.
+ *
+ * @param[in] surface Can be a window or pixmap.
+ * @param[in] windowPosition The position and size of the Window
+ * @param[in] name The Window title
+ * @param[in] className The Window class name
+ * @param[in] isTransparent Whether Window is transparent
+ * @note This creates an extra window in addition to the default main window
+ * @return A new Window
+ */
+DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
+
+/**
  * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
  *
  * @param[in] window The window instance

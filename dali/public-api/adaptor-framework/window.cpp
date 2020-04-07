@@ -33,40 +33,41 @@ class DALI_INTERNAL DragAndDropDetector : public BaseHandle {}; // Empty class o
 
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, "", isTransparent);
-
-  Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  if( Internal::Adaptor::Adaptor::GetImplementation( adaptor ).IsMultipleWindowSupported() )
-  {
-    Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
-    Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( sceneHolder, name, "", isTransparent );
-
-    return Window(window);
-  }
-  else
-  {
-    DALI_LOG_ERROR("This device can't support multiple windows.\n");
-    return Window();
-  }
+  return Dali::Window::New(posSize, name, "", isTransparent);
 }
 
 Window Window::New(PositionSize posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+  Window newWindow;
 
-  Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-  if( Internal::Adaptor::Adaptor::GetImplementation( adaptor ).IsMultipleWindowSupported() )
+  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
+  bool isNewWindowAllowed = true;
+
+  if (isAdaptorAvailable)
   {
-    Integration::SceneHolder sceneHolder = Integration::SceneHolder( window );
-    Internal::Adaptor::Adaptor::GetImplementation( adaptor ).AddWindow( sceneHolder, name, className, isTransparent );
+    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+    isNewWindowAllowed = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
+  }
 
-    return Window(window);
+  if (isNewWindowAllowed)
+  {
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+
+    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
+
+    if (isAdaptorAvailable)
+    {
+      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder, name, className, isTransparent);
+    }
+    newWindow = Window(window);
   }
   else
   {
     DALI_LOG_ERROR("This device can't support multiple windows.\n");
-    return Window();
   }
+
+  return newWindow;
 }
 
 Window::Window()
