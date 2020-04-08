@@ -120,6 +120,7 @@ SceneHolder::SceneHolder()
   mId( mSceneHolderCounter++ ),
   mSurface( nullptr ),
   mAdaptor( nullptr ),
+  mIsBeingDeleted( false ),
   mAdaptorStarted( false ),
   mVisible( true )
 {

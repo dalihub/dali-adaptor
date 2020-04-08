@@ -118,6 +118,11 @@ public:
    */
   virtual void AddSurface( Dali::RenderSurfaceInterface* surface ) = 0;
 
+  /**
+   * @copydoc Dali::Adaptor::IsRenderingWindows()
+   */
+  virtual bool IsRenderingWindows() const = 0;
+
 protected:
 
   /**

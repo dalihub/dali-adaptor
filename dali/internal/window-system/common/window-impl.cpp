@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 
 // EXTERNAL HEADERS
+#include <thread>
 #include <dali/integration-api/core.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -98,6 +99,13 @@ Window::Window()
 
 Window::~Window()
 {
+  mIsBeingDeleted = true;
+
+  while ( mAdaptor && mAdaptor->IsRenderingWindows() )
+  {
+    std::this_thread::yield(); // to allow other threads to run
+  }
+
   if ( mEventHandler )
   {
     mEventHandler->RemoveObserver( *this );
