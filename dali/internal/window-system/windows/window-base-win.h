@@ -360,6 +360,11 @@ private:
    */
   void CreateWinWindow( PositionSize positionSize, bool isTransparent );
 
+  /**
+   * @brief Sets up an already created window.
+   */
+  void SetWinWindow( unsigned int surfaceId );
+
 private:
 
   // Undefined

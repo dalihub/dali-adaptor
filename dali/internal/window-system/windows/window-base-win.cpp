@@ -78,8 +78,7 @@ void WindowBaseWin::Initialize( PositionSize positionSize, Any surface, bool isT
   }
   else
   {
-    // XLib should already be initialized so no point in calling XInitThreads
-    mWin32Window = static_cast< WinWindowHandle >( surfaceId );
+    SetWinWindow( surfaceId );
   }
 
   mWindowImpl.SetListener( MakeCallback( this, &WindowBaseWin::EventEntry ) );
@@ -482,8 +481,20 @@ void WindowBaseWin::CreateWinWindow( PositionSize positionSize, bool isTranspare
 {
   long hWnd = mWindowImpl.CreateHwnd( "Demo", "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
 
-  mWin32Window = (WinWindowHandle)hWnd;
+  mWin32Window = static_cast<WinWindowHandle>(hWnd);
+
   DALI_ASSERT_ALWAYS( mWin32Window != 0 && "There is no Windows window" );
+}
+
+void WindowBaseWin::SetWinWindow( unsigned int surfaceId )
+{
+  HWND hWnd = (HWND)surfaceId;
+
+  mWin32Window = static_cast<WinWindowHandle>(surfaceId);
+
+  mWindowImpl.SetHWND( reinterpret_cast<uint64_t>(hWnd));
+
+  mWindowImpl.SetWinProc();
 }
 
 void WindowBaseWin::EventEntry( TWinEventInfo *event )

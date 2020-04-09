@@ -308,12 +308,13 @@ void NativeImageSourceAndroid::GetPixmapDetails()
   // get the width, height and depth
   mBlendingRequired = false;
 
-  AHardwareBuffer_Desc* bufferDescription = nullptr;
-  AHardwareBuffer_describe( mPixmap, bufferDescription );
+  AHardwareBuffer_Desc bufferDescription;
+  memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
+  AHardwareBuffer_describe( mPixmap, &bufferDescription );
 
-  mWidth = bufferDescription->width;
-  mHeight = bufferDescription->height;
-  switch (bufferDescription->format)
+  mWidth = bufferDescription.width;
+  mHeight = bufferDescription.height;
+  switch (bufferDescription.format)
   {
   case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
     mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_32;
@@ -328,6 +329,46 @@ void NativeImageSourceAndroid::GetPixmapDetails()
   default:
     mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_8;
   }
+}
+
+uint8_t* NativeImageSourceAndroid::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+{
+  if( mPixmap )
+  {
+    AHardwareBuffer_Desc bufferDescription;
+    memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
+    AHardwareBuffer_describe( mPixmap, &bufferDescription );
+
+    void* buffer = NULL;
+    if( AHardwareBuffer_lock( mPixmap, AHARDWAREBUFFER_USAGE_CPU_READ_RARELY, -1, NULL, &buffer ) != 0 )
+    {
+      DALI_LOG_ERROR( "Failed to AHardwareBuffer_lock\n" );
+      return NULL;
+    }
+
+    stride = bufferDescription.stride;
+    width  = bufferDescription.width;
+    height = bufferDescription.height;
+
+    return static_cast< uint8_t* >( buffer );
+  }
+
+  return NULL;
+}
+
+
+bool NativeImageSourceAndroid::ReleaseBuffer()
+{
+  if( mPixmap )
+  {
+    if( AHardwareBuffer_unlock( mPixmap, NULL ) != 0 )
+    {
+      DALI_LOG_ERROR( "failed to AHardwareBuffer_unlock\n" );
+      return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 } // namespace Adaptor

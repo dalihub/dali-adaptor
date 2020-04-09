@@ -197,23 +197,42 @@ int32_t WindowImpl::GetEdgeHeight()
 
 void WindowImpl::SetHWND( uint64_t inHWnd )
 {
-  if( mHWnd != inHWnd )
+  if (mHWnd != inHWnd)
   {
     mHWnd = inHWnd;
-    mHdc = reinterpret_cast<uint64_t>( GetDC( reinterpret_cast<HWND>( mHWnd ) ) );
-    colorDepth = GetDeviceCaps( reinterpret_cast<HDC>( mHdc ), BITSPIXEL ) * GetDeviceCaps( reinterpret_cast<HDC>( mHdc ), PLANES );
+    mHdc = reinterpret_cast<uint64_t>(GetDC(reinterpret_cast<HWND>(mHWnd)));
+    colorDepth = GetDeviceCaps(reinterpret_cast<HDC>(mHdc), BITSPIXEL) * GetDeviceCaps(reinterpret_cast<HDC>(mHdc), PLANES);
 
-    std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find( mHWnd );
+    std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find(mHWnd);
 
-    if( mHWndToListener.end() == x )
+    if (mHWndToListener.end() == x)
     {
-      mHWndToListener.insert( std::make_pair( mHWnd, this ) );
+      mHWndToListener.insert(std::make_pair(mHWnd, this));
     }
     else
     {
       x->second = this;
     }
   }
+}
+
+void WindowImpl::SetWinProc()
+{
+  // Sets the WinProc function.
+  LONG_PTR ret = SetWindowLongPtr((HWND)mHWnd,
+                                  GWLP_WNDPROC,
+                                  reinterpret_cast<LONG_PTR>(&WinProc));
+
+  if (0 == ret)
+  {
+    DWORD error = GetLastError();
+    return;
+  }
+
+  HMODULE module = GetModuleHandle(nullptr);
+  ret = SetWindowLongPtr((HWND)mHWnd,
+                         GWLP_HINSTANCE,
+                         reinterpret_cast<LONG_PTR>(&module));
 }
 
 bool PostWinThreadMessage(

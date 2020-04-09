@@ -242,6 +242,11 @@ FontClient::FontClient( Internal::FontClient* internal )
 {
 }
 
+FontClient FontClientPreInitialize()
+{
+  return Internal::FontClient::PreInitialize();
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali

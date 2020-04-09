@@ -59,6 +59,13 @@ public:
   static Dali::TextAbstraction::FontClient Get();
 
   /**
+   * @brief This is used to improve application launch performance
+   *
+   * @return A pre-initialized FontClient
+   */
+  static Dali::TextAbstraction::FontClient PreInitialize();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
    */
   void ClearCache();
@@ -260,6 +267,8 @@ private:
   // Allows DPI to be set without loading plugin
   unsigned int mDpiHorizontal;
   unsigned int mDpiVertical;
+
+  static Dali::TextAbstraction::FontClient gPreInitializedFontClient;
 
 }; // class FontClient
 

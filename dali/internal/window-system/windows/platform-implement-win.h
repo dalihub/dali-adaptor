@@ -92,11 +92,12 @@ public:
 
   int32_t GetEdgeHeight();
 
+  void SetHWND(uint64_t inHWnd);
+  void SetWinProc();
+
 protected:
 
 private:
-
-  void SetHWND( uint64_t inHWnd );
 
   unsigned long windowStyle;
 

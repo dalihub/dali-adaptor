@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 
 // EXTERNAL HEADERS
+#include <thread>
 #include <dali/integration-api/core.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -56,11 +57,17 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New( Debug::NoLogging, false, "
 
 } // unnamed namespace
 
-Window* Window::New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent )
+Window* Window::New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
+{
+  Any surface;
+  return Window::New(surface, positionSize, name, className, isTransparent);
+}
+
+Window* Window::New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
 {
   Window* window = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize( positionSize, name, className );
+  window->Initialize(surface, positionSize, name, className);
   return window;
 }
 
@@ -92,16 +99,22 @@ Window::Window()
 
 Window::~Window()
 {
+  mIsBeingDeleted = true;
+
+  while ( mAdaptor && mAdaptor->IsRenderingWindows() )
+  {
+    std::this_thread::yield(); // to allow other threads to run
+  }
+
   if ( mEventHandler )
   {
     mEventHandler->RemoveObserver( *this );
   }
 }
 
-void Window::Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className)
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className)
 {
   // Create a window render surface
-  Any surface;
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
   mSurface = renderSurfaceFactory->CreateWindowRenderSurface( positionSize, surface, mIsTransparent );
   mWindowSurface = static_cast<WindowRenderSurface*>( mSurface.get() );
