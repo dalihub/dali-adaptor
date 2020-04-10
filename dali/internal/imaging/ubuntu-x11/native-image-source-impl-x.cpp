@@ -28,7 +28,6 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali
@@ -262,19 +261,6 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
   XCloseDisplay( displayConnection );
 
   return success;
-}
-
-bool NativeImageSourceX::EncodeToFile(const std::string& filename) const
-{
-  std::vector< unsigned char > pixbuf;
-  unsigned int width(0), height(0);
-  Pixel::Format pixelFormat;
-
-  if(GetPixels(pixbuf, width, height, pixelFormat))
-  {
-    return Dali::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height);
-  }
-  return false;
 }
 
 void NativeImageSourceX::SetSource( Any source )

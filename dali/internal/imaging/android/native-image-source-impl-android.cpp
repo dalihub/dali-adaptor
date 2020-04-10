@@ -29,7 +29,6 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -189,19 +188,6 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<unsigned char>& pixbuf, uns
   success = true;
 
   return success;
-}
-
-bool NativeImageSourceAndroid::EncodeToFile(const std::string& filename) const
-{
-  std::vector< unsigned char > pixbuf;
-  unsigned int width(0), height(0);
-  Pixel::Format pixelFormat;
-
-  if( GetPixels( pixbuf, width, height, pixelFormat ) )
-  {
-    return Dali::EncodeToFile( &pixbuf[0], filename, pixelFormat, width, height );
-  }
-  return false;
 }
 
 void NativeImageSourceAndroid::SetSource( Any source )
