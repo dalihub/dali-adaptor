@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <errno.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <unistd.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
@@ -118,7 +119,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mSurfaceResized( FALSE ),
   mForceClear( FALSE ),
   mUploadWithoutRendering( FALSE ),
-  mFirstFrameAfterResume( FALSE )
+  mFirstFrameAfterResume( FALSE ),
+  mIsRenderingWindows( false )
 {
   LOG_EVENT_TRACE;
 
@@ -661,6 +663,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     AddPerformanceMarker( PerformanceInterface::RENDER_START );
 
+    mIsRenderingWindows = true;
+
     // Upload shared resources
     mCore.PreRender( renderStatus, mForceClear, mUploadWithoutRendering );
 
@@ -670,30 +674,35 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       WindowContainer windows;
       mAdaptorInterfaces.GetWindowContainerInterface( windows );
 
-      for ( auto&& iter = windows.begin(); iter != windows.end(); ++iter )
+      for( auto&& window : windows )
       {
-        if (*iter)
+        if ( window && !window->IsBeingDeleted() )
         {
-          Dali::Integration::Scene scene = (*iter)->GetScene();
+          Dali::Integration::Scene scene = window->GetScene();
+          Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
 
-          (*iter)->GetSurface()->InitializeGraphics();
+          if ( scene && windowSurface )
+          {
+            windowSurface->InitializeGraphics();
 
-          // Render off-screen frame buffers first if any
-          mCore.RenderScene( scene, true );
+            // Render off-screen frame buffers first if any
+            mCore.RenderScene( scene, true );
 
-          // Switch to the EGL context of the surface
-          (*iter)->GetSurface()->PreRender( surfaceResized ); // Switch GL context
+            // Switch to the EGL context of the surface
+            windowSurface->PreRender( surfaceResized ); // Switch GL context
 
-          // Render the surface
-          mCore.RenderScene( scene, false );
+            // Render the surface
+            mCore.RenderScene( scene, false );
 
-          (*iter)->GetSurface()->PostRender( false, false, surfaceResized ); // Swap Buffer
+            windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+          }
         }
       }
     }
 
     mCore.PostRender( mUploadWithoutRendering );
 
+    mIsRenderingWindows = false;
 
     AddPerformanceMarker( PerformanceInterface::RENDER_END );
 

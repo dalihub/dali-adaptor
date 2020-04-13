@@ -115,6 +115,11 @@ void ThreadController::AddSurface( Dali::RenderSurfaceInterface* newSurface )
   mThreadControllerInterface->AddSurface( newSurface );
 }
 
+bool ThreadController::IsRenderingWindows() const
+{
+  return mThreadControllerInterface->IsRenderingWindows();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -158,6 +158,16 @@ public:
    */
   int GetEglImageTextureTarget() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
+   */
+  uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
+   */
+  bool ReleaseBuffer() override;
+
 private:
 
   /**
@@ -178,6 +188,8 @@ private:
 
   bool CheckBlending( tbm_format format );
 
+  void DestroySurface();
+
 private:
 
   uint32_t mWidth;                        ///< image width
@@ -192,6 +204,7 @@ private:
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
   bool mSetSource;
   mutable Dali::Mutex mMutex;
+  bool mIsBufferAcquired;                      ///< Whether AcquireBuffer is called
 };
 
 } // namespace Adaptor

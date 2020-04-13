@@ -138,6 +138,11 @@ public:
    */
   void AddSurface( Dali::RenderSurfaceInterface* surface );
 
+  /**
+   * @copydoc Dali::Adaptor::IsRenderingWindows()
+   */
+  bool IsRenderingWindows() const;
+
 private:
 
   // Undefined copy constructor.

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <memory>
 #include <vector>
+#include <atomic>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/integration-api/scene.h>
@@ -148,6 +149,13 @@ public:
   void Resume();
 
   /**
+   * @brief Checks whether this scene holder is being deleted in the event thread.
+   *
+   * @return true if this scene holder is being deleted in the event thread, or false if not.
+   */
+  bool IsBeingDeleted() const { return mIsBeingDeleted; }
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
    */
   void FeedTouchPoint( Dali::Integration::Point& point, int timeStamp );
@@ -272,6 +280,8 @@ protected:
   Adaptor*                                        mAdaptor;            ///< The adaptor
 
   Dali::Integration::TouchEventCombiner           mCombiner;           ///< Combines multi-touch events.
+
+  std::atomic<bool>                               mIsBeingDeleted;     ///< This is set only from the event thread and read only from the render thread
 
   bool                                            mAdaptorStarted:1;   ///< Whether the adaptor has started or not
   bool                                            mVisible:1;          ///< Whether the scene is visible or not

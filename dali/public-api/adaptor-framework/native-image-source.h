@@ -238,6 +238,8 @@ private:
 
   /// @cond internal
   Internal::Adaptor::NativeImageSource* mImpl; ///< Implementation pointer
+  friend class Internal::Adaptor::NativeImageSource;
+
   /// @endcond
 };
 
