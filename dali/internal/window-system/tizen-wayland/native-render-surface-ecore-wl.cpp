@@ -216,20 +216,30 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender( bool )
+bool NativeRenderSurfaceEcoreWl::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
-  // nothing to do for pixmaps
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  if (eglGraphics)
+  {
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    if (resizingSurface)
+    {
+      eglImpl.SetFullSwapNextFrame();
+    }
+
+    eglImpl.SetDamage(mEGLSurface, damagedRects, clippingRect);
+  }
+
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
+void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects )
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  if ( eglGraphics )
+  if (eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
-    eglImpl.SwapBuffers( mEGLSurface );
+    eglImpl.SwapBuffers( mEGLSurface, damagedRects );
   }
 
   if( mThreadSynchronization )

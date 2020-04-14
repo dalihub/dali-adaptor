@@ -16,6 +16,7 @@
  */
 
 #include <dali/dali.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali-test-suite-utils.h>
 
@@ -403,6 +404,23 @@ int UtcDaliWindowFocusChangedSignalN(void)
   try
   {
     window.FocusChangedSignal();
+    DALI_TEST_CHECK( false ); // Should not reach here!
+  }
+  catch( ... )
+  {
+    DALI_TEST_CHECK( true );
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowPartialUpdate(void)
+{
+  Dali::Window window;
+  try
+  {
+    std::vector<Rect<int>> damagedAreas;
+    DevelWindow::SetDamagedAreas(window, damagedAreas);
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )
