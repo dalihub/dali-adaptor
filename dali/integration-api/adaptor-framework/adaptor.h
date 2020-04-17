@@ -274,6 +274,13 @@ public:
   void RemoveIdle( CallbackBase* callback );
 
   /**
+   * @brief Processes the idle callbacks.
+   *
+   * @note This function is intended to be used in the case there is no instance of a Dali::Application i.e. DALi is used in a implementation of a plugin of an application.
+   */
+  void ProcessIdle();
+
+  /**
    * @brief Replaces the rendering surface
    *
    * @param[in] window The window to replace the surface for

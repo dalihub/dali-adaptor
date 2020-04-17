@@ -171,6 +171,17 @@ void AndroidCallbackManager::RemoveIdleCallback( CallbackBase* callback )
   }
 }
 
+bool AndroidCallbackManager::ProcessIdle()
+{
+  // @todo To be implemented.
+  return false;
+}
+
+void AndroidCallbackManager::ClearIdleCallbacks()
+{
+  // @todo To be implemented.
+}
+
 bool AndroidCallbackManager::AddIdleEntererCallback( CallbackBase* callback )
 {
   if( !mRunning )

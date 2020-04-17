@@ -42,6 +42,9 @@ SET( SOURCES
         ${adaptor_imaging_windows_src_files}
 )
 
+# Builds the c files as c++
+SET_SOURCE_FILES_PROPERTIES( ${static_libraries_libunibreak_src_files} PROPERTIES LANGUAGE CXX )
+
 FIND_PACKAGE( pthreads REQUIRED )
 FIND_PACKAGE( curl REQUIRED )
 FIND_LIBRARY( GETOPT_LIBRARY NAMES getopt )
@@ -52,7 +55,7 @@ FIND_PACKAGE( gif REQUIRED )
 FIND_PACKAGE( jpeg REQUIRED )
 FIND_LIBRARY( TURBO_JPEG_LIBRARY NAMES turbojpeg )
 
-FIND_PACKAGE( fontconfig REQUIRED )
+FIND_PACKAGE( unofficial-fontconfig REQUIRED )
 FIND_PACKAGE( freetype REQUIRED )
 FIND_PACKAGE( harfbuzz REQUIRED )
 FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi )
@@ -70,7 +73,7 @@ SET( REQUIRED_LIBS
         ${GIF_LIBRARIES}
         JPEG::JPEG
         ${TURBO_JPEG_LIBRARY}
-        ${FONTCONFIG_LIBRARIES}
+        unofficial::fontconfig::fontconfig
         Freetype::Freetype
         harfbuzz::harfbuzz
         ${FRIBIDI_LIBRARY}
