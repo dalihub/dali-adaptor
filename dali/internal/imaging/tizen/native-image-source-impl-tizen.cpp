@@ -538,7 +538,7 @@ bool NativeImageSourceTizen::ReleaseBuffer()
   bool ret = false;
   if( mTbmSurface != NULL )
   {
-    ret = ( tbm_surface_unmap( mTbmSurface ) != TBM_SURFACE_ERROR_NONE );
+    ret = ( tbm_surface_unmap( mTbmSurface ) == TBM_SURFACE_ERROR_NONE );
     if( !ret )
     {
       DALI_LOG_ERROR( "Fail to unmap tbm_surface\n" );
