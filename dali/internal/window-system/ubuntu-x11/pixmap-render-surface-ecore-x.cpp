@@ -147,11 +147,6 @@ void PixmapRenderSurfaceEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int( yres + 0.5f );
 }
 
-int PixmapRenderSurfaceEcoreX::GetOrientation() const
-{
-  return 0;
-}
-
 void PixmapRenderSurfaceEcoreX::InitializeGraphics()
 {
   mGraphics = &mAdaptor->GetGraphicsInterface();
