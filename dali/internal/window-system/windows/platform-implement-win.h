@@ -37,8 +37,6 @@ namespace Adaptor
 namespace WindowsPlatformImplementation
 {
 
-void RunLoop();
-
 bool PostWinThreadMessage(
     _In_ uint32_t Msg,
     _In_ uint32_t wParam,
@@ -66,7 +64,7 @@ public:
 
   virtual ~WindowImpl();
 
-  static void ProcWinMessge( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam );
+  static void ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam );
 
   void GetDPI( float &xDpi, float &yDpi );
 

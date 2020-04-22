@@ -594,6 +594,12 @@ void Adaptor::RemoveIdle( CallbackBase* callback )
   mCallbackManager->RemoveIdleCallback( callback );
 }
 
+void Adaptor::ProcessIdle()
+{
+  bool idleProcessed = mCallbackManager->ProcessIdle();
+  mNotificationOnIdleInstalled = mNotificationOnIdleInstalled && !idleProcessed;
+}
+
 void Adaptor::SetPreRenderCallback( CallbackBase* callback )
 {
   mThreadController->SetPreRenderCallback( callback );
