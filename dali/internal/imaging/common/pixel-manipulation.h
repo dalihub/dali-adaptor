@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_MANIPULATION_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ enum Channel
   GREEN,
   BLUE,
   ALPHA,
+  DEPTH,
+  STENCIL,
   MAX_NUMBER_OF_CHANNELS
 };
 

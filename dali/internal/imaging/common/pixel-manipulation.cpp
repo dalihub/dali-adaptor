@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,17 @@ bool HasChannel( Dali::Pixel::Format pixelFormat, Channel channel )
     case Dali::Pixel::BGRA5551:
     {
       return ( channel == RED || channel == GREEN || channel == BLUE || channel == ALPHA );
+    }
+
+    case Dali::Pixel::DEPTH_UNSIGNED_INT:
+    case Dali::Pixel::DEPTH_FLOAT:
+    {
+      return ( channel == DEPTH );
+    }
+
+    case Dali::Pixel::DEPTH_STENCIL:
+    {
+      return ( channel == DEPTH || channel == STENCIL );
     }
 
     case Dali::Pixel::INVALID:
@@ -367,6 +378,13 @@ unsigned int ReadChannel( unsigned char* pixelData,
       else return 0u;
     }
 
+    case Dali::Pixel::DEPTH_UNSIGNED_INT:
+    case Dali::Pixel::DEPTH_FLOAT:
+    case Dali::Pixel::DEPTH_STENCIL:
+    {
+      return 0u;
+    }
+
     default:
     {
       return 0u;
@@ -637,6 +655,13 @@ void WriteChannel( unsigned char* pixelData,
         *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
         *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
       }
+      break;
+    }
+
+    case Dali::Pixel::DEPTH_UNSIGNED_INT:
+    case Dali::Pixel::DEPTH_FLOAT:
+    case Dali::Pixel::DEPTH_STENCIL:
+    {
       break;
     }
 
