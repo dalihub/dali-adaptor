@@ -34,6 +34,7 @@ namespace Adaptor
 {
 
 enum class UpdateMode;
+enum class ThreadMode;
 
 class AdaptorInternalServices;
 class EnvironmentOptions;
@@ -49,7 +50,7 @@ public:
   /**
    * Constructor
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
+  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode );
 
   /**
    * Non virtual destructor. Not intended as base class.

@@ -34,7 +34,14 @@ namespace Adaptor
 enum class UpdateMode
 {
   NORMAL,                     ///< Update and render
-  SKIP_RENDER                 ///< Update and resource upload but no rendering
+  SKIP_RENDER,                ///< Update and resource upload but no rendering
+  FORCE_RENDER                ///< Force update and render
+};
+
+enum class ThreadMode
+{
+  NORMAL,                     ///< The thread runs continuously
+  RUN_IF_REQUESTED            ///< The threads runs when it is requested
 };
 
 /**

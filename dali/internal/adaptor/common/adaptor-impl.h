@@ -76,6 +76,7 @@ class LifeCycleObserver;
 class ObjectProfiler;
 class SceneHolder;
 class ConfigurationManager;
+enum class ThreadMode;
 
 /**
  * Implementation of the Adaptor class.
@@ -685,6 +686,7 @@ private: // Data
   SystemTrace                           mSystemTracer;                ///< System tracer
   ObjectProfiler*                       mObjectProfiler;              ///< Tracks object lifetime for profiling
   SocketFactory                         mSocketFactory;               ///< Socket factory
+  ThreadMode                            mThreadMode;                  ///< The thread mode
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface:1;          ///< whether the remoteSurface is used or not
 
