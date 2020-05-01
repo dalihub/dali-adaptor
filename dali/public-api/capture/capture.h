@@ -2,7 +2,7 @@
 #define DALI_CAPTURE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -45,7 +46,7 @@ class Capture;
 /**
  * @brief Capture snapshots the current scene and save as a file.
  *
- * @SINCE_1_3_4
+ * @SINCE_1_3.4
  *
  * Applications should follow the example below to create capture :
  *
@@ -190,6 +191,13 @@ public:
    * @note Clear color is transparent.
    */
   void Start( Actor source, const Vector2& size, const std::string &path );
+
+  /**
+   * @brief Get NativeImageSourcePtr that is saved captured image.
+   *
+   * @SINCE_1_9.10
+   */
+  Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
    * @brief Get finished signal.
