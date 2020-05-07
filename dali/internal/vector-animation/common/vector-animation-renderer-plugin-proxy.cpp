@@ -35,7 +35,7 @@ namespace
 {
 
 // The default plugin name
-const char* DEFAULT_OBJECT_NAME( "libdali-vector-animation-renderer-plugin.so" );
+const char* DEFAULT_OBJECT_NAME( "libdali2-vector-animation-renderer-plugin.so" );
 
 }
 
