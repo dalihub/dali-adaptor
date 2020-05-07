@@ -45,11 +45,7 @@ Debug::Filter* gKeyExtensionLogFilter = Debug::Filter::New(Debug::NoLogging, fal
 #endif
 
 // Path for loading extension keys
-#if _GLIBCXX_USE_CXX11_ABI
-const char* KEY_EXTENSION_PLUGIN_SO( "libdali-key-extension.so" );
-#else
-const char* KEY_EXTENSION_PLUGIN_SO( "libdali-key-extension-cxx03.so" );
-#endif
+const char* KEY_EXTENSION_PLUGIN_SO( "libdali2-key-extension.so" );
 
 class KeyMap
 {
@@ -213,7 +209,7 @@ class KeyMap
 
     if( mHandle == NULL )
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to get handle from libdali-key-extension.so\n" );
+      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to get handle from libdali2-key-extension.so\n" );
       return;
     }
 
