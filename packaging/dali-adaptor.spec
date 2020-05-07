@@ -15,9 +15,9 @@
 %global __provides_exclude_from ^.*\\.(wearable|mobile|tv|ivi|common)$
 %endif
 
-Name:       dali-adaptor
+Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.5.8
+Version:    1.9.10
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -27,12 +27,6 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
-Provides: libdali-adaptor-cxx11.so
-Provides: libdali-adaptor-cxx11.so.0
-Provides: libdali-adaptor-cxx11.so.0.0.0
-Provides: libdali-adaptor.so
-Provides: libdali-adaptor.so.0
-Provides: libdali-adaptor.so.0.0.0
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
@@ -49,8 +43,8 @@ BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(ttrace)
 
-BuildRequires:  dali-devel
-BuildRequires:  dali-integration-devel
+BuildRequires:  dali2-devel
+BuildRequires:  dali2-integration-devel
 
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
@@ -79,7 +73,7 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
 
-# dali-adaptor uses ecore mainloop
+# We use ecore mainloop
 %if 0%{?tizen_version_major} >= 5
 BuildRequires:  pkgconfig(ecore-wl2)
 BuildRequires:  pkgconfig(wayland-egl-tizen)
@@ -87,10 +81,10 @@ BuildRequires:  pkgconfig(wayland-egl-tizen)
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif
 
-# dali-adaptor needs tbm_surface in tizen 3.0 wayland
+# We need tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
 
-# for dali-adaptor
+# for the adaptor
 BuildRequires:  pkgconfig(appcore-ui)
 BuildRequires:  pkgconfig(appcore-widget-base)
 BuildRequires:  pkgconfig(bundle)
@@ -218,11 +212,11 @@ Integration development package for the Adaptor - headers for integrating with a
 ##############################
 # Dali Feedback Plugin
 ##############################
-%package dali-feedback-plugin
+%package dali2-feedback-plugin
 Summary:    Plugin to play haptic and audio feedback for Dali
 Group:      System/Libraries
 Requires:   %{name} = %{version}-%{release}
-%description dali-feedback-plugin
+%description dali2-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
 
 ##############################
@@ -397,7 +391,7 @@ pushd mobile
 %make_install
 %if "%{?profile}" != "mobile"
 pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.mobile # If we're only building this profile, then there's no need to copy the lib
+cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.mobile # If we're only building this profile, then there's no need to copy the lib
 popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
@@ -410,7 +404,7 @@ pushd tv
 %make_install
 %if "%{?profile}" != "tv"
 pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.tv # If we're only building this profile, then there's no need to copy the lib
+cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.tv # If we're only building this profile, then there's no need to copy the lib
 popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
@@ -423,7 +417,7 @@ pushd wearable
 %make_install
 %if "%{?profile}" != "wearable"
 pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.wearable # If we're only building this profile, then there's no need to copy the lib
+cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.wearable # If we're only building this profile, then there's no need to copy the lib
 popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
@@ -436,7 +430,7 @@ pushd ivi
 %make_install
 %if "%{?profile}" != "ivi"
 pushd  %{buildroot}%{_libdir}
-cp libdali-adaptor.so.*.*.* libdali-adaptor.so.ivi # If we're only building this profile, then there's no need to copy the lib
+cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.ivi # If we're only building this profile, then there's no need to copy the lib
 popd
 make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
 %endif
@@ -450,13 +444,6 @@ pushd common
 # No clean so we can gather symbol/size information for the common profile
 popd
 %endif
-
-# Create links to ensure linking with cxx11 library is preserved
-pushd  %{buildroot}%{_libdir}
-ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so
-ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0
-ln -sf libdali-adaptor.so libdali-adaptor-cxx11.so.0.0.0
-popd
 
 # Create a symbolic link in integration-api to preserve legacy repo build
 pushd %{buildroot}%{_includedir}/dali/integration-api
@@ -480,7 +467,7 @@ exit 0
 
 %post
 pushd %{_libdir}
-for i in mobile tv wearable ivi; do [[ -f libdali-adaptor.so.$i ]] && ln -sf libdali-adaptor.so.$i libdali-adaptor.so.0.0.0; done
+for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
 popd
 /sbin/ldconfig
 exit 0
@@ -500,7 +487,7 @@ exit 0
 %post profile_mobile
 %if "%{?profile}" != "mobile"
 pushd %{_libdir}
-ln -sf libdali-adaptor.so.mobile libdali-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.mobile libdali2-adaptor.so.2.0.0
 popd
 %endif
 /sbin/ldconfig
@@ -518,7 +505,7 @@ exit 0
 %post profile_tv
 %if "%{?profile}" != "tv"
 pushd %{_libdir}
-ln -sf libdali-adaptor.so.tv libdali-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.tv libdali2-adaptor.so.2.0.0
 popd
 %endif
 /sbin/ldconfig
@@ -536,7 +523,7 @@ exit 0
 %post profile_wearable
 %if "%{?profile}" != "wearable"
 pushd %{_libdir}
-ln -sf libdali-adaptor.so.wearable libdali-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.wearable libdali2-adaptor.so.2.0.0
 popd
 %endif
 /sbin/ldconfig
@@ -554,7 +541,7 @@ exit 0
 %post profile_ivi
 %if "%{?profile}" != "ivi"
 pushd %{_libdir}
-ln -sf libdali-adaptor.so.ivi libdali-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.0.0.0
 popd
 %endif
 /sbin/ldconfig
@@ -588,19 +575,16 @@ exit 0
 %{_bindir}/*
 %license LICENSE
 %defattr(-,root,root,-)
-%{_libdir}/libdali-adaptor-cxx11.so
-%{_libdir}/libdali-adaptor-cxx11.so.0
-%{_libdir}/libdali-adaptor-cxx11.so.0.0.0
-%{_libdir}/libdali-adaptor.so
-%{_libdir}/libdali-adaptor.so.0
-%{_libdir}/libdali-adaptor.so.0.0.0
+%{_libdir}/libdali2-adaptor.so
+%{_libdir}/libdali2-adaptor.so.2
+%{_libdir}/libdali2-adaptor.so.2.0.0
 
 #################################################
 
-%files dali-feedback-plugin
+%files dali2-feedback-plugin
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
-%{_libdir}/libdali-feedback-plugin-cxx11.so*
+%{_libdir}/libdali2-feedback-plugin.so*
 %{dali_plugin_sound_files}/*
 
 #################################################
@@ -618,7 +602,7 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %if "%{?profile}" != "mobile"
-%{_libdir}/libdali-adaptor.so.mobile
+%{_libdir}/libdali2-adaptor.so.mobile
 %endif
 %endif
 
@@ -628,7 +612,7 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %if "%{?profile}" != "tv"
-%{_libdir}/libdali-adaptor.so.tv
+%{_libdir}/libdali2-adaptor.so.tv
 %endif
 %endif
 
@@ -638,7 +622,7 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %if "%{?profile}" != "wearable"
-%{_libdir}/libdali-adaptor.so.wearable
+%{_libdir}/libdali2-adaptor.so.wearable
 %endif
 %endif
 
@@ -648,7 +632,7 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %if "%{?profile}" != "ivi"
-%{_libdir}/libdali-adaptor.so.ivi
+%{_libdir}/libdali2-adaptor.so.ivi
 %endif
 %endif
 
@@ -658,10 +642,10 @@ exit 0
 %{_includedir}/dali/public-api/*
 %{_includedir}/dali/devel-api/*
 %{_includedir}/dali/doc/*
-%{_libdir}/pkgconfig/dali-adaptor.pc
+%{_libdir}/pkgconfig/dali2-adaptor.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
 %{_includedir}/dali/integration-api/adaptor-framework/*
 %{_includedir}/dali/integration-api/adaptors
-%{_libdir}/pkgconfig/dali-adaptor-integration.pc
+%{_libdir}/pkgconfig/dali2-adaptor-integration.pc

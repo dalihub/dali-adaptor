@@ -20,7 +20,6 @@
 
 #include <xlocale>
 
-int setenv( const char* __name, const char* __value, int __replace );
 const char* app_get_data_path();
 
 static int strncasecmp(const char *s1, const char *s2, register int n)

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CAPTURE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <string>
 #include <memory>
-#include <tbm_surface.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/render-tasks/render-task.h>
@@ -72,6 +71,11 @@ public:
   void Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor );
 
   /**
+   * @copydoc Dali::Capture::GetNativeImageSource
+   */
+  Dali::NativeImageSourcePtr GetNativeImageSource() const;
+
+  /**
    * @copydoc Dali::Capture::FinishedSignal
    */
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
@@ -85,35 +89,9 @@ protected:
 
 private:
   /**
-   * @brief Create surface.
-   *
-   * @param[in] size of surface.
-   */
-  void CreateSurface( const Dali::Vector2& size );
-
-  /**
-   * @brief Delete surface.
-   */
-  void DeleteSurface();
-
-  /**
-   * @brief Clear surface with color.
-   *
-   * @param[in] size of clear aread.
-   */
-  void ClearSurface( const Dali::Vector2& size );
-
-  /**
-   * @brief Query whether surface is created or not.
-   *
-   * @return True is surface is created.
-   */
-  bool IsSurfaceCreated();
-
-  /**
    * @brief Create native image source.
    */
-  void CreateNativeImageSource();
+  void CreateNativeImageSource( const Dali::Vector2& size );
 
   /**
    * @brief Delete native image source.
@@ -197,7 +175,7 @@ private:
    *
    * @return True is success to save, false is fail.
    */
-  bool Save();
+  bool SaveFile();
 
 private:
 
@@ -218,7 +196,7 @@ private:
   Dali::Capture::CaptureFinishedSignalType    mFinishedSignal;
   std::string                                 mPath;
   Dali::NativeImageSourcePtr                  mNativeImageSourcePtr;  ///< pointer to surface image
-  tbm_surface_h                               mTbmSurface;
+  bool                                        mFileSave;
 };
 
 }  // End of namespace Adaptor

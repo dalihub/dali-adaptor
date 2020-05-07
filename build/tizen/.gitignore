@@ -5,11 +5,10 @@ CMakeLists_temp.txt
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
-dali-adaptor.pc
-dali-adaptor-integration.pc
+dali2-adaptor.pc
+dali2-adaptor-integration.pc
 dali.info
 doc
 install_manifest.txt
-libdali-adaptor.so.0
-libdali-adaptor.so.0.0.0
+libdali2-adaptor.so.*
 linker-test
