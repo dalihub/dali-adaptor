@@ -171,7 +171,7 @@ public:
   /**
    * @brief Start capture and save the image as a file.
    *
-   * @SINCE_1_3_4
+   * @SINCE_1_9.12
    *
    * @param[in] source source actor to be used for capture.
    * @param[in] size captured size.
@@ -184,7 +184,7 @@ public:
   /**
    * @brief Start capture and save the image as a file.
    *
-   * @SINCE_1_9.10
+   * @SINCE_1_3_4
    *
    * @param[in] source source actor to be used for capture.
    * @param[in] size captured size.
