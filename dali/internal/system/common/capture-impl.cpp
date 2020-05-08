@@ -28,6 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-devel.h>
 
 namespace
 {
@@ -44,7 +45,8 @@ namespace Adaptor
 {
 
 Capture::Capture()
-: mTimer(),
+: mQuality( DEFAULT_QUALITY ),
+  mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
   mFileSave( false )
@@ -52,7 +54,8 @@ Capture::Capture()
 }
 
 Capture::Capture( Dali::CameraActor cameraActor )
-: mCameraActor( cameraActor ),
+: mQuality( DEFAULT_QUALITY ),
+  mCameraActor( cameraActor ),
   mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
@@ -77,6 +80,12 @@ CapturePtr Capture::New( Dali::CameraActor cameraActor )
   CapturePtr pWorker = new Capture( cameraActor );
 
   return pWorker;
+}
+
+void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality )
+{
+  mQuality = quality;
+  Start( source, size, path, clearColor );
 }
 
 void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor )
@@ -306,7 +315,7 @@ bool Capture::SaveFile()
 {
   DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL");
 
-  return mNativeImageSourcePtr->EncodeToFile( mPath );
+  return Dali::DevelNativeImageSource::EncodeToFile( *mNativeImageSourcePtr, mPath, mQuality );
 }
 
 }  // End of namespace Adaptor

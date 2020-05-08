@@ -27,6 +27,19 @@ namespace DevelNativeImageSource
 {
 
 /**
+ * @brief Converts the current pixel contents to either a JPEG or PNG format
+ * and write that to the filesystem.
+ *
+ * @param[in] image The instance of NativeImageSource.
+ * @param[in] filename Identify the filesystem location at which to write the encoded image.
+ *                     The extension determines the encoding used.
+ *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
+ * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
+ * @return    @c true if the pixels were written, and @c false otherwise
+ */
+DALI_ADAPTOR_API bool EncodeToFile( NativeImageSource& image, const std::string& filename, const uint32_t quality );
+
+/**
  * @brief Acquire buffer and information of an internal native image.
  *
  * AcquireBuffer() and ReleaseBuffer() are a pair.
