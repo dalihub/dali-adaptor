@@ -26,12 +26,16 @@
 #include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/public-api/signals/callback.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -149,14 +153,14 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
 #ifdef SHADERBIN_CACHE_ENABLED
   std::string path;
 
-  // First check the system location where shaders are stored at install time:
-  path = DALI_SHADERBIN_DIR;
+  // First check the resource path where shaders are stored at install time:
+  Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetDataStoragePath( path );
   path += filename;
   result = LoadFile( path, buffer );
 
   // Fallback to the cache of shaders stored after previous runtime compilations:
   // On desktop this looks in the current working directory that the app was launched from.
-  if( mResourceLoader && result == false )
+  if( result == false )
   {
     path = mDataStoragePath;
     path += filename;
@@ -251,30 +255,94 @@ TizenPlatformAbstraction* CreatePlatformAbstraction()
   return new TizenPlatformAbstraction();
 }
 
+bool LoadFile( const std::string& filename, Dali::Vector< unsigned char > & buffer )
+{
+  DALI_ASSERT_DEBUG( 0 != filename.length());
+
+  int fd = open( filename.c_str(), O_RDONLY );
+
+  if ( fd < 0 )
+  {
+    DALI_LOG_ERROR("file open is fali, file path : %s\n", filename.c_str());
+    return false;
+  }
+
+  int length = lseek(fd, 0, SEEK_END);
+  buffer.Resize( length );
+
+  lseek(fd, 0, SEEK_SET);
+
+  int err = read( fd, &buffer[0], length);
+  close( fd );
+
+  if( err < 0 )
+  {
+    DALI_LOG_ERROR("read fail err : %d\n", err);
+    return false;
+  }
+
+  return true;
+}
+
+bool LockShader( int fd )
+{
+  /* lock for wait creating shader*/
+  struct flock filelock;
+  filelock.l_type = F_WRLCK;
+  filelock.l_whence = SEEK_SET;
+  filelock.l_start = 0;
+  filelock.l_len = 0;
+  if ( fcntl( fd, F_SETLK, &filelock ) == -1 )
+  {
+    return false;
+  }
+  return true;
+}
+
+bool UnlockShader( int fd )
+{
+  /* reset lock */
+  struct flock filelock;
+  filelock.l_type = F_UNLCK;
+  filelock.l_whence = SEEK_SET;
+  filelock.l_start = 0;
+  filelock.l_len = 0;
+  if ( fcntl( fd, F_SETLKW, &filelock ) == -1 )
+  {
+    return false;
+  }
+  return true;
+}
+
 bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes )
 {
   DALI_ASSERT_DEBUG( 0 != filename.length());
 
+  int length = static_cast<int>(numBytes);
   bool result = false;
+  int fd = open( filename.c_str(), O_RDWR | O_CREAT , S_IRUSR | S_IWUSR );
 
-  std::filebuf buf;
-  buf.open(filename.c_str(), std::ios::out | std::ios_base::trunc | std::ios::binary);
-  if( buf.is_open() )
+  if ( fd >= 0 )
   {
-    std::ostream stream(&buf);
+    if ( !LockShader( fd ))
+    {
+      DALI_LOG_ERROR("lock take fail");
+      close( fd );
+      return result;
+    }
 
-    // determine size of buffer
-    int length = static_cast<int>(numBytes);
-
-    // write contents of buffer to the file
-    stream.write(reinterpret_cast<const char*>(buffer), length);
-
-    if( !stream.bad() )
+    if ( write( fd, buffer, length) >= 0 )
     {
       result = true;
     }
-  }
 
+    if ( !UnlockShader( fd ) )
+    {
+      DALI_LOG_ERROR("lock release fail");
+    }
+
+    close( fd );
+  }
   return result;
 }
 

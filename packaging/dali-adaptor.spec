@@ -312,6 +312,7 @@ cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
 cmake_flags+=" -DENABLE_TIZEN_MINOR_VERSION=%{tizen_version_minor}"
 cmake_flags+=" -DENABLE_FEEDBACK=YES"
 cmake_flags+=" -DENABLE_APPFW=YES"
+cmake_flags+=" -DENABLE_SHADERBINCACHE=YES"
 
 # Set up the build via Cmake
 #######################################################################

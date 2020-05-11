@@ -403,6 +403,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
+   * Gets path for data storage.
+   * @param[out] path Path for data storage
+   */
+  void GetDataStoragePath(std::string& path);
+
+  /**
    * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
@@ -589,12 +595,6 @@ private:
    * Sends an notification message from main loop idle handler
    */
   bool ProcessCoreEventsFromIdle();
-
-  /**
-   * Gets path for data/resource storage.
-   * @param[out] path Path for data/resource storage
-   */
-  void GetDataStoragePath(std::string& path);
 
   /**
    * Sets up system information if needs

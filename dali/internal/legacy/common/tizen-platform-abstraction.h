@@ -149,6 +149,14 @@ TizenPlatformAbstraction* CreatePlatformAbstraction();
  */
 bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
 
+/*
+ * Loads a file into data
+ * @param[in] filename The filename.
+ * @param[in] buffer The data in the file.
+ * @return True if the file data could be loaded
+ */
+bool LoadFile( const std::string& filename, Dali::Vector< unsigned char > & buffer );
+
 }  // namespace TizenPlatform
 
 }  // namespace Dali

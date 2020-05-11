@@ -117,6 +117,10 @@ IF( ANDROID_PROFILE )
   INCLUDE_DIRECTORIES( ${ANDROID_NDK}/sysroot/usr/include/android )
 ENDIF()
 
+IF( enable_appfw)
+  ADD_DEFINITIONS( -DUSE_APPFW )
+ENDIF()
+
 IF( enable_wayland )
   IF( enable_ecore_wayland2 )
     PKG_CHECK_MODULES(WAYLAND ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 xkbcommon libtbm )
