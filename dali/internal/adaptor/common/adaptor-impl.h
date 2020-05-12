@@ -403,6 +403,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
+   * Gets path for resource storage.
+   * @param[out] path Path for resource storage
+   */
+  void GetResourceStoragePath( std::string& path);
+
+  /**
    * Gets path for data storage.
    * @param[out] path Path for data storage
    */

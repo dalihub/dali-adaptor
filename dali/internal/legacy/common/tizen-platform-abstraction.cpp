@@ -154,7 +154,7 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
   std::string path;
 
   // First check the resource path where shaders are stored at install time:
-  Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetDataStoragePath( path );
+  Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetResourceStoragePath( path );
   path += filename;
   result = LoadFile( path, buffer );
 
