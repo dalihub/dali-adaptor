@@ -209,8 +209,9 @@ int WindowRenderSurface::GetOrientation() const
 
 void WindowRenderSurface::InitializeGraphics()
 {
-
   mGraphics = &mAdaptor->GetGraphicsInterface();
+
+  DALI_ASSERT_ALWAYS( mGraphics && "Graphics interface is not created" );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
   mEGL = &eglGraphics->GetEglInterface();
@@ -263,13 +264,15 @@ void WindowRenderSurface::DestroySurface()
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  if( eglGraphics )
+  {
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    eglImpl.DestroySurface( mEGLSurface );
 
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.DestroySurface( mEGLSurface );
-
-  mWindowBase->DestroyEglWindow();
+    mWindowBase->DestroyEglWindow();
+  }
 }
 
 bool WindowRenderSurface::ReplaceGraphicsSurface()
