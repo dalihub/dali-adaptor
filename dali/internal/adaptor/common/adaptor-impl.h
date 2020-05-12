@@ -413,6 +413,12 @@ public:
   void GetAppId( std::string& appId );
 
   /**
+   * Gets path for resource storage.
+   * @param[out] path Path for resource storage
+   */
+  void GetResourceStoragePath( std::string& path );
+
+  /**
    * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );

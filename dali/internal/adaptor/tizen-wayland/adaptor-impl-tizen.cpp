@@ -76,7 +76,23 @@ std::string Adaptor::GetApplicationPackageName()
   return appname;
 }
 
-void Adaptor::GetDataStoragePath( std::string& path)
+void Adaptor::GetResourceStoragePath( std::string& path )
+{
+#ifdef USE_APPFW
+  char *pathInt = app_get_resource_path();
+  if ( pathInt )
+  {
+    path = pathInt;
+    free( pathInt );
+  }
+  else
+  {
+    path = "";
+  }
+#endif
+}
+
+void Adaptor::GetDataStoragePath( std::string& path )
 {
 #ifdef USE_APPFW
   char *pathInt = app_get_data_path();
