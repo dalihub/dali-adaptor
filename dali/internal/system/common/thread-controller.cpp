@@ -90,6 +90,11 @@ void ThreadController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface 
   mThreadControllerInterface->ReplaceSurface( newSurface );
 }
 
+void ThreadController::DeleteSurface( Dali::RenderSurfaceInterface* surface )
+{
+  mThreadControllerInterface->DeleteSurface( surface );
+}
+
 void ThreadController::ResizeSurface()
 {
   mThreadControllerInterface->ResizeSurface();
@@ -113,11 +118,6 @@ void ThreadController::SetPreRenderCallback( CallbackBase* callback )
 void ThreadController::AddSurface( Dali::RenderSurfaceInterface* newSurface )
 {
   mThreadControllerInterface->AddSurface( newSurface );
-}
-
-bool ThreadController::IsRenderingWindows() const
-{
-  return mThreadControllerInterface->IsRenderingWindows();
 }
 
 } // namespace Adaptor
