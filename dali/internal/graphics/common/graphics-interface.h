@@ -48,6 +48,11 @@ public:
   };
 
   /**
+   * Destructor
+   */
+  virtual ~GraphicsInterface() {}
+
+  /**
    * Initialize the graphics interface
    * @param[in]  environmentOptions  The environment options.
    */
@@ -75,12 +80,6 @@ public:
   {
     return mStencilBufferRequired;
   };
-
-protected:
-  /**
-   * Virtual protected destructor - no deletion through this interface
-   */
-  virtual ~GraphicsInterface() {};
 
 
 protected:

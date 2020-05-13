@@ -664,7 +664,7 @@ private: // Data
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
 
-  GraphicsInterface*                    mGraphics;                    ///< Graphics interface
+  std::unique_ptr< GraphicsInterface >  mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowContainer                       mWindows;                     ///< A container of all the Windows that are currently created
 

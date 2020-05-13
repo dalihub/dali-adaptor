@@ -794,7 +794,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
 
-  // Inform core of context destruction & shutdown EGL
+  // Inform core of context destruction
   mCore.ContextDestroyed();
   currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if( currentSurface )
@@ -802,6 +802,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     currentSurface->DestroySurface();
     currentSurface = nullptr;
   }
+
+  // Shutdown EGL
+  eglInterface->TerminateGles();
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );
 

@@ -161,10 +161,11 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   DALI_ASSERT_DEBUG( defaultWindow->GetSurface() && "Surface not initialized" );
 
-  mGraphics = &( graphicsFactory.Create() );
+  mGraphics = std::unique_ptr< GraphicsInterface >( &graphicsFactory.Create() );
   mGraphics->Initialize( mEnvironmentOptions );
 
-  auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+  GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
+  auto eglGraphics = static_cast<EglGraphics *>( graphics );
 
   // This will only be created once
   eglGraphics->Create();
@@ -712,7 +713,7 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
-  return *mGraphics;
+  return *( mGraphics.get() );
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
@@ -803,7 +804,8 @@ Any Adaptor::GetGraphicsDisplay()
 
   if (mGraphics)
   {
-    auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+    GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
+    auto eglGraphics = static_cast<EglGraphics *>( graphics );
 
     EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     display = eglImpl.GetDisplay();
