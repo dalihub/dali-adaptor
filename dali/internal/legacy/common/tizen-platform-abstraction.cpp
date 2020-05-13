@@ -268,6 +268,11 @@ bool LoadFile( const std::string& filename, Dali::Vector< unsigned char > & buff
   }
 
   int length = lseek(fd, 0, SEEK_END);
+  if (length <= 0)
+  {
+    close( fd );
+    return false;
+  }
   buffer.Resize( length );
 
   lseek(fd, 0, SEEK_SET);
