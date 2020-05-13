@@ -80,5 +80,5 @@ SET( REQUIRED_LIBS
         unofficial::angle::libEGL
         unofficial::angle::libGLESv2
         unofficial::cairo::cairo
-        dali-core::dali-core
+        dali2-core::dali2-core
 )
