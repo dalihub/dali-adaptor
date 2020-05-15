@@ -31,11 +31,7 @@ namespace Internal
 namespace Adaptor
 {
 
-#if _GLIBCXX_USE_CXX11_ABI
-const char * const FeedbackPluginProxy::DEFAULT_OBJECT_NAME( "libdali-feedback-plugin.so" );
-#else
-const char * const FeedbackPluginProxy::DEFAULT_OBJECT_NAME( "libdali-feedback-plugin-cxx03.so" );
-#endif
+const char * const FeedbackPluginProxy::DEFAULT_OBJECT_NAME( "libdali2-feedback-plugin.so" );
 
 FeedbackPluginProxy::FeedbackPluginProxy( const std::string& sharedObjectName )
 : mInitializeAttempted( false ),

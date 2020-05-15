@@ -171,6 +171,19 @@ public:
   /**
    * @brief Start capture and save the image as a file.
    *
+   * @SINCE_1_9.12
+   *
+   * @param[in] source source actor to be used for capture.
+   * @param[in] size captured size.
+   * @param[in] path image file path to be saved as a file.
+   * @param[in] clearColor background color of captured scene
+   * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
+   */
+  void Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor, const uint32_t quality );
+
+  /**
+   * @brief Start capture and save the image as a file.
+   *
    * @SINCE_1_3_4
    *
    * @param[in] source source actor to be used for capture.

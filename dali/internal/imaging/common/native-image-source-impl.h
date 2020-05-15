@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 
 namespace Dali
 {
@@ -36,6 +37,8 @@ namespace Adaptor
 class NativeImageSource
 {
 public:
+
+  static constexpr uint32_t DEFAULT_QUALITY = 100;
 
   /**
    * Create a new NativeImageSource internally.
@@ -59,11 +62,6 @@ public:
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
   virtual bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const = 0;
-
-  /**
-   * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
-   */
-  virtual bool EncodeToFile(const std::string& filename) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
@@ -129,6 +127,37 @@ public:
    * @brief Dali::DevelNativeImageSource::ReleaseBuffer()
    */
   virtual bool ReleaseBuffer() = 0;
+
+  /**
+   * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
+   */
+  inline bool EncodeToFile( const std::string& filename ) const
+  {
+    return EncodeToFile( filename, DEFAULT_QUALITY );
+  }
+
+  /**
+   * @brief Converts the current pixel contents to either a JPEG or PNG format
+   * and write that to the filesystem.
+   *
+   * @param[in] filename Identify the filesystem location at which to write the encoded image.
+   *                     The extension determines the encoding used.
+   *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
+   * @param[in] quality The quality of encoded jpeg image
+   * @return    @c true if the pixels were written, and @c false otherwise
+   */
+  inline bool EncodeToFile( const std::string& filename, const uint32_t quality ) const
+  {
+    std::vector< uint8_t > pixbuf;
+    uint32_t width( 0 ), height( 0 );
+    Pixel::Format pixelFormat;
+
+    if( GetPixels( pixbuf, width, height, pixelFormat ) )
+    {
+      return Dali::EncodeToFile( &pixbuf[0], filename, pixelFormat, width, height, quality );
+    }
+    return false;
+  }
 
 public:
   inline static Internal::Adaptor::NativeImageSource& GetImplementation( Dali::NativeImageSource& image ) { return *image.mImpl; }

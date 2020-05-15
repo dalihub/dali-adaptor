@@ -20,6 +20,8 @@
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // EXTERNAL INCLUDES
+#include <errno.h>
+#include <sys/stat.h>
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
@@ -299,11 +301,11 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   std::string systemCachePath = GetSystemCachePath();
   if( ! systemCachePath.empty() )
   {
-    const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
-    if (-1 == dir_err)
+    const int dir_err = mkdir( systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH );
+    if ( 0 != dir_err && errno != EEXIST )
     {
-        printf( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
-        exit(1);
+      DALI_LOG_ERROR( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
+      exit( 1 );
     }
   }
 

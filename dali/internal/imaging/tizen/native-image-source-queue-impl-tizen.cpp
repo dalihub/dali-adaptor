@@ -189,6 +189,26 @@ void NativeImageSourceQueueTizen::SetSize( uint32_t width, uint32_t height )
   ResetEglImageList();
 }
 
+void NativeImageSourceQueueTizen::IgnoreSourceImage()
+{
+  Dali::Mutex::ScopedLock lock( mMutex );
+  tbm_surface_h surface;
+
+  if( tbm_surface_queue_can_acquire( mTbmQueue, 0 ) )
+  {
+    if( tbm_surface_queue_acquire( mTbmQueue, &surface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+    {
+      DALI_LOG_ERROR( "NativeImageSourceQueueTizen::IgnoreSourceImage: Failed to aquire a tbm_surface\n" );
+      return;
+    }
+
+    if( tbm_surface_internal_is_valid( surface ) )
+    {
+      tbm_surface_queue_release( mTbmQueue, surface );
+    }
+  }
+}
+
 bool NativeImageSourceQueueTizen::GlExtensionCreate()
 {
   mEglImageExtensions = mEglGraphics->GetImageExtensions();
