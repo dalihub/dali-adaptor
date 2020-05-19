@@ -605,9 +605,9 @@ public:
   Dali::Rect<> GetExtents( Dali::Accessibility::CoordType ctype ) override
   {
     Vector2 screenPosition = actor.GetProperty( Dali::DevelActor::Property::SCREEN_POSITION ).Get< Vector2 >();
-    Vector3 size = actor.GetCurrentSize() * actor.GetCurrentWorldScale();
+    Vector3 size = actor.GetCurrentProperty< Vector3 >( Actor::Property::SIZE ) * actor.GetCurrentProperty< Vector3 >( Actor::Property::WORLD_SCALE );
     bool positionUsesAnchorPoint = actor.GetProperty( Dali::DevelActor::Property::POSITION_USES_ANCHOR_POINT ).Get< bool >();
-    Vector3 anchorPointOffSet = size * ( positionUsesAnchorPoint ? actor.GetCurrentAnchorPoint() : AnchorPoint::TOP_LEFT );
+    Vector3 anchorPointOffSet = size * ( positionUsesAnchorPoint ? actor.GetCurrentProperty< Vector3 >( Actor::Property::ANCHOR_POINT ) : AnchorPoint::TOP_LEFT );
     Vector2 position = Vector2( screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y );
 
     return { position.x, position.y, size.x, size.y };
@@ -646,7 +646,7 @@ public:
   }
   std::string GetName() override
   {
-    return actor.GetName();
+    return actor.GetProperty< std::string >( Dali::Actor::Property::NAME );
   }
   std::string GetDescription() override
   {

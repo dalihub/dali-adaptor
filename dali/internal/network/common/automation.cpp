@@ -334,8 +334,8 @@ std::string DumpJson( Dali::Actor actor, int level )
 {
   // All the information about this actor
   std::ostringstream msg;
-  msg << "{ " << Quote( "Name" ) << " : " << Quote( actor.GetName() ) << ", " << Quote( "level" ) << " : " << level << ", " << Quote( "id" ) << " : " << actor.GetId() << ", " << Quote( "IsVisible" )
-      << " : " << actor.IsVisible() << ", " << Quote( "IsSensitive" ) << " : " << actor.IsSensitive();
+  msg << "{ " << Quote( "Name" ) << " : " << Quote( actor.GetProperty< std::string >( Actor::Property::NAME ) ) << ", " << Quote( "level" ) << " : " << level << ", " << Quote( "id" ) << " : " << actor.GetId() << ", " << Quote( "IsVisible" )
+      << " : " << actor.GetCurrentProperty< bool >( Actor::Property::VISIBLE ) << ", " << Quote( "IsSensitive" ) << " : " << actor.GetProperty< bool >( Actor::Property::SENSITIVE );
 
   msg << ", " << Quote( "properties" ) << ": [ ";
 
