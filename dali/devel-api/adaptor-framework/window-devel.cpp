@@ -143,6 +143,11 @@ void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::W
   GetImplementation( window ).SetAvailableOrientations( orientations );
 }
 
+int32_t GetNativeId( Window window )
+{
+  return GetImplementation( window ).GetNativeId();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

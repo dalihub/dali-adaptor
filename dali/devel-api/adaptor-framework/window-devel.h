@@ -243,6 +243,13 @@ DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation( Window w
  */
 DALI_ADAPTOR_API void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
 
+/**
+ * @brief Gets current window ID.
+ *
+ * @param[in] window The window instance
+ */
+DALI_ADAPTOR_API int32_t GetNativeId( Window window );
+
 } // namespace DevelWindow
 
 } // namespace Dali
