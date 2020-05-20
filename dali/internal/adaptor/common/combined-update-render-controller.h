@@ -128,11 +128,6 @@ public:
   virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
-   * @copydoc ThreadControllerInterface::DeleteSurface()
-   */
-  virtual void DeleteSurface( Dali::RenderSurfaceInterface* surface );
-
-  /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
    */
   virtual void ResizeSurface();
@@ -156,6 +151,11 @@ public:
    * @copydoc ThreadControllerInterface::AddSurface()
    */
   virtual void AddSurface( Dali::RenderSurfaceInterface* surface );
+
+  /**
+   * @copydoc ThreadControllerInterface::IsRenderingWindows()
+   */
+  bool IsRenderingWindows() const override { return mIsRenderingWindows; }
 
 private:
 
@@ -248,21 +248,6 @@ private:
    * This will lock the mutex in mEventThreadWaitCondition
    */
   void SurfaceReplaced();
-
-  /**
-   * Checks to see if the surface needs to be deleted.
-   * This will lock the mutex in mUpdateRenderThreadWaitCondition.
-   *
-   * @return Pointer to the deleted surface, nullptr otherwise
-   */
-  Dali::RenderSurfaceInterface* ShouldSurfaceBeDeleted();
-
-  /**
-   * Called by the Update/Render thread after a surface has been deleted.
-   *
-   * This will lock the mutex in mEventThreadWaitCondition
-   */
-  void SurfaceDeleted();
 
   /**
    * Checks to see if the surface needs to be resized.
@@ -380,7 +365,6 @@ private:
   volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
   Dali::RenderSurfaceInterface* volatile mNewSurface;                  ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
-  Dali::RenderSurfaceInterface* volatile mDeletedSurface;              ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
@@ -389,6 +373,8 @@ private:
   volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
 
   volatile unsigned int             mFirstFrameAfterResume;            ///< Will be set to check the first frame after resume (for log)
+
+  std::atomic<bool>                 mIsRenderingWindows;               ///< This is set only from the render thread and read only from the event thread
 };
 
 } // namespace Adaptor

@@ -133,8 +133,6 @@ SceneHolder::~SceneHolder()
     mAdaptor->RemoveObserver( *mLifeCycleObserver.get() );
     mAdaptor->RemoveWindow( this );
 
-    mAdaptor->DeleteSurface( *mSurface.get() );
-
     mAdaptor = nullptr;
   }
 
