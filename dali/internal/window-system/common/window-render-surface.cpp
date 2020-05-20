@@ -85,6 +85,11 @@ WindowRenderSurface::~WindowRenderSurface()
   {
     delete mRotationTrigger;
   }
+
+  if ( mEGLSurface )
+  {
+    DestroySurface();
+  }
 }
 
 void WindowRenderSurface::Initialize( Any surface )
@@ -259,13 +264,7 @@ void WindowRenderSurface::DestroySurface()
     DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
     eglImpl.DestroySurface( mEGLSurface );
-    mEGLSurface = nullptr;
-
-    // Destroy context also
-    eglImpl.DestroyContext( mEGLContext );
-    mEGLContext = nullptr;
 
     mWindowBase->DestroyEglWindow();
   }
