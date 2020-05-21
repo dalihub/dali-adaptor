@@ -1021,11 +1021,11 @@ void Adaptor::NotifySceneCreated()
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
-  // Start thread controller after the scene has been created
-  mThreadController->Start();
-
   // Process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
+
+  // Start thread controller after the scene has been created
+  mThreadController->Start();
 
   if( mState != PAUSED_WHILE_INITIALIZING )
   {
