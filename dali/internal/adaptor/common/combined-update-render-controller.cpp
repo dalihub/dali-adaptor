@@ -796,11 +796,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Inform core of context destruction
   mCore.ContextDestroyed();
-  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+
+  WindowContainer windows;
+  mAdaptorInterfaces.GetWindowContainerInterface( windows );
+
+  // Destroy surfaces
+  for( auto&& window : windows )
   {
-    currentSurface->DestroySurface();
-    currentSurface = nullptr;
+    Dali::RenderSurfaceInterface* surface = window->GetSurface();
+    surface->DestroySurface();
   }
 
   // Shutdown EGL
