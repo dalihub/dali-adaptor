@@ -917,6 +917,11 @@ void Window::SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOr
   SetAvailableAnlges( mAvailableAngles );
 }
 
+int32_t Window::GetNativeId() const
+{
+  return mWindowBase->GetNativeWindowId();
+}
+
 } // Adaptor
 
 } // Internal

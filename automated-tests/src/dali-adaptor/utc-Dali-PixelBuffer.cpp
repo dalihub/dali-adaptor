@@ -243,7 +243,7 @@ int UtcDaliPixelBufferConvert(void)
     Actor a = Actor::New();
     a.AddRenderer(r);
     a.SetSize(10, 10);
-    a.SetParentOrigin(ParentOrigin::CENTER);
+    a.SetProperty( Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
     Stage::GetCurrent().Add(a);
 
     application.SendNotification();

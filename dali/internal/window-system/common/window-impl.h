@@ -371,6 +371,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool IsVisible() const override;
 
+  /**
+   * @copydoc Dali::DevelWindow::GetNativeId()
+   */
+  int32_t GetNativeId() const;
+
 private:
 
   /**

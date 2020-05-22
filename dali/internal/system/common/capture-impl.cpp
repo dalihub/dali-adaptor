@@ -188,8 +188,8 @@ void Capture::SetupRenderTask( Dali::Actor source, const Dali::Vector4& clearCol
   if( !mCameraActor )
   {
     mCameraActor = Dali::CameraActor::New( stageSize );
-    mCameraActor.SetParentOrigin( ParentOrigin::CENTER );
-    mCameraActor.SetAnchorPoint( AnchorPoint::CENTER );
+    mCameraActor.SetProperty( Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
+    mCameraActor.SetProperty( Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER );
   }
 
   stage.Add( mCameraActor );
