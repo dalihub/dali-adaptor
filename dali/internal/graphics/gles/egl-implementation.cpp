@@ -195,10 +195,11 @@ bool EglImplementation::CreateWindowContext( EGLContext& eglContext )
 
 void EglImplementation::DestroyContext( EGLContext& eglContext )
 {
-  DALI_ASSERT_ALWAYS( mEglContext && "no EGL context" );
-
-  eglDestroyContext( mEglDisplay, eglContext );
-  eglContext = 0;
+  if( eglContext )
+  {
+    eglDestroyContext( mEglDisplay, eglContext );
+    eglContext = 0;
+  }
 }
 
 void EglImplementation::DestroySurface( EGLSurface& eglSurface )
