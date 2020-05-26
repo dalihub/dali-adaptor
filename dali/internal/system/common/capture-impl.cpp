@@ -109,8 +109,6 @@ void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::s
 
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
 {
-  DALI_ASSERT_ALWAYS( mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL.");
-
   return mNativeImageSourcePtr;
 }
 
@@ -133,8 +131,6 @@ void Capture::CreateNativeImageSource( const Vector2& size )
 
 void Capture::DeleteNativeImageSource()
 {
-  DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSource is NULL.");
-
   mNativeImageSourcePtr.Reset();
 }
 
