@@ -108,6 +108,7 @@ void Adaptor::GetAppId( std::string& appId )
   if ( id )
   {
     appId = id;
+    free( id );
   }
   else
   {
