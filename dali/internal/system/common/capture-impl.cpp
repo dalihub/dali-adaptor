@@ -28,6 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-devel.h>
 
 namespace
 {
@@ -44,7 +45,8 @@ namespace Adaptor
 {
 
 Capture::Capture()
-: mTimer(),
+: mQuality( DEFAULT_QUALITY ),
+  mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
   mFileSave( false )
@@ -52,7 +54,8 @@ Capture::Capture()
 }
 
 Capture::Capture( Dali::CameraActor cameraActor )
-: mCameraActor( cameraActor ),
+: mQuality( DEFAULT_QUALITY ),
+  mCameraActor( cameraActor ),
   mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
@@ -79,6 +82,12 @@ CapturePtr Capture::New( Dali::CameraActor cameraActor )
   return pWorker;
 }
 
+void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality )
+{
+  mQuality = quality;
+  Start( source, size, path, clearColor );
+}
+
 void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor )
 {
   DALI_ASSERT_ALWAYS(path.size() > 4 && "Path is invalid.");
@@ -100,8 +109,6 @@ void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::s
 
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
 {
-  DALI_ASSERT_ALWAYS( mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL.");
-
   return mNativeImageSourcePtr;
 }
 
@@ -124,8 +131,6 @@ void Capture::CreateNativeImageSource( const Vector2& size )
 
 void Capture::DeleteNativeImageSource()
 {
-  DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSource is NULL.");
-
   mNativeImageSourcePtr.Reset();
 }
 
@@ -179,8 +184,8 @@ void Capture::SetupRenderTask( Dali::Actor source, const Dali::Vector4& clearCol
   if( !mCameraActor )
   {
     mCameraActor = Dali::CameraActor::New( stageSize );
-    mCameraActor.SetParentOrigin( ParentOrigin::CENTER );
-    mCameraActor.SetAnchorPoint( AnchorPoint::CENTER );
+    mCameraActor.SetProperty( Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
+    mCameraActor.SetProperty( Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER );
   }
 
   stage.Add( mCameraActor );
@@ -306,7 +311,7 @@ bool Capture::SaveFile()
 {
   DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL");
 
-  return mNativeImageSourcePtr->EncodeToFile( mPath );
+  return Dali::DevelNativeImageSource::EncodeToFile( *mNativeImageSourcePtr, mPath, mQuality );
 }
 
 }  // End of namespace Adaptor

@@ -110,6 +110,11 @@ bool VectorAnimationRenderer::GetMarkerInfo( const std::string& marker, uint32_t
   return mPlugin.GetMarkerInfo( marker, startFrame, endFrame );
 }
 
+void VectorAnimationRenderer::IgnoreRenderedFrame()
+{
+  mPlugin.IgnoreRenderedFrame();
+}
+
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return mPlugin.UploadCompletedSignal();

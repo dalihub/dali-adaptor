@@ -20,6 +20,8 @@
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // EXTERNAL INCLUDES
+#include <errno.h>
+#include <sys/stat.h>
 #include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
@@ -159,10 +161,11 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   DALI_ASSERT_DEBUG( defaultWindow->GetSurface() && "Surface not initialized" );
 
-  mGraphics = &( graphicsFactory.Create() );
+  mGraphics = std::unique_ptr< GraphicsInterface >( &graphicsFactory.Create() );
   mGraphics->Initialize( mEnvironmentOptions );
 
-  auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+  GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
+  auto eglGraphics = static_cast<EglGraphics *>( graphics );
 
   // This will only be created once
   eglGraphics->Create();
@@ -299,11 +302,11 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   std::string systemCachePath = GetSystemCachePath();
   if( ! systemCachePath.empty() )
   {
-    const int dir_err = system( std::string( "mkdir " + systemCachePath ).c_str() );
-    if (-1 == dir_err)
+    const int dir_err = mkdir( systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH );
+    if ( 0 != dir_err && errno != EEXIST )
     {
-        printf( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
-        exit(1);
+      DALI_LOG_ERROR( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
+      exit( 1 );
     }
   }
 
@@ -555,6 +558,16 @@ void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::Rende
   }
 }
 
+void Adaptor::DeleteSurface( Dali::RenderSurfaceInterface& surface )
+{
+  // Flush the event queue to give the update-render thread chance
+  // to start processing messages for new camera setup etc as soon as possible
+  ProcessCoreEvents();
+
+  // This method blocks until the render thread has finished rendering the current surface.
+  mThreadController->DeleteSurface( &surface );
+}
+
 Dali::RenderSurfaceInterface& Adaptor::GetSurface() const
 {
   return *mWindows.front()->GetSurface();
@@ -700,7 +713,7 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
-  return *mGraphics;
+  return *( mGraphics.get() );
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
@@ -791,7 +804,8 @@ Any Adaptor::GetGraphicsDisplay()
 
   if (mGraphics)
   {
-    auto eglGraphics = static_cast<EglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
+    GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
+    auto eglGraphics = static_cast<EglGraphics *>( graphics );
 
     EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     display = eglImpl.GetDisplay();
@@ -1037,11 +1051,6 @@ void Adaptor::UnregisterProcessor( Integration::Processor& processor )
 bool Adaptor::IsMultipleWindowSupported() const
 {
   return mConfigurationManager->IsMultipleWindowSupported();
-}
-
-bool Adaptor::IsRenderingWindows() const
-{
-  return ( mThreadController && mThreadController->IsRenderingWindows() );
 }
 
 void Adaptor::RequestUpdateOnce()

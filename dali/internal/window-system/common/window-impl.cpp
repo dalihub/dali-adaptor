@@ -99,13 +99,6 @@ Window::Window()
 
 Window::~Window()
 {
-  mIsBeingDeleted = true;
-
-  while ( mAdaptor && mAdaptor->IsRenderingWindows() )
-  {
-    std::this_thread::yield(); // to allow other threads to run
-  }
-
   if ( mEventHandler )
   {
     mEventHandler->RemoveObserver( *this );
@@ -915,6 +908,11 @@ void Window::SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOr
     }
   }
   SetAvailableAnlges( mAvailableAngles );
+}
+
+int32_t Window::GetNativeId() const
+{
+  return mWindowBase->GetNativeWindowId();
 }
 
 } // Adaptor

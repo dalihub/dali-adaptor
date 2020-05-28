@@ -85,11 +85,6 @@ WindowRenderSurface::~WindowRenderSurface()
   {
     delete mRotationTrigger;
   }
-
-  if ( mEGLSurface )
-  {
-    DestroySurface();
-  }
 }
 
 void WindowRenderSurface::Initialize( Any surface )
@@ -204,8 +199,9 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
 
 void WindowRenderSurface::InitializeGraphics()
 {
-
   mGraphics = &mAdaptor->GetGraphicsInterface();
+
+  DALI_ASSERT_ALWAYS( mGraphics && "Graphics interface is not created" );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
   mEGL = &eglGraphics->GetEglInterface();
@@ -258,13 +254,21 @@ void WindowRenderSurface::DestroySurface()
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  if( eglGraphics )
+  {
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  eglImpl.DestroySurface( mEGLSurface );
+    eglImpl.DestroySurface( mEGLSurface );
+    mEGLSurface = nullptr;
 
-  mWindowBase->DestroyEglWindow();
+    // Destroy context also
+    eglImpl.DestroyContext( mEGLContext );
+    mEGLContext = nullptr;
+
+    mWindowBase->DestroyEglWindow();
+  }
 }
 
 bool WindowRenderSurface::ReplaceGraphicsSurface()

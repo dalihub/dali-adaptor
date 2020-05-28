@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_BITMAP_SAVER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@
 namespace Dali
 {
 
+static constexpr uint32_t DEFAULT_JPG_QUALITY = 100;
+
 /**
  * Store the given pixel data to a file.
  * The suffix of the filename determines what type of file will be stored,
@@ -45,6 +47,27 @@ DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
                                   const Pixel::Format pixelFormat,
                                   const std::size_t width,
                                   const std::size_t height);
+
+/**
+ * Store the given pixel data to a file.
+ * The suffix of the filename determines what type of file will be stored,
+ * currently only jpeg and png formats are supported.
+ *
+ * @param[in] pixelBuffer Pointer to the pixel data
+ * @param[in] filename    Filename to save
+ * @param[in] pixelFormat The format of the buffer's pixels
+ * @param[in] width       The width of the image in pixels
+ * @param[in] height      The height of the image in pixels
+ * @param[in] quality     The value to control image quality for jpeg file format in the range [1, 100]
+ *
+ * @return true if the file was saved
+ */
+DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
+                                  const std::string& filename,
+                                  const Pixel::Format pixelFormat,
+                                  const std::size_t width,
+                                  const std::size_t height,
+                                  const uint32_t quality);
 
 } // namespace Dali
 

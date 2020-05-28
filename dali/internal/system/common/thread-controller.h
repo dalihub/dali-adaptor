@@ -112,6 +112,12 @@ public:
   void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
 
   /**
+   * Deletes the surface.
+   * @param surface The surface to be deleted
+   */
+  void DeleteSurface( Dali::RenderSurfaceInterface* surface );
+
+  /**
    * Resize the surface.
    */
   void ResizeSurface();
@@ -137,11 +143,6 @@ public:
    * @param surface new surface
    */
   void AddSurface( Dali::RenderSurfaceInterface* surface );
-
-  /**
-   * @copydoc Dali::Adaptor::IsRenderingWindows()
-   */
-  bool IsRenderingWindows() const;
 
 private:
 

@@ -26,7 +26,6 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
-#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali
@@ -117,19 +116,6 @@ bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, unsigned& wid
   height = mHeight;
 
   return success;
-}
-
-bool NativeImageSourceWin::EncodeToFile(const std::string& filename) const
-{
-  std::vector< uint8_t > pixbuf;
-  uint32_t width(0), height(0);
-  Pixel::Format pixelFormat;
-
-  if(GetPixels(pixbuf, width, height, pixelFormat))
-  {
-    return Dali::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height);
-  }
-  return false;
 }
 
 void NativeImageSourceWin::SetSource( Any source )

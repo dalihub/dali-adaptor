@@ -35,7 +35,7 @@ namespace Adaptor
 
 namespace // unnamed namespace
 {
-const char* COLOR_CONTROLLER_PLUGIN_SO( "libdali-color-controller-plugin.so" );
+const char* COLOR_CONTROLLER_PLUGIN_SO( "libdali2-color-controller-plugin.so" );
 }
 
 Dali::ColorController ColorController::Get()

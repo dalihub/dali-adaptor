@@ -48,6 +48,9 @@ typedef IntrusivePtr<Capture> CapturePtr;
 class Capture : public BaseObject, public ConnectionTracker
 {
 public:
+
+  static constexpr uint32_t DEFAULT_QUALITY = 100;
+
   /**
    * @brief Constructor.
    */
@@ -64,6 +67,11 @@ public:
    * @copydoc Dali::Capture::New
    */
   static CapturePtr New( Dali::CameraActor cameraActor );
+
+  /**
+   * @copydoc Dali::Capture::Start
+   */
+  void Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality );
 
   /**
    * @copydoc Dali::Capture::Start
@@ -186,6 +194,7 @@ private:
   Capture& operator=( const Capture& rhs );
 
 private:
+  uint32_t                                    mQuality;
   Dali::Texture                               mNativeTexture;
   Dali::FrameBuffer                           mFrameBuffer;
   Dali::RenderTask                            mRenderTask;

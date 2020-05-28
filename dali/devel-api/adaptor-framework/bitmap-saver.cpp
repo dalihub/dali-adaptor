@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,13 +91,14 @@ bool EncodeToFormat( const unsigned char* pixelBuffer,
                      FileFormat formatEncoding,
                      std::size_t width,
                      std::size_t height,
-                     Pixel::Format pixelFormat )
+                     Pixel::Format pixelFormat,
+                     const uint32_t quality )
 {
   switch( formatEncoding )
   {
     case JPG_FORMAT:
     {
-      return TizenPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat );
+      return TizenPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat, quality );
       break;
     }
     case PNG_FORMAT:
@@ -122,10 +123,20 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
                   const std::size_t width,
                   const std::size_t height )
 {
+  return EncodeToFile( pixelBuffer, filename, pixelFormat, width, height, DEFAULT_JPG_QUALITY );
+}
+
+bool EncodeToFile(const unsigned char* const pixelBuffer,
+                  const std::string& filename,
+                  const Pixel::Format pixelFormat,
+                  const std::size_t width,
+                  const std::size_t height,
+                  const uint32_t quality )
+{
   DALI_ASSERT_DEBUG(pixelBuffer != 0 && filename.size() > 4 && width > 0 && height > 0);
   Vector< unsigned char > pixbufEncoded;
   const FileFormat format = GetFormatFromFileName( filename );
-  const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat );
+  const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat, quality );
   if(!encodeResult)
   {
     DALI_LOG_ERROR("Encoding pixels failed\n");

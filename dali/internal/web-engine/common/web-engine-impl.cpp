@@ -41,9 +41,9 @@ namespace Adaptor
 namespace // unnamed namespace
 {
 
-constexpr char const * const kPluginFullNamePrefix = "libdali-web-engine-";
+constexpr char const * const kPluginFullNamePrefix = "libdali2-web-engine-";
 constexpr char const * const kPluginFullNamePostfix = "-plugin.so";
-constexpr char const * const kPluginFullNameDefault = "libdali-web-engine-plugin.so";
+constexpr char const * const kPluginFullNameDefault = "libdali2-web-engine-plugin.so";
 
 // Note: Dali WebView policy does not allow to use multiple web engines in an application.
 // So once pluginName is set to non-empty string, it will not change.

@@ -35,7 +35,7 @@ namespace
 {
 
 // The default plugin name
-const char* DEFAULT_OBJECT_NAME( "libdali-vector-animation-renderer-plugin.so" );
+const char* DEFAULT_OBJECT_NAME( "libdali2-vector-animation-renderer-plugin.so" );
 
 }
 
@@ -184,6 +184,14 @@ bool VectorAnimationRendererPluginProxy::GetMarkerInfo( const std::string& marke
     return mPlugin->GetMarkerInfo( marker, startFrame, endFrame );
   }
   return false;
+}
+
+void VectorAnimationRendererPluginProxy::IgnoreRenderedFrame()
+{
+  if( mPlugin )
+  {
+    mPlugin->IgnoreRenderedFrame();
+  }
 }
 
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()

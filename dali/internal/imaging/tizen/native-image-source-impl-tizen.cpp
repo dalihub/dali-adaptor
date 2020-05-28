@@ -30,9 +30,6 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
-// Allow this to be encoded and saved:
-#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-
 namespace Dali
 {
 
@@ -301,10 +298,10 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
           {
             cOffset = c*4;
             offset = cOffset + r*stride;
-            *(bufptr+cOffset) = ptr[offset];
-            *(bufptr+cOffset+1) = ptr[offset+3];
-            *(bufptr+cOffset+2) = ptr[offset+2];
-            *(bufptr+cOffset+3) = ptr[offset+1];
+            *(bufptr+cOffset)   = ptr[offset+2];
+            *(bufptr+cOffset+1) = ptr[offset+1];
+            *(bufptr+cOffset+2) = ptr[offset];
+            *(bufptr+cOffset+3) = ptr[offset+3];
           }
         }
         break;
@@ -330,19 +327,6 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
   width = 0;
   height = 0;
 
-  return false;
-}
-
-bool NativeImageSourceTizen::EncodeToFile(const std::string& filename) const
-{
-  std::vector< unsigned char > pixbuf;
-  unsigned int width(0), height(0);
-  Pixel::Format pixelFormat;
-
-  if(GetPixels(pixbuf, width, height, pixelFormat))
-  {
-    return Dali::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height);
-  }
   return false;
 }
 

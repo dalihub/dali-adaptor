@@ -292,6 +292,12 @@ public: // AdaptorInternalServices implementation
   bool RemoveWindow( Dali::Internal::Adaptor::SceneHolder* childWindow );
 
   /**
+   * @brief Deletes the rendering surface
+   * @param[in] surface to delete
+   */
+  void DeleteSurface( Dali::RenderSurfaceInterface& surface );
+
+  /**
    * @brief Retrieve the window that the given actor is added to.
    *
    * @param[in] actor The actor
@@ -442,13 +448,6 @@ public:
    * Check MultipleWindow is supported
    */
   bool IsMultipleWindowSupported() const;
-
-  /**
-   * @brief Checks whether the windows are being rendered in the render thread.
-   *
-   * @return true if the windows are being rendered in the render thread, or false if not.
-   */
-  bool IsRenderingWindows() const;
 
 public:  //AdaptorInternalServices
 
@@ -665,7 +664,7 @@ private: // Data
   Dali::Integration::Core*              mCore;                        ///< Dali Core
   ThreadController*                     mThreadController;            ///< Controls the threads
 
-  GraphicsInterface*                    mGraphics;                    ///< Graphics interface
+  std::unique_ptr< GraphicsInterface >  mGraphics;                    ///< Graphics interface
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowContainer                       mWindows;                     ///< A container of all the Windows that are currently created
 

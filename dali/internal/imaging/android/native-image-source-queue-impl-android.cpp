@@ -72,6 +72,10 @@ void NativeImageSourceQueueAndroid::SetSize( uint32_t width, uint32_t height )
   mHeight = height;
 }
 
+void NativeImageSourceQueueAndroid::IgnoreSourceImage()
+{
+}
+
 bool NativeImageSourceQueueAndroid::GlExtensionCreate()
 {
   return true;

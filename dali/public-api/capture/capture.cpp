@@ -62,6 +62,11 @@ Capture& Capture::operator=( const Capture& rhs )
   return *this;
 }
 
+void Capture::Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor, const uint32_t quality )
+{
+  GetImpl( *this ).Start( source, size, path, clearColor, quality );
+}
+
 void Capture::Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor )
 {
   GetImpl( *this ).Start( source, size, path, clearColor );
