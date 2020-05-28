@@ -515,10 +515,6 @@ private:
   int                                  mWindowRotationAngle;
   int                                  mScreenRotationAngle;
   int                                  mSupportedPreProtation;
-
-  // Temporary solution to fix window rotation and window hide
-  // It will be removed when EFL patch is completed.
-  int                                  mAvaiableWindowOrientations[4];
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection*                   mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
