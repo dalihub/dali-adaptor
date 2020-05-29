@@ -496,6 +496,9 @@ private:
   uint32_t                             mBrightnessChangeState;
   bool                                 mBrightnessChangeDone;
 
+  bool                                 mVisible:1;
+  Dali::PositionSize                   mWindowPositionSize;
+
   bool                                 mOwnSurface;
 
   volatile uint32_t                    mMoveResizeSerial;

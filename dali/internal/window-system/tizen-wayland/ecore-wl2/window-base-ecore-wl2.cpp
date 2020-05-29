@@ -688,6 +688,8 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2( Dali::PositionSize positionSize, Any sur
   mBrightness( 0 ),
   mBrightnessChangeState( 0 ),
   mBrightnessChangeDone( true ),
+  mVisible( true ),
+  mWindowPositionSize( positionSize ),
   mOwnSurface( false ),
   mMoveResizeSerial( 0 ),
   mLastSubmittedMoveResizeSerial( 0 )
@@ -948,6 +950,9 @@ void WindowBaseEcoreWl2::OnRotation( void* data, int type, void* event )
       rotationEvent.width = ev->h;
       rotationEvent.height = ev->w;
     }
+
+    mWindowPositionSize.width = rotationEvent.width;
+    mWindowPositionSize.height = rotationEvent.height;
 
     mRotationSignal.Emit( rotationEvent );
   }
@@ -1521,16 +1526,19 @@ bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
 
 void WindowBaseEcoreWl2::Move( PositionSize positionSize )
 {
+  mWindowPositionSize = positionSize;
   ecore_wl2_window_position_set( mEcoreWindow, positionSize.x, positionSize.y );
 }
 
 void WindowBaseEcoreWl2::Resize( PositionSize positionSize )
 {
+  mWindowPositionSize = positionSize;
   ecore_wl2_window_geometry_set( mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
 void WindowBaseEcoreWl2::MoveResize( PositionSize positionSize )
 {
+  mWindowPositionSize = positionSize;
   ecore_wl2_window_sync_geometry_set( mEcoreWindow, ++mMoveResizeSerial, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 }
 
@@ -1580,11 +1588,18 @@ void WindowBaseEcoreWl2::SetAcceptFocus( bool accept )
 
 void WindowBaseEcoreWl2::Show()
 {
+  if( !mVisible )
+  {
+    ecore_wl2_window_geometry_set( mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height );
+  }
+  mVisible = true;
+
   ecore_wl2_window_show( mEcoreWindow );
 }
 
 void WindowBaseEcoreWl2::Hide()
 {
+  mVisible = false;
   ecore_wl2_window_hide( mEcoreWindow );
 }
 
