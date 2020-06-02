@@ -1386,7 +1386,15 @@ int WindowBaseEcoreWl2::GetNativeWindowId()
 
 EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow( int width, int height )
 {
-  mEglWindow = wl_egl_window_create( mWlSurface, width, height );
+  int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+  if( totalAngle == 90 || totalAngle == 270 )
+  {
+    mEglWindow = wl_egl_window_create( mWlSurface, height, width );
+  }
+  else
+  {
+    mEglWindow = wl_egl_window_create( mWlSurface, width, height );
+  }
 
   return static_cast< EGLNativeWindowType >( mEglWindow );
 }
@@ -1587,6 +1595,7 @@ void WindowBaseEcoreWl2::SetAvailableAnlges( const std::vector< int >& angles )
 
 void WindowBaseEcoreWl2::SetPreferredAngle( int angle )
 {
+  DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle );
   ecore_wl2_window_preferred_rotation_set( mEcoreWindow, angle );
 }
 
