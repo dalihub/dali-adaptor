@@ -741,18 +741,23 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
         if ( scene && windowSurface )
         {
+          Integration::RenderStatus windowRenderStatus;
+
           windowSurface->InitializeGraphics();
 
           // Render off-screen frame buffers first if any
-          mCore.RenderScene( scene, true );
+          mCore.RenderScene( windowRenderStatus, scene, true );
 
           // Switch to the EGL context of the surface
           windowSurface->PreRender( surfaceResized ); // Switch GL context
 
           // Render the surface
-          mCore.RenderScene( scene, false );
+          mCore.RenderScene( windowRenderStatus, scene, false );
 
-          windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+          if( windowRenderStatus.NeedsPostRender() )
+          {
+            windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+          }
         }
       }
     }
