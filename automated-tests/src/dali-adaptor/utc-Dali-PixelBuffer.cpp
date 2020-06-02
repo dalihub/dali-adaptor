@@ -242,7 +242,7 @@ int UtcDaliPixelBufferConvert(void)
     r.SetTextures(ts);
     Actor a = Actor::New();
     a.AddRenderer(r);
-    a.SetSize(10, 10);
+    a.SetProperty( Actor::Property::SIZE, Vector2(10, 10) );
     a.SetProperty( Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
     Stage::GetCurrent().Add(a);
 
