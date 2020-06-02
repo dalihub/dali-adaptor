@@ -199,7 +199,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
 
   mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow->GetSurface()->GetSurfaceType() );
 
-  mThreadController = new ThreadController( *this, *mEnvironmentOptions );
+  mThreadController = new ThreadController( *this, *mEnvironmentOptions, mThreadMode );
 
   // Should be called after Core creation
   if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
@@ -1030,7 +1030,21 @@ void Adaptor::NotifyLanguageChanged()
 
 void Adaptor::RenderOnce()
 {
-  RequestUpdateOnce();
+  if( mThreadController )
+  {
+    UpdateMode updateMode;
+    if( mThreadMode == ThreadMode::NORMAL )
+    {
+      updateMode = UpdateMode::NORMAL;
+    }
+    else
+    {
+      updateMode = UpdateMode::FORCE_RENDER;
+
+      ProcessCoreEvents();
+    }
+    mThreadController->RequestUpdateOnce( updateMode );
+  }
 }
 
 const LogFactoryInterface& Adaptor::GetLogFactory()
@@ -1141,6 +1155,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mSystemTracer(),
   mObjectProfiler( nullptr ),
   mSocketFactory(),
+  mThreadMode( ThreadMode::NORMAL ),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
   mUseRemoteSurface( false )
 {
