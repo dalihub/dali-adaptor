@@ -32,14 +32,14 @@ namespace Internal
 namespace Adaptor
 {
 
-ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions )
+ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode )
 : mThreadControllerInterface( NULL )
 {
   switch( environmentOptions.GetThreadingMode() )
   {
     case ThreadingMode::COMBINED_UPDATE_RENDER:
     {
-      mThreadControllerInterface = new CombinedUpdateRenderController( adaptorInterfaces, environmentOptions );
+      mThreadControllerInterface = new CombinedUpdateRenderController( adaptorInterfaces, environmentOptions, threadMode );
       break;
     }
   }

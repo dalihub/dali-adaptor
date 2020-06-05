@@ -89,7 +89,7 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions )
+CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
   mEventThreadSemaphore(),
@@ -109,6 +109,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mDefaultHalfFrameNanoseconds( 0u ),
   mUpdateRequestCount( 0u ),
   mRunning( FALSE ),
+  mThreadMode( threadMode ),
   mUpdateRenderRunCount( 0 ),
   mDestroyUpdateRenderThread( FALSE ),
   mUpdateRenderThreadCanSleep( FALSE ),
@@ -289,7 +290,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce( UpdateMode updateMode )
     ++mUpdateRequestCount;
   }
 
-  if( IsUpdateRenderThreadPaused() )
+  if( IsUpdateRenderThreadPaused() || updateMode == UpdateMode::FORCE_RENDER )
   {
     LOG_EVENT_TRACE;
 
@@ -418,9 +419,31 @@ void CombinedUpdateRenderController::AddSurface( Dali::RenderSurfaceInterface* s
 void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode )
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-  mUpdateRenderRunCount = numberOfCycles;
+
+  switch( mThreadMode )
+  {
+    case ThreadMode::NORMAL:
+    {
+      mUpdateRenderRunCount = numberOfCycles;
+      mUseElapsedTimeAfterWait = ( animationProgression == AnimationProgression::USE_ELAPSED_TIME );
+      break;
+    }
+    case ThreadMode::RUN_IF_REQUESTED:
+    {
+      if( updateMode != UpdateMode::FORCE_RENDER )
+      {
+        // Render only if the update mode is FORCE_RENDER which means the application requests it.
+        // We don't want to awake the update thread.
+        return;
+      }
+
+      mUpdateRenderRunCount++;          // Increase the update request count
+      mUseElapsedTimeAfterWait = TRUE;  // The elapsed time should be used. We want animations to proceed.
+      break;
+    }
+  }
+
   mUpdateRenderThreadCanSleep = FALSE;
-  mUseElapsedTimeAfterWait = ( animationProgression == AnimationProgression::USE_ELAPSED_TIME );
   mUploadWithoutRendering = ( updateMode == UpdateMode::SKIP_RENDER );
   LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait );
   mUpdateRenderThreadWaitCondition.Notify( lock );
@@ -442,6 +465,12 @@ void CombinedUpdateRenderController::StopUpdateRenderThread()
 bool CombinedUpdateRenderController::IsUpdateRenderThreadPaused()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+
+  if( mThreadMode == ThreadMode::RUN_IF_REQUESTED )
+  {
+    return !mRunning || mUpdateRenderThreadCanSleep;
+  }
+
   return ( mUpdateRenderRunCount != CONTINUOUS ) || // Report paused if NOT continuously running
          mUpdateRenderThreadCanSleep;               // Report paused if sleeping
 }
@@ -562,7 +591,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     uint64_t currentFrameStartTime = 0;
     TimeService::GetNanoseconds( currentFrameStartTime );
 
-    const uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
+    uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
 
     // Optional FPS Tracking when continuously rendering
     if( useElapsedTime && mFpsTracker.Enabled() )
@@ -609,6 +638,16 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     float frameDelta = 0.0f;
     if( useElapsedTime )
     {
+      if( mThreadMode == ThreadMode::RUN_IF_REQUESTED )
+      {
+        extraFramesDropped = 0;
+        while( timeSinceLastFrame >= mDefaultFrameDurationNanoseconds )
+        {
+           timeSinceLastFrame -= mDefaultFrameDurationNanoseconds;
+           extraFramesDropped++;
+        }
+      }
+
       // If using the elapsed time, then calculate frameDelta as a multiple of mDefaultFrameDelta
       noOfFramesSinceLastUpdate += extraFramesDropped;
 
@@ -702,18 +741,23 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
         if ( scene && windowSurface )
         {
+          Integration::RenderStatus windowRenderStatus;
+
           windowSurface->InitializeGraphics();
 
           // Render off-screen frame buffers first if any
-          mCore.RenderScene( scene, true );
+          mCore.RenderScene( windowRenderStatus, scene, true );
 
           // Switch to the EGL context of the surface
           windowSurface->PreRender( surfaceResized ); // Switch GL context
 
           // Render the surface
-          mCore.RenderScene( scene, false );
+          mCore.RenderScene( windowRenderStatus, scene, false );
 
-          windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+          if( windowRenderStatus.NeedsPostRender() )
+          {
+            windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+          }
         }
       }
     }
@@ -796,11 +840,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Inform core of context destruction
   mCore.ContextDestroyed();
-  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+
+  WindowContainer windows;
+  mAdaptorInterfaces.GetWindowContainerInterface( windows );
+
+  // Destroy surfaces
+  for( auto&& window : windows )
   {
-    currentSurface->DestroySurface();
-    currentSurface = nullptr;
+    Dali::RenderSurfaceInterface* surface = window->GetSurface();
+    surface->DestroySurface();
   }
 
   // Shutdown EGL

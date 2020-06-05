@@ -80,7 +80,7 @@ public:
   /**
    * Constructor
    */
-  CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions );
+  CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode );
 
   /**
    * Non virtual destructor. Not intended as base class.
@@ -366,6 +366,8 @@ private:
 
   unsigned int                      mUpdateRequestCount;               ///< Count of update-requests we have received to ensure we do not go to sleep too early.
   unsigned int                      mRunning;                          ///< Read and set on the event-thread only to state whether we are running.
+
+  ThreadMode                        mThreadMode;                       ///< Whether the thread runs continuously or runs when it is requested.
 
   //
   // NOTE: cannot use booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
