@@ -752,10 +752,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Render the surface
           mCore.RenderScene( scene, false );
 
-          if( renderStatus.NeedsPostRender() )
-          {
-            windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
-          }
+          windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
         }
       }
     }
