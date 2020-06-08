@@ -81,7 +81,7 @@ Timer::~Timer()
 void Timer::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   if(mImpl->mId != NULL)
   {
@@ -94,7 +94,7 @@ void Timer::Start()
 void Timer::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   ResetTimerData();
 }
@@ -102,7 +102,7 @@ void Timer::Stop()
 void Timer::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   if( mImpl->mId != NULL )
   {
@@ -113,7 +113,7 @@ void Timer::Pause()
 void Timer::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
   if( mImpl->mId != NULL )
   {
