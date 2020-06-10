@@ -2,6 +2,7 @@
 
 SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-adaptor.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
@@ -14,7 +15,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/file-loader.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/file-stream.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/gif-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-devel.cpp
@@ -42,6 +42,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-action-handler.h
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-handler.h
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-event.h
+  ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
@@ -59,7 +60,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-input.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.h
-  ${adaptor_devel_api_dir}/adaptor-framework/gif-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.h
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.h
   ${adaptor_devel_api_dir}/adaptor-framework/keyboard.h

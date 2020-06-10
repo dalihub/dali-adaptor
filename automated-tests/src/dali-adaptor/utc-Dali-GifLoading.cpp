@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <dali/dali.h>
 #include <dali-test-suite-utils.h>
-#include <dali/devel-api/adaptor-framework/gif-loading.h>
+#include <dali/devel-api/adaptor-framework/animated-image-loading.h>
 
 using namespace Dali;
 
@@ -50,38 +50,57 @@ void VerifyLoad( std::vector<Dali::PixelData>& pixelDataList, Dali::Vector<uint3
 }
 }
 
-void utc_dali_gif_loader_startup(void)
+void utc_dali_animated_image_loader_startup(void)
 {
   test_return_value = TET_UNDEF;
 }
 
-void utc_dali_gif_loader_cleanup(void)
+void utc_dali_animated_image_loader_cleanup(void)
 {
   test_return_value = TET_PASS;
 }
 
-int UtcDaliGifLoadingP(void)
+int UtcDaliAnimatedImageLoadingP(void)
 {
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None, true );
-  bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New( gGif_100_None, true );
+  bool succeed = animatedImageLoading.LoadNextNFrames( 0u, animatedImageLoading.GetImageCount(), pixelDataList );
+  frameDelayList.Clear();
+  frameDelayList.Resize( animatedImageLoading.GetImageCount(), 0 );
+  for( uint32_t i = 0; i < animatedImageLoading.GetImageCount(); ++i )
+  {
+    frameDelayList[i] = animatedImageLoading.GetFrameInterval( i );
+  }
 
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
 
   pixelDataList.clear();
-  gifLoading = GifLoading::New( gGif_100_Prev, true );
-  succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+  animatedImageLoading = Dali::AnimatedImageLoading::New( gGif_100_Prev, true );
+  succeed = animatedImageLoading.LoadNextNFrames( 0u, animatedImageLoading.GetImageCount(), pixelDataList );
+  frameDelayList.Clear();
+  frameDelayList.Resize( animatedImageLoading.GetImageCount(), 0 );
+  for( uint32_t i = 0; i < animatedImageLoading.GetImageCount(); ++i )
+  {
+    frameDelayList[i] = animatedImageLoading.GetFrameInterval( i );
+  }
+
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
   VerifyLoad( pixelDataList, frameDelayList, 5u, 100u, 100u, 1000u );
 
   pixelDataList.clear();
-  gifLoading = GifLoading::New( gGif_100_Bgnd, true );
-  succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+  animatedImageLoading = Dali::AnimatedImageLoading::New( gGif_100_Bgnd, true );
+  succeed = animatedImageLoading.LoadNextNFrames( 0u, animatedImageLoading.GetImageCount(), pixelDataList );
+  frameDelayList.Clear();
+  frameDelayList.Resize( animatedImageLoading.GetImageCount(), 0 );
+  for( uint32_t i = 0; i < animatedImageLoading.GetImageCount(); ++i )
+  {
+    frameDelayList[i] = animatedImageLoading.GetFrameInterval( i );
+  }
 
   // Check that the loading succeed
   DALI_TEST_CHECK( succeed );
@@ -90,28 +109,27 @@ int UtcDaliGifLoadingP(void)
   END_TEST;
 }
 
-int UtcDaliGifLoadingN(void)
+int UtcDaliAnimatedImageLoadingN(void)
 {
   std::vector<Dali::PixelData> pixelDataList;
   Dali::Vector<uint32_t> frameDelayList;
 
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist, true );
-  bool succeed = gifLoading->LoadAllFrames( pixelDataList, frameDelayList );
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New( gGifNonExist, true );
+  bool succeed = animatedImageLoading.LoadNextNFrames( 0u, animatedImageLoading.GetImageCount(), pixelDataList );
 
   // Check that the loading failed
   DALI_TEST_CHECK( !succeed );
 
   // Check that both pixelDataList and frameDelayList are empty
   DALI_TEST_EQUALS( pixelDataList.size(), 0u, TEST_LOCATION );
-  DALI_TEST_EQUALS( frameDelayList.Size(), 0u, TEST_LOCATION );
 
   END_TEST;
 }
 
-int UtcDaliGifLoadingGetImageSizeP(void)
+int UtcDaliAnimatedImageLoadingGetImageSizeP(void)
 {
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGif_100_None, true );
-  ImageDimensions imageSize = gifLoading->GetImageSize();
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New( gGif_100_None, true );
+  ImageDimensions imageSize = animatedImageLoading.GetImageSize();
 
   // Check that the image size is [100, 100]
   DALI_TEST_EQUALS( imageSize.GetWidth(), 100u, TEST_LOCATION );
@@ -120,12 +138,12 @@ int UtcDaliGifLoadingGetImageSizeP(void)
   END_TEST;
 }
 
-int UtcDaliGifLoadingGetImageSizeN(void)
+int UtcDaliAnimatedImageLoadingGetImageSizeN(void)
 {
-  std::unique_ptr<Dali::GifLoading> gifLoading = GifLoading::New( gGifNonExist, true );
-  ImageDimensions imageSize = gifLoading->GetImageSize();
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New( gGifNonExist, true );
+  ImageDimensions imageSize = animatedImageLoading.GetImageSize();
 
-  // Check that it returns zero size when the gif is not valid
+  // Check that it returns zero size when the animated image is not valid
   DALI_TEST_EQUALS( imageSize.GetWidth(), 0u, TEST_LOCATION );
   DALI_TEST_EQUALS( imageSize.GetHeight(), 0u, TEST_LOCATION );
 

@@ -50,6 +50,10 @@ BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  cmake
 BuildRequires:  giflib-devel
+BuildRequires:  pkgconfig(libwebp)
+BuildRequires:  pkgconfig(libwebpdecoder)
+BuildRequires:  pkgconfig(libwebpdemux)
+BuildRequires:  pkgconfig(libwebpmux)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(vconf)

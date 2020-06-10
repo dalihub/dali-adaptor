@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GIF_LOADING_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,16 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/internal/imaging/common/animated-image-loading-impl.h>
 
 namespace Dali
 {
-class PixelData;
-typedef Dali::Uint16Pair ImageDimensions;
+
+namespace Internal
+{
+
+namespace Adaptor
+{
 
 /**
  * Class to manage loading frames of an animated gif in small chunks. Lazy initializes only when
@@ -40,7 +45,7 @@ typedef Dali::Uint16Pair ImageDimensions;
  * is released. (This is to speed up frame loads, which would otherwise have to re-acquire the
  * data from disk)
  */
-class DALI_ADAPTOR_API GifLoading
+class GifLoading: public Internal::Adaptor::AnimatedImageLoading
 {
 public:
 
@@ -50,7 +55,7 @@ public:
    * @param[in] isLocalResource The true or false whether this is a local resource.
    * @return A newly created GifLoading.
    */
-  static std::unique_ptr<GifLoading> New( const std::string& url, bool isLocalResource );
+  static AnimatedImageLoadingPtr New( const std::string& url, bool isLocalResource );
 
   /**
    * @brief Constructor
@@ -61,17 +66,10 @@ public:
    */
   GifLoading( const std::string& url, bool isLocalResource );
 
-  // Moveable but not copyable
-
-  GifLoading( const GifLoading& ) = delete;
-  GifLoading& operator=( const GifLoading& ) = delete;
-  GifLoading( GifLoading&& ) = default;
-  GifLoading& operator=( GifLoading&& ) = default;
-
   /**
    * @brief Destructor
    */
-  ~GifLoading();
+  ~GifLoading() override;
 
   /**
    * @brief Load the next N Frames of the gif.
@@ -83,49 +81,37 @@ public:
    * @param[out] pixelData The vector in which to return the frame data
    * @return True if the frame data was successfully loaded
    */
-  bool LoadNextNFrames( int frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData );
-
-  /**
-   * @brief Load all frames of an animated gif file.
-   *
-   * @note This function will load the entire gif into memory if not already loaded.
-   *
-   * @param[out] pixelData The loaded pixel data for each frame.
-   * @param[out] frameDelays The loaded delay time for each frame.
-   *
-   * @return True if the loading succeeded, false otherwise.
-   */
-  bool LoadAllFrames( std::vector<Dali::PixelData>& pixelData, Dali::Vector<uint32_t>& frameDelays );
+  bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData ) override;
 
   /**
    * @brief Get the size of a gif image.
    *
-   * @note This function will load the entire gif into memory if not already loaded.
-   *
    * @return The width and height in pixels of the gif image.
    */
-  ImageDimensions GetImageSize();
+  ImageDimensions GetImageSize() const override;
 
   /**
    * @brief Get the number of frames in this gif.
-   *
-   * @note This function will load the entire gif into memory if not already loaded.
    */
-  int GetImageCount();
+  uint32_t GetImageCount() const override;
 
   /**
-   * @brief Load the frame delay counts into the provided array.
+   * @brief Get the frame interval of the frame index
    *
-   * @note This function will load the entire gif into memory if not already loaded.
-   * @param[in] frameDelays a vector to write the frame delays into
-   * @return true if the frame delays were successfully loaded
+   * @note The frame is needed to be loaded before this function is called.
+   *
+   * @return The time interval of the frame(microsecond).
    */
-  bool LoadFrameDelays( Dali::Vector<uint32_t>& frameDelays );
+  uint32_t GetFrameInterval( uint32_t frameIndex ) const override;
 
 private:
   struct Impl;
   Impl* mImpl;
 };
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 
