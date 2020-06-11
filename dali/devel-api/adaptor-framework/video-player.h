@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+#include <dali/devel-api/adaptor-framework/video-sync-mode.h>
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
@@ -65,6 +66,17 @@ public:
    * @SINCE_1_1.38
    */
   static VideoPlayer New();
+
+  /**
+   * @brief Creates a new instance of a VideoPlayer.
+   *
+   * If you want the video player works with Ui synchronous when video player is resized/moved,
+   * put the video view actor and the enabled syncMode.
+   *
+   * @param[in] actor video view's actor instance
+   * @param[in] syncMode The synchronization mode between the UI (transparent hole) and VideoPlayer.
+   */
+  static VideoPlayer New( Dali::Actor actor, VideoSyncMode syncMode );
 
  /**
    * @brief Copy constructor.
@@ -277,6 +289,18 @@ public:
    * @return player The media player
    */
   Any GetMediaPlayer();
+
+  /**
+   * @brief calls synchronization function in window system
+   * This function is called, the synchronization is started between UI(transparent hole) and video player.
+   */
+  void StartSynchronization();
+
+  /**
+   * @brief calls desynchronization function in window system
+   * This function is called, the synchronization is ended between UI(transparent hole) and video player.
+   */
+  void FinishSynchronization();
 
 private: // Not intended for application developers
 

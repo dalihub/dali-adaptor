@@ -77,7 +77,7 @@ VideoPlayer::~VideoPlayer()
   }
 }
 
-void VideoPlayer::Initialize()
+void VideoPlayer::Initialize( Dali::Actor actor, VideoSyncMode syncMode )
 {
   char* error = NULL;
 
@@ -99,7 +99,7 @@ void VideoPlayer::Initialize()
     return;
   }
 
-  mPlugin = mCreateVideoPlayerPtr();
+  mPlugin = mCreateVideoPlayerPtr( actor, syncMode );
 
   if( mPlugin == NULL )
   {
@@ -341,6 +341,22 @@ Any VideoPlayer::GetMediaPlayer()
     return mPlugin->GetMediaPlayer();
   }
   return NULL;
+}
+
+void VideoPlayer::StartSynchronization()
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->StartSynchronization();
+  }
+}
+
+void VideoPlayer::FinishSynchronization()
+{
+  if( mPlugin != NULL )
+  {
+    mPlugin->FinishSynchronization();
+  }
 }
 
 } // namespace Adaptor;
