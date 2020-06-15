@@ -104,6 +104,14 @@ void WindowRenderSurface::Initialize( Any surface )
 
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect( this, &WindowRenderSurface::OutputTransformed );
+
+  // Check screen rotation
+  mScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  if( mScreenRotationAngle != 0 )
+  {
+    mScreenRotationFinished = false;
+    mResizeFinished = false;
+  }
 }
 
 Any WindowRenderSurface::GetNativeWindow()
@@ -214,8 +222,20 @@ void WindowRenderSurface::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  int width, height;
+  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  {
+    width = mPositionSize.width;
+    height = mPositionSize.height;
+  }
+  else
+  {
+    width = mPositionSize.height;
+    height = mPositionSize.width;
+  }
+
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( mPositionSize.width, mPositionSize.height );
+  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 
@@ -491,11 +511,11 @@ void WindowRenderSurface::OutputTransformed()
 
     mOutputTransformedSignal.Emit();
 
-    DALI_LOG_RELEASE_INFO( "WindowRenderSurface::OutputTransformed: window = %d screen = %d\n", mRotationAngle, mScreenRotationAngle );
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle );
+    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle );
   }
 }
 
