@@ -24,6 +24,7 @@
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/math/uint-16-pair.h>
 
 namespace Dali
 {
@@ -44,6 +45,7 @@ class GraphicsInterface;
  * @brief The position and size of the render surface.
  */
 typedef Dali::Rect<int> PositionSize;
+typedef Uint16Pair SurfaceSize;
 
 /**
  * @brief Interface for a render surface onto which Dali draws.
