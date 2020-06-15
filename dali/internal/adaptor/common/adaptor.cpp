@@ -107,21 +107,25 @@ void Adaptor::Stop()
 
 bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue )
 {
+  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
   return mImpl->AddIdle( callback, hasReturnValue, false );
 }
 
 bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
 {
+  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
   return mImpl->AddWindow( childWindow, childWindowName, childWindowClassName, childWindowMode );
 }
 
 void Adaptor::RemoveIdle( CallbackBase* callback )
 {
+  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
   mImpl->RemoveIdle( callback );
 }
 
 void Adaptor::ProcessIdle()
 {
+  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
   mImpl->ProcessIdle();
 }
 

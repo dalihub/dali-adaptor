@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/images/buffer-image.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
@@ -408,7 +407,7 @@ public:
    * @param[in] glyphIndex The index of a glyph within the specified font.
    * @param[in] outlineWidth The width of the glyph outline in pixels.
    *
-   * @return A valid BufferImage, or an empty handle if the glyph could not be rendered.
+   * @return A valid PixelData, or an empty handle if the glyph could not be rendered.
    */
   PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth );
 
