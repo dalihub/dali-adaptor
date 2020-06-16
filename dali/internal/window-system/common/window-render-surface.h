@@ -21,11 +21,14 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/integration-api/scene.h>
+#include <unistd.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/system/common/file-descriptor-monitor.h>
 
 namespace Dali
 {
@@ -215,6 +218,18 @@ private:
    */
   void ProcessRotationRequest();
 
+  /**
+   * @brief Used as the callback for the frame rendered / presented.
+   */
+  void ProcessFrameCallback();
+
+  /**
+   * @brief Called when our event file descriptor has been written to.
+   * @param[in] eventBitMask bit mask of events that occured on the file descriptor
+   * @param[in] fileDescriptor The file descriptor
+   */
+  void OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor );
+
 protected:
 
   // Undefined
@@ -222,6 +237,36 @@ protected:
 
   // Undefined
   WindowRenderSurface& operator=(const WindowRenderSurface& rhs) = delete;
+
+private:
+
+  struct FrameCallbackInfo
+  {
+    FrameCallbackInfo( Dali::Integration::Scene::FrameCallbackContainer& callbackList, int fd )
+    : callbacks(),
+      fileDescriptorMonitor(),
+      fileDescriptor( fd )
+    {
+      // Transfer owership of the CallbackBase
+      for( auto&& iter : callbackList )
+      {
+        callbacks.push_back( std::make_pair( std::move( iter.first ), iter.second ) );
+      }
+    }
+
+    ~FrameCallbackInfo()
+    {
+      // Delete FileDescriptorMonitor before close fd.
+      fileDescriptorMonitor.release();
+      close( fileDescriptor );
+    }
+
+    Dali::Integration::Scene::FrameCallbackContainer callbacks;
+    std::unique_ptr< FileDescriptorMonitor > fileDescriptorMonitor;
+    int fileDescriptor;
+  };
+
+  using FrameCallbackInfoContainer = std::vector< std::unique_ptr< FrameCallbackInfo > >;
 
 private: // Data
 
@@ -232,11 +277,13 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
+  std::unique_ptr< TriggerEventInterface > mFrameRenderedTrigger;
   GraphicsInterface*              mGraphics;           ///< Graphics interface
   EGLSurface                      mEGLSurface;
   EGLContext                      mEGLContext;
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
+  FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)

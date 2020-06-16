@@ -2146,6 +2146,16 @@ void WindowBaseEcoreWl::SetParent( WindowBase* parentWinBase )
   ecore_wl_window_parent_set( mEcoreWindow, ecoreParent );
 }
 
+int WindowBaseEcoreWl::CreateFrameRenderedSyncFence()
+{
+  return -1;
+}
+
+int WindowBaseEcoreWl::CreateFramePresentedSyncFence()
+{
+  return -1;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

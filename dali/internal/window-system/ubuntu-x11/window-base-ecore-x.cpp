@@ -909,6 +909,16 @@ void WindowBaseEcoreX::SetParent( WindowBase* parentWinBase )
   }
 }
 
+int WindowBaseEcoreX::CreateFrameRenderedSyncFence()
+{
+  return -1;
+}
+
+int WindowBaseEcoreX::CreateFramePresentedSyncFence()
+{
+  return -1;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -90,7 +90,7 @@ void TriggerEvent::Trigger()
   }
 }
 
-void TriggerEvent::Triggered( FileDescriptorMonitor::EventType eventBitMask )
+void TriggerEvent::Triggered( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor )
 {
   if( !( eventBitMask & FileDescriptorMonitor::FD_READABLE ) )
   {

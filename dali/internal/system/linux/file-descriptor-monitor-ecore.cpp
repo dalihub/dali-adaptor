@@ -72,7 +72,7 @@ struct FileDescriptorMonitor::Impl
 
     if( ecore_main_fd_handler_active_get( handler, ECORE_FD_ERROR) )
     {
-      CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR);
+      CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor );
       DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d\n", impl->mFileDescriptor);
 
       return ECORE_CALLBACK_CANCEL;
@@ -97,7 +97,7 @@ struct FileDescriptorMonitor::Impl
     // if there is an event, execute the callback
     if( type != FileDescriptorMonitor::FD_NO_EVENT )
     {
-      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >(type ) );
+      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >(type ), impl->mFileDescriptor );
     }
 
     return ECORE_CALLBACK_RENEW;

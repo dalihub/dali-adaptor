@@ -335,6 +335,18 @@ public:
    */
   virtual void SetParent( WindowBase* parentWinBase ) = 0;
 
+  /**
+   * @brief Create a sync fence that can tell the frame is rendered by the graphics driver.
+   * @return The file descriptor that tells when it is rendered.
+   */
+  virtual int CreateFrameRenderedSyncFence() = 0;
+
+  /**
+   * @brief Create a sync fence that can tell the frame is presented by the display server.
+   * @return The file descriptor that tells when it is presented.
+   */
+  virtual int CreateFramePresentedSyncFence() = 0;
+
   // Signals
 
   /**
