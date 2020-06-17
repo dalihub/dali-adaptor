@@ -281,7 +281,7 @@ int GetWindowIdFromActor( Dali::Actor actor )
 {
   int windowId = kUninitializedWindowId;
 
-  if( actor.OnStage() )
+  if( actor.GetProperty< bool >( Dali::Actor::Property::CONNECTED_TO_SCENE ) )
   {
     Any nativeWindowHandle = Dali::Integration::SceneHolder::Get( actor ).GetNativeHandle();
 
