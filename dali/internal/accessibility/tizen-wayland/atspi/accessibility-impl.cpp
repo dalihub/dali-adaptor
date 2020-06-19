@@ -1,5 +1,5 @@
 /*
- * Copyright 2019  Samsung Electronics Co., Ltd
+ * Copyright 2020  Samsung Electronics Co., Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
-#include <dali/devel-api/actors/actor-devel.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -604,9 +603,9 @@ public:
 
   Dali::Rect<> GetExtents( Dali::Accessibility::CoordType ctype ) override
   {
-    Vector2 screenPosition = actor.GetProperty( Dali::DevelActor::Property::SCREEN_POSITION ).Get< Vector2 >();
+    Vector2 screenPosition = actor.GetProperty( Actor::Property::SCREEN_POSITION ).Get< Vector2 >();
     Vector3 size = actor.GetCurrentProperty< Vector3 >( Actor::Property::SIZE ) * actor.GetCurrentProperty< Vector3 >( Actor::Property::WORLD_SCALE );
-    bool positionUsesAnchorPoint = actor.GetProperty( Dali::DevelActor::Property::POSITION_USES_ANCHOR_POINT ).Get< bool >();
+    bool positionUsesAnchorPoint = actor.GetProperty( Actor::Property::POSITION_USES_ANCHOR_POINT ).Get< bool >();
     Vector3 anchorPointOffSet = size * ( positionUsesAnchorPoint ? actor.GetCurrentProperty< Vector3 >( Actor::Property::ANCHOR_POINT ) : AnchorPoint::TOP_LEFT );
     Vector2 position = Vector2( screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y );
 

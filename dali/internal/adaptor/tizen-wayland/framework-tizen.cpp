@@ -401,7 +401,7 @@ struct Framework::Impl
 
     if(getenv("AUL_LOADER_INIT"))
     {
-      unsetenv("AUL_LOADER_INIT");
+      setenv("AUL_LOADER_INIT", "0", 1);
       ecore_shutdown();
     }
   }
