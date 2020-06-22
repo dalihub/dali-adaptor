@@ -16,6 +16,9 @@
 #undef CopyMemory
 #undef CreateWindow
 
+#undef min
+#undef max
+
 #include <EGL/eglext.h>
 
 #endif // EGL_INCLUDE_H
