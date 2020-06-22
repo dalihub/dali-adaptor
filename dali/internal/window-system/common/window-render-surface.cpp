@@ -352,9 +352,11 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( bool resizingSurface )
+bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
   MakeContextCurrent();
+
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 
   if( resizingSurface )
   {
@@ -386,19 +388,24 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
 
       DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
     }
+
+    if (eglGraphics)
+    {
+      Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+      eglImpl.SetFullSwapNextFrame();
+    }
   }
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  if ( eglGraphics )
+  if (eglGraphics)
   {
-    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-    mGLES.PreRender();
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    eglImpl.SetDamage( mEGLSurface, damagedRects, clippingRect );
   }
 
   return true;
 }
 
-void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects )
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
@@ -438,7 +445,7 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
     }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers( mEGLSurface );
+    eglImpl.SwapBuffers( mEGLSurface, damagedRects );
 
     if( mRenderNotification )
     {

@@ -126,6 +126,16 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
+   * Sets fixed damaged areas for partial rendering. This overrides automatic partial rendering.
+   */
+  void SetDamagedAreas( std::vector<Dali::Rect<int>>& areas );
+
+  /**
+   * Instructs egl implementation to do full swap regardless of stored data, resets the data.
+   */
+  void SetFullSwapNextFrame();
+
+  /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Destroy()
    */
   void Destroy() override;

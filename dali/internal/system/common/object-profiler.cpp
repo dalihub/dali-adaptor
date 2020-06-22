@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20187 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20207 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,6 @@ std::size_t ObjectProfiler::GetMemorySize( const std::string& name, uint32_t cou
       { "Actor", ACTOR_MEMORY_SIZE },
       { "Layer", LAYER_MEMORY_SIZE },
       { "CameraActor", CAMERA_ACTOR_MEMORY_SIZE },
-      { "Image", IMAGE_MEMORY_SIZE },
       { "Renderer", RENDERER_MEMORY_SIZE },
       { "Geometry", GEOMETRY_MEMORY_SIZE },
       { "PropertyBuffer", PROPERTY_BUFFER_MEMORY_SIZE },

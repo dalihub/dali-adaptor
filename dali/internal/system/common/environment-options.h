@@ -316,6 +316,11 @@ public:
    */
   bool StencilBufferRequired() const;
 
+  /**
+   * @return Whether the partial update is required.
+   */
+  bool PartialUpdateRequired() const;
+
   /// Deleted copy constructor.
   EnvironmentOptions( const EnvironmentOptions& ) = delete;
 
@@ -383,6 +388,7 @@ private: // Data
   bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
   bool mDepthBufferRequired;                      ///< Whether the depth buffer is required
   bool mStencilBufferRequired;                    ///< Whether the stencil buffer is required
+  bool mPartialUpdateRequired;                    ///< Whether the partial update is required
   std::unique_ptr<TraceManager> mTraceManager;    ///< TraceManager
 };
 

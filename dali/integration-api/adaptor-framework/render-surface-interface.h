@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
@@ -136,9 +137,10 @@ public:
    * If the operation fails, then Core::Render should not be called until there is
    * a surface to render onto.
    * @param[in] resizingSurface True if the surface is being resized
+   * @param[in] damagedRects List of damaged rects this render pass
    * @return True if the operation is successful, False if the operation failed
    */
-  virtual bool PreRender( bool resizingSurface ) = 0;
+  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) = 0;
 
   /**
    * @brief Invoked by render thread after Core::Render
@@ -146,7 +148,8 @@ public:
    * @param[in] replacingSurface True if the surface is being replaced.
    * @param[in] resizingSurface True if the surface is being resized.
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface ) = 0;
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) = 0;
+
   /**
    * @brief Invoked by render thread when the thread should be stop
    */

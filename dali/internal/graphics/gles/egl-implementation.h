@@ -19,9 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/list-wrapper.h>
+#include <dali/public-api/common/vector-wrapper.h>
+
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/math/rect.h>
 #include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
@@ -46,10 +50,12 @@ public:
    * @param[in] multiSamplingLevel The Multi-sampling level required
    * @param[in] depthBufferRequired Whether the depth buffer is required
    * @param[in] stencilBufferRequired Whether the stencil buffer is required
+   * @param[in] partialUpdatedRequired Whether the partial update is required
    */
   EglImplementation( int multiSamplingLevel,
                      Integration::DepthBufferAvailable depthBufferRequired,
-                     Integration::StencilBufferAvailable stencilBufferRequired );
+                     Integration::StencilBufferAvailable stencilBufferRequired,
+                     Integration::PartialUpdateAvailable partialUpdateRequired );
 
   /**
    * Destructor
@@ -122,6 +128,36 @@ public:
    * Performs an OpenGL swap buffers command
    */
   virtual void SwapBuffers( EGLSurface& eglSurface );
+
+  /**
+   * Gets current back buffer age
+   */
+  EGLint GetBufferAge( EGLSurface& eglSurface ) const;
+
+  /**
+   * Gets if user set damaged areas
+   */
+  bool DamageAreasSet() const;
+
+  /**
+   * Sets damaged areas, overrides auto calculated ones
+   */
+  void SetDamageAreas( std::vector<Dali::Rect<int>>& damagedArea );
+
+  /**
+   * Forces full surface swap next frame, resets current partial update state.
+   */
+  void SetFullSwapNextFrame();
+
+  /**
+   * Performs an OpenGL set damage command with damaged rects
+   */
+  virtual void SetDamage( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect );
+
+  /**
+   * Performs an OpenGL swap buffers command with damaged rects
+   */
+  virtual void SwapBuffers( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects );
 
   /**
    * Performs an OpenGL copy buffers command
@@ -246,10 +282,20 @@ private:
   bool                 mIsWindow;
   bool                 mDepthBufferRequired;
   bool                 mStencilBufferRequired;
+  bool                 mPartialUpdateRequired;
   bool                 mIsSurfacelessContextSupported;
   bool                 mIsKhrCreateContextSupported;
 
   uint32_t              mSwapBufferCountAfterResume;
+  PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
+  PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mEglSwapBuffersWithDamageKHR;
+
+  EGLint mBufferAge;
+  std::list<std::vector<Rect<int>>> mBufferDamagedRects;
+  std::vector<Rect<int>> mCombinedDamagedRects;
+  std::vector<Rect<int>> mDamagedAreas;
+  Rect<int> mSurfaceRect;
+  bool mFullSwapNextFrame;
 };
 
 } // namespace Adaptor

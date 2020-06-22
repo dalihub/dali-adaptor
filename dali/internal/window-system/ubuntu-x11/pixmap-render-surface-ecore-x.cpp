@@ -220,13 +220,13 @@ void PixmapRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool PixmapRenderSurfaceEcoreX::PreRender( bool )
+bool PixmapRenderSurfaceEcoreX::PreRender( bool, const std::vector<Rect<int>>&, Rect<int>& )
 {
   // Nothing to do for pixmaps
   return true;
 }
 
-void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
+void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects )
 {
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 

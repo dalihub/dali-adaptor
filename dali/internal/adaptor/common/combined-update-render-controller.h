@@ -391,6 +391,8 @@ private:
   volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
 
   volatile unsigned int             mFirstFrameAfterResume;            ///< Will be set to check the first frame after resume (for log)
+
+  std::vector<Rect<int>>            mDamagedRects;                     ///< Keeps collected damaged render items rects for one render pass
 };
 
 } // namespace Adaptor

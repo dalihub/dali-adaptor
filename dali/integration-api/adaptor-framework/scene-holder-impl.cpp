@@ -31,6 +31,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 
@@ -208,6 +209,13 @@ void SceneHolder::SurfaceResized()
 {
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
   mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ) );
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
@@ -220,6 +228,13 @@ void SceneHolder::SetBackgroundColor( const Vector4& color )
   if( mScene )
   {
     mScene.SetBackgroundColor( color );
+
+    GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+    EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+    if (eglGraphics)
+    {
+      eglGraphics->SetFullSwapNextFrame();
+    }
   }
 }
 

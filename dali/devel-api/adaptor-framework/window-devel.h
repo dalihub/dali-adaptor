@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
+
 // INTERNAL INCLUDES
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -249,6 +252,16 @@ DALI_ADAPTOR_API void SetAvailableOrientations( Window window, const Dali::Vecto
  * @param[in] window The window instance
  */
 DALI_ADAPTOR_API int32_t GetNativeId( Window window );
+
+/**
+ * @brief Sets damaged areas of the window.
+ *
+ * This API is for setting static damaged areas of the window for partial update.
+ *
+ * @param[in] window The window instance
+ * @param[in] areas The damaged areas list to set
+ */
+DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas);
 
 } // namespace DevelWindow
 
