@@ -80,8 +80,6 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize,
     DALI_ASSERT_ALWAYS( ( surface.GetType() == typeid (tbm_surface_queue_h) ) && "Surface type is invalid" );
     mTbmQueue = AnyCast< tbm_surface_queue_h >( surface );
   }
-
-  setenv( "EGL_PLATFORM", "tbm", 1 );
 }
 
 NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
@@ -155,7 +153,6 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
 void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-  unsetenv( "EGL_PLATFORM" );
 
   mGraphics = &mAdaptor->GetGraphicsInterface();
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
