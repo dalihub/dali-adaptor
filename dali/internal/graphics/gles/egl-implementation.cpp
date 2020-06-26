@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,12 +104,18 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
   {
     mEglNativeDisplay = display;
 
-    //@todo see if we can just EGL_DEFAULT_DISPLAY instead
-    mEglDisplay = eglGetDisplay(mEglNativeDisplay);
-    EGLint error = eglGetError();
+    // Try to get the display connection for the native display first
+    mEglDisplay = eglGetDisplay( mEglNativeDisplay );
 
-    if( mEglDisplay == NULL && error != EGL_SUCCESS )
+    if( mEglDisplay == EGL_NO_DISPLAY )
     {
+      // If failed, try to get the default display connection
+      mEglDisplay = eglGetDisplay( EGL_DEFAULT_DISPLAY );
+    }
+
+    if( mEglDisplay == EGL_NO_DISPLAY )
+    {
+      // Still failed to get a display connection
       throw Dali::DaliException( "", "OpenGL ES is not supported");
     }
 
