@@ -42,8 +42,9 @@ public:
    * Constructor
    */
   GraphicsInterface()
-: mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
-  mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
+  : mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
+    mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE ),
+    mPartialUpdateRequired( Integration::PartialUpdateAvailable::FALSE )
   {
   };
 
@@ -81,11 +82,20 @@ public:
     return mStencilBufferRequired;
   };
 
+  /**
+   * Get whether the stencil buffer is required
+   * @return TRUE if the stencil buffer is required
+   */
+  Integration::PartialUpdateAvailable GetPartialUpdateRequired()
+  {
+    return mPartialUpdateRequired;
+  };
 
 protected:
 
   Integration::DepthBufferAvailable mDepthBufferRequired;       ///< Whether the depth buffer is required
   Integration::StencilBufferAvailable mStencilBufferRequired;   ///< Whether the stencil buffer is required
+  Integration::PartialUpdateAvailable mPartialUpdateRequired;   ///< Whether the partial update is required
 };
 
 } // Adaptor

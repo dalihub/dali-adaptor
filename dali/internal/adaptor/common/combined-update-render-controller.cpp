@@ -745,18 +745,35 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           windowSurface->InitializeGraphics();
 
+          // clear previous frame damaged render items rects, buffer history is tracked on surface level
+          mDamagedRects.clear();
+
+          // If user damaged areas are not set
+          if (!eglImpl.DamageAreasSet())
+          {
+            // Collect damage rects
+            mCore.PreRender( scene, mDamagedRects );
+          }
+
           // Render off-screen frame buffers first if any
           mCore.RenderScene( windowRenderStatus, scene, true );
 
-          // Switch to the EGL context of the surface
-          windowSurface->PreRender( surfaceResized ); // Switch GL context
+          Rect<int> clippingRect; // Empty for fbo rendering
+
+          // Switch to the EGL context of the surface, merge damaged areas for previous frames
+          windowSurface->PreRender( surfaceResized, mDamagedRects, clippingRect ); // Switch GL context
+
+          if (clippingRect.IsEmpty())
+          {
+            mDamagedRects.clear();
+          }
 
           // Render the surface
-          mCore.RenderScene( windowRenderStatus, scene, false );
+          mCore.RenderScene( windowRenderStatus, scene, false, clippingRect );
 
           if( windowRenderStatus.NeedsPostRender() )
           {
-            windowSurface->PostRender( false, false, surfaceResized ); // Swap Buffer
+            windowSurface->PostRender( false, false, surfaceResized, mDamagedRects ); // Swap Buffer with damage
           }
         }
       }

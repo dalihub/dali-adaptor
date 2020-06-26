@@ -28,6 +28,9 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/abort-handler.h>
 #include <dali/public-api/adaptor-framework/device-status.h>
+#ifdef COMPONENT_APPLICATION_SUPPORT
+#include <dali/devel-api/adaptor-framework/component-application.h>
+#endif
 
 namespace Dali
 {
@@ -54,7 +57,8 @@ public:
   {
     NORMAL,       ///< normal appFramework
     WATCH,        ///< watch appFramework
-    WIDGET        ///< widget appFramework
+    WIDGET,       ///< widget appFramework
+    COMPONENT     ///< component appFramework
   };
 
   /**
@@ -141,6 +145,13 @@ public:
      * Invoked when the platform surface is destroyed.
      */
     virtual void OnSurfaceDestroyed( Any newSurface ) {}
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+    /**
+     * Invoked when the component application is created.
+     */
+    virtual Any OnCreate() { return nullptr; }
+#endif
   };
 
 public:

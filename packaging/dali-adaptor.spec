@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.9.17
+Version:    1.9.18
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -50,6 +50,10 @@ BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  cmake
 BuildRequires:  giflib-devel
+BuildRequires:  pkgconfig(libwebp)
+BuildRequires:  pkgconfig(libwebpdecoder)
+BuildRequires:  pkgconfig(libwebpdemux)
+BuildRequires:  pkgconfig(libwebpmux)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(vconf)
@@ -97,6 +101,7 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
+BuildRequires:  pkgconfig(component-based-core-base)
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -271,10 +276,6 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
-%if 0%{?enable_appfw}
-cmake_flags+=" -DUSE_APPFW"
-%endif
-
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen
 
@@ -294,6 +295,7 @@ cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
 cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
 cmake_flags+=" -DENABLE_FEEDBACK=YES"
 cmake_flags+=" -DENABLE_APPFW=YES"
+cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 
 # Set up the build via Cmake
 #######################################################################

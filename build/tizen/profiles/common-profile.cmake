@@ -65,3 +65,10 @@ IF( ENABLE_TRACE )
          ${adaptor_trace_tizen_src_files}
          )
 ENDIF()
+
+IF( COMPONENT_APPLICATION_SUPPORT )
+    SET( SOURCES ${SOURCES}
+        ${adaptor_adaptor_component_application_src_files}
+      )
+ENDIF()
+

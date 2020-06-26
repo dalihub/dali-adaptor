@@ -89,6 +89,7 @@ CHECK_MODULE_AND_SET( CAPI_SYSTEM_INFO capi-system-info [] )
 CHECK_MODULE_AND_SET( CAPI_SYSTEM_SENSOR capi-system-sensor capi_system_sensor_support )
 CHECK_MODULE_AND_SET( CAPI_SYSTEM_SYSTEM_SETTINGS capi-system-system-settings [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_APPLICATION capi-appfw-application [] )
+CHECK_MODULE_AND_SET( COMPONENT_BASED_CORE_BASE component-based-core-base [] )
 
 CHECK_MODULE_AND_SET( ELEMENTARY elementary [] )
 CHECK_MODULE_AND_SET( BUNDLE bundle [] )
@@ -211,6 +212,10 @@ ELSE()
   SET( cachePath /home/owner )
 ENDIF()
 
+IF( enable_appfw )
+  ADD_DEFINITIONS( -DUSE_APPFW -DCOMPONENT_APPLICATION_SUPPORT)
+ENDIF()
+
 #######################################################
 
 ADD_DEFINITIONS( -DDALI_PROFILE_${enable_profile})
@@ -330,6 +335,7 @@ IF( enable_appfw )
     ${CAPI_APPFW_WIDGET_BASE_CFLAGS}
     ${ECORE_IMF_CFLAGS}
     ${FRIBIDI_CFLAGS}
+    ${COMPONENT_BASED_CORE_BASE_CFLAGS}
   )
 
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}
@@ -344,6 +350,7 @@ IF( enable_appfw )
     ${CAPI_APPFW_WIDGET_BASE_LDFLAGS}
     ${ECORE_IMF_LDFLAGS}
     ${FRIBIDI_LDFLAGS}
+    ${COMPONENT_BASED_CORE_BASE_LDFLAGS}
   )
 ELSE()
   SET( DALI_CFLAGS ${DALI_CFLAGS}

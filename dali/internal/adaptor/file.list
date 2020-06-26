@@ -48,4 +48,7 @@ SET( adaptor_adaptor_windows_src_files
     ${adaptor_adaptor_dir}/windows/framework-win.cpp
 )
 
-
+SET( adaptor_adaptor_component_application_src_files
+    ${adaptor_adaptor_dir}/tizen-wayland/component-application.cpp
+    ${adaptor_adaptor_dir}/tizen-wayland/component-application-impl.cpp
+)

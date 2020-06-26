@@ -66,3 +66,9 @@ IF( ENABLE_TRACE )
       )
 ENDIF()
 
+IF( COMPONENT_APPLICATION_SUPPORT )
+    SET( SOURCES ${SOURCES}
+        ${adaptor_adaptor_component_application_src_files}
+      )
+ENDIF()
+

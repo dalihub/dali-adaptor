@@ -148,6 +148,11 @@ int32_t GetNativeId( Window window )
   return GetImplementation( window ).GetNativeId();
 }
 
+void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas)
+{
+  GetImplementation(window).SetDamagedAreas(areas);
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

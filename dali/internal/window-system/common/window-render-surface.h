@@ -156,12 +156,12 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  virtual bool PreRender( bool resizingSurface ) override;
+  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
+  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()

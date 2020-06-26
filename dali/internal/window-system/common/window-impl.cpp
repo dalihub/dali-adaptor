@@ -32,6 +32,7 @@
 
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
@@ -188,18 +189,42 @@ std::string Window::GetClassName() const
 void Window::Raise()
 {
   mWindowBase->Raise();
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
+
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Raise() \n", this, mNativeWindowId );
 }
 
 void Window::Lower()
 {
   mWindowBase->Lower();
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
+
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Lower() \n", this, mNativeWindowId );
 }
 
 void Window::Activate()
 {
   mWindowBase->Activate();
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
+
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Activate() \n", this, mNativeWindowId );
 }
 
@@ -412,6 +437,13 @@ void Window::Show()
     mVisibilityChangedSignal.Emit( handle, true );
   }
 
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
+
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Show(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible );
 }
 
@@ -428,6 +460,14 @@ void Window::Hide()
 
     Dali::Window handle( this );
     mVisibilityChangedSignal.Emit( handle, false );
+  }
+
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
   }
 
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Hide(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible );
@@ -477,6 +517,13 @@ unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
 void Window::SetInputRegion( const Rect< int >& inputRegion )
 {
   mWindowBase->SetInputRegion( inputRegion );
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
@@ -589,6 +636,13 @@ void Window::SetSize( Dali::Window::WindowSize size )
 
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -609,6 +663,13 @@ void Window::SetPosition( Dali::Window::WindowPosition position )
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize( PositionSize( position.GetX(), position.GetY(), oldRect.width, oldRect.height ) );
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -646,6 +707,13 @@ void Window::SetPositionSize( PositionSize positionSize )
     mResizedSignal.Emit( newSize );
     mResizeSignal.Emit( handle, newSize );
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
+  }
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
   }
 }
 
@@ -711,6 +779,13 @@ void Window::OnIconifyChanged( bool iconified )
 
     DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible );
   }
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 void Window::OnFocusChanged( bool focusIn )
@@ -718,6 +793,13 @@ void Window::OnFocusChanged( bool focusIn )
   Dali::Window handle( this );
   mFocusChangedSignal.Emit( focusIn );
   mFocusChangeSignal.Emit( handle, focusIn );
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 void Window::OnOutputTransformed()
@@ -784,6 +866,13 @@ void Window::OnPause()
   {
     mEventHandler->Pause();
   }
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
+  }
 }
 
 void Window::OnResume()
@@ -791,6 +880,13 @@ void Window::OnResume()
   if( mEventHandler )
   {
     mEventHandler->Resume();
+  }
+
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetFullSwapNextFrame();
   }
 }
 
@@ -913,6 +1009,16 @@ void Window::SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOr
 int32_t Window::GetNativeId() const
 {
   return mWindowBase->GetNativeWindowId();
+}
+
+void Window::SetDamagedAreas(std::vector<Dali::Rect<int>>& areas)
+{
+  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
+  if (eglGraphics)
+  {
+    eglGraphics->SetDamagedAreas(areas);
+  }
 }
 
 } // Adaptor

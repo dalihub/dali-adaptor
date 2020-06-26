@@ -42,6 +42,7 @@ const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
 const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
 const bool DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING = true;
 const bool DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
+const bool DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = false;
 
 unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
@@ -130,7 +131,8 @@ EnvironmentOptions::EnvironmentOptions()
   mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
   mGlesCallAccumulate( false ),
   mDepthBufferRequired( DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING ),
-  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING )
+  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING ),
+  mPartialUpdateRequired( DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING )
 {
   ParseEnvironmentOptions();
 }
@@ -389,6 +391,11 @@ bool EnvironmentOptions::DepthBufferRequired() const
 bool EnvironmentOptions::StencilBufferRequired() const
 {
   return mStencilBufferRequired;
+}
+
+bool EnvironmentOptions::PartialUpdateRequired() const
+{
+  return mPartialUpdateRequired;
 }
 
 void EnvironmentOptions::ParseEnvironmentOptions()
@@ -658,6 +665,15 @@ void EnvironmentOptions::ParseEnvironmentOptions()
     if( stencilBufferRequired > 0 )
     {
       mStencilBufferRequired = false;
+    }
+  }
+
+  int partialUpdateRequired( -1 );
+  if( GetIntegerEnvironmentVariable( DALI_ENV_ENABLE_PARTIAL_UPDATE, partialUpdateRequired ) )
+  {
+    if( partialUpdateRequired > 0 )
+    {
+      mPartialUpdateRequired = true;
     }
   }
 }
