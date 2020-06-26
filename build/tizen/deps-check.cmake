@@ -274,6 +274,8 @@ SET( DALI_LDFLAGS
   -lgif
   -lturbojpeg
   -ljpeg
+  -lwebp
+  -lwebpdemux
 )
 
 # Android includes pthread with android lib

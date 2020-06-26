@@ -176,8 +176,6 @@ IF( UNIX )
   ENDIF()
 ENDIF()
 
-SET( REQUIRED_LIBS ${REQUIRED_LIBS} webp webpdemux )
-
 TARGET_LINK_LIBRARIES( ${name}
                        ${DALI_LDFLAGS}
                        ${REQUIRED_LIBS}

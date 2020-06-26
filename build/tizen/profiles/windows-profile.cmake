@@ -63,6 +63,8 @@ FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi )
 FIND_PACKAGE( unofficial-angle REQUIRED )
 FIND_PACKAGE( unofficial-cairo REQUIRED )
 
+FIND_PACKAGE( WebP REQUIRED )
+
 # Set the linker flags
 SET( REQUIRED_LIBS
         PThreads4W::PThreads4W
@@ -80,5 +82,7 @@ SET( REQUIRED_LIBS
         unofficial::angle::libEGL
         unofficial::angle::libGLESv2
         unofficial::cairo::cairo
+        WebP::webp
+        WebP::webpdemux
         dali2-core::dali2-core
 )
