@@ -32,7 +32,6 @@ AnimatedImageLoading::AnimatedImageLoading()
 
 AnimatedImageLoading AnimatedImageLoading::New( const std::string& url, bool isLocalResource )
 {
-
   const std::size_t urlSize = url.length();
 
   Internal::Adaptor::AnimatedImageLoadingPtr internal = NULL;
@@ -68,6 +67,11 @@ bool AnimatedImageLoading::LoadNextNFrames( uint32_t frameStartIndex, int count,
   return GetImplementation( *this ).LoadNextNFrames( frameStartIndex, count, pixelData );
 }
 
+Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame( uint32_t frameIndex )
+{
+  return GetImplementation( *this ).LoadFrame( frameIndex );
+}
+
 ImageDimensions AnimatedImageLoading::GetImageSize() const
 {
   return GetImplementation( *this ).GetImageSize();
@@ -81,6 +85,11 @@ uint32_t AnimatedImageLoading::GetImageCount() const
 uint32_t AnimatedImageLoading::GetFrameInterval( uint32_t frameIndex ) const
 {
   return GetImplementation( *this ).GetFrameInterval( frameIndex );
+}
+
+std::string AnimatedImageLoading::GetUrl() const
+{
+  return GetImplementation( *this ).GetUrl();
 }
 
 AnimatedImageLoading::AnimatedImageLoading( Internal::Adaptor::AnimatedImageLoading* internal )

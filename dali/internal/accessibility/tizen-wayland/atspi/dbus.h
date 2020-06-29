@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_H
 
 /*
- * Copyright 2019  Samsung Electronics Co., Ltd
+ * Copyright 2020  Samsung Electronics Co., Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2232,8 +2232,8 @@ namespace DBus
   /**
    * @brief Class representing client's end of DBUS connection
    *
-   * Allows calling (synchronous and asynchronos) methods on selected interface
-   * Allows (synchronous and asynchronos) setting / getting properties.
+   * Allows calling (synchronous and asynchronous) methods on selected interface
+   * Allows (synchronous and asynchronous) setting / getting properties.
    * Allows registering signals.
    */
   class DBusClient
@@ -2756,8 +2756,8 @@ namespace DBus
   /**
    * @brief Class representing server's end of DBUS connection
    *
-   * Allows listening (synchronously and asynchronosly) on methods on selected interface
-   * Allows listening (synchronously and asynchronosly) on setting / getting properties.
+   * Allows listening (synchronously and asynchronously) on methods on selected interface
+   * Allows listening (synchronously and asynchronously) on setting / getting properties.
    * Allows emiting signals.
    */
   class DBusServer

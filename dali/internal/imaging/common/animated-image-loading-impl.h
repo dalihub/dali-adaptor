@@ -74,6 +74,11 @@ public:
   virtual bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData ) = 0;
 
   /**
+   * @copydoc Dali::AnimatedImageLoading::LoadFrame()
+   */
+  virtual Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex ) = 0;
+
+  /**
    * @copydoc Dali::AnimatedImageLoading::GetImageSize()
    */
   virtual ImageDimensions GetImageSize() const = 0;
@@ -87,6 +92,11 @@ public:
    * @copydoc Dali::AnimatedImageLoading::LoadFrameDelays()
    */
   virtual uint32_t GetFrameInterval( uint32_t frameIndex ) const = 0;
+
+  /**
+   * @copydoc Dali::AnimatedImageLoading::GetUrl()
+   */
+  virtual std::string GetUrl() const = 0;
 };
 
 } // namespace Adaptor

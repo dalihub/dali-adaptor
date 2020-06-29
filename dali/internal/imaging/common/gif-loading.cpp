@@ -1284,6 +1284,25 @@ bool GifLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vect
   return ret;
 }
 
+Dali::Devel::PixelBuffer GifLoading::LoadFrame( uint32_t frameIndex )
+{
+  int error;
+  Dali::Devel::PixelBuffer pixelBuffer;
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex );
+
+  pixelBuffer = Dali::Devel::PixelBuffer::New( mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888 );
+
+  mImpl->loaderInfo.animated.currentFrame = 1 + ( frameIndex % mImpl->loaderInfo.animated.frameCount );
+  ReadNextFrame( mImpl->loaderInfo, mImpl->imageProperties, pixelBuffer.GetBuffer(), &error );
+
+  if( error != 0 )
+  {
+    pixelBuffer = Dali::Devel::PixelBuffer();
+  }
+  return pixelBuffer;
+}
+
 ImageDimensions GifLoading::GetImageSize() const
 {
   return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.h );
@@ -1297,6 +1316,11 @@ uint32_t GifLoading::GetImageCount() const
 uint32_t GifLoading::GetFrameInterval( uint32_t frameIndex ) const
 {
   return mImpl->loaderInfo.animated.frames[frameIndex].info.delay * 10;
+}
+
+std::string GifLoading::GetUrl() const
+{
+  return mImpl->mUrl;
 }
 
 } // namespace Adaptor
