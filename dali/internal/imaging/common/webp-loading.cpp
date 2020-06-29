@@ -19,8 +19,15 @@
 #include <dali/internal/imaging/common/webp-loading.h>
 
 // EXTERNAL INCLUDES
+#ifdef DALI_WEBP_AVAILABLE
 #include <webp/decode.h>
 #include <webp/demux.h>
+
+#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#define DALI_WEBP_ENABLED 1
+#endif
+
+#endif
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel-data.h>
 
@@ -61,7 +68,7 @@ public:
   : mUrl( url ),
     mLoadingFrame( 0 )
   {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
     if( ReadWebPInformation( isLocalResource ) )
     {
       WebPAnimDecoderOptions webPAnimDecoderOptions;
@@ -76,7 +83,7 @@ public:
 
   bool ReadWebPInformation( bool isLocalResource )
   {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
     WebPDataInit( &mWebPData );
     if( isLocalResource )
     {
@@ -157,7 +164,7 @@ public:
 
   ~Impl()
   {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
     if( &mWebPData != NULL )
     {
       free( (void*)mWebPData.bytes );
@@ -175,7 +182,7 @@ public:
   std::vector<uint32_t> mTimeStamp;
   uint32_t mLoadingFrame;
 
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
   WebPData mWebPData;
   WebPAnimDecoder* mWebPAnimDecoder;
   WebPAnimInfo mWebPAnimInfo;
@@ -184,8 +191,8 @@ public:
 
 AnimatedImageLoadingPtr WebPLoading::New( const std::string &url, bool isLocalResource )
 {
-#if WEBP_DEMUX_ABI_VERSION <= 0x0101
-  DALI_LOG_ERROR( "The system do not support Animated WebP format.\n" );
+#ifndef DALI_WEBP_ENABLED
+  DALI_LOG_ERROR( "The system does not support Animated WebP format.\n" );
 #endif
   return AnimatedImageLoadingPtr( new WebPLoading( url, isLocalResource ) );
 }
@@ -202,7 +209,7 @@ WebPLoading::~WebPLoading()
 
 bool WebPLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData> &pixelData )
 {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
   if( frameStartIndex  >= mImpl->mWebPAnimInfo.frame_count )
   {
     return false;
@@ -258,7 +265,7 @@ bool WebPLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vec
 
 ImageDimensions WebPLoading::GetImageSize() const
 {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
   return ImageDimensions( mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height );
 #else
   return ImageDimensions();
@@ -267,7 +274,7 @@ ImageDimensions WebPLoading::GetImageSize() const
 
 uint32_t WebPLoading::GetImageCount() const
 {
-#if WEBP_DEMUX_ABI_VERSION > 0x0101
+#ifdef DALI_WEBP_ENABLED
   return mImpl->mWebPAnimInfo.frame_count;
 #else
   return 0u;

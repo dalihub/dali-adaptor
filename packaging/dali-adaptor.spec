@@ -50,10 +50,6 @@ BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  cmake
 BuildRequires:  giflib-devel
-BuildRequires:  pkgconfig(libwebp)
-BuildRequires:  pkgconfig(libwebpdecoder)
-BuildRequires:  pkgconfig(libwebpdemux)
-BuildRequires:  pkgconfig(libwebpmux)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(vconf)
@@ -76,6 +72,14 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
+
+# WebP support only from Tizen 6 onwards
+%if 0%{?tizen_version_major} >= 6
+BuildRequires:  pkgconfig(libwebp)
+BuildRequires:  pkgconfig(libwebpdecoder)
+BuildRequires:  pkgconfig(libwebpdemux)
+BuildRequires:  pkgconfig(libwebpmux)
+%endif
 
 # We use ecore mainloop
 %if 0%{?tizen_version_major} >= 5
