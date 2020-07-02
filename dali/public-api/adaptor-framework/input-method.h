@@ -2,7 +2,7 @@
 #define DALI_INPUT_MEHTOD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,21 +248,6 @@ enum ActionButton
   ACTION_SIGNIN,        ///< Sign in action @SINCE_1_0.0
   ACTION_UNSPECIFIED,   ///< Unspecified action @SINCE_1_0.0
   ACTION_NONE           ///< Nothing to do @SINCE_1_0.0
-};
-
-/**
- * @DEPRECATED_1_3.20 Use Category instead.
- * @brief Enumeration for settings that can be changed in the system Input Method.
- *
- * Not all these settings are supported by all systems.
- * @SINCE_1_0.0
- */
-enum Settings
-{
-  ACTION_BUTTON,          ///< ActionButton. Apply the one of the ActionButton functions to the action button (return button). @SINCE_1_0.0
-  AUTO_CAPITALISE,        ///< boolean.      Capitalize the first letter of each sentence automatically. @SINCE_1_0.0
-  AUTO_COMPLETE,          ///< boolean.      Suggest words based on the current input. @SINCE_1_0.0
-  AUTO_CORRECT            ///< boolean.      Automatically correct commonly misspelt words. @SINCE_1_0.0
 };
 
 } // namespace InputMethod

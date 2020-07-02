@@ -2,7 +2,7 @@
 #define DALI_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,11 +122,6 @@ public: // Signals
    * This signal is sent when the system requires the user to reinitialise itself.
    */
   LifecycleSignalType& ResetSignal();
-
-  /**
-   * This signal is emitted when the window the application is rendering on is resized.
-   */
-  LifecycleSignalType& ResizeSignal();
 
   /**
    * This signal is emitted when the language is changed on the device.

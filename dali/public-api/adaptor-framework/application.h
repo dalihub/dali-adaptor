@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 
@@ -233,8 +232,6 @@ public:
   /**
    * @brief This starts the application, and allows the app to choose a different configuration.
    *
-   * If the application plans on using the ReplaceSurface or ReplaceWindow API, then this will
-   * trigger context loss & regain.
    * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
    * @SINCE_1_0.0
    * @param[in] configuration The context loss configuration
@@ -282,19 +279,6 @@ public:
   Window GetWindow();
 
   /**
-   * @DEPRECATED_1_4.12
-   * @brief Replaces the current window.
-   *
-   * This will force context loss.
-   * If you plan on using this API in your application, then you should configure
-   * it to prevent discard behavior when handling the Init signal.
-   * @SINCE_1_0.0
-   * @param[in] windowPosition The position and size parameters of the new window
-   * @param[in] name The name of the new window
-   */
-  void ReplaceWindow(PositionSize windowPosition, const std::string& name)  DALI_DEPRECATED_API;
-
-  /**
    * @brief Get path application resources are stored at
    *
    * @SINCE_1_2.2
@@ -317,44 +301,6 @@ public:
    * @return Language information
    */
   std::string GetLanguage() const;
-
-public: // Stereoscopy
-
-  /**
-   * @DEPRECATED_1_3_51
-   * @brief Sets the viewing mode for the application.
-   * @SINCE_1_0.0
-   * @param[in] viewMode The new viewing mode
-   */
-  void SetViewMode( ViewMode viewMode );
-
-  /**
-   * @DEPRECATED_1_3_51
-   * @brief Gets the current viewing mode.
-   * @SINCE_1_0.0
-   * @return The current viewing mode
-   */
-  ViewMode GetViewMode() const;
-
-  /**
-   * @DEPRECATED_1_3_51
-   * @brief Sets the stereo base (eye separation) for Stereoscopic 3D.
-   *
-   * The stereo base is the distance in millimetres between the eyes. Typical values are
-   * between 50mm and 70mm. The default value is 65mm.
-   * @SINCE_1_0.0
-   * @param[in] stereoBase The stereo base (eye separation) for Stereoscopic 3D
-   */
-  void SetStereoBase( float stereoBase );
-
-  /**
-   * @DEPRECATED_1_3_51
-   * @brief Gets the stereo base (eye separation) for Stereoscopic 3D.
-   *
-   * @SINCE_1_0.0
-   * @return The stereo base (eye separation) for Stereoscopic 3D
-   */
-  float GetStereoBase() const;
 
 public:  // Signals
 
@@ -398,14 +344,6 @@ public:  // Signals
   AppSignalType& ResetSignal();
 
   /**
-   * @DEPRECATED_1_2.62 Use Window::ResizedSignal() instead.
-   * @brief This signal is emitted when the window application rendering on is resized.
-   * @SINCE_1_0.0
-   * @return The signal to connect to
-   */
-  AppSignalType& ResizeSignal() DALI_DEPRECATED_API;
-
-  /**
   * @brief This signal is emitted when another application sends a launch request to the application.
   *
   * When the application is launched, this signal is emitted after the main loop of the application starts up.
@@ -428,22 +366,6 @@ public:  // Signals
   * @return The signal to connect to
   */
   AppSignalType& RegionChangedSignal();
-
-  /**
-  * @DEPRECATED_1_2.62 Use LowBatterySignal() instead.
-  * @brief This signal is emitted when the battery level of the device is low.
-  * @SINCE_1_0.0
-  * @return The signal to connect to
-  */
-  AppSignalType& BatteryLowSignal() DALI_DEPRECATED_API;
-
-  /**
-  * @DEPRECATED_1_2.62 Use LowMemorySignal() instead.
-  * @brief This signal is emitted when the memory level of the device is low.
-  * @SINCE_1_0.0
-  * @return The signal to connect to
-  */
-  AppSignalType& MemoryLowSignal() DALI_DEPRECATED_API;
 
   /**
    * @brief This signal is emitted when the battery level of the device is low.

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,11 +137,6 @@ public:
   std::string GetLanguage() const;
 
   /**
-   * @copydoc Dali::Application::ReplaceWindow();
-   */
-  void ReplaceWindow( const PositionSize& positionSize, const std::string& name);
-
-  /**
    * @copydoc Dali::Application::GetResourcePath();
    */
   static std::string GetResourcePath();
@@ -157,28 +152,6 @@ public:
    * @return A pointer to the pre-initialized application
    */
   static ApplicationPtr GetPreInitializedApplication();
-
-public: // Stereoscopy
-
-  /**
-   * @copydoc Dali::Application::SetViewMode()
-   */
-  void SetViewMode( ViewMode viewMode );
-
-  /**
-   * @copydoc Dali::Application::GetViewMode()
-   */
-  ViewMode GetViewMode() const;
-
-  /**
-   * @copydoc Dali::Application::SetStereoBase()
-   */
-  void SetStereoBase( float stereoBase );
-
-  /**
-   * @copydoc Dali::Application::GetStereoBase()
-   */
-  float GetStereoBase() const;
 
 public: // From Framework::Observer
 
@@ -246,12 +219,6 @@ public: // From Framework::Observer
 public:
 
   /**
-   * Signal handler when the adaptor's window resizes itself.
-   * @param[in]  adaptor  The adaptor
-   */
-  void OnResize(Dali::Adaptor& adaptor);
-
-  /**
    * Sets a user defined theme file.
    * This should be called before initialization.
    * @param[in] stylesheet The path to user defined theme file
@@ -299,11 +266,6 @@ public:  // Signals
   Dali::Application::AppControlSignalType& AppControlSignal() { return mAppControlSignal; }
 
   /**
-   * @copydoc Dali::Application::ResizeSignal()
-   */
-  Dali::Application::AppSignalType& ResizeSignal() { return mResizeSignal; }
-
-  /**
    * @copydoc Dali::Application::LanguageChangedSignal()
    */
   Dali::Application::AppSignalType& LanguageChangedSignal() { return mLanguageChangedSignal; }
@@ -312,16 +274,6 @@ public:  // Signals
   * @copydoc Dali::Application::RegionChangedSignal()
   */
   Dali::Application::AppSignalType& RegionChangedSignal() { return mRegionChangedSignal; }
-
-  /**
-  * @copydoc Dali::Application::BatteryLowSignal()
-  */
-  Dali::Application::AppSignalType& BatteryLowSignal() { return mBatteryLowSignal; }
-
-  /**
-  * @copydoc Dali::Application::MemoryLowSignal()
-  */
-  Dali::Application::AppSignalType& MemoryLowSignal() { return mMemoryLowSignal; }
 
   /**
   * @copydoc Dali::Application::LowBatterySignal()
@@ -383,12 +335,9 @@ private:
   AppSignalType                         mPauseSignal;
   AppSignalType                         mResumeSignal;
   AppSignalType                         mResetSignal;
-  AppSignalType                         mResizeSignal;
   AppControlSignalType                  mAppControlSignal;
   AppSignalType                         mLanguageChangedSignal;
   AppSignalType                         mRegionChangedSignal;
-  AppSignalType                         mBatteryLowSignal;
-  AppSignalType                         mMemoryLowSignal;
   LowBatterySignalType                  mLowBatterySignal;
   LowMemorySignalType                   mLowMemorySignal;
 
@@ -407,8 +356,6 @@ private:
   Dali::Application::WINDOW_MODE           mMainWindowMode;   ///< Window mode of the main window
   std::string                              mMainWindowName;   ///< Name of the main window as obtained from environment options
 
-  bool                                     mMainWindowReplaced;   ///< Whether the main window has been replaced
-
   std::string                              mStylesheet;
   EnvironmentOptions                       mEnvironmentOptions;
   PositionSize                             mWindowPositionSize;
@@ -416,9 +363,6 @@ private:
   bool                                     mUseRemoteSurface;
 
   SlotDelegate< Application >              mSlotDelegate;
-
-  ViewMode                                 mViewMode;
-  float                                    mStereoBase;
 
   static ApplicationPtr                    gPreInitializedApplication;
 };

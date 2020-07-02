@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ bool g_OnTerminateCalled = false;
 bool g_OnPauseCalled = false;
 bool g_OnResumeCalled = false;
 bool g_OnResetCalled = false;
-bool g_OnResizeCalled = false;
 bool g_OnLanguageChangedCalled = false;
 
 void OnInit()
@@ -70,11 +69,6 @@ void OnResume()
 void OnReset()
 {
   g_OnResetCalled = true;
-}
-
-void OnResize()
-{
-  g_OnResizeCalled = true;
 }
 
 void OnLanguageChanged()
@@ -186,24 +180,6 @@ int UtcDaliLifecycleControllerSignalReset(void)
   GetImplementation( lifecycleController ).OnReset( application );
 
   DALI_TEST_CHECK( g_OnResetCalled );
-
-  END_TEST;
-}
-
-int UtcDaliLifecycleControllerSignalResize(void)
-{
-  TestApplication app;
-  Application application = Application::New();
-
-  DALI_TEST_CHECK( !g_OnResizeCalled );
-
-  LifecycleController lifecycleController = LifecycleController::Get();
-
-  lifecycleController.ResizeSignal().Connect( &OnResize );
-
-  GetImplementation( lifecycleController ).OnResize( application );
-
-  DALI_TEST_CHECK( g_OnResizeCalled );
 
   END_TEST;
 }

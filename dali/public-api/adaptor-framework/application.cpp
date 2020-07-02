@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,13 +180,6 @@ Window Application::GetWindow()
   return Internal::Adaptor::GetImplementation(*this).GetWindow();
 }
 
-void Application::ReplaceWindow(PositionSize windowPosition, const std::string& name)
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ReplaceWindow is deprecated and will be removed from next release.\n" );
-
-  Internal::Adaptor::GetImplementation(*this).ReplaceWindow(windowPosition, name);
-}
-
 std::string Application::GetResourcePath()
 {
   return Internal::Adaptor::Application::GetResourcePath();
@@ -200,26 +193,6 @@ std::string Application::GetRegion() const
 std::string Application::GetLanguage() const
 {
   return Internal::Adaptor::GetImplementation(*this).GetLanguage();
-}
-
-void Application::SetViewMode( ViewMode viewMode )
-{
-  Internal::Adaptor::GetImplementation(*this).SetViewMode( viewMode );
-}
-
-ViewMode Application::GetViewMode() const
-{
-  return Internal::Adaptor::GetImplementation(*this).GetViewMode();
-}
-
-void Application::SetStereoBase( float stereoBase )
-{
-  Internal::Adaptor::GetImplementation(*this).SetStereoBase( stereoBase );
-}
-
-float Application::GetStereoBase() const
-{
-  return Internal::Adaptor::GetImplementation(*this).GetStereoBase();
 }
 
 Application::AppSignalType& Application::InitSignal()
@@ -247,13 +220,6 @@ Application::AppSignalType& Application::ResetSignal()
   return Internal::Adaptor::GetImplementation(*this).ResetSignal();
 }
 
-Application::AppSignalType& Application::ResizeSignal()
-{
-  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: ResizeSignal() is deprecated and will be removed from next release. Use Window::ResizedSignal() instead.\n" );
-
-  return Internal::Adaptor::GetImplementation(*this).ResizeSignal();
-}
-
 Application::AppControlSignalType & Application::AppControlSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).AppControlSignal();
@@ -267,18 +233,6 @@ Application::AppSignalType& Application::LanguageChangedSignal()
 Application::AppSignalType& Application::RegionChangedSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).RegionChangedSignal();
-}
-
-Application::AppSignalType& Application::BatteryLowSignal()
-{
-  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: BatteryLowSignal() is deprecated and will be removed from next release. Use Application::LowBatterySignal() instead.\n" );
-  return Internal::Adaptor::GetImplementation(*this).BatteryLowSignal();
-}
-
-Application::AppSignalType& Application::MemoryLowSignal()
-{
-  DALI_LOG_WARNING_NOFN( "DEPRECATION WARNING: MemoryLowSignal() is deprecated and will be removed from next release. Use Application::LowMemorySignal() instead.\n" );
-  return Internal::Adaptor::GetImplementation(*this).MemoryLowSignal();
 }
 
 Application::LowBatterySignalType& Application::LowBatterySignal()
