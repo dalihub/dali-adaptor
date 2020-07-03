@@ -176,8 +176,6 @@ IF( UNIX )
   ENDIF()
 ENDIF()
 
-SET( REQUIRED_LIBS ${REQUIRED_LIBS} webp webpdemux )
-
 TARGET_LINK_LIBRARIES( ${name}
                        ${DALI_LDFLAGS}
                        ${REQUIRED_LIBS}
@@ -396,6 +394,7 @@ MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
 MESSAGE( STATUS "Data Dir (Read/Write):            ${dataReadWriteDir}")
 MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
 MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
+MESSAGE( STATUS "WebP:                             ${webp_available_ENABLED}")
 MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
 MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")
 MESSAGE( STATUS "Font config file:                 ${fontConfigurationFile}")
