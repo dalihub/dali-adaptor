@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@
 
 namespace Dali
 {
-
-class DALI_INTERNAL DragAndDropDetector : public BaseHandle {}; // Empty class only required to compile Deprecated API GetDragAndDropDetector
 
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
@@ -124,34 +122,6 @@ Layer Window::GetLayer( uint32_t depth ) const
   return GetImplementation( *this ).GetLayer( depth );
 }
 
-void Window::ShowIndicator( IndicatorVisibleMode visibleMode )
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ShowIndicator is deprecated and will be removed from next release.\n" );
-
-  GetImplementation(*this).ShowIndicator( visibleMode );
-}
-
-Window::IndicatorSignalType& Window::IndicatorVisibilityChangedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: IndicatorVisibilityChangedSignal is deprecated and will be removed from next release.\n" );
-
-  return GetImplementation(*this).IndicatorVisibilityChangedSignal();
-}
-
-void Window::SetIndicatorBgOpacity( IndicatorBgOpacity opacity )
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: SetIndicatorBgOpacity is deprecated and will be removed from next release.\n" );
-
-  GetImplementation(*this).SetIndicatorBgOpacity( opacity );
-}
-
-void Window::RotateIndicator( WindowOrientation orientation )
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: RotateIndicator is deprecated and will be removed from next release.\n" );
-
-  GetImplementation(*this).RotateIndicator( orientation );
-}
-
 void Window::SetClass( std::string name, std::string klass )
 {
   GetImplementation(*this).SetClass( name, klass );
@@ -192,22 +162,9 @@ Dali::Window::WindowOrientation Window::GetPreferredOrientation()
   return GetImplementation(*this).GetPreferredOrientation();
 }
 
-DragAndDropDetector Window::GetDragAndDropDetector() const
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetDragAndDropDetector is deprecated and will be removed from the next release.\n" );
-  DALI_ASSERT_ALWAYS( &GetImplementation( *this ) == GetObjectPtr() && "Empty Handle" );
-  return Dali::DragAndDropDetector();
-}
-
 Any Window::GetNativeHandle() const
 {
   return GetImplementation(*this).GetNativeHandle();
-}
-
-Window::FocusSignalType& Window::FocusChangedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: FocusChangedSignal is deprecated and will be removed from next release.\n" );
-  return GetImplementation(*this).FocusChangedSignal();
 }
 
 Window::FocusChangeSignalType& Window::FocusChangeSignal()

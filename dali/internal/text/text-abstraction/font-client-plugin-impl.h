@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
-#include <dali/internal/text/glyphy/vector-font-cache.h>
+#include <third-party/glyphy/vector-font-cache.h>
 #else
 class VectorFontCache;
 #endif

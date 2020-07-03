@@ -229,7 +229,8 @@ ADD_DEFINITIONS( -DDALI_PROFILE_${enable_profile})
 SET( DALI_PROFILE_CFLAGS -DDALI_PROFILE_${enable_profile} )
 
 # Platforms with highp shader support can use vector based text
-CONDITIONAL( ENABLE_VECTOR_BASED_TEXT_RENDERING UBUNTU_PROFILE )
+ADD_DEFINITIONS( "-DENABLE_VECTOR_BASED_TEXT_RENDERING" )
+
 CONDITIONAL( WAYLAND enable_wayland )
 
 # set lowercase profile name
