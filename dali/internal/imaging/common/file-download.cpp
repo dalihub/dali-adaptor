@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include <curl/curl.h>
 #include <cstring>
+#include <cstdlib>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/file-writer.h>
@@ -64,6 +65,18 @@ void ConfigureCurlOptions( CURL* curlHandle, const std::string& url )
   curl_easy_setopt( curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS );
   curl_easy_setopt( curlHandle, CURLOPT_HEADER, INCLUDE_HEADER );
   curl_easy_setopt( curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY );
+  curl_easy_setopt( curlHandle, CURLOPT_FOLLOWLOCATION, 1L );
+  curl_easy_setopt( curlHandle, CURLOPT_MAXREDIRS, 5L );
+
+  // If the proxy variable is set, ensure it's also used.
+  // In theory, this variable should be used by the curl library; however, something
+  // is overriding it.
+  char* proxy = std::getenv("http_proxy");
+  if( proxy != nullptr )
+  {
+    curl_easy_setopt( curlHandle, CURLOPT_PROXY, proxy);
+  }
+
 }
 
 // Without a write function or a buffer (file descriptor) to write to, curl will pump out
@@ -151,22 +164,33 @@ bool DownloadFile( CURL* curlHandle,
                    const std::string& url,
                    Dali::Vector<uint8_t>& dataBuffer,
                    size_t& dataSize,
-                   size_t maximumAllowedSizeBytes )
+                   size_t maximumAllowedSizeBytes,
+                   char* errorBuffer)
 {
   CURLcode result( CURLE_OK );
   double size(0);
 
   // setup curl to download just the header so we can extract the content length
   ConfigureCurlOptions( curlHandle, url );
-
   curl_easy_setopt( curlHandle, CURLOPT_WRITEFUNCTION, DummyWrite);
+  if(errorBuffer != nullptr)
+  {
+    errorBuffer[0]=0;
+  }
 
   // perform the request to get the header
   result = curl_easy_perform( curlHandle );
 
   if( result != CURLE_OK)
   {
-    DALI_LOG_ERROR( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result );
+    if(errorBuffer != nullptr)
+    {
+      DALI_LOG_ERROR( "Failed to download http header for \"%s\" with error code %d (%s)\n", url.c_str(), result, &errorBuffer[0] );
+    }
+    else
+    {
+      DALI_LOG_ERROR( "Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result);
+    }
     return false;
   }
 
@@ -192,7 +216,13 @@ bool DownloadFile( CURL* curlHandle,
 
   if( result != CURLE_OK )
   {
-    DALI_LOG_ERROR( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), result );
+    if( errorBuffer != nullptr )
+    {
+      DALI_LOG_ERROR( "Failed to download image file \"%s\" with error code %d\n", url.c_str(), result );
+    }
+    else
+    {
+      DALI_LOG_ERROR( "Failed to download image file \"%s\" with error code %d (%s)\n", url.c_str(), result, errorBuffer );    }
     return false;
   }
   return true;
@@ -230,13 +260,16 @@ bool DownloadRemoteFileIntoMemory( const std::string& url,
     return false;
   }
 
+
   // start a libcurl easy session, this internally calls curl_global_init, if we ever have more than one download
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
   CURL* curlHandle = curl_easy_init();
   if ( curlHandle )
   {
-    result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes);
+    std::vector<char> errorBuffer(CURL_ERROR_SIZE);
+    curl_easy_setopt( curlHandle, CURLOPT_ERRORBUFFER, &errorBuffer[0]);
+    result = DownloadFile( curlHandle, url, dataBuffer,  dataSize, maximumAllowedSizeBytes, &errorBuffer[0]);
 
     // clean up session
     curl_easy_cleanup( curlHandle );
