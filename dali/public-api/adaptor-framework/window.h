@@ -55,6 +55,9 @@ class DragAndDropDetector;
 class Orientation;
 class Actor;
 class Layer;
+class RenderTaskList;
+class TouchData;
+struct KeyEvent;
 
 /**
  * @brief The window class is used internally for drawing.
@@ -67,12 +70,15 @@ class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
 
-  typedef Uint16Pair WindowSize;          ///< Window size type @SINCE_1_2.60
-  typedef Uint16Pair WindowPosition;      ///< Window position type @SINCE_1_2.60
+  using WindowSize = Uint16Pair ;     ///< Window size type @SINCE_1_2.60
+  using WindowPosition = Uint16Pair;  ///< Window position type @SINCE_1_2.60
 
-  typedef Signal< void (WindowSize) > ResizedSignalType; ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
-  typedef Signal< void (Window,bool) > FocusChangeSignalType;         ///< Window focus signal type @SINCE_1_4.35
-  typedef Signal< void (Window,WindowSize) > ResizeSignalType; ///< Window resized signal type @SINCE_1_4.35
+  using ResizedSignalType = Signal< void (WindowSize) >;       ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
+  using FocusChangeSignalType = Signal< void (Window,bool) >;  ///< Window focus signal type @SINCE_1_4.35
+  using ResizeSignalType = Signal< void (Window,WindowSize) >; ///< Window resized signal type @SINCE_1_4.35
+  using KeyEventSignalType = Signal< void (const KeyEvent&) >; ///< Key event signal type
+  using TouchSignalType = Signal< void (const TouchData&) >;   ///< Touch signal type
+
 public:
 
   // Enumerations
@@ -269,6 +275,14 @@ public:
    * @pre Depth is less than layer count; see GetLayerCount().
    */
   Layer GetLayer( uint32_t depth ) const;
+
+  /**
+   * @brief Retrieves the DPI of the window.
+   *
+   * @SINCE_1_9.21
+   * @return The DPI of the window
+   */
+  Uint16Pair GetDpi() const;
 
   /**
    * @brief Sets the window name and class string.
@@ -576,6 +590,14 @@ public:
    */
   void SetTransparency( bool transparent );
 
+  /**
+   * @brief Retrieves the list of render-tasks in the window.
+   *
+   * @SINCE_1_9.21
+   * @return A valid handle to a RenderTaskList
+   */
+  RenderTaskList GetRenderTaskList();
+
 public: // Signals
 
   /**
@@ -621,6 +643,38 @@ public: // Signals
    * @return The signal to connect to
    */
   ResizeSignalType& ResizeSignal();
+
+  /**
+   * @brief This signal is emitted when key event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const KeyEvent& event);
+   * @endcode
+   *
+   * @SINCE_1_9.21
+   * @return The signal to connect to
+   */
+  KeyEventSignalType& KeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when the screen is touched and when the touch ends
+   * (i.e. the down & up touch events only).
+   *
+   * If there are multiple touch points, then this will be emitted when the first touch occurs and
+   * then when the last finger is lifted.
+   * An interrupted event will also be emitted (if it occurs).
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const TouchData& event);
+   * @endcode
+   *
+   * @SINCE_1_9.21
+   * @return The touch signal to connect to
+   *
+   * @note Motion events are not emitted.
+   */
+  TouchSignalType& TouchSignal();
 
 public: // Not intended for application developers
   /// @cond internal

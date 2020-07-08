@@ -122,6 +122,11 @@ Layer Window::GetLayer( uint32_t depth ) const
   return GetImplementation( *this ).GetLayer( depth );
 }
 
+Uint16Pair Window::GetDpi() const
+{
+  return GetImplementation(*this).GetDpi();
+}
+
 void Window::SetClass( std::string name, std::string klass )
 {
   GetImplementation(*this).SetClass( name, klass );
@@ -321,6 +326,21 @@ Window::WindowPosition Window::GetPosition() const
 void Window::SetTransparency( bool transparent )
 {
   GetImplementation(*this).SetTransparency( transparent );
+}
+
+Dali::RenderTaskList Window::GetRenderTaskList()
+{
+  return GetImplementation(*this).GetRenderTaskList();
+}
+
+Window::KeyEventSignalType& Window::KeyEventSignal()
+{
+  return GetImplementation(*this).KeyEventSignal();
+}
+
+Window::TouchSignalType& Window::TouchSignal()
+{
+  return GetImplementation(*this).TouchSignal();
 }
 
 Window::Window( Internal::Adaptor::Window* window )

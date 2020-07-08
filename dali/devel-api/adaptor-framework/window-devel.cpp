@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,16 +86,6 @@ Window Get( Actor actor )
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window )
 {
   return GetImplementation( window ).EventProcessingFinishedSignal();
-}
-
-KeyEventSignalType& KeyEventSignal( Window window )
-{
-  return GetImplementation( window ).KeyEventSignal();
-}
-
-TouchSignalType& TouchSignal( Window window )
-{
-  return GetImplementation( window ).TouchSignal();
 }
 
 WheelEventSignalType& WheelEventSignal( Window window )
