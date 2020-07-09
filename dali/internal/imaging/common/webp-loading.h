@@ -86,6 +86,16 @@ public:
    */
   bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData ) override;
 
+   /**
+   * @brief Load the next Frame of the animated image.
+   *
+   * @note This function will load the entire animated image into memory if not already loaded.
+   * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   */
+
+  Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex ) override;
+
   /**
    * @brief Get the size of a webp image.
    *
@@ -106,6 +116,8 @@ public:
    * @return The time interval of the frame(microsecond).
    */
   uint32_t GetFrameInterval( uint32_t frameIndex ) const override;
+
+  std::string GetUrl() const override;
 
 private:
   struct Impl;
