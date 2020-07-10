@@ -105,7 +105,10 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     {
       fseek( file, 0, SEEK_END );
       length = ftell( file );
-      memblock.Resize( length + 1 ); // 1 for extra zero at the end
+      //Dali::Vector.Resize would lead to calling PushBack for each byte, waste of CPU resource
+      memblock.ResizeUninitialized( length + 1 );
+      //put last byte as 0, in case this is a text file without null-terminator
+      memblock[length] = 0;
 
       char* buffer = &memblock[0];
       fseek( file, 0, SEEK_SET );
