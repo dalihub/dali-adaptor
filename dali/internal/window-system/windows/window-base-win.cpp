@@ -567,6 +567,16 @@ void WindowBaseWin::SetParent( WindowBase* parentWinBase )
 
 }
 
+int WindowBaseWin::CreateFrameRenderedSyncFence()
+{
+  return -1;
+}
+
+int WindowBaseWin::CreateFramePresentedSyncFence()
+{
+  return -1;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

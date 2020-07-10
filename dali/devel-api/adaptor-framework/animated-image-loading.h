@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -113,6 +114,16 @@ public:
    */
   bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData );
 
+   /**
+   * @brief Load a frame of the animated image.
+   *
+   * @note This function will load the entire animated image into memory if not already loaded.
+   * @param[in] frameIndex The frame index to load.
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   */
+
+  Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex );
+
   /**
    * @brief Get the size of a animated image.
    *
@@ -133,6 +144,13 @@ public:
    * @return The time interval of the frame(microsecond).
    */
   uint32_t GetFrameInterval( uint32_t frameIndex ) const;
+
+  /**
+   * @brief Get the animated image file URL
+   *
+   * @return The URL string of the animated image file
+   */
+  std::string GetUrl() const;
 
 public: // Not intended for application developers
   /// @cond internal

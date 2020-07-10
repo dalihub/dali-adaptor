@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,11 +85,6 @@ public:
   Dali::LifecycleController::LifecycleSignalType& ResetSignal();
 
   /**
-   * @copydoc Dali::StyleMonitor::ResizeSignal()
-   */
-  Dali::LifecycleController::LifecycleSignalType& ResizeSignal();
-
-  /**
    * @copydoc Dali::StyleMonitor::LanguageChangedSignal()
    */
   Dali::LifecycleController::LifecycleSignalType& LanguageChangedSignal();
@@ -138,13 +133,6 @@ public:
    */
   void OnLanguageChanged( Dali::Application& app );
 
-  /**
-   * Signal handler when the adaptor's window resizes itself.
-   *
-   * @param[in] app The application instance
-   */
-  void OnResize( Dali::Application& app );
-
 protected:
 
   /**
@@ -182,11 +170,6 @@ private:
   /**
    * Emit the init signal.
    */
-  void EmitResizeSignal();
-
-  /**
-   * Emit the init signal.
-   */
   void EmitLanguageChangedSignal();
 
 private:
@@ -197,7 +180,6 @@ private:
   Dali::LifecycleController::LifecycleSignalType mPauseSignal;
   Dali::LifecycleController::LifecycleSignalType mResumeSignal;
   Dali::LifecycleController::LifecycleSignalType mResetSignal;
-  Dali::LifecycleController::LifecycleSignalType mResizeSignal;
   Dali::LifecycleController::LifecycleSignalType mLanguageChangedSignal;
 
 };

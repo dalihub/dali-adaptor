@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -262,6 +263,40 @@ DALI_ADAPTOR_API int32_t GetNativeId( Window window );
  * @param[in] areas The damaged areas list to set
  */
 DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas);
+
+/**
+ * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
+ *
+ * @param[in] window The window instance
+ * @param[in] callback The function to call
+ * @param[in] frameId The Id to specify the frame. It will be passed when the callback is called.
+ *
+ * @note A callback of the following type may be used:
+ * @code
+ *   void MyFunction( int frameId );
+ * @endcode
+ * This callback will be deleted once it is called.
+ *
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
+
+/**
+ * @brief Adds a callback that is called when the frame is displayed on the display.
+ *
+ * @param[in] window The window instance
+ * @param[in] callback The function to call
+ * @param[in] frameId The Id to specify the frame. It will be passed when the callback is called.
+ *
+ * @note A callback of the following type may be used:
+ * @code
+ *   void MyFunction( int frameId );
+ * @endcode
+ * This callback will be deleted once it is called.
+ *
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
 
 } // namespace DevelWindow
 

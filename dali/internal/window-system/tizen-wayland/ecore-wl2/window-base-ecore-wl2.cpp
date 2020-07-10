@@ -2367,6 +2367,16 @@ void WindowBaseEcoreWl2::SetParent( WindowBase* parentWinBase )
   ecore_wl2_window_parent_set( mEcoreWindow, ecoreParent );
 }
 
+int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
+{
+  return wl_egl_window_tizen_create_commit_sync_fd( mEglWindow );
+}
+
+int WindowBaseEcoreWl2::CreateFramePresentedSyncFence()
+{
+  return wl_egl_window_tizen_create_presentation_sync_fd( mEglWindow );
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

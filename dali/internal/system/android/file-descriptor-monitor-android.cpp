@@ -85,7 +85,7 @@ struct FileDescriptorMonitor::Impl
     // if there is an event, execute the callback
     if( type != FileDescriptorMonitor::FD_NO_EVENT )
     {
-      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >( type ) );
+      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >( type ), impl->mFileDescriptor );
     }
 
     return 1; // Continue receiving callbacks

@@ -263,6 +263,50 @@ bool WebPLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vec
 #endif
 }
 
+Dali::Devel::PixelBuffer WebPLoading::LoadFrame( uint32_t frameIndex )
+{
+  Dali::Devel::PixelBuffer pixelBuffer;
+#ifdef DALI_WEBP_ENABLED
+  if( frameIndex  >= mImpl->mWebPAnimInfo.frame_count )
+  {
+    return pixelBuffer;
+  }
+
+  DALI_LOG_INFO( gWebPLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameIndex:%d )\n", frameIndex );
+
+  if( mImpl->mLoadingFrame > frameIndex  )
+  {
+    mImpl->mLoadingFrame = 0;
+    WebPAnimDecoderReset( mImpl->mWebPAnimDecoder );
+  }
+
+  for( ; mImpl->mLoadingFrame < frameIndex ; ++mImpl->mLoadingFrame )
+  {
+    uint8_t* frameBuffer;
+    int timestamp;
+    WebPAnimDecoderGetNext( mImpl->mWebPAnimDecoder, &frameBuffer, &timestamp );
+    mImpl->mTimeStamp[mImpl->mLoadingFrame] = timestamp;
+  }
+
+  const int bufferSize = mImpl->mWebPAnimInfo.canvas_width * mImpl->mWebPAnimInfo.canvas_height * sizeof( uint32_t );
+  uint8_t* frameBuffer;
+  int timestamp;
+  WebPAnimDecoderGetNext( mImpl->mWebPAnimDecoder, &frameBuffer, &timestamp );
+
+  pixelBuffer = Dali::Devel::PixelBuffer::New( mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height, Dali::Pixel::RGBA8888 );
+  memcpy( pixelBuffer.GetBuffer(), frameBuffer, bufferSize );
+  mImpl->mTimeStamp[mImpl->mLoadingFrame] = timestamp;
+
+  mImpl->mLoadingFrame++;
+  if( mImpl->mLoadingFrame >= mImpl->mWebPAnimInfo.frame_count )
+  {
+    mImpl->mLoadingFrame = 0;
+    WebPAnimDecoderReset( mImpl->mWebPAnimDecoder );
+  }
+#endif
+  return pixelBuffer;
+}
+
 ImageDimensions WebPLoading::GetImageSize() const
 {
 #ifdef DALI_WEBP_ENABLED
@@ -295,6 +339,11 @@ uint32_t WebPLoading::GetFrameInterval( uint32_t frameIndex ) const
     }
     return mImpl->mTimeStamp[frameIndex];
   }
+}
+
+std::string WebPLoading::GetUrl() const
+{
+  return mImpl->mUrl;
 }
 
 } // namespace Adaptor

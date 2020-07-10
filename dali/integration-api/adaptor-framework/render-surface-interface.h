@@ -31,6 +31,11 @@ namespace Dali
 class DisplayConnection;
 class ThreadSynchronizationInterface;
 
+namespace Integration
+{
+class Scene;
+}
+
 namespace Internal
 {
 namespace Adaptor
@@ -77,6 +82,7 @@ public:
   : mAdaptor( nullptr ),
     mGraphics( nullptr ),
     mDisplayConnection( nullptr ),
+    mScene( nullptr ),
     mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
     mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
   {}
@@ -206,6 +212,16 @@ public:
     mDisplayConnection = &displayConnection;
   }
 
+  /**
+   * @brief Sets a Scene that is rendered on this surface.
+   * @param scene The Scene object
+   */
+  void SetScene( Dali::Integration::Scene& scene )
+  {
+    // This will be changed to use the WeakHandle later.
+    mScene = &scene;
+  }
+
 private:
 
   /**
@@ -223,6 +239,7 @@ protected:
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
   Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
   Dali::DisplayConnection* mDisplayConnection;
+  Dali::Integration::Scene* mScene;
 
 private:
 

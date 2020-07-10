@@ -153,6 +153,16 @@ void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas)
   GetImplementation(window).SetDamagedAreas(areas);
 }
 
+void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  GetImplementation( window ).AddFrameRenderedCallback( std::move( callback ), frameId );
+}
+
+void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  GetImplementation( window ).AddFramePresentedCallback( std::move( callback ), frameId );
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

@@ -176,6 +176,7 @@ public:
    * @param[in] source source actor to be used for capture.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
+   *            If path is empty string, the captured result is not be saved as a file.
    * @param[in] clearColor background color of captured scene
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
@@ -189,6 +190,7 @@ public:
    * @param[in] source source actor to be used for capture.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
+   *            If path is empty string, the captured result is not be saved as a file.
    * @param[in] clearColor background color of captured scene
    */
   void Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor );
@@ -201,6 +203,7 @@ public:
    * @param[in] source source actor to be used for capture.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
+   *            If path is empty string, the captured result is not be saved as a file.
    * @note Clear color is transparent.
    */
   void Start( Actor source, const Vector2& size, const std::string &path );
@@ -209,6 +212,8 @@ public:
    * @brief Get NativeImageSourcePtr that is saved captured image.
    *
    * @SINCE_1_9.10
+   *
+   * @return NativeImageSourcePtr Captured result that can be rendered with DALi
    */
   Dali::NativeImageSourcePtr GetNativeImageSource() const;
 

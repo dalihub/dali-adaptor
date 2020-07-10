@@ -60,11 +60,13 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mThreadSynchronization( NULL ),
   mRenderNotification( NULL ),
   mRotationTrigger( NULL ),
+  mFrameRenderedTrigger(),
   mGraphics( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
+  mFrameCallbackInfoContainer(),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
   mOwnSurface( false ),
@@ -354,6 +356,63 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
+  Dali::Integration::Scene::FrameCallbackContainer callbacks;
+
+  if( mScene )
+  {
+    mScene->GetFrameRenderedCallback( callbacks );
+    if( !callbacks.empty() )
+    {
+      int frameRenderedSync = mWindowBase->CreateFrameRenderedSyncFence();
+      if( frameRenderedSync != -1 )
+      {
+        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
+
+        mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, frameRenderedSync ) ) );
+
+        if( !mFrameRenderedTrigger )
+        {
+          mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
+                                                                                                                     TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
+        }
+        mFrameRenderedTrigger->Trigger();
+      }
+      else
+      {
+        DALI_LOG_ERROR( "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence is failed\n" );
+      }
+
+      // Clear callbacks
+      callbacks.clear();
+    }
+
+    mScene->GetFramePresentedCallback( callbacks );
+    if( !callbacks.empty() )
+    {
+      int framePresentedSync = mWindowBase->CreateFramePresentedSyncFence();
+      if( framePresentedSync != -1 )
+      {
+        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
+
+        mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, framePresentedSync ) ) );
+
+        if( !mFrameRenderedTrigger )
+        {
+          mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
+                                                                                                                     TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
+        }
+        mFrameRenderedTrigger->Trigger();
+      }
+      else
+      {
+        DALI_LOG_ERROR( "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence is failed\n" );
+      }
+
+      // Clear callbacks
+      callbacks.clear();
+    }
+  }
+
   MakeContextCurrent();
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
@@ -523,6 +582,47 @@ void WindowRenderSurface::ProcessRotationRequest()
   if( mThreadSynchronization )
   {
     mThreadSynchronization->PostRenderComplete();
+  }
+}
+
+void WindowRenderSurface::ProcessFrameCallback()
+{
+  for( auto&& iter : mFrameCallbackInfoContainer )
+  {
+    if( !iter->fileDescriptorMonitor )
+    {
+      iter->fileDescriptorMonitor = std::unique_ptr< FileDescriptorMonitor >( new FileDescriptorMonitor( iter->fileDescriptor,
+                                                                             MakeCallback( this, &WindowRenderSurface::OnFileDescriptorEventDispatched ), FileDescriptorMonitor::FD_READABLE ) );
+
+      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
+    }
+  }
+}
+
+void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor )
+{
+  if( !( eventBitMask & FileDescriptorMonitor::FD_READABLE ) )
+  {
+    DALI_LOG_ERROR( "WindowRenderSurface::OnFileDescriptorEventDispatched: file descriptor error [%d]\n", eventBitMask );
+    close( fileDescriptor );
+    return;
+  }
+
+  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
+
+  auto frameCallbackInfo = std::find_if( mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(),
+                                    [fileDescriptor]( std::unique_ptr< FrameCallbackInfo >& callbackInfo )
+                                    {
+                                      return callbackInfo->fileDescriptor == fileDescriptor;
+                                    } );
+  if( frameCallbackInfo != mFrameCallbackInfoContainer.end() )
+  {
+    // Call the connected callback
+    for( auto&& iter : ( *frameCallbackInfo )->callbacks )
+    {
+      CallbackBase::Execute( *( iter.first ), iter.second );
+    }
+    mFrameCallbackInfoContainer.erase( frameCallbackInfo );
   }
 }
 

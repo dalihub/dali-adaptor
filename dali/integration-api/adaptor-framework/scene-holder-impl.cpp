@@ -48,7 +48,7 @@ namespace
 {
 
 #if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gTouchEventLogFilter  = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_TOUCH");
+Debug::Filter* gSceneHolderLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_SCENE_HOLDER" );
 #endif
 
 // Copied from x server
@@ -201,6 +201,7 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
 
   mSurface->SetAdaptor( *mAdaptor );
+  mSurface->SetScene( mScene );
 
   OnSurfaceSet( surface );
 }
@@ -272,6 +273,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
     mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
 
     mSurface->SetAdaptor( *mAdaptor );
+    mSurface->SetScene( mScene );
   }
 
   OnAdaptorSet( adaptor );
@@ -305,7 +307,7 @@ void SceneHolder::FeedTouchPoint( Dali::Integration::Point& point, int timeStamp
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
   if( type != Integration::TouchEventCombiner::DispatchNone )
   {
-    DALI_LOG_INFO( gTouchEventLogFilter, Debug::General, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
+    DALI_LOG_INFO( gSceneHolderLogFilter, Debug::Verbose, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
 
     // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
     // Keep the handle alive until the core events are processed.
@@ -355,6 +357,20 @@ void SceneHolder::FeedKeyEvent( Dali::Integration::KeyEvent& keyEvent )
   // Create send KeyEvent to Core.
   mScene.QueueEvent( keyEvent );
   mAdaptor->ProcessCoreEvents();
+}
+
+void SceneHolder::AddFrameRenderedCallback( std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  mScene.AddFrameRenderedCallback( std::move( callback ), frameId );
+
+  DALI_LOG_INFO( gSceneHolderLogFilter, Debug::General, "SceneHolder::AddFrameRenderedCallback:: Added [%d]\n", frameId );
+}
+
+void SceneHolder::AddFramePresentedCallback( std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  mScene.AddFramePresentedCallback( std::move( callback ), frameId );
+
+  DALI_LOG_INFO( gSceneHolderLogFilter, Debug::General, "SceneHolder::AddFramePresentedCallback:: Added [%d]\n", frameId );
 }
 
 Dali::Integration::SceneHolder SceneHolder::Get( Dali::Actor actor )
