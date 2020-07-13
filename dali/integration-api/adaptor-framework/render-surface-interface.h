@@ -24,17 +24,14 @@
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/weak-handle.h>
+#include <dali/integration-api/scene.h>
 
 namespace Dali
 {
 
 class DisplayConnection;
 class ThreadSynchronizationInterface;
-
-namespace Integration
-{
-class Scene;
-}
 
 namespace Internal
 {
@@ -82,7 +79,7 @@ public:
   : mAdaptor( nullptr ),
     mGraphics( nullptr ),
     mDisplayConnection( nullptr ),
-    mScene( nullptr ),
+    mScene(),
     mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
     mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
   {}
@@ -218,8 +215,7 @@ public:
    */
   void SetScene( Dali::Integration::Scene& scene )
   {
-    // This will be changed to use the WeakHandle later.
-    mScene = &scene;
+    mScene = scene;
   }
 
 private:
@@ -239,7 +235,7 @@ protected:
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
   Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
   Dali::DisplayConnection* mDisplayConnection;
-  Dali::Integration::Scene* mScene;
+  WeakHandle< Dali::Integration::Scene > mScene;
 
 private:
 
