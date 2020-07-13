@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <atomic>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/scene.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
@@ -104,6 +105,12 @@ public:
    * @return The Scene
    */
   Dali::Integration::Scene GetScene();
+
+  /**
+   * @brief Retrieves the DPI of this sceneholder.
+   * @return The DPI.
+   */
+  Uint16Pair GetDpi() const;
 
   /**
    * @brief Set the render surface
@@ -295,6 +302,11 @@ private:
    */
   void Reset();
 
+  /**
+   * Initializes the DPI for this object.
+   */
+  void InitializeDpi();
+
 private:
 
   static uint32_t                                 mSceneHolderCounter; ///< A counter to track the SceneHolder creation
@@ -312,6 +324,9 @@ protected:
   Adaptor*                                        mAdaptor;            ///< The adaptor
 
   Dali::Integration::TouchEventCombiner           mCombiner;           ///< Combines multi-touch events.
+
+
+  Uint16Pair                                      mDpi;                ///< The DPI for this SceneHolder.
 
   std::atomic<bool>                               mIsBeingDeleted;     ///< This is set only from the event thread and read only from the render thread
 
