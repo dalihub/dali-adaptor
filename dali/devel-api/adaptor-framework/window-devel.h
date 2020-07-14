@@ -100,14 +100,6 @@ DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std:
 DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
 
 /**
- * @brief Retrieves the list of render-tasks in the window.
- *
- * @param[in] window The window instance
- * @return A valid handle to a RenderTaskList
- */
-DALI_ADAPTOR_API Dali::RenderTaskList GetRenderTaskList( Window window );
-
-/**
  * @brief Retrieve the window that the given actor is added to.
  *
  * @param[in] actor The actor

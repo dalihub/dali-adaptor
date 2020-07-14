@@ -73,11 +73,6 @@ void SetPositionSize( Window window, PositionSize positionSize )
   GetImplementation( window ).SetPositionSize( positionSize );
 }
 
-Dali::RenderTaskList GetRenderTaskList( Window window )
-{
-  return GetImplementation( window ).GetRenderTaskList();
-}
-
 Window Get( Actor actor )
 {
   return Internal::Adaptor::Window::Get( actor );
