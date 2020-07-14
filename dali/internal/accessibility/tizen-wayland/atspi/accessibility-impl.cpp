@@ -20,7 +20,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/common/stage.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
