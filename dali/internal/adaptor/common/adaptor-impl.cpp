@@ -193,7 +193,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
   if( 0u < timeInterval )
   {
-    mObjectProfiler = new ObjectProfiler( timeInterval );
+    mObjectProfiler = new ObjectProfiler( mCore->GetObjectRegistry(), timeInterval );
   }
 
   mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);

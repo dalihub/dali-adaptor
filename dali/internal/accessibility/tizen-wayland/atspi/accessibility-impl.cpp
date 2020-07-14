@@ -29,6 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/accessibility/tizen-wayland/atspi/accessibility-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 using namespace Dali::Accessibility;
 using namespace Dali;
@@ -759,7 +760,7 @@ Accessible* Accessible::Get( Dali::Actor actor, bool root )
   {
     if( nonControlAccessibles.empty() )
     {
-      auto registry = Dali::Stage::GetCurrent().GetObjectRegistry();
+      auto registry = Adaptor::Get().GetObjectRegistry();
       registry.ObjectDestroyedSignal().Connect( []( const Dali::RefObject* obj )
       {
         nonControlAccessibles.erase( obj );

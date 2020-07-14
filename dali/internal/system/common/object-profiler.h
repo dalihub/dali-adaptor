@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_OBJECT_PROFILER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,10 @@ public:
 
   /**
    * Constructor
+   * @param objectRegistry The objectRegistry
    * @param timeInterval to specify the frequency of reporting
    */
-  ObjectProfiler( uint32_t timeInterval );
+  ObjectProfiler( Dali::ObjectRegistry objectRegistry, uint32_t timeInterval );
 
   /**
    * Destructor
