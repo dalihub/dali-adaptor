@@ -19,6 +19,7 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -268,6 +269,11 @@ Dali::WindowContainer Adaptor::GetWindows() const
 SceneHolderList Adaptor::GetSceneHolders() const
 {
   return mImpl->GetSceneHolders();
+}
+
+Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
+{
+  return mImpl->GetObjectRegistry();
 }
 
 void Adaptor::OnWindowShown()

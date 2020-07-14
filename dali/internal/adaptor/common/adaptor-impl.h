@@ -315,6 +315,11 @@ public: // AdaptorInternalServices implementation
    */
   Dali::SceneHolderList GetSceneHolders() const;
 
+  /**
+   * @copydoc Dali::Adaptor::GetObjectRegistry()
+   */
+  Dali::ObjectRegistry GetObjectRegistry() const;
+
 public:
 
   /**

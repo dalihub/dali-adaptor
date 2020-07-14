@@ -22,9 +22,9 @@
 // EXTERNAL INCLUDES
 #include <errno.h>
 #include <sys/stat.h>
-#include <dali/public-api/common/stage.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/object-registry.h>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -1130,6 +1130,16 @@ Dali::SceneHolderList Adaptor::GetSceneHolders() const
   return sceneHolderList;
 }
 
+Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
+{
+  Dali::ObjectRegistry registry;
+  if( mCore )
+  {
+    registry = mCore->GetObjectRegistry();
+  }
+  return registry;
+}
+
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)
 : mResizedSignal(),
   mLanguageChangedSignal(),
@@ -1168,10 +1178,12 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
 
 void Adaptor::SetRootLayoutDirection( std::string locale )
 {
-  Dali::Stage stage = Dali::Stage::GetCurrent();
-
-  stage.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
-                                    static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+  for ( auto& window : mWindows )
+  {
+    Dali::Actor root = window->GetRootLayer();
+    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
+                      static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+  }
 }
 
 bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )

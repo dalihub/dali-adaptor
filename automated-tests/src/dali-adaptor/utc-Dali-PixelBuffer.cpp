@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,7 +244,7 @@ int UtcDaliPixelBufferConvert(void)
     a.AddRenderer(r);
     a.SetProperty( Actor::Property::SIZE, Vector2(10, 10) );
     a.SetProperty( Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
-    Stage::GetCurrent().Add(a);
+    application.GetScene().Add(a);
 
     application.SendNotification();
     application.Render();
