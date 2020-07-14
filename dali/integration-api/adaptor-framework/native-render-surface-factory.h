@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_NATIVE_RENDER_SURFACE_FACTORY_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,10 @@ class NativeRenderSurface;
  * Factory function for native surface
  * A native surface is created.
  *
- * @param [in] surfaceSize the size of the surface to create
- * @param [in] surface the native surface handle of your platform.
- * If you don't pass this, a native surface will be created.
+ * @param [in] positionSize the position and size of the surface to create
  * @param [in] isTransparent Whether the surface has an alpha channel
  */
-NativeRenderSurface* CreateNativeSurface( SurfaceSize surfaceSize, Any surface,
+NativeRenderSurface* CreateNativeSurface( PositionSize positionSize,
                                           bool isTransparent );
 
 } // namespace Dali
