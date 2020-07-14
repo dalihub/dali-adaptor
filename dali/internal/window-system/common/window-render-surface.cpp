@@ -358,9 +358,10 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
 {
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
-  if( mScene )
+  Dali::Integration::Scene scene = mScene.GetHandle();
+  if( scene )
   {
-    mScene->GetFrameRenderedCallback( callbacks );
+    scene.GetFrameRenderedCallback( callbacks );
     if( !callbacks.empty() )
     {
       int frameRenderedSync = mWindowBase->CreateFrameRenderedSyncFence();
@@ -386,7 +387,7 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       callbacks.clear();
     }
 
-    mScene->GetFramePresentedCallback( callbacks );
+    scene.GetFramePresentedCallback( callbacks );
     if( !callbacks.empty() )
     {
       int framePresentedSync = mWindowBase->CreateFramePresentedSyncFence();
