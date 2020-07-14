@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 namespace Dali
 {
 
-DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface( PositionSize positionSize, bool isTransparent )
+DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface( SurfaceSize surfaceSize, Any surface, bool isTransparent )
 {
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  auto nativeRenderSurface =  renderSurfaceFactory->CreateNativeRenderSurface( positionSize, isTransparent );
+  auto nativeRenderSurface =  renderSurfaceFactory->CreateNativeRenderSurface( surfaceSize, surface, isTransparent );
   return nativeRenderSurface.release();
 }
 
