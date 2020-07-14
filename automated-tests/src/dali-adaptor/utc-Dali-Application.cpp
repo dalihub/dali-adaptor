@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,23 +248,6 @@ int UtcDaliApplicationGetWindowN(void)
   END_TEST;
 }
 
-int UtcDaliApplicationReplaceWindowN(void)
-{
-  Application application;
-
-  try
-  {
-    application.ReplaceWindow( PositionSize(), "window" );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
 int UtcDaliApplicationInitSignalP(void)
 {
   Application application = Application::New();
@@ -395,32 +378,6 @@ int UtcDaliApplicationResetSignalN(void)
   END_TEST;
 }
 
-int UtcDaliApplicationResizeSignalP(void)
-{
-  Application application = Application::New();
-  application.ResizeSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
-
-  END_TEST;
-}
-
-int UtcDaliApplicationResizeSignalN(void)
-{
-  Application application;
-
-  try
-  {
-    application.ResizeSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
 int UtcDaliApplicationlControlSignalP(void)
 {
   Application application = Application::New();
@@ -489,58 +446,6 @@ int UtcDaliApplicationRegionChangedSignalN(void)
   try
   {
     application.RegionChangedSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationBatteryLowSignalP(void)
-{
-  Application application = Application::New();
-  application.BatteryLowSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
-
-  END_TEST;
-}
-
-int UtcDaliApplicationBatteryLowSignalN(void)
-{
-  Application application;
-
-  try
-  {
-    application.BatteryLowSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliApplicationMemoryLowSignalP(void)
-{
-  Application application = Application::New();
-  application.MemoryLowSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
-
-  END_TEST;
-}
-
-int UtcDaliApplicationMemoryLowSignalN(void)
-{
-  Application application;
-
-  try
-  {
-    application.MemoryLowSignal().Connect( &ApplicationSignalCallback );
     DALI_TEST_CHECK( false ); // Should not get here
   }
   catch( ... )

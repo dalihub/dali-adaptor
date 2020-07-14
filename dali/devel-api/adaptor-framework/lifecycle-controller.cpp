@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,11 +65,6 @@ LifecycleController::LifecycleSignalType& LifecycleController::ResumeSignal()
 LifecycleController::LifecycleSignalType& LifecycleController::ResetSignal()
 {
   return GetImplementation(*this).ResetSignal();
-}
-
-LifecycleController::LifecycleSignalType& LifecycleController::ResizeSignal()
-{
-  return GetImplementation(*this).ResizeSignal();
 }
 
 LifecycleController::LifecycleSignalType& LifecycleController::LanguageChangedSignal()

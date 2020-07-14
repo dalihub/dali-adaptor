@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,16 +88,6 @@ EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window 
   return GetImplementation( window ).EventProcessingFinishedSignal();
 }
 
-KeyEventSignalType& KeyEventSignal( Window window )
-{
-  return GetImplementation( window ).KeyEventSignal();
-}
-
-TouchSignalType& TouchSignal( Window window )
-{
-  return GetImplementation( window ).TouchSignal();
-}
-
 WheelEventSignalType& WheelEventSignal( Window window )
 {
   return GetImplementation( window ).WheelEventSignal();
@@ -151,6 +141,16 @@ int32_t GetNativeId( Window window )
 void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas)
 {
   GetImplementation(window).SetDamagedAreas(areas);
+}
+
+void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  GetImplementation( window ).AddFrameRenderedCallback( std::move( callback ), frameId );
+}
+
+void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+{
+  GetImplementation( window ).AddFramePresentedCallback( std::move( callback ), frameId );
 }
 
 } // namespace DevelWindow

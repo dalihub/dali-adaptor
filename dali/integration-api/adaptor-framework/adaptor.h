@@ -24,7 +24,6 @@
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/events/touch-event.h>
-#include <dali/public-api/common/view-mode.h>
 #include <dali/public-api/object/any.h>
 #include <dali/integration-api/processor-interface.h>
 

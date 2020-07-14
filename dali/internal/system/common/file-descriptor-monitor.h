@@ -66,7 +66,7 @@ public:
    *    mFileDescriptorMonitor = new FileDescriptorMonitor( myFd, MakeCallback( this, &MyClass::FdCallback ), FileDescriptorMonitor::FD_READABLE );
    * }
    *
-   * void MyClass::FdCallback( EventType event )
+   * void MyClass::FdCallback( EventType event, int fileDescriptor )
    * {
    *    if( event & FileDescriptorMonitor::FD_ERROR)
    *    {

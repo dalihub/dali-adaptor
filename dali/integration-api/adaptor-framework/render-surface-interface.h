@@ -24,6 +24,8 @@
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/weak-handle.h>
+#include <dali/integration-api/scene.h>
 
 namespace Dali
 {
@@ -77,6 +79,7 @@ public:
   : mAdaptor( nullptr ),
     mGraphics( nullptr ),
     mDisplayConnection( nullptr ),
+    mScene(),
     mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
     mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
   {}
@@ -206,6 +209,15 @@ public:
     mDisplayConnection = &displayConnection;
   }
 
+  /**
+   * @brief Sets a Scene that is rendered on this surface.
+   * @param scene The Scene object
+   */
+  void SetScene( Dali::Integration::Scene& scene )
+  {
+    mScene = scene;
+  }
+
 private:
 
   /**
@@ -223,6 +235,7 @@ protected:
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
   Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
   Dali::DisplayConnection* mDisplayConnection;
+  WeakHandle< Dali::Integration::Scene > mScene;
 
 private:
 

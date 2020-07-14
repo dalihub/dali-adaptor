@@ -2,7 +2,7 @@
 #define DALI_WINDOW_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ class DragAndDropDetector;
 class Orientation;
 class Actor;
 class Layer;
+class RenderTaskList;
+class TouchData;
+struct KeyEvent;
 
 /**
  * @brief The window class is used internally for drawing.
@@ -67,14 +70,15 @@ class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
 
-  typedef Uint16Pair WindowSize;          ///< Window size type @SINCE_1_2.60
-  typedef Uint16Pair WindowPosition;      ///< Window position type @SINCE_1_2.60
+  using WindowSize = Uint16Pair ;     ///< Window size type @SINCE_1_2.60
+  using WindowPosition = Uint16Pair;  ///< Window position type @SINCE_1_2.60
 
-  typedef Signal< void (bool) > IndicatorSignalType;  ///< @DEPRECATED_1_4.9 @brief Indicator state signal type @SINCE_1_0.0
-  typedef Signal< void (bool) > FocusSignalType;         ///< @DEPRECATED_1_4.35 @brief Window focus signal type @SINCE_1_2.60
-  typedef Signal< void (WindowSize) > ResizedSignalType; ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
-  typedef Signal< void (Window,bool) > FocusChangeSignalType;         ///< Window focus signal type @SINCE_1_4.35
-  typedef Signal< void (Window,WindowSize) > ResizeSignalType; ///< Window resized signal type @SINCE_1_4.35
+  using ResizedSignalType = Signal< void (WindowSize) >;       ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
+  using FocusChangeSignalType = Signal< void (Window,bool) >;  ///< Window focus signal type @SINCE_1_4.35
+  using ResizeSignalType = Signal< void (Window,WindowSize) >; ///< Window resized signal type @SINCE_1_4.35
+  using KeyEventSignalType = Signal< void (const KeyEvent&) >; ///< Key event signal type
+  using TouchSignalType = Signal< void (const TouchData&) >;   ///< Touch signal type
+
 public:
 
   // Enumerations
@@ -93,30 +97,6 @@ public:
     PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
     LANDSCAPE_INVERSE = 270,  ///< Landscape inverse orientation @SINCE_1_0.0
     NO_ORIENTATION_PREFERENCE = -1 ///< No orientation. It is used to initialize or unset the preferred orientation.  @SINCE_1_4.51
-  };
-
-  /**
-   * @DEPRECATED_1_4.9
-   * @brief Enumeration for opacity of the indicator.
-   * @SINCE_1_0.0
-   */
-  enum IndicatorBgOpacity
-  {
-    OPAQUE = 100, ///< @DEPRECATED_1_4.9 @brief Fully opaque indicator Bg @SINCE_1_0.0
-    TRANSLUCENT = 50, ///< @DEPRECATED_1_4.9 @brief Semi translucent indicator Bg @SINCE_1_0.0
-    TRANSPARENT = 0 ///< @DEPRECATED_1_4.9 @brief Fully transparent indicator Bg @SINCE_1_0.0
-  };
-
-  /**
-   * @DEPRECATED_1_4.9
-   * @brief Enumeration for visible mode of the indicator.
-   * @SINCE_1_0.0
-   */
-  enum IndicatorVisibleMode
-  {
-    INVISIBLE = 0, ///< @DEPRECATED_1_4.9 @brief Hide indicator @SINCE_1_0.0
-    VISIBLE = 1, ///< @DEPRECATED_1_4.9 @brief Show indicator @SINCE_1_0.0
-    AUTO = 2 ///< @DEPRECATED_1_4.9 @brief Hide in default, will show when necessary @SINCE_1_0.0
   };
 
   /**
@@ -297,30 +277,12 @@ public:
   Layer GetLayer( uint32_t depth ) const;
 
   /**
-   * @DEPRECATED_1_4.9
-   * @brief This sets whether the indicator bar should be shown or not.
-   * @SINCE_1_0.0
-   * @param[in] visibleMode Visible mode for indicator bar, VISIBLE in default
-   */
-  void ShowIndicator( IndicatorVisibleMode visibleMode ) DALI_DEPRECATED_API;
-
-  /**
-   * @DEPRECATED_1_4.9
-   * @brief This sets the opacity mode of indicator bar.
-   * @SINCE_1_0.0
-   * @param[in] opacity The opacity mode
-   */
-  void SetIndicatorBgOpacity( IndicatorBgOpacity opacity ) DALI_DEPRECATED_API;
-
-  /**
-   * @DEPRECATED_1_4.9
-   * @brief This sets the orientation of indicator bar.
+   * @brief Retrieves the DPI of the window.
    *
-   * It does not implicitly show the indicator if it is currently hidden.
-   * @SINCE_1_0.0
-   * @param[in] orientation The orientation
+   * @SINCE_1_9.21
+   * @return The DPI of the window
    */
-  void RotateIndicator(WindowOrientation orientation) DALI_DEPRECATED_API;
+  Uint16Pair GetDpi() const;
 
   /**
    * @brief Sets the window name and class string.
@@ -378,15 +340,6 @@ public:
    * @return The preferred orientation if previously set, or none
    */
   WindowOrientation GetPreferredOrientation();
-
-  /**
-   * @DEPRECATED_1_4.19 Was not intended for Application developers
-   * @brief Returns an empty handle.
-   * @note  Not intended for application developers.
-   * @SINCE_1_0.0
-   * @return An empty handle
-   */
-  DragAndDropDetector GetDragAndDropDetector() const DALI_DEPRECATED_API;
 
   /**
    * @brief Gets the native handle of the window.
@@ -637,29 +590,15 @@ public:
    */
   void SetTransparency( bool transparent );
 
-public: // Signals
   /**
-   * @DEPRECATED_1_4.9
-   * @brief The user should connect to this signal to get a timing when indicator was shown / hidden.
-   * @SINCE_1_0.0
-   * @return The signal to connect to
+   * @brief Retrieves the list of render-tasks in the window.
+   *
+   * @SINCE_1_9.21
+   * @return A valid handle to a RenderTaskList
    */
-  IndicatorSignalType& IndicatorVisibilityChangedSignal() DALI_DEPRECATED_API;
+  RenderTaskList GetRenderTaskList();
 
-  /**
-   * @DEPRECATED_1_4.35
-   * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
-   *
-   * A callback of the following type may be connected:
-   * @code
-   *   void YourCallbackName( bool focusIn );
-   * @endcode
-   * The parameter is true if window gains focus, otherwise false.
-   *
-   * @SINCE_1_2.60
-   * @return The signal to connect to
-   */
-  FocusSignalType& FocusChangedSignal() DALI_DEPRECATED_API;
+public: // Signals
 
   /**
    * @brief This signal is emitted when the window is resized.
@@ -704,6 +643,38 @@ public: // Signals
    * @return The signal to connect to
    */
   ResizeSignalType& ResizeSignal();
+
+  /**
+   * @brief This signal is emitted when key event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const KeyEvent& event);
+   * @endcode
+   *
+   * @SINCE_1_9.21
+   * @return The signal to connect to
+   */
+  KeyEventSignalType& KeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when the screen is touched and when the touch ends
+   * (i.e. the down & up touch events only).
+   *
+   * If there are multiple touch points, then this will be emitted when the first touch occurs and
+   * then when the last finger is lifted.
+   * An interrupted event will also be emitted (if it occurs).
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const TouchData& event);
+   * @endcode
+   *
+   * @SINCE_1_9.21
+   * @return The touch signal to connect to
+   *
+   * @note Motion events are not emitted.
+   */
+  TouchSignalType& TouchSignal();
 
 public: // Not intended for application developers
   /// @cond internal

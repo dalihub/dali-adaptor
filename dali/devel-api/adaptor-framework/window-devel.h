@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -121,36 +122,6 @@ DALI_ADAPTOR_API Window Get( Actor actor );
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window );
-
-/**
- * @brief This signal is emitted when key event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName(const KeyEvent& event);
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API KeyEventSignalType& KeyEventSignal( Window window );
-
-/**
- * @brief This signal is emitted when the screen is touched and when the touch ends
- * (i.e. the down & up touch events only).
- *
- * If there are multiple touch points, then this will be emitted when the first touch occurs and
- * then when the last finger is lifted.
- * An interrupted event will also be emitted (if it occurs).
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( TouchData event );
- * @endcode
- *
- * @param[in] window The window instance
- * @return The touch signal to connect to
- * @note Motion events are not emitted.
- */
-DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
 
 /**
  * @brief This signal is emitted when wheel event is received.
@@ -262,6 +233,40 @@ DALI_ADAPTOR_API int32_t GetNativeId( Window window );
  * @param[in] areas The damaged areas list to set
  */
 DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas);
+
+/**
+ * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
+ *
+ * @param[in] window The window instance
+ * @param[in] callback The function to call
+ * @param[in] frameId The Id to specify the frame. It will be passed when the callback is called.
+ *
+ * @note A callback of the following type may be used:
+ * @code
+ *   void MyFunction( int frameId );
+ * @endcode
+ * This callback will be deleted once it is called.
+ *
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
+
+/**
+ * @brief Adds a callback that is called when the frame is displayed on the display.
+ *
+ * @param[in] window The window instance
+ * @param[in] callback The function to call
+ * @param[in] frameId The Id to specify the frame. It will be passed when the callback is called.
+ *
+ * @note A callback of the following type may be used:
+ * @code
+ *   void MyFunction( int frameId );
+ * @endcode
+ * This callback will be deleted once it is called.
+ *
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
 
 } // namespace DevelWindow
 

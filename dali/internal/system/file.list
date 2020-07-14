@@ -82,6 +82,7 @@ SET( adaptor_system_android_src_files
 # module: system, backend: windows
 SET( adaptor_system_windows_src_files
     ${adaptor_system_dir}/windows/callback-manager-win.cpp
+    ${adaptor_system_dir}/windows/file-descriptor-monitor-windows.cpp
     ${adaptor_system_dir}/windows/system-settings-win.cpp
     ${adaptor_system_dir}/windows/timer-impl-win.cpp
     ${adaptor_system_dir}/windows/trigger-event.cpp

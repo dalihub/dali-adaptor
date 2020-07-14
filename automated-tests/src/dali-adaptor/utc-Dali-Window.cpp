@@ -20,10 +20,6 @@
 #include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali-test-suite-utils.h>
 
-namespace Dali
-{
-class DragAndDropDetector : public BaseHandle {}; // For UtcDaliWindowGetDragAndDropDetectorN
-}
 
 using namespace Dali;
 
@@ -137,54 +133,6 @@ int UtcDaliWindowNewN(void)
   catch ( DaliException& e )
   {
     DALI_TEST_ASSERT( e, "Failed to create X window", TEST_LOCATION );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliWindowShowIndicatorN(void)
-{
-  Dali::Window window;
-  try
-  {
-    window.ShowIndicator(Dali::Window::VISIBLE);
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliWindowSetIndicatorBgOpacityN(void)
-{
-  Dali::Window window;
-  try
-  {
-    window.SetIndicatorBgOpacity(Dali::Window::OPAQUE);
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliWindowRotateIndicatorN(void)
-{
-  Dali::Window window;
-  try
-  {
-    window.RotateIndicator(Dali::Window::PORTRAIT);
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
   }
 
   END_TEST;
@@ -318,22 +266,6 @@ int UtcDaliWindowGetPreferredOrientationN(void)
   END_TEST;
 }
 
-int UtcDaliWindowGetDragAndDropDetectorN(void)
-{
-  Dali::Window window;
-  try
-  {
-    DragAndDropDetector detector = window.GetDragAndDropDetector();
-    DALI_TEST_CHECK( !detector ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
 int UtcDaliWindowGetNativeHandleN(void)
 {
   Dali::Window window;
@@ -382,28 +314,12 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   END_TEST;
 }
 
-int UtcDaliWindowIndicatorVisibilityChangedSignalN(void)
+int UtcDaliWindowFocusChangeSignalN(void)
 {
   Dali::Window window;
   try
   {
-    window.IndicatorVisibilityChangedSignal();
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliWindowFocusChangedSignalN(void)
-{
-  Dali::Window window;
-  try
-  {
-    window.FocusChangedSignal();
+    window.FocusChangeSignal();
     DALI_TEST_CHECK( false ); // Should not reach here!
   }
   catch( ... )

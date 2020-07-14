@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/text/glyphy/vector-font-cache.h>
+#include <third-party/glyphy/vector-font-cache.h>
 
 // EXTERNAL INCLUDES
 #include <vector>

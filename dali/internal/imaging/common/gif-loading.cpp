@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/gif-loading.h>
+#include <dali/internal/imaging/common/gif-loading.h>
 
 // EXTERNAL INCLUDES
 #include <sys/types.h>
@@ -43,6 +43,12 @@
   } while ( 0 )
 
 namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
 {
 
 namespace
@@ -1232,9 +1238,9 @@ public:
   ImageProperties imageProperties;
 };
 
-std::unique_ptr<GifLoading> GifLoading::New( const std::string &url, bool isLocalResource )
+AnimatedImageLoadingPtr GifLoading::New( const std::string &url, bool isLocalResource )
 {
-  return std::unique_ptr<GifLoading>( new GifLoading( url, isLocalResource ) );
+  return AnimatedImageLoadingPtr( new GifLoading( url, isLocalResource ) );
 }
 
 GifLoading::GifLoading( const std::string &url, bool isLocalResource )
@@ -1248,7 +1254,7 @@ GifLoading::~GifLoading()
   delete mImpl;
 }
 
-bool GifLoading::LoadNextNFrames( int frameStartIndex, int count, std::vector<Dali::PixelData> &pixelData )
+bool GifLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData> &pixelData )
 {
   int error;
   bool ret = false;
@@ -1278,36 +1284,47 @@ bool GifLoading::LoadNextNFrames( int frameStartIndex, int count, std::vector<Da
   return ret;
 }
 
-bool GifLoading::LoadAllFrames( std::vector<Dali::PixelData> &pixelData, Dali::Vector<uint32_t> &frameDelays )
+Dali::Devel::PixelBuffer GifLoading::LoadFrame( uint32_t frameIndex )
 {
-  if( LoadFrameDelays( frameDelays ) )
+  int error;
+  Dali::Devel::PixelBuffer pixelBuffer;
+
+  DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex );
+
+  pixelBuffer = Dali::Devel::PixelBuffer::New( mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888 );
+
+  mImpl->loaderInfo.animated.currentFrame = 1 + ( frameIndex % mImpl->loaderInfo.animated.frameCount );
+  ReadNextFrame( mImpl->loaderInfo, mImpl->imageProperties, pixelBuffer.GetBuffer(), &error );
+
+  if( error != 0 )
   {
-    return LoadNextNFrames( 0, mImpl->loaderInfo.animated.frameCount, pixelData );
+    pixelBuffer = Dali::Devel::PixelBuffer();
   }
-  return false;
+  return pixelBuffer;
 }
 
-ImageDimensions GifLoading::GetImageSize()
+ImageDimensions GifLoading::GetImageSize() const
 {
   return ImageDimensions( mImpl->imageProperties.w, mImpl->imageProperties.h );
 }
 
-int GifLoading::GetImageCount()
+uint32_t GifLoading::GetImageCount() const
 {
   return mImpl->loaderInfo.animated.frameCount;
 }
 
-bool GifLoading::LoadFrameDelays( Dali::Vector<uint32_t> &frameDelays )
+uint32_t GifLoading::GetFrameInterval( uint32_t frameIndex ) const
 {
-  frameDelays.Clear();
-
-  for( auto &&elem : mImpl->loaderInfo.animated.frames )
-  {
-    // Read frame delay time, multiply 10 to change time unit to milliseconds
-    frameDelays.PushBack( elem.info.delay * 10 );
-  }
-
-  return true;
+  return mImpl->loaderInfo.animated.frames[frameIndex].info.delay * 10;
 }
+
+std::string GifLoading::GetUrl() const
+{
+  return mImpl->mUrl;
+}
+
+} // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali

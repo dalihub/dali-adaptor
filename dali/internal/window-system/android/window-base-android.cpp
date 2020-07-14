@@ -343,6 +343,16 @@ void WindowBaseAndroid::SetParent( WindowBase* parentWinBase )
 {
 }
 
+int WindowBaseAndroid::CreateFrameRenderedSyncFence()
+{
+  return -1;
+}
+
+int WindowBaseAndroid::CreateFramePresentedSyncFence()
+{
+  return -1;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

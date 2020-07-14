@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,6 @@ Window::Window()
   mWindowHeight( 0 ),
   mOrientationMode( Internal::Adaptor::Window::OrientationMode::PORTRAIT ),
   mNativeWindowId( -1 ),
-  mFocusChangedSignal(),
   mResizedSignal(),
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
@@ -160,18 +159,6 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
 {
   mWindowSurface = static_cast<WindowRenderSurface*>( surface );
-}
-
-void Window::ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode )
-{
-}
-
-void Window::SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacityMode )
-{
-}
-
-void Window::RotateIndicator( Dali::Window::WindowOrientation orientation )
-{
 }
 
 void Window::SetClass( std::string name, std::string className )
@@ -791,7 +778,6 @@ void Window::OnIconifyChanged( bool iconified )
 void Window::OnFocusChanged( bool focusIn )
 {
   Dali::Window handle( this );
-  mFocusChangedSignal.Emit( focusIn );
   mFocusChangeSignal.Emit( handle, focusIn );
 
   GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();

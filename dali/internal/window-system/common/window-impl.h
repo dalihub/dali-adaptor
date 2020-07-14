@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,6 @@ using EventHandlerPtr = IntrusivePtr< EventHandler >;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
-  typedef Dali::Window::IndicatorSignalType IndicatorSignalType;
-  typedef Dali::Window::FocusSignalType FocusSignalType;
   typedef Dali::Window::ResizedSignalType ResizedSignalType;
   typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
   typedef Dali::Window::ResizeSignalType ResizeSignalType;
@@ -87,21 +85,6 @@ public:
    * @return A newly allocated Window
    */
   static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
-
-  /**
-   * @copydoc Dali::Window::ShowIndicator()
-   */
-  void ShowIndicator( Dali::Window::IndicatorVisibleMode visibleMode );
-
-  /**
-   * @copydoc Dali::Window::SetIndicatorBgOpacity()
-   */
-  void SetIndicatorBgOpacity( Dali::Window::IndicatorBgOpacity opacity );
-
-  /**
-   * @copydoc Dali::Window::RotateIndicator()
-   */
-  void RotateIndicator( Dali::Window::WindowOrientation orientation );
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -508,17 +491,7 @@ private: // Dali::Internal::Adaptor::EventHandler::Observer
 public: // Signals
 
   /**
-   * The user should connect to this signal to get a timing when indicator was shown / hidden.
-   */
-  IndicatorSignalType& IndicatorVisibilityChangedSignal() { return mIndicatorVisibilityChangedSignal; }
-
-  /**
-   * @copydoc Dali::Window::FocusChangedSignal()
-   */
-  FocusSignalType& FocusChangedSignal() { return mFocusChangedSignal; }
-
-  /**
-   * @copydoc Dali::Window::WindowFocusChangedSignal()
+   * @copydoc Dali::Window::FocusChangeSignal()
    */
   FocusChangeSignalType& FocusChangeSignal() { return mFocusChangeSignal; }
   /**
@@ -580,8 +553,6 @@ private:
   int                                   mNativeWindowId;          ///< The Native Window Id
 
   // Signals
-  IndicatorSignalType                   mIndicatorVisibilityChangedSignal;
-  FocusSignalType                       mFocusChangedSignal;
   ResizedSignalType                     mResizedSignal;
   SignalType                            mDeleteRequestSignal;
   FocusChangeSignalType                 mFocusChangeSignal;

@@ -80,8 +80,9 @@ private:
   /**
    * @brief Called when our event file descriptor has been written to.
    * @param[in] eventBitMask bit mask of events that occured on the file descriptor
+   * @param[in] fileDescriptor The file descriptor
    */
-  void Triggered( FileDescriptorMonitor::EventType eventBitMask );
+  void Triggered( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor );
 
 private:
 

@@ -249,10 +249,10 @@ struct Shaping::Plugin
               const GlyphIndex index = rtlIndex + j;
 
               mIndices.PushBack( glyphInfo[index].codepoint );
-              mAdvance.PushBack( floor( glyphPositions[index].x_advance * FROM_266 ) );
+              mAdvance.PushBack( glyphPositions[index].x_advance * FROM_266 );
               mCharacterMap.PushBack( glyphInfo[index].cluster );
-              mOffset.PushBack( floor( glyphPositions[index].x_offset * FROM_266 ) );
-              mOffset.PushBack( floor( glyphPositions[index].y_offset * FROM_266 ) );
+              mOffset.PushBack( glyphPositions[index].x_offset * FROM_266 );
+              mOffset.PushBack( glyphPositions[index].y_offset * FROM_266 );
             }
 
             i += numberOfGlyphsInCluster;
@@ -260,10 +260,10 @@ struct Shaping::Plugin
           else
           {
             mIndices.PushBack( glyphInfo[i].codepoint );
-            mAdvance.PushBack( floor( glyphPositions[i].x_advance * FROM_266 ) );
+            mAdvance.PushBack( glyphPositions[i].x_advance * FROM_266 );
             mCharacterMap.PushBack( glyphInfo[i].cluster );
-            mOffset.PushBack( floor( glyphPositions[i].x_offset * FROM_266 ) );
-            mOffset.PushBack( floor( glyphPositions[i].y_offset * FROM_266 ) );
+            mOffset.PushBack( glyphPositions[i].x_offset * FROM_266 );
+            mOffset.PushBack( glyphPositions[i].y_offset * FROM_266 );
 
             ++i;
           }

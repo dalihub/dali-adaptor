@@ -55,13 +55,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace
-{
-
-const float DEFAULT_STEREO_BASE( 65.0f );
-
-} // unnamed namespace
-
 ApplicationPtr Application::gPreInitializedApplication( NULL );
 
 ApplicationPtr Application::New(
@@ -95,12 +88,9 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mPauseSignal(),
   mResumeSignal(),
   mResetSignal(),
-  mResizeSignal(),
   mAppControlSignal(),
   mLanguageChangedSignal(),
   mRegionChangedSignal(),
-  mBatteryLowSignal(),
-  mMemoryLowSignal(),
   mEventLoop( nullptr ),
   mFramework( nullptr ),
   mContextLossConfiguration( Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS ),
@@ -110,14 +100,11 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mMainWindow(),
   mMainWindowMode( windowMode ),
   mMainWindowName(),
-  mMainWindowReplaced( false ),
   mStylesheet( stylesheet ),
   mEnvironmentOptions(),
   mWindowPositionSize( positionSize ),
   mLaunchpadState( Launchpad::NONE ),
-  mSlotDelegate( this ),
-  mViewMode( MONO ),
-  mStereoBase( DEFAULT_STEREO_BASE )
+  mSlotDelegate( this )
 {
   // Get mName from environment options
   mMainWindowName = mEnvironmentOptions.GetWindowName();
@@ -185,8 +172,6 @@ void Application::CreateAdaptor()
 
   mAdaptor = Adaptor::New( graphicsFactory, sceneHolder, mContextLossConfiguration, &mEnvironmentOptions );
 
-  mAdaptor->ResizedSignal().Connect( mSlotDelegate, &Application::OnResize );
-
   Adaptor::GetImplementation( *mAdaptor ).SetUseRemoteSurface( mUseRemoteSurface );
 }
 
@@ -253,7 +238,6 @@ void Application::OnInit()
   PauseSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnPause );
   ResumeSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnResume );
   ResetSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnReset );
-  ResizeSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnResize );
   LanguageChangedSignal().Connect( &GetImplementation( lifecycleController ), &LifecycleController::OnLanguageChanged );
 
   Dali::Application application(this);
@@ -335,16 +319,12 @@ void Application::OnRegionChanged()
 void Application::OnBatteryLow( Dali::DeviceStatus::Battery::Status status )
 {
   Dali::Application application(this);
-  mBatteryLowSignal.Emit( application );
-
   mLowBatterySignal.Emit( status );
 }
 
 void Application::OnMemoryLow( Dali::DeviceStatus::Memory::Status status )
 {
   Dali::Application application(this);
-  mMemoryLowSignal.Emit( application );
-
   mLowMemorySignal.Emit( status );
 }
 
@@ -364,12 +344,6 @@ void Application::OnSurfaceCreated( Any newSurface )
 
 void Application::OnSurfaceDestroyed( Any surface )
 {
-}
-
-void Application::OnResize(Dali::Adaptor& adaptor)
-{
-  Dali::Application application(this);
-  mResizeSignal.Emit( application );
 }
 
 bool Application::AddIdle( CallbackBase* callback, bool hasReturnValue )
@@ -394,47 +368,7 @@ Dali::Adaptor& Application::GetAdaptor()
 
 Dali::Window Application::GetWindow()
 {
-  // Changed to return a different window handle after ReplaceWindow is called
-  // just for backward compatibility to make the test case pass
-  if ( mMainWindowReplaced )
-  {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(PositionSize(), "ReplacedWindow", "", false);
-    return Dali::Window( window );
-  }
-  else
-  {
-    return mMainWindow;
-  }
-}
-
-// Stereoscopy
-
-void Application::SetViewMode( ViewMode viewMode )
-{
-  mViewMode = viewMode;
-}
-
-ViewMode Application::GetViewMode() const
-{
-  return mViewMode;
-}
-
-void Application::SetStereoBase( float stereoBase )
-{
-  mStereoBase = stereoBase;
-}
-
-float Application::GetStereoBase() const
-{
-  return mStereoBase;
-}
-
-void Application::ReplaceWindow( const PositionSize& positionSize, const std::string& name )
-{
-  // This API is kept just for backward compatibility to make the test case pass.
-
-  mMainWindowReplaced = true;
-  OnResize( *mAdaptor );
+  return mMainWindow;
 }
 
 std::string Application::GetResourcePath()

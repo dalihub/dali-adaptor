@@ -352,6 +352,16 @@ public:
    */
   virtual void SetParent( WindowBase* parentWinBase ) override;
 
+  /**
+   * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFrameRenderedSyncFence()
+   */
+  virtual int CreateFrameRenderedSyncFence() override;
+
+  /**
+   * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFramePresentedSyncFence()
+   */
+  virtual int CreateFramePresentedSyncFence() override;
+
 private:
 
   /**
