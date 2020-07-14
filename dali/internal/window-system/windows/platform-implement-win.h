@@ -39,7 +39,7 @@ namespace WindowsPlatformImplementation
 
 bool PostWinThreadMessage(
     _In_ uint32_t Msg,
-    _In_ uint32_t wParam,
+    _In_ uint64_t wParam,
     _In_ uint64_t lParam,
     _In_ uint64_t threadID = -1 );
 
@@ -83,7 +83,7 @@ public:
 
   bool PostWinMessage(
     _In_ uint32_t Msg,
-    _In_ uint32_t wParam,
+    _In_ uint64_t wParam,
     _In_ uint64_t lParam );
 
   int32_t GetEdgeWidth();
