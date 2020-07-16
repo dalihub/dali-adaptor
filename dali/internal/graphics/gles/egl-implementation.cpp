@@ -153,10 +153,12 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
 
   // We want to display this information all the time, so use the LogMessage directly
   Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
+      "            PartialUpdate  %d\n"
       "            Vendor:        %s\n"
       "            Version:       %s\n"
       "            Client APIs:   %s\n"
       "            Extensions:    %s\n",
+      mPartialUpdateRequired,
       eglQueryString( mEglDisplay, EGL_VENDOR ),
       eglQueryString( mEglDisplay, EGL_VERSION ),
       eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
