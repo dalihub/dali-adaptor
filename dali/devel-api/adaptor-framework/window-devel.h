@@ -66,6 +66,8 @@ typedef Signal< void ( Window, bool ) > VisibilityChangedSignalType; ///< Visibi
 
 typedef Signal< void (Window, EffectState, EffectType) > TransitionEffectEventSignalType; ///< Effect signal type and state
 
+typedef Signal< void () > KeyboardRepeatSettingsChangedSignalType;  ///< Keyboard repeat settings changed signal type
+
 /**
  * @brief Creates an initialized handle to a new Window.
  *
@@ -153,6 +155,14 @@ DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal( Window wi
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window );
+
+/**
+ * @brief This signal is emitted just after the keyboard repeat setting is changed globally.
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal( Window window );
 
 /**
  * @brief Sets parent window of the window.

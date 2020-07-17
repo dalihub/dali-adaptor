@@ -41,7 +41,8 @@ WindowBase::WindowBase()
   mSelectionDataReceivedSignal(),
   mStyleChangedSignal(),
   mAccessibilitySignal(),
-  mTransitionEffectEventSignal()
+  mTransitionEffectEventSignal(),
+  mKeyboardRepeatSettingsChangedSignal()
 {
 }
 
@@ -117,6 +118,11 @@ WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
 WindowBase::TransitionEffectEventSignalType& WindowBase::TransitionEffectEventSignal()
 {
   return mTransitionEffectEventSignal;
+}
+
+WindowBase::KeyboardRepeatSettingsChangedSignalType& WindowBase::KeyboardRepeatSettingsChangedSignal()
+{
+  return mKeyboardRepeatSettingsChangedSignal;
 }
 
 } // namespace Adaptor

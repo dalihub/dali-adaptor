@@ -71,6 +71,7 @@ public:
   typedef Signal< void ( const DamageArea& ) > DamageSignalType;
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
   typedef Signal< void ( DevelWindow::EffectState, DevelWindow::EffectType ) > TransitionEffectEventSignalType;
+  typedef Signal< void ( ) > KeyboardRepeatSettingsChangedSignalType;
 
   // Input events
   typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
@@ -419,6 +420,11 @@ public:
    */
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
 
+  /**
+   * @brief This signal is emitted when the keyboard repeat is changed.
+   */
+  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal();
+
 protected:
 
   // Undefined
@@ -429,20 +435,21 @@ protected:
 
 protected:
 
-  IconifySignalType                    mIconifyChangedSignal;
-  FocusSignalType                      mFocusChangedSignal;
-  OutputSignalType                     mOutputTransformedSignal;
-  DeleteSignalType                     mDeleteRequestSignal;
-  DamageSignalType                     mWindowDamagedSignal;
-  RotationSignalType                   mRotationSignal;
-  TouchEventSignalType                 mTouchEventSignal;
-  WheelEventSignalType                 mWheelEventSignal;
-  KeyEventSignalType                   mKeyEventSignal;
-  SelectionSignalType                  mSelectionDataSendSignal;
-  SelectionSignalType                  mSelectionDataReceivedSignal;
-  StyleSignalType                      mStyleChangedSignal;
-  AccessibilitySignalType              mAccessibilitySignal;
-  TransitionEffectEventSignalType      mTransitionEffectEventSignal;
+  IconifySignalType                       mIconifyChangedSignal;
+  FocusSignalType                         mFocusChangedSignal;
+  OutputSignalType                        mOutputTransformedSignal;
+  DeleteSignalType                        mDeleteRequestSignal;
+  DamageSignalType                        mWindowDamagedSignal;
+  RotationSignalType                      mRotationSignal;
+  TouchEventSignalType                    mTouchEventSignal;
+  WheelEventSignalType                    mWheelEventSignal;
+  KeyEventSignalType                      mKeyEventSignal;
+  SelectionSignalType                     mSelectionDataSendSignal;
+  SelectionSignalType                     mSelectionDataReceivedSignal;
+  StyleSignalType                         mStyleChangedSignal;
+  AccessibilitySignalType                 mAccessibilitySignal;
+  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
+  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
 };
 
 } // namespace Adaptor
