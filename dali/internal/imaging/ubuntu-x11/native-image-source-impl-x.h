@@ -84,14 +84,14 @@ public:
   ~NativeImageSourceX() override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GlExtensionCreate()
+   * @copydoc Dali::NativeImageSource::CreateResource()
    */
-  bool GlExtensionCreate() override;
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageSource::DestroyResource()
    */
-  void GlExtensionDestroy() override;
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
@@ -126,6 +126,32 @@ public:
   {
     return mBlendingRequired;
   }
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetTextureTarget()
+   */
+  virtual int GetTextureTarget() const;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetCustomFragmentPrefix()
+   */
+  virtual const char* GetCustomFragmentPrefix() const;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()
+   */
+  virtual const char* GetCustomSamplerTypename() const;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const;
+
+  /**
+   * @copydoc Dali::NativeImageSource::SourceChanged()
+   */
+  virtual bool SourceChanged() const;
+
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()

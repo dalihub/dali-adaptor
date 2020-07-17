@@ -79,12 +79,12 @@ void NativeBitmapBuffer::Write( const unsigned char *src, size_t size )
   mBuffer->Write( src, size ); // Write will cause LocklessBuffer to switch to the other buffer
 }
 
-bool NativeBitmapBuffer::GlExtensionCreate()
+bool NativeBitmapBuffer::CreateResource()
 {
   return true;
 }
 
-void NativeBitmapBuffer::GlExtensionDestroy()
+void NativeBitmapBuffer::DestroyResource()
 {
 }
 
@@ -106,6 +106,31 @@ unsigned int NativeBitmapBuffer::GetHeight() const
 bool NativeBitmapBuffer::RequiresBlending() const
 {
   return Pixel::HasAlpha( mPixelFormat );
+}
+
+int NativeBitmapBuffer::GetTextureTarget() const
+{
+  return 0;
+}
+
+const char* NativeBitmapBuffer::GetCustomFragmentPrefix() const
+{
+  return nullptr;
+}
+
+const char* NativeBitmapBuffer::GetCustomSamplerTypename() const
+{
+  return nullptr;
+}
+
+Any NativeBitmapBuffer::GetNativeImageHandle() const
+{
+  return nullptr;
+}
+
+bool NativeBitmapBuffer::SourceChanged() const
+{
+  return false;
 }
 
 } // namespace Adaptor

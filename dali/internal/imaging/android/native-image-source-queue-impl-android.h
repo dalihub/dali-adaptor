@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/images/native-image-interface-extension.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
@@ -39,7 +38,7 @@ class EglImageExtensions;
 /**
  * Dali internal NativeImageSourceQueue.
  */
-class NativeImageSourceQueueAndroid: public Internal::Adaptor::NativeImageSourceQueue, public NativeImageInterface::Extension
+class NativeImageSourceQueueAndroid: public Internal::Adaptor::NativeImageSourceQueue
 {
 public:
 
@@ -75,14 +74,14 @@ public:
   ~NativeImageSourceQueueAndroid() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::CreateResource()
    */
-  bool GlExtensionCreate() override;
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::DestroyResource()
    */
-  void GlExtensionDestroy() override;
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
@@ -123,23 +122,33 @@ public:
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
   {
-    return this;
+    return nullptr;
   }
 
   /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomFragmentPreFix()
+   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
    */
-  const char* GetCustomFragmentPreFix() override;
+  const char* GetCustomFragmentPrefix() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomSamplerTypename()
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
    */
-  const char* GetCustomSamplerTypename() override;
+  const char* GetCustomSamplerTypename() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
    */
-  int GetEglImageTextureTarget() override;
+  int GetTextureTarget() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  bool SourceChanged() const override;
 
 private:
 
