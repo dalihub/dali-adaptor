@@ -93,7 +93,8 @@ Window::Window()
   mFocusChangeSignal(),
   mResizeSignal(),
   mVisibilityChangedSignal(),
-  mTransitionEffectEventSignal()
+  mTransitionEffectEventSignal(),
+  mKeyboardRepeatSettingsChangedSignal()
 {
 }
 
@@ -120,6 +121,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->FocusChangedSignal().Connect( this, &Window::OnFocusChanged );
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
   mWindowBase->TransitionEffectEventSignal().Connect( this, &Window::OnTransitionEffectEvent );
+  mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect( this, &Window::OnKeyboardRepeatSettingsChanged );
 
   mWindowSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
@@ -824,6 +826,12 @@ void Window::OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindo
 {
   Dali::Window handle( this );
   mTransitionEffectEventSignal.Emit( handle, state, type );
+}
+
+void Window::OnKeyboardRepeatSettingsChanged()
+{
+  Dali::Window handle( this );
+  mKeyboardRepeatSettingsChangedSignal.Emit();
 }
 
 void Window::OnTouchPoint( Dali::Integration::Point& point, int timeStamp )

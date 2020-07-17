@@ -505,6 +505,23 @@ static Eina_Bool EcoreEventEffectEnd(void *data, int type, void *event)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// Keyboard Repeat Settings Changed Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+static Eina_Bool EcoreEventSeatKeyboardRepeatChanged(void *data, int type, void *event)
+{
+   Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed *keyboardRepeat = static_cast<Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed*>( event );
+   WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( data );
+   DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventSeatKeyboardRepeatChanged, id[ %d ]\n", keyboardRepeat->id );
+   if( windowBase )
+   {
+     windowBase->OnKeyboardRepeatSettingsChanged();
+   }
+
+  return ECORE_CALLBACK_RENEW;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 // Keymap Changed Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -766,41 +783,44 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
 
   SetTransparency( isTransparent );
 
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_IN,                    EcoreEventWindowFocusIn,             this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_OUT,                   EcoreEventWindowFocusOut,            this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_OUTPUT_TRANSFORM,            EcoreEventOutputTransform,           this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_IGNORE_OUTPUT_TRANSFORM,     EcoreEventIgnoreOutputTransform,     this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE,  EcoreEventWindowIconifyStateChanged, this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_IN,                     EcoreEventWindowFocusIn,             this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_FOCUS_OUT,                    EcoreEventWindowFocusOut,            this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_OUTPUT_TRANSFORM,             EcoreEventOutputTransform,           this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_IGNORE_OUTPUT_TRANSFORM,      EcoreEventIgnoreOutputTransform,     this ) );
 
   // Register Rotate event
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ROTATE,               EcoreEventRotate,                    this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_ROTATE,                EcoreEventRotate,                    this ) );
 
   // Register Configure event
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_CONFIGURE,            EcoreEventConfigure,                 this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_CONFIGURE,             EcoreEventConfigure,                 this ) );
 
   // Register Touch events
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,               EcoreEventMouseButtonDown,           this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,                 EcoreEventMouseButtonUp,             this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,                      EcoreEventMouseButtonMove,           this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_CANCEL,             EcoreEventMouseButtonCancel,         this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_DOWN,                EcoreEventMouseButtonDown,           this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_UP,                  EcoreEventMouseButtonUp,             this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_MOVE,                       EcoreEventMouseButtonMove,           this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_BUTTON_CANCEL,              EcoreEventMouseButtonCancel,         this ) );
 
   // Register Mouse wheel events
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,                     EcoreEventMouseWheel,                this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_MOUSE_WHEEL,                      EcoreEventMouseWheel,                this ) );
 
   // Register Detent event
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_DETENT_ROTATE,                   EcoreEventDetentRotation,            this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_DETENT_ROTATE,                    EcoreEventDetentRotation,            this ) );
 
   // Register Key events
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,                        EcoreEventKeyDown,                   this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_UP,                          EcoreEventKeyUp,                     this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_DOWN,                         EcoreEventKeyDown,                   this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_EVENT_KEY_UP,                           EcoreEventKeyUp,                     this ) );
 
   // Register Selection event - clipboard selection
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_DATA_SOURCE_SEND,            EcoreEventDataSend,                  this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SELECTION_DATA_READY,        EcoreEventDataReceive,               this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_DATA_SOURCE_SEND,             EcoreEventDataSend,                  this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SELECTION_DATA_READY,         EcoreEventDataReceive,               this ) );
 
   // Register Effect Start/End event
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_START,                EcoreEventEffectStart,               this ) );
-  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_END,                  EcoreEventEffectEnd,                 this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_START,                 EcoreEventEffectStart,               this ) );
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_EFFECT_END,                   EcoreEventEffectEnd,                 this ) );
+
+  // Register Keyboard repeat event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, EcoreEventSeatKeyboardRepeatChanged, this ) );
 
   // Register Vconf notify - font name and size
   vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this );
@@ -1273,6 +1293,11 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification( void* context, 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type )
 {
   mTransitionEffectEventSignal.Emit( state, type );
+}
+
+void WindowBaseEcoreWl2::OnKeyboardRepeatSettingsChanged()
+{
+  mKeyboardRepeatSettingsChangedSignal.Emit();
 }
 
 void WindowBaseEcoreWl2::KeymapChanged(void *data, int type, void *event)

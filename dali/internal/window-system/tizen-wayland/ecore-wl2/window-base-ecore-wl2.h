@@ -161,6 +161,11 @@ public:
    */
   void OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type );
 
+  /**
+   * @brief Called when a keyboard repeat event is changed.
+   */
+  void OnKeyboardRepeatSettingsChanged();
+
 #ifdef DALI_ELDBUS_AVAILABLE
   /**
    * @brief Called when Ecore ElDBus accessibility event is received.
