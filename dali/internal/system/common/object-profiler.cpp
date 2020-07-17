@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
-#include <dali/public-api/common/stage.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/type-registry.h>
@@ -37,11 +36,11 @@ namespace Internal
 namespace Adaptor
 {
 
-ObjectProfiler::ObjectProfiler( uint32_t timeInterval )
+ObjectProfiler::ObjectProfiler( Dali::ObjectRegistry objectRegistry, uint32_t timeInterval )
+: mObjectRegistry( objectRegistry )
 {
   // This class must be created after the Stage; this means it doesn't count the initial objects
   // that are created by the stage (base layer, default camera actor)
-  mObjectRegistry = Dali::Stage::GetCurrent().GetObjectRegistry();
 
   mTimer = Dali::Timer::New( timeInterval * 1000 );
   mTimer.TickSignal().Connect( this, &ObjectProfiler::OnTimeout );

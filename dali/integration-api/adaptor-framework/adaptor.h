@@ -36,6 +36,7 @@
 namespace Dali
 {
 
+class ObjectRegistry;
 class RenderSurfaceInterface;
 
 using WindowContainer = std::vector<Window>;
@@ -475,6 +476,12 @@ public:
    * @return The list of scene holers
    */
   SceneHolderList GetSceneHolders() const;
+
+  /**
+   * @brief Gets the Object registry.
+   * @return The object registry
+   */
+  Dali::ObjectRegistry GetObjectRegistry() const;
 
   /**
    * @brief Called when the window becomes fully or partially visible.

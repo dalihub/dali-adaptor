@@ -100,14 +100,6 @@ DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std:
 DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
 
 /**
- * @brief Retrieves the list of render-tasks in the window.
- *
- * @param[in] window The window instance
- * @return A valid handle to a RenderTaskList
- */
-DALI_ADAPTOR_API Dali::RenderTaskList GetRenderTaskList( Window window );
-
-/**
  * @brief Retrieve the window that the given actor is added to.
  *
  * @param[in] actor The actor
@@ -122,36 +114,6 @@ DALI_ADAPTOR_API Window Get( Actor actor );
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window );
-
-/**
- * @brief This signal is emitted when key event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName(const KeyEvent& event);
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API KeyEventSignalType& KeyEventSignal( Window window );
-
-/**
- * @brief This signal is emitted when the screen is touched and when the touch ends
- * (i.e. the down & up touch events only).
- *
- * If there are multiple touch points, then this will be emitted when the first touch occurs and
- * then when the last finger is lifted.
- * An interrupted event will also be emitted (if it occurs).
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( TouchData event );
- * @endcode
- *
- * @param[in] window The window instance
- * @return The touch signal to connect to
- * @note Motion events are not emitted.
- */
-DALI_ADAPTOR_API TouchSignalType& TouchSignal( Window window );
 
 /**
  * @brief This signal is emitted when wheel event is received.

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <sys/time.h>
+#include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/debug.h>
@@ -121,6 +122,7 @@ SceneHolder::SceneHolder()
   mId( mSceneHolderCounter++ ),
   mSurface( nullptr ),
   mAdaptor( nullptr ),
+  mDpi(),
   mIsBeingDeleted( false ),
   mAdaptorStarted( false ),
   mVisible( true )
@@ -186,6 +188,11 @@ Dali::Integration::Scene SceneHolder::GetScene()
   return mScene;
 }
 
+Uint16Pair SceneHolder::GetDpi() const
+{
+  return mDpi;
+}
+
 void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 {
   mSurface.reset( surface );
@@ -194,11 +201,7 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
   SurfaceResized();
 
-  unsigned int dpiHorizontal, dpiVertical;
-  dpiHorizontal = dpiVertical = 0;
-
-  mSurface->GetDpi( dpiHorizontal, dpiVertical );
-  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
+  InitializeDpi();
 
   mSurface->SetAdaptor( *mAdaptor );
   mSurface->SetScene( mScene );
@@ -252,6 +255,8 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
     return;
   }
 
+  DALI_ASSERT_DEBUG(mSurface && "Surface needs to be set before calling this method\n");
+
   mAdaptorStarted = true;
 
   // Create the scene
@@ -264,17 +269,10 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   // Create an observer for the adaptor lifecycle
   mAdaptor->AddObserver( *mLifeCycleObserver );
 
-  if ( mSurface )
-  {
-    unsigned int dpiHorizontal, dpiVertical;
-    dpiHorizontal = dpiVertical = 0;
+  InitializeDpi();
 
-    mSurface->GetDpi( dpiHorizontal, dpiVertical );
-    mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
-
-    mSurface->SetAdaptor( *mAdaptor );
-    mSurface->SetScene( mScene );
-  }
+  mSurface->SetAdaptor( *mAdaptor );
+  mSurface->SetScene( mScene );
 
   OnAdaptorSet( adaptor );
 }
@@ -403,6 +401,17 @@ void SceneHolder::Reset()
   mAdaptor->ProcessCoreEvents();
 }
 
+void SceneHolder::InitializeDpi()
+{
+  unsigned int dpiHorizontal, dpiVertical;
+  dpiHorizontal = dpiVertical = 0;
+
+  mSurface->GetDpi( dpiHorizontal, dpiVertical );
+  mScene.SetDpi( Vector2( static_cast<float>( dpiHorizontal ), static_cast<float>( dpiVertical ) ) );
+
+  mDpi.SetX( dpiHorizontal );
+  mDpi.SetY( dpiVertical );
+}
 
 }// Adaptor
 

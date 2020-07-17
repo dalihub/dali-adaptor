@@ -537,3 +537,10 @@ int UtcDaliApplicationGetLanguageP(void)
 
   END_TEST;
 }
+
+int UtcDaliApplicationGetObjectRegistryN(void)
+{
+  Application application = Application::New();
+  DALI_TEST_CHECK( !application.GetObjectRegistry() );
+  END_TEST;
+}

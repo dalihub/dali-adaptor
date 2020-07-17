@@ -19,6 +19,7 @@
 #include <dali/public-api/adaptor-framework/application.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -193,6 +194,11 @@ std::string Application::GetRegion() const
 std::string Application::GetLanguage() const
 {
   return Internal::Adaptor::GetImplementation(*this).GetLanguage();
+}
+
+ObjectRegistry Application::GetObjectRegistry() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetObjectRegistry();
 }
 
 Application::AppSignalType& Application::InitSignal()
