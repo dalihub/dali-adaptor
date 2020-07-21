@@ -807,7 +807,6 @@ void Window::OnOutputTransformed()
   {
     forceUpdate = true;
   }
-  DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), OnOutputTransformed()\n", this, mNativeWindowId );
   SurfaceResized( forceUpdate );
 
   PositionSize positionSize = mSurface->GetPositionSize();
