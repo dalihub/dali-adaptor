@@ -762,11 +762,6 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
     CreateWindow( positionSize );
   }
 
-  for( int i = 0; i < 4; ++i )
-  {
-    mAvaiableWindowOrientations[i] = 0;
-  }
-
   mWlSurface = ecore_wl2_window_surface_get( mEcoreWindow );
 
   SetTransparency( isTransparent );
@@ -1575,14 +1570,14 @@ void WindowBaseEcoreWl2::Activate()
 
 void WindowBaseEcoreWl2::SetAvailableAnlges( const std::vector< int >& angles )
 {
+  int rotations[4] = { 0 };
   DALI_LOG_RELEASE_INFO( "WindowBaseEcoreWl2::SetAvailableAnlges, angle's count: %d, angles\n", angles.size() );
-  std::size_t size = angles.size();
-  for( std::size_t i = 0; i < size; ++i )
+  for( std::size_t i = 0; i < angles.size(); ++i )
   {
-    mAvaiableWindowOrientations[i] = static_cast< int >( angles[i] );
-    DALI_LOG_RELEASE_INFO( "%d ", mAvaiableWindowOrientations[i] );
+    rotations[i] = static_cast< int >( angles[i] );
+    DALI_LOG_RELEASE_INFO( "%d ", rotations[i] );
   }
-  ecore_wl2_window_available_rotations_set( mEcoreWindow, mAvaiableWindowOrientations, size );
+  ecore_wl2_window_available_rotations_set( mEcoreWindow, rotations, angles.size() );
 }
 
 void WindowBaseEcoreWl2::SetPreferredAngle( int angle )
