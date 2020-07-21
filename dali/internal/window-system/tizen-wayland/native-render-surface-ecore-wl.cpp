@@ -160,7 +160,6 @@ int NativeRenderSurfaceEcoreWl::GetOrientation() const
 void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
-  unsetenv( "EGL_PLATFORM" );
 
   mGraphics = &mAdaptor->GetGraphicsInterface();
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
