@@ -53,8 +53,8 @@ Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 
 } // unnamed namespace
 
-NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent )
-: mSurfaceSize( surfaceSize ),
+NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize, bool isTransparent )
+: mPosition( positionSize ),
   mRenderNotification( NULL ),
   mGraphics( NULL ),
   mEGL( nullptr ),
@@ -70,17 +70,7 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize,
 {
   Dali::Internal::Adaptor::WindowSystem::Initialize();
 
-  if( surface.Empty() )
-  {
-    CreateNativeRenderable();
-  }
-  else
-  {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( surface.GetType() == typeid (tbm_surface_queue_h) ) && "Surface type is invalid" );
-    mTbmQueue = AnyCast< tbm_surface_queue_h >( surface );
-  }
-
+  CreateNativeRenderable();
   setenv( "EGL_PLATFORM", "tbm", 1 );
 }
 
@@ -130,7 +120,7 @@ void NativeRenderSurfaceEcoreWl::WaitUntilSurfaceReplaced()
 
 PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
 {
-  return PositionSize( 0, 0, static_cast<int>( mSurfaceSize.GetWidth() ), static_cast<int>( mSurfaceSize.GetHeight() ) );
+  return mPosition;
 }
 
 void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
@@ -223,8 +213,7 @@ void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
     DALI_LOG_ERROR( "Failed to resize tbm_surface_queue" );
   }
 
-  mSurfaceSize.SetWidth( static_cast<uint16_t>( positionSize.width ) );
-  mSurfaceSize.SetHeight( static_cast<uint16_t>( positionSize.height ) );
+  mPosition = positionSize;
 }
 
 void NativeRenderSurfaceEcoreWl::StartRender()
@@ -341,13 +330,10 @@ void NativeRenderSurfaceEcoreWl::ReleaseLock()
 
 void NativeRenderSurfaceEcoreWl::CreateNativeRenderable()
 {
-  int width = static_cast<int>( mSurfaceSize.GetWidth() );
-  int height = static_cast<int>( mSurfaceSize.GetHeight() );
-
   // check we're creating one with a valid size
-  DALI_ASSERT_ALWAYS( width > 0 && height > 0 && "tbm_surface size is invalid" );
+  DALI_ASSERT_ALWAYS( mPosition.width > 0 && mPosition.height > 0 && "tbm_surface size is invalid" );
 
-  mTbmQueue = tbm_surface_queue_create( 3, width, height, mTbmFormat, TBM_BO_DEFAULT );
+  mTbmQueue = tbm_surface_queue_create( 3, mPosition.width, mPosition.height, mTbmFormat, TBM_BO_DEFAULT );
 
   if( mTbmQueue )
   {
