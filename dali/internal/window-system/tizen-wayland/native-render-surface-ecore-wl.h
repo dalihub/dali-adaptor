@@ -44,10 +44,11 @@ public:
 
   /**
     * Uses an Wayland surface to render to.
-    * @param [in] positionSize the position and size of the surface
+    * @param [in] surfaceSize the size of the surface
+    * @param [in] surface the native surface handle
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  NativeRenderSurfaceEcoreWl( Dali::PositionSize positionSize, bool isTransparent = false );
+  NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent = false );
 
   /**
    * @brief Destructor
@@ -172,7 +173,7 @@ private:
 
 private: // Data
 
-  PositionSize                           mPosition;
+  SurfaceSize                            mSurfaceSize;
   TriggerEventInterface*                 mRenderNotification;
   Internal::Adaptor::GraphicsInterface*  mGraphics;                  ///< The graphics interface
   EglInterface*                          mEGL;
