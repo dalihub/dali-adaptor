@@ -19,12 +19,12 @@
 #include <dali/internal/system/common/command-line-options.h>
 
 // EXTERNAL INCLUDES
-#include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
 
 #include <dali/public-api/common/dali-vector.h>
+#include <getopt.h>
 
 namespace Dali
 {

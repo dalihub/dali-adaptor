@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <fstream>
 #include <string.h>
-#include <dali/public-api/common/stage.h>
+#include <dali/devel-api/common/stage.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/integration-api/debug.h>

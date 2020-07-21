@@ -29,6 +29,9 @@
 
 namespace Dali
 {
+
+class ObjectRegistry;
+
 /**
  * @addtogroup dali_adaptor_framework
  * @{
@@ -301,6 +304,15 @@ public:
    * @return Language information
    */
   std::string GetLanguage() const;
+
+  /**
+   * @brief Gets the Object registry.
+   *
+   * @SINCE_1_9.21
+   * @return The object registry
+   * @note This will only be a valid handle after the InitSignal has been emitted.
+   */
+  ObjectRegistry GetObjectRegistry() const;
 
 public:  // Signals
 

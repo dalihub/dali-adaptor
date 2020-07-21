@@ -19,6 +19,7 @@
 #include <dali/internal/adaptor/common/application-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/common/singleton-service.h>
 
@@ -359,6 +360,16 @@ std::string Application::GetRegion() const
 std::string Application::GetLanguage() const
 {
   return mFramework->GetLanguage();
+}
+
+Dali::ObjectRegistry Application::GetObjectRegistry() const
+{
+  Dali::ObjectRegistry objectRegistry;
+  if( mAdaptor )
+  {
+    objectRegistry = mAdaptor->GetObjectRegistry();
+  }
+  return objectRegistry;
 }
 
 Dali::Adaptor& Application::GetAdaptor()

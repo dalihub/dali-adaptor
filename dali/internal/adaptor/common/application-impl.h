@@ -137,6 +137,11 @@ public:
   std::string GetLanguage() const;
 
   /**
+   * @copydoc Dali::Application::GetObjectRegistry();
+   */
+  Dali::ObjectRegistry GetObjectRegistry() const;
+
+  /**
    * @copydoc Dali::Application::GetResourcePath();
    */
   static std::string GetResourcePath();
