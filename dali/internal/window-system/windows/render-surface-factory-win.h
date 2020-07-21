@@ -34,7 +34,7 @@ public:
 
   std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) override;
 
-  std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( SurfaceSize surfaceSize, bool isTransparent = false ) override;
+  std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent = false) override;
 };
 
 } // namespace Adaptor
