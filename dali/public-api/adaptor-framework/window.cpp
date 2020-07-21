@@ -47,20 +47,23 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
     isNewWindowAllowed = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
   }
 
-  if (!isNewWindowAllowed)
+  if (isNewWindowAllowed)
+  {
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+
+    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
+
+    if (isAdaptorAvailable)
+    {
+      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder, name, className, isTransparent);
+    }
+    newWindow = Window(window);
+  }
+  else
   {
     DALI_LOG_ERROR("This device can't support multiple windows.\n");
   }
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
-
-  Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
-
-  if (isAdaptorAvailable)
-  {
-    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-    Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder, name, className, isTransparent);
-  }
-  newWindow = Window(window);
 
   return newWindow;
 }
