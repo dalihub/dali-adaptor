@@ -45,9 +45,9 @@ bool PostWinThreadMessage(
 
 using timerCallback = bool(*)(void *data);
 
-int SetTimer(int interval, timerCallback callback, void *data);
+intptr_t SetTimer(int interval, timerCallback callback, void *data);
 
-void KillTimer(int id);
+void KillTimer(intptr_t id);
 
 const char* GetKeyName( int keyCode );
 
