@@ -241,20 +241,20 @@ void CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT_PTR nTimerid, DWORD dwTime)
   info->callback( info->data );
 }
 
-int SetTimer(int interval, timerCallback callback, void *data)
+intptr_t SetTimer(int interval, timerCallback callback, void *data)
 {
   TTimerCallbackInfo *callbackInfo = new TTimerCallbackInfo;
   callbackInfo->data = data;
   callbackInfo->callback = callback;
   callbackInfo->hWnd = ::GetActiveWindow();
 
-  UINT_PTR timerID = (UINT_PTR)callbackInfo;
+  INT_PTR timerID = (INT_PTR)callbackInfo;
   ::SetTimer( callbackInfo->hWnd, timerID, interval, TimerProc );
 
   return timerID;
 }
 
-void KillTimer(int id)
+void KillTimer(intptr_t id)
 {
   TTimerCallbackInfo *info = (TTimerCallbackInfo*)id;
   ::KillTimer( info->hWnd, id );
