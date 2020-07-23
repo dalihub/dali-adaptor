@@ -363,7 +363,7 @@ private:
    * @param surface Any containing a surface id, or can be empty
    * @return surface id, or zero if surface is empty
    */
-  unsigned int GetSurfaceId( Any surface ) const;
+  uintptr_t GetSurfaceId( Any surface ) const;
 
   /**
    * @brief Create window
@@ -373,7 +373,7 @@ private:
   /**
    * @brief Sets up an already created window.
    */
-  void SetWinWindow( unsigned int surfaceId );
+  void SetWinWindow( uintptr_t surfaceId );
 
 private:
 
