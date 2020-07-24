@@ -6,6 +6,7 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
+    utc-Dali-AddOns.cpp
     utc-Dali-CommandLineOptions.cpp
     utc-Dali-CompressedTextures.cpp
     utc-Dali-FontClient.cpp
@@ -17,6 +18,7 @@ SET(TC_SOURCES
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-TiltSensor.cpp
 )
+
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
@@ -47,6 +49,7 @@ ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 # But CMake's new auto-escape quote policy doesn't work right.
 CMAKE_POLICY(SET CMP0005 OLD)
 ADD_DEFINITIONS(-DTEST_IMAGE_DIR=\"\\\"${CMAKE_CURRENT_SOURCE_DIR}/../../images\\\"\" )
+ADD_DEFINITIONS(-DADDON_LIBS_PATH=\"\\\"${CMAKE_CURRENT_BINARY_DIR}\\\"\" )
 
 
 FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
@@ -70,3 +73,18 @@ TARGET_LINK_LIBRARIES(${EXEC_NAME}
 INSTALL(PROGRAMS ${EXEC_NAME}
     DESTINATION ${BIN_DIR}/${EXEC_NAME}
 )
+
+# build addons
+MESSAGE( STATUS "BINDIR: ${CMAKE_CURRENT_BINARY_DIR}")
+SET(ADDON_NAME SampleAddOn )
+SET(ADDON_SOURCES addons/test-sample-addon.cpp )
+ADD_LIBRARY( ${ADDON_NAME} SHARED ${ADDON_SOURCES} )
+TARGET_LINK_LIBRARIES(${ADDON_NAME}
+        -lpthread -ldl --coverage
+        )
+
+INSTALL( TARGETS ${ADDON_NAME} DESTINATION ${BIN_DIR} )
+
+# store AddOn list
+FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/addons.txt lib${ADDON_NAME}.so )
+
