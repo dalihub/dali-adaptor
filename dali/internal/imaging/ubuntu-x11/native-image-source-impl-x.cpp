@@ -282,12 +282,12 @@ bool NativeImageSourceX::IsColorDepthSupported( Dali::NativeImageSource::ColorDe
   return true;
 }
 
-bool NativeImageSourceX::GlExtensionCreate()
+bool NativeImageSourceX::CreateResource()
 {
   // if the image existed previously delete it.
   if (mEglImageKHR != NULL)
   {
-    GlExtensionDestroy();
+    DestroyResource();
   }
 
   // casting from an unsigned int to a void *, which should then be cast back
@@ -299,7 +299,7 @@ bool NativeImageSourceX::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSourceX::GlExtensionDestroy()
+void NativeImageSourceX::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
@@ -348,6 +348,31 @@ int NativeImageSourceX::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth)
       return 0;
     }
   }
+}
+
+int NativeImageSourceX::GetTextureTarget() const
+{
+  return GL_TEXTURE_2D;
+}
+
+const char* NativeImageSourceX::GetCustomFragmentPrefix() const
+{
+  return nullptr;
+}
+
+const char* NativeImageSourceX::GetCustomSamplerTypename() const
+{
+  return nullptr;
+}
+
+Any NativeImageSourceX::GetNativeImageHandle() const
+{
+  return Any(mPixmap);
+}
+
+bool NativeImageSourceX::SourceChanged() const
+{
+  return false;
 }
 
 Ecore_X_Pixmap NativeImageSourceX::GetPixmapFromAny(Any pixmap) const

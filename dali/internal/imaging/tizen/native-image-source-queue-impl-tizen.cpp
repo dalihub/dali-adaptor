@@ -209,7 +209,7 @@ void NativeImageSourceQueueTizen::IgnoreSourceImage()
   }
 }
 
-bool NativeImageSourceQueueTizen::GlExtensionCreate()
+bool NativeImageSourceQueueTizen::CreateResource()
 {
   mEglImageExtensions = mEglGraphics->GetImageExtensions();
   DALI_ASSERT_DEBUG( mEglImageExtensions );
@@ -217,7 +217,7 @@ bool NativeImageSourceQueueTizen::GlExtensionCreate()
   return true;
 }
 
-void NativeImageSourceQueueTizen::GlExtensionDestroy()
+void NativeImageSourceQueueTizen::DestroyResource()
 {
   Dali::Mutex::ScopedLock lock( mMutex );
 
@@ -279,20 +279,32 @@ void NativeImageSourceQueueTizen::PrepareTexture()
   }
 }
 
-const char* NativeImageSourceQueueTizen::GetCustomFragmentPreFix()
+const char* NativeImageSourceQueueTizen::GetCustomFragmentPrefix() const
 {
   return FRAGMENT_PREFIX;
 }
 
-const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename()
+const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename() const
 {
   return SAMPLER_TYPE;
 }
 
-int NativeImageSourceQueueTizen::GetEglImageTextureTarget()
+int NativeImageSourceQueueTizen::GetTextureTarget() const
 {
   return GL_TEXTURE_EXTERNAL_OES;
 }
+
+Any NativeImageSourceQueueTizen::GetNativeImageHandle() const
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueTizen::SourceChanged() const
+{
+  return false;
+}
+
+
 
 void NativeImageSourceQueueTizen::ResetEglImageList()
 {

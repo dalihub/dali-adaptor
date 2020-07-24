@@ -400,7 +400,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported( Dali::NativeImageSource::Col
   return false;
 }
 
-bool NativeImageSourceTizen::GlExtensionCreate()
+bool NativeImageSourceTizen::CreateResource()
 {
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
@@ -418,7 +418,7 @@ bool NativeImageSourceTizen::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSourceTizen::GlExtensionDestroy()
+void NativeImageSourceTizen::DestroyResource()
 {
   Dali::Mutex::ScopedLock lock( mMutex );
   if( mEglImageKHR )
@@ -443,7 +443,7 @@ void NativeImageSourceTizen::PrepareTexture()
   {
     void* eglImage = mEglImageKHR;
 
-    if( GlExtensionCreate() )
+    if( CreateResource() )
     {
       TargetTexture();
     }
@@ -454,19 +454,29 @@ void NativeImageSourceTizen::PrepareTexture()
   }
 }
 
-const char* NativeImageSourceTizen::GetCustomFragmentPreFix()
+const char* NativeImageSourceTizen::GetCustomFragmentPrefix() const
 {
   return FRAGMENT_PREFIX;
 }
 
-const char* NativeImageSourceTizen::GetCustomSamplerTypename()
+const char* NativeImageSourceTizen::GetCustomSamplerTypename() const
 {
   return SAMPLER_TYPE;
 }
 
-int NativeImageSourceTizen::GetEglImageTextureTarget()
+int NativeImageSourceTizen::GetTextureTarget() const
 {
   return GL_TEXTURE_EXTERNAL_OES;
+}
+
+Any NativeImageSourceTizen::GetNativeImageHandle() const
+{
+  return GetNativeImageSource();
+}
+
+bool NativeImageSourceTizen::SourceChanged() const
+{
+  return false;
 }
 
 bool NativeImageSourceTizen::CheckBlending( tbm_format format )
