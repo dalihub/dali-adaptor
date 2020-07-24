@@ -65,8 +65,7 @@ struct WebPLoading::Impl
 {
 public:
   Impl( const std::string& url, bool isLocalResource )
-  : mUrl( url ),
-    mLoadingFrame( 0 )
+  : mUrl( url )
   {
 #ifdef DALI_WEBP_ENABLED
     if( ReadWebPInformation( isLocalResource ) )
@@ -180,12 +179,12 @@ public:
 
   std::string mUrl;
   std::vector<uint32_t> mTimeStamp;
-  uint32_t mLoadingFrame;
+  uint32_t mLoadingFrame{0};
 
 #ifdef DALI_WEBP_ENABLED
-  WebPData mWebPData;
-  WebPAnimDecoder* mWebPAnimDecoder;
-  WebPAnimInfo mWebPAnimInfo;
+  WebPData mWebPData{0};
+  WebPAnimDecoder* mWebPAnimDecoder{nullptr};
+  WebPAnimInfo mWebPAnimInfo{0};
 #endif
 };
 

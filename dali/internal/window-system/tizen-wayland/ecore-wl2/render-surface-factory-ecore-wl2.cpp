@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,9 @@ std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryEcoreWl2::CreatePixma
   return std::unique_ptr< PixmapRenderSurface >( nullptr );
 }
 
-std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent )
+std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface( SurfaceSize surfaceSize, Any surface, bool isTransparent )
 {
-  return Utils::MakeUnique< NativeRenderSurfaceEcoreWl >( positionSize, isTransparent );
+  return Utils::MakeUnique< NativeRenderSurfaceEcoreWl >( surfaceSize, surface, isTransparent );
 }
 
 // this should be created from somewhere

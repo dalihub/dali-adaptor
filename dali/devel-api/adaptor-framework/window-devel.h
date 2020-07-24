@@ -27,9 +27,9 @@
 
 namespace Dali
 {
-class KeyEvent;
+struct KeyEvent;
 class TouchData;
-class WheelEvent;
+struct WheelEvent;
 class RenderTaskList;
 
 namespace DevelWindow

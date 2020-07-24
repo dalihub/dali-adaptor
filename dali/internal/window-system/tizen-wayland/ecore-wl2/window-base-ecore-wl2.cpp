@@ -2345,6 +2345,8 @@ void WindowBaseEcoreWl2::CreateWindow( PositionSize positionSize )
     DALI_ASSERT_ALWAYS( 0 && "Failed to get display" );
   }
 
+  ecore_wl2_display_sync( display );
+
   mEcoreWindow = ecore_wl2_window_new( display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height );
 
   if ( mEcoreWindow == 0 )

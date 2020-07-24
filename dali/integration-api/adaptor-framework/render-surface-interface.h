@@ -26,6 +26,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/integration-api/scene.h>
+#include <dali/public-api/math/uint-16-pair.h>
 
 namespace Dali
 {
@@ -45,7 +46,8 @@ class GraphicsInterface;
 /**
  * @brief The position and size of the render surface.
  */
-typedef Dali::Rect<int> PositionSize;
+using PositionSize =  Dali::Rect<int>;
+using SurfaceSize = Uint16Pair;
 
 /**
  * @brief Interface for a render surface onto which Dali draws.
