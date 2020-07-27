@@ -160,6 +160,8 @@ public: // from Dali::RenderSurfaceInterface
    */
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
+  virtual Any GetNativeHandle() override;
+
 private:
 
   /**
