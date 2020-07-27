@@ -389,6 +389,7 @@ void Adaptor::Start()
   else
   {
     unsigned int maxTextureSize = mConfigurationManager->GetMaxTextureSize();
+    setenv( DALI_ENV_MAX_TEXTURE_SIZE, std::to_string( maxTextureSize ).c_str(), 1 );
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( maxTextureSize );
   }
 
