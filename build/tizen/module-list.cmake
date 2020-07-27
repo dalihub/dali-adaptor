@@ -58,6 +58,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/thread/file.list )
 SET( adaptor_vector_animation_dir ${ADAPTOR_ROOT}/dali/internal/vector-animation )
 include( ${ADAPTOR_ROOT}/dali/internal/vector-animation/file.list )
 
+SET( adaptor_vector_image_dir ${ADAPTOR_ROOT}/dali/internal/vector-image )
+include( ${ADAPTOR_ROOT}/dali/internal/vector-image/file.list )
+
 SET( adaptor_public_api_dir ${ADAPTOR_ROOT}/dali/public-api )
 include( ${ADAPTOR_ROOT}/dali/public-api/file.list )
 
@@ -134,6 +137,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/addons/file.list )
 
 SET( adaptor_vector_animation_dir ${ADAPTOR_ROOT}/dali/internal/vector-animation )
 include( ${ADAPTOR_ROOT}/dali/internal/vector-animation/file.list )
+
+SET( adaptor_vector_image_dir ${ADAPTOR_ROOT}/dali/internal/vector-image )
+include( ${ADAPTOR_ROOT}/dali/internal/vector-image/file.list )
 
 SET( adaptor_public_api_dir ${ADAPTOR_ROOT}/dali/public-api )
 include( ${ADAPTOR_ROOT}/dali/public-api/file.list )
