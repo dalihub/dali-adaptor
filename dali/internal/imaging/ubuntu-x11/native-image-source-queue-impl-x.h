@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/images/native-image-interface-extension.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
@@ -39,7 +38,7 @@ class EglImageExtensions;
 /**
  * Dali internal NativeImageSourceQueue.
  */
-class NativeImageSourceQueueX: public Internal::Adaptor::NativeImageSourceQueue, public NativeImageInterface::Extension
+class NativeImageSourceQueueX: public Internal::Adaptor::NativeImageSourceQueue
 {
 public:
 
@@ -75,14 +74,14 @@ public:
   ~NativeImageSourceQueueX() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::CreateResource()
    */
-  bool GlExtensionCreate() override;
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::DestroyResource()
    */
-  void GlExtensionDestroy() override;
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
@@ -119,27 +118,37 @@ public:
   }
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  int GetTextureTarget() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
+   */
+  const char* GetCustomFragmentPrefix() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  bool SourceChanged() const override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
   {
-    return this;
+    return nullptr;
   }
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomFragmentPreFix()
-   */
-  const char* GetCustomFragmentPreFix() override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetCustomSamplerTypename()
-   */
-  const char* GetCustomSamplerTypename() override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::Extension::GetEglImageTextureTarget()
-   */
-  int GetEglImageTextureTarget() override;
 
 private:
 

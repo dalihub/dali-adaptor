@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/actors/actor.h>
 
 namespace Dali
 {
@@ -272,6 +273,18 @@ public:
    * @return The current internal media player of video player
    */
   virtual Any GetMediaPlayer() = 0;
+
+  /**
+   * @brief calls synchronization function in window system
+   * This function is called, the synchronization is started between UI(transparent hole) and video player.
+   */
+  virtual void StartSynchronization() = 0;
+
+  /**
+   * @brief calls desynchronization function in window system
+   * This function is called, the synchronization is finished between UI(transparent hole) and video player.
+   */
+  virtual void FinishSynchronization() = 0;
 
 };
 

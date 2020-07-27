@@ -40,6 +40,8 @@ SET( SOURCES
         ${adaptor_input_windows_src_files}
         ${adaptor_clipboard_windows_src_files}
         ${adaptor_imaging_windows_src_files}
+        ${adaptor_addons_common_src_files}
+        ${adaptor_addons_dummy_src_files}
 )
 
 # Builds the c files as c++

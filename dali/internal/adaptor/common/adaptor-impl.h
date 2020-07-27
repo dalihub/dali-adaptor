@@ -53,6 +53,7 @@ namespace Integration
 class Core;
 class GlAbstraction;
 class Processor;
+class AddOnManager;
 }
 
 namespace Internal
@@ -693,6 +694,8 @@ private: // Data
   ThreadMode                            mThreadMode;                  ///< The thread mode
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface:1;          ///< whether the remoteSurface is used or not
+
+  std::unique_ptr<Integration::AddOnManager> mAddOnManager;           ///< Pointer to the addon manager
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor) { return *adaptor.mImpl; }

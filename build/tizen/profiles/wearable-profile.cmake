@@ -42,6 +42,8 @@ SET( SOURCES
     ${adaptor_window_system_tizen_wayland_src_files}
     ${adaptor_trace_common_src_files}
     ${adaptor_thread_common_src_files}
+    ${adaptor_addons_common_src_files}
+    ${adaptor_addons_tizen_src_files}
     ${devel_api_text_abstraction_src_files}
     ${static_libraries_glyphy_src_files}
     ${static_libraries_libunibreak_src_files}

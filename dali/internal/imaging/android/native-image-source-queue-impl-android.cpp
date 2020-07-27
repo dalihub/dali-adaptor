@@ -76,12 +76,12 @@ void NativeImageSourceQueueAndroid::IgnoreSourceImage()
 {
 }
 
-bool NativeImageSourceQueueAndroid::GlExtensionCreate()
+bool NativeImageSourceQueueAndroid::CreateResource()
 {
   return true;
 }
 
-void NativeImageSourceQueueAndroid::GlExtensionDestroy()
+void NativeImageSourceQueueAndroid::DestroyResource()
 {
 }
 
@@ -94,19 +94,29 @@ void NativeImageSourceQueueAndroid::PrepareTexture()
 {
 }
 
-const char* NativeImageSourceQueueAndroid::GetCustomFragmentPreFix()
+const char* NativeImageSourceQueueAndroid::GetCustomFragmentPrefix() const
 {
   return FRAGMENT_PREFIX;
 }
 
-const char* NativeImageSourceQueueAndroid::GetCustomSamplerTypename()
+const char* NativeImageSourceQueueAndroid::GetCustomSamplerTypename() const
 {
   return SAMPLER_TYPE;
 }
 
-int NativeImageSourceQueueAndroid::GetEglImageTextureTarget()
+int NativeImageSourceQueueAndroid::GetTextureTarget() const
 {
-  return 0;
+  return GL_TEXTURE_2D;
+}
+
+Any NativeImageSourceQueueAndroid::GetNativeImageHandle() const
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueAndroid::SourceChanged() const
+{
+  return false;
 }
 
 } // namespace Adaptor

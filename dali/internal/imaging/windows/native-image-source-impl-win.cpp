@@ -137,12 +137,12 @@ bool NativeImageSourceWin::IsColorDepthSupported( Dali::NativeImageSource::Color
   return true;
 }
 
-bool NativeImageSourceWin::GlExtensionCreate()
+bool NativeImageSourceWin::CreateResource()
 {
   // if the image existed previously delete it.
   if (mEglImageKHR != NULL)
   {
-    GlExtensionDestroy();
+    DestroyResource();
   }
 
   // casting from an unsigned int to a void *, which should then be cast back
@@ -154,7 +154,7 @@ bool NativeImageSourceWin::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSourceWin::GlExtensionDestroy()
+void NativeImageSourceWin::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
@@ -228,6 +228,31 @@ unsigned int NativeImageSourceWin::GetPixmapFromAny(Any pixmap) const
 
 void NativeImageSourceWin::GetPixmapDetails()
 {
+}
+
+const char* NativeImageSourceWin::GetCustomFragmentPrefix() const
+{
+  return nullptr;
+}
+
+const char* NativeImageSourceWin::GetCustomSamplerTypename() const
+{
+  return nullptr;
+}
+
+int NativeImageSourceWin::GetTextureTarget() const
+{
+  return GL_TEXTURE_2D;
+}
+
+Any NativeImageSourceWin::GetNativeImageHandle() const
+{
+  return mPixmap;
+}
+
+bool NativeImageSourceWin::SourceChanged() const
+{
+  return false;
 }
 
 uint8_t* NativeImageSourceWin::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )

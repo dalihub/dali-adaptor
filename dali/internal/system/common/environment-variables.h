@@ -136,6 +136,10 @@ namespace Adaptor
 
 #define DALI_ENV_DPI_VERTICAL "DALI_DPI_VERTICAL"
 
+#define DALI_ENV_ADDONS_PATH "DALI_ADDONS_PATH"
+
+#define DALI_ENV_ADDONS_LIBS "DALI_ADDONS_LIBS"
+
 } // namespace Adaptor
 
 } // namespace Internal

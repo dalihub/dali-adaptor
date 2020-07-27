@@ -46,7 +46,20 @@ VideoPlayer VideoPlayer::New()
 
   if( player )
   {
-    player->Initialize();
+    Dali::Actor actor;
+    player->Initialize( actor, VideoSyncMode::DISABLED );
+  }
+
+  return VideoPlayer( player.Get() );
+}
+
+VideoPlayer VideoPlayer::New( Dali::Actor actor, VideoSyncMode syncMode )
+{
+  Internal::Adaptor::VideoPlayerPtr player = Internal::Adaptor::VideoPlayer::New();
+
+  if( player )
+  {
+    player->Initialize( actor, syncMode );
   }
 
   return VideoPlayer( player.Get() );
@@ -199,6 +212,16 @@ Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
 Any VideoPlayer::GetMediaPlayer()
 {
   return GetImplementation( *this ).GetMediaPlayer();
+}
+
+void VideoPlayer::StartSynchronization()
+{
+  GetImplementation( *this ).StartSynchronization();
+}
+
+void VideoPlayer::FinishSynchronization()
+{
+  GetImplementation( *this ).FinishSynchronization();
 }
 
 } // namespace Dali;

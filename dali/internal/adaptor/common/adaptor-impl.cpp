@@ -17,6 +17,8 @@
 
 // CLASS HEADER
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // EXTERNAL INCLUDES
@@ -35,6 +37,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/integration-api/processor-interface.h>
+#include <dali/integration-api/addon-manager.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -174,6 +177,9 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
   EglContextHelperImplementation& eglContextHelperImpl = eglGraphics->GetContextHelperImplementation();
 
+  // Create the AddOnManager
+  mAddOnManager.reset( Dali::Internal::AddOnManagerFactory::CreateAddOnManager() );
+
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   mGLES,
@@ -183,6 +189,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   mGraphics->GetDepthBufferRequired(),
                                   mGraphics->GetStencilBufferRequired(),
                                   mGraphics->GetPartialUpdateRequired() );
+
 
   defaultWindow->SetAdaptor( Get() );
 
@@ -389,7 +396,6 @@ void Adaptor::Start()
   else
   {
     unsigned int maxTextureSize = mConfigurationManager->GetMaxTextureSize();
-    setenv( DALI_ENV_MAX_TEXTURE_SIZE, std::to_string( maxTextureSize ).c_str(), 1 );
     Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( maxTextureSize );
   }
 
@@ -402,6 +408,8 @@ void Adaptor::Start()
   {
     (*iter)->OnStart();
   }
+
+  mAddOnManager->Start();
 }
 
 // Dali::Internal::Adaptor::Adaptor::Pause
@@ -415,6 +423,9 @@ void Adaptor::Pause()
     {
       (*iter)->OnPause();
     }
+
+    // Extensions
+    mAddOnManager->Pause();
 
     // Pause all windows event handlers when adaptor paused
     for( auto window : mWindows )
@@ -450,6 +461,9 @@ void Adaptor::Resume()
       window->Resume();
     }
 
+    // Resume AddOnManager
+    mAddOnManager->Resume();
+
     // Inform observers that we have resumed.
     for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
     {
@@ -480,6 +494,8 @@ void Adaptor::Stop()
     {
       (*iter)->OnStop();
     }
+
+    mAddOnManager->Stop();
 
     mThreadController->Stop();
 

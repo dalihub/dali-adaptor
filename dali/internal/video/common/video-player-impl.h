@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <dali/devel-api/adaptor-framework/video-sync-mode.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player.h>
@@ -147,7 +148,7 @@ public:
   /**
    * @brief Initializes member data.
    */
-  void Initialize();
+  void Initialize( Dali::Actor actor, VideoSyncMode syncMode );
 
   /**
    * @brief Dali::VideoPlayer::Forward()
@@ -189,6 +190,16 @@ public:
    */
   Any GetMediaPlayer();
 
+  /**
+   * @brief Dali::VideoPlayer::StartSynchronization()
+   */
+  void StartSynchronization();
+
+  /**
+   * @copydoc Dali::VideoPlayer::FinishSynchronization()
+   */
+  void FinishSynchronization();
+
 private:
 
   /**
@@ -214,7 +225,7 @@ private:
   Dali::VideoPlayerPlugin* mPlugin; ///< Videoplayer plugin handle
   void* mHandle; ///< Handle for the loaded library
 
-  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)();
+  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)( Dali::Actor actor, Dali::VideoSyncMode syncMode );
   typedef void (*DestroyVideoPlayerFunction)( Dali::VideoPlayerPlugin* plugin );
 
   CreateVideoPlayerFunction mCreateVideoPlayerPtr;

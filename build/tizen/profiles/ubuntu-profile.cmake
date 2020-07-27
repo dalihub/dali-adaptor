@@ -40,6 +40,8 @@ SET( SOURCES
         ${adaptor_thread_common_src_files}
         ${adaptor_window_system_ubuntu_x11_src_files}
         ${devel_api_text_abstraction_src_files}
+        ${adaptor_addons_common_src_files}
+        ${adaptor_addons_ubuntu_src_files}
         ${static_libraries_glyphy_src_files}
         ${static_libraries_libunibreak_src_files}
 )

@@ -61,14 +61,14 @@ void NativeImageSourceQueue::IgnoreSourceImage()
   mImpl->IgnoreSourceImage();
 }
 
-bool NativeImageSourceQueue::GlExtensionCreate()
+bool NativeImageSourceQueue::CreateResource()
 {
-  return mImpl->GlExtensionCreate();
+  return mImpl->CreateResource();
 }
 
-void NativeImageSourceQueue::GlExtensionDestroy()
+void NativeImageSourceQueue::DestroyResource()
 {
-  mImpl->GlExtensionDestroy();
+  mImpl->DestroyResource();
 }
 
 uint32_t NativeImageSourceQueue::TargetTexture()
@@ -94,6 +94,31 @@ uint32_t NativeImageSourceQueue::GetHeight() const
 bool NativeImageSourceQueue::RequiresBlending() const
 {
   return mImpl->RequiresBlending();
+}
+
+int NativeImageSourceQueue::GetTextureTarget() const
+{
+  return mImpl->GetTextureTarget();
+}
+
+const char* NativeImageSourceQueue::GetCustomFragmentPrefix() const
+{
+  return mImpl->GetCustomFragmentPrefix();
+}
+
+const char* NativeImageSourceQueue::GetCustomSamplerTypename() const
+{
+  return mImpl->GetCustomSamplerTypename();
+}
+
+Any NativeImageSourceQueue::GetNativeImageHandle() const
+{
+  return mImpl->GetNativeImageHandle();
+}
+
+bool NativeImageSourceQueue::SourceChanged() const
+{
+  return mImpl->SourceChanged();
 }
 
 NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
