@@ -1212,6 +1212,12 @@ bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
     idleAdded = mCallbackManager->AddIdleEntererCallback( callback );
   }
 
+  if( !idleAdded )
+  {
+    // Delete callback
+    delete callback;
+  }
+
   return idleAdded;
 }
 
