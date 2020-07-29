@@ -229,22 +229,22 @@ void AddExifFieldPropertyMap( Dali::Property::Map& out, const ExifEntry& entry, 
     }
     case EXIF_FORMAT_SHORT:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, unsigned short>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, uint16_t>(entry) );
       break;
     }
     case EXIF_FORMAT_LONG:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, unsigned long>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, uint32_t>(entry) );
       break;
     }
     case EXIF_FORMAT_SSHORT:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, short>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, int16_t>(entry) );
       break;
     }
     case EXIF_FORMAT_SLONG:
     {
-      out.Insert( shortName, ConvertExifNumeric<int, long>(entry) );
+      out.Insert( shortName, ConvertExifNumeric<int, int32_t>(entry) );
       break;
     }
     case EXIF_FORMAT_FLOAT:
