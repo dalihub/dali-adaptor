@@ -43,7 +43,7 @@ struct TizenPlatformAbstraction::TimerCallback : ConnectionTracker
 {
   Dali::Timer mTimer;
   TizenPlatformAbstraction* mOwner;
-  CallbackBase* mCallback;
+  std::unique_ptr< CallbackBase > mCallback;
   const uint32_t mIdNumber;
 
   static uint32_t sNextTimerId;
@@ -51,11 +51,14 @@ struct TizenPlatformAbstraction::TimerCallback : ConnectionTracker
   TimerCallback(TizenPlatformAbstraction* owner, CallbackBase* callback, uint32_t ms)
   : mTimer(Dali::Timer::New(ms)),
     mOwner(owner),
-    mCallback(callback),
-    mIdNumber(sNextTimerId++)
+    mCallback( std::unique_ptr< CallbackBase >( callback ) ),
+    mIdNumber(++sNextTimerId)
   {
     mTimer.TickSignal().Connect( this, &TimerCallback::Tick );
     mTimer.Start();
+  }
+  ~TimerCallback()
+  {
   }
 
   bool Tick()
@@ -194,7 +197,7 @@ uint32_t TizenPlatformAbstraction::StartTimer( uint32_t milliseconds, CallbackBa
   TimerCallback* timerCallbackPtr = new TimerCallback(this, callback, milliseconds);
 
   // Stick it in the list
-  mTimerPairsWaiting.push_back(timerCallbackPtr);
+  mTimerPairsWaiting.push_back( std::unique_ptr< TimerCallback >( timerCallbackPtr ) );
 
   return timerCallbackPtr->mIdNumber;
 }
@@ -203,7 +206,7 @@ void TizenPlatformAbstraction::CancelTimer ( uint32_t timerId )
 {
   auto iter = std::remove_if(
     mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(),
-    [&timerId]( TimerCallback* timerCallbackPtr )
+    [&timerId]( std::unique_ptr< TimerCallback >& timerCallbackPtr )
     {
       if( timerCallbackPtr->mIdNumber == timerId )
       {
@@ -224,7 +227,9 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 {
   CallbackBase::Execute( *timerPtr.mCallback );
 
-  std::vector<TimerCallback*>::iterator timerIter = std::find( mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), &timerPtr );
+  std::vector< std::unique_ptr< TimerCallback > >::iterator timerIter = std::find_if( mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(),
+                                                                                      [&]( std::unique_ptr< TimerCallback >& p )
+                                                                                      { return p.get() == &timerPtr;} );
 
   if( timerIter == std::end(mTimerPairsWaiting) )
   {

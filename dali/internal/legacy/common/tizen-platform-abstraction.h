@@ -26,6 +26,7 @@
 // EXTERNAL INCLUDES
 #include <cstdint>
 #include <string>
+#include <memory>
 #include <dali/integration-api/platform-abstraction.h>
 
 namespace Dali
@@ -130,8 +131,8 @@ private:
 
   std::string mDataStoragePath;
 
-  std::vector<TimerCallback*> mTimerPairsWaiting;
-  std::vector<TimerCallback*> mTimerPairsSpent;
+  std::vector< std::unique_ptr< TimerCallback > > mTimerPairsWaiting;
+  std::vector< std::unique_ptr< TimerCallback > > mTimerPairsSpent;
 };
 
 /**
