@@ -84,14 +84,14 @@ public:
   ~NativeImageSourceAndroid() override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GlExtensionCreate()
+   * @copydoc Dali::NativeImageSource::CreateResource()
    */
-  bool GlExtensionCreate() override;
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageSource::DestroyResource()
    */
-  void GlExtensionDestroy() override;
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
@@ -125,6 +125,37 @@ public:
   bool RequiresBlending() const override
   {
     return mBlendingRequired;
+  }
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetTargetTexture()
+   */
+  int GetTextureTarget() const override;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetCustomFragmentPrefix()
+   */
+  const char* GetCustomFragmentPrefix() const override;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() const override;
+
+  /**
+   * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override
+  {
+    return GetNativeImageSource();
+  }
+
+  /**
+   * @copydoc Dali::NativeImageSource::SourceChanged()
+   */
+  bool SourceChanged() const override
+  {
+    return false;
   }
 
   /**

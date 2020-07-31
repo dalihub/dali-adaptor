@@ -111,42 +111,68 @@ public:
    */
   void IgnoreSourceImage();
 
+  /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  int GetTextureTarget() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
+   */
+  const char* GetCustomFragmentPrefix() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() const override;
+
+
 private:   // native image
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::CreateResource()
    */
-  virtual bool GlExtensionCreate();
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::DestroyResource()
    */
-  virtual void GlExtensionDestroy();
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  virtual uint32_t TargetTexture();
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
-  virtual void PrepareTexture();
+  void PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  virtual uint32_t GetWidth() const;
+  uint32_t GetWidth() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  virtual uint32_t GetHeight() const;
+  uint32_t GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
-  virtual bool RequiresBlending() const;
+  bool RequiresBlending() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  bool SourceChanged() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()

@@ -77,12 +77,12 @@ void NativeImageSourceQueueX::IgnoreSourceImage()
 {
 }
 
-bool NativeImageSourceQueueX::GlExtensionCreate()
+bool NativeImageSourceQueueX::CreateResource()
 {
   return true;
 }
 
-void NativeImageSourceQueueX::GlExtensionDestroy()
+void NativeImageSourceQueueX::DestroyResource()
 {
 }
 
@@ -95,19 +95,29 @@ void NativeImageSourceQueueX::PrepareTexture()
 {
 }
 
-const char* NativeImageSourceQueueX::GetCustomFragmentPreFix()
+const char* NativeImageSourceQueueX::GetCustomFragmentPrefix() const
 {
   return FRAGMENT_PREFIX;
 }
 
-const char* NativeImageSourceQueueX::GetCustomSamplerTypename()
+const char* NativeImageSourceQueueX::GetCustomSamplerTypename() const
 {
   return SAMPLER_TYPE;
 }
 
-int NativeImageSourceQueueX::GetEglImageTextureTarget()
+int NativeImageSourceQueueX::GetTextureTarget() const
 {
   return 0;
+}
+
+Any NativeImageSourceQueueX::GetNativeImageHandle() const
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueX::SourceChanged() const
+{
+  return false;
 }
 
 } // namespace Adaptor

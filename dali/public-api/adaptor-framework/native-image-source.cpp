@@ -66,14 +66,14 @@ bool NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
   return mImpl->IsColorDepthSupported( colorDepth );
 }
 
-bool NativeImageSource::GlExtensionCreate()
+bool NativeImageSource::CreateResource()
 {
-  return mImpl->GlExtensionCreate();
+  return mImpl->CreateResource();
 }
 
-void NativeImageSource::GlExtensionDestroy()
+void NativeImageSource::DestroyResource()
 {
-  mImpl->GlExtensionDestroy();
+  mImpl->DestroyResource();
 }
 
 unsigned int NativeImageSource::TargetTexture()
@@ -99,6 +99,31 @@ unsigned int NativeImageSource::GetHeight() const
 bool NativeImageSource::RequiresBlending() const
 {
   return mImpl->RequiresBlending();
+}
+
+int NativeImageSource::GetTextureTarget() const
+{
+  return mImpl->GetTextureTarget();
+}
+
+const char* NativeImageSource::GetCustomFragmentPrefix() const
+{
+  return mImpl->GetCustomFragmentPrefix();
+}
+
+const char* NativeImageSource::GetCustomSamplerTypename() const
+{
+  return mImpl->GetCustomSamplerTypename();
+}
+
+Any NativeImageSource::GetNativeImageHandle() const
+{
+  return mImpl->GetNativeImageHandle();
+}
+
+bool NativeImageSource::SourceChanged() const
+{
+  return mImpl->SourceChanged();
 }
 
 NativeImageInterface::Extension* NativeImageSource::GetExtension()

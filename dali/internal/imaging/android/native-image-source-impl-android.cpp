@@ -34,6 +34,14 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
+
+namespace
+{
+const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
+const char* SAMPLER_TYPE = "samplerExternalOES";
+}
+
+
 namespace Dali
 {
 
@@ -217,12 +225,12 @@ bool NativeImageSourceAndroid::IsColorDepthSupported( Dali::NativeImageSource::C
   return true;
 }
 
-bool NativeImageSourceAndroid::GlExtensionCreate()
+bool NativeImageSourceAndroid::CreateResource()
 {
   // if the image existed previously delete it.
   if( mEglImageKHR != NULL )
   {
-    GlExtensionDestroy();
+    DestroyResource();
   }
 
   DALI_ASSERT_ALWAYS( mPixmap );
@@ -261,7 +269,7 @@ bool NativeImageSourceAndroid::GlExtensionCreate()
   return mEglImageKHR != NULL;
 }
 
-void NativeImageSourceAndroid::GlExtensionDestroy()
+void NativeImageSourceAndroid::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR( mEglImageKHR );
 
@@ -278,6 +286,22 @@ uint32_t NativeImageSourceAndroid::TargetTexture()
 void NativeImageSourceAndroid::PrepareTexture()
 {
 }
+
+int NativeImageSourceAndroid::GetTextureTarget() const
+{
+  return GL_TEXTURE_2D;
+}
+
+const char* NativeImageSourceAndroid::GetCustomFragmentPrefix() const
+{
+  return nullptr;
+}
+
+const char* NativeImageSourceAndroid::GetCustomSamplerTypename() const
+{
+  return nullptr;
+}
+
 
 void* NativeImageSourceAndroid::GetPixmapFromAny(Any pixmap) const
 {

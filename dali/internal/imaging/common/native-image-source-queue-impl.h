@@ -63,14 +63,14 @@ public:
   virtual ~NativeImageSourceQueue() = default;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::CreateResource()
    */
-  virtual bool GlExtensionCreate() = 0;
+  virtual bool CreateResource() = 0;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::DestroyResource()
    */
-  virtual void GlExtensionDestroy() = 0;
+  virtual void DestroyResource() = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
@@ -96,6 +96,31 @@ public:
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
   virtual bool RequiresBlending() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
+   */
+  virtual int GetTextureTarget() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
+   */
+  virtual const char* GetCustomFragmentPrefix() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
+   */
+  virtual const char* GetCustomSamplerTypename() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  virtual Any GetNativeImageHandle() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  virtual bool SourceChanged() const = 0;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()

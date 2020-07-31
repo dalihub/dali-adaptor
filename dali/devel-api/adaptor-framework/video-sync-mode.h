@@ -1,5 +1,8 @@
+#ifndef DALI_VIDEO_SYNC_MODE
+#define DALI_VIDEO_SYNC_MODE
+
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +18,17 @@
  *
  */
 
-
-#include "test-application.h"
-#include "test-native-image.h"
-
-
 namespace Dali
 {
+  /**
+   * @brief Enumeration for the synchronization is ended between UI(transparent hole) and video player.
+   */
+  enum class VideoSyncMode
+  {
+    DISABLED = 0,
+    ENABLED
+  };
 
-TestNativeImagePointer TestNativeImage::New(uint32_t width, uint32_t height)
-{
-  return new TestNativeImage(width, height);
-}
+} // Dali
+#endif // DALI_VIDEO_SYNC_MODE
 
-TestNativeImage::TestNativeImage(uint32_t width, uint32_t height)
-: mWidth(width), mHeight(height), mExtensionCreateCalls(0), mExtensionDestroyCalls(0), mTargetTextureCalls(0),createResult(true)
-{
-}
-
-TestNativeImage::~TestNativeImage()
-{
-}
-
-} // namespace dali

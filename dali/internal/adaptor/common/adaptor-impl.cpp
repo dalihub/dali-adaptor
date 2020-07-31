@@ -17,6 +17,8 @@
 
 // CLASS HEADER
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // EXTERNAL INCLUDES
@@ -35,6 +37,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/integration-api/processor-interface.h>
+#include <dali/integration-api/addon-manager.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -174,6 +177,9 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
   EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
   EglContextHelperImplementation& eglContextHelperImpl = eglGraphics->GetContextHelperImplementation();
 
+  // Create the AddOnManager
+  mAddOnManager.reset( Dali::Internal::AddOnManagerFactory::CreateAddOnManager() );
+
   mCore = Integration::Core::New( *this,
                                   *mPlatformAbstraction,
                                   mGLES,
@@ -183,6 +189,7 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration:
                                   mGraphics->GetDepthBufferRequired(),
                                   mGraphics->GetStencilBufferRequired(),
                                   mGraphics->GetPartialUpdateRequired() );
+
 
   defaultWindow->SetAdaptor( Get() );
 
@@ -401,6 +408,11 @@ void Adaptor::Start()
   {
     (*iter)->OnStart();
   }
+
+  if (mAddOnManager)
+  {
+    mAddOnManager->Start();
+  }
 }
 
 // Dali::Internal::Adaptor::Adaptor::Pause
@@ -413,6 +425,12 @@ void Adaptor::Pause()
     for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
     {
       (*iter)->OnPause();
+    }
+
+    // Extensions
+    if (mAddOnManager)
+    {
+      mAddOnManager->Pause();
     }
 
     // Pause all windows event handlers when adaptor paused
@@ -449,6 +467,12 @@ void Adaptor::Resume()
       window->Resume();
     }
 
+    // Resume AddOnManager
+    if (mAddOnManager)
+    {
+      mAddOnManager->Resume();
+    }
+
     // Inform observers that we have resumed.
     for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
     {
@@ -478,6 +502,11 @@ void Adaptor::Stop()
     for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
     {
       (*iter)->OnStop();
+    }
+
+    if (mAddOnManager)
+    {
+      mAddOnManager->Stop();
     }
 
     mThreadController->Stop();
@@ -1193,6 +1222,12 @@ bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
   if( RUNNING == mState || READY == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleEntererCallback( callback );
+  }
+
+  if( !idleAdded )
+  {
+    // Delete callback
+    delete callback;
   }
 
   return idleAdded;

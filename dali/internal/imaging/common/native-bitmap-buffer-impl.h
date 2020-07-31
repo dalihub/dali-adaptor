@@ -72,39 +72,65 @@ public:
 
 public:
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionCreate()
+   * @copydoc Dali::NativeImageInterface::CreateResource()
    */
-  virtual bool GlExtensionCreate();
+  bool CreateResource() override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GlExtensionDestroy()
+   * @copydoc Dali::NativeImageInterface::DestroyResource()
    */
-  virtual void GlExtensionDestroy();
+  void DestroyResource() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  virtual unsigned int TargetTexture();
+  unsigned int TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
-  virtual void PrepareTexture();
+  void PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  virtual unsigned int GetWidth() const;
+  unsigned int GetWidth() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  virtual unsigned int GetHeight() const;
+  unsigned int GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
    */
-  virtual bool RequiresBlending() const;
+  bool RequiresBlending() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::RequiresBlending()
+   */
+  int GetTextureTarget() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
+   */
+  const char* GetCustomFragmentPrefix() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
+   */
+  const char* GetCustomSamplerTypename() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
+   */
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  bool SourceChanged() const override;
+
 
 private:
   NativeBitmapBuffer( const NativeBitmapBuffer& );             ///< not defined
