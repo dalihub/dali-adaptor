@@ -1026,6 +1026,15 @@ void WindowBaseEcoreWl::OnKeyUp( void* data, int type, void* event )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp\n" );
 
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 23)
+    // Cancel processing flag is sent because this key event will combine with the previous key. So, the event should not actually perform anything.
+    if( keyEvent->event_flags & ECORE_EVENT_FLAG_CANCEL )
+    {
+      DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp: This event flag indicates the event is canceled. \n" );
+      return;
+    }
+#endif // Since ecore 1.23 version
+
     std::string keyName( keyEvent->keyname );
     std::string logicalKey( "" );
     std::string keyString( "" );
