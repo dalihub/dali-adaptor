@@ -98,6 +98,11 @@ TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window )
   return GetImplementation( window ).TransitionEffectEventSignal();
 }
 
+KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal( Window window )
+{
+  return GetImplementation( window ).KeyboardRepeatSettingsChangedSignal();
+}
+
 void SetParent( Window window, Window parent )
 {
   GetImplementation( window ).SetParent( parent );
