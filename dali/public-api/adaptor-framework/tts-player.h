@@ -2,7 +2,7 @@
 #define DALI_TTS_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,23 @@ public: // API
    * @return A reference to this
    */
   TtsPlayer& operator=(const TtsPlayer& rhs);
+
+  /**
+   * @brief Move constructor.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   */
+  TtsPlayer( TtsPlayer&& rhs );
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this handle
+   */
+  TtsPlayer& operator=( TtsPlayer&& rhs );
 
   /**
    * @brief Starts playing the audio data synthesized from the specified text.

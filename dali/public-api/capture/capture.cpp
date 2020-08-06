@@ -51,16 +51,13 @@ Capture::~Capture()
 {
 }
 
-Capture::Capture( const Capture& copy )
-: BaseHandle(copy)
-{
-}
+Capture::Capture( const Capture& copy ) = default;
 
-Capture& Capture::operator=( const Capture& rhs )
-{
-  BaseHandle::operator=( rhs );
-  return *this;
-}
+Capture& Capture::operator=( const Capture& rhs ) = default;
+
+Capture::Capture( Capture&& rhs ) = default;
+
+Capture& Capture::operator=( Capture&& rhs ) = default;
 
 void Capture::Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor, const uint32_t quality )
 {

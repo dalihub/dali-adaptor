@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,19 +38,13 @@ WidgetApplication::WidgetApplication()
 {
 }
 
-WidgetApplication::WidgetApplication(const WidgetApplication& widgetApplication)
-: Application(widgetApplication)
-{
-}
+WidgetApplication::WidgetApplication( const WidgetApplication& copy ) = default;
 
-WidgetApplication& WidgetApplication::operator=(const WidgetApplication& widgetApplication)
-{
-  if( *this != widgetApplication )
-  {
-    BaseHandle::operator=( widgetApplication );
-  }
-  return *this;
-}
+WidgetApplication& WidgetApplication::operator=( const WidgetApplication& rhs ) = default;
+
+WidgetApplication::WidgetApplication( WidgetApplication&& rhs ) = default;
+
+WidgetApplication& WidgetApplication::operator=( WidgetApplication&& rhs ) = default;
 
 void WidgetApplication::RegisterWidgetCreatingFunction( const std::string& widgetName, CreateWidgetFunction createFunction )
 {

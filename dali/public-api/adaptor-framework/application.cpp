@@ -137,19 +137,13 @@ Application::Application()
 {
 }
 
-Application::Application(const Application& application)
-: BaseHandle(application)
-{
-}
+Application::Application( const Application& copy ) = default;
 
-Application& Application::operator=(const Application& application)
-{
-  if( *this != application )
-  {
-    BaseHandle::operator=( application );
-  }
-  return *this;
-}
+Application& Application::operator=( const Application& rhs ) = default;
+
+Application::Application( Application&& rhs ) = default;
+
+Application& Application::operator=( Application&& rhs ) = default;
 
 void Application::MainLoop()
 {

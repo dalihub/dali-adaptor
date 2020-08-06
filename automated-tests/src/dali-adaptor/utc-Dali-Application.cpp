@@ -145,6 +145,35 @@ int UtcDaliApplicationCopyAndAssignment(void)
   END_TEST;
 }
 
+int UtcDaliApplicationMoveConstructor(void)
+{
+  Application application = Application::New();
+  DALI_TEST_CHECK( application );
+  DALI_TEST_EQUALS( 1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+
+  Application moved = std::move( application );
+  DALI_TEST_CHECK( moved );
+  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( !application );
+
+  END_TEST;
+}
+
+int UtcDaliApplicationMoveAssignment(void)
+{
+  Application application = Application::New();
+  DALI_TEST_CHECK( application );
+  DALI_TEST_EQUALS( 1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+
+  Application moved;
+  moved = std::move( application );
+  DALI_TEST_CHECK( moved );
+  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( !application );
+
+  END_TEST;
+}
+
 int UtcDaliApplicationMainLoop01N(void)
 {
   Application application;
