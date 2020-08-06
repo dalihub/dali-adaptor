@@ -169,6 +169,23 @@ public:
   Capture& operator=( const Capture& rhs );
 
   /**
+   * @brief Move constructor.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   */
+  Capture( Capture&& rhs );
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this handle
+   */
+  Capture& operator=( Capture&& rhs );
+
+  /**
    * @brief Start capture and save the image as a file.
    *
    * @SINCE_1_9.12

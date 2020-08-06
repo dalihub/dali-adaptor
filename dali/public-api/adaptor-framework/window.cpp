@@ -76,16 +76,13 @@ Window::~Window()
 {
 }
 
-Window::Window(const Window& handle)
-: BaseHandle(handle)
-{
-}
+Window::Window( const Window& copy ) = default;
 
-Window& Window::operator=(const Window& rhs)
-{
-  BaseHandle::operator=(rhs);
-  return *this;
-}
+Window& Window::operator=( const Window& rhs ) = default;
+
+Window::Window( Window&& rhs ) = default;
+
+Window& Window::operator=( Window&& rhs ) = default;
 
 void Window::Add( Dali::Actor actor )
 {

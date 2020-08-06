@@ -2,7 +2,7 @@
 #define DALI_TIMER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,23 @@ public: // API
    * @return Reference to this timer handle
    */
   Timer& operator=( const Timer& timer );
+
+  /**
+   * @brief Move constructor.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   */
+  Timer( Timer&& rhs );
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this handle
+   */
+  Timer& operator=( Timer&& rhs );
 
   /**
    * @brief Destructor.
