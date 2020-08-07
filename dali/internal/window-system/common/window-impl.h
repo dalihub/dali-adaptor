@@ -63,6 +63,7 @@ public:
   typedef Dali::Window::ResizeSignalType ResizeSignalType;
   typedef Dali::DevelWindow::VisibilityChangedSignalType VisibilityChangedSignalType;
   typedef Dali::DevelWindow::TransitionEffectEventSignalType TransitionEffectEventSignalType;
+  typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
   typedef Signal< void () > SignalType;
 
   /**
@@ -420,6 +421,11 @@ private:
   void OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type );
 
   /**
+   * @brief Called when window receives a keyboard repeat event.
+   */
+  void OnKeyboardRepeatSettingsChanged();
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges( const std::vector< int >& angles );
@@ -524,6 +530,11 @@ public: // Signals
    */
   TransitionEffectEventSignalType& TransitionEffectEventSignal() { return mTransitionEffectEventSignal; }
 
+  /**
+   * @copydoc Dali::DevelWindow::KeyboardRepeatSettingsChangedSignal()
+   */
+  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal() { return mKeyboardRepeatSettingsChangedSignal; }
+
 private:
 
   WindowRenderSurface*                  mWindowSurface;      ///< The window rendering surface
@@ -553,12 +564,13 @@ private:
   int                                   mNativeWindowId;          ///< The Native Window Id
 
   // Signals
-  ResizedSignalType                     mResizedSignal;
-  SignalType                            mDeleteRequestSignal;
-  FocusChangeSignalType                 mFocusChangeSignal;
-  ResizeSignalType                      mResizeSignal;
-  VisibilityChangedSignalType           mVisibilityChangedSignal;
-  TransitionEffectEventSignalType       mTransitionEffectEventSignal;
+  ResizedSignalType                       mResizedSignal;
+  SignalType                              mDeleteRequestSignal;
+  FocusChangeSignalType                   mFocusChangeSignal;
+  ResizeSignalType                        mResizeSignal;
+  VisibilityChangedSignalType             mVisibilityChangedSignal;
+  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
+  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
 };
 
 } // namespace Adaptor

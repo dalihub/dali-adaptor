@@ -210,6 +210,23 @@ public:
   Window& operator=(const Window& rhs);
 
   /**
+   * @brief Move constructor.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   */
+  Window( Window&& rhs );
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this handle
+   */
+  Window& operator=( Window&& rhs );
+
+  /**
    * @brief Adds a child Actor to the Window.
    *
    * The child will be referenced.
