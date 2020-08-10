@@ -585,7 +585,10 @@ WindowBaseEcoreWl::WindowBaseEcoreWl( Dali::PositionSize positionSize, Any surfa
   mBrightness( 0 ),
   mBrightnessChangeState( 0 ),
   mBrightnessChangeDone( true ),
-  mOwnSurface( false )
+  mOwnSurface( false ),
+  mWindowRotationAngle( 0 ),
+  mScreenRotationAngle( 0 ),
+  mSupportedPreProtation( 0 )
 #ifdef DALI_ELDBUS_AVAILABLE
   , mSystemConnection( NULL )
 #endif
@@ -1326,9 +1329,10 @@ bool WindowBaseEcoreWl::IsEglWindowRotationSupported()
   wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
   if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
   {
+    mSupportedPreProtation = true;
     return true;
   }
-
+  mSupportedPreProtation = false;
   return false;
 }
 
@@ -2071,6 +2075,16 @@ void WindowBaseEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVe
   dpiVertical   = int( yres + 0.5f );
 }
 
+int WindowBaseEcoreWl::GetOrientation() const
+{
+  int orientation = (mScreenRotationAngle + mWindowRotationAngle) % 360;
+  if( mSupportedPreProtation )
+  {
+    orientation = 0;
+  }
+  return orientation;
+}
+
 int WindowBaseEcoreWl::GetScreenRotationAngle()
 {
   int transform = 0;
@@ -2084,12 +2098,19 @@ int WindowBaseEcoreWl::GetScreenRotationAngle()
     transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mEcoreWindow ) );
   }
 
-  return transform * 90;
+  mScreenRotationAngle = transform * 90;
+  return mScreenRotationAngle;
 }
 
 void WindowBaseEcoreWl::SetWindowRotationAngle( int degree )
 {
+  mWindowRotationAngle = degree;
   ecore_wl_window_rotation_set( mEcoreWindow, degree );
+}
+
+int WindowBaseEcoreWl::GetWindowRotationAngle()
+{
+  return mWindowRotationAngle;
 }
 
 void WindowBaseEcoreWl::WindowRotationCompleted( int degree, int width, int height )
