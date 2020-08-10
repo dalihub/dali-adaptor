@@ -28,9 +28,6 @@ include( ${ADAPTOR_ROOT}/dali/internal/legacy/file.list )
 SET( adaptor_network_dir ${ADAPTOR_ROOT}/dali/internal/network )
 include( ${ADAPTOR_ROOT}/dali/internal/network/file.list )
 
-SET( adaptor_offscreen_dir ${ADAPTOR_ROOT}/dali/internal/offscreen )
-include( ${ADAPTOR_ROOT}/dali/internal/offscreen/file.list )
-
 SET( adaptor_sensor_dir ${ADAPTOR_ROOT}/dali/internal/sensor )
 include( ${ADAPTOR_ROOT}/dali/internal/sensor/file.list )
 
