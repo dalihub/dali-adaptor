@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,20 +35,13 @@ Timer Timer::New( unsigned int milliSec )
   return Timer(internal.Get());
 }
 
-Timer::Timer( const Timer& timer )
-: BaseHandle(timer)
-{
-}
+Timer::Timer( const Timer& copy ) = default;
 
-Timer& Timer::operator=( const Timer& timer )
-{
-  // check self assignment
-  if( *this != timer )
-  {
-    BaseHandle::operator=(timer);
-  }
-  return *this;
-}
+Timer& Timer::operator=( const Timer& rhs ) = default;
+
+Timer::Timer( Timer&& rhs ) = default;
+
+Timer& Timer::operator=( Timer&& rhs ) = default;
 
 Timer::~Timer()
 {

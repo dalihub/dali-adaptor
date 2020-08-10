@@ -213,6 +213,23 @@ public:
   Application& operator=( const Application& application );
 
   /**
+   * @brief Move constructor.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   */
+  Application( Application&& rhs );
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_1_9.24
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this handle
+   */
+  Application& operator=( Application&& rhs );
+
+  /**
    * @brief Destructor.
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.

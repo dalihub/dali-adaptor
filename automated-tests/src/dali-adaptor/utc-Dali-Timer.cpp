@@ -350,6 +350,43 @@ int UtcDaliTimerAssignmentOperator(void)
   END_TEST;
 }
 
+int UtcDaliTimerMoveConstructor(void)
+{
+  AdaptorTestApplication application;
+
+  Timer timer = Timer::New( 40 );
+  DALI_TEST_CHECK( timer );
+  DALI_TEST_EQUALS( 1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( timer.GetInterval() == 40) ;
+
+  Timer moved = std::move( timer );
+  DALI_TEST_CHECK( moved );
+  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( moved.GetInterval() == 40 );
+  DALI_TEST_CHECK( !timer );
+
+  END_TEST;
+}
+
+int UtcDaliTimerMoveAssignmentr(void)
+{
+  AdaptorTestApplication application;
+
+  Timer timer = Timer::New( 40 );
+  DALI_TEST_CHECK( timer );
+  DALI_TEST_EQUALS( 1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( timer.GetInterval() == 40) ;
+
+  Timer moved;
+  moved = std::move( timer );
+  DALI_TEST_CHECK( moved );
+  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK( moved.GetInterval() == 40 );
+  DALI_TEST_CHECK( !timer );
+
+  END_TEST;
+}
+
 int UtcDaliTimerIsRunning(void)
 {
   AdaptorTestApplication application;

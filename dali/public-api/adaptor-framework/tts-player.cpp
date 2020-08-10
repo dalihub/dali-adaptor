@@ -45,16 +45,13 @@ TtsPlayer::~TtsPlayer()
 {
 }
 
-TtsPlayer::TtsPlayer(const TtsPlayer& handle)
-: BaseHandle(handle)
-{
-}
+TtsPlayer::TtsPlayer( const TtsPlayer& copy ) = default;
 
-TtsPlayer& TtsPlayer::operator=(const TtsPlayer& rhs)
-{
-  BaseHandle::operator=(rhs);
-  return *this;
-}
+TtsPlayer& TtsPlayer::operator=( const TtsPlayer& rhs ) = default;
+
+TtsPlayer::TtsPlayer( TtsPlayer&& rhs ) = default;
+
+TtsPlayer& TtsPlayer::operator=( TtsPlayer&& rhs ) = default;
 
 void TtsPlayer::Play(const std::string& text)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <cstring>
-#include <dali/public-api/common/compile-time-assert.h>
 #include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
@@ -209,7 +208,7 @@ bool CheckFileIdentifier(const Byte * const signature)
 {
   const unsigned signatureSize = BYTES_IN_SIGNATURE;
   const unsigned identifierSize = sizeof(FileIdentifier);
-  DALI_COMPILE_TIME_ASSERT(signatureSize == identifierSize);
+  static_assert(signatureSize == identifierSize);
   const bool signatureGood = 0 == memcmp( signature, FileIdentifier, std::min( signatureSize, identifierSize ) );
   return signatureGood;
 }
@@ -535,8 +534,8 @@ bool LoadKtxHeader( const Dali::ImageLoader::Input& input, unsigned int& width, 
 // File loading API entry-point:
 bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
 {
-  DALI_COMPILE_TIME_ASSERT( sizeof(Byte) == 1);
-  DALI_COMPILE_TIME_ASSERT( sizeof(uint32_t) == 4);
+  static_assert(sizeof(Byte) == 1);
+  static_assert(sizeof(uint32_t) == 4);
 
   FILE* const fp = input.file;
   if( fp == NULL )

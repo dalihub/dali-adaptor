@@ -494,10 +494,6 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
   // what we need is image size.
   SavedImage *sp;
   sp = &gif->SavedImages[ gif->ImageCount - 1 ];
-  if( !sp )
-  {
-    goto on_error;
-  }
 
   gifW = sp->ImageDesc.Width;
   gifH = sp->ImageDesc.Height;

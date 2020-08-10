@@ -409,7 +409,10 @@ void Adaptor::Start()
     (*iter)->OnStart();
   }
 
-  mAddOnManager->Start();
+  if (mAddOnManager)
+  {
+    mAddOnManager->Start();
+  }
 }
 
 // Dali::Internal::Adaptor::Adaptor::Pause
@@ -425,7 +428,10 @@ void Adaptor::Pause()
     }
 
     // Extensions
-    mAddOnManager->Pause();
+    if (mAddOnManager)
+    {
+      mAddOnManager->Pause();
+    }
 
     // Pause all windows event handlers when adaptor paused
     for( auto window : mWindows )
@@ -462,7 +468,10 @@ void Adaptor::Resume()
     }
 
     // Resume AddOnManager
-    mAddOnManager->Resume();
+    if (mAddOnManager)
+    {
+      mAddOnManager->Resume();
+    }
 
     // Inform observers that we have resumed.
     for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
@@ -495,7 +504,10 @@ void Adaptor::Stop()
       (*iter)->OnStop();
     }
 
-    mAddOnManager->Stop();
+    if (mAddOnManager)
+    {
+      mAddOnManager->Stop();
+    }
 
     mThreadController->Stop();
 
@@ -1210,6 +1222,12 @@ bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
   if( RUNNING == mState || READY == mState || forceAdd )
   {
     idleAdded = mCallbackManager->AddIdleEntererCallback( callback );
+  }
+
+  if( !idleAdded )
+  {
+    // Delete callback
+    delete callback;
   }
 
   return idleAdded;
