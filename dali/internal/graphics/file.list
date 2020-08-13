@@ -31,3 +31,8 @@ SET( adaptor_graphics_windows_src_files
     ${adaptor_graphics_dir}/windows-gl/egl-image-extensions.cpp
 )
 
+# module: graphics, backend: macos
+SET( adaptor_graphics_macos_src_files
+    ${adaptor_graphics_dir}/macos/egl-image-extensions.cpp
+)
+

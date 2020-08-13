@@ -22,7 +22,6 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/stat-context-manager.cpp
     ${adaptor_system_dir}/common/system-trace.cpp
     ${adaptor_system_dir}/common/thread-controller.cpp
-    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/update-status-logger.cpp
     ${adaptor_system_dir}/common/widget-application-impl.cpp
 )
@@ -35,6 +34,7 @@ SET( adaptor_system_linux_src_files
     ${adaptor_system_dir}/linux/callback-manager-ecore.cpp
     ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
 )
 
@@ -46,6 +46,7 @@ SET( adaptor_system_tizen_wayland_src_files
     ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 )
 
@@ -62,6 +63,7 @@ SET( adaptor_system_ubuntu_x11_src_files
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
 )
 
@@ -76,6 +78,7 @@ SET( adaptor_system_android_src_files
     ${adaptor_system_dir}/android/shared-file-operations-android.cpp
     ${adaptor_system_dir}/android/system-settings-android.cpp
     ${adaptor_system_dir}/android/timer-impl-android.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/android/widget-application-impl-android.cpp
 )
 
@@ -89,5 +92,20 @@ SET( adaptor_system_windows_src_files
     ${adaptor_system_dir}/windows/trigger-event-factory.cpp
     ${adaptor_system_dir}/windows/logging-win.cpp
     ${adaptor_system_dir}/windows/widget-application-impl-win.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/windows/widget-controller-win.cpp
+)
+
+# module: system, backend: macOS
+SET( adaptor_system_macos_src_files
+    ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
+    ${adaptor_system_dir}/macos/file-descriptor-monitor-macos.cpp
+    ${adaptor_system_dir}/macos/timer-impl-mac.cpp
+    ${adaptor_system_dir}/common/shared-file.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/macos/trigger-event.mm
+    ${adaptor_system_dir}/macos/callback-manager-mac.mm
+    ${adaptor_system_dir}/macos/widget-application-impl-mac.cpp
 )

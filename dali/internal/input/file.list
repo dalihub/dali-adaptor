@@ -41,3 +41,11 @@ SET( adaptor_input_windows_src_files
     ${adaptor_input_dir}/windows/key-mapping-win.cpp
     ${adaptor_input_dir}/windows/virtual-keyboard-impl-win.cpp
 )
+
+# module: input, backend: macos
+SET( adaptor_input_macos_src_files
+    ${adaptor_input_dir}/macos/input-method-context-factory-mac.cpp
+    ${adaptor_input_dir}/macos/input-method-context-impl-mac.cpp
+    ${adaptor_input_dir}/macos/key-mapping-mac.cpp
+    ${adaptor_input_dir}/macos/virtual-keyboard-impl-mac.cpp
+)
