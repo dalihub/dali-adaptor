@@ -547,7 +547,7 @@ exit 0
 %post profile_ivi
 %if "%{?profile}" != "ivi"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.2.0.0
 popd
 %endif
 /sbin/ldconfig
