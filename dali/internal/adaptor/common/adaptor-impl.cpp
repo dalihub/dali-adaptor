@@ -950,6 +950,11 @@ void Adaptor::OnWindowShown()
 
     DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Update requested.\n" );
   }
+  else if( PAUSED_WHILE_INITIALIZING == mState )
+  {
+    // Change the state to READY again. It will be changed to RUNNING after the adaptor is started.
+    mState = READY;
+  }
   else
   {
     DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Adaptor is not paused state.[%d]\n", mState );
