@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -333,7 +333,7 @@ void WebEngine::SetSize( int width, int height )
   mPlugin->SetSize( width, height );
 }
 
-bool WebEngine::SendTouchEvent( const Dali::TouchData& touch )
+bool WebEngine::SendTouchEvent( const Dali::TouchEvent& touch )
 {
   return mPlugin->SendTouchEvent( touch );
 }
