@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.9.24
+Version:    1.9.25
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -547,7 +547,7 @@ exit 0
 %post profile_ivi
 %if "%{?profile}" != "ivi"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.0.0.0
+ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.2.0.0
 popd
 %endif
 /sbin/ldconfig

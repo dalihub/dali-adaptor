@@ -20,7 +20,7 @@
 
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/dali-adaptor-common.h>
 

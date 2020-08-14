@@ -22,6 +22,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/touch-data-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 
 // INTERNAL INCLUDES
@@ -249,9 +250,8 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, uint
   // so always send the action to the action handler.
   if( mActionHandler )
   {
-    Dali::TouchEvent event(timeStamp);
-    event.points.push_back(point);
-    ret = mActionHandler->AccessibilityActionScroll( event );
+    Dali::TouchData touchData = Integration::NewTouchData( timeStamp, point );
+    ret = mActionHandler->AccessibilityActionScroll( touchData );
   }
 
   Integration::TouchEvent touchEvent;
@@ -274,12 +274,11 @@ bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, uint3
 {
   bool ret = false;
 
-  Dali::TouchEvent touchEvent(timeStamp);
-  touchEvent.points.push_back(point);
+  Dali::TouchData touchData = Integration::NewTouchData( timeStamp, point );
 
   if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionTouch(touchEvent);
+    ret = mActionHandler->AccessibilityActionTouch( touchData );
   }
   return ret;
 }
