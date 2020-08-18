@@ -22,8 +22,6 @@ SET( SOURCES
         ${adaptor_integration_api_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
-        ${adaptor_offscreen_common_src_files}
-        ${adaptor_offscreen_ubuntu-x11_src_files}
         ${adaptor_public_api_src_files}
         ${adaptor_sensor_common_src_files}
         ${adaptor_sensor_ubuntu_src_files}
