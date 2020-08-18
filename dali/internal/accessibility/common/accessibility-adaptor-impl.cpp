@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/touch-integ.h>
 #include <dali/integration-api/events/hover-event-integ.h>
 
 // INTERNAL INCLUDES
@@ -249,9 +250,8 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, uint
   // so always send the action to the action handler.
   if( mActionHandler )
   {
-    Dali::TouchEvent event(timeStamp);
-    event.points.push_back(point);
-    ret = mActionHandler->AccessibilityActionScroll( event );
+    Dali::TouchEvent touch = Integration::NewTouchEvent( timeStamp, point );
+    ret = mActionHandler->AccessibilityActionScroll( touch );
   }
 
   Integration::TouchEvent touchEvent;
@@ -274,12 +274,11 @@ bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, uint3
 {
   bool ret = false;
 
-  Dali::TouchEvent touchEvent(timeStamp);
-  touchEvent.points.push_back(point);
+  Dali::TouchEvent touch = Integration::NewTouchEvent( timeStamp, point );
 
   if( mActionHandler )
   {
-    ret = mActionHandler->AccessibilityActionTouch(touchEvent);
+    ret = mActionHandler->AccessibilityActionTouch( touch );
   }
   return ret;
 }

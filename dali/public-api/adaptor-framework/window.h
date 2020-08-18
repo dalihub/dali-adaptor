@@ -56,7 +56,7 @@ class Orientation;
 class Actor;
 class Layer;
 class RenderTaskList;
-class TouchData;
+class TouchEvent;
 struct KeyEvent;
 
 /**
@@ -77,7 +77,7 @@ public:
   using FocusChangeSignalType = Signal< void (Window,bool) >;  ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType = Signal< void (Window,WindowSize) >; ///< Window resized signal type @SINCE_1_4.35
   using KeyEventSignalType = Signal< void (const KeyEvent&) >; ///< Key event signal type
-  using TouchSignalType = Signal< void (const TouchData&) >;   ///< Touch signal type
+  using TouchSignalType = Signal< void (const TouchEvent&) >;   ///< Touch signal type
 
 public:
 
@@ -683,7 +683,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const TouchData& event);
+   *   void YourCallbackName(const TouchEvent& event);
    * @endcode
    *
    * @SINCE_1_9.21
