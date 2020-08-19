@@ -2,7 +2,7 @@
 #define DALI_ACCESSIBILITY_ACTION_HANDLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/events/touch-data.h>
 
 namespace Dali
 {
@@ -47,10 +47,10 @@ public:
 
   /**
    * Perform the accessibility action associated with a scroll event.
-   * @param touch The touch point (and time) of the event.
+   * @param touchData The touch point (and time) of the event.
    * @return whether the focus is cleared or not.
    */
-  virtual bool AccessibilityActionScroll( Dali::TouchEvent& touch ) = 0;
+  virtual bool AccessibilityActionScroll( Dali::TouchData& touchData ) = 0;
 
   /**
    * Perform the accessibility action to move focus to the previous focusable actor (by one finger flick up).
@@ -200,10 +200,10 @@ public:
 
   /**
    * Perform the accessibility action to mouse move (by one finger tap & hold and move).
-   * @param touch touch data
+   * @param touchData touch data
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionTouch(const Dali::TouchEvent& touch) = 0;
+  virtual bool AccessibilityActionTouch(const Dali::TouchData& touchData) = 0;
 
 }; // class AccessibilityActionHandler
 

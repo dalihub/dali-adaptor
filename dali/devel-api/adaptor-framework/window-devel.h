@@ -28,7 +28,7 @@
 namespace Dali
 {
 struct KeyEvent;
-class TouchEvent;
+class TouchData;
 struct WheelEvent;
 class RenderTaskList;
 
@@ -58,7 +58,7 @@ typedef Signal< void () > EventProcessingFinishedSignalType;       ///< Event Pr
 
 typedef Signal< void (const KeyEvent&) > KeyEventSignalType;       ///< Key event signal type
 
-typedef Signal< void (const TouchEvent&) > TouchSignalType;         ///< Touch signal type
+typedef Signal< void (const TouchData&) > TouchSignalType;         ///< Touch signal type
 
 typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
 
