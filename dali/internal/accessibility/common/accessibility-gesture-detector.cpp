@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <cmath>
+
+#include <dali/public-api/events/touch-point.h>
+
 #include <dali/integration-api/events/touch-event-integ.h>
 
 

@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/public-api/events/touch-data.h>
+#include <dali/public-api/events/touch-event.h>
 
 namespace Dali
 {
@@ -47,10 +47,10 @@ public:
 
   /**
    * Perform the accessibility action associated with a scroll event.
-   * @param touchData The touch point (and time) of the event.
+   * @param touchEvent The touch point (and time) of the event.
    * @return whether the focus is cleared or not.
    */
-  virtual bool AccessibilityActionScroll( Dali::TouchData& touchData ) = 0;
+  virtual bool AccessibilityActionScroll( Dali::TouchEvent& touchEvent ) = 0;
 
   /**
    * Perform the accessibility action to move focus to the previous focusable actor (by one finger flick up).
@@ -200,10 +200,10 @@ public:
 
   /**
    * Perform the accessibility action to mouse move (by one finger tap & hold and move).
-   * @param touchData touch data
+   * @param touchEvent touch event structure
    * @return whether the accessibility action is performed or not.
    */
-  virtual bool AccessibilityActionTouch(const Dali::TouchData& touchData) = 0;
+  virtual bool AccessibilityActionTouch(const Dali::TouchEvent& touchEvent) = 0;
 
 }; // class AccessibilityActionHandler
 

@@ -17,6 +17,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
+#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/events/wheel-event.h>
 
 // INTERNAL INCLUDES
