@@ -101,10 +101,12 @@ public:
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   * @param[in]  threadMode          The thread mode
    */
   static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
-                             EnvironmentOptions* environmentOptions );
+                             EnvironmentOptions* environmentOptions,
+                             ThreadMode threadMode );
 
   /**
    * Creates a New Adaptor
@@ -122,11 +124,13 @@ public:
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   * @param[in]  threadMode          The thread mode
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
                              Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
-                             EnvironmentOptions* environmentOptions );
+                             EnvironmentOptions* environmentOptions,
+                             ThreadMode threadMode );
 
   /**
    * Creates a New Adaptor
@@ -624,8 +628,9 @@ private:
    *                          - Pixmap, adaptor will use existing Pixmap to draw on to
    *                          - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
+   * @param[in]  threadMode   The ThreadMode of the Adaptor
    */
-  Adaptor( Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
+  Adaptor( Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode );
 
 private: // Types
 
