@@ -188,16 +188,6 @@ public:
   bool HandleActionScrollEvent(const TouchPoint& point, unsigned long timeStamp);
 
   /**
-   * @brief Handle the accessibility action to move for the current focused actor
-   * (by 1 finger tap & hold and move).
-   *
-   * @param[in]  point      The touch point information.
-   * @param[in]  timeStamp  The time the touch occurred.
-   * @return Whether the action is performed successfully or not.
-   */
-  bool HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp);
-
-  /**
    * @brief Handle the accessibility action to navigate back (by two fingers circle draw).
    * @return Whether the action is performed successfully or not.
    */

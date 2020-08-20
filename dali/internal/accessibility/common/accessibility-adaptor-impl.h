@@ -144,11 +144,6 @@ public:
   bool HandleActionScrollEvent(const TouchPoint& point, uint32_t timeStamp);
 
   /**
-   * @copydoc Dali::AccessibilityAdaptor::HandleActionTouchEvent()
-   */
-  bool HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp);
-
-  /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionBackEvent()
    */
   bool HandleActionBackEvent();
