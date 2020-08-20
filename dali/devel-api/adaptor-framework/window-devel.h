@@ -227,16 +227,6 @@ DALI_ADAPTOR_API void SetAvailableOrientations( Window window, const Dali::Vecto
 DALI_ADAPTOR_API int32_t GetNativeId( Window window );
 
 /**
- * @brief Sets damaged areas of the window.
- *
- * This API is for setting static damaged areas of the window for partial update.
- *
- * @param[in] window The window instance
- * @param[in] areas The damaged areas list to set
- */
-DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas);
-
-/**
  * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
  *
  * @param[in] window The window instance

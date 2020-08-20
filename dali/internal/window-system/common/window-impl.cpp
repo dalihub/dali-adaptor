@@ -1001,16 +1001,6 @@ int32_t Window::GetNativeId() const
   return mWindowBase->GetNativeWindowId();
 }
 
-void Window::SetDamagedAreas(std::vector<Dali::Rect<int>>& areas)
-{
-  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
-  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
-  if (eglGraphics)
-  {
-    eglGraphics->SetDamagedAreas(areas);
-  }
-}
-
 } // Adaptor
 
 } // Internal

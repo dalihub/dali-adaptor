@@ -135,16 +135,6 @@ public:
   EGLint GetBufferAge( EGLSurface& eglSurface ) const;
 
   /**
-   * Gets if user set damaged areas
-   */
-  bool DamageAreasSet() const;
-
-  /**
-   * Sets damaged areas, overrides auto calculated ones
-   */
-  void SetDamageAreas( std::vector<Dali::Rect<int>>& damagedArea );
-
-  /**
    * Forces full surface swap next frame, resets current partial update state.
    */
   void SetFullSwapNextFrame();
@@ -290,10 +280,7 @@ private:
   PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
   PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mEglSwapBuffersWithDamageKHR;
 
-  EGLint mBufferAge;
   std::list<std::vector<Rect<int>>> mBufferDamagedRects;
-  std::vector<Rect<int>> mCombinedDamagedRects;
-  std::vector<Rect<int>> mDamagedAreas;
   Rect<int> mSurfaceRect;
   bool mFullSwapNextFrame;
 };

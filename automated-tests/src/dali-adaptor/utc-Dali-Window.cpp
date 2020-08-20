@@ -329,20 +329,3 @@ int UtcDaliWindowFocusChangeSignalN(void)
 
   END_TEST;
 }
-
-int UtcDaliWindowPartialUpdate(void)
-{
-  Dali::Window window;
-  try
-  {
-    std::vector<Rect<int>> damagedAreas;
-    DevelWindow::SetDamagedAreas(window, damagedAreas);
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
