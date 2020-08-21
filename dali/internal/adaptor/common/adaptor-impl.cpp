@@ -27,6 +27,7 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/object-registry.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -553,9 +554,9 @@ void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
   mWindows.front()->FeedTouchPoint( convertedPoint, timeStamp );
 }
 
-void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
 {
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >( wheelEvent.GetType() ), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime() );
   mWindows.front()->FeedWheelEvent( event );
 }
 
@@ -949,6 +950,11 @@ void Adaptor::OnWindowShown()
     RequestUpdateOnce();
 
     DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Update requested.\n" );
+  }
+  else if( PAUSED_WHILE_INITIALIZING == mState )
+  {
+    // Change the state to READY again. It will be changed to RUNNING after the adaptor is started.
+    mState = READY;
   }
   else
   {

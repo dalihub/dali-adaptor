@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace Dali
 {
 
 class KeyEvent;
-class TouchData;
+class TouchEvent;
 
 /**
  * @brief WebEnginePlugin is an abstract interface, used by dali-adaptor to access WebEngine plugin.
@@ -325,7 +325,7 @@ public:
   /**
    * @brief Sends Touch Events.
    */
-  virtual bool SendTouchEvent( const TouchData& touch ) = 0;
+  virtual bool SendTouchEvent( const TouchEvent& touch ) = 0;
 
   /**
    * @brief Sends Key Events.

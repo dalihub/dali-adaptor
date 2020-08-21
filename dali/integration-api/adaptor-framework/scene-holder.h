@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ namespace Dali
 class Actor;
 class Layer;
 class Any;
-class TouchData;
+class TouchEvent;
+class WheelEvent;
 struct TouchPoint;
-struct WheelEvent;
 struct KeyEvent;
 
 namespace Internal DALI_INTERNAL
@@ -61,7 +61,7 @@ public:
 
   typedef Signal< bool (const Dali::KeyEvent&) > KeyEventGeneratedSignalType; ///< Key event generated signal type
 
-  typedef Signal< void (const Dali::TouchData&) > TouchSignalType;            ///< Touch signal type
+  typedef Signal< void (const Dali::TouchEvent&) > TouchSignalType;            ///< Touch signal type
 
   typedef Signal< void (const Dali::WheelEvent&) > WheelEventSignalType;      ///< Touched signal type
 
@@ -199,7 +199,7 @@ public:
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName( TouchData event );
+   *   void YourCallbackName( TouchEvent event );
    * @endcode
    * @return The touch signal to connect to
    * @note Motion events are not emitted.
