@@ -55,7 +55,7 @@ Window New(Any surface, PositionSize windowPosition, const std::string& name, co
     if (isAdaptorAvailable)
     {
       Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder, name, className, isTransparent);
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
     }
     newWindow = Window(window);
   }
