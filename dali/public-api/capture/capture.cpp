@@ -59,19 +59,29 @@ Capture::Capture( Capture&& rhs ) = default;
 
 Capture& Capture::operator=( Capture&& rhs ) = default;
 
+void Capture::Start( Actor source, const Vector2& position, const Vector2& size, const std::string &path, const Vector4& clearColor )
+{
+  GetImpl( *this ).Start( source, position, size, path, clearColor );
+}
+
 void Capture::Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor, const uint32_t quality )
 {
-  GetImpl( *this ).Start( source, size, path, clearColor, quality );
+  GetImpl( *this ).Start( source, Vector2::ZERO, size, path, clearColor, quality );
 }
 
 void Capture::Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor )
 {
-  GetImpl( *this ).Start( source, size, path, clearColor );
+  GetImpl( *this ).Start( source, Vector2::ZERO, size, path, clearColor );
 }
 
 void Capture::Start( Actor source, const Vector2& size, const std::string &path )
 {
-  GetImpl( *this ).Start( source, size, path, Dali::Color::TRANSPARENT );
+  GetImpl( *this ).Start( source, Vector2::ZERO, size, path, Dali::Color::TRANSPARENT );
+}
+
+void Capture::SetImageQuality( uint32_t quality )
+{
+  return GetImpl( *this ).SetImageQuality( quality );
 }
 
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
