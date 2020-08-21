@@ -129,11 +129,6 @@ EglImageExtensions* EglGraphics::GetImageExtensions()
   return mEglImageExtensions.get();
 }
 
-void EglGraphics::SetFullSwapNextFrame()
-{
-  mEglImplementation->SetFullSwapNextFrame();
-}
-
 } // Adaptor
 } // Internal
 } // Dali

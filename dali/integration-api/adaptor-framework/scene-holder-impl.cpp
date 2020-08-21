@@ -214,12 +214,7 @@ void SceneHolder::SurfaceResized()
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
   mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ) );
 
-  GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
-  EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
-  if (eglGraphics)
-  {
-    eglGraphics->SetFullSwapNextFrame();
-  }
+  mSurface->SetFullSwapNextFrame();
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
@@ -233,12 +228,7 @@ void SceneHolder::SetBackgroundColor( const Vector4& color )
   {
     mScene.SetBackgroundColor( color );
 
-    GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
-    EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
-    if (eglGraphics)
-    {
-      eglGraphics->SetFullSwapNextFrame();
-    }
+    mSurface->SetFullSwapNextFrame();
   }
 }
 

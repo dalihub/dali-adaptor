@@ -45,10 +45,41 @@ namespace
 {
 
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
+const float FULL_UPDATE_RATIO( 0.8f );   ///< Force full update when the dirty area is larget than this ratio
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
 #endif
+
+void MergeRects( Rect< int >& mergingRect, const std::vector< Rect< int > >& rects )
+{
+  uint32_t i = 0;
+  if( mergingRect.IsEmpty() )
+  {
+    for( ; i < rects.size(); i++ )
+    {
+      if( !rects[i].IsEmpty() )
+      {
+        mergingRect = rects[i];
+        break;
+      }
+    }
+  }
+
+  for( ; i < rects.size(); i++ )
+  {
+    mergingRect.Merge( rects[i] );
+  }
+}
+
+void InsertRects( WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const std::vector< Rect< int > >& damagedRects )
+{
+  damagedRectsList.push_front( damagedRects );
+  if( damagedRectsList.size() > 4 ) // past triple buffers + current
+  {
+    damagedRectsList.pop_back();
+  }
+}
 
 } // unnamed namespace
 
@@ -67,16 +98,17 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
   mFrameCallbackInfoContainer(),
+  mBufferDamagedRects(),
   mMutex(),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
+  mDpiHorizontal( 0 ),
+  mDpiVertical( 0 ),
   mOwnSurface( false ),
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true ),
-  mDpiHorizontal( 0 ),
-  mDpiVertical( 0 )
+  mResizeFinished( true )
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -423,8 +455,6 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
 
   MakeContextCurrent();
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-
   if( resizingSurface )
   {
     // Window rotate or screen rotate
@@ -456,18 +486,10 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
     }
 
-    if (eglGraphics)
-    {
-      Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-      eglImpl.SetFullSwapNextFrame();
-    }
+    SetFullSwapNextFrame();
   }
 
-  if (eglGraphics)
-  {
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SetDamage( mEGLSurface, damagedRects, clippingRect );
-  }
+  SetBufferDamagedRects( damagedRects, clippingRect );
 
   return true;
 }
@@ -511,8 +533,7 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
       }
     }
 
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers( mEGLSurface, damagedRects );
+    SwapBuffers( damagedRects );
 
     if( mRenderNotification )
     {
@@ -642,6 +663,132 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor
     for( auto&& iter : ( callbackInfo )->callbacks )
     {
       CallbackBase::Execute( *( iter.first ), iter.second );
+    }
+  }
+}
+
+void WindowRenderSurface::SetBufferDamagedRects( const std::vector< Rect< int > >& damagedRects, Rect< int >& clippingRect )
+{
+  auto eglGraphics = static_cast< EglGraphics* >( mGraphics );
+  if ( eglGraphics )
+  {
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    if( !eglImpl.IsPartialUpdateRequired() )
+    {
+      return;
+    }
+
+    Rect< int > surfaceRect( 0, 0, mPositionSize.width, mPositionSize.height );
+
+    if( mFullSwapNextFrame )
+    {
+      InsertRects( mBufferDamagedRects, std::vector< Rect< int > >( 1, surfaceRect ) );
+      clippingRect = Rect< int >();
+      return;
+    }
+
+    EGLint bufferAge = eglImpl.GetBufferAge( mEGLSurface );
+
+    // Buffer age 0 means the back buffer in invalid and requires full swap
+    if( !damagedRects.size() || bufferAge == 0 )
+    {
+      InsertRects( mBufferDamagedRects, std::vector< Rect< int > >( 1, surfaceRect ) );
+      clippingRect = Rect< int >();
+      return;
+    }
+
+    // We push current frame damaged rects here, zero index for current frame
+    InsertRects( mBufferDamagedRects, damagedRects );
+
+    // Merge damaged rects into clipping rect
+    auto bufferDamagedRects = mBufferDamagedRects.begin();
+    while( bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end() )
+    {
+      const std::vector< Rect< int > >& rects = *bufferDamagedRects++;
+      MergeRects( clippingRect, rects );
+    }
+
+    if( !clippingRect.Intersect( surfaceRect ) || clippingRect.Area() > surfaceRect.Area() * FULL_UPDATE_RATIO )
+    {
+      // clipping area too big or doesn't intersect surface rect
+      clippingRect = Rect< int >();
+      return;
+    }
+
+    std::vector< Rect< int > > damagedRegion;
+    damagedRegion.push_back( clippingRect );
+
+    eglImpl.SetDamageRegion( mEGLSurface, damagedRegion );
+  }
+}
+
+void WindowRenderSurface::SwapBuffers( const std::vector<Rect<int>>& damagedRects )
+{
+  auto eglGraphics = static_cast< EglGraphics* >( mGraphics );
+  if( eglGraphics )
+  {
+    Rect< int > surfaceRect( 0, 0, mPositionSize.width, mPositionSize.height );
+
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+
+    if( !eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO) )
+    {
+      mFullSwapNextFrame = false;
+      eglImpl.SwapBuffers( mEGLSurface );
+      return;
+    }
+
+    mFullSwapNextFrame = false;
+
+    std::vector< Rect< int > > mergedRects = damagedRects;
+
+    // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
+    // Could be optional and can be removed, needs to be checked with and without on platform
+    const int n = mergedRects.size();
+    for( int i = 0; i < n - 1; i++ )
+    {
+      if( mergedRects[i].IsEmpty() )
+      {
+        continue;
+      }
+
+      for( int j = i + 1; j < n; j++ )
+      {
+        if( mergedRects[j].IsEmpty() )
+        {
+          continue;
+        }
+
+        if( mergedRects[i].Intersects( mergedRects[j] ) )
+        {
+          mergedRects[i].Merge( mergedRects[j] );
+          mergedRects[j].width = 0;
+          mergedRects[j].height = 0;
+        }
+      }
+    }
+
+    int j = 0;
+    for( int i = 0; i < n; i++ )
+    {
+      if( !mergedRects[i].IsEmpty() )
+      {
+        mergedRects[j++] = mergedRects[i];
+      }
+    }
+
+    if( j != 0 )
+    {
+      mergedRects.resize( j );
+    }
+
+    if( !mergedRects.size() || ( mergedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO ) )
+    {
+      eglImpl.SwapBuffers( mEGLSurface );
+    }
+    else
+    {
+      eglImpl.SwapBuffers( mEGLSurface, mergedRects );
     }
   }
 }

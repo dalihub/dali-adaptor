@@ -51,7 +51,8 @@ class WindowRenderSurface : public Dali::RenderSurfaceInterface, public Connecti
 {
 public:
 
-  typedef Signal< void ( ) > OutputSignalType;
+  using OutputSignalType = Signal< void ( ) >;
+  using DamagedRectsContainer = std::list< std::vector< Rect< int > > >;
 
   /**
     * Uses an window surface to render to.
@@ -231,6 +232,19 @@ private:
    */
   void OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor );
 
+  /**
+   * @brief Set the buffer damage rects.
+   * @param[in] damagedRects List of damaged rects
+   * @param[in] clippingRect The rect to clip rendered scene
+   */
+  void SetBufferDamagedRects( const std::vector< Rect< int > >& damagedRects, Rect< int >& clippingRect );
+
+  /**
+   * @brief Swap buffers.
+   * @param[in] damagedRects List of damaged rects
+   */
+  void SwapBuffers( const std::vector<Rect<int>>& damagedRects );
+
 protected:
 
   // Undefined
@@ -285,17 +299,17 @@ private: // Data
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
+  DamagedRectsContainer           mBufferDamagedRects;
   Dali::Mutex                     mMutex;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
+  uint32_t                        mDpiHorizontal;
+  uint32_t                        mDpiVertical;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
   bool                            mRotationSupported;
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-
-  uint32_t                        mDpiHorizontal;
-  uint32_t                        mDpiVertical;
 
 }; // class WindowRenderSurface
 
