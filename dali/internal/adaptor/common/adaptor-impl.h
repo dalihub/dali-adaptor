@@ -249,14 +249,8 @@ public: // AdaptorInternalServices implementation
   /**
    * Adds a new Window instance to the Adaptor
    * @param[in]  childWindow The child window instance
-   * @param[in]  childWindowName The child window title/name
-   * @param[in]  childWindowClassName The class name that the child window belongs to
-   * @param[in]  childWindowMode The mode of the child window
    */
-  virtual bool AddWindow( Dali::Integration::SceneHolder childWindow,
-                          const std::string& childWindowName,
-                          const std::string& childWindowClassName,
-                          bool childWindowMode );
+  virtual bool AddWindow( Dali::Integration::SceneHolder childWindow );
 
   /**
    * Removes an existing Window instance from the Adaptor
