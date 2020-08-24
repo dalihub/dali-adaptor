@@ -42,7 +42,7 @@ TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Optio
   mOptions( options )
 {
   // Create accompanying file descriptor.
-  mThreadID = WindowsPlatformImplementation::GetCurrentThreadId();
+  mThreadID = WindowsPlatform::GetCurrentThreadId();
 
   if ( mThreadID < 0)
   {
@@ -70,7 +70,7 @@ void TriggerEvent::Trigger()
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
-    WindowsPlatformImplementation::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>( mSelfCallback ), 0, mThreadID );
+    WindowsPlatform::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>( mSelfCallback ), 0, mThreadID );
   }
   else
   {

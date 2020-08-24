@@ -392,7 +392,7 @@ private:
   bool                                 mIsTransparent:1;    ///< Whether the window is transparent (32 bit or 24 bit)
   bool                                 mRotationAppSet:1;
 
-  WindowsPlatformImplementation::WindowImpl mWindowImpl;
+  WindowsPlatform::WindowImpl mWindowImpl;
 };
 
 } // namespace Adaptor
