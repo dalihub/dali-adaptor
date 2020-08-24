@@ -270,19 +270,6 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, uint
   return ret;
 }
 
-bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, uint32_t timeStamp)
-{
-  bool ret = false;
-
-  Dali::TouchEvent touch = Integration::NewTouchEvent( timeStamp, point );
-
-  if( mActionHandler )
-  {
-    ret = mActionHandler->AccessibilityActionTouch( touch );
-  }
-  return ret;
-}
-
 bool AccessibilityAdaptor::HandleActionBackEvent()
 {
   bool ret = false;

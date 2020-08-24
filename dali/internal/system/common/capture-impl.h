@@ -71,12 +71,17 @@ public:
   /**
    * @copydoc Dali::Capture::Start
    */
-  void Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality );
+  void Start( Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality );
 
   /**
    * @copydoc Dali::Capture::Start
    */
-  void Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor );
+  void Start( Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor );
+
+  /**
+   * @copydoc Dali::Capture::SetImageQuality
+   */
+  void SetImageQuality( uint32_t quality );
 
   /**
    * @copydoc Dali::Capture::GetNativeImageSource
@@ -133,10 +138,13 @@ private:
   /**
    * @brief Setup render task.
    *
-   * @param[in] source is captured.
+   * @param[in] position top-left position of area to be captured
+   *            this position is defined in the window.
+   * @param[in] size two dimensional size of area to be captured
+   * @param[in] source sub-scene tree to be captured.
    * @param[in] clearColor background color
    */
-  void SetupRenderTask( Dali::Actor source, const Dali::Vector4& clearColor );
+  void SetupRenderTask( const Dali::Vector2& position, const Dali::Vector2& size, Dali::Actor source, const Dali::Vector4& clearColor );
 
   /**
    * @brief Unset render task.
@@ -153,11 +161,13 @@ private:
   /**
    * @brief Setup resources for capture.
    *
-   * @param[in] size is surface size.
-   * @param[in] clearColor is clear color of surface.
-   * @param[in] source is captured.
+   * @param[in] position top-left position of area to be captured
+   *            this position is defined in the window.
+   * @param[in] size two dimensional size of area to be captured
+   * @param[in] clearColor color to clear background surface.
+   * @param[in] source sub-scene tree to be captured.
    */
-  void SetupResources( const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source );
+  void SetupResources( const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source );
 
   /**
    * @brief Unset resources for capture.
@@ -198,7 +208,6 @@ private:
   Dali::Texture                               mNativeTexture;
   Dali::FrameBuffer                           mFrameBuffer;
   Dali::RenderTask                            mRenderTask;
-  Dali::Actor                                 mParent;
   Dali::Actor                                 mSource;
   Dali::CameraActor                           mCameraActor;
   Dali::Timer                                 mTimer;           ///< For timeout.

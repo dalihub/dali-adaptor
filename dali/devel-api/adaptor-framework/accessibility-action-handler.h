@@ -198,13 +198,6 @@ public:
    */
   virtual bool AccessibilityActionStartStop() = 0;
 
-  /**
-   * Perform the accessibility action to mouse move (by one finger tap & hold and move).
-   * @param touch touch data
-   * @return whether the accessibility action is performed or not.
-   */
-  virtual bool AccessibilityActionTouch(const Dali::TouchEvent& touch) = 0;
-
 }; // class AccessibilityActionHandler
 
 } // namespace Dali

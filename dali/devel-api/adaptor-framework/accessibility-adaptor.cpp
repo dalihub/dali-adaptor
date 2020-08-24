@@ -107,11 +107,6 @@ bool AccessibilityAdaptor::HandleActionScrollEvent(const TouchPoint& point, unsi
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionScrollEvent(point, timeStamp);
 }
 
-bool AccessibilityAdaptor::HandleActionTouchEvent(const TouchPoint& point, unsigned long timeStamp)
-{
-  return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionTouchEvent(point, timeStamp);
-}
-
 bool AccessibilityAdaptor::HandleActionBackEvent()
 {
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionBackEvent();
