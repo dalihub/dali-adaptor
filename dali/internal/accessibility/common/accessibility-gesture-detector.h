@@ -24,7 +24,6 @@
 #include <dali/devel-api/adaptor-framework/accessibility-gesture-handler.h>
 #include <dali/devel-api/adaptor-framework/accessibility-gesture-event.h>
 #include <dali/integration-api/scene.h>
-#include <dali/public-api/events/touch-event.h>
 
 namespace Dali
 {
