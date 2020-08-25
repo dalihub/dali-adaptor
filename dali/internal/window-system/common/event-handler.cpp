@@ -95,7 +95,7 @@ static uint32_t GetCurrentMilliSeconds(void)
 } // unnamed namespace
 #endif
 
-EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damageObserver )
+EventHandler::EventHandler( WindowBase* windowBase, DamageObserver& damageObserver )
 : mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
@@ -103,22 +103,17 @@ EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damage
   mClipboard( Clipboard::Get() ),
   mPaused( false )
 {
-  if( surface )
-  {
-    WindowBase* windowBase = surface->GetWindowBase();
-
-    // Connect signals
-    windowBase->WindowDamagedSignal().Connect( this, &EventHandler::OnWindowDamaged );
-    windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
-    windowBase->RotationSignal().Connect( this, &EventHandler::OnRotation );
-    windowBase->TouchEventSignal().Connect( this, &EventHandler::OnTouchEvent );
-    windowBase->WheelEventSignal().Connect( this, &EventHandler::OnWheelEvent );
-    windowBase->KeyEventSignal().Connect( this, &EventHandler::OnKeyEvent );
-    windowBase->SelectionDataSendSignal().Connect( this, &EventHandler::OnSelectionDataSend );
-    windowBase->SelectionDataReceivedSignal().Connect( this, &EventHandler::OnSelectionDataReceived );
-    windowBase->StyleChangedSignal().Connect( this, &EventHandler::OnStyleChanged );
-    windowBase->AccessibilitySignal().Connect( this, &EventHandler::OnAccessibilityNotification );
-  }
+  // Connect signals
+  windowBase->WindowDamagedSignal().Connect( this, &EventHandler::OnWindowDamaged );
+  windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
+  windowBase->RotationSignal().Connect( this, &EventHandler::OnRotation );
+  windowBase->TouchEventSignal().Connect( this, &EventHandler::OnTouchEvent );
+  windowBase->WheelEventSignal().Connect( this, &EventHandler::OnWheelEvent );
+  windowBase->KeyEventSignal().Connect( this, &EventHandler::OnKeyEvent );
+  windowBase->SelectionDataSendSignal().Connect( this, &EventHandler::OnSelectionDataSend );
+  windowBase->SelectionDataReceivedSignal().Connect( this, &EventHandler::OnSelectionDataReceived );
+  windowBase->StyleChangedSignal().Connect( this, &EventHandler::OnStyleChanged );
+  windowBase->AccessibilitySignal().Connect( this, &EventHandler::OnAccessibilityNotification );
 }
 
 EventHandler::~EventHandler()
