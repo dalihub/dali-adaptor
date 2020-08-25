@@ -1055,14 +1055,14 @@ bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
   bool eventHandled( false );
 
   // If a device key then skip ecore_imf_context_filter_event.
-  if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ))
+  if ( ! KeyLookup::IsDeviceButton( keyEvent.GetKeyName().c_str() ))
   {
     //check whether it's key down or key up event
-    if ( keyEvent.state == KeyEvent::Down )
+    if ( keyEvent.GetState() == Dali::KeyEvent::Down )
     {
       eventHandled = ProcessEventKeyDown( keyEvent );
     }
-    else if ( keyEvent.state == KeyEvent::Up )
+    else if ( keyEvent.GetState() == Dali::KeyEvent::Up )
     {
       eventHandled = ProcessEventKeyUp( keyEvent );
     }
@@ -1160,38 +1160,38 @@ void InputMethodContextEcoreWl::GetPreeditStyle( Dali::InputMethodContext::PreEd
   attrs = mPreeditAttrs;
 }
 
-bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
+bool InputMethodContextEcoreWl::ProcessEventKeyDown( const Dali::KeyEvent& keyEvent )
 {
   bool eventHandled( false );
   if ( mIMFContext )
   {
-    Integration::KeyEvent integKeyEvent( keyEvent );
+    Integration::KeyEvent integKeyEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
     std::string key = integKeyEvent.logicalKey;
 
-    std::string compose = keyEvent.GetCompose();
-    std::string deviceName = keyEvent.GetDeviceName();
+    std::string compose = integKeyEvent.compose;
+    std::string deviceName = integKeyEvent.deviceName;
 
     // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
-    ecoreKeyDownEvent.keyname = keyEvent.keyPressedName.c_str();
+    ecoreKeyDownEvent.keyname = integKeyEvent.keyName.c_str();
     ecoreKeyDownEvent.key = key.c_str();
-    ecoreKeyDownEvent.string = keyEvent.keyPressed.c_str();
+    ecoreKeyDownEvent.string = integKeyEvent.keyString.c_str();
     ecoreKeyDownEvent.compose = compose.c_str();
-    ecoreKeyDownEvent.timestamp = keyEvent.time;
-    ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
-    ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
+    ecoreKeyDownEvent.timestamp = integKeyEvent.time;
+    ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( integKeyEvent.keyModifier );
+    ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( integKeyEvent.keyModifier );
     ecoreKeyDownEvent.dev_name = deviceName.c_str();
-    ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-    ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+    ecoreKeyDownEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( integKeyEvent.deviceClass );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+    ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( integKeyEvent.deviceSubclass );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyDownEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+    ecoreKeyDownEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
 #endif // Since ecore_imf 1.22 version
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
-    if ((keyEvent.GetDeviceName() == "ime") && ((!strncmp(keyEvent.keyPressedName.c_str(), "Left", 4)) ||
-                                   (!strncmp(keyEvent.keyPressedName.c_str(), "Right", 5)) ||
-                                   (!strncmp(keyEvent.keyPressedName.c_str(), "Up", 2)) ||
-                                   (!strncmp(keyEvent.keyPressedName.c_str(), "Down", 4))))
+    if ((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.c_str(), "Left", 4)) ||
+                                   (!strncmp(integKeyEvent.keyName.c_str(), "Right", 5)) ||
+                                   (!strncmp(integKeyEvent.keyName.c_str(), "Up", 2)) ||
+                                   (!strncmp(integKeyEvent.keyName.c_str(), "Down", 4))))
     {
       eventHandled = 0;
     }
@@ -1205,9 +1205,9 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
     // If the event has not been handled by InputMethodContext then check if we should reset our input method context
     if (!eventHandled)
     {
-      if (!strcmp(keyEvent.keyPressedName.c_str(), "Escape") ||
-          !strcmp(keyEvent.keyPressedName.c_str(), "Return") ||
-          !strcmp(keyEvent.keyPressedName.c_str(), "KP_Enter"))
+      if (!strcmp(integKeyEvent.keyName.c_str(), "Escape") ||
+          !strcmp(integKeyEvent.keyName.c_str(), "Return") ||
+          !strcmp(integKeyEvent.keyName.c_str(), "KP_Enter"))
       {
         ecore_imf_context_reset(mIMFContext);
       }
@@ -1216,31 +1216,31 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown( const KeyEvent& keyEvent )
   return eventHandled;
 }
 
-bool InputMethodContextEcoreWl::ProcessEventKeyUp( const KeyEvent& keyEvent )
+bool InputMethodContextEcoreWl::ProcessEventKeyUp( const Dali::KeyEvent& keyEvent )
 {
   bool eventHandled( false );
   if( mIMFContext )
   {
-    Integration::KeyEvent integKeyEvent( keyEvent );
+    Integration::KeyEvent integKeyEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
     std::string key = integKeyEvent.logicalKey;
 
-    std::string compose = keyEvent.GetCompose();
-    std::string deviceName = keyEvent.GetDeviceName();
+    std::string compose = integKeyEvent.compose;
+    std::string deviceName = integKeyEvent.deviceName;
 
     // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
-    ecoreKeyUpEvent.keyname = keyEvent.keyPressedName.c_str();
+    ecoreKeyUpEvent.keyname = integKeyEvent.keyName.c_str();
     ecoreKeyUpEvent.key = key.c_str();
-    ecoreKeyUpEvent.string = keyEvent.keyPressed.c_str();
+    ecoreKeyUpEvent.string = integKeyEvent.keyString.c_str();
     ecoreKeyUpEvent.compose = compose.c_str();
-    ecoreKeyUpEvent.timestamp = keyEvent.time;
-    ecoreKeyUpEvent.modifiers =  EcoreInputModifierToEcoreIMFModifier( keyEvent.keyModifier );
-    ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( keyEvent.keyModifier );
+    ecoreKeyUpEvent.timestamp = integKeyEvent.time;
+    ecoreKeyUpEvent.modifiers =  EcoreInputModifierToEcoreIMFModifier( integKeyEvent.keyModifier );
+    ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( integKeyEvent.keyModifier );
     ecoreKeyUpEvent.dev_name = deviceName.c_str();
-    ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( keyEvent.GetDeviceClass() );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-    ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( keyEvent.GetDeviceSubclass() );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
+    ecoreKeyUpEvent.dev_class = static_cast<Ecore_IMF_Device_Class> ( integKeyEvent.deviceClass );//ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+    ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass> ( integKeyEvent.deviceSubclass );//ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
-    ecoreKeyUpEvent.keycode = keyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
+    ecoreKeyUpEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
 #endif // Since ecore_imf 1.22 version
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
