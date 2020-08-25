@@ -71,6 +71,18 @@ void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
   mEglContextHelper = Utils::MakeUnique< EglContextHelperImplementation >();
 }
 
+void EglGraphics::Initialize( bool depth, bool stencil, int msaa )
+{
+  mDepthBufferRequired = static_cast< Integration::DepthBufferAvailable >( depth );
+  mStencilBufferRequired = static_cast< Integration::StencilBufferAvailable >( stencil );
+
+  mMultiSamplingLevel = msaa;
+
+  mEglSync = Utils::MakeUnique< EglSyncImplementation >();
+
+  mEglContextHelper = Utils::MakeUnique< EglContextHelperImplementation >();
+}
+
 EglInterface* EglGraphics::Create()
 {
   mEglImplementation = Utils::MakeUnique< EglImplementation >( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired, mPartialUpdateRequired );
