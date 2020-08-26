@@ -51,7 +51,7 @@ struct Timer::Impl
   {
   }
 
-  int mId;
+  intptr_t mId;
 
   unsigned int mInterval;
 };
