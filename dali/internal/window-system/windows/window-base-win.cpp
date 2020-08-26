@@ -67,7 +67,7 @@ WindowBaseWin::~WindowBaseWin()
 void WindowBaseWin::Initialize( PositionSize positionSize, Any surface, bool isTransparent )
 {
   // see if there is a surface in Any surface
-  unsigned int surfaceId = GetSurfaceId( surface );
+  uintptr_t surfaceId = GetSurfaceId( surface );
 
   // if the surface is empty, create a new one.
   if( surfaceId == 0 )
@@ -462,9 +462,9 @@ void WindowBaseWin::SetTransparency( bool transparent )
 {
 }
 
-unsigned int WindowBaseWin::GetSurfaceId( Any surface ) const
+uintptr_t WindowBaseWin::GetSurfaceId( Any surface ) const
 {
-  unsigned int surfaceId = 0;
+  uintptr_t surfaceId = 0;
 
   if ( surface.Empty() == false )
   {
@@ -486,13 +486,13 @@ void WindowBaseWin::CreateWinWindow( PositionSize positionSize, bool isTranspare
   DALI_ASSERT_ALWAYS( mWin32Window != 0 && "There is no Windows window" );
 }
 
-void WindowBaseWin::SetWinWindow( unsigned int surfaceId )
+void WindowBaseWin::SetWinWindow( uintptr_t surfaceId )
 {
   HWND hWnd = (HWND)surfaceId;
 
   mWin32Window = static_cast<WinWindowHandle>(surfaceId);
 
-  mWindowImpl.SetHWND( reinterpret_cast<uint64_t>(hWnd));
+  mWindowImpl.SetHWND(surfaceId);
 
   mWindowImpl.SetWinProc();
 }

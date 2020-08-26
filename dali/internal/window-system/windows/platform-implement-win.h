@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <dali/public-api/signals/callback.h>
 
-typedef uint64_t   WinWindowHandle;
+typedef uintptr_t  WinWindowHandle;
 typedef uint64_t   WinPixmap;
 
 namespace Dali
