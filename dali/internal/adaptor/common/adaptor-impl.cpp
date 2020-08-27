@@ -667,6 +667,9 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow )
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
   windowImpl.SetAdaptor( Get() );
 
+  // ChildWindow is set to the layout direction of the default window.
+  windowImpl.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
+
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
 
@@ -1216,7 +1219,8 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mSocketFactory(),
   mThreadMode( threadMode ),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
-  mUseRemoteSurface( false )
+  mUseRemoteSurface( false ),
+  mRootLayoutDirection( Dali::LayoutDirection::LEFT_TO_RIGHT )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
   mWindows.insert( mWindows.begin(), &Dali::GetImplementation( window ) );
@@ -1226,11 +1230,11 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
 
 void Adaptor::SetRootLayoutDirection( std::string locale )
 {
+  mRootLayoutDirection = static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) );
   for ( auto& window : mWindows )
   {
     Dali::Actor root = window->GetRootLayer();
-    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
-                      static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
   }
 }
 

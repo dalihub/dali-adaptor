@@ -723,6 +723,7 @@ private: // Data
   ThreadMode                            mThreadMode;                  ///< The thread mode
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface:1;          ///< whether the remoteSurface is used or not
+  Dali::LayoutDirection::Type           mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager;           ///< Pointer to the addon manager
 
