@@ -764,11 +764,11 @@ bool InputMethodContextX::FilterEventKey( const Dali::KeyEvent& keyEvent )
   if ( ! KeyLookup::IsDeviceButton( keyEvent.GetKeyName().c_str() ))
   {
     //check whether it's key down or key up event
-    if ( keyEvent.GetState() == Dali::KeyEvent::Down )
+    if ( keyEvent.GetState() == Dali::KeyEvent::DOWN )
     {
       eventHandled = ProcessEventKeyDown( keyEvent );
     }
-    else if ( keyEvent.GetState() == Dali::KeyEvent::Up )
+    else if ( keyEvent.GetState() == Dali::KeyEvent::UP )
     {
       eventHandled = ProcessEventKeyUp( keyEvent );
     }
