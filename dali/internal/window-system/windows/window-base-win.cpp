@@ -127,7 +127,7 @@ void WindowBaseWin::OnMouseButtonDown( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -151,7 +151,7 @@ void WindowBaseWin::OnMouseButtonUp( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -175,7 +175,7 @@ void WindowBaseWin::OnMouseButtonMove( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -205,7 +205,7 @@ void WindowBaseWin::OnKeyDown( int type, TWinEventInfo *event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n" );
 
     int keyCode = event->wParam;
-    std::string keyName( WindowsPlatformImplementation::GetKeyName( keyCode ) );
+    std::string keyName( WindowsPlatform::GetKeyName( keyCode ) );
     std::string keyString;
     std::string emptyString;
 
@@ -228,7 +228,7 @@ void WindowBaseWin::OnKeyUp( int type, TWinEventInfo *event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n" );
 
     int keyCode = event->wParam;
-    std::string keyName( WindowsPlatformImplementation::GetKeyName( keyCode ) );
+    std::string keyName( WindowsPlatform::GetKeyName( keyCode ) );
     std::string keyString;
     std::string emptyString;
 
@@ -479,7 +479,8 @@ uintptr_t WindowBaseWin::GetSurfaceId( Any surface ) const
 
 void WindowBaseWin::CreateWinWindow( PositionSize positionSize, bool isTransparent )
 {
-  long hWnd = mWindowImpl.CreateHwnd( "Demo", "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
+  long hWnd = WindowsPlatform::WindowImpl::CreateHwnd( "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
+  mWindowImpl.SetHWND(hWnd);
 
   mWin32Window = static_cast<WinWindowHandle>(hWnd);
 
