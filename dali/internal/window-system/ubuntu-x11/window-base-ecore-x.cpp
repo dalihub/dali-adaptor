@@ -546,7 +546,7 @@ void WindowBaseEcoreX::OnKeyDown( void* data, int type, void* event )
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -586,7 +586,7 @@ void WindowBaseEcoreX::OnKeyUp( void* data, int type, void* event )
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
