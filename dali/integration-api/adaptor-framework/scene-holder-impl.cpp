@@ -35,6 +35,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
+#include <dali/internal/system/common/time-service.h>
 
 namespace Dali
 {
@@ -47,43 +48,6 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gSceneHolderLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_SCENE_HOLDER");
 #endif
-
-// Copied from x server
-static uint32_t GetCurrentMilliSeconds(void)
-{
-  struct timeval tv;
-
-  struct timespec  tp;
-  static clockid_t clockid;
-
-  if(!clockid)
-  {
-#ifdef CLOCK_MONOTONIC_COARSE
-    if(clock_getres(CLOCK_MONOTONIC_COARSE, &tp) == 0 &&
-       (tp.tv_nsec / 1000) <= 1000 && clock_gettime(CLOCK_MONOTONIC_COARSE, &tp) == 0)
-    {
-      clockid = CLOCK_MONOTONIC_COARSE;
-    }
-    else
-#endif
-      if(clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
-    {
-      clockid = CLOCK_MONOTONIC;
-    }
-    else
-    {
-      clockid = ~0L;
-    }
-  }
-  if(clockid != ~0L && clock_gettime(clockid, &tp) == 0)
-  {
-    return static_cast<uint32_t>((tp.tv_sec * 1000) + (tp.tv_nsec / 1000000L));
-  }
-
-  gettimeofday(&tv, NULL);
-  return static_cast<uint32_t>((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
-}
-
 } // unnamed namespace
 
 uint32_t SceneHolder::mSceneHolderCounter = 0;
@@ -276,7 +240,7 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
   if(timeStamp < 1)
   {
-    timeStamp = GetCurrentMilliSeconds();
+    timeStamp = TimeService::GetMilliSeconds();
   }
 
   RecalculateTouchPosition(point);

@@ -33,7 +33,7 @@ namespace TimeService
 {
 
 /**
- * @brief Get the monotonic time since some unspecified starting point (usually the boot time).
+ * @brief Get the monotonic time since the clock's epoch.
  *
  * @param[out]  timeInNanoseconds  The time in nanoseconds since the reference point.
  *
@@ -42,7 +42,16 @@ namespace TimeService
 void GetNanoseconds( uint64_t& timeInNanoseconds );
 
 /**
- * @brief Sleeps until the monotonic time specified since some unspecified starting point (usually the boot time).
+ * @brief Get the monotonic time since the clock's epoch.
+ *
+ * @return The time in milliseconds since the reference point.
+ *
+ * @note The maximum value that can be returned is 0xFFFFFFFF which is 4,294,967,295. Therefore, this can overflow after approximately 49 days.
+ */
+uint32_t GetMilliSeconds();
+
+/**
+ * @brief Sleeps until the monotonic time specified since the clock's epoch.
  *
  * If the time specified has already passed, then it returns immediately.
  *
