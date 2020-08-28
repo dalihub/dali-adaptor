@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,11 +149,13 @@ void EventHandler::OnTouchEvent( Integration::Point& point, uint32_t timeStamp )
   }
 }
 
-void EventHandler::OnWheelEvent( Integration::WheelEvent& wheelEvent )
+void EventHandler::OnWheelEvent( WheelEvent& wheelEvent )
 {
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
+
   for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
   {
-    (*iter)->OnWheelEvent( wheelEvent );
+    (*iter)->OnWheelEvent( event );
   }
 }
 

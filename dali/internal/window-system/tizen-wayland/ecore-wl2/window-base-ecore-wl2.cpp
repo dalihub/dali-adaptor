@@ -1111,7 +1111,7 @@ void WindowBaseEcoreWl2::OnMouseWheel( void* data, int type, void* event )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
 
-    Integration::WheelEvent wheelEvent( Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( mouseWheelEvent->x, mouseWheelEvent->y ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( mouseWheelEvent->x, mouseWheelEvent->y ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
 
     mWheelEventSignal.Emit( wheelEvent );
   }
@@ -1126,7 +1126,7 @@ void WindowBaseEcoreWl2::OnDetentRotation( void* data, int type, void* event )
   int direction = ( detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE ) ? 1 : -1;
   int timeStamp = detentEvent->timestamp;
 
-  Integration::WheelEvent wheelEvent( Integration::WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2( 0.0f, 0.0f ), 0, timeStamp );
+  WheelEvent wheelEvent( WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2( 0.0f, 0.0f ), 0, timeStamp );
 
   mWheelEventSignal.Emit( wheelEvent );
 }
