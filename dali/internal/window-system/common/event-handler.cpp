@@ -22,7 +22,7 @@
 #include <cstring>
 #include <sys/time.h>
 
-#include <dali/public-api/events/touch-point.h>
+#include <dali/devel-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/integration-api/debug.h>
@@ -266,22 +266,22 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   }
 
   // Create a touch point object.
-  TouchPoint::State touchPointState( TouchPoint::Down );
+  PointState::Type touchPointState( PointState::DOWN );
   if( info.state == 0 )
   {
-    touchPointState = TouchPoint::Down; // Mouse down.
+    touchPointState = PointState::DOWN; // Mouse down.
   }
   else if( info.state == 1 )
   {
-    touchPointState = TouchPoint::Motion; // Mouse move.
+    touchPointState = PointState::MOTION; // Mouse move.
   }
   else if( info.state == 2 )
   {
-    touchPointState = TouchPoint::Up; // Mouse up.
+    touchPointState = PointState::UP; // Mouse up.
   }
   else
   {
-    touchPointState = TouchPoint::Interrupted; // Error.
+    touchPointState = PointState::INTERRUPTED; // Error.
   }
 
   // Send touch event to accessibility adaptor.
