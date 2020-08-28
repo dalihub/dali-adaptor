@@ -67,7 +67,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
-    -lpthread --coverage
+    -lpthread --coverage -rdynamic
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}
@@ -80,11 +80,10 @@ SET(ADDON_NAME SampleAddOn )
 SET(ADDON_SOURCES addons/test-sample-addon.cpp )
 ADD_LIBRARY( ${ADDON_NAME} SHARED ${ADDON_SOURCES} )
 TARGET_LINK_LIBRARIES(${ADDON_NAME}
-        -lpthread -ldl --coverage
+        -lpthread -ldl --coverage -rdynamic
         )
 
 INSTALL( TARGETS ${ADDON_NAME} DESTINATION ${BIN_DIR} )
 
 # store AddOn list
 FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/addons.txt lib${ADDON_NAME}.so )
-

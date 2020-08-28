@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/scene.h>
 #include <unistd.h>
 
@@ -284,6 +285,7 @@ private: // Data
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
+  Dali::Mutex                     mMutex;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)

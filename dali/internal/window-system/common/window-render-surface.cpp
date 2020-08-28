@@ -67,6 +67,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
   mFrameCallbackInfoContainer(),
+  mMutex(),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
   mOwnSurface( false ),
@@ -361,22 +362,21 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
   Dali::Integration::Scene scene = mScene.GetHandle();
   if( scene )
   {
+    bool needFrameRenderedTrigger = false;
+
     scene.GetFrameRenderedCallback( callbacks );
     if( !callbacks.empty() )
     {
       int frameRenderedSync = mWindowBase->CreateFrameRenderedSyncFence();
       if( frameRenderedSync != -1 )
       {
+        Dali::Mutex::ScopedLock lock( mMutex );
+
         DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
 
         mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, frameRenderedSync ) ) );
 
-        if( !mFrameRenderedTrigger )
-        {
-          mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
-                                                                                                                     TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
-        }
-        mFrameRenderedTrigger->Trigger();
+        needFrameRenderedTrigger = true;
       }
       else
       {
@@ -393,16 +393,13 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       int framePresentedSync = mWindowBase->CreateFramePresentedSyncFence();
       if( framePresentedSync != -1 )
       {
+        Dali::Mutex::ScopedLock lock( mMutex );
+
         DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
 
         mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, framePresentedSync ) ) );
 
-        if( !mFrameRenderedTrigger )
-        {
-          mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
-                                                                                                                     TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
-        }
-        mFrameRenderedTrigger->Trigger();
+        needFrameRenderedTrigger = true;
       }
       else
       {
@@ -411,6 +408,16 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
 
       // Clear callbacks
       callbacks.clear();
+    }
+
+    if( needFrameRenderedTrigger )
+    {
+      if( !mFrameRenderedTrigger )
+      {
+        mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
+                                                                                                                   TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
+      }
+      mFrameRenderedTrigger->Trigger();
     }
   }
 
@@ -588,6 +595,8 @@ void WindowRenderSurface::ProcessRotationRequest()
 
 void WindowRenderSurface::ProcessFrameCallback()
 {
+  Dali::Mutex::ScopedLock lock( mMutex );
+
   for( auto&& iter : mFrameCallbackInfoContainer )
   {
     if( !iter->fileDescriptorMonitor )
@@ -611,19 +620,29 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
 
-  auto frameCallbackInfo = std::find_if( mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(),
-                                    [fileDescriptor]( std::unique_ptr< FrameCallbackInfo >& callbackInfo )
-                                    {
-                                      return callbackInfo->fileDescriptor == fileDescriptor;
-                                    } );
-  if( frameCallbackInfo != mFrameCallbackInfoContainer.end() )
+  std::unique_ptr< FrameCallbackInfo > callbackInfo;
   {
-    // Call the connected callback
-    for( auto&& iter : ( *frameCallbackInfo )->callbacks )
+    Dali::Mutex::ScopedLock lock( mMutex );
+    auto frameCallbackInfo = std::find_if( mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(),
+                                      [fileDescriptor]( std::unique_ptr< FrameCallbackInfo >& callbackInfo )
+                                      {
+                                        return callbackInfo->fileDescriptor == fileDescriptor;
+                                      } );
+    if( frameCallbackInfo != mFrameCallbackInfoContainer.end() )
+    {
+      callbackInfo = std::move( *frameCallbackInfo );
+
+      mFrameCallbackInfoContainer.erase( frameCallbackInfo );
+    }
+  }
+
+  // Call the connected callback
+  if( callbackInfo )
+  {
+    for( auto&& iter : ( callbackInfo )->callbacks )
     {
       CallbackBase::Execute( *( iter.first ), iter.second );
     }
-    mFrameCallbackInfoContainer.erase( frameCallbackInfo );
   }
 }
 

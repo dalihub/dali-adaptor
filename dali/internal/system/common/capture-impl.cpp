@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <fstream>
 #include <string.h>
-#include <dali/devel-api/common/stage.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/integration-api/debug.h>
@@ -29,6 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/devel-api/adaptor-framework/native-image-source-devel.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 
 namespace
 {
@@ -82,13 +82,13 @@ CapturePtr Capture::New( Dali::CameraActor cameraActor )
   return pWorker;
 }
 
-void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality )
+void Capture::Start( Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor, const uint32_t quality )
 {
   mQuality = quality;
-  Start( source, size, path, clearColor );
+  Start( source, position, size, path, clearColor );
 }
 
-void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor )
+void Capture::Start( Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string &path, const Dali::Vector4& clearColor )
 {
   DALI_ASSERT_ALWAYS(path.size() > 4 && "Path is invalid.");
 
@@ -104,7 +104,12 @@ void Capture::Start( Dali::Actor source, const Dali::Vector2& size, const std::s
   DALI_ASSERT_ALWAYS(source && "Source is NULL.");
 
   UnsetResources();
-  SetupResources( size, clearColor, source );
+  SetupResources( position, size, clearColor, source );
+}
+
+void Capture::SetImageQuality( uint32_t quality )
+{
+  mQuality = quality;
 }
 
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
@@ -166,35 +171,38 @@ bool Capture::IsFrameBufferCreated()
   return mFrameBuffer;
 }
 
-void Capture::SetupRenderTask( Dali::Actor source, const Dali::Vector4& clearColor )
+void Capture::SetupRenderTask( const Dali::Vector2& position, const Dali::Vector2& size, Dali::Actor source, const Dali::Vector4& clearColor )
 {
   DALI_ASSERT_ALWAYS(source && "Source is empty.");
 
+  Dali::Window window = DevelWindow::Get( source );
+  if( !window )
+  {
+    DALI_LOG_ERROR("The source is not added on the window\n");
+    return;
+  }
+
   mSource = source;
-
-  // Check the original parent about source.
-  mParent = mSource.GetParent();
-
-  Dali::Stage stage = Dali::Stage::GetCurrent();
-  Dali::Size stageSize = stage.GetSize();
-
-  // Add to stage for rendering the source. If source isn't on the stage then it never be rendered.
-  stage.Add( mSource );
 
   if( !mCameraActor )
   {
-    mCameraActor = Dali::CameraActor::New( stageSize );
-    mCameraActor.SetProperty( Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER );
+    mCameraActor = Dali::CameraActor::New( size );
+    // Because input position and size are for 2 dimentional area,
+    // default z-directional position of the camera is required to be used for the new camera position.
+    float cameraDefaultZPosition = mCameraActor.GetProperty<float>( Dali::Actor::Property::POSITION_Z );
+    Vector2 positionTransition = position + size / 2;
+    mCameraActor.SetProperty( Dali::Actor::Property::POSITION, Vector3( positionTransition.x, positionTransition.y, cameraDefaultZPosition ) );
+    mCameraActor.SetProperty( Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::TOP_LEFT );
     mCameraActor.SetProperty( Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER );
   }
 
-  stage.Add( mCameraActor );
+  window.Add( mCameraActor );
 
   DALI_ASSERT_ALWAYS(mFrameBuffer && "Framebuffer is NULL.");
 
   DALI_ASSERT_ALWAYS(!mRenderTask && "RenderTask is already created.");
 
-  Dali::RenderTaskList taskList = stage.GetRenderTaskList();
+  Dali::RenderTaskList taskList = window.GetRenderTaskList();
   mRenderTask = taskList.CreateTask();
   mRenderTask.SetRefreshRate( Dali::RenderTask::REFRESH_ONCE );
   mRenderTask.SetSourceActor( source );
@@ -216,19 +224,6 @@ void Capture::UnsetRenderTask()
 {
   DALI_ASSERT_ALWAYS(mCameraActor && "CameraActor is NULL.");
 
-  if( mParent )
-  {
-    // Restore the parent of source.
-    mParent.Add( mSource );
-    mParent.Reset();
-  }
-  else
-  {
-    mSource.Unparent();
-  }
-
-  mSource.Reset();
-
   mTimer.Reset();
 
   mCameraActor.Unparent();
@@ -236,9 +231,11 @@ void Capture::UnsetRenderTask()
 
   DALI_ASSERT_ALWAYS( mRenderTask && "RenderTask is NULL." );
 
-  Dali::RenderTaskList taskList = Dali::Stage::GetCurrent().GetRenderTaskList();
+  Dali::Window window = DevelWindow::Get( mSource );
+  Dali::RenderTaskList taskList = window.GetRenderTaskList();
   taskList.RemoveTask( mRenderTask );
   mRenderTask.Reset();
+  mSource.Reset();
 }
 
 bool Capture::IsRenderTaskSetup()
@@ -246,13 +243,13 @@ bool Capture::IsRenderTaskSetup()
   return mCameraActor && mRenderTask;
 }
 
-void Capture::SetupResources( const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source )
+void Capture::SetupResources( const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source )
 {
   CreateNativeImageSource( size );
 
   CreateFrameBuffer();
 
-  SetupRenderTask( source, clearColor );
+  SetupRenderTask( position, size, source, clearColor );
 }
 
 void Capture::UnsetResources()

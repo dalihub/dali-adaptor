@@ -188,9 +188,28 @@ public:
   /**
    * @brief Start capture and save the image as a file.
    *
+   * @SINCE_1_9.27
+   * @param[in] source source actor to be used for capture.
+   *            This source must be added on the window in advance.
+   * @param[in] position top-left position of area to be captured
+   *            this position is defined in the window.
+   * @param[in] size captured size.
+   * @param[in] path image file path to be saved as a file.
+   *            If path is empty string, the captured result is not be saved as a file.
+   * @param[in] clearColor background color of captured scene
+   * @note suppose that we want to capture actor 'A'. And, the actor 'A' is overlapped by another actor 'B' that is not a child of 'A'.
+   *       in this case, if source is root of scene, the captured image includes a part of actor 'B' on the 'A'.
+   *       however, if source is just actor 'A', the result includes only 'A'.
+   */
+  void Start( Actor source, const Vector2& position, const Vector2& size, const std::string &path, const Vector4& clearColor );
+
+  /**
+   * @brief Start capture and save the image as a file.
+   *
    * @SINCE_1_9.12
    *
    * @param[in] source source actor to be used for capture.
+   *            This source must be added on the window in advance.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
    *            If path is empty string, the captured result is not be saved as a file.
@@ -205,6 +224,7 @@ public:
    * @SINCE_1_3_4
    *
    * @param[in] source source actor to be used for capture.
+   *            This source must be added on the window in advance.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
    *            If path is empty string, the captured result is not be saved as a file.
@@ -218,12 +238,20 @@ public:
    * @SINCE_1_3_4
    *
    * @param[in] source source actor to be used for capture.
+   *            This source must be added on the window in advance.
    * @param[in] size captured size.
    * @param[in] path image file path to be saved as a file.
    *            If path is empty string, the captured result is not be saved as a file.
    * @note Clear color is transparent.
    */
   void Start( Actor source, const Vector2& size, const std::string &path );
+
+  /**
+   * @brief Set result image quality in case of jpeg
+   *
+   * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
+   */
+  void SetImageQuality( uint32_t quality );
 
   /**
    * @brief Get NativeImageSourcePtr that is saved captured image.

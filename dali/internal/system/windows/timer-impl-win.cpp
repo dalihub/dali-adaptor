@@ -51,7 +51,7 @@ struct Timer::Impl
   {
   }
 
-  int mId;
+  intptr_t mId;
 
   unsigned int mInterval;
 };
@@ -80,7 +80,7 @@ void Timer::Start()
 {
   if( 0 > mImpl->mId )
   {
-    mImpl->mId = WindowsPlatformImplementation::SetTimer( mImpl->mInterval, TimerSourceFunc, this );
+    mImpl->mId = WindowsPlatform::SetTimer( mImpl->mInterval, TimerSourceFunc, this );
   }
 }
 
@@ -88,7 +88,7 @@ void Timer::Stop()
 {
   if( 0 <= mImpl->mId )
   {
-    WindowsPlatformImplementation::KillTimer( mImpl->mId );
+    WindowsPlatform::KillTimer( mImpl->mId );
     mImpl->mId = -1;
   }
 }

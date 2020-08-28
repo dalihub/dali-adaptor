@@ -560,9 +560,9 @@ void Adaptor::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
   mWindows.front()->FeedWheelEvent( event );
 }
 
-void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
+void Adaptor::FeedKeyEvent( Dali::KeyEvent& keyEvent )
 {
-  Integration::KeyEvent convertedEvent( keyEvent );
+  Integration::KeyEvent convertedEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
   mWindows.front()->FeedKeyEvent( convertedEvent );
 }
 
@@ -648,7 +648,7 @@ void Adaptor::SetPreRenderCallback( CallbackBase* callback )
   mThreadController->SetPreRenderCallback( callback );
 }
 
-bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow, const std::string& childWindowName, const std::string& childWindowClassName, bool childWindowMode )
+bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
   windowImpl.SetAdaptor( Get() );

@@ -27,7 +27,7 @@
 
 namespace
 {
-static constexpr float INCH = 25.4;
+constexpr float INCH = 25.4;
 }
 
 namespace Dali
@@ -39,7 +39,7 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace WindowsPlatformImplementation
+namespace WindowsPlatform
 {
 
 LRESULT CALLBACK WinProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -50,7 +50,56 @@ LRESULT CALLBACK WinProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
   return ret;
 }
 
-std::map<uint64_t, WindowImpl*> mHWndToListener;
+namespace
+{
+
+const std::string DALI_WINDOW_CLASS_NAME = "DaliWindow";
+
+uint32_t sNumWindows = 0;
+
+void EnsureWindowClassRegistered()
+{
+  if (sNumWindows == 0)
+  {
+    WNDCLASS cs = { 0 };
+    cs.cbClsExtra = 0;
+    cs.cbWndExtra = 0;
+    cs.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
+    cs.hCursor = NULL;
+    cs.hIcon = NULL;
+    cs.hInstance = GetModuleHandle(NULL);
+    cs.lpfnWndProc = (WNDPROC)WinProc;
+    cs.lpszClassName = DALI_WINDOW_CLASS_NAME.c_str();
+    cs.lpszMenuName = NULL;
+    cs.style = CS_VREDRAW | CS_HREDRAW;
+    RegisterClass(&cs);
+  }
+}
+
+void EnsureWindowClassUnregistered()
+{
+  if (sNumWindows == 0)
+  {
+    UnregisterClass(DALI_WINDOW_CLASS_NAME.c_str(), GetModuleHandle(NULL));
+  }
+}
+
+std::map<uint64_t, WindowImpl*> sHWndToListener;
+
+void RemoveListener(uint64_t hWnd)
+{
+  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(hWnd);
+  if (sHWndToListener.end() != x)
+  {
+    sHWndToListener.erase(x);
+  }
+}
+
+}
+
+const uint32_t WindowImpl::STYLE = WS_OVERLAPPED;
+const int32_t WindowImpl::EDGE_WIDTH = 8;
+const int32_t WindowImpl::EDGE_HEIGHT = 18;
 
 WindowImpl::WindowImpl()
 {
@@ -58,19 +107,18 @@ WindowImpl::WindowImpl()
   mHWnd = 0;
   mHdc = 0;
   listener = NULL;
-  windowStyle = WS_OVERLAPPED;
 }
 
 WindowImpl::~WindowImpl()
 {
-  mHWndToListener.erase( mHWnd );
+  RemoveListener(mHWnd);
 }
 
 void WindowImpl::ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam )
 {
-  std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find( hWnd );
+  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find( hWnd );
 
-  if( mHWndToListener.end() != x )
+  if( sHWndToListener.end() != x )
   {
     CallbackBase* listener = x->second->listener;
 
@@ -102,7 +150,6 @@ int WindowImpl::GetColorDepth()
 }
 
 uint64_t WindowImpl::CreateHwnd(
-  _In_opt_ const char *lpClassName,
   _In_opt_ const char *lpWindowName,
   _In_ int X,
   _In_ int Y,
@@ -110,25 +157,25 @@ uint64_t WindowImpl::CreateHwnd(
   _In_ int nHeight,
   _In_opt_ uint64_t parent )
 {
-  WNDCLASS cs = { 0 };
-  cs.cbClsExtra = 0;
-  cs.cbWndExtra = 0;
-  cs.hbrBackground = (HBRUSH)( COLOR_WINDOW + 2 );
-  cs.hCursor = NULL;
-  cs.hIcon = NULL;
-  cs.hInstance = GetModuleHandle( NULL );
-  cs.lpfnWndProc = (WNDPROC)WinProc;
-  cs.lpszClassName = lpClassName;
-  cs.lpszMenuName = NULL;
-  cs.style = CS_VREDRAW | CS_HREDRAW;
-  RegisterClass( &cs );
+  EnsureWindowClassRegistered();
+  ++sNumWindows;
 
-  HWND hWnd = CreateWindow( lpClassName, lpWindowName, windowStyle, X, Y, nWidth + 2 * GetEdgeWidth(), nHeight + 2 * GetEdgeHeight(), NULL, NULL, cs.hInstance, NULL );
+  HWND hWnd = CreateWindow( DALI_WINDOW_CLASS_NAME.c_str(), lpWindowName, STYLE, X, Y,
+    nWidth + 2 * EDGE_WIDTH, nHeight + 2 * EDGE_HEIGHT, NULL, NULL, GetModuleHandle(NULL), NULL );
   ::ShowWindow( hWnd, SW_SHOW );
 
-  SetHWND( reinterpret_cast<uint64_t>(hWnd) );
+  return reinterpret_cast<uint64_t>(hWnd);
+}
 
-  return mHWnd;
+void WindowImpl::DestroyHWnd(uint64_t hWnd)
+{
+  if (hWnd != 0)
+  {
+    ::DestroyWindow(reinterpret_cast<HWND>(hWnd));
+
+    --sNumWindows;
+    EnsureWindowClassUnregistered();
+  }
 }
 
 void WindowImpl::SetListener( CallbackBase *callback )
@@ -144,49 +191,20 @@ bool WindowImpl::PostWinMessage(
   return (bool)PostMessage( reinterpret_cast<HWND>( mHWnd ), Msg, wParam, lParam );
 }
 
-int32_t WindowImpl::GetEdgeWidth()
-{
-  switch( windowStyle )
-  {
-  case WS_OVERLAPPED:
-  {
-    return 8;
-  }
-  default:
-  {
-    return 0;
-  }
-  }
-}
-
-int32_t WindowImpl::GetEdgeHeight()
-{
-  switch( windowStyle )
-  {
-  case WS_OVERLAPPED:
-  {
-    return 18;
-  }
-  default:
-  {
-    return 0;
-  }
-  }
-}
-
 void WindowImpl::SetHWND( uint64_t inHWnd )
 {
   if (mHWnd != inHWnd)
   {
+    RemoveListener(mHWnd);
+
     mHWnd = inHWnd;
     mHdc = reinterpret_cast<uint64_t>(GetDC(reinterpret_cast<HWND>(mHWnd)));
     colorDepth = GetDeviceCaps(reinterpret_cast<HDC>(mHdc), BITSPIXEL) * GetDeviceCaps(reinterpret_cast<HDC>(mHdc), PLANES);
 
-    std::map<uint64_t, WindowImpl*>::iterator x = mHWndToListener.find(mHWnd);
-
-    if (mHWndToListener.end() == x)
+    std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(mHWnd);
+    if (sHWndToListener.end() == x)
     {
-      mHWndToListener.insert(std::make_pair(mHWnd, this));
+      sHWndToListener.insert(std::make_pair(mHWnd, this));
     }
     else
     {
@@ -241,20 +259,20 @@ void CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT_PTR nTimerid, DWORD dwTime)
   info->callback( info->data );
 }
 
-int SetTimer(int interval, timerCallback callback, void *data)
+intptr_t SetTimer(int interval, timerCallback callback, void *data)
 {
   TTimerCallbackInfo *callbackInfo = new TTimerCallbackInfo;
   callbackInfo->data = data;
   callbackInfo->callback = callback;
   callbackInfo->hWnd = ::GetActiveWindow();
 
-  UINT_PTR timerID = (UINT_PTR)callbackInfo;
+  INT_PTR timerID = (INT_PTR)callbackInfo;
   ::SetTimer( callbackInfo->hWnd, timerID, interval, TimerProc );
 
   return timerID;
 }
 
-void KillTimer(int id)
+void KillTimer(intptr_t id)
 {
   TTimerCallbackInfo *info = (TTimerCallbackInfo*)id;
   ::KillTimer( info->hWnd, id );

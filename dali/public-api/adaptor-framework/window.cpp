@@ -56,7 +56,7 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
     if (isAdaptorAvailable)
     {
       Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder, name, className, isTransparent);
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
     }
     newWindow = Window(window);
   }
@@ -287,12 +287,6 @@ bool Window::SetBrightness( int brightness )
 int Window::GetBrightness() const
 {
   return GetImplementation(*this).GetBrightness();
-}
-
-Window::ResizedSignalType& Window::ResizedSignal()
-{
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal is deprecated and will be removed from next release.\n" );
-  return GetImplementation(*this).ResizedSignal();
 }
 
 Window::ResizeSignalType& Window::ResizeSignal()

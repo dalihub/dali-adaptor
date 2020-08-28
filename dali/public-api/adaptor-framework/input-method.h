@@ -222,34 +222,6 @@ enum Type
 
 } // namespace PasswordLayout
 
-
-/**
- * @DEPRECATED_1_3.20 Use ButtonAction instead.
- * @brief Enumeration for specifying what the Input Method "action" button functionality is set to.
- *
- * The 'Action' button is traditionally the [RETURN] or [DONE] button.
- *
- * Not all these actions are supported by all systems.
- *
- * Setting a custom label will still require one of these actions to be set.
- * @SINCE_1_0.0
- */
-enum ActionButton
-{
-  ACTION_DEFAULT,       ///< Default action @SINCE_1_0.0
-  ACTION_DONE,          ///< Done @SINCE_1_0.0
-  ACTION_GO,            ///< Go action @SINCE_1_0.0
-  ACTION_JOIN,          ///< Join action @SINCE_1_0.0
-  ACTION_LOGIN,         ///< Login action @SINCE_1_0.0
-  ACTION_NEXT,          ///< Next action @SINCE_1_0.0
-  ACTION_PREVIOUS,      ///< Previous action @SINCE_1_0.0
-  ACTION_SEARCH,        ///< Search action @SINCE_1_0.0
-  ACTION_SEND,          ///< Send action @SINCE_1_0.0
-  ACTION_SIGNIN,        ///< Sign in action @SINCE_1_0.0
-  ACTION_UNSPECIFIED,   ///< Unspecified action @SINCE_1_0.0
-  ACTION_NONE           ///< Nothing to do @SINCE_1_0.0
-};
-
 } // namespace InputMethod
 
 /**

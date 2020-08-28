@@ -62,7 +62,7 @@ bool WinCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasReturn
 
   mCallbacks.insert(callback);
 
-  WindowsPlatformImplementation::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0 );
+  WindowsPlatform::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0 );
 
   return true;
 }

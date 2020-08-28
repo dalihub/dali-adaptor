@@ -29,6 +29,7 @@
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/public-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
+#include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
@@ -421,13 +422,13 @@ struct Framework::Impl
       int32_t action = AKeyEvent_getAction( event );
       int64_t timeStamp = AKeyEvent_getEventTime( event );
 
-      KeyEvent::State state = KeyEvent::Down;
+      Dali::KeyEvent::State state = Dali::KeyEvent::DOWN;
       switch ( action )
       {
       case AKEY_EVENT_ACTION_DOWN:
         break;
       case AKEY_EVENT_ACTION_UP:
-        state = KeyEvent::Up;
+        state = Dali::KeyEvent::UP;
         break;
       }
 
@@ -440,7 +441,7 @@ struct Framework::Impl
       default:
         break;
       }
-      Dali::KeyEvent keyEvent( keyName, "", keyCode, 0, timeStamp, state );
+      Dali::KeyEvent keyEvent = Dali::DevelKeyEvent::New( keyName, "", "", keyCode, 0, timeStamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE );
       Dali::Internal::Adaptor::Framework::Impl::NativeAppKeyEvent( framework, keyEvent );
       return 1;
     }
