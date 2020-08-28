@@ -303,7 +303,7 @@ void SceneHolder::FeedTouchPoint( Dali::Integration::Point& point, int timeStamp
   Integration::TouchEvent touchEvent;
   Integration::HoverEvent hoverEvent;
   Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
-  if( type != Integration::TouchEventCombiner::DispatchNone )
+  if( type != Integration::TouchEventCombiner::DISPATCH_NONE )
   {
     DALI_LOG_INFO( gSceneHolderLogFilter, Debug::Verbose, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y );
 
@@ -312,12 +312,12 @@ void SceneHolder::FeedTouchPoint( Dali::Integration::Point& point, int timeStamp
     Dali::BaseHandle sceneHolder( this );
 
     // First the touch and/or hover event & related gesture events are queued
-    if( type == Integration::TouchEventCombiner::DispatchTouch || type == Integration::TouchEventCombiner::DispatchBoth )
+    if( type == Integration::TouchEventCombiner::DISPATCH_TOUCH || type == Integration::TouchEventCombiner::DISPATCH_BOTH )
     {
       mScene.QueueEvent( touchEvent );
     }
 
-    if( type == Integration::TouchEventCombiner::DispatchHover || type == Integration::TouchEventCombiner::DispatchBoth )
+    if( type == Integration::TouchEventCombiner::DISPATCH_HOVER || type == Integration::TouchEventCombiner::DISPATCH_BOTH )
     {
       mScene.QueueEvent( hoverEvent );
     }

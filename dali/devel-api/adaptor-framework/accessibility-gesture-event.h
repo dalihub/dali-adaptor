@@ -60,12 +60,12 @@ struct AccessibilityGestureEvent
 
   enum State
   {
-    Clear,      ///< There is no state associated with this gesture. @SINCE_1_0.0
-    Started,    ///< The touched points on the screen have moved enough to be considered a gesture. @SINCE_1_0.0
-    Continuing, ///< The gesture is continuing. @SINCE_1_0.0
-    Finished,   ///< The user has lifted a finger or touched an additional point on the screen. @SINCE_1_0.0
-    Cancelled,  ///< The gesture has been cancelled. @SINCE_1_0.0
-    Possible    ///< A gesture is possible. @SINCE_1_0.0
+    CLEAR,      ///< There is no state associated with this gesture. @SINCE_1_9.28
+    STARTED,    ///< The touched points on the screen have moved enough to be considered a gesture. @SINCE_1_9.28
+    CONTINUING, ///< The gesture is continuing. @SINCE_1_9.28
+    FINISHED,   ///< The user has lifted a finger or touched an additional point on the screen. @SINCE_1_9.28
+    CANCELLED,  ///< The gesture has been cancelled. @SINCE_1_9.28
+    POSSIBLE    ///< A gesture is possible. @SINCE_1_9.28
   };
 
   State state;

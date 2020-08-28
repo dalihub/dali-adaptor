@@ -46,7 +46,7 @@ namespace
 
 
 AccessibilityGestureDetector::AccessibilityGestureDetector()
-: mState( Clear ),
+: mState( CLEAR ),
   mScene(nullptr),
   mGestureHandler(nullptr),
   mPanning(false),
@@ -74,7 +74,7 @@ void AccessibilityGestureDetector::EmitPan(const AccessibilityGestureEvent gestu
 {
   if( mGestureHandler )
   {
-    if(gesture.state == AccessibilityGestureEvent::Started)
+    if(gesture.state == AccessibilityGestureEvent::STARTED)
     {
       mPanning = true;
     }
@@ -83,8 +83,8 @@ void AccessibilityGestureDetector::EmitPan(const AccessibilityGestureEvent gestu
     {
       mGestureHandler->HandlePanGesture(gesture);
 
-      if( (gesture.state == AccessibilityGestureEvent::Finished) ||
-          (gesture.state == AccessibilityGestureEvent::Cancelled) )
+      if( (gesture.state == AccessibilityGestureEvent::FINISHED) ||
+          (gesture.state == AccessibilityGestureEvent::CANCELLED) )
       {
         mPanning = false;
       }
@@ -98,20 +98,20 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
 
   if (primaryPointState == PointState::INTERRUPTED)
   {
-    if ( ( mState == Started ) || ( mState == Possible ) )
+    if ( ( mState == STARTED ) || ( mState == POSSIBLE ) )
     {
       // If our pan had started and we are interrupted, then tell Core that pan is cancelled.
       mTouchEvents.push_back(event);
-      SendPan(AccessibilityGestureEvent::Cancelled, event);
+      SendPan(AccessibilityGestureEvent::CANCELLED, event);
     }
-    mState = Clear; // We should change our state to Clear.
+    mState = CLEAR; // We should change our state to CLEAR.
     mTouchEvents.clear();
   }
   else
   {
     switch (mState)
     {
-      case Clear:
+      case CLEAR:
       {
         if ( ( primaryPointState == PointState::DOWN ) || ( primaryPointState == PointState::STATIONARY ) )
         {
@@ -121,8 +121,8 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
           if (event.GetPointCount() == mMinimumTouchesRequired)
           {
             // We have satisfied the minimum touches required for a pan, tell core that a gesture may be possible and change our state accordingly.
-            mState = Possible;
-            SendPan(AccessibilityGestureEvent::Possible, event);
+            mState = POSSIBLE;
+            SendPan(AccessibilityGestureEvent::POSSIBLE, event);
           }
 
           mTouchEvents.push_back(event);
@@ -130,7 +130,7 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
         break;
       }
 
-      case Possible:
+      case POSSIBLE:
       {
         unsigned int pointCount(event.GetPointCount());
         if ( (pointCount >= mMinimumTouchesRequired)&&(pointCount <= mMaximumTouchesRequired) )
@@ -146,8 +146,8 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
                  ( delta.LengthSquared() >= static_cast<float>( mMinimumDistanceSquared ) ) )
             {
               // If the touch point(s) have moved enough distance to be considered a pan, then tell Core that the pan gesture has started and change our state accordingly.
-              mState = Started;
-              SendPan(AccessibilityGestureEvent::Started, event);
+              mState = STARTED;
+              SendPan(AccessibilityGestureEvent::STARTED, event);
             }
           }
           else if (primaryPointState == PointState::UP)
@@ -155,40 +155,40 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
             Vector2 delta(event.points[0].GetScreenPosition() - mPrimaryTouchDownLocation);
             if (delta.LengthSquared() >= static_cast<float>( mMinimumDistanceSquared ) )
             {
-              SendPan(AccessibilityGestureEvent::Started, event);
+              SendPan(AccessibilityGestureEvent::STARTED, event);
               mTouchEvents.push_back(event);
-              SendPan(AccessibilityGestureEvent::Finished, event);
+              SendPan(AccessibilityGestureEvent::FINISHED, event);
             }
             else
             {
-              // If we have lifted the primary touch point then tell core the pan is cancelled and change our state to Clear.
-              SendPan(AccessibilityGestureEvent::Cancelled, event);
+              // If we have lifted the primary touch point then tell core the pan is cancelled and change our state to CLEAR.
+              SendPan(AccessibilityGestureEvent::CANCELLED, event);
             }
-            mState = Clear;
+            mState = CLEAR;
             mTouchEvents.clear();
           }
         }
         else
         {
           // We do not satisfy pan conditions, tell Core our Gesture has been cancelled.
-          SendPan(AccessibilityGestureEvent::Cancelled, event);
+          SendPan(AccessibilityGestureEvent::CANCELLED, event);
 
           if (pointCount == 1 && primaryPointState == PointState::UP)
           {
-            // If we have lifted the primary touch point, then change our state to Clear...
-            mState = Clear;
+            // If we have lifted the primary touch point, then change our state to CLEAR...
+            mState = CLEAR;
             mTouchEvents.clear();
           }
           else
           {
-            // ...otherwise change it to Failed.
-            mState = Failed;
+            // ...otherwise change it to FAILED.
+            mState = FAILED;
           }
         }
         break;
       }
 
-      case Started:
+      case STARTED:
       {
         mTouchEvents.push_back(event);
 
@@ -199,13 +199,13 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
           {
             case PointState::MOTION:
               // Pan is continuing, tell Core.
-              SendPan(AccessibilityGestureEvent::Continuing, event);
+              SendPan(AccessibilityGestureEvent::CONTINUING, event);
               break;
 
             case PointState::UP:
-              // Pan is finally finished when our primary point is lifted, tell Core and change our state to Clear.
-              SendPan(AccessibilityGestureEvent::Finished, event);
-              mState = Clear;
+              // Pan is finally finished when our primary point is lifted, tell Core and change our state to CLEAR.
+              SendPan(AccessibilityGestureEvent::FINISHED, event);
+              mState = CLEAR;
               mTouchEvents.clear();
               break;
 
@@ -217,9 +217,9 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
                 {
                   if(iter->GetState() == PointState::UP)
                   {
-                    // The number of touch points will be less than the minimum required.  Inform core and change our state to Finished.
-                    SendPan(AccessibilityGestureEvent::Finished, event);
-                    mState = Finished;
+                    // The number of touch points will be less than the minimum required.  Inform core and change our state to FINISHED.
+                    SendPan(AccessibilityGestureEvent::FINISHED, event);
+                    mState = FINISHED;
                     break;
                   }
                 }
@@ -233,30 +233,30 @@ void AccessibilityGestureDetector::SendEvent(const Integration::TouchEvent& even
         else
         {
           // We have gone outside of the pan requirements, inform Core that the gesture is finished.
-          SendPan(AccessibilityGestureEvent::Finished, event);
+          SendPan(AccessibilityGestureEvent::FINISHED, event);
 
           if (pointCount == 1 && primaryPointState == PointState::UP)
           {
-            // If this was the primary point being released, then we change our state back to Clear...
-            mState = Clear;
+            // If this was the primary point being released, then we change our state back to CLEAR...
+            mState = CLEAR;
             mTouchEvents.clear();
           }
           else
           {
-            // ...otherwise we change it to Finished.
-            mState = Finished;
+            // ...otherwise we change it to FINISHED.
+            mState = FINISHED;
           }
         }
         break;
       }
 
-      case Finished:
-      case Failed:
+      case FINISHED:
+      case FAILED:
       {
         if (primaryPointState == PointState::UP)
         {
           // Change our state back to clear when the primary touch point is released.
-          mState = Clear;
+          mState = CLEAR;
           mTouchEvents.clear();
         }
         break;
@@ -280,7 +280,7 @@ void AccessibilityGestureDetector::SendPan(AccessibilityGestureEvent::State stat
     uint32_t previousTime( previousEvent.time );
 
     // If we've just started then we want to remove the threshold from Core calculations.
-    if ( state == AccessibilityGestureEvent::Started )
+    if ( state == AccessibilityGestureEvent::STARTED )
     {
       previousPosition = mPrimaryTouchDownLocation;
       previousTime = mPrimaryTouchDownTime;

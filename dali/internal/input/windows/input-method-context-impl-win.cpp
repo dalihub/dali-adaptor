@@ -247,7 +247,7 @@ void InputMethodContextWin::NotifyTextInputMultiLine( bool multiLine )
 
 Dali::InputMethodContext::TextDirection InputMethodContextWin::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LeftToRight );
+  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LEFT_TO_RIGHT );
 
   return direction;
 }

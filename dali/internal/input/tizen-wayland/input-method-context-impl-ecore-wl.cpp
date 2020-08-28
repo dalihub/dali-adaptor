@@ -803,7 +803,7 @@ void InputMethodContextEcoreWl::NotifyTextInputMultiLine( bool multiLine )
 
 Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LeftToRight );
+  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LEFT_TO_RIGHT );
 
     if ( mIMFContext )
     {
