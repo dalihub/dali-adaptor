@@ -1,0 +1,30 @@
+
+# module: offscreen, backend: common
+SET( adaptor_offscreen_common_src_files
+    ${adaptor_offscreen_dir}/common/offscreen-application-impl.cpp
+)
+
+
+# module: offscreen, backend: tizen
+SET( adaptor_offscreen_tizen_src_files
+    ${adaptor_offscreen_dir}/tizen/offscreen-window-impl-tizen.cpp
+    ${adaptor_offscreen_dir}/tizen/offscreen-window-factory-tizen.cpp
+)
+
+# module: offscreen, backend: ubuntu-x11
+SET( adaptor_offscreen_ubuntu-x11_src_files
+    ${adaptor_offscreen_dir}/ubuntu-x11/offscreen-window-impl-x.cpp
+    ${adaptor_offscreen_dir}/ubuntu-x11/offscreen-window-factory-x.cpp
+)
+
+# module: offscreen, backend: android
+SET( adaptor_offscreen_android_src_files
+    ${adaptor_offscreen_dir}/android/offscreen-window-impl-android.cpp
+    ${adaptor_offscreen_dir}/android/offscreen-window-factory-android.cpp
+)
+
+# module: offscreen, backend: windows
+SET( adaptor_offscreen_windows_src_files
+    ${adaptor_offscreen_dir}/windows/offscreen-window-impl-win.cpp
+    ${adaptor_offscreen_dir}/windows/offscreen-window-factory-win.cpp
+)

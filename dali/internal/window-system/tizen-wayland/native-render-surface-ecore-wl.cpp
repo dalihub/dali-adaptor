@@ -231,6 +231,8 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 
 bool NativeRenderSurfaceEcoreWl::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
+  MakeContextCurrent();
+
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if (eglGraphics)
   {
@@ -255,45 +257,62 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
     eglImpl.SwapBuffers( mEGLSurface, damagedRects );
   }
 
-  if( mThreadSynchronization )
+  if ( mOwnSurface )
   {
-    mThreadSynchronization->PostRenderStarted();
-  }
-
-  if( tbm_surface_queue_can_acquire( mTbmQueue, 1 ) )
-  {
-    if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+    if( mThreadSynchronization )
     {
-      DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
-      return;
+      mThreadSynchronization->PostRenderStarted();
+    }
+
+    if( tbm_surface_queue_can_acquire( mTbmQueue, 1 ) )
+    {
+      if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+      {
+        DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
+        return;
+      }
+    }
+
+    if ( mConsumeSurface )
+    {
+      tbm_surface_internal_ref( mConsumeSurface );
+    }
+
+    if( replacingSurface )
+    {
+      ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
+      mDrawableCompleted = true;
+      mTbmSurfaceCondition.Notify( lock );
+    }
+
+   // create damage for client applications which wish to know the update timing
+    if( !replacingSurface && mRenderNotification )
+    {
+      // use notification trigger
+      // Tell the event-thread to render the tbm_surface
+      mRenderNotification->Trigger();
+    }
+
+    if( mThreadSynchronization )
+    {
+      // wait until the event-thread completed to use the tbm_surface
+      mThreadSynchronization->PostRenderWaitForCompletion();
+    }
+
+    // release the consumed surface after post render was completed
+    ReleaseDrawable();
+  }
+  else
+  {
+    // create damage for client applications which wish to know the update timing
+    if( !replacingSurface && mRenderNotification )
+    {
+      // use notification trigger
+      // Tell the event-thread to render the tbm_surface
+      mRenderNotification->Trigger();
     }
   }
 
-  tbm_surface_internal_ref( mConsumeSurface );
-
-  if( replacingSurface )
-  {
-    ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
-    mDrawableCompleted = true;
-    mTbmSurfaceCondition.Notify( lock );
-  }
-
- // create damage for client applications which wish to know the update timing
-  if( !replacingSurface && mRenderNotification )
-  {
-    // use notification trigger
-    // Tell the event-thread to render the tbm_surface
-    mRenderNotification->Trigger();
-  }
-
-  if( mThreadSynchronization )
-  {
-    // wait until the event-thread completed to use the tbm_surface
-    mThreadSynchronization->PostRenderWaitForCompletion();
-  }
-
-  // release the consumed surface after post render was completed
-  ReleaseDrawable();
 }
 
 void NativeRenderSurfaceEcoreWl::StopRender()
@@ -327,6 +346,11 @@ Integration::DepthBufferAvailable NativeRenderSurfaceEcoreWl::GetDepthBufferRequ
 Integration::StencilBufferAvailable NativeRenderSurfaceEcoreWl::GetStencilBufferRequired()
 {
   return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
+}
+
+Any NativeRenderSurfaceEcoreWl::GetNativeHandle()
+{
+  return mTbmQueue;
 }
 
 void NativeRenderSurfaceEcoreWl::ReleaseLock()

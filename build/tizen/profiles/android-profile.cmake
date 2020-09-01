@@ -24,6 +24,8 @@ SET( SOURCES
         ${adaptor_integration_api_android_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
+        ${adaptor_offscreen_common_src_files}
+        ${adaptor_offscreen_android_src_files}
         ${adaptor_public_api_src_files}
         ${adaptor_sensor_common_src_files}
         ${adaptor_sensor_android_src_files}
