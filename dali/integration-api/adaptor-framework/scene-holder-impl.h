@@ -41,8 +41,8 @@ class Any;
 class Adaptor;
 class Actor;
 class Layer;
+class WheelEvent;
 struct TouchPoint;
-struct WheelEvent;
 struct KeyEvent;
 
 namespace Integration
