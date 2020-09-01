@@ -33,7 +33,7 @@ class Any;
 class TouchEvent;
 class WheelEvent;
 struct TouchPoint;
-struct KeyEvent;
+class KeyEvent;
 
 namespace Internal DALI_INTERNAL
 {

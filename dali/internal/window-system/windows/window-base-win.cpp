@@ -67,7 +67,7 @@ WindowBaseWin::~WindowBaseWin()
 void WindowBaseWin::Initialize( PositionSize positionSize, Any surface, bool isTransparent )
 {
   // see if there is a surface in Any surface
-  unsigned int surfaceId = GetSurfaceId( surface );
+  uintptr_t surfaceId = GetSurfaceId( surface );
 
   // if the surface is empty, create a new one.
   if( surfaceId == 0 )
@@ -127,7 +127,7 @@ void WindowBaseWin::OnMouseButtonDown( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -151,7 +151,7 @@ void WindowBaseWin::OnMouseButtonUp( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT ) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -175,7 +175,7 @@ void WindowBaseWin::OnMouseButtonMove( int type, TWinEventInfo *event )
     Integration::Point point;
     point.SetDeviceId( touchEvent.multi.device );
     point.SetState( state );
-    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + mWindowImpl.GetEdgeHeight() ) );
+    point.SetScreenPosition( Vector2( touchEvent.x, touchEvent.y + WindowsPlatform::WindowImpl::EDGE_HEIGHT) );
     point.SetRadius( touchEvent.multi.radius, Vector2( touchEvent.multi.radius_x, touchEvent.multi.radius_y ) );
     point.SetPressure( touchEvent.multi.pressure );
     point.SetAngle( Degree( touchEvent.multi.angle ) );
@@ -205,7 +205,7 @@ void WindowBaseWin::OnKeyDown( int type, TWinEventInfo *event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n" );
 
     int keyCode = event->wParam;
-    std::string keyName( WindowsPlatformImplementation::GetKeyName( keyCode ) );
+    std::string keyName( WindowsPlatform::GetKeyName( keyCode ) );
     std::string keyString;
     std::string emptyString;
 
@@ -215,7 +215,7 @@ void WindowBaseWin::OnKeyDown( int type, TWinEventInfo *event )
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back( event->wParam );
 
-    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::Down, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -228,7 +228,7 @@ void WindowBaseWin::OnKeyUp( int type, TWinEventInfo *event )
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n" );
 
     int keyCode = event->wParam;
-    std::string keyName( WindowsPlatformImplementation::GetKeyName( keyCode ) );
+    std::string keyName( WindowsPlatform::GetKeyName( keyCode ) );
     std::string keyString;
     std::string emptyString;
 
@@ -238,7 +238,7 @@ void WindowBaseWin::OnKeyUp( int type, TWinEventInfo *event )
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back( event->wParam );
 
-    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::Up, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
+    Integration::KeyEvent keyEvent( keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS );
 
     mKeyEventSignal.Emit( keyEvent );
   }
@@ -462,9 +462,9 @@ void WindowBaseWin::SetTransparency( bool transparent )
 {
 }
 
-unsigned int WindowBaseWin::GetSurfaceId( Any surface ) const
+uintptr_t WindowBaseWin::GetSurfaceId( Any surface ) const
 {
-  unsigned int surfaceId = 0;
+  uintptr_t surfaceId = 0;
 
   if ( surface.Empty() == false )
   {
@@ -479,20 +479,21 @@ unsigned int WindowBaseWin::GetSurfaceId( Any surface ) const
 
 void WindowBaseWin::CreateWinWindow( PositionSize positionSize, bool isTransparent )
 {
-  long hWnd = mWindowImpl.CreateHwnd( "Demo", "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
+  long hWnd = WindowsPlatform::WindowImpl::CreateHwnd( "Demo", positionSize.x, positionSize.y, positionSize.width, positionSize.height, NULL );
+  mWindowImpl.SetHWND(hWnd);
 
   mWin32Window = static_cast<WinWindowHandle>(hWnd);
 
   DALI_ASSERT_ALWAYS( mWin32Window != 0 && "There is no Windows window" );
 }
 
-void WindowBaseWin::SetWinWindow( unsigned int surfaceId )
+void WindowBaseWin::SetWinWindow( uintptr_t surfaceId )
 {
   HWND hWnd = (HWND)surfaceId;
 
   mWin32Window = static_cast<WinWindowHandle>(surfaceId);
 
-  mWindowImpl.SetHWND( reinterpret_cast<uint64_t>(hWnd));
+  mWindowImpl.SetHWND(surfaceId);
 
   mWindowImpl.SetWinProc();
 }

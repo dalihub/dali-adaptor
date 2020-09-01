@@ -339,14 +339,14 @@ bool InputMethodContextWin::FilterEventKey( const Dali::KeyEvent& keyEvent )
 {
   bool eventHandled( false );
 
-  if ( ! KeyLookup::IsDeviceButton( keyEvent.keyPressedName.c_str() ))
+  if ( ! KeyLookup::IsDeviceButton( keyEvent.GetKeyName().c_str() ))
   {
     //check whether it's key down or key up event
-    if ( keyEvent.state == KeyEvent::Down )
+    if ( keyEvent.GetState() == Dali::KeyEvent::DOWN )
     {
       eventHandled = ProcessEventKeyDown( keyEvent );
     }
-    else if ( keyEvent.state == KeyEvent::Up )
+    else if ( keyEvent.GetState() == Dali::KeyEvent::UP )
     {
       eventHandled = ProcessEventKeyUp( keyEvent );
     }
@@ -377,13 +377,13 @@ void InputMethodContextWin::GetPreeditStyle( Dali::InputMethodContext::PreEditAt
   attrs = mPreeditAttrs;
 }
 
-bool InputMethodContextWin::ProcessEventKeyDown( const KeyEvent& keyEvent )
+bool InputMethodContextWin::ProcessEventKeyDown( const Dali::KeyEvent& keyEvent )
 {
   bool eventHandled( false );
   return eventHandled;
 }
 
-bool InputMethodContextWin::ProcessEventKeyUp( const KeyEvent& keyEvent )
+bool InputMethodContextWin::ProcessEventKeyUp( const Dali::KeyEvent& keyEvent )
 {
   bool eventHandled( false );
   return eventHandled;

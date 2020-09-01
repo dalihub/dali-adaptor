@@ -88,7 +88,6 @@ Window::Window()
   mWindowHeight( 0 ),
   mOrientationMode( Internal::Adaptor::Window::OrientationMode::PORTRAIT ),
   mNativeWindowId( -1 ),
-  mResizedSignal(),
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
   mResizeSignal(),
@@ -620,7 +619,6 @@ void Window::SetSize( Dali::Window::WindowSize size )
     DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height );
 
     Dali::Window handle( this );
-    mResizedSignal.Emit( newSize );
     mResizeSignal.Emit( handle, newSize );
 
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
@@ -693,7 +691,6 @@ void Window::SetPositionSize( PositionSize positionSize )
 
     DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height );
     Dali::Window handle( this );
-    mResizedSignal.Emit( newSize );
     mResizeSignal.Emit( handle, newSize );
     mAdaptor->SurfaceResizeComplete( mSurface.get(), newSize );
   }
@@ -848,7 +845,6 @@ void Window::OnRotation( const RotationEvent& rotation )
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), OnRotation(): resize signal emit [%d x %d]\n", this, mNativeWindowId, mWindowWidth, mWindowHeight );
   // Emit signal
   Dali::Window handle( this );
-  mResizedSignal.Emit( Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
   mResizeSignal.Emit( handle, Dali::Window::WindowSize( mWindowWidth, mWindowHeight ) );
 
   mAdaptor->SurfaceResizeComplete( mSurface.get(), Adaptor::SurfaceSize( mWindowWidth, mWindowHeight ) );

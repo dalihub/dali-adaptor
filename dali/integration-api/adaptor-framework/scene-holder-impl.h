@@ -43,7 +43,7 @@ class Actor;
 class Layer;
 class WheelEvent;
 struct TouchPoint;
-struct KeyEvent;
+class KeyEvent;
 
 namespace Integration
 {

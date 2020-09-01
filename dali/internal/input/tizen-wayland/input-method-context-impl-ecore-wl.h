@@ -286,7 +286,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyDown( const KeyEvent& keyEvent );
+  bool ProcessEventKeyDown( const Dali::KeyEvent& keyEvent );
 
   /**
    * @brief Process event key up, whether filter a key to isf.
@@ -294,7 +294,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyUp( const KeyEvent& keyEvent );
+  bool ProcessEventKeyUp( const Dali::KeyEvent& keyEvent );
 
   /**
   * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.

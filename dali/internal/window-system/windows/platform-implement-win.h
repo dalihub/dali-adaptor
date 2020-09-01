@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <dali/public-api/signals/callback.h>
 
-typedef uint64_t   WinWindowHandle;
+typedef uintptr_t  WinWindowHandle;
 typedef uint64_t   WinPixmap;
 
 namespace Dali
@@ -34,7 +34,7 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace WindowsPlatformImplementation
+namespace WindowsPlatform
 {
 
 bool PostWinThreadMessage(
@@ -45,9 +45,9 @@ bool PostWinThreadMessage(
 
 using timerCallback = bool(*)(void *data);
 
-int SetTimer(int interval, timerCallback callback, void *data);
+intptr_t SetTimer(int interval, timerCallback callback, void *data);
 
-void KillTimer(int id);
+void KillTimer(intptr_t id);
 
 const char* GetKeyName( int keyCode );
 
@@ -60,24 +60,29 @@ unsigned int GetCurrentMilliSeconds( void );
 class WindowImpl
 {
 public:
+  static const uint32_t STYLE;
+  static const int32_t EDGE_WIDTH;
+  static const int32_t EDGE_HEIGHT;
+
   WindowImpl();
 
   virtual ~WindowImpl();
 
   static void ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam );
 
-  void GetDPI( float &xDpi, float &yDpi );
-
-  int GetColorDepth();
-
-  uint64_t CreateHwnd(
-    _In_opt_ const char *lpClassName,
+  static uint64_t CreateHwnd(
     _In_opt_ const char *lpWindowName,
     _In_ int X,
     _In_ int Y,
     _In_ int nWidth,
     _In_ int nHeight,
     _In_opt_ uint64_t parent );
+
+  static void DestroyHWnd(uint64_t hWnd);
+
+  void GetDPI( float &xDpi, float &yDpi );
+
+  int GetColorDepth();
 
   void SetListener( CallbackBase *callback );
 
@@ -86,21 +91,14 @@ public:
     _In_ uint64_t wParam,
     _In_ uint64_t lParam );
 
-  int32_t GetEdgeWidth();
-
-  int32_t GetEdgeHeight();
-
   void SetHWND(uint64_t inHWnd);
   void SetWinProc();
 
 protected:
 
 private:
-
-  unsigned long windowStyle;
-
   int colorDepth;
-  uint64_t mHWnd;
+  uint64_t mHWnd; // no ownership, managed outside
   uint64_t mHdc;
 
   CallbackBase *listener;
