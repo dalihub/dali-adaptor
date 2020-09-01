@@ -58,6 +58,7 @@ using EventHandlerPtr = IntrusivePtr< EventHandler >;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
+  typedef Dali::Window::ResizedSignalType ResizedSignalType;
   typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
   typedef Dali::Window::ResizeSignalType ResizeSignalType;
   typedef Dali::DevelWindow::VisibilityChangedSignalType VisibilityChangedSignalType;
@@ -499,6 +500,10 @@ public: // Signals
    * @copydoc Dali::Window::FocusChangeSignal()
    */
   FocusChangeSignalType& FocusChangeSignal() { return mFocusChangeSignal; }
+  /**
+   * @copydoc Dali::Window::ResizedSignal()
+   */
+  ResizedSignalType& ResizedSignal() { return mResizedSignal; }
 
   /**
    * @copydoc Dali::Window::ResizedSignal()
@@ -559,6 +564,7 @@ private:
   int                                   mNativeWindowId;          ///< The Native Window Id
 
   // Signals
+  ResizedSignalType                       mResizedSignal;
   SignalType                              mDeleteRequestSignal;
   FocusChangeSignalType                   mFocusChangeSignal;
   ResizeSignalType                        mResizeSignal;

@@ -73,6 +73,7 @@ public:
   using WindowSize = Uint16Pair ;     ///< Window size type @SINCE_1_2.60
   using WindowPosition = Uint16Pair;  ///< Window position type @SINCE_1_2.60
 
+  using ResizedSignalType = Signal< void (WindowSize) >;       ///< @DEPRECATED_1_4.35 @brief Window resized signal type @SINCE_1_2.60
   using FocusChangeSignalType = Signal< void (Window,bool) >;  ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType = Signal< void (Window,WindowSize) >; ///< Window resized signal type @SINCE_1_4.35
   using KeyEventSignalType = Signal< void (const KeyEvent&) >; ///< Key event signal type
@@ -615,6 +616,20 @@ public:
   RenderTaskList GetRenderTaskList();
 
 public: // Signals
+
+  /**
+   * @brief This signal is emitted when the window is resized.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName( int width, int height );
+   * @endcode
+   * The parameters are the resized width and height.
+   *
+   * @SINCE_1_2.60
+   * @return The signal to connect to
+   */
+  ResizedSignalType& ResizedSignal() DALI_DEPRECATED_API;
 
   /**
    * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.

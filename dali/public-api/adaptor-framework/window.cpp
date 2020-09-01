@@ -289,6 +289,12 @@ int Window::GetBrightness() const
   return GetImplementation(*this).GetBrightness();
 }
 
+Window::ResizedSignalType& Window::ResizedSignal()
+{
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: ResizedSignal is deprecated and will be removed from next release.\n" );
+  return GetImplementation(*this).ResizedSignal();
+}
+
 Window::ResizeSignalType& Window::ResizeSignal()
 {
   return GetImplementation(*this).ResizeSignal();
