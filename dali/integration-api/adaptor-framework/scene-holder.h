@@ -31,8 +31,8 @@ class Actor;
 class Layer;
 class Any;
 class TouchEvent;
-class WheelEvent;
 struct TouchPoint;
+struct WheelEvent;
 struct KeyEvent;
 
 namespace Internal DALI_INTERNAL

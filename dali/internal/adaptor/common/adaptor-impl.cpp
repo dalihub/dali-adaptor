@@ -27,7 +27,6 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/object-registry.h>
-#include <dali/public-api/events/wheel-event.h>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -568,9 +567,9 @@ void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
   mWindows.front()->FeedTouchPoint( convertedPoint, timeStamp );
 }
 
-void Adaptor::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
 {
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >( wheelEvent.GetType() ), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime() );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
   mWindows.front()->FeedWheelEvent( event );
 }
 

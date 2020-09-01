@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EVENT_HANDLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ private:
   /**
    * Called when a mouse wheel is received.
    */
-  void OnWheelEvent( Integration::WheelEvent& wheelEvent );
+  void OnWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * Called when a key event is received.

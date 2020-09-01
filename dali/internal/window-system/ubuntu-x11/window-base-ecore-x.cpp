@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -505,7 +505,7 @@ void WindowBaseEcoreX::OnMouseWheel( void* data, int type, void* event )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z );
 
-    Integration::WheelEvent wheelEvent( Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( static_cast<float>( mouseWheelEvent->x ), static_cast<float>( mouseWheelEvent->y ) ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
+    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2( static_cast<float>( mouseWheelEvent->x ), static_cast<float>( mouseWheelEvent->y ) ), mouseWheelEvent->z, mouseWheelEvent->timestamp );
 
     mWheelEventSignal.Emit( wheelEvent );
   }

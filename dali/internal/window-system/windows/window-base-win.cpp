@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ void WindowBaseWin::OnMouseWheel( int type, TWinEventInfo *event )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent.direction, mouseWheelEvent.modifiers, mouseWheelEvent.x, mouseWheelEvent.y, mouseWheelEvent.z );
 
-    Integration::WheelEvent wheelEvent( Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2( mouseWheelEvent.x, mouseWheelEvent.y ), mouseWheelEvent.z, mouseWheelEvent.timestamp );
+    WheelEvent wheelEvent( WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2( mouseWheelEvent.x, mouseWheelEvent.y ), mouseWheelEvent.z, mouseWheelEvent.timestamp );
 
     mWheelEventSignal.Emit( wheelEvent );
   }

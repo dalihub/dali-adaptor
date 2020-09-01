@@ -246,7 +246,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::EventFeeder::FeedWheelEvent()
    */
-  virtual void FeedWheelEvent( Dali::WheelEvent& wheelEvent );
+  virtual void FeedWheelEvent( WheelEvent& wheelEvent );
 
   /**
    * @copydoc Dali::EventFeeder::FeedKeyEvent()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ void SceneHolder::FeedTouchPoint( Dali::TouchPoint& point, int timeStamp )
 
 void SceneHolder::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
 {
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >( wheelEvent.GetType() ), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime() );
+  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >(wheelEvent.type), wheelEvent.direction, wheelEvent.modifiers, wheelEvent.point, wheelEvent.z, wheelEvent.timeStamp );
   GetImplementation(*this).FeedWheelEvent( event );
 }
 
