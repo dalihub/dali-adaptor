@@ -251,7 +251,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::EventFeeder::FeedKeyEvent()
    */
-  virtual void FeedKeyEvent( Dali::KeyEvent& keyEvent );
+  virtual void FeedKeyEvent( KeyEvent& keyEvent );
 
   /**
    * @copydoc Dali::Adaptor::ReplaceSurface()

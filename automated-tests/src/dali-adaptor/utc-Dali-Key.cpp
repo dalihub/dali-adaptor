@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <dali.h>
-#include <dali/devel-api/events/key-event-devel.h>
 #include <dali-test-suite-utils.h>
 
 using namespace Dali;
@@ -98,7 +97,8 @@ const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable))/ (sizeof(KeyLooku
 // Generate a KeyPressEvent to send to Core
 Dali::KeyEvent GenerateKeyPress( const std::string& keyName )
 {
-  Dali::KeyEvent keyPress = DevelKeyEvent::New(keyName, "", "", -1, 0, 0lu, Dali::KeyEvent::Down, "", "", Device::Class::NONE, Device::Subclass::NONE);  // set name to test, key string to i and modifier to shift
+  KeyEvent keyPress;
+  keyPress.keyPressedName = keyName;
   return keyPress;
 }
 

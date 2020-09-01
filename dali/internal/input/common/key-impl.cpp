@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -282,7 +282,7 @@ KeyMap globalKeyLookup;
 
 bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
 {
-  int key = globalKeyLookup.GetDaliKeyEnum( keyEvent.GetKeyName().c_str() );
+  int key = globalKeyLookup.GetDaliKeyEnum( keyEvent.keyPressedName.c_str() );
   return daliKey == key;
 }
 

@@ -574,9 +574,9 @@ void Adaptor::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
   mWindows.front()->FeedWheelEvent( event );
 }
 
-void Adaptor::FeedKeyEvent( Dali::KeyEvent& keyEvent )
+void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
 {
-  Integration::KeyEvent convertedEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
+  Integration::KeyEvent convertedEvent( keyEvent );
   mWindows.front()->FeedKeyEvent( convertedEvent );
 }
 

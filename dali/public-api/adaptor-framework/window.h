@@ -57,7 +57,7 @@ class Actor;
 class Layer;
 class RenderTaskList;
 class TouchEvent;
-class KeyEvent;
+struct KeyEvent;
 
 /**
  * @brief The window class is used internally for drawing.

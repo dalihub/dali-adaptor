@@ -25,7 +25,7 @@ namespace Dali
 {
 
 class WheelEvent;
-class KeyEvent;
+struct KeyEvent;
 struct TouchPoint;
 
 namespace EventFeeder

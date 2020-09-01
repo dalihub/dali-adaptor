@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_X_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -292,7 +292,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyDown( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyDown( const KeyEvent& keyEvent );
 
   /**
    * @brief Process event key up, whether filter a key to isf.
@@ -300,7 +300,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyUp( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyUp( const KeyEvent& keyEvent );
 
   /**
   * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
