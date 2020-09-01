@@ -23,7 +23,7 @@
 
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/math/vector2.h>
-#include <dali/devel-api/events/touch-point.h>
+#include <dali/public-api/events/touch-point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
 
 // INTERNAL INCLUDES
