@@ -102,22 +102,6 @@ public:
    *                                  - Window, adaptor will use existing Window to draw on to
    * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
-   * @param[in]  threadMode          The mode of the Adaptor
-   */
-  static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
-                             Dali::RenderSurfaceInterface* surface,
-                             Dali::Configuration::ContextLoss configuration,
-                             EnvironmentOptions* environmentOptions,
-                             ThreadMode threadMode );
-
-  /**
-   * Creates a New Adaptor
-   * @param[in]  window              The window handle
-   * @param[in]  surface             A render surface can be one of the following
-   *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                                  - Window, adaptor will use existing Window to draw on to
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
-   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
@@ -133,24 +117,6 @@ public:
   static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
-
-  /**
-   * Creates a New Adaptor
-   * @param[in]  graphicsFactory     A factory that creates the graphics interface
-   * @param[in]  window              The window handle
-   * @param[in]  surface             A render surface can be one of the following
-   *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
-   *                                  - Window, adaptor will use existing Window to draw on to
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
-   * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
-   * @param[in]  threadMode          The ThreadMode of the Adaptor
-   */
-  static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
-                             Dali::Integration::SceneHolder window,
-                             Dali::RenderSurfaceInterface* surface,
-                             Dali::Configuration::ContextLoss configuration,
-                             EnvironmentOptions* environmentOptions,
-                             ThreadMode threadMode );
 
   /**
    * Creates a New Adaptor
@@ -667,9 +633,8 @@ private:
    *                          - Pixmap, adaptor will use existing Pixmap to draw on to
    *                          - Window, adaptor will use existing Window to draw on to
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
-   * @param[in]  threadMode   The ThreadMode of the Adaptor
    */
-  Adaptor( Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode );
+  Adaptor( Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions );
 
 private: // Types
 
