@@ -8,6 +8,7 @@ SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/window-base.cpp 
     ${adaptor_window_system_dir}/common/window-impl.cpp 
     ${adaptor_window_system_dir}/common/window-render-surface.cpp
+    ${adaptor_window_system_dir}/common/gl-window-impl.cpp
 )
 
 # module: window-system, backend: tizen-wayland
