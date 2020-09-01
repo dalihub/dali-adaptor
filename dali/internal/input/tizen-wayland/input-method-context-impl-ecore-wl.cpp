@@ -1058,11 +1058,11 @@ bool InputMethodContextEcoreWl::FilterEventKey( const Dali::KeyEvent& keyEvent )
   if ( ! KeyLookup::IsDeviceButton( keyEvent.GetKeyName().c_str() ))
   {
     //check whether it's key down or key up event
-    if ( keyEvent.GetState() == Dali::KeyEvent::DOWN )
+    if ( keyEvent.GetState() == Dali::KeyEvent::Down )
     {
       eventHandled = ProcessEventKeyDown( keyEvent );
     }
-    else if ( keyEvent.GetState() == Dali::KeyEvent::UP )
+    else if ( keyEvent.GetState() == Dali::KeyEvent::Up )
     {
       eventHandled = ProcessEventKeyUp( keyEvent );
     }

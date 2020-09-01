@@ -422,13 +422,13 @@ struct Framework::Impl
       int32_t action = AKeyEvent_getAction( event );
       int64_t timeStamp = AKeyEvent_getEventTime( event );
 
-      Dali::KeyEvent::State state = Dali::KeyEvent::DOWN;
+      Dali::KeyEvent::State state = Dali::KeyEvent::Down;
       switch ( action )
       {
       case AKEY_EVENT_ACTION_DOWN:
         break;
       case AKEY_EVENT_ACTION_UP:
-        state = Dali::KeyEvent::UP;
+        state = Dali::KeyEvent::Up;
         break;
       }
 
