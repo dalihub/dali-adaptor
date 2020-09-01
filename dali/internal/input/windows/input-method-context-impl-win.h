@@ -281,7 +281,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyDown( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyDown( const KeyEvent& keyEvent );
 
   /**
    * @brief Process event key up, whether filter a key to isf.
@@ -289,7 +289,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyUp( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyUp( const KeyEvent& keyEvent );
 
   /**
    * Called when the binded actor is added to a window.
