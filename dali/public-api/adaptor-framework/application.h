@@ -23,7 +23,6 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/application-configuration.h>
 #include <dali/public-api/adaptor-framework/device-status.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
@@ -241,22 +240,13 @@ public:
   /**
    * @brief This starts the application.
    *
-   * Choosing this form of main loop indicates that the default
-   * application configuration of APPLICATION_HANDLES_CONTEXT_LOSS is used. On platforms where
-   * context loss can occur, the application is responsible for tearing down and re-loading UI.
-   * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
+   * On platforms where context loss can occur, the application is responsible for tearing down and
+   * re-loading UI.  The application should listen to Stage::ContextLostSignal and
+   * Stage::ContextRegainedSignal.
+   *
    * @SINCE_1_0.0
    */
   void MainLoop();
-
-  /**
-   * @brief This starts the application, and allows the app to choose a different configuration.
-   *
-   * The application should listen to Stage::ContextLostSignal and Stage::ContextRegainedSignal.
-   * @SINCE_1_0.0
-   * @param[in] configuration The context loss configuration
-   */
-  void MainLoop(Configuration::ContextLoss configuration);
 
   /**
    * @brief This lowers the application to bottom without actually quitting it.

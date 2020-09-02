@@ -29,7 +29,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/adaptor-framework/application-configuration.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 
@@ -135,15 +134,6 @@ public:
   static Adaptor& New( Window window );
 
   /**
-   * @brief Create a new adaptor using the window.
-   *
-   * @param[in] window The window to draw onto
-   * @param[in] configuration The context loss configuration.
-   * @return a reference to the adaptor handle
-   */
-  static Adaptor& New( Window window, Configuration::ContextLoss configuration );
-
-  /**
    * @brief Create a new adaptor using render surface.
    *
    * @param[in] window The window to draw onto
@@ -151,16 +141,6 @@ public:
    * @return a reference to the adaptor handle
    */
   static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface );
-
-  /**
-   * @brief Create a new adaptor using render surface.
-   *
-   * @param[in] window The window to draw onto
-   * @param[in] surface The surface to draw onto
-   * @param[in] configuration The context loss configuration.
-   * @return a reference to the adaptor handle
-   */
-  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
 
   /**
    * @brief Create a new adaptor using the SceneHolder.
@@ -171,15 +151,6 @@ public:
   static Adaptor& New( Dali::Integration::SceneHolder sceneHolder );
 
   /**
-   * @brief Create a new adaptor using the SceneHolder.
-   *
-   * @param[in] sceneHolder The SceneHolder to draw onto
-   * @param[in] configuration The context loss configuration.
-   * @return a reference to the adaptor handle
-   */
-  static Adaptor& New( Dali::Integration::SceneHolder sceneHolder, Configuration::ContextLoss configuration );
-
-  /**
    * @brief Create a new adaptor using render surface.
    *
    * @param[in] sceneHolder The SceneHolder to draw onto
@@ -187,16 +158,6 @@ public:
    * @return a reference to the adaptor handle
    */
   static Adaptor& New( Dali::Integration::SceneHolder sceneHolder, const Dali::RenderSurfaceInterface& surface );
-
-  /**
-   * @brief Create a new adaptor using render surface.
-   *
-   * @param[in] sceneHolder The SceneHolder to draw onto
-   * @param[in] surface The surface to draw onto
-   * @param[in] configuration The context loss configuration.
-   * @return a reference to the adaptor handle
-   */
-  static Adaptor& New( Dali::Integration::SceneHolder sceneHolder, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration = Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS);
 
   /**
    * @brief Virtual Destructor.
