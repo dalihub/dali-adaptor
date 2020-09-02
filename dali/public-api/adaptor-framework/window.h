@@ -73,10 +73,10 @@ public:
   using WindowSize = Uint16Pair ;     ///< Window size type @SINCE_1_2.60
   using WindowPosition = Uint16Pair;  ///< Window position type @SINCE_1_2.60
 
-  using FocusChangeSignalType = Signal< void (Window,bool) >;  ///< Window focus signal type @SINCE_1_4.35
-  using ResizeSignalType = Signal< void (Window,WindowSize) >; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType = Signal< void (const KeyEvent&) >; ///< Key event signal type
-  using TouchSignalType = Signal< void (const TouchEvent&) >;   ///< Touch signal type
+  using FocusChangeSignalType = Signal< void (Window,bool) >;      ///< Window focus signal type @SINCE_1_4.35
+  using ResizeSignalType = Signal< void (Window,WindowSize) >;     ///< Window resized signal type @SINCE_1_4.35
+  using KeyEventSignalType = Signal< void (const KeyEvent&) >;     ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType = Signal< void (const TouchEvent&) >; ///< Touch signal type @SINCE_1_9.28
 
 public:
 
@@ -671,12 +671,12 @@ public: // Signals
    *   void YourCallbackName(const TouchEvent& event);
    * @endcode
    *
-   * @SINCE_1_9.21
+   * @SINCE_1_9.28
    * @return The touch signal to connect to
    *
    * @note Motion events are not emitted.
    */
-  TouchSignalType& TouchSignal();
+  TouchEventSignalType& TouchedSignal();
 
 public: // Not intended for application developers
   /// @cond internal

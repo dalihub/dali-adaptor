@@ -61,7 +61,7 @@ public:
 
   typedef Signal< bool (const Dali::KeyEvent&) > KeyEventGeneratedSignalType; ///< Key event generated signal type
 
-  typedef Signal< void (const Dali::TouchEvent&) > TouchSignalType;            ///< Touch signal type
+  typedef Signal< void (const Dali::TouchEvent&) > TouchEventSignalType;      ///< Touch signal type
 
   typedef Signal< void (const Dali::WheelEvent&) > WheelEventSignalType;      ///< Touched signal type
 
@@ -204,7 +204,7 @@ public:
    * @return The touch signal to connect to
    * @note Motion events are not emitted.
    */
-  TouchSignalType& TouchSignal();
+  TouchEventSignalType& TouchedSignal();
 
   /**
    * @brief This signal is emitted when wheel event is received.
