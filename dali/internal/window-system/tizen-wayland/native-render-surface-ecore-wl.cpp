@@ -54,11 +54,14 @@ Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 } // unnamed namespace
 
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent )
-: mRenderNotification( NULL ),
+: mSurfaceSize( surfaceSize ),
+  mRenderNotification( NULL ),
   mGraphics( NULL ),
   mEGL( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
+  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
+  mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
   mOwnSurface( false ),
   mDrawableCompleted( false ),
   mTbmQueue( NULL ),
@@ -69,22 +72,13 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize,
 
   if( surface.Empty() )
   {
-    mSurfaceSize = surfaceSize;
-    mColorDepth = isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
-    mTbmFormat = isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888;
     CreateNativeRenderable();
   }
   else
   {
+    // check we have a valid type
+    DALI_ASSERT_ALWAYS( ( surface.GetType() == typeid (tbm_surface_queue_h) ) && "Surface type is invalid" );
     mTbmQueue = AnyCast< tbm_surface_queue_h >( surface );
-
-    uint16_t width = static_cast<uint16_t>( tbm_surface_queue_get_width( mTbmQueue ) );
-    uint16_t height = static_cast<uint16_t>( tbm_surface_queue_get_height( mTbmQueue ) );
-    mSurfaceSize = SurfaceSize( width, height );
-
-    mTbmFormat = tbm_surface_queue_get_format( mTbmQueue );
-
-    mColorDepth = ( mTbmFormat == TBM_FORMAT_ARGB8888 ) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
 }
 
@@ -130,11 +124,6 @@ void NativeRenderSurfaceEcoreWl::WaitUntilSurfaceReplaced()
   }
 
   mDrawableCompleted = false;
-}
-
-Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
-{
-  return mTbmQueue;
 }
 
 PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
@@ -237,8 +226,6 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 
 bool NativeRenderSurfaceEcoreWl::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
-  MakeContextCurrent();
-
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if (eglGraphics)
   {
@@ -277,10 +264,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
     }
   }
 
-  if ( mConsumeSurface )
-  {
-    tbm_surface_internal_ref( mConsumeSurface );
-  }
+  tbm_surface_internal_ref( mConsumeSurface );
 
   if( replacingSurface )
   {

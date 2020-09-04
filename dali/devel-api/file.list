@@ -34,8 +34,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.cpp
 )
 
 
@@ -88,8 +86,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/component-application.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-sync-mode.h
-  ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.h
-  ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.h
 )
 
 
